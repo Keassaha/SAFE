@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   BarChart3,
   BriefcaseBusiness,
@@ -139,10 +140,14 @@ export default function HomePage() {
 
           <div className="relative">
             <div className="card-glass overflow-hidden rounded-[28px] border border-white/50 p-4 shadow-2xl">
-              <img
-                src="/api/marketing/hero-image"
+              <Image
+                src="/safe-hero-dashboard.png"
                 alt="Apercu premium de SAFE montrant la generation automatique de factures a partir des fiches de temps"
+                width={1200}
+                height={675}
                 className="h-auto w-full rounded-[22px] object-cover shadow-lg"
+                priority
+                unoptimized
               />
             </div>
           </div>
@@ -191,10 +196,13 @@ export default function HomePage() {
         <section className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="order-2 lg:order-1">
             <div className="card-glass overflow-hidden rounded-[28px] border border-white/50 p-4 shadow-xl">
-              <img
-                src="/api/marketing/automation-flow"
+              <Image
+                src="/safe-automation-flow.png"
                 alt="Schema montrant la conversion d'une fiche de temps en facture automatiquement dans SAFE"
+                width={1200}
+                height={675}
                 className="h-auto w-full rounded-[22px] object-cover"
+                unoptimized
               />
             </div>
           </div>
