@@ -14,6 +14,9 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 
+import heroDashboardImage from "@/public/safe-hero-dashboard.png";
+import automationFlowImage from "@/public/safe-automation-flow.png";
+
 const featureCards = [
   {
     title: "Gain de temps operationnel",
@@ -141,13 +144,10 @@ export default function HomePage() {
           <div className="relative">
             <div className="card-glass overflow-hidden rounded-[28px] border border-white/50 p-4 shadow-2xl">
               <Image
-                src="/safe-hero-dashboard.png"
+                src={heroDashboardImage}
                 alt="Apercu premium de SAFE montrant la generation automatique de factures a partir des fiches de temps"
-                width={1200}
-                height={675}
                 className="h-auto w-full rounded-[22px] object-cover shadow-lg"
                 priority
-                unoptimized
               />
             </div>
           </div>
@@ -197,12 +197,9 @@ export default function HomePage() {
           <div className="order-2 lg:order-1">
             <div className="card-glass overflow-hidden rounded-[28px] border border-white/50 p-4 shadow-xl">
               <Image
-                src="/safe-automation-flow.png"
+                src={automationFlowImage}
                 alt="Schema montrant la conversion d'une fiche de temps en facture automatiquement dans SAFE"
-                width={1200}
-                height={675}
                 className="h-auto w-full rounded-[22px] object-cover"
-                unoptimized
               />
             </div>
           </div>
