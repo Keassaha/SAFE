@@ -1,0 +1,2 @@
+{"sessionId":"0141fe","location":"api/auth/[...nextauth]/route.ts:GET:entry","message":"NextAuth GET hit","data":{"url":"http://localhost:3001/api/auth/session","hasSecret":true},"timestamp":1772739931981,"hypothesisId":"H1"}
+{"sessionId":"0141fe","location":"api/auth/[...nextauth]/route.ts:GET:return","message":"NextAuth GET returning","data":{"status":200,"contentType":"application/json"},"timestamp":1772739931989,"hypothesisId":"H2"}

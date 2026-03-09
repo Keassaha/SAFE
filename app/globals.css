@@ -1,0 +1,491 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   SAFE Design System — Emerald + Amber
+   LegalTech professional palette (natural stone layers)
+   ============================================ */
+
+:root {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Emerald (green) */
+  --safe-green-950: #081e18;
+  --safe-green-900: #0e3b2f;
+  --safe-green-800: #1f5a47;
+  --safe-green-700: #3e7a66;
+  --safe-green-600: #6fa690;
+  --safe-green-100: #e6f4ef;
+  --safe-green-50: #f0f9f6;
+
+  /* Amber (gold) */
+  --safe-gold-700: #a45c0b;
+  --safe-gold-600: #c88a1f;
+  --safe-gold-500: #d77a12;
+  --safe-gold-400: #e8b547;
+  --safe-gold-50: #fef9e7;
+
+  /* Neutrals */
+  --safe-neutral-900: #0f1b16;
+  --safe-neutral-700: #2b3a34;
+  --safe-neutral-500: #6b7280;
+  --safe-neutral-300: #d1d5db;
+  --safe-neutral-100: #f5f7f6;
+  --safe-neutral-border: #e5e7eb;
+  --safe-neutral-bg: #ffffff;
+
+  /* Text hierarchy (no white text on white cards) */
+  --safe-text-title: #0f1b16;
+  --safe-text-secondary: #6b7280;
+  --safe-text-metric: #0e3b2f;
+
+  /* Charts */
+  --safe-chart-primary: #d77a12;
+  --safe-chart-secondary: #3e7a66;
+  --safe-chart-grid: rgba(0, 0, 0, 0.05);
+
+  /* Icons */
+  --safe-icon-default: #1f5a47;
+  --safe-icon-accent: #d77a12;
+
+  /* Status (accessible on light backgrounds) */
+  --safe-status-success: #166534;
+  --safe-status-success-bg: #dcfce7;
+  --safe-status-warning: #b45309;
+  --safe-status-warning-bg: #fef3c7;
+  --safe-status-error: #b91c1c;
+  --safe-status-error-bg: #fee2e2;
+  --safe-status-info: #0e3b2f;
+  --safe-status-overdue: #6b7280;
+
+  /* Radius */
+  --safe-radius-sm: 6px;
+  --safe-radius-default: 10px;
+  --safe-radius-md: 12px;
+  --safe-radius-lg: 14px;
+  --safe-radius-xl: 16px;
+  --safe-radius-2xl: 20px;
+  --safe-radius-full: 9999px;
+
+  /* Shadows */
+  --safe-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --safe-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --safe-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --safe-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --safe-shadow-glass: 0 20px 40px rgba(0, 0, 0, 0.15);
+  --safe-shadow-card-hover: 0 24px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Layout gradients */
+  --safe-gradient-main: linear-gradient(
+    135deg,
+    #0e3b2f 0%,
+    #1f5a47 50%,
+    #0f1b16 100%
+  );
+  --safe-gradient-sidebar: linear-gradient(180deg, #081e18 0%, #0e3b2f 100%);
+
+  /* Main area: same emerald family as sidebar (homogeneous theme) */
+  --dashboard-bg-base: linear-gradient(160deg, #0a2920 0%, #0e3b2f 30%, #1a4a3a 60%, #0f1b16 100%);
+  --dashboard-blob-1: radial-gradient(ellipse 80% 50% at 15% 25%, rgba(31, 90, 71, 0.18) 0%, transparent 55%);
+  --dashboard-blob-2: radial-gradient(ellipse 60% 45% at 85% 15%, rgba(230, 244, 239, 0.06) 0%, transparent 50%);
+  --dashboard-blob-3: radial-gradient(circle 35% at 8% 75%, rgba(14, 59, 47, 0.25) 0%, transparent 45%);
+  --dashboard-blob-4: radial-gradient(ellipse 50% 50% at 92% 85%, rgba(212, 122, 18, 0.06) 0%, transparent 50%);
+  --dashboard-blob-5: radial-gradient(circle 28% at 50% 45%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+
+  /* Legacy aliases (for Tailwind primary/accent/neutral) */
+  --safe-primary-800: var(--safe-green-800);
+  --safe-primary-700: var(--safe-green-700);
+  --safe-primary-600: var(--safe-green-600);
+  --safe-primary-100: var(--safe-green-100);
+  --safe-primary-50: var(--safe-green-50);
+  --safe-neutral-page: var(--safe-neutral-100);
+  --safe-neutral-surface: #ffffff;
+  --safe-neutral-elevated: #ffffff;
+  --safe-neutral-text-primary: var(--safe-text-title);
+  --safe-neutral-text-secondary: var(--safe-text-secondary);
+  --safe-neutral-muted: var(--safe-text-secondary);
+  --safe-neutral-text-inverse: #f5f7f6;
+  --safe-neutral-border-subtle: var(--safe-neutral-100);
+  --safe-neutral-border-strong: var(--safe-neutral-300);
+}
+
+@layer base {
+  html {
+    font-size: 15px;
+  }
+  body {
+    color: var(--safe-text-title);
+    font-family: var(--font-heading), var(--font-sans), system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.011em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-heading), var(--font-sans), system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--safe-neutral-100), 0 0 0 4px rgba(31, 90, 71, 0.35);
+  }
+}
+
+/* App shell: full layout uses deep emerald gradient */
+.safe-app-layout {
+  background: var(--safe-gradient-main);
+  min-height: 100vh;
+}
+
+/* Main app area: emerald gradient (homogeneous with sidebar).
+   Scroll container: min-height 0 so flex child can shrink and scroll; overflow-y-auto for page scroll. */
+.safe-app-main {
+  background: var(--dashboard-bg-base);
+  min-height: 0; /* required for flex child to become scroll container */
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Organic blobs (emerald + subtle amber) */
+.safe-app-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    var(--dashboard-blob-1),
+    var(--dashboard-blob-2),
+    var(--dashboard-blob-3),
+    var(--dashboard-blob-4),
+    var(--dashboard-blob-5);
+  pointer-events: none;
+}
+/* Texture grain / papier (SVG noise) */
+.safe-app-main::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/texture-fond.svg");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.safe-app-main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass card — dashboard and content cards (glassmorphism) */
+.card-glass,
+.safe-glass-panel {
+  background: rgba(243, 244, 246, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--safe-radius-2xl);
+  border: 1px solid rgba(229, 231, 235, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  color: var(--safe-text-title);
+}
+
+/* Sidebar */
+.safe-glass-sidebar {
+  background: var(--safe-gradient-sidebar);
+}
+/* Continuous solid divider lines (avoid subpixel dashed look) */
+.safe-glass-sidebar [data-sidebar-section="top"] {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+.safe-glass-sidebar [data-sidebar-section="bottom"] {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.safe-sidebar-nav-link {
+  color: #e6f4ef;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.safe-sidebar-nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.safe-sidebar-nav-link[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--safe-radius-default);
+  color: #fff;
+}
+
+/* Topbar — même design que la sidebar (fond émeraude, texte blanc) */
+.safe-glass-topbar {
+  background: var(--safe-gradient-sidebar);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #e6f4ef;
+}
+.safe-glass-topbar .safe-topbar-text {
+  color: #e6f4ef;
+}
+.safe-glass-topbar .safe-topbar-text-muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+.safe-glass-topbar input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.safe-glass-topbar input,
+.safe-glass-topbar [data-topbar-input] {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e6f4ef;
+}
+.safe-glass-topbar [data-topbar-input]:focus {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.safe-glass-topbar .safe-topbar-locale > div {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.safe-glass-topbar .safe-topbar-locale button {
+  color: rgba(255, 255, 255, 0.85);
+}
+.safe-glass-topbar .safe-topbar-locale button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.safe-glass-topbar .safe-topbar-locale button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.safe-glass-topbar a.safe-topbar-text:hover {
+  color: #fff;
+}
+.safe-glass-topbar button.rounded-lg:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ─── Composants inspirés glassmorphism (couleurs SAFE) ─── */
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: var(--safe-shadow-lg);
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--safe-radius-2xl);
+    padding: 1.5rem;
+    box-shadow: var(--safe-shadow-lg);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: var(--safe-text-title);
+  }
+  .stat-card:hover {
+    box-shadow: var(--safe-shadow-card-hover);
+    transform: translateY(-2px);
+  }
+
+  .stat-card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: var(--safe-radius-2xl) 0 0 var(--safe-radius-2xl);
+    background: linear-gradient(180deg, var(--safe-green-600), var(--safe-gold-500));
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-radius: var(--safe-radius-xl);
+    color: var(--safe-text-secondary);
+    font-size: 0.875rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .nav-item:hover {
+    background: rgba(31, 90, 71, 0.1);
+    color: var(--safe-text-title);
+  }
+
+  .nav-item-active {
+    background: rgba(31, 90, 71, 0.12);
+    color: var(--safe-green-800);
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 var(--safe-green-600);
+  }
+
+  .badge-unbilled {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--safe-status-warning-bg);
+    color: var(--safe-status-warning);
+    border: 1px solid rgba(180, 83, 9, 0.2);
+  }
+
+  .badge-billed {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--safe-status-success-bg);
+    color: var(--safe-status-success);
+    border: 1px solid rgba(22, 101, 52, 0.2);
+  }
+
+  .input-professional {
+    height: 2.5rem;
+    border-radius: var(--safe-radius-xl);
+    border: 1px solid var(--safe-neutral-border);
+    background: var(--safe-neutral-surface);
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input-professional:focus {
+    border-color: var(--safe-green-600);
+    box-shadow: 0 0 0 2px rgba(31, 90, 71, 0.2);
+    outline: none;
+  }
+
+  .btn-gold {
+    background: var(--safe-gold-500);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: var(--safe-shadow-md);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .btn-gold:hover {
+    box-shadow: var(--safe-shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .btn-navy {
+    background: var(--safe-green-800);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: var(--safe-shadow-md);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .btn-navy:hover {
+    box-shadow: var(--safe-shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .table-header {
+    background: rgba(245, 247, 246, 0.6);
+    color: var(--safe-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .table-row-hover {
+    transition: background-color 0.1s ease;
+  }
+  .table-row-hover:hover {
+    background: rgba(245, 247, 246, 0.5);
+  }
+
+  .auth-container {
+    background: linear-gradient(135deg, var(--safe-green-700), var(--safe-neutral-900));
+  }
+
+  .auth-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: var(--safe-shadow-card-hover);
+    border-radius: var(--safe-radius-2xl);
+  }
+}
+
+@layer utilities {
+  .safe-hover-lift {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .safe-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--safe-shadow-card-hover);
+  }
+  .safe-row-hover {
+    transition: background-color 0.25s ease;
+  }
+  .safe-row-hover:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+  .safe-text-title { color: var(--safe-text-title); font-weight: 600; }
+  .safe-text-secondary { color: var(--safe-text-secondary); }
+  .safe-text-metric { color: var(--safe-text-metric); font-weight: 700; }
+  /* Typography scale: clear hierarchy, comfortable reading */
+  .heading-1 { font-size: 1.875rem; line-height: 1.25; font-weight: 600; letter-spacing: -0.025em; color: var(--safe-text-title); }
+  .heading-2 { font-size: 1.25rem; line-height: 1.35; font-weight: 600; letter-spacing: -0.02em; color: var(--safe-text-title); }
+  .body { font-size: 1rem; line-height: 1.55; font-weight: 400; color: var(--safe-text-title); }
+  .body-sm { font-size: 0.875rem; line-height: 1.4; font-weight: 400; color: var(--safe-text-title); }
+  .caption { font-size: 0.75rem; line-height: 1.35; font-weight: 500; letter-spacing: 0.02em; color: var(--safe-text-secondary); }
+
+  .animate-fade-in {
+    animation: safe-fade-in 0.3s ease-out;
+  }
+  .animate-slide-up {
+    animation: safe-slide-up 0.35s ease-out;
+  }
+}
+
+@keyframes safe-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes safe-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes safe-blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(10px, -20px) scale(1.05); }
+  50% { transform: translate(-10px, 10px) scale(0.95); }
+  75% { transform: translate(20px, 20px) scale(1.02); }
+}
+@keyframes safe-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Optional: very subtle background motion for landing (respect prefers-reduced-motion in JS if needed) */
+@media (prefers-reduced-motion: no-preference) {
+  .safe-landing-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(31, 90, 71, 0.06) 0%, transparent 55%);
+    animation: safe-glow-pulse 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+@keyframes safe-glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}

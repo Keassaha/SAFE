@@ -1,0 +1,173 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        /* Emerald (green) — primary brand */
+        green: {
+          950: "var(--safe-green-950)",
+          900: "var(--safe-green-900)",
+          800: "var(--safe-green-800)",
+          700: "var(--safe-green-700)",
+          600: "var(--safe-green-600)",
+          100: "var(--safe-green-100)",
+          50: "var(--safe-green-50)",
+        },
+        /* Amber (gold) — accents, CTAs */
+        gold: {
+          700: "var(--safe-gold-700)",
+          600: "var(--safe-gold-600)",
+          500: "var(--safe-gold-500)",
+          400: "var(--safe-gold-400)",
+          50: "var(--safe-gold-50)",
+        },
+        /* Semantic aliases for components */
+        primary: {
+          50: "var(--safe-primary-50)",
+          100: "var(--safe-primary-100)",
+          200: "var(--safe-green-600)",
+          300: "var(--safe-green-700)",
+          400: "var(--safe-green-700)",
+          500: "var(--safe-green-800)",
+          600: "var(--safe-green-700)",
+          700: "var(--safe-green-800)",
+          800: "var(--safe-green-800)",
+          900: "var(--safe-green-900)",
+          DEFAULT: "var(--safe-green-800)",
+        },
+        accent: {
+          50: "var(--safe-gold-50)",
+          100: "var(--safe-gold-50)",
+          400: "var(--safe-gold-400)",
+          500: "var(--safe-gold-500)",
+          600: "var(--safe-gold-600)",
+          700: "var(--safe-gold-700)",
+          DEFAULT: "var(--safe-gold-600)",
+        },
+        neutral: {
+          surface: "var(--safe-neutral-surface)",
+          border: "var(--safe-neutral-border)",
+          "border-subtle": "var(--safe-neutral-100)",
+          "border-strong": "var(--safe-neutral-300)",
+          muted: "var(--safe-neutral-500)",
+          "text-primary": "var(--safe-text-title)",
+          "text-secondary": "var(--safe-text-secondary)",
+          "text-inverse": "var(--safe-neutral-100)",
+          page: "var(--safe-neutral-page)",
+          elevated: "var(--safe-neutral-elevated)",
+          100: "var(--safe-neutral-100)",
+          300: "var(--safe-neutral-300)",
+          500: "var(--safe-neutral-500)",
+          700: "var(--safe-neutral-700)",
+          900: "var(--safe-neutral-900)",
+        },
+        status: {
+          success: "var(--safe-status-success)",
+          "success-bg": "var(--safe-status-success-bg)",
+          warning: "var(--safe-status-warning)",
+          "warning-bg": "var(--safe-status-warning-bg)",
+          error: "var(--safe-status-error)",
+          "error-bg": "var(--safe-status-error-bg)",
+          info: "var(--safe-status-info)",
+          overdue: "var(--safe-status-overdue)",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-heading)", "var(--font-sans)", "ui-sans-serif", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      fontSize: {
+        display: ["2.25rem", { lineHeight: "1.2", letterSpacing: "-0.025em" }],
+        "heading-1": ["1.875rem", { lineHeight: "1.25", letterSpacing: "-0.025em" }],
+        "heading-2": ["1.25rem", { lineHeight: "1.35", letterSpacing: "-0.02em" }],
+        body: ["1rem", { lineHeight: "1.55" }],
+        "body-sm": ["0.875rem", { lineHeight: "1.4" }],
+        caption: ["0.75rem", { lineHeight: "1.35", letterSpacing: "0.02em" }],
+      },
+      fontWeight: {
+        display: "700",
+      },
+      spacing: {
+        "safe-0": "0",
+        "safe-1": "4px",
+        "safe-2": "8px",
+        "safe-3": "12px",
+        "safe-4": "16px",
+        "safe-5": "20px",
+        "safe-6": "24px",
+        "safe-8": "32px",
+        "safe-10": "40px",
+        "safe-12": "48px",
+        "safe-16": "64px",
+        "safe-20": "80px",
+        "safe-24": "96px",
+        sidebar: "224px",
+        topbar: "56px",
+      },
+      borderRadius: {
+        safe: "var(--safe-radius-default)",
+        "safe-sm": "var(--safe-radius-sm)",
+        "safe-md": "var(--safe-radius-md)",
+        "safe-lg": "var(--safe-radius-lg)",
+        "safe-xl": "var(--safe-radius-xl)",
+        "safe-2xl": "var(--safe-radius-2xl)",
+      },
+      boxShadow: {
+        xs: "var(--safe-shadow-xs)",
+        sm: "var(--safe-shadow-sm)",
+        md: "var(--safe-shadow-md)",
+        lg: "var(--safe-shadow-lg)",
+        glass: "var(--safe-shadow-glass)",
+        "card-hover": "var(--safe-shadow-card-hover)",
+      },
+      backdropBlur: {
+        glass: "14px",
+        "glass-strong": "20px",
+      },
+      backgroundImage: {
+        "gradient-main": "var(--safe-gradient-main)",
+        "gradient-sidebar": "var(--safe-gradient-sidebar)",
+      },
+      transitionDuration: {
+        fast: "150ms",
+        normal: "200ms",
+        slow: "300ms",
+      },
+      transitionTimingFunction: {
+        safe: "cubic-bezier(0.4, 0, 0.2, 1)",
+        smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
+      keyframes: {
+        "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        "page-enter": {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-up": { "0%": { opacity: "0", transform: "translateY(8px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        blob: { "0%, 100%": { transform: "translate(0, 0) scale(1)" }, "25%": { transform: "translate(10px, -20px) scale(1.05)" }, "50%": { transform: "translate(-10px, 10px) scale(0.95)" }, "75%": { transform: "translate(20px, 20px) scale(1.02)" } },
+        shimmer: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(100%)" } },
+      },
+      animation: {
+        "fade-in": "fade-in 0.25s ease-out",
+        "page-enter": "page-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "slide-up": "slide-up 0.3s ease-out",
+        blob: "blob 20s ease-in-out infinite",
+        shimmer: "shimmer 2s ease-in-out infinite",
+      },
+      animationDelay: {
+        "2000": "2s",
+        "4000": "4s",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

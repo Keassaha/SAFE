@@ -1,0 +1,47 @@
+/**
+ * Chemins de navigation centralisés.
+ * Une seule source de vérité pour les routes de l'app (plan: renforcement logique métier).
+ */
+
+export const routes = {
+  tableauDeBord: "/tableau-de-bord",
+  clients: "/clients",
+  client: (id: string) => `/clients/${id}`,
+  clientNouveau: "/clients/nouveau",
+  clientVerificationIdentite: (id: string) => `/clients/${id}/verification-identite`,
+  dossiers: "/dossiers",
+  dossier: (id: string) => `/dossiers/${id}`,
+  dossierNouveau: (clientId?: string) =>
+    clientId ? `/dossiers/nouveau?clientId=${encodeURIComponent(clientId)}` : "/dossiers/nouveau",
+  temps: "/temps",
+  facturation: "/facturation",
+  facturationHonoraires: "/facturation/honoraires",
+  facturationHonorairesClient: (clientId: string) => `/facturation/honoraires/${clientId}`,
+  facturationFactureNouvelle: "/facturation/factures/nouvelle",
+  facturationFactureEdit: (id: string) => `/facturation/factures/${id}`,
+  facturationVerification: "/facturation/verification",
+  facturationSuivi: "/facturation/suivi",
+  facturationPaiements: "/facturation/paiements",
+  facturationNotesCredit: "/facturation/notes-de-credit",
+  facturationFrais: "/facturation/frais",
+  journalDepenses: "/journal/depenses",
+  rapports: "/rapports",
+  journalGeneral: "/journal/general",
+  parametres: "/parametres",
+  parametresAudit: "/parametres/audit",
+  parametresRetention: "/parametres/retention",
+  employees: "/employees",
+  employee: (id: string) => `/employees/${id}`,
+  employeeNouveau: "/employees/nouveau",
+  comptes: "/comptes",
+  connexion: "/connexion",
+  inscription: "/inscription",
+  onboarding: "/onboarding",
+  outils: "/outils",
+  outilsGenerateurDocuments: "/outils/generateur-documents",
+  outilsCalculateurFamilial: "/outils/calculateur-familial",
+  gestion: "/gestion",
+  gestionLexTrack: "/gestion/lextrack",
+  gestionLexTrackDossier: (dossierId: string) => `/gestion/lextrack?dossierId=${encodeURIComponent(dossierId)}`,
+  safeImport: "/import",
+} as const;

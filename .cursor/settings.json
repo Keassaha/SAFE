@@ -1,0 +1,13 @@
+{
+  "plugins": {
+    "convex": {
+      "enabled": true
+    },
+    "figma": {
+      "enabled": true
+    },
+    "vercel": {
+      "enabled": true
+    }
+  }
+}

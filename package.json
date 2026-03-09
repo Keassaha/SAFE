@@ -1,0 +1,50 @@
+{
+  "name": "safe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:free && next dev --turbopack -p 3001",
+    "dev:free": "lsof -ti:3001 | xargs kill -9 2>/dev/null || true",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "supabase:push": "supabase db push",
+    "supabase:status": "supabase migration list",
+    "electron": "electron electron/main.js"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.7.4",
+    "@prisma/client": "^6.1.0",
+    "@react-pdf/renderer": "^4.1.2",
+    "@tanstack/react-query": "^5.90.21",
+    "bcryptjs": "^2.4.3",
+    "framer-motion": "^12.35.0",
+    "lucide-react": "^0.577.0",
+    "next": "^15.5.12",
+    "next-auth": "^4.24.10",
+    "next-intl": "^4.8.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "read-excel-file": "^7.0.2",
+    "recharts": "^2.15.0",
+    "sonner": "^2.0.7",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "electron": "^40.8.0",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8.4.49",
+    "prisma": "^6.1.0",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2"
+  }
+}

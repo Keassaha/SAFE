@@ -1,0 +1,217 @@
+{
+  "$schema": "Design system SAFE LegalTech — single source of truth from reference images",
+  "version": "1.0.0",
+  "brand": {
+    "mood": [
+      "Professional",
+      "Minimal",
+      "Premium",
+      "Calm",
+      "Trustworthy",
+      "Modern",
+      "Legal/finance confidence"
+    ],
+    "voice": "Clear, confident, no clutter. Generous whitespace. Hierarchy over density.",
+    "logo": {
+      "description": "Shield with scales of justice; green outline, gold balance, gradient A accent",
+      "usage": "Primary green + gold accent only on key UI (e.g. letter A or CTA)"
+    }
+  },
+  "colors": {
+    "primary": {
+      "green": {
+        "900": "#0F2E26",
+        "800": "#1D473B",
+        "700": "#2D5A4C",
+        "600": "#3D665F",
+        "500": "#5A8A7E",
+        "400": "#7BA89D",
+        "300": "#A1CAC2",
+        "200": "#C5E0DB",
+        "100": "#E2F0ED",
+        "50": "#F0F7F5"
+      },
+      "usage": "Sidebar bg, active nav, primary buttons, charts, positive states, trust balance hero"
+    },
+    "secondary": {
+      "gold": {
+        "900": "#8B6914",
+        "800": "#A67C0F",
+        "700": "#C4940D",
+        "600": "#D4A80E",
+        "500": "#E0B429",
+        "400": "#E8C04D",
+        "300": "#EED67A",
+        "200": "#F5E9B8",
+        "100": "#FBF4DC",
+        "50": "#FDFBF0"
+      },
+      "usage": "Unpaid invoices card, Savings button, chart gradients, accents, logo balance"
+    },
+    "neutrals": {
+      "background": {
+        "page": "#F5F5F4",
+        "surface": "#FAFAF9",
+        "elevated": "#FFFFFF",
+        "sidebar": "rgba(29, 71, 59, 0.92)"
+      },
+      "text": {
+        "primary": "#1C1917",
+        "secondary": "#57534E",
+        "muted": "#78716C",
+        "inverse": "#FAFAF9"
+      },
+      "border": {
+        "default": "#E7E5E4",
+        "subtle": "#F5F5F4",
+        "strong": "#D6D3D1"
+      }
+    },
+    "status": {
+      "success": "#166534",
+      "successBg": "#DCFCE7",
+      "warning": "#B45309",
+      "warningBg": "#FEF3C7",
+      "error": "#B91C1C",
+      "errorBg": "#FEE2E2",
+      "info": "#1D473B",
+      "overdue": "#57534E"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": "var(--font-geist-sans), 'Inter', ui-sans-serif, system-ui, sans-serif",
+      "mono": "var(--font-geist-mono), ui-monospace, monospace"
+    },
+    "scale": {
+      "display": { "size": "2.25rem", "lineHeight": "2.5rem", "weight": "700", "letterSpacing": "-0.025em" },
+      "h1": { "size": "1.875rem", "lineHeight": "2.25rem", "weight": "600" },
+      "h2": { "size": "1.5rem", "lineHeight": "2rem", "weight": "600" },
+      "h3": { "size": "1.25rem", "lineHeight": "1.75rem", "weight": "600" },
+      "body": { "size": "1rem", "lineHeight": "1.5rem", "weight": "400" },
+      "bodySmall": { "size": "0.875rem", "lineHeight": "1.25rem", "weight": "400" },
+      "caption": { "size": "0.75rem", "lineHeight": "1rem", "weight": "400" },
+      "label": { "size": "0.875rem", "lineHeight": "1.25rem", "weight": "500" }
+    },
+    "rules": "Titles and KPIs: bold/large. Section titles: semi-bold medium. Body: regular. Secondary: smaller, lighter. No decorative fonts."
+  },
+  "spacing": {
+    "scale": [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96],
+    "unit": "4px",
+    "cardPadding": "24px",
+    "sectionGap": "24px",
+    "pagePadding": "24px"
+  },
+  "radius": {
+    "none": "0",
+    "sm": "6px",
+    "default": "10px",
+    "md": "12px",
+    "lg": "14px",
+    "xl": "16px",
+    "full": "9999px"
+  },
+  "shadows": {
+    "xs": "0 1px 2px rgba(0, 0, 0, 0.04)",
+    "sm": "0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)",
+    "md": "0 4px 8px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04)",
+    "lg": "0 8px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)",
+    "glass": "0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.08)"
+  },
+  "blur": {
+    "glass": "12px",
+    "glassStrong": "20px",
+    "backdrop": "saturate(180%) blur(12px)"
+  },
+  "glass": {
+    "panel": "rgba(255, 255, 255, 0.72)",
+    "sidebar": "rgba(29, 71, 59, 0.92)",
+    "topbar": "rgba(250, 250, 249, 0.85)",
+    "rules": "backdrop-filter for blur; subtle top/left highlight border; optional very light noise texture; avoid heavy opacity."
+  },
+  "gradients": {
+    "sidebar": "linear-gradient(180deg, #0F2E26 0%, #1D473B 50%, #2D5A4C 100%)",
+    "heroTrust": "linear-gradient(135deg, rgba(29, 71, 59, 0.95) 0%, rgba(212, 168, 14, 0.35) 100%)",
+    "chartDonut": "linear-gradient(180deg, #3D665F 0%, #A1CAC2 100%)",
+    "chartArea": "linear-gradient(180deg, #2D5A4C 0%, #E0B429 100%)",
+    "subtle": "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%)"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary-green-800 text-white rounded-md hover:bg-primary-green-700 active:scale-[0.98] transition shadow-sm",
+      "secondary": "bg-secondary-gold-500 text-white rounded-md hover:bg-secondary-gold-400 transition shadow-sm",
+      "ghost": "text-primary-green-800 hover:bg-primary-green-50 rounded-md transition",
+      "danger": "bg-status-error text-white rounded-md hover:opacity-90 transition",
+      "radius": "10px",
+      "padding": "10px 20px",
+      "hoverMicro": "transition duration-200 ease-out; active:scale-[0.98]"
+    },
+    "inputs": {
+      "base": "rounded-md border border-neutral-border bg-white/90 backdrop-blur-sm text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-green-500/30 focus:border-primary-green-500",
+      "search": "rounded-md border-0 bg-white/60 backdrop-blur-md placeholder:text-neutral-muted",
+      "radius": "10px",
+      "height": "40px"
+    },
+    "cards": {
+      "standard": "rounded-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md overflow-hidden",
+      "glass": "rounded-md bg-white/72 backdrop-blur-[12px] border border-white/40 shadow-glass",
+      "kpi": "rounded-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md",
+      "hero": "rounded-md overflow-hidden; gradient background with glass overlay; inner shadow for depth"
+    },
+    "sidebar": {
+      "width": "224px",
+      "bg": "glass sidebar gradient",
+      "navItem": "rounded-md px-3 py-2; active: bg-primary-green-700/90 text-white; inactive: text-white/80 hover:bg-white/10",
+      "logoHeight": "48px"
+    },
+    "topbar": {
+      "height": "56px",
+      "bg": "glass topbar",
+      "searchPlaceholder": "Search for clients, cases, invoices…"
+    },
+    "tables": {
+      "header": "sticky top-0 bg-white/95 backdrop-blur-sm border-b font-medium text-left text-bodySmall",
+      "row": "border-b border-neutral-borderSubtle hover:bg-neutral-surface",
+      "zebra": "even:bg-neutral-surface/50",
+      "cellPadding": "12px 16px"
+    },
+    "charts": {
+      "donut": "primary green scale; stroke/cap rounded",
+      "area": "gradient chartArea; fill opacity 0.85",
+      "colors": ["#1D473B", "#3D665F", "#A1CAC2", "#E0B429", "#E8C04D"]
+    },
+    "badges": {
+      "default": "rounded-full px-2.5 py-0.5 text-caption font-medium bg-neutral-surface text-neutral-secondary",
+      "success": "bg-status-successBg text-status-success",
+      "warning": "bg-status-warningBg text-status-warning",
+      "overdue": "text-neutral-secondary"
+    },
+    "onboarding": {
+      "hero": "Large title (display), soft gradient bg (green–gold), generous padding, single CTA",
+      "featureCards": "White/glass cards, icon in green circle, title bold green, description muted, checkmark gold",
+      "stepper": "3 dots: active = primary green filled, inactive = neutral border",
+      "cta": "Get Started > — primary green button, chevron, shadow"
+    }
+  },
+  "motion": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slow": "300ms"
+    },
+    "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "hover": "transition duration-200 ease-out",
+    "buttonPress": "active:scale-[0.98]",
+    "focusRing": "focus-visible:ring-2 focus-visible:ring-primary-green-500/30"
+  },
+  "accessibility": {
+    "contrast": "Text on background ≥ 4.5:1; large text ≥ 3:1",
+    "focusVisible": "Always show focus ring for keyboard (primary-green-500/30)",
+    "touchTarget": "Min 44px for interactive elements"
+  },
+  "responsive": {
+    "breakpoints": { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px" },
+    "sidebar": "Collapse to drawer on md down; show full on lg+",
+    "grid": "1 col mobile, 2 col tablet, 3–4 col desktop for KPIs and cards"
+  }
+}
