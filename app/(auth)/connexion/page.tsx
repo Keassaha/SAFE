@@ -30,6 +30,7 @@ function AuthPageContent() {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [error, setError] = useState("");
+  const [dbConfigError, setDbConfigError] = useState("");
   const [success, setSuccess] = useState(
     searchParams.get("registered") === "1"
       ? "Cabinet créé. Vous pouvez maintenant vous connecter."
@@ -40,6 +41,13 @@ function AuthPageContent() {
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    fetch("/api/auth/db-check")
+      .then((res) => (res.status === 503 ? res.json() : Promise.resolve(null)))
+      .then((data) => data?.error && setDbConfigError(data.error))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (searchParams.get("registered") === "1") {
@@ -101,11 +109,18 @@ function AuthPageContent() {
           adresseCabinet: signupAddress || undefined,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(
-          typeof data.error === "string" ? data.error : "Erreur lors de l'inscription."
-        );
+        const errMsg =
+          typeof data.error === "string"
+            ? data.error
+            : typeof data.error === "object" && data.error !== null
+              ? Object.values(data.error)
+                  .flat()
+                  .filter(Boolean)
+                  .join(". ") || "Erreur lors de l'inscription."
+              : "Erreur lors de l'inscription.";
+        setError(errMsg);
         return;
       }
       setCabinetName(signupCabinetName);
@@ -114,6 +129,8 @@ function AuthPageContent() {
       setSignupPassword("");
       setSuccess("Cabinet créé. Connectez-vous avec le nom du cabinet, votre courriel et votre mot de passe.");
       switchTab("signin");
+    } catch {
+      setError("Impossible de contacter le serveur. Vérifiez votre connexion.");
     } finally {
       setLoading(false);
     }
@@ -155,6 +172,11 @@ function AuthPageContent() {
         </button>
       </div>
 
+      {dbConfigError && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {dbConfigError}
+        </div>
+      )}
       {success && (
         <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {success}

@@ -66,7 +66,7 @@ export function SafeImportWizard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleTypeChange = useCallback((type: DocumentType) => {
     if (!analysis) return;
@@ -113,7 +113,7 @@ export function SafeImportWizard() {
     } finally {
       setLoading(false);
     }
-  }, [analysis, docType, mapping]);
+  }, [analysis, docType, mapping, t]);
 
   const reset = useCallback(() => {
     setStep("upload");

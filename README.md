@@ -6,7 +6,7 @@ Plateforme SaaS pour la gestion des dossiers juridiques, des heures travaillées
 
 - **Frontend** : Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
 - **Backend** : Next.js API Routes, Server Actions
-- **Base de données** : SQLite avec Prisma (remplaçable par PostgreSQL)
+- **Base de données** : PostgreSQL avec Prisma
 - **Auth** : NextAuth.js (Credentials + JWT), rôles : admin_cabinet, avocat, assistante, comptabilite
 
 ## Démarrage
@@ -21,16 +21,17 @@ npm install
 
 Copiez `.env.example` vers `.env` et ajustez si besoin :
 
-- `DATABASE_URL` : chemin SQLite (ex. `file:./dev.db`)
+- `DATABASE_URL` : URL PostgreSQL (ex. Neon, Vercel Postgres, Supabase). Voir [DEPLOYMENT.md](./DEPLOYMENT.md) pour le déploiement sur Vercel.
 - `NEXTAUTH_SECRET` : secret pour les sessions (générer avec `openssl rand -base64 32`)
-- `NEXTAUTH_URL` : URL de l'app (ex. `http://localhost:3000`)
+- `NEXTAUTH_URL` : URL de l'app (ex. `http://localhost:3000` ; en prod ex. `https://votre-app.vercel.app`)
 
 3. **Base de données**
 
 ```bash
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 ```
+(Requiert une base PostgreSQL et `DATABASE_URL` dans `.env`.)
 
 4. **Lancement**
 

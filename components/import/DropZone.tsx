@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Upload, FileSpreadsheet, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -39,7 +39,10 @@ export function DropZone({
   disabled?: boolean;
 }) {
   const t = useTranslations("import");
-  const sizeUnits = { b: t("sizeBytes"), kb: t("sizeKB"), mb: t("sizeMB") };
+  const sizeUnits = useMemo(
+    () => ({ b: t("sizeBytes"), kb: t("sizeKB"), mb: t("sizeMB") }),
+    [t]
+  );
   const [dragOver, setDragOver] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +65,7 @@ export function DropZone({
       setSelectedFiles((prev) => [...prev, ...selected]);
       onFilesSelected(valid);
     },
-    [onFilesSelected],
+    [onFilesSelected, sizeUnits],
   );
 
   const handleDrop = useCallback(

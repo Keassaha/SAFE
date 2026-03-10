@@ -69,6 +69,7 @@ export default function OnboardingPage() {
                   height={540}
                   className="w-full h-auto rounded-safe-lg"
                   priority
+                  unoptimized
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-neutral-text-primary tracking-tight mb-3">
@@ -121,6 +122,7 @@ export default function OnboardingPage() {
                   width={960}
                   height={540}
                   className="w-full h-auto rounded-safe-lg"
+                  unoptimized
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-neutral-text-primary tracking-tight mb-3">
@@ -179,6 +181,7 @@ export default function OnboardingPage() {
                   width={960}
                   height={540}
                   className="w-full h-auto rounded-safe-lg"
+                  unoptimized
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-neutral-text-primary tracking-tight mb-3">
