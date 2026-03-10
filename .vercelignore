@@ -1,0 +1,17 @@
+# Alléger le déploiement Vercel : exclure ce qui n'est pas nécessaire au build
+electron
+.cursor
+.next
+node_modules
+*.db
+*.sqlite
+.env
+.env.*
+!.env.example
+planning
+scripts
+.git
+*.log
+*.md
+!README.md
+!DEPLOYMENT.md

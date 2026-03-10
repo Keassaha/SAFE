@@ -10,15 +10,10 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "supabase:push": "supabase db push",
-    "supabase:status": "supabase migration list",
-    "electron": "electron electron/main.js"
+    "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.7.4",
     "@prisma/client": "^6.1.0",
     "@react-pdf/renderer": "^4.1.2",
     "@tanstack/react-query": "^5.90.21",
@@ -40,7 +35,6 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "electron": "^40.8.0",
     "eslint": "^9.16.0",
     "eslint-config-next": "15.1.0",
     "postcss": "^8.4.49",
