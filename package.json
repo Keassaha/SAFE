@@ -6,7 +6,7 @@
     "dev": "npm run dev:free && next dev --turbopack -p 3001",
     "dev:free": "lsof -ti:3001 | xargs kill -9 2>/dev/null || true",
     "build": "next build",
-    "vercel-build": "export DATABASE_URL=\"${DATABASE_URL:-${POSTGRES_PRISMA_URL:-$POSTGRES_URL}}\" && prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "export DATABASE_URL=\"${DATABASE_URL:-${POSTGRES_PRISMA_URL:-$POSTGRES_URL}}\" && export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
