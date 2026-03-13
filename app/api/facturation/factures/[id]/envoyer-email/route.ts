@@ -12,8 +12,6 @@ import type { UserRole } from "@prisma/client";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 function getSessionData() {
   return getServerSession(authOptions).then((session) => {
     if (!session?.user) return null;
@@ -55,13 +53,15 @@ export async function POST(
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 
-  if (!process.env.RESEND_API_KEY) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
     return NextResponse.json(
       { error: "L'envoi par email n'est pas configuré (RESEND_API_KEY manquant)." },
       { status: 503 }
     );
   }
 
+  const resend = new Resend(apiKey);
   const { id } = await params;
   const invoice = await prisma.invoice.findFirst({
     where: { id, cabinetId },
