@@ -1,11 +1,15 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 interface SafeLogoProps {
   className?: string;
   alt?: string;
   priority?: boolean;
   /** "dark" = sur fond sombre (sidebar, topbar). "light" = sur fond clair (landing, auth). */
   variant?: "light" | "dark";
+  /** Désactiver l'animation pulse subtile (sidebar/header) */
+  noPulse?: boolean;
 }
 
 const w = 160;
@@ -15,12 +19,20 @@ export function SafeLogo({
   className = "w-[160px]",
   alt = "Logo SAFE",
   variant = "light",
+  noPulse = false,
 }: SafeLogoProps) {
   const isDark = variant === "dark";
   const primary = isDark ? "#E6F4EF" : "#0e3b2f";
   const accent = isDark ? "#e8b547" : "#c88a1f";
 
   return (
+    <motion.span
+      className="block"
+      {...(!noPulse && {
+        animate: { opacity: [1, 0.88, 1] },
+        transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+      })}
+    >
     <svg
       viewBox={`0 0 ${w} ${h}`}
       fill="none"
@@ -55,5 +67,6 @@ export function SafeLogo({
         E
       </text>
     </svg>
+    </motion.span>
   );
 }

@@ -66,6 +66,10 @@ export type NormalizedClient = {
   typeDossier?: string;
   dateOuverture?: string;
   statut?: string;
+  /** Remplissage du mandat dossier (import) */
+  districtJudiciaire?: string;
+  tribunal?: string;
+  typeCause?: string;
 };
 
 export type NormalizedTimeEntry = {

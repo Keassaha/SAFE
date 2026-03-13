@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Cabinet {
@@ -41,6 +42,8 @@ model Cabinet {
   payrollPeriods          PayrollPeriod[]
   importHistories         ImportHistory[]
   calendarEvents          CalendarEvent[]
+  dossierTrustMovements   DossierTrustMovement[]
+  dossierReminders        DossierReminder[]
 }
 
 enum UserRole {
@@ -86,6 +89,10 @@ model User {
   importHistories           ImportHistory[]
   calendarEventsAssigned    CalendarEvent[]  @relation("CalendarEventAssignee")
   calendarEventsCreated     CalendarEvent[]  @relation("CalendarEventCreator")
+  mandateResponsable        DossierMandate[] @relation("MandateAvocatResponsable")
+  mandateSubstitut          DossierMandate[] @relation("MandateAvocatSubstitut")
+  trustMovementsValidated   DossierTrustMovement[] @relation("TrustMovementValidatedBy")
+  dossierClosuresClosed     DossierClosure[] @relation("DossierClosureClosedBy")
 }
 
 enum EmployeeRole {
@@ -413,6 +420,15 @@ model Dossier {
   cabinetExpenses      CabinetExpense[]
   journalEntries      JournalGeneralEntry[]
   calendarEvents      CalendarEvent[]  @relation("CalendarEventDossier")
+  clientInfo           DossierClientInfo?
+  mandate              DossierMandate?
+  pieces               DossierPiece[]
+  procedures           DossierProcedure[]
+  judgments            DossierJudgment[]
+  correspondence       DossierCorrespondence[]
+  trustMovements       DossierTrustMovement[]
+  closure              DossierClosure?
+  reminders            DossierReminder[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -423,12 +439,187 @@ model Dossier {
   @@index([assistantJuridiqueId])
 }
 
+model DossierClientInfo {
+  id                   String    @id @default(cuid())
+  dossierId            String    @unique
+  nasEncrypted         String?
+  dateNaissance        DateTime? @db.Date
+  regimeMatrimonial    String?
+  dateMariage          DateTime? @db.Date
+  dateSeparation       DateTime? @db.Date
+  statutMatrimonial    String?
+  enfants              Json?
+  situationFinanciere  Json?
+  identiteCoordonnees  Json?
+  situationFamiliale   Json?
+  updatedAt            DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierMandate {
+  id                    String    @id @default(cuid())
+  dossierId              String    @unique
+  numeroDossier          String?   @unique
+  dateOuverture          DateTime?
+  avocatResponsableId    String?
+  avocatSubstitutId      String?
+  typeCause              String?
+  districtJudiciaire     String?
+  tribunal               String?
+  numeroRole             String?
+  estimationHonoraires   Decimal?  @db.Decimal(12, 2)
+  provisionInitiale      Decimal?  @db.Decimal(12, 2)
+  statutDossier          String?
+  checklist              Json?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  dossier             Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  avocatResponsable   User?   @relation("MandateAvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  avocatSubstitut     User?   @relation("MandateAvocatSubstitut", fields: [avocatSubstitutId], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+}
+
+model DossierPiece {
+  id            String    @id @default(cuid())
+  dossierId     String
+  partie        String
+  numero        String
+  titre         String
+  description   String?
+  categorie     String?
+  statut        String    @default("Manquant")
+  dateReception DateTime? @db.Date
+  fichierUrl    String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([dossierId, partie])
+}
+
+model DossierProcedure {
+  id                String    @id @default(cuid())
+  dossierId         String
+  typeProcedure     String
+  description       String?
+  dateDepot         DateTime? @db.Date
+  dateSignification DateTime? @db.Date
+  statut            String    @default("À déposer")
+  fichierUrl        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierJudgment {
+  id                 String    @id @default(cuid())
+  dossierId           String
+  typeJugement        String
+  dispositions       String?
+  dateJugement       DateTime? @db.Date
+  dateLimiteAppel    DateTime? @db.Date
+  statutAppel        String?   @default("En cours")
+  fichierUrl         String?
+  createdAt           DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierCorrespondence {
+  id                  String    @id @default(cuid())
+  dossierId           String
+  typeCommunication   String
+  titre               String?
+  expediteur          String?
+  destinataire        String?
+  dateCommunication   DateTime? @db.Date
+  fichierUrl          String?
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierTrustMovement {
+  id             String    @id @default(cuid())
+  dossierId      String
+  cabinetId      String
+  amount         Decimal   @db.Decimal(12, 2)
+  direction      String
+  typeMouvement  String?
+  description    String?
+  status         String    @default("PENDING")
+  validatedById  String?
+  validatedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  dossier       Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet       Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  validatedBy   User?   @relation("TrustMovementValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model DossierClosure {
+  id              String     @id @default(cuid())
+  dossierId       String     @unique
+  checklist       Json?
+  closedById      String?
+  closedAt        DateTime?
+  destructionDate DateTime?  @db.Date
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  closedBy User?  @relation("DossierClosureClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+}
+
+model DossierReminder {
+  id        String   @id @default(cuid())
+  dossierId String?
+  cabinetId String
+  type      String?
+  message   String?
+  dueDate   DateTime @db.Date
+  isSent    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
 model DossierNote {
-  id          String   @id @default(cuid())
-  dossierId   String
-  content     String
-  createdById String?
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  dossierId    String
+  createdById  String?
+  typeNote     String?
+  content      String
+  confidentiel Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
@@ -816,6 +1007,8 @@ model Invoice {
   cancelledAt               DateTime?
   cancelReason              String?
   createdById               String?
+  shareToken                String?       @unique  // token pour lien unique d'envoi au client
+  shareTokenExpiresAt       DateTime?     // expiration du lien (option config cabinet)
   createdAt                 DateTime      @default(now())
   updatedAt                 DateTime      @updatedAt
 

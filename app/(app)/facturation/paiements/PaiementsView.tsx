@@ -13,6 +13,8 @@ import { PaiementAllocationModal } from "@/components/facturation/PaiementAlloca
 
 interface FacturationPaiementsViewProps {
   cabinetId: string;
+  /** Masque le lien "Retour à la vue d'ensemble" quand la vue est intégrée dans /comptabilite */
+  embeddedInComptabilite?: boolean;
 }
 
 type PaymentRow = {
@@ -27,7 +29,7 @@ type PaymentRow = {
   allocationStatus: string;
 };
 
-export function FacturationPaiementsView({ cabinetId }: FacturationPaiementsViewProps) {
+export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
@@ -95,13 +97,15 @@ export function FacturationPaiementsView({ cabinetId }: FacturationPaiementsView
       <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <Link
-              href={routes.facturation}
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
-            >
-              <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-              Retour à la vue d&apos;ensemble
-            </Link>
+            {!embeddedInComptabilite && (
+              <Link
+                href={routes.facturation}
+                className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
+              >
+                <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+                Retour à la vue d&apos;ensemble
+              </Link>
+            )}
             <h1 className="text-2xl font-semibold tracking-tight">Paiements</h1>
             <p className="mt-1 text-white/80 text-sm">
               Liste des paiements reçus et leur allocation aux factures.

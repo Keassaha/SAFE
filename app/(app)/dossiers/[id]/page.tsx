@@ -4,13 +4,9 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
-import { DocumentsSection } from "@/components/documents/DocumentsSection";
-import { DossierProfile } from "@/components/dossiers/registry/DossierProfile";
-import type { DossierProfileData } from "@/components/dossiers/registry/DossierProfile";
-import type { DossierOverviewData } from "@/components/dossiers/registry/DossierOverview";
+import { DossierDetailTabs } from "@/components/dossiers/detail";
 import { canViewSensitiveFields } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
@@ -42,74 +38,10 @@ export default async function DossierDetailPage({
       client: true,
       avocatResponsable: { select: { nom: true } },
       assistantJuridique: { select: { nom: true } },
+      mandate: true,
     },
   });
   if (!dossier) notFound();
-
-  const [
-    clients,
-    avocats,
-    assistants,
-    documents,
-    timeEntries,
-    taches,
-    evenements,
-    dossierNotes,
-    deboursDossiers,
-    deboursTypes,
-  ] = await Promise.all([
-    prisma.client.findMany({
-      where: { cabinetId },
-      orderBy: { raisonSociale: "asc" },
-    }),
-    prisma.user.findMany({
-      where: { cabinetId, role: { in: ["admin_cabinet", "avocat"] } },
-      select: { id: true, nom: true },
-      orderBy: { nom: "asc" },
-    }),
-    prisma.user.findMany({
-      where: { cabinetId, role: "assistante" },
-      select: { id: true, nom: true },
-      orderBy: { nom: "asc" },
-    }),
-    prisma.document.findMany({
-      where: { dossierId: id, cabinetId },
-      orderBy: { createdAt: "desc" },
-      include: { uploadedBy: { select: { nom: true } } },
-    }),
-    prisma.timeEntry.findMany({
-      where: { dossierId: id, cabinetId },
-      include: { user: { select: { nom: true } } },
-      orderBy: { date: "desc" },
-    }),
-    prisma.dossierTache.findMany({
-      where: { dossierId: id, dossier: { cabinetId } },
-      include: { assignee: { select: { nom: true } } },
-      orderBy: { dateEcheance: "asc" },
-    }),
-    prisma.dossierEvenement.findMany({
-      where: { dossierId: id, dossier: { cabinetId } },
-      orderBy: { date: "asc" },
-    }),
-    prisma.dossierNote.findMany({
-      where: { dossierId: id, dossier: { cabinetId } },
-      include: { createdBy: { select: { nom: true } } },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.deboursDossier.findMany({
-      where: { dossierId: id, cabinetId },
-      orderBy: { date: "desc" },
-      include: {
-        deboursType: { select: { nom: true, categorie: true } },
-        facture: { select: { numero: true } },
-      },
-    }),
-    prisma.deboursType.findMany({
-      where: { cabinetId, actif: true },
-      select: { id: true, nom: true, categorie: true },
-      orderBy: [{ categorie: "asc" }, { nom: "asc" }],
-    }),
-  ]);
 
   const t = await getTranslations("matters");
   const tc = await getTranslations("common");
@@ -122,152 +54,42 @@ export default async function DossierDetailPage({
     archive: t("statusArchived"),
   };
 
-  const canEditSensitive = canViewSensitiveFields(role as UserRole, {
-    avocatResponsableId: dossier.avocatResponsableId,
-    userId,
-  });
-
-  const totalHeures = timeEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
-  const totalMontant = timeEntries.reduce((s, e) => s + e.montant, 0);
-
-  const overview: DossierOverviewData = {
-    clientId: dossier.clientId,
-    clientName: clientDisplayName(dossier),
-    avocatResponsableNom: dossier.avocatResponsable?.nom ?? null,
-    assistantJuridiqueNom: dossier.assistantJuridique?.nom ?? null,
-    tribunalNom: dossier.tribunalNom ?? null,
-    districtJudiciaire: dossier.districtJudiciaire ?? null,
-    numeroDossierTribunal: dossier.numeroDossierTribunal ?? null,
-    nomJuge: dossier.nomJuge ?? null,
-    resumeDossier: dossier.resumeDossier ?? null,
-    statut: dossier.statut,
-    type: dossier.type,
-    reference: dossier.reference,
-    intitule: dossier.intitule,
-    dateOuverture: dossier.dateOuverture,
-    modeFacturation: dossier.modeFacturation,
-    tauxHoraire: dossier.tauxHoraire,
-  };
-
-  const profileData: DossierProfileData = {
-    overview,
-    dossierId: dossier.id,
-    timeEntries: timeEntries.map((e) => ({
-      id: e.id,
-      date: e.date,
-      description: e.description,
-      dureeMinutes: e.dureeMinutes,
-      montant: e.montant,
-      userNom: e.user.nom,
-    })),
-    totalHeures,
-    totalMontant,
-    documentsSlot: (
-      <DocumentsSection
-        dossierId={dossier.id}
-        clientId={dossier.clientId}
-        documents={documents}
-        canManage={role === "admin_cabinet" || role === "assistante"}
-      />
-    ),
-    tasks: taches.map((t) => ({
-      id: t.id,
-      titre: t.titre,
-      description: t.description,
-      priorite: t.priorite,
-      statut: t.statut,
-      dateEcheance: t.dateEcheance,
-      assigneeId: t.assigneeId,
-      assignee: t.assignee ? { nom: t.assignee.nom } : null,
-    })),
-    events: evenements.map((e) => ({
-      id: e.id,
-      type: e.type,
-      titre: e.titre,
-      date: e.date,
-      lieu: e.lieu,
-      notes: e.notes,
-    })),
-    taskUsers: [...avocats, ...assistants],
-    descriptionConfidentielle: dossier.descriptionConfidentielle,
-    notesStrategieJuridique: dossier.notesStrategieJuridique,
-    notes: dossierNotes.map((n) => ({
-      id: n.id,
-      content: n.content,
-      createdAt: n.createdAt,
-      createdByNom: n.createdBy?.nom ?? null,
-    })),
-    soldeFiducieDossier: dossier.soldeFiducieDossier,
-    autoriserPaiementFiducie: dossier.autoriserPaiementFiducie,
-    debours: deboursDossiers.map((d) => ({
-      id: d.id,
-      description: d.description,
-      montant: d.montant,
-      taxable: d.taxable,
-      date: d.date,
-      payeParCabinet: d.payeParCabinet,
-      refacturable: d.refacturable,
-      factureId: d.factureId,
-      factureNumero: d.facture?.numero ?? null,
-      deboursTypeNom: d.deboursType?.nom ?? null,
-      deboursTypeCategorie: d.deboursType?.categorie ?? null,
-    })),
-    deboursTypes: deboursTypes.map((t) => ({ id: t.id, nom: t.nom, categorie: t.categorie })),
-    clientTrustLink: (
-      <Link
-        href={`${routes.comptes}?clientId=${encodeURIComponent(dossier.clientId)}&dossierId=${encodeURIComponent(id)}`}
-        className="text-sm text-primary-700 hover:underline"
-      >
-        {t("viewTrustModuleLink")}
-      </Link>
-    ),
-  };
+  // Badge "Mandat incomplet" si la checklist du mandat a des documents obligatoires non cochés
+  const mandatChecklist = (dossier.mandate?.checklist as Array<{ obligatoire?: boolean; checked?: boolean }> | null) ?? [];
+  const mandatIncomplet =
+    mandatChecklist.some((item) => item.obligatoire === true && item.checked !== true) ?? false;
 
   const showEditForm = edit === "1";
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={`${dossier.numeroDossier ?? dossier.reference ?? "Dossier"} — ${dossier.intitule}`}
-        backHref={routes.dossiers}
-        backLabel={t("backToList")}
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                dossier.statut === "actif" || dossier.statut === "ouvert"
-                  ? "bg-status-success-bg text-status-success"
-                  : "bg-neutral-200 text-neutral-muted"
-              }`}
-            >
-              {STATUT_LABELS[dossier.statut] ?? dossier.statut}
-            </span>
-            <Link
-              href={routes.client(dossier.clientId)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 transition-colors text-sm font-medium"
-            >
-              {t("viewClient")}
-            </Link>
-            {showEditForm ? (
-              <Link
-                href={routes.dossier(id)}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 text-sm font-medium"
-              >
-                {t("closeEdit")}
-              </Link>
-            ) : (
-              <Link
-                href={`${routes.dossier(id)}?edit=1`}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-primary-600 bg-primary-50 text-primary-700 text-sm font-medium hover:bg-primary-100"
-              >
-                {t("editMatter")}
-              </Link>
-            )}
-          </div>
-        }
-      />
+  if (showEditForm) {
+    const [clients, avocats, assistants] = await Promise.all([
+      prisma.client.findMany({
+        where: { cabinetId },
+        orderBy: { raisonSociale: "asc" },
+      }),
+      prisma.user.findMany({
+        where: { cabinetId, role: { in: ["admin_cabinet", "avocat"] } },
+        select: { id: true, nom: true },
+        orderBy: { nom: "asc" },
+      }),
+      prisma.user.findMany({
+        where: { cabinetId, role: "assistante" },
+        select: { id: true, nom: true },
+        orderBy: { nom: "asc" },
+      }),
+    ]);
+    const canEditSensitive = canViewSensitiveFields(role as UserRole, {
+      avocatResponsableId: dossier.avocatResponsableId,
+      userId,
+    });
 
-      {showEditForm && (
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title={t("editInfo")}
+          backHref={routes.dossier(id)}
+          backLabel={t("backToList")}
+        />
         <Card>
           <CardHeader title={t("editInfo")} />
           <CardContent>
@@ -287,15 +109,79 @@ export default async function DossierDetailPage({
             />
           </CardContent>
         </Card>
-      )}
+      </div>
+    );
+  }
 
-      {!showEditForm && (
-        <Card>
-          <CardContent className="pt-6">
-            <DossierProfile data={profileData} />
-          </CardContent>
-        </Card>
-      )}
+  const clientName = clientDisplayName(dossier);
+  const numeroDossier = dossier.numeroDossier ?? dossier.reference ?? "Dossier";
+  const statutDossier = dossier.mandate?.statutDossier ?? dossier.statut;
+
+  return (
+    <div className="space-y-0">
+      {/* En-tête dossier : hiérarchie claire, actions à droite */}
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-[var(--safe-neutral-900)]/95 backdrop-blur-md px-6 py-4 shadow-lg">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={routes.dossiers}
+                className="text-sm font-medium text-[var(--safe-green-600)] hover:text-[var(--safe-green-100)] transition-colors"
+              >
+                ← {t("backToList")}
+              </Link>
+              <span className="text-[var(--safe-neutral-500)]">·</span>
+              <span className="text-sm text-white/80 truncate">{clientName}</span>
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+              {numeroDossier} — {dossier.intitule}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              {dossier.avocatResponsable?.nom && (
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90">
+                  Avocat : {dossier.avocatResponsable.nom}
+                </span>
+              )}
+              <span
+                className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${
+                  dossier.statut === "actif" || dossier.statut === "ouvert"
+                    ? "bg-[var(--safe-status-success)]/20 text-[var(--safe-green-100)]"
+                    : "bg-white/10 text-white/80"
+                }`}
+              >
+                {STATUT_LABELS[dossier.statut] ?? dossier.statut}
+              </span>
+              {mandatIncomplet && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2.5 py-1 text-xs font-medium text-red-200">
+                  ⚠ Mandat incomplet
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Link
+              href={routes.client(dossier.clientId)}
+              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+            >
+              {t("viewClient")}
+            </Link>
+            <Link
+              href={`${routes.dossier(id)}?edit=1`}
+              className="inline-flex items-center rounded-lg bg-[var(--safe-green-600)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--safe-green-700)] transition-colors shadow-md"
+            >
+              {t("editMatter")}
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Onglets de détail */}
+      <div className="p-4 sm:p-6">
+        <DossierDetailTabs
+          dossierId={id}
+          statutDossier={statutDossier}
+        />
+      </div>
     </div>
   );
 }

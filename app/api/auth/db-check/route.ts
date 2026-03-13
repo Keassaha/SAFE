@@ -15,17 +15,16 @@ export async function GET() {
     return NextResponse.json({ ok: true });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    const code = e && typeof e === "object" && "code" in e ? (e as { code: string }).code : "";
+    const code = e && typeof e === "object" && "code" in e ? String((e as { code: string }).code) : "";
     const isVercel = process.env.VERCEL === "1";
     const errorMessage = isVercel
       ? "La base de données ne répond pas. Vérifiez DATABASE_URL (ou POSTGRES_URL) sur Vercel, que la base est créée et que vous avez redéployé après l'avoir liée."
       : "La base de données ne répond pas. Vérifiez DATABASE_URL dans .env (URL Supabase avec mot de passe), que le projet Supabase est actif et que votre réseau autorise la connexion (port 6543).";
-    return NextResponse.json(
-      {
-        error: errorMessage,
-        detail: process.env.NODE_ENV === "development" ? `${code || ""} ${msg}` : undefined,
-      },
-      { status: 503 }
-    );
+    const body: { error: string; detail?: string; code?: string } = {
+      error: errorMessage,
+      detail: process.env.NODE_ENV === "development" ? `${code || ""} ${msg}` : undefined,
+    };
+    if (code && /^P\d+$/.test(code)) body.code = code;
+    return NextResponse.json(body, { status: 503 });
   }
 }

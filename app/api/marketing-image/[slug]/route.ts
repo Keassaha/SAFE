@@ -1,13 +1,17 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { NextResponse } from "next/server";
 
-const IMAGE_MAP: Record<string, { path: string; contentType: string }> = {
+const IMAGE_MAP: Record<
+  string,
+  { filename: string; contentType: string }
+> = {
   "dashboard-hero": {
-    path: "/Users/Bookkeeping/.cursor/projects/Users-Bookkeeping-SAAS-SAFE-02/assets/safe-dashboard-hero.png",
+    filename: "safe-dashboard-hero.png",
     contentType: "image/png",
   },
   "automation-flow": {
-    path: "/Users/Bookkeeping/.cursor/projects/Users-Bookkeeping-SAAS-SAFE-02/assets/safe-automation-flow.png",
+    filename: "safe-automation-flow.png",
     contentType: "image/png",
   },
 };
@@ -23,8 +27,16 @@ export async function GET(
     return new NextResponse("Image introuvable", { status: 404 });
   }
 
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "marketing",
+    asset.filename
+  );
+
   try {
-    const buffer = await readFile(asset.path);
+    const buffer = await readFile(filePath);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": asset.contentType,

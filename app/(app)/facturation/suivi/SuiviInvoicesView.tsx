@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
-import { AlertCircle, DollarSign, FileText } from "lucide-react";
+import { AlertCircle, DollarSign, FileText, Link2 } from "lucide-react";
 
 export type SuiviInvoiceRow = {
   id: string;
@@ -103,15 +103,24 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                   )}
                 </td>
                 <td className="py-2 px-3 text-right">
-                  {inv.balanceDue > 0 && (
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     <Link
-                      href={`${routes.facturationPaiements}?invoiceId=${encodeURIComponent(inv.id)}`}
+                      href={routes.facturationFactureEdit(inv.id)}
                       className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
                     >
-                      <DollarSign className="h-4 w-4" aria-hidden />
-                      Ajouter un paiement
+                      <Link2 className="h-4 w-4" aria-hidden />
+                      Envoyer au client
                     </Link>
-                  )}
+                    {inv.balanceDue > 0 && (
+                      <Link
+                        href={`${routes.facturationPaiements}?invoiceId=${encodeURIComponent(inv.id)}`}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+                      >
+                        <DollarSign className="h-4 w-4" aria-hidden />
+                        Ajouter un paiement
+                      </Link>
+                    )}
+                  </div>
                 </td>
               </tr>
             );

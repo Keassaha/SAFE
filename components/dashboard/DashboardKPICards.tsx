@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import {
   DollarSign,
   CreditCard,
@@ -11,6 +12,13 @@ import {
 } from "lucide-react";
 import { DashboardKPICard } from "./DashboardKPICard";
 import type { DashboardKpis } from "@/lib/dashboard/types";
+import { useSafeMotion } from "@/lib/motion";
+import {
+  staggerContainer,
+  staggerItem,
+  staggerContainerReduced,
+  staggerItemReduced,
+} from "@/lib/motion";
 
 export interface DashboardKPICardsProps {
   kpis: DashboardKpis;
@@ -41,9 +49,13 @@ const CONFIG = [
 
 export function DashboardKPICards({ kpis, visibility }: DashboardKPICardsProps) {
   const t = useTranslations("dashboard");
+  const { reduceMotion } = useSafeMotion();
   const showRevenue = visibility.showFinancialKpis;
   const showTrust = visibility.showTrustBalance;
   const showExpenses = visibility.showExpenses;
+
+  const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
+  const itemVariants = reduceMotion ? staggerItemReduced : staggerItem;
 
   const cards = CONFIG.filter((c) => {
     if (c.key === "revenueThisMonth" || c.key === "paymentsReceived" || c.key === "outstandingInvoices" || c.key === "unbilledHoursValue")
@@ -56,23 +68,29 @@ export function DashboardKPICards({ kpis, visibility }: DashboardKPICardsProps) 
   if (cards.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <motion.div
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {cards.map(({ key, titleKey, icon: Icon, accent }) => {
         const kpi = kpis[key];
         if (!kpi) return null;
         return (
-          <DashboardKPICard
-            key={key}
-            title={t(TITLE_KEYS[titleKey])}
-            value={kpi.value}
-            subtitle={kpi.subtitle}
-            trend={kpi.trend}
-            trendLabel={kpi.trendLabel}
-            icon={<Icon className="w-5 h-5" aria-hidden />}
-            accent={accent}
-          />
+          <motion.div key={key} variants={itemVariants}>
+            <DashboardKPICard
+              title={t(TITLE_KEYS[titleKey])}
+              value={kpi.value}
+              subtitle={kpi.subtitle}
+              trend={kpi.trend}
+              trendLabel={kpi.trendLabel}
+              icon={<Icon className="w-5 h-5" aria-hidden />}
+              accent={accent}
+            />
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

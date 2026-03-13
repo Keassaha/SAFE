@@ -1,0 +1,12 @@
+export { DossierDetailCarteClient } from "./DossierDetailCarteClient";
+export { DossierDetailMandat } from "./DossierDetailMandat";
+export { DossierDetailPiecesMadame } from "./DossierDetailPiecesMadame";
+export { DossierDetailPiecesMonsieur } from "./DossierDetailPiecesMonsieur";
+export { DossierDetailProcedures } from "./DossierDetailProcedures";
+export { DossierDetailJugements } from "./DossierDetailJugements";
+export { DossierDetailCorrespondance } from "./DossierDetailCorrespondance";
+export { DossierDetailFideicommis } from "./DossierDetailFideicommis";
+export { DossierDetailFormulaires } from "./DossierDetailFormulaires";
+export { DossierDetailNotesHonoraires } from "./DossierDetailNotesHonoraires";
+export { DossierDetailFermeture } from "./DossierDetailFermeture";
+export { DossierDetailTabs } from "./DossierDetailTabs";

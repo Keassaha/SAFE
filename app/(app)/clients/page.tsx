@@ -16,6 +16,7 @@ import { ClientFilters } from "@/components/clients/registry/ClientFilters";
 import { ClientTable } from "@/components/clients/registry/ClientTable";
 import { ClientPagination } from "@/components/clients/registry/ClientPagination";
 import { ClientSuccessBanner } from "@/components/clients/registry/ClientSuccessBanner";
+import { ClientCreateModal } from "@/components/clients/registry/ClientCreateModal";
 import type { ClientRow } from "@/components/clients/registry/ClientTable";
 import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -54,7 +55,7 @@ export default async function ClientsPage({
   const where = buildClientListWhere(cabinetId, { q, status, type });
   const orderBy = getClientListOrderBy(sortBy, sortOrder);
 
-  const [clients, totalCount, stats] = await Promise.all([
+  const [clients, totalCount, stats, lawyers] = await Promise.all([
     prisma.client.findMany({
       where,
       orderBy,
@@ -70,6 +71,11 @@ export default async function ClientsPage({
       by: ["status"],
       where: { cabinetId },
       _count: true,
+    }),
+    prisma.user.findMany({
+      where: { cabinetId, role: "avocat" },
+      select: { id: true, nom: true },
+      orderBy: { nom: "asc" },
     }),
   ]);
 
@@ -125,9 +131,7 @@ export default async function ClientsPage({
               </Button>
             </Link>
             {canCreate && (
-              <Link href={routes.clientNouveau}>
-                <Button>+ {t("newClient")}</Button>
-              </Link>
+              <ClientCreateModal lawyers={lawyers} canCreate={canCreate} />
             )}
           </div>
         }
@@ -157,9 +161,7 @@ export default async function ClientsPage({
               description={t("createFirstClient")}
               action={
                 canCreate ? (
-                  <Link href={routes.clientNouveau}>
-                    <Button>{t("newClient")}</Button>
-                  </Link>
+                  <ClientCreateModal lawyers={lawyers} canCreate={canCreate} buttonLabel={t("newClient")} />
                 ) : undefined
               }
             />

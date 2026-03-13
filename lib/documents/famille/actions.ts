@@ -169,6 +169,31 @@ export async function generateDocumentForDossier(params: {
       templateCode: documentTypeCode,
       aiAssisted: result.meta.aiAssisted,
     });
+
+    // Remplir / synchroniser le mandat du dossier à partir des données du dossier
+    await prisma.dossierMandate.upsert({
+      where: { dossierId: dossier.id },
+      create: {
+        dossierId: dossier.id,
+        numeroDossier: dossier.numeroDossier ?? undefined,
+        dateOuverture: dossier.dateOuverture,
+        districtJudiciaire: dossier.districtJudiciaire ?? undefined,
+        tribunal: dossier.tribunalNom ?? undefined,
+        numeroRole: dossier.numeroDossierTribunal ?? undefined,
+        avocatResponsableId: dossier.avocatResponsableId ?? undefined,
+        statutDossier: dossier.statut,
+      },
+      update: {
+        numeroDossier: dossier.numeroDossier ?? undefined,
+        dateOuverture: dossier.dateOuverture,
+        districtJudiciaire: dossier.districtJudiciaire ?? undefined,
+        tribunal: dossier.tribunalNom ?? undefined,
+        numeroRole: dossier.numeroDossierTribunal ?? undefined,
+        avocatResponsableId: dossier.avocatResponsableId ?? undefined,
+        statutDossier: dossier.statut,
+      },
+    });
+
     return { ok: true, content: result.content, documentId: doc.id };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

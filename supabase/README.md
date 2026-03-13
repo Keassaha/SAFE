@@ -1,5 +1,9 @@
 # SAFE Module A — Supabase migrations
 
+**Note :** Ce dossier contient d’anciennes migrations SQL (Module A) et **n’est pas utilisé par l’application actuelle**, qui s’appuie sur **Prisma** et les migrations dans `prisma/migrations/`. Ne pas appliquer ces migrations sur la même base que celle utilisée par Prisma.
+
+---
+
 Migrations PostgreSQL pour le Module A (Registre clients & Dossiers) avec :
 
 - **Multi-tenant** : `cabinet_id` sur toutes les tables métier ; RLS par cabinet.

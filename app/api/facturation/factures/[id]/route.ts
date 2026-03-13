@@ -120,6 +120,7 @@ export async function GET(
     invoiceStatus: invoice.invoiceStatus,
     validatedAt: invoice.validatedAt,
     sentAt: invoice.sentAt,
+    cancelledAt: invoice.cancelledAt,
   });
 }
 

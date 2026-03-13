@@ -5,6 +5,7 @@ export { DashboardView } from "./DashboardView";
 export { DashboardKPICard } from "./DashboardKPICard";
 export { DashboardKPICards } from "./DashboardKPICards";
 export { RevenueChart } from "./RevenueChart";
+export { GettingStarted } from "./GettingStarted";
 export { LawyerProductivityTable } from "./LawyerProductivityTable";
 export { ActiveCasesTable } from "./ActiveCasesTable";
 export { BillingFollowUpTable } from "./BillingFollowUpTable";

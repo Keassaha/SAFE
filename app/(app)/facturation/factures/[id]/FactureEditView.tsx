@@ -7,10 +7,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
-import { useFacture, useValiderFacture, useEnvoyerFacture, usePatchFacture, useAnnulerFacture, useDuplicateFacture } from "@/lib/hooks/useFacturation";
+import { useFacture, useValiderFacture, useEnvoyerFacture, usePatchFacture, useAnnulerFacture, useDuplicateFacture, useLienClientFacture, useEnvoyerFactureEmail } from "@/lib/hooks/useFacturation";
 import { InvoiceTemplate } from "@/components/facturation/InvoiceTemplate";
+import { computeBillingTotals, TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import type { BillingLineRow } from "@/lib/invoice-calculations";
 import { Modal } from "@/components/ui/Modal";
-import { ArrowLeft, Loader2, CheckCircle, Save, Trash2, Plus, DollarSign, MinusCircle, Copy, FileText, Send } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeft, Loader2, CheckCircle, Save, Trash2, Plus, DollarSign, MinusCircle, Copy, FileText, Send, Link2 } from "lucide-react";
 
 type InvoiceItem = {
   id: string;
@@ -39,9 +42,15 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
   const patchMutation = usePatchFacture(invoiceId);
   const annulerMutation = useAnnulerFacture(invoiceId);
   const duplicateMutation = useDuplicateFacture(invoiceId);
+  const lienClientMutation = useLienClientFacture(invoiceId);
+  const envoyerEmailMutation = useEnvoyerFactureEmail(invoiceId);
 
   const [editedItems, setEditedItems] = useState<InvoiceItem[] | null>(null);
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
+  const [lienClientOpen, setLienClientOpen] = useState(false);
+  const [lienClientUrl, setLienClientUrl] = useState<string | null>(null);
+  const [lienClientExpiresAt, setLienClientExpiresAt] = useState<string | null>(null);
+  const [lienClientCopied, setLienClientCopied] = useState(false);
 
   useEffect(() => {
     if (invoice?.items?.length && editedItems === null) {
@@ -50,6 +59,89 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
   }, [invoice?.items, editedItems]);
 
   const displayItems = (editedItems ?? invoice?.items ?? []) as InvoiceItem[];
+
+  /** Calcule les totaux à partir des lignes affichées (pour l’aperçu en direct pendant l’édition). */
+  const getPreviewTotals = () => {
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const lines: BillingLineRow[] = [];
+    for (const i of displayItems) {
+      const amount = i.amount;
+      if (i.type === "rabais") {
+        lines.push({
+          lineType: "adjustment",
+          lineSubtotal: -Math.abs(amount),
+          taxable: false,
+          gstAmount: 0,
+          qstAmount: 0,
+        });
+        continue;
+      }
+      if (i.type === "frais_rappel") {
+        lines.push({
+          lineType: "fee_after_tax",
+          lineSubtotal: amount,
+          taxable: false,
+          gstAmount: 0,
+          qstAmount: 0,
+        });
+        continue;
+      }
+      if (i.type === "debours_non_taxable") {
+        lines.push({
+          lineType: "non_taxable",
+          lineSubtotal: amount,
+          taxable: false,
+          gstAmount: 0,
+          qstAmount: 0,
+        });
+        continue;
+      }
+      const gst = round2(amount * TPS_RATE);
+      const qst = round2(amount * TVQ_RATE);
+      if (i.type === "debours_taxable") {
+        lines.push({
+          lineType: "expense",
+          lineSubtotal: amount,
+          taxable: true,
+          gstAmount: gst,
+          qstAmount: qst,
+        });
+      } else if (i.type === "interets") {
+        lines.push({
+          lineType: "interest",
+          lineSubtotal: amount,
+          taxable: true,
+          gstAmount: gst,
+          qstAmount: qst,
+        });
+      } else {
+        lines.push({
+          lineType: "fee",
+          lineSubtotal: amount,
+          taxable: true,
+          gstAmount: gst,
+          qstAmount: qst,
+        });
+      }
+    }
+    const paid = invoice?.montantPaye ?? 0;
+    const trust = (invoice as { trustApplied?: number })?.trustApplied ?? 0;
+    const totals = computeBillingTotals(lines, paid, trust, 0);
+    const deboursNonTaxableTotal = displayItems
+      .filter((i) => i.type === "debours_non_taxable")
+      .reduce((s, i) => s + i.amount, 0);
+    return {
+      subtotalTaxable: totals.subtotalBeforeTax,
+      tps: totals.taxGst,
+      tvq: totals.taxQst,
+      deboursNonTaxableTotal: Math.round(deboursNonTaxableTotal * 100) / 100,
+      montantTotal: totals.totalInvoiceAmount,
+      balanceDue: totals.balanceDue,
+    };
+  };
+
+  const hasLocalEdits = editedItems !== null;
+  const previewTotals = hasLocalEdits && invoice ? getPreviewTotals() : null;
 
   const updateItemMulti = (index: number, updates: Partial<InvoiceItem>) => {
     setEditedItems((prev) => {
@@ -150,7 +242,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
     if (items.length === 0) return;
     try {
       await patchMutation.mutateAsync({ items });
-      refetch();
+      await refetch();
       setEditedItems(null);
     } catch (e) {
       alert((e as Error).message ?? "Erreur lors de l'enregistrement");
@@ -254,6 +346,42 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
       router.push(routes.facturationHonoraires);
     } catch (e) {
       alert((e as Error).message ?? "Erreur lors de l'annulation");
+    }
+  };
+
+  const handleEnvoyerAuClient = async () => {
+    try {
+      const result = await envoyerEmailMutation.mutateAsync();
+      refetch();
+      toast.success(`Facture envoyée à ${result.sentTo}`);
+    } catch (e) {
+      toast.error((e as Error).message ?? "Erreur lors de l'envoi de l'email");
+    }
+  };
+
+  const handleCopierLien = async () => {
+    setLienClientOpen(true);
+    setLienClientUrl(null);
+    setLienClientExpiresAt(null);
+    setLienClientCopied(false);
+    try {
+      const result = await lienClientMutation.mutateAsync();
+      setLienClientUrl(result.url);
+      setLienClientExpiresAt(result.expiresAt);
+    } catch (e) {
+      toast.error((e as Error).message ?? "Erreur lors de la génération du lien");
+      setLienClientOpen(false);
+    }
+  };
+
+  const handleCopyLienClient = async () => {
+    if (!lienClientUrl) return;
+    try {
+      await navigator.clipboard.writeText(lienClientUrl);
+      setLienClientCopied(true);
+      setTimeout(() => setLienClientCopied(false), 2000);
+    } catch {
+      alert("Impossible de copier le lien");
     }
   };
 
@@ -588,44 +716,58 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
       <Card>
         <CardHeader title="Totaux" />
         <CardContent className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-neutral-600">Sous-total taxable</span>
-            <span>{formatCurrency(invoice.subtotalTaxable ?? 0)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-600">TPS (5 %)</span>
-            <span>{formatCurrency(invoice.tps ?? 0)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-600">TVQ (9,975 %)</span>
-            <span>{formatCurrency(invoice.tvq ?? 0)}</span>
-          </div>
-          {invoice.deboursNonTaxableTotal != null && invoice.deboursNonTaxableTotal > 0 && (
-            <div className="flex justify-between">
-              <span className="text-neutral-600">Débours non taxables</span>
-              <span>{formatCurrency(invoice.deboursNonTaxableTotal)}</span>
-            </div>
-          )}
-          {fraisRows.length > 0 && (
-            <div className="flex justify-between">
-              <span className="text-neutral-600">Frais</span>
-              <span>{formatCurrency(fraisTotal)}</span>
-            </div>
-          )}
-          <div className="flex justify-between font-medium pt-2 border-t border-neutral-200">
-            <span>Total facture</span>
-            <span>{formatCurrency(invoice.montantTotal ?? 0)}</span>
-          </div>
-          {(invoice.montantPaye ?? 0) > 0 && (
-            <div className="flex justify-between text-neutral-600">
-              <span>Montant payé</span>
-              <span>{formatCurrency(invoice.montantPaye ?? 0)}</span>
-            </div>
-          )}
-          <div className="flex justify-between font-medium">
-            <span>Solde à payer</span>
-            <span>{formatCurrency(invoice.balanceDue ?? 0)}</span>
-          </div>
+          {(() => {
+            const st = previewTotals ?? {
+              subtotalTaxable: invoice.subtotalTaxable ?? 0,
+              tps: invoice.tps ?? 0,
+              tvq: invoice.tvq ?? 0,
+              deboursNonTaxableTotal: invoice.deboursNonTaxableTotal ?? 0,
+              montantTotal: invoice.montantTotal ?? 0,
+              balanceDue: invoice.balanceDue ?? 0,
+            };
+            return (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">Sous-total taxable</span>
+                  <span>{formatCurrency(st.subtotalTaxable)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">TPS (5 %)</span>
+                  <span>{formatCurrency(st.tps)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">TVQ (9,975 %)</span>
+                  <span>{formatCurrency(st.tvq)}</span>
+                </div>
+                {st.deboursNonTaxableTotal > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-neutral-600">Débours non taxables</span>
+                    <span>{formatCurrency(st.deboursNonTaxableTotal)}</span>
+                  </div>
+                )}
+                {fraisRows.length > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-neutral-600">Frais</span>
+                    <span>{formatCurrency(fraisTotal)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium pt-2 border-t border-neutral-200">
+                  <span>Total facture</span>
+                  <span>{formatCurrency(st.montantTotal)}</span>
+                </div>
+                {(invoice.montantPaye ?? 0) > 0 && (
+                  <div className="flex justify-between text-neutral-600">
+                    <span>Montant payé</span>
+                    <span>{formatCurrency(invoice.montantPaye ?? 0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium">
+                  <span>Solde à payer</span>
+                  <span>{formatCurrency(st.balanceDue)}</span>
+                </div>
+              </>
+            );
+          })()}
         </CardContent>
       </Card>
 
@@ -733,13 +875,13 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
             amount: i.amount,
             userNom: i.userNom,
           }))}
-          subtotalTaxable={invoice.subtotalTaxable ?? 0}
-          tps={invoice.tps ?? 0}
-          tvq={invoice.tvq ?? 0}
-          deboursNonTaxableTotal={invoice.deboursNonTaxableTotal ?? 0}
-          montantTotal={invoice.montantTotal ?? 0}
+          subtotalTaxable={previewTotals?.subtotalTaxable ?? invoice.subtotalTaxable ?? 0}
+          tps={previewTotals?.tps ?? invoice.tps ?? 0}
+          tvq={previewTotals?.tvq ?? invoice.tvq ?? 0}
+          deboursNonTaxableTotal={previewTotals?.deboursNonTaxableTotal ?? invoice.deboursNonTaxableTotal ?? 0}
+          montantTotal={previewTotals?.montantTotal ?? invoice.montantTotal ?? 0}
           montantPaye={invoice.montantPaye ?? 0}
-          balanceDue={invoice.balanceDue ?? 0}
+          balanceDue={previewTotals?.balanceDue ?? invoice.balanceDue ?? 0}
           clientNote={invoice.clientNote}
         />
       </div>
@@ -792,6 +934,32 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
         <div className="flex items-center gap-4 flex-wrap">
           <Button
             variant="primary"
+            onClick={handleEnvoyerAuClient}
+            disabled={envoyerEmailMutation.isPending}
+            className="gap-2"
+          >
+            {envoyerEmailMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            Envoyer au client
+          </Button>
+          <Button
+            variant="tertiary"
+            onClick={handleCopierLien}
+            disabled={lienClientMutation.isPending}
+            className="gap-2"
+          >
+            {lienClientMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Link2 className="w-4 h-4" />
+            )}
+            Copier le lien
+          </Button>
+          <Button
+            variant="secondary"
             onClick={handleEnvoyer}
             disabled={envoyerMutation.isPending}
             className="gap-2"
@@ -799,7 +967,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
             {envoyerMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <CheckCircle className="w-4 h-4" />
             )}
             Marquer comme envoyée
           </Button>
@@ -819,7 +987,41 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
         </div>
       )}
 
-      {!isDraft && (
+      {!isDraft && !invoice.cancelledAt && (
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="secondary"
+            onClick={handleEnvoyerAuClient}
+            disabled={envoyerEmailMutation.isPending}
+            className="gap-2"
+          >
+            {envoyerEmailMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            Envoyer au client
+          </Button>
+          <Button
+            variant="tertiary"
+            onClick={handleCopierLien}
+            disabled={lienClientMutation.isPending}
+            className="gap-2"
+          >
+            {lienClientMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Link2 className="w-4 h-4" />
+            )}
+            Copier le lien
+          </Button>
+          <Link href={routes.client(invoice.clientId)}>
+            <Button variant="tertiary">Retour au client</Button>
+          </Link>
+        </div>
+      )}
+
+      {!isDraft && invoice.cancelledAt && (
         <Link href={routes.client(invoice.clientId)}>
           <Button variant="secondary">Retour au client</Button>
         </Link>
@@ -868,6 +1070,67 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
                 <Save className="w-4 h-4" />
               )}
               Écraser
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={lienClientOpen}
+        onClose={() => {
+          setLienClientOpen(false);
+          setLienClientUrl(null);
+          setLienClientExpiresAt(null);
+        }}
+        title="Envoyer au client"
+      >
+        <div className="space-y-4">
+          {lienClientUrl ? (
+            <>
+              <p className="text-sm text-neutral-600">
+                Copiez ce lien et envoyez-le à votre client. Il pourra consulter la facture sans se connecter.
+                {lienClientExpiresAt && (
+                  <span className="block mt-2 text-neutral-500">
+                    Lien valide jusqu&apos;au{" "}
+                    {new Date(lienClientExpiresAt).toLocaleDateString("fr-CA", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    .
+                  </span>
+                )}
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={lienClientUrl}
+                  className="flex-1 rounded border border-neutral-300 px-3 py-2 text-sm bg-neutral-50"
+                />
+                <Button
+                  variant="secondary"
+                  onClick={handleCopyLienClient}
+                  className="gap-1 shrink-0"
+                >
+                  {lienClientCopied ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                  {lienClientCopied ? "Copié" : "Copier"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-neutral-600">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Génération du lien…
+            </div>
+          )}
+          <div className="flex justify-end">
+            <Button variant="tertiary" onClick={() => setLienClientOpen(false)}>
+              Fermer
             </Button>
           </div>
         </div>

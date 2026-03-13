@@ -16,6 +16,7 @@ import {
 import type { DashboardPayload } from "@/lib/dashboard/types";
 import { DashboardKPICards } from "./DashboardKPICards";
 import { RevenueChart } from "./RevenueChart";
+import { GettingStarted } from "./GettingStarted";
 import { LawyerProductivityTable } from "./LawyerProductivityTable";
 import { ActiveCasesTable } from "./ActiveCasesTable";
 import { BillingFollowUpTable } from "./BillingFollowUpTable";
@@ -161,9 +162,12 @@ export function DashboardView({ payload }: DashboardViewProps) {
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-6">
-          {visibility.showRevenueChart && (
-            <RevenueChart data={revenueChartData} />
-          )}
+          {visibility.showRevenueChart &&
+            (payload.allKpisZero && payload.onboardingChecklist ? (
+              <GettingStarted checklist={payload.onboardingChecklist} />
+            ) : (
+              <RevenueChart data={revenueChartData} />
+            ))}
           <DashboardTasksAndAppointments
             tasks={upcomingTasks}
             events={upcomingEvents}

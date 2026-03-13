@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionOrRespond } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { canViewClients } from "@/lib/auth/permissions";
 import { buildClientListWhere } from "@/lib/clients/query";
@@ -14,15 +13,10 @@ function escapeCsvCell(value: string): string {
 }
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return new NextResponse("Non autorisé", { status: 401 });
-  }
-  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
+  const auth = await getSessionOrRespond();
+  if (auth instanceof NextResponse) return auth;
+  const { session, cabinetId } = auth;
   const role = (session.user as { role?: string }).role as UserRole;
-  if (!cabinetId) {
-    return new NextResponse("Cabinet non trouvé", { status: 403 });
-  }
   if (!canViewClients(role)) {
     return new NextResponse("Droits insuffisants", { status: 403 });
   }

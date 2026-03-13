@@ -1,6 +1,14 @@
 import { prisma } from "@/lib/db";
 
 /**
+ * Formate un numéro de facture (format ANNEE-XXX).
+ * Utilisé pour les tests unitaires et par getNextInvoiceNumero.
+ */
+export function formatInvoiceNumero(year: number, sequence: number): string {
+  return `${year}-${String(sequence).padStart(3, "0")}`;
+}
+
+/**
  * Génère le prochain numéro de facture pour le cabinet (format ANNEE-XXX).
  */
 export async function getNextInvoiceNumero(cabinetId: string): Promise<string> {
@@ -17,5 +25,5 @@ export async function getNextInvoiceNumero(cabinetId: string): Promise<string> {
   });
 
   const sequence = count + 1;
-  return `${year}-${String(sequence).padStart(3, "0")}`;
+  return formatInvoiceNumero(year, sequence);
 }

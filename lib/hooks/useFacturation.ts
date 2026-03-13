@@ -277,3 +277,50 @@ export function useDuplicateFacture(invoiceId: string | null) {
     },
   });
 }
+
+export type LienClientFactureResult = {
+  url: string;
+  expiresAt: string;
+  alreadyGenerated?: boolean;
+};
+
+export function useLienClientFacture(invoiceId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<LienClientFactureResult> => {
+      const res = await fetch(
+        `/api/facturation/factures/${invoiceId}/lien-client`,
+        { method: "POST" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Erreur lors de la génération du lien");
+      return data as LienClientFactureResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["facturation"] });
+    },
+  });
+}
+
+export type EnvoyerFactureEmailResult = {
+  success: boolean;
+  sentTo: string;
+};
+
+export function useEnvoyerFactureEmail(invoiceId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<EnvoyerFactureEmailResult> => {
+      const res = await fetch(
+        `/api/facturation/factures/${invoiceId}/envoyer-email`,
+        { method: "POST" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Erreur lors de l'envoi de l'email");
+      return data as EnvoyerFactureEmailResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["facturation"] });
+    },
+  });
+}

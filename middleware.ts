@@ -14,5 +14,13 @@ export const config = {
     "/comptes/:path*",
     "/rapports/:path*",
     "/parametres/:path*",
+    "/journal/:path*",
+    "/comptabilite",
+    "/comptabilite/:path*",
+    "/employees/:path*",
+    "/outils/:path*",
+    "/gestion/:path*",
+    "/import/:path*",
+    "/onboarding/:path*",
   ],
 };

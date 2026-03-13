@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionOrRespond } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { canManageDocuments } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
@@ -17,14 +16,12 @@ import { randomUUID } from "crypto";
 const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
-  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
+  const auth = await getSessionOrRespond();
+  if (auth instanceof NextResponse) return auth;
+  const { session, cabinetId } = auth;
   const userId = (session.user as { id?: string }).id;
   const role = (session.user as { role?: string }).role as UserRole;
-  if (!cabinetId || !userId) {
+  if (!userId) {
     return NextResponse.json({ error: "Session incomplète" }, { status: 403 });
   }
   if (!canManageDocuments(role)) {

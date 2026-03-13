@@ -179,19 +179,22 @@ export function InvoiceTemplate({
           <thead>
             <tr className="border-b-2 border-[var(--safe-green-600)]">
               <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+                {tf("dateTask")}
+              </th>
+              <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tc("description")}
               </th>
               <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)] hidden sm:table-cell">
                 {tc("type")}
               </th>
               <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
-                {tf("quantity")}
+                {tf("hours")}
               </th>
               <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tf("rate")}
               </th>
               <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
-                {tc("amount")}
+                {tc("total")}
               </th>
             </tr>
           </thead>
@@ -210,6 +213,9 @@ export function InvoiceTemplate({
                         : "bg-[var(--safe-green-50)]/40"
                   }
                 >
+                  <td className="py-3 px-3 border-b border-[var(--safe-neutral-border)] text-[var(--safe-text-secondary)] whitespace-nowrap">
+                    {item.date ? formatDate(item.date) : "—"}
+                  </td>
                   <td className="py-3 px-3 border-b border-[var(--safe-neutral-border)]">
                     <span className={`font-medium ${isRabais ? "text-[var(--safe-green-800)]" : "text-[var(--safe-text-title)]"}`}>
                       {item.description}

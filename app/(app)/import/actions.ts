@@ -65,25 +65,65 @@ async function findOrCreateDossier(
   intitule: string,
   extra: Partial<NormalizedClient>,
 ): Promise<string> {
+  let dossierId: string;
   if (numeroDossier) {
     const existing = await prisma.dossier.findFirst({
       where: { cabinetId, numeroDossier },
       select: { id: true },
     });
-    if (existing) return existing.id;
+    if (existing) {
+      dossierId = existing.id;
+    } else {
+      const dossier = await prisma.dossier.create({
+        data: {
+          cabinetId,
+          clientId,
+          numeroDossier,
+          intitule,
+          statut: mapDossierStatut(extra.statut),
+          dateOuverture: extra.dateOuverture ? new Date(extra.dateOuverture) : new Date(),
+        },
+      });
+      dossierId = dossier.id;
+    }
+  } else {
+    const dossier = await prisma.dossier.create({
+      data: {
+        cabinetId,
+        clientId,
+        numeroDossier,
+        intitule,
+        statut: mapDossierStatut(extra.statut),
+        dateOuverture: extra.dateOuverture ? new Date(extra.dateOuverture) : new Date(),
+      },
+    });
+    dossierId = dossier.id;
   }
 
-  const dossier = await prisma.dossier.create({
-    data: {
-      cabinetId,
-      clientId,
-      numeroDossier,
-      intitule,
-      statut: mapDossierStatut(extra.statut),
-      dateOuverture: extra.dateOuverture ? new Date(extra.dateOuverture) : new Date(),
+  // Remplir le mandat du dossier à partir des données d'import
+  const dateOuverture = extra.dateOuverture ? new Date(extra.dateOuverture) : undefined;
+  await prisma.dossierMandate.upsert({
+    where: { dossierId },
+    create: {
+      dossierId,
+      numeroDossier: numeroDossier ?? undefined,
+      dateOuverture: dateOuverture ?? new Date(),
+      districtJudiciaire: extra.districtJudiciaire ?? undefined,
+      tribunal: extra.tribunal ?? undefined,
+      typeCause: extra.typeCause ?? undefined,
+      statutDossier: extra.statut ?? undefined,
+    },
+    update: {
+      numeroDossier: numeroDossier ?? undefined,
+      dateOuverture: dateOuverture ?? undefined,
+      districtJudiciaire: extra.districtJudiciaire ?? undefined,
+      tribunal: extra.tribunal ?? undefined,
+      typeCause: extra.typeCause ?? undefined,
+      statutDossier: extra.statut ?? undefined,
     },
   });
-  return dossier.id;
+
+  return dossierId;
 }
 
 async function findUserByName(cabinetId: string, name: string): Promise<string | null> {

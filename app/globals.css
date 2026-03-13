@@ -183,6 +183,26 @@
   z-index: 1;
 }
 
+/* Scrollbar fine personnalisée — main et sidebar */
+.safe-app-main::-webkit-scrollbar,
+.safe-glass-sidebar nav::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.safe-app-main::-webkit-scrollbar-track,
+.safe-glass-sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.safe-app-main::-webkit-scrollbar-thumb,
+.safe-glass-sidebar nav::-webkit-scrollbar-thumb {
+  background: var(--safe-neutral-700);
+  border-radius: 3px;
+}
+.safe-app-main::-webkit-scrollbar-thumb:hover,
+.safe-glass-sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: var(--safe-neutral-500);
+}
+
 /* Glass card — dashboard and content cards (glassmorphism) */
 .card-glass,
 .safe-glass-panel {
@@ -246,6 +266,10 @@
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.35);
   color: #fff;
+}
+.safe-glass-topbar .header-search-input:focus {
+  border-color: rgb(52 211 153);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 .safe-glass-topbar .safe-topbar-locale > div {
   background: rgba(255, 255, 255, 0.1);
@@ -488,4 +512,25 @@
 @keyframes safe-glow-pulse {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
+}
+
+/* Impression facture : n’afficher que l’aperçu (pour « Enregistrer en PDF ») */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #facture-apercu-print,
+  #facture-apercu-print * {
+    visibility: visible;
+  }
+  #facture-apercu-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+  }
 }

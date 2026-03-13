@@ -22,8 +22,9 @@ npm install
 Copiez `.env.example` vers `.env` et ajustez si besoin :
 
 - `DATABASE_URL` : URL PostgreSQL (ex. Neon, Vercel Postgres, Supabase). Voir [DEPLOYMENT.md](./DEPLOYMENT.md) pour le déploiement sur Vercel.
+- `DIRECT_URL` : *(optionnel en local)* URL de connexion directe à PostgreSQL. Si votre fournisseur ne donne qu’une seule URL, vous pouvez mettre la même valeur que `DATABASE_URL`. En production (Vercel), voir [DEPLOYMENT.md](./DEPLOYMENT.md).
 - `NEXTAUTH_SECRET` : secret pour les sessions (générer avec `openssl rand -base64 32`)
-- `NEXTAUTH_URL` : URL de l'app (ex. `http://localhost:3000` ; en prod ex. `https://votre-app.vercel.app`)
+- `NEXTAUTH_URL` : URL de l'app (ex. `http://localhost:3001` ; en prod ex. `https://votre-app.vercel.app`). Le script `npm run dev` lance l’app sur le port **3001**.
 
 3. **Base de données**
 
@@ -39,7 +40,7 @@ npx prisma migrate deploy
 npm run dev
 ```
 
-Ouvrez [http://localhost:3000](http://localhost:3000). Créez un compte via **Créer un compte** (premier utilisateur = administrateur du cabinet).
+Ouvrez [http://localhost:3001](http://localhost:3001). Créez un compte via **Créer un compte** (premier utilisateur = administrateur du cabinet).
 
 ## Fonctionnalités MVP
 

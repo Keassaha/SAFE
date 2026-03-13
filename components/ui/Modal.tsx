@@ -11,9 +11,11 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Classe CSS pour la largeur du panneau (ex. max-w-2xl pour formulaires larges) */
+  maxWidth?: string;
 }
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({ open, onClose, title, children, maxWidth = "max-w-lg" }: ModalProps) {
   const t = useTranslations("ui");
   useEffect(() => {
     if (open) {
@@ -51,7 +53,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
             aria-hidden
           />
@@ -60,7 +62,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="relative z-10 w-full max-w-lg rounded-2xl bg-white shadow-xl border border-[var(--safe-neutral-border)] max-h-[90vh] overflow-auto"
+            className={`relative z-10 w-full ${maxWidth} rounded-2xl bg-white shadow-xl border border-[var(--safe-neutral-border)] max-h-[90vh] overflow-auto`}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--safe-neutral-border)]">
               <h2 id="modal-title" className="text-lg font-semibold safe-text-title">

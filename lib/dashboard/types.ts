@@ -103,6 +103,14 @@ export interface DossierEvolutionItem {
   nextDeadline: string | null;
 }
 
+export interface OnboardingChecklist {
+  cabinetConfigured: boolean;
+  hasClient: boolean;
+  hasDossier: boolean;
+  hasTimeEntry: boolean;
+  hasInvoice: boolean;
+}
+
 export interface DashboardPayload {
   visibility: DashboardVisibility;
   kpis: DashboardKpis;
@@ -119,4 +127,6 @@ export interface DashboardPayload {
   upcomingTasks: DashboardTaskItem[];
   upcomingEvents: DashboardEventItem[];
   dossierEvolution: DossierEvolutionItem[];
+  allKpisZero?: boolean;
+  onboardingChecklist?: OnboardingChecklist;
 }

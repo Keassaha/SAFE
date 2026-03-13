@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Search, Plus, Bell, Settings } from "lucide-react";
@@ -13,11 +14,25 @@ interface HeaderProps {
   title?: string;
   user?: { name?: string | null; email?: string | null; image?: string | null; id?: string };
   cabinetId?: string | null;
+  /** Afficher le dot de notification sur la cloche (ex. notifications non lues) */
+  hasUnreadNotifications?: boolean;
 }
 
-export function Header({ title = "SAFE", user, cabinetId }: HeaderProps) {
+export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications = false }: HeaderProps) {
   const t = useTranslations("shell.header");
   const currentUserId = (user as { id?: string })?.id ?? "";
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        document.getElementById("header-search")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   return (
     <header className="safe-glass-topbar h-14 shrink-0 flex items-center justify-between px-4 md:px-6 gap-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -34,7 +49,7 @@ export function Header({ title = "SAFE", user, cabinetId }: HeaderProps) {
           </label>
           <div className="relative">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none"
               aria-hidden
             />
             <input
@@ -42,8 +57,11 @@ export function Header({ title = "SAFE", user, cabinetId }: HeaderProps) {
               type="search"
               data-topbar-input
               placeholder={t("searchPlaceholder")}
-              className="w-full h-10 pl-10 pr-4 rounded-xl border outline-none transition-all duration-200 text-sm focus:ring-2 focus:ring-white/20"
+              className="header-search-input w-full h-10 pl-10 pr-20 rounded-xl border outline-none transition-all duration-200 text-sm focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"
             />
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-white/60 font-mono">
+              <span className="text-white/50">⌘</span>K
+            </kbd>
           </div>
         </div>
       </div>
@@ -62,11 +80,17 @@ export function Header({ title = "SAFE", user, cabinetId }: HeaderProps) {
         </Link>
         <button
           type="button"
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 hover:text-white transition-colors duration-200"
+          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 hover:text-white transition-colors duration-200"
           title={t("notifications")}
           aria-label={t("notifications")}
         >
           <Bell className="w-4 h-4" />
+          {hasUnreadNotifications && (
+            <span
+              className="absolute right-1 top-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--safe-green-900)]"
+              aria-hidden
+            />
+          )}
         </button>
         <div
           className="w-8 h-8 rounded-full bg-white/18 flex items-center justify-center text-white text-sm font-semibold border border-white/25"

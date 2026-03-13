@@ -19,6 +19,7 @@ import type {
   DashboardTaskItem,
   DashboardEventItem,
   DossierEvolutionItem,
+  OnboardingChecklist,
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
 import { DashboardView } from "@/components/dashboard/DashboardView";
@@ -74,6 +75,11 @@ export default async function TableauDeBordPage() {
     rawTasks,
     rawEvents,
     dossiersForEvolution,
+    cabinetForOnboarding,
+    clientsCount,
+    dossiersCount,
+    timeEntriesCount,
+    invoicesCount,
   ] = await Promise.all([
     getGlobalTrustBalance(cabinetId),
     prisma.payment.findMany({
@@ -269,6 +275,14 @@ export default async function TableauDeBordPage() {
       orderBy: { updatedAt: "desc" },
       take: 30,
     }),
+    prisma.cabinet.findUnique({
+      where: { id: cabinetId },
+      select: { nom: true, adresse: true },
+    }),
+    prisma.client.count({ where: { cabinetId } }),
+    prisma.dossier.count({ where: { cabinetId } }),
+    prisma.timeEntry.count({ where: { cabinetId } }),
+    prisma.invoice.count({ where: { cabinetId } }),
   ]);
 
   const revenueThisMonth = invoiceThisMonth._sum.montantTotal ?? 0;
@@ -280,6 +294,25 @@ export default async function TableauDeBordPage() {
   const unbilledMinutes = unbilledTimeEntriesAgg._sum.dureeMinutes ?? 0;
   const expensesThisMonth = expensesThisMonthAgg._sum.amount ?? 0;
   const expensesLastMonth = expensesLastMonthAgg._sum.amount ?? 0;
+
+  const allKpisZero =
+    revenueThisMonth === 0 &&
+    paymentsThisMonth === 0 &&
+    outstandingTotal === 0 &&
+    unbilledValue === 0 &&
+    trustBalance === 0 &&
+    expensesThisMonth === 0;
+
+  const hasCabinetIdentity = Boolean(
+    cabinetForOnboarding?.nom && cabinetForOnboarding?.adresse
+  );
+  const onboardingChecklist: OnboardingChecklist = {
+    cabinetConfigured: hasCabinetIdentity,
+    hasClient: clientsCount >= 1,
+    hasDossier: dossiersCount >= 1,
+    hasTimeEntry: timeEntriesCount >= 1,
+    hasInvoice: invoicesCount >= 1,
+  };
 
   const trend = (current: number, previous: number) =>
     previous === 0 ? (current > 0 ? 100 : 0) : Math.round(((current - previous) / previous) * 100);
@@ -548,6 +581,8 @@ export default async function TableauDeBordPage() {
     upcomingTasks,
     upcomingEvents,
     dossierEvolution,
+    allKpisZero,
+    onboardingChecklist,
   };
 
   return <DashboardView payload={payload} />;

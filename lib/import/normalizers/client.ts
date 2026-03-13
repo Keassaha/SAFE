@@ -76,6 +76,9 @@ export function normalizeClientRow(
     typeDossier: get("typeDossier") || undefined,
     dateOuverture,
     statut: get("statut") ? mapStatut(get("statut")) : undefined,
+    districtJudiciaire: get("districtJudiciaire") || undefined,
+    tribunal: get("tribunal") || undefined,
+    typeCause: get("typeCause") || undefined,
   };
 
   return { index, data, errors, warnings };

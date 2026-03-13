@@ -35,11 +35,78 @@ Le fichier `vercel.json` impose la commande de build `npm run vercel-build`, qui
 
 Déployez par push sur la branche liée ou `vercel --prod`. Si le build échoue sur `prisma migrate deploy` (erreur type « PREPARE » ou « protocol »), définissez **`DIRECT_URL`** avec l’URL de connexion directe Supabase (port 5432). Après le déploiement, la création de compte et la connexion fonctionnent.
 
+### 4. Erreur P3005 : « The database schema is not empty » (baseline)
+
+Si la base de production (ex. Supabase) a déjà été créée avec des tables (SQL manuel, ancien schéma, autre outil) et que le build Vercel échoue avec :
+
+```text
+Error: P3005
+The database schema is not empty. Read more about how to baseline an existing production database
+```
+
+il faut **baseliner** la base une seule fois : indiquer à Prisma que la migration initiale est déjà appliquée, sans réexécuter le SQL.
+
+**À faire une seule fois**, en local, avec les variables pointant vers la **base de production** (Supabase) :
+
+```bash
+# Avec .env contenant DATABASE_URL et DIRECT_URL de la prod, ou en ligne :
+export DATABASE_URL="postgresql://..."   # URL de la base Supabase (directe ou pooler)
+export DIRECT_URL="postgresql://..."     # Connexion directe (port 5432) recommandée
+npx prisma migrate resolve --applied "20250309180000_init"
+```
+
+Ou avec le script npm (après avoir configuré `DATABASE_URL` et `DIRECT_URL` pour la prod) :
+
+```bash
+npm run db:baseline
+```
+
+Ensuite, relancez le déploiement Vercel : `prisma migrate deploy` ignorera la migration déjà marquée comme appliquée et le build passera.
+
+**Si la commande échoue** avec une erreur du type « relation _prisma_migrations does not exist » : la base n’a jamais utilisé Prisma Migrate. Créez la table une fois (ex. dans l’éditeur SQL Supabase), puis relancez `db:baseline` :
+
+```sql
+CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
+  "id" VARCHAR(36) PRIMARY KEY NOT NULL,
+  "checksum" VARCHAR(64) NOT NULL,
+  "finished_at" TIMESTAMPTZ,
+  "migration_name" VARCHAR(255) NOT NULL,
+  "logs" TEXT,
+  "rolled_back_at" TIMESTAMPTZ,
+  "started_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "applied_steps_count" INTEGER NOT NULL DEFAULT 0
+);
+```
+
+Référence : [Baselining a database (Prisma)](https://www.prisma.io/docs/orm/prisma-migrate/workflows/baselining).
+
+### 5. « La base de données ne répond pas » sur Vercel
+
+Si l’app affiche ce message après déploiement, la connexion à la base échoue au **runtime**. Vérifiez dans l’ordre :
+
+1. **Variables bien définies**  
+   Vercel → projet → Settings → Environment Variables : `DATABASE_URL` (ou `POSTGRES_URL` / `POSTGRES_PRISMA_URL`) doit être défini pour **Production** (et Preview si vous testez une preview). Pas seulement au build.
+
+2. **Redéploiement après ajout/modification**  
+   Toute modification de variable d’environnement nécessite un **nouveau déploiement** (redeploy) pour être prise en compte à l’exécution.
+
+3. **Supabase : URL pooler pour le runtime**  
+   Pour l’exécution sur Vercel (serverless), utilisez l’URL **Connection pooling** (port **6543**), pas l’URL directe (5432). Dans Supabase : Settings → Database → Connection string → **URI** (mode Transaction ou Session). `DIRECT_URL` reste utile pour le build (migrations) avec l’URL directe (5432).
+
+4. **Supabase : projet actif**  
+   Les projets gratuits peuvent être **mis en pause**. Dans le dashboard Supabase, reprenez le projet si nécessaire.
+
+5. **Mot de passe et caractères spéciaux**  
+   Si le mot de passe contient des caractères spéciaux, il doit être **encodé** dans l’URL (ex. `%40` pour `@`). Ou régénérez un mot de passe sans caractères spéciaux dans Supabase.
+
+6. **Code d’erreur Prisma**  
+   L’API `/api/auth/db-check` peut renvoyer un champ `code` (ex. `P1001`, `P1002`). P1001 = serveur injoignable (URL, firewall, projet en pause). P1002 = timeout. Consulter la [référence des erreurs Prisma](https://www.prisma.io/docs/orm/reference/error-reference) si besoin.
+
 ---
 
 ## En local
 
-Utilisez la même `DATABASE_URL` (PostgreSQL) dans votre `.env`. Puis :
+Utilisez la même `DATABASE_URL` (PostgreSQL) dans votre `.env`. Si votre fournisseur (Neon, Supabase, etc.) ne fournit qu’une seule URL, définissez **`DIRECT_URL`** avec la même valeur que `DATABASE_URL` pour que `prisma generate` et les migrations fonctionnent. Puis :
 
 ```bash
 npx prisma generate

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { requireCabinetAndUser } from "@/lib/auth/session";
-import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +17,7 @@ import { DossierSearchBar } from "@/components/dossiers/registry/DossierSearchBa
 import { DossierFilters } from "@/components/dossiers/registry/DossierFilters";
 import { DossiersTable } from "@/components/dossiers/registry/DossiersTable";
 import { DossierPagination } from "@/components/dossiers/registry/DossierPagination";
+import { DossierCreateModal } from "@/components/dossiers/registry/DossierCreateModal";
 import type { UserRole } from "@prisma/client";
 import { canManageDossiers, canViewDossiers } from "@/lib/auth/permissions";
 import { Download } from "lucide-react";
@@ -75,7 +75,7 @@ export default async function DossiersPage({
 
   const today = new Date();
 
-  const [dossiers, totalCount, stats, clients, acteStats] = await Promise.all([
+  const [dossiers, totalCount, stats, clients, acteStats, avocats, assistants] = await Promise.all([
     prisma.dossier.findMany({
       where,
       orderBy,
@@ -101,6 +101,16 @@ export default async function DossiersPage({
       by: ["status"],
       where: { dossier: { cabinetId } },
       _count: true,
+    }),
+    prisma.user.findMany({
+      where: { cabinetId, role: { in: ["admin_cabinet", "avocat"] } },
+      select: { id: true, nom: true },
+      orderBy: { nom: "asc" },
+    }),
+    prisma.user.findMany({
+      where: { cabinetId, role: "assistante" },
+      select: { id: true, nom: true },
+      orderBy: { nom: "asc" },
     }),
   ]);
 
@@ -145,9 +155,12 @@ export default async function DossiersPage({
               </Button>
             </Link>
             {canCreate && (
-              <Link href={routes.dossierNouveau()}>
-                <Button>+ {t("newMatter")}</Button>
-              </Link>
+              <DossierCreateModal
+                clients={clients}
+                avocats={avocats}
+                assistants={assistants}
+                canCreate={canCreate}
+              />
             )}
           </div>
         }
@@ -179,9 +192,13 @@ export default async function DossiersPage({
                 description={t("createFirstMatter")}
                 action={
                   canCreate ? (
-                    <Link href={routes.dossierNouveau()}>
-                      <Button>{t("newMatter")}</Button>
-                    </Link>
+                    <DossierCreateModal
+                      clients={clients}
+                      avocats={avocats}
+                      assistants={assistants}
+                      canCreate={canCreate}
+                      buttonLabel={t("newMatter")}
+                    />
                   ) : undefined
                 }
               />

@@ -1,38 +1,45 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-const ACCENT_STYLES: Record<string, { border: string; iconBg: string; iconColor: string }> = {
+const ACCENT_STYLES: Record<string, { border: string; iconBg: string; iconColor: string; glow: string }> = {
   emerald: {
     border: "border-l-emerald-500",
     iconBg: "bg-emerald-100",
     iconColor: "text-emerald-700",
+    glow: "0 12px 40px rgba(16, 185, 129, 0.22)",
   },
   blue: {
     border: "border-l-blue-500",
     iconBg: "bg-blue-100",
     iconColor: "text-blue-700",
+    glow: "0 12px 40px rgba(59, 130, 246, 0.22)",
   },
   amber: {
     border: "border-l-amber-500",
     iconBg: "bg-amber-100",
     iconColor: "text-amber-700",
+    glow: "0 12px 40px rgba(245, 158, 11, 0.22)",
   },
   violet: {
     border: "border-l-violet-500",
     iconBg: "bg-violet-100",
     iconColor: "text-violet-700",
+    glow: "0 12px 40px rgba(139, 92, 246, 0.22)",
   },
   teal: {
     border: "border-l-teal-500",
     iconBg: "bg-teal-100",
     iconColor: "text-teal-700",
+    glow: "0 12px 40px rgba(20, 184, 166, 0.22)",
   },
   orange: {
     border: "border-l-orange-500",
     iconBg: "bg-orange-100",
     iconColor: "text-orange-700",
+    glow: "0 12px 40px rgba(249, 115, 22, 0.22)",
   },
 };
 
@@ -63,8 +70,14 @@ export function DashboardKPICard({
   const styles = ACCENT_STYLES[accent] ?? ACCENT_STYLES.emerald;
 
   return (
-    <div
+    <motion.div
       className={`card-glass overflow-hidden p-5 md:p-6 border-l-4 ${styles.border} ${className}`}
+      whileHover={{
+        y: -4,
+        boxShadow: styles.glow,
+        transition: { type: "tween", duration: 0.2 },
+      }}
+      transition={{ type: "tween", duration: 0.2 }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
@@ -110,6 +123,6 @@ export function DashboardKPICard({
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -14,6 +14,9 @@ const CLIENT_ALIASES: AliasMap = {
   adresse: ["adresse", "address", "adresse complète"],
   langue: ["langue", "language", "lang"],
   statut: ["statut", "status", "état", "etat", "state"],
+  districtJudiciaire: ["district", "district judiciaire", "district_judiciaire", "judicial district"],
+  tribunal: ["tribunal", "cour", "court"],
+  typeCause: ["type cause", "type_cause", "type de cause", "cause type"],
 };
 
 const TIME_ENTRY_ALIASES: AliasMap = {
@@ -85,6 +88,9 @@ export function getFieldLabels(type: DocumentType): Record<string, string> {
       adresse: "Adresse",
       langue: "Langue",
       statut: "Statut",
+      districtJudiciaire: "District judiciaire",
+      tribunal: "Tribunal",
+      typeCause: "Type de cause",
     };
   }
   if (type === "fiches_temps") {

@@ -82,7 +82,13 @@ export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartPro
                 tickLine={false}
                 tick={{ fill: "var(--safe-text-secondary)", fontSize: 10 }}
               />
-              <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+              <Bar
+                dataKey="value"
+                radius={[8, 8, 0, 0]}
+                isAnimationActive
+                animationBegin={0}
+                animationDuration={600}
+              >
                 {chartData.map((_, index) => {
                   const isLast = index === chartData.length - 1;
                   const isSecondLast = index === chartData.length - 2;

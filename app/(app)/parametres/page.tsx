@@ -326,6 +326,23 @@ export default async function ParametresPage() {
           href={canAccessBilling ? routes.facturation : undefined}
           cta={canAccessBilling ? t("openBilling") : undefined}
         />
+        {canManageSettings && (
+          <Card className="h-full">
+            <CardContent className="flex flex-col gap-3 pt-6">
+              <p className="text-sm font-semibold safe-text-title">
+                {t("envoiFactureClientTitle")}
+              </p>
+              <p className="text-sm safe-text-secondary flex-1">
+                {t("envoiFactureClientDesc")}
+              </p>
+              <Link href={routes.parametresEnvoiFacture}>
+                <Button variant="secondary" className="w-full sm:w-auto">
+                  {t("envoiFactureClientCta")}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         <SettingsHubCard
           icon={<ShieldCheck className="h-5 w-5" aria-hidden />}
