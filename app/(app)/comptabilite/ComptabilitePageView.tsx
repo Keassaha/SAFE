@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { BookOpen, Receipt, CreditCard } from "lucide-react";
 import { routes } from "@/lib/routes";
+// Types Prisma générés (pas d'instance prisma sur le namespace @prisma/client)
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import type { JournalKpiData } from "@/types/journal";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
