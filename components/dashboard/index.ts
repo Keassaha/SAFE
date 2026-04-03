@@ -18,3 +18,7 @@ export { DashboardActivityCard } from "./DashboardActivityCard";
 export { DashboardCalendar } from "./DashboardCalendar";
 export { DashboardTransactionsList } from "./DashboardTransactionsList";
 export { ChartBillableHours } from "./ChartBillableHours";
+export { MonthlyComparisonTable } from "./MonthlyComparisonTable";
+export { MonthlyComparisonChart } from "./MonthlyComparisonChart";
+export { OutstandingAccountsTable } from "./OutstandingAccountsTable";
+export { IndicatorsPanel } from "./IndicatorsPanel";

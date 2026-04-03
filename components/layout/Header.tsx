@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { signOut } from "next-auth/react";
+import { signOutClient } from "@/lib/auth/sign-out-client";
 import Link from "next/link";
 import { Search, Plus, Bell, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -34,7 +34,7 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
   }, []);
 
   return (
-    <header className="safe-glass-topbar h-14 shrink-0 flex items-center justify-between px-4 md:px-6 gap-4">
+    <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 gap-4 bg-white border-b border-[#d0ddd6]">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Link
           href={routes.tableauDeBord}
@@ -49,67 +49,58 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
           </label>
           <div className="relative">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
               aria-hidden
             />
             <input
               id="header-search"
               type="search"
-              data-topbar-input
               placeholder={t("searchPlaceholder")}
-              className="header-search-input w-full h-10 pl-10 pr-20 rounded-xl border outline-none transition-all duration-200 text-sm focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"
+              className="w-full h-12 pl-12 pr-20 rounded-2xl bg-white border border-gray-100 outline-none transition-all duration-200 text-sm text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-transparent shadow-sm"
             />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-white/60 font-mono">
-              <span className="text-white/50">⌘</span>K
+            <kbd className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] text-gray-500 font-mono">
+              <span>⌘</span>K
             </kbd>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-2 safe-topbar-text">
-        <div className="safe-topbar-locale">
+      <div className="flex items-center gap-4">
+        <div className="safe-topbar-locale text-gray-600">
           <LocaleSwitcher />
         </div>
         <GlobalTimer cabinetId={cabinetId ?? null} currentUserId={currentUserId} />
-        <Link
-          href={routes.clientNouveau}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 hover:text-white transition-colors duration-200 font-medium"
-          title={t("addTitle")}
-          aria-label={t("addClient")}
-        >
-          <Plus className="w-5 h-5" />
-        </Link>
+        
         <button
           type="button"
-          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 hover:text-white transition-colors duration-200"
+          className="relative w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors duration-200 shadow-sm"
           title={t("notifications")}
           aria-label={t("notifications")}
         >
-          <Bell className="w-4 h-4" />
+          <Bell className="w-5 h-5" />
           {hasUnreadNotifications && (
             <span
-              className="absolute right-1 top-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--safe-green-900)]"
+              className="absolute right-2.5 top-2 w-2 h-2 rounded-full bg-red-500"
               aria-hidden
             />
           )}
         </button>
-        <div
-          className="w-8 h-8 rounded-full bg-white/18 flex items-center justify-center text-white text-sm font-semibold border border-white/25"
-          aria-hidden
-        >
-          {user?.name?.[0] ?? user?.email?.[0] ?? "?"}
+
+        <div className="flex items-center gap-3 bg-white pr-4 pl-1.5 py-1.5 rounded-full border border-gray-100 cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+          <div
+            className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center text-white text-sm font-semibold"
+            aria-hidden
+          >
+            {user?.name?.[0] ?? user?.email?.[0] ?? "?"}
+          </div>
+          <span className="text-sm font-semibold text-gray-800 hidden sm:block">
+            {user?.name ?? user?.email?.split('@')[0] ?? "Utilisateur"}
+          </span>
         </div>
-        <Link
-          href={routes.parametres}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 hover:text-white transition-colors duration-200"
-          title={t("settings")}
-          aria-label={t("settings")}
-        >
-          <Settings className="w-4 h-4" />
-        </Link>
+
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="safe-topbar-text-muted ml-1 px-3 py-2 text-sm font-medium rounded-xl transition-colors duration-200 hover:text-white hover:bg-white/10"
+          onClick={() => void signOutClient("/")}
+          className="text-gray-500 ml-2 px-3 py-2 text-sm font-medium rounded-xl transition-colors duration-200 hover:text-green-800 hover:bg-green-50"
         >
           {t("signOut")}
         </button>

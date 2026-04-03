@@ -84,7 +84,7 @@ export function DashboardSpendingCard({
       <div className="flex items-center justify-between pt-3 border-t border-[var(--safe-neutral-border)]">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-gold-500" aria-hidden />
+            <span className="w-2 h-2 rounded-full bg-green-600" aria-hidden />
             <span className="text-xs safe-text-secondary">{td("pendingLabel")}</span>
           </div>
           <div className="flex items-center gap-1.5">

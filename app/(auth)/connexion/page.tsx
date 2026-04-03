@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signInWithCredentialsClient } from "@/lib/auth/credentials-sign-in-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
@@ -77,19 +77,22 @@ function AuthPageContent() {
     setError("");
     setSuccess("");
     setLoading(true);
-    const res = await signIn("credentials", {
+    const res = await signInWithCredentialsClient({
       cabinetName,
       email,
       password,
-      redirect: false,
+      callbackUrl,
     });
     setLoading(false);
-    if (res?.error) {
+    if (!res.ok) {
+      if (res.error === "network") {
+        setError("Impossible de joindre le serveur. Vérifiez que l’app tourne (ex. npm run dev).");
+        return;
+      }
       setError("Nom du cabinet, courriel ou mot de passe incorrect.");
       return;
     }
-    router.push(callbackUrl);
-    router.refresh();
+    window.location.assign(callbackUrl);
   }
 
   async function handleSignUp(e: React.FormEvent) {
@@ -140,9 +143,9 @@ function AuthPageContent() {
     <div className="auth-card mx-auto w-full max-w-[520px] overflow-hidden border border-white/25 p-6 shadow-2xl md:p-8">
       <div className="mb-6 text-center">
         <div className="mb-4 flex justify-center">
-          <SafeLogo variant="light" className="w-[170px]" />
+          <SafeLogo variant="dark" className="w-[170px]" />
         </div>
-        <p className="mt-2 text-sm text-neutral-text-secondary">
+        <p className="mt-2 text-sm text-white/80">
           Accédez à votre espace de travail sécurisé
         </p>
       </div>
@@ -154,7 +157,7 @@ function AuthPageContent() {
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
             activeTab === "signin"
               ? "bg-primary-700 text-white shadow-sm"
-              : "text-neutral-text-secondary hover:text-primary-800"
+              : "text-white/70 hover:text-white"
           }`}
         >
           Connexion
@@ -165,7 +168,7 @@ function AuthPageContent() {
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
             activeTab === "signup"
               ? "bg-primary-700 text-white shadow-sm"
-              : "text-neutral-text-secondary hover:text-primary-800"
+              : "text-white/70 hover:text-white"
           }`}
         >
           Inscription
@@ -191,7 +194,7 @@ function AuthPageContent() {
       {activeTab === "signin" ? (
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
-            <label htmlFor="cabinetName" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="cabinetName" className="mb-1 block text-sm font-medium text-white/90">
               Nom du cabinet
             </label>
             <input
@@ -205,7 +208,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-white/90">
               Courriel
             </label>
             <input
@@ -219,7 +222,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="password" className="mb-1 block text-sm font-medium text-white/90">
               Mot de passe
             </label>
             <input
@@ -231,7 +234,7 @@ function AuthPageContent() {
               className={inputClass}
             />
           </div>
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-white/80">
             Les employées se connectent avec le nom exact du cabinet, leur courriel et leur mot de passe.
           </p>
           <Button type="submit" className="h-11 w-full bg-primary-700 hover:bg-primary-800">
@@ -241,7 +244,7 @@ function AuthPageContent() {
       ) : (
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
-            <label htmlFor="signupCabinetName" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="signupCabinetName" className="mb-1 block text-sm font-medium text-white/90">
               Nom du cabinet
             </label>
             <input
@@ -254,7 +257,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupAddress" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="signupAddress" className="mb-1 block text-sm font-medium text-white/90">
               Adresse du cabinet
             </label>
             <input
@@ -267,7 +270,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupNom" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="signupNom" className="mb-1 block text-sm font-medium text-white/90">
               Nom de l&apos;avocat responsable
             </label>
             <input
@@ -280,7 +283,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupEmail" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="signupEmail" className="mb-1 block text-sm font-medium text-white/90">
               Courriel
             </label>
             <input
@@ -293,7 +296,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupPassword" className="mb-1 block text-sm font-medium text-neutral-700">
+            <label htmlFor="signupPassword" className="mb-1 block text-sm font-medium text-white/90">
               Mot de passe
             </label>
             <input

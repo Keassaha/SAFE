@@ -7,8 +7,8 @@ type RouteContext = { params: Promise<{ nextauth?: string[] }> };
 
 async function GET(req: Request, context: RouteContext) {
   try {
-    const response = await nextAuthHandler(req, { params: context.params });
-    return response;
+    const resolvedParams = await context.params;
+    return await nextAuthHandler(req, { params: resolvedParams });
   } catch (e) {
     console.error("[NextAuth] GET error:", e);
     return Response.json(
@@ -20,8 +20,8 @@ async function GET(req: Request, context: RouteContext) {
 
 async function POST(req: Request, context: RouteContext) {
   try {
-    const response = await nextAuthHandler(req, { params: context.params });
-    return response;
+    const resolvedParams = await context.params;
+    return await nextAuthHandler(req, { params: resolvedParams });
   } catch (e) {
     console.error("[NextAuth] POST error:", e);
     return Response.json(

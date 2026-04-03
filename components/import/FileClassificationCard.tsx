@@ -13,7 +13,7 @@ const TYPE_ICONS: Record<DocumentType, typeof Receipt> = {
 const TYPE_BADGE_CLASSES: Record<DocumentType, string> = {
   releve_bancaire: "bg-[var(--safe-status-warning-bg)] text-[var(--safe-status-warning)] border-[var(--safe-status-warning)]/20",
   registre_clients: "bg-[var(--safe-green-50)] text-[var(--safe-green-800)] border-[var(--safe-green-600)]/20",
-  fiches_temps: "bg-[var(--safe-gold-50)] text-[var(--safe-gold-700)] border-[var(--safe-gold-600)]/20",
+  fiches_temps: "bg-[var(--safe-green-50)] text-[var(--safe-green-800)] border-[var(--safe-green-600)]/20",
 };
 
 export function FileClassificationCard({

@@ -120,7 +120,7 @@ function SettingsHubCard({
         <ul className="space-y-2 text-sm safe-text-secondary">
           {highlights.map((item) => (
             <li key={item} className="flex items-start gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--safe-gold-500)]" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--safe-green-700)]" aria-hidden />
               <span>{item}</span>
             </li>
           ))}

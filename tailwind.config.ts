@@ -19,13 +19,24 @@ const config: Config = {
           100: "var(--safe-green-100)",
           50: "var(--safe-green-50)",
         },
-        /* Amber (gold) — accents, CTAs */
+        /* Green accents (formerly gold) */
         gold: {
-          700: "var(--safe-gold-700)",
-          600: "var(--safe-gold-600)",
-          500: "var(--safe-gold-500)",
-          400: "var(--safe-gold-400)",
-          50: "var(--safe-gold-50)",
+          700: "var(--safe-green-800)",
+          600: "var(--safe-green-700)",
+          500: "var(--safe-green-600)",
+          400: "var(--safe-green-600)",
+          50: "var(--safe-green-50)",
+        },
+        /* Marketing V2 Theme */
+        marketing: {
+          darkest: "var(--safe-darkest)",
+          dark: "var(--safe-dark)",
+          "mid-dark": "var(--safe-mid-dark)",
+          accent: "var(--safe-accent)",
+          sage: "var(--safe-sage)",
+          lightest: "var(--safe-lightest)",
+          white: "var(--safe-white)",
+          muted: "var(--safe-text-muted)",
         },
         /* Semantic aliases for components */
         primary: {
@@ -42,13 +53,13 @@ const config: Config = {
           DEFAULT: "var(--safe-green-800)",
         },
         accent: {
-          50: "var(--safe-gold-50)",
-          100: "var(--safe-gold-50)",
-          400: "var(--safe-gold-400)",
-          500: "var(--safe-gold-500)",
-          600: "var(--safe-gold-600)",
-          700: "var(--safe-gold-700)",
-          DEFAULT: "var(--safe-gold-600)",
+          50: "var(--safe-green-50)",
+          100: "var(--safe-green-100)",
+          400: "var(--safe-green-600)",
+          500: "var(--safe-green-700)",
+          600: "var(--safe-green-700)",
+          700: "var(--safe-green-800)",
+          DEFAULT: "var(--safe-green-700)",
         },
         neutral: {
           surface: "var(--safe-neutral-surface)",
@@ -80,16 +91,19 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        heading: ["var(--font-heading)", "var(--font-sans)", "ui-sans-serif", "sans-serif"],
+        heading: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        jakarta: ["var(--font-jakarta)", "ui-sans-serif", "system-ui", "sans-serif"],
+        instrument: ["var(--font-instrument-serif)", "Georgia", "ui-serif", "serif"],
       },
       fontSize: {
-        display: ["2.25rem", { lineHeight: "1.2", letterSpacing: "-0.025em" }],
-        "heading-1": ["1.875rem", { lineHeight: "1.25", letterSpacing: "-0.025em" }],
-        "heading-2": ["1.25rem", { lineHeight: "1.35", letterSpacing: "-0.02em" }],
-        body: ["1rem", { lineHeight: "1.55" }],
-        "body-sm": ["0.875rem", { lineHeight: "1.4" }],
-        caption: ["0.75rem", { lineHeight: "1.35", letterSpacing: "0.02em" }],
+        display: ["clamp(2.5rem, 5vw, 4rem)", { lineHeight: "1.1", letterSpacing: "-0.025em" }],
+        "heading-1": ["clamp(2rem, 4vw, 3rem)", { lineHeight: "1.2", letterSpacing: "-0.025em" }],
+        "heading-2": ["clamp(1.5rem, 3vw, 2.25rem)", { lineHeight: "1.3", letterSpacing: "-0.02em" }],
+        "heading-3": ["clamp(1.25rem, 2vw, 1.75rem)", { lineHeight: "1.35", letterSpacing: "-0.01em" }],
+        body: ["clamp(1rem, 1.5vw, 1.125rem)", { lineHeight: "1.6" }],
+        "body-sm": ["0.875rem", { lineHeight: "1.5" }],
+        caption: ["0.75rem", { lineHeight: "1.4", letterSpacing: "0.02em" }],
       },
       fontWeight: {
         display: "700",

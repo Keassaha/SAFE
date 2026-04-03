@@ -14,6 +14,18 @@ export interface DashboardKpis {
   unbilledHoursValue: DashboardKpi;
   trustBalance: DashboardKpi;
   expensesThisMonth: DashboardKpi;
+  /** Taux de recouvrement = paiements / facturé */
+  recoveryRate: DashboardKpi;
+  /** Heures travaillées total */
+  hoursWorked: DashboardKpi;
+  /** Heures facturées total */
+  hoursBilled: DashboardKpi;
+  /** Taux de facturation = heures facturées / heures travaillées */
+  billingRate: DashboardKpi;
+  /** Revenu moyen par avocat */
+  revenuePerLawyer: DashboardKpi;
+  /** Cash non reçu (facturé - encaissé) */
+  cashNotReceived: DashboardKpi;
 }
 
 export interface RevenueChartPoint {
@@ -24,6 +36,16 @@ export interface RevenueChartPoint {
   invoiced?: number;
 }
 
+/** Row for the Facture vs Encaissé par mois table */
+export interface MonthlyComparisonRow {
+  month: string;
+  invoiced: number;
+  collected: number;
+  gap: number;
+  rate: number; // % collected/invoiced
+  delta: number; // change vs previous month
+}
+
 export interface LawyerProductivityRow {
   userId: string;
   lawyerName: string;
@@ -31,6 +53,8 @@ export interface LawyerProductivityRow {
   billableHours: number;
   valueBillable: number;
   unbilledHours: number;
+  /** % facturation = billableHours / hoursWorked */
+  billingRate: number;
 }
 
 export interface ActiveCaseRow {
@@ -41,6 +65,17 @@ export interface ActiveCaseRow {
   hoursLogged: number;
   amountInvoiced: number;
   lastActivity: Date | string;
+}
+
+/** Row for Top 10 comptes en souffrance */
+export interface OutstandingAccountRow {
+  clientId: string;
+  clientName: string;
+  balanceDue: number;
+  firstInvoiceDate: Date | string;
+  daysSinceFirstInvoice: number;
+  /** Sursis: delay status category */
+  agingCategory: string;
 }
 
 export interface BillingFollowUpRow {
@@ -111,12 +146,25 @@ export interface OnboardingChecklist {
   hasInvoice: boolean;
 }
 
+/** Indicateurs section data */
+export interface DashboardIndicators {
+  invoicesSent: number;
+  invoicesPending: number;
+  timeEntries: number;
+  unbilledEntries: number;
+  /** Intérêts cumulés at 14%/an on overdue invoices */
+  accruedInterest: number;
+  activeTrustAccounts: number;
+}
+
 export interface DashboardPayload {
   visibility: DashboardVisibility;
   kpis: DashboardKpis;
   revenueChartData: RevenueChartPoint[];
+  monthlyComparison: MonthlyComparisonRow[];
   lawyerProductivity: LawyerProductivityRow[];
   activeCases: ActiveCaseRow[];
+  outstandingAccounts: OutstandingAccountRow[];
   billingFollowUp: BillingFollowUpRow[];
   alerts: DashboardAlert[];
   activityFeed: ActivityFeedItem[];
@@ -127,6 +175,7 @@ export interface DashboardPayload {
   upcomingTasks: DashboardTaskItem[];
   upcomingEvents: DashboardEventItem[];
   dossierEvolution: DossierEvolutionItem[];
+  indicators: DashboardIndicators;
   allKpisZero?: boolean;
   onboardingChecklist?: OnboardingChecklist;
 }

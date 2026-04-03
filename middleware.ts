@@ -21,6 +21,5 @@ export const config = {
     "/outils/:path*",
     "/gestion/:path*",
     "/import/:path*",
-    "/onboarding/:path*",
   ],
 };

@@ -10,8 +10,10 @@ import { getDashboardVisibility } from "@/lib/dashboard/visibility";
 import type {
   DashboardKpis,
   RevenueChartPoint,
+  MonthlyComparisonRow,
   LawyerProductivityRow,
   ActiveCaseRow,
+  OutstandingAccountRow,
   BillingFollowUpRow,
   DashboardAlert,
   ActivityFeedItem,
@@ -19,6 +21,7 @@ import type {
   DashboardTaskItem,
   DashboardEventItem,
   DossierEvolutionItem,
+  DashboardIndicators,
   OnboardingChecklist,
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
@@ -80,6 +83,12 @@ export default async function TableauDeBordPage() {
     dossiersCount,
     timeEntriesCount,
     invoicesCount,
+    invoicesSentCount,
+    invoicesPendingCount,
+    unbilledTimeEntriesCount,
+    activeTrustAccountsCount,
+    overdueInvoicesForInterest,
+    outstandingByClient,
   ] = await Promise.all([
     getGlobalTrustBalance(cabinetId),
     prisma.payment.findMany({
@@ -283,8 +292,39 @@ export default async function TableauDeBordPage() {
     prisma.dossier.count({ where: { cabinetId } }),
     prisma.timeEntry.count({ where: { cabinetId } }),
     prisma.invoice.count({ where: { cabinetId } }),
+    prisma.invoice.count({
+      where: { cabinetId, statut: "envoyee" },
+    }),
+    prisma.invoice.count({
+      where: { cabinetId, statut: "brouillon" },
+    }),
+    prisma.timeEntry.count({
+      where: { cabinetId, statut: { not: "facture" }, facturable: true },
+    }),
+    prisma.trustAccount.count({
+      where: { cabinetId },
+    }).catch(() => 0 as number),
+    prisma.invoice.findMany({
+      where: { cabinetId, statut: "en_retard" },
+      select: { balanceDue: true, dateEcheance: true },
+    }),
+    prisma.invoice.findMany({
+      where: {
+        cabinetId,
+        statut: { in: ["envoyee", "partiellement_payee", "en_retard"] },
+        balanceDue: { gt: 0 },
+      },
+      select: {
+        clientId: true,
+        balanceDue: true,
+        dateEmission: true,
+        client: { select: { id: true, raisonSociale: true } },
+      },
+      orderBy: { dateEmission: "asc" },
+    }),
   ]);
 
+  // ── Basic aggregates ──
   const revenueThisMonth = invoiceThisMonth._sum.montantTotal ?? 0;
   const revenueLastMonth = invoiceLastMonth._sum.montantTotal ?? 0;
   const paymentsThisMonth = paymentsThisMonthAgg._sum.montant ?? 0;
@@ -295,6 +335,83 @@ export default async function TableauDeBordPage() {
   const expensesThisMonth = expensesThisMonthAgg._sum.amount ?? 0;
   const expensesLastMonth = expensesLastMonthAgg._sum.amount ?? 0;
 
+  // ── New metrics ──
+  const cashNotReceived = revenueThisMonth - paymentsThisMonth;
+  const recoveryRate = revenueThisMonth > 0 ? Math.round((paymentsThisMonth / revenueThisMonth) * 100) : 0;
+
+  // Total hours worked and billed (all time entries)
+  const totalMinutesWorked = timeEntriesForProductivity.reduce((sum, e) => sum + e.dureeMinutes, 0);
+  const totalMinutesBilled = timeEntriesForProductivity
+    .filter((e) => e.statut === "facture")
+    .reduce((sum, e) => sum + e.dureeMinutes, 0);
+  const totalHoursWorked = Math.round((totalMinutesWorked / 60) * 100) / 100;
+  const totalHoursBilled = Math.round((totalMinutesBilled / 60) * 100) / 100;
+  const billingRate = totalHoursWorked > 0 ? Math.round((totalHoursBilled / totalHoursWorked) * 100) : 0;
+
+  // Revenue per lawyer
+  const uniqueLawyerIds = [...new Set(timeEntriesForProductivity.map((e) => e.userId))];
+  const lawyerCount = uniqueLawyerIds.length || 1;
+  const revenuePerLawyer = revenueThisMonth / lawyerCount;
+
+  // ── Interest calculation (14% annual on overdue) ──
+  let accruedInterest = 0;
+  for (const inv of overdueInvoicesForInterest) {
+    if (inv.balanceDue > 0 && inv.dateEcheance) {
+      const daysOverdue = Math.max(0, Math.floor((now.getTime() - new Date(inv.dateEcheance).getTime()) / (1000 * 60 * 60 * 24)));
+      accruedInterest += inv.balanceDue * 0.14 * (daysOverdue / 365);
+    }
+  }
+  accruedInterest = Math.round(accruedInterest * 100) / 100;
+
+  // ── Outstanding accounts (Top 10) ──
+  const clientBalanceMap = new Map<string, { clientName: string; balanceDue: number; firstInvoiceDate: Date }>();
+  for (const inv of outstandingByClient) {
+    const existing = clientBalanceMap.get(inv.clientId);
+    const invDate = new Date(inv.dateEmission);
+    if (existing) {
+      existing.balanceDue += inv.balanceDue;
+      if (invDate < existing.firstInvoiceDate) {
+        existing.firstInvoiceDate = invDate;
+      }
+    } else {
+      clientBalanceMap.set(inv.clientId, {
+        clientName: inv.client.raisonSociale,
+        balanceDue: inv.balanceDue,
+        firstInvoiceDate: invDate,
+      });
+    }
+  }
+  const outstandingAccounts: OutstandingAccountRow[] = Array.from(clientBalanceMap.entries())
+    .sort((a, b) => b[1].balanceDue - a[1].balanceDue)
+    .slice(0, 10)
+    .map(([clientId, data]) => {
+      const daysSince = Math.floor((now.getTime() - data.firstInvoiceDate.getTime()) / (1000 * 60 * 60 * 24));
+      let agingCategory = "Courant";
+      if (daysSince > 120) agingCategory = "Critique";
+      else if (daysSince > 90) agingCategory = "90+ jours";
+      else if (daysSince > 60) agingCategory = "60+ jours";
+      else if (daysSince > 30) agingCategory = "30+ jours";
+      return {
+        clientId,
+        clientName: data.clientName,
+        balanceDue: data.balanceDue,
+        firstInvoiceDate: data.firstInvoiceDate,
+        daysSinceFirstInvoice: daysSince,
+        agingCategory,
+      };
+    });
+
+  // ── Indicators ──
+  const indicators: DashboardIndicators = {
+    invoicesSent: invoicesSentCount,
+    invoicesPending: invoicesPendingCount,
+    timeEntries: timeEntriesCount,
+    unbilledEntries: unbilledTimeEntriesCount,
+    accruedInterest,
+    activeTrustAccounts: activeTrustAccountsCount,
+  };
+
+  // ── Onboarding ──
   const allKpisZero =
     revenueThisMonth === 0 &&
     paymentsThisMonth === 0 &&
@@ -314,9 +431,11 @@ export default async function TableauDeBordPage() {
     hasInvoice: invoicesCount >= 1,
   };
 
+  // ── Trend helper ──
   const trend = (current: number, previous: number) =>
     previous === 0 ? (current > 0 ? 100 : 0) : Math.round(((current - previous) / previous) * 100);
 
+  // ── KPIs (extended to 12) ──
   const unbilledHoursFormatted = Math.round((unbilledMinutes / 60) * 100) / 100;
   const kpis: DashboardKpis = {
     revenueThisMonth: {
@@ -349,21 +468,67 @@ export default async function TableauDeBordPage() {
       trend: trend(expensesThisMonth, expensesLastMonth),
       trendLabel: t("vsLastMonth"),
     },
+    cashNotReceived: {
+      value: formatCurrency(cashNotReceived, "CAD", locale),
+      subtitle: t("cashNotReceivedSub"),
+    },
+    recoveryRate: {
+      value: `${recoveryRate}%`,
+      subtitle: t("recoveryRateSub"),
+    },
+    hoursWorked: {
+      value: `${totalHoursWorked} h`,
+      subtitle: t("hoursWorkedSub"),
+    },
+    hoursBilled: {
+      value: `${totalHoursBilled} h`,
+      subtitle: t("hoursBilledSub"),
+    },
+    billingRate: {
+      value: `${billingRate}%`,
+      subtitle: t("billingRateSub"),
+    },
+    revenuePerLawyer: {
+      value: formatCurrency(revenuePerLawyer, "CAD", locale),
+      subtitle: t("revenuePerLawyerSub"),
+    },
   };
 
+  // ── Revenue chart (12 months) ──
   const byMonth: Record<string, number> = {};
   for (const p of payments) {
     const d = new Date(p.datePaiement);
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     byMonth[monthKey] = (byMonth[monthKey] ?? 0) + p.montant;
   }
+
+  // Invoiced by month
+  const invoicedByMonth: Record<string, number> = {};
+  for (const inv of invoicesForRevenueByMonth) {
+    const d = new Date(inv.dateEmission);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    invoicedByMonth[monthKey] = (invoicedByMonth[monthKey] ?? 0) + inv.montantTotal;
+  }
+
   const revenueChartData: RevenueChartPoint[] = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
     const label = new Intl.DateTimeFormat(intlLocale, { month: "short" }).format(date);
-    return { monthKey: key, label, value: byMonth[key] ?? 0 };
+    return { monthKey: key, label, value: byMonth[key] ?? 0, invoiced: invoicedByMonth[key] ?? 0 };
   });
 
+  // ── Monthly comparison table (Facturé vs Encaissé) ──
+  const monthlyComparison: MonthlyComparisonRow[] = revenueChartData.map((point, i) => {
+    const invoiced = point.invoiced ?? 0;
+    const collected = point.value;
+    const gap = invoiced - collected;
+    const rate = invoiced > 0 ? Math.round((collected / invoiced) * 100) : 0;
+    const prevCollected = i > 0 ? revenueChartData[i - 1].value : 0;
+    const delta = prevCollected > 0 ? Math.round(((collected - prevCollected) / prevCollected) * 100) : 0;
+    return { month: point.label, invoiced, collected, gap, rate, delta };
+  });
+
+  // ── Lawyer productivity ──
   const userIds = [...new Set(timeEntriesForProductivity.map((e) => e.userId))];
   const users = userIds.length
     ? await prisma.user.findMany({
@@ -397,16 +562,22 @@ export default async function TableauDeBordPage() {
     byUser.set(e.userId, cur);
   }
   const lawyerProductivity: LawyerProductivityRow[] = Array.from(byUser.entries()).map(
-    ([uid, data]) => ({
-      userId: uid,
-      lawyerName: userMap[uid] ?? "—",
-      hoursWorked: Math.round((data.totalMinutes / 60) * 100) / 100,
-      billableHours: Math.round((data.billableMinutes / 60) * 100) / 100,
-      valueBillable: data.billableMontant,
-      unbilledHours: data.unbilledMontant,
-    })
+    ([uid, data]) => {
+      const hw = Math.round((data.totalMinutes / 60) * 100) / 100;
+      const bh = Math.round((data.billableMinutes / 60) * 100) / 100;
+      return {
+        userId: uid,
+        lawyerName: userMap[uid] ?? "—",
+        hoursWorked: hw,
+        billableHours: bh,
+        valueBillable: data.billableMontant,
+        unbilledHours: data.unbilledMontant,
+        billingRate: hw > 0 ? Math.round((bh / hw) * 100) : 0,
+      };
+    }
   );
 
+  // ── Active cases ──
   const dossierIds = activeDossiers.map((d) => d.id);
   const [hoursByDossierRows, invoicedByDossierRows] =
     dossierIds.length > 0
@@ -451,6 +622,7 @@ export default async function TableauDeBordPage() {
     };
   });
 
+  // ── Billing follow-up ──
   const billingFollowUp: BillingFollowUpRow[] = billingFollowUpInvoices.map((inv) => ({
     id: inv.id,
     clientName: inv.client.raisonSociale,
@@ -467,6 +639,7 @@ export default async function TableauDeBordPage() {
             : inv.statut,
   }));
 
+  // ── Alerts ──
   const alerts: DashboardAlert[] = [];
   if (overdueInvoicesCount > 0) {
     alerts.push({
@@ -490,6 +663,7 @@ export default async function TableauDeBordPage() {
     });
   }
 
+  // ── Activity feed ──
   const activityFeed: ActivityFeedItem[] = auditLogs.map((log) => ({
     id: log.id,
     timestamp: log.createdAt,
@@ -516,6 +690,7 @@ export default async function TableauDeBordPage() {
   const deboursARefacturer = deboursARefacturerAgg._sum.montant ?? 0;
   const deboursNonRembourses = deboursNonRemboursesAgg._sum.montant ?? 0;
 
+  // ── Tasks & Events ──
   const upcomingTasks: DashboardTaskItem[] = rawTasks.map((t) => ({
     id: t.id,
     titre: t.titre,
@@ -538,6 +713,7 @@ export default async function TableauDeBordPage() {
     dossierId: e.dossierId,
   }));
 
+  // ── Dossier evolution ──
   const dossierEvolution: DossierEvolutionItem[] = dossiersForEvolution.map((d) => {
     const tasksDone = d.taches.filter((t) => t.statut === "terminee").length;
     const futureDeadlines = d.taches
@@ -565,12 +741,15 @@ export default async function TableauDeBordPage() {
     };
   });
 
+  // ── Final payload ──
   const payload: DashboardPayload = {
     visibility,
     kpis,
     revenueChartData,
+    monthlyComparison,
     lawyerProductivity,
     activeCases,
+    outstandingAccounts,
     billingFollowUp,
     alerts,
     activityFeed,
@@ -581,6 +760,7 @@ export default async function TableauDeBordPage() {
     upcomingTasks,
     upcomingEvents,
     dossierEvolution,
+    indicators,
     allKpisZero,
     onboardingChecklist,
   };

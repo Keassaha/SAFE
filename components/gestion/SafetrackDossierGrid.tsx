@@ -73,7 +73,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
               placeholder="Filtrer…"
-              className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-gold-400)]/50 w-48"
+              className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-600)]/50 w-48"
             />
           </div>
         )}

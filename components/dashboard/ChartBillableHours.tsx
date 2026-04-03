@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const COLORS = ["var(--safe-chart-primary)", "var(--safe-chart-secondary)", "var(--safe-gold-700)"];
+const COLORS = ["var(--safe-chart-primary)", "var(--safe-chart-secondary)", "var(--safe-green-800)"];
 
 export function ChartBillableHours({
   billedPercent,

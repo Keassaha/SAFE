@@ -107,7 +107,7 @@ export function InvoiceTemplate({
     >
       <header className="relative bg-[var(--safe-green-900)] text-white px-6 py-5 sm:px-8 sm:py-6">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--safe-green-800)] to-[var(--safe-green-950)] opacity-95" />
-        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[var(--safe-gold-500)]/20 to-transparent" />
+        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[var(--safe-green-600)]/20 to-transparent" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-[var(--safe-green-100)] text-xs font-semibold uppercase tracking-widest mb-1">
@@ -125,7 +125,7 @@ export function InvoiceTemplate({
           </div>
           <div className="flex flex-wrap items-center gap-3">
             {statut && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[var(--safe-gold-500)]/90 text-[var(--safe-green-950)]">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[var(--safe-green-600)]/90 text-white">
                 {statut}
               </span>
             )}
@@ -291,7 +291,7 @@ export function InvoiceTemplate({
             <div className="flex justify-between font-semibold text-[var(--safe-text-title)] pt-1">
               <span>{tf("balanceDue")}</span>
               <span
-                className={`tabular-nums ${balanceDue > 0 ? "text-[var(--safe-gold-600)]" : "text-[var(--safe-status-success)]"}`}
+                className={`tabular-nums ${balanceDue > 0 ? "text-[var(--safe-green-700)]" : "text-[var(--safe-status-success)]"}`}
               >
                 {formatCurrency(balanceDue)}
               </span>
@@ -309,7 +309,7 @@ export function InvoiceTemplate({
       )}
 
       <div
-        className="h-1 bg-gradient-to-r from-[var(--safe-green-700)] via-[var(--safe-gold-500)] to-[var(--safe-green-700)]"
+        className="h-1 bg-gradient-to-r from-[var(--safe-green-700)] via-[var(--safe-green-600)] to-[var(--safe-green-700)]"
         aria-hidden
       />
     </article>

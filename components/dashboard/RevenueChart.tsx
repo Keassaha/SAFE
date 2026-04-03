@@ -4,11 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Maximize2, TrendingUp, BarChart2 } from "lucide-react";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { routes } from "@/lib/routes";
 import type { RevenueChartPoint } from "@/lib/dashboard/types";
-
-const CHART_PRIMARY = "var(--safe-chart-primary)";
 
 export type RevenueChartRange = 1 | 3 | 6 | 12;
 
@@ -17,11 +23,10 @@ export interface RevenueChartProps {
   range?: RevenueChartRange;
 }
 
-export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartProps) {
+export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProps) {
   const t = useTranslations("dashboard");
 
   const RANGE_OPTIONS: { value: RevenueChartRange; label: string }[] = [
-    { value: 1, label: t("thisMonth") },
     { value: 3, label: t("threeMonths") },
     { value: 6, label: t("sixMonths") },
     { value: 12, label: t("twelveMonths") },
@@ -32,19 +37,19 @@ export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartPro
   const hasData = chartData.length > 0;
 
   return (
-    <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-emerald-500">
-      <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
+    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
+      <div className="flex items-start justify-between mb-5 flex-wrap gap-2">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+          <h3 className="text-base font-semibold text-[#1a2e28] flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-emerald-600" aria-hidden />
             {t("revenueEncashments")}
           </h3>
-          <p className="text-xs safe-text-secondary mt-0.5">
+          <p className="text-xs text-[#6b8f7b] mt-0.5">
             {t("perMonth")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-[var(--safe-neutral-border)] p-0.5">
+          <div className="flex rounded-lg bg-[#F2F7F4] p-1">
             {RANGE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -52,8 +57,8 @@ export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartPro
                 onClick={() => setRange(opt.value)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   range === opt.value
-                    ? "bg-gold-500 text-white"
-                    : "text-[var(--safe-text-secondary)] hover:bg-white/80"
+                    ? "bg-[#1a3c2d] text-white shadow-sm"
+                    : "text-[#4a6a5c] hover:text-[#1a2e28] hover:bg-white"
                 }`}
               >
                 {opt.label}
@@ -62,7 +67,7 @@ export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartPro
           </div>
           <Link
             href={routes.rapports}
-            className="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors text-[var(--safe-icon-default)]"
+            className="w-8 h-8 rounded-lg bg-[#F2F7F4] hover:bg-[#e0ebe4] flex items-center justify-center transition-colors text-[#4a6a5c]"
             aria-label={t("viewReports")}
           >
             <Maximize2 className="w-4 h-4" />
@@ -70,50 +75,62 @@ export function RevenueChart({ data, range: initialRange = 12 }: RevenueChartPro
         </div>
       </div>
       {hasData ? (
-        <div className="h-48 md:h-56">
+        <div className="h-52 md:h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+            <AreaChart
               data={chartData}
               margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
             >
+              <defs>
+                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e0ebe4"
+                vertical={false}
+              />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "var(--safe-text-secondary)", fontSize: 10 }}
+                tick={{ fill: "#6b8f7b", fontSize: 11 }}
               />
-              <Bar
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b8f7b", fontSize: 11 }}
+                width={50}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#ffffff",
+                  border: "1px solid #d0ddd6",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 16px rgba(26,46,40,0.08)",
+                  color: "#1a2e28",
+                  fontSize: "13px",
+                }}
+                labelStyle={{ color: "#4a6a5c", fontWeight: 500 }}
+              />
+              <Area
+                type="monotone"
                 dataKey="value"
-                radius={[8, 8, 0, 0]}
+                stroke="#10b981"
+                strokeWidth={2.5}
+                fill="url(#revenueGradient)"
                 isAnimationActive
                 animationBegin={0}
-                animationDuration={600}
-              >
-                {chartData.map((_, index) => {
-                  const isLast = index === chartData.length - 1;
-                  const isSecondLast = index === chartData.length - 2;
-                  return (
-                    <Cell
-                      key={index}
-                      fill={
-                        isLast
-                          ? "#10b981"
-                          : isSecondLast
-                            ? "#34d399"
-                            : index >= chartData.length - 4
-                              ? "#6ee7b7"
-                              : "var(--safe-neutral-border)"
-                      }
-                    />
-                  );
-                })}
-              </Bar>
-            </BarChart>
+                animationDuration={800}
+              />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-48 flex flex-col items-center justify-center text-sm safe-text-secondary gap-1">
-          <BarChart2 className="w-10 h-10 text-[var(--safe-neutral-border)]" aria-hidden />
+        <div className="h-52 flex flex-col items-center justify-center text-sm text-[#6b8f7b] gap-2">
+          <BarChart2 className="w-10 h-10 text-[#c8ddd0]" aria-hidden />
           {t("noRevenueData")}
         </div>
       )}

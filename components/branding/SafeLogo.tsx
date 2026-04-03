@@ -23,7 +23,7 @@ export function SafeLogo({
 }: SafeLogoProps) {
   const isDark = variant === "dark";
   const primary = isDark ? "#E6F4EF" : "#0e3b2f";
-  const accent = isDark ? "#e8b547" : "#c88a1f";
+  const accent = isDark ? "#8EB69B" : "#1a5c3a";
 
   return (
     <motion.span
@@ -41,23 +41,25 @@ export function SafeLogo({
       aria-label={alt}
       role="img"
     >
-      {/* Bouclier */}
+      {/* Cercle ouvert (arc ~310°) */}
       <path
-        d="M8 5l8-3 8 3v9c0 5-4 8-8 10-4-2-8-5-8-10V5z"
+        d="M29 11 A14 14 0 1 0 32 20"
         stroke={primary}
-        strokeWidth="1.5"
+        strokeWidth="1.8"
         fill="none"
-        strokeLinejoin="round"
+        strokeLinecap="round"
       />
-      {/* Balance (justice) dans le bouclier */}
-      <path d="M20 11v6M16 17h8M20 17v2" stroke={primary} strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M15 19h10" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M17 19h6" stroke={primary} strokeWidth="1" strokeLinecap="round" />
-      {/* Texte SAFE */}
+      {/* Ligne diagonale centre → haut-droit */}
+      <line x1="18" y1="20" x2="29" y2="11" stroke={primary} strokeWidth="1.8" strokeLinecap="round" />
+      {/* Ligne horizontale traversante */}
+      <line x1="2" y1="20" x2="32" y2="20" stroke={primary} strokeWidth="1.8" strokeLinecap="round" />
+      {/* Point */}
+      <circle cx="28" cy="20" r="1.8" fill={accent} />
+      {/* Texte SAFE — couleur uniforme */}
       <text x="42" y="26" fill={primary} fontFamily="var(--font-sans), system-ui, sans-serif" fontSize="18" fontWeight="700" letterSpacing="0.04em">
         S
       </text>
-      <text x="58" y="26" fill={accent} fontFamily="var(--font-sans), system-ui, sans-serif" fontSize="18" fontWeight="700" letterSpacing="0.04em">
+      <text x="58" y="26" fill={primary} fontFamily="var(--font-sans), system-ui, sans-serif" fontSize="18" fontWeight="700" letterSpacing="0.04em">
         A
       </text>
       <text x="74" y="26" fill={primary} fontFamily="var(--font-sans), system-ui, sans-serif" fontSize="18" fontWeight="700" letterSpacing="0.04em">

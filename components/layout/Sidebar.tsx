@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -24,6 +24,13 @@ import {
   Upload,
   Settings,
   CalendarDays,
+  Wrench,
+  CreditCard,
+  CheckCircle,
+  Eye,
+  FileCheck,
+  FileMinus,
+  Coins,
 } from "lucide-react";
 import {
   canViewClients,
@@ -36,330 +43,358 @@ import {
   canViewEmployees,
   canViewDocuments,
 } from "@/lib/auth/permissions";
-import { SafeLogo } from "@/components/branding/SafeLogo";
 import { routes } from "@/lib/routes";
 
-/* -----------------------------------------------------------------------------
-   Layout constants
-   ----------------------------------------------------------------------------- */
-const ROW_HEIGHT = "h-11";
-const ICON_BOX_SIZE = "w-5 h-5";
-const PADDING_X = "px-3";
-const GAP = "gap-3";
-const ACTIVE_INDICATOR_CLASS =
-  "absolute left-0 top-0 bottom-0 w-1.5 rounded-r-xl min-h-[2rem]";
+/* -------------------------------------------------------------------------- */
+/*  Types                                                                     */
+/* -------------------------------------------------------------------------- */
+
+type SubItem = {
+  href: string;
+  labelKey: string;
+  icon: React.ComponentType<{ className?: string }>;
+  show: (role: UserRole) => boolean;
+};
 
 type NavItem = {
+  id: string;
   href: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
   show: (role: UserRole) => boolean;
   exactMatch?: boolean;
-  children?: NavItem[];
+  children?: SubItem[];
 };
 
-type SectionKey = "principal" | "clientsDossiers" | "tempsFacturation" | "comptabilite" | "outils";
+/* -------------------------------------------------------------------------- */
+/*  Navigation config — flat list, expandable children                        */
+/* -------------------------------------------------------------------------- */
 
-const SECTIONS_ORDER: SectionKey[] = [
-  "principal",
-  "clientsDossiers",
-  "tempsFacturation",
-  "comptabilite",
-  "outils",
+const NAV_ITEMS: NavItem[] = [
+  {
+    id: "dashboard",
+    href: routes.tableauDeBord,
+    labelKey: "nav.dashboard",
+    icon: LayoutDashboard,
+    show: () => true,
+  },
+  {
+    id: "clients",
+    href: routes.clients,
+    labelKey: "nav.clients",
+    icon: Users,
+    show: canViewClients,
+  },
+  {
+    id: "dossiers",
+    href: routes.dossiers,
+    labelKey: "nav.matters",
+    icon: FolderOpen,
+    show: canViewDossiers,
+  },
+  {
+    id: "temps",
+    href: routes.temps,
+    labelKey: "nav.timesheets",
+    icon: Clock,
+    show: () => true,
+  },
+  {
+    id: "facturation",
+    href: routes.facturation,
+    labelKey: "nav.billing",
+    icon: FileText,
+    show: canManageInvoices,
+    exactMatch: true,
+    children: [
+      { href: routes.facturationHonoraires, labelKey: "nav.billableFees", icon: Coins, show: canManageInvoices },
+      { href: routes.facturationVerification, labelKey: "nav.verification", icon: CheckCircle, show: canManageInvoices },
+      { href: routes.facturationSuivi, labelKey: "nav.followUp", icon: Eye, show: canManageInvoices },
+      { href: routes.facturationPaiements, labelKey: "nav.payments", icon: CreditCard, show: canManageInvoices },
+      { href: routes.facturationNotesCredit, labelKey: "nav.creditNotes", icon: FileMinus, show: canManageInvoices },
+      { href: routes.facturationFrais, labelKey: "nav.disbursements", icon: Receipt, show: canManageInvoices },
+    ],
+  },
+  {
+    id: "comptabilite",
+    href: routes.comptabilite,
+    labelKey: "nav.comptabilite",
+    icon: BookOpen,
+    show: (role) => canManageExpenseJournal(role) || canManageInvoices(role),
+    children: [
+      { href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust },
+    ],
+  },
+  {
+    id: "outils",
+    href: routes.rapports,
+    labelKey: "sections.tools",
+    icon: Wrench,
+    show: () => true,
+    exactMatch: true,
+    children: [
+      { href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
+      { href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: canManageDossiers },
+      { href: routes.outilsGenerateurDocuments, labelKey: "nav.documentGenerator", icon: ScrollText, show: canViewDocuments },
+      { href: routes.outilsCalculateurFamilial, labelKey: "nav.familyCalculator", icon: Calculator, show: canViewDocuments },
+      { href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
+      { href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
+    ],
+  },
+  {
+    id: "parametres",
+    href: routes.parametres,
+    labelKey: "nav.settings",
+    icon: Settings,
+    show: () => true,
+  },
 ];
 
-const SECTION_LABELS: Record<SectionKey, string> = {
-  principal: "sections.main",
-  clientsDossiers: "sections.clientsDossiers",
-  tempsFacturation: "sections.tempsFacturation",
-  comptabilite: "sections.comptabilite",
-  outils: "sections.tools",
-};
+/* -------------------------------------------------------------------------- */
+/*  Helpers                                                                   */
+/* -------------------------------------------------------------------------- */
 
-/* -----------------------------------------------------------------------------
-   Nav config: 5 sections, max 2 levels
-   ----------------------------------------------------------------------------- */
-const NAV_CONFIG: Record<SectionKey, NavItem[]> = {
-  principal: [
-    {
-      href: routes.tableauDeBord,
-      labelKey: "nav.dashboard",
-      icon: LayoutDashboard,
-      show: () => true,
-    },
-  ],
-  clientsDossiers: [
-    { href: routes.clients, labelKey: "nav.clients", icon: Users, show: canViewClients },
-    { href: routes.dossiers, labelKey: "nav.matters", icon: FolderOpen, show: canViewDossiers },
-  ],
-  tempsFacturation: [
-    { href: routes.temps, labelKey: "nav.timesheets", icon: Clock, show: () => true },
-    {
-      href: routes.facturation,
-      labelKey: "nav.billing",
-      icon: FileText,
-      show: canManageInvoices,
-      exactMatch: true,
-      children: [
-        { href: routes.facturationHonoraires, labelKey: "nav.billableFees", icon: FileText, show: canManageInvoices },
-        { href: routes.facturationVerification, labelKey: "nav.verification", icon: FileText, show: canManageInvoices },
-        { href: routes.facturationSuivi, labelKey: "nav.followUp", icon: FileText, show: canManageInvoices },
-        { href: routes.facturationPaiements, labelKey: "nav.payments", icon: FileText, show: canManageInvoices },
-        { href: routes.facturationNotesCredit, labelKey: "nav.creditNotes", icon: FileText, show: canManageInvoices },
-        { href: routes.facturationFrais, labelKey: "nav.disbursements", icon: FileText, show: canManageInvoices },
-      ],
-    },
-  ],
-  comptabilite: [
-    {
-      href: routes.comptabilite,
-      labelKey: "nav.comptabilite",
-      icon: BookOpen,
-      show: (role) => canManageExpenseJournal(role) || canManageInvoices(role),
-    },
-    { href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust },
-  ],
-  outils: [
-    { href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
-    { href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: canManageDossiers },
-    { href: routes.parametres, labelKey: "nav.settings", icon: Settings, show: () => true },
-    { href: routes.outilsGenerateurDocuments, labelKey: "nav.documentGenerator", icon: ScrollText, show: canViewDocuments },
-    { href: routes.outilsCalculateurFamilial, labelKey: "nav.familyCalculator", icon: Calculator, show: canViewDocuments },
-    { href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
-    { href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
-  ],
-};
+function isPathActive(pathname: string, href: string, exact?: boolean): boolean {
+  if (exact) return pathname === href;
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
-/** Returns which section contains the current path (for auto-expand). */
-function getSectionForPathname(pathname: string): SectionKey | null {
-  if (pathname === routes.tableauDeBord || pathname.startsWith(routes.tableauDeBord + "/")) return "principal";
-  if (pathname.startsWith("/clients") || pathname.startsWith("/dossiers")) return "clientsDossiers";
-  if (pathname.startsWith("/temps")) return "tempsFacturation";
-  if (pathname.startsWith("/facturation") || pathname.startsWith("/journal") || pathname.startsWith("/comptes") || pathname.startsWith("/comptabilite")) return "comptabilite";
-  if (pathname.startsWith("/rapports") || pathname.startsWith("/gestion") || pathname.startsWith("/parametres") || pathname.startsWith("/outils") || pathname.startsWith("/import") || pathname.startsWith("/employees")) return "outils";
+function getExpandedId(pathname: string): string | null {
+  for (const item of NAV_ITEMS) {
+    if (!item.children) continue;
+    if (isPathActive(pathname, item.href)) return item.id;
+    for (const child of item.children) {
+      if (isPathActive(pathname, child.href)) return item.id;
+    }
+  }
   return null;
 }
 
-/* -----------------------------------------------------------------------------
-   SidebarItem — nav row with active state (level 1 or 2)
-   ----------------------------------------------------------------------------- */
-function SidebarItem({
+/* -------------------------------------------------------------------------- */
+/*  SidebarNavItem                                                            */
+/* -------------------------------------------------------------------------- */
+
+function NavLink({
   href,
   label,
   icon: Icon,
   isActive,
-  showChevronWhenActive,
-  subItem,
+  isSubItem,
+  hasChildren,
+  isExpanded,
+  onToggle,
 }: {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
-  showChevronWhenActive?: boolean;
-  subItem?: boolean;
+  isSubItem?: boolean;
+  hasChildren?: boolean;
+  isExpanded?: boolean;
+  onToggle?: () => void;
 }) {
-  return (
-    <li className={subItem ? "pl-4" : undefined}>
-      <Link
-        href={href}
+  const content = (
+    <>
+      <span
         className={`
-          relative flex items-center ${ROW_HEIGHT} ${PADDING_X} ${GAP}
-          rounded-xl text-sm font-medium
-          transition-colors duration-200
-          ${subItem ? "text-white/90" : ""}
-          ${isActive ? "bg-white/18 text-white shadow-sm" : "text-white/95 hover:bg-white/10 hover:text-white"}
+          flex w-9 h-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200
+          ${isActive && !isSubItem ? "bg-green-700 text-white shadow-sm" : ""}
+          ${isActive && isSubItem ? "bg-white/10 text-green-400" : ""}
+          ${!isActive ? "text-white/50 group-hover:text-white group-hover:bg-white/10" : ""}
         `}
-        aria-current={isActive ? "page" : undefined}
       >
-        {isActive && (
-          <span
-            className={ACTIVE_INDICATOR_CLASS}
-            style={{ backgroundColor: "var(--safe-primary-600, var(--safe-green-700))" }}
-            aria-hidden
-          />
-        )}
-        <span className={`relative z-10 flex ${ICON_BOX_SIZE} shrink-0 items-center justify-center`} aria-hidden>
-          <Icon className={`${ICON_BOX_SIZE} opacity-90`} aria-hidden />
+        <Icon className={`w-[18px] h-[18px] ${isActive ? "[stroke-width:2.2]" : "[stroke-width:1.8]"}`} />
+      </span>
+      <span
+        className={`
+          flex-1 min-w-0 truncate text-[13.5px] font-medium leading-none
+          ${isActive ? "text-white font-semibold" : "text-white/70 group-hover:text-white"}
+        `}
+      >
+        {label}
+      </span>
+      {hasChildren && (
+        <span className="shrink-0 text-white/40 transition-transform duration-200">
+          {isExpanded ? (
+            <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
         </span>
-        <span className="relative z-10 min-w-0 flex-1 truncate text-left leading-none">{label}</span>
-        {showChevronWhenActive && isActive && (
-          <span className="relative z-10 ml-auto shrink-0 hidden xl:block" aria-hidden>
-            <ChevronRight className="h-4 w-4 opacity-70" aria-hidden />
-          </span>
-        )}
-      </Link>
-    </li>
+      )}
+    </>
   );
-}
 
-/* -----------------------------------------------------------------------------
-   SidebarSection — collapsible section with title + items (max 2 levels)
-   ----------------------------------------------------------------------------- */
-function SidebarSection({
-  title,
-  children,
-  expanded,
-  onToggle,
-}: {
-  title: string;
-  children: React.ReactNode;
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className="space-y-2">
+  const baseClasses = `
+    group relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl
+    transition-all duration-200 cursor-pointer
+    ${isSubItem ? "ml-5 pl-3" : ""}
+    ${isActive && !isSubItem ? "bg-white/10" : ""}
+    ${isActive && isSubItem ? "bg-white/5" : ""}
+    ${!isActive ? "hover:bg-white/[0.07]" : ""}
+  `;
+
+  if (hasChildren && onToggle) {
+    return (
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/50 hover:text-white/70 transition-colors rounded-lg hover:bg-white/5"
-        aria-expanded={expanded}
+        className={`${baseClasses} w-full text-left`}
+        aria-expanded={isExpanded}
       >
-        {expanded ? (
-          <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        )}
-        <span className="flex-1 text-left">{title}</span>
+        {content}
       </button>
-      {expanded && (
-        <ul className="space-y-1" role="list">
-          {children}
-        </ul>
-      )}
-    </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={baseClasses}
+      aria-current={isActive ? "page" : undefined}
+    >
+      {content}
+    </Link>
   );
 }
 
-/* -----------------------------------------------------------------------------
-   Sidebar — main component
-   ----------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*  Sidebar                                                                   */
+/* -------------------------------------------------------------------------- */
+
 export function Sidebar({ role }: { role?: string }) {
   const t = useTranslations("shell.sidebar");
   const pathname = usePathname();
   const userRole = (role as UserRole) ?? "avocat";
-  const currentSection = getSectionForPathname(pathname);
 
-  const [expandedSections, setExpandedSections] = useState<Set<SectionKey>>(() =>
-    currentSection ? new Set([currentSection]) : new Set(["principal"])
-  );
+  const [expandedId, setExpandedId] = useState<string | null>(() => getExpandedId(pathname));
 
   useEffect(() => {
-    if (currentSection) {
-      setExpandedSections((prev) => new Set(prev).add(currentSection));
-    }
-  }, [currentSection]);
+    const active = getExpandedId(pathname);
+    if (active) setExpandedId(active);
+  }, [pathname]);
 
-  const isItemActive = (item: NavItem, child?: NavItem) => {
-    const href = child?.href ?? item.href;
-    const exact = child ? false : item.exactMatch;
-    if (exact) return pathname === href;
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }, []);
 
   return (
-    <aside className="relative h-full w-sidebar flex flex-col shrink-0 hidden lg:flex safe-glass-sidebar overflow-hidden">
-      <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="p-4 pb-4" data-sidebar-section="top">
-          <Link
-            href={routes.tableauDeBord}
-            className="block transition-opacity duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[var(--safe-sidebar-bg)] rounded-lg"
-          >
-            <SafeLogo variant="dark" className="w-full max-w-[160px]" />
-          </Link>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto p-3" aria-label={t("navigationLabel")}>
-          <div className="space-y-6">
-            {SECTIONS_ORDER.map((sectionKey) => {
-              const items = NAV_CONFIG[sectionKey].filter((item) => item.show(userRole));
-              if (!items.length) return null;
-
-              const title = t(SECTION_LABELS[sectionKey]);
-              const expanded = expandedSections.has(sectionKey);
-
-              return (
-                <SidebarSection
-                  key={sectionKey}
-                  title={title}
-                  expanded={expanded}
-                  onToggle={() => {
-                    setExpandedSections((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(sectionKey)) next.delete(sectionKey);
-                      else next.add(sectionKey);
-                      return next;
-                    });
-                  }}
-                >
-                  {items.map((item) => {
-                    const visibleChildren = item.children?.filter((c) => c.show(userRole)) ?? [];
-                    if (item.children?.length && visibleChildren.length > 0) {
-                      const parentActive = isItemActive(item);
-                      return (
-                        <span key={item.href}>
-                          <SidebarItem
-                            href={item.href}
-                            label={t(item.labelKey)}
-                            icon={item.icon}
-                            isActive={parentActive}
-                            showChevronWhenActive
-                          />
-                          {visibleChildren.map((child) => (
-                            <SidebarItem
-                              key={child.href}
-                              href={child.href}
-                              label={t(child.labelKey)}
-                              icon={child.icon}
-                              isActive={isItemActive(item, child)}
-                              showChevronWhenActive={false}
-                              subItem
-                            />
-                          ))}
-                        </span>
-                      );
-                    }
-                    return (
-                      <SidebarItem
-                        key={item.href}
-                        href={item.href}
-                        label={t(item.labelKey)}
-                        icon={item.icon}
-                        isActive={isItemActive(item)}
-                        showChevronWhenActive
-                        subItem={false}
-                      />
-                    );
-                  })}
-                </SidebarSection>
-              );
-            })}
+    <aside className="relative h-full w-[260px] flex flex-col shrink-0 hidden lg:flex bg-green-950 overflow-hidden z-10">
+      {/* ---- Logo ---- */}
+      <div className="flex items-center gap-3 px-5 pt-6 pb-5">
+        <Link
+          href={routes.tableauDeBord}
+          className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-700/30 rounded-lg"
+        >
+          <div className="w-9 h-9 bg-green-700 rounded-xl flex items-center justify-center shadow-sm">
+            <Scale className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
-        </nav>
+          <span className="font-heading font-bold text-[22px] tracking-tight text-white">
+            SAFE
+          </span>
+        </Link>
+      </div>
 
-        <div className="p-4 pt-3" data-sidebar-section="bottom">
-          <Link
-            href={routes.parametres}
-            className={`
-              flex items-center min-h-11 ${GAP} ${PADDING_X}
-              rounded-xl bg-white/5 hover:bg-white/10 text-[#E6F4EF]
-              transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-white/20
-            `}
-          >
-            <span className={`flex ${ICON_BOX_SIZE} shrink-0 items-center justify-center rounded-full bg-white/15`}>
-              <User className={`${ICON_BOX_SIZE} text-[#E6F4EF]`} aria-hidden />
-            </span>
-            <div className="min-w-0 flex-1 truncate text-left">
-              <span className="block text-sm font-medium leading-none text-[#E6F4EF] truncate">
-                {t("profile.title")}
-              </span>
-              <span className="block text-xs leading-none text-white/55 truncate mt-0.5">
-                {t("profile.subtitle")}
-              </span>
-            </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-white/50" aria-hidden />
-          </Link>
+      {/* ---- Navigation ---- */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-3 hide-scrollbar" aria-label={t("navigationLabel")}>
+        <ul className="flex flex-col gap-0.5" role="list">
+          {NAV_ITEMS.map((item) => {
+            if (!item.show(userRole)) return null;
+
+            const visibleChildren = item.children?.filter((c) => c.show(userRole)) ?? [];
+            const hasChildren = visibleChildren.length > 0;
+            const isExpanded = expandedId === item.id;
+
+            // Check if this item or any child is active
+            const isParentActive = isPathActive(pathname, item.href, item.exactMatch);
+            const anyChildActive = visibleChildren.some((c) => isPathActive(pathname, c.href));
+            const isActive = isParentActive || anyChildActive;
+
+            return (
+              <li key={item.id}>
+                <NavLink
+                  href={item.href}
+                  label={t(item.labelKey)}
+                  icon={item.icon}
+                  isActive={isActive}
+                  hasChildren={hasChildren}
+                  isExpanded={isExpanded}
+                  onToggle={hasChildren ? () => toggleExpand(item.id) : undefined}
+                />
+
+                {/* Sub-items with smooth expand */}
+                {hasChildren && isExpanded && (
+                  <ul
+                    className="flex flex-col gap-0.5 mt-0.5 animate-fade-in"
+                    role="list"
+                  >
+                    {/* Link to parent page when it has children */}
+                    {!item.exactMatch && (
+                      <li>
+                        <NavLink
+                          href={item.href}
+                          label={t(item.labelKey)}
+                          icon={item.icon}
+                          isActive={isParentActive && !anyChildActive}
+                          isSubItem
+                        />
+                      </li>
+                    )}
+                    {visibleChildren.map((child) => (
+                      <li key={child.href}>
+                        <NavLink
+                          href={child.href}
+                          label={t(child.labelKey)}
+                          icon={child.icon}
+                          isActive={isPathActive(pathname, child.href)}
+                          isSubItem
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* ---- Bottom section ---- */}
+      <div className="px-3 pb-4 pt-2 border-t border-white/10 space-y-3">
+        {/* Pro CTA */}
+        <div className="bg-white/[0.07] rounded-2xl p-4 relative overflow-hidden border border-white/10">
+          <h4 className="text-white/90 font-semibold text-[13px] leading-snug mb-2.5">
+            Passez à la vitesse supérieure avec SAFE Pro.
+          </h4>
+          <button className="bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg hover:brightness-110 transition-all shadow-sm">
+            Découvrir Pro
+          </button>
+          <div className="absolute -right-4 -bottom-4 w-20 h-20 border-[10px] border-white/5 rounded-full pointer-events-none" />
         </div>
+
+        {/* Profile link */}
+        <Link
+          href={routes.parametres}
+          className="
+            flex items-center gap-2.5 px-2.5 py-2
+            rounded-xl bg-white/[0.07] hover:bg-white/10
+            transition-colors duration-200 border border-white/10
+            focus:outline-none focus:ring-2 focus:ring-green-700/30
+          "
+        >
+          <span className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full bg-green-700/20 border border-green-700/30">
+            <User className="w-4 h-4 text-green-400" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold leading-none text-white truncate">
+              {t("profile.title")}
+            </span>
+            <span className="block text-[11px] leading-none text-white/50 truncate mt-1">
+              {t("profile.subtitle")}
+            </span>
+          </div>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-white/40" />
+        </Link>
       </div>
     </aside>
   );

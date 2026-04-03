@@ -15,7 +15,7 @@ const PHASE_ORDER: LexTrackPhase[] = [
 
 /* Palette SAFE : émeraude + or pour cohérence avec le design system */
 const LAWYER_COLORS = [
-  "#e8b547", /* gold-400 */
+  "#8EB69B", /* green-sage */
   "#6fa690", /* green-600 */
   "#3e7a66", /* green-700 */
   "#1f5a47", /* green-800 */
