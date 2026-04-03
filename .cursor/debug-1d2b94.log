@@ -1,2 +1,0 @@
-{"sessionId":"1d2b94","location":"app/api/auth/[...nextauth]/route.ts:GET","message":"NextAuth GET entry","data":{"path":"/api/auth/session","url":"http://localhost:3001/api/auth/session"},"hypothesisId":"H1-H2","timestamp":1772813033668}
-{"sessionId":"1d2b94","location":"app/api/auth/[...nextauth]/route.ts:GET:response","message":"NextAuth GET response","data":{"status":200,"contentType":"application/json","location":null},"hypothesisId":"H2-H4","timestamp":1772813033674}

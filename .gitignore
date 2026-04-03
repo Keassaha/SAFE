@@ -3,3 +3,15 @@ node_modules
 .env.local
 uploads/
 .next
+
+# Vercel (lien local, ne pas versionner)
+.vercel
+
+# TypeScript — cache incrémental
+*.tsbuildinfo
+
+# Cursor — journaux de debug uniquement (settings.json peut rester partagé)
+.cursor/debug*.log
+
+# Claude / agents locaux
+.claude/
