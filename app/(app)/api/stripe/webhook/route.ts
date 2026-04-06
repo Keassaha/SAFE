@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
             stripeSubscriptionId: subscription.id,
             stripePriceId: subscription.items.data[0].price.id,
             stripeCurrentPeriodEnd: new Date(
-              subscription.current_period_end * 1000
+              (subscription as unknown as { current_period_end: number }).current_period_end * 1000
             ),
           },
         });
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           where: { id: cabinet.id },
           data: {
             stripeCurrentPeriodEnd: new Date(
-              subscription.current_period_end * 1000
+              (subscription as unknown as { current_period_end: number }).current_period_end * 1000
             ),
           },
         });
