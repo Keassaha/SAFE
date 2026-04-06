@@ -84,20 +84,20 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                 </td>
                 <td className="py-2 px-3">
                   {isOverdue ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-0.5 text-xs font-medium text-red-800">
                       <AlertCircle className="h-3.5 w-3.5" aria-hidden />
                       En retard
                     </span>
                   ) : inv.statut === "payee" ? (
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-0.5 text-xs font-medium text-green-800">
                       Payée
                     </span>
                   ) : inv.statut === "partiellement_payee" ? (
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-0.5 text-xs font-medium text-amber-800">
                       Partiellement payée
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">
+                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-0.5 text-xs font-medium text-neutral-700">
                       Envoyée
                     </span>
                   )}

@@ -82,7 +82,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.triggerOpenSaveModal}
-                  className="p-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                  className="p-1.5 rounded-safe-sm bg-green-600 text-white hover:bg-green-700"
                   title={t("saveTime")}
                   aria-label={t("save")}
                 >
@@ -91,7 +91,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.clearPending}
-                  className="p-1.5 rounded-lg hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
                   title={t("cancel")}
                   aria-label={t("cancel")}
                 >
@@ -104,7 +104,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                   <button
                     type="button"
                     onClick={timer.pause}
-                    className="p-1.5 rounded-lg hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                    className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
                     title={t("pause")}
                     aria-label={t("pause")}
                   >
@@ -114,7 +114,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                   <button
                     type="button"
                     onClick={timer.resume}
-                    className="p-1.5 rounded-lg hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                    className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
                     title={t("resume")}
                     aria-label={t("resume")}
                   >
@@ -124,7 +124,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.restart}
-                  className="p-1.5 rounded-lg hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
                   title={t("restart")}
                   aria-label={t("restart")}
                 >
@@ -133,7 +133,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.stopOnly}
-                  className="p-1.5 rounded-lg hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
                   title={t("stopTimer")}
                   aria-label={t("stop")}
                 >

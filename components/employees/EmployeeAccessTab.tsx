@@ -54,7 +54,7 @@ export function EmployeeAccessTab({
             {t("permissionsByModule")}
           </p>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border border-neutral-border rounded-lg overflow-hidden">
+            <table className="w-full text-sm border border-neutral-border rounded-safe-sm overflow-hidden">
               <thead>
                 <tr className="bg-neutral-surface/70 border-b border-neutral-border">
                   <th className="text-left px-4 py-2 font-medium text-neutral-700">{t("module")}</th>
@@ -111,7 +111,7 @@ export function EmployeeAccessTab({
             <select
               value={role}
               onChange={(e) => onRoleChange(e.target.value as EmployeeRole)}
-              className="rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
             >
               {(Object.keys(EMPLOYEE_ROLE_LABELS) as EmployeeRole[]).map((r) => (
                 <option key={r} value={r}>

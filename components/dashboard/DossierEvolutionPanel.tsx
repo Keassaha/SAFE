@@ -62,11 +62,11 @@ function DossierCard({ dossier, locale }: { dossier: DossierEvolutionItem; local
   return (
     <Link
       href={`${routes.dossiers}/${dossier.id}`}
-      className="block rounded-xl border border-gray-200/80 bg-white/60 p-4 transition-all hover:shadow-md hover:bg-white/90 group"
+      className="block rounded-safe border border-gray-200/80 bg-white/60 p-4 transition-all hover:shadow-md hover:bg-white/90 group"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors">
+          <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
             {dossier.intitule}
           </h4>
           <p className="text-xs text-gray-500 truncate mt-0.5">{dossier.clientName}</p>
@@ -76,7 +76,7 @@ function DossierCard({ dossier, locale }: { dossier: DossierEvolutionItem; local
 
       {dossier.taskCount > 0 && (
         <div className="mb-3">
-          <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+          <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
             <span>{t("progress")}</span>
             <span className="font-semibold text-[var(--safe-text-title)]">{progress}%</span>
           </div>
@@ -86,14 +86,14 @@ function DossierCard({ dossier, locale }: { dossier: DossierEvolutionItem; local
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center gap-1 mt-1 text-[10px] text-gray-400">
+          <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
             <CheckCircle2 className="w-3 h-3 text-emerald-500" />
             {dossier.tasksDone}/{dossier.taskCount} {t("taskLabel")}
           </div>
         </div>
       )}
 
-      <div className="flex items-center gap-3 text-[10px] text-gray-400 flex-wrap">
+      <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
         {dossier.avocatName && (
           <span className="flex items-center gap-1">
             <User className="w-3 h-3" />
@@ -157,13 +157,13 @@ function BoardView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; loc
               <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                 {col.label}
               </h4>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
                 {items.length}
               </span>
             </div>
             <div className="space-y-2 min-h-[60px]">
               {items.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-gray-200 p-4 text-center">
+                <div className="rounded-safe border border-dashed border-gray-200 p-4 text-center">
                   <p className="text-xs text-gray-400">{t("noMatters")}</p>
                 </div>
               ) : (
@@ -194,17 +194,17 @@ function TimelineView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; 
               <div className="absolute -left-[26px] top-2 w-3 h-3 rounded-full border-2 border-emerald-400 bg-white" />
               <Link
                 href={`${routes.dossiers}/${d.id}`}
-                className="block rounded-xl border border-gray-200/80 bg-white/60 p-4 transition-all hover:shadow-md hover:bg-white/90 group"
+                className="block rounded-safe border border-gray-200/80 bg-white/60 p-4 transition-all hover:shadow-md hover:bg-white/90 group"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors">
+                      <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
                         {d.intitule}
                       </h4>
                     </div>
                     <p className="text-xs text-gray-500">{d.clientName}</p>
-                    <div className="flex items-center gap-4 mt-2 text-[10px] text-gray-400">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span>{t("updated")} {formatRelative(d.updatedAt, locale, t)}</span>
                       {d.avocatName && (
                         <span className="flex items-center gap-1">
@@ -245,7 +245,7 @@ function TimelineView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; 
                             strokeDasharray={`${progress}, 100`}
                           />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-[var(--safe-text-title)]">
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[var(--safe-text-title)]">
                           {progress}%
                         </span>
                       </div>
@@ -277,14 +277,14 @@ export function DossierEvolutionPanel({ dossiers }: Props) {
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">
           <Layers className="w-5 h-5 text-emerald-600" />
-          <h3 className="text-sm font-semibold safe-text-title">
+          <h3 className="text-sm font-semibold safe-text-title tracking-tight">
             {t("matterProgression")}
           </h3>
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
             {dossiers.length}
           </span>
         </div>
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100/80">
+        <div className="flex items-center gap-1 p-1 rounded-safe bg-gray-100/80">
           {views.map((v) => {
             const Icon = v.icon;
             const isActive = viewMode === v.id;
@@ -293,7 +293,7 @@ export function DossierEvolutionPanel({ dossiers }: Props) {
                 key={v.id}
                 type="button"
                 onClick={() => setViewMode(v.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm text-xs font-medium transition-all ${
                   isActive
                     ? "bg-white text-emerald-800 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"

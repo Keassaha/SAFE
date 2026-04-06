@@ -69,14 +69,14 @@ export function DossierDetailTabs({ dossierId, statutDossier }: DossierDetailTab
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* Liste verticale des onglets à gauche — alignement fixe icône + texte */}
-        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-inner lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
+        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-safe border border-white/10 bg-white/5 p-1.5 shadow-inner lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
           {TABS_CONFIG.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-white/90 transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-[var(--safe-green-700)] data-[state=active]:text-white data-[state=active]:shadow data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white"
+                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-safe-sm px-3 py-2 text-left text-sm font-medium text-white/90 transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-[var(--safe-green-700)] data-[state=active]:text-white data-[state=active]:shadow data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center lg:h-9 lg:w-9">
                   <Icon className="h-4 w-4" />

@@ -145,7 +145,7 @@ export function DropZone({
             return (
               <div
                 key={`${sf.name}-${i}`}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-[var(--safe-radius-md)] bg-white/70 border border-[var(--safe-neutral-border)]/60"
+                className="flex items-center gap-3 px-4 py-2 rounded-[var(--safe-radius-md)] bg-white/70 border border-[var(--safe-neutral-border)]/60"
               >
                 <Icon className="w-4 h-4 text-[var(--safe-icon-default)] shrink-0" />
                 <span className="text-sm safe-text-title truncate flex-1">{sf.name}</span>

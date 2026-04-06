@@ -99,7 +99,7 @@ export function ExportButtons({
         type="button"
         onClick={handleCsv}
         disabled={exporting !== null}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
       >
         <FileDown className="w-4 h-4" aria-hidden />
         CSV
@@ -108,7 +108,7 @@ export function ExportButtons({
         type="button"
         onClick={handleExcel}
         disabled={exporting !== null}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
       >
         <FileSpreadsheet className="w-4 h-4" aria-hidden />
         Excel
@@ -117,7 +117,7 @@ export function ExportButtons({
         type="button"
         onClick={handlePdf}
         disabled={exporting !== null}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/90 safe-text-title text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
       >
         <FileText className="w-4 h-4" aria-hidden />
         PDF

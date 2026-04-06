@@ -65,7 +65,7 @@ export function TimeFiltersBar({
               key={p.label}
               type="button"
               onClick={() => setDateRange(p.from, p.to)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+              className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
                 filters.dateFrom === p.from && filters.dateTo === p.to
                   ? "bg-green-800 text-white"
                   : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
@@ -82,7 +82,7 @@ export function TimeFiltersBar({
             type="date"
             value={filters.dateFrom ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dateFrom: e.target.value || undefined })}
-            className="h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
           />
           <span className="text-sm safe-text-secondary">{t("to")}</span>
           <label className="sr-only" htmlFor="temps-date-to">{t("to")}</label>
@@ -91,7 +91,7 @@ export function TimeFiltersBar({
             type="date"
             value={filters.dateTo ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dateTo: e.target.value || undefined })}
-            className="h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@ export function TimeFiltersBar({
           <button
             type="button"
             onClick={() => onShowAllEntriesChange(true)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+            className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
               showAllEntries ? "bg-green-800 text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
             }`}
           >
@@ -110,7 +110,7 @@ export function TimeFiltersBar({
             <button
               type="button"
               onClick={() => onShowAllEntriesChange(false)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+              className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
                 !showAllEntries ? "bg-green-800 text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
               }`}
             >
@@ -120,7 +120,7 @@ export function TimeFiltersBar({
           <button
             type="button"
             onClick={() => onViewModeChange(viewMode === "list" ? "week" : "list")}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            className="px-3 py-1.5 rounded-safe-sm text-sm font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
           >
             {viewMode === "list" ? t("weekView") : t("listView")}
           </button>
@@ -132,14 +132,14 @@ export function TimeFiltersBar({
             placeholder={tc("searchPlaceholder")}
             value={filters.q ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, q: e.target.value || undefined })}
-            className="w-full h-10 pl-9 pr-4 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+            className="w-full h-10 pl-9 pr-4 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
           />
         </div>
         <div className="flex items-center gap-2">
           <select
             value={filters.dossierId ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dossierId: e.target.value || undefined })}
-            className="h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
             aria-label={t("filterByMatter")}
           >
             <option value="">{t("allMatters")}</option>
@@ -153,7 +153,7 @@ export function TimeFiltersBar({
             <select
               value={filters.userId ?? ""}
               onChange={(e) => onFiltersChange({ ...filters, userId: e.target.value || undefined })}
-              className="h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+              className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
               aria-label={t("filterByUser")}
             >
               <option value="">{t("allUsers")}</option>
@@ -171,7 +171,7 @@ export function TimeFiltersBar({
                 facture: v === "" ? undefined : v === "facture",
               });
             }}
-            className="h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
             aria-label={t("billingStatus")}
           >
             <option value="">{t("allStatuses")}</option>

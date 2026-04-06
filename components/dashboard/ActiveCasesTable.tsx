@@ -32,7 +32,7 @@ export function ActiveCasesTable({
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-violet-500">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
             <FolderOpen className="w-4 h-4 text-violet-600" aria-hidden />
             {t("activeCases")}
           </h3>
@@ -42,7 +42,7 @@ export function ActiveCasesTable({
         </div>
         <Link
           href={viewAllHref}
-          className="w-9 h-9 rounded-xl bg-violet-100 hover:bg-violet-200 flex items-center justify-center text-violet-700 transition-colors"
+          className="w-9 h-9 rounded-safe bg-violet-100 hover:bg-violet-200 flex items-center justify-center text-violet-700 transition-colors"
           aria-label={t("viewMatters")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -58,12 +58,12 @@ export function ActiveCasesTable({
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b border-[var(--safe-neutral-border)]">
-                <th className="text-left py-2.5 font-medium safe-text-title">{t("matter")}</th>
-                <th className="text-left py-2.5 font-medium safe-text-title">{t("client")}</th>
-                <th className="text-left py-2.5 font-medium safe-text-title">{t("lawyer")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("hours")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("billed")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("activity")}</th>
+                <th className="text-left py-2 font-medium safe-text-title">{t("matter")}</th>
+                <th className="text-left py-2 font-medium safe-text-title">{t("client")}</th>
+                <th className="text-left py-2 font-medium safe-text-title">{t("lawyer")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("hours")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("billed")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("activity")}</th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +72,7 @@ export function ActiveCasesTable({
                   key={row.id}
                   className="border-b border-[var(--safe-neutral-border)] last:border-0"
                 >
-                  <td className="py-2.5">
+                  <td className="py-2">
                     <Link
                       href={routes.dossier(row.id)}
                       className="font-medium safe-text-title hover:text-green-700 hover:underline"
@@ -80,11 +80,11 @@ export function ActiveCasesTable({
                       {row.caseName}
                     </Link>
                   </td>
-                  <td className="py-2.5 safe-text-secondary">{row.clientName}</td>
-                  <td className="py-2.5 safe-text-secondary">{row.lawyerName ?? "—"}</td>
-                  <td className="py-2.5 text-right safe-text-secondary">{row.hoursLogged.toFixed(1)} h</td>
-                  <td className="py-2.5 text-right safe-text-metric">{formatCurrency(row.amountInvoiced, "CAD", locale)}</td>
-                  <td className="py-2.5 text-right safe-text-secondary">{formatDate(row.lastActivity, locale)}</td>
+                  <td className="py-2 safe-text-secondary">{row.clientName}</td>
+                  <td className="py-2 safe-text-secondary">{row.lawyerName ?? "—"}</td>
+                  <td className="py-2 text-right safe-text-secondary">{row.hoursLogged.toFixed(1)} h</td>
+                  <td className="py-2 text-right safe-text-metric">{formatCurrency(row.amountInvoiced, "CAD", locale)}</td>
+                  <td className="py-2 text-right safe-text-secondary">{formatDate(row.lastActivity, locale)}</td>
                 </tr>
               ))}
             </tbody>

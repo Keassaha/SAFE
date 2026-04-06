@@ -41,7 +41,7 @@ export function BillingFollowUpTable({
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-amber-500">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
             <ClipboardList className="w-4 h-4 text-amber-600" aria-hidden />
             {t("billingFollowUpTitle")}
           </h3>
@@ -51,7 +51,7 @@ export function BillingFollowUpTable({
         </div>
         <Link
           href={viewAllHref}
-          className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-amber-200 flex items-center justify-center text-amber-700 transition-colors"
+          className="w-9 h-9 rounded-safe bg-amber-100 hover:bg-amber-200 flex items-center justify-center text-amber-700 transition-colors"
           aria-label={t("viewBillingFollowUp")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -67,11 +67,11 @@ export function BillingFollowUpTable({
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b border-[var(--safe-neutral-border)]">
-                <th className="text-left py-2.5 font-medium safe-text-title">{t("client")}</th>
-                <th className="text-left py-2.5 font-medium safe-text-title">{t("invoiceNumber")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("amountLabel")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("issuedDate")}</th>
-                <th className="text-right py-2.5 font-medium safe-text-title">{t("statusLabel")}</th>
+                <th className="text-left py-2 font-medium safe-text-title">{t("client")}</th>
+                <th className="text-left py-2 font-medium safe-text-title">{t("invoiceNumber")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("amountLabel")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("issuedDate")}</th>
+                <th className="text-right py-2 font-medium safe-text-title">{t("statusLabel")}</th>
               </tr>
             </thead>
             <tbody>
@@ -80,8 +80,8 @@ export function BillingFollowUpTable({
                   key={row.id}
                   className="border-b border-[var(--safe-neutral-border)] last:border-0"
                 >
-                  <td className="py-2.5 safe-text-title">{row.clientName}</td>
-                  <td className="py-2.5">
+                  <td className="py-2 safe-text-title">{row.clientName}</td>
+                  <td className="py-2">
                     <Link
                       href={routes.facturationFactureEdit(row.id)}
                       className="font-medium safe-text-title hover:text-green-700 hover:underline"
@@ -89,11 +89,11 @@ export function BillingFollowUpTable({
                       {row.invoiceNumber}
                     </Link>
                   </td>
-                  <td className="py-2.5 text-right safe-text-metric">{formatCurrency(row.amount, "CAD", locale)}</td>
-                  <td className="py-2.5 text-right safe-text-secondary">{formatDate(row.dateIssued, locale)}</td>
-                  <td className="py-2.5 text-right">
+                  <td className="py-2 text-right safe-text-metric">{formatCurrency(row.amount, "CAD", locale)}</td>
+                  <td className="py-2 text-right safe-text-secondary">{formatDate(row.dateIssued, locale)}</td>
+                  <td className="py-2 text-right">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-safe-sm text-xs font-medium ${
                         STATUS_STYLES[row.status] ?? "bg-neutral-100 text-neutral-700"
                       }`}
                     >

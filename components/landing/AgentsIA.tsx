@@ -89,11 +89,11 @@ export function AgentsIA() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <div className="font-cabin inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 text-xs text-gold-400 font-medium mb-6">
+          <div className="font-sans inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 text-xs text-gold-400 font-medium mb-6">
             <Sparkles className="w-3 h-3" />
             Intelligence artificielle
           </div>
-          <h2 className="font-manrope text-3xl sm:text-[2.25rem] font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
             Vos deux assistants IA.
             <br />
             <span className="text-white/60">Form&eacute;s sur votre r&eacute;alit&eacute;.</span>
@@ -123,12 +123,12 @@ export function AgentsIA() {
                 {/* Header */}
                 <div className="p-6 border-b border-neutral-200/30">
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-xl ${colors.iconBg} flex items-center justify-center shrink-0`}>
+                    <div className={`w-12 h-12 rounded-safe ${colors.iconBg} flex items-center justify-center shrink-0`}>
                       <MessageSquare className={`w-6 h-6 ${colors.icon}`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`text-xl font-semibold ${colors.nameTitle}`}>{agent.name}</h3>
+                        <h3 className={`text-xl font-semibold tracking-tight ${colors.nameTitle}`}>{agent.name}</h3>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors.badge}`}>
                           {agent.role}
                         </span>
@@ -163,14 +163,14 @@ export function AgentsIA() {
                         className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                          className={`max-w-[85%] rounded-safe px-3 py-2 text-xs leading-relaxed ${
                             msg.role === "user"
                               ? "bg-green-700/15 text-neutral-800"
                               : "bg-white/80 border border-neutral-200/60 text-neutral-700"
                           }`}
                         >
                           {msg.role === "agent" && (
-                            <span className={`font-semibold text-[10px] block mb-1 ${colors.label}`}>
+                            <span className={`font-semibold text-xs block mb-1 ${colors.label}`}>
                               {agent.name}
                             </span>
                           )}
@@ -180,7 +180,7 @@ export function AgentsIA() {
                     ))}
                     {/* Typing indicator */}
                     <div className="flex justify-start">
-                      <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/80 border border-neutral-200/60">
+                      <div className="flex items-center gap-1 px-3 py-2 rounded-safe bg-white/80 border border-neutral-200/60">
                         <span className={`typing-dot w-1.5 h-1.5 rounded-full ${colors.dot}`} />
                         <span className={`typing-dot w-1.5 h-1.5 rounded-full ${colors.dot}`} />
                         <span className={`typing-dot w-1.5 h-1.5 rounded-full ${colors.dot}`} />

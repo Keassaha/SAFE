@@ -398,7 +398,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3">
           <Link
             href={routes.facturation}
@@ -853,7 +853,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
 
       {/* Aperçu du modèle de facture */}
       <div className="space-y-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--safe-text-title)]">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--safe-text-title)] tracking-tight">
           <FileText className="w-5 h-5 text-[var(--safe-green-700)]" />
           Aperçu de la facture
         </h2>

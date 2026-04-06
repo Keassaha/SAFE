@@ -9,7 +9,7 @@ import { formatCurrency } from "@/lib/utils/format";
 import { Loader2 } from "lucide-react";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-xl border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+  "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
 
 export interface PaiementAllocationModalProps {
   open: boolean;
@@ -135,7 +135,7 @@ export function PaiementAllocationModal({
         <p className="text-neutral-500 py-4">{tp("paymentNotFound")}</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="rounded-lg bg-neutral-50 p-4 text-sm">
+          <div className="rounded-safe-sm bg-neutral-50 p-4 text-sm">
             <p className="font-medium text-neutral-800">{tp("totalAmountLabel")} : {formatCurrency(payment.montant)}</p>
             <p className="text-neutral-600">
               {tp("alreadyAllocated")} : {formatCurrency(payment.allocatedAmount)} — {tp("unallocated")} :{" "}

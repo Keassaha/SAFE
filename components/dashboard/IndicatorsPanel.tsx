@@ -60,8 +60,8 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
-      <h3 className="text-base font-semibold text-[#1a2e28] mb-4 flex items-center gap-2">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
+      <h3 className="text-base font-semibold text-[var(--safe-text-title)] mb-4 flex items-center gap-2 tracking-tight">
         <Landmark className="w-4 h-4 text-emerald-600" />
         {t("indicators.title")}
       </h3>
@@ -70,14 +70,14 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className={`rounded-xl ${item.bg} border border-transparent p-3 text-center`}>
+            <div key={item.label} className={`rounded-safe ${item.bg} border border-transparent p-3 text-center`}>
               <div className="flex items-center justify-center mb-1.5">
                 <Icon className={`w-4 h-4 ${item.color}`} />
               </div>
               <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
-              <p className="text-[10px] font-medium text-[#4a6a5c] mt-0.5 leading-tight">{item.label}</p>
+              <p className="text-xs font-medium text-[var(--safe-text-secondary)] mt-0.5 leading-tight">{item.label}</p>
               {item.subtitle && (
-                <p className="text-[9px] text-[#6b8f7b] mt-0.5">{item.subtitle}</p>
+                <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">{item.subtitle}</p>
               )}
             </div>
           );
@@ -85,7 +85,7 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
       </div>
 
       {/* Fidéicommis actifs */}
-      <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 p-3">
+      <div className="flex items-center justify-between rounded-safe bg-emerald-50 border border-emerald-200 p-3">
         <div className="flex items-center gap-2">
           <Landmark className="w-4 h-4 text-emerald-600" />
           <span className="text-sm font-semibold text-emerald-800">

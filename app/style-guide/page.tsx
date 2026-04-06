@@ -34,7 +34,7 @@ export default function StyleGuidePage() {
 
         {/* Buttons — Design system: Primary (1 par section), Secondary (outline), Tertiary (texte) */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Boutons
           </h2>
           <p className="text-sm text-neutral-muted">
@@ -50,7 +50,7 @@ export default function StyleGuidePage() {
 
         {/* Inputs */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Champs de formulaire
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -114,13 +114,13 @@ export default function StyleGuidePage() {
 
         {/* Cards */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Cartes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="rounded-safe-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-border">
-                <h3 className="text-lg font-semibold text-neutral-text-primary">Standard</h3>
+                <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">Standard</h3>
               </div>
               <div className="p-6">
                 <p className="text-neutral-muted text-sm">
@@ -130,7 +130,7 @@ export default function StyleGuidePage() {
             </div>
             <div className="rounded-safe-md safe-glass-panel border border-white/40 overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-border/50">
-                <h3 className="text-lg font-semibold text-neutral-text-primary">Glass</h3>
+                <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">Glass</h3>
               </div>
               <div className="p-6">
                 <p className="text-neutral-muted text-sm">
@@ -150,7 +150,7 @@ export default function StyleGuidePage() {
 
         {/* Sidebar + Topbar preview */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Barre latérale & barre supérieure
           </h2>
           <div className="flex rounded-safe-lg overflow-hidden shadow-lg border border-neutral-border">
@@ -162,7 +162,7 @@ export default function StyleGuidePage() {
                 {["Dashboard", "Clients", "Cases", "Time Tracking", "Invoices"].map((label, i) => (
                   <div
                     key={label}
-                    className={`px-3 py-2 rounded-md text-sm ${
+                    className={`px-3 py-2 rounded-safe-sm text-sm ${
                       i === 0 ? "bg-primary-700/90 text-white" : "text-white/80 hover:bg-white/10"
                     }`}
                   >
@@ -186,11 +186,11 @@ export default function StyleGuidePage() {
                   <input
                     type="search"
                     placeholder="Search for clients, cases, invoices…"
-                    className="w-full h-9 px-3 rounded-md bg-white/60 backdrop-blur-md text-sm placeholder:text-neutral-muted border-0 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                    className="w-full h-9 px-3 rounded-safe-sm bg-white/60 backdrop-blur-md text-sm placeholder:text-neutral-muted border-0 focus:ring-2 focus:ring-primary-500/30 outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  <button type="button" className="w-9 h-9 rounded-md flex items-center justify-center hover:bg-black/5 text-neutral-muted">
+                  <button type="button" className="w-9 h-9 rounded-safe-sm flex items-center justify-center hover:bg-black/5 text-neutral-muted">
                     +
                   </button>
                   <div className="w-8 h-8 rounded-full bg-primary-200" />
@@ -206,7 +206,7 @@ export default function StyleGuidePage() {
 
         {/* Tables */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Tableaux
           </h2>
           <div className="rounded-safe-lg overflow-hidden border border-neutral-border bg-white shadow-sm">
@@ -250,23 +250,23 @@ export default function StyleGuidePage() {
 
         {/* Badges */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Badges & statuts
           </h2>
           <div className="flex flex-wrap gap-3">
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-neutral-surface text-neutral-text-secondary">
+            <span className="rounded-full px-3 py-0.5 text-xs font-medium bg-neutral-surface text-neutral-text-secondary">
               Default
             </span>
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-status-success-bg text-status-success">
+            <span className="rounded-full px-3 py-0.5 text-xs font-medium bg-status-success-bg text-status-success">
               Payé
             </span>
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-status-warning-bg text-status-warning">
+            <span className="rounded-full px-3 py-0.5 text-xs font-medium bg-status-warning-bg text-status-warning">
               En attente
             </span>
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-status-error-bg text-status-error">
+            <span className="rounded-full px-3 py-0.5 text-xs font-medium bg-status-error-bg text-status-error">
               Refusé
             </span>
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-medium text-status-overdue">
+            <span className="rounded-full px-3 py-0.5 text-xs font-medium text-status-overdue">
               En retard
             </span>
           </div>
@@ -274,19 +274,19 @@ export default function StyleGuidePage() {
 
         {/* Charts placeholders */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Graphiques (placeholders)
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-safe-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md p-6">
-              <h3 className="text-sm font-medium text-neutral-muted mb-4">Donut</h3>
+              <h3 className="text-sm font-medium text-neutral-muted mb-4 tracking-tight">Donut</h3>
               <div className="h-40 flex items-center justify-center">
                 <div className="w-32 h-32 rounded-full border-8 border-primary-600 border-t-primary-300" />
               </div>
               <p className="text-center text-sm text-neutral-muted mt-2">Billable Hours</p>
             </div>
             <div className="rounded-safe-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md p-6">
-              <h3 className="text-sm font-medium text-neutral-muted mb-4">Barres / Ligne</h3>
+              <h3 className="text-sm font-medium text-neutral-muted mb-4 tracking-tight">Barres / Ligne</h3>
               <div className="h-40 flex items-end justify-around gap-2 px-4">
                 {[40, 65, 45, 80, 55, 70].map((h, i) => (
                   <div
@@ -303,12 +303,12 @@ export default function StyleGuidePage() {
 
         {/* Onboarding components */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Onboarding
           </h2>
           <div className="rounded-safe-lg overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50/30 p-8 md:p-12">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-neutral-text-primary mb-2">
+              <h3 className="text-2xl font-bold text-neutral-text-primary mb-2 tracking-tight">
                 Welcome to SAFE
               </h3>
               <p className="text-neutral-muted max-w-xl mx-auto">
@@ -325,11 +325,11 @@ export default function StyleGuidePage() {
                   key={card.title}
                   className="rounded-safe-md bg-white/90 backdrop-blur-sm border border-white/60 shadow-md p-6 flex gap-4"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary-800 flex items-center justify-center text-white shrink-0">
+                  <div className="w-10 h-10 rounded-safe-sm bg-primary-800 flex items-center justify-center text-white shrink-0">
                     <card.Icon className="w-6 h-6" aria-hidden />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary-800">{card.title}</h4>
+                    <h4 className="font-semibold text-primary-800 tracking-tight">{card.title}</h4>
                     <p className="text-sm text-neutral-muted mt-1">{card.desc}</p>
                   </div>
                   <span className="ml-auto w-5 h-5 rounded-full bg-accent-400 flex items-center justify-center text-white" aria-hidden>
@@ -353,7 +353,7 @@ export default function StyleGuidePage() {
 
         {/* Hero card (Trust balance style) */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2">
+          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Carte héro (Trust Balance)
           </h2>
           <div className="rounded-safe-lg overflow-hidden safe-glass-panel bg-gradient-hero-trust border border-white/20 min-h-[140px] flex flex-col justify-between p-6">

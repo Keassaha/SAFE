@@ -253,8 +253,8 @@ export function RetraitForm({
       aria-modal="true"
       aria-labelledby="confirm-retrait-title"
     >
-      <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
-        <h2 id="confirm-retrait-title" className="text-lg font-semibold text-neutral-text-primary mb-2">
+      <div className="bg-white rounded-safe shadow-lg max-w-md w-full p-6">
+        <h2 id="confirm-retrait-title" className="text-lg font-semibold text-neutral-text-primary mb-2 tracking-tight">
           {tf("confirmWithdrawal")}
         </h2>
         <p className="text-sm text-neutral-muted mb-4">

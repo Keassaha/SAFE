@@ -14,7 +14,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <SafeLogo variant="dark" className="w-[100px]" noPulse />
+            <SafeLogo variant="dark" className="shrink-0" noPulse />
           </div>
 
           <nav className="flex flex-wrap items-center gap-6">

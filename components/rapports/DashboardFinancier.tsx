@@ -84,7 +84,7 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
         ))}
       </div>
       <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-emerald-500">
-        <h3 className="text-sm font-semibold safe-text-title mb-4">
+        <h3 className="text-sm font-semibold safe-text-title mb-4 tracking-tight">
           {t("billedRevenueByMonth")}
         </h3>
         {hasChartData ? (

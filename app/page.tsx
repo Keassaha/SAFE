@@ -19,8 +19,8 @@ export default function HomePage() {
         <About />
         <FeaturesGrid />
         <ProcessTimeline />
-        <TestimonialSlider />
         <Pricing />
+        <TestimonialSlider />
         <FinalCTA />
       </main>
       <Footer />

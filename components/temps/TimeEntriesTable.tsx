@@ -172,7 +172,7 @@ export function TimeEntriesTable({
                           <MoreVertical className="w-4 h-4" />
                         </button>
                         {menuId === entry.id && (
-                          <div className="absolute right-0 top-full mt-1 py-1 bg-white border rounded-lg shadow-lg z-10 min-w-[140px]">
+                          <div className="absolute right-0 top-full mt-1 py-1 bg-white border rounded-safe-sm shadow-lg z-10 min-w-[140px]">
                             <button
                               type="button"
                               onClick={() => { setEditId(entry.id); setMenuId(null); }}

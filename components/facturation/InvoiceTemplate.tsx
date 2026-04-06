@@ -102,7 +102,7 @@ export function InvoiceTemplate({
 
   return (
     <article
-      className={`invoice-template bg-[var(--safe-neutral-surface)] text-[var(--safe-text-title)] overflow-hidden rounded-[var(--safe-radius-xl)] border border-[var(--safe-neutral-border)] shadow-[var(--safe-shadow-lg)] print:shadow-none print:border print:rounded-lg ${className}`}
+      className={`invoice-template bg-[var(--safe-neutral-surface)] text-[var(--safe-text-title)] overflow-hidden rounded-[var(--safe-radius-xl)] border border-[var(--safe-neutral-border)] shadow-[var(--safe-shadow-lg)] print:shadow-none print:border print:rounded-safe-sm ${className}`}
       style={{ fontFamily: "var(--font-sans)" }}
     >
       <header className="relative bg-[var(--safe-green-900)] text-white px-6 py-5 sm:px-8 sm:py-6">

@@ -60,10 +60,10 @@ export function Hero() {
           {/* Badge glassmorphism */}
           <motion.div variants={fadeUp} className="flex justify-center">
             <div className="landing-badge inline-flex items-center gap-3 rounded-full px-1.5 py-1.5 pl-2">
-              <span className="rounded-full bg-gold-600 px-2.5 py-0.5 font-cabin text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm">
+              <span className="rounded-full bg-gold-600 px-3 py-0.5 font-sans text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
                 Nouveau
               </span>
-              <span className="pr-3 font-cabin text-sm text-white/75">
+              <span className="pr-3 font-sans text-sm text-white/75">
                 Dites bonjour &agrave; SAFE v3.2
               </span>
               <Sparkles className="mr-1 h-3.5 w-3.5 text-gold-400" aria-hidden />
@@ -73,11 +73,11 @@ export function Hero() {
           {/* Titre */}
           <motion.h1
             variants={fadeUp}
-            className="font-manrope text-[2.25rem] font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-5xl lg:text-[3.5rem]"
+            className="font-sans text-4xl font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-5xl lg:text-5xl"
           >
             Vos r&eacute;seaux.
             <br />
-            <span className="font-instrument text-[1.05em] font-normal italic text-gold-400">
+            <span className="font-sans text-base font-normal italic text-gold-400">
               Une interface rapide.
             </span>
           </motion.h1>
@@ -108,7 +108,7 @@ export function Hero() {
           </motion.div>
 
           {/* Caption */}
-          <motion.p variants={fadeUp} className="font-cabin text-xs text-white/35">
+          <motion.p variants={fadeUp} className="font-sans text-xs text-white/35">
             Aucune carte requise &middot; H&eacute;bergement au Canada
           </motion.p>
         </motion.div>

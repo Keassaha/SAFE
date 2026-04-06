@@ -15,7 +15,7 @@ export function FacturationPageHero({
   const tf = useTranslations("facturation");
 
   return (
-    <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+    <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
       {backHref && (
         <Link
           href={backHref}
@@ -37,7 +37,7 @@ export function FacturationPageHero({
         </div>
         <Link
           href={routes.facturationHonoraires}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-safe font-medium bg-white/20 text-white border border-white/30 hover:bg-white/30 shadow-md transition-all duration-200 shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-safe font-medium bg-white/20 text-white border border-white/30 hover:bg-white/30 shadow-md transition-all duration-200 shrink-0"
         >
           <Plus className="h-4 w-4" aria-hidden />
           {tf("newInvoice")}

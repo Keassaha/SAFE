@@ -61,7 +61,7 @@ export function DeboursAddForm({
                 required
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
               >
                 <option value="">{td("chooseClient")}</option>
                 {clients.map((c) => (
@@ -79,7 +79,7 @@ export function DeboursAddForm({
                 name="dossierId"
                 required
                 disabled={!clientId || dossiersForClient.length === 0}
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none disabled:opacity-60"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none disabled:opacity-60"
               >
                 <option value="">
                   {!clientId
@@ -103,7 +103,7 @@ export function DeboursAddForm({
             </label>
             <select
               name="deboursTypeId"
-              className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm"
+              className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
             >
               <option value="">{td("manual")}</option>
               {deboursTypes.map((t) => (
@@ -138,7 +138,7 @@ export function DeboursAddForm({
                 type="date"
                 name="date"
                 defaultValue={new Date().toISOString().slice(0, 10)}
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
               />
             </div>
           </div>

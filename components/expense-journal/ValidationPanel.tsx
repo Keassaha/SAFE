@@ -115,7 +115,7 @@ export function ValidationPanel({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-md text-[var(--safe-text-muted)] hover:bg-white/10 hover:text-[var(--safe-text-title)]"
+            className="p-1 rounded-safe-sm text-[var(--safe-text-muted)] hover:bg-white/10 hover:text-[var(--safe-text-title)]"
             aria-label="Fermer"
           >
             <X className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function ValidationPanel({
                 Catégorie
               </label>
               <select
-                className="w-full rounded-md border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-2"
+                className="w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-2"
                 value={currentCategoryId}
                 onChange={(e) => {
                   const c = categories.find((cat) => cat.id === e.target.value);

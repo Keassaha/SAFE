@@ -64,7 +64,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
         {showAdd && (
           <form
             action={createDossierEvenement}
-            className="rounded-lg border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+            className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
           >
             <input type="hidden" name="dossierId" value={dossierId} />
             <div>
@@ -72,7 +72,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
               <select
                 name="type"
                 required
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
               >
                 <option value="audience">{t("eventTypeHearing")}</option>
                 <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
@@ -88,7 +88,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
               <textarea
                 name="notes"
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-sm"
+                className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm"
                 placeholder={t("optional")}
               />
             </div>
@@ -112,12 +112,12 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                   <li key={e.id}>
                     <form
                       action={(fd) => updateDossierEvenement(e.id, fd)}
-                      className="rounded-lg border border-primary-200 p-4 space-y-3 bg-primary-50/30"
+                      className="rounded-safe-sm border border-primary-200 p-4 space-y-3 bg-primary-50/30"
                     >
                       <input type="hidden" name="dossierId" value={dossierId} />
                       <div>
                         <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{tc("type")}</label>
-                        <select name="type" defaultValue={e.type} required className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm">
+                        <select name="type" defaultValue={e.type} required className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
                           <option value="audience">{t("eventTypeHearing")}</option>
                           <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
                           <option value="echeance">{t("eventTypeDeadline")}</option>
@@ -141,7 +141,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                           name="notes"
                           rows={2}
                           defaultValue={e.notes ?? ""}
-                          className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-sm"
+                          className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -155,7 +155,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                 ) : (
                   <li
                     key={e.id}
-                    className="flex items-center justify-between gap-2 py-2 px-3 rounded-lg border border-neutral-border hover:bg-neutral-surface/30"
+                    className="flex items-center justify-between gap-2 py-2 px-3 rounded-safe-sm border border-neutral-border hover:bg-neutral-surface/30"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-neutral-text-primary truncate">{e.titre}</p>

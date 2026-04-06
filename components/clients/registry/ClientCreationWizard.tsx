@@ -134,7 +134,7 @@ export function ClientCreationWizard({
               key={s.id}
               type="button"
               onClick={() => goToStep(s.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-safe-sm text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
                   ? "bg-primary-100 text-primary-800"
                   : isPast
@@ -152,7 +152,7 @@ export function ClientCreationWizard({
       <div className="min-h-[320px]">
         <div className={step !== 1 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("clientIdentification")}
             </h3>
             <div>
@@ -162,7 +162,7 @@ export function ClientCreationWizard({
               <select
                 name="typeClient"
                 defaultValue={initialData?.typeClient ?? "personne_morale"}
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="personne_morale">{t("company")}</option>
                 <option value="personne_physique">{t("individual")}</option>
@@ -194,7 +194,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 2 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("stepContact")}
             </h3>
             <Input
@@ -236,7 +236,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="preferredContactMethod"
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="">—</option>
                 <option value="email">{t("contactEmail")}</option>
@@ -250,7 +250,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="langue"
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="">—</option>
                 <option value="FR">{tc("french")}</option>
@@ -262,7 +262,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 3 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("legalRepresentation")}
             </h3>
             {lawyers.length > 0 && (
@@ -273,7 +273,7 @@ export function ClientCreationWizard({
                 <select
                   name="assignedLawyerId"
                   defaultValue={initialData?.assignedLawyerId ?? ""}
-                  className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
                 >
                   <option value="">{t("noLawyer")}</option>
                   {lawyers.map((l) => (
@@ -291,7 +291,7 @@ export function ClientCreationWizard({
               <select
                 name="representationType"
                 defaultValue={initialData?.representationType ?? ""}
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="">—</option>
                 <option value="plaintiff">{t("plaintiff")}</option>
@@ -321,7 +321,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 4 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("billingTitle")}
             </h3>
             <Input
@@ -351,7 +351,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="preferredPaymentMethod"
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="">—</option>
                 <option value="card">{t("paymentCard")}</option>
@@ -365,7 +365,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 5 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("complianceTitle")}
             </h3>
             <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export function ClientCreationWizard({
               <textarea
                 name="conflictNotes"
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
                 placeholder={t("conflictNotesPlaceholder")}
               />
             </div>
@@ -401,13 +401,13 @@ export function ClientCreationWizard({
 
         <div className={step !== 6 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary">
+            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("summaryTitle")}
             </h3>
             <p className="text-sm text-neutral-muted">
               {t("summaryDescription")}
             </p>
-            <div className="rounded-xl border border-neutral-border bg-neutral-surface/50 p-4 space-y-2">
+            <div className="rounded-safe border border-neutral-border bg-neutral-surface/50 p-4 space-y-2">
               {getSummary().map(({ label, value }) => (
                 <div key={label} className="flex gap-2 text-sm">
                   <span className="font-medium text-neutral-muted w-40 shrink-0">{label}</span>

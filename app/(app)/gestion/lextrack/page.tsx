@@ -157,7 +157,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-semibold text-white">Planification</h1>
+          <h1 className="text-xl font-semibold text-white tracking-tight">Planification</h1>
           <p className="mt-1 text-sm text-white/70">
             Agenda, suivi des dossiers et échéances. Cliquez sur un dossier pour ouvrir le tableau de production.
           </p>
@@ -166,13 +166,13 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
         {/* KPI cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {summaryCards.map(({ title, value, icon: Icon, accent }) => (
-            <div key={title} className="rounded-xl border border-neutral-border bg-white p-4 shadow-sm">
+            <div key={title} className="rounded-safe border border-neutral-border bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
                   <p className={`mt-1 text-2xl font-bold tabular-nums ${accent}`}>{value}</p>
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-neutral-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-safe-sm bg-neutral-100 flex items-center justify-center">
                   <Icon className="w-4 h-4 text-neutral-400" aria-hidden />
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
 
         {/* Dossier grid */}
         {dossiers.length === 0 ? (
-          <div className="rounded-xl border border-neutral-border bg-white p-6 text-center">
+          <div className="rounded-safe border border-neutral-border bg-white p-6 text-center">
             <p className="text-sm text-neutral-500">
               Aucun dossier.{" "}
               <Link href={routes.dossierNouveau()} className="text-primary-700 hover:underline font-medium">Créer un dossier</Link>
@@ -223,7 +223,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
 
   if (!dossier) {
     return (
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
+      <div className="rounded-safe border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
         Dossier introuvable.{" "}
         <Link href={routes.gestionLexTrack} className="underline">Retour</Link>
       </div>

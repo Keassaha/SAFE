@@ -90,8 +90,8 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm overflow-hidden">
-      <div className="flex items-center border-b border-[#e0ebe4]">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm overflow-hidden">
+      <div className="flex items-center border-b border-[var(--safe-neutral-100)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -100,18 +100,18 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-all ${
                 isActive
-                  ? "text-[#1a3c2d] border-b-2 border-emerald-600 bg-emerald-50/50"
-                  : "text-[#6b8f7b] hover:text-[#1a2e28] hover:bg-[#F2F7F4]"
+                  ? "text-[var(--safe-gradient-sidebar)] border-b-2 border-emerald-600 bg-emerald-50/50"
+                  : "text-[var(--safe-text-muted)] hover:text-[var(--safe-text-title)] hover:bg-[var(--safe-neutral-page)]"
               }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
               {tab.count > 0 && (
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    isActive ? "bg-emerald-100 text-emerald-700" : "bg-[#e0ebe4] text-[#4a6a5c]"
+                  className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
+                    isActive ? "bg-emerald-100 text-emerald-700" : "bg-[var(--safe-neutral-100)] text-[var(--safe-text-secondary)]"
                   }`}
                 >
                   {tab.count}
@@ -127,8 +127,8 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
           <div className="space-y-2">
             {tasks.length === 0 ? (
               <div className="text-center py-8">
-                <CheckSquare className="w-8 h-8 text-[#c8ddd0] mx-auto mb-2" />
-                <p className="text-sm text-[#6b8f7b]">{t("noTasks")}</p>
+                <CheckSquare className="w-8 h-8 text-[var(--safe-neutral-300)] mx-auto mb-2" />
+                <p className="text-sm text-[var(--safe-text-muted)]">{t("noTasks")}</p>
               </div>
             ) : (
               tasks.map((task) => {
@@ -138,10 +138,10 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                   <Link
                     key={task.id}
                     href={`${routes.dossiers}/${task.dossierId}`}
-                    className={`block rounded-xl border p-3 transition-all hover:shadow-sm group ${
+                    className={`block rounded-safe border p-3 transition-all hover:shadow-sm group ${
                       overdue
                         ? "border-red-200 bg-red-50/50"
-                        : "border-[#e0ebe4] bg-[#FAFCFB] hover:bg-white"
+                        : "border-[var(--safe-neutral-100)] bg-[var(--safe-white)] hover:bg-white"
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -152,15 +152,15 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-[#1a2e28] truncate group-hover:text-emerald-700 transition-colors">
+                          <p className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-700 transition-colors">
                             {task.titre}
                           </p>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${prio.bg} ${prio.text}`}>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${prio.bg} ${prio.text}`}>
                             {priorityLabels[(task.priorite as keyof typeof priorityLabels) ?? "medium"] ?? priorityLabels.medium}
                           </span>
                         </div>
-                        <p className="text-xs text-[#6b8f7b] truncate">{task.dossierIntitule}</p>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[#6b8f7b]">
+                        <p className="text-xs text-[var(--safe-text-muted)] truncate">{task.dossierIntitule}</p>
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--safe-text-muted)]">
                           {task.dateEcheance && (
                             <span className={`flex items-center gap-1 ${overdue ? "text-red-600 font-medium" : ""}`}>
                               <Clock className="w-3 h-3" />
@@ -172,7 +172,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#c8ddd0] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
+                      <ChevronRight className="w-4 h-4 text-[var(--safe-neutral-300)] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
                     </div>
                   </Link>
                 );
@@ -185,8 +185,8 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
           <div className="space-y-2">
             {events.length === 0 ? (
               <div className="text-center py-8">
-                <Calendar className="w-8 h-8 text-[#c8ddd0] mx-auto mb-2" />
-                <p className="text-sm text-[#6b8f7b]">{t("noAppointments")}</p>
+                <Calendar className="w-8 h-8 text-[var(--safe-neutral-300)] mx-auto mb-2" />
+                <p className="text-sm text-[var(--safe-text-muted)]">{t("noAppointments")}</p>
               </div>
             ) : (
               events.map((event) => {
@@ -197,23 +197,23 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                   <Link
                     key={event.id}
                     href={`${routes.dossiers}/${event.dossierId}`}
-                    className="block rounded-xl border border-[#e0ebe4] bg-[#FAFCFB] p-3 transition-all hover:shadow-sm hover:bg-white group"
+                    className="block rounded-safe border border-[var(--safe-neutral-100)] bg-[var(--safe-white)] p-3 transition-all hover:shadow-sm hover:bg-white group"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-safe bg-emerald-50 flex items-center justify-center shrink-0">
                         <Calendar className="w-4 h-4 text-emerald-600" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-[#1a2e28] truncate group-hover:text-emerald-700 transition-colors">
+                          <p className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-700 transition-colors">
                             {event.titre}
                           </p>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">
                             {eventTypeLabels[eventType]}
                           </span>
                         </div>
-                        <p className="text-xs text-[#6b8f7b] truncate">{event.dossierIntitule}</p>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[#6b8f7b]">
+                        <p className="text-xs text-[var(--safe-text-muted)] truncate">{event.dossierIntitule}</p>
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--safe-text-muted)]">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {formatEventDateTime(event.date, locale, t)}
@@ -226,7 +226,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#c8ddd0] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
+                      <ChevronRight className="w-4 h-4 text-[var(--safe-neutral-300)] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
                     </div>
                   </Link>
                 );

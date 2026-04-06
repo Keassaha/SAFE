@@ -33,14 +33,14 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
   const locale = useLocale();
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-base font-semibold text-[#1a2e28] flex items-center gap-2">
+          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <AlertTriangle className="w-4 h-4 text-red-500" />
             {t("outstanding.title")}
           </h3>
-          <p className="text-xs text-[#6b8f7b] mt-0.5">
+          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
             {t("outstanding.subtitle")}
           </p>
         </div>
@@ -54,27 +54,27 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-center py-8 text-sm text-[#6b8f7b]">
+        <div className="text-center py-8 text-sm text-[var(--safe-text-muted)]">
           {t("outstanding.none")}
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
             <thead>
-              <tr className="border-b-2 border-[#d0ddd6]">
-                <th className="text-left py-2.5 px-2 font-semibold text-[#1a2e28] text-xs uppercase tracking-wider">
+              <tr className="border-b-2 border-[var(--safe-neutral-border)]">
+                <th className="text-left py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   Client
                 </th>
-                <th className="text-right py-2.5 px-2 font-semibold text-[#1a2e28] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.balance")}
                 </th>
-                <th className="text-right py-2.5 px-2 font-semibold text-[#1a2e28] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.firstInvoice")}
                 </th>
-                <th className="text-right py-2.5 px-2 font-semibold text-[#1a2e28] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.days")}
                 </th>
-                <th className="text-center py-2.5 px-2 font-semibold text-[#1a2e28] text-xs uppercase tracking-wider">
+                <th className="text-center py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.aging")}
                 </th>
               </tr>
@@ -85,29 +85,29 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
                 return (
                   <tr
                     key={row.clientId}
-                    className={`border-b border-[#e0ebe4] last:border-0 ${
-                      i % 2 === 0 ? "bg-[#FAFCFB]" : ""
+                    className={`border-b border-[var(--safe-neutral-100)] last:border-0 ${
+                      i % 2 === 0 ? "bg-[var(--safe-white)]" : ""
                     }`}
                   >
-                    <td className="py-2.5 px-2">
+                    <td className="py-2 px-2">
                       <Link
                         href={routes.client(row.clientId)}
-                        className="font-medium text-[#1a2e28] hover:text-emerald-700 hover:underline"
+                        className="font-medium text-[var(--safe-text-title)] hover:text-emerald-700 hover:underline"
                       >
                         {row.clientName}
                       </Link>
                     </td>
-                    <td className="py-2.5 px-2 text-right font-bold text-red-600">
+                    <td className="py-2 px-2 text-right font-bold text-red-600">
                       {formatCurrency(row.balanceDue, "CAD", locale)}
                     </td>
-                    <td className="py-2.5 px-2 text-right text-[#6b8f7b]">
+                    <td className="py-2 px-2 text-right text-[var(--safe-text-muted)]">
                       {formatDate(row.firstInvoiceDate, locale)}
                     </td>
-                    <td className="py-2.5 px-2 text-right font-medium text-[#1a2e28]">
+                    <td className="py-2 px-2 text-right font-medium text-[var(--safe-text-title)]">
                       {row.daysSinceFirstInvoice} j
                     </td>
-                    <td className="py-2.5 px-2 text-center">
-                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
+                    <td className="py-2 px-2 text-center">
+                      <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
                         {row.agingCategory}
                       </span>
                     </td>

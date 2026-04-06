@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield } from "lucide-react";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 
 const footerLinks = {
   produit: [
@@ -27,15 +27,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2.5 mb-6 group">
-              <div className="w-9 h-9 rounded-xl bg-[var(--safe-accent)] flex items-center justify-center">
-                <Shield className="w-5 h-5 text-[var(--safe-lightest)]" />
-              </div>
-              <span className="text-xl font-semibold tracking-tight text-[var(--safe-white)] font-jakarta">
-                SAFE
-              </span>
+            <Link href="/" className="inline-block mb-6 group transition-opacity duration-300 hover:opacity-[0.85]">
+              <SafeLogo variant="dark" noPulse className="shrink-0" />
             </Link>
-            <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-jakarta">
+            <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
               Le logiciel de gestion pensé pour simplifier et sécuriser la pratique des
               avocats en droit familial au Québec.
             </p>
@@ -43,7 +38,7 @@ export function Footer() {
 
           {/* Produit */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-jakarta">
+            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
               Produit
             </h4>
             <ul className="space-y-3.5">
@@ -51,7 +46,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-jakarta"
+                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
                   >
                     {link.label}
                   </Link>
@@ -62,7 +57,7 @@ export function Footer() {
 
           {/* Ressources */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-jakarta">
+            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
               Ressources
             </h4>
             <ul className="space-y-3.5">
@@ -70,7 +65,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-jakarta"
+                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
                   >
                     {link.label}
                   </Link>
@@ -81,7 +76,7 @@ export function Footer() {
 
           {/* Légal & Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-jakarta">
+            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
               Légal & Contact
             </h4>
             <ul className="space-y-3.5">
@@ -90,14 +85,14 @@ export function Footer() {
                   {link.href.startsWith("mailto:") ? (
                     <a
                       href={link.href}
-                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-jakarta"
+                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-jakarta"
+                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
                     >
                       {link.label}
                     </Link>
@@ -110,10 +105,10 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[var(--safe-text-muted)] font-jakarta">
+          <p className="text-xs text-[var(--safe-text-muted)] font-sans">
             © {new Date().getFullYear()} SAFE. Tous droits réservés.
           </p>
-          <div className="flex items-center gap-3 text-xs text-[var(--safe-text-muted)] font-jakarta">
+          <div className="flex items-center gap-3 text-xs text-[var(--safe-text-muted)] font-sans">
             <span>Hébergé au Canada</span>
             <span className="text-[var(--safe-sage)]/30">•</span>
             <span>Conforme à la Loi 25</span>

@@ -30,13 +30,13 @@ export function DashboardTransactionsList({
   return (
     <div className="card-glass overflow-hidden p-4 md:p-5 border-l-4 border-l-emerald-500">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
           <CircleDollarSign className="w-4 h-4 text-emerald-600" aria-hidden />
           {t("transactions")}
         </h3>
         <button
           type="button"
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--safe-icon-default)] hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+          className="w-8 h-8 rounded-safe-sm flex items-center justify-center text-[var(--safe-icon-default)] hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
           aria-label={t("options")}
         >
           <MoreHorizontal className="w-4 h-4" />
@@ -53,7 +53,7 @@ export function DashboardTransactionsList({
             const isPositive = tx.amount >= 0;
             const content = (
               <>
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700">
+                <div className="w-9 h-9 rounded-safe bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -76,12 +76,12 @@ export function DashboardTransactionsList({
                 {tx.href ? (
                   <Link
                     href={tx.href}
-                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-safe hover:bg-neutral-50 transition-colors"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 transition-colors">
+                  <div className="flex items-center gap-3 p-2 rounded-safe hover:bg-neutral-50 transition-colors">
                     {content}
                   </div>
                 )}

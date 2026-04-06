@@ -107,11 +107,11 @@ function SettingsHubCard({
       <CardContent className="flex h-full flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--safe-green-100)] text-[var(--safe-icon-default)]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-safe-md bg-[var(--safe-green-100)] text-[var(--safe-icon-default)]">
               {icon}
             </div>
             <div className="space-y-1">
-              <h2 className="text-base font-semibold safe-text-title">{title}</h2>
+              <h2 className="text-base font-semibold safe-text-title tracking-tight">{title}</h2>
               <p className="text-sm safe-text-secondary">{description}</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ function ChecklistItem({
   badgeVariant: "success" | "warning" | "neutral" | "error";
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-[var(--safe-neutral-border)]/50 bg-white/5 p-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-safe-md border border-[var(--safe-neutral-border)]/50 bg-white/5 p-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="space-y-1">
         <p className="text-sm font-semibold safe-text-title">{title}</p>
         <p className="text-sm safe-text-secondary">{description}</p>
@@ -437,7 +437,7 @@ export default async function ParametresPage() {
         <Card>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-status-success-bg text-status-success">
+              <div className="flex h-10 w-10 items-center justify-center rounded-safe-md bg-status-success-bg text-status-success">
                 <BadgeCheck className="h-5 w-5" aria-hidden />
               </div>
               <div>
@@ -454,7 +454,7 @@ export default async function ParametresPage() {
         <Card>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-status-warning-bg text-status-warning">
+              <div className="flex h-10 w-10 items-center justify-center rounded-safe-md bg-status-warning-bg text-status-warning">
                 <FileClock className="h-5 w-5" aria-hidden />
               </div>
               <div>
@@ -471,7 +471,7 @@ export default async function ParametresPage() {
         <Card>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--safe-green-100)] text-[var(--safe-icon-default)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-safe-md bg-[var(--safe-green-100)] text-[var(--safe-icon-default)]">
                 <BellRing className="h-5 w-5" aria-hidden />
               </div>
               <div>

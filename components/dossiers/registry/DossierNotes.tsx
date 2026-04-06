@@ -61,7 +61,7 @@ export function DossierNotes({
           {showAdd && (
             <form
               action={createDossierNote}
-              className="rounded-lg border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+              className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
             >
               <input type="hidden" name="dossierId" value={dossierId} />
               <div>
@@ -76,7 +76,7 @@ export function DossierNotes({
                   name="content"
                   rows={4}
                   required
-                  className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
+                  className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
                   placeholder={t("notePlaceholder")}
                 />
               </div>
@@ -96,7 +96,7 @@ export function DossierNotes({
               {notes.map((note) => (
                 <li
                   key={note.id}
-                  className="rounded-lg border border-neutral-border p-3 bg-white/80 text-sm"
+                  className="rounded-safe-sm border border-neutral-border p-3 bg-white/80 text-sm"
                 >
                   <p className="text-neutral-text-secondary whitespace-pre-wrap">{note.content}</p>
                   <p className="mt-2 text-xs text-neutral-muted">

@@ -33,12 +33,12 @@ export function DashboardCategoryCard({
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title">{title}</h3>
+          <h3 className="text-sm font-semibold safe-text-title tracking-tight">{title}</h3>
           <p className="text-xs safe-text-secondary mt-0.5">{subtitle}</p>
         </div>
         <Link
           href={routes.temps}
-          className="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
+          className="w-8 h-8 rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
           aria-label="Voir fiches de temps"
         >
           <Maximize2 className="w-4 h-4" />
@@ -54,10 +54,10 @@ export function DashboardCategoryCard({
             <Link
               key={item.id}
               href={item.href}
-              className="flex items-center justify-between p-2.5 rounded-lg hover:bg-neutral-100 transition-colors border border-transparent hover:border-[var(--safe-neutral-border)]"
+              className="flex items-center justify-between p-3 rounded-safe-sm hover:bg-neutral-100 transition-colors border border-transparent hover:border-[var(--safe-neutral-border)]"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0 text-[var(--safe-icon-default)]">
+                <div className="w-9 h-9 rounded-safe-sm bg-green-50 flex items-center justify-center shrink-0 text-[var(--safe-icon-default)]">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">

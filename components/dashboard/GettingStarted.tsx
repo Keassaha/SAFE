@@ -33,7 +33,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
   return (
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-amber-500">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
           <Sparkles className="w-4 h-4 text-amber-600" aria-hidden />
           {t("title")}
         </h3>
@@ -63,7 +63,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
             <li key={key}>
               <Link
                 href={href}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
+                className={`flex items-center gap-3 rounded-safe px-3 py-2 transition-colors ${
                   done
                     ? "bg-white/10 text-[var(--safe-text-secondary)]"
                     : "bg-white/5 hover:bg-white/10 text-[var(--safe-text-title)]"

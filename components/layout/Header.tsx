@@ -34,14 +34,14 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
   }, []);
 
   return (
-    <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 gap-4 bg-white border-b border-[#d0ddd6]">
+    <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 gap-4 bg-white border-b border-[var(--safe-neutral-border)]">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Link
           href={routes.tableauDeBord}
-          className="shrink-0 lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 rounded-lg"
+          className="shrink-0 lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 rounded-safe-sm"
         >
           <span className="sr-only">{title}</span>
-          <SafeLogo variant="dark" className="w-[104px]" />
+          <SafeLogo variant="dark" className="shrink-0" />
         </Link>
         <div className="flex-1 max-w-md min-w-0">
           <label htmlFor="header-search" className="sr-only">
@@ -56,9 +56,9 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
               id="header-search"
               type="search"
               placeholder={t("searchPlaceholder")}
-              className="w-full h-12 pl-12 pr-20 rounded-2xl bg-white border border-gray-100 outline-none transition-all duration-200 text-sm text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-transparent shadow-sm"
+              className="w-full h-12 pl-12 pr-20 rounded-safe-md bg-white border border-gray-100 outline-none transition-all duration-200 text-sm text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-transparent shadow-sm"
             />
-            <kbd className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] text-gray-500 font-mono">
+            <kbd className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded-safe-sm border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 font-mono">
               <span>⌘</span>K
             </kbd>
           </div>
@@ -100,7 +100,7 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
         <button
           type="button"
           onClick={() => void signOutClient("/")}
-          className="text-gray-500 ml-2 px-3 py-2 text-sm font-medium rounded-xl transition-colors duration-200 hover:text-green-800 hover:bg-green-50"
+          className="text-gray-500 ml-2 px-3 py-2 text-sm font-medium rounded-safe transition-colors duration-200 hover:text-green-800 hover:bg-green-50"
         >
           {t("signOut")}
         </button>

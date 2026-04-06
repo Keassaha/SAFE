@@ -16,7 +16,7 @@ export interface DeboursAddModalProps {
 }
 
 const selectClass =
-  "w-full h-10 px-3 rounded-xl border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+  "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
 
 export function DeboursAddModal({
   open,
@@ -143,16 +143,16 @@ export function DeboursAddModal({
           </div>
         </div>
 
-        <label className="flex items-center gap-2.5 text-sm text-neutral-700 cursor-pointer">
+        <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
           <input type="checkbox" name="refacturable" defaultChecked value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
           {td("billableToClient")}
         </label>
         <div className="flex gap-2">
-          <label className="flex items-center gap-2.5 text-sm text-neutral-700 cursor-pointer">
+          <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
             <input type="checkbox" name="taxable" value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
             {td("taxable")}
           </label>
-          <label className="flex items-center gap-2.5 text-sm text-neutral-700 cursor-pointer">
+          <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
             <input type="checkbox" name="payeParCabinet" defaultChecked value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
             {td("paidByFirm")}
           </label>

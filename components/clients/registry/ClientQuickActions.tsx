@@ -25,7 +25,7 @@ export function ClientQuickActions({
       {telephone && (
         <a
           href={`tel:${telephone.replace(/\s/g, "")}`}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
         >
           <Phone className="w-4 h-4" />
           {t("call")}
@@ -34,7 +34,7 @@ export function ClientQuickActions({
       {email && (
         <a
           href={`mailto:${email}`}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
         >
           <Mail className="w-4 h-4" />
           {t("emailAction")}
@@ -42,7 +42,7 @@ export function ClientQuickActions({
       )}
       <Link
         href={exportHref}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 transition-colors text-sm font-medium"
       >
         <Download className="w-4 h-4" />
         {t("exportDossier")}

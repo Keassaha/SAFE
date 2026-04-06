@@ -45,7 +45,7 @@ export function ReportFilters({
           defaultValue={currentYear}
           min="2020"
           max={new Date().getFullYear() + 1}
-          className="w-28 h-10 px-3 rounded-lg border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-28 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
         />
       </div>
       <div>
@@ -54,7 +54,7 @@ export function ReportFilters({
         </label>
         <select
           name="clientId"
-          className="w-48 h-10 px-3 rounded-lg border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
           defaultValue={currentClientId}
         >
           <option value="">Tous</option>
@@ -71,7 +71,7 @@ export function ReportFilters({
         </label>
         <select
           name="userId"
-          className="w-48 h-10 px-3 rounded-lg border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
           defaultValue={currentUserId}
         >
           <option value="">Tous</option>

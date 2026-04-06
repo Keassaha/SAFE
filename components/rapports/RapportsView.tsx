@@ -11,6 +11,8 @@ import {
   Percent,
   Coins,
   Calendar,
+  SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import type { RapportsPayload } from "@/lib/rapports/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -42,6 +44,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
   const t = useTranslations("rapports");
   const tc = useTranslations("common");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const { filters } = payload;
   const dateDebutStr = filters.dateDebut;
   const dateFinStr = filters.dateFin;
@@ -59,204 +62,232 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
     { id: "annuel-impots", label: t("annualTaxReport"), icon: Calendar },
   ];
 
+  const activeTabData = TABS.find((t) => t.id === activeTab)!;
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader title={tc("filters")} />
-        <CardContent>
-          <RapportsFilters
-            clients={payload.clients}
-            avocats={payload.avocats}
-            defaultDateDebut={dateDebutStr}
-            defaultDateFin={dateFinStr}
-            defaultClientId={payload.filters.clientId ?? ""}
-            defaultUserId={payload.filters.userId ?? ""}
-            defaultStatut={payload.filters.statut ?? ""}
-          />
-        </CardContent>
-      </Card>
+    <div className="flex gap-6 min-h-[600px]">
+      {/* Sidebar navigation */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0">
+        <nav className="sticky top-6 space-y-1">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-safe-sm text-sm font-medium transition-all duration-200 text-left ${
+                  isActive
+                    ? "bg-gradient-to-r from-[#051F20] to-[#163832] text-white shadow-md"
+                    : "text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-100)] hover:text-[var(--safe-text-title)]"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" aria-hidden />
+                <span className="truncate">{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
 
-      <div className="flex flex-wrap gap-2 border-b border-[var(--safe-neutral-border)] pb-2">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "bg-[var(--safe-green-600)] text-white"
-                  : "safe-text-secondary hover:bg-white/80 hover:safe-text-title"
-              }`}
-            >
-              <Icon className="w-4 h-4" aria-hidden />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Main content */}
+      <div className="flex-1 min-w-0 space-y-5">
+        {/* Mobile tab selector */}
+        <div className="lg:hidden">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value as TabId)}
+            className="w-full h-11 px-4 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-[var(--safe-text-title)] font-medium"
+          >
+            {TABS.map((tab) => (
+              <option key={tab.id} value={tab.id}>{tab.label}</option>
+            ))}
+          </select>
+        </div>
 
-      {activeTab === "dashboard" && (
-        <Card>
-          <CardHeader title={t("financialDashboard")} />
-          <CardContent>
-            <DashboardFinancier
-              kpis={payload.kpis}
-              revenueByMonth={payload.revenueByMonth}
+        {/* Filters toggle */}
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm font-medium text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] hover:border-[var(--safe-neutral-300)] transition-colors"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          {tc("filters")}
+          <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
+        </button>
+
+        {filtersOpen && (
+          <div className="p-4 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/60 backdrop-blur-sm">
+            <RapportsFilters
+              clients={payload.clients}
+              avocats={payload.avocats}
+              defaultDateDebut={dateDebutStr}
+              defaultDateFin={dateFinStr}
+              defaultClientId={payload.filters.clientId ?? ""}
+              defaultUserId={payload.filters.userId ?? ""}
+              defaultStatut={payload.filters.statut ?? ""}
             />
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {activeTab === "facturation" && (
-        <Card>
-          <CardHeader
-            title={t("billingReport")}
-            action={
-              <ExportButtons
-                sectionId="facturation"
-                sectionTitle={t("billingReport")}
-                data={payload.facturationRows as unknown as Record<string, unknown>[]}
-                columns={[
-                  { key: "numero", header: tc("invoiceNumber") },
-                  { key: "client", header: tc("client") },
-                  { key: "dossier", header: tc("dossier") },
-                  { key: "avocat", header: t("lawyer") },
-                  { key: "date", header: tc("date") },
-                  { key: "montantHT", header: t("amountHT") },
-                  { key: "taxes", header: t("taxes") },
-                  { key: "total", header: tc("total") },
-                  { key: "paiementRecu", header: t("paymentReceived") },
-                  { key: "solde", header: tc("balance") },
-                  { key: "statut", header: tc("status") },
-                ]}
-                filenamePrefix="rapport-facturation"
-              />
-            }
+        {/* Active report content */}
+        {activeTab === "dashboard" && (
+          <DashboardFinancier
+            kpis={payload.kpis}
+            revenueByMonth={payload.revenueByMonth}
           />
-          <CardContent>
-            <RapportFacturationTable data={payload.facturationRows} />
-          </CardContent>
-        </Card>
-      )}
+        )}
 
-      {activeTab === "comptes-recevoir" && (
-        <Card>
-          <CardHeader title={t("accountsReceivable")} />
-          <CardContent>
-            <ComptesRecevoirSection data={payload.comptesRecevoir} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "facturation" && (
+          <Card>
+            <CardHeader
+              title={t("billingReport")}
+              action={
+                <ExportButtons
+                  sectionId="facturation"
+                  sectionTitle={t("billingReport")}
+                  data={payload.facturationRows as unknown as Record<string, unknown>[]}
+                  columns={[
+                    { key: "numero", header: tc("invoiceNumber") },
+                    { key: "client", header: tc("client") },
+                    { key: "dossier", header: tc("dossier") },
+                    { key: "avocat", header: t("lawyer") },
+                    { key: "date", header: tc("date") },
+                    { key: "montantHT", header: t("amountHT") },
+                    { key: "taxes", header: t("taxes") },
+                    { key: "total", header: tc("total") },
+                    { key: "paiementRecu", header: t("paymentReceived") },
+                    { key: "solde", header: tc("balance") },
+                    { key: "statut", header: tc("status") },
+                  ]}
+                  filenamePrefix="rapport-facturation"
+                />
+              }
+            />
+            <CardContent>
+              <RapportFacturationTable data={payload.facturationRows} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "performance-avocats" && (
-        <Card>
-          <CardHeader
-            title={t("lawyerPerformance")}
-            action={
-              <ExportButtons
-                sectionId="performance"
-                sectionTitle={t("lawyerPerformance")}
-                data={payload.performanceAvocats as unknown as Record<string, unknown>[]}
-                columns={[
-                  { key: "nom", header: t("lawyer") },
-                  { key: "heuresTravaillees", header: t("hoursWorked") },
-                  { key: "heuresFacturees", header: t("billedHours") },
-                  { key: "revenusGeneres", header: t("revenueGenerated") },
-                  { key: "tauxHoraireMoyen", header: t("avgHourlyRate") },
-                  { key: "tauxRealisation", header: t("realizationRate") },
-                ]}
-                filenamePrefix="performance-avocats"
-              />
-            }
-          />
-          <CardContent>
-            <PerformanceAvocatsTable data={payload.performanceAvocats} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "comptes-recevoir" && (
+          <Card>
+            <CardHeader title={t("accountsReceivable")} />
+            <CardContent>
+              <ComptesRecevoirSection data={payload.comptesRecevoir} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "rentabilite-dossier" && (
-        <Card>
-          <CardHeader
-            title={t("matterProfitability")}
-            action={
-              <ExportButtons
-                sectionId="rentabilite"
-                sectionTitle={t("matterProfitability")}
-                data={payload.rentabiliteDossiers as unknown as Record<string, unknown>[]}
-                columns={[
-                  { key: "intitule", header: tc("dossier") },
-                  { key: "client", header: tc("client") },
-                  { key: "revenus", header: t("revenue") },
-                  { key: "heures", header: t("hours") },
-                  { key: "paiements", header: t("paymentsReceived") },
-                  { key: "profitEstime", header: t("estimatedProfit") },
-                ]}
-                filenamePrefix="rentabilite-dossiers"
-              />
-            }
-          />
-          <CardContent>
-            <RentabiliteDossierTable data={payload.rentabiliteDossiers} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "performance-avocats" && (
+          <Card>
+            <CardHeader
+              title={t("lawyerPerformance")}
+              action={
+                <ExportButtons
+                  sectionId="performance"
+                  sectionTitle={t("lawyerPerformance")}
+                  data={payload.performanceAvocats as unknown as Record<string, unknown>[]}
+                  columns={[
+                    { key: "nom", header: t("lawyer") },
+                    { key: "heuresTravaillees", header: t("hoursWorked") },
+                    { key: "heuresFacturees", header: t("billedHours") },
+                    { key: "revenusGeneres", header: t("revenueGenerated") },
+                    { key: "tauxHoraireMoyen", header: t("avgHourlyRate") },
+                    { key: "tauxRealisation", header: t("realizationRate") },
+                  ]}
+                  filenamePrefix="performance-avocats"
+                />
+              }
+            />
+            <CardContent>
+              <PerformanceAvocatsTable data={payload.performanceAvocats} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "fideicommis" && (
-        <Card>
-          <CardHeader title={t("trustReport")} />
-          <CardContent>
-            <RapportFideicommisSection data={payload.fideicommis} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "rentabilite-dossier" && (
+          <Card>
+            <CardHeader
+              title={t("matterProfitability")}
+              action={
+                <ExportButtons
+                  sectionId="rentabilite"
+                  sectionTitle={t("matterProfitability")}
+                  data={payload.rentabiliteDossiers as unknown as Record<string, unknown>[]}
+                  columns={[
+                    { key: "intitule", header: tc("dossier") },
+                    { key: "client", header: tc("client") },
+                    { key: "revenus", header: t("revenue") },
+                    { key: "heures", header: t("hours") },
+                    { key: "paiements", header: t("paymentsReceived") },
+                    { key: "profitEstime", header: t("estimatedProfit") },
+                  ]}
+                  filenamePrefix="rentabilite-dossiers"
+                />
+              }
+            />
+            <CardContent>
+              <RentabiliteDossierTable data={payload.rentabiliteDossiers} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "taxes" && (
-        <Card>
-          <CardHeader title={t("taxReport")} />
-          <CardContent>
-            <RapportTaxesSection data={payload.taxes} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "fideicommis" && (
+          <Card>
+            <CardHeader title={t("trustReport")} />
+            <CardContent>
+              <RapportFideicommisSection data={payload.fideicommis} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "debours" && (
-        <Card>
-          <CardHeader
-            title={t("disbursementsReport")}
-            action={
-              <ExportButtons
-                sectionId="debours"
-                sectionTitle={t("disbursementsReport")}
-                data={payload.deboursRows as unknown as Record<string, unknown>[]}
-                columns={[
-                  { key: "date", header: tc("date") },
-                  { key: "client", header: tc("client") },
-                  { key: "dossier", header: tc("dossier") },
-                  { key: "description", header: tc("description") },
-                  { key: "montant", header: tc("amount") },
-                  { key: "factureNumero", header: t("invoice") },
-                ]}
-                filenamePrefix="rapport-debours"
-              />
-            }
-          />
-          <CardContent>
-            <RapportDeboursSection data={payload.deboursRows} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "taxes" && (
+          <Card>
+            <CardHeader title={t("taxReport")} />
+            <CardContent>
+              <RapportTaxesSection data={payload.taxes} />
+            </CardContent>
+          </Card>
+        )}
 
-      {activeTab === "annuel-impots" && (
-        <Card>
-          <CardHeader title={t("annualTaxReport")} />
-          <CardContent>
-            <RapportAnnuelImpotsSection data={payload.annuelImpots} annee={annee} />
-          </CardContent>
-        </Card>
-      )}
+        {activeTab === "debours" && (
+          <Card>
+            <CardHeader
+              title={t("disbursementsReport")}
+              action={
+                <ExportButtons
+                  sectionId="debours"
+                  sectionTitle={t("disbursementsReport")}
+                  data={payload.deboursRows as unknown as Record<string, unknown>[]}
+                  columns={[
+                    { key: "date", header: tc("date") },
+                    { key: "client", header: tc("client") },
+                    { key: "dossier", header: tc("dossier") },
+                    { key: "description", header: tc("description") },
+                    { key: "montant", header: tc("amount") },
+                    { key: "factureNumero", header: t("invoice") },
+                  ]}
+                  filenamePrefix="rapport-debours"
+                />
+              }
+            />
+            <CardContent>
+              <RapportDeboursSection data={payload.deboursRows} />
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "annuel-impots" && (
+          <Card>
+            <CardHeader title={t("annualTaxReport")} />
+            <CardContent>
+              <RapportAnnuelImpotsSection data={payload.annuelImpots} annee={annee} />
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

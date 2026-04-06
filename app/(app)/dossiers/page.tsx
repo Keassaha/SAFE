@@ -174,7 +174,7 @@ export default async function DossiersPage({
         actesUrgents={actesUrgentsCount}
         actesTermines={actesTermines}
       />
-      <div className="rounded-2xl bg-white shadow-lg p-6 space-y-0">
+      <div className="rounded-safe-md bg-white shadow-lg p-6 space-y-0">
         <Card className="border-0 shadow-none bg-transparent">
           <CardHeader
             title={t("matterList")}

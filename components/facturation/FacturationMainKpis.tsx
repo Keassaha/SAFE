@@ -31,7 +31,7 @@ interface FacturationMainKpisProps {
 }
 
 const CARD_BASE =
-  "relative overflow-hidden rounded-xl border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md";
+  "relative overflow-hidden rounded-safe border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md";
 
 export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
   const pathname = usePathname();
@@ -143,7 +143,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
                     </p>
                   )}
                 </div>
-                <div className="p-2 rounded-lg bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
+                <div className="p-2 rounded-safe-sm bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
               </div>
@@ -153,7 +153,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       </div>
 
       <nav
-        className="flex flex-wrap items-center gap-1 p-2 rounded-xl bg-white border border-[var(--safe-neutral-border)] shadow-sm"
+        className="flex flex-wrap items-center gap-1 p-2 rounded-safe bg-white border border-[var(--safe-neutral-border)] shadow-sm"
         aria-label={tFacturation("billingTabs")}
       >
         {TABS.map((tab) => {
@@ -165,7 +165,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
               key={tab.href}
               href={tab.href}
               className={`
-                flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
+                flex items-center gap-2 px-4 py-2 rounded-safe-sm text-sm font-medium transition-colors
                 ${active
                   ? "bg-[var(--safe-green-100)] text-[var(--safe-text-title)] border border-[var(--safe-neutral-border)] shadow-sm"
                   : "text-[var(--safe-neutral-700)] hover:bg-neutral-100 hover:text-[var(--safe-text-title)]"}

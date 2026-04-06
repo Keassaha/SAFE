@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 import type { UserRole } from "@prisma/client";
 import {
   LayoutDashboard,
@@ -197,7 +198,7 @@ function NavLink({
     <>
       <span
         className={`
-          flex w-9 h-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200
+          flex w-9 h-9 shrink-0 items-center justify-center rounded-safe-sm transition-colors duration-200
           ${isActive && !isSubItem ? "bg-green-700 text-white shadow-sm" : ""}
           ${isActive && isSubItem ? "bg-white/10 text-green-400" : ""}
           ${!isActive ? "text-white/50 group-hover:text-white group-hover:bg-white/10" : ""}
@@ -207,7 +208,7 @@ function NavLink({
       </span>
       <span
         className={`
-          flex-1 min-w-0 truncate text-[13.5px] font-medium leading-none
+          flex-1 min-w-0 truncate text-sm font-medium leading-none
           ${isActive ? "text-white font-semibold" : "text-white/70 group-hover:text-white"}
         `}
       >
@@ -226,7 +227,7 @@ function NavLink({
   );
 
   const baseClasses = `
-    group relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl
+    group relative flex items-center gap-3 px-3 py-1.5 rounded-safe
     transition-all duration-200 cursor-pointer
     ${isSubItem ? "ml-5 pl-3" : ""}
     ${isActive && !isSubItem ? "bg-white/10" : ""}
@@ -284,14 +285,9 @@ export function Sidebar({ role }: { role?: string }) {
       <div className="flex items-center gap-3 px-5 pt-6 pb-5">
         <Link
           href={routes.tableauDeBord}
-          className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-700/30 rounded-lg"
+          className="flex items-center transition-opacity duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-700/30 rounded-safe-sm"
         >
-          <div className="w-9 h-9 bg-green-700 rounded-xl flex items-center justify-center shadow-sm">
-            <Scale className="w-5 h-5 text-white" strokeWidth={2} />
-          </div>
-          <span className="font-heading font-bold text-[22px] tracking-tight text-white">
-            SAFE
-          </span>
+          <SafeLogo className="shrink-0" variant="dark" noPulse />
         </Link>
       </div>
 
@@ -362,11 +358,11 @@ export function Sidebar({ role }: { role?: string }) {
       {/* ---- Bottom section ---- */}
       <div className="px-3 pb-4 pt-2 border-t border-white/10 space-y-3">
         {/* Pro CTA */}
-        <div className="bg-white/[0.07] rounded-2xl p-4 relative overflow-hidden border border-white/10">
-          <h4 className="text-white/90 font-semibold text-[13px] leading-snug mb-2.5">
+        <div className="bg-white/[0.07] rounded-safe-md p-4 relative overflow-hidden border border-white/10">
+          <h4 className="text-white/90 font-semibold text-sm leading-snug mb-2.5 tracking-tight">
             Passez à la vitesse supérieure avec SAFE Pro.
           </h4>
-          <button className="bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg hover:brightness-110 transition-all shadow-sm">
+          <button className="bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-safe-sm hover:brightness-110 transition-all shadow-sm">
             Découvrir Pro
           </button>
           <div className="absolute -right-4 -bottom-4 w-20 h-20 border-[10px] border-white/5 rounded-full pointer-events-none" />
@@ -376,8 +372,8 @@ export function Sidebar({ role }: { role?: string }) {
         <Link
           href={routes.parametres}
           className="
-            flex items-center gap-2.5 px-2.5 py-2
-            rounded-xl bg-white/[0.07] hover:bg-white/10
+            flex items-center gap-3 px-3 py-2
+            rounded-safe bg-white/[0.07] hover:bg-white/10
             transition-colors duration-200 border border-white/10
             focus:outline-none focus:ring-2 focus:ring-green-700/30
           "
@@ -386,10 +382,10 @@ export function Sidebar({ role }: { role?: string }) {
             <User className="w-4 h-4 text-green-400" />
           </span>
           <div className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold leading-none text-white truncate">
+            <span className="block text-sm font-semibold leading-none text-white truncate">
               {t("profile.title")}
             </span>
-            <span className="block text-[11px] leading-none text-white/50 truncate mt-1">
+            <span className="block text-xs leading-none text-white/50 truncate mt-1">
               {t("profile.subtitle")}
             </span>
           </div>

@@ -28,7 +28,7 @@ interface FacturationKpisProps {
 }
 
 const CARD_BASE =
-  "relative overflow-hidden rounded-xl border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2";
+  "relative overflow-hidden rounded-safe border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2";
 
 function KpiCard({
   card,
@@ -68,7 +68,7 @@ function KpiCard({
             {card.getValue(kpis)}
           </p>
         </div>
-        <div className="p-2 rounded-lg bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
+        <div className="p-2 rounded-safe-sm bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
           <Icon className="h-5 w-5" aria-hidden />
         </div>
       </div>

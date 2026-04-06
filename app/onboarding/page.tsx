@@ -29,7 +29,7 @@ function InputField({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2.5 text-sm text-[var(--safe-white)] placeholder:text-[var(--safe-text-muted)] focus:outline-none focus:border-[var(--safe-sage)] focus:ring-1 focus:ring-[var(--safe-sage)] transition-colors"
+        className="mt-1 w-full rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2 text-sm text-[var(--safe-white)] placeholder:text-[var(--safe-text-muted)] focus:outline-none focus:border-[var(--safe-sage)] focus:ring-1 focus:ring-[var(--safe-sage)] transition-colors"
       />
     </label>
   );
@@ -52,7 +52,7 @@ function SelectField({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2.5 text-sm text-[var(--safe-white)] focus:outline-none focus:border-[var(--safe-sage)] focus:ring-1 focus:ring-[var(--safe-sage)] transition-colors"
+        className="mt-1 w-full rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2 text-sm text-[var(--safe-white)] focus:outline-none focus:border-[var(--safe-sage)] focus:ring-1 focus:ring-[var(--safe-sage)] transition-colors"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -157,7 +157,7 @@ export default function OnboardingPage() {
                 >
                   {s.id < step ? "✓" : s.id}
                 </span>
-                <span className="text-[10px] md:text-xs text-[var(--safe-text-muted)] hidden sm:inline">
+                <span className="text-xs text-[var(--safe-text-muted)] hidden sm:inline">
                   {s.short}
                 </span>
               </button>
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
 
           {/* Step header */}
           <div className="text-center mb-6">
-            <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-green-800/40 flex items-center justify-center">
+            <div className="mx-auto mb-4 w-14 h-14 rounded-safe-md bg-green-800/40 flex items-center justify-center">
               <StepIcon className="w-7 h-7 text-[var(--safe-sage)]" />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-[var(--safe-white)] tracking-tight mb-2">
@@ -186,7 +186,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Step content */}
-          <div className="bg-[var(--safe-mid-dark)] border border-white/5 rounded-2xl p-6 md:p-8 mb-6 space-y-4">
+          <div className="bg-[var(--safe-mid-dark)] border border-white/5 rounded-safe-md p-6 md:p-8 mb-6 space-y-4">
             {step === 1 && (
               <>
                 <InputField label={t("cabinetName")} placeholder={t("cabinetNamePlaceholder")} value={cabinetName} onChange={setCabinetName} />
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
                   <div className="mt-1 flex items-center gap-3">
                     <button
                       type="button"
-                      className="inline-flex items-center gap-2 rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2.5 text-sm text-[var(--safe-text-muted)] hover:border-[var(--safe-sage)] transition-colors"
+                      className="inline-flex items-center gap-2 rounded-safe bg-[var(--safe-darkest)] border border-white/10 px-3 py-2 text-sm text-[var(--safe-text-muted)] hover:border-[var(--safe-sage)] transition-colors"
                     >
                       <Upload className="w-4 h-4" />
                       {t("uploadLogo")}

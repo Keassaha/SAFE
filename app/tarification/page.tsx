@@ -160,7 +160,7 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-5 text-left group"
       >
-        <span className="text-[var(--safe-white)] font-medium font-jakarta pr-4">{q}</span>
+        <span className="text-[var(--safe-white)] font-medium font-sans pr-4">{q}</span>
         <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3 }}>
           <ChevronDown className="w-5 h-5 text-[var(--safe-sage)] shrink-0" />
         </motion.div>
@@ -174,7 +174,7 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-[var(--safe-text-muted)] font-jakarta leading-relaxed">
+            <p className="pb-5 text-[var(--safe-text-muted)] font-sans leading-relaxed">
               {a}
             </p>
           </motion.div>
@@ -193,13 +193,13 @@ export default function TarificationPage() {
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="section-light relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
+        <section className="section-morning relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10 text-center">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4"
+              className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
             >
               Tarification
             </motion.p>
@@ -207,7 +207,7 @@ export default function TarificationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="font-instrument text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
+              className="font-sans text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
             >
               Un investissement{" "}
               <span className="italic text-[var(--safe-sage)]">rentable</span> dès le
@@ -217,7 +217,7 @@ export default function TarificationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto font-jakarta"
+              className="text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto font-sans"
             >
               Pas de frais cachés. Pas d&apos;engagement à long terme. Annulez en tout temps.
             </motion.p>
@@ -225,7 +225,7 @@ export default function TarificationPage() {
         </section>
 
         {/* Pricing cards */}
-        <section className="section-light relative py-4" ref={cardsRef}>
+        <section className="section-morning relative py-16" ref={cardsRef}>
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               {PLANS.map((plan, idx) => (
@@ -234,7 +234,7 @@ export default function TarificationPage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={cardsInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.5, delay: idx * 0.12 }}
-                  className={`card-dark relative rounded-2xl p-8 flex flex-col ${
+                  className={`card-dark relative rounded-safe-md p-8 flex flex-col ${
                     plan.popular
                       ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 lg:scale-105"
                       : "bg-[var(--safe-darkest)] border border-[#8EB69B]/10"
@@ -245,7 +245,7 @@ export default function TarificationPage() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={cardsInView ? { opacity: 1, y: 0 } : {}}
                       transition={{ delay: 0.5, type: "spring" }}
-                      className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-jakarta"
+                      className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-sans"
                     >
                       Populaire
                     </motion.div>
@@ -256,28 +256,28 @@ export default function TarificationPage() {
                     initial={{ scale: 0 }}
                     animate={cardsInView ? { scale: 1 } : {}}
                     transition={{ delay: 0.3 + idx * 0.12, type: "spring" }}
-                    className="w-10 h-10 rounded-xl bg-[var(--safe-accent)]/15 flex items-center justify-center mb-4"
+                    className="w-10 h-10 rounded-safe bg-[var(--safe-accent)]/15 flex items-center justify-center mb-4"
                   >
                     <plan.icon className="w-5 h-5 text-[var(--safe-sage)]" />
                   </motion.div>
 
-                  <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-jakarta">
+                  <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-jakarta">
+                  <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans">
                     {plan.description}
                   </p>
                   <div className="mb-8 flex items-end gap-1">
                     {plan.price === 0 ? (
-                      <span className="text-3xl font-bold text-[var(--safe-white)] font-jakarta">
+                      <span className="text-3xl font-bold text-[var(--safe-white)] font-sans">
                         Sur devis
                       </span>
                     ) : (
                       <>
-                        <span className="text-5xl font-bold text-[var(--safe-white)] font-jakarta">
+                        <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
                           <AnimatedPrice value={plan.price} inView={cardsInView} />$
                         </span>
-                        <span className="text-[var(--safe-text-muted)] mb-1.5 font-jakarta">
+                        <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
                           {plan.period}
                         </span>
                       </>
@@ -287,7 +287,7 @@ export default function TarificationPage() {
                     {plan.features.map((feat, fi) => (
                       <li key={feat} className="flex items-start gap-3">
                         <AnimatedCheck delay={0.5 + idx * 0.12 + fi * 0.06} inView={cardsInView} />
-                        <span className="text-sm text-[var(--safe-white)]/80 font-jakarta">
+                        <span className="text-sm text-[var(--safe-white)]/80 font-sans">
                           {feat}
                         </span>
                       </li>
@@ -295,7 +295,7 @@ export default function TarificationPage() {
                   </ul>
                   <Link
                     href={plan.href}
-                    className={`group w-full py-3.5 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-jakarta ${
+                    className={`group w-full py-3 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-sans ${
                       plan.popular
                         ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)] hover:bg-[var(--safe-lightest)]"
                         : "bg-white/5 text-[var(--safe-white)] hover:bg-white/10 border border-white/10"
@@ -311,26 +311,26 @@ export default function TarificationPage() {
         </section>
 
         {/* Comparison table */}
-        <section className="section-afternoon relative py-20 lg:py-28">
+        <section className="section-night relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
-            <h2 className="font-instrument text-3xl md:text-4xl text-[var(--safe-white)] text-center mb-12">
+            <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] text-center mb-12 tracking-tight">
               Comparer les plans en détail
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-[var(--safe-sage)]/30">
-                    <th className="py-4 pr-4 text-sm text-[var(--safe-text-muted)] font-jakarta font-medium">
+                    <th className="py-4 pr-4 text-sm text-[var(--safe-text-muted)] font-sans font-medium">
                       Fonctionnalité
                     </th>
-                    <th className="py-4 px-4 text-sm text-[var(--safe-white)] font-jakarta font-semibold text-center">
+                    <th className="py-4 px-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
                       Solo
                     </th>
-                    <th className="py-4 px-4 text-sm text-[var(--safe-sage)] font-jakarta font-semibold text-center">
+                    <th className="py-4 px-4 text-sm text-[var(--safe-sage)] font-sans font-semibold text-center">
                       Cabinet
                     </th>
-                    <th className="py-4 pl-4 text-sm text-[var(--safe-white)] font-jakarta font-semibold text-center">
+                    <th className="py-4 pl-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
                       Sur mesure
                     </th>
                   </tr>
@@ -345,13 +345,13 @@ export default function TarificationPage() {
                       viewport={{ once: true }}
                       transition={{ delay: ri * 0.03 }}
                     >
-                      <td className="py-3.5 pr-4 text-sm text-[var(--safe-white)] font-jakarta">
+                      <td className="py-3 pr-4 text-sm text-[var(--safe-white)] font-sans">
                         {feat.name}
                       </td>
                       {(["solo", "cabinet", "custom"] as const).map((plan) => {
                         const val = feat[plan];
                         return (
-                          <td key={plan} className="py-3.5 px-4 text-center">
+                          <td key={plan} className="py-3 px-4 text-center">
                             {typeof val === "boolean" ? (
                               val ? (
                                 <Check className="w-4 h-4 text-[var(--safe-sage)] mx-auto" />
@@ -359,7 +359,7 @@ export default function TarificationPage() {
                                 <span className="text-[var(--safe-text-muted)] opacity-40">—</span>
                               )
                             ) : (
-                              <span className="text-sm text-[var(--safe-text-muted)] font-jakarta">
+                              <span className="text-sm text-[var(--safe-text-muted)] font-sans">
                                 {val}
                               </span>
                             )}
@@ -375,14 +375,14 @@ export default function TarificationPage() {
         </section>
 
         {/* FAQ */}
-        <section className="section-dusk relative py-20 lg:py-28">
+        <section className="section-night relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-3xl px-6 lg:px-10">
             <div className="text-center mb-12">
-              <p className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4">
+              <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
                 Questions fréquentes
               </p>
-              <h2 className="font-instrument text-3xl md:text-4xl text-[var(--safe-white)]">
+              <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] tracking-tight">
                 Tout ce que vous devez savoir.
               </h2>
             </div>

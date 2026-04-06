@@ -16,7 +16,7 @@ const columns = [
 export function RapportDeboursSection({ data }: { data: RapportDeboursRow[] }) {
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold safe-text-title">Rapport débours</h3>
+      <h3 className="text-sm font-semibold safe-text-title tracking-tight">Rapport débours</h3>
       <DataTable
         columns={columns}
         data={data}

@@ -22,7 +22,7 @@ function DiscoveryAnimation() {
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
-    <div ref={ref} className="w-full aspect-[4/3] rounded-2xl border border-blue-400/20 bg-gradient-to-br from-blue-950 to-[#0a1a2e] overflow-hidden relative p-5">
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-blue-400/20 bg-gradient-to-br from-blue-950 to-[#0a1a2e] overflow-hidden relative p-5">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -32,9 +32,9 @@ function DiscoveryAnimation() {
       >
         <div className="flex items-center gap-2">
           <Video className="w-4 h-4 text-blue-400" />
-          <span className="text-[11px] font-semibold text-white font-jakarta">Appel découverte</span>
+          <span className="text-xs font-semibold text-white font-sans">Appel découverte</span>
         </div>
-        <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-[10px] text-blue-300 font-medium font-jakarta">
+        <span className="px-3 py-1 rounded-full bg-blue-500/20 text-xs text-blue-300 font-medium font-sans">
           30 min
         </span>
       </motion.div>
@@ -45,23 +45,23 @@ function DiscoveryAnimation() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 0.4 }}
-          className="rounded-xl bg-blue-500/10 border border-blue-400/15 p-4 flex flex-col items-center justify-center"
+          className="rounded-safe bg-blue-500/10 border border-blue-400/15 p-4 flex flex-col items-center justify-center"
         >
           <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-400/20 flex items-center justify-center mb-2">
             <Users className="w-5 h-5 text-blue-400" />
           </div>
-          <span className="text-[10px] text-white/80 font-jakarta font-medium">Votre cabinet</span>
+          <span className="text-xs text-white/80 font-sans font-medium">Votre cabinet</span>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 0.6 }}
-          className="rounded-xl bg-emerald-500/10 border border-emerald-400/15 p-4 flex flex-col items-center justify-center"
+          className="rounded-safe bg-emerald-500/10 border border-emerald-400/15 p-4 flex flex-col items-center justify-center"
         >
           <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400/20 flex items-center justify-center mb-2">
-            <span className="text-base font-bold text-emerald-400 font-instrument">S</span>
+            <span className="text-base font-bold text-emerald-400 font-sans">S</span>
           </div>
-          <span className="text-[10px] text-white/80 font-jakarta font-medium">Équipe SAFE</span>
+          <span className="text-xs text-white/80 font-sans font-medium">Équipe SAFE</span>
         </motion.div>
       </div>
 
@@ -78,12 +78,12 @@ function DiscoveryAnimation() {
           transition={{ delay: 0.8 + i * 0.15 }}
           className="flex items-center gap-2 py-1.5"
         >
-          <div className={`w-4 h-4 rounded-md flex items-center justify-center ${
+          <div className={`w-4 h-4 rounded-safe-sm flex items-center justify-center ${
             item.done ? "bg-blue-500/25" : "border border-white/15"
           }`}>
             {item.done && <Check className="w-2.5 h-2.5 text-blue-400" />}
           </div>
-          <span className={`text-[10px] font-jakarta ${item.done ? "text-white/90" : "text-white/50"}`}>{item.text}</span>
+          <span className={`text-xs font-sans ${item.done ? "text-white/90" : "text-white/50"}`}>{item.text}</span>
         </motion.div>
       ))}
     </div>
@@ -106,7 +106,7 @@ function ConfigAnimation() {
   const progress = (configItems.filter((c) => c.done).length / configItems.length) * 100;
 
   return (
-    <div ref={ref} className="w-full aspect-[4/3] rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950 to-[#1a1408] overflow-hidden p-5">
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-amber-400/20 bg-gradient-to-br from-amber-950 to-[#1a1408] overflow-hidden p-5">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -116,9 +116,9 @@ function ConfigAnimation() {
       >
         <div className="flex items-center gap-2">
           <Settings className="w-4 h-4 text-amber-400" />
-          <span className="text-[11px] font-semibold text-white font-jakarta">Configuration</span>
+          <span className="text-xs font-semibold text-white font-sans">Configuration</span>
         </div>
-        <span className="text-[10px] text-amber-300 font-medium font-jakarta">3/5</span>
+        <span className="text-xs text-amber-300 font-medium font-sans">3/5</span>
       </motion.div>
 
       {/* Progress bar */}
@@ -139,7 +139,7 @@ function ConfigAnimation() {
             initial={{ opacity: 0, x: -15 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.5 + i * 0.12, duration: 0.4 }}
-            className={`flex items-center gap-3 p-2.5 rounded-lg ${
+            className={`flex items-center gap-3 p-3 rounded-safe-sm ${
               item.done ? "bg-amber-500/10 border border-amber-400/10" : "bg-white/[0.03] border border-white/5"
             }`}
           >
@@ -147,13 +147,13 @@ function ConfigAnimation() {
               initial={{ scale: 0 }}
               animate={inView ? { scale: 1 } : {}}
               transition={{ delay: 0.7 + i * 0.12, type: "spring" }}
-              className={`w-5 h-5 rounded-md flex items-center justify-center ${
+              className={`w-5 h-5 rounded-safe-sm flex items-center justify-center ${
                 item.done ? "bg-amber-500/25" : "border border-white/15"
               }`}
             >
               {item.done && <Check className="w-3 h-3 text-amber-400" />}
             </motion.div>
-            <span className={`text-[11px] font-jakarta font-medium ${item.done ? "text-white" : "text-white/40"}`}>
+            <span className={`text-xs font-sans font-medium ${item.done ? "text-white" : "text-white/40"}`}>
               {item.label}
             </span>
             {item.done && (
@@ -178,7 +178,7 @@ function LaunchAnimation() {
   ];
 
   return (
-    <div ref={ref} className="w-full aspect-[4/3] rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-950 to-[#081a12] overflow-hidden p-5 relative">
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-emerald-400/20 bg-gradient-to-br from-emerald-950 to-[#081a12] overflow-hidden p-5 relative">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -188,9 +188,9 @@ function LaunchAnimation() {
       >
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-emerald-400" />
-          <span className="text-[11px] font-semibold text-white font-jakarta">Plan de lancement</span>
+          <span className="text-xs font-semibold text-white font-sans">Plan de lancement</span>
         </div>
-        <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300 font-medium font-jakarta">
+        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-xs text-emerald-300 font-medium font-sans">
           30 jours
         </span>
       </motion.div>
@@ -215,13 +215,13 @@ function LaunchAnimation() {
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             </motion.div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${m.bg}/10 border border-white/5`}>
-              <div className={`w-9 h-9 rounded-lg ${m.bg} flex items-center justify-center shrink-0`}>
+            <div className={`flex items-center gap-3 p-3 rounded-safe-sm ${m.bg}/10 border border-white/5`}>
+              <div className={`w-9 h-9 rounded-safe-sm ${m.bg} flex items-center justify-center shrink-0`}>
                 <m.icon className={`w-4 h-4 ${m.color}`} />
               </div>
               <div>
-                <div className={`text-[10px] ${m.color} font-jakarta font-semibold`}>{m.label}</div>
-                <div className="text-[11px] text-white font-jakarta">{m.desc}</div>
+                <div className={`text-xs ${m.color} font-sans font-semibold`}>{m.label}</div>
+                <div className="text-xs text-white font-sans">{m.desc}</div>
               </div>
             </div>
           </motion.div>
@@ -238,7 +238,7 @@ function LaunchAnimation() {
         <motion.div
           animate={inView ? { y: [0, -4, 0] } : {}}
           transition={{ delay: 1.5, duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center"
+          className="w-10 h-10 rounded-safe bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center"
         >
           <Rocket className="w-5 h-5 text-emerald-400" />
         </motion.div>
@@ -288,7 +288,7 @@ export function ProcessTimeline() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4"
+            className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
             Processus d&apos;intégration
           </motion.p>
@@ -297,7 +297,7 @@ export function ProcessTimeline() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-instrument text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
+            className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
           >
             Une transition fluide, structurée et{" "}
             <span className="italic text-[var(--safe-sage)]">sans stress</span>.
@@ -307,7 +307,7 @@ export function ProcessTimeline() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-jakarta max-w-2xl mx-auto"
+            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
           >
             Nous connaissons la valeur de vos heures facturables. Notre processus
             d&apos;intégration est conçu pour minimiser les interruptions de votre pratique.
@@ -333,21 +333,21 @@ export function ProcessTimeline() {
                 </div>
 
                 {/* Step label */}
-                <span className="text-xs font-mono text-[var(--safe-text-muted)] tracking-wider mb-2 block font-jakarta">
+                <span className="text-xs font-mono text-[var(--safe-text-muted)] tracking-wider mb-2 block font-sans">
                   ÉTAPE {step.number}
                 </span>
 
                 {/* Icon + Title */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-xl border ${step.accent.border} ${step.accent.bg} flex items-center justify-center shrink-0`}>
+                  <div className={`w-10 h-10 rounded-safe border ${step.accent.border} ${step.accent.bg} flex items-center justify-center shrink-0`}>
                     <step.icon className={`w-5 h-5 ${step.accent.icon}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-[var(--safe-white)] font-jakarta">
+                  <h3 className="text-xl font-bold text-[var(--safe-white)] font-sans tracking-tight">
                     {step.title}
                   </h3>
                 </div>
 
-                <p className="text-[var(--safe-text-muted)] leading-relaxed font-jakarta text-sm">
+                <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm">
                   {step.description}
                 </p>
               </motion.div>

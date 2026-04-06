@@ -37,28 +37,28 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
   const hasData = chartData.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
       <div className="flex items-start justify-between mb-5 flex-wrap gap-2">
         <div>
-          <h3 className="text-base font-semibold text-[#1a2e28] flex items-center gap-2">
+          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <TrendingUp className="w-4 h-4 text-emerald-600" aria-hidden />
             {t("revenueEncashments")}
           </h3>
-          <p className="text-xs text-[#6b8f7b] mt-0.5">
+          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
             {t("perMonth")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg bg-[#F2F7F4] p-1">
+          <div className="flex rounded-safe-sm bg-[var(--safe-neutral-page)] p-1">
             {RANGE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setRange(opt.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-safe-sm text-xs font-medium transition-colors ${
                   range === opt.value
-                    ? "bg-[#1a3c2d] text-white shadow-sm"
-                    : "text-[#4a6a5c] hover:text-[#1a2e28] hover:bg-white"
+                    ? "bg-[var(--safe-gradient-sidebar)] text-white shadow-sm"
+                    : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] hover:bg-white"
                 }`}
               >
                 {opt.label}
@@ -67,7 +67,7 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
           </div>
           <Link
             href={routes.rapports}
-            className="w-8 h-8 rounded-lg bg-[#F2F7F4] hover:bg-[#e0ebe4] flex items-center justify-center transition-colors text-[#4a6a5c]"
+            className="w-8 h-8 rounded-safe-sm bg-[var(--safe-neutral-page)] hover:bg-[var(--safe-neutral-100)] flex items-center justify-center transition-colors text-[var(--safe-text-secondary)]"
             aria-label={t("viewReports")}
           >
             <Maximize2 className="w-4 h-4" />
@@ -96,24 +96,24 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#6b8f7b", fontSize: 11 }}
+                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#6b8f7b", fontSize: 11 }}
+                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
                 width={50}
               />
               <Tooltip
                 contentStyle={{
-                  background: "#ffffff",
-                  border: "1px solid #d0ddd6",
+                  background: "var(--safe-neutral-surface)",
+                  border: "1px solid var(--safe-neutral-border)",
                   borderRadius: "12px",
                   boxShadow: "0 4px 16px rgba(26,46,40,0.08)",
-                  color: "#1a2e28",
+                  color: "var(--safe-text-title)",
                   fontSize: "13px",
                 }}
-                labelStyle={{ color: "#4a6a5c", fontWeight: 500 }}
+                labelStyle={{ color: "var(--safe-text-secondary)", fontWeight: 500 }}
               />
               <Area
                 type="monotone"
@@ -129,8 +129,8 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-52 flex flex-col items-center justify-center text-sm text-[#6b8f7b] gap-2">
-          <BarChart2 className="w-10 h-10 text-[#c8ddd0]" aria-hidden />
+        <div className="h-52 flex flex-col items-center justify-center text-sm text-[var(--safe-text-muted)] gap-2">
+          <BarChart2 className="w-10 h-10 text-[var(--safe-neutral-300)]" aria-hidden />
           {t("noRevenueData")}
         </div>
       )}

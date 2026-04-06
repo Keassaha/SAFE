@@ -69,7 +69,7 @@ export function FacturationFilters({
             const v = e.target.value.trim();
             if (v !== currentSearch) updateParams({ q: v });
           }}
-          className="flex-1 rounded-lg border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="flex-1 rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
         />
       </div>
       <div className="flex flex-wrap gap-2 items-center">
@@ -77,7 +77,7 @@ export function FacturationFilters({
         <select
           value={currentStatut ?? ""}
           onChange={(e) => updateParams({ statut: e.target.value || undefined })}
-          className="rounded-lg border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
           aria-label={tFacturation("filterByInvoiceType")}
         >
           {statutOptions.map((opt) => (
@@ -93,14 +93,14 @@ export function FacturationFilters({
           type="date"
           value={dateFrom}
           onChange={(e) => updateParams({ dateFrom: e.target.value })}
-          className="rounded-lg border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
         />
         <label className="text-sm font-medium text-[var(--safe-text-secondary)]">{t("to")}</label>
         <input
           type="date"
           value={dateTo}
           onChange={(e) => updateParams({ dateTo: e.target.value })}
-          className="rounded-lg border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
         />
       </div>
       {isPending && (

@@ -173,7 +173,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <Link
           href={routes.facturationHonoraires}
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
@@ -199,7 +199,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               Cochez des fiches de temps ou des débours ci-dessous pour voir l’ébauche.
             </p>
           ) : (
-            <div className="rounded-lg border border-neutral-200 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-safe-sm border border-neutral-200 bg-white shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-200 flex justify-between items-start">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-neutral-500 font-medium">
@@ -223,9 +223,9 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <tbody>
                     {draftLines.map((line) => (
                       <tr key={line.id} className="border-b border-neutral-100">
-                        <td className="py-2.5 px-4 text-neutral-600">{formatDate(line.date)}</td>
-                        <td className="py-2.5 px-4">{line.description}</td>
-                        <td className="py-2.5 px-4 text-right font-medium">
+                        <td className="py-2 px-4 text-neutral-600">{formatDate(line.date)}</td>
+                        <td className="py-2 px-4">{line.description}</td>
+                        <td className="py-2 px-4 text-right font-medium">
                           {formatCurrency(line.amount)}
                         </td>
                       </tr>
@@ -329,7 +329,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
             <>
               {entries.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2">Fiches de temps</h3>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Fiches de temps</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
@@ -385,7 +385,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               )}
               {expenses.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2">Débours</h3>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Débours</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
@@ -432,7 +432,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 </>
               )}
 
-              <div className="mt-6 p-4 rounded-lg bg-neutral-50 border border-neutral-200 space-y-2">
+              <div className="mt-6 p-4 rounded-safe-sm bg-neutral-50 border border-neutral-200 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">Sous-total honoraires</span>
                   <span className="font-medium">{formatCurrency(totalHonoraires)}</span>

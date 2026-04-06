@@ -23,7 +23,7 @@ export function RoleBadge({ role, className = "" }: RoleBadgeProps) {
   const style = ROLE_STYLES[role] ?? "bg-neutral-100 text-neutral-600";
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${style} ${className}`}
+      className={`inline-flex items-center rounded-safe-sm border px-2 py-0.5 text-xs font-medium ${style} ${className}`}
     >
       {label}
     </span>

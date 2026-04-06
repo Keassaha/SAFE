@@ -35,7 +35,7 @@ export function DashboardSpendingCard({
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title">
+          <h3 className="text-sm font-semibold safe-text-title tracking-tight">
             {td("spendingOverview")}
           </h3>
           <p className="text-xs safe-text-secondary mt-0.5">
@@ -44,7 +44,7 @@ export function DashboardSpendingCard({
         </div>
         <Link
           href={routes.rapports}
-          className="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
+          className="w-8 h-8 rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
           aria-label={td("viewReportsLabel")}
         >
           <Maximize2 className="w-4 h-4" />

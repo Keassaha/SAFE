@@ -39,7 +39,7 @@ export function TabsList({ children, className = "", ...props }: TabsListProps) 
   return (
     <div
       role="tablist"
-      className={`inline-flex h-11 items-center justify-center rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-100)] p-1 text-[var(--safe-text-secondary)] ${className}`}
+      className={`inline-flex h-11 items-center justify-center rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-100)] p-1 text-[var(--safe-text-secondary)] ${className}`}
       {...props}
     >
       {children}
@@ -66,7 +66,7 @@ export function TabsTrigger({ value, children, className = "", ...props }: TabsT
       tabIndex={isSelected ? 0 : -1}
       data-state={isSelected ? "active" : "inactive"}
       onClick={() => onValueChange(value)}
-      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-safe-sm px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
         isSelected
           ? "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-title)] shadow-sm"
           : "hover:bg-white/60 hover:text-[var(--safe-text-title)]"

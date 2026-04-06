@@ -58,7 +58,7 @@ export function WeekGrid({
           <button
             type="button"
             onClick={onPrevWeek}
-            className="p-2 rounded-lg border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
+            className="p-2 rounded-safe-sm border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
             aria-label="Semaine précédente"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -69,7 +69,7 @@ export function WeekGrid({
           <button
             type="button"
             onClick={onNextWeek}
-            className="p-2 rounded-lg border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
+            className="p-2 rounded-safe-sm border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
             aria-label="Semaine suivante"
           >
             <ChevronRight className="w-5 h-5" />
@@ -83,7 +83,7 @@ export function WeekGrid({
         {byDay.map(({ date, dayStr, entries: dayEntries, total }, index) => (
           <div
             key={`${dayStr}-${index}`}
-            className="rounded-lg border border-[var(--safe-neutral-border)] p-3 min-h-[120px]"
+            className="rounded-safe-sm border border-[var(--safe-neutral-border)] p-3 min-h-[120px]"
           >
             <p className="text-xs font-medium safe-text-secondary mb-2">
               {formatDate(date)}

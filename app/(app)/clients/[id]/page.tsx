@@ -297,7 +297,7 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
       ) : (
-        <div className="rounded-xl bg-white border border-neutral-border shadow-[var(--safe-shadow-md)] overflow-hidden">
+        <div className="rounded-safe bg-white border border-neutral-border shadow-[var(--safe-shadow-md)] overflow-hidden">
           <div className="p-6 border-b border-neutral-border">
             <ClientProfile
               data={profileData}

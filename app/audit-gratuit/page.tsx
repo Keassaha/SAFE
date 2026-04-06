@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/marketing/Navbar";
-import { Footer } from "@/components/marketing/Footer";
 import AuditChat from "@/components/audit/AuditChat";
 
 export const metadata: Metadata = {
@@ -11,12 +10,11 @@ export const metadata: Metadata = {
 
 export default function AuditGratuitPage() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-[#F8FDF9]">
+    <div className="relative flex flex-col h-screen overflow-hidden bg-[var(--safe-white)]">
       <Navbar />
-      <main className="flex-1 pt-24">
+      <main className="flex-1 overflow-hidden pt-24">
         <AuditChat />
       </main>
-      <Footer />
     </div>
   );
 }

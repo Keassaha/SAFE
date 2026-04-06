@@ -19,7 +19,7 @@ export async function GET() {
     const isVercel = process.env.VERCEL === "1";
     const errorMessage = isVercel
       ? "La base de données ne répond pas. Vérifiez DATABASE_URL (ou POSTGRES_URL) sur Vercel, que la base est créée et que vous avez redéployé après l'avoir liée."
-      : "La base de données ne répond pas. Vérifiez DATABASE_URL dans .env (URL Supabase avec mot de passe), que le projet Supabase est actif et que votre réseau autorise la connexion (port 6543).";
+      : "La base de données ne répond pas. Vérifiez DATABASE_URL et DIRECT_URL dans .env (copie depuis Supabase → Database : URL pooler port 6543 avec ?sslmode=require&pgbouncer=true, et URL directe port 5432 pour DIRECT_URL). Mot de passe avec caractères spéciaux : encoder en URL. Projet Supabase en pause : le reprendre dans le dashboard. Réseau / pare-feu : autoriser le trafic sortant vers le port 6543.";
     const body: { error: string; detail?: string; code?: string } = {
       error: errorMessage,
       detail: process.env.NODE_ENV === "development" ? `${code || ""} ${msg}` : undefined,

@@ -3,7 +3,7 @@ import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: "Helvetica", fontSize: 10 },
   title: { fontSize: 18, marginBottom: 8 },
-  subtitle: { fontSize: 12, marginBottom: 20, color: "#444" },
+  subtitle: { fontSize: 12, marginBottom: 20, color: "#4a6a5c" },
   header: { marginBottom: 24 },
   section: { marginBottom: 16 },
   table: { marginTop: 12 },
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   colRetrait: { width: 70, textAlign: "right" },
   colSolde: { width: 80, textAlign: "right" },
   totals: { marginTop: 16, paddingTop: 8, borderTopWidth: 1 },
-  signature: { marginTop: 40, fontSize: 9, color: "#666" },
+  signature: { marginTop: 40, fontSize: 9, color: "#6b8f7b" },
 });
 
 interface TransactionRow {

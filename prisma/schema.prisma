@@ -13,6 +13,11 @@ model Cabinet {
   nom       String
   adresse   String?
   config    String?  // JSON: tauxInteret, devise, formatFacture
+  plan      String   @default("essentiel")
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

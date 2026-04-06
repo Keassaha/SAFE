@@ -45,10 +45,10 @@ export function Problem() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="font-cabin text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
             Le probl&egrave;me
           </p>
-          <h2 className="font-manrope text-3xl sm:text-[2.25rem] font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
             G&eacute;rer un cabinet,<br />
             <span className="text-white/60">c&apos;est d&eacute;j&agrave; assez complexe.</span>
           </h2>
@@ -69,10 +69,10 @@ export function Problem() {
                 variants={fadeUp}
                 className="landing-glass-card flex flex-col items-center text-center p-8"
               >
-                <div className="w-12 h-12 rounded-xl bg-gold-600/15 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-safe bg-gold-600/15 flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-gold-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">{point.title}</h3>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-2 tracking-tight">{point.title}</h3>
                 <p className="text-sm text-neutral-600 leading-relaxed">{point.description}</p>
               </motion.div>
             );

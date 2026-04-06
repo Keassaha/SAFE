@@ -50,11 +50,11 @@ export function AddTransactionModal({
   return (
     <Modal open={open} onClose={onClose} title={tf("addTransaction")}>
       <div className="space-y-4">
-        <div className="flex rounded-lg border border-[var(--safe-neutral-border)] p-1 bg-neutral-50/80">
+        <div className="flex rounded-safe-sm border border-[var(--safe-neutral-border)] p-1 bg-neutral-50/80">
           <button
             type="button"
             onClick={() => setTab("depot")}
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
               tab === "depot"
                 ? "bg-white text-[var(--safe-text-title)] shadow-sm"
                 : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
@@ -65,7 +65,7 @@ export function AddTransactionModal({
           <button
             type="button"
             onClick={() => setTab("retrait")}
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
               tab === "retrait"
                 ? "bg-white text-[var(--safe-text-title)] shadow-sm"
                 : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"

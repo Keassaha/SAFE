@@ -96,7 +96,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                     href={routes.facturationFactureEdit(inv.id)}
                     className="inline-flex items-center gap-2 text-sm font-medium safe-text-title text-primary-600 hover:text-primary-700 hover:underline"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-safe-sm bg-primary-50 text-primary-600">
                       <FileText className="h-4 w-4" aria-hidden />
                     </span>
                     <span className="font-mono">{inv.numero}</span>

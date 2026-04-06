@@ -95,10 +95,10 @@ export function FAQ() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="font-cabin text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
             Questions fr&eacute;quentes
           </p>
-          <h2 className="font-manrope text-3xl sm:text-[2.25rem] font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
             Vous avez des questions.
             <br />
             <span className="text-white/60">Voici les r&eacute;ponses.</span>

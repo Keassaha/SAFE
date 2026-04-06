@@ -27,11 +27,11 @@ export function LocaleSwitcher() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white p-0.5">
+    <div className="flex items-center gap-1 rounded-safe-sm border border-neutral-200 bg-white p-0.5">
       <button
         type="button"
         onClick={() => switchTo("fr")}
-        className={`rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+        className={`rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
           locale === "fr"
             ? "bg-primary-100 text-primary-800"
             : "text-[var(--safe-text-secondary)] hover:bg-neutral-100"
@@ -44,7 +44,7 @@ export function LocaleSwitcher() {
       <button
         type="button"
         onClick={() => switchTo("en")}
-        className={`rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+        className={`rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
           locale === "en"
             ? "bg-primary-100 text-primary-800"
             : "text-[var(--safe-text-secondary)] hover:bg-neutral-100"

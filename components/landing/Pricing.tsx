@@ -62,10 +62,10 @@ export function Pricing() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="font-cabin text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
             Tarifs
           </p>
-          <h2 className="font-manrope text-3xl md:text-[2.25rem] font-semibold text-white mb-4 tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl md:text-4xl font-semibold text-white mb-4 tracking-[-0.04em]">
             Tarifs simples et transparents
           </h2>
           <p className="font-sans text-lg text-white/60 max-w-2xl mx-auto">
@@ -81,7 +81,7 @@ export function Pricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`relative rounded-2xl p-8 backdrop-blur-sm ${
+              className={`relative rounded-safe-md p-8 backdrop-blur-sm ${
                 plan.popular
                   ? "bg-white/15 border-2 border-gold-500/60"
                   : "bg-white/[0.07] border border-white/15"
@@ -93,7 +93,7 @@ export function Pricing() {
                 </span>
               )}
 
-              <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
+              <h3 className="text-xl font-semibold text-white mb-2 tracking-tight">{plan.name}</h3>
               <p className="text-sm text-white/50 mb-6">{plan.description}</p>
 
               <div className="mb-6">

@@ -7,7 +7,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
-      className={`rounded-lg bg-neutral-200 animate-pulse ${className}`}
+      className={`rounded-safe-sm bg-neutral-200 animate-pulse ${className}`}
       aria-hidden
     />
   );
@@ -23,7 +23,7 @@ export function SkeletonCard() {
           <Skeleton className="h-8 w-20 mb-2" />
           <Skeleton className="h-3 w-28" />
         </div>
-        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+        <Skeleton className="h-10 w-10 shrink-0 rounded-safe-sm" />
       </div>
     </div>
   );

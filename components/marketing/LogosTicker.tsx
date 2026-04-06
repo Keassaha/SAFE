@@ -17,7 +17,7 @@ export function LogosTicker() {
   return (
     <section className="section-morning relative py-12 border-y border-[var(--safe-sage)]/10 overflow-hidden">
       {/* Section label */}
-      <p className="text-center text-xs uppercase tracking-[0.2em] text-[var(--safe-text-muted)] font-jakarta mb-8">
+      <p className="text-center text-xs uppercase tracking-[0.2em] text-[var(--safe-text-muted)] font-sans mb-8">
         Conçu pour les professionnels du droit
       </p>
 
@@ -28,9 +28,9 @@ export function LogosTicker() {
       {/* Scrolling track */}
       <div className="flex ticker-scroll w-max">
         {doubled.map((badge, i) => (
-          <div key={i} className="flex items-center gap-2.5 px-8 shrink-0">
+          <div key={i} className="flex items-center gap-3 px-8 shrink-0">
             <badge.icon className="w-4 h-4 text-[var(--safe-sage)] opacity-70" />
-            <span className="text-sm text-[var(--safe-sage)] opacity-80 font-medium whitespace-nowrap font-jakarta">
+            <span className="text-sm text-[var(--safe-sage)] opacity-80 font-medium whitespace-nowrap font-sans">
               {badge.label}
             </span>
           </div>

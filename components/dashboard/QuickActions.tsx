@@ -28,7 +28,7 @@ export function QuickActions({ actions, className = "" }: QuickActionsProps) {
         <MotionLink
           key={href}
           href={href}
-          className="group/btn relative flex flex-1 flex flex-col items-center gap-2 py-3 px-2 rounded-xl bg-white border border-gray-200/80 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 overflow-hidden"
+          className="group/btn relative flex flex-1 flex flex-col items-center gap-2 py-3 px-2 rounded-safe bg-white border border-gray-200/80 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 overflow-hidden"
           initial="initial"
           whileHover="hover"
         >

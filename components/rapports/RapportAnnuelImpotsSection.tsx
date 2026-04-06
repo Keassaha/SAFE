@@ -16,7 +16,7 @@ interface RapportAnnuelImpotsSectionProps {
 export function RapportAnnuelImpotsSection({ data, annee }: RapportAnnuelImpotsSectionProps) {
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2">
+      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <FileText className="w-4 h-4" aria-hidden />
         Rapport annuel pour impôts — {annee}
       </h3>

@@ -194,7 +194,7 @@ export function GeneralJournalPageView({
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-40 h-10 px-3 rounded-lg border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-40 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
               />
             </div>
             <div>
@@ -205,7 +205,7 @@ export function GeneralJournalPageView({
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-40 h-10 px-3 rounded-lg border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-40 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
               />
             </div>
             <div>
@@ -215,7 +215,7 @@ export function GeneralJournalPageView({
               <select
                 value={typeTransaction}
                 onChange={(e) => setTypeTransaction(e.target.value)}
-                className="w-48 h-10 px-3 rounded-lg border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
               >
                 {TRANSACTION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -233,7 +233,7 @@ export function GeneralJournalPageView({
                 placeholder="Référence, description, client…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-56 h-10 px-3 rounded-lg border border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-56 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-primary-500/30 outline-none"
               />
             </div>
             <Button type="submit" variant="primary">

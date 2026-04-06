@@ -45,7 +45,7 @@ export function ExpensesJournalTable({
         action={
           <div className="flex flex-wrap items-center gap-2">
             <select
-              className="rounded-md border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
+              className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
@@ -57,7 +57,7 @@ export function ExpensesJournalTable({
               ))}
             </select>
             <select
-              className="rounded-md border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
+              className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
@@ -100,22 +100,22 @@ export function ExpensesJournalTable({
                     }`}
                     onClick={() => onSelectTransaction(selectedId === t.id ? null : t.id)}
                   >
-                    <td className="py-2.5 px-4 text-[var(--safe-text-title)] whitespace-nowrap">
+                    <td className="py-2 px-4 text-[var(--safe-text-title)] whitespace-nowrap">
                       {formatDate(t.date)}
                     </td>
-                    <td className="py-2.5 px-4 text-[var(--safe-text-title)] max-w-[200px] truncate" title={t.rawDescription}>
+                    <td className="py-2 px-4 text-[var(--safe-text-title)] max-w-[200px] truncate" title={t.rawDescription}>
                       {t.rawDescription}
                     </td>
-                    <td className="py-2.5 px-4 text-[var(--safe-text-muted)]">
+                    <td className="py-2 px-4 text-[var(--safe-text-muted)]">
                       {t.normalizedSupplier ?? "—"}
                     </td>
-                    <td className="py-2.5 px-4 text-right font-medium text-[var(--safe-text-title)]">
+                    <td className="py-2 px-4 text-right font-medium text-[var(--safe-text-title)]">
                       {formatCurrency(t.rawAmount)}
                     </td>
-                    <td className="py-2.5 px-4 text-[var(--safe-text-muted)]">
+                    <td className="py-2 px-4 text-[var(--safe-text-muted)]">
                       {t.suggestedCategoryName ?? "—"}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td className="py-2 px-4">
                       {t.confidence != null ? (
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -132,12 +132,12 @@ export function ExpensesJournalTable({
                         "—"
                       )}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td className="py-2 px-4">
                       <span className="text-xs text-[var(--safe-text-muted)]">
                         {STATUS_LABELS[t.status] ?? t.status}
                       </span>
                     </td>
-                    <td className="py-2.5 px-2">
+                    <td className="py-2 px-2">
                       {selectedId === t.id ? (
                         <ChevronRight className="h-4 w-4 text-[var(--safe-primary-600)] rotate-90" />
                       ) : (

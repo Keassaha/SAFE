@@ -12,7 +12,7 @@ export default function AuthLayout({
           <div className="hidden text-white lg:block">
             <div className="max-w-lg">
               <div className="mb-6">
-                <SafeLogo variant="dark" className="w-[180px]" />
+                <SafeLogo variant="dark" className="shrink-0" />
               </div>
               <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-white/70">
                 SAFE

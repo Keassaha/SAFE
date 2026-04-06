@@ -11,7 +11,7 @@ interface RapportTaxesSectionProps {
 export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2">
+      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <Receipt className="w-4 h-4" aria-hidden />
         Taxes collectées
       </h3>

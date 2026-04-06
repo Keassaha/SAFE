@@ -70,7 +70,7 @@ export function DossierSearchBar() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={t("searchPlaceholder")}
-          className="w-full h-10 pl-9 pr-4 rounded-lg border border-neutral-border bg-white text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all text-sm"
+          className="w-full h-10 pl-9 pr-4 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all text-sm"
           aria-label={t("searchLabel")}
         />
         {isPending && (

@@ -55,10 +55,10 @@ export function Solution() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="font-cabin text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
             La solution
           </p>
-          <h2 className="font-manrope text-3xl sm:text-[2.25rem] font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
             Tout ce dont vous avez besoin.
             <br />
             <span className="text-white/50">Rien de plus.</span>
@@ -82,12 +82,12 @@ export function Solution() {
               <motion.div
                 key={pillar.title}
                 variants={fadeUp}
-                className="group flex flex-col p-6 rounded-xl border border-white/15 bg-white/[0.07] hover:bg-white/[0.12] hover:border-white/25 transition-all duration-200 backdrop-blur-sm"
+                className="group flex flex-col p-6 rounded-safe border border-white/15 bg-white/[0.07] hover:bg-white/[0.12] hover:border-white/25 transition-all duration-200 backdrop-blur-sm"
               >
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/15 transition-colors">
+                <div className="w-10 h-10 rounded-safe-sm bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/15 transition-colors">
                   <Icon className="w-5 h-5 text-gold-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{pillar.title}</h3>
+                <h3 className="text-lg font-semibold text-white mb-2 tracking-tight">{pillar.title}</h3>
                 <p className="text-sm text-white/60 leading-relaxed mb-4 flex-1">{pillar.description}</p>
                 <ul className="space-y-1.5">
                   {pillar.features.map((feature) => (

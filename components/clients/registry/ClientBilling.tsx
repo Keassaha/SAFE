@@ -58,14 +58,14 @@ export function ClientBilling({
         {cards.map(({ title, value, sub, icon: Icon }) => (
           <div
             key={title}
-            className="rounded-xl bg-white border border-neutral-border/80 shadow-[var(--safe-shadow-sm)] p-4"
+            className="rounded-safe bg-white border border-neutral-border/80 shadow-[var(--safe-shadow-sm)] p-4"
           >
             <p className="text-xs font-medium text-neutral-muted uppercase tracking-wider">
               {title}
             </p>
             <p className="mt-1 text-xl font-semibold text-neutral-text-primary">{value}</p>
             {sub && <p className="mt-0.5 text-sm text-neutral-muted">{sub}</p>}
-            <div className="mt-2 w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center text-primary-700">
+            <div className="mt-2 w-8 h-8 rounded-safe-sm bg-primary-100 flex items-center justify-center text-primary-700">
               <Icon className="w-4 h-4" />
             </div>
           </div>

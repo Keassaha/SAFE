@@ -33,7 +33,7 @@ export function EmptyState({
       <div className="w-12 h-12 rounded-full bg-white border border-[var(--safe-neutral-border)] flex items-center justify-center text-[var(--safe-icon-default)] mb-4">
         {icon ?? <Inbox className="w-6 h-6" aria-hidden />}
       </div>
-      <h3 className="text-base font-semibold safe-text-title">
+      <h3 className="text-base font-semibold safe-text-title tracking-tight">
         {title}
       </h3>
       {description && (

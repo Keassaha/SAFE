@@ -70,7 +70,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
       />
       <CardContent className="space-y-4">
         {showAdd && (
-          <form action={createDossierTache} className="rounded-lg border border-neutral-border p-4 space-y-3 bg-neutral-surface/30">
+          <form action={createDossierTache} className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30">
             <input type="hidden" name="dossierId" value={dossierId} />
             <Input label={t("eventTitle")} name="titre" required placeholder={t("taskTitle")} />
             <div>
@@ -78,7 +78,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
               <textarea
                 name="description"
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-neutral-text-primary text-sm"
+                className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm"
                 placeholder={t("optional")}
               />
             </div>
@@ -88,7 +88,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                 <select
                   name="priorite"
                   defaultValue="medium"
-                  className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm"
+                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
                 >
                   <option value="low">{t("priorityLow")}</option>
                   <option value="medium">{t("priorityMedium")}</option>
@@ -98,7 +98,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("assignedTo")}</label>
-                <select name="assigneeId" className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm">
+                <select name="assigneeId" className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
                   <option value="">—</option>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -127,7 +127,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                 <li key={task.id}>
                   <form
                     action={(fd) => updateDossierTache(task.id, fd)}
-                    className="rounded-lg border border-primary-200 p-4 space-y-3 bg-primary-50/30"
+                    className="rounded-safe-sm border border-primary-200 p-4 space-y-3 bg-primary-50/30"
                   >
                     <input type="hidden" name="dossierId" value={dossierId} />
                     <Input label={t("eventTitle")} name="titre" defaultValue={task.titre} required />
@@ -137,13 +137,13 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                         name="description"
                         rows={2}
                         defaultValue={task.description ?? ""}
-                        className="w-full px-3 py-2 rounded-lg border border-neutral-border bg-white text-sm"
+                        className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm"
                       />
                     </div>
                     <div className="flex flex-wrap gap-3">
                       <div>
                         <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{tc("status")}</label>
-                        <select name="statut" defaultValue={task.statut} className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm">
+                        <select name="statut" defaultValue={task.statut} className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
                           <option value="a_faire">{t("taskStatusTodo")}</option>
                           <option value="en_cours">{t("taskStatusInProgress")}</option>
                           <option value="terminee">{t("taskStatusDone")}</option>
@@ -152,7 +152,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("priority")}</label>
-                        <select name="priorite" defaultValue={task.priorite} className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm">
+                        <select name="priorite" defaultValue={task.priorite} className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
                           <option value="low">{t("priorityLow")}</option>
                           <option value="medium">{t("priorityMedium")}</option>
                           <option value="high">{t("priorityHigh")}</option>
@@ -161,7 +161,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("assignedTo")}</label>
-                        <select name="assigneeId" defaultValue={task.assigneeId ?? ""} className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm">
+                        <select name="assigneeId" defaultValue={task.assigneeId ?? ""} className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
                           <option value="">—</option>
                           {users.map((u) => (
                             <option key={u.id} value={u.id}>
@@ -192,7 +192,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
               ) : (
                 <li
                   key={task.id}
-                  className="flex items-center justify-between gap-2 py-2 px-3 rounded-lg border border-neutral-border hover:bg-neutral-surface/30"
+                  className="flex items-center justify-between gap-2 py-2 px-3 rounded-safe-sm border border-neutral-border hover:bg-neutral-surface/30"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-neutral-text-primary truncate">{task.titre}</p>

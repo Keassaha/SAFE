@@ -109,7 +109,7 @@ export function ClientDossierPDF({
             </View>
           ))}
         </View>
-        <Text style={{ marginTop: 20, fontSize: 8, color: "#666" }}>
+        <Text style={{ marginTop: 20, fontSize: 8, color: "#6b8f7b" }}>
           {labels.exportedOn} {formatDate(new Date())} — SAFE
         </Text>
       </Page>

@@ -141,7 +141,7 @@ export function DashboardCalendar({
   return (
     <div className="card-glass overflow-hidden">
       <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-200/50">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
           <Calendar className="w-4 h-4 text-emerald-600" aria-hidden />
           {monthLabel}
         </h3>
@@ -149,7 +149,7 @@ export function DashboardCalendar({
           <button
             type="button"
             onClick={prevMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-200/60 text-gray-500 transition-colors"
+            className="p-1.5 rounded-safe-sm hover:bg-gray-200/60 text-gray-500 transition-colors"
             aria-label={td("previousMonth")}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -157,7 +157,7 @@ export function DashboardCalendar({
           <button
             type="button"
             onClick={nextMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-200/60 text-gray-500 transition-colors"
+            className="p-1.5 rounded-safe-sm hover:bg-gray-200/60 text-gray-500 transition-colors"
             aria-label={td("nextMonth")}
           >
             <ChevronRight className="w-4 h-4" />
@@ -170,7 +170,7 @@ export function DashboardCalendar({
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 py-1"
+              className="text-xs font-semibold uppercase tracking-wider text-gray-400 py-1"
             >
               {label}
             </div>
@@ -191,7 +191,7 @@ export function DashboardCalendar({
                 key={d}
                 type="button"
                 onClick={() => setSelectedDay(d === selectedDay ? null : d)}
-                className={`relative h-9 flex flex-col items-center justify-center rounded-xl text-xs font-medium transition-all ${
+                className={`relative h-9 flex flex-col items-center justify-center rounded-safe text-xs font-medium transition-all ${
                   isSelected
                     ? "bg-emerald-600 text-white shadow-md"
                     : isToday
@@ -223,11 +223,11 @@ export function DashboardCalendar({
         <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-200/50">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="text-[10px] text-gray-400">{td("calendarTasks")}</span>
+            <span className="text-xs text-gray-400">{td("calendarTasks")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-[10px] text-gray-400">{td("calendarEvents")}</span>
+            <span className="text-xs text-gray-400">{td("calendarEvents")}</span>
           </div>
         </div>
       </div>
@@ -252,7 +252,7 @@ export function DashboardCalendar({
                 <Link
                   key={item.id}
                   href={`${routes.dossiers}/${item.dossierId}`}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-white/60 hover:bg-white border border-gray-200/50 transition-colors group"
+                  className="flex items-center gap-2 p-2 rounded-safe-sm bg-white/60 hover:bg-white border border-gray-200/50 transition-colors group"
                 >
                   {item.type === "task" ? (
                     <CheckSquare className="w-3.5 h-3.5 text-amber-500 shrink-0" />
@@ -263,7 +263,7 @@ export function DashboardCalendar({
                     <p className="text-xs font-medium text-[var(--safe-text-title)] truncate group-hover:text-emerald-700 transition-colors">
                       {item.titre}
                     </p>
-                    <p className="text-[10px] text-gray-400 truncate">
+                    <p className="text-xs text-gray-400 truncate">
                       {item.dossierIntitule}
                       {item.meta && ` · ${item.meta}`}
                     </p>

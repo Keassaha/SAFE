@@ -61,7 +61,7 @@ export function DossierBilling({
           </div>
         </div>
         {timeEntries.length > 0 ? (
-          <div className="overflow-x-auto border border-neutral-border rounded-lg">
+          <div className="overflow-x-auto border border-neutral-border rounded-safe-sm">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-neutral-surface/50 border-b border-neutral-border">

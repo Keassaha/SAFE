@@ -194,22 +194,22 @@ export function SafetrackCalendar({
 
   return (
     <>
-      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm">
+      <div className="rounded-safe-md border border-neutral-200 bg-white overflow-hidden shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-100">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary-600" />
-            <h3 className="text-sm font-semibold text-neutral-900">{tg("agenda")}</h3>
+            <h3 className="text-sm font-semibold text-neutral-900 tracking-tight">{tg("agenda")}</h3>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary-700 text-white hover:bg-primary-800 transition-colors">
+            <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-safe-sm bg-primary-700 text-white hover:bg-primary-800 transition-colors">
               <Plus className="w-3.5 h-3.5" /> {tg("eventLabel")}
             </button>
             <div className="flex items-center gap-0.5 ml-2">
-              <button type="button" onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
-              <button type="button" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); setSelectedDay(now.getDate()); }} className="px-2 py-1 text-[11px] font-medium text-primary-700 hover:bg-primary-50 rounded-lg transition-colors">{tg("todayShort")}</button>
+              <button type="button" onClick={prevMonth} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+              <button type="button" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); setSelectedDay(now.getDate()); }} className="px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 rounded-safe-sm transition-colors">{tg("todayShort")}</button>
               <span className="text-sm font-medium text-neutral-900 min-w-[130px] text-center">{MONTH_NAMES[month]} {year}</span>
-              <button type="button" onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+              <button type="button" onClick={nextMonth} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
         </div>
@@ -219,10 +219,10 @@ export function SafetrackCalendar({
           <div className="flex-1 p-3">
             <div className="grid grid-cols-7 mb-1">
               {WEEKDAY_LABELS.map((label) => (
-                <div key={label} className="text-center text-[10px] font-semibold uppercase tracking-wider text-neutral-400 py-1.5">{label}</div>
+                <div key={label} className="text-center text-xs font-semibold uppercase tracking-wider text-neutral-400 py-1.5">{label}</div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-px bg-neutral-100 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-7 gap-px bg-neutral-100 rounded-safe overflow-hidden">
               {weeks.flat().map((d, idx) => {
                 if (d === null) return <div key={`e-${idx}`} className="bg-white min-h-[4.5rem]" />;
                 const items = unifiedByDay.get(d) ?? [];
@@ -236,19 +236,19 @@ export function SafetrackCalendar({
                       {items.slice(0, 2).map((item) => {
                         if (item.kind === "event") {
                           return (
-                            <div key={item.data.id} className={`flex items-center gap-0.5 px-1 py-px rounded text-[9px] font-medium text-white truncate ${EVENT_TYPE_COLORS[item.data.type] ?? "bg-neutral-400"}`}>
+                            <div key={item.data.id} className={`flex items-center gap-0.5 px-1 py-px rounded text-xs font-medium text-white truncate ${EVENT_TYPE_COLORS[item.data.type] ?? "bg-neutral-400"}`}>
                               <span className="truncate">{item.data.startTime ? `${item.data.startTime} ` : ""}{item.data.title}</span>
                             </div>
                           );
                         }
                         return (
-                          <div key={item.data.id} className="flex items-center gap-0.5 px-1 py-px rounded text-[9px] font-medium text-neutral-600 bg-neutral-100 truncate">
+                          <div key={item.data.id} className="flex items-center gap-0.5 px-1 py-px rounded text-xs font-medium text-neutral-600 bg-neutral-100 truncate">
                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${getDeadlineStyle(item.data.status).dot}`} />
                             <span className="truncate">{item.data.title}</span>
                           </div>
                         );
                       })}
-                      {items.length > 2 && <div className="text-[9px] text-neutral-400 font-medium px-1">+{items.length - 2}</div>}
+                      {items.length > 2 && <div className="text-xs text-neutral-400 font-medium px-1">+{items.length - 2}</div>}
                     </div>
                   </button>
                 );
@@ -258,9 +258,9 @@ export function SafetrackCalendar({
             {/* Legend */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 pt-3 border-t border-neutral-100">
               {Object.entries(EVENT_TYPE_LABELS).map(([key, label]) => (
-                <div key={key} className="flex items-center gap-1"><span className={`w-2 h-2 rounded-full ${EVENT_TYPE_COLORS[key]}`} /><span className="text-[9px] text-neutral-500">{label}</span></div>
+                <div key={key} className="flex items-center gap-1"><span className={`w-2 h-2 rounded-full ${EVENT_TYPE_COLORS[key]}`} /><span className="text-xs text-neutral-500">{label}</span></div>
               ))}
-              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-neutral-300" /><span className="text-[9px] text-neutral-500">{tg("matterAct")}</span></div>
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-neutral-300" /><span className="text-xs text-neutral-500">{tg("matterAct")}</span></div>
             </div>
           </div>
 
@@ -273,11 +273,11 @@ export function SafetrackCalendar({
                     <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">{selectedDay} {MONTH_NAMES[month]}</p>
                     <p className="text-lg font-bold text-neutral-900">{dayItems.length} {dayItems.length !== 1 ? tg("itemsCount") : tg("itemsCount")}</p>
                   </div>
-                  <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="p-2 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors"><Plus className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="p-2 rounded-safe-sm bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors"><Plus className="w-4 h-4" /></button>
                 </div>
 
                 {dayItems.length === 0 ? (
-                  <div className="rounded-xl bg-neutral-100 p-4 text-center"><p className="text-sm text-neutral-500">{tg("noElements")}</p></div>
+                  <div className="rounded-safe bg-neutral-100 p-4 text-center"><p className="text-sm text-neutral-500">{tg("noElements")}</p></div>
                 ) : (
                   <div className="space-y-2 max-h-[26rem] overflow-y-auto">
                     {dayItems.map((item) => {
@@ -286,14 +286,14 @@ export function SafetrackCalendar({
                         const isExpanded = expandedId === ev.id;
                         return (
                           <button key={ev.id} type="button" onClick={() => setExpandedId(isExpanded ? null : ev.id)}
-                            className={`w-full text-left rounded-xl border p-3 transition-all ${isExpanded ? "border-primary-300 bg-primary-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}>
+                            className={`w-full text-left rounded-safe border p-3 transition-all ${isExpanded ? "border-primary-300 bg-primary-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}>
                             <div className="flex items-start gap-2">
                               <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${EVENT_TYPE_COLORS[ev.type] ?? "bg-neutral-400"}`} />
                               <div className="min-w-0 flex-1">
                                 <p className="text-sm font-semibold text-neutral-900 truncate">{ev.title}</p>
                                 <div className="flex items-center gap-2 mt-0.5 text-xs text-neutral-500">
                                   {ev.startTime && <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" />{ev.startTime}{ev.endTime ? ` – ${ev.endTime}` : ""}</span>}
-                                  <span className="px-1.5 py-0.5 rounded bg-neutral-100 text-[10px] font-medium">{EVENT_TYPE_LABELS[ev.type] ?? ev.type}</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-neutral-100 text-xs font-medium">{EVENT_TYPE_LABELS[ev.type] ?? ev.type}</span>
                                 </div>
                                 {isExpanded && (
                                   <div className="mt-2 pt-2 border-t border-neutral-100 space-y-1 text-xs text-neutral-600">
@@ -302,10 +302,10 @@ export function SafetrackCalendar({
                                     {ev.dossierLabel && <div className="flex items-center gap-1"><FolderOpen className="w-3 h-3 text-neutral-400" />{ev.dossierLabel}</div>}
                                     {ev.assigneeName && <div className="flex items-center gap-1"><User className="w-3 h-3 text-neutral-400" />{tg("assignedToName", { name: ev.assigneeName ?? "" })}</div>}
                                     {ev.location && <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-neutral-400" />{ev.location}</div>}
-                                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${ev.status === "confirme" ? "bg-emerald-100 text-emerald-700" : ev.status === "annule" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>{STATUS_LABELS[ev.status] ?? ev.status}</span>
+                                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase ${ev.status === "confirme" ? "bg-emerald-100 text-emerald-700" : ev.status === "annule" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>{STATUS_LABELS[ev.status] ?? ev.status}</span>
                                     <div className="flex gap-2 pt-1">
-                                      <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); setEditEvent(ev); setShowModal(true); }} onKeyDown={() => {}} className="flex-1 text-center py-1 rounded-lg border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer">{tg("editLabel")}</span>
-                                      <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); handleDelete(ev.id); }} onKeyDown={() => {}} className={`p-1 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 cursor-pointer ${deleting ? "opacity-50 pointer-events-none" : ""}`}><Trash2 className="w-3.5 h-3.5" /></span>
+                                      <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); setEditEvent(ev); setShowModal(true); }} onKeyDown={() => {}} className="flex-1 text-center py-1 rounded-safe-sm border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer">{tg("editLabel")}</span>
+                                      <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); handleDelete(ev.id); }} onKeyDown={() => {}} className={`p-1 rounded-safe-sm border border-red-200 text-red-500 hover:bg-red-50 cursor-pointer ${deleting ? "opacity-50 pointer-events-none" : ""}`}><Trash2 className="w-3.5 h-3.5" /></span>
                                     </div>
                                   </div>
                                 )}
@@ -320,13 +320,13 @@ export function SafetrackCalendar({
                       const StatusIcon = style.Icon;
                       return (
                         <Link key={dl.id} href={`${dossierBaseUrl}?dossierId=${encodeURIComponent(dl.dossierId)}`}
-                          className="block rounded-xl border border-neutral-200 bg-white p-3 hover:shadow-sm hover:border-primary-300 transition-all group">
+                          className="block rounded-safe border border-neutral-200 bg-white p-3 hover:shadow-sm hover:border-primary-300 transition-all group">
                           <div className="flex items-start gap-2">
                             <StatusIcon className="w-4 h-4 shrink-0 mt-0.5" style={{ color: style.color }} />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-neutral-900 truncate group-hover:text-primary-700 transition-colors">{dl.title}</p>
                               <p className="text-xs text-neutral-500 mt-0.5 truncate">{dl.dossierLabel}</p>
-                              <span className="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${style.color} 12%, transparent)`, color: style.color }}>
+                              <span className="inline-block mt-1 text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${style.color} 12%, transparent)`, color: style.color }}>
                                 {STATUS_LABELS[dl.status] ?? dl.status}
                               </span>
                             </div>

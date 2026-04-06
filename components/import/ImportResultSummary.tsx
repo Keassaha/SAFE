@@ -59,8 +59,8 @@ export function ImportResultSummary({
               <table className="w-full text-left">
                 <thead className="table-header sticky top-0 z-10">
                   <tr>
-                    <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("lineColumn")}</th>
-                    <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("messageColumn")}</th>
+                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("lineColumn")}</th>
+                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("messageColumn")}</th>
                   </tr>
                 </thead>
                 <tbody>

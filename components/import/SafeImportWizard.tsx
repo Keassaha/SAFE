@@ -173,7 +173,7 @@ export function SafeImportWizard() {
                       : "bg-[var(--safe-neutral-border)]"
                   }`}
                 />
-                <span className="text-[10px] md:text-xs safe-text-secondary hidden sm:inline">
+                <span className="text-xs safe-text-secondary hidden sm:inline">
                   {s.label}
                 </span>
               </div>

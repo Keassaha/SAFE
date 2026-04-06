@@ -3,24 +3,24 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import {
-  FolderKanban,
-  Receipt,
-  LockKeyhole,
-  CalendarClock,
-  LineChart,
-  UserCog,
+  HeartHandshake,
+  FolderCheck,
+  ShieldCheck,
+  Clock,
+  TrendingUp,
+  Brain,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 
-const FEATURES = [
+const OUTCOMES = [
   {
-    icon: FolderKanban,
-    title: "Gestion des dossiers",
+    icon: HeartHandshake,
+    title: "Moins de stress administratif",
     description:
-      "Suivi complet de chaque dossier familial : parties, enfants, pensions, échéanciers et documentation centralisée.",
-    stat: "47",
-    statLabel: "dossiers actifs",
+      "Fini les soirées à rattraper la paperasse. SAFE automatise la saisie, les rappels et les calculs pour que vous retrouviez votre sérénité.",
+    stat: "70%",
+    statLabel: "de tâches en moins",
     accent: {
       icon: "text-blue-400",
       bg: "bg-blue-500/15",
@@ -33,12 +33,12 @@ const FEATURES = [
     },
   },
   {
-    icon: Receipt,
-    title: "Facturation conforme",
+    icon: FolderCheck,
+    title: "Des dossiers organisés et complets",
     description:
-      "Factures conformes au Règlement B-1 r.5 du Barreau, calculs TPS/TVQ automatiques et gestion des encaissements.",
-    stat: "B-1 r.5",
-    statLabel: "conforme",
+      "Chaque dossier familial est documenté, structuré et à jour. Plus jamais de pièce manquante avant une audience.",
+    stat: "100%",
+    statLabel: "documenté",
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",
@@ -51,12 +51,12 @@ const FEATURES = [
     },
   },
   {
-    icon: LockKeyhole,
-    title: "Comptes en fidéicommis",
+    icon: ShieldCheck,
+    title: "Toujours conforme au Barreau",
     description:
-      "Mouvements traçables avec validation humaine obligatoire pour assurer un registre irréprochable.",
-    stat: "100%",
-    statLabel: "traçable",
+      "Facturation, fidéicommis, conservation des données — tout respecte le Règlement B-1 r.5 et la Loi 25, sans effort de votre part.",
+    stat: "B-1 r.5",
+    statLabel: "conforme",
     accent: {
       icon: "text-violet-400",
       bg: "bg-violet-500/15",
@@ -69,10 +69,10 @@ const FEATURES = [
     },
   },
   {
-    icon: CalendarClock,
-    title: "Échéanciers & délais",
+    icon: Clock,
+    title: "Plus aucun délai manqué",
     description:
-      "Ne manquez plus aucun délai de cour ou de prescription. Alertes automatiques et calendrier intégré.",
+      "Alertes automatiques pour les échéances de cour et prescriptions. Vous êtes toujours un pas en avance.",
     stat: "0",
     statLabel: "délai manqué",
     accent: {
@@ -87,12 +87,12 @@ const FEATURES = [
     },
   },
   {
-    icon: LineChart,
-    title: "Rapports financiers",
+    icon: TrendingUp,
+    title: "Une vue claire sur votre rentabilité",
     description:
-      "Vue d'ensemble de la rentabilité par dossier, par avocat et par type de mandat. Exportation en un clic.",
+      "Savez-vous quels dossiers sont rentables ? SAFE vous donne la réponse en un coup d'œil, par avocat, par type de mandat.",
     stat: "1 clic",
-    statLabel: "pour exporter",
+    statLabel: "pour savoir",
     accent: {
       icon: "text-cyan-400",
       bg: "bg-cyan-500/15",
@@ -105,10 +105,10 @@ const FEATURES = [
     },
   },
   {
-    icon: UserCog,
-    title: "Employés virtuels",
+    icon: Brain,
+    title: "Une assistance IA qui vous comprend",
     description:
-      "Assistance intelligente pour la rédaction et la recherche — ne donne jamais de conseils juridiques.",
+      "Un assistant qui connaît votre pratique et vous aide à rédiger, chercher et organiser — sans jamais donner de conseils juridiques.",
     stat: "24/7",
     statLabel: "disponible",
     accent: {
@@ -125,11 +125,11 @@ const FEATURES = [
 ];
 
 /* ───── 3D tilt card ───── */
-function FeatureCard({
+function OutcomeCard({
   feat,
   idx,
 }: {
-  feat: (typeof FEATURES)[number];
+  feat: (typeof OUTCOMES)[number];
   idx: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -179,7 +179,7 @@ function FeatureCard({
       onMouseMove={handleMouse}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleLeave}
-      className="group relative rounded-2xl border border-white/[0.06] bg-[#051F20] overflow-hidden cursor-default"
+      className="group relative rounded-safe-md border border-white/[0.06] bg-[#051F20] overflow-hidden cursor-default"
     >
       {/* Animated gradient background on hover */}
       <motion.div
@@ -204,9 +204,9 @@ function FeatureCard({
         {/* Top row: icon + stat */}
         <div className="flex items-start justify-between mb-6">
           <motion.div
-            className={`w-14 h-14 rounded-2xl ${feat.accent.bg} border ${feat.accent.border} flex items-center justify-center`}
-            whileHover={{ scale: 1.15, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            className={`w-14 h-14 rounded-safe-md ${feat.accent.bg} border ${feat.accent.border} flex items-center justify-center`}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
           >
             <feat.icon className={`w-7 h-7 ${feat.accent.icon}`} />
           </motion.div>
@@ -215,43 +215,27 @@ function FeatureCard({
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 300 }}
-            className={`px-3 py-1.5 rounded-xl ${feat.accent.statBg} border ${feat.accent.border}`}
+            transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 180, damping: 20 }}
+            className={`px-3 py-1.5 rounded-safe ${feat.accent.statBg} border ${feat.accent.border}`}
           >
-            <span className={`text-sm font-bold font-jakarta ${feat.accent.statText}`}>
+            <span className={`text-sm font-bold font-sans ${feat.accent.statText}`}>
               {feat.stat}
             </span>
-            <span className="text-[10px] text-white/40 font-jakarta ml-1.5">
+            <span className="text-xs text-white/40 font-sans ml-1.5">
               {feat.statLabel}
             </span>
           </motion.div>
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-jakarta">
+        <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
           {feat.title}
         </h3>
 
         {/* Description */}
-        <p className="text-[var(--safe-text-muted)] leading-relaxed font-jakarta text-sm mb-6 group-hover:text-white/60 transition-colors duration-500">
+        <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm group-hover:text-white/60 transition-colors duration-500">
           {feat.description}
         </p>
-
-        {/* Bottom link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 + idx * 0.1 }}
-        >
-          <Link
-            href="/fonctionnalites"
-            className={`inline-flex items-center gap-2 text-xs font-semibold font-jakarta ${feat.accent.statText} hover:gap-3 transition-all duration-300`}
-          >
-            En savoir plus
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </motion.div>
       </div>
 
       {/* Corner glow on hover */}
@@ -264,22 +248,8 @@ function FeatureCard({
 
 export function FeaturesGrid() {
   return (
-    <section className="section-dusk relative py-28 lg:py-36 overflow-hidden">
+    <section className="section-night relative py-28 lg:py-36 overflow-hidden">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
-
-      {/* Background floating orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-[10%] left-[5%] w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[100px]"
-          animate={{ y: [0, 40, 0], x: [0, 20, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-[10%] right-[5%] w-[250px] h-[250px] rounded-full bg-blue-500/5 blur-[80px]"
-          animate={{ y: [0, -30, 0], x: [0, -25, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
         {/* Header */}
@@ -288,9 +258,9 @@ export function FeaturesGrid() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-lg font-instrument italic text-white mb-4"
+            className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
-            Fonctionnalités
+            Ce que ça change pour vous
           </motion.p>
 
           <motion.h2
@@ -298,9 +268,10 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-instrument text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
+            className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
-            Tout ce dont votre cabinet a besoin.
+            Votre cabinet mérite mieux que du{" "}
+            <span className="italic text-[var(--safe-sage)]">bricolage.</span>
           </motion.h2>
 
           <motion.p
@@ -308,9 +279,9 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg text-white leading-relaxed font-jakarta"
+            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
-            Un écosystème intégré pour remplacer vos feuilles de calcul et logiciels désuets.
+            Moins de stress, plus de temps pour vos clients, et la certitude d&apos;être toujours conforme.
           </motion.p>
 
           {/* Animated separator line */}
@@ -323,10 +294,10 @@ export function FeaturesGrid() {
           />
         </div>
 
-        {/* Bento-style grid — 2 large + 1 medium on top, 1 medium + 2 large on bottom */}
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {FEATURES.map((feat, idx) => (
-            <FeatureCard key={feat.title} feat={feat} idx={idx} />
+          {OUTCOMES.map((feat, idx) => (
+            <OutcomeCard key={feat.title} feat={feat} idx={idx} />
           ))}
         </div>
 
@@ -340,7 +311,7 @@ export function FeaturesGrid() {
         >
           <Link
             href="/fonctionnalites"
-            className="group inline-flex items-center gap-3 px-8 py-4 text-base font-semibold rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:bg-[var(--safe-sage)]/10 hover:border-[var(--safe-sage)]/50 transition-all duration-300 font-jakarta"
+            className="group inline-flex items-center gap-3 px-8 py-4 text-base font-semibold rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:bg-[var(--safe-sage)]/10 hover:border-[var(--safe-sage)]/50 transition-all duration-300 font-sans"
           >
             Voir toutes les fonctionnalités
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

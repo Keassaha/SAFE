@@ -46,9 +46,9 @@ function SAFEIllustration() {
         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
         className="absolute inset-0 flex items-center justify-center"
       >
-        <div className="w-20 h-20 rounded-2xl bg-[var(--safe-accent)]/20 border border-[var(--safe-sage)]/20 flex flex-col items-center justify-center">
+        <div className="w-20 h-20 rounded-safe-md bg-[var(--safe-accent)]/20 border border-[var(--safe-sage)]/20 flex flex-col items-center justify-center">
           <Shield className="w-8 h-8 text-[var(--safe-sage)] mb-1" />
-          <span className="text-[10px] font-bold text-[var(--safe-white)] font-instrument tracking-wide">SAFE</span>
+          <span className="text-xs font-bold text-[var(--safe-white)] font-sans tracking-wide">SAFE</span>
         </div>
       </motion.div>
 
@@ -66,11 +66,11 @@ function SAFEIllustration() {
             <motion.div
               animate={inView ? { y: [0, -3, 0] } : {}}
               transition={{ delay: 1.5 + i * 0.2, duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center hover:border-[var(--safe-sage)]/20 transition-colors"
+              className="w-11 h-11 rounded-safe bg-white/[0.04] border border-white/[0.08] flex items-center justify-center hover:border-[var(--safe-sage)]/20 transition-colors"
             >
               <item.icon className="w-5 h-5 text-[var(--safe-sage)]/60" />
             </motion.div>
-            <span className="mt-1 text-[7px] text-[var(--safe-text-muted)] font-jakarta">{item.label}</span>
+            <span className="mt-1 text-xs text-[var(--safe-text-muted)] font-sans">{item.label}</span>
           </motion.div>
         );
       })}
@@ -128,12 +128,12 @@ function StoryTimeline() {
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
             transition={{ delay: 0.4 + i * 0.2, type: "spring" }}
-            className="shrink-0 w-14 h-8 rounded-lg bg-[var(--safe-accent)]/15 border border-[var(--safe-sage)]/15 flex items-center justify-center"
+            className="shrink-0 w-14 h-8 rounded-safe-sm bg-[var(--safe-accent)]/15 border border-[var(--safe-sage)]/15 flex items-center justify-center"
           >
-            <span className="text-[10px] font-bold text-[var(--safe-sage)] font-jakarta">{event.year}</span>
+            <span className="text-xs font-bold text-[var(--safe-sage)] font-sans">{event.year}</span>
           </motion.div>
           <div className="pt-1">
-            <p className="text-sm text-[var(--safe-white)] font-jakarta">{event.text}</p>
+            <p className="text-sm text-[var(--safe-white)] font-sans">{event.text}</p>
           </div>
         </motion.div>
       ))}
@@ -174,7 +174,7 @@ export default function AProposPage() {
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="section-light relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
+        <section className="section-morning relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="absolute inset-0 landing-grid opacity-20 pointer-events-none" />
 
@@ -183,7 +183,7 @@ export default function AProposPage() {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4"
+                className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
               >
                 À propos
               </motion.p>
@@ -191,7 +191,7 @@ export default function AProposPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.6 }}
-                className="font-instrument text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-8 leading-[1.05] tracking-tight"
+                className="font-sans text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-8 leading-[1.05] tracking-tight"
               >
                 Rendre la conformité{" "}
                 <span className="italic text-[var(--safe-sage)]">simple</span> pour les
@@ -201,7 +201,7 @@ export default function AProposPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-jakarta"
+                className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
               >
                 SAFE est né d&apos;un constat simple : les avocats en droit familial au
                 Québec méritent un outil à la hauteur de leur expertise, conçu pour leur
@@ -212,18 +212,18 @@ export default function AProposPage() {
         </section>
 
         {/* Story */}
-        <section className="section-afternoon relative py-20 lg:py-28">
+        <section className="section-dusk relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
               <div>
-                <p className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4">
+                <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
                   L&apos;histoire
                 </p>
-                <h2 className="font-instrument text-3xl md:text-4xl text-[var(--safe-white)] mb-8 leading-tight">
+                <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
                   D&apos;une frustration à une solution.
                 </h2>
-                <div className="space-y-6 text-[var(--safe-text-muted)] font-jakarta leading-relaxed">
+                <div className="space-y-6 text-[var(--safe-text-muted)] font-sans leading-relaxed">
                   <p>
                     Tout a commencé par une conversation avec une avocate solo en droit familial
                     à Sherbrooke. Elle jonglait entre un tableur Excel pour sa facturation, un
@@ -258,20 +258,20 @@ export default function AProposPage() {
         </section>
 
         {/* Mission */}
-        <section className="relative py-20 lg:py-28 bg-[var(--safe-darkest)]">
+        <section className="section-night relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
               <div className="lg:max-w-lg">
-                <p className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4">
+                <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
                   La mission
                 </p>
-                <h2 className="font-instrument text-3xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight">
+                <h2 className="font-sans text-3xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
                   Que chaque avocat en droit familial au Québec puisse se concentrer sur ce qui
                   compte vraiment :{" "}
                   <span className="italic text-[var(--safe-sage)]">ses clients</span>.
                 </h2>
-                <p className="text-lg text-[var(--safe-text-muted)] font-jakarta leading-relaxed">
+                <p className="text-lg text-[var(--safe-text-muted)] font-sans leading-relaxed">
                   Nous croyons que la conformité ne devrait jamais être un obstacle à la
                   pratique du droit. SAFE automatise ce qui peut l&apos;être et simplifie le
                   reste, pour que vous puissiez dédier votre énergie aux familles que vous
@@ -288,14 +288,14 @@ export default function AProposPage() {
         </section>
 
         {/* Values */}
-        <section className="section-light relative py-20 lg:py-28">
+        <section className="section-morning relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="text-center mb-16">
-              <p className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4">
+              <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
                 Nos valeurs
               </p>
-              <h2 className="font-instrument text-3xl md:text-4xl text-[var(--safe-white)]">
+              <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] tracking-tight">
                 Les principes qui guident chaque décision.
               </h2>
             </div>
@@ -307,19 +307,19 @@ export default function AProposPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="card-dark group p-8 rounded-2xl border border-[var(--safe-sage)]/10 bg-[var(--safe-darkest)] hover:border-[var(--safe-sage)]/30 transition-colors duration-500"
+                  className="card-dark group p-8 rounded-safe-md border border-[var(--safe-sage)]/10 bg-[var(--safe-darkest)] hover:border-[var(--safe-sage)]/30 transition-colors duration-500"
                 >
                   <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="w-12 h-12 rounded-xl bg-[var(--safe-accent)]/15 flex items-center justify-center mb-5"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 180, damping: 20 }}
+                    className="w-12 h-12 rounded-safe bg-[var(--safe-accent)]/15 flex items-center justify-center mb-5"
                   >
                     <value.icon className="w-6 h-6 text-[var(--safe-sage)]" />
                   </motion.div>
-                  <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-jakarta">
+                  <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
                     {value.title}
                   </h3>
-                  <p className="text-[var(--safe-text-muted)] leading-relaxed font-jakarta">
+                  <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans">
                     {value.description}
                   </p>
                 </motion.div>

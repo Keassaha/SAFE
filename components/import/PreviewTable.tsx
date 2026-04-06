@@ -49,10 +49,10 @@ export function PreviewTable({
         <table className="w-full text-left">
           <thead className="table-header sticky top-0 z-10">
             <tr>
-              <th className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider">#</th>
-              <th className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("statusHeader")}</th>
+              <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider">#</th>
+              <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider">{t("statusHeader")}</th>
               {fields.map((f) => (
-                <th key={f} className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
+                <th key={f} className="px-3 py-2 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
                   {fieldLabels[f]}
                 </th>
               ))}

@@ -483,7 +483,7 @@ export function SafeDocGeneratorWizard() {
                     {i + 1}
                   </span>
                   <span
-                    className={`text-[10px] font-medium ${
+                    className={`text-xs font-medium ${
                       i <= step ? "text-[var(--safe-text-title)]" : "text-neutral-500"
                     }`}
                   >

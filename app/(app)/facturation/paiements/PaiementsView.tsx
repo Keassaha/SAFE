@@ -94,7 +94,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             {!embeddedInComptabilite && (

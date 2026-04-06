@@ -32,7 +32,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2">
+      <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <Landmark className="w-4 h-4" aria-hidden />
         Rapport fidéicommis
       </h3>

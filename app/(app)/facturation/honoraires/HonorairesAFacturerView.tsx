@@ -89,7 +89,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <Link
           href={routes.facturation}
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
@@ -131,7 +131,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                 placeholder="Rechercher un client..."
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
-                className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="flex-1 rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, userId: e.target.value || undefined }))
                 }
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm min-w-[160px]"
+                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[160px]"
               >
                 <option value="">Tous</option>
                 {users.map((u) => (
@@ -158,7 +158,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }))
                 }
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm min-w-[200px]"
+                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[200px]"
               >
                 <option value="">Tous</option>
                 {dossiers.map((d) => (
@@ -179,7 +179,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                     dateFrom: e.target.value ? new Date(e.target.value) : undefined,
                   }))
                 }
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                     dateTo: e.target.value ? new Date(e.target.value) : undefined,
                   }))
                 }
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
               />
             </div>
           </div>

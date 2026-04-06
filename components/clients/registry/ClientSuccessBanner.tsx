@@ -25,7 +25,7 @@ export function ClientSuccessBanner() {
   const clearHref = `/clients?${urlWithoutSuccess.toString()}`;
 
   return (
-    <div className="rounded-xl border border-status-success bg-status-success-bg px-4 py-3 flex items-center justify-between gap-4">
+    <div className="rounded-safe border border-status-success bg-status-success-bg px-4 py-3 flex items-center justify-between gap-4">
       <div className="flex items-center gap-2 text-status-success">
         <CheckCircle className="w-5 h-5 shrink-0" />
         <p className="text-sm font-medium">{message}</p>

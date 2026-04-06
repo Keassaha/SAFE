@@ -69,7 +69,7 @@ export function DossierDebours({
               const result = await createDeboursDossier(formData);
               if (result.ok) setShowAdd(false);
             }}
-            className="rounded-lg border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+            className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
           >
             <input type="hidden" name="dossierId" value={dossierId} />
             <input type="hidden" name="clientId" value={clientId} />
@@ -79,7 +79,7 @@ export function DossierDebours({
               </label>
               <select
                 name="deboursTypeId"
-                className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm"
+                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
               >
                 <option value="">{t("manualEntry")}</option>
                 {deboursTypes.map((dt) => (
@@ -112,7 +112,7 @@ export function DossierDebours({
                   type="date"
                   name="date"
                   defaultValue={new Date().toISOString().slice(0, 10)}
-                  className="w-full h-10 px-3 rounded-lg border border-neutral-border bg-white text-sm"
+                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
                 />
               </div>
             </div>

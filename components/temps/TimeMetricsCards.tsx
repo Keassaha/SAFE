@@ -73,7 +73,7 @@ export function TimeMetricsCards({
                 <p className="mt-1 text-sm safe-text-secondary">{sub}</p>
               )}
             </div>
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-safe-sm bg-green-100 flex items-center justify-center">
               <Icon className="w-5 h-5 text-green-700" aria-hidden />
             </div>
           </div>

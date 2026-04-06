@@ -48,7 +48,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardContent className="p-4 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
+          <div className="p-2 rounded-safe-sm bg-primary-100 text-primary-700">
             <Wallet className="w-5 h-5" aria-hidden />
           </div>
           <div>
@@ -61,7 +61,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
       </Card>
       <Card>
         <CardContent className="p-4 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-green-100 text-green-700">
+          <div className="p-2 rounded-safe-sm bg-green-100 text-green-700">
             <TrendingUp className="w-5 h-5" aria-hidden />
           </div>
           <div>
@@ -74,7 +74,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
       </Card>
       <Card>
         <CardContent className="p-4 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-amber-100 text-amber-700">
+          <div className="p-2 rounded-safe-sm bg-amber-100 text-amber-700">
             <TrendingDown className="w-5 h-5" aria-hidden />
           </div>
           <div>
@@ -87,7 +87,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
       </Card>
       <Card>
         <CardContent className="p-4 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-neutral-100 text-neutral-600">
+          <div className="p-2 rounded-safe-sm bg-neutral-100 text-neutral-600">
             <FolderOpen className="w-5 h-5" aria-hidden />
           </div>
           <div>

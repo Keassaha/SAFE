@@ -143,7 +143,7 @@ function AuthPageContent() {
     <div className="auth-card mx-auto w-full max-w-[520px] overflow-hidden border border-white/25 p-6 shadow-2xl md:p-8">
       <div className="mb-6 text-center">
         <div className="mb-4 flex justify-center">
-          <SafeLogo variant="dark" className="w-[170px]" />
+          <SafeLogo variant="dark" className="shrink-0" />
         </div>
         <p className="mt-2 text-sm text-white/80">
           Accédez à votre espace de travail sécurisé
@@ -176,17 +176,17 @@ function AuthPageContent() {
       </div>
 
       {dbConfigError && (
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mb-4 rounded-safe border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {dbConfigError}
         </div>
       )}
       {success && (
-        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div className="mb-4 rounded-safe border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-safe border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -322,19 +322,19 @@ export default function ConnexionPage() {
   return (
     <Suspense
       fallback={
-        <div className="auth-card mx-auto w-full max-w-[520px] rounded-2xl p-8">
-          <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-white/20 animate-pulse" />
+        <div className="auth-card mx-auto w-full max-w-[520px] rounded-safe-md p-8">
+          <div className="mx-auto mb-4 h-14 w-14 rounded-safe-md bg-white/20 animate-pulse" />
           <div className="mx-auto mb-2 h-8 w-32 rounded bg-white/30 animate-pulse" />
           <div className="mx-auto mb-6 h-4 w-60 rounded bg-white/20 animate-pulse" />
           <div className="mb-6 h-11 rounded-full bg-white/20 animate-pulse" />
           <div className="space-y-4">
             <div className="h-4 w-24 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-xl bg-white/25 animate-pulse" />
+            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
             <div className="h-4 w-24 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-xl bg-white/25 animate-pulse" />
+            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
             <div className="h-4 w-28 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-xl bg-white/25 animate-pulse" />
-            <div className="mt-2 h-11 rounded-xl bg-white/30 animate-pulse" />
+            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
+            <div className="mt-2 h-11 rounded-safe bg-white/30 animate-pulse" />
           </div>
         </div>
       }

@@ -25,7 +25,7 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-[var(--safe-sidebar-bg)] text-white p-6">
+      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <Link
           href={routes.facturation}
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"

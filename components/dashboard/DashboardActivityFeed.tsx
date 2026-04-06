@@ -46,7 +46,7 @@ export function DashboardActivityFeed({
   return (
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-teal-500">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5">
+        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
           <Pin className="w-4 h-4 text-teal-600" aria-hidden />
           {t("recentActivity")}
         </h3>
@@ -71,7 +71,7 @@ export function DashboardActivityFeed({
               key={item.id}
               className="flex items-start gap-3 py-2 border-b border-[var(--safe-neutral-border)] last:border-0 last:pb-0"
             >
-              <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center shrink-0 text-teal-700">
+              <div className="w-9 h-9 rounded-safe bg-teal-100 flex items-center justify-center shrink-0 text-teal-700">
                 <Activity className="w-4 h-4" aria-hidden />
               </div>
               <div className="min-w-0 flex-1">

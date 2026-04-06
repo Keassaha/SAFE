@@ -138,12 +138,12 @@ export default async function DossierDetailPage({
             </h1>
             <div className="flex flex-wrap items-center gap-2">
               {dossier.avocatResponsable?.nom && (
-                <span className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90">
+                <span className="rounded-safe-sm bg-white/10 px-3 py-1 text-xs font-medium text-white/90">
                   Avocat : {dossier.avocatResponsable.nom}
                 </span>
               )}
               <span
-                className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${
+                className={`inline-flex items-center rounded-safe-sm px-3 py-1 text-xs font-semibold ${
                   dossier.statut === "actif" || dossier.statut === "ouvert"
                     ? "bg-[var(--safe-status-success)]/20 text-[var(--safe-green-100)]"
                     : "bg-white/10 text-white/80"
@@ -152,7 +152,7 @@ export default async function DossierDetailPage({
                 {STATUT_LABELS[dossier.statut] ?? dossier.statut}
               </span>
               {mandatIncomplet && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2.5 py-1 text-xs font-medium text-red-200">
+                <span className="inline-flex items-center gap-1 rounded-safe-sm bg-red-500/20 px-3 py-1 text-xs font-medium text-red-200">
                   ⚠ Mandat incomplet
                 </span>
               )}
@@ -161,13 +161,13 @@ export default async function DossierDetailPage({
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <Link
               href={routes.client(dossier.clientId)}
-              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              className="inline-flex items-center rounded-safe-sm border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors"
             >
               {t("viewClient")}
             </Link>
             <Link
               href={`${routes.dossier(id)}?edit=1`}
-              className="inline-flex items-center rounded-lg bg-[var(--safe-green-600)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--safe-green-700)] transition-colors shadow-md"
+              className="inline-flex items-center rounded-safe-sm bg-[var(--safe-green-600)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--safe-green-700)] transition-colors shadow-md"
             >
               {t("editMatter")}
             </Link>

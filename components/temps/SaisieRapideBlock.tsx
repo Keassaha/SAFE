@@ -74,7 +74,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
 
   return (
     <div className="card-glass p-6">
-      <h3 className="text-base font-semibold safe-text-title flex items-center gap-2">
+      <h3 className="text-base font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <Play className="w-4 h-4" aria-hidden />
         {t("quickEntry")}
       </h3>
@@ -140,7 +140,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={clientId}
                 onChange={(e) => handleClientChange(e.target.value)}
                 disabled={isLoading}
-                className="w-full h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] bg-white text-sm"
+                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -157,7 +157,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={dossierId}
                 onChange={(e) => setDossierId(e.target.value)}
                 disabled={!clientId || isLoading}
-                className="w-full h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] bg-white text-sm"
+                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm"
               >
                 <option value="">
                   {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
@@ -178,7 +178,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 placeholder={t("descriptionOptional")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-[var(--safe-neutral-border)] text-sm"
+                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
               />
             </div>
             <Button

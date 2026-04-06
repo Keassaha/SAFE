@@ -71,7 +71,7 @@ export function Pricing() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4"
+            className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
             Tarification
           </motion.p>
@@ -80,7 +80,7 @@ export function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-instrument text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
+            className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
             Un investissement rentable dès le premier mois.
           </motion.h2>
@@ -89,7 +89,7 @@ export function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-jakarta"
+            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
             Pas de frais cachés. Pas d&apos;engagement à long terme. Annulez en tout temps.
           </motion.p>
@@ -104,37 +104,37 @@ export function Pricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: idx * 0.12 }}
-              className={`card-dark relative rounded-2xl p-8 flex flex-col ${
+              className={`card-dark relative rounded-safe-md p-8 flex flex-col ${
                 plan.popular
                   ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 scale-[1.02] lg:scale-105"
                   : "bg-[var(--safe-dark)] border border-[#051F20]/10 hover:border-[#8EB69B]/20 transition-colors duration-300"
               }`}
             >
               {plan.popular && (
-                <div className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-jakarta">
+                <div className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-sans">
                   Populaire
                 </div>
               )}
 
-              <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-jakarta">
+              <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
                 {plan.name}
               </h3>
-              <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-jakarta">
+              <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans">
                 {plan.description}
               </p>
 
               {/* Price */}
               <div className="mb-8 flex items-end gap-1">
                 {plan.price === "Sur devis" ? (
-                  <span className="text-3xl font-bold text-[var(--safe-white)] font-jakarta">
+                  <span className="text-3xl font-bold text-[var(--safe-white)] font-sans">
                     {plan.price}
                   </span>
                 ) : (
                   <>
-                    <span className="text-5xl font-bold text-[var(--safe-white)] font-jakarta">
+                    <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
                       {plan.price}$
                     </span>
-                    <span className="text-[var(--safe-text-muted)] mb-1.5 font-jakarta">
+                    <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
                       {plan.period}
                     </span>
                   </>
@@ -146,7 +146,7 @@ export function Pricing() {
                 {plan.features.map((feat) => (
                   <li key={feat} className="flex items-start gap-3">
                     <Check className="w-4 h-4 text-[var(--safe-sage)] shrink-0 mt-0.5" />
-                    <span className="text-sm text-[var(--safe-white)]/80 font-jakarta">
+                    <span className="text-sm text-[var(--safe-white)]/80 font-sans">
                       {feat}
                     </span>
                   </li>
@@ -156,7 +156,7 @@ export function Pricing() {
               {/* CTA */}
               <Link
                 href={plan.href}
-                className={`group w-full py-3.5 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-jakarta ${
+                className={`group w-full py-3 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-sans ${
                   plan.popular
                     ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)] hover:bg-[var(--safe-lightest)]"
                     : "bg-white/5 text-[var(--safe-white)] hover:bg-white/10 border border-white/10"

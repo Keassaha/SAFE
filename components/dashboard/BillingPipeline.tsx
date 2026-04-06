@@ -87,17 +87,17 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-[#1a2e28]">
+          <h3 className="text-base font-semibold text-[var(--safe-text-title)] tracking-tight">
             {t("billingFollowUpTitle")}
           </h3>
-          <p className="text-xs text-[#6b8f7b] mt-0.5">Pipeline de facturation</p>
+          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">Pipeline de facturation</p>
         </div>
         <Link
           href={routes.facturationSuivi}
-          className="w-8 h-8 rounded-lg bg-[#F2F7F4] hover:bg-[#e0ebe4] flex items-center justify-center transition-colors text-[#4a6a5c]"
+          className="w-8 h-8 rounded-safe-sm bg-[var(--safe-neutral-page)] hover:bg-[var(--safe-neutral-100)] flex items-center justify-center transition-colors text-[var(--safe-text-secondary)]"
           aria-label={t("viewBillingFollowUp")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -110,7 +110,7 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
           return (
             <div
               key={stage.key}
-              className={`rounded-xl ${stage.bgColor} border ${stage.borderColor} p-4 text-center`}
+              className={`rounded-safe ${stage.bgColor} border ${stage.borderColor} p-4 text-center`}
             >
               <div className="flex items-center justify-center gap-1.5 mb-2">
                 <Icon className={`w-3.5 h-3.5 ${stage.iconColor}`} aria-hidden />

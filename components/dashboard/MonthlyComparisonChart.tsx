@@ -34,14 +34,14 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
   const hasData = chartData.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d0ddd6] shadow-sm p-5 md:p-6">
+    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-[#1a2e28] flex items-center gap-2">
+          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <BarChart2 className="w-4 h-4 text-emerald-600" aria-hidden />
             {t("monthlyComparison.title")}
           </h3>
-          <p className="text-xs text-[#6b8f7b] mt-0.5">
+          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
             {t("monthlyComparison.subtitle", { year })}
           </p>
         </div>
@@ -75,12 +75,12 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#6b8f7b", fontSize: 11 }}
+                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#6b8f7b", fontSize: 11 }}
+                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
                 width={60}
                 tickFormatter={(v: number) =>
                   v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
@@ -88,14 +88,14 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  background: "#ffffff",
-                  border: "1px solid #d0ddd6",
+                  background: "var(--safe-neutral-surface)",
+                  border: "1px solid var(--safe-neutral-border)",
                   borderRadius: "12px",
                   boxShadow: "0 4px 16px rgba(26,46,40,0.08)",
-                  color: "#1a2e28",
+                  color: "var(--safe-text-title)",
                   fontSize: "13px",
                 }}
-                labelStyle={{ color: "#4a6a5c", fontWeight: 600, marginBottom: 4 }}
+                labelStyle={{ color: "var(--safe-text-secondary)", fontWeight: 600, marginBottom: 4 }}
                 formatter={(value: number, name: string) => [
                   formatCurrency(value, "CAD", locale),
                   name === "invoiced"
@@ -114,7 +114,7 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
                 }
                 iconType="circle"
                 iconSize={8}
-                wrapperStyle={{ fontSize: "12px", color: "#4a6a5c" }}
+                wrapperStyle={{ fontSize: "12px", color: "var(--safe-text-secondary)" }}
               />
               <Bar
                 dataKey="invoiced"
@@ -132,8 +132,8 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-64 flex flex-col items-center justify-center text-sm text-[#6b8f7b] gap-2">
-          <BarChart2 className="w-10 h-10 text-[#c8ddd0]" aria-hidden />
+        <div className="h-64 flex flex-col items-center justify-center text-sm text-[var(--safe-text-muted)] gap-2">
+          <BarChart2 className="w-10 h-10 text-[var(--safe-neutral-300)]" aria-hidden />
           {t("noRevenueData")}
         </div>
       )}

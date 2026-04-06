@@ -44,34 +44,34 @@ function KPICard({ title, value, subtitle, trend, trendLabel, icon, accent, isHe
 
   return (
     <div
-      className={`rounded-2xl p-4 md:p-5 transition-shadow hover:shadow-md ${
+      className={`rounded-safe-md p-4 md:p-5 transition-shadow hover:shadow-md ${
         isHero
           ? "bg-green-900 text-white"
-          : "bg-white border border-[#d0ddd6]"
+          : "bg-white border border-[var(--safe-neutral-border)]"
       }`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <p className={`text-[11px] font-semibold uppercase tracking-wider ${isHero ? "text-white/70" : "text-[#6b8f7b]"}`}>
+        <p className={`text-xs font-semibold uppercase tracking-wider ${isHero ? "text-white/70" : "text-[var(--safe-text-muted)]"}`}>
           {title}
         </p>
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+          className={`w-8 h-8 rounded-safe-sm flex items-center justify-center shrink-0 ${
             isHero ? "bg-white/15 text-white" : `${s.iconBg} ${s.iconText}`
           }`}
         >
           {icon}
         </div>
       </div>
-      <p className={`font-heading text-2xl md:text-[1.7rem] font-bold tracking-tight ${isHero ? "text-white" : "text-[#1a2e28]"}`}>
+      <p className={`font-heading text-2xl md:text-3xl font-bold tracking-tight ${isHero ? "text-white" : "text-[var(--safe-text-title)]"}`}>
         {value}
       </p>
       {subtitle && (
-        <p className={`text-[11px] mt-0.5 ${isHero ? "text-white/60" : "text-[#6b8f7b]"}`}>{subtitle}</p>
+        <p className={`text-xs mt-0.5 ${isHero ? "text-white/60" : "text-[var(--safe-text-muted)]"}`}>{subtitle}</p>
       )}
       {trend != null && (
         <div className="flex items-center gap-1.5 mt-2">
           <span
-            className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+            className={`inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${
               trendUp
                 ? isHero ? "bg-emerald-400/20 text-emerald-200" : "bg-emerald-50 text-emerald-700"
                 : trendDown
@@ -85,7 +85,7 @@ function KPICard({ title, value, subtitle, trend, trendLabel, icon, accent, isHe
             {trend > 0 ? "+" : ""}{trend}%
           </span>
           {trendLabel && (
-            <span className={`text-[10px] ${isHero ? "text-white/40" : "text-[#6b8f7b]"}`}>{trendLabel}</span>
+            <span className={`text-xs ${isHero ? "text-white/40" : "text-[var(--safe-text-muted)]"}`}>{trendLabel}</span>
           )}
         </div>
       )}

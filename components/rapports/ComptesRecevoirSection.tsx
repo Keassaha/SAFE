@@ -17,7 +17,7 @@ export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2">
+        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
           <BarChart2 className="w-4 h-4" aria-hidden />
           Âge des factures (comptes à recevoir)
         </h3>

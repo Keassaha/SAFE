@@ -83,7 +83,7 @@ export function EmployeeForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-safe-sm bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
           {error}
         </div>
       )}
@@ -99,7 +99,7 @@ export function EmployeeForm({
             required
             value={form.firstName}
             onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
         <div>
@@ -112,7 +112,7 @@ export function EmployeeForm({
             required
             value={form.lastName}
             onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
       </div>
@@ -127,13 +127,13 @@ export function EmployeeForm({
           required
           value={form.email}
           onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-          className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           disabled={mode === "edit"}
         />
       </div>
 
       {mode === "create" && (
-        <div className="rounded-lg border border-neutral-border bg-neutral-surface/40 p-4 space-y-3">
+        <div className="rounded-safe-sm border border-neutral-border bg-neutral-surface/40 p-4 space-y-3">
           <label className="flex items-start gap-3 text-sm text-neutral-800">
             <input
               type="checkbox"
@@ -168,7 +168,7 @@ export function EmployeeForm({
                 required
                 value={form.password ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
               />
               <p className="mt-1 text-xs text-neutral-500">
                 {t("loginHint")}
@@ -187,7 +187,7 @@ export function EmployeeForm({
           type="tel"
           value={form.phone ?? ""}
           onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value || undefined }))}
-          className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
         />
       </div>
 
@@ -200,7 +200,7 @@ export function EmployeeForm({
           rows={2}
           value={form.address ?? ""}
           onChange={(e) => setForm((p) => ({ ...p, address: e.target.value || undefined }))}
-          className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
         />
       </div>
 
@@ -215,7 +215,7 @@ export function EmployeeForm({
             required
             value={form.hireDate}
             onChange={(e) => setForm((p) => ({ ...p, hireDate: e.target.value }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
         <div>
@@ -226,7 +226,7 @@ export function EmployeeForm({
             id="status"
             value={form.status}
             onChange={(e) => setForm((p) => ({ ...p, status: e.target.value as EmployeeStatus }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           >
             <option value="active">{tc("active")}</option>
             <option value="inactive">{tc("inactive")}</option>
@@ -244,7 +244,7 @@ export function EmployeeForm({
             required
             value={form.role}
             onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as EmployeeRole }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           >
             {ROLES.map((r) => (
               <option key={r.value} value={r.value}>
@@ -262,7 +262,7 @@ export function EmployeeForm({
             type="text"
             value={form.jobTitle ?? ""}
             onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value || undefined }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
       </div>
@@ -280,7 +280,7 @@ export function EmployeeForm({
             required
             value={form.hourlyRate}
             onChange={(e) => setForm((p) => ({ ...p, hourlyRate: Number(e.target.value) || 0 }))}
-            className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
         {supervisorOptions.length > 0 && (
@@ -294,7 +294,7 @@ export function EmployeeForm({
               onChange={(e) =>
                 setForm((p) => ({ ...p, supervisorId: e.target.value || undefined }))
               }
-              className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
             >
               <option value="">—</option>
               {supervisorOptions
@@ -320,7 +320,7 @@ export function EmployeeForm({
           onChange={(e) =>
             setForm((p) => ({ ...p, responsibilities: e.target.value || undefined }))
           }
-          className="w-full rounded-lg border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           placeholder={t("responsibilitiesPlaceholder")}
         />
       </div>

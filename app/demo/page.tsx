@@ -18,7 +18,7 @@ function DemoPreview() {
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ delay: 0.5, duration: 0.6 }}
-        className="rounded-xl border border-white/5 bg-[var(--safe-dark)]/50 overflow-hidden"
+        className="rounded-safe border border-white/5 bg-[var(--safe-dark)]/50 overflow-hidden"
       >
         {/* Browser chrome */}
         <div className="flex items-center gap-1.5 px-3 py-2 bg-[var(--safe-darkest)]/50 border-b border-white/5">
@@ -26,7 +26,7 @@ function DemoPreview() {
           <div className="w-2 h-2 rounded-full bg-[#FEBC2E]" />
           <div className="w-2 h-2 rounded-full bg-[#28C840]" />
           <div className="flex-1 flex justify-center">
-            <span className="text-[7px] text-[var(--safe-text-muted)] font-mono">app.safe-juridique.ca</span>
+            <span className="text-xs text-[var(--safe-text-muted)] font-mono">app.safe-juridique.ca</span>
           </div>
         </div>
 
@@ -37,9 +37,9 @@ function DemoPreview() {
             initial={{ opacity: 0, x: -10 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.8 }}
-            className="absolute left-3 top-3 bottom-3 w-16 rounded-lg bg-white/[0.03] border border-white/[0.04] p-2"
+            className="absolute left-3 top-3 bottom-3 w-16 rounded-safe-sm bg-white/[0.03] border border-white/[0.04] p-2"
           >
-            <div className="w-4 h-4 rounded-md bg-[var(--safe-accent)]/20 flex items-center justify-center mb-3">
+            <div className="w-4 h-4 rounded-safe-sm bg-[var(--safe-accent)]/20 flex items-center justify-center mb-3">
               <Shield className="w-2.5 h-2.5 text-[var(--safe-sage)]" />
             </div>
             {[...Array(5)].map((_, i) => (
@@ -67,10 +67,10 @@ function DemoPreview() {
                   initial={{ opacity: 0, y: 5 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 1.0 + i * 0.1 }}
-                  className="rounded-md bg-white/[0.03] border border-white/[0.04] p-1.5"
+                  className="rounded-safe-sm bg-white/[0.03] border border-white/[0.04] p-1.5"
                 >
-                  <div className="text-[5px] text-[var(--safe-text-muted)] font-jakarta">{kpi.label}</div>
-                  <div className={`text-[8px] font-bold font-jakarta ${kpi.color}`}>{kpi.value}</div>
+                  <div className="text-xs text-[var(--safe-text-muted)] font-sans">{kpi.label}</div>
+                  <div className={`text-xs font-bold font-sans ${kpi.color}`}>{kpi.value}</div>
                 </motion.div>
               ))}
             </div>
@@ -80,7 +80,7 @@ function DemoPreview() {
               initial={{ opacity: 0 }}
               animate={inView ? { opacity: 1 } : {}}
               transition={{ delay: 1.3 }}
-              className="rounded-md bg-white/[0.03] border border-white/[0.04] p-2 h-12"
+              className="rounded-safe-sm bg-white/[0.03] border border-white/[0.04] p-2 h-12"
             >
               <div className="flex items-end gap-[2px] h-full">
                 {[35, 55, 42, 70, 52, 85, 65, 78, 90, 48, 72, 95].map((h, i) => (
@@ -122,10 +122,10 @@ function DemoPreview() {
         transition={{ delay: 1.8 }}
         className="flex items-center justify-center gap-4 mt-4"
       >
-        <div className="flex items-center gap-1.5 text-[9px] text-[var(--safe-text-muted)] font-jakarta">
+        <div className="flex items-center gap-1.5 text-xs text-[var(--safe-text-muted)] font-sans">
           <Monitor className="w-3.5 h-3.5" /> Desktop
         </div>
-        <div className="flex items-center gap-1.5 text-[9px] text-[var(--safe-text-muted)] font-jakarta">
+        <div className="flex items-center gap-1.5 text-xs text-[var(--safe-text-muted)] font-sans">
           <Smartphone className="w-3.5 h-3.5" /> Mobile
         </div>
       </motion.div>
@@ -172,7 +172,7 @@ export default function DemoPage() {
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-lg font-instrument italic text-[var(--safe-sage)] mb-4"
+                  className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
                 >
                   Démo
                 </motion.p>
@@ -180,7 +180,7 @@ export default function DemoPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.6 }}
-                  className="font-instrument text-5xl md:text-6xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
+                  className="font-sans text-5xl md:text-6xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
                 >
                   Voyez SAFE{" "}
                   <span className="italic text-[var(--safe-sage)]">en action</span>.
@@ -189,7 +189,7 @@ export default function DemoPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.6 }}
-                  className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-jakarta mb-8"
+                  className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans mb-8"
                 >
                   Réservez un appel découverte gratuit de 30 minutes. Nous vous montrerons
                   comment SAFE peut transformer la gestion de votre cabinet.
@@ -221,16 +221,16 @@ export default function DemoPage() {
                       className="flex items-start gap-4"
                     >
                       <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        className="w-11 h-11 rounded-xl bg-[var(--safe-accent)]/15 flex items-center justify-center shrink-0"
+                        whileHover={{ scale: 1.03 }}
+                        className="w-11 h-11 rounded-safe bg-[var(--safe-accent)]/15 flex items-center justify-center shrink-0"
                       >
                         <point.icon className="w-5 h-5 text-[var(--safe-sage)]" />
                       </motion.div>
                       <div>
-                        <h3 className="text-base font-semibold text-[var(--safe-white)] font-jakarta">
+                        <h3 className="text-base font-semibold text-[var(--safe-white)] font-sans tracking-tight">
                           {point.title}
                         </h3>
-                        <p className="text-sm text-[var(--safe-text-muted)] font-jakarta">
+                        <p className="text-sm text-[var(--safe-text-muted)] font-sans">
                           {point.description}
                         </p>
                       </div>
@@ -243,9 +243,9 @@ export default function DemoPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.6 }}
-                  className="mt-10 p-6 rounded-2xl border border-white/5 bg-[var(--safe-dark)]/50"
+                  className="mt-10 p-6 rounded-safe-md border border-white/5 bg-[var(--safe-dark)]/50"
                 >
-                  <h3 className="text-base font-semibold text-[var(--safe-white)] mb-4 font-jakarta">
+                  <h3 className="text-base font-semibold text-[var(--safe-white)] mb-4 font-sans tracking-tight">
                     Ce que vous verrez pendant la démo :
                   </h3>
                   <ul className="space-y-2.5">
@@ -260,10 +260,10 @@ export default function DemoPage() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.9 + i * 0.08 }}
-                        className="flex items-start gap-2.5"
+                        className="flex items-start gap-3"
                       >
                         <CheckCircle2 className="w-4 h-4 text-[var(--safe-sage)] shrink-0 mt-0.5" />
-                        <span className="text-sm text-[var(--safe-text-muted)] font-jakarta">
+                        <span className="text-sm text-[var(--safe-text-muted)] font-sans">
                           {item}
                         </span>
                       </motion.li>
@@ -283,7 +283,7 @@ export default function DemoPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="rounded-2xl border border-[var(--safe-sage)]/20 bg-[var(--safe-dark)]/50 p-10 text-center"
+                    className="rounded-safe-md border border-[var(--safe-sage)]/20 bg-[var(--safe-dark)]/50 p-10 text-center"
                   >
                     <motion.div
                       initial={{ scale: 0 }}
@@ -293,13 +293,13 @@ export default function DemoPage() {
                     >
                       <Calendar className="w-7 h-7 text-[var(--safe-sage)]" />
                     </motion.div>
-                    <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-3 font-jakarta">
+                    <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
                       Demande envoyée !
                     </h3>
-                    <p className="text-[var(--safe-text-muted)] font-jakarta mb-2">
+                    <p className="text-[var(--safe-text-muted)] font-sans mb-2">
                       Nous vous contacterons dans les 24 heures pour confirmer votre créneau.
                     </p>
-                    <p className="text-sm text-[var(--safe-text-muted)] font-jakarta">
+                    <p className="text-sm text-[var(--safe-text-muted)] font-sans">
                       Vérifiez votre boîte courriel (et vos indésirables).
                     </p>
                   </motion.div>
@@ -309,70 +309,70 @@ export default function DemoPage() {
                       e.preventDefault();
                       setSubmitted(true);
                     }}
-                    className="rounded-2xl border border-white/5 bg-[var(--safe-dark)]/50 p-8 space-y-5"
+                    className="rounded-safe-md border border-white/5 bg-[var(--safe-dark)]/50 p-8 space-y-5"
                   >
                     <div className="text-center mb-2">
-                      <h2 className="text-xl font-bold text-[var(--safe-white)] font-jakarta">
+                      <h2 className="text-xl font-bold text-[var(--safe-white)] font-sans tracking-tight">
                         Réserver votre démo
                       </h2>
-                      <p className="text-sm text-[var(--safe-text-muted)] font-jakarta mt-1">
+                      <p className="text-sm text-[var(--safe-text-muted)] font-sans mt-1">
                         Remplissez le formulaire et nous vous contacterons rapidement.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                           Prénom
                         </label>
                         <input
                           type="text"
                           required
-                          className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm"
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
                           placeholder="Prénom"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                           Nom
                         </label>
                         <input
                           type="text"
                           required
-                          className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm"
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
                           placeholder="Nom"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                      <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                         Courriel professionnel
                       </label>
                       <input
                         type="email"
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm"
+                        className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
                         placeholder="courriel@cabinet.ca"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                           Cabinet
                         </label>
                         <input
                           type="text"
-                          className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm"
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
                           placeholder="Nom du cabinet"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                           Nombre d&apos;avocats
                         </label>
-                        <select className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm">
+                        <select className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm">
                           <option value="">Sélectionnez</option>
                           <option value="1">1 (solo)</option>
                           <option value="2-5">2 à 5</option>
@@ -383,10 +383,10 @@ export default function DemoPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm text-[var(--safe-sage)] mb-2 font-jakarta">
+                      <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                         Comment avez-vous entendu parler de SAFE ?
                       </label>
-                      <select className="w-full px-4 py-3 rounded-xl bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-jakarta text-sm">
+                      <select className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm">
                         <option value="">Sélectionnez</option>
                         <option value="barreau">Formation du Barreau</option>
                         <option value="collegue">Recommandation d&apos;un confrère</option>
@@ -398,13 +398,13 @@ export default function DemoPage() {
 
                     <button
                       type="submit"
-                      className="group w-full py-3.5 rounded-full font-semibold text-sm bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 flex items-center justify-center gap-2 font-jakarta mt-2"
+                      className="group w-full py-3 rounded-full font-semibold text-sm bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 flex items-center justify-center gap-2 font-sans mt-2"
                     >
                       Réserver ma démo gratuite
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                     </button>
 
-                    <p className="text-xs text-center text-[var(--safe-text-muted)] font-jakarta">
+                    <p className="text-xs text-center text-[var(--safe-text-muted)] font-sans">
                       En soumettant ce formulaire, vous acceptez notre politique de
                       confidentialité. Aucun spam, promis.
                     </p>

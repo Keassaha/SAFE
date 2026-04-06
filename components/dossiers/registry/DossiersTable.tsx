@@ -95,7 +95,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-lg text-neutral-muted hover:bg-neutral-200 hover:text-neutral-text-primary transition-colors"
+        className="p-1.5 rounded-safe-sm text-neutral-muted hover:bg-neutral-200 hover:text-neutral-text-primary transition-colors"
         aria-label={tc("actions")}
         aria-expanded={open}
         aria-haspopup="true"
@@ -104,7 +104,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 py-1 bg-white border border-neutral-border rounded-lg shadow-lg z-20 min-w-[160px]"
+          className="absolute right-0 top-full mt-1 py-1 bg-white border border-neutral-border rounded-safe-sm shadow-lg z-20 min-w-[160px]"
           role="menu"
         >
           <Link

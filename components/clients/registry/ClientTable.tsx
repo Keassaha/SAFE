@@ -367,7 +367,7 @@ function ClientRowActions({
     <div className="flex items-center justify-end gap-1">
       <Link
         href={routes.client(clientId)}
-        className="inline-flex p-2 rounded-lg text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
+        className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
         title={tc("view")}
       >
         <Eye className="w-4 h-4" />
@@ -375,7 +375,7 @@ function ClientRowActions({
       {canEdit ? (
         <Link
           href={`${routes.client(clientId)}?edit=1`}
-          className="inline-flex p-2 rounded-lg text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
           title={tc("edit")}
         >
           <Pencil className="w-4 h-4" />
@@ -386,7 +386,7 @@ function ClientRowActions({
       {hasCases ? (
         <Link
           href={routes.dossiers + `?clientId=${clientId}`}
-          className="inline-flex p-2 rounded-lg text-green-600 hover:bg-primary-50 hover:text-green-700 transition-colors relative items-center justify-center"
+          className="inline-flex p-2 rounded-safe-sm text-green-600 hover:bg-primary-50 hover:text-green-700 transition-colors relative items-center justify-center"
           title={t("openMatters")}
         >
           <FolderOpen className="w-4 h-4" />
@@ -396,7 +396,7 @@ function ClientRowActions({
         </Link>
       ) : (
         <span
-          className="inline-flex p-2 rounded-lg text-red-500/80"
+          className="inline-flex p-2 rounded-safe-sm text-red-500/80"
           title={t("noOpenMatters")}
           aria-hidden
         >
@@ -407,7 +407,7 @@ function ClientRowActions({
         <form action={archiveClient.bind(null, clientId)} className="inline">
           <button
             type="submit"
-            className="inline-flex p-2 rounded-lg text-neutral-muted hover:bg-status-warning-bg hover:text-status-warning transition-colors"
+            className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-status-warning-bg hover:text-status-warning transition-colors"
             title={t("archive")}
           >
             <Archive className="w-4 h-4" />

@@ -43,7 +43,7 @@ export function EmployeeFilters() {
           const v = e.target.value as EmployeeStatus | "";
           window.location.href = buildUrl({ status: v || null });
         }}
-        className="rounded-lg border border-neutral-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+        className="rounded-safe-sm border border-neutral-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
         aria-label={t("filterByStatus")}
       >
         <option value="">{t("allStatuses")}</option>
@@ -59,7 +59,7 @@ export function EmployeeFilters() {
           const v = e.target.value as EmployeeRole | "";
           window.location.href = buildUrl({ role: v || null });
         }}
-        className="rounded-lg border border-neutral-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+        className="rounded-safe-sm border border-neutral-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
         aria-label={t("filterByRole")}
       >
         <option value="">{t("allRoles")}</option>

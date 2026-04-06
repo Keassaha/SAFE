@@ -2,18 +2,10 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import Image from "next/image";
 import {
-  Shield,
-  LockKeyhole,
-  Database,
-  FileCheck,
-  Fingerprint,
   MapPin,
   ShieldCheck,
   Activity,
-  CheckCircle2,
-  Server,
 } from "lucide-react";
 
 /* ───── Animated counter ───── */
@@ -80,111 +72,90 @@ const stats = [
 
 export function About() {
   return (
-    <section className="section-afternoon relative py-28 lg:py-36">
+    <section className="section-dusk relative py-28 lg:py-36">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          {/* Left — text + stats */}
-          <div>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-jakarta text-sm font-semibold uppercase tracking-widest text-[var(--safe-sage)] mb-4"
-            >
-              Notre mission
-            </motion.p>
+      <div className="relative z-10 mx-auto max-w-4xl px-6 lg:px-10">
+        {/* Label */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--safe-sage)] mb-4"
+        >
+          Notre mission
+        </motion.p>
 
-            <motion.h2
+        {/* Headline */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight"
+        >
+          Simplifier la gestion quotidienne des{" "}
+          <span className="italic text-[var(--safe-sage)]">cabinets</span>
+        </motion.h2>
+
+        {/* Body text */}
+        <div className="space-y-5 max-w-3xl">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-white/70 text-lg leading-relaxed font-sans"
+          >
+            Les petits cabinets en droit familial font face à des obligations de conformité
+            identiques aux grands cabinets, sans les mêmes ressources. SAFE est né de ce
+            constat : vous méritez un outil pensé pour votre réalité, pas un logiciel
+            générique adapté à la va-vite.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-white/70 text-lg leading-relaxed font-sans"
+          >
+            Facturation conforme au Règlement sur la comptabilité et les normes d&apos;exercice
+            professionnel, gestion de fidéicommis avec validation humaine, suivi des
+            échéanciers de cour — tout est intégré, rien n&apos;est superflu.
+          </motion.p>
+        </div>
+
+        {/* Stats — with generous spacing */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-16 lg:mt-20">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="font-instrument text-4xl md:text-5xl text-[#1a2e28] mb-8 leading-tight tracking-tight"
+              transition={{ delay: i * 0.12, duration: 0.5 }}
+              className="relative group p-6 rounded-safe-md bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-500"
             >
-              Simplifier la gestion quotidienne des{" "}
-              <span className="italic text-[var(--safe-sage)]">cabinets</span>
-            </motion.h2>
+              {/* Subtle top glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
 
-            <div className="space-y-5">
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1, duration: 0.6 }}
-                className="text-[#2B4A3E]/90 text-lg leading-relaxed font-jakarta"
-              >
-                Les petits cabinets en droit familial font face à des obligations de conformité
-                identiques aux grands cabinets, sans les mêmes ressources. SAFE est né de ce
-                constat : vous méritez un outil pensé pour votre réalité, pas un logiciel
-                générique adapté à la va-vite.
-              </motion.p>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-[#2B4A3E]/90 text-lg leading-relaxed font-jakarta mb-12"
-              >
-                Facturation conforme au Règlement sur la comptabilité et les normes d&apos;exercice
-                professionnel, gestion de fidéicommis avec validation humaine, suivi des
-                échéanciers de cour — tout est intégré, rien n&apos;est superflu.
-              </motion.p>
-            </div>
-
-            {/* Stats — bold horizontal cards */}
-            <div className="grid grid-cols-3 gap-3">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.12, duration: 0.5 }}
-                  className="relative group p-5 rounded-2xl bg-[#0B2B26] border border-[#163832] shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden"
-                >
-                  {/* Subtle top glow */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
-
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center mb-3">
-                    <stat.icon className="w-4.5 h-4.5 text-emerald-400" />
-                  </div>
-                  <div className="text-3xl font-bold text-white font-instrument mb-1 tracking-tight">
-                    <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="text-[11px] font-semibold text-emerald-400/80 font-jakarta uppercase tracking-wider leading-tight">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — security dashboard visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex items-center justify-center"
-          >
-            <div className="relative w-full max-w-lg mx-auto">
-              <div className="absolute inset-0 -m-6 bg-gradient-to-br from-emerald-400/20 via-transparent to-teal-400/10 rounded-[2.5rem] blur-2xl pointer-events-none" />
-              <Image 
-                src="/images/security_illustration.png" 
-                alt="Digital Security and Management Illustration" 
-                layout="responsive"
-                width={800} 
-                height={800} 
-                className="relative z-10 w-full h-auto object-cover rounded-3xl shadow-2xl border border-white/20"
-              />
-            </div>
-          </motion.div>
+              <div className="w-10 h-10 rounded-safe bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+                <stat.icon className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="text-3xl font-bold text-white font-sans mb-2 tracking-tight">
+                <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+              </div>
+              <div className="text-xs font-semibold text-emerald-400/80 font-sans uppercase tracking-wider leading-tight mb-2">
+                {stat.label}
+              </div>
+              <p className="text-xs text-white/40 font-sans leading-relaxed">
+                {stat.description}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
-

@@ -42,9 +42,9 @@ export default async function FacturationVerificationPage() {
                 <li key={inv.id}>
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-lg hover:bg-[var(--safe-neutral-bg)] transition-colors"
+                    className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-safe-sm hover:bg-[var(--safe-neutral-bg)] transition-colors"
                   >
-                    <div className="p-2 rounded-lg bg-amber-100 text-amber-700">
+                    <div className="p-2 rounded-safe-sm bg-amber-100 text-amber-700">
                       <FileText className="h-5 w-5" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">

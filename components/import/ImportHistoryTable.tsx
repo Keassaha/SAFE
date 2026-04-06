@@ -120,7 +120,7 @@ export function ImportHistoryTable() {
           <select
             value={filterStatus}
             onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }}
-            className="text-xs rounded-md border border-[var(--safe-neutral-border)]/60 bg-white/70 px-2.5 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
+            className="text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
           >
             <option value="">{t("allStatuses")}</option>
             <option value="success">{t("statusSuccess")}</option>
@@ -130,7 +130,7 @@ export function ImportHistoryTable() {
           <select
             value={filterType}
             onChange={(e) => { setFilterType(e.target.value); setPage(0); }}
-            className="text-xs rounded-md border border-[var(--safe-neutral-border)]/60 bg-white/70 px-2.5 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
+            className="text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
           >
             <option value="">{t("allTypes")}</option>
             <option value="registre_clients">{t("typeClientRegistry")}</option>
@@ -157,16 +157,16 @@ export function ImportHistoryTable() {
             <table className="w-full text-left">
               <thead className="table-header">
                 <tr>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("dateColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("fileColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">{t("typeColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hidden md:table-cell">{t("sourceColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider">{t("statusColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-right hidden sm:table-cell">{t("linesColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-right hidden md:table-cell">{t("createdColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("errorsColumn")}</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("durationColumn")}</th>
-                  <th className="px-4 py-2.5 w-10" />
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("dateColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("fileColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">{t("typeColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider hidden md:table-cell">{t("sourceColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("statusColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden sm:table-cell">{t("linesColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden md:table-cell">{t("createdColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("errorsColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("durationColumn")}</th>
+                  <th className="px-4 py-2 w-10" />
                 </tr>
               </thead>
               <tbody>
@@ -264,7 +264,7 @@ function HistoryRow({
             {formatDate(entry.createdAt)}
           </div>
           {entry.userName && (
-            <span className="text-[10px] safe-text-secondary opacity-70 block mt-0.5">
+            <span className="text-xs safe-text-secondary opacity-70 block mt-0.5">
               {t("byUser", { name: entry.userName ?? "" })}
             </span>
           )}
@@ -318,8 +318,8 @@ function HistoryRow({
               <table className="w-full text-left">
                 <thead>
                   <tr>
-                    <th className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider safe-text-secondary w-16">{t("lineColumn")}</th>
-                    <th className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider safe-text-secondary">{t("errorMessage")}</th>
+                    <th className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider safe-text-secondary w-16">{t("lineColumn")}</th>
+                    <th className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider safe-text-secondary">{t("errorMessage")}</th>
                   </tr>
                 </thead>
                 <tbody>

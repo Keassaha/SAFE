@@ -23,11 +23,11 @@ export default async function AppLayout({
   return (
     <QueryProvider>
       <TimerProvider>
-        <div className="flex h-screen bg-[#F2F7F4] font-sans overflow-hidden text-[#1a2e28]">
+        <div className="flex h-screen bg-[var(--safe-neutral-page)] font-sans overflow-hidden text-[var(--safe-text-title)]">
           <Sidebar role={role} />
           <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
             <Header title="SAFE" user={session.user} cabinetId={cabinetId} />
-            <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto flex flex-col relative bg-[#F2F7F4]" role="main">
+            <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto flex flex-col relative bg-[var(--safe-neutral-page)]" role="main">
               <div className="relative z-10 w-full max-w-7xl mx-auto">
                 <PageTransition>{children}</PageTransition>
               </div>

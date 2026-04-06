@@ -46,7 +46,7 @@ export function DossierPagination({
       <div className="flex items-center gap-2">
         <Link
           href={hasPrev ? buildUrl(currentPage - 1) : "#"}
-          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-safe-sm text-sm font-medium transition-colors ${
             hasPrev
               ? "text-primary-700 hover:bg-primary-50"
               : "text-neutral-400 pointer-events-none"
@@ -61,7 +61,7 @@ export function DossierPagination({
         </span>
         <Link
           href={hasNext ? buildUrl(currentPage + 1) : "#"}
-          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-safe-sm text-sm font-medium transition-colors ${
             hasNext
               ? "text-primary-700 hover:bg-primary-50"
               : "text-neutral-400 pointer-events-none"

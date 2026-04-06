@@ -46,7 +46,7 @@ export function EmployeeSearchBar() {
         onChange={(e) => setValue(e.target.value)}
         onBlur={() => apply(value)}
         placeholder={t("searchPlaceholder")}
-        className="w-full min-w-[200px] max-w-xs pl-9 pr-3 py-2 rounded-lg border border-neutral-border bg-white text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+        className="w-full min-w-[200px] max-w-xs pl-9 pr-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
         aria-label={t("searchLabel")}
       />
     </form>

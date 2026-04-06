@@ -51,7 +51,7 @@ export function ClientFilters() {
         aria-label={t("filterByStatus")}
         value={searchParams.get(PARAMS.status) ?? ""}
         onChange={(e) => updateFilter(PARAMS.status, e.target.value)}
-        className="h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+        className="h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
       >
         {STATUS_OPTIONS.map((o) => (
           <option key={o.value || "all"} value={o.value}>
@@ -63,7 +63,7 @@ export function ClientFilters() {
         aria-label={t("filterByType")}
         value={searchParams.get(PARAMS.type) ?? ""}
         onChange={(e) => updateFilter(PARAMS.type, e.target.value)}
-        className="h-10 px-3 rounded-lg border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+        className="h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
       >
         {TYPE_OPTIONS.map((o) => (
           <option key={o.value || "all"} value={o.value}>
@@ -75,7 +75,7 @@ export function ClientFilters() {
         type="button"
         onClick={handleRefresh}
         disabled={isPending}
-        className="p-2 rounded-lg border border-neutral-border bg-white text-neutral-muted hover:text-primary-700 hover:bg-primary-50/50 transition-colors disabled:opacity-50"
+        className="p-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-muted hover:text-primary-700 hover:bg-primary-50/50 transition-colors disabled:opacity-50"
         aria-label={t("refresh")}
       >
         <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />

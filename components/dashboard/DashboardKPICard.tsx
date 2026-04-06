@@ -64,12 +64,12 @@ export function DashboardKPICard({
   const styles = ACCENT_STYLES[accent] ?? ACCENT_STYLES.emerald;
 
   const heroCard = isHero
-    ? "bg-[#1a3c2d] text-white"
-    : "bg-white border border-[#d0ddd6]";
+    ? "bg-[var(--safe-gradient-sidebar)] text-white"
+    : "bg-white border border-[var(--safe-neutral-border)]";
 
   return (
     <motion.div
-      className={`overflow-hidden p-5 md:p-6 rounded-2xl shadow-sm ${heroCard} ${className}`}
+      className={`overflow-hidden p-5 md:p-6 rounded-safe-md shadow-sm ${heroCard} ${className}`}
       whileHover={{
         y: -2,
         boxShadow: "0 8px 24px rgba(26, 46, 40, 0.1)",
@@ -78,12 +78,12 @@ export function DashboardKPICard({
       transition={{ type: "tween", duration: 0.2 }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <p className={`text-sm font-medium ${isHero ? "text-white/80" : "text-[#4a6a5c]"}`}>
+        <p className={`text-sm font-medium ${isHero ? "text-white/80" : "text-[var(--safe-text-secondary)]"}`}>
           {title}
         </p>
         {icon && (
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            className={`w-10 h-10 rounded-safe flex items-center justify-center shrink-0 ${
               isHero ? "bg-white/15 text-white" : `${styles.iconBg} ${styles.iconColor}`
             }`}
           >
@@ -92,19 +92,19 @@ export function DashboardKPICard({
         )}
       </div>
 
-      <p className={`font-heading text-3xl md:text-4xl font-bold tracking-tight ${isHero ? "text-white" : "text-[#1a2e28]"}`}>
+      <p className={`font-heading text-3xl md:text-4xl font-bold tracking-tight ${isHero ? "text-white" : "text-[var(--safe-text-title)]"}`}>
         {value}
       </p>
 
       {subtitle && (
-        <p className={`text-xs mt-1 ${isHero ? "text-white/60" : "text-[#6b8f7b]"}`}>{subtitle}</p>
+        <p className={`text-xs mt-1 ${isHero ? "text-white/60" : "text-[var(--safe-text-muted)]"}`}>{subtitle}</p>
       )}
 
       {(trend != null || trendLabel) && (
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           {trend != null && (
             <span
-              className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+              className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full ${
                 trendUp
                   ? isHero ? "bg-emerald-400/20 text-emerald-200" : "bg-emerald-50 text-emerald-700"
                   : trendDown
@@ -120,7 +120,7 @@ export function DashboardKPICard({
             </span>
           )}
           {trendLabel && (
-            <span className={`text-xs ${isHero ? "text-white/50" : "text-[#6b8f7b]"}`}>{trendLabel}</span>
+            <span className={`text-xs ${isHero ? "text-white/50" : "text-[var(--safe-text-muted)]"}`}>{trendLabel}</span>
           )}
         </div>
       )}
