@@ -8,7 +8,7 @@ export function FinalCTA() {
   return (
     <section className="section-night relative py-16 sm:py-28 lg:py-36 overflow-hidden">
       {/* Large accent glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[200px] sm:w-[500px] sm:h-[300px] lg:w-[800px] lg:h-[400px] bg-[var(--safe-accent)] opacity-10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[200px] sm:w-[500px] sm:h-[300px] lg:w-[800px] lg:h-[400px] bg-[var(--safe-accent)] opacity-10 rounded-full blur-[80px] pointer-events-none" />
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 text-center">

@@ -88,21 +88,35 @@ function DotGrid() {
 
     let animFrame: number;
     let time = 0;
+    let lastFrame = 0;
+    const TARGET_FPS = 24; // Throttle to 24fps — saves battery on Safari
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+    // Use 1x resolution on Safari/mobile for performance
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const dpr = isSafari ? 1 : Math.min(window.devicePixelRatio, 2);
 
     function resize() {
       if (!canvas) return;
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx!.scale(window.devicePixelRatio, window.devicePixelRatio);
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx!.scale(dpr, dpr);
     }
 
-    function draw() {
+    function draw(timestamp: number) {
+      animFrame = requestAnimationFrame(draw);
+
+      // Throttle frame rate
+      if (timestamp - lastFrame < FRAME_INTERVAL) return;
+      lastFrame = timestamp;
+
       if (!canvas || !ctx) return;
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
       ctx.clearRect(0, 0, w, h);
 
-      const spacing = 40;
+      // Larger spacing = fewer dots = faster
+      const spacing = isSafari ? 60 : 48;
       const cols = Math.ceil(w / spacing);
       const rows = Math.ceil(h / spacing);
 
@@ -111,7 +125,6 @@ function DotGrid() {
           const x = i * spacing + spacing / 2;
           const y = j * spacing + spacing / 2;
 
-          // Wave effect
           const dist = Math.sqrt(
             Math.pow(x - w / 2, 2) + Math.pow(y - h / 2, 2)
           );
@@ -127,11 +140,10 @@ function DotGrid() {
       }
 
       time += 0.016;
-      animFrame = requestAnimationFrame(draw);
     }
 
     resize();
-    draw();
+    animFrame = requestAnimationFrame(draw);
 
     window.addEventListener("resize", resize);
     return () => {
@@ -179,15 +191,15 @@ export function Hero() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           style={{ y: blobY1 }}
-          className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[120px] animate-[blob-drift-1_18s_ease-in-out_infinite]"
+          className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[80px] will-change-transform"
         />
         <motion.div
           style={{ y: blobY2 }}
-          className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#235347] opacity-8 blur-[100px] animate-[blob-drift-2_22s_ease-in-out_infinite]"
+          className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#235347] opacity-8 blur-[60px] will-change-transform"
         />
         <motion.div
           style={{ y: blobY3 }}
-          className="absolute top-[30%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#DAF1DE] opacity-30 blur-[80px] animate-[blob-drift-3_15s_ease-in-out_infinite]"
+          className="absolute top-[30%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#DAF1DE] opacity-30 blur-[60px] will-change-transform"
         />
       </div>
 

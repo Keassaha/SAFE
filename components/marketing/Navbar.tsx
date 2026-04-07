@@ -29,8 +29,8 @@ export function Navbar() {
       <nav
         className={`mx-auto max-w-6xl transition-all duration-500 rounded-safe-md ${
           scrolled
-            ? "bg-[#051F20]/90 backdrop-blur-xl shadow-2xl shadow-black/20 border border-white/[0.06]"
-            : "bg-[#051F20]/70 backdrop-blur-lg border border-white/[0.04]"
+            ? "bg-[#051F20]/95 backdrop-blur-md shadow-2xl shadow-black/20 border border-white/[0.06]"
+            : "bg-[#051F20]/85 backdrop-blur-sm border border-white/[0.04]"
         }`}
       >
         <div className="flex items-center justify-between h-[60px] px-5 lg:px-6">
@@ -88,7 +88,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#051F20]/95 backdrop-blur-xl rounded-safe-md border border-white/[0.06] shadow-2xl shadow-black/20"
+            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#051F20]/98 backdrop-blur-sm rounded-safe-md border border-white/[0.06] shadow-2xl shadow-black/20"
           >
             <div className="px-6 py-5 space-y-1">
               {navLinks.map((link, i) => (
