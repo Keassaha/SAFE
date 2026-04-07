@@ -480,7 +480,7 @@ const features = [
     icon: FolderKanban,
     title: "Gestion des dossiers",
     description:
-      "Suivi complet de chaque dossier familial : parties au dossier, enfants, pensions alimentaires, garde, échéanciers judiciaires et documentation centralisée.",
+      "Suivi complet de chaque dossier : parties, intervenants, échéanciers judiciaires et documentation centralisée. Tout au même endroit.",
     details: [
       "Fiche complète par dossier avec tous les intervenants",
       "Suivi des enfants, pensions et droits de garde",
@@ -595,9 +595,9 @@ export default function FonctionnalitesPage() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto font-sans leading-relaxed"
             >
-              Chaque module est conçu spécifiquement pour la réalité des cabinets en droit
-              familial au Québec. Aucune fonctionnalité superflue, aucun compromis sur la
-              conformité.
+              Chaque module est conçu spécifiquement pour la réalité des cabinets
+              d&apos;avocats au Québec. Aucune fonctionnalité superflue, aucun compromis
+              sur la conformité.
             </motion.p>
           </div>
         </section>

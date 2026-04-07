@@ -31,8 +31,8 @@ export function Footer() {
               <SafeLogo variant="dark" noPulse className="shrink-0" />
             </Link>
             <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
-              Le logiciel de gestion pensé pour simplifier et sécuriser la pratique des
-              avocats en droit familial au Québec.
+              Facturation, fidéicommis et conformité au Barreau — automatisés par IA.
+              Le seul logiciel de gestion conçu pour les avocats du Québec.
             </p>
           </div>
 

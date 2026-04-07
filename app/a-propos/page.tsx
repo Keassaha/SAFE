@@ -108,8 +108,8 @@ function StoryTimeline() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const events = [
-    { year: "2023", text: "Constat : les cabinets familiaux manquent d'outils adaptés" },
-    { year: "2024", text: "Conception avec des avocats en droit familial au Québec" },
+    { year: "2023", text: "Constat : les cabinets québécois manquent d'outils adaptés à leur réalité" },
+    { year: "2024", text: "Conception avec des avocats praticiens au Québec" },
     { year: "2025", text: "Lancement de SAFE — conforme B-1 r.5 et Loi 25" },
     { year: "2026", text: "Employés virtuels et intégrations comptables avancées" },
   ];
@@ -203,9 +203,9 @@ export default function AProposPage() {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
               >
-                SAFE est né d&apos;un constat simple : les avocats en droit familial au
-                Québec méritent un outil à la hauteur de leur expertise, conçu pour leur
-                réalité réglementaire et leur pratique quotidienne.
+                SAFE est né d&apos;un constat simple : les avocats au Québec méritent
+                un outil à la hauteur de leur expertise, conçu pour leur réalité
+                réglementaire — pas un logiciel américain traduit à la va-vite.
               </motion.p>
             </div>
           </div>
@@ -225,10 +225,10 @@ export default function AProposPage() {
                 </h2>
                 <div className="space-y-6 text-[var(--safe-text-muted)] font-sans leading-relaxed">
                   <p>
-                    Tout a commencé par une conversation avec une avocate solo en droit familial
-                    à Sherbrooke. Elle jonglait entre un tableur Excel pour sa facturation, un
-                    logiciel comptable générique pour ses fidéicommis, et un calendrier papier
-                    pour ses échéanciers de cour.
+                    Tout a commencé par une conversation avec une avocate solo à Sherbrooke.
+                    Elle jonglait entre un tableur Excel pour sa facturation, un logiciel
+                    comptable générique pour ses fidéicommis, et un calendrier papier pour ses
+                    échéanciers de cour.
                   </p>
                   <p>
                     Malgré ses compétences juridiques exceptionnelles, elle perdait des heures
@@ -244,7 +244,7 @@ export default function AProposPage() {
                   </p>
                   <p className="text-[var(--safe-white)] font-medium">
                     SAFE a été conçu pour combler ce vide : un outil spécialisé, abordable et
-                    parfaitement adapté à la pratique québécoise du droit familial.
+                    parfaitement adapté à la pratique juridique québécoise.
                   </p>
                 </div>
               </div>
@@ -267,14 +267,14 @@ export default function AProposPage() {
                   La mission
                 </p>
                 <h2 className="font-sans text-3xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
-                  Que chaque avocat en droit familial au Québec puisse se concentrer sur ce qui
+                  Que chaque avocat au Québec puisse se concentrer sur ce qui
                   compte vraiment :{" "}
                   <span className="italic text-[var(--safe-sage)]">ses clients</span>.
                 </h2>
                 <p className="text-lg text-[var(--safe-text-muted)] font-sans leading-relaxed">
                   Nous croyons que la conformité ne devrait jamais être un obstacle à la
                   pratique du droit. SAFE automatise ce qui peut l&apos;être et simplifie le
-                  reste, pour que vous puissiez dédier votre énergie aux familles que vous
+                  reste, pour que vous puissiez dédier votre énergie aux clients que vous
                   accompagnez.
                 </p>
               </div>

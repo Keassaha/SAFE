@@ -83,10 +83,10 @@ export function About() {
           viewport={{ once: true }}
           className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--safe-sage)] mb-4"
         >
-          Notre mission
+          Le vrai problème
         </motion.p>
 
-        {/* Headline */}
+        {/* Headline — identité + frustration */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -94,12 +94,13 @@ export function About() {
           transition={{ duration: 0.6 }}
           className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 sm:mb-8 leading-tight tracking-tight"
         >
-          Simplifier la gestion quotidienne des{" "}
-          <span className="italic text-[var(--safe-sage)]">cabinets</span>
+          Vous n&apos;avez pas fait le Barreau pour devenir{" "}
+          <span className="italic text-[var(--safe-sage)]">comptable.</span>
         </motion.h2>
 
-        {/* Body text */}
+        {/* Body text — PAS: Problem → Agitate → Solve */}
         <div className="space-y-5 max-w-3xl">
+          {/* PROBLEM — nommer la douleur */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -107,12 +108,13 @@ export function About() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-white/70 text-base sm:text-lg leading-relaxed font-sans"
           >
-            Les petits cabinets en droit familial font face à des obligations de conformité
-            identiques aux grands cabinets, sans les mêmes ressources. SAFE est né de ce
-            constat : vous méritez un outil pensé pour votre réalité, pas un logiciel
-            générique adapté à la va-vite.
+            Soyons honnêtes. Chaque mois, c&apos;est le même scénario. Vous restez au bureau
+            un vendredi soir pour réconcilier le fidéicommis. Vous refaites le calcul des taxes
+            trois fois parce que vous n&apos;êtes pas sûr. Vous reportez vos factures parce que
+            vous n&apos;avez &quot;pas le temps&quot;.
           </motion.p>
 
+          {/* AGITATE — amplifier la douleur */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -120,9 +122,23 @@ export function About() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-white/70 text-base sm:text-lg leading-relaxed font-sans"
           >
-            Facturation conforme au Règlement sur la comptabilité et les normes d&apos;exercice
-            professionnel, gestion de fidéicommis avec validation humaine, suivi des
-            échéanciers de cour — tout est intégré, rien n&apos;est superflu.
+            Et puis il y a cette boule au ventre quand l&apos;inspection du Barreau approche.
+            Est-ce que les registres sont à jour ? Est-ce que le fidéicommis balance ?
+            Est-ce qu&apos;il manque un reçu quelque part ? Pendant ce temps,
+            vos vrais dossiers — vos clients — attendent.
+          </motion.p>
+
+          {/* SOLVE — la lumière au bout du tunnel */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-white font-medium text-base sm:text-lg leading-relaxed font-sans"
+          >
+            Les petits cabinets ont les mêmes obligations que les grands — sans les mêmes
+            ressources. SAFE existe pour ça : automatiser la conformité, la facturation et
+            le fidéicommis pour que vous puissiez redevenir avocat. Pas comptable.
           </motion.p>
         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Shield, Clock, Lock } from "lucide-react";
 import Link from "next/link";
 
 export function FinalCTA() {
@@ -18,31 +18,63 @@ export function FinalCTA() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <p className="font-sans italic text-xl sm:text-2xl md:text-3xl text-[var(--safe-sage)] mb-4 sm:mb-6">
-            Prêt à moderniser votre cabinet ?
-          </p>
-          <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 sm:mb-8 leading-[1.08] tracking-tight">
-            Commencez dès aujourd&apos;hui.
+          {/* Urgency badge — founding member scarcity */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 mb-6">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-sm text-emerald-400 font-medium font-sans">
+              50 places fondatrices — tarif verrouillé à vie pour les premiers inscrits
+            </span>
+          </div>
+
+          {/* Emotional headline — loss aversion */}
+          <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-4 sm:mb-6 leading-[1.08] tracking-tight">
+            Combien d&apos;heures allez-vous encore{" "}
+            <span className="italic text-[var(--safe-sage)]">perdre ce mois-ci ?</span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-[var(--safe-text-muted)] mb-8 sm:mb-12 max-w-2xl mx-auto font-sans leading-relaxed">
-            Réservez un appel découverte gratuit de 30 minutes avec notre équipe pour
-            évaluer vos besoins et voir SAFE en action.
+
+          {/* Agitation + contrast */}
+          <p className="text-base sm:text-lg md:text-xl text-[var(--safe-text-muted)] mb-3 max-w-2xl mx-auto font-sans leading-relaxed">
+            Pendant que vous réconciliez votre fidéicommis à la main, d&apos;autres
+            cabinets l&apos;ont déjà automatisé. La prochaine inspection arrive. Serez-vous prêt ?
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+          {/* Triple guarantee — risk reversal */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8 sm:mb-10 mt-6">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-emerald-400/70" />
+              <span className="text-sm text-[var(--safe-text-muted)] font-sans">30 jours remboursé</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-emerald-400/70" />
+              <span className="text-sm text-[var(--safe-text-muted)] font-sans">Opérationnel en 15 min</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-emerald-400/70" />
+              <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucune carte de crédit</span>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Link
               href="/demo"
               className="group inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 lg:px-10 lg:py-5 bg-[var(--safe-accent)] text-[var(--safe-lightest)] text-sm sm:text-base lg:text-lg font-semibold rounded-full hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-2xl shadow-[var(--safe-accent)]/20 font-sans"
             >
-              Réserver ma démo
+              Commencer mon essai gratuit
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/audit-gratuit"
+              href="/demo"
               className="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
             >
-              Faire mon audit gratuit
+              Voir la démo en 2 minutes
             </Link>
           </div>
+
+          {/* Final nudge — micro-copy urgency */}
+          <p className="text-xs text-[var(--safe-text-muted)]/40 font-sans">
+            Le tarif fondateur passera de 99$ à 149$/mois après les 50 premières inscriptions.
+          </p>
         </motion.div>
       </div>
     </section>

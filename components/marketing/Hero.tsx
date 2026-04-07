@@ -206,44 +206,58 @@ export function Hero() {
             </span>
           </motion.div>
 
+          {/* Pain point hook — tension immediate */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="text-base sm:text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-4 sm:mb-5 font-sans"
+          >
+            Factures en retard. Fidéicommis approximatif. Inspection qui approche.
+          </motion.p>
+
           {/* Headline with scroll-linked glow */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[1.08] tracking-[-0.02em] text-[var(--safe-white)] mb-6 sm:mb-8"
           >
             <GlowText
-              text="Le logiciel de gestion conçu pour les "
+              text="Passez l'inspection du Barreau "
               scrollYProgress={scrollYProgress}
               start={0}
               end={0.25}
             />
             <span className="italic text-[var(--safe-sage)]">
               <GlowText
-                text="avocats en droit familial"
+                text="les yeux fermés."
                 scrollYProgress={scrollYProgress}
                 start={0.1}
                 end={0.35}
               />
-            </span>{" "}
-            <GlowText
-              text="au Québec"
-              scrollYProgress={scrollYProgress}
-              start={0.15}
-              end={0.4}
-            />
+            </span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — solution with specificity */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed font-sans"
+            transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-3 leading-relaxed font-sans"
           >
-            Facturation conforme, comptes en fidéicommis, échéanciers — tout dans une seule
-            plateforme pensée pour votre pratique.
+            SAFE automatise votre facturation, vos comptes en fidéicommis et votre conformité
+            — le seul logiciel au Québec avec des agents IA entraînés sur les règles du Barreau.
+          </motion.p>
+
+          {/* Social proof micro-line */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-sm text-[var(--safe-sage)]/60 mb-8 sm:mb-12 font-sans"
+          >
+            Configuration en 15 minutes · Essai gratuit 14 jours · Aucune carte de crédit
           </motion.p>
 
           {/* CTAs */}
@@ -257,15 +271,15 @@ export function Hero() {
               href="/demo"
               className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold rounded-full bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-xl shadow-[var(--safe-accent)]/25 font-sans"
             >
-              Réserver une démo
+              Essai gratuit 14 jours
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/audit-gratuit"
+              href="/demo"
               className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
             >
               <Sparkles className="w-4 h-4" />
-              Audit gratuit par IA
+              Voir la démo en 2 minutes
             </Link>
           </motion.div>
 

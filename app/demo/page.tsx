@@ -250,7 +250,7 @@ export default function DemoPage() {
                   </h3>
                   <ul className="space-y-2.5">
                     {[
-                      "Création et suivi d'un dossier familial complet",
+                      "Création et suivi d'un dossier client complet",
                       "Facturation conforme B-1 r.5 avec calcul automatique TPS/TVQ",
                       "Gestion des comptes en fidéicommis",
                       "Tableau de bord et rapports financiers",

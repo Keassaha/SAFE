@@ -16,11 +16,11 @@ import Link from "next/link";
 const OUTCOMES = [
   {
     icon: HeartHandshake,
-    title: "Moins de stress administratif",
+    title: "Récupérez vos soirées",
     description:
-      "Fini les soirées à rattraper la paperasse. SAFE automatise la saisie, les rappels et les calculs pour que vous retrouviez votre sérénité.",
-    stat: "70%",
-    statLabel: "de tâches en moins",
+      "Fini les fins de mois à rattraper la paperasse. SAFE automatise la saisie, les rappels et les calculs — vous rentrez chez vous l'esprit libre.",
+    stat: "10h+",
+    statLabel: "économisées/mois",
     accent: {
       icon: "text-blue-400",
       bg: "bg-blue-500/15",
@@ -34,11 +34,11 @@ const OUTCOMES = [
   },
   {
     icon: FolderCheck,
-    title: "Des dossiers organisés et complets",
+    title: "Fidéicommis réconcilié automatiquement",
     description:
-      "Chaque dossier familial est documenté, structuré et à jour. Plus jamais de pièce manquante avant une audience.",
+      "Plus de nuits blanches avant l'inspection. Chaque transaction est tracée, chaque solde est vérifié, chaque rapport est prêt.",
     stat: "100%",
-    statLabel: "documenté",
+    statLabel: "réconcilié",
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",
@@ -52,9 +52,9 @@ const OUTCOMES = [
   },
   {
     icon: ShieldCheck,
-    title: "Toujours conforme au Barreau",
+    title: "Le Barreau ne vous fait plus peur",
     description:
-      "Facturation, fidéicommis, conservation des données — tout respecte le Règlement B-1 r.5 et la Loi 25, sans effort de votre part.",
+      "Facturation, fidéicommis, conservation des données — tout respecte le Règlement B-1 r.5 et la Loi 25. Automatiquement. Sans effort.",
     stat: "B-1 r.5",
     statLabel: "conforme",
     accent: {
@@ -70,9 +70,9 @@ const OUTCOMES = [
   },
   {
     icon: Clock,
-    title: "Plus aucun délai manqué",
+    title: "Zéro délai manqué. Zéro excuse.",
     description:
-      "Alertes automatiques pour les échéances de cour et prescriptions. Vous êtes toujours un pas en avance.",
+      "Alertes automatiques pour vos échéances de cour et prescriptions. Vous êtes toujours un pas en avance sur votre calendrier.",
     stat: "0",
     statLabel: "délai manqué",
     accent: {
@@ -88,9 +88,9 @@ const OUTCOMES = [
   },
   {
     icon: TrendingUp,
-    title: "Une vue claire sur votre rentabilité",
+    title: "Savez-vous quels dossiers vous font perdre de l'argent ?",
     description:
-      "Savez-vous quels dossiers sont rentables ? SAFE vous donne la réponse en un coup d'œil, par avocat, par type de mandat.",
+      "SAFE vous montre la rentabilité par avocat, par mandat, en un coup d'œil. Prenez des décisions basées sur des chiffres, pas sur l'intuition.",
     stat: "1 clic",
     statLabel: "pour savoir",
     accent: {
@@ -106,9 +106,9 @@ const OUTCOMES = [
   },
   {
     icon: Brain,
-    title: "Une assistance IA qui vous comprend",
+    title: "Un agent IA qui connaît le Barreau par cœur",
     description:
-      "Un assistant qui connaît votre pratique et vous aide à rédiger, chercher et organiser — sans jamais donner de conseils juridiques.",
+      "Pas un chatbot générique. Un assistant entraîné sur les règles du Barreau du Québec qui vous aide à vérifier, classer et organiser — sans jamais donner de conseils juridiques.",
     stat: "24/7",
     statLabel: "disponible",
     accent: {
@@ -260,7 +260,7 @@ export function FeaturesGrid() {
             viewport={{ once: true }}
             className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
-            Ce que ça change pour vous
+            Imaginez votre cabinet dans 30 jours
           </motion.p>
 
           <motion.h2
@@ -270,8 +270,8 @@ export function FeaturesGrid() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
-            Votre cabinet mérite mieux que du{" "}
-            <span className="italic text-[var(--safe-sage)]">bricolage.</span>
+            Et si la conformité n&apos;était plus{" "}
+            <span className="italic text-[var(--safe-sage)]">votre problème ?</span>
           </motion.h2>
 
           <motion.p
@@ -281,7 +281,8 @@ export function FeaturesGrid() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
-            Moins de stress, plus de temps pour vos clients, et la certitude d&apos;être toujours conforme.
+            Chaque heure passée sur la paperasse est une heure que vous ne facturez pas —
+            et un client qui attend. Voici ce qui change avec SAFE.
           </motion.p>
 
           {/* Animated separator line */}

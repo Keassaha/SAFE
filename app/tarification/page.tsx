@@ -45,7 +45,7 @@ const PLANS = [
     name: "Solo",
     price: 149,
     period: "/mois",
-    description: "Parfait pour les avocats pratiquant seuls en droit familial.",
+    description: "Vous pratiquez seul et voulez dormir tranquille avant l'inspection.",
     features: [
       "1 avocat",
       "1 utilisateur adjoint",

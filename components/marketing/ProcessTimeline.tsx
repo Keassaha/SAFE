@@ -255,7 +255,7 @@ const STEPS = [
     icon: Phone,
     title: "Découverte",
     description:
-      "Un appel de 30 minutes pour comprendre votre pratique, vos défis de conformité et vos besoins spécifiques en droit familial.",
+      "Un appel de 30 minutes pour comprendre votre pratique, vos outils actuels et ce qui vous empêche de dormir avant l'inspection.",
     accent: { icon: "text-blue-400", bg: "bg-blue-500/15", border: "border-blue-400/25" },
   },
   {
@@ -299,8 +299,8 @@ export function ProcessTimeline() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
           >
-            Une transition fluide, structurée et{" "}
-            <span className="italic text-[var(--safe-sage)]">sans stress</span>.
+            Opérationnel en 30 jours.{" "}
+            <span className="italic text-[var(--safe-sage)]">Sans perdre une journée facturable.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -309,8 +309,9 @@ export function ProcessTimeline() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
           >
-            Nous connaissons la valeur de vos heures facturables. Notre processus
-            d&apos;intégration est conçu pour minimiser les interruptions de votre pratique.
+            On sait que changer de système fait peur. C&apos;est pour ça qu&apos;on fait le gros
+            du travail pour vous — migration, configuration, formation — pendant que vous
+            continuez de pratiquer.
           </motion.p>
         </div>
 

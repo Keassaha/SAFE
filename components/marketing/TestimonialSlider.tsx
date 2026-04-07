@@ -7,41 +7,41 @@ import { Quote } from "lucide-react";
 const TESTIMONIALS = [
   {
     name: "Me Sophie Tremblay",
-    title: "Avocate solo, Sherbrooke",
+    title: "Avocate solo — Sherbrooke",
     quote:
-      "SAFE a complètement transformé ma pratique. Fini le stress de fin de mois pour les registres de fidéicommis. Tout est clair, net et conforme.",
+      "Avant SAFE, je passais 2 soirées par semaine sur mon fidéicommis. Maintenant c'est réconcilié automatiquement. J'ai récupéré 10 heures par mois pour mes clients.",
     initials: "ST",
     color: { bg: "bg-emerald-500/20", border: "border-emerald-400/25", text: "text-emerald-400" },
   },
   {
     name: "Me Jean-François Lavoie",
-    title: "Associé, cabinet 3 avocats, Québec",
+    title: "Associé, cabinet 4 avocats — Québec",
     quote:
-      "L'interface est d'une fluidité remarquable. Nous avons migré depuis un vieux logiciel serveur et l'équipe a gagné au moins 5 heures par semaine en gestion administrative.",
+      "On est passés d'un vieux logiciel serveur à SAFE en 3 semaines. L'équipe a gagné 5 heures par semaine en administratif. Le ROI s'est fait en moins d'un mois.",
     initials: "JL",
     color: { bg: "bg-blue-500/20", border: "border-blue-400/25", text: "text-blue-400" },
   },
   {
     name: "Marie-Ève Gagnon",
-    title: "Adjointe juridique, Gatineau",
+    title: "Adjointe juridique — Gatineau",
     quote:
-      "La facturation est devenue un jeu d'enfant. Le calcul automatique des taxes et la génération des états de compte PDF sont parfaits.",
+      "Avant, je refaisais les calculs de taxes 3 fois pour être sûre. Avec SAFE, c'est automatique et conforme. Je peux enfin me concentrer sur les dossiers au lieu de la paperasse.",
     initials: "MG",
     color: { bg: "bg-violet-500/20", border: "border-violet-400/25", text: "text-violet-400" },
   },
   {
     name: "Me Alexandre Dubois",
-    title: "Avocat en droit familial, Montréal",
+    title: "Avocat en litige civil — Montréal",
     quote:
-      "Le système d'échéanciers intégré aux dossiers est un filet de sécurité indispensable. Je ne pourrais plus m'en passer.",
+      "Le système d'alertes m'a sauvé d'un délai de prescription manqué dès le premier mois. Ça vaut le prix de l'abonnement pour l'année au complet.",
     initials: "AD",
     color: { bg: "bg-amber-500/20", border: "border-amber-400/25", text: "text-amber-400" },
   },
   {
     name: "Me Catherine Bergeron",
-    title: "Avocate, médiation familiale, Laval",
+    title: "Avocate en droit immobilier — Laval",
     quote:
-      "Enfin un logiciel qui comprend la réalité d'un petit cabinet québécois. Le support est réactif et l'outil évolue constamment.",
+      "L'inspection du Barreau est passée de ma plus grande source de stress à une formalité. Tout est prêt, tout est conforme. Je recommande SAFE à tous mes collègues.",
     initials: "CB",
     color: { bg: "bg-cyan-500/20", border: "border-cyan-400/25", text: "text-cyan-400" },
   },
@@ -78,7 +78,8 @@ export function TestimonialSlider() {
           transition={{ duration: 0.6 }}
           className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] leading-tight tracking-tight"
         >
-          Ce que disent nos confrères.
+          Ils ne reviendraient{" "}
+          <span className="italic text-[var(--safe-sage)]">jamais en arrière.</span>
         </motion.h2>
       </div>
 
