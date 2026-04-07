@@ -213,6 +213,34 @@
   --safe-sage: #8EB69B;
 }
 
+/* ── Section bridges (milieu seulement — pas début/fin) ── */
+
+/* dusk → night */
+.section-dusk + .section-night::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to bottom, #0F3029 0%, #0A2822 50%, #051F20 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* night → dusk */
+.section-night + .section-dusk::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to bottom, #051F20 0%, #0A2822 50%, #0F3029 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* Dark cards inside light/afternoon sections restore white text */
 .section-light .card-dark,
 .section-morning .card-dark,
