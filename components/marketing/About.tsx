@@ -1,70 +1,29 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   MapPin,
   ShieldCheck,
   Activity,
 } from "lucide-react";
 
-/* ───── Animated counter ───── */
-function AnimatedCounter({
-  end,
-  suffix = "",
-  duration = 2000,
-}: {
-  end: number;
-  suffix?: string;
-  duration?: number;
-}) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-
-  useEffect(() => {
-    if (!inView) return;
-    const startTime = performance.now();
-
-    function animate(currentTime: number) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(end * eased));
-      if (progress < 1) requestAnimationFrame(animate);
-    }
-
-    requestAnimationFrame(animate);
-  }, [inView, end, duration]);
-
-  return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
-  );
-}
-
 /* ───── Stats ───── */
 const stats = [
   {
     icon: MapPin,
-    value: 100,
-    suffix: "%",
+    display: "100%",
     label: "Données hébergées au Canada",
     description: "Serveurs à Montréal et Toronto, conformes aux lois canadiennes sur la vie privée.",
   },
   {
     icon: ShieldCheck,
-    value: 0,
-    suffix: "",
+    display: "0",
     label: "Compromis sur la conformité",
     description: "Chaque fonctionnalité est validée pour respecter le Règlement B-1 r.5 du Barreau.",
   },
   {
     icon: Activity,
-    value: 24,
-    suffix: "/7",
+    display: "24/7",
     label: "Accès sécurisé à vos dossiers",
     description: "Disponibilité garantie avec sauvegardes automatiques et chiffrement bout en bout.",
   },
@@ -86,7 +45,7 @@ export function About() {
           Le vrai problème
         </motion.p>
 
-        {/* Headline — identité + frustration */}
+        {/* Headline */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -98,9 +57,8 @@ export function About() {
           <span className="italic text-[var(--safe-sage)]">comptable.</span>
         </motion.h2>
 
-        {/* Body text — PAS: Problem → Agitate → Solve */}
+        {/* Body text — PAS */}
         <div className="space-y-5 max-w-3xl">
-          {/* PROBLEM — nommer la douleur */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +72,6 @@ export function About() {
             vous n&apos;avez &quot;pas le temps&quot;.
           </motion.p>
 
-          {/* AGITATE — amplifier la douleur */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -128,7 +85,6 @@ export function About() {
             vos vrais dossiers — vos clients — attendent.
           </motion.p>
 
-          {/* SOLVE — la lumière au bout du tunnel */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -142,14 +98,14 @@ export function About() {
           </motion.p>
         </div>
 
-        {/* Stats — with generous spacing */}
+        {/* Stats — valeurs directes, pas de compteur animé */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mt-12 sm:mt-16 lg:mt-20">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px" }}
               transition={{ delay: i * 0.12, duration: 0.5 }}
               className="relative group p-4 sm:p-6 rounded-safe-md bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-500"
             >
@@ -160,7 +116,7 @@ export function About() {
                 <stat.icon className="w-5 h-5 text-emerald-400" />
               </div>
               <div className="text-3xl font-bold text-white font-sans mb-2 tracking-tight">
-                <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                {stat.display}
               </div>
               <div className="text-xs font-semibold text-emerald-400/80 font-sans uppercase tracking-wider leading-tight mb-2">
                 {stat.label}
