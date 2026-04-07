@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 
 interface TransactionsTableProps {
   cabinetId: string | null;
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   dossiers: { id: string; clientId: string; intitule: string; numeroDossier: string | null }[];
 }
 

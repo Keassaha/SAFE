@@ -81,7 +81,7 @@ export async function GET(request: Request) {
     const clientName =
       d.client.typeClient === "personne_physique" && (d.client.prenom || d.client.nom)
         ? [d.client.nom, d.client.prenom].filter(Boolean).join(", ")
-        : d.client.raisonSociale;
+        : d.client.raisonSociale ?? "";
     return [
       escapeCsvCell(d.numeroDossier ?? d.reference ?? ""),
       escapeCsvCell(d.intitule),

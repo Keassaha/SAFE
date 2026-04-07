@@ -140,7 +140,7 @@ export default async function FacturationPage({
   const rows: FacturationTableRow[] = invoices.map((inv) => ({
     id: inv.id,
     numero: inv.numero,
-    client: inv.client.raisonSociale,
+    client: inv.client.raisonSociale ?? "",
     clientId: inv.client.id,
     dossier: inv.dossier?.intitule ?? "—",
     dossierId: inv.dossier?.id ?? null,

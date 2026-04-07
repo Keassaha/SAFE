@@ -21,7 +21,7 @@ type PaymentRow = {
   id: string;
   clientId: string | null;
   datePaiement: string;
-  client: { id: string; raisonSociale: string } | null;
+  client: { id: string; raisonSociale: string | null } | null;
   invoice: { id: string; numero: string } | null;
   montant: number;
   allocatedAmount: number;

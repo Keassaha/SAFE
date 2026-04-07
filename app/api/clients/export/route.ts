@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     const name =
       c.typeClient === "personne_physique" && (c.prenom || c.nom)
         ? [c.nom, c.prenom].filter(Boolean).join(", ")
-        : c.raisonSociale;
+        : c.raisonSociale ?? "";
     return [
       escapeCsvCell(name),
       c.typeClient === "personne_physique" ? "Particulier" : "Entreprise",

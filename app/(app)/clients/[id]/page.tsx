@@ -240,7 +240,7 @@ export default async function ClientDetailPage({
         title={
           client.typeClient === "personne_physique" && (client.prenom || client.nom)
             ? [client.nom, client.prenom].filter(Boolean).join(", ")
-            : client.raisonSociale
+            : client.raisonSociale ?? ""
         }
         backHref={routes.clients}
         backLabel={t("backToClients")}
@@ -253,7 +253,7 @@ export default async function ClientDetailPage({
               clientName={
                 client.typeClient === "personne_physique" && (client.prenom || client.nom)
                   ? [client.nom, client.prenom].filter(Boolean).join(", ")
-                  : client.raisonSociale
+                  : client.raisonSociale ?? ""
               }
             />
             <span

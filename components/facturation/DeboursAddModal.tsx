@@ -11,7 +11,7 @@ import { createDeboursDossier } from "@/lib/actions/debours";
 export interface DeboursAddModalProps {
   open: boolean;
   onClose: () => void;
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
 }
 

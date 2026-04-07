@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { createDeboursDossier } from "@/lib/actions/debours";
 
 export interface DeboursAddFormProps {
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
   deboursTypes: { id: string; nom: string; categorie: string }[];
 }

@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 interface NewClientModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: (client: { id: string; raisonSociale: string }) => void;
+  onSuccess: (client: { id: string; raisonSociale: string | null }) => void;
 }
 
 export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps) {

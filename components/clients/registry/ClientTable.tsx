@@ -16,7 +16,7 @@ export type ClientRow = {
   id: string;
   typeClient: "personne_physique" | "personne_morale";
   status: ClientStatus;
-  raisonSociale: string;
+  raisonSociale: string | null;
   prenom: string | null;
   nom: string | null;
   email: string | null;
@@ -48,16 +48,16 @@ function displayName(row: ClientRow): string {
   if (row.typeClient === "personne_physique" && (row.prenom || row.nom)) {
     return [row.nom, row.prenom].filter(Boolean).join(", ");
   }
-  return row.raisonSociale;
+  return row.raisonSociale ?? "";
 }
 
 function initials(row: ClientRow): string {
   if (row.typeClient === "personne_physique" && (row.prenom || row.nom)) {
     const p = (row.prenom ?? "").charAt(0);
     const n = (row.nom ?? "").charAt(0);
-    return (n + p).toUpperCase() || row.raisonSociale.slice(0, 2).toUpperCase();
+    return (n + p).toUpperCase() || (row.raisonSociale ?? "").slice(0, 2).toUpperCase();
   }
-  return row.raisonSociale.slice(0, 2).toUpperCase();
+  return (row.raisonSociale ?? "").slice(0, 2).toUpperCase();
 }
 
 function SortHeader({
@@ -254,7 +254,7 @@ export function ClientTable({
                     checked={selectedIds.has(row.id)}
                     onChange={() => toggleSelect(row.id)}
                     className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
-                    aria-label={t("selectClient", { name: row.raisonSociale })}
+                    aria-label={t("selectClient", { name: row.raisonSociale ?? "" })}
                   />
                 </td>
               )}

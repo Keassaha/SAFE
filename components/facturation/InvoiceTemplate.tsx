@@ -24,7 +24,7 @@ export type InvoiceTemplateProps = {
     adresse?: string | null;
   } | null;
   client?: {
-    raisonSociale: string;
+    raisonSociale: string | null;
     billingAddress?: string | null;
     billingCity?: string | null;
     billingProvince?: string | null;

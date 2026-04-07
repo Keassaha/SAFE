@@ -71,7 +71,7 @@ export async function GET(
   });
 
   const buffer = await renderToBuffer(doc as React.ReactElement<DocumentProps>);
-  const name = [client.nom, client.prenom].filter(Boolean).join("-") || client.raisonSociale.replace(/\s+/g, "-");
+  const name = [client.nom, client.prenom].filter(Boolean).join("-") || (client.raisonSociale ?? "client").replace(/\s+/g, "-");
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

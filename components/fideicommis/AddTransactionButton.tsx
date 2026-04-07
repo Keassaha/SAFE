@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 
 interface ClientOption {
   id: string;
-  raisonSociale: string;
+  raisonSociale: string | null;
 }
 
 interface DossierOption {

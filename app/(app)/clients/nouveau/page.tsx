@@ -31,7 +31,7 @@ export default async function NouveauClientPage({
   const initialData = duplicateClient
     ? {
         typeClient: duplicateClient.typeClient,
-        raisonSociale: duplicateClient.raisonSociale,
+        raisonSociale: duplicateClient.raisonSociale ?? undefined,
         prenom: duplicateClient.prenom ?? undefined,
         nom: duplicateClient.nom ?? undefined,
         email: duplicateClient.email ?? undefined,

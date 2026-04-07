@@ -8,7 +8,7 @@ import { RetraitForm } from "./RetraitForm";
 
 interface ClientOption {
   id: string;
-  raisonSociale: string;
+  raisonSociale: string | null;
 }
 
 interface DossierOption {

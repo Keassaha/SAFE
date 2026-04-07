@@ -12,13 +12,13 @@ import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 
 function clientDisplayName(dossier: {
-  client: { raisonSociale: string; prenom: string | null; nom: string | null; typeClient: string };
+  client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
 }): string {
   const c = dossier.client;
   if (c.typeClient === "personne_physique" && (c.prenom || c.nom)) {
     return [c.nom, c.prenom].filter(Boolean).join(", ");
   }
-  return c.raisonSociale;
+  return c.raisonSociale ?? "";
 }
 
 export default async function DossierDetailPage({

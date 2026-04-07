@@ -19,7 +19,7 @@ export type DossierRow = {
   type: string | null;
   dateOuverture: Date;
   updatedAt: Date;
-  client: { id: string; raisonSociale: string; prenom: string | null; nom: string | null; typeClient: string };
+  client: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
   avocatResponsable: { nom: string } | null;
 };
 
@@ -71,7 +71,7 @@ function clientDisplayName(row: DossierRow): string {
   ) {
     return [row.client.nom, row.client.prenom].filter(Boolean).join(", ");
   }
-  return row.client.raisonSociale;
+  return row.client.raisonSociale ?? "";
 }
 
 function DossierActionsMenu({ row }: { row: DossierRow }) {

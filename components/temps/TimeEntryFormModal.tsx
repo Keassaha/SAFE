@@ -11,8 +11,8 @@ import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 
-type ClientOption = { id: string; raisonSociale: string };
-type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string } };
+type ClientOption = { id: string; raisonSociale: string | null };
+type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null } };
 type UserOption = { id: string; nom: string };
 
 function formatDuree(minutes: number): string {

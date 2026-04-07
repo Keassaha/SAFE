@@ -65,7 +65,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
     }
   };
 
-  const handleNewClientSuccess = (client: { id: string; raisonSociale: string }) => {
+  const handleNewClientSuccess = (client: { id: string; raisonSociale: string | null }) => {
     if (cabinetId) {
       queryClient.invalidateQueries({ queryKey: ["temps", "context", cabinetId] });
     }

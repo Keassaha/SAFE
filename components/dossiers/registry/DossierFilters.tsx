@@ -12,7 +12,7 @@ const PARAMS = {
 } as const;
 
 interface DossierFiltersProps {
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
 }
 
 export function DossierFilters({ clients }: DossierFiltersProps) {

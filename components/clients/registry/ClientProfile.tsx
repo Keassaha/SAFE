@@ -23,7 +23,7 @@ export type ClientProfileData = {
   id: string;
   typeClient: string;
   status: string;
-  raisonSociale: string;
+  raisonSociale: string | null;
   prenom: string | null;
   nom: string | null;
   email: string | null;

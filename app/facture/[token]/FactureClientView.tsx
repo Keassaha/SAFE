@@ -11,7 +11,7 @@ type FactureClientViewProps = {
   cabinet: { id: string; nom: string; adresse: string | null } | null;
   client: {
     id: string;
-    raisonSociale: string;
+    raisonSociale: string | null;
     billingAddress: string | null;
     billingCity: string | null;
     billingProvince: string | null;

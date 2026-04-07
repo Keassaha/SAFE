@@ -185,7 +185,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
           deadlines={deadlineEvents}
           calendarEvents={serializedCalendarEvents}
           dossierBaseUrl="/gestion/lextrack"
-          clients={clients}
+          clients={clients.map(c => ({ ...c, raisonSociale: c.raisonSociale ?? "" }))}
           users={users}
           dossiers={dossiersList}
         />

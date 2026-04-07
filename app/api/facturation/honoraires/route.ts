@@ -248,7 +248,7 @@ export async function GET(request: Request) {
     if (!existing) {
       byClient.set(exp.clientId, {
         clientId: exp.clientId,
-        clientName: exp.client.raisonSociale,
+        clientName: exp.client.raisonSociale ?? "",
         count: 0,
         totalHeures: 0,
         totalHonoraires: 0,

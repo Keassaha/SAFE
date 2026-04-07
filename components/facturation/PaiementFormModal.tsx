@@ -29,7 +29,7 @@ export interface PaiementFormModalProps {
   onClose: () => void;
   mode: "create" | "edit";
   paymentId?: string | null;
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   invoices: {
     id: string;
     numero: string;

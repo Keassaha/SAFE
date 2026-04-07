@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 interface DossierCreationWizardProps {
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   avocats: { id: string; nom: string }[];
   assistants?: { id: string; nom: string }[];
   initialClientId?: string;

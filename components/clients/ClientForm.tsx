@@ -45,7 +45,7 @@ export function ClientForm({
       <Input
         label={t("businessName")}
         name="raisonSociale"
-        defaultValue={client?.raisonSociale}
+        defaultValue={client?.raisonSociale ?? ""}
         required
       />
       {(client?.typeClient === "personne_physique" || !isEdit) && (

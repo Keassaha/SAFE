@@ -25,8 +25,8 @@ interface TimeEntryRow {
   billingStatus: string | null;
   tauxHoraire: number;
   montant: number;
-  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string } } | null;
-  client?: { id: string; raisonSociale: string } | null;
+  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string | null } } | null;
+  client?: { id: string; raisonSociale: string | null } | null;
   user: { id: string; nom: string };
   invoiceLines: { id: string }[];
 }
@@ -64,8 +64,8 @@ export function TimeEntriesTable({
   entries: TimeEntryRow[];
   cabinetId: string | null;
   currentUserId: string;
-  clients: Array<{ id: string; raisonSociale: string }>;
-  dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string } }>;
+  clients: Array<{ id: string; raisonSociale: string | null }>;
+  dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null } }>;
   users: Array<{ id: string; nom: string }>;
   canEditAll: boolean;
   onRefresh: () => void;

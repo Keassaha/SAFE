@@ -375,7 +375,7 @@ export default async function TableauDeBordPage() {
       }
     } else {
       clientBalanceMap.set(inv.clientId, {
-        clientName: inv.client.raisonSociale,
+        clientName: inv.client.raisonSociale ?? "",
         balanceDue: inv.balanceDue,
         firstInvoiceDate: invDate,
       });
@@ -614,7 +614,7 @@ export default async function TableauDeBordPage() {
     return {
       id: d.id,
       caseName: d.intitule,
-      clientName: d.client.raisonSociale,
+      clientName: d.client.raisonSociale ?? "",
       lawyerName: d.avocatResponsable?.nom ?? null,
       hoursLogged: (h?.minutes ?? 0) / 60,
       amountInvoiced: inv,
@@ -625,7 +625,7 @@ export default async function TableauDeBordPage() {
   // ── Billing follow-up ──
   const billingFollowUp: BillingFollowUpRow[] = billingFollowUpInvoices.map((inv) => ({
     id: inv.id,
-    clientName: inv.client.raisonSociale,
+    clientName: inv.client.raisonSociale ?? "",
     invoiceNumber: inv.numero,
     amount: inv.montantTotal,
     dateIssued: inv.dateEmission,
@@ -730,7 +730,7 @@ export default async function TableauDeBordPage() {
       id: d.id,
       intitule: d.intitule,
       statut: d.statut,
-      clientName: d.client.raisonSociale,
+      clientName: d.client.raisonSociale ?? "",
       avocatName: d.avocatResponsable?.nom ?? null,
       createdAt: d.createdAt.toISOString(),
       updatedAt: d.updatedAt.toISOString(),

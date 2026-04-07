@@ -195,7 +195,7 @@ export async function loadRapportsPayload(
     return {
       id: inv.id,
       numero: inv.numero,
-      client: inv.client.raisonSociale,
+      client: inv.client.raisonSociale ?? "",
       dossier: inv.dossier?.intitule ?? null,
       avocat: avocatName,
       date: inv.dateEmission.toISOString().slice(0, 10),
@@ -288,7 +288,7 @@ export async function loadRapportsPayload(
     return {
       dossierId: d.id,
       intitule: d.intitule,
-      client: d.client.raisonSociale,
+      client: d.client.raisonSociale ?? "",
       revenus,
       heures: Math.round(heures * 100) / 100,
       paiements,
@@ -324,7 +324,7 @@ export async function loadRapportsPayload(
   const deboursRows: RapportDeboursRow[] = deboursList.map((d) => ({
     id: d.id,
     date: d.date.toISOString().slice(0, 10),
-    client: d.client.raisonSociale,
+    client: d.client.raisonSociale ?? "",
     dossier: d.dossier?.intitule ?? null,
     description: d.description,
     montant: d.montant,
@@ -361,7 +361,7 @@ export async function loadRapportsPayload(
       totalTVQ,
       totalPaiements: totalPaid,
     },
-    clients: clients.map((c) => ({ id: c.id, label: c.raisonSociale })),
+    clients: clients.map((c) => ({ id: c.id, label: c.raisonSociale ?? "" })),
     avocats: users.map((u) => ({ id: u.id, label: u.nom })),
   };
 }

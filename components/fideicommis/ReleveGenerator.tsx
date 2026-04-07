@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 interface ReleveGeneratorProps {
-  clients: { id: string; raisonSociale: string }[];
+  clients: { id: string; raisonSociale: string | null }[];
   dossiers: { id: string; clientId: string; intitule: string; numeroDossier: string | null }[];
   disabled?: boolean;
 }

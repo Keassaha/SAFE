@@ -10,7 +10,7 @@ import { routes } from "@/lib/routes";
 
 interface ClientOption {
   id: string;
-  raisonSociale: string;
+  raisonSociale: string | null;
 }
 
 interface DossierOption {

@@ -52,7 +52,7 @@ export default async function FacturationSuiviPage({
               id: inv.id,
               numero: inv.numero,
               clientId: inv.client.id,
-              client: inv.client.raisonSociale,
+              client: inv.client.raisonSociale ?? "",
               dossier: inv.dossier?.intitule ?? null,
               dateEmission: inv.dateEmission.toISOString(),
               dateEcheance: inv.dateEcheance.toISOString(),

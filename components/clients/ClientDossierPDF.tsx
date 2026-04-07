@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 });
 
 type ClientShape = {
-  raisonSociale: string;
+  raisonSociale: string | null;
   prenom: string | null;
   nom: string | null;
   email: string | null;
