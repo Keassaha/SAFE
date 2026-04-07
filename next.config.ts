@@ -4,9 +4,23 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  // Ne pas injecter NEXTAUTH_URL dans le bundle client via `env` : next-auth/react utilise
-  // `basePath` (SessionProvider) + fetch relatif pour /session ; une URL figée peut diverger
-  // de l’origine réelle (preview, autre port, tunnel) et provoquer des erreurs réseau.
+  /* ── Performance ── */
+  compress: true,
+  poweredByHeader: false,
+
+  /* ── Images ── */
+  images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96],
+  },
+
+  /* ── Experimental perf ── */
+  experimental: {
+    optimizeCss: true,
+  },
+
+  /* ── Redirects ── */
   async redirects() {
     return [
       { source: "/journal/general", destination: "/comptabilite?tab=general", permanent: true },

@@ -8,9 +8,6 @@ import { authOptions } from "@/lib/auth";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-/** Cookies + session : pas de mise en cache statique du layout racine. */
-export const dynamic = "force-dynamic";
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -22,7 +19,6 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
-  axes: ["opsz"],
 });
 
 const jetbrainsMono = JetBrains_Mono({

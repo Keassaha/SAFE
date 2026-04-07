@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import {
   AlertTriangle,
   Clock,
@@ -51,40 +48,23 @@ export function PainPoints() {
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
         {/* Header */}
         <div className="text-center mb-12 sm:mb-16">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-sm font-sans font-semibold uppercase tracking-widest text-red-400/80 mb-4"
-          >
+          <p className="text-sm font-sans font-semibold uppercase tracking-widest text-red-400/80 mb-4">
             Ça vous parle ?
-          </motion.p>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
-          >
+          </p>
+          <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight">
             Les problèmes que{" "}
             <span className="italic text-red-400/90">chaque avocat</span>{" "}
             connaît.
-          </motion.h2>
+          </h2>
         </div>
 
         {/* Pain grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {PAINS.map((item, idx) => (
-            <motion.div
+          {PAINS.map((item) => (
+            <div
               key={item.pain}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
               className="group relative p-5 sm:p-6 rounded-safe-md bg-red-500/[0.03] border border-red-400/10 hover:border-red-400/25 transition-all duration-500"
             >
-              {/* Top glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-red-400/20 to-transparent" />
 
               <div className="w-10 h-10 rounded-safe bg-red-500/10 border border-red-400/15 flex items-center justify-center mb-4">
@@ -97,35 +77,24 @@ export function PainPoints() {
               <p className="text-sm text-white/40 font-sans leading-relaxed group-hover:text-white/55 transition-colors duration-500">
                 {item.consequence}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Transition to solution */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-center mt-12 sm:mt-16"
-        >
+        <div className="text-center mt-12 sm:mt-16">
           <p className="text-lg sm:text-xl text-[var(--safe-white)] font-sans font-medium">
             Et si tout ça disparaissait{" "}
             <span className="italic text-[var(--safe-sage)]">en 30 jours ?</span>
           </p>
-          {/* Animated arrow pointing down */}
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            className="mt-6 flex justify-center"
-          >
+          <div className="mt-6 flex justify-center animate-bounce">
             <div className="w-8 h-8 rounded-full border border-[var(--safe-sage)]/20 flex items-center justify-center">
               <svg className="w-4 h-4 text-[var(--safe-sage)]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
