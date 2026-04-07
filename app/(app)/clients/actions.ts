@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { clientSchema } from "@/lib/validations/client";
 import { createAuditLog } from "@/lib/services/audit";
+import { sanitizeObject } from "@/lib/utils/sanitize";
 
 export async function createClient(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
@@ -55,14 +56,15 @@ export async function createClient(formData: FormData) {
   if (!parsed.success) {
     redirect("/clients/nouveau?error=invalid");
   }
+  const sanitized = sanitizeObject(parsed.data as Record<string, unknown>);
   const data = {
-    ...parsed.data,
-    typeClient: parsed.data.typeClient ?? "personne_morale",
-    email: parsed.data.email || null,
+    ...sanitized,
+    typeClient: sanitized.typeClient ?? "personne_morale",
+    email: sanitized.email || null,
     consentementCollecteAt: parsed.data.consentementCollecteAt ?? undefined,
-    finalitesConsentement: parsed.data.finalitesConsentement ?? undefined,
+    finalitesConsentement: sanitized.finalitesConsentement ?? undefined,
     retentionJusqua: parsed.data.retentionJusqua ?? undefined,
-    notesConfidentielles: parsed.data.notesConfidentielles ?? undefined,
+    notesConfidentielles: sanitized.notesConfidentielles ?? undefined,
   };
   const client = await prisma.client.create({
     data: {
@@ -132,11 +134,12 @@ export async function createClientQuick(data: { raisonSociale: string; typeClien
   if (!parsed.success) {
     return { error: "Données invalides" };
   }
+  const sanitizedQuick = sanitizeObject(parsed.data as Record<string, unknown>);
   const client = await prisma.client.create({
     data: {
       cabinetId,
-      raisonSociale: parsed.data.raisonSociale,
-      typeClient: parsed.data.typeClient as "personne_physique" | "personne_morale",
+      raisonSociale: sanitizedQuick.raisonSociale as string,
+      typeClient: sanitizedQuick.typeClient as "personne_physique" | "personne_morale",
     },
   });
   await createAuditLog({
@@ -149,7 +152,7 @@ export async function createClientQuick(data: { raisonSociale: string; typeClien
   });
   revalidatePath("/clients");
   revalidatePath("/temps");
-  return { id: client.id, raisonSociale: client.raisonSociale };
+  return { id: client.id, raisonSociale: client.raisonSociale ?? "" };
 }
 
 export async function updateClient(id: string, formData: FormData) {
@@ -176,26 +179,27 @@ export async function updateClient(id: string, formData: FormData) {
   if (!parsed.success) {
     redirect(`/clients/${id}?error=invalid`);
   }
+  const sanitizedUpdate = sanitizeObject(parsed.data as Record<string, unknown>);
   const data = {
-    ...parsed.data,
-    typeClient: parsed.data.typeClient ?? "personne_morale",
-    email: parsed.data.email || null,
+    ...sanitizedUpdate,
+    typeClient: sanitizedUpdate.typeClient ?? "personne_morale",
+    email: sanitizedUpdate.email || null,
   };
   await prisma.client.updateMany({
     where: { id, cabinetId },
     data: {
-      raisonSociale: data.raisonSociale,
-      typeClient: data.typeClient,
-      prenom: data.prenom ?? null,
-      nom: data.nom ?? null,
-      contact: data.contact ?? null,
-      email: data.email,
-      telephone: data.telephone ?? null,
-      adresse: data.adresse ?? null,
+      raisonSociale: data.raisonSociale as string,
+      typeClient: data.typeClient as string,
+      prenom: (data.prenom as string) ?? null,
+      nom: (data.nom as string) ?? null,
+      contact: (data.contact as string) ?? null,
+      email: data.email as string | null,
+      telephone: (data.telephone as string) ?? null,
+      adresse: (data.adresse as string) ?? null,
       consentementCollecteAt: parsed.data.consentementCollecteAt ?? undefined,
-      finalitesConsentement: parsed.data.finalitesConsentement ?? undefined,
+      finalitesConsentement: (sanitizedUpdate.finalitesConsentement as string) ?? undefined,
       retentionJusqua: parsed.data.retentionJusqua ?? undefined,
-      notesConfidentielles: parsed.data.notesConfidentielles ?? undefined,
+      notesConfidentielles: (sanitizedUpdate.notesConfidentielles as string) ?? undefined,
     },
   });
   await createAuditLog({

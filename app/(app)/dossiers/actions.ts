@@ -9,6 +9,7 @@ import { dossierTacheSchema } from "@/lib/validations/dossierTache";
 import { dossierEvenementSchema } from "@/lib/validations/dossierEvenement";
 import { dossierNoteSchema } from "@/lib/validations/dossierNote";
 import { createAuditLog } from "@/lib/services/audit";
+import { sanitizeInput } from "@/lib/utils/sanitize";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
@@ -43,7 +44,7 @@ export async function createDossier(formData: FormData) {
   if (!parsed.data.type) {
     return { ok: false as const, error: "invalid" };
   }
-  const intitule = parsed.data.intitule?.trim() || "Dossier";
+  const intitule = sanitizeInput(parsed.data.intitule?.trim() || "Dossier");
   const year = new Date().getFullYear();
   const maxAttempts = 10;
   let dossier: Awaited<ReturnType<typeof prisma.dossier.create>> | null = null;
@@ -59,18 +60,18 @@ export async function createDossier(formData: FormData) {
           clientId: parsed.data.clientId,
           avocatResponsableId: parsed.data.avocatResponsableId ?? null,
           assistantJuridiqueId: parsed.data.assistantJuridiqueId ?? null,
-          reference: parsed.data.reference ?? null,
+          reference: parsed.data.reference ? sanitizeInput(parsed.data.reference) : null,
           numeroDossier,
           intitule,
           statut: parsed.data.statut as DossierStatut,
           type: (parsed.data.type as DossierType | null) ?? null,
-          descriptionConfidentielle: parsed.data.descriptionConfidentielle ?? null,
-          resumeDossier: parsed.data.resumeDossier ?? null,
-          notesStrategieJuridique: parsed.data.notesStrategieJuridique ?? null,
-          tribunalNom: parsed.data.tribunalNom ?? null,
-          districtJudiciaire: parsed.data.districtJudiciaire ?? null,
-          numeroDossierTribunal: parsed.data.numeroDossierTribunal ?? null,
-          nomJuge: parsed.data.nomJuge ?? null,
+          descriptionConfidentielle: parsed.data.descriptionConfidentielle ? sanitizeInput(parsed.data.descriptionConfidentielle) : null,
+          resumeDossier: parsed.data.resumeDossier ? sanitizeInput(parsed.data.resumeDossier) : null,
+          notesStrategieJuridique: parsed.data.notesStrategieJuridique ? sanitizeInput(parsed.data.notesStrategieJuridique) : null,
+          tribunalNom: parsed.data.tribunalNom ? sanitizeInput(parsed.data.tribunalNom) : null,
+          districtJudiciaire: parsed.data.districtJudiciaire ? sanitizeInput(parsed.data.districtJudiciaire) : null,
+          numeroDossierTribunal: parsed.data.numeroDossierTribunal ? sanitizeInput(parsed.data.numeroDossierTribunal) : null,
+          nomJuge: parsed.data.nomJuge ? sanitizeInput(parsed.data.nomJuge) : null,
           modeFacturation: (parsed.data.modeFacturation as ModeFacturationDossier | null) ?? null,
           tauxHoraire: parsed.data.tauxHoraire ?? null,
           retentionJusqua: parsed.data.retentionJusqua ?? null,
@@ -250,8 +251,8 @@ export async function createDossierTache(formData: FormData) {
   await prisma.dossierTache.create({
     data: {
       dossierId: parsed.data.dossierId,
-      titre: parsed.data.titre,
-      description: parsed.data.description ?? null,
+      titre: sanitizeInput(parsed.data.titre),
+      description: parsed.data.description ? sanitizeInput(parsed.data.description) : null,
       assigneeId: parsed.data.assigneeId ?? null,
       priorite: parsed.data.priorite as "low" | "medium" | "high" | "urgent",
       statut: parsed.data.statut as "a_faire" | "en_cours" | "terminee" | "annulee",
@@ -289,8 +290,8 @@ export async function updateDossierTache(id: string, formData: FormData) {
   await prisma.dossierTache.update({
     where: { id },
     data: {
-      titre: parsed.data.titre,
-      description: parsed.data.description ?? null,
+      titre: sanitizeInput(parsed.data.titre),
+      description: parsed.data.description ? sanitizeInput(parsed.data.description) : null,
       assigneeId: parsed.data.assigneeId ?? null,
       priorite: parsed.data.priorite as "low" | "medium" | "high" | "urgent",
       statut: parsed.data.statut as "a_faire" | "en_cours" | "terminee" | "annulee",
@@ -413,7 +414,7 @@ export async function createDossierNote(formData: FormData) {
   await prisma.dossierNote.create({
     data: {
       dossierId: parsed.data.dossierId,
-      content: parsed.data.content,
+      content: sanitizeInput(parsed.data.content),
       createdById: userId,
     },
   });

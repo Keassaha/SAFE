@@ -79,6 +79,18 @@ function attachSessionCookieDeletes(res: NextResponse | Response): NextResponse 
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
   const { request: req, cleared } = await stripUnreadableSessionCookie(request);
 
+  // Rediriger les utilisateurs connectés qui visitent /connexion ou /inscription vers le dashboard
+  const authPages = ["/connexion", "/inscription"];
+  if (authPages.includes(req.nextUrl.pathname)) {
+    const secret = nextAuthSecret();
+    if (secret) {
+      const token = await getToken({ req, secret });
+      if (token) {
+        return NextResponse.redirect(new URL("/tableau-de-bord", req.url));
+      }
+    }
+  }
+
   if (isProtectedPath(req.nextUrl.pathname)) {
     const res = await authMiddleware(req as NextRequestWithAuth, event);
     if (res) {

@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
@@ -20,6 +21,12 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.cabinetName || !credentials?.email || !credentials?.password) return null;
+
+        // Rate limiting: 5 tentatives par minute par email
+        if (isRateLimited(`login-${credentials.email.toLowerCase()}`, 5, 60_000)) {
+          throw new Error("Trop de tentatives. Réessayez dans une minute.");
+        }
+
         const user = await prisma.user.findFirst({
           where: { email: credentials.email.toLowerCase() },
           include: { cabinet: true, employee: true },

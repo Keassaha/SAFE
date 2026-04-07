@@ -263,7 +263,7 @@ model Client {
   cabinetId                 String
   typeClient                TypeClient @default(personne_morale)
   status                    ClientStatus @default(actif)
-  raisonSociale             String
+  raisonSociale             String?
   prenom                    String?
   nom                       String?
   dateNaissance             DateTime?

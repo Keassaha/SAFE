@@ -11,6 +11,7 @@ import { createAuditLog } from "@/lib/services/audit";
 import { timeEntryCreateSchema } from "@/lib/validations/time-entry";
 import { tempsQuerySchema } from "@/lib/validations/temps";
 import { computeMontant } from "@/lib/temps/utils";
+import { sanitizeInput } from "@/lib/utils/sanitize";
 import type { Prisma, UserRole } from "@prisma/client";
 
 function getSessionData() {
@@ -173,6 +174,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Données invalides", details: parsed.error.flatten() }, { status: 400 });
   }
   const input = parsed.data;
+
+  // Validation durée (max 24h) et taux horaire
+  if (input.dureeMinutes > 1440) {
+    return NextResponse.json(
+      { error: "La durée ne peut pas dépasser 1440 minutes (24 heures)." },
+      { status: 400 }
+    );
+  }
+  if ((input.facturable ?? true) && input.tauxHoraire <= 0) {
+    return NextResponse.json(
+      { error: "Le taux horaire doit être supérieur à 0 pour une entrée facturable." },
+      { status: 400 }
+    );
+  }
+
   const montant = computeMontant(input.dureeMinutes, input.tauxHoraire);
 
   const dossierId = input.dossierId ?? null;
@@ -185,15 +201,18 @@ export async function POST(request: Request) {
     if (dossier) clientId = dossier.clientId;
   }
 
+  // IDOR fix: toujours utiliser le userId de la session (sauf admin qui assigne)
+  const effectiveUserId = role === "admin_cabinet" && input.userId ? input.userId : userId;
+
   const entry = await prisma.timeEntry.create({
     data: {
       cabinetId,
       dossierId,
       clientId,
-      userId: role === "avocat" ? userId : input.userId,
+      userId: effectiveUserId,
       date: input.date,
       dureeMinutes: input.dureeMinutes,
-      description: input.description ?? null,
+      description: input.description ? sanitizeInput(input.description) : null,
       typeActivite: input.typeActivite ?? null,
       facturable: input.facturable ?? true,
       statut: (input.statut as "brouillon" | "valide" | "facture") ?? "brouillon",

@@ -1,10 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getDatabaseConfigError } from "@/lib/db-vercel-check";
 import bcrypt from "bcryptjs";
 import { signUpSchema } from "@/lib/validations/auth";
+import { sanitizeInput } from "@/lib/utils/sanitize";
+import { isRateLimited } from "@/lib/rate-limit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limiting: 3 inscriptions par minute par IP
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+  if (isRateLimited(`signup-${ip}`, 3, 60_000)) {
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez dans une minute." },
+      { status: 429 }
+    );
+  }
+
   const dbError = getDatabaseConfigError();
   if (dbError) {
     return NextResponse.json(
@@ -27,15 +38,15 @@ export async function POST(request: Request) {
     });
     if (existing) {
       return NextResponse.json(
-        { error: "Un compte existe déjà avec cet email." },
+        { error: "Vérifiez vos informations et réessayez." },
         { status: 400 }
       );
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const cabinet = await prisma.cabinet.create({
       data: {
-        nom: nomCabinet,
-        adresse: adresseCabinet ?? null,
+        nom: sanitizeInput(nomCabinet),
+        adresse: adresseCabinet ? sanitizeInput(adresseCabinet) : null,
       },
     });
     await prisma.user.create({
@@ -43,7 +54,7 @@ export async function POST(request: Request) {
         cabinetId: cabinet.id,
         email: email.toLowerCase(),
         passwordHash,
-        nom,
+        nom: sanitizeInput(nom),
         role: "admin_cabinet",
       },
     });

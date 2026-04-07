@@ -5,6 +5,7 @@ import { canEditBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { retraitBodySchema } from "@/lib/validations/fideicommis";
 import { createTrustWithdrawal } from "@/lib/services/fideicommis";
+import { sanitizeInput } from "@/lib/utils/sanitize";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -44,8 +45,8 @@ export async function POST(request: Request) {
       dateTransaction: parsed.data.dateTransaction,
       factureId: parsed.data.factureId ?? null,
       modePaiement: parsed.data.modePaiement ?? null,
-      reference: parsed.data.reference ?? null,
-      description: parsed.data.description ?? null,
+      reference: parsed.data.reference ? sanitizeInput(parsed.data.reference) : null,
+      description: parsed.data.description ? sanitizeInput(parsed.data.description) : null,
       createdById: userId ?? null,
     });
     return NextResponse.json({ success: true, transactionId });

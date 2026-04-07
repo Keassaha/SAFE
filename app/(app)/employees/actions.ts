@@ -9,6 +9,7 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canEditEmployees } from "@/lib/auth/permissions";
 import { employeeRoleToUserRole } from "@/lib/auth/rbac";
 import { routes } from "@/lib/routes";
+import { sanitizeInput } from "@/lib/utils/sanitize";
 
 export type CreateEmployeeInput = {
   firstName: string;
@@ -36,7 +37,9 @@ export async function createEmployee(input: CreateEmployeeInput) {
     throw new Error("Non autorisé à créer un employé");
   }
 
-  const fullName = `${input.firstName.trim()} ${input.lastName.trim()}`.trim();
+  const firstName = sanitizeInput(input.firstName.trim());
+  const lastName = sanitizeInput(input.lastName.trim());
+  const fullName = `${firstName} ${lastName}`.trim();
   const email = input.email.trim().toLowerCase();
 
   const existing = await prisma.employee.findFirst({
@@ -87,19 +90,19 @@ export async function createEmployee(input: CreateEmployeeInput) {
       data: {
         cabinetId,
         userId: createdUserId,
-        firstName: input.firstName.trim(),
-        lastName: input.lastName.trim(),
+        firstName,
+        lastName,
         fullName,
         email,
         phone: input.phone?.trim() || null,
-        address: input.address?.trim() || null,
+        address: input.address ? sanitizeInput(input.address.trim()) : null,
         hireDate: new Date(input.hireDate),
         status: input.status,
         role: input.role,
-        jobTitle: input.jobTitle?.trim() || null,
+        jobTitle: input.jobTitle ? sanitizeInput(input.jobTitle.trim()) : null,
         hourlyRate: Number(input.hourlyRate) || 0,
         supervisorId: input.supervisorId || null,
-        responsibilities: input.responsibilities?.trim() || null,
+        responsibilities: input.responsibilities ? sanitizeInput(input.responsibilities.trim()) : null,
       },
     });
   });
