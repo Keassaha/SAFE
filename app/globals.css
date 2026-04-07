@@ -252,23 +252,17 @@
   z-index: 0;
 }
 
-/* Gradient bridge: morning → night (sharp contrast — needs tall fade) */
+/* Gradient bridge: morning → night */
 .section-morning + .section-night::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 400px;
+  height: 200px;
   background: linear-gradient(
     to bottom,
     #F8FDF9 0%,
-    #D8E8DF 10%,
-    #A3BFB0 22%,
-    #6B9A84 36%,
-    #3A7260 50%,
-    #1E5040 65%,
-    #0F3029 80%,
     #051F20 100%
   );
   pointer-events: none;
@@ -323,15 +317,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 350px;
+  height: 120px;
   background: linear-gradient(
     to bottom,
     #F8FDF9 0%,
-    #D8E8DF 15%,
-    #A3BFB0 30%,
-    #6B9A84 50%,
-    #3A7260 65%,
-    #1E5040 80%,
     #0F3029 100%
   );
   pointer-events: none;

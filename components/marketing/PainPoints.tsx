@@ -42,7 +42,7 @@ const PAINS = [
 
 export function PainPoints() {
   return (
-    <section className="section-night relative py-16 sm:py-24 lg:py-32 overflow-hidden">
+    <section className="section-dusk relative py-16 sm:py-24 lg:py-32 overflow-hidden">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
