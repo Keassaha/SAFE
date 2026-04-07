@@ -3,7 +3,7 @@ import type { TimeEntry, TimeEntryStatut } from "@prisma/client";
 export type { TimeEntryStatut };
 
 export interface TimeEntryWithRelations extends TimeEntry {
-  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string } };
+  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string | null } };
   user: { id: string; nom: string };
   invoiceLines: { id: string }[];
 }

@@ -92,7 +92,7 @@ export default async function ClientsPage({
     id: c.id,
     typeClient: c.typeClient,
     status: c.status,
-    raisonSociale: c.raisonSociale,
+    raisonSociale: c.raisonSociale ?? "",
     prenom: c.prenom,
     nom: c.nom,
     email: c.email,

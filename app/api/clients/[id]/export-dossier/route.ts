@@ -41,7 +41,7 @@ export async function GET(
 
   const doc = React.createElement(ClientDossierPDF, {
     client: {
-      raisonSociale: client.raisonSociale,
+      raisonSociale: client.raisonSociale ?? "",
       prenom: client.prenom,
       nom: client.nom,
       email: client.email,

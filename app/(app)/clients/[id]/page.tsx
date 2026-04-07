@@ -185,7 +185,7 @@ export default async function ClientDetailPage({
     id: client.id,
     typeClient: client.typeClient,
     status: client.status,
-    raisonSociale: client.raisonSociale,
+    raisonSociale: client.raisonSociale ?? "",
     prenom: client.prenom,
     nom: client.nom,
     email: client.email,
