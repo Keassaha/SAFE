@@ -58,7 +58,7 @@ export function TestimonialSlider() {
   }, []);
 
   return (
-    <section className="section-morning relative py-28 lg:py-36 overflow-hidden">
+    <section className="section-morning relative py-16 sm:py-28 lg:py-36 overflow-hidden">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
       {/* Header */}
@@ -76,16 +76,16 @@ export function TestimonialSlider() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] leading-tight tracking-tight"
+          className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] leading-tight tracking-tight"
         >
           Ce que disent nos confrères.
         </motion.h2>
       </div>
 
       {/* Draggable carousel */}
-      <div className="relative z-10 pl-6 lg:pl-10 2xl:pl-0 2xl:max-w-7xl 2xl:mx-auto">
+      <div className="relative z-10 pl-4 sm:pl-6 lg:pl-10 2xl:pl-0 2xl:max-w-7xl 2xl:mx-auto">
         {/* Gradient fades */}
-        <div className="absolute right-0 top-0 bottom-0 w-32 z-20 bg-gradient-to-l from-[#F8FDF9] to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-32 z-20 bg-gradient-to-l from-[#F8FDF9] to-transparent pointer-events-none" />
 
         <motion.div
           ref={containerRef}
@@ -94,7 +94,7 @@ export function TestimonialSlider() {
           <motion.div
             drag="x"
             dragConstraints={{ right: 0, left: -dragWidth }}
-            className="flex gap-6 pr-6"
+            className="flex gap-4 sm:gap-6 pr-4 sm:pr-6"
           >
             {TESTIMONIALS.map((t, idx) => (
               <motion.div
@@ -103,11 +103,11 @@ export function TestimonialSlider() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="card-dark min-w-[320px] md:min-w-[420px] max-w-[420px] bg-[var(--safe-darkest)] border border-[var(--safe-sage)]/10 rounded-safe-md p-8 flex flex-col justify-between hover:border-[var(--safe-sage)]/30 transition-colors duration-500 shrink-0"
+                className="card-dark min-w-[280px] sm:min-w-[320px] md:min-w-[420px] max-w-[420px] bg-[var(--safe-darkest)] border border-[var(--safe-sage)]/10 rounded-safe-md p-5 sm:p-8 flex flex-col justify-between hover:border-[var(--safe-sage)]/30 transition-colors duration-500 shrink-0"
               >
                 <div>
                   <Quote className="w-8 h-8 text-[var(--safe-sage)] opacity-30 mb-6" />
-                  <p className="text-lg text-[var(--safe-white)] mb-8 leading-relaxed font-sans">
+                  <p className="text-base sm:text-lg text-[var(--safe-white)] mb-6 sm:mb-8 leading-relaxed font-sans">
                     &ldquo;{t.quote}&rdquo;
                   </p>
                 </div>

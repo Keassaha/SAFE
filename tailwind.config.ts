@@ -167,8 +167,10 @@ const config: Config = {
         "slide-up": { "0%": { opacity: "0", transform: "translateY(8px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
         blob: { "0%, 100%": { transform: "translate(0, 0) scale(1)" }, "25%": { transform: "translate(10px, -20px) scale(1.05)" }, "50%": { transform: "translate(-10px, 10px) scale(0.95)" }, "75%": { transform: "translate(20px, 20px) scale(1.02)" } },
         shimmer: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(100%)" } },
+        "mobile-drawer-in": { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(0)" } },
       },
       animation: {
+        "mobile-drawer-in": "mobile-drawer-in 0.2s ease-out forwards",
         "fade-in": "fade-in 0.25s ease-out",
         "page-enter": "page-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "slide-up": "slide-up 0.3s ease-out",

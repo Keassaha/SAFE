@@ -200,7 +200,7 @@ function OutcomeCard({
         }}
       />
 
-      <div className="relative z-10 p-8">
+      <div className="relative z-10 p-5 sm:p-8">
         {/* Top row: icon + stat */}
         <div className="flex items-start justify-between mb-6">
           <motion.div
@@ -248,12 +248,12 @@ function OutcomeCard({
 
 export function FeaturesGrid() {
   return (
-    <section className="section-night relative py-28 lg:py-36 overflow-hidden">
+    <section className="section-night relative py-16 sm:py-28 lg:py-36 overflow-hidden">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -268,7 +268,7 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
             Votre cabinet mérite mieux que du{" "}
             <span className="italic text-[var(--safe-sage)]">bricolage.</span>
@@ -279,7 +279,7 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
+            className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
             Moins de stress, plus de temps pour vos clients, et la certitude d&apos;être toujours conforme.
           </motion.p>
@@ -295,7 +295,7 @@ export function FeaturesGrid() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {OUTCOMES.map((feat, idx) => (
             <OutcomeCard key={feat.title} feat={feat} idx={idx} />
           ))}
@@ -311,7 +311,7 @@ export function FeaturesGrid() {
         >
           <Link
             href="/fonctionnalites"
-            className="group inline-flex items-center gap-3 px-8 py-4 text-base font-semibold rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:bg-[var(--safe-sage)]/10 hover:border-[var(--safe-sage)]/50 transition-all duration-300 font-sans"
+            className="group inline-flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:bg-[var(--safe-sage)]/10 hover:border-[var(--safe-sage)]/50 transition-all duration-300 font-sans"
           >
             Voir toutes les fonctionnalités
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

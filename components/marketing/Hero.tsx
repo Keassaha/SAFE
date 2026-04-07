@@ -179,7 +179,7 @@ export function Hero() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           style={{ y: blobY1 }}
-          className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[120px] animate-[blob-drift-1_18s_ease-in-out_infinite]"
+          className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[120px] animate-[blob-drift-1_18s_ease-in-out_infinite]"
         />
         <motion.div
           style={{ y: blobY2 }}
@@ -191,7 +191,7 @@ export function Hero() {
         />
       </div>
 
-      <div className="relative z-20 mx-auto max-w-7xl px-6 lg:px-10 pt-32 pb-20 lg:pt-40 lg:pb-32">
+      <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-32">
         <div className="max-w-4xl mx-auto text-center">
           {/* Compliance badge */}
           <motion.div
@@ -211,7 +211,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-sans text-5xl md:text-7xl lg:text-7xl leading-[1.05] tracking-[-0.02em] text-[var(--safe-white)] mb-8"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[1.08] tracking-[-0.02em] text-[var(--safe-white)] mb-6 sm:mb-8"
           >
             <GlowText
               text="Le logiciel de gestion conçu pour les "
@@ -240,7 +240,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-12 leading-relaxed font-sans"
+            className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed font-sans"
           >
             Facturation conforme, comptes en fidéicommis, échéanciers — tout dans une seule
             plateforme pensée pour votre pratique.
@@ -255,14 +255,14 @@ export function Hero() {
           >
             <Link
               href="/demo"
-              className="group flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-full bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-xl shadow-[var(--safe-accent)]/25 font-sans"
+              className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold rounded-full bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-xl shadow-[var(--safe-accent)]/25 font-sans"
             >
               Réserver une démo
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
               href="/audit-gratuit"
-              className="group flex items-center gap-2 px-8 py-4 text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
+              className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
             >
               <Sparkles className="w-4 h-4" />
               Audit gratuit par IA

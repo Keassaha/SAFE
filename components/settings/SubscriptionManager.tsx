@@ -68,7 +68,7 @@ export function SubscriptionManager({
         </div>
         {stripeCustomerId && (
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleManage}
             disabled={loading === "manage"}
           >
@@ -132,7 +132,7 @@ export function SubscriptionManager({
 
               <div className="mt-6">
                 {isCurrent ? (
-                  <Button variant="outline" className="w-full" disabled>
+                  <Button variant="secondary" className="w-full" disabled>
                     Plan actuel
                   </Button>
                 ) : (

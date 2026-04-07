@@ -249,6 +249,9 @@
   },
   "shell": {
     "header": {
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close menu",
+      "menuTitle": "SAFE navigation",
       "searchLabel": "Search clients, matters and invoices",
       "searchPlaceholder": "Search clients, matters, invoices…",
       "addTitle": "Add",

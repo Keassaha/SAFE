@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import {
+  getStripe,
+  subscriptionCurrentPeriodEndUnix,
+  subscriptionIdFromInvoice,
+} from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import Stripe from "stripe";
 
@@ -14,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (webhookSecret && sig) {
-      event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+      event = getStripe().webhooks.constructEvent(body, sig, webhookSecret);
     } else {
       event = JSON.parse(body) as Stripe.Event;
     }
@@ -31,10 +35,11 @@ export async function POST(req: NextRequest) {
         const plan = session.metadata?.plan;
         if (!cabinetId || !plan) break;
 
-        const subscription = await stripe.subscriptions.retrieve(
+        const subscription = await getStripe().subscriptions.retrieve(
           session.subscription as string
         );
 
+        const periodEndCheckout = subscriptionCurrentPeriodEndUnix(subscription);
         await prisma.cabinet.update({
           where: { id: cabinetId },
           data: {
@@ -42,9 +47,10 @@ export async function POST(req: NextRequest) {
             stripeCustomerId: session.customer as string,
             stripeSubscriptionId: subscription.id,
             stripePriceId: subscription.items.data[0].price.id,
-            stripeCurrentPeriodEnd: new Date(
-              (subscription as unknown as { current_period_end: number }).current_period_end * 1000
-            ),
+            stripeCurrentPeriodEnd:
+              periodEndCheckout != null
+                ? new Date(periodEndCheckout * 1000)
+                : null,
           },
         });
         break;
@@ -52,23 +58,24 @@ export async function POST(req: NextRequest) {
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        if (!invoice.subscription) break;
+        const subId = subscriptionIdFromInvoice(invoice);
+        if (!subId) break;
 
-        const subscription = await stripe.subscriptions.retrieve(
-          invoice.subscription as string
-        );
+        const subscription = await getStripe().subscriptions.retrieve(subId);
 
         const cabinet = await prisma.cabinet.findFirst({
           where: { stripeSubscriptionId: subscription.id },
         });
         if (!cabinet) break;
 
+        const periodEndInvoice = subscriptionCurrentPeriodEndUnix(subscription);
         await prisma.cabinet.update({
           where: { id: cabinet.id },
           data: {
-            stripeCurrentPeriodEnd: new Date(
-              (subscription as unknown as { current_period_end: number }).current_period_end * 1000
-            ),
+            stripeCurrentPeriodEnd:
+              periodEndInvoice != null
+                ? new Date(periodEndInvoice * 1000)
+                : null,
           },
         });
         break;

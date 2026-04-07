@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { signOutClient } from "@/lib/auth/sign-out-client";
 import Link from "next/link";
-import { Search, Plus, Bell, Settings } from "lucide-react";
+import { Search, Bell, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { routes } from "@/lib/routes";
@@ -16,9 +16,17 @@ interface HeaderProps {
   cabinetId?: string | null;
   /** Afficher le dot de notification sur la cloche (ex. notifications non lues) */
   hasUnreadNotifications?: boolean;
+  /** Ouvre le menu navigation (app shell mobile) */
+  onOpenMobileNav?: () => void;
 }
 
-export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications = false }: HeaderProps) {
+export function Header({
+  title = "SAFE",
+  user,
+  cabinetId,
+  hasUnreadNotifications = false,
+  onOpenMobileNav,
+}: HeaderProps) {
   const t = useTranslations("shell.header");
   const currentUserId = (user as { id?: string })?.id ?? "";
 
@@ -34,11 +42,21 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
   }, []);
 
   return (
-    <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 gap-4 bg-white border-b border-[var(--safe-neutral-border)]">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+    <header className="h-20 shrink-0 flex items-center justify-between px-3 sm:px-4 md:px-8 gap-2 sm:gap-4 bg-white border-b border-[var(--safe-neutral-border)]">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+        {onOpenMobileNav ? (
+          <button
+            type="button"
+            onClick={onOpenMobileNav}
+            className="shrink-0 lg:hidden p-2 -ml-1 rounded-safe text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600/30"
+            aria-label={t("openMenu")}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        ) : null}
         <Link
           href={routes.tableauDeBord}
-          className="shrink-0 lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 rounded-safe-sm"
+          className="shrink-0 hidden sm:flex lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-600/30 rounded-safe-sm"
         >
           <span className="sr-only">{title}</span>
           <SafeLogo variant="dark" className="shrink-0" />
@@ -64,12 +82,12 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <div className="safe-topbar-locale text-gray-600">
           <LocaleSwitcher />
         </div>
         <GlobalTimer cabinetId={cabinetId ?? null} currentUserId={currentUserId} />
-        
+
         <button
           type="button"
           className="relative w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors duration-200 shadow-sm"
@@ -100,7 +118,7 @@ export function Header({ title = "SAFE", user, cabinetId, hasUnreadNotifications
         <button
           type="button"
           onClick={() => void signOutClient("/")}
-          className="text-gray-500 ml-2 px-3 py-2 text-sm font-medium rounded-safe transition-colors duration-200 hover:text-green-800 hover:bg-green-50"
+          className="text-gray-500 sm:ml-2 px-2 sm:px-3 py-2 text-sm font-medium rounded-safe transition-colors duration-200 hover:text-green-800 hover:bg-green-50 whitespace-nowrap"
         >
           {t("signOut")}
         </button>

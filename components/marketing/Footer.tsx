@@ -22,11 +22,11 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--safe-dark)] border-t border-white/5 pt-20 pb-10">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-[var(--safe-dark)] border-t border-white/5 pt-12 sm:pt-20 pb-8 sm:pb-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
           {/* Brand */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block mb-6 group transition-opacity duration-300 hover:opacity-[0.85]">
               <SafeLogo variant="dark" noPulse className="shrink-0" />
             </Link>

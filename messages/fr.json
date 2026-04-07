@@ -249,6 +249,9 @@
   },
   "shell": {
     "header": {
+      "openMenu": "Ouvrir le menu de navigation",
+      "closeMenu": "Fermer le menu",
+      "menuTitle": "Navigation SAFE",
       "searchLabel": "Rechercher des clients, dossiers et factures",
       "searchPlaceholder": "Rechercher clients, dossiers, factures…",
       "addTitle": "Ajouter",

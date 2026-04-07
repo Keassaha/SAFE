@@ -22,13 +22,13 @@ export function LogosTicker() {
       </p>
 
       {/* Gradient fade masks */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-r from-[#F8FDF9] to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-[#F8FDF9] to-transparent pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 md:w-32 z-10 bg-gradient-to-r from-[#F8FDF9] to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-32 z-10 bg-gradient-to-l from-[#F8FDF9] to-transparent pointer-events-none" />
 
       {/* Scrolling track */}
       <div className="flex ticker-scroll w-max">
         {doubled.map((badge, i) => (
-          <div key={i} className="flex items-center gap-3 px-8 shrink-0">
+          <div key={i} className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 shrink-0">
             <badge.icon className="w-4 h-4 text-[var(--safe-sage)] opacity-70" />
             <span className="text-sm text-[var(--safe-sage)] opacity-80 font-medium whitespace-nowrap font-sans">
               {badge.label}

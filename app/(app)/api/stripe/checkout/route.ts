@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { stripe, PLANS, PlanKey } from "@/lib/stripe";
+import { getStripe, PLANS, PlanKey } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Créer ou récupérer le client Stripe
     let customerId = cabinet.stripeCustomerId;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         metadata: { cabinetId: cabinet.id },
         name: cabinet.nom,
       });
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Créer la session de checkout
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const checkoutSession = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],

@@ -1,6 +1,7 @@
 "use client";
 
 import { signInWithCredentialsClient } from "@/lib/auth/credentials-sign-in-client";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
@@ -234,9 +235,14 @@ function AuthPageContent() {
               className={inputClass}
             />
           </div>
-          <p className="text-xs text-white/80">
-            Les employées se connectent avec le nom exact du cabinet, leur courriel et leur mot de passe.
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-white/80">
+              Les employées se connectent avec le nom exact du cabinet, leur courriel et leur mot de passe.
+            </p>
+            <Link href="/forgot-password" className="text-xs text-primary-300 hover:text-primary-200 whitespace-nowrap ml-2">
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <Button type="submit" className="h-11 w-full bg-primary-700 hover:bg-primary-800">
             {loading ? "Connexion..." : "Se connecter"}
           </Button>

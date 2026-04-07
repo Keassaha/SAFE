@@ -2,35 +2,68 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canManageInvoices } from "@/lib/auth/permissions";
+import { prisma } from "@/lib/db";
+import { sendEmail, invoiceEmailHtml } from "@/lib/email";
 import type { UserRole } from "@prisma/client";
 
-function getSessionData() {
-  return getServerSession(authOptions).then((session) => {
-    if (!session?.user) return null;
-    const role = (session.user as { role?: string }).role as UserRole;
-    if (!role) return null;
-    return { role };
-  });
-}
-
-/**
- * POST: envoi de facture par email — désactivé pour le moment.
- * La route reste en place pour ne pas casser l’UI ; retourne 503.
- */
 export async function POST(
   _request: Request,
-  _context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const data = await getSessionData();
-  if (!data) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
-  if (!canManageInvoices(data.role)) {
+
+  const role = (session.user as { role?: string }).role as UserRole;
+  if (!role || !canManageInvoices(role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 
-  return NextResponse.json(
-    { error: "L'envoi de facture par email est désactivé pour le moment." },
-    { status: 503 }
-  );
+  const { id } = await context.params;
+  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
+
+  try {
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, cabinetId: cabinetId || undefined },
+      include: { client: true },
+    });
+
+    if (!invoice) {
+      return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
+    }
+
+    const clientEmail = invoice.client?.email;
+    if (!clientEmail) {
+      return NextResponse.json(
+        { error: "Le client n'a pas d'adresse email" },
+        { status: 400 }
+      );
+    }
+
+    const html = invoiceEmailHtml(
+      invoice.client?.prenom
+        ? `${invoice.client.prenom} ${invoice.client.nom}`
+        : invoice.client?.nom || "Client",
+      invoice.numero,
+      invoice.montantTotal?.toFixed(2) || "0.00",
+      invoice.dateEcheance
+        ? new Date(invoice.dateEcheance).toLocaleDateString("fr-CA")
+        : "N/A"
+    );
+
+    await sendEmail({
+      to: clientEmail,
+      subject: `Facture ${invoice.numero} — ${invoice.client?.nom || ""}`,
+      html,
+    });
+
+    return NextResponse.json({ success: true, message: "Facture envoyée par email" });
+  } catch (error) {
+    console.error("Erreur envoi facture:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de l'envoi de l'email" },
+      { status: 500 }
+    );
+  }
 }

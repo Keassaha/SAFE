@@ -278,10 +278,10 @@ const STEPS = [
 
 export function ProcessTimeline() {
   return (
-    <section className="section-dusk relative py-28 lg:py-36">
+    <section className="section-dusk relative py-16 sm:py-28 lg:py-36">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         {/* Header */}
         <div className="text-center mb-16 lg:mb-20">
           <motion.p
@@ -297,7 +297,7 @@ export function ProcessTimeline() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
           >
             Une transition fluide, structurée et{" "}
             <span className="italic text-[var(--safe-sage)]">sans stress</span>.
@@ -307,7 +307,7 @@ export function ProcessTimeline() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
+            className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
           >
             Nous connaissons la valeur de vos heures facturables. Notre processus
             d&apos;intégration est conçu pour minimiser les interruptions de votre pratique.
@@ -315,7 +315,7 @@ export function ProcessTimeline() {
         </div>
 
         {/* Steps with animations */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           {STEPS.map((step, idx) => {
             const AnimComponent = stepAnimations[idx];
             return (

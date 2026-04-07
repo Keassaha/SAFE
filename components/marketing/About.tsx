@@ -72,10 +72,10 @@ const stats = [
 
 export function About() {
   return (
-    <section className="section-dusk relative py-28 lg:py-36">
+    <section className="section-dusk relative py-16 sm:py-28 lg:py-36">
       <div className="landing-grain absolute inset-0 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 lg:px-10">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-10">
         {/* Label */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -92,7 +92,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="font-sans text-4xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight"
+          className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 sm:mb-8 leading-tight tracking-tight"
         >
           Simplifier la gestion quotidienne des{" "}
           <span className="italic text-[var(--safe-sage)]">cabinets</span>
@@ -105,7 +105,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-white/70 text-lg leading-relaxed font-sans"
+            className="text-white/70 text-base sm:text-lg leading-relaxed font-sans"
           >
             Les petits cabinets en droit familial font face à des obligations de conformité
             identiques aux grands cabinets, sans les mêmes ressources. SAFE est né de ce
@@ -118,7 +118,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-white/70 text-lg leading-relaxed font-sans"
+            className="text-white/70 text-base sm:text-lg leading-relaxed font-sans"
           >
             Facturation conforme au Règlement sur la comptabilité et les normes d&apos;exercice
             professionnel, gestion de fidéicommis avec validation humaine, suivi des
@@ -127,7 +127,7 @@ export function About() {
         </div>
 
         {/* Stats — with generous spacing */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-16 lg:mt-20">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mt-12 sm:mt-16 lg:mt-20">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -135,7 +135,7 @@ export function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.12, duration: 0.5 }}
-              className="relative group p-6 rounded-safe-md bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-500"
+              className="relative group p-4 sm:p-6 rounded-safe-md bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-500"
             >
               {/* Subtle top glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />

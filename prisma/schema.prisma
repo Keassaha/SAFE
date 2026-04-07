@@ -98,6 +98,8 @@ model User {
   mandateSubstitut          DossierMandate[] @relation("MandateAvocatSubstitut")
   trustMovementsValidated   DossierTrustMovement[] @relation("TrustMovementValidatedBy")
   dossierClosuresClosed     DossierClosure[] @relation("DossierClosureClosedBy")
+  resetToken                String?
+  resetTokenExpiry          DateTime?
 }
 
 enum EmployeeRole {
