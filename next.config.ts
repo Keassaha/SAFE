@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96],
   },
 
-  /* ── Experimental perf ── */
-  experimental: {
-    optimizeCss: true,
-  },
 
   /* ── Redirects ── */
   async redirects() {
