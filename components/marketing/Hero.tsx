@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useRef } from "react";
 import {
   Shield,
   ArrowRight,
@@ -10,197 +10,24 @@ import {
 import Link from "next/link";
 
 /* ═══════════════════════════════════════════════
-   Scroll-linked letter glow (LangGraph-inspired)
-   ═══════════════════════════════════════════════ */
-function GlowText({
-  text,
-  className = "",
-  scrollYProgress,
-  start = 0,
-  end = 1,
-}: {
-  text: string;
-  className?: string;
-  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
-  start?: number;
-  end?: number;
-}) {
-  const chars = text.split("");
-
-  return (
-    <span className={className} aria-label={text}>
-      {chars.map((char, i) => {
-        const charStart = start + (i / chars.length) * (end - start) * 0.6;
-        const charEnd = charStart + (end - start) * 0.4;
-        return (
-          <GlowChar
-            key={`${char}-${i}`}
-            char={char}
-            scrollYProgress={scrollYProgress}
-            start={charStart}
-            end={charEnd}
-          />
-        );
-      })}
-    </span>
-  );
-}
-
-function GlowChar({
-  char,
-  scrollYProgress,
-  start,
-  end,
-}: {
-  char: string;
-  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
-  start: number;
-  end: number;
-}) {
-  const opacity = useTransform(scrollYProgress, [start, end], [0.25, 1]);
-  const textShadow = useTransform(scrollYProgress, [start, end], [
-    "0 0 0px transparent",
-    "0 0 20px rgba(142, 182, 155, 0.5)",
-  ]);
-
-  return (
-    <motion.span
-      style={{ opacity, textShadow }}
-      className="inline-block transition-none"
-    >
-      {char === " " ? "\u00A0" : char}
-    </motion.span>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   Floating dot-grid canvas (tech/AI aesthetic)
-   ═══════════════════════════════════════════════ */
-function DotGrid() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animFrame: number;
-    let time = 0;
-    let lastFrame = 0;
-    const TARGET_FPS = 24; // Throttle to 24fps — saves battery on Safari
-    const FRAME_INTERVAL = 1000 / TARGET_FPS;
-
-    // Use 1x resolution on Safari/mobile for performance
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const dpr = isSafari ? 1 : Math.min(window.devicePixelRatio, 2);
-
-    function resize() {
-      if (!canvas) return;
-      canvas.width = canvas.offsetWidth * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx!.scale(dpr, dpr);
-    }
-
-    function draw(timestamp: number) {
-      animFrame = requestAnimationFrame(draw);
-
-      // Throttle frame rate
-      if (timestamp - lastFrame < FRAME_INTERVAL) return;
-      lastFrame = timestamp;
-
-      if (!canvas || !ctx) return;
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
-
-      // Larger spacing = fewer dots = faster
-      const spacing = isSafari ? 60 : 48;
-      const cols = Math.ceil(w / spacing);
-      const rows = Math.ceil(h / spacing);
-
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          const x = i * spacing + spacing / 2;
-          const y = j * spacing + spacing / 2;
-
-          const dist = Math.sqrt(
-            Math.pow(x - w / 2, 2) + Math.pow(y - h / 2, 2)
-          );
-          const wave = Math.sin(dist * 0.008 - time * 0.6) * 0.5 + 0.5;
-          const alpha = 0.04 + wave * 0.08;
-          const radius = 1 + wave * 0.5;
-
-          ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(142, 182, 155, ${alpha})`;
-          ctx.fill();
-        }
-      }
-
-      time += 0.016;
-    }
-
-    resize();
-    animFrame = requestAnimationFrame(draw);
-
-    window.addEventListener("resize", resize);
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animFrame);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.6 }}
-    />
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   HERO COMPONENT
+   HERO COMPONENT — clean, fast, no scroll gimmicks
    ═══════════════════════════════════════════════ */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Parallax for blobs
-  const blobY1 = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const blobY2 = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const blobY3 = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
   return (
     <section
       ref={sectionRef}
-      className="section-morning relative min-h-[110vh] flex items-center justify-center overflow-hidden"
+      className="section-morning relative min-h-[100vh] flex items-center justify-center overflow-hidden"
     >
-      {/* Dot grid canvas (tech/AI feel) */}
-      <DotGrid />
-
       {/* Grain texture */}
       <div className="landing-grain absolute inset-0 z-10 pointer-events-none" />
 
-      {/* Gradient mesh blobs — with parallax */}
+      {/* Gradient mesh blobs — static, no parallax, GPU-friendly */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          style={{ y: blobY1 }}
-          className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[80px] will-change-transform"
-        />
-        <motion.div
-          style={{ y: blobY2 }}
-          className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#235347] opacity-8 blur-[60px] will-change-transform"
-        />
-        <motion.div
-          style={{ y: blobY3 }}
-          className="absolute top-[30%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#DAF1DE] opacity-30 blur-[60px] will-change-transform"
-        />
+        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full bg-[#8EB69B] opacity-15 blur-[80px] will-change-transform" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#235347] opacity-8 blur-[60px] will-change-transform" />
+        <div className="absolute top-[30%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#DAF1DE] opacity-30 blur-[60px] will-change-transform" />
       </div>
 
       <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-32">
@@ -228,26 +55,16 @@ export function Hero() {
             Factures en retard. Fidéicommis approximatif. Inspection qui approche.
           </motion.p>
 
-          {/* Headline with scroll-linked glow */}
+          {/* Headline — fully visible on load, simple fade-in */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[1.08] tracking-[-0.02em] text-[var(--safe-white)] mb-6 sm:mb-8"
           >
-            <GlowText
-              text="Passez l'inspection du Barreau "
-              scrollYProgress={scrollYProgress}
-              start={0}
-              end={0.25}
-            />
+            Passez l&apos;inspection du Barreau{" "}
             <span className="italic text-[var(--safe-sage)]">
-              <GlowText
-                text="les yeux fermés."
-                scrollYProgress={scrollYProgress}
-                start={0.1}
-                end={0.35}
-              />
+              les yeux fermés.
             </span>
           </motion.h1>
 
@@ -299,7 +116,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
+            transition={{ delay: 1.2, duration: 1 }}
             className="mt-20 flex flex-col items-center gap-2"
           >
             <span className="text-xs text-[var(--safe-sage)]/50 font-sans">Défiler</span>
