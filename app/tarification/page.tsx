@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Check, ArrowRight, ChevronDown, HelpCircle, Sparkles, Shield, Zap } from "lucide-react";
+import { Check, ArrowRight, ChevronDown, Shield, Sparkles, Zap, Clock, Lock } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/marketing/Navbar";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
@@ -27,7 +27,7 @@ function AnimatedPrice({ value, inView }: { value: number; inView: boolean }) {
   return <>{count}</>;
 }
 
-/* ───── Animated checkmarks in feature lists ───── */
+/* ───── Animated checkmarks ───── */
 function AnimatedCheck({ delay, inView }: { delay: number; inView: boolean }) {
   return (
     <motion.div
@@ -40,109 +40,127 @@ function AnimatedCheck({ delay, inView }: { delay: number; inView: boolean }) {
   );
 }
 
+/* ───── Plans — aligned with main page Pricing.tsx ───── */
 const PLANS = [
   {
     name: "Solo",
-    price: 149,
-    period: "/mois",
+    monthlyPrice: 99,
+    annualPrice: 79,
+    annualSaving: "240",
     description: "Vous pratiquez seul et voulez dormir tranquille avant l'inspection.",
     features: [
-      "1 avocat",
-      "1 utilisateur adjoint",
+      "1 avocat + 1 adjoint",
       "Dossiers illimités",
       "Facturation conforme B-1 r.5",
-      "Comptes en fidéicommis",
+      "1 compte en fidéicommis",
+      "Audit de conformité de base",
+      "Agent IA Finance — 50 requêtes/mois",
       "Échéanciers & alertes",
-      "Support par courriel",
+      "Support par courriel (48h)",
     ],
     popular: false,
-    cta: "Commencer l'essai gratuit",
+    cta: "Essai gratuit 14 jours",
     href: "/demo",
     icon: Shield,
   },
   {
     name: "Cabinet",
-    price: 349,
-    period: "/mois",
-    description: "L'outil complet pour les petites équipes juridiques.",
+    monthlyPrice: 249,
+    annualPrice: 199,
+    annualSaving: "600",
+    description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
     features: [
-      "Jusqu'à 5 avocats",
-      "3 adjoints inclus",
+      "Jusqu'à 5 utilisateurs",
       "Dossiers illimités",
+      "3 comptes en fidéicommis",
       "Rapports financiers avancés",
-      "Support prioritaire",
-      "Employés virtuels (bêta)",
-      "Échéanciers & alertes",
-      "Export comptable",
+      "Audit complet + alertes conformité",
+      "Agent IA Finance — 200 requêtes/mois",
+      "Agent IA Assistant — 100 requêtes/mois",
+      "Échéanciers & alertes de cour",
+      "Onboarding 1-on-1 (30 min)",
+      "Support prioritaire (24h)",
     ],
     popular: true,
-    cta: "Commencer l'essai gratuit",
+    cta: "Essai gratuit 14 jours",
     href: "/demo",
     icon: Sparkles,
   },
   {
-    name: "Sur mesure",
-    price: 0,
-    period: "",
-    description: "Pour les cabinets de plus de 5 avocats ou besoins spécifiques.",
+    name: "Cabinet+",
+    monthlyPrice: 499,
+    annualPrice: 399,
+    annualSaving: "1 200",
+    description: "Pour les cabinets qui veulent la tranquillité d'esprit totale.",
     features: [
-      "Avocats et adjoints illimités",
+      "Jusqu'à 15 utilisateurs",
+      "Comptes en fidéicommis illimités",
+      "Rapport pré-inspection automatisé",
+      "Agents IA illimités",
       "Intégrations sur mesure",
       "Migration de données complète",
-      "Gestionnaire de compte dédié",
-      "Formation sur site",
+      "Onboarding concierge (3 sessions)",
+      "Support téléphone + Slack dédié",
       "SLA garanti",
-      "Personnalisation de l'interface",
-      "API dédiée",
     ],
     popular: false,
-    cta: "Nous contacter",
-    href: "/contact",
+    cta: "Réserver une démo",
+    href: "/demo",
     icon: Zap,
   },
 ];
 
+/* ───── Comparison table ───── */
 const comparisonFeatures = [
-  { name: "Avocats", solo: "1", cabinet: "Jusqu'à 5", custom: "Illimité" },
-  { name: "Adjoints", solo: "1", cabinet: "3", custom: "Illimité" },
-  { name: "Dossiers", solo: "Illimité", cabinet: "Illimité", custom: "Illimité" },
-  { name: "Facturation B-1 r.5", solo: true, cabinet: true, custom: true },
-  { name: "Fidéicommis", solo: true, cabinet: true, custom: true },
-  { name: "Échéanciers", solo: true, cabinet: true, custom: true },
-  { name: "Rapports avancés", solo: false, cabinet: true, custom: true },
-  { name: "Employés virtuels", solo: false, cabinet: true, custom: true },
-  { name: "Export comptable", solo: false, cabinet: true, custom: true },
-  { name: "Migration de données", solo: false, cabinet: false, custom: true },
-  { name: "Formation sur site", solo: false, cabinet: false, custom: true },
-  { name: "SLA garanti", solo: false, cabinet: false, custom: true },
-  { name: "API dédiée", solo: false, cabinet: false, custom: true },
-  { name: "Support", solo: "Courriel", cabinet: "Prioritaire", custom: "Dédié" },
+  { name: "Utilisateurs", solo: "1 avocat + 1 adjoint", cabinet: "Jusqu'à 5", cabinetPlus: "Jusqu'à 15" },
+  { name: "Dossiers", solo: "Illimité", cabinet: "Illimité", cabinetPlus: "Illimité" },
+  { name: "Comptes fidéicommis", solo: "1", cabinet: "3", cabinetPlus: "Illimité" },
+  { name: "Facturation conforme B-1 r.5", solo: true, cabinet: true, cabinetPlus: true },
+  { name: "Échéanciers & alertes", solo: true, cabinet: true, cabinetPlus: true },
+  { name: "Audit de conformité", solo: "De base", cabinet: "Complet + alertes", cabinetPlus: "Complet + rapport pré-inspection" },
+  { name: "Agent IA Finance", solo: "50 req/mois", cabinet: "200 req/mois", cabinetPlus: "Illimité" },
+  { name: "Agent IA Assistant", solo: false, cabinet: "100 req/mois", cabinetPlus: "Illimité" },
+  { name: "Rapports financiers avancés", solo: false, cabinet: true, cabinetPlus: true },
+  { name: "Onboarding", solo: "Self-serve + vidéos", cabinet: "Session 1-on-1 (30 min)", cabinetPlus: "Concierge (3 sessions)" },
+  { name: "Migration de données", solo: false, cabinet: false, cabinetPlus: true },
+  { name: "Intégrations sur mesure", solo: false, cabinet: false, cabinetPlus: true },
+  { name: "SLA garanti", solo: false, cabinet: false, cabinetPlus: true },
+  { name: "Support", solo: "Courriel (48h)", cabinet: "Prioritaire (24h)", cabinetPlus: "Téléphone + Slack dédié" },
 ];
 
+/* ───── FAQ ───── */
 const faqs = [
   {
     q: "Y a-t-il un essai gratuit ?",
-    a: "Oui, nous offrons un essai gratuit de 14 jours sans carte de crédit requise. Vous pouvez explorer toutes les fonctionnalités du plan Cabinet pendant cette période.",
+    a: "Oui, 14 jours gratuits sans carte de crédit. Vous pouvez explorer toutes les fonctionnalités du plan Cabinet pendant cette période.",
+  },
+  {
+    q: "Quelle est votre garantie ?",
+    a: "30 jours satisfait ou remboursé, sans question. Si SAFE ne vous convient pas, on vous rembourse intégralement.",
   },
   {
     q: "Puis-je changer de plan en cours de route ?",
-    a: "Absolument. Vous pouvez passer du plan Solo au plan Cabinet à tout moment. La différence de prix est calculée au prorata pour le mois en cours.",
+    a: "Absolument. Passez du Solo au Cabinet ou au Cabinet+ à tout moment. La différence est calculée au prorata.",
   },
   {
     q: "Quels modes de paiement acceptez-vous ?",
-    a: "Nous acceptons les cartes de crédit Visa, Mastercard et American Express. Pour le plan Sur mesure, nous offrons aussi la facturation mensuelle par virement.",
+    a: "Cartes de crédit Visa, Mastercard et American Express. Facturation mensuelle ou annuelle (économisez 20% sur l'annuel).",
   },
   {
     q: "Mes données sont-elles sécurisées ?",
-    a: "Toutes les données sont hébergées au Canada (Montréal et Toronto), chiffrées AES-256 au repos et en transit. Nous sommes conformes à la Loi 25 sur la protection des renseignements personnels.",
+    a: "Toutes les données sont hébergées au Canada (Montréal et Toronto), chiffrées AES-256. Conforme à la Loi 25 sur la protection des renseignements personnels.",
   },
   {
-    q: "Que se passe-t-il si j'annule mon abonnement ?",
-    a: "Vous conservez l'accès jusqu'à la fin de votre période de facturation. Vos données sont archivées pendant 90 jours et peuvent être exportées à tout moment.",
+    q: "Que se passe-t-il si j'annule ?",
+    a: "Vous conservez l'accès jusqu'à la fin de votre période. Vos données sont exportables en tout temps — elles vous appartiennent.",
   },
   {
     q: "La migration depuis mon ancien logiciel est-elle incluse ?",
-    a: "La migration assistée est incluse dans le plan Sur mesure. Pour les plans Solo et Cabinet, nous fournissons des outils d'importation et un guide détaillé.",
+    a: "La migration complète est incluse dans le plan Cabinet+. Pour les plans Solo et Cabinet, nous fournissons des outils d'importation et un guide détaillé.",
+  },
+  {
+    q: "L'IA donne-t-elle des conseils juridiques ?",
+    a: "Non, jamais. Les agents IA sont des assistants administratifs entraînés sur les règles du Barreau du Québec. Ils aident à vérifier, classer et organiser — sans jamais se substituer au jugement professionnel.",
   },
 ];
 
@@ -185,6 +203,7 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
 }
 
 export default function TarificationPage() {
+  const [annual, setAnnual] = useState(true);
   const cardsRef = useRef<HTMLDivElement>(null);
   const cardsInView = useInView(cardsRef, { once: true, margin: "-80px" });
 
@@ -207,11 +226,10 @@ export default function TarificationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="font-sans text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
+              className="font-sans text-4xl md:text-5xl lg:text-7xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
             >
-              Un investissement{" "}
-              <span className="italic text-[var(--safe-sage)]">rentable</span> dès le
-              premier mois.
+              Moins cher qu&apos;une heure de votre temps.{" "}
+              <span className="italic text-[var(--safe-sage)]">Rentable dès le jour 1.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -220,7 +238,44 @@ export default function TarificationPage() {
               className="text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto font-sans"
             >
               Pas de frais cachés. Pas d&apos;engagement à long terme. Annulez en tout temps.
+              Satisfait ou remboursé 30 jours.
             </motion.p>
+
+            {/* Annual/Monthly toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mt-8 inline-flex items-center gap-3 bg-white/[0.04] border border-white/[0.08] rounded-full p-1.5"
+            >
+              <button
+                onClick={() => setAnnual(false)}
+                className={`px-5 py-2 rounded-full text-sm font-medium font-sans transition-all duration-300 ${
+                  !annual
+                    ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)]"
+                    : "text-[var(--safe-text-muted)] hover:text-[var(--safe-white)]"
+                }`}
+              >
+                Mensuel
+              </button>
+              <button
+                onClick={() => setAnnual(true)}
+                className={`px-5 py-2 rounded-full text-sm font-medium font-sans transition-all duration-300 flex items-center gap-2 ${
+                  annual
+                    ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)]"
+                    : "text-[var(--safe-text-muted)] hover:text-[var(--safe-white)]"
+                }`}
+              >
+                Annuel
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  annual
+                    ? "bg-[var(--safe-darkest)]/20 text-[var(--safe-darkest)]"
+                    : "bg-emerald-500/20 text-emerald-400"
+                }`}>
+                  -20%
+                </span>
+              </button>
+            </motion.div>
           </div>
         </section>
 
@@ -234,7 +289,7 @@ export default function TarificationPage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={cardsInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.5, delay: idx * 0.12 }}
-                  className={`card-dark relative rounded-safe-md p-8 flex flex-col ${
+                  className={`card-dark relative rounded-safe-md p-6 sm:p-8 flex flex-col ${
                     plan.popular
                       ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 lg:scale-105"
                       : "bg-[var(--safe-darkest)] border border-[#8EB69B]/10"
@@ -247,7 +302,7 @@ export default function TarificationPage() {
                       transition={{ delay: 0.5, type: "spring" }}
                       className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-sans"
                     >
-                      Populaire
+                      Le plus populaire
                     </motion.div>
                   )}
 
@@ -264,35 +319,39 @@ export default function TarificationPage() {
                   <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans">
+                  <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans leading-relaxed">
                     {plan.description}
                   </p>
-                  <div className="mb-8 flex items-end gap-1">
-                    {plan.price === 0 ? (
-                      <span className="text-3xl font-bold text-[var(--safe-white)] font-sans">
-                        Sur devis
-                      </span>
-                    ) : (
-                      <>
-                        <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
-                          <AnimatedPrice value={plan.price} inView={cardsInView} />$
-                        </span>
-                        <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
-                          {plan.period}
-                        </span>
-                      </>
-                    )}
+
+                  {/* Price */}
+                  <div className="mb-2 flex items-end gap-1">
+                    <span className="text-4xl sm:text-5xl font-bold text-[var(--safe-white)] font-sans">
+                      <AnimatedPrice value={annual ? plan.annualPrice : plan.monthlyPrice} inView={cardsInView} />$
+                    </span>
+                    <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
+                      /mois
+                    </span>
                   </div>
+                  {annual && (
+                    <p className="text-xs text-emerald-400 font-sans mb-6">
+                      Économisez {plan.annualSaving}$/an
+                    </p>
+                  )}
+                  {!annual && <div className="mb-6" />}
+
+                  {/* Features */}
                   <ul className="space-y-3.5 mb-8 flex-grow">
                     {plan.features.map((feat, fi) => (
                       <li key={feat} className="flex items-start gap-3">
-                        <AnimatedCheck delay={0.5 + idx * 0.12 + fi * 0.06} inView={cardsInView} />
+                        <AnimatedCheck delay={0.5 + idx * 0.12 + fi * 0.04} inView={cardsInView} />
                         <span className="text-sm text-[var(--safe-white)]/80 font-sans">
                           {feat}
                         </span>
                       </li>
                     ))}
                   </ul>
+
+                  {/* CTA */}
                   <Link
                     href={plan.href}
                     className={`group w-full py-3 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-sans ${
@@ -307,6 +366,30 @@ export default function TarificationPage() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Guarantee badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm text-[var(--safe-text-muted)] font-sans">30 jours satisfait ou remboursé</span>
+              </div>
+              <span className="hidden sm:block text-white/10">|</span>
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucun engagement — annulez en 2 clics</span>
+              </div>
+              <span className="hidden sm:block text-white/10">|</span>
+              <div className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm text-[var(--safe-text-muted)] font-sans">Vos données exportables en tout temps</span>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -328,10 +411,10 @@ export default function TarificationPage() {
                       Solo
                     </th>
                     <th className="py-4 px-4 text-sm text-[var(--safe-sage)] font-sans font-semibold text-center">
-                      Cabinet
+                      Cabinet ⭐
                     </th>
                     <th className="py-4 pl-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
-                      Sur mesure
+                      Cabinet+
                     </th>
                   </tr>
                 </thead>
@@ -348,7 +431,7 @@ export default function TarificationPage() {
                       <td className="py-3 pr-4 text-sm text-[var(--safe-white)] font-sans">
                         {feat.name}
                       </td>
-                      {(["solo", "cabinet", "custom"] as const).map((plan) => {
+                      {(["solo", "cabinet", "cabinetPlus"] as const).map((plan) => {
                         const val = feat[plan];
                         return (
                           <td key={plan} className="py-3 px-4 text-center">
