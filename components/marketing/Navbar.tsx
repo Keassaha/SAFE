@@ -88,7 +88,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#051F20]/98 backdrop-blur-sm rounded-safe-md border border-white/[0.06] shadow-2xl shadow-black/20"
+            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#051F20] rounded-safe-md border border-[#8EB69B]/15 shadow-2xl shadow-black/40"
           >
             <div className="px-6 py-5 space-y-1">
               {navLinks.map((link, i) => (
