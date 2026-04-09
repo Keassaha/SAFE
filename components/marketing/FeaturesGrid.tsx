@@ -106,9 +106,9 @@ const OUTCOMES = [
   },
   {
     icon: Brain,
-    title: "Un agent IA qui connaît le Barreau par cœur",
+    title: "Un outil qui connaît le Barreau par cœur",
     description:
-      "Pas un chatbot générique. Un assistant entraîné sur les règles du Barreau du Québec qui vous aide à vérifier, classer et organiser — sans jamais donner de conseils juridiques.",
+      "Chaque fonctionnalité est conçue autour des règles du Barreau du Québec. Vérification de conformité, alertes automatiques, rapports prêts pour l'inspection — tout est intégré.",
     stat: "24/7",
     statLabel: "disponible",
     accent: {

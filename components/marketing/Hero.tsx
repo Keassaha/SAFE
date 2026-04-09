@@ -76,7 +76,7 @@ export function Hero() {
             className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-3 leading-relaxed font-sans"
           >
             SAFE automatise votre facturation, vos comptes en fidéicommis et votre conformité
-            — le seul logiciel au Québec avec des agents IA entraînés sur les règles du Barreau.
+            au Barreau — le seul logiciel de gestion conçu spécifiquement pour les avocats du Québec.
           </motion.p>
 
           {/* Social proof micro-line */}
