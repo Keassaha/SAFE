@@ -96,6 +96,10 @@ interface AuditResponses {
 
   // Pilier 5 : Facturation & recouvrement
   billing_mode: string[];
+  hourly_rate: string;
+  flat_fee_range: string;
+  per_item_volume: string;
+  annual_revenue: string;
   time_tracking_method: string;
   monthly_billing_time: string;
   collection_rate: string;
@@ -488,6 +492,60 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
+    key: "hourly_rate",
+    phase: 5,
+    text: "💰 Quel est votre taux horaire principal ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("horaire") || r.billing_mode.includes("mixte")),
+    options: [
+      { label: "Moins de 200 $/h", value: "moins_200" },
+      { label: "200 $ à 300 $/h", value: "200_300" },
+      { label: "300 $ à 400 $/h", value: "300_400" },
+      { label: "Plus de 400 $/h", value: "plus_400" },
+    ],
+  },
+  {
+    key: "flat_fee_range",
+    phase: 5,
+    text: "💰 En moyenne, quel est le montant de vos forfaits par mandat ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("forfait") || r.billing_mode.includes("per_item")),
+    options: [
+      { label: "Moins de 500 $ par mandat", value: "moins_500" },
+      { label: "500 $ à 1 500 $", value: "500_1500" },
+      { label: "1 500 $ à 5 000 $", value: "1500_5000" },
+      { label: "Plus de 5 000 $", value: "plus_5000" },
+      { label: "Ça varie beaucoup selon le dossier", value: "variable" },
+    ],
+  },
+  {
+    key: "per_item_volume",
+    phase: 5,
+    text: "📊 En moyenne, combien de mandats ou transactions traitez-vous par mois ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("forfait") || r.billing_mode.includes("per_item")),
+    options: [
+      { label: "Moins de 5", value: "moins_5" },
+      { label: "5 à 15", value: "5_15" },
+      { label: "15 à 30", value: "15_30" },
+      { label: "Plus de 30", value: "plus_30" },
+    ],
+  },
+  {
+    key: "annual_revenue",
+    phase: 5,
+    text: "📈 Pour nous aider à évaluer l'impact financier de nos recommandations, pourriez-vous estimer le chiffre d'affaires annuel de votre cabinet ?",
+    type: "single",
+    options: [
+      { label: "Moins de 100 000 $", value: "moins_100k" },
+      { label: "100 000 $ à 250 000 $", value: "100k_250k" },
+      { label: "250 000 $ à 500 000 $", value: "250k_500k" },
+      { label: "500 000 $ à 1 000 000 $", value: "500k_1m" },
+      { label: "Plus de 1 000 000 $", value: "plus_1m" },
+      { label: "Je préfère ne pas répondre", value: "confidentiel" },
+    ],
+  },
+  {
     key: "price_list",
     phase: 5,
     text: "Avez-vous une grille tarifaire documentée pour vos services à l'acte ?",
@@ -821,9 +879,28 @@ function getReaction(key: string, value: string | number | string[], allResponse
       return null;
 
     case "billing_mode":
-      if (Array.isArray(value) && value.length >= 3) return "Plusieurs modes de facturation — ça demande une rigueur supplémentaire dans la documentation de chaque dossier.";
-      if (Array.isArray(value) && value.includes("per_item")) return "La facturation à l'acte nécessite une grille tarifaire bien documentée pour être conforme.";
+      if (Array.isArray(value) && value.length >= 3) return "📋 Plusieurs modes de facturation — ça demande une rigueur supplémentaire dans la documentation.";
+      if (Array.isArray(value) && value.includes("per_item")) return "La facturation à l'acte nécessite une grille tarifaire bien documentée.";
+      if (Array.isArray(value) && value.includes("aide_juridique")) return "L'aide juridique a des tarifs gouvernementaux fixes — important de bien les suivre.";
       return null;
+
+    case "hourly_rate":
+      if (value === "plus_400") return "Un taux premium — vos clients paient pour votre expertise. Raison de plus pour que chaque heure soit bien captée.";
+      if (value === "moins_200") return "À ce taux, chaque heure perdue compte d'autant plus. Voyons comment maximiser votre capture de temps.";
+      return null;
+
+    case "flat_fee_range":
+      if (value === "variable") return "Des forfaits très variables d'un dossier à l'autre — c'est important de bien documenter la base de chaque prix pour éviter les litiges.";
+      return null;
+
+    case "per_item_volume":
+      if (value === "plus_30") return "Plus de 30 mandats par mois — c'est un volume important ! L'automatisation de la facturation devient essentielle à cette échelle.";
+      return null;
+
+    case "annual_revenue":
+      if (value === "confidentiel") return "Pas de souci, c'est tout à fait compréhensible. On continuera avec les autres données pour estimer l'impact.";
+      if (value === "plus_1m") return "Un cabinet d'un million+ — félicitations. À cette échelle, chaque inefficacité administrative a un coût amplifié.";
+      return "Merci pour cette information. Elle nous permettra de calculer l'impact financier concret de nos recommandations.";
 
     case "collection_rate":
       if (value === "moins_50") return "Un taux de recouvrement sous 50 % met en péril la viabilité financière du cabinet. C'est un signal d'alarme important.";
@@ -1134,8 +1211,28 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   if (globalScore >= 75) maturity = "Avancé";
   else if (globalScore < 45) maturity = "Débutant";
 
-  // ── Financial impact ──
-  const estimatedMonthlyLoss = Math.round(weeklyHours * 250 * 4);
+  // ── Financial impact (adapted to billing mode and revenue) ──
+  const hourlyRateMap: Record<string, number> = { moins_200: 175, "200_300": 250, "300_400": 350, plus_400: 450 };
+  const effectiveRate = hourlyRateMap[responses.hourly_rate || ""] || 250;
+
+  const revenueMap: Record<string, number> = {
+    moins_100k: 75000, "100k_250k": 175000, "250k_500k": 375000,
+    "500k_1m": 750000, plus_1m: 1250000, confidentiel: 0,
+  };
+  const estimatedRevenue = revenueMap[responses.annual_revenue || ""] || 0;
+
+  // Collection rate loss
+  const collectionLossRate: Record<string, number> = {
+    plus_90: 0.03, "70_90": 0.12, "50_70": 0.25, moins_50: 0.40, inconnu: 0.10,
+  };
+  const collectionLoss = estimatedRevenue > 0
+    ? Math.round(estimatedRevenue * (collectionLossRate[responses.collection_rate || ""] || 0.10) / 12)
+    : 0;
+
+  // Admin time loss
+  const adminTimeLoss = Math.round(weeklyHours * effectiveRate * 4);
+
+  const estimatedMonthlyLoss = adminTimeLoss + collectionLoss;
   const estimatedAnnualLoss = estimatedMonthlyLoss * 12;
   const potentialRecovery = Math.round(estimatedAnnualLoss * 0.7);
 
