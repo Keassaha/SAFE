@@ -49,6 +49,8 @@ model Cabinet {
   calendarEvents          CalendarEvent[]
   dossierTrustMovements   DossierTrustMovement[]
   dossierReminders        DossierReminder[]
+  auditSubmissions        AuditSubmission[]
+  interfaceConfig         CabinetInterface?
 }
 
 enum UserRole {
@@ -1825,4 +1827,72 @@ model CalendarEvent {
   @@index([cabinetId, assigneeId])
   @@index([clientId])
   @@index([dossierId])
+}
+
+// ════════════════════════════════════════════
+// AUDIT SYSTEM
+// ════════════════════════════════════════════
+
+model AuditSubmission {
+  id            String   @id @default(cuid())
+  type          String   // "cabinet" | "fichiers"
+  source        String   @default("audit_gratuit") // "audit_gratuit" | "audit_premium" | "onboarding"
+  status        String   @default("nouveau") // "nouveau" | "en_analyse" | "termine"
+
+  // Prospect info (avant création du cabinet dans SAFE)
+  prospectNom       String
+  prospectEmail     String?
+  prospectTelephone String?
+  prospectCabinet   String?
+
+  // Lié à un cabinet existant si le prospect est déjà client
+  cabinetId     String?
+  cabinet       Cabinet? @relation(fields: [cabinetId], references: [id])
+
+  // Réponses du questionnaire (JSON structuré)
+  reponses      String?  // JSON: toutes les réponses pilier par pilier
+
+  // Résultats de l'audit
+  scoreGlobal   Int?     // 0-100
+  scores        String?  // JSON: score par pilier
+  rapport       String?  // JSON: rapport détaillé avec anomalies et corrections
+  configSafe    String?  // JSON: configuration d'interface sur mesure générée
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([prospectEmail])
+  @@index([cabinetId])
+  @@index([status])
+}
+
+// Configuration d'interface dynamique par cabinet
+model CabinetInterface {
+  id          String   @id @default(cuid())
+  cabinetId   String   @unique
+  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id])
+
+  // Onglets actifs/masqués
+  ongletsActifs   String?  // JSON: ["tableau-de-bord", "clients", "dossiers", ...]
+  ongletsMasques  String?  // JSON: ["temps", "rapports-avances", ...]
+
+  // Modules spécifiques activés
+  modules         String?  // JSON: { grille_tarifaire: true, rabais_client: true, ... }
+
+  // Widgets du dashboard
+  widgets         String?  // JSON: ["factures_impayees", "echeances_7_jours", ...]
+
+  // Config dossiers par discipline
+  disciplines     String?  // JSON: ["famille", "immigration", "immobilier"]
+  checklistsParType String? // JSON: { ouverture: [...], fermeture: [...] }
+  champsParType   String?  // JSON: { famille: [...], immigration: [...] }
+
+  // Mode de facturation
+  modeFacturation String?  // JSON: { principal: "par_item", grille: true, rabais: true }
+
+  // Conformité
+  conformite      String?  // JSON: { verif_conflits: true, loi25: true, retention: {...} }
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

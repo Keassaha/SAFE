@@ -47,6 +47,7 @@ interface Question {
   scaleMax?: number;
   scaleLabels?: Record<number, string>;
   placeholder?: string;
+  condition?: (responses: Partial<AuditResponses>) => boolean;
 }
 
 interface ChatMessage {
@@ -65,25 +66,58 @@ interface ChatMessage {
 }
 
 interface AuditResponses {
+  // Pilier 1 : Identification
   practice_type: string;
   practice_areas: string[];
   years_active: string;
+  team_size: string;
+
+  // Pilier 2 : Gestion des dossiers
   active_cases: string;
   case_tracking_method: string;
-  case_tracking_satisfaction: number;
+  opening_checklist: string;
+  closing_process: string;
+  retention_policy: string;
   case_tracking_details: string;
-  accounting_tool: string;
-  trust_account_management: string;
-  trust_account_details: string;
-  monthly_billing_time: string;
+
+  // Pilier 3 : Échéanciers & délais
+  deadline_tracking: string;
+  prescription_management: string;
+  missed_deadline_history: string;
+  reminder_system: string;
+
+  // Pilier 4 : Gestion de la clientèle
+  intake_process: string;
+  conflict_check: string;
+  mandate_documentation: string;
+  loi25_consent: string;
+  conflict_check_multi_area: string;
+
+  // Pilier 5 : Facturation & recouvrement
+  billing_mode: string[];
   time_tracking_method: string;
-  biggest_challenge: string;
-  biggest_challenge_details: string;
+  monthly_billing_time: string;
+  collection_rate: string;
+  discount_practice: string;
+  price_list: string;
+  discount_documentation: string;
+  ircc_portal_usage: string;
+  pension_calculation_tool: string;
+
+  // Pilier 6 : Fidéicommis & comptabilité
+  trust_account_management: string;
+  reconciliation_frequency: string;
+  trust_multi_account: string;
+  trust_segregation: string;
+
+  // Pilier 7 : Opérations & conformité
   weekly_admin_hours: string;
   bar_inspection_confidence: number;
-  improvement_priorities: string;
-  tech_comfort: string;
-  monthly_budget: string;
+  loi25_compliance_level: string;
+  data_protection_measures: string[];
+  current_tools: string[];
+
+  // Contact
   contact_name: string;
   contact_email: string;
   contact_phone: string;
@@ -126,19 +160,24 @@ interface AuditData {
 const PHASES = [
   "Identification",
   "Gestion des dossiers",
-  "Comptabilité & Finances",
-  "Défis & Priorités",
-  "Technologie",
+  "Échéanciers & délais",
+  "Gestion de la clientèle",
+  "Facturation & recouvrement",
+  "Fidéicommis & comptabilité",
+  "Opérations & conformité",
 ];
 
 const PHASE_TRANSITIONS: Record<number, string> = {
-  2: "Très bien ! J'ai un bon portrait de votre pratique. Parlons maintenant de la gestion de vos dossiers au quotidien.",
-  3: "Merci pour ces informations précieuses. Abordons maintenant l'aspect financier et comptable de votre cabinet.",
-  4: "Excellent ! Dernière section avant votre rapport : parlons de vos défis et priorités.",
-  5: "Merci pour votre transparence. Quelques dernières questions pour compléter votre portrait.",
+  2: "Très bien ! J'ai un bon portrait de votre cabinet. Parlons maintenant de la gestion de vos dossiers au quotidien.",
+  3: "Merci. Abordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
+  4: "Passons à la gestion de votre clientèle — l'accueil des nouveaux clients et la conformité déontologique.",
+  5: "Parlons maintenant de facturation et recouvrement — un aspect essentiel de la santé financière de votre cabinet.",
+  6: "Abordons le fidéicommis et la comptabilité — le cœur de la conformité au Barreau.",
+  7: "Dernière section : vos opérations quotidiennes et votre conformité à la Loi 25.",
 };
 
 const QUESTIONS: Question[] = [
+  // ═══ PILIER 1 : Identification du cabinet ═══
   {
     key: "practice_type",
     phase: 1,
@@ -180,6 +219,20 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
+    key: "team_size",
+    phase: 1,
+    text: "Combien de personnes travaillent dans votre cabinet (avocats + personnel de soutien) ?",
+    type: "single",
+    options: [
+      { label: "Moi seul(e)", value: "solo_team" },
+      { label: "2-3 personnes", value: "2_3" },
+      { label: "4-10 personnes", value: "4_10" },
+      { label: "Plus de 10 personnes", value: "plus_10" },
+    ],
+  },
+
+  // ═══ PILIER 2 : Gestion des dossiers ═══
+  {
     key: "active_cases",
     phase: 2,
     text: "En moyenne, combien de dossiers actifs gérez-vous simultanément ?",
@@ -194,7 +247,7 @@ const QUESTIONS: Question[] = [
   {
     key: "case_tracking_method",
     phase: 2,
-    text: "Comment suivez-vous actuellement vos dossiers et vos échéances ?",
+    text: "Comment suivez-vous actuellement vos dossiers ?",
     type: "single",
     options: [
       { label: "Agenda papier / Post-it", value: "papier" },
@@ -205,68 +258,194 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
-    key: "case_tracking_satisfaction",
+    key: "opening_checklist",
     phase: 2,
-    text: "Sur une échelle de 1 à 5, à quel point êtes-vous satisfait(e) de votre méthode actuelle de suivi des dossiers ?",
-    type: "scale",
-    scaleMin: 1,
-    scaleMax: 5,
+    text: "Utilisez-vous une checklist standardisée lors de l'ouverture d'un nouveau dossier ?",
+    type: "single",
+    options: [
+      { label: "Oui, systématiquement", value: "oui_systematique" },
+      { label: "Parfois, ça dépend du dossier", value: "parfois" },
+      { label: "Non, je n'en ai pas", value: "non" },
+      { label: "C'est quoi une checklist d'ouverture ?", value: "inconnu" },
+    ],
+  },
+  {
+    key: "closing_process",
+    phase: 2,
+    text: "Comment procédez-vous à la fermeture et à l'archivage de vos dossiers ?",
+    type: "single",
+    options: [
+      { label: "Processus formel avec liste de vérification", value: "formel" },
+      { label: "Je ferme le dossier quand j'y pense", value: "informel" },
+      { label: "Les dossiers restent ouverts indéfiniment", value: "jamais" },
+      { label: "Mon logiciel gère la fermeture", value: "logiciel" },
+    ],
+  },
+  {
+    key: "retention_policy",
+    phase: 2,
+    text: "Avez-vous une politique de conservation des documents conforme aux délais légaux ?",
+    type: "single",
+    options: [
+      { label: "Oui, documentée et appliquée", value: "oui_appliquee" },
+      { label: "J'ai une idée générale mais rien de formel", value: "informelle" },
+      { label: "Non, je garde tout sans politique définie", value: "non" },
+      { label: "Je ne connais pas les délais requis", value: "inconnu" },
+    ],
   },
   {
     key: "case_tracking_details",
     phase: 2,
-    text: "Pouvez-vous me décrire brièvement ce qui fonctionne bien et ce qui vous frustre le plus dans votre gestion de dossiers actuelle ?",
+    text: "Qu'est-ce qui vous frustre le plus dans votre gestion de dossiers actuelle ?",
     type: "open",
-    placeholder: "Ex: Je perds souvent du temps à chercher des documents, les échéances me stressent...",
+    placeholder: "Ex: Je perds du temps à chercher des documents, les dossiers s'accumulent sans être archivés...",
   },
+
+  // ═══ PILIER 3 : Échéanciers & délais ═══
   {
-    key: "accounting_tool",
+    key: "deadline_tracking",
     phase: 3,
-    text: "Quel outil utilisez-vous pour votre comptabilité ?",
+    text: "Comment suivez-vous vos échéances judiciaires (dates de cour, délais de production, etc.) ?",
     type: "single",
     options: [
-      { label: "Je fais tout moi-même (Excel, papier)", value: "manuel" },
-      { label: "QuickBooks / Sage", value: "quickbooks" },
-      { label: "Mon comptable s'occupe de tout", value: "comptable" },
-      { label: "Un logiciel juridique avec module comptable", value: "logiciel_juridique" },
-      { label: "Honnêtement, c'est un peu le chaos", value: "chaos" },
+      { label: "Agenda papier ou calendrier personnel", value: "papier" },
+      { label: "Calendrier numérique (Google, Outlook)", value: "calendrier" },
+      { label: "Logiciel juridique avec alertes automatiques", value: "logiciel" },
+      { label: "Je me fie à ma mémoire principalement", value: "memoire" },
+      { label: "Aucun système fiable en place", value: "aucun" },
     ],
   },
   {
-    key: "trust_account_management",
+    key: "prescription_management",
     phase: 3,
-    text: "Comment gérez-vous votre compte en fidéicommis ?",
+    text: "Comment gérez-vous les délais de prescription dans vos dossiers ?",
     type: "single",
     options: [
-      { label: "Manuellement (registre papier ou Excel)", value: "manuel" },
-      { label: "Avec un logiciel dédié", value: "logiciel" },
-      { label: "Mon comptable/teneur de livres s'en occupe", value: "comptable" },
-      { label: "C'est un de mes plus gros casse-têtes", value: "casse_tete" },
-      { label: "Je ne suis pas certain(e) d'être 100% conforme", value: "incertain" },
+      { label: "Je les note systématiquement à l'ouverture du dossier", value: "systematique" },
+      { label: "Je les vérifie au besoin, quand j'y pense", value: "au_besoin" },
+      { label: "C'est une source de stress, j'ai peur d'en manquer", value: "stress" },
+      { label: "Je n'y pense pas assez, honnêtement", value: "negligence" },
     ],
   },
   {
-    key: "trust_account_details",
+    key: "missed_deadline_history",
     phase: 3,
-    text: "Quels sont vos principaux défis ou inquiétudes par rapport à la gestion de votre fidéicommis et à la conformité comptable en général ?",
-    type: "open",
-    placeholder: "Ex: La conciliation est laborieuse, j'ai peur de faire une erreur lors d'une inspection...",
-  },
-  {
-    key: "monthly_billing_time",
-    phase: 3,
-    text: "En moyenne, combien de temps consacrez-vous à la facturation chaque mois ?",
+    text: "Au cours des 2 dernières années, avez-vous manqué ou failli manquer une échéance importante ?",
     type: "single",
     options: [
-      { label: "Moins de 2 heures", value: "moins_2h" },
-      { label: "2 à 5 heures", value: "2_5h" },
-      { label: "5 à 10 heures", value: "5_10h" },
-      { label: "Plus de 10 heures — c'est un cauchemar", value: "plus_10h" },
+      { label: "Jamais", value: "jamais" },
+      { label: "Une fois, mais ça s'est bien terminé", value: "une_fois" },
+      { label: "Oui, et ça a eu des conséquences", value: "consequences" },
+      { label: "Je préfère ne pas répondre", value: "prefere_pas" },
+    ],
+  },
+  {
+    key: "reminder_system",
+    phase: 3,
+    text: "Avez-vous un système de rappels automatiques pour les échéances critiques ?",
+    type: "single",
+    options: [
+      { label: "Oui, intégré dans mon logiciel", value: "oui_logiciel" },
+      { label: "Oui, via mon calendrier (rappels manuels)", value: "oui_calendrier" },
+      { label: "Non, je compte sur ma mémoire ou mes collègues", value: "non" },
+      { label: "J'aimerais en avoir un mais je ne sais pas par où commencer", value: "souhaite" },
+    ],
+  },
+
+  // ═══ PILIER 4 : Gestion de la clientèle ═══
+  {
+    key: "intake_process",
+    phase: 4,
+    text: "Comment accueillez-vous un nouveau client ?",
+    type: "single",
+    options: [
+      { label: "Processus structuré : formulaire, vérification, lettre de mandat", value: "structure" },
+      { label: "Entretien informel puis j'ouvre un dossier", value: "informel" },
+      { label: "Ça dépend du type de dossier", value: "variable" },
+      { label: "Je n'ai pas de processus défini", value: "aucun" },
+    ],
+  },
+  {
+    key: "conflict_check",
+    phase: 4,
+    text: "Comment vérifiez-vous les conflits d'intérêts avant d'accepter un nouveau mandat ?",
+    type: "single",
+    options: [
+      { label: "Recherche systématique dans un registre ou logiciel", value: "registre" },
+      { label: "Vérification mentale ou informelle", value: "informel" },
+      { label: "Seulement quand je pense qu'il y a un risque", value: "au_besoin" },
+      { label: "Je ne fais pas de vérification formelle", value: "aucun" },
+    ],
+  },
+  {
+    key: "conflict_check_multi_area",
+    phase: 4,
+    text: "Avec plusieurs domaines de pratique, comment vous assurez-vous qu'un client dans un dossier n'est pas la partie adverse dans un autre ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.practice_areas) && r.practice_areas.length >= 2,
+    options: [
+      { label: "Base de données centralisée de tous les clients et parties", value: "base_centralisee" },
+      { label: "Vérification manuelle dossier par dossier", value: "manuelle" },
+      { label: "Je fais confiance à ma mémoire", value: "memoire" },
+      { label: "Je n'y avais pas pensé", value: "inconnu" },
+    ],
+  },
+  {
+    key: "mandate_documentation",
+    phase: 4,
+    text: "Comment documentez-vous vos mandats avec les clients ?",
+    type: "single",
+    options: [
+      { label: "Lettre ou convention de mandat signée systématiquement", value: "systematique" },
+      { label: "Parfois, pour les dossiers importants", value: "parfois" },
+      { label: "Échange de courriels seulement", value: "courriel" },
+      { label: "Souvent verbal, pas toujours écrit", value: "verbal" },
+    ],
+  },
+  {
+    key: "loi25_consent",
+    phase: 4,
+    text: "Avez-vous un processus pour obtenir le consentement de vos clients concernant la collecte de renseignements personnels (Loi 25) ?",
+    type: "single",
+    options: [
+      { label: "Oui, formulaire de consentement signé", value: "oui_formulaire" },
+      { label: "C'est mentionné dans ma convention de mandat", value: "dans_mandat" },
+      { label: "Non, je ne sais pas trop ce que la Loi 25 exige", value: "non_inconnu" },
+      { label: "Non, je n'ai rien mis en place", value: "non" },
+    ],
+  },
+
+  // ═══ PILIER 5 : Facturation & recouvrement ═══
+  {
+    key: "billing_mode",
+    phase: 5,
+    text: "Quels modes de facturation utilisez-vous ? (Plusieurs choix possibles)",
+    type: "multi",
+    options: [
+      { label: "Taux horaire", value: "horaire" },
+      { label: "Forfait / Montant fixe", value: "forfait" },
+      { label: "À l'acte / Par item", value: "per_item" },
+      { label: "Provision / Retainer", value: "retainer" },
+      { label: "Aide juridique", value: "aide_juridique" },
+      { label: "Pourcentage / Contingence", value: "pourcentage" },
+      { label: "Mixte selon le dossier", value: "mixte" },
+    ],
+  },
+  {
+    key: "price_list",
+    phase: 5,
+    text: "Avez-vous une grille tarifaire documentée pour vos services à l'acte ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.billing_mode) && r.billing_mode.includes("per_item"),
+    options: [
+      { label: "Oui, mise à jour régulièrement", value: "oui_jour" },
+      { label: "Oui, mais elle date un peu", value: "oui_vieille" },
+      { label: "Non, je détermine le prix au cas par cas", value: "non" },
     ],
   },
   {
     key: "time_tracking_method",
-    phase: 3,
+    phase: 5,
     text: "Comment enregistrez-vous vos heures facturables ?",
     type: "single",
     options: [
@@ -274,33 +453,139 @@ const QUESTIONS: Question[] = [
       { label: "À la fin de la journée, de mémoire", value: "fin_journee" },
       { label: "À la fin de la semaine ou du mois (estimations)", value: "fin_semaine" },
       { label: "Je ne les enregistre pas systématiquement", value: "pas_systematique" },
+      { label: "Non applicable (je ne facture pas à l'heure)", value: "na" },
     ],
   },
   {
-    key: "biggest_challenge",
-    phase: 4,
-    text: "Si vous pouviez régler UN SEUL problème dans la gestion de votre cabinet demain, lequel choisiriez-vous ?",
+    key: "monthly_billing_time",
+    phase: 5,
+    text: "En moyenne, combien de temps consacrez-vous à la facturation chaque mois ?",
     type: "single",
     options: [
-      { label: "Perdre moins de temps en administratif", value: "temps_admin" },
-      { label: "Mieux suivre mes revenus et dépenses", value: "revenus" },
-      { label: "Être conforme au Barreau sans stress", value: "conformite" },
-      { label: "Facturer plus rapidement et être payé(e) plus vite", value: "facturation" },
-      { label: "Avoir une vue claire sur la santé financière de mon cabinet", value: "sante_financiere" },
-      { label: "Autre", value: "autre", hasTextField: true },
+      { label: "Moins de 2 heures", value: "moins_2h" },
+      { label: "2 à 5 heures", value: "2_5h" },
+      { label: "5 à 10 heures", value: "5_10h" },
+      { label: "Plus de 10 heures", value: "plus_10h" },
     ],
   },
   {
-    key: "biggest_challenge_details",
-    phase: 4,
-    text: "Pouvez-vous m'en dire plus ? Comment ce problème affecte-t-il concrètement votre quotidien et celui de votre équipe ?",
-    type: "open",
-    placeholder: "Décrivez l'impact sur votre pratique au quotidien...",
+    key: "collection_rate",
+    phase: 5,
+    text: "Quel pourcentage de vos factures est payé dans les 30 jours ?",
+    type: "single",
+    options: [
+      { label: "Plus de 90 %", value: "plus_90" },
+      { label: "70 % à 90 %", value: "70_90" },
+      { label: "50 % à 70 %", value: "50_70" },
+      { label: "Moins de 50 %", value: "moins_50" },
+      { label: "Je ne sais pas exactement", value: "inconnu" },
+    ],
   },
   {
+    key: "discount_practice",
+    phase: 5,
+    text: "Vous arrive-t-il d'accorder des rabais ou réductions à vos clients ?",
+    type: "single",
+    options: [
+      { label: "Jamais", value: "jamais" },
+      { label: "Rarement, dans des cas exceptionnels", value: "rarement" },
+      { label: "Régulièrement, ça fait partie de ma pratique", value: "regulierement" },
+      { label: "Souvent, sous pression du client", value: "souvent" },
+    ],
+  },
+  {
+    key: "discount_documentation",
+    phase: 5,
+    text: "Comment documentez-vous les rabais accordés ? (Le Règlement B-1 r.5 exige une documentation des réductions)",
+    type: "single",
+    condition: (r) => r.discount_practice !== undefined && r.discount_practice !== "jamais",
+    options: [
+      { label: "Note au dossier et sur la facture", value: "documente" },
+      { label: "Seulement sur la facture", value: "facture_seule" },
+      { label: "Pas de documentation formelle", value: "non_documente" },
+    ],
+  },
+  {
+    key: "ircc_portal_usage",
+    phase: 5,
+    text: "Utilisez-vous un système pour gérer vos portails IRCC et suivre vos demandes d'immigration ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.practice_areas) && r.practice_areas.includes("immigration"),
+    options: [
+      { label: "Oui, intégré à mon logiciel de gestion", value: "integre" },
+      { label: "Oui, mais séparé de ma gestion de dossiers", value: "separe" },
+      { label: "Non, je gère tout manuellement dans le portail", value: "manuel" },
+    ],
+  },
+  {
+    key: "pension_calculation_tool",
+    phase: 5,
+    text: "Comment effectuez-vous les calculs de partage du patrimoine et de pension alimentaire ?",
+    type: "single",
+    condition: (r) => Array.isArray(r.practice_areas) && r.practice_areas.includes("familial"),
+    options: [
+      { label: "Logiciel spécialisé (ChildView, DivorceMate, etc.)", value: "logiciel" },
+      { label: "Tableur Excel personnalisé", value: "excel" },
+      { label: "Manuellement ou avec l'aide d'un comptable", value: "manuel" },
+    ],
+  },
+
+  // ═══ PILIER 6 : Fidéicommis & comptabilité ═══
+  {
+    key: "trust_account_management",
+    phase: 6,
+    text: "Comment gérez-vous votre compte en fidéicommis ?",
+    type: "single",
+    options: [
+      { label: "Manuellement (registre papier ou Excel)", value: "manuel" },
+      { label: "Avec un logiciel dédié", value: "logiciel" },
+      { label: "Mon comptable/teneur de livres s'en occupe", value: "comptable" },
+      { label: "C'est un de mes plus gros casse-têtes", value: "casse_tete" },
+      { label: "Je ne suis pas certain(e) d'être 100 % conforme", value: "incertain" },
+    ],
+  },
+  {
+    key: "reconciliation_frequency",
+    phase: 6,
+    text: "À quelle fréquence faites-vous la conciliation de votre compte en fidéicommis ?",
+    type: "single",
+    options: [
+      { label: "Mensuellement (comme exigé par le Barreau)", value: "mensuel" },
+      { label: "Aux 2-3 mois", value: "trimestriel" },
+      { label: "Quand j'y pense ou avant une inspection", value: "irregulier" },
+      { label: "Rarement ou jamais", value: "rarement" },
+    ],
+  },
+  {
+    key: "trust_multi_account",
+    phase: 6,
+    text: "Gérez-vous plusieurs comptes en fidéicommis distincts ?",
+    type: "single",
+    options: [
+      { label: "Non, un seul compte", value: "un_seul" },
+      { label: "Oui, 2-3 comptes", value: "2_3" },
+      { label: "Oui, plus de 3 comptes", value: "plus_3" },
+      { label: "Non applicable / Pas de fidéicommis", value: "na" },
+    ],
+  },
+  {
+    key: "trust_segregation",
+    phase: 6,
+    text: "Comment vous assurez-vous que les fonds en fidéicommis de chaque client sont correctement séparés et tracés ?",
+    type: "single",
+    options: [
+      { label: "Logiciel avec grand livre par client automatisé", value: "logiciel" },
+      { label: "Registre manuel par client (Excel ou papier)", value: "manuel" },
+      { label: "Mon comptable s'en occupe", value: "comptable" },
+      { label: "Je ne suis pas certain(e) que c'est fait correctement", value: "incertain" },
+    ],
+  },
+
+  // ═══ PILIER 7 : Opérations & conformité ═══
+  {
     key: "weekly_admin_hours",
-    phase: 4,
-    text: "Estimez le nombre d'heures par semaine que vous perdez en tâches administratives (facturation, classement, recherche de documents, etc.)",
+    phase: 7,
+    text: "Combien d'heures par semaine consacrez-vous aux tâches administratives (facturation, classement, recherche de documents) ?",
     type: "single",
     options: [
       { label: "Moins de 2 heures", value: "moins_2h" },
@@ -311,7 +596,7 @@ const QUESTIONS: Question[] = [
   },
   {
     key: "bar_inspection_confidence",
-    phase: 4,
+    phase: 7,
     text: "À quel point vous sentez-vous confiant(e) face à une inspection du Barreau du Québec ?",
     type: "scale",
     scaleMin: 1,
@@ -322,40 +607,52 @@ const QUESTIONS: Question[] = [
     },
   },
   {
-    key: "improvement_priorities",
-    phase: 4,
-    text: "Si un outil pouvait transformer UN aspect de la gestion de votre cabinet dès demain, que souhaiteriez-vous qu'il fasse exactement ?",
-    type: "open",
-    placeholder: "Ex: Générer mes factures automatiquement, produire mes rapports de fidéicommis en un clic...",
-  },
-  {
-    key: "tech_comfort",
-    phase: 5,
-    text: "Comment décririez-vous votre relation avec la technologie ?",
+    key: "loi25_compliance_level",
+    phase: 7,
+    text: "Où en êtes-vous avec la conformité à la Loi 25 (protection des renseignements personnels) ?",
     type: "single",
     options: [
-      { label: "Je suis très à l'aise, j'adore les nouveaux outils", value: "tres_alaise" },
-      { label: "Je suis fonctionnel(le), j'utilise ce qu'il faut", value: "fonctionnel" },
-      { label: "Je préfère les méthodes traditionnelles", value: "traditionnel" },
-      { label: "La technologie me stresse un peu", value: "stresse" },
+      { label: "Conforme : responsable désigné, politique de confidentialité, registre des incidents", value: "conforme" },
+      { label: "Partiellement : quelques mesures en place", value: "partiel" },
+      { label: "En début de démarche", value: "debut" },
+      { label: "Je ne sais pas ce que ça implique concrètement", value: "inconnu" },
     ],
   },
   {
-    key: "monthly_budget",
-    phase: 5,
-    text: "Quel budget mensuel seriez-vous prêt(e) à investir pour un outil qui vous ferait gagner plusieurs heures par semaine ?",
-    type: "single",
+    key: "data_protection_measures",
+    phase: 7,
+    text: "Quelles mesures de protection des données avez-vous en place ? (Plusieurs choix possibles)",
+    type: "multi",
     options: [
-      { label: "Moins de 100$/mois", value: "moins_100" },
-      { label: "100$ à 250$/mois", value: "100_250" },
-      { label: "250$ à 500$/mois", value: "250_500" },
-      { label: "Plus de 500$/mois si la valeur est démontrée", value: "plus_500" },
+      { label: "Chiffrement des courriels sensibles", value: "chiffrement_courriel" },
+      { label: "Mots de passe robustes et authentification à 2 facteurs", value: "2fa" },
+      { label: "Sauvegardes régulières et testées", value: "sauvegardes" },
+      { label: "Politique d'utilisation des appareils personnels", value: "byod" },
+      { label: "Formation du personnel", value: "formation" },
+      { label: "Aucune mesure formelle", value: "aucune" },
     ],
   },
+  {
+    key: "current_tools",
+    phase: 7,
+    text: "Quels outils numériques utilisez-vous pour gérer votre cabinet ? (Plusieurs choix possibles)",
+    type: "multi",
+    options: [
+      { label: "JurisÉvolution", value: "jurisevolution" },
+      { label: "Clio / PracticePanther", value: "clio" },
+      { label: "QuickBooks / Sage", value: "quickbooks" },
+      { label: "Microsoft 365 / Google Workspace", value: "office" },
+      { label: "Excel / Google Sheets", value: "excel" },
+      { label: "Outils papier principalement", value: "papier" },
+      { label: "Autre logiciel juridique", value: "autre_juridique" },
+    ],
+  },
+
+  // ═══ COORDONNÉES ═══
   {
     key: "contact",
-    phase: 5,
-    text: "Excellent ! J'ai maintenant un portrait assez complet de votre cabinet. Pour vous envoyer votre rapport d'audit personnalisé, pourriez-vous me laisser vos coordonnées ?",
+    phase: 7,
+    text: "Votre audit est presque terminé ! Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
     type: "contact",
   },
 ];
@@ -367,9 +664,9 @@ const QUESTIONS: Question[] = [
 function getReaction(key: string, value: string | number | string[], allResponses: Partial<AuditResponses>): string | null {
   switch (key) {
     case "practice_type":
-      if (value === "solo") return "La pratique solo demande une polyvalence remarquable. Vous portez plusieurs chapeaux, et c'est justement ce qui rend une bonne organisation si cruciale.";
+      if (value === "solo") return "La pratique solo demande une polyvalence remarquable. Vous portez plusieurs chapeaux — raison de plus pour avoir des systèmes solides.";
       if (value === "petit") return "Un cabinet de cette taille doit jongler entre la croissance et l'efficacité. Voyons comment vous vous en tirez !";
-      if (value === "moyen") return "À cette taille, les enjeux de coordination et de conformité deviennent rapidement importants. Très pertinent pour notre audit.";
+      if (value === "moyen") return "À cette taille, les enjeux de coordination et de conformité deviennent rapidement importants.";
       return "Intéressant ! Chaque structure a ses propres défis de gestion.";
 
     case "practice_areas":
@@ -380,71 +677,141 @@ function getReaction(key: string, value: string | number | string[], allResponse
     case "years_active":
       if (value === "moins_1") return "Vous en êtes aux fondations — c'est le moment idéal pour mettre en place les bonnes pratiques dès le départ !";
       if (value === "plus_10") return "Plus de 10 ans d'expérience, c'est une belle maturité. Voyons si vos outils ont évolué avec votre pratique.";
-      return "Parfait. Passons maintenant à la gestion concrète de vos dossiers.";
+      return null;
+
+    case "team_size":
+      if (value === "solo_team") return "Tout repose sur vos épaules — raison de plus pour avoir des systèmes solides.";
+      if (value === "plus_10") return "À cette taille, la coordination et la conformité deviennent des enjeux majeurs.";
+      return null;
 
     case "active_cases":
-      if (value === "plus_100") return "Plus de 100 dossiers actifs, c'est un volume important ! La moindre inefficacité se multiplie rapidement à cette échelle.";
-      if (value === "50_100") return "C'est un volume significatif. Un bon système de suivi fait vraiment la différence à ce stade.";
+      if (value === "plus_100") return "Plus de 100 dossiers actifs — la moindre inefficacité se multiplie rapidement à cette échelle.";
+      if (value === "50_100") return "Un volume significatif. Un bon système de suivi fait vraiment la différence.";
       return null;
 
     case "case_tracking_method":
-      if (value === "papier") return "Vous n'êtes pas seul(e) — beaucoup de cabinets fonctionnent encore ainsi. Mais saviez-vous que le risque d'échéance manquée est 3 fois plus élevé sans outil numérique ?";
-      if (value === "aucun") return "Je comprends, et c'est plus courant qu'on ne le pense. La bonne nouvelle : il existe des solutions simples qui peuvent transformer votre quotidien.";
-      if (value === "logiciel") return "Excellent ! Vous avez déjà une longueur d'avance sur beaucoup de vos collègues.";
-      if (value === "melange") return "Le fameux \"système hybride\" ! C'est créatif, mais ça peut créer des angles morts.";
+      if (value === "papier") return "Le risque d'échéance manquée est 3 fois plus élevé sans outil numérique. C'est un constat fréquent lors des inspections.";
+      if (value === "aucun") return "C'est plus courant qu'on le pense. La bonne nouvelle : il existe des solutions simples qui transforment le quotidien.";
+      if (value === "logiciel") return "Excellent ! Vous avez déjà une longueur d'avance.";
+      if (value === "melange") return "Le système hybride peut créer des angles morts — l'information est dispersée entre plusieurs supports.";
       return null;
 
-    case "case_tracking_satisfaction":
-      if (typeof value === "number" && value <= 2) return "Un score de " + value + "/5... Vous méritez mieux. Voyons ce qu'on peut améliorer.";
-      if (typeof value === "number" && value >= 4) return "Bonne nouvelle ! Vous semblez avoir trouvé quelque chose qui fonctionne pour vous.";
+    case "opening_checklist":
+      if (value === "inconnu") return "Une checklist d'ouverture est un outil simple mais puissant — elle réduit les erreurs et assure la conformité dès le départ.";
+      if (value === "oui_systematique") return "Excellent réflexe ! C'est exactement ce que le Barreau recommande.";
       return null;
 
-    case "accounting_tool":
-      if (value === "chaos") return "Merci pour votre honnêteté ! Vous seriez surpris(e) de savoir combien d'avocats partagent exactement ce sentiment. C'est souvent le point de départ d'un vrai changement positif.";
-      if (value === "manuel") return "Faire sa comptabilité soi-même, c'est courageux ! Mais ça peut vite devenir chronophage, surtout avec les exigences du Barreau.";
-      if (value === "quickbooks") return "QuickBooks est un bon outil généraliste, mais il n'est pas conçu pour les particularités de la comptabilité juridique (fidéicommis, B-1 r.5...).";
+    case "closing_process":
+      if (value === "jamais") return "Des dossiers qui restent ouverts indéfiniment peuvent poser problème lors d'une inspection et compliquent la gestion du fidéicommis.";
+      if (value === "formel" || value === "logiciel") return "Un processus formel de fermeture, c'est une bonne pratique de gestion.";
+      return null;
+
+    case "retention_policy":
+      if (value === "inconnu") return "Les délais de conservation varient selon le type de document. Le Barreau exige une politique documentée.";
+      if (value === "oui_appliquee") return "Bravo — une politique de rétention appliquée, c'est un signe de maturité organisationnelle.";
+      return null;
+
+    case "deadline_tracking":
+      if (value === "memoire" || value === "aucun") return "Se fier à la mémoire pour les échéances judiciaires est le facteur de risque #1 de faute professionnelle.";
+      if (value === "logiciel") return "Des alertes automatiques pour les échéances — c'est le filet de sécurité le plus efficace.";
+      return null;
+
+    case "prescription_management":
+      if (value === "negligence") return "Merci pour votre honnêteté. Un seul délai de prescription manqué peut entraîner une poursuite en responsabilité professionnelle.";
+      if (value === "stress") return "Ce stress est légitime. Des rappels automatiques peuvent transformer cette anxiété en tranquillité d'esprit.";
+      if (value === "systematique") return "Excellent réflexe ! La vérification systématique est la meilleure protection.";
+      return null;
+
+    case "missed_deadline_history":
+      if (value === "consequences") return "Merci pour votre transparence. Un seul délai manqué peut avoir des conséquences majeures. Mettre en place des filets de sécurité est essentiel.";
+      if (value === "jamais") return "Aucun délai manqué — c'est rassurant. Voyons comment maintenir cette excellente performance.";
+      return null;
+
+    case "reminder_system":
+      if (value === "non") return "Sans système de rappels, vous dépendez entièrement de votre vigilance. C'est un risque évitable.";
+      if (value === "souhaite") return "C'est un excellent premier pas que de reconnaître ce besoin.";
+      return null;
+
+    case "intake_process":
+      if (value === "aucun") return "L'absence de processus d'accueil structuré peut mener à des oublis de vérification importants.";
+      if (value === "structure") return "Un processus structuré — mandat, vérification, formulaire — c'est la meilleure protection pour vous et vos clients.";
+      return null;
+
+    case "conflict_check":
+      if (value === "aucun") return "C'est un point critique. Le Code de déontologie (art. 3.06.01) rend la vérification des conflits obligatoire. C'est un des éléments les plus examinés lors d'une inspection.";
+      if (value === "informel") return "Une vérification informelle est mieux que rien, mais elle ne laisse pas de trace vérifiable en cas d'inspection.";
+      if (value === "registre") return "La vérification systématique dans un registre — c'est exactement ce que le Barreau attend.";
+      return null;
+
+    case "conflict_check_multi_area":
+      if (value === "memoire" || value === "inconnu") return "Avec plusieurs domaines de pratique, le risque de conflit entre dossiers est multiplié. Une base de données centralisée est fortement recommandée.";
+      return null;
+
+    case "mandate_documentation":
+      if (value === "verbal") return "Un mandat verbal est difficile à prouver en cas de litige avec un client. Le Code de déontologie recommande une documentation écrite systématique.";
+      if (value === "systematique") return "La convention de mandat signée systématiquement — c'est la norme d'excellence.";
+      return null;
+
+    case "loi25_consent":
+      if (value === "non_inconnu" || value === "non") return "La Loi 25 est entrée en vigueur progressivement depuis septembre 2023. Le consentement préalable à la collecte de renseignements personnels est désormais obligatoire.";
+      if (value === "oui_formulaire") return "Excellent ! Un formulaire de consentement dédié, c'est la meilleure approche pour la Loi 25.";
+      return null;
+
+    case "billing_mode":
+      if (Array.isArray(value) && value.length >= 3) return "Plusieurs modes de facturation — ça demande une rigueur supplémentaire dans la documentation de chaque dossier.";
+      if (Array.isArray(value) && value.includes("per_item")) return "La facturation à l'acte nécessite une grille tarifaire bien documentée pour être conforme.";
+      return null;
+
+    case "collection_rate":
+      if (value === "moins_50") return "Un taux de recouvrement sous 50 % met en péril la viabilité financière du cabinet. C'est un signal d'alarme important.";
+      if (value === "plus_90") return "Plus de 90 % — excellent taux de recouvrement ! Vos clients vous font confiance et paient à temps.";
+      return null;
+
+    case "discount_practice":
+      if (value === "souvent") return "Des rabais fréquents sous pression du client peuvent affecter significativement votre rentabilité. Le Barreau exige aussi que chaque réduction soit documentée.";
+      return null;
+
+    case "discount_documentation":
+      if (value === "non_documente") return "Attention : le Règlement B-1 r.5 exige que tout rabais soit documenté au dossier et sur la facture.";
       return null;
 
     case "trust_account_management":
-      if (value === "casse_tete") return "Je comprends tout à fait. Le fidéicommis est l'un des aspects les plus stressants de la gestion d'un cabinet. Rassurez-vous, des solutions existent pour simplifier tout ça.";
-      if (value === "incertain") return "C'est une préoccupation très légitime et vous avez raison de l'identifier. La conformité en fidéicommis est essentielle, et il vaut mieux s'en assurer maintenant plutôt qu'au moment d'une inspection.";
-      if (value === "logiciel") return "Avoir un logiciel dédié pour le fidéicommis, c'est déjà un excellent réflexe de conformité !";
+      if (value === "casse_tete") return "Le fidéicommis est l'un des aspects les plus stressants de la gestion d'un cabinet. Des solutions existent pour simplifier tout ça.";
+      if (value === "incertain") return "L'incertitude sur la conformité du fidéicommis est un signal qu'il faut agir. Mieux vaut corriger maintenant qu'au moment d'une inspection.";
+      if (value === "logiciel") return "Un logiciel dédié pour le fidéicommis — c'est un excellent réflexe de conformité !";
       return null;
 
-    case "monthly_billing_time":
-      if (value === "plus_10h") return "Plus de 10 heures par mois en facturation... C'est presque deux jours de travail ! Du temps précieux qui pourrait être consacré à vos clients.";
-      if (value === "5_10h") return "Entre 5 et 10 heures, c'est une journée entière par mois dédiée à la facturation. Il y a certainement moyen d'optimiser ça.";
+    case "reconciliation_frequency":
+      if (value === "rarement" || value === "irregulier") return "La conciliation mensuelle est une obligation réglementaire (B-1 r.5). C'est souvent le premier élément vérifié lors d'une inspection.";
+      if (value === "mensuel") return "Conciliation mensuelle — vous respectez l'exigence du Barreau. C'est bien.";
       return null;
 
-    case "time_tracking_method":
-      if (value === "pas_systematique") return "Saviez-vous que les avocats qui n'enregistrent pas systématiquement leurs heures perdent en moyenne 20 à 30% de revenus facturables ? C'est un impact énorme.";
-      if (value === "fin_semaine") return "Les estimations en fin de semaine entraînent typiquement une perte de 10 à 15% des heures facturables. La mémoire est notre pire ennemi pour la facturation !";
-      if (value === "temps_reel") return "Bravo ! L'enregistrement en temps réel est la méthode la plus fiable pour maximiser vos revenus.";
+    case "trust_segregation":
+      if (value === "incertain") return "L'incertitude sur la ségrégation des fonds est le constat le plus grave lors d'une inspection du fidéicommis. C'est à corriger en priorité.";
       return null;
-
-    case "biggest_challenge":
-      return "C'est noté. C'est un enjeu que nous voyons très fréquemment, et il y a des pistes concrètes pour y répondre.";
 
     case "weekly_admin_hours": {
       const hours = value === "moins_2h" ? 1.5 : value === "2_5h" ? 3.5 : value === "5_10h" ? 7.5 : 12;
       const monthlyLoss = Math.round(hours * 250 * 4);
-      if (hours >= 5) return `À un taux horaire moyen de 250$/h, cela représente environ ${monthlyLoss.toLocaleString("fr-CA")} $ par mois en revenus potentiels perdus. C'est considérable.`;
-      if (hours >= 2) return `À un taux horaire moyen de 250$/h, cela représente environ ${monthlyLoss.toLocaleString("fr-CA")} $ par mois. Chaque heure récupérée compte !`;
-      return "C'est raisonnable ! Vous gérez bien votre temps administratif.";
+      if (hours >= 5) return `À un taux horaire moyen de 250 $/h, cela représente environ ${monthlyLoss.toLocaleString("fr-CA")} $ par mois en revenus potentiels perdus.`;
+      if (hours >= 2) return `Environ ${monthlyLoss.toLocaleString("fr-CA")} $/mois en revenus potentiels. Chaque heure récupérée compte !`;
+      return "C'est raisonnable. Vous gérez bien votre temps administratif.";
     }
 
     case "bar_inspection_confidence":
       if (typeof value === "number" && value <= 2) return "Ce stress est partagé par beaucoup d'avocats. La conformité ne devrait pas être une source d'anxiété — elle devrait être automatique.";
-      if (typeof value === "number" && value >= 4) return "Belle confiance ! C'est rassurant de se sentir prêt(e). Voyons si on peut quand même identifier des pistes d'amélioration.";
+      if (typeof value === "number" && value >= 4) return "Belle confiance ! Voyons si on peut quand même identifier des pistes d'amélioration.";
       return null;
 
-    case "tech_comfort":
-      if (value === "stresse") return "Rassurez-vous ! Les meilleurs outils sont ceux qu'on oublie qu'on utilise. SAFE a été conçu pour être aussi simple qu'intuitif — pas besoin d'être un expert en technologie.";
-      if (value === "tres_alaise") return "Super ! Vous apprécierez la modernité et la flexibilité de ce qui se fait aujourd'hui.";
+    case "loi25_compliance_level":
+      if (value === "inconnu") return "La Loi 25 oblige toute entreprise à désigner un responsable de la protection des renseignements personnels. Il est encore temps de se mettre en conformité.";
+      if (value === "conforme") return "Félicitations ! Être pleinement conforme à la Loi 25, c'est un avantage concurrentiel et une protection pour vos clients.";
       return null;
 
-    case "monthly_budget":
-      return "Merci pour cette indication. C'est important pour vous proposer une solution adaptée à votre réalité.";
+    case "data_protection_measures":
+      if (Array.isArray(value) && value.includes("aucune")) return "Aucune mesure formelle de protection des données — c'est un risque important pour la confidentialité de vos clients et pour votre conformité.";
+      if (Array.isArray(value) && value.length >= 4) return "Vous avez plusieurs mesures en place — c'est très bien. Voyons le portrait d'ensemble.";
+      return null;
 
     default:
       return null;
@@ -476,14 +843,6 @@ const CASE_TRACKING_LABELS: Record<string, string> = {
   aucun: "Pas de système structuré",
 };
 
-const ACCOUNTING_LABELS: Record<string, string> = {
-  manuel: "Manuel (Excel, papier)",
-  quickbooks: "QuickBooks / Sage",
-  comptable: "Comptable externe",
-  logiciel_juridique: "Logiciel juridique avec module comptable",
-  chaos: "Pas de système clair",
-};
-
 const TRUST_LABELS: Record<string, string> = {
   manuel: "Registre manuel (papier ou Excel)",
   logiciel: "Logiciel dédié",
@@ -497,130 +856,219 @@ const TIME_TRACKING_LABELS: Record<string, string> = {
   fin_journee: "En fin de journée, de mémoire",
   fin_semaine: "En fin de semaine/mois (estimations)",
   pas_systematique: "Pas enregistré systématiquement",
+  na: "Non applicable",
 };
 
+function scoreMap(value: string | undefined, map: Record<string, number>, fallback = 50): number {
+  return map[value || ""] ?? fallback;
+}
+
 function computeResults(responses: Partial<AuditResponses>): AuditComputed {
-  // ── Section 1: Gestion des dossiers ──
-  const trackingScores: Record<string, number> = { logiciel: 90, excel: 55, melange: 40, papier: 20, aucun: 10 };
-  const trackingScore = trackingScores[responses.case_tracking_method || ""] || 50;
-  const satisfactionScore = ((responses.case_tracking_satisfaction || 3) / 5) * 100;
-  const dossierScore = Math.round((trackingScore * 0.6 + satisfactionScore * 0.4));
+  const sm = (v: string | undefined, m: Record<string, number>, fb = 50) => scoreMap(v, m, fb);
+
+  // ═══ PILIER 1 : Gestion des dossiers ═══
+  const trackingScore = sm(responses.case_tracking_method, { logiciel: 90, excel: 55, melange: 40, papier: 20, aucun: 10 });
+  const checklistScore = sm(responses.opening_checklist, { oui_systematique: 100, parfois: 50, non: 20, inconnu: 10 });
+  const closingScore = sm(responses.closing_process, { logiciel: 95, formel: 90, informel: 35, jamais: 10 });
+  const retentionScore = sm(responses.retention_policy, { oui_appliquee: 100, informelle: 50, non: 20, inconnu: 10 });
+  const dossierScore = Math.round(trackingScore * 0.30 + checklistScore * 0.25 + closingScore * 0.25 + retentionScore * 0.20);
 
   const dossierFindings: string[] = [];
   const dossierRecs: string[] = [];
   const method = responses.case_tracking_method || "";
   if (["papier", "aucun"].includes(method)) {
-    dossierFindings.push(`Votre méthode actuelle (${CASE_TRACKING_LABELS[method] || method}) présente un risque élevé d'échéances manquées et de perte d'information.`);
-    dossierRecs.push("Migrer vers un système de suivi numérique centralisé pour éliminer les risques de perte de dossiers et d'échéances manquées.");
+    dossierFindings.push(`Méthode de suivi (${CASE_TRACKING_LABELS[method] || method}) : risque élevé d'échéances manquées.`);
+    dossierRecs.push("Migrer vers un système de suivi numérique centralisé.");
   } else if (method === "melange") {
-    dossierFindings.push("Votre système hybride crée des angles morts : l'information est dispersée entre plusieurs supports.");
-    dossierRecs.push("Centraliser l'ensemble de vos dossiers dans une plateforme unique pour éliminer la duplication et les oublis.");
+    dossierFindings.push("Système hybride : l'information est dispersée entre plusieurs supports.");
+    dossierRecs.push("Centraliser vos dossiers dans une plateforme unique.");
   } else if (method === "excel") {
-    dossierFindings.push("Excel permet un suivi basique mais ne gère pas les alertes automatiques ni la collaboration en temps réel.");
-    dossierRecs.push("Évoluer vers un outil spécialisé qui offre alertes d'échéances, historique complet et collaboration.");
-  } else {
-    dossierFindings.push("Vous utilisez déjà un logiciel spécialisé pour vos dossiers — c'est une excellente pratique.");
+    dossierFindings.push("Excel ne gère pas les alertes automatiques ni la collaboration.");
+    dossierRecs.push("Évoluer vers un outil avec alertes d'échéances et historique.");
   }
-  if ((responses.case_tracking_satisfaction || 3) <= 3) {
-    dossierFindings.push(`Votre satisfaction actuelle (${responses.case_tracking_satisfaction}/5) indique des frustrations concrètes dans votre processus.`);
+  if (responses.opening_checklist === "non" || responses.opening_checklist === "inconnu") {
+    dossierFindings.push("Absence de checklist d'ouverture de dossier. Référence : Guide d'inspection du Barreau, section Gestion des dossiers.");
+    dossierRecs.push("Implémenter une checklist standardisée (mandat, conflits, identité, Loi 25).");
   }
-  if (responses.case_tracking_details) {
-    dossierFindings.push(`Vos commentaires : « ${responses.case_tracking_details} »`);
+  if (responses.closing_process === "jamais") {
+    dossierFindings.push("Dossiers jamais formellement fermés — complication pour le fidéicommis et l'archivage.");
+    dossierRecs.push("Mettre en place un processus de fermeture avec vérification du solde fidéicommis.");
+  }
+  if (responses.retention_policy === "non" || responses.retention_policy === "inconnu") {
+    dossierFindings.push("Non-conformité potentielle : le Barreau exige une politique de conservation (B-1 r.5). Risque : sanction lors d'une inspection.");
+    dossierRecs.push("Définir une politique de rétention par type de document.");
+  }
+  if (responses.case_tracking_details) dossierFindings.push(`Vos commentaires : « ${responses.case_tracking_details} »`);
+
+  // ═══ PILIER 2 : Échéanciers & délais ═══
+  const deadlineScore = sm(responses.deadline_tracking, { logiciel: 95, calendrier: 60, papier: 30, memoire: 10, aucun: 5 });
+  const prescriptionScore = sm(responses.prescription_management, { systematique: 95, au_besoin: 50, stress: 30, negligence: 10 });
+  const missedScore = sm(responses.missed_deadline_history, { jamais: 100, une_fois: 50, consequences: 10, prefere_pas: 30 });
+  const reminderScore = sm(responses.reminder_system, { oui_logiciel: 95, oui_calendrier: 55, non: 15, souhaite: 25 });
+  const echeancierScore = Math.round((deadlineScore + prescriptionScore + missedScore + reminderScore) / 4);
+
+  const echFindings: string[] = [];
+  const echRecs: string[] = [];
+  if (responses.deadline_tracking === "memoire" || responses.deadline_tracking === "aucun") {
+    echFindings.push("Suivi des échéances basé sur la mémoire — facteur de risque #1 de faute professionnelle.");
+    echRecs.push("Implémenter un système d'alertes automatiques pour toutes les échéances judiciaires.");
+  }
+  if (responses.prescription_management === "negligence") {
+    echFindings.push("Gestion inadéquate des prescriptions. Réf : Code de déontologie art. 3.03.01 (diligence). Risque : poursuite en responsabilité professionnelle.");
+    echRecs.push("Noter systématiquement les délais de prescription à l'ouverture de chaque dossier.");
+  }
+  if (responses.missed_deadline_history === "consequences") {
+    echFindings.push("Échéance manquée avec conséquences — manquement grave (Code de déontologie art. 3.03.01). Risque : plainte déontologique.");
+    echRecs.push("Mettre en place un double système de rappels (automatique + vérification humaine).");
+  }
+  if (responses.reminder_system === "non") {
+    echFindings.push("Aucun système de rappels automatiques en place.");
+    echRecs.push("Adopter un outil avec rappels automatiques configurables par type d'échéance.");
   }
 
-  // ── Section 2: Comptabilité & Facturation ──
-  const acctScores: Record<string, number> = { logiciel_juridique: 90, quickbooks: 60, comptable: 55, manuel: 25, chaos: 10 };
-  const acctScore = acctScores[responses.accounting_tool || ""] || 50;
-  const billingScores: Record<string, number> = { "moins_2h": 90, "2_5h": 70, "5_10h": 40, "plus_10h": 15 };
-  const billingScore = billingScores[responses.monthly_billing_time || ""] || 50;
-  const timeScores: Record<string, number> = { temps_reel: 95, fin_journee: 60, fin_semaine: 35, pas_systematique: 10 };
-  const timeScore = timeScores[responses.time_tracking_method || ""] || 50;
-  const comptaScore = Math.round((acctScore * 0.4 + billingScore * 0.3 + timeScore * 0.3));
-
-  const comptaFindings: string[] = [];
-  const comptaRecs: string[] = [];
-  const acctTool = responses.accounting_tool || "";
-  if (["chaos", "manuel"].includes(acctTool)) {
-    comptaFindings.push(`Votre approche comptable (${ACCOUNTING_LABELS[acctTool]}) est vulnérable aux erreurs et non-conforme aux exigences du Barreau.`);
-    comptaRecs.push("Adopter une solution comptable conçue pour la pratique juridique, intégrant les exigences réglementaires du Barreau.");
-  } else if (acctTool === "quickbooks") {
-    comptaFindings.push("QuickBooks est un bon outil généraliste, mais il n'est pas conçu pour les particularités juridiques (fidéicommis, B-1 r.5, séparation des fonds).");
-    comptaRecs.push("Envisager une solution comptable spécialisée en droit pour assurer une conformité native et simplifier vos processus.");
-  }
-  const billingTime = responses.monthly_billing_time || "";
-  if (["plus_10h", "5_10h"].includes(billingTime)) {
-    const hours = billingTime === "plus_10h" ? "10+" : "5-10";
-    comptaFindings.push(`Vous consacrez ${hours} heures par mois à la facturation — c'est un investissement de temps considérable qui pourrait être réduit significativement.`);
-    comptaRecs.push("Automatiser la facturation : génération automatique à partir des feuilles de temps, envoi électronique et suivi des paiements.");
-  }
-  const timeMethod = responses.time_tracking_method || "";
-  if (timeMethod === "pas_systematique") {
-    comptaFindings.push("L'absence d'enregistrement systématique des heures entraîne en moyenne une perte de 20 à 30% des revenus facturables.");
-    comptaRecs.push("Implanter l'enregistrement des heures en temps réel avec chronomètre intégré pour maximiser vos revenus.");
-  } else if (timeMethod === "fin_semaine") {
-    comptaFindings.push("Les estimations en fin de semaine causent typiquement une perte de 10 à 15% des heures facturables.");
-    comptaRecs.push("Passer à un enregistrement quotidien ou en temps réel pour capturer plus précisément vos heures facturables.");
+  // ═══ PILIER 3 : Gestion de la clientèle ═══
+  const intakeScore = sm(responses.intake_process, { structure: 95, variable: 55, informel: 35, aucun: 10 });
+  const conflictScore = sm(responses.conflict_check, { registre: 100, informel: 40, au_besoin: 25, aucun: 5 });
+  const mandateScore = sm(responses.mandate_documentation, { systematique: 95, parfois: 50, courriel: 35, verbal: 10 });
+  const consentScore = sm(responses.loi25_consent, { oui_formulaire: 100, dans_mandat: 70, non_inconnu: 15, non: 10 });
+  let clienteleScore = Math.round(conflictScore * 0.30 + mandateScore * 0.25 + intakeScore * 0.20 + consentScore * 0.25);
+  // Pénalité multi-pratiques sans vérification centralisée
+  if (responses.conflict_check_multi_area === "memoire" || responses.conflict_check_multi_area === "inconnu") {
+    clienteleScore = Math.max(0, clienteleScore - 10);
   }
 
-  // ── Section 3: Fidéicommis & Conformité ──
-  const trustScores: Record<string, number> = { logiciel: 90, comptable: 60, manuel: 35, incertain: 20, casse_tete: 10 };
-  const trustScore = trustScores[responses.trust_account_management || ""] || 50;
-  const barScore = ((responses.bar_inspection_confidence || 3) / 5) * 100;
-  const conformiteScore = Math.round((trustScore * 0.6 + barScore * 0.4));
+  const clientFindings: string[] = [];
+  const clientRecs: string[] = [];
+  if (responses.conflict_check === "aucun") {
+    clientFindings.push("Non-conformité grave : vérification des conflits d'intérêts obligatoire (Code de déontologie art. 3.06.01). Risque : radiation temporaire, amende.");
+    clientRecs.push("Mettre en place un registre centralisé de vérification des conflits d'intérêts.");
+  } else if (responses.conflict_check === "informel") {
+    clientFindings.push("Vérification informelle des conflits — ne laisse pas de trace vérifiable en cas d'inspection.");
+    clientRecs.push("Formaliser la vérification des conflits avec un registre documenté.");
+  }
+  if (responses.mandate_documentation === "verbal") {
+    clientFindings.push("Mandats souvent verbaux — difficile à prouver en cas de litige. Réf : Code de déontologie art. 3.03.02.");
+    clientRecs.push("Faire signer systématiquement une convention de mandat écrite.");
+  }
+  if (responses.loi25_consent === "non" || responses.loi25_consent === "non_inconnu") {
+    clientFindings.push("Non-conformité à la Loi 25 (art. 8) : consentement préalable obligatoire depuis septembre 2023. Risque : amende de 10 000 $ à 25 000 000 $.");
+    clientRecs.push("Implémenter un formulaire de consentement Loi 25 dans le processus d'accueil.");
+  }
+  if (responses.conflict_check_multi_area === "memoire" || responses.conflict_check_multi_area === "inconnu") {
+    clientFindings.push("Pratique multi-domaines sans vérification centralisée des conflits — risque multiplié.");
+    clientRecs.push("Base de données centralisée de tous les clients et parties adverses.");
+  }
 
-  const conformiteFindings: string[] = [];
-  const conformiteRecs: string[] = [];
+  // ═══ PILIER 4 : Facturation & recouvrement ═══
+  const timeScore = sm(responses.time_tracking_method, { temps_reel: 95, fin_journee: 60, fin_semaine: 35, pas_systematique: 10, na: 70 });
+  const billingTimeScore = sm(responses.monthly_billing_time, { "moins_2h": 90, "2_5h": 70, "5_10h": 40, "plus_10h": 15 });
+  const collectionScore = sm(responses.collection_rate, { plus_90: 95, "70_90": 65, "50_70": 35, moins_50: 10, inconnu: 30 });
+  let discountScore = sm(responses.discount_practice, { jamais: 80, rarement: 70, regulierement: 50, souvent: 30 });
+  if (responses.discount_documentation === "non_documente") discountScore = Math.max(0, discountScore - 20);
+  const facturationScore = Math.round(timeScore * 0.25 + billingTimeScore * 0.20 + collectionScore * 0.30 + discountScore * 0.25);
+
+  const factFindings: string[] = [];
+  const factRecs: string[] = [];
+  if (responses.time_tracking_method === "pas_systematique") {
+    factFindings.push("Heures non enregistrées systématiquement — perte estimée de 20-30 % des revenus facturables.");
+    factRecs.push("Enregistrer les heures en temps réel avec chronomètre intégré.");
+  }
+  if (responses.collection_rate === "moins_50") {
+    factFindings.push("Taux de recouvrement sous 50 % — menace pour la viabilité financière du cabinet.");
+    factRecs.push("Politique de paiement anticipé et suivi automatisé des factures impayées.");
+  }
+  if (responses.discount_documentation === "non_documente") {
+    factFindings.push("Rabais non documentés. Non-conformité : B-1 r.5 exige documentation au dossier et sur la facture. Risque : constat lors d'une inspection comptable.");
+    factRecs.push("Documenter chaque rabais avec le motif au dossier et sur la facture.");
+  }
+  if (["plus_10h", "5_10h"].includes(responses.monthly_billing_time || "")) {
+    factFindings.push("Temps excessif consacré à la facturation — potentiel d'automatisation important.");
+    factRecs.push("Automatiser la génération de factures à partir des entrées de temps et débours.");
+  }
+
+  // ═══ PILIER 5 : Fidéicommis & comptabilité ═══
+  const trustMgmtScore = sm(responses.trust_account_management, { logiciel: 90, comptable: 60, manuel: 35, incertain: 20, casse_tete: 10 });
+  const reconScore = sm(responses.reconciliation_frequency, { mensuel: 100, trimestriel: 40, irregulier: 15, rarement: 5 });
+  const segregScore = sm(responses.trust_segregation, { logiciel: 95, comptable: 60, manuel: 50, incertain: 10 });
+  const fideicommisScore = Math.round(trustMgmtScore * 0.30 + reconScore * 0.35 + segregScore * 0.35);
+
+  const fidFindings: string[] = [];
+  const fidRecs: string[] = [];
   const trustMethod = responses.trust_account_management || "";
   if (["casse_tete", "incertain"].includes(trustMethod)) {
-    conformiteFindings.push(`Votre gestion du fidéicommis (${TRUST_LABELS[trustMethod]}) représente un risque de non-conformité majeur en cas d'inspection.`);
-    conformiteRecs.push("Mettre en place un outil de gestion du fidéicommis avec conciliation automatique, traçabilité complète et rapports de conformité.");
+    fidFindings.push(`Gestion du fidéicommis (${TRUST_LABELS[trustMethod] || trustMethod}) : risque de non-conformité majeur.`);
+    fidRecs.push("Outil de gestion du fidéicommis avec conciliation automatique et rapports de conformité.");
   } else if (trustMethod === "manuel") {
-    conformiteFindings.push("La gestion manuelle du fidéicommis est chronophage et expose à des erreurs de conciliation.");
-    conformiteRecs.push("Automatiser la gestion du fidéicommis : conciliation en temps réel, alertes sur les anomalies et rapports prêts pour inspection.");
+    fidFindings.push("Gestion manuelle du fidéicommis — chronophage et exposée aux erreurs.");
+    fidRecs.push("Automatiser la conciliation avec alertes sur les anomalies.");
+  }
+  if (responses.reconciliation_frequency !== "mensuel" && responses.reconciliation_frequency) {
+    fidFindings.push("Non-conformité : B-1 r.5 art. 16 exige une conciliation mensuelle. Risque : sanction automatique lors d'une inspection.");
+    fidRecs.push("Mettre en place une conciliation mensuelle systématique.");
+  }
+  if (responses.trust_segregation === "incertain") {
+    fidFindings.push("ALERTE : incertitude sur la ségrégation des fonds — constat le plus grave lors d'une inspection (B-1 r.5 art. 12-15). Risque : radiation temporaire, enquête du syndic.");
+    fidRecs.push("Vérifier immédiatement la ségrégation par client avec un grand livre automatisé.");
+  }
+
+  // ═══ PILIER 6 : Opérations ═══
+  const adminScore = sm(responses.weekly_admin_hours, { "moins_2h": 90, "2_5h": 65, "5_10h": 35, "plus_10h": 10 });
+  const barScore = ((responses.bar_inspection_confidence || 3) / 5) * 100;
+  const toolsBonus = Array.isArray(responses.current_tools) && responses.current_tools.some(t => ["jurisevolution", "clio", "autre_juridique"].includes(t)) ? 10 : 0;
+  const operationsScore = Math.round(adminScore * 0.40 + barScore * 0.40 + Math.min(100, toolsBonus * 2) * 0.20);
+
+  const opsFindings: string[] = [];
+  const opsRecs: string[] = [];
+  const adminHoursMap: Record<string, number> = { "moins_2h": 1.5, "2_5h": 3.5, "5_10h": 7.5, "plus_10h": 12 };
+  const weeklyHours = adminHoursMap[responses.weekly_admin_hours || ""] || 3.5;
+  if (weeklyHours >= 7.5) {
+    opsFindings.push(`${weeklyHours} h/semaine en administratif — soit ~${Math.round(weeklyHours * 4)} h/mois non facturables.`);
+    opsRecs.push("Automatiser les tâches répétitives : relances, classement, rapports.");
+  } else if (weeklyHours >= 3.5) {
+    opsFindings.push(`${weeklyHours} h/semaine en administratif — volume réductible de 50-70 %.`);
+    opsRecs.push("Optimiser les flux administratifs avec des automatisations ciblées.");
   }
   if ((responses.bar_inspection_confidence || 3) <= 2) {
-    conformiteFindings.push(`Votre niveau de confiance face à une inspection (${responses.bar_inspection_confidence}/5) est préoccupant et source de stress inutile.`);
-    conformiteRecs.push("Préparer un plan de conformité complet et mettre en place des contrôles automatisés pour être prêt en tout temps.");
-  } else if ((responses.bar_inspection_confidence || 3) >= 4) {
-    conformiteFindings.push("Votre confiance face aux inspections du Barreau est rassurante.");
-  }
-  if (responses.trust_account_details) {
-    conformiteFindings.push(`Vos commentaires : « ${responses.trust_account_details} »`);
+    opsFindings.push(`Confiance face à l'inspection : ${responses.bar_inspection_confidence}/5 — source de stress.`);
+    opsRecs.push("Mettre en place des contrôles automatisés pour être prêt en tout temps.");
   }
 
-  // ── Section 4: Efficacité opérationnelle ──
-  const adminScores: Record<string, number> = { "moins_2h": 90, "2_5h": 65, "5_10h": 35, "plus_10h": 10 };
-  const adminScore = adminScores[responses.weekly_admin_hours || ""] || 50;
-  const effScore = Math.round(adminScore);
+  // ═══ PILIER 7 : Conformité Loi 25 ═══
+  const loi25LevelScore = sm(responses.loi25_compliance_level, { conforme: 100, partiel: 55, debut: 25, inconnu: 5 });
+  const measuresCount = Array.isArray(responses.data_protection_measures) ? responses.data_protection_measures.filter(m => m !== "aucune").length : 0;
+  const measuresScore = Math.min(100, measuresCount * 20);
+  const loi25ConsentScore = sm(responses.loi25_consent, { oui_formulaire: 100, dans_mandat: 70, non_inconnu: 15, non: 10 });
+  const loi25Score = Math.round(loi25LevelScore * 0.40 + measuresScore * 0.35 + loi25ConsentScore * 0.25);
 
-  const effFindings: string[] = [];
-  const effRecs: string[] = [];
-  const adminHours = responses.weekly_admin_hours || "";
-  const adminHoursMap: Record<string, number> = { "moins_2h": 1.5, "2_5h": 3.5, "5_10h": 7.5, "plus_10h": 12 };
-  const weeklyHours = adminHoursMap[adminHours] || 3.5;
-
-  if (weeklyHours >= 7.5) {
-    effFindings.push(`Vous perdez environ ${weeklyHours} heures par semaine en tâches administratives — soit ${Math.round(weeklyHours * 4)} heures par mois qui pourraient être facturées.`);
-    effRecs.push("Automatiser les tâches administratives récurrentes : classement de documents, relances de paiement, production de rapports.");
-  } else if (weeklyHours >= 3.5) {
-    effFindings.push(`Environ ${weeklyHours} heures par semaine sont consacrées à l'administratif — un volume qui peut être réduit de 50 à 70%.`);
-    effRecs.push("Optimiser les flux de travail administratifs avec des automatisations ciblées.");
-  } else {
-    effFindings.push("Votre temps administratif est bien maîtrisé — vous êtes plus efficace que la moyenne.");
+  const loi25Findings: string[] = [];
+  const loi25Recs: string[] = [];
+  if (responses.loi25_compliance_level === "inconnu") {
+    loi25Findings.push("Non-conformité : Loi 25 (art. 3.1) oblige à désigner un responsable de la protection des renseignements personnels. Risque : amende de 10 000 $ à 25 000 000 $.");
+    loi25Recs.push("Désigner un responsable de la protection des renseignements et adopter une politique de confidentialité.");
+  } else if (responses.loi25_compliance_level === "debut") {
+    loi25Findings.push("Démarche Loi 25 en cours — plusieurs obligations restent à compléter.");
+    loi25Recs.push("Compléter l'évaluation des facteurs relatifs à la vie privée (EFVP) et le registre des incidents.");
   }
-  if (responses.biggest_challenge_details) {
-    effFindings.push(`Votre principal défi : « ${responses.biggest_challenge_details} »`);
-  }
-  if (responses.improvement_priorities) {
-    effFindings.push(`Ce que vous souhaitez en priorité : « ${responses.improvement_priorities} »`);
+  if (measuresCount === 0) {
+    loi25Findings.push("Aucune mesure formelle de protection des données — risque d'atteinte à la confidentialité (Loi 25 art. 10, Code de déontologie art. 3.06.02).");
+    loi25Recs.push("Mettre en place : chiffrement, mots de passe robustes, sauvegardes, formation du personnel.");
   }
 
-  // ── Overall pain score ──
-  const painScore = Math.min(100, Math.max(0, Math.round(100 - (dossierScore * 0.25 + comptaScore * 0.30 + conformiteScore * 0.25 + effScore * 0.20))));
+  // ═══ SCORE GLOBAL ═══
+  const globalScore = Math.round(
+    dossierScore * 0.15 +
+    echeancierScore * 0.15 +
+    clienteleScore * 0.15 +
+    facturationScore * 0.15 +
+    fideicommisScore * 0.20 +
+    operationsScore * 0.10 +
+    loi25Score * 0.10
+  );
+  const painScore = Math.min(100, Math.max(0, 100 - globalScore));
 
   let maturity = "Intermédiaire";
-  if (painScore >= 65) maturity = "Débutant";
-  else if (painScore <= 30) maturity = "Avancé";
+  if (globalScore >= 75) maturity = "Avancé";
+  else if (globalScore < 45) maturity = "Débutant";
 
   // ── Financial impact ──
   const estimatedMonthlyLoss = Math.round(weeklyHours * 250 * 4);
@@ -629,19 +1077,22 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
 
   // ── Strengths ──
   const strengths: string[] = [];
-  if (method === "logiciel") strengths.push("Utilisation d'un logiciel spécialisé pour le suivi des dossiers");
-  if (acctTool === "logiciel_juridique") strengths.push("Solution comptable adaptée à la pratique juridique");
-  if (trustMethod === "logiciel") strengths.push("Gestion automatisée du compte en fidéicommis");
-  if (timeMethod === "temps_reel") strengths.push("Enregistrement des heures en temps réel");
-  if ((responses.bar_inspection_confidence || 0) >= 4) strengths.push("Bonne confiance face aux inspections du Barreau");
+  if (method === "logiciel") strengths.push("Logiciel spécialisé pour le suivi des dossiers");
+  if (responses.opening_checklist === "oui_systematique") strengths.push("Checklist d'ouverture systématique");
+  if (responses.conflict_check === "registre") strengths.push("Vérification des conflits d'intérêts rigoureuse");
+  if (responses.reconciliation_frequency === "mensuel") strengths.push("Conciliation mensuelle du fidéicommis");
+  if (responses.deadline_tracking === "logiciel") strengths.push("Alertes automatiques pour les échéances");
+  if (responses.mandate_documentation === "systematique") strengths.push("Convention de mandat systématique");
+  if (responses.loi25_compliance_level === "conforme") strengths.push("Conformité Loi 25 complète");
+  if ((responses.bar_inspection_confidence || 0) >= 4) strengths.push("Bonne confiance face aux inspections");
   if (weeklyHours <= 2) strengths.push("Temps administratif bien maîtrisé");
-  if (strengths.length === 0) strengths.push("Vous avez pris l'initiative de faire cet audit — c'est déjà un premier pas important vers l'amélioration.");
+  if (strengths.length === 0) strengths.push("Vous avez pris l'initiative de faire cet audit — c'est un premier pas important.");
 
-  // ── Priority recommendations (top 3 across all sections) ──
-  const allRecs = [...dossierRecs, ...comptaRecs, ...conformiteRecs, ...effRecs];
-  if (allRecs.length === 0) allRecs.push("Optimiser vos processus existants avec des outils intégrés");
+  // ── Recommendations (top 3) ──
+  const allRecs = [...fidRecs, ...echRecs, ...clientRecs, ...factRecs, ...dossierRecs, ...loi25Recs, ...opsRecs];
+  if (allRecs.length === 0) allRecs.push("Optimiser vos processus existants avec des outils intégrés.");
 
-  // ── Section objects ──
+  // ── 7 Section objects ──
   const sections: SectionDiagnostic[] = [
     {
       title: "Gestion des dossiers",
@@ -649,31 +1100,55 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
       status: getStatus(dossierScore),
       findings: dossierFindings,
       recommendations: dossierRecs,
-      safeHelp: "SAFE centralise tous vos dossiers, échéances et documents dans une interface unique avec alertes automatiques, recherche instantanée et historique complet.",
+      safeHelp: "SAFE centralise dossiers, documents et échéances dans une interface unique avec checklists d'ouverture/fermeture, archivage automatique et politique de rétention intégrée.",
     },
     {
-      title: "Comptabilité & Facturation",
-      score: comptaScore,
-      status: getStatus(comptaScore),
-      findings: comptaFindings,
-      recommendations: comptaRecs,
-      safeHelp: "SAFE intègre la comptabilité juridique native : feuilles de temps avec chronomètre, facturation automatisée, suivi des paiements et rapports financiers en un clic.",
+      title: "Échéanciers & délais",
+      score: echeancierScore,
+      status: getStatus(echeancierScore),
+      findings: echFindings,
+      recommendations: echRecs,
+      safeHelp: "SAFE surveille vos échéances de cour, prescriptions et délais de production avec des alertes automatiques configurables et un calendrier centralisé.",
     },
     {
-      title: "Fidéicommis & Conformité",
-      score: conformiteScore,
-      status: getStatus(conformiteScore),
-      findings: conformiteFindings,
-      recommendations: conformiteRecs,
-      safeHelp: "SAFE gère votre fidéicommis en conformité totale avec le Barreau : conciliation automatique, rapports d'inspection pré-générés et traçabilité complète de chaque transaction.",
+      title: "Gestion de la clientèle",
+      score: clienteleScore,
+      status: getStatus(clienteleScore),
+      findings: clientFindings,
+      recommendations: clientRecs,
+      safeHelp: "SAFE intègre un processus d'accueil structuré, la vérification des conflits d'intérêts, la convention de mandat et le consentement Loi 25 dans un workflow fluide.",
     },
     {
-      title: "Efficacité opérationnelle",
-      score: effScore,
-      status: getStatus(effScore),
-      findings: effFindings,
-      recommendations: effRecs,
-      safeHelp: "SAFE automatise les tâches répétitives : classement intelligent, relances automatiques, modèles de documents et tableaux de bord en temps réel pour piloter votre cabinet.",
+      title: "Facturation & recouvrement",
+      score: facturationScore,
+      status: getStatus(facturationScore),
+      findings: factFindings,
+      recommendations: factRecs,
+      safeHelp: "SAFE gère tous les modes de facturation (horaire, forfait, à l'acte), avec suivi du recouvrement, relances automatiques et documentation des rabais conforme au B-1 r.5.",
+    },
+    {
+      title: "Fidéicommis & comptabilité",
+      score: fideicommisScore,
+      status: getStatus(fideicommisScore),
+      findings: fidFindings,
+      recommendations: fidRecs,
+      safeHelp: "SAFE gère votre fidéicommis en conformité totale : conciliation mensuelle automatique, ségrégation par client, rapports d'inspection pré-générés et traçabilité complète.",
+    },
+    {
+      title: "Opérations",
+      score: operationsScore,
+      status: getStatus(operationsScore),
+      findings: opsFindings,
+      recommendations: opsRecs,
+      safeHelp: "SAFE automatise les tâches répétitives : classement intelligent, relances, modèles de documents et tableaux de bord en temps réel.",
+    },
+    {
+      title: "Conformité Loi 25",
+      score: loi25Score,
+      status: getStatus(loi25Score),
+      findings: loi25Findings,
+      recommendations: loi25Recs,
+      safeHelp: "SAFE intègre la gestion du consentement, la politique de conservation, le registre des incidents et le chiffrement des données sensibles — conformité Loi 25 automatisée.",
     },
   ];
 
@@ -682,11 +1157,11 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   const strongSections = sections.filter((s) => s.status === "excellent" || s.status === "bon");
   let summary = "";
   if (weakSections.length === 0) {
-    summary = "Votre cabinet présente un bon niveau de maturité organisationnelle. Quelques optimisations ciblées pourraient maximiser votre efficacité et votre rentabilité.";
-  } else if (weakSections.length <= 2) {
-    summary = `Votre cabinet possède des bases solides${strongSections.length > 0 ? ` (notamment en ${strongSections.map((s) => s.title.toLowerCase()).join(" et ")})` : ""}, mais ${weakSections.length === 1 ? "un secteur nécessite" : "certains secteurs nécessitent"} une attention particulière : ${weakSections.map((s) => s.title.toLowerCase()).join(" et ")}. Des améliorations ciblées dans ${weakSections.length === 1 ? "ce domaine" : "ces domaines"} pourraient avoir un impact significatif.`;
+    summary = "Votre cabinet présente un bon niveau de maturité. Quelques optimisations ciblées pourraient maximiser votre efficacité.";
+  } else if (weakSections.length <= 3) {
+    summary = `Votre cabinet possède des bases solides${strongSections.length > 0 ? ` (${strongSections.map((s) => s.title.toLowerCase()).join(", ")})` : ""}, mais ${weakSections.length === 1 ? "un pilier nécessite" : "certains piliers nécessitent"} une attention particulière : ${weakSections.map((s) => s.title.toLowerCase()).join(", ")}.`;
   } else {
-    summary = "Votre cabinet fait face à des défis importants sur plusieurs fronts. La bonne nouvelle : les solutions existent et l'impact d'une transformation structurée sera d'autant plus significatif. Un accompagnement adapté peut vous aider à reprendre le contrôle rapidement.";
+    summary = "Votre cabinet fait face à des défis sur plusieurs fronts. La bonne nouvelle : les solutions existent et un accompagnement structuré peut transformer votre pratique rapidement.";
   }
 
   return {
@@ -847,17 +1322,28 @@ export default function AuditChat() {
     }
   }, [started]);
 
-  // Advance to next question
+  // Ref to access latest responses without re-creating the callback
+  const responsesRef = useRef(responses);
+  responsesRef.current = responses;
+
+  // Advance to next question (skip conditional questions whose condition is not met)
   const advanceQuestion = useCallback(
     async (nextIdx: number) => {
-      if (nextIdx >= QUESTIONS.length) {
-        // Audit complete
+      let idx = nextIdx;
+      // Skip questions whose condition returns false
+      while (idx < QUESTIONS.length) {
+        const q = QUESTIONS[idx];
+        if (!q.condition || q.condition(responsesRef.current)) break;
+        idx++;
+      }
+
+      if (idx >= QUESTIONS.length) {
         setShowResults(true);
         return;
       }
 
-      const nextQ = QUESTIONS[nextIdx];
-      const prevQ = nextIdx > 0 ? QUESTIONS[nextIdx - 1] : null;
+      const nextQ = QUESTIONS[idx];
+      const prevQ = idx > 0 ? QUESTIONS[idx - 1] : null;
 
       // Phase transition message
       if (prevQ && nextQ.phase !== prevQ.phase && PHASE_TRANSITIONS[nextQ.phase]) {
@@ -866,7 +1352,7 @@ export default function AuditChat() {
 
       // Ask the question
       await addAuditorMessage(nextQ.text, nextQ);
-      setCurrentQuestion(nextIdx);
+      setCurrentQuestion(idx);
     },
     [addAuditorMessage]
   );
@@ -1049,13 +1535,60 @@ export default function AuditChat() {
         contact_firm: contactForm.firm,
       }));
 
+      // Calculer les résultats pour les envoyer avec l'audit
+      const auditResults = computeResults({
+        ...responses,
+        contact_name: contactForm.name,
+        contact_email: contactForm.email,
+        contact_phone: contactForm.phone,
+        contact_firm: contactForm.firm,
+      });
+      const displayScore = auditResults ? Math.max(0, 100 - auditResults.pain_score) : 0;
+
+      // Envoyer les données + résultats à l'API pour sauvegarde en base + email
+      try {
+        await fetch("/api/audit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "cabinet",
+            source: "audit_gratuit",
+            prospectNom: contactForm.name,
+            prospectEmail: contactForm.email,
+            prospectTelephone: contactForm.phone || null,
+            prospectCabinet: contactForm.firm || null,
+            scoreGlobal: displayScore,
+            scores: auditResults ? JSON.stringify(
+              Object.fromEntries(auditResults.sections.map(s => [s.title, s.score]))
+            ) : null,
+            rapport: auditResults ? JSON.stringify({
+              sections: auditResults.sections,
+              strengths: auditResults.strengths,
+              overall_summary: auditResults.overall_summary,
+              priority_recommendations: auditResults.priority_recommendations,
+              estimated_monthly_loss: auditResults.estimated_monthly_loss,
+              maturity_level: auditResults.maturity_level,
+            }) : null,
+            reponses: JSON.stringify({
+              ...responses,
+              contact_name: contactForm.name,
+              contact_email: contactForm.email,
+              contact_phone: contactForm.phone,
+              contact_firm: contactForm.firm,
+            }),
+          }),
+        });
+      } catch {
+        // Silently fail — ne pas bloquer l'expérience utilisateur
+      }
+
       await addAuditorMessage(
         "Merci beaucoup pour votre temps et votre confiance ! Votre rapport d'audit personnalisé est prêt. Voyons ensemble les résultats..."
       );
 
       setShowResults(true);
     },
-    [contactForm, addUserMessage, addAuditorMessage]
+    [contactForm, addUserMessage, addAuditorMessage, responses]
   );
 
   // Persist to storage
