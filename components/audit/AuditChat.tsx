@@ -67,6 +67,7 @@ interface ChatMessage {
 
 interface AuditResponses {
   // Pilier 1 : Identification
+  province: string;
   practice_type: string;
   practice_areas: string[];
   years_active: string;
@@ -154,6 +155,48 @@ interface AuditData {
 }
 
 /* ─────────────────────────────────────────────
+   Regulatory context by province
+   ───────────────────────────────────────────── */
+
+function getRegContext(province: string) {
+  if (province === "ontario") return {
+    barName: "Law Society of Ontario (LSO)",
+    accountingRule: "By-Law 9",
+    privacyLaw: "PIPEDA",
+    privacyLawFull: "Personal Information Protection and Electronic Documents Act (PIPEDA)",
+    taxLabel: "HST",
+    inspectionName: "LSO Spot Audit",
+    trustLabel: "trust account",
+    reconciliationRule: "By-Law 9 requires monthly three-way reconciliation within 25 days of month-end.",
+    conflictRule: "Rule 3.4 of the Rules of Professional Conduct",
+    conflictRisk: "complaint to the LSO, licence suspension",
+    privacyPenalty: "up to $100,000 per violation",
+    reconciliationRef: "By-Law 9, Part IV",
+    segregationRef: "By-Law 9, s. 9",
+    mandateRef: "Rules of Professional Conduct, Rule 3.2",
+  };
+  // Default: Québec
+  return {
+    barName: "Barreau du Québec",
+    accountingRule: "Règlement ' + reg.accountingRule + '",
+    privacyLaw: "Loi 25",
+    privacyLawFull: "Loi 25 (Loi sur la protection des renseignements personnels)",
+    taxLabel: "TPS/TVQ",
+    inspectionName: "Inspection professionnelle du Barreau",
+    trustLabel: "compte en fidéicommis",
+    reconciliationRule: "Le Règlement ' + reg.accountingRule + ' exige une conciliation mensuelle du fidéicommis.",
+    conflictRule: "' + reg.conflictRule + '",
+    conflictRisk: "radiation temporaire, amende",
+    privacyPenalty: "amende de 10 000 $ à 25 000 000 $",
+    reconciliationRef: "' + reg.accountingRule + ' art. 16",
+    segregationRef: "' + reg.accountingRule + ' art. 12-15",
+    mandateRef: "' + reg.mandateRef + '",
+  };
+}
+
+const ESTIMATED_MINUTES = 8;
+
+/* ─────────────────────────────────────────────
    Constants
    ───────────────────────────────────────────── */
 
@@ -168,20 +211,33 @@ const PHASES = [
 ];
 
 const PHASE_TRANSITIONS: Record<number, string> = {
-  2: "Très bien ! J'ai un bon portrait de votre cabinet. Parlons maintenant de la gestion de vos dossiers au quotidien.",
-  3: "Merci. Abordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
-  4: "Passons à la gestion de votre clientèle — l'accueil des nouveaux clients et la conformité déontologique.",
-  5: "Parlons maintenant de facturation et recouvrement — un aspect essentiel de la santé financière de votre cabinet.",
-  6: "Abordons le fidéicommis et la comptabilité — le cœur de la conformité au Barreau.",
-  7: "Dernière section : vos opérations quotidiennes et votre conformité à la Loi 25.",
+  2: "✅ Parfait, j'ai un bon portrait de votre cabinet !\n\n📁 Passons à la gestion de vos dossiers au quotidien.",
+  3: "📁 Très bien !\n\n⏰ Abordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
+  4: "⏰ Noté !\n\n👥 Parlons maintenant de la gestion de votre clientèle — accueil, conflits d'intérêts et conformité.",
+  5: "👥 Merci pour ces réponses importantes !\n\n💰 Passons à la facturation et au recouvrement — la santé financière de votre cabinet.",
+  6: "💰 Bien reçu !\n\n🏦 Abordons le fidéicommis et la comptabilité — le cœur de la conformité réglementaire.",
+  7: "🏦 Presque terminé !\n\n🛡️ Dernière section : vos opérations quotidiennes et votre conformité en matière de protection des données.",
 };
 
 const QUESTIONS: Question[] = [
   // ═══ PILIER 1 : Identification du cabinet ═══
   {
+    key: "province",
+    phase: 1,
+    text: "Dans quelle province exercez-vous principalement ?",
+    type: "single",
+    options: [
+      { label: "🍁 Québec", value: "quebec" },
+      { label: "🏛️ Ontario", value: "ontario" },
+      { label: "🌊 Colombie-Britannique", value: "bc" },
+      { label: "🏔️ Alberta", value: "alberta" },
+      { label: "Autre province / territoire", value: "autre", hasTextField: true },
+    ],
+  },
+  {
     key: "practice_type",
     phase: 1,
-    text: "Pour commencer, comment décririez-vous votre pratique ?",
+    text: "Comment décririez-vous votre pratique ?",
     type: "single",
     options: [
       { label: "Avocat(e) solo", value: "solo" },
@@ -405,12 +461,12 @@ const QUESTIONS: Question[] = [
   {
     key: "loi25_consent",
     phase: 4,
-    text: "Avez-vous un processus pour obtenir le consentement de vos clients concernant la collecte de renseignements personnels (Loi 25) ?",
+    text: "Avez-vous un processus pour obtenir le consentement de vos clients concernant la collecte de leurs renseignements personnels ?",
     type: "single",
     options: [
       { label: "Oui, formulaire de consentement signé", value: "oui_formulaire" },
       { label: "C'est mentionné dans ma convention de mandat", value: "dans_mandat" },
-      { label: "Non, je ne sais pas trop ce que la Loi 25 exige", value: "non_inconnu" },
+      { label: "Non, je ne connais pas bien mes obligations", value: "non_inconnu" },
       { label: "Non, je n'ai rien mis en place", value: "non" },
     ],
   },
@@ -496,7 +552,7 @@ const QUESTIONS: Question[] = [
   {
     key: "discount_documentation",
     phase: 5,
-    text: "Comment documentez-vous les rabais accordés ? (Le Règlement B-1 r.5 exige une documentation des réductions)",
+    text: "Comment documentez-vous les rabais accordés ? (Le Règlement ' + reg.accountingRule + ' exige une documentation des réductions)",
     type: "single",
     condition: (r) => r.discount_practice !== undefined && r.discount_practice !== "jamais",
     options: [
@@ -609,7 +665,7 @@ const QUESTIONS: Question[] = [
   {
     key: "loi25_compliance_level",
     phase: 7,
-    text: "Où en êtes-vous avec la conformité à la Loi 25 (protection des renseignements personnels) ?",
+    text: "Où en êtes-vous avec la conformité en matière de protection des renseignements personnels ?",
     type: "single",
     options: [
       { label: "Conforme : responsable désigné, politique de confidentialité, registre des incidents", value: "conforme" },
@@ -652,7 +708,7 @@ const QUESTIONS: Question[] = [
   {
     key: "contact",
     phase: 7,
-    text: "Votre audit est presque terminé ! Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
+    text: "🎉 Votre audit est presque terminé ! Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
     type: "contact",
   },
 ];
@@ -663,6 +719,13 @@ const QUESTIONS: Question[] = [
 
 function getReaction(key: string, value: string | number | string[], allResponses: Partial<AuditResponses>): string | null {
   switch (key) {
+    case "province":
+      if (value === "quebec") return "🏛️ Parfait ! L'audit sera calibré selon les exigences du Barreau du Québec (' + reg.accountingRule + ') et de la Loi 25.";
+      if (value === "ontario") return "🏛️ Très bien ! L'audit sera adapté au Law Society of Ontario (By-Law 9) et à PIPEDA.";
+      if (value === "bc") return "🏛️ Noté ! L'audit tiendra compte des règles du Law Society of British Columbia.";
+      if (value === "alberta") return "🏛️ Compris ! L'audit sera adapté au Law Society of Alberta.";
+      return "🏛️ Merci ! L'audit s'adaptera aux exigences de votre juridiction.";
+
     case "practice_type":
       if (value === "solo") return "La pratique solo demande une polyvalence remarquable. Vous portez plusieurs chapeaux — raison de plus pour avoir des systèmes solides.";
       if (value === "petit") return "Un cabinet de cette taille doit jongler entre la croissance et l'efficacité. Voyons comment vous vous en tirez !";
@@ -772,7 +835,7 @@ function getReaction(key: string, value: string | number | string[], allResponse
       return null;
 
     case "discount_documentation":
-      if (value === "non_documente") return "Attention : le Règlement B-1 r.5 exige que tout rabais soit documenté au dossier et sur la facture.";
+      if (value === "non_documente") return "Attention : le Règlement ' + reg.accountingRule + ' exige que tout rabais soit documenté au dossier et sur la facture.";
       return null;
 
     case "trust_account_management":
@@ -782,7 +845,7 @@ function getReaction(key: string, value: string | number | string[], allResponse
       return null;
 
     case "reconciliation_frequency":
-      if (value === "rarement" || value === "irregulier") return "La conciliation mensuelle est une obligation réglementaire (B-1 r.5). C'est souvent le premier élément vérifié lors d'une inspection.";
+      if (value === "rarement" || value === "irregulier") return "La conciliation mensuelle est une obligation réglementaire (' + reg.accountingRule + '). C'est souvent le premier élément vérifié lors d'une inspection.";
       if (value === "mensuel") return "Conciliation mensuelle — vous respectez l'exigence du Barreau. C'est bien.";
       return null;
 
@@ -865,6 +928,7 @@ function scoreMap(value: string | undefined, map: Record<string, number>, fallba
 
 function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   const sm = (v: string | undefined, m: Record<string, number>, fb = 50) => scoreMap(v, m, fb);
+  const reg = getRegContext(responses.province || "quebec");
 
   // ═══ PILIER 1 : Gestion des dossiers ═══
   const trackingScore = sm(responses.case_tracking_method, { logiciel: 90, excel: 55, melange: 40, papier: 20, aucun: 10 });
@@ -888,14 +952,14 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   }
   if (responses.opening_checklist === "non" || responses.opening_checklist === "inconnu") {
     dossierFindings.push("Absence de checklist d'ouverture de dossier. Référence : Guide d'inspection du Barreau, section Gestion des dossiers.");
-    dossierRecs.push("Implémenter une checklist standardisée (mandat, conflits, identité, Loi 25).");
+    dossierRecs.push(`Implémenter une checklist standardisée (mandat, conflits, identité, ${reg.privacyLaw}).`);
   }
   if (responses.closing_process === "jamais") {
     dossierFindings.push("Dossiers jamais formellement fermés — complication pour le fidéicommis et l'archivage.");
     dossierRecs.push("Mettre en place un processus de fermeture avec vérification du solde fidéicommis.");
   }
   if (responses.retention_policy === "non" || responses.retention_policy === "inconnu") {
-    dossierFindings.push("Non-conformité potentielle : le Barreau exige une politique de conservation (B-1 r.5). Risque : sanction lors d'une inspection.");
+    dossierFindings.push("Non-conformité potentielle : le Barreau exige une politique de conservation (' + reg.accountingRule + '). Risque : sanction lors d'une inspection.");
     dossierRecs.push("Définir une politique de rétention par type de document.");
   }
   if (responses.case_tracking_details) dossierFindings.push(`Vos commentaires : « ${responses.case_tracking_details} »`);
@@ -914,11 +978,11 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
     echRecs.push("Implémenter un système d'alertes automatiques pour toutes les échéances judiciaires.");
   }
   if (responses.prescription_management === "negligence") {
-    echFindings.push("Gestion inadéquate des prescriptions. Réf : Code de déontologie art. 3.03.01 (diligence). Risque : poursuite en responsabilité professionnelle.");
+    echFindings.push("Gestion inadéquate des prescriptions. Réf : ' + reg.conflictRule + ' (diligence). Risque : poursuite en responsabilité professionnelle.");
     echRecs.push("Noter systématiquement les délais de prescription à l'ouverture de chaque dossier.");
   }
   if (responses.missed_deadline_history === "consequences") {
-    echFindings.push("Échéance manquée avec conséquences — manquement grave (Code de déontologie art. 3.03.01). Risque : plainte déontologique.");
+    echFindings.push("Échéance manquée avec conséquences — manquement grave (' + reg.conflictRule + '). Risque : plainte déontologique.");
     echRecs.push("Mettre en place un double système de rappels (automatique + vérification humaine).");
   }
   if (responses.reminder_system === "non") {
@@ -940,19 +1004,19 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   const clientFindings: string[] = [];
   const clientRecs: string[] = [];
   if (responses.conflict_check === "aucun") {
-    clientFindings.push("Non-conformité grave : vérification des conflits d'intérêts obligatoire (Code de déontologie art. 3.06.01). Risque : radiation temporaire, amende.");
+    clientFindings.push("Non-conformité grave : vérification des conflits d'intérêts obligatoire (' + reg.conflictRule + '). Risque : radiation temporaire, amende.");
     clientRecs.push("Mettre en place un registre centralisé de vérification des conflits d'intérêts.");
   } else if (responses.conflict_check === "informel") {
     clientFindings.push("Vérification informelle des conflits — ne laisse pas de trace vérifiable en cas d'inspection.");
     clientRecs.push("Formaliser la vérification des conflits avec un registre documenté.");
   }
   if (responses.mandate_documentation === "verbal") {
-    clientFindings.push("Mandats souvent verbaux — difficile à prouver en cas de litige. Réf : Code de déontologie art. 3.03.02.");
+    clientFindings.push("Mandats souvent verbaux — difficile à prouver en cas de litige. Réf : ' + reg.mandateRef + '.");
     clientRecs.push("Faire signer systématiquement une convention de mandat écrite.");
   }
   if (responses.loi25_consent === "non" || responses.loi25_consent === "non_inconnu") {
-    clientFindings.push("Non-conformité à la Loi 25 (art. 8) : consentement préalable obligatoire depuis septembre 2023. Risque : amende de 10 000 $ à 25 000 000 $.");
-    clientRecs.push("Implémenter un formulaire de consentement Loi 25 dans le processus d'accueil.");
+    clientFindings.push(`Non-conformité (${reg.privacyLaw}) : consentement préalable à la collecte de renseignements personnels obligatoire. Risque : ${reg.privacyPenalty}.`);
+    clientRecs.push(`Implémenter un formulaire de consentement (${reg.privacyLaw}) dans le processus d'accueil.`);
   }
   if (responses.conflict_check_multi_area === "memoire" || responses.conflict_check_multi_area === "inconnu") {
     clientFindings.push("Pratique multi-domaines sans vérification centralisée des conflits — risque multiplié.");
@@ -978,7 +1042,7 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
     factRecs.push("Politique de paiement anticipé et suivi automatisé des factures impayées.");
   }
   if (responses.discount_documentation === "non_documente") {
-    factFindings.push("Rabais non documentés. Non-conformité : B-1 r.5 exige documentation au dossier et sur la facture. Risque : constat lors d'une inspection comptable.");
+    factFindings.push("Rabais non documentés. Non-conformité : ' + reg.accountingRule + ' exige documentation au dossier et sur la facture. Risque : constat lors d'une inspection comptable.");
     factRecs.push("Documenter chaque rabais avec le motif au dossier et sur la facture.");
   }
   if (["plus_10h", "5_10h"].includes(responses.monthly_billing_time || "")) {
@@ -1003,11 +1067,11 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
     fidRecs.push("Automatiser la conciliation avec alertes sur les anomalies.");
   }
   if (responses.reconciliation_frequency !== "mensuel" && responses.reconciliation_frequency) {
-    fidFindings.push("Non-conformité : B-1 r.5 art. 16 exige une conciliation mensuelle. Risque : sanction automatique lors d'une inspection.");
+    fidFindings.push("Non-conformité : ' + reg.accountingRule + ' art. 16 exige une conciliation mensuelle. Risque : sanction automatique lors d'une inspection.");
     fidRecs.push("Mettre en place une conciliation mensuelle systématique.");
   }
   if (responses.trust_segregation === "incertain") {
-    fidFindings.push("ALERTE : incertitude sur la ségrégation des fonds — constat le plus grave lors d'une inspection (B-1 r.5 art. 12-15). Risque : radiation temporaire, enquête du syndic.");
+    fidFindings.push("ALERTE : incertitude sur la ségrégation des fonds — constat le plus grave lors d'une inspection (' + reg.accountingRule + ' art. 12-15). Risque : radiation temporaire, enquête du syndic.");
     fidRecs.push("Vérifier immédiatement la ségrégation par client avec un grand livre automatisé.");
   }
 
@@ -1043,14 +1107,14 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
   const loi25Findings: string[] = [];
   const loi25Recs: string[] = [];
   if (responses.loi25_compliance_level === "inconnu") {
-    loi25Findings.push("Non-conformité : Loi 25 (art. 3.1) oblige à désigner un responsable de la protection des renseignements personnels. Risque : amende de 10 000 $ à 25 000 000 $.");
+    loi25Findings.push(`Non-conformité (${reg.privacyLaw}) : obligation de désigner un responsable de la protection des renseignements personnels. Risque : ${reg.privacyPenalty}.`);
     loi25Recs.push("Désigner un responsable de la protection des renseignements et adopter une politique de confidentialité.");
   } else if (responses.loi25_compliance_level === "debut") {
-    loi25Findings.push("Démarche Loi 25 en cours — plusieurs obligations restent à compléter.");
-    loi25Recs.push("Compléter l'évaluation des facteurs relatifs à la vie privée (EFVP) et le registre des incidents.");
+    loi25Findings.push(`Démarche ${reg.privacyLaw} en cours — plusieurs obligations restent à compléter.`);
+    loi25Recs.push("Compléter l'évaluation des facteurs relatifs à la vie privée et le registre des incidents.");
   }
   if (measuresCount === 0) {
-    loi25Findings.push("Aucune mesure formelle de protection des données — risque d'atteinte à la confidentialité (Loi 25 art. 10, Code de déontologie art. 3.06.02).");
+    loi25Findings.push(`Aucune mesure formelle de protection des données — risque d'atteinte à la confidentialité (${reg.privacyLaw}).`);
     loi25Recs.push("Mettre en place : chiffrement, mots de passe robustes, sauvegardes, formation du personnel.");
   }
 
@@ -1124,7 +1188,7 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
       status: getStatus(facturationScore),
       findings: factFindings,
       recommendations: factRecs,
-      safeHelp: "SAFE gère tous les modes de facturation (horaire, forfait, à l'acte), avec suivi du recouvrement, relances automatiques et documentation des rabais conforme au B-1 r.5.",
+      safeHelp: "SAFE gère tous les modes de facturation (horaire, forfait, à l'acte), avec suivi du recouvrement, relances automatiques et documentation des rabais conforme au ' + reg.accountingRule + '.",
     },
     {
       title: "Fidéicommis & comptabilité",
@@ -1143,12 +1207,12 @@ function computeResults(responses: Partial<AuditResponses>): AuditComputed {
       safeHelp: "SAFE automatise les tâches répétitives : classement intelligent, relances, modèles de documents et tableaux de bord en temps réel.",
     },
     {
-      title: "Conformité Loi 25",
+      title: `Conformité ${reg.privacyLaw}`,
       score: loi25Score,
       status: getStatus(loi25Score),
       findings: loi25Findings,
       recommendations: loi25Recs,
-      safeHelp: "SAFE intègre la gestion du consentement, la politique de conservation, le registre des incidents et le chiffrement des données sensibles — conformité Loi 25 automatisée.",
+      safeHelp: `SAFE intègre la gestion du consentement, la politique de conservation, le registre des incidents et le chiffrement des données sensibles — conformité ${reg.privacyLaw} automatisée.`,
     },
   ];
 
@@ -1313,7 +1377,7 @@ export default function AuditChat() {
           {
             id: uid(),
             sender: "auditor",
-            text: "Bonjour ! Je suis Me Audrey Fortier, auditrice spécialisée en efficacité des cabinets juridiques.\n\nMerci de prendre quelques minutes pour cet audit gratuit. Mes questions vont me permettre de dresser un portrait de votre cabinet et d'identifier des pistes d'amélioration concrètes.\n\nTout est confidentiel. On commence ?",
+            text: "👋 Bonjour ! Je suis Me Audrey Fortier, auditrice spécialisée en efficacité des cabinets juridiques.\n\n📋 Cet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\n🔒 Tout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
             timestamp: Date.now(),
           },
         ]);
@@ -1931,23 +1995,32 @@ export default function AuditChat() {
                 {PHASES.map((phase, i) => (
                   <div key={phase} className="flex-1 flex flex-col items-center gap-1">
                     <div
-                      className={`h-1 w-full rounded-full transition-all duration-500 ${
+                      className={`h-1.5 w-full rounded-full transition-all duration-500 ${
                         i + 1 < currentPhase
                           ? "bg-[var(--safe-text-title)]"
                           : i + 1 === currentPhase
-                          ? "bg-[var(--safe-text-secondary)]"
-                          : "bg-[var(--safe-sage)]/30"
+                          ? "bg-[var(--safe-text-secondary)] audit-progress-bar"
+                          : "bg-[var(--safe-sage)]/20"
                       }`}
                     />
                     <span
-                      className={`text-xs font-sans hidden sm:block transition-colors duration-300 ${
-                        i + 1 <= currentPhase ? "text-[var(--safe-text-secondary)]" : "text-[var(--safe-sage)]"
+                      className={`text-[10px] font-sans hidden sm:block transition-colors duration-300 ${
+                        i + 1 <= currentPhase ? "text-[var(--safe-text-secondary)] font-medium" : "text-[var(--safe-sage)]"
                       }`}
                     >
                       {phase}
                     </span>
                   </div>
                 ))}
+              </div>
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="text-[10px] text-[var(--safe-sage)] font-sans">
+                  Pilier {currentPhase}/{PHASES.length}
+                </span>
+                <span className="text-[10px] text-[var(--safe-sage)] font-sans flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  ~{Math.max(1, ESTIMATED_MINUTES - Math.round((currentPhase / PHASES.length) * ESTIMATED_MINUTES))} min restantes
+                </span>
               </div>
             </div>
           </div>
