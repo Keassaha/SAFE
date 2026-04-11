@@ -42,6 +42,7 @@ export const routes = {
   connexion: "/connexion",
   inscription: "/inscription",
   onboarding: "/onboarding",
+  auditOnboarding: "/audit-onboarding",
   outils: "/outils",
   outilsGenerateurDocuments: "/outils/generateur-documents",
   outilsCalculateurFamilial: "/outils/calculateur-familial",

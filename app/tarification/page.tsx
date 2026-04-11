@@ -40,27 +40,29 @@ function AnimatedCheck({ delay, inView }: { delay: number; inView: boolean }) {
   );
 }
 
-/* ───── Plans — aligned with main page Pricing.tsx ───── */
+/* ───── Plans — 3 plans Hormozi ───── */
 const PLANS = [
   {
     name: "Solo",
-    monthlyPrice: 99,
-    annualPrice: 79,
-    annualSaving: "240",
-    description: "Vous pratiquez seul et voulez dormir tranquille avant l'inspection.",
+    monthlyPrice: 79,
+    annualPrice: 63,
+    annualSaving: "192",
+    subtitle: "1 utilisateur",
+    description: "Vous pratiquez seul. Tout ce qu'il faut pour passer l'inspection les yeux fermés.",
     features: [
-      "1 avocat + 1 adjoint",
-      "Dossiers illimités",
-      "Facturation conforme B-1 r.5",
-      "1 compte en fidéicommis",
-      "Audit de conformité de base",
-      "Agent IA Finance — 50 requêtes/mois",
-      "Échéanciers & alertes",
+      "1 utilisateur (avocat)",
+      "Dossiers clients illimités",
+      "Facturation conforme (Règlement B-1 r.5)",
+      "1 compte en fidéicommis avec conciliation",
+      "Échéanciers judiciaires & alertes automatiques",
+      "Alertes de conformité Barreau",
+      "Conformité Loi 25 intégrée",
+      "Rapports financiers essentiels",
       "Support par courriel (48h)",
     ],
     popular: false,
     cta: "Essai gratuit 14 jours",
-    href: "/demo",
+    href: "/audit-onboarding",
     icon: Shield,
   },
   {
@@ -68,83 +70,88 @@ const PLANS = [
     monthlyPrice: 249,
     annualPrice: 199,
     annualSaving: "600",
-    description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
+    subtitle: "2 à 5 utilisateurs",
+    description: "Toute l'équipe sur la même plateforme — sans paperasse, sans risque de non-conformité.",
     features: [
-      "Jusqu'à 5 utilisateurs",
-      "Dossiers illimités",
-      "3 comptes en fidéicommis",
-      "Rapports financiers avancés",
-      "Audit complet + alertes conformité",
-      "Agent IA Finance — 200 requêtes/mois",
-      "Agent IA Assistant — 100 requêtes/mois",
-      "Échéanciers & alertes de cour",
-      "Onboarding 1-on-1 (30 min)",
+      "2 à 5 utilisateurs inclus",
+      "Dossiers clients illimités",
+      "Facturation conforme (Règlement B-1 r.5)",
+      "Comptes en fidéicommis illimités",
+      "Rapports financiers avancés + pré-inspection",
+      "Échéanciers judiciaires & alertes de cour",
+      "Audit complet + alertes de conformité",
+      "Conformité Loi 25 intégrée",
+      "Migration de données offerte",
+      "Onboarding personnalisé (1 session)",
       "Support prioritaire (24h)",
     ],
     popular: true,
     cta: "Essai gratuit 14 jours",
-    href: "/demo",
+    href: "/audit-onboarding",
     icon: Sparkles,
   },
   {
     name: "Cabinet+",
-    monthlyPrice: 499,
-    annualPrice: 399,
-    annualSaving: "1 200",
-    description: "Pour les cabinets qui veulent la tranquillité d'esprit totale.",
+    monthlyPrice: 449,
+    annualPrice: 359,
+    annualSaving: "1 080",
+    subtitle: "6 à 15 utilisateurs",
+    description: "Pour les cabinets établis qui exigent un support premium et une conformité blindée.",
     features: [
-      "Jusqu'à 15 utilisateurs",
-      "Comptes en fidéicommis illimités",
-      "Rapport pré-inspection automatisé",
-      "Agents IA illimités",
-      "Intégrations sur mesure",
-      "Migration de données complète",
-      "Onboarding concierge (3 sessions)",
-      "Support téléphone + Slack dédié",
-      "SLA garanti",
+      "6 à 15 utilisateurs inclus",
+      "Tout ce qui est dans Cabinet, plus :",
+      "Rapport pré-inspection certifié Barreau",
+      "Migration complète + formation équipe",
+      "Onboarding personnalisé (3 sessions)",
+      "Support téléphone dédié + Slack privé",
+      "Template kit conformité complet",
+      "Garantie conformité 90 jours",
     ],
     popular: false,
-    cta: "Réserver une démo",
-    href: "/demo",
+    cta: "Essai gratuit 14 jours",
+    href: "/audit-onboarding",
     icon: Zap,
   },
 ];
 
 /* ───── Comparison table ───── */
 const comparisonFeatures = [
-  { name: "Utilisateurs", solo: "1 avocat + 1 adjoint", cabinet: "Jusqu'à 5", cabinetPlus: "Jusqu'à 15" },
-  { name: "Dossiers", solo: "Illimité", cabinet: "Illimité", cabinetPlus: "Illimité" },
-  { name: "Comptes fidéicommis", solo: "1", cabinet: "3", cabinetPlus: "Illimité" },
-  { name: "Facturation conforme B-1 r.5", solo: true, cabinet: true, cabinetPlus: true },
-  { name: "Échéanciers & alertes", solo: true, cabinet: true, cabinetPlus: true },
-  { name: "Audit de conformité", solo: "De base", cabinet: "Complet + alertes", cabinetPlus: "Complet + rapport pré-inspection" },
-  { name: "Agent IA Finance", solo: "50 req/mois", cabinet: "200 req/mois", cabinetPlus: "Illimité" },
-  { name: "Agent IA Assistant", solo: false, cabinet: "100 req/mois", cabinetPlus: "Illimité" },
-  { name: "Rapports financiers avancés", solo: false, cabinet: true, cabinetPlus: true },
-  { name: "Onboarding", solo: "Self-serve + vidéos", cabinet: "Session 1-on-1 (30 min)", cabinetPlus: "Concierge (3 sessions)" },
-  { name: "Migration de données", solo: false, cabinet: false, cabinetPlus: true },
-  { name: "Intégrations sur mesure", solo: false, cabinet: false, cabinetPlus: true },
-  { name: "SLA garanti", solo: false, cabinet: false, cabinetPlus: true },
-  { name: "Support", solo: "Courriel (48h)", cabinet: "Prioritaire (24h)", cabinetPlus: "Téléphone + Slack dédié" },
+  { name: "Utilisateurs", solo: "1", cabinet: "2 à 5", cabinetPlus: "6 à 15" },
+  { name: "Dossiers clients", solo: "Illimité", cabinet: "Illimité", cabinetPlus: "Illimité" },
+  { name: "Comptes en fidéicommis", solo: "1", cabinet: "Illimité", cabinetPlus: "Illimité" },
+  { name: "Facturation conforme (B-1 r.5)", solo: true, cabinet: true, cabinetPlus: true },
+  { name: "Échéanciers & alertes judiciaires", solo: true, cabinet: true, cabinetPlus: true },
+  { name: "Conformité Loi 25", solo: true, cabinet: true, cabinetPlus: true },
+  { name: "Audit de conformité Barreau", solo: "Alertes", cabinet: "Complet + alertes", cabinetPlus: "Complet + pré-inspection certifié" },
+  { name: "Rapports financiers", solo: "Essentiels", cabinet: "Avancés + pré-inspection", cabinetPlus: "Avancés + pré-inspection" },
+  { name: "Migration de données", solo: "Outils d'importation", cabinet: "Migration offerte", cabinetPlus: "Migration complète + formation" },
+  { name: "Onboarding", solo: "Vidéos + guides", cabinet: "1 session personnalisée", cabinetPlus: "3 sessions + formation équipe" },
+  { name: "Support", solo: "Courriel (48h)", cabinet: "Prioritaire (24h)", cabinetPlus: "Téléphone dédié + Slack privé" },
+  { name: "Template kit conformité", solo: false, cabinet: false, cabinetPlus: true },
+  { name: "Garantie conformité 90 jours", solo: false, cabinet: false, cabinetPlus: true },
 ];
 
 /* ───── FAQ ───── */
 const faqs = [
   {
     q: "Y a-t-il un essai gratuit ?",
-    a: "Oui, 14 jours gratuits sans carte de crédit. Vous pouvez explorer toutes les fonctionnalités du plan Cabinet pendant cette période.",
+    a: "Oui, 14 jours gratuits sans carte de crédit. Vous pouvez explorer toutes les fonctionnalités pendant cette période.",
   },
   {
     q: "Quelle est votre garantie ?",
     a: "30 jours satisfait ou remboursé, sans question. Si SAFE ne vous convient pas, on vous rembourse intégralement.",
   },
   {
+    q: "Quelle est la différence entre les 3 plans ?",
+    a: "Solo (79$/mois) : 1 utilisateur, idéal pour l'avocat autonome. Cabinet (249$/mois) : 2 à 5 utilisateurs, fidéicommis illimités, migration offerte et onboarding personnalisé. Cabinet+ (449$/mois) : 6 à 15 utilisateurs, support téléphone dédié, 3 sessions d'onboarding, formation équipe et garantie conformité 90 jours.",
+  },
+  {
     q: "Puis-je changer de plan en cours de route ?",
-    a: "Absolument. Passez du Solo au Cabinet ou au Cabinet+ à tout moment. La différence est calculée au prorata.",
+    a: "Absolument. Passez d'un plan à l'autre à tout moment. La différence est calculée au prorata.",
   },
   {
     q: "Quels modes de paiement acceptez-vous ?",
-    a: "Cartes de crédit Visa, Mastercard et American Express. Facturation mensuelle ou annuelle (économisez 20% sur l'annuel).",
+    a: "Virement bancaire, chèque, traite bancaire, carte de crédit (Visa, Mastercard, Amex), et Interac. Facturation mensuelle ou annuelle (économisez 20% sur l'annuel).",
   },
   {
     q: "Mes données sont-elles sécurisées ?",
@@ -156,11 +163,15 @@ const faqs = [
   },
   {
     q: "La migration depuis mon ancien logiciel est-elle incluse ?",
-    a: "La migration complète est incluse dans le plan Cabinet+. Pour les plans Solo et Cabinet, nous fournissons des outils d'importation et un guide détaillé.",
+    a: "La migration complète est incluse gratuitement dans le plan Cabinet. Pour le plan Solo, nous fournissons des outils d'importation et un guide détaillé.",
   },
   {
-    q: "L'IA donne-t-elle des conseils juridiques ?",
-    a: "Non, jamais. Les agents IA sont des assistants administratifs entraînés sur les règles du Barreau du Québec. Ils aident à vérifier, classer et organiser — sans jamais se substituer au jugement professionnel.",
+    q: "Combien de temps prend la mise en place ?",
+    a: "Un appel de 30 minutes avec Jérémie suffit pour configurer votre espace. Votre cabinet peut être opérationnel en 24 à 48 heures.",
+  },
+  {
+    q: "SAFE est-il conforme aux exigences du Barreau ?",
+    a: "Oui. SAFE est conçu spécifiquement pour les avocats canadiens : facturation conforme au Règlement B-1 r.5, gestion du fidéicommis, conformité Loi 25, et audit pré-inspection du Barreau intégré.",
   },
 ];
 
@@ -279,10 +290,75 @@ export default function TarificationPage() {
           </div>
         </section>
 
+        {/* Cost of inaction */}
+        <section className="section-night relative py-16 lg:py-20">
+          <div className="landing-grain absolute inset-0 pointer-events-none" />
+          <div className="relative z-10 mx-auto max-w-4xl px-6 lg:px-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-10"
+            >
+              <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-3">
+                Avant de parler de prix
+              </p>
+              <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] tracking-tight mb-4">
+                Ce que ça vous coûte <span className="italic text-red-400">sans</span> SAFE.
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {[
+                {
+                  title: "8 à 15h perdues / mois",
+                  desc: "En tâches administratives manuelles : facturation, suivi, classement, conciliation.",
+                  cost: "1 200 $ — 2 500 $ / mois",
+                },
+                {
+                  title: "Retards de facturation",
+                  desc: "En moyenne, les cabinets perdent 15 à 30% de revenus facturables par délais de facturation.",
+                  cost: "800 $ — 3 000 $ / mois",
+                },
+                {
+                  title: "Risque de non-conformité",
+                  desc: "Fidéicommis non concilié, Loi 25 non respectée, inspection du Barreau — les amendes sont réelles.",
+                  cost: "Jusqu'à 25 000 $ d'amende",
+                },
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="card-dark rounded-safe-md p-6 border border-red-500/20 bg-red-500/5"
+                >
+                  <h3 className="text-base font-bold text-[var(--safe-white)] font-sans mb-2">{item.title}</h3>
+                  <p className="text-sm text-[var(--safe-text-muted)] font-sans leading-relaxed mb-4">{item.desc}</p>
+                  <p className="text-sm font-bold text-red-400 font-sans">{item.cost}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="text-center mt-8 text-[var(--safe-text-muted)] font-sans"
+            >
+              Coût estimé de l&apos;inaction :{" "}
+              <span className="text-red-400 font-bold">2 000 $ — 5 500 $ / mois</span>.{" "}
+              SAFE coûte à peine <span className="text-[var(--safe-sage)] font-semibold">79 $</span>.
+            </motion.p>
+          </div>
+        </section>
+
         {/* Pricing cards */}
         <section className="section-morning relative py-16" ref={cardsRef}>
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
               {PLANS.map((plan, idx) => (
                 <motion.div
                   key={plan.name}
@@ -291,7 +367,7 @@ export default function TarificationPage() {
                   transition={{ duration: 0.5, delay: idx * 0.12 }}
                   className={`card-dark relative rounded-safe-md p-6 sm:p-8 flex flex-col ${
                     plan.popular
-                      ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 lg:scale-105"
+                      ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 lg:-my-2"
                       : "bg-[var(--safe-darkest)] border border-[#8EB69B]/10"
                   }`}
                 >
@@ -316,9 +392,12 @@ export default function TarificationPage() {
                     <plan.icon className="w-5 h-5 text-[var(--safe-sage)]" />
                   </motion.div>
 
-                  <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
+                  <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-1 font-sans tracking-tight">
                     {plan.name}
                   </h3>
+                  <p className="text-xs text-[var(--safe-sage)] font-sans font-medium mb-3">
+                    {plan.subtitle}
+                  </p>
                   <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans leading-relaxed">
                     {plan.description}
                   </p>
@@ -396,7 +475,7 @@ export default function TarificationPage() {
         {/* Comparison table */}
         <section className="section-night relative py-20 lg:py-28">
           <div className="landing-grain absolute inset-0 pointer-events-none" />
-          <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
+          <div className="relative z-10 mx-auto max-w-6xl px-6 lg:px-10">
             <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] text-center mb-12 tracking-tight">
               Comparer les plans en détail
             </h2>
@@ -408,13 +487,13 @@ export default function TarificationPage() {
                       Fonctionnalité
                     </th>
                     <th className="py-4 px-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
-                      Solo
+                      Solo — 79$/mois
                     </th>
                     <th className="py-4 px-4 text-sm text-[var(--safe-sage)] font-sans font-semibold text-center">
-                      Cabinet ⭐
+                      Cabinet — 249$/mois
                     </th>
-                    <th className="py-4 pl-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
-                      Cabinet+
+                    <th className="py-4 px-4 text-sm text-[var(--safe-white)] font-sans font-semibold text-center">
+                      Cabinet+ — 449$/mois
                     </th>
                   </tr>
                 </thead>

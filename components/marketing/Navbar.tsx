@@ -9,7 +9,7 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
   { label: "Tarification", href: "/tarification" },
-  { label: "Audit gratuit", href: "/audit-gratuit" },
+  { label: "Audit gratuit", href: "/audit-onboarding" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
 ];
