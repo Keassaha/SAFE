@@ -108,17 +108,17 @@ function StoryTimeline() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const events = [
-    { year: "2023", text: "Constat : les cabinets québécois manquent d'outils adaptés à leur réalité" },
-    { year: "2024", text: "Conception avec des avocats praticiens au Québec" },
-    { year: "2025", text: "Lancement de SAFE — conforme B-1 r.5 et Loi 25" },
-    { year: "2026", text: "Employés virtuels et intégrations comptables avancées" },
+    { year: "2024", text: "Le constat : 25 minutes pour une seule facture. Il doit y avoir une meilleure façon." },
+    { year: "2024", text: "Recherche : les outils existants sont trop chers, trop complexes, pas adaptés au Barreau." },
+    { year: "2025", text: "Première version de SAFE, le Système Automatisé de Facturation et d'Exploitation." },
+    { year: "2026", text: "Lancement officiel, conforme B-1 r.5, Loi 25, et compatible Québec et Ontario." },
   ];
 
   return (
     <div ref={ref} className="space-y-4">
       {events.map((event, i) => (
         <motion.div
-          key={event.year}
+          key={`${event.year}-${i}`}
           initial={{ opacity: 0, x: 20 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ delay: 0.3 + i * 0.2, duration: 0.5 }}
@@ -193,9 +193,9 @@ export default function AProposPage() {
                 transition={{ delay: 0.1, duration: 0.6 }}
                 className="font-sans text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-8 leading-[1.05] tracking-tight"
               >
-                Rendre la conformité{" "}
-                <span className="italic text-[var(--safe-sage)]">simple</span> pour les
-                petits cabinets.
+                25 minutes pour{" "}
+                <span className="italic text-[var(--safe-sage)]">une facture.</span>{" "}
+                On a décidé de changer ça.
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -203,9 +203,9 @@ export default function AProposPage() {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
               >
-                SAFE est né d&apos;un constat simple : les avocats au Québec méritent
-                un outil à la hauteur de leur expertise, conçu pour leur réalité
-                réglementaire — pas un logiciel américain traduit à la va-vite.
+                SAFE, le Système Automatisé de Facturation et d&apos;Exploitation, est né
+                d&apos;une frustration réelle dans un cabinet d&apos;avocats. Pas d&apos;un
+                laboratoire de recherche.
               </motion.p>
             </div>
           </div>
@@ -225,26 +225,26 @@ export default function AProposPage() {
                 </h2>
                 <div className="space-y-6 text-[var(--safe-text-muted)] font-sans leading-relaxed">
                   <p>
-                    Tout a commencé par une conversation avec une avocate solo à Sherbrooke.
-                    Elle jonglait entre un tableur Excel pour sa facturation, un logiciel
-                    comptable générique pour ses fidéicommis, et un calendrier papier pour ses
-                    échéanciers de cour.
+                    Tout a commencé par un défi simple : une avocate avait besoin d&apos;un
+                    système rigoureux pour gérer la comptabilité de son cabinet. De la facturation
+                    jusqu&apos;au suivi des dépenses, tout devait être fiable et conforme.
                   </p>
                   <p>
-                    Malgré ses compétences juridiques exceptionnelles, elle perdait des heures
-                    chaque semaine en tâches administratives redondantes — et vivait dans
-                    l&apos;inquiétude constante de manquer un délai ou de commettre une erreur
-                    dans ses registres de fidéicommis.
+                    Le problème ? Son système, c&apos;était Excel. Chaque facture prenait
+                    25 minutes à préparer. Quand tu as encore dix autres tâches qui t&apos;attendent,
+                    ça devient un supplice. Les outils sur le marché existaient, mais ils étaient
+                    trop coûteux, bourrés de fonctionnalités inutiles que l&apos;avocat paie sans
+                    jamais utiliser.
                   </p>
                   <p>
-                    Nous avons réalisé que ce problème était systémique. Les logiciels de gestion
-                    juridique existants étaient soit trop chers, soit conçus pour la réalité
-                    américaine ou pancanadienne, sans comprendre les particularités du Barreau du
-                    Québec.
+                    On a cherché la bonne solution. Elle n&apos;existait pas. Pas au Québec,
+                    pas au Canada. Rien qui soit à la fois simple, abordable et conforme aux
+                    exigences du Barreau. Alors on l&apos;a construite.
                   </p>
                   <p className="text-[var(--safe-white)] font-medium">
-                    SAFE a été conçu pour combler ce vide : un outil spécialisé, abordable et
-                    parfaitement adapté à la pratique juridique québécoise.
+                    SAFE, le Système Automatisé de Facturation et d&apos;Exploitation. Un outil
+                    sur mesure, conforme aux barreaux, conçu pour aider les avocats à tenir leur
+                    comptabilité sans y perdre leur temps.
                   </p>
                 </div>
               </div>
@@ -267,15 +267,14 @@ export default function AProposPage() {
                   La mission
                 </p>
                 <h2 className="font-sans text-3xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
-                  Que chaque avocat au Québec puisse se concentrer sur ce qui
-                  compte vraiment :{" "}
-                  <span className="italic text-[var(--safe-sage)]">ses clients</span>.
+                  Fournir un système sur mesure, conforme aux barreaux, pour que les avocats
+                  gèrent leur comptabilité{" "}
+                  <span className="italic text-[var(--safe-sage)]">sans y perdre leur temps.</span>
                 </h2>
                 <p className="text-lg text-[var(--safe-text-muted)] font-sans leading-relaxed">
-                  Nous croyons que la conformité ne devrait jamais être un obstacle à la
-                  pratique du droit. SAFE automatise ce qui peut l&apos;être et simplifie le
-                  reste, pour que vous puissiez dédier votre énergie aux clients que vous
-                  accompagnez.
+                  La conformité ne devrait jamais être un obstacle à la pratique du droit.
+                  SAFE automatise la facturation, le fidéicommis et la conformité pour que
+                  vous puissiez dédier votre énergie à vos clients, pas à la paperasse.
                 </p>
               </div>
 

@@ -13,7 +13,7 @@ export function FinalCTA() {
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 mb-6">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-sm text-emerald-400 font-medium font-sans">
-            50 places fondatrices — tarif verrouillé à vie pour les premiers inscrits
+            50 places fondatrices, tarif verrouillé à vie pour les premiers inscrits
           </span>
         </div>
 
@@ -37,28 +37,28 @@ export function FinalCTA() {
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400/70" />
-            <span className="text-sm text-[var(--safe-text-muted)] font-sans">Opérationnel en 15 min</span>
+            <span className="text-sm text-[var(--safe-text-muted)] font-sans">Migration assistée</span>
           </div>
           <div className="flex items-center gap-2">
             <Lock className="w-4 h-4 text-emerald-400/70" />
-            <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucune carte de crédit</span>
+            <span className="text-sm text-[var(--safe-text-muted)] font-sans">Hébergé au Canada</span>
           </div>
         </div>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
           <Link
-            href="/demo"
+            href="/audit-gratuit"
             className="group inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 lg:px-10 lg:py-5 bg-[var(--safe-accent)] text-[var(--safe-lightest)] text-sm sm:text-base lg:text-lg font-semibold rounded-full hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-2xl shadow-[var(--safe-accent)]/20 font-sans"
           >
-            Commencer mon essai gratuit
+            Faire mon audit gratuit
             <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
           <Link
             href="/demo"
             className="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
           >
-            Voir la démo en 2 minutes
+            Réserver une démo
           </Link>
         </div>
 

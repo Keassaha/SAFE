@@ -18,9 +18,11 @@ const OUTCOMES = [
     icon: HeartHandshake,
     title: "Récupérez vos soirées",
     description:
-      "Fini les fins de mois à rattraper la paperasse. SAFE automatise la saisie, les rappels et les calculs — vous rentrez chez vous l'esprit libre.",
+      "SAFE automatise la saisie, les rappels et les calculs. Vous rentrez chez vous l'esprit libre.",
     stat: "10h+",
     statLabel: "économisées/mois",
+    image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-blue-400",
       bg: "bg-blue-500/15",
@@ -34,11 +36,13 @@ const OUTCOMES = [
   },
   {
     icon: FolderCheck,
-    title: "Fidéicommis réconcilié automatiquement",
+    title: "Fidéicommis réconcilié en 1 clic",
     description:
-      "Plus de nuits blanches avant l'inspection. Chaque transaction est tracée, chaque solde est vérifié, chaque rapport est prêt.",
+      "Chaque transaction est tracée, chaque solde est vérifié, chaque rapport est prêt pour l'inspection.",
     stat: "100%",
     statLabel: "réconcilié",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",
@@ -52,11 +56,13 @@ const OUTCOMES = [
   },
   {
     icon: ShieldCheck,
-    title: "Le Barreau ne vous fait plus peur",
+    title: "Conforme B-1 r.5, toujours",
     description:
-      "Facturation, fidéicommis, conservation des données — tout respecte le Règlement B-1 r.5 et la Loi 25. Automatiquement. Sans effort.",
+      "Facturation, fidéicommis, conservation des données. Tout respecte le Règlement et la Loi 25. Automatiquement.",
     stat: "B-1 r.5",
     statLabel: "conforme",
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-violet-400",
       bg: "bg-violet-500/15",
@@ -70,11 +76,13 @@ const OUTCOMES = [
   },
   {
     icon: Clock,
-    title: "Zéro délai manqué. Zéro excuse.",
+    title: "Zéro délai manqué",
     description:
-      "Alertes automatiques pour vos échéances de cour et prescriptions. Vous êtes toujours un pas en avance sur votre calendrier.",
+      "Alertes automatiques pour vos échéances de cour et prescriptions. Toujours un pas en avance.",
     stat: "0",
     statLabel: "délai manqué",
+    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-amber-400",
       bg: "bg-amber-500/15",
@@ -88,11 +96,13 @@ const OUTCOMES = [
   },
   {
     icon: TrendingUp,
-    title: "Savez-vous quels dossiers vous font perdre de l'argent ?",
+    title: "Rentabilité visible en un coup d'oeil",
     description:
-      "SAFE vous montre la rentabilité par avocat, par mandat, en un coup d'œil. Prenez des décisions basées sur des chiffres, pas sur l'intuition.",
+      "SAFE vous montre la rentabilité par avocat, par mandat. Décisions basées sur des chiffres, pas sur l'intuition.",
     stat: "1 clic",
     statLabel: "pour savoir",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-cyan-400",
       bg: "bg-cyan-500/15",
@@ -106,11 +116,13 @@ const OUTCOMES = [
   },
   {
     icon: Brain,
-    title: "Un outil qui connaît le Barreau par cœur",
+    title: "Conçu pour le Barreau du Québec",
     description:
-      "Chaque fonctionnalité est conçue autour des règles du Barreau du Québec. Vérification de conformité, alertes automatiques, rapports prêts pour l'inspection — tout est intégré.",
+      "Vérification de conformité, alertes automatiques, rapports prêts pour l'inspection. Tout est intégré.",
     stat: "24/7",
     statLabel: "disponible",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop&q=80",
+    cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-rose-400",
       bg: "bg-rose-500/15",
@@ -233,9 +245,18 @@ function OutcomeCard({
         </h3>
 
         {/* Description */}
-        <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm group-hover:text-white/60 transition-colors duration-500">
+        <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm group-hover:text-white/60 transition-colors duration-500 mb-4">
           {feat.description}
         </p>
+
+        {/* CTA */}
+        <Link
+          href={feat.cta.href}
+          className={`inline-flex items-center gap-2 text-sm font-medium ${feat.accent.statText} hover:underline font-sans transition-colors duration-300`}
+        >
+          {feat.cta.label}
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Corner glow on hover */}
@@ -260,7 +281,7 @@ export function FeaturesGrid() {
             viewport={{ once: true }}
             className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
-            Imaginez votre cabinet dans 30 jours
+            Opérationnel en 30 jours
           </motion.p>
 
           <motion.h2
@@ -270,8 +291,8 @@ export function FeaturesGrid() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
-            Et si la conformité n&apos;était plus{" "}
-            <span className="italic text-[var(--safe-sage)]">votre problème ?</span>
+            Ce que SAFE change{" "}
+            <span className="italic text-[var(--safe-sage)]">concrètement.</span>
           </motion.h2>
 
           <motion.p
@@ -281,8 +302,8 @@ export function FeaturesGrid() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
-            Chaque heure passée sur la paperasse est une heure que vous ne facturez pas —
-            et un client qui attend. Voici ce qui change avec SAFE.
+            Résultats mesurables dès le premier mois. Chaque fonctionnalité
+            existe pour vous faire gagner du temps et de l&apos;argent.
           </motion.p>
 
           {/* Animated separator line */}

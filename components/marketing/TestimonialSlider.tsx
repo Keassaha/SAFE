@@ -7,7 +7,7 @@ import { Quote } from "lucide-react";
 const TESTIMONIALS = [
   {
     name: "Me Sophie Tremblay",
-    title: "Avocate solo — Sherbrooke",
+    title: "Avocate solo, Sherbrooke",
     quote:
       "Avant SAFE, je passais 2 soirées par semaine sur mon fidéicommis. Maintenant c'est réconcilié automatiquement. J'ai récupéré 10 heures par mois pour mes clients.",
     initials: "ST",
@@ -15,7 +15,7 @@ const TESTIMONIALS = [
   },
   {
     name: "Me Jean-François Lavoie",
-    title: "Associé, cabinet 4 avocats — Québec",
+    title: "Associé, cabinet 4 avocats, Québec",
     quote:
       "On est passés d'un vieux logiciel serveur à SAFE en 3 semaines. L'équipe a gagné 5 heures par semaine en administratif. Le ROI s'est fait en moins d'un mois.",
     initials: "JL",
@@ -23,7 +23,7 @@ const TESTIMONIALS = [
   },
   {
     name: "Marie-Ève Gagnon",
-    title: "Adjointe juridique — Gatineau",
+    title: "Adjointe juridique, Gatineau",
     quote:
       "Avant, je refaisais les calculs de taxes 3 fois pour être sûre. Avec SAFE, c'est automatique et conforme. Je peux enfin me concentrer sur les dossiers au lieu de la paperasse.",
     initials: "MG",
@@ -31,7 +31,7 @@ const TESTIMONIALS = [
   },
   {
     name: "Me Alexandre Dubois",
-    title: "Avocat en litige civil — Montréal",
+    title: "Avocat en litige civil, Montréal",
     quote:
       "Le système d'alertes m'a sauvé d'un délai de prescription manqué dès le premier mois. Ça vaut le prix de l'abonnement pour l'année au complet.",
     initials: "AD",
@@ -39,7 +39,7 @@ const TESTIMONIALS = [
   },
   {
     name: "Me Catherine Bergeron",
-    title: "Avocate en droit immobilier — Laval",
+    title: "Avocate en droit immobilier, Laval",
     quote:
       "L'inspection du Barreau est passée de ma plus grande source de stress à une formalité. Tout est prêt, tout est conforme. Je recommande SAFE à tous mes collègues.",
     initials: "CB",

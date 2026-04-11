@@ -258,7 +258,7 @@ export function AIArchitecture() {
               <AgentNode
                 icon={Bot}
                 label="Agent Rédaction"
-                description="Courriels, mises en demeure, procédures — sans conseil juridique"
+                description="Courriels, mises en demeure, procédures. Sans conseil juridique."
                 iconColor="text-amber-400"
                 borderColor="border-amber-400/20"
                 glowColor="via-amber-400/40"

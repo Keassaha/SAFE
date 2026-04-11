@@ -5,18 +5,13 @@ const footerLinks = {
   produit: [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Tarification", href: "/tarification" },
-    { label: "Démo", href: "/demo" },
+    { label: "Réserver une démo", href: "/demo" },
     { label: "Audit gratuit", href: "/audit-gratuit" },
-  ],
-  ressources: [
-    { label: "Blogue juridique", href: "/blog" },
-    { label: "Guide Loi 25", href: "/guide-loi-25" },
-    { label: "Centre d'aide", href: "/aide" },
   ],
   legal: [
     { label: "Politique de confidentialité", href: "/confidentialite" },
     { label: "Conditions d'utilisation", href: "/conditions" },
-    { label: "bonjour@safe.quebec", href: "mailto:bonjour@safe.quebec" },
+    { label: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
   ],
 };
 
@@ -24,15 +19,15 @@ export function Footer() {
   return (
     <footer className="bg-[var(--safe-dark)] border-t border-white/5 pt-12 sm:pt-20 pb-8 sm:pb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 mb-12 sm:mb-16">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block mb-6 group transition-opacity duration-300 hover:opacity-[0.85]">
               <SafeLogo variant="dark" noPulse className="shrink-0" />
             </Link>
             <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
-              Facturation, fidéicommis et conformité au Barreau — automatisés par IA.
-              Le seul logiciel de gestion conçu pour les avocats du Québec.
+              Facturation, fidéicommis et conformité au Barreau, automatisés.
+              Le logiciel de gestion conçu pour les avocats au Canada.
             </p>
           </div>
 
@@ -43,25 +38,6 @@ export function Footer() {
             </h4>
             <ul className="space-y-3.5">
               {footerLinks.produit.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Ressources */}
-          <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
-              Ressources
-            </h4>
-            <ul className="space-y-3.5">
-              {footerLinks.ressources.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -112,8 +88,6 @@ export function Footer() {
             <span>Hébergé au Canada</span>
             <span className="text-[var(--safe-sage)]/30">•</span>
             <span>Conforme à la Loi 25</span>
-            <span className="text-[var(--safe-sage)]/30">•</span>
-            <span>WCAG 2.1 AA</span>
           </div>
         </div>
       </div>

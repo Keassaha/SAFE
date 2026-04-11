@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Shield,
   ChevronRight,
+  ChevronLeft,
   Calendar,
   User,
   Mail,
@@ -13,6 +14,7 @@ import {
   Building2,
   ArrowRight,
   Sparkles,
+  Save,
   Clock,
   MapPin,
   Globe,
@@ -696,10 +698,11 @@ const QUESTIONS: Question[] = [
     key: "primaryDevice",
     phase: 6,
     text: {
-      fr: "Quel est votre appareil principal de travail ?",
-      en: "What is your primary work device?",
+      fr: "Quels appareils utilisez-vous pour travailler ? (Sélectionnez tous ceux qui s'appliquent)",
+      en: "Which devices do you use for work? (Select all that apply)",
     },
-    type: "single",
+    type: "multi",
+    maxSelect: 4,
     dataKey: "primaryDevice",
     options: {
       fr: [
@@ -932,6 +935,8 @@ export default function OnboardingChat() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [questionHistory, setQuestionHistory] = useState<number[]>([]);
+  const [savedFeedback, setSavedFeedback] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const lastHostRef = useRef<HTMLDivElement>(null);
@@ -1040,12 +1045,89 @@ export default function OnboardingChat() {
         await addHostMessage(PHASE_TRANSITIONS[nextQ.phase][currentLang]);
       }
 
+      // Track history for back navigation
+      setQuestionHistory((prev) => {
+        const currentIdx = QUESTIONS.findIndex((_, i) => i === nextIdx - 1);
+        if (currentIdx >= 0 && (prev.length === 0 || prev[prev.length - 1] !== currentIdx)) {
+          return [...prev, currentIdx];
+        }
+        return prev;
+      });
+
       // Ask the question
       await addHostMessage(nextQ.text[currentLang], nextQ, currentLang);
       setCurrentQuestion(idx);
     },
     [addHostMessage]
   );
+
+  // Go back to previous question
+  const handleGoBack = useCallback(() => {
+    if (questionHistory.length === 0) return;
+    const currentLang = langRef.current;
+    if (!currentLang) return;
+
+    const prevIdx = questionHistory[questionHistory.length - 1];
+    setQuestionHistory((prev) => prev.slice(0, -1));
+
+    // Find the message for the previous question's key
+    const prevQ = QUESTIONS[prevIdx];
+    if (!prevQ) return;
+
+    // Remove messages from the current question onwards
+    setMessages((prev) => {
+      const prevQMsgIdx = prev.findIndex((m) => m.questionKey === prevQ.key);
+      if (prevQMsgIdx >= 0) {
+        return prev.slice(0, prevQMsgIdx);
+      }
+      return prev;
+    });
+
+    // Re-ask the previous question
+    const reask = async () => {
+      const prevPrevQ = prevIdx > 0 ? QUESTIONS[prevIdx - 1] : null;
+      if (prevPrevQ && prevQ.phase !== prevPrevQ.phase && PHASE_TRANSITIONS[prevQ.phase]) {
+        await addHostMessage(PHASE_TRANSITIONS[prevQ.phase][currentLang]);
+      }
+      await addHostMessage(prevQ.text[currentLang], prevQ, currentLang);
+      setCurrentQuestion(prevIdx);
+    };
+    reask();
+  }, [questionHistory, addHostMessage]);
+
+  // Save audit to localStorage
+  const handleSave = useCallback(() => {
+    const draft = {
+      data,
+      messages: messages.map((m) => ({ ...m })),
+      currentQuestion,
+      lang,
+      questionHistory,
+      savedAt: Date.now(),
+    };
+    localStorage.setItem("safe-audit-draft", JSON.stringify(draft));
+    setSavedFeedback(true);
+    setTimeout(() => setSavedFeedback(false), 2000);
+  }, [data, messages, currentQuestion, lang, questionHistory]);
+
+  // Restore audit from localStorage on mount
+  useEffect(() => {
+    const raw = localStorage.getItem("safe-audit-draft");
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw);
+      if (draft.data && draft.lang && draft.messages?.length > 0) {
+        setData(draft.data);
+        setMessages(draft.messages);
+        setCurrentQuestion(draft.currentQuestion ?? -1);
+        setLang(draft.lang);
+        setQuestionHistory(draft.questionHistory ?? []);
+        setStarted(true);
+      }
+    } catch {
+      // ignore invalid draft
+    }
+  }, []);
 
   // Handle language selection
   const handleLangSelect = useCallback(
@@ -1372,7 +1454,7 @@ export default function OnboardingChat() {
                     fr: "Risque de non-conformité (fidéicommis, Loi 25, Barreau)",
                     en: "Non-compliance risk (trust, privacy law, Bar)",
                     amount: "",
-                    cost: lang === "fr" ? "Amende jusqu’à 25 000 $" : "Fines up to $25,000",
+                    cost: lang === "fr" ? "Amende jusqu’à 100 000 $ par infraction" : "Fines up to $100,000 per offence",
                   },
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between py-2 border-b border-red-200/50 last:border-0">
@@ -1763,13 +1845,37 @@ export default function OnboardingChat() {
                 ))}
               </div>
               <div className="flex items-center justify-between mt-1.5">
-                <span className="text-[10px] text-[var(--safe-sage)] font-sans">
-                  {lang === "fr" ? `Étape ${currentPhase}/${PHASES.length}` : `Step ${currentPhase}/${PHASES.length}`}
-                </span>
-                <span className="text-[10px] text-[var(--safe-sage)] font-sans flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  ~{Math.max(1, ESTIMATED_MINUTES - Math.round((currentPhase / PHASES.length) * ESTIMATED_MINUTES))} min {lang === "fr" ? "restantes" : "remaining"}
-                </span>
+                <div className="flex items-center gap-3">
+                  {questionHistory.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleGoBack}
+                      className="flex items-center gap-1 text-[10px] text-[var(--safe-text-secondary)] font-sans font-medium hover:text-[var(--safe-text-title)] transition-colors"
+                    >
+                      <ChevronLeft className="w-3 h-3" />
+                      {lang === "en" ? "Back" : "Retour"}
+                    </button>
+                  )}
+                  <span className="text-[10px] text-[var(--safe-sage)] font-sans">
+                    {lang === "fr" ? `Étape ${currentPhase}/${PHASES.length}` : `Step ${currentPhase}/${PHASES.length}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="flex items-center gap-1 text-[10px] text-[var(--safe-text-secondary)] font-sans font-medium hover:text-[var(--safe-text-title)] transition-colors"
+                  >
+                    <Save className="w-3 h-3" />
+                    {savedFeedback
+                      ? (lang === "en" ? "Saved!" : "Sauvegardé!")
+                      : (lang === "en" ? "Save" : "Sauvegarder")}
+                  </button>
+                  <span className="text-[10px] text-[var(--safe-sage)] font-sans flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    ~{Math.max(1, ESTIMATED_MINUTES - Math.round((currentPhase / PHASES.length) * ESTIMATED_MINUTES))} min {lang === "fr" ? "restantes" : "remaining"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

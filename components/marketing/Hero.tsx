@@ -52,7 +52,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-4 sm:mb-5 font-sans"
           >
-            Factures en retard. Fidéicommis approximatif. Inspection qui approche.
+            10h récupérées par mois. Fidéicommis réconcilié en 1 clic. Inspection prête en permanence.
           </motion.p>
 
           {/* Headline — fully visible on load, simple fade-in */}
@@ -75,8 +75,8 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-3 leading-relaxed font-sans"
           >
-            SAFE automatise votre facturation, vos comptes en fidéicommis et votre conformité
-            au Barreau — le seul logiciel de gestion conçu spécifiquement pour les avocats du Québec.
+            Facturation, fidéicommis et conformité au Barreau automatisés.
+            Vous pratiquez le droit, SAFE s&apos;occupe du reste.
           </motion.p>
 
           {/* Social proof micro-line */}
@@ -86,7 +86,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-sm text-[var(--safe-sage)]/60 mb-8 sm:mb-12 font-sans"
           >
-            Configuration en 15 minutes · Essai gratuit 14 jours · Aucune carte de crédit
+            Conforme B-1 r.5 · Hébergé au Canada · Compatible Québec et Ontario
           </motion.p>
 
           {/* CTAs */}
@@ -97,10 +97,10 @@ export function Hero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              href="/demo"
+              href="/audit-gratuit"
               className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold rounded-full bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 shadow-xl shadow-[var(--safe-accent)]/25 font-sans"
             >
-              Essai gratuit 14 jours
+              Faire mon audit gratuit
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
@@ -108,7 +108,7 @@ export function Hero() {
               className="group flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium rounded-full border border-[var(--safe-sage)]/30 text-[var(--safe-sage)] hover:border-[var(--safe-sage)]/60 hover:bg-[var(--safe-sage)]/5 transition-all duration-300 font-sans"
             >
               <Sparkles className="w-4 h-4" />
-              Voir la démo en 2 minutes
+              Réserver une démo
             </Link>
           </motion.div>
 

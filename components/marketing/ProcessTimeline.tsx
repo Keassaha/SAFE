@@ -310,7 +310,7 @@ export function ProcessTimeline() {
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
           >
             On sait que changer de système fait peur. C&apos;est pour ça qu&apos;on fait le gros
-            du travail pour vous — migration, configuration, formation — pendant que vous
+            du travail pour vous. Migration, configuration, formation, pendant que vous
             continuez de pratiquer.
           </motion.p>
         </div>

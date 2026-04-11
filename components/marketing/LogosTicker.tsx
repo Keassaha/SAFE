@@ -1,11 +1,11 @@
 "use client";
 
-import { Shield, Scale, Eye, MapPin, Lock, Accessibility } from "lucide-react";
+import { Shield, Scale, Eye, MapPin, Lock } from "lucide-react";
 
 const badges = [
   { icon: Scale, label: "Compatible Barreau du Québec" },
+  { icon: Scale, label: "Compatible Barreau de l'Ontario" },
   { icon: Shield, label: "Conforme Loi 25" },
-  { icon: Accessibility, label: "WCAG 2.1 AA" },
   { icon: MapPin, label: "Hébergé au Canada" },
   { icon: Lock, label: "Chiffrement AES-256" },
   { icon: Eye, label: "Audit de conformité intégré" },

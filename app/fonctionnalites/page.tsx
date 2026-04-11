@@ -112,7 +112,7 @@ function FacturationMockup() {
         className="mb-3 p-2 rounded-safe-sm bg-white/[0.03] border border-white/[0.04]"
       >
         <div className="text-xs text-[var(--safe-text-muted)] font-sans">Client</div>
-        <div className="text-xs text-[var(--safe-white)] font-sans font-medium">Me Sophie Tremblay — Dossier #2024-047</div>
+        <div className="text-xs text-[var(--safe-white)] font-sans font-medium">Me Sophie Tremblay, Dossier #2024-047</div>
       </motion.div>
 
       {/* Line items appearing one by one */}
@@ -210,7 +210,7 @@ function FideicommisMockup() {
               <LockKeyhole className={`w-2.5 h-2.5 ${tx.icon}`} />
             </div>
             <div>
-              <div className="text-xs font-medium text-[var(--safe-white)] font-sans">{tx.type} — {tx.client}</div>
+              <div className="text-xs font-medium text-[var(--safe-white)] font-sans">{tx.type}, {tx.client}</div>
               <div className="text-xs text-[var(--safe-text-muted)] font-sans">Double validation requise</div>
             </div>
           </div>
@@ -303,7 +303,7 @@ function EcheancierMockup() {
         className="mt-2 flex items-center gap-2 px-2 py-1.5 rounded-safe-sm border border-amber-500/20 bg-amber-900/10"
       >
         <AlertTriangle className="w-3 h-3 text-amber-400" />
-        <span className="text-xs text-amber-300 font-sans">Rappel : Délai de signification — Gagnon c. Dubois dans 3 jours</span>
+        <span className="text-xs text-amber-300 font-sans">Rappel : Délai de signification, Gagnon c. Dubois dans 3 jours</span>
       </motion.div>
     </div>
   );
@@ -403,7 +403,7 @@ function AgentsIAMockup() {
       >
         <div className="flex items-center gap-2">
           <UserCog className="w-4 h-4 text-[var(--safe-sage)]" />
-          <span className="text-xs font-semibold text-[var(--safe-white)] font-sans">Employé virtuel — Assistant juridique</span>
+          <span className="text-xs font-semibold text-[var(--safe-white)] font-sans">Employé virtuel, Assistant juridique</span>
         </div>
         <div className="w-2 h-2 rounded-full bg-[var(--safe-sage)] animate-pulse" />
       </motion.div>
@@ -550,7 +550,7 @@ const features = [
     icon: UserCog,
     title: "Employés virtuels",
     description:
-      "Assistance intelligente pour la rédaction de documents et la recherche juridique. L'IA ne donne jamais de conseils juridiques — elle vous assiste, vous décidez.",
+      "Assistance intelligente pour la rédaction de documents et la recherche juridique. L'IA ne donne jamais de conseils juridiques. Elle vous assiste, vous décidez.",
     details: [
       "Génération de brouillons de documents",
       "Recherche dans vos dossiers par langage naturel",

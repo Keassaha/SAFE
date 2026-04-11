@@ -8,66 +8,61 @@ import Link from "next/link";
 const PLANS = [
   {
     name: "Solo",
-    monthlyPrice: "79",
-    annualPrice: "63",
-    annualSaving: "192",
-    subtitle: "1 utilisateur",
-    description: "Vous pratiquez seul et voulez dormir tranquille avant l'inspection du Barreau.",
+    monthlyPrice: "99",
+    annualPrice: "79",
+    annualSaving: "240",
+    description: "Vous pratiquez seul et voulez dormir tranquille avant l'inspection.",
     features: [
-      "1 utilisateur (avocat)",
-      "Dossiers clients illimités",
-      "Facturation conforme (Barreau provincial)",
+      "1 avocat + 1 adjoint",
+      "Dossiers illimités",
+      "Facturation conforme B-1 r.5",
       "1 compte en fidéicommis",
-      "Conformité Loi 25 + PIPEDA",
-      "Alertes de conformité Barreau",
-      "Échéanciers & alertes judiciaires",
+      "Audit de conformité de base",
       "Support par courriel (48h)",
     ],
     popular: false,
-    cta: "Essai gratuit 14 jours",
-    href: "/audit-onboarding",
+    cta: "Faire mon audit gratuit",
+    href: "/audit-gratuit",
   },
   {
     name: "Cabinet",
     monthlyPrice: "249",
     annualPrice: "199",
     annualSaving: "600",
-    subtitle: "2 à 5 utilisateurs",
-    description: "Toute l'équipe sur la même plateforme — sans paperasse, sans risque de non-conformité.",
+    description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
     features: [
-      "2 à 5 utilisateurs inclus",
-      "Dossiers clients illimités",
-      "Comptes en fidéicommis illimités",
-      "Audit complet + rapports pré-inspection",
-      "Conformité Loi 25 + PIPEDA + FINTRAC",
-      "Migration de données offerte",
-      "Onboarding personnalisé (1 session)",
+      "Jusqu'à 5 utilisateurs",
+      "Dossiers illimités",
+      "3 comptes en fidéicommis",
+      "Rapports financiers avancés",
+      "Audit complet + alertes conformité",
+      "Échéanciers & alertes de cour",
+      "Onboarding 1-on-1 (30 min)",
       "Support prioritaire (24h)",
     ],
     popular: true,
-    cta: "Essai gratuit 14 jours",
-    href: "/audit-onboarding",
+    cta: "Faire mon audit gratuit",
+    href: "/demo",
   },
   {
     name: "Cabinet+",
-    monthlyPrice: "449",
-    annualPrice: "359",
-    annualSaving: "1 080",
-    subtitle: "6 à 15 utilisateurs",
-    description: "Pour les cabinets établis qui exigent un support premium et une conformité blindée.",
+    monthlyPrice: "499",
+    annualPrice: "399",
+    annualSaving: "1 200",
+    description: "Pour les cabinets qui veulent la tranquillité d'esprit totale.",
     features: [
-      "6 à 15 utilisateurs inclus",
-      "Tout ce qui est dans Cabinet",
-      "Rapport pré-inspection certifié (tous barreaux)",
-      "Conformité multi-provinciale complète",
-      "Onboarding personnalisé (3 sessions)",
-      "Support téléphone dédié + Slack privé",
-      "Template kit conformité complet",
-      "Garantie conformité 90 jours",
+      "Jusqu'à 15 utilisateurs",
+      "Comptes en fidéicommis illimités",
+      "Rapport pré-inspection automatisé",
+      "Intégrations sur mesure",
+      "Migration de données complète",
+      "Onboarding concierge (3 sessions)",
+      "Support téléphone + Slack dédié",
+      "SLA garanti",
     ],
     popular: false,
-    cta: "Essai gratuit 14 jours",
-    href: "/audit-onboarding",
+    cta: "Réserver une démo",
+    href: "/demo",
   },
 ];
 
@@ -149,7 +144,7 @@ export function Pricing() {
         </div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {PLANS.map((plan, idx) => (
             <motion.div
               key={plan.name}
@@ -159,7 +154,7 @@ export function Pricing() {
               transition={{ duration: 0.5, delay: idx * 0.12 }}
               className={`card-dark relative rounded-safe-md p-5 sm:p-8 flex flex-col ${
                 plan.popular
-                  ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 md:-my-2"
+                  ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 md:scale-[1.02] lg:scale-105"
                   : "bg-[var(--safe-dark)] border border-[#051F20]/10 hover:border-[#8EB69B]/20 transition-colors duration-300"
               }`}
             >
@@ -169,12 +164,9 @@ export function Pricing() {
                 </div>
               )}
 
-              <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-1 font-sans tracking-tight">
+              <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
                 {plan.name}
               </h3>
-              <p className="text-xs text-[var(--safe-sage)] font-sans font-medium mb-3">
-                {plan.subtitle}
-              </p>
               <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans leading-relaxed">
                 {plan.description}
               </p>
@@ -236,7 +228,7 @@ export function Pricing() {
             <span className="text-sm text-[var(--safe-text-muted)] font-sans">30 jours satisfait ou remboursé</span>
           </div>
           <span className="hidden sm:block text-white/10">|</span>
-          <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucun engagement — annulez en 2 clics</span>
+          <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucun engagement, annulez en 2 clics</span>
           <span className="hidden sm:block text-white/10">|</span>
           <span className="text-sm text-[var(--safe-text-muted)] font-sans">Vos données exportables en tout temps</span>
         </motion.div>
