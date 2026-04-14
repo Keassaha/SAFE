@@ -23,6 +23,8 @@ export interface OnboardingData {
   monthlyNewFiles: string;
   clientType: string;
   clientTypeOther: string;
+  dossierNumbering: string;
+  dossierClassification: string;
 
   /* ── Étape 3 : Facturation ── */
   billingMethod: string;
@@ -34,6 +36,10 @@ export interface OnboardingData {
   paymentTermsOther: string;
   paymentMethods: string[];
   paymentMethodsOther: string;
+  invoiceDetail: string;
+  invoiceLanguage: string;
+  hasRetainer: string;
+  timeTracking: string;
 
   /* ── Étape 4 : Fidéicommis ── */
   hasTrustAccount: string;
@@ -41,7 +47,6 @@ export interface OnboardingData {
   reconciliationFrequency: string;
   reconciliationFrequencyOther: string;
   auditIssues: string;
-  nextInspectionDate: string;
 
   /* ── Étape 5 : Équipe et accès ── */
   teamStructure: string;
@@ -58,12 +63,14 @@ export interface OnboardingData {
   dataFormat: string;
   dataFormatOther: string;
   primaryDevice: string;
+  accountingIntegration: string;
 
   /* ── Étape 7 : Priorités ── */
   urgentChallenges: string[];
   urgentChallengesOther: string;
+  reportsNeeded: string[];
+  clientPortal: string;
   goLiveTimeline: string;
-  referralSource: string;
 
   /* ── Étape 8 : RDV ── */
   preferredDate: string;
@@ -88,6 +95,8 @@ export const INITIAL_DATA: OnboardingData = {
   monthlyNewFiles: "",
   clientType: "",
   clientTypeOther: "",
+  dossierNumbering: "",
+  dossierClassification: "",
 
   billingMethod: "",
   billingMethodOther: "",
@@ -98,13 +107,16 @@ export const INITIAL_DATA: OnboardingData = {
   paymentTermsOther: "",
   paymentMethods: [],
   paymentMethodsOther: "",
+  invoiceDetail: "",
+  invoiceLanguage: "",
+  hasRetainer: "",
+  timeTracking: "",
 
   hasTrustAccount: "",
   trustAccountCount: "",
   reconciliationFrequency: "",
   reconciliationFrequencyOther: "",
   auditIssues: "",
-  nextInspectionDate: "",
 
   teamStructure: "",
   teamStructureOther: "",
@@ -119,11 +131,13 @@ export const INITIAL_DATA: OnboardingData = {
   dataFormat: "",
   dataFormatOther: "",
   primaryDevice: "",
+  accountingIntegration: "",
 
   urgentChallenges: [],
   urgentChallengesOther: "",
+  reportsNeeded: [],
+  clientPortal: "",
   goLiveTimeline: "",
-  referralSource: "",
 
   preferredDate: "",
   preferredTime: "",

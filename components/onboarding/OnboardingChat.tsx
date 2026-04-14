@@ -297,6 +297,54 @@ const QUESTIONS: Question[] = [
       ],
     },
   },
+  {
+    key: "dossierNumbering",
+    phase: 2,
+    text: {
+      fr: "Comment numérotez-vous vos dossiers ?",
+      en: "How do you number your files?",
+    },
+    type: "single",
+    dataKey: "dossierNumbering",
+    options: {
+      fr: [
+        { label: "Numéro séquentiel (001, 002…)", value: "sequential" },
+        { label: "Année + séquence (2024-001)", value: "year_seq" },
+        { label: "Initiales client + numéro", value: "client_initials" },
+        { label: "Pas de numérotation systématique", value: "none" },
+      ],
+      en: [
+        { label: "Sequential number (001, 002…)", value: "sequential" },
+        { label: "Year + sequence (2024-001)", value: "year_seq" },
+        { label: "Client initials + number", value: "client_initials" },
+        { label: "No systematic numbering", value: "none" },
+      ],
+    },
+  },
+  {
+    key: "dossierClassification",
+    phase: 2,
+    text: {
+      fr: "Comment classez-vous vos dossiers ?",
+      en: "How do you classify your files?",
+    },
+    type: "single",
+    dataKey: "dossierClassification",
+    options: {
+      fr: [
+        { label: "Par client", value: "by_client" },
+        { label: "Par matière (droit de la famille, civil…)", value: "by_matter" },
+        { label: "Par année", value: "by_year" },
+        { label: "Mixte (client + matière)", value: "mixed" },
+      ],
+      en: [
+        { label: "By client", value: "by_client" },
+        { label: "By matter (family, civil…)", value: "by_matter" },
+        { label: "By year", value: "by_year" },
+        { label: "Mixed (client + matter)", value: "mixed" },
+      ],
+    },
+  },
 
   // ═══ Phase 3 : Facturation ═══
   {
@@ -420,6 +468,96 @@ const QUESTIONS: Question[] = [
       ],
     },
   },
+  {
+    key: "invoiceDetail",
+    phase: 3,
+    text: {
+      fr: "Sur vos factures, comment détaillez-vous vos services ?",
+      en: "How do you detail your services on invoices?",
+    },
+    type: "single",
+    dataKey: "invoiceDetail",
+    options: {
+      fr: [
+        { label: "Acte par acte (chaque entrée de temps)", value: "per_act" },
+        { label: "Description globale du mandat", value: "global" },
+        { label: "Les deux selon le dossier", value: "both" },
+      ],
+      en: [
+        { label: "Act by act (each time entry)", value: "per_act" },
+        { label: "Global mandate description", value: "global" },
+        { label: "Both depending on the file", value: "both" },
+      ],
+    },
+  },
+  {
+    key: "invoiceLanguage",
+    phase: 3,
+    text: {
+      fr: "Dans quelle langue rédigez-vous vos factures ?",
+      en: "In what language do you prepare your invoices?",
+    },
+    type: "single",
+    dataKey: "invoiceLanguage",
+    options: {
+      fr: [
+        { label: "Français seulement", value: "fr" },
+        { label: "Anglais seulement", value: "en" },
+        { label: "Bilingue (selon le client)", value: "bilingual" },
+      ],
+      en: [
+        { label: "French only", value: "fr" },
+        { label: "English only", value: "en" },
+        { label: "Bilingual (depending on client)", value: "bilingual" },
+      ],
+    },
+  },
+  {
+    key: "hasRetainer",
+    phase: 3,
+    text: {
+      fr: "Demandez-vous des provisions (acomptes) à vos clients ?",
+      en: "Do you request retainers (advance payments) from clients?",
+    },
+    type: "single",
+    dataKey: "hasRetainer",
+    options: {
+      fr: [
+        { label: "Oui, systématiquement", value: "always" },
+        { label: "Oui, selon le dossier", value: "sometimes" },
+        { label: "Non", value: "no" },
+      ],
+      en: [
+        { label: "Yes, systematically", value: "always" },
+        { label: "Yes, depending on the file", value: "sometimes" },
+        { label: "No", value: "no" },
+      ],
+    },
+  },
+  {
+    key: "timeTracking",
+    phase: 3,
+    text: {
+      fr: "Comment suivez-vous votre temps actuellement ?",
+      en: "How do you currently track your time?",
+    },
+    type: "single",
+    dataKey: "timeTracking",
+    options: {
+      fr: [
+        { label: "Timer en temps réel", value: "timer" },
+        { label: "Notes manuscrites / journal", value: "notes" },
+        { label: "Mémoire / estimation", value: "memory" },
+        { label: "Je ne facture pas à l'heure", value: "not_applicable" },
+      ],
+      en: [
+        { label: "Real-time timer", value: "timer" },
+        { label: "Handwritten notes / journal", value: "notes" },
+        { label: "Memory / estimation", value: "memory" },
+        { label: "I don't bill by the hour", value: "not_applicable" },
+      ],
+    },
+  },
 
   // ═══ Phase 4 : Fidéicommis ═══
   {
@@ -510,33 +648,6 @@ const QUESTIONS: Question[] = [
         { label: "No", value: "no" },
         { label: "Yes", value: "yes" },
         { label: "First audit", value: "first" },
-      ],
-    },
-  },
-
-  {
-    key: "nextInspectionDate",
-    phase: 4,
-    text: {
-      fr: "Quand est prévue votre prochaine inspection du Barreau ?",
-      en: "When is your next Law Society inspection scheduled?",
-    },
-    type: "single",
-    dataKey: "nextInspectionDate",
-    options: {
-      fr: [
-        { label: "Dans moins de 3 mois 🔴", value: "less_3m" },
-        { label: "Dans 3 à 6 mois 🟠", value: "3_6m" },
-        { label: "Dans 6 à 12 mois 🟡", value: "6_12m" },
-        { label: "Dans plus d'un an 🟢", value: "more_1y" },
-        { label: "Je ne sais pas", value: "unknown" },
-      ],
-      en: [
-        { label: "In less than 3 months 🔴", value: "less_3m" },
-        { label: "In 3 to 6 months 🟠", value: "3_6m" },
-        { label: "In 6 to 12 months 🟡", value: "6_12m" },
-        { label: "More than a year away 🟢", value: "more_1y" },
-        { label: "I don't know", value: "unknown" },
       ],
     },
   },
@@ -746,6 +857,32 @@ const QUESTIONS: Question[] = [
       ],
     },
   },
+  {
+    key: "accountingIntegration",
+    phase: 6,
+    text: {
+      fr: "Utilisez-vous un logiciel de comptabilité externe ?",
+      en: "Do you use external accounting software?",
+    },
+    type: "single",
+    dataKey: "accountingIntegration",
+    options: {
+      fr: [
+        { label: "QuickBooks", value: "quickbooks" },
+        { label: "Sage", value: "sage" },
+        { label: "Acomba", value: "acomba" },
+        { label: "Excel / manuel", value: "excel" },
+        { label: "Aucun", value: "none" },
+      ],
+      en: [
+        { label: "QuickBooks", value: "quickbooks" },
+        { label: "Sage", value: "sage" },
+        { label: "Acomba", value: "acomba" },
+        { label: "Excel / manual", value: "excel" },
+        { label: "None", value: "none" },
+      ],
+    },
+  },
 
   // ═══ Phase 7 : Priorités ═══
   {
@@ -779,6 +916,56 @@ const QUESTIONS: Question[] = [
     },
   },
   {
+    key: "reportsNeeded",
+    phase: 7,
+    text: {
+      fr: "Quels rapports consultez-vous régulièrement ? (Plusieurs choix)",
+      en: "Which reports do you regularly review? (Multiple choices)",
+    },
+    type: "multi",
+    dataKey: "reportsNeeded",
+    options: {
+      fr: [
+        { label: "Comptes à recevoir", value: "receivables" },
+        { label: "Réconciliation fidéicommis", value: "trust_reconciliation" },
+        { label: "Revenus mensuels / annuels", value: "revenue" },
+        { label: "Temps non facturé", value: "unbilled_time" },
+        { label: "État des dossiers", value: "file_status" },
+      ],
+      en: [
+        { label: "Accounts receivable", value: "receivables" },
+        { label: "Trust reconciliation", value: "trust_reconciliation" },
+        { label: "Monthly / annual revenue", value: "revenue" },
+        { label: "Unbilled time", value: "unbilled_time" },
+        { label: "File status", value: "file_status" },
+      ],
+    },
+  },
+  {
+    key: "clientPortal",
+    phase: 7,
+    text: {
+      fr: "Voudriez-vous que vos clients puissent accéder à leurs documents et factures en ligne ?",
+      en: "Would you like your clients to access their documents and invoices online?",
+    },
+    type: "single",
+    dataKey: "clientPortal",
+    options: {
+      fr: [
+        { label: "Oui, c'est essentiel", value: "yes_essential" },
+        { label: "Oui, si c'est simple", value: "yes_if_simple" },
+        { label: "Non, mes clients préfèrent par courriel", value: "no_email" },
+        { label: "Non, pas pour l'instant", value: "no_later" },
+      ],
+      en: [
+        { label: "Yes, it's essential", value: "yes_essential" },
+        { label: "Yes, if it's easy to use", value: "yes_if_simple" },
+        { label: "No, my clients prefer email", value: "no_email" },
+        { label: "No, not right now", value: "no_later" },
+      ],
+    },
+  },
+  {
     key: "goLiveTimeline",
     phase: 7,
     text: {
@@ -799,33 +986,6 @@ const QUESTIONS: Question[] = [
         { label: "1 to 2 weeks", value: "1_2_weeks" },
         { label: "1 month", value: "1_month" },
         { label: "No rush", value: "no_rush" },
-      ],
-    },
-  },
-
-  {
-    key: "referralSource",
-    phase: 7,
-    text: {
-      fr: "Comment avez-vous entendu parler de SAFE ?",
-      en: "How did you hear about SAFE?",
-    },
-    type: "single",
-    dataKey: "referralSource",
-    options: {
-      fr: [
-        { label: "Un collègue ou confrère avocat", value: "colleague" },
-        { label: "LinkedIn", value: "linkedin" },
-        { label: "Événement du Barreau", value: "bar_event" },
-        { label: "Recherche Google", value: "google" },
-        { label: "Autre", value: "other" },
-      ],
-      en: [
-        { label: "A colleague or fellow lawyer", value: "colleague" },
-        { label: "LinkedIn", value: "linkedin" },
-        { label: "Law Society event", value: "bar_event" },
-        { label: "Google search", value: "google" },
-        { label: "Other", value: "other" },
       ],
     },
   },
@@ -950,21 +1110,51 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
       }
       return null;
 
-    case "nextInspectionDate":
-      if (value === "less_3m") {
+    case "dossierNumbering":
+      if (value === "none") {
         return lang === "fr"
-          ? "⚠️ Moins de 3 mois — c'est urgent. SAFE peut vous rendre conforme en 2 semaines."
-          : "⚠️ Less than 3 months — this is urgent. SAFE can get you compliant in 2 weeks.";
+          ? "SAFE va vous aider à mettre en place une numérotation automatique — un gain de temps réel."
+          : "SAFE will help you set up automatic numbering — a real time saver.";
       }
-      if (value === "3_6m") {
+      return null;
+
+    case "invoiceLanguage":
+      if (value === "bilingual") {
         return lang === "fr"
-          ? "Vous avez juste assez de temps pour vous préparer correctement. Ne tardez pas."
-          : "You have just enough time to prepare properly. Don't wait.";
+          ? "SAFE génère automatiquement les factures dans la langue de chaque client."
+          : "SAFE automatically generates invoices in each client's language.";
       }
-      if (value === "unknown") {
+      return null;
+
+    case "hasRetainer":
+      if (value === "always" || value === "sometimes") {
         return lang === "fr"
-          ? "Le Barreau peut inspecter sans préavis. Mieux vaut être prêt en tout temps."
-          : "The Law Society can inspect without notice. Better to be ready at all times.";
+          ? "SAFE suit les provisions en temps réel et les impute automatiquement sur les factures."
+          : "SAFE tracks retainers in real time and automatically applies them to invoices.";
+      }
+      return null;
+
+    case "timeTracking":
+      if (value === "memory") {
+        return lang === "fr"
+          ? "Avec le timer intégré, vous ne perdrez plus aucune heure facturable."
+          : "With the built-in timer, you'll never lose a billable hour again.";
+      }
+      return null;
+
+    case "accountingIntegration":
+      if (value !== "none" && value !== "excel") {
+        return lang === "fr"
+          ? `SAFE s'intègre directement avec ${value === "quickbooks" ? "QuickBooks" : value === "sage" ? "Sage" : "Acomba"} — aucune double saisie.`
+          : `SAFE integrates directly with ${value === "quickbooks" ? "QuickBooks" : value === "sage" ? "Sage" : "Acomba"} — no double entry.`;
+      }
+      return null;
+
+    case "clientPortal":
+      if (value === "yes_essential" || value === "yes_if_simple") {
+        return lang === "fr"
+          ? "Le portail client SAFE sera activé dans votre espace — vos clients pourront accéder à leurs documents 24/7."
+          : "The SAFE client portal will be activated in your workspace — clients can access documents 24/7.";
       }
       return null;
 
@@ -973,19 +1163,6 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
         return lang === "fr"
           ? "Parfait, on peut vous configurer en 48h !"
           : "Perfect, we can have you set up in 48 hours!";
-      }
-      return null;
-
-    case "referralSource":
-      if (value === "colleague") {
-        return lang === "fr"
-          ? "Les recommandations entre confrères, c'est notre meilleure publicité. Merci à votre collègue !"
-          : "Referrals between colleagues are our best advertising. Thank your colleague for us!";
-      }
-      if (value === "bar_event") {
-        return lang === "fr"
-          ? "Vous êtes au cœur de la communauté juridique — exactement le type de cabinet que SAFE sert."
-          : "You're at the heart of the legal community — exactly the type of firm SAFE serves.";
       }
       return null;
 
@@ -1780,30 +1957,12 @@ export default function OnboardingChat() {
                   </p>
                 </div>
 
-                {/* Urgence — personnalisée selon date d'inspection */}
-                <div className={`rounded-safe px-4 py-3 ${
-                  data.nextInspectionDate === "less_3m"
-                    ? "bg-red-500/20 border border-red-400/40"
-                    : data.nextInspectionDate === "3_6m"
-                    ? "bg-orange-500/20 border border-orange-400/40"
-                    : "bg-amber-500/20 border border-amber-400/30"
-                }`}>
-                  <p className={`text-xs font-sans font-medium ${
-                    data.nextInspectionDate === "less_3m" ? "text-red-200"
-                    : data.nextInspectionDate === "3_6m" ? "text-orange-200"
-                    : "text-amber-200"
-                  }`}>
-                    {data.nextInspectionDate === "less_3m"
-                      ? (lang === "fr"
-                          ? "🚨 Inspection dans moins de 3 mois — agissez maintenant. SAFE vous rend conforme en 2 semaines."
-                          : "🚨 Inspection in less than 3 months — act now. SAFE gets you compliant in 2 weeks.")
-                      : data.nextInspectionDate === "3_6m"
-                      ? (lang === "fr"
-                          ? "⏳ Inspection dans 3 à 6 mois — le moment idéal pour se préparer sans précipitation."
-                          : "⏳ Inspection in 3 to 6 months — the ideal time to prepare without rushing.")
-                      : (lang === "fr"
-                          ? "🔥 Offre fondateur limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
-                          : "🔥 Founder offer limited to the first 50 firms in Canada. Rate locked for life.")}
+                {/* Urgence */}
+                <div className="rounded-safe bg-amber-500/20 border border-amber-400/30 px-4 py-3">
+                  <p className="text-xs text-amber-200 font-sans font-medium">
+                    {lang === "fr"
+                      ? "🔥 Offre fondateur limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
+                      : "🔥 Founder offer limited to the first 50 firms in Canada. Rate locked for life."}
                   </p>
                 </div>
               </div>
