@@ -514,6 +514,33 @@ const QUESTIONS: Question[] = [
     },
   },
 
+  {
+    key: "nextInspectionDate",
+    phase: 4,
+    text: {
+      fr: "Quand est prévue votre prochaine inspection du Barreau ?",
+      en: "When is your next Law Society inspection scheduled?",
+    },
+    type: "single",
+    dataKey: "nextInspectionDate",
+    options: {
+      fr: [
+        { label: "Dans moins de 3 mois 🔴", value: "less_3m" },
+        { label: "Dans 3 à 6 mois 🟠", value: "3_6m" },
+        { label: "Dans 6 à 12 mois 🟡", value: "6_12m" },
+        { label: "Dans plus d'un an 🟢", value: "more_1y" },
+        { label: "Je ne sais pas", value: "unknown" },
+      ],
+      en: [
+        { label: "In less than 3 months 🔴", value: "less_3m" },
+        { label: "In 3 to 6 months 🟠", value: "3_6m" },
+        { label: "In 6 to 12 months 🟡", value: "6_12m" },
+        { label: "More than a year away 🟢", value: "more_1y" },
+        { label: "I don't know", value: "unknown" },
+      ],
+    },
+  },
+
   // ═══ Phase 5 : Équipe ═══
   {
     key: "teamStructure",
@@ -776,6 +803,33 @@ const QUESTIONS: Question[] = [
     },
   },
 
+  {
+    key: "referralSource",
+    phase: 7,
+    text: {
+      fr: "Comment avez-vous entendu parler de SAFE ?",
+      en: "How did you hear about SAFE?",
+    },
+    type: "single",
+    dataKey: "referralSource",
+    options: {
+      fr: [
+        { label: "Un collègue ou confrère avocat", value: "colleague" },
+        { label: "LinkedIn", value: "linkedin" },
+        { label: "Événement du Barreau", value: "bar_event" },
+        { label: "Recherche Google", value: "google" },
+        { label: "Autre", value: "other" },
+      ],
+      en: [
+        { label: "A colleague or fellow lawyer", value: "colleague" },
+        { label: "LinkedIn", value: "linkedin" },
+        { label: "Law Society event", value: "bar_event" },
+        { label: "Google search", value: "google" },
+        { label: "Other", value: "other" },
+      ],
+    },
+  },
+
   // ═══ Phase 8 : Contact & RDV ═══
   {
     key: "contact",
@@ -896,11 +950,42 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
       }
       return null;
 
+    case "nextInspectionDate":
+      if (value === "less_3m") {
+        return lang === "fr"
+          ? "⚠️ Moins de 3 mois — c'est urgent. SAFE peut vous rendre conforme en 2 semaines."
+          : "⚠️ Less than 3 months — this is urgent. SAFE can get you compliant in 2 weeks.";
+      }
+      if (value === "3_6m") {
+        return lang === "fr"
+          ? "Vous avez juste assez de temps pour vous préparer correctement. Ne tardez pas."
+          : "You have just enough time to prepare properly. Don't wait.";
+      }
+      if (value === "unknown") {
+        return lang === "fr"
+          ? "Le Barreau peut inspecter sans préavis. Mieux vaut être prêt en tout temps."
+          : "The Law Society can inspect without notice. Better to be ready at all times.";
+      }
+      return null;
+
     case "goLiveTimeline":
       if (value === "immediately") {
         return lang === "fr"
           ? "Parfait, on peut vous configurer en 48h !"
           : "Perfect, we can have you set up in 48 hours!";
+      }
+      return null;
+
+    case "referralSource":
+      if (value === "colleague") {
+        return lang === "fr"
+          ? "Les recommandations entre confrères, c'est notre meilleure publicité. Merci à votre collègue !"
+          : "Referrals between colleagues are our best advertising. Thank your colleague for us!";
+      }
+      if (value === "bar_event") {
+        return lang === "fr"
+          ? "Vous êtes au cœur de la communauté juridique — exactement le type de cabinet que SAFE sert."
+          : "You're at the heart of the legal community — exactly the type of firm SAFE serves.";
       }
       return null;
 
@@ -1695,12 +1780,30 @@ export default function OnboardingChat() {
                   </p>
                 </div>
 
-                {/* Urgence */}
-                <div className="rounded-safe bg-amber-500/20 border border-amber-400/30 px-4 py-3">
-                  <p className="text-xs text-amber-200 font-sans font-medium">
-                    {lang === "fr"
-                      ? "🔥 Offre fondateur limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
-                      : "🔥 Founder offer limited to the first 50 firms in Canada. Rate locked for life."}
+                {/* Urgence — personnalisée selon date d'inspection */}
+                <div className={`rounded-safe px-4 py-3 ${
+                  data.nextInspectionDate === "less_3m"
+                    ? "bg-red-500/20 border border-red-400/40"
+                    : data.nextInspectionDate === "3_6m"
+                    ? "bg-orange-500/20 border border-orange-400/40"
+                    : "bg-amber-500/20 border border-amber-400/30"
+                }`}>
+                  <p className={`text-xs font-sans font-medium ${
+                    data.nextInspectionDate === "less_3m" ? "text-red-200"
+                    : data.nextInspectionDate === "3_6m" ? "text-orange-200"
+                    : "text-amber-200"
+                  }`}>
+                    {data.nextInspectionDate === "less_3m"
+                      ? (lang === "fr"
+                          ? "🚨 Inspection dans moins de 3 mois — agissez maintenant. SAFE vous rend conforme en 2 semaines."
+                          : "🚨 Inspection in less than 3 months — act now. SAFE gets you compliant in 2 weeks.")
+                      : data.nextInspectionDate === "3_6m"
+                      ? (lang === "fr"
+                          ? "⏳ Inspection dans 3 à 6 mois — le moment idéal pour se préparer sans précipitation."
+                          : "⏳ Inspection in 3 to 6 months — the ideal time to prepare without rushing.")
+                      : (lang === "fr"
+                          ? "🔥 Offre fondateur limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
+                          : "🔥 Founder offer limited to the first 50 firms in Canada. Rate locked for life.")}
                   </p>
                 </div>
               </div>

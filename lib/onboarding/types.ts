@@ -41,6 +41,7 @@ export interface OnboardingData {
   reconciliationFrequency: string;
   reconciliationFrequencyOther: string;
   auditIssues: string;
+  nextInspectionDate: string;
 
   /* ── Étape 5 : Équipe et accès ── */
   teamStructure: string;
@@ -62,6 +63,7 @@ export interface OnboardingData {
   urgentChallenges: string[];
   urgentChallengesOther: string;
   goLiveTimeline: string;
+  referralSource: string;
 
   /* ── Étape 8 : RDV ── */
   preferredDate: string;
@@ -102,6 +104,7 @@ export const INITIAL_DATA: OnboardingData = {
   reconciliationFrequency: "",
   reconciliationFrequencyOther: "",
   auditIssues: "",
+  nextInspectionDate: "",
 
   teamStructure: "",
   teamStructureOther: "",
@@ -120,6 +123,7 @@ export const INITIAL_DATA: OnboardingData = {
   urgentChallenges: [],
   urgentChallengesOther: "",
   goLiveTimeline: "",
+  referralSource: "",
 
   preferredDate: "",
   preferredTime: "",
