@@ -109,11 +109,11 @@ function parseUserCount(value: string): number {
 
 function determinePlan(userCount: number): CalculationResult["plan"] {
   if (userCount <= 1) {
-    return { name: { fr: "Solo", en: "Solo" }, price: 79 };
+    return { name: { fr: "Solo", en: "Solo" }, price: 99, annualPrice: 79, annualSaving: 240 };
   }
   if (userCount <= 5) {
-    return { name: { fr: "Cabinet", en: "Firm" }, price: 249 };
+    return { name: { fr: "Cabinet", en: "Firm" }, price: 249, annualPrice: 199, annualSaving: 600 };
   }
   // 6 utilisateurs et plus → plan Cabinet+
-  return { name: { fr: "Cabinet+", en: "Firm+" }, price: 449 };
+  return { name: { fr: "Cabinet+", en: "Firm+" }, price: 499, annualPrice: 399, annualSaving: 1200 };
 }

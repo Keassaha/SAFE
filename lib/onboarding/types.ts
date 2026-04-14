@@ -131,7 +131,9 @@ export interface CalculationResult {
   totalValue: number;
   plan: {
     name: { fr: string; en: string };
-    price: number;
+    price: number;        // prix mensuel (sans engagement)
+    annualPrice: number;  // prix mensuel si paiement annuel
+    annualSaving: number; // économie annuelle totale
   };
 }
 
