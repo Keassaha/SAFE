@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Lang } from "@/lib/onboarding/types";
 
@@ -18,10 +19,12 @@ export default function LanguageSelect({ onSelect }: Props) {
       {/* Official SAFE logo */}
       <div className="mb-10 flex items-center gap-2.5">
         <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#1a4a3a] ring-1 ring-[#4ade80]/20">
-          <img
+          <Image
             src="/images/safe-mark-s-green.png"
             alt=""
-            className="h-8 w-8 object-contain"
+            width={32}
+            height={32}
+            className="object-contain"
             style={{ filter: "brightness(1.6) saturate(2.2)" }}
           />
         </span>

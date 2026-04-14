@@ -31,7 +31,7 @@ import type { OnboardingData, CalculationResult, Lang } from "@/lib/onboarding/t
 import { INITIAL_DATA } from "@/lib/onboarding/types";
 import { calculateOnboardingValue } from "@/lib/onboarding/calculator";
 import { PROVINCES } from "@/lib/onboarding/taxes";
-import { SafeLogo } from "@/components/branding/SafeLogo";
+import Image from "next/image";
 import { pdf } from "@react-pdf/renderer";
 import { AuditPDF } from "@/lib/pdf/AuditPDF";
 
@@ -1386,10 +1386,12 @@ export default function OnboardingChat() {
           {/* Official SAFE logo */}
           <div className="mb-10 flex items-center gap-2.5">
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#1a4a3a] ring-1 ring-[#4ade80]/20">
-              <img
+              <Image
                 src="/images/safe-mark-s-green.png"
                 alt=""
-                className="h-8 w-8 object-contain"
+                width={32}
+                height={32}
+                className="object-contain"
                 style={{ filter: "brightness(1.6) saturate(2.2)" }}
               />
             </span>
