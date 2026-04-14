@@ -45,7 +45,6 @@ export function onboardingAdminEmailHtml(
     ${row("Cabinet", data.firmName)}
     ${row("Avocat principal", data.leadName)}
     ${row("Courriel", data.email)}
-    ${row("Barreau #", data.barNumber)}
     ${row("Province", data.province)}
     ${row("Adresse", data.address)}
     ${row("Telephone", data.phone)}

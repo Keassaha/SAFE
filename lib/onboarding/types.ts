@@ -9,7 +9,6 @@ export interface OnboardingData {
   firmName: string;
   leadName: string;
   email: string;
-  barNumber: string;
   province: string;
   address: string;
   phone: string;
@@ -73,7 +72,6 @@ export const INITIAL_DATA: OnboardingData = {
   firmName: "",
   leadName: "",
   email: "",
-  barNumber: "",
   province: "",
   address: "",
   phone: "",

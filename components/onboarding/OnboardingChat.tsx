@@ -31,6 +31,9 @@ import type { OnboardingData, CalculationResult, Lang } from "@/lib/onboarding/t
 import { INITIAL_DATA } from "@/lib/onboarding/types";
 import { calculateOnboardingValue } from "@/lib/onboarding/calculator";
 import { PROVINCES } from "@/lib/onboarding/taxes";
+import { SafeLogo } from "@/components/branding/SafeLogo";
+import { pdf } from "@react-pdf/renderer";
+import { AuditPDF } from "@/lib/pdf/AuditPDF";
 
 /* ─────────────────────────────────────────────
    Types
@@ -99,12 +102,12 @@ const PHASE_TRANSITIONS: Record<number, { fr: string; en: string }> = {
     en: "✅ Great! I have a good picture of your firm.\n\n⚖️ Let’s talk about your legal practice now.",
   },
   3: {
-    fr: "⚖️ Excellent !\n\n💰 Abordons la facturation — c’est là que SAFE fait vraiment la différence.",
-    en: "⚖️ Excellent!\n\n💰 Let’s talk billing — this is where SAFE really makes a difference.",
+    fr: "⚖️ Excellent !\n\n💰 Abordons la facturation. C’est là que SAFE fait vraiment la différence.",
+    en: "⚖️ Excellent!\n\n💰 Let’s talk billing. This is where SAFE really makes a difference.",
   },
   4: {
-    fr: "💰 Bien noté !\n\n🏦 Parlons fidéicommis — un sujet crucial pour la conformité.",
-    en: "💰 Noted!\n\n🏦 Let’s discuss trust accounts — a crucial compliance topic.",
+    fr: "💰 Bien noté !\n\n🏦 Parlons fidéicommis, un sujet crucial pour la conformité.",
+    en: "💰 Noted!\n\n🏦 Let’s discuss trust accounts, a crucial compliance topic.",
   },
   5: {
     fr: "🏦 Compris !\n\n👥 Quelques questions sur votre équipe et vos accès.",
@@ -186,20 +189,6 @@ const QUESTIONS: Question[] = [
     placeholder: {
       fr: "nom@cabinet.ca",
       en: "name@firm.ca",
-    },
-  },
-  {
-    key: "barNumber",
-    phase: 1,
-    text: {
-      fr: "Quel est votre numéro de membre du Barreau ?",
-      en: "What is your Law Society membership number?",
-    },
-    type: "open",
-    dataKey: "barNumber",
-    placeholder: {
-      fr: "Ex: 12345-6",
-      en: "E.g.: 12345-6",
     },
   },
   {
@@ -846,8 +835,8 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
     case "reconciliationFrequency":
       if (value === "never" || value === "yearly") {
         return lang === "fr"
-          ? "La réconciliation mensuelle est obligatoire. SAFE l’automatise complètement — plus de stress."
-          : "Monthly reconciliation is mandatory. SAFE automates it completely — no more stress.";
+          ? "La réconciliation mensuelle est obligatoire. SAFE l’automatise complètement. Fini le stress."
+          : "Monthly reconciliation is mandatory. SAFE automates it completely. No more stress.";
       }
       return null;
 
@@ -883,8 +872,8 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
     case "hasDataToMigrate":
       if (value === "yes") {
         return lang === "fr"
-          ? "Notre équipe s’occupe de la migration — vous n’avez rien à faire."
-          : "Our team handles the migration — you don’t have to do anything.";
+          ? "Notre équipe s’occupe de la migration. Vous n’avez rien à faire."
+          : "Our team handles the migration. You don’t have to do anything.";
       }
       return null;
 
@@ -995,22 +984,7 @@ export default function OnboardingChat() {
     []
   );
 
-  // Show intro message
-  useEffect(() => {
-    if (!started) {
-      const timer = setTimeout(() => {
-        setMessages([
-          {
-            id: uid(),
-            sender: "host",
-            text: "👋 Bonjour ! Hello!\n\nJe suis Jérémie Tiahou, fondateur de SAFE. Ce court questionnaire me permettra de configurer votre espace exactement selon votre pratique.\n\nI’m Jérémie Tiahou, founder of SAFE. This short questionnaire will allow me to set up your workspace exactly around your practice.\n\n🌐 Choisissez votre langue / Choose your language:",
-            timestamp: Date.now(),
-          },
-        ]);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [started]);
+  // No initial message needed — language selection is handled by the full-page screen
 
   // Ref to access latest data without re-creating callbacks
   const dataRef = useRef(data);
@@ -1129,25 +1103,22 @@ export default function OnboardingChat() {
     }
   }, []);
 
-  // Handle language selection
+  // Handle language selection — called from the full-page language screen
   const handleLangSelect = useCallback(
     (selectedLang: Lang) => {
       setLang(selectedLang);
       setStarted(true);
 
-      const userText = selectedLang === "fr" ? "🇫🇷 Français" : "🇬🇧 English";
-      addUserMessage(userText);
-
       const introMsg =
         selectedLang === "fr"
-          ? "Parfait ! On y va en français.\n\n🔒 Toutes vos réponses sont confidentielles et servent uniquement à configurer votre espace SAFE.\n\nCommençons par les informations de votre cabinet."
-          : "Perfect! Let’s go in English.\n\n🔒 All your answers are confidential and only used to set up your SAFE workspace.\n\nLet’s start with your firm information.";
+          ? "Bonjour et bienvenue ! Je suis Jérémie Tiahou, fondateur de SAFE.\n\nJe suis vraiment heureux de vous avoir ici. SAFE a été conçu par et pour les avocats canadiens. Chaque cabinet que nous accueillons, nous le configurons avec soin, selon sa réalité.\n\n🔒 Tout ce que vous partagez ici est strictement confidentiel. Ces informations servent uniquement à préparer votre espace.\n\nPrenons quelques minutes ensemble. Commençons par votre cabinet."
+          : "Hello and welcome! I’m Jérémie Tiahou, founder of SAFE.\n\nI’m genuinely glad you’re here. SAFE was built by and for Canadian lawyers. Every firm we onboard, we set up with care, tailored to how you actually work.\n\n🔒 Everything you share here is strictly confidential and used solely to prepare your workspace.\n\nLet’s take a few minutes together. We’ll start with your firm.";
 
       addHostMessage(introMsg).then(() => {
         advanceQuestion(0);
       });
     },
-    [addUserMessage, addHostMessage, advanceQuestion]
+    [addHostMessage, advanceQuestion]
   );
 
   // Handle single option select
@@ -1381,12 +1352,83 @@ export default function OnboardingChat() {
     }
   }, [data]);
 
+  // Handle PDF download
+  const handleDownloadPDF = useCallback(async () => {
+    const currentLang = langRef.current;
+    if (!currentLang) return;
+    const calc = calculateOnboardingValue(data as OnboardingData);
+    const blob = await pdf(
+      <AuditPDF data={data} calc={calc} lang={currentLang} />
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = currentLang === "fr" ? "audit-safe-cabinet.pdf" : "safe-firm-audit.pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [data]);
+
   // Current phase for progress bar
   const currentPhase = currentQuestion >= 0 ? QUESTIONS[Math.min(currentQuestion, QUESTIONS.length - 1)]?.phase || 1 : 0;
 
   const calculationResult: CalculationResult | null = showResults
     ? calculateOnboardingValue(data as OnboardingData)
     : null;
+
+  /* ─────────────────────────────────────────────
+     Language Selection Screen (Full Page)
+     ───────────────────────────────────────────── */
+
+  if (!lang && !started) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-[var(--safe-lightest)] to-white px-4">
+        <div className="flex flex-col items-center w-full max-w-md">
+          {/* Official SAFE logo */}
+          <div className="mb-10 flex items-center gap-2.5">
+            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#1a4a3a] ring-1 ring-[#4ade80]/20">
+              <img
+                src="/images/safe-mark-s-green.png"
+                alt=""
+                className="h-8 w-8 object-contain"
+                style={{ filter: "brightness(1.6) saturate(2.2)" }}
+              />
+            </span>
+            <span className="select-none font-sans text-[28px] font-bold leading-none tracking-[0.04em] text-[#0e3b2f]">
+              Safe
+            </span>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-[var(--safe-darkest)] mb-2 text-center tracking-tight">
+            Bonjour / Hello
+          </h1>
+          <p className="text-[var(--safe-text-muted)] text-base md:text-lg mb-12 text-center">
+            Choisissez votre langue / Please select your language
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
+            <button
+              onClick={() => handleLangSelect("fr")}
+              className="flex-1 py-4 px-8 rounded-2xl text-lg font-semibold
+                         bg-[var(--safe-accent)] text-white
+                         hover:bg-[var(--safe-green-800)] active:scale-[0.98]
+                         transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              🇫🇷 Français
+            </button>
+            <button
+              onClick={() => handleLangSelect("en")}
+              className="flex-1 py-4 px-8 rounded-2xl text-lg font-semibold
+                         border-2 border-[var(--safe-accent)] text-[var(--safe-accent)]
+                         hover:bg-[var(--safe-accent)] hover:text-white active:scale-[0.98]
+                         transition-all duration-200"
+            >
+              🇬🇧 English
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ─────────────────────────────────────────────
      Results Screen (Offer Reveal)
@@ -1406,7 +1448,7 @@ export default function OnboardingChat() {
                 {lang === "fr" ? "Votre offre personnalisée" : "Your personalized offer"}
               </h1>
               <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
-                Jérémie Tiahou — {new Date().toLocaleDateString(lang === "fr" ? "fr-CA" : "en-CA")}
+                Jérémie Tiahou, {new Date().toLocaleDateString(lang === "fr" ? "fr-CA" : "en-CA")}
               </p>
             </div>
           </div>
@@ -1422,8 +1464,8 @@ export default function OnboardingChat() {
                 </div>
                 <div className="max-w-[80%] rounded-safe-md rounded-bl-md bg-[var(--safe-text-title)] text-[var(--safe-white)] border border-[var(--safe-text-title)]/10 px-4 py-3 text-sm font-sans leading-relaxed whitespace-pre-line">
                   {lang === "fr"
-                    ? "Merci pour votre temps. J’ai analysé vos réponses et voici exactement ce que SAFE va faire pour votre cabinet — et combien ça vous coûterait de le faire autrement."
-                    : "Thank you for your time. I’ve analyzed your answers and here’s exactly what SAFE will do for your firm — and how much it would cost to do it any other way."}
+                    ? "Merci pour votre temps. J’ai analysé vos réponses et voici exactement ce que SAFE va faire pour votre cabinet, et combien ça vous coûterait de le faire autrement."
+                    : "Thank you for your time. I’ve analyzed your answers and here’s exactly what SAFE will do for your firm, and how much it would cost to do it any other way."}
                 </div>
               </div>
             </div>
@@ -1442,13 +1484,13 @@ export default function OnboardingChat() {
                     fr: "Heures perdues en tâches admin manuelles",
                     en: "Hours lost on manual admin tasks",
                     amount: lang === "fr" ? "8-15h/mois" : "8-15h/month",
-                    cost: "1 200 $ — 2 500 $",
+                    cost: "1 200 $ à 2 500 $",
                   },
                   {
                     fr: "Retards de facturation et paiements en souffrance",
                     en: "Billing delays and outstanding payments",
                     amount: "",
-                    cost: "800 $ — 3 000 $",
+                    cost: "800 $ à 3 000 $",
                   },
                   {
                     fr: "Risque de non-conformité (fidéicommis, Loi 25, Barreau)",
@@ -1468,7 +1510,7 @@ export default function OnboardingChat() {
                   {lang === "fr" ? "Coût estimé de l’inaction" : "Estimated cost of inaction"}
                 </span>
                 <span className="text-lg font-bold text-red-600 font-sans">
-                  {lang === "fr" ? "2 000 $ — 5 500 $/mois" : "$2,000 — $5,500/month"}
+                  {lang === "fr" ? "2 000 $ à 5 500 $/mois" : "$2,000 to $5,500/month"}
                 </span>
               </div>
             </div>
@@ -1520,7 +1562,7 @@ export default function OnboardingChat() {
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-5 h-5 text-[var(--safe-accent)]" />
                 <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
-                  {lang === "fr" ? "Bonus inclus — Offre Fondateur" : "Included bonuses — Founder Offer"}
+                  {lang === "fr" ? "Bonus inclus : Offre Fondateur" : "Included bonuses : Founder Offer"}
                 </h3>
               </div>
               <div className="space-y-3">
@@ -1578,12 +1620,17 @@ export default function OnboardingChat() {
                   </h3>
                 </div>
                 <div className="space-y-3">
-                  {[
-                    { name: "CLIO", price: "89 $ — 139 $/utilisateur", note: lang === "fr" ? "Pas adapté au Barreau canadien" : "Not adapted for Canadian Bar" },
-                    { name: "Practice Panther", price: "59 $ — 99 $/utilisateur", note: lang === "fr" ? "Aucune gestion fidéicommis QC" : "No QC trust management" },
-                    { name: "Juris Concept", price: "200 $ — 500 $/mois", note: lang === "fr" ? "Interface obsolète, pas de cloud" : "Outdated interface, no cloud" },
-                    { name: "Comptable externe", price: "800 $ — 2 000 $/mois", note: lang === "fr" ? "Délais, pas temps réel" : "Delays, not real-time" },
-                  ].map((comp, idx) => (
+                  {(lang === "fr" ? [
+                    { name: "Clio", price: "~150 $ CAD/util./mois", note: "Signalé par des utilisateurs : support limité en français, pas adapté aux exigences du Barreau du Québec" },
+                    { name: "PCLaw", price: "~50 à 100 $/util./mois", note: "Signalé par des utilisateurs : interface désuète, pas de version cloud, formation longue" },
+                    { name: "Cosmolex", price: "~120 $ CAD/util./mois", note: "Signalé par des utilisateurs : documentation principalement en anglais, moins adapté au marché québécois" },
+                    { name: "Juris Évolution", price: "Sur devis", note: "Signalé par des utilisateurs : coûts d'implantation élevés, délais de déploiement longs" },
+                  ] : [
+                    { name: "Clio", price: "~$109 USD/user/month", note: "Reported by users: limited French support, not tailored to provincial Bar requirements" },
+                    { name: "PCLaw", price: "~$50 to $100/user/month", note: "Reported by users: outdated interface, no cloud version, steep learning curve" },
+                    { name: "Cosmolex", price: "~$89 USD/user/month", note: "Reported by users: mostly English documentation, limited Quebec trust accounting support" },
+                    { name: "Juris Évolution", price: "Quote-based", note: "Reported by users: high implementation costs, long deployment timelines" },
+                  ]).map((comp, idx) => (
                     <div key={idx} className="flex items-center justify-between py-2 border-b border-[var(--safe-sage)]/15 last:border-0">
                       <div>
                         <span className="text-sm font-medium text-[var(--safe-text-title)] font-sans">{comp.name}</span>
@@ -1631,10 +1678,10 @@ export default function OnboardingChat() {
                 </p>
                 <p className="text-xs text-[var(--safe-sage)] font-sans mb-4">
                   {calculationResult.plan.price === 79
-                    ? (lang === "fr" ? "Pour avocat solo — 1 utilisateur" : "For solo lawyer — 1 user")
+                    ? (lang === "fr" ? "Pour avocat solo, 1 utilisateur" : "For solo lawyer, 1 user")
                     : calculationResult.plan.price === 249
-                    ? (lang === "fr" ? "Pour cabinet — 2 à 5 utilisateurs" : "For firm — 2 to 5 users")
-                    : (lang === "fr" ? "Pour cabinet établi — 6 à 15 utilisateurs" : "For established firm — 6 to 15 users")}
+                    ? (lang === "fr" ? "Pour cabinet, 2 à 5 utilisateurs" : "For firm, 2 to 5 users")
+                    : (lang === "fr" ? "Pour cabinet établi, 6 à 15 utilisateurs" : "For established firm, 6 to 15 users")}
                 </p>
 
                 {/* Badges */}
@@ -1665,8 +1712,8 @@ export default function OnboardingChat() {
                     <Shield className="w-5 h-5 text-green-400" />
                     <span className="text-sm font-bold text-[var(--safe-white)] font-sans">
                       {calculationResult.plan.price === 449
-                        ? (lang === "fr" ? "Garantie Conformité — 90 jours" : "90-Day Compliance Guarantee")
-                        : (lang === "fr" ? "Garantie Satisfait ou Remboursé — 30 jours" : "30-Day Money-Back Guarantee")}
+                        ? (lang === "fr" ? "Garantie Conformité 90 jours" : "90-Day Compliance Guarantee")
+                        : (lang === "fr" ? "Garantie Satisfait ou Remboursé 30 jours" : "30-Day Money-Back Guarantee")}
                     </span>
                   </div>
                   <p className="text-xs text-[var(--safe-sage)] font-sans leading-relaxed">
@@ -1750,6 +1797,13 @@ export default function OnboardingChat() {
                     ? "Jérémie vous contactera personnellement dans les 24h pour votre appel de démarrage."
                     : "Jérémie will personally contact you within 24h for your onboarding call."}
                 </p>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="group flex items-center justify-center gap-2 w-full py-3 rounded-safe-md border-2 border-[var(--safe-accent)] text-[var(--safe-accent)] font-semibold text-sm font-sans hover:bg-[var(--safe-accent)]/5 transition-all duration-200"
+                >
+                  <Save className="w-4 h-4" />
+                  {lang === "fr" ? "Télécharger le résumé en PDF" : "Download audit summary as PDF"}
+                </button>
               </div>
             ) : (
               <div className="rounded-safe-md border border-green-200 bg-green-50 p-6 text-center audit-slide-up" style={{ animationDelay: "0.1s" }}>
@@ -1762,10 +1816,17 @@ export default function OnboardingChat() {
                     ? "Votre demande a été envoyée. Jérémie vous contactera dans les prochaines 24 heures pour planifier votre appel de configuration."
                     : "Your request has been sent. Jérémie will contact you within the next 24 hours to schedule your setup call."}
                 </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-200">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-200 mb-4">
                   <Phone className="w-4 h-4 text-green-600" />
                   <span className="text-sm text-green-700 font-sans font-medium">(819) 271-8656</span>
                 </div>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-safe-md border border-green-300 text-green-700 font-medium text-sm font-sans hover:bg-green-50 transition-all duration-200"
+                >
+                  <Save className="w-4 h-4" />
+                  {lang === "fr" ? "Télécharger le résumé en PDF" : "Download audit summary as PDF"}
+                </button>
               </div>
             )}
 
@@ -1773,8 +1834,8 @@ export default function OnboardingChat() {
             <div className="text-center py-4">
               <p className="text-xs text-[var(--safe-sage)] font-sans">
                 {lang === "fr"
-                  ? "SAFE — La plateforme de gestion conçue pour les avocats canadiens"
-                  : "SAFE — The practice management platform built for Canadian lawyers"}
+                  ? "SAFE, la plateforme de gestion conçue pour les avocats canadiens"
+                  : "SAFE, the practice management platform built for Canadian lawyers"}
               </p>
             </div>
           </div>
@@ -1803,9 +1864,9 @@ export default function OnboardingChat() {
                   {lang === "en" ? "typing..." : "écrit..."}
                 </span>
               ) : lang === "en" ? (
-                "Founder — SAFE"
+                "Founder at SAFE"
               ) : (
-                "Fondateur — SAFE"
+                "Fondateur chez SAFE"
               )}
             </p>
           </div>
@@ -1911,31 +1972,6 @@ export default function OnboardingChat() {
                 </div>
               </div>
 
-              {/* Language selection buttons (only for intro message before lang is chosen) */}
-              {msg.sender === "host" && !lang && !started && idx === 0 && !isTyping && (
-                <div className="ml-9 mt-3 audit-options-appear">
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => handleLangSelect("fr")}
-                      className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
-                    >
-                      <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
-                      </div>
-                      {"🇫🇷"} Français
-                    </button>
-                    <button
-                      onClick={() => handleLangSelect("en")}
-                      className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
-                    >
-                      <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
-                      </div>
-                      {"🇬🇧"} English
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* Options (only for unanswered host questions) */}
               {msg.sender === "host" && !msg.answered && msg.questionKey && (

@@ -15,11 +15,19 @@ export default function LanguageSelect({ onSelect }: Props) {
       transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       className="flex flex-col items-center justify-center min-h-[70vh] px-4"
     >
-      {/* Logo */}
-      <div className="mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-[var(--safe-accent)] flex items-center justify-center">
-          <span className="text-white text-2xl font-bold tracking-tight">S</span>
-        </div>
+      {/* Official SAFE logo */}
+      <div className="mb-10 flex items-center gap-2.5">
+        <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#1a4a3a] ring-1 ring-[#4ade80]/20">
+          <img
+            src="/images/safe-mark-s-green.png"
+            alt=""
+            className="h-8 w-8 object-contain"
+            style={{ filter: "brightness(1.6) saturate(2.2)" }}
+          />
+        </span>
+        <span className="select-none font-sans text-[28px] font-bold leading-none tracking-[0.04em] text-[#0e3b2f]">
+          Safe
+        </span>
       </div>
 
       {/* Title */}
@@ -39,7 +47,7 @@ export default function LanguageSelect({ onSelect }: Props) {
                      hover:bg-[var(--safe-green-800)] active:scale-[0.98]
                      transition-all duration-200 shadow-md hover:shadow-lg"
         >
-          Français
+          🇫🇷 Français
         </button>
         <button
           onClick={() => onSelect("en")}
@@ -48,7 +56,7 @@ export default function LanguageSelect({ onSelect }: Props) {
                      hover:bg-[var(--safe-accent)] hover:text-white active:scale-[0.98]
                      transition-all duration-200"
         >
-          English
+          🇬🇧 English
         </button>
       </div>
     </motion.div>

@@ -64,7 +64,6 @@ const t = {
   firmName: { fr: "Nom du cabinet", en: "Firm name" },
   leadName: { fr: "Prénom et nom de l'avocat principal", en: "Lead attorney full name" },
   email: { fr: "Courriel", en: "Email" },
-  barNumber: { fr: "Numéro de membre du Barreau", en: "Law Society membership number" },
   province: { fr: "Province", en: "Province" },
   address: { fr: "Adresse complète", en: "Full address" },
   phone: { fr: "Téléphone", en: "Phone" },

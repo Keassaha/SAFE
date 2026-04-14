@@ -43,16 +43,6 @@ export default function Step1FirmInfo({ data, setData, lang, errors }: StepProps
         />
       </Field>
 
-      {/* Numéro Barreau */}
-      <Field label={label("barNumber")} error={errors.barNumber} required>
-        <input
-          type="text"
-          value={data.barNumber}
-          onChange={(e) => setData({ barNumber: e.target.value })}
-          className={inputClass(errors.barNumber)}
-        />
-      </Field>
-
       {/* Province */}
       <Field label={label("province")} error={errors.province} required>
         <select
