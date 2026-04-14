@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import {
   HeartHandshake,
   FolderCheck,
@@ -21,7 +21,6 @@ const OUTCOMES = [
       "SAFE automatise la saisie, les rappels et les calculs. Vous rentrez chez vous l'esprit libre.",
     stat: "10h+",
     statLabel: "économisées/mois",
-    image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&h=400&fit=crop&q=80",
     cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-blue-400",
@@ -41,7 +40,6 @@ const OUTCOMES = [
       "Chaque transaction est tracée, chaque solde est vérifié, chaque rapport est prêt pour l'inspection.",
     stat: "100%",
     statLabel: "réconcilié",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-emerald-400",
@@ -61,7 +59,6 @@ const OUTCOMES = [
       "Facturation, fidéicommis, conservation des données. Tout respecte le Règlement et la Loi 25. Automatiquement.",
     stat: "B-1 r.5",
     statLabel: "conforme",
-    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop&q=80",
     cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-violet-400",
@@ -81,7 +78,6 @@ const OUTCOMES = [
       "Alertes automatiques pour vos échéances de cour et prescriptions. Toujours un pas en avance.",
     stat: "0",
     statLabel: "délai manqué",
-    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-amber-400",
@@ -101,7 +97,6 @@ const OUTCOMES = [
       "SAFE vous montre la rentabilité par avocat, par mandat. Décisions basées sur des chiffres, pas sur l'intuition.",
     stat: "1 clic",
     statLabel: "pour savoir",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80",
     cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
       icon: "text-cyan-400",
@@ -121,7 +116,6 @@ const OUTCOMES = [
       "Vérification de conformité, alertes automatiques, rapports prêts pour l'inspection. Tout est intégré.",
     stat: "24/7",
     statLabel: "disponible",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
       icon: "text-rose-400",
@@ -146,6 +140,14 @@ function OutcomeCard({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  const skipTilt = isMobile || reduceMotion;
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -160,7 +162,7 @@ function OutcomeCard({
   });
 
   function handleMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (!ref.current) return;
+    if (skipTilt || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     x.set((e.clientX - rect.left) / rect.width - 0.5);
     y.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -175,15 +177,15 @@ function OutcomeCard({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 40, scale: reduceMotion ? 1 : 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{
-        duration: 0.6,
-        delay: idx * 0.1,
+        duration: reduceMotion ? 0.15 : 0.6,
+        delay: reduceMotion ? 0 : idx * 0.1,
         ease: [0.16, 1, 0.3, 1],
       }}
-      style={{
+      style={skipTilt ? undefined : {
         rotateX,
         rotateY,
         transformPerspective: 800,

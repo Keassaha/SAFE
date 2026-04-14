@@ -18,6 +18,33 @@
   transform: translateZ(0);
 }
 
+/* ── Accessibility: reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Mobile performance: disable heavy animations ── */
+@media (max-width: 768px) {
+  .landing-blob {
+    animation: none !important;
+    opacity: 0.25;
+    filter: blur(60px);
+  }
+  .landing-blob-1 { width: 300px; height: 300px; }
+  .landing-blob-2 { width: 250px; height: 250px; }
+  .landing-blob-3 { width: 200px; height: 200px; }
+  .landing-blob-4 { width: 180px; height: 180px; }
+
+  .safe-landing-glow::before {
+    animation: none !important;
+  }
+}
+
 /* ============================================
    SAFE Design System — Emerald + Amber
    LegalTech professional palette (natural stone layers)

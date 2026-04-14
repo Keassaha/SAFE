@@ -1,5 +1,19 @@
 import type { Metadata } from "next";
-import OnboardingChat from "@/components/onboarding/OnboardingChat";
+import dynamic from "next/dynamic";
+
+const OnboardingChat = dynamic(
+  () => import("@/components/onboarding/OnboardingChat"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-screen bg-[var(--safe-white)]">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-neutral-100" />
+          <div className="h-4 w-48 bg-neutral-100 rounded" />
+        </div>
+      </div>
+    ),
+  }
+);
 
 export const metadata: Metadata = {
   title: "Audit & Onboarding — SAFE | Configurez votre cabinet",

@@ -93,8 +93,6 @@ const config: Config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         heading: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-        jakarta: ["var(--font-jakarta)", "ui-sans-serif", "system-ui", "sans-serif"],
-        instrument: ["var(--font-instrument-serif)", "Georgia", "ui-serif", "serif"],
       },
       fontSize: {
         display: ["clamp(2.5rem, 5vw, 4rem)", { lineHeight: "1.1", letterSpacing: "-0.025em" }],

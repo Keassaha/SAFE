@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,15 +15,21 @@ import {
 } from "@/lib/motion";
 import type { DashboardPayload } from "@/lib/dashboard/types";
 import { DashboardKPICards } from "./DashboardKPICards";
-import { RevenueChart } from "./RevenueChart";
-import { MonthlyComparisonChart } from "./MonthlyComparisonChart";
-import { LawyerProductivityTable } from "./LawyerProductivityTable";
-import { OutstandingAccountsTable } from "./OutstandingAccountsTable";
-import { IndicatorsPanel } from "./IndicatorsPanel";
 import { GettingStarted } from "./GettingStarted";
 import { AlertsPanel } from "./AlertsPanel";
-import { DashboardTasksAndAppointments } from "./DashboardTasksAndAppointments";
-import { BillingPipeline } from "./BillingPipeline";
+import { IndicatorsPanel } from "./IndicatorsPanel";
+
+/* Heavy chart/table components — lazy-loaded to reduce initial JS bundle */
+const RevenueChart = dynamic(() => import("./RevenueChart").then(m => ({ default: m.RevenueChart })), {
+  loading: () => <div className="bg-white rounded-safe p-6 shadow-xs"><div className="h-64 bg-neutral-50 rounded animate-pulse" /></div>,
+});
+const MonthlyComparisonChart = dynamic(() => import("./MonthlyComparisonChart").then(m => ({ default: m.MonthlyComparisonChart })), {
+  loading: () => <div className="bg-white rounded-safe p-6 shadow-xs"><div className="h-64 bg-neutral-50 rounded animate-pulse" /></div>,
+});
+const LawyerProductivityTable = dynamic(() => import("./LawyerProductivityTable").then(m => ({ default: m.LawyerProductivityTable })));
+const OutstandingAccountsTable = dynamic(() => import("./OutstandingAccountsTable").then(m => ({ default: m.OutstandingAccountsTable })));
+const DashboardTasksAndAppointments = dynamic(() => import("./DashboardTasksAndAppointments").then(m => ({ default: m.DashboardTasksAndAppointments })));
+const BillingPipeline = dynamic(() => import("./BillingPipeline").then(m => ({ default: m.BillingPipeline })));
 
 export interface DashboardViewProps {
   payload: DashboardPayload;

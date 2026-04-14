@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { Navbar } from "@/components/marketing/Navbar";
-import AuditChat from "@/components/audit/AuditChat";
+
+const AuditChat = dynamic(() => import("@/components/audit/AuditChat"), {
+  loading: () => (
+    <div className="flex items-center justify-center flex-1">
+      <div className="animate-pulse flex flex-col items-center gap-4">
+        <div className="h-12 w-12 rounded-full bg-neutral-100" />
+        <div className="h-4 w-48 bg-neutral-100 rounded" />
+      </div>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = {
   title: "Audit gratuit — SAFE | Évaluez l'efficacité de votre cabinet",
