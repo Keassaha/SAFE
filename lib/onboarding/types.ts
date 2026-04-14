@@ -20,8 +20,10 @@ export interface OnboardingData {
   practiceAreas: string[];
   practiceAreasOther: string;
   monthlyNewFiles: string;
+  activeFilesCount: string;
   clientType: string;
   clientTypeOther: string;
+  annualRevenue: string;
 
   /* ── Étape 3 : Facturation ── */
   billingMethod: string;
@@ -33,12 +35,14 @@ export interface OnboardingData {
   paymentTermsOther: string;
   paymentMethods: string[];
   paymentMethodsOther: string;
+  latePaymentIssues: string;
 
   /* ── Étape 4 : Fidéicommis ── */
   hasTrustAccount: string;
   trustAccountCount: string;
   reconciliationFrequency: string;
   reconciliationFrequencyOther: string;
+  monthlyTrustVolume: string;
   auditIssues: string;
 
   /* ── Étape 5 : Équipe et accès ── */
@@ -52,12 +56,16 @@ export interface OnboardingData {
   /* ── Étape 6 : Outils et migration ── */
   currentSoftware: string;
   currentSoftwareOther: string;
+  usesTimeTracking: string;
+  documentManagement: string;
   hasDataToMigrate: string;
   dataFormat: string;
   dataFormatOther: string;
   primaryDevice: string;
 
   /* ── Étape 7 : Priorités ── */
+  mainPainPoint: string;
+  decisionMaker: string;
   urgentChallenges: string[];
   urgentChallengesOther: string;
   goLiveTimeline: string;
@@ -82,8 +90,10 @@ export const INITIAL_DATA: OnboardingData = {
   practiceAreas: [],
   practiceAreasOther: "",
   monthlyNewFiles: "",
+  activeFilesCount: "",
   clientType: "",
   clientTypeOther: "",
+  annualRevenue: "",
 
   billingMethod: "",
   billingMethodOther: "",
@@ -94,11 +104,13 @@ export const INITIAL_DATA: OnboardingData = {
   paymentTermsOther: "",
   paymentMethods: [],
   paymentMethodsOther: "",
+  latePaymentIssues: "",
 
   hasTrustAccount: "",
   trustAccountCount: "",
   reconciliationFrequency: "",
   reconciliationFrequencyOther: "",
+  monthlyTrustVolume: "",
   auditIssues: "",
 
   teamStructure: "",
@@ -110,11 +122,15 @@ export const INITIAL_DATA: OnboardingData = {
 
   currentSoftware: "",
   currentSoftwareOther: "",
+  usesTimeTracking: "",
+  documentManagement: "",
   hasDataToMigrate: "",
   dataFormat: "",
   dataFormatOther: "",
   primaryDevice: "",
 
+  mainPainPoint: "",
+  decisionMaker: "",
   urgentChallenges: [],
   urgentChallengesOther: "",
   goLiveTimeline: "",

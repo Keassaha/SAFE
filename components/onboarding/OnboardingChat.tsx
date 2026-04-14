@@ -83,7 +83,7 @@ function uid(): string {
    Constants
    ───────────────────────────────────────────── */
 
-const ESTIMATED_MINUTES = 10;
+const ESTIMATED_MINUTES = 13;
 
 const PHASES: { fr: string; en: string }[] = [
   { fr: "Cabinet", en: "Firm" },
@@ -262,6 +262,30 @@ const QUESTIONS: Question[] = [
     },
   },
   {
+    key: "activeFilesCount",
+    phase: 2,
+    text: {
+      fr: "Combien de dossiers actifs avez-vous en ce moment ?",
+      en: "How many active files do you currently have?",
+    },
+    type: "single",
+    dataKey: "activeFilesCount",
+    options: {
+      fr: [
+        { label: "Moins de 10", value: "under_10" },
+        { label: "10 à 30", value: "10-30" },
+        { label: "31 à 75", value: "31-75" },
+        { label: "75+", value: "75+" },
+      ],
+      en: [
+        { label: "Under 10", value: "under_10" },
+        { label: "10 to 30", value: "10-30" },
+        { label: "31 to 75", value: "31-75" },
+        { label: "75+", value: "75+" },
+      ],
+    },
+  },
+  {
     key: "clientType",
     phase: 2,
     text: {
@@ -283,6 +307,30 @@ const QUESTIONS: Question[] = [
         { label: "Businesses", value: "businesses" },
         { label: "Mixed", value: "mixed" },
         { label: "Other", value: "other", hasTextField: true },
+      ],
+    },
+  },
+  {
+    key: "annualRevenue",
+    phase: 2,
+    text: {
+      fr: "Quel est votre chiffre d'affaires annuel approximatif ?",
+      en: "What is your approximate annual revenue?",
+    },
+    type: "single",
+    dataKey: "annualRevenue",
+    options: {
+      fr: [
+        { label: "Moins de 100 000 $", value: "under_100k" },
+        { label: "100 000 $ à 250 000 $", value: "100k_250k" },
+        { label: "250 000 $ à 500 000 $", value: "250k_500k" },
+        { label: "500 000 $ et plus", value: "500k+" },
+      ],
+      en: [
+        { label: "Under $100,000", value: "under_100k" },
+        { label: "$100,000 to $250,000", value: "100k_250k" },
+        { label: "$250,000 to $500,000", value: "250k_500k" },
+        { label: "$500,000 and over", value: "500k+" },
       ],
     },
   },
@@ -410,6 +458,29 @@ const QUESTIONS: Question[] = [
     },
   },
 
+  {
+    key: "latePaymentIssues",
+    phase: 3,
+    text: {
+      fr: "Avez-vous régulièrement des difficultés à vous faire payer ?",
+      en: "Do you regularly have difficulty getting paid?",
+    },
+    type: "single",
+    dataKey: "latePaymentIssues",
+    options: {
+      fr: [
+        { label: "Rarement", value: "rarely" },
+        { label: "Parfois (1 à 2 cas/mois)", value: "sometimes" },
+        { label: "Souvent (3 cas et plus/mois)", value: "often" },
+      ],
+      en: [
+        { label: "Rarely", value: "rarely" },
+        { label: "Sometimes (1 to 2 cases/month)", value: "sometimes" },
+        { label: "Often (3+ cases/month)", value: "often" },
+      ],
+    },
+  },
+
   // ═══ Phase 4 : Fidéicommis ═══
   {
     key: "hasTrustAccount",
@@ -477,6 +548,31 @@ const QUESTIONS: Question[] = [
         { label: "Quarterly", value: "quarterly" },
         { label: "Yearly", value: "yearly" },
         { label: "Never", value: "never" },
+      ],
+    },
+  },
+  {
+    key: "monthlyTrustVolume",
+    phase: 4,
+    text: {
+      fr: "Quel est votre volume mensuel approximatif en fidéicommis ?",
+      en: "What is your approximate monthly trust account volume?",
+    },
+    type: "single",
+    dataKey: "monthlyTrustVolume",
+    condition: (r) => r.hasTrustAccount === "yes",
+    options: {
+      fr: [
+        { label: "Moins de 10 000 $", value: "under_10k" },
+        { label: "10 000 $ à 50 000 $", value: "10k_50k" },
+        { label: "50 000 $ à 200 000 $", value: "50k_200k" },
+        { label: "Plus de 200 000 $", value: "200k+" },
+      ],
+      en: [
+        { label: "Under $10,000", value: "under_10k" },
+        { label: "$10,000 to $50,000", value: "10k_50k" },
+        { label: "$50,000 to $200,000", value: "50k_200k" },
+        { label: "Over $200,000", value: "200k+" },
       ],
     },
   },
@@ -630,6 +726,54 @@ const QUESTIONS: Question[] = [
     },
   },
   {
+    key: "usesTimeTracking",
+    phase: 6,
+    text: {
+      fr: "Comment suivez-vous actuellement votre temps facturable ?",
+      en: "How do you currently track your billable time?",
+    },
+    type: "single",
+    dataKey: "usesTimeTracking",
+    options: {
+      fr: [
+        { label: "Je ne le suis pas", value: "none" },
+        { label: "Feuille de calcul / Excel", value: "spreadsheet" },
+        { label: "Chronomètre / notes manuelles", value: "manual" },
+        { label: "Logiciel dédié", value: "software" },
+      ],
+      en: [
+        { label: "I don't track it", value: "none" },
+        { label: "Spreadsheet / Excel", value: "spreadsheet" },
+        { label: "Stopwatch / manual notes", value: "manual" },
+        { label: "Dedicated software", value: "software" },
+      ],
+    },
+  },
+  {
+    key: "documentManagement",
+    phase: 6,
+    text: {
+      fr: "Comment gérez-vous vos documents de dossiers ?",
+      en: "How do you manage your case documents?",
+    },
+    type: "single",
+    dataKey: "documentManagement",
+    options: {
+      fr: [
+        { label: "Papier / classeurs", value: "paper" },
+        { label: "Dossiers sur ordinateur local", value: "local" },
+        { label: "Google Drive / OneDrive / Dropbox", value: "cloud_generic" },
+        { label: "Logiciel juridique dédié", value: "legal_software" },
+      ],
+      en: [
+        { label: "Paper / binders", value: "paper" },
+        { label: "Local computer folders", value: "local" },
+        { label: "Google Drive / OneDrive / Dropbox", value: "cloud_generic" },
+        { label: "Dedicated legal software", value: "legal_software" },
+      ],
+    },
+  },
+  {
     key: "hasDataToMigrate",
     phase: 6,
     text: {
@@ -710,6 +854,59 @@ const QUESTIONS: Question[] = [
   },
 
   // ═══ Phase 7 : Priorités ═══
+  {
+    key: "mainPainPoint",
+    phase: 7,
+    text: {
+      fr: "Qu'est-ce qui vous a poussé à chercher une solution comme SAFE ?",
+      en: "What led you to look for a solution like SAFE?",
+    },
+    type: "single",
+    dataKey: "mainPainPoint",
+    otherKey: "urgentChallengesOther",
+    options: {
+      fr: [
+        { label: "Inspection du Barreau à venir", value: "audit_upcoming" },
+        { label: "Trop de temps perdu en administration", value: "admin_overload" },
+        { label: "Mon logiciel actuel ne convient plus", value: "software_outgrown" },
+        { label: "Lancement ou nouveau cabinet", value: "new_firm" },
+        { label: "Recommandation d'un confrère", value: "referral" },
+        { label: "Autre raison", value: "other", hasTextField: true },
+      ],
+      en: [
+        { label: "Upcoming Law Society audit", value: "audit_upcoming" },
+        { label: "Too much time lost on admin", value: "admin_overload" },
+        { label: "My current software no longer fits", value: "software_outgrown" },
+        { label: "Launching or new firm", value: "new_firm" },
+        { label: "Colleague referral", value: "referral" },
+        { label: "Other reason", value: "other", hasTextField: true },
+      ],
+    },
+  },
+  {
+    key: "decisionMaker",
+    phase: 7,
+    text: {
+      fr: "Qui prend la décision d'adopter un nouvel outil dans votre cabinet ?",
+      en: "Who makes the decision to adopt a new tool in your firm?",
+    },
+    type: "single",
+    dataKey: "decisionMaker",
+    options: {
+      fr: [
+        { label: "Moi seul", value: "solo" },
+        { label: "Avec un associé", value: "with_partner" },
+        { label: "Avec toute l'équipe", value: "team" },
+        { label: "Une autre personne décide", value: "other" },
+      ],
+      en: [
+        { label: "Me alone", value: "solo" },
+        { label: "With a partner", value: "with_partner" },
+        { label: "With the whole team", value: "team" },
+        { label: "Someone else decides", value: "other" },
+      ],
+    },
+  },
   {
     key: "urgentChallenges",
     phase: 7,
@@ -808,6 +1005,40 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
       }
       return null;
 
+    case "activeFilesCount":
+      if (value === "75+") {
+        return lang === "fr"
+          ? "75 dossiers actifs, c’est un cabinet bien établi. Le suivi centralisé dans SAFE va changer votre quotidien."
+          : "75+ active files — that’s a well-established firm. Centralized tracking in SAFE will transform your day.";
+      }
+      return null;
+
+    case "annualRevenue":
+      if (value === "500k+") {
+        return lang === "fr"
+          ? "À ce niveau de revenus, chaque heure non facturée coûte cher. SAFE maximise votre taux de recouvrement."
+          : "At this revenue level, every unbilled hour is costly. SAFE maximizes your recovery rate.";
+      }
+      if (value === "under_100k") {
+        return lang === "fr"
+          ? "Parfait pour démarrer. SAFE est conçu pour être rentable dès le premier mois, même en cabinet solo."
+          : "Perfect starting point. SAFE is designed to pay for itself from the first month, even solo.";
+      }
+      return null;
+
+    case "latePaymentIssues":
+      if (value === "often") {
+        return lang === "fr"
+          ? "Les relances automatiques de SAFE réduisent les impayés de façon significative. On s'en occupe pour vous."
+          : "SAFE's automated reminders significantly reduce unpaid invoices. We handle that for you.";
+      }
+      if (value === "sometimes") {
+        return lang === "fr"
+          ? "Même 1 ou 2 impayés par mois représentent des milliers de dollars annuellement. SAFE automatise les relances."
+          : "Even 1 or 2 unpaid invoices per month adds up to thousands annually. SAFE automates follow-ups.";
+      }
+      return null;
+
     case "billingMethod":
       if (value === "mixed") {
         return lang === "fr"
@@ -821,6 +1052,14 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
         return lang === "fr"
           ? "Le fidéicommis est le nerf de la guerre pour le Barreau. On va s’assurer que tout est en ordre."
           : "Trust accounting is critical for the Law Society. We’ll make sure everything is in order.";
+      }
+      return null;
+
+    case "monthlyTrustVolume":
+      if (value === "200k+") {
+        return lang === "fr"
+          ? "Un volume important. La traçabilité automatique de SAFE vous protège en cas d'inspection."
+          : "High volume. SAFE's automatic traceability protects you during any inspection.";
       }
       return null;
 
@@ -866,6 +1105,58 @@ function getReaction(key: string, value: string | string[], lang: Lang, allRespo
         return lang === "fr"
           ? "SAFE est spécifiquement conçu pour les avocats canadiens, avec la conformité Barreau intégrée."
           : "SAFE is specifically built for Canadian lawyers, with built-in Law Society compliance.";
+      }
+      return null;
+
+    case "usesTimeTracking":
+      if (value === "none") {
+        return lang === "fr"
+          ? "Beaucoup d'avocats perdent 20 à 30 % de leurs heures facturables faute de suivi. SAFE intègre un chronomètre par dossier."
+          : "Many lawyers lose 20 to 30% of billable hours without tracking. SAFE includes a per-file timer.";
+      }
+      if (value === "manual") {
+        return lang === "fr"
+          ? "Les notes manuelles font perdre du temps et génèrent des oublis. Le suivi automatique de SAFE règle ça."
+          : "Manual notes waste time and cause missed entries. SAFE's automatic tracking fixes that.";
+      }
+      return null;
+
+    case "documentManagement":
+      if (value === "paper") {
+        return lang === "fr"
+          ? "Passer au numérique avec SAFE libère de l'espace et sécurise vos documents. Tout accessible en quelques secondes."
+          : "Going digital with SAFE frees up space and secures your documents. Everything accessible in seconds.";
+      }
+      if (value === "cloud_generic") {
+        return lang === "fr"
+          ? "SAFE centralise tout : documents, dossiers, facturation. Plus besoin de jongler entre plusieurs outils."
+          : "SAFE centralizes everything: documents, files, billing. No more juggling between tools.";
+      }
+      return null;
+
+    case "mainPainPoint":
+      if (value === "audit_upcoming") {
+        return lang === "fr"
+          ? "Bonne décision d'agir maintenant. SAFE vous prépare pour une inspection en quelques semaines."
+          : "Smart move to act now. SAFE gets you inspection-ready within weeks.";
+      }
+      if (value === "new_firm") {
+        return lang === "fr"
+          ? "Partir du bon pied avec les bons outils, c'est exactement ce que SAFE offre aux nouveaux cabinets."
+          : "Starting right with the right tools is exactly what SAFE offers new firms.";
+      }
+      if (value === "referral") {
+        return lang === "fr"
+          ? "La recommandation d'un confrère est la meilleure preuve. Vous êtes entre de bonnes mains."
+          : "A colleague's recommendation is the best proof. You're in good hands.";
+      }
+      return null;
+
+    case "decisionMaker":
+      if (value === "with_partner" || value === "team") {
+        return lang === "fr"
+          ? "Pas de souci. Je peux préparer une présentation pour votre équipe si vous le souhaitez."
+          : "No problem. I can prepare a presentation for your team if you'd like.";
       }
       return null;
 
