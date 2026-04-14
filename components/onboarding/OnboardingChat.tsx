@@ -95,32 +95,32 @@ const PHASES: { fr: string; en: string }[] = [
 
 const PHASE_TRANSITIONS: Record<number, { fr: string; en: string }> = {
   2: {
-    fr: "✅ Parfait ! J’ai une bonne idée de votre cabinet.\n\n⚖️ Parlons maintenant de votre pratique juridique.",
-    en: "✅ Great! I have a good picture of your firm.\n\n⚖️ Let’s talk about your legal practice now.",
+    fr: "Parfait, j’ai une bonne idée de votre cabinet.\n\nParlons maintenant de votre pratique juridique.",
+    en: "Great, I have a good picture of your firm.\n\nLet’s talk about your legal practice now.",
   },
   3: {
-    fr: "⚖️ Excellent !\n\n💰 Abordons la facturation — c’est là que SAFE fait vraiment la différence.",
-    en: "⚖️ Excellent!\n\n💰 Let’s talk billing — this is where SAFE really makes a difference.",
+    fr: "Excellent.\n\nAbordons maintenant la facturation — c’est là que SAFE fait vraiment la différence.",
+    en: "Excellent.\n\nLet’s talk billing — this is where SAFE really makes a difference.",
   },
   4: {
-    fr: "💰 Bien noté !\n\n🏦 Parlons fidéicommis — un sujet crucial pour la conformité.",
-    en: "💰 Noted!\n\n🏦 Let’s discuss trust accounts — a crucial compliance topic.",
+    fr: "Bien noté.\n\nParlons fidéicommis — un sujet crucial pour la conformité.",
+    en: "Noted.\n\nLet’s discuss trust accounts — a crucial compliance topic.",
   },
   5: {
-    fr: "🏦 Compris !\n\n👥 Quelques questions sur votre équipe et vos accès.",
-    en: "🏦 Got it!\n\n👥 A few questions about your team and access.",
+    fr: "Compris.\n\nQuelques questions sur votre équipe et vos accès.",
+    en: "Got it.\n\nA few questions about your team and access.",
   },
   6: {
-    fr: "👥 Parfait !\n\n🔧 Voyons vos outils actuels et vos besoins de migration.",
-    en: "👥 Perfect!\n\n🔧 Let’s look at your current tools and migration needs.",
+    fr: "Parfait.\n\nVoyons vos outils actuels et vos besoins de migration.",
+    en: "Perfect.\n\nLet’s look at your current tools and migration needs.",
   },
   7: {
-    fr: "🔧 Noté !\n\n🎯 Dernière section : vos priorités et votre timeline.",
-    en: "🔧 Noted!\n\n🎯 Last section: your priorities and timeline.",
+    fr: "Noté.\n\nDernière section : vos priorités et votre timeline.",
+    en: "Noted.\n\nLast section: your priorities and timeline.",
   },
   8: {
-    fr: "🎯 On y est presque !\n\n📅 Planifions votre appel de démarrage.",
-    en: "🎯 Almost there!\n\n📅 Let’s schedule your onboarding call.",
+    fr: "On y est presque.\n\nPlanifions votre appel de démarrage.",
+    en: "Almost there.\n\nLet’s schedule your onboarding call.",
   },
 };
 
@@ -995,8 +995,8 @@ const QUESTIONS: Question[] = [
     key: "contact",
     phase: 8,
     text: {
-      fr: "🎉 Pour finaliser, laissez-moi vos coordonnées et vos préférences pour l’appel de démarrage.",
-      en: "🎉 To finalize, leave me your contact details and preferences for the onboarding call.",
+      fr: "Pour finaliser, laissez-moi vos coordonnées et vos préférences pour l’appel de démarrage.",
+      en: "To finalize, leave me your contact details and preferences for the onboarding call.",
     },
     type: "contact",
     dataKey: "phone",
@@ -1265,7 +1265,7 @@ export default function OnboardingChat() {
           {
             id: uid(),
             sender: "host",
-            text: "👋 Bonjour ! Hello!\n\nJe suis Jérémie Tiahou, fondateur de SAFE. Ce court questionnaire me permettra de configurer votre espace exactement selon votre pratique.\n\nI’m Jérémie Tiahou, founder of SAFE. This short questionnaire will allow me to set up your workspace exactly around your practice.\n\n🌐 Choisissez votre langue / Choose your language:",
+            text: "Bonjour — Hello.\n\nJe suis Jérémie Tiahou, fondateur de SAFE. Ce court questionnaire me permettra de configurer votre espace exactement selon votre pratique.\n\nI’m Jérémie Tiahou, founder of SAFE. This short questionnaire will allow me to set up your workspace exactly around your practice.\n\nChoisissez votre langue / Choose your language :",
             timestamp: Date.now(),
           },
         ]);
@@ -1402,8 +1402,8 @@ export default function OnboardingChat() {
 
       const introMsg =
         selectedLang === "fr"
-          ? "Parfait ! On y va en français.\n\n🔒 Toutes vos réponses sont confidentielles et servent uniquement à configurer votre espace SAFE.\n\nCommençons par les informations de votre cabinet."
-          : "Perfect! Let’s go in English.\n\n🔒 All your answers are confidential and only used to set up your SAFE workspace.\n\nLet’s start with your firm information.";
+          ? "Parfait, on y va en français.\n\nToutes vos réponses sont confidentielles et servent uniquement à configurer votre espace SAFE.\n\nCommençons par les informations de votre cabinet."
+          : "Perfect, let’s go in English.\n\nAll your answers are confidential and only used to set up your SAFE workspace.\n\nLet’s start with your firm information.";
 
       addHostMessage(introMsg).then(() => {
         advanceQuestion(0);
@@ -1961,8 +1961,8 @@ export default function OnboardingChat() {
                 <div className="rounded-safe bg-amber-500/20 border border-amber-400/30 px-4 py-3">
                   <p className="text-xs text-amber-200 font-sans font-medium">
                     {lang === "fr"
-                      ? "🔥 Offre fondateur limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
-                      : "🔥 Founder offer limited to the first 50 firms in Canada. Rate locked for life."}
+                      ? "Offre fondateur — limitée aux 50 premiers cabinets au Canada. Tarif garanti à vie."
+                      : "Founder offer — limited to the first 50 firms in Canada. Rate locked for life."}
                   </p>
                 </div>
               </div>

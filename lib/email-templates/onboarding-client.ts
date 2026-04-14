@@ -41,9 +41,7 @@ export function onboardingClientEmailHtml(
 
   <!-- Header -->
   <div style="background:#235347;padding:32px;text-align:center">
-    <div style="width:48px;height:48px;border-radius:12px;background:#3D6B5A;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
-      <span style="color:#fff;font-size:20px;font-weight:700">S</span>
-    </div>
+    <img src="https://safecabinet.ca/images/safe-mark-s-green.png" alt="SAFE" width="48" height="48" style="display:block;margin:0 auto 12px;border-radius:12px;" />
     <h1 style="color:#fff;margin:0;font-size:22px">${c.subject}</h1>
   </div>
 

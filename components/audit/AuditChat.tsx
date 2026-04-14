@@ -215,12 +215,12 @@ const PHASES = [
 ];
 
 const PHASE_TRANSITIONS: Record<number, string> = {
-  2: "✅ Parfait, j'ai un bon portrait de votre cabinet !\n\n📁 Passons à la gestion de vos dossiers au quotidien.",
-  3: "📁 Très bien !\n\n⏰ Abordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
-  4: "⏰ Noté !\n\n👥 Parlons maintenant de la gestion de votre clientèle — accueil, conflits d'intérêts et conformité.",
-  5: "👥 Merci pour ces réponses importantes !\n\n💰 Passons à la facturation et au recouvrement — la santé financière de votre cabinet.",
-  6: "💰 Bien reçu !\n\n🏦 Abordons le fidéicommis et la comptabilité — le cœur de la conformité réglementaire.",
-  7: "🏦 Presque terminé !\n\n🛡️ Dernière section : vos opérations quotidiennes et votre conformité en matière de protection des données.",
+  2: "Parfait, j'ai un bon portrait de votre cabinet.\n\nPassons à la gestion de vos dossiers au quotidien.",
+  3: "Très bien.\n\nAbordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
+  4: "Noté.\n\nParlons maintenant de la gestion de votre clientèle — accueil, conflits d'intérêts et conformité.",
+  5: "Merci pour ces réponses.\n\nPassons à la facturation et au recouvrement — la santé financière de votre cabinet.",
+  6: "Bien reçu.\n\nAbordons le fidéicommis et la comptabilité — le cœur de la conformité réglementaire.",
+  7: "Presque terminé.\n\nDernière section : vos opérations quotidiennes et votre conformité en matière de protection des données.",
 };
 
 const QUESTIONS: Question[] = [
@@ -231,8 +231,8 @@ const QUESTIONS: Question[] = [
     text: "Dans quelle province exercez-vous principalement ?",
     type: "single",
     options: [
-      { label: "🍁 Québec", value: "quebec" },
-      { label: "🏛️ Ontario", value: "ontario" },
+      { label: "Québec", value: "quebec" },
+      { label: "Ontario", value: "ontario" },
       { label: "🌊 Colombie-Britannique", value: "bc" },
       { label: "🏔️ Alberta", value: "alberta" },
       { label: "Autre province / territoire", value: "autre", hasTextField: true },
@@ -494,7 +494,7 @@ const QUESTIONS: Question[] = [
   {
     key: "hourly_rate",
     phase: 5,
-    text: "💰 Quel est votre taux horaire principal ?",
+    text: "Quel est votre taux horaire principal ?",
     type: "single",
     condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("horaire") || r.billing_mode.includes("mixte")),
     options: [
@@ -507,7 +507,7 @@ const QUESTIONS: Question[] = [
   {
     key: "flat_fee_range",
     phase: 5,
-    text: "💰 En moyenne, quel est le montant de vos forfaits par mandat ?",
+    text: "En moyenne, quel est le montant de vos forfaits par mandat ?",
     type: "single",
     condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("forfait") || r.billing_mode.includes("per_item")),
     options: [
@@ -521,7 +521,7 @@ const QUESTIONS: Question[] = [
   {
     key: "per_item_volume",
     phase: 5,
-    text: "📊 En moyenne, combien de mandats ou transactions traitez-vous par mois ?",
+    text: "En moyenne, combien de mandats ou transactions traitez-vous par mois ?",
     type: "single",
     condition: (r) => Array.isArray(r.billing_mode) && (r.billing_mode.includes("forfait") || r.billing_mode.includes("per_item")),
     options: [
@@ -534,7 +534,7 @@ const QUESTIONS: Question[] = [
   {
     key: "annual_revenue",
     phase: 5,
-    text: "📈 Pour nous aider à évaluer l'impact financier de nos recommandations, pourriez-vous estimer le chiffre d'affaires annuel de votre cabinet ?",
+    text: "Pour nous aider à évaluer l'impact financier de nos recommandations, pourriez-vous estimer le chiffre d'affaires annuel de votre cabinet ?",
     type: "single",
     options: [
       { label: "Moins de 100 000 $", value: "moins_100k" },
@@ -766,7 +766,7 @@ const QUESTIONS: Question[] = [
   {
     key: "contact",
     phase: 7,
-    text: "🎉 Votre audit est presque terminé ! Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
+    text: "Votre audit est presque terminé. Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
     type: "contact",
   },
 ];
@@ -778,11 +778,11 @@ const QUESTIONS: Question[] = [
 function getReaction(key: string, value: string | number | string[], allResponses: Partial<AuditResponses>): string | null {
   switch (key) {
     case "province":
-      if (value === "quebec") return "🏛️ Parfait ! L'audit sera calibré selon les exigences du Barreau du Québec (' + reg.accountingRule + ') et de la Loi 25.";
-      if (value === "ontario") return "🏛️ Très bien ! L'audit sera adapté au Law Society of Ontario (By-Law 9) et à PIPEDA.";
-      if (value === "bc") return "🏛️ Noté ! L'audit tiendra compte des règles du Law Society of British Columbia.";
-      if (value === "alberta") return "🏛️ Compris ! L'audit sera adapté au Law Society of Alberta.";
-      return "🏛️ Merci ! L'audit s'adaptera aux exigences de votre juridiction.";
+      if (value === "quebec") return "L'audit sera calibré selon les exigences du Barreau du Québec (" + reg.accountingRule + ") et de la Loi 25.";
+      if (value === "ontario") return "L'audit sera adapté au Law Society of Ontario (By-Law 9) et à PIPEDA.";
+      if (value === "bc") return "L'audit tiendra compte des règles du Law Society of British Columbia.";
+      if (value === "alberta") return "L'audit sera adapté au Law Society of Alberta.";
+      return "L'audit s'adaptera aux exigences de votre juridiction.";
 
     case "practice_type":
       if (value === "solo") return "La pratique solo demande une polyvalence remarquable. Vous portez plusieurs chapeaux — raison de plus pour avoir des systèmes solides.";
@@ -879,7 +879,7 @@ function getReaction(key: string, value: string | number | string[], allResponse
       return null;
 
     case "billing_mode":
-      if (Array.isArray(value) && value.length >= 3) return "📋 Plusieurs modes de facturation — ça demande une rigueur supplémentaire dans la documentation.";
+      if (Array.isArray(value) && value.length >= 3) return "Plusieurs modes de facturation — ça demande une rigueur supplémentaire dans la documentation.";
       if (Array.isArray(value) && value.includes("per_item")) return "La facturation à l'acte nécessite une grille tarifaire bien documentée.";
       if (Array.isArray(value) && value.includes("aide_juridique")) return "L'aide juridique a des tarifs gouvernementaux fixes — important de bien les suivre.";
       return null;
@@ -1474,7 +1474,7 @@ export default function AuditChat() {
           {
             id: uid(),
             sender: "auditor",
-            text: "👋 Bonjour ! Je suis Me Audrey Fortier, auditrice spécialisée en efficacité des cabinets juridiques.\n\n📋 Cet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\n🔒 Tout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
+            text: "Bonjour. Je suis Me Audrey Fortier, auditrice spécialisée en efficacité des cabinets juridiques.\n\nCet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nTout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
             timestamp: Date.now(),
           },
         ]);

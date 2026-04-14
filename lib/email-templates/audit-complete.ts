@@ -9,6 +9,7 @@ export function auditCompleteEmailHtml(
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #F8FDF9;">
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #051F20, #235347); padding: 32px 24px; text-align: center; border-radius: 12px 12px 0 0;">
+        <img src="https://safecabinet.ca/images/safe-mark-s-green.png" alt="SAFE" width="48" height="48" style="display:block;margin:0 auto 12px;border-radius:12px;" />
         <h1 style="color: #DAF1DE; font-size: 24px; margin: 0 0 8px 0; font-weight: 700;">SAFE</h1>
         <p style="color: #8EB69B; font-size: 14px; margin: 0;">Votre audit de cabinet est termine</p>
       </div>
