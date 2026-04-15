@@ -112,7 +112,7 @@ function determinePlan(userCount: number): CalculationResult["plan"] {
     return { name: { fr: "Solo", en: "Solo" }, price: 79 };
   }
   if (userCount <= 5) {
-    return { name: { fr: "Cabinet", en: "Firm" }, price: 249 };
+    return { name: { fr: "Cabinet", en: "Firm" }, price: 149 };
   }
   // 6 utilisateurs et plus → plan Cabinet+
   return { name: { fr: "Cabinet+", en: "Firm+" }, price: 449 };

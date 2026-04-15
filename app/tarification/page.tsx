@@ -65,9 +65,9 @@ const PLANS = [
   },
   {
     name: "Cabinet",
-    monthlyPrice: 249,
-    annualPrice: 199,
-    annualSaving: "600",
+    monthlyPrice: 149,
+    annualPrice: 119,
+    annualSaving: "360",
     description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
     features: [
       "Jusqu'à 5 utilisateurs",
