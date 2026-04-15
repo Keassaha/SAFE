@@ -29,7 +29,7 @@ export function AppChrome({ children, role, user, cabinetId }: AppChromeProps) {
           onOpenMobileNav={() => setMobileNavOpen(true)}
         />
         <main
-          className="flex-1 px-4 md:px-8 py-6 overflow-y-auto flex flex-col relative bg-[var(--safe-neutral-page)]"
+          className="flex-1 px-3 sm:px-4 md:px-8 py-4 sm:py-6 overflow-y-auto flex flex-col relative bg-[var(--safe-neutral-page)] overscroll-contain"
           role="main"
         >
           <div className="relative z-10 w-full max-w-7xl mx-auto">

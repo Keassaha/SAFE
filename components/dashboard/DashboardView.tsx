@@ -63,15 +63,15 @@ export function DashboardView({ payload }: DashboardViewProps) {
       {/*  HEADER                                                           */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <motion.div variants={itemVariants}>
-        <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
+        <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-4 sm:p-6 shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 sm:gap-3">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight">
                 SAFE — {t("overview").toUpperCase()}
               </h1>
-              <p className="text-sm text-white/70 mt-0.5">{dateFormatted}</p>
+              <p className="text-xs sm:text-sm text-white/70 mt-0.5">{dateFormatted}</p>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-white/60">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/60">
               <Database className="w-3 h-3" />
               <span>Sources : Journal de transaction + Fiche de temps + tblClientMaster</span>
             </div>

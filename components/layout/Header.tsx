@@ -42,7 +42,7 @@ export function Header({
   }, []);
 
   return (
-    <header className="h-20 shrink-0 flex items-center justify-between px-3 sm:px-4 md:px-8 gap-2 sm:gap-4 bg-white border-b border-[var(--safe-neutral-border)]">
+    <header className="h-14 sm:h-20 shrink-0 flex items-center justify-between px-3 sm:px-4 md:px-8 gap-2 sm:gap-4 bg-white border-b border-[var(--safe-neutral-border)]">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         {onOpenMobileNav ? (
           <button
@@ -56,7 +56,7 @@ export function Header({
         ) : null}
         <Link
           href={routes.tableauDeBord}
-          className="shrink-0 hidden sm:flex lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-600/30 rounded-safe-sm"
+          className="shrink-0 flex lg:hidden transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-600/30 rounded-safe-sm"
         >
           <span className="sr-only">{title}</span>
           <SafeLogo variant="dark" className="shrink-0" />
@@ -67,14 +67,14 @@ export function Header({
           </label>
           <div className="relative">
             <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-gray-400 pointer-events-none"
               aria-hidden
             />
             <input
               id="header-search"
               type="search"
               placeholder={t("searchPlaceholder")}
-              className="w-full h-12 pl-12 pr-20 rounded-safe-md bg-white border border-gray-100 outline-none transition-all duration-200 text-sm text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-transparent shadow-sm"
+              className="w-full h-10 sm:h-12 pl-10 sm:pl-12 pr-4 sm:pr-20 rounded-safe-md bg-white border border-gray-100 outline-none transition-all duration-200 text-sm text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-transparent shadow-sm"
             />
             <kbd className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center gap-0.5 rounded-safe-sm border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 font-mono">
               <span>⌘</span>K
@@ -103,9 +103,9 @@ export function Header({
           )}
         </button>
 
-        <div className="flex items-center gap-3 bg-white pr-4 pl-1.5 py-1.5 rounded-full border border-gray-100 cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-2 sm:gap-3 bg-white pr-2 sm:pr-4 pl-1.5 py-1.5 rounded-full border border-gray-100 cursor-pointer shadow-sm hover:shadow-md transition-shadow">
           <div
-            className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center text-white text-sm font-semibold"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-800 flex items-center justify-center text-white text-xs sm:text-sm font-semibold"
             aria-hidden
           >
             {user?.name?.[0] ?? user?.email?.[0] ?? "?"}
@@ -118,7 +118,7 @@ export function Header({
         <button
           type="button"
           onClick={() => void signOutClient("/")}
-          className="text-gray-500 sm:ml-2 px-2 sm:px-3 py-2 text-sm font-medium rounded-safe transition-colors duration-200 hover:text-green-800 hover:bg-green-50 whitespace-nowrap"
+          className="text-gray-500 hidden sm:inline-flex sm:ml-2 px-2 sm:px-3 py-2 text-sm font-medium rounded-safe transition-colors duration-200 hover:text-green-800 hover:bg-green-50 whitespace-nowrap"
         >
           {t("signOut")}
         </button>

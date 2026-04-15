@@ -18,6 +18,36 @@
   transform: translateZ(0);
 }
 
+/* ── Mobile touch UX ── */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets on touch devices */
+  button, a, [role="tab"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Prevent text-size adjust on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  /* Smoother scrolling on touch */
+  .overflow-y-auto, .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Remove hover sticky on touch devices */
+  @supports (hover: none) {
+    .hover\:bg-primary-50\/40:hover,
+    .hover\:bg-green-50\/50:hover {
+      background-color: transparent;
+    }
+  }
+}
+
+/* ── Overscroll behavior for main scroll areas ── */
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
 /* ============================================
    SAFE Design System — Emerald + Amber
    LegalTech professional palette (natural stone layers)

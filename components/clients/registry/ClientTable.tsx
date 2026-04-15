@@ -144,7 +144,7 @@ export function ClientTable({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <>
       {canArchive && selectedIds.size > 0 && (
         <div className="flex items-center gap-3 px-4 py-2 bg-primary-50 border-b border-primary-100">
           <span className="text-sm font-medium text-primary-800">
@@ -168,184 +168,243 @@ export function ClientTable({
           </button>
         </div>
       )}
-      <table className="min-w-full">
-        <thead>
-          <tr className="border-b border-neutral-border bg-neutral-surface/50">
-            {canArchive && (
-              <th className="px-4 py-3 w-10">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.size === clients.length && clients.length > 0}
-                  onChange={toggleSelectAll}
-                  className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
-                  aria-label={t("selectAll")}
-                />
-              </th>
-            )}
-            <th className="px-4 py-3 text-left">
-              <SortHeader
-                label={tc("name")}
-                field="raisonSociale"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
+
+      {/* ── Mobile card view ── */}
+      <div className="md:hidden space-y-2 px-1">
+        {clients.map((row) => (
+          <Link
+            key={row.id}
+            href={routes.client(row.id)}
+            className="block rounded-safe-sm border border-neutral-border bg-white p-3 active:bg-primary-50/40 transition-colors"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <span className="flex-shrink-0 w-9 h-9 rounded-full bg-neutral-200 border-2 border-neutral-300 flex items-center justify-center text-sm font-medium text-neutral-700">
+                {initials(row)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <span className="text-sm font-medium text-neutral-text-primary block truncate">
+                  {displayName(row)}
+                </span>
+                {(row.email || row.telephone) && (
+                  <span className="text-xs text-neutral-muted block truncate">
+                    {row.email ?? row.telephone}
+                  </span>
+                )}
+              </div>
+              <StatusBadge
+                label={
+                  row.status === "actif"
+                    ? t("statusActive")
+                    : row.status === "inactif"
+                      ? t("statusInactive")
+                      : t("statusArchived")
+                }
+                variant={
+                  row.status === "actif"
+                    ? "success"
+                    : row.status === "inactif"
+                      ? "warning"
+                      : "neutral"
+                }
               />
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
-              {t("contactInfo")}
-            </th>
-            <th className="px-4 py-3 text-left">
-              <SortHeader
-                label={t("assignedLawyer")}
-                field="assignedLawyer"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
-              {t("language")}
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
-              {t("activeMatters")}
-            </th>
-            <th className="px-4 py-3 text-left">
-              <SortHeader
-                label={t("unbilled")}
-                field="trustAccountBalance"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 text-left">
-              <SortHeader
-                label={tc("status")}
-                field="status"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 text-left">
-              <SortHeader
-                label={t("lastActivity")}
-                field="updatedAt"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-neutral-muted uppercase tracking-wider w-16">
-              {tc("actions")}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {clients.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b border-neutral-border/80 transition-colors duration-200 hover:bg-primary-50/40"
-            >
+            </div>
+            <div className="flex items-center gap-4 text-xs text-neutral-muted">
+              <span>{row.dossiersActifsCount} {t("activeMatters").toLowerCase()}</span>
+              <span>{formatCurrency(row.trustAccountBalance)}</span>
+              {row.lastActivityAt && (
+                <span className="ml-auto">
+                  {new Intl.DateTimeFormat("fr-CA", {
+                    day: "numeric",
+                    month: "short",
+                  }).format(row.lastActivityAt)}
+                </span>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Desktop table view ── */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b border-neutral-border bg-neutral-surface/50">
               {canArchive && (
-                <td className="px-4 py-3">
+                <th className="px-4 py-3 w-10">
                   <input
                     type="checkbox"
-                    checked={selectedIds.has(row.id)}
-                    onChange={() => toggleSelect(row.id)}
+                    checked={selectedIds.size === clients.length && clients.length > 0}
+                    onChange={toggleSelectAll}
                     className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
-                    aria-label={t("selectClient", { name: row.raisonSociale ?? "" })}
+                    aria-label={t("selectAll")}
+                  />
+                </th>
+              )}
+              <th className="px-4 py-3 text-left">
+                <SortHeader
+                  label={tc("name")}
+                  field="raisonSociale"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+                {t("contactInfo")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader
+                  label={t("assignedLawyer")}
+                  field="assignedLawyer"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+                {t("language")}
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+                {t("activeMatters")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader
+                  label={t("unbilled")}
+                  field="trustAccountBalance"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader
+                  label={tc("status")}
+                  field="status"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader
+                  label={t("lastActivity")}
+                  field="updatedAt"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-neutral-muted uppercase tracking-wider w-16">
+                {tc("actions")}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {clients.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-neutral-border/80 transition-colors duration-200 hover:bg-primary-50/40"
+              >
+                {canArchive && (
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(row.id)}
+                      onChange={() => toggleSelect(row.id)}
+                      className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                      aria-label={t("selectClient", { name: row.raisonSociale ?? "" })}
+                    />
+                  </td>
+                )}
+                <td className="px-4 py-3">
+                  <Link
+                    href={routes.client(row.id)}
+                    className="flex items-center gap-3 group"
+                  >
+                    <span className="flex-shrink-0 w-9 h-9 rounded-full bg-neutral-200 border-2 border-neutral-300 flex items-center justify-center text-sm font-medium text-neutral-700">
+                      {initials(row)}
+                    </span>
+                    <span className="text-sm font-medium text-neutral-text-primary group-hover:text-primary-700">
+                      {displayName(row)}
+                    </span>
+                  </Link>
+                </td>
+                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                  <div className="flex flex-col">
+                    {row.email && (
+                      <a
+                        href={`mailto:${row.email}`}
+                        className="text-primary-700 hover:underline"
+                      >
+                        {row.email}
+                      </a>
+                    )}
+                    {row.telephone && (
+                      <span className="text-neutral-muted">{row.telephone}</span>
+                    )}
+                    {!row.email && !row.telephone && "—"}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                  {row.assignedLawyerNom ?? "—"}
+                </td>
+                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                  {row.langue ?? "—"}
+                </td>
+                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                  {row.dossiersActifsCount === 0
+                    ? t("noCases")
+                    : row.dossiersActifsCount}
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  <span className="text-neutral-text-primary">
+                    {formatCurrency(row.trustAccountBalance)}
+                  </span>
+                  {row.trustAccountBalance > 0 && (
+                    <span className="block text-xs text-status-success">{t("billable")}</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    label={
+                      row.status === "actif"
+                        ? t("statusActive")
+                        : row.status === "inactif"
+                          ? t("statusInactive")
+                          : t("statusArchived")
+                    }
+                    variant={
+                      row.status === "actif"
+                        ? "success"
+                        : row.status === "inactif"
+                          ? "warning"
+                          : "neutral"
+                    }
                   />
                 </td>
-              )}
-              <td className="px-4 py-3">
-                <Link
-                  href={routes.client(row.id)}
-                  className="flex items-center gap-3 group"
-                >
-                  <span className="flex-shrink-0 w-9 h-9 rounded-full bg-neutral-200 border-2 border-neutral-300 flex items-center justify-center text-sm font-medium text-neutral-700">
-                    {initials(row)}
-                  </span>
-                  <span className="text-sm font-medium text-neutral-text-primary group-hover:text-primary-700">
-                    {displayName(row)}
-                  </span>
-                </Link>
-              </td>
-              <td className="px-4 py-3 text-sm text-neutral-text-secondary">
-                <div className="flex flex-col">
-                  {row.email && (
-                    <a
-                      href={`mailto:${row.email}`}
-                      className="text-primary-700 hover:underline"
-                    >
-                      {row.email}
-                    </a>
-                  )}
-                  {row.telephone && (
-                    <span className="text-neutral-muted">{row.telephone}</span>
-                  )}
-                  {!row.email && !row.telephone && "—"}
-                </div>
-              </td>
-              <td className="px-4 py-3 text-sm text-neutral-text-secondary">
-                {row.assignedLawyerNom ?? "—"}
-              </td>
-              <td className="px-4 py-3 text-sm text-neutral-text-secondary">
-                {row.langue ?? "—"}
-              </td>
-              <td className="px-4 py-3 text-sm text-neutral-text-secondary">
-                {row.dossiersActifsCount === 0
-                  ? t("noCases")
-                  : row.dossiersActifsCount}
-              </td>
-              <td className="px-4 py-3 text-sm">
-                <span className="text-neutral-text-primary">
-                  {formatCurrency(row.trustAccountBalance)}
-                </span>
-                {row.trustAccountBalance > 0 && (
-                  <span className="block text-xs text-status-success">{t("billable")}</span>
-                )}
-              </td>
-              <td className="px-4 py-3">
-                <StatusBadge
-                  label={
-                    row.status === "actif"
-                      ? t("statusActive")
-                      : row.status === "inactif"
-                        ? t("statusInactive")
-                        : t("statusArchived")
-                  }
-                  variant={
-                    row.status === "actif"
-                      ? "success"
-                      : row.status === "inactif"
-                        ? "warning"
-                        : "neutral"
-                  }
-                />
-              </td>
-              <td className="px-4 py-3 text-sm text-neutral-muted">
-                {row.lastActivityAt
-                  ? new Intl.DateTimeFormat("fr-CA", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }).format(row.lastActivityAt)
-                  : "—"}
-              </td>
-              <td className="px-4 py-3 text-right">
-                <ClientRowActions
-                  clientId={row.id}
-                  canEdit={canEdit}
-                  canArchive={canArchive}
-                  hasCases={row.dossiersActifsCount > 0}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <td className="px-4 py-3 text-sm text-neutral-muted">
+                  {row.lastActivityAt
+                    ? new Intl.DateTimeFormat("fr-CA", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      }).format(row.lastActivityAt)
+                    : "—"}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <ClientRowActions
+                    clientId={row.id}
+                    canEdit={canEdit}
+                    canArchive={canArchive}
+                    hasCases={row.dossiersActifsCount > 0}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
