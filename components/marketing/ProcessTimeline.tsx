@@ -3,129 +3,278 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import {
-  ClipboardCheck,
   Phone,
-  Cog,
-  PackageCheck,
+  Settings,
+  Rocket,
+  MessageSquare,
+  Check,
+  Users,
+  Calendar,
+  Zap,
   ArrowRight,
+  Video,
+  Headphones,
 } from "lucide-react";
-import Image from "next/image";
 
-const STEPS = [
-  {
-    number: "01",
-    icon: ClipboardCheck,
-    title: "Audit d'efficacité",
-    duration: "10 min",
-    description:
-      "Répondez à quelques questions sur votre cabinet. En 10 minutes, vous recevez un rapport personnalisé : conformité, efficacité, points de risque — un portrait clair de votre situation.",
-    image: "/images/process/audit.jpg",
-    alt: "Avocate remplissant l'audit d'efficacité SAFE sur son ordinateur",
-    accent: { icon: "text-emerald-400", bg: "bg-emerald-500/15", border: "border-emerald-400/25", overlay: "from-emerald-950/80" },
-  },
-  {
-    number: "02",
-    icon: Phone,
-    title: "Consultation téléphonique",
-    duration: "30 min",
-    description:
-      "On revoit ensemble les résultats de votre audit. On creuse vos besoins spécifiques, on identifie le plan idéal et on répond à toutes vos questions. Sans engagement.",
-    image: "/images/process/consultation.jpg",
-    alt: "Professionnel en consultation téléphonique dans un bureau moderne",
-    accent: { icon: "text-blue-400", bg: "bg-blue-500/15", border: "border-blue-400/25", overlay: "from-blue-950/80" },
-  },
-  {
-    number: "03",
-    icon: Cog,
-    title: "Préparation de votre système",
-    duration: "7-14 jours",
-    description:
-      "Jérémie configure SAFE selon votre pratique : interface, automatisations, comptes fidéicommis, facturation, migration de vos données. Vous continuez de pratiquer normalement.",
-    image: "/images/process/preparation.jpg",
-    alt: "Configuration du système SAFE pour un cabinet d'avocats",
-    accent: { icon: "text-amber-400", bg: "bg-amber-500/15", border: "border-amber-400/25", overlay: "from-amber-950/80" },
-  },
-  {
-    number: "04",
-    icon: PackageCheck,
-    title: "Livraison du système",
-    duration: "Jour 15-30",
-    description:
-      "Votre système est prêt. On forme votre équipe, on valide que tout fonctionne et on vous accompagne pendant 30 jours. Vous êtes opérationnel sans avoir perdu une seule journée facturable.",
-    image: "/images/process/livraison.jpg",
-    alt: "Équipe célébrant la livraison du système SAFE",
-    accent: { icon: "text-violet-400", bg: "bg-violet-500/15", border: "border-violet-400/25", overlay: "from-violet-950/80" },
-  },
-];
-
-function StepCard({ step, idx }: { step: typeof STEPS[number]; idx: number }) {
+/* ───── Step 1: Découverte — Video call card ───── */
+function DiscoveryAnimation() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: idx * 0.12 }}
-      className="flex flex-col group"
-    >
-      {/* Image with overlay */}
-      <div className="relative mb-5 rounded-safe-md overflow-hidden aspect-[4/3]">
-        <Image
-          src={step.image}
-          alt={step.alt}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
-        {/* Dark gradient overlay */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${step.accent.overlay} via-transparent to-transparent`} />
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-blue-400/20 bg-gradient-to-br from-blue-950 to-[#0a1a2e] overflow-hidden relative p-5">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="flex items-center justify-between mb-5"
+      >
+        <div className="flex items-center gap-2">
+          <Video className="w-4 h-4 text-blue-400" />
+          <span className="text-xs font-semibold text-white font-sans">Appel découverte</span>
+        </div>
+        <span className="px-3 py-1 rounded-full bg-blue-500/20 text-xs text-blue-300 font-medium font-sans">
+          30 min
+        </span>
+      </motion.div>
 
-        {/* Step number badge */}
+      {/* Two participants */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ delay: 0.3 + idx * 0.12, type: "spring" }}
-          className={`absolute top-4 left-4 w-10 h-10 rounded-full ${step.accent.bg} border ${step.accent.border} backdrop-blur-sm flex items-center justify-center`}
+          transition={{ delay: 0.4 }}
+          className="rounded-safe bg-blue-500/10 border border-blue-400/15 p-4 flex flex-col items-center justify-center"
         >
-          <span className={`text-sm font-bold font-sans ${step.accent.icon}`}>{step.number}</span>
-        </motion.div>
-
-        {/* Duration badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.4 + idx * 0.12 }}
-          className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/40 backdrop-blur-sm border border-white/10"
-        >
-          <span className="text-[10px] text-white font-sans font-medium">{step.duration}</span>
-        </motion.div>
-
-        {/* Bottom icon overlay */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.5 + idx * 0.12 }}
-          className="absolute bottom-4 left-4 flex items-center gap-2"
-        >
-          <div className={`w-8 h-8 rounded-lg ${step.accent.bg} border ${step.accent.border} backdrop-blur-sm flex items-center justify-center`}>
-            <step.icon className={`w-4 h-4 ${step.accent.icon}`} />
+          <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-400/20 flex items-center justify-center mb-2">
+            <Users className="w-5 h-5 text-blue-400" />
           </div>
-          <span className="text-sm font-semibold text-white font-sans drop-shadow-lg">
-            {step.title}
-          </span>
+          <span className="text-xs text-white/80 font-sans font-medium">Votre cabinet</span>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ delay: 0.6 }}
+          className="rounded-safe bg-emerald-500/10 border border-emerald-400/15 p-4 flex flex-col items-center justify-center"
+        >
+          <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400/20 flex items-center justify-center mb-2">
+            <span className="text-base font-bold text-emerald-400 font-sans">S</span>
+          </div>
+          <span className="text-xs text-white/80 font-sans font-medium">Équipe SAFE</span>
         </motion.div>
       </div>
 
-      {/* Text below */}
-      <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm">
-        {step.description}
-      </p>
-    </motion.div>
+      {/* Agenda items */}
+      {[
+        { text: "Pratique & spécialisation", done: true },
+        { text: "Outils actuels", done: true },
+        { text: "Besoins en conformité", done: false },
+      ].map((item, i) => (
+        <motion.div
+          key={item.text}
+          initial={{ opacity: 0, x: -10 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ delay: 0.8 + i * 0.15 }}
+          className="flex items-center gap-2 py-1.5"
+        >
+          <div className={`w-4 h-4 rounded-safe-sm flex items-center justify-center ${
+            item.done ? "bg-blue-500/25" : "border border-white/15"
+          }`}>
+            {item.done && <Check className="w-2.5 h-2.5 text-blue-400" />}
+          </div>
+          <span className={`text-xs font-sans ${item.done ? "text-white/90" : "text-white/50"}`}>{item.text}</span>
+        </motion.div>
+      ))}
+    </div>
   );
 }
+
+/* ───── Step 2: Configuration — Settings dashboard ───── */
+function ConfigAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  const configItems = [
+    { label: "Taux horaires", done: true, color: "bg-amber-400" },
+    { label: "Modèles de facture", done: true, color: "bg-amber-400" },
+    { label: "Comptes fidéicommis", done: true, color: "bg-amber-400" },
+    { label: "Listes de taxes", done: false, color: "bg-white/20" },
+    { label: "Rôles utilisateurs", done: false, color: "bg-white/20" },
+  ];
+
+  const progress = (configItems.filter((c) => c.done).length / configItems.length) * 100;
+
+  return (
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-amber-400/20 bg-gradient-to-br from-amber-950 to-[#1a1408] overflow-hidden p-5">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-between mb-4"
+      >
+        <div className="flex items-center gap-2">
+          <Settings className="w-4 h-4 text-amber-400" />
+          <span className="text-xs font-semibold text-white font-sans">Configuration</span>
+        </div>
+        <span className="text-xs text-amber-300 font-medium font-sans">3/5</span>
+      </motion.div>
+
+      {/* Progress bar */}
+      <div className="w-full h-2 rounded-full bg-white/5 mb-5 overflow-hidden">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400"
+          initial={{ width: "0%" }}
+          animate={inView ? { width: `${progress}%` } : {}}
+          transition={{ delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </div>
+
+      {/* Config checklist */}
+      <div className="space-y-2.5">
+        {configItems.map((item, i) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, x: -15 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.5 + i * 0.12, duration: 0.4 }}
+            className={`flex items-center gap-3 p-3 rounded-safe-sm ${
+              item.done ? "bg-amber-500/10 border border-amber-400/10" : "bg-white/[0.03] border border-white/5"
+            }`}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={inView ? { scale: 1 } : {}}
+              transition={{ delay: 0.7 + i * 0.12, type: "spring" }}
+              className={`w-5 h-5 rounded-safe-sm flex items-center justify-center ${
+                item.done ? "bg-amber-500/25" : "border border-white/15"
+              }`}
+            >
+              {item.done && <Check className="w-3 h-3 text-amber-400" />}
+            </motion.div>
+            <span className={`text-xs font-sans font-medium ${item.done ? "text-white" : "text-white/40"}`}>
+              {item.label}
+            </span>
+            {item.done && (
+              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ───── Step 3: Lancement — Launch timeline ───── */
+function LaunchAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  const milestones = [
+    { label: "Jour 1-3", desc: "Formation de l'équipe", icon: Users, color: "text-emerald-400", bg: "bg-emerald-500/20" },
+    { label: "Jour 4-14", desc: "Migration des données", icon: Zap, color: "text-cyan-400", bg: "bg-cyan-500/20" },
+    { label: "Jour 15-30", desc: "Accompagnement dédié", icon: Headphones, color: "text-violet-400", bg: "bg-violet-500/20" },
+  ];
+
+  return (
+    <div ref={ref} className="w-full aspect-[4/3] rounded-safe-md border border-emerald-400/20 bg-gradient-to-br from-emerald-950 to-[#081a12] overflow-hidden p-5 relative">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-between mb-5"
+      >
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-semibold text-white font-sans">Plan de lancement</span>
+        </div>
+        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-xs text-emerald-300 font-medium font-sans">
+          30 jours
+        </span>
+      </motion.div>
+
+      {/* Timeline milestones */}
+      <div className="relative ml-2 pl-6 border-l-2 border-emerald-400/20 space-y-4">
+        {milestones.map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, x: -15 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.4 + i * 0.2, duration: 0.5 }}
+            className="relative"
+          >
+            {/* Timeline dot */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={inView ? { scale: 1 } : {}}
+              transition={{ delay: 0.5 + i * 0.2, type: "spring" }}
+              className="absolute -left-[31px] w-4 h-4 rounded-full bg-emerald-500/30 border-2 border-emerald-400/40 flex items-center justify-center"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            </motion.div>
+
+            <div className={`flex items-center gap-3 p-3 rounded-safe-sm ${m.bg}/10 border border-white/5`}>
+              <div className={`w-9 h-9 rounded-safe-sm ${m.bg} flex items-center justify-center shrink-0`}>
+                <m.icon className={`w-4 h-4 ${m.color}`} />
+              </div>
+              <div>
+                <div className={`text-xs ${m.color} font-sans font-semibold`}>{m.label}</div>
+                <div className="text-xs text-white font-sans">{m.desc}</div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Rocket icon */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 1.2, duration: 0.6 }}
+        className="absolute bottom-4 right-4"
+      >
+        <motion.div
+          animate={inView ? { y: [0, -4, 0] } : {}}
+          transition={{ delay: 1.5, duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-10 h-10 rounded-safe bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center"
+        >
+          <Rocket className="w-5 h-5 text-emerald-400" />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+const stepAnimations = [DiscoveryAnimation, ConfigAnimation, LaunchAnimation];
+
+const STEPS = [
+  {
+    number: "01",
+    icon: Phone,
+    title: "Audit gratuit",
+    description:
+      "On évalue votre cabinet en 10 minutes. Conformité, efficacité, points de risque. Vous recevez un rapport personnalisé avec un portrait clair de votre situation.",
+    accent: { icon: "text-blue-400", bg: "bg-blue-500/15", border: "border-blue-400/25" },
+  },
+  {
+    number: "02",
+    icon: Settings,
+    title: "Consultation téléphonique",
+    description:
+      "Un appel de 30 minutes pour creuser les résultats de votre audit, comprendre vos besoins spécifiques et définir la configuration idéale pour votre cabinet.",
+    accent: { icon: "text-amber-400", bg: "bg-amber-500/15", border: "border-amber-400/25" },
+  },
+  {
+    number: "03",
+    icon: Rocket,
+    title: "Création de votre système",
+    description:
+      "On configure SAFE selon votre pratique : interface, automatisations, comptes en fidéicommis, modèles de facturation. Vous choisissez votre plan et vous êtes opérationnel en 30 jours.",
+    accent: { icon: "text-emerald-400", bg: "bg-emerald-500/15", border: "border-emerald-400/25" },
+  },
+];
 
 export function ProcessTimeline() {
   return (
@@ -151,7 +300,7 @@ export function ProcessTimeline() {
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
           >
             De votre réalité à votre système.{" "}
-            <span className="italic text-[var(--safe-sage)]">En quatre étapes.</span>
+            <span className="italic text-[var(--safe-sage)]">En trois étapes.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -164,32 +313,46 @@ export function ProcessTimeline() {
           </motion.p>
         </div>
 
-        {/* Steps grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {STEPS.map((step, idx) => (
-            <StepCard key={step.number} step={step} idx={idx} />
-          ))}
-        </div>
+        {/* Steps with animations */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+          {STEPS.map((step, idx) => {
+            const AnimComponent = stepAnimations[idx];
+            return (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: idx * 0.15 }}
+                className="flex flex-col"
+              >
+                {/* Animated visual */}
+                <div className="mb-6">
+                  <AnimComponent />
+                </div>
 
-        {/* Arrow flow — desktop only */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="hidden lg:flex items-center justify-center gap-4 mt-12"
-        >
-          {STEPS.map((step, idx) => (
-            <div key={step.number} className="flex items-center gap-4">
-              <div className={`w-8 h-8 rounded-full ${step.accent.bg} border ${step.accent.border} flex items-center justify-center`}>
-                <span className={`text-xs font-bold font-sans ${step.accent.icon}`}>{step.number}</span>
-              </div>
-              {idx < STEPS.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-[var(--safe-text-muted)]/40" />
-              )}
-            </div>
-          ))}
-        </motion.div>
+                {/* Step label */}
+                <span className="text-xs font-mono text-[var(--safe-text-muted)] tracking-wider mb-2 block font-sans">
+                  ÉTAPE {step.number}
+                </span>
+
+                {/* Icon + Title */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-safe border ${step.accent.border} ${step.accent.bg} flex items-center justify-center shrink-0`}>
+                    <step.icon className={`w-5 h-5 ${step.accent.icon}`} />
+                  </div>
+                  <h3 className="text-xl font-bold text-[var(--safe-white)] font-sans tracking-tight">
+                    {step.title}
+                  </h3>
+                </div>
+
+                <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans text-sm">
+                  {step.description}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
