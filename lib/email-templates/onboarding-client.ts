@@ -56,7 +56,9 @@ export function onboardingClientEmailHtml(
     <div style="background:#F8FDF9;border:1px solid #DAF1DE;border-radius:8px;padding:16px;margin-bottom:24px;text-align:center">
       <p style="font-size:13px;color:#6B8F7B;margin:0 0 4px">${c.planLabel}</p>
       <p style="font-size:24px;font-weight:700;color:#235347;margin:0">
-        ${calc.plan.name[lang]} — ${calc.plan.price}$<span style="font-size:14px;font-weight:400;color:#6B8F7B">/${lang === "fr" ? "mois" : "month"}</span>
+        ${calc.plan.name[lang]} — ${calc.plan.price === 0
+          ? (lang === "fr" ? "Sur devis" : "Custom quote")
+          : `${calc.plan.price}$<span style="font-size:14px;font-weight:400;color:#6B8F7B">/${lang === "fr" ? "mois" : "month"}</span>`}
       </p>
     </div>
 
@@ -70,7 +72,7 @@ export function onboardingClientEmailHtml(
     <div style="border-top:1px solid #e5e5e5;padding-top:16px;margin-top:16px">
       <p style="font-size:14px;font-weight:600;color:#333;margin:0">Jeremie Tiahou</p>
       <p style="font-size:13px;color:#6B8F7B;margin:2px 0">${lang === "fr" ? "Fondateur" : "Founder"}, SAFE</p>
-      <p style="font-size:13px;color:#6B8F7B;margin:2px 0">ptiahou@gmail.com</p>
+      <p style="font-size:13px;color:#6B8F7B;margin:2px 0">bonjour@safe.quebec</p>
       <p style="font-size:13px;color:#6B8F7B;margin:2px 0">(819) 271-8656</p>
       <p style="font-size:13px;margin:2px 0"><a href="https://safecabinet.ca" style="color:#235347">safecabinet.ca</a></p>
     </div>
