@@ -14,11 +14,17 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import type { RapportsPayload } from "@/lib/rapports/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { RapportsFilters } from "./RapportsFilters";
-import { DashboardFinancier } from "./DashboardFinancier";
 import { RapportFacturationTable } from "./RapportFacturationTable";
+
+/* Lazy-load recharts-heavy component */
+const DashboardFinancier = dynamic(
+  () => import("./DashboardFinancier").then(m => ({ default: m.DashboardFinancier })),
+  { loading: () => <div className="h-80 bg-neutral-100 rounded-safe-sm animate-pulse" /> }
+);
 import { ComptesRecevoirSection } from "./ComptesRecevoirSection";
 import { PerformanceAvocatsTable } from "./PerformanceAvocatsTable";
 import { RentabiliteDossierTable } from "./RentabiliteDossierTable";

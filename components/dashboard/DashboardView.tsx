@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Database } from "lucide-react";
@@ -14,8 +15,6 @@ import {
 } from "@/lib/motion";
 import type { DashboardPayload } from "@/lib/dashboard/types";
 import { DashboardKPICards } from "./DashboardKPICards";
-import { RevenueChart } from "./RevenueChart";
-import { MonthlyComparisonChart } from "./MonthlyComparisonChart";
 import { LawyerProductivityTable } from "./LawyerProductivityTable";
 import { OutstandingAccountsTable } from "./OutstandingAccountsTable";
 import { IndicatorsPanel } from "./IndicatorsPanel";
@@ -23,6 +22,16 @@ import { GettingStarted } from "./GettingStarted";
 import { AlertsPanel } from "./AlertsPanel";
 import { DashboardTasksAndAppointments } from "./DashboardTasksAndAppointments";
 import { BillingPipeline } from "./BillingPipeline";
+
+/* Lazy-load heavy recharts components — saves ~200KB on initial dashboard load */
+const RevenueChart = dynamic(
+  () => import("./RevenueChart").then(m => ({ default: m.RevenueChart })),
+  { loading: () => <div className="h-72 bg-neutral-100 rounded-safe-sm animate-pulse" /> }
+);
+const MonthlyComparisonChart = dynamic(
+  () => import("./MonthlyComparisonChart").then(m => ({ default: m.MonthlyComparisonChart })),
+  { loading: () => <div className="h-72 bg-neutral-100 rounded-safe-sm animate-pulse" /> }
+);
 
 export interface DashboardViewProps {
   payload: DashboardPayload;

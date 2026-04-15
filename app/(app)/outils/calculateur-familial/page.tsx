@@ -6,7 +6,6 @@ import { routes } from "@/lib/routes";
 const SafeFamilyCalculator = dynamic(
   () => import("@/components/outils/SafeFamilyCalculator").then(m => ({ default: m.SafeFamilyCalculator })),
   {
-    ssr: false,
     loading: () => (
       <div className="animate-pulse space-y-4">
         <div className="h-11 bg-neutral-200 rounded-safe-sm w-full max-w-md" />

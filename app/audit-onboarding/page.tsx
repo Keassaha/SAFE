@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
 const OnboardingChat = dynamic(() => import("@/components/onboarding/OnboardingChat"), {
-  ssr: false,
   loading: () => (
     <div className="flex-1 flex items-center justify-center h-screen">
       <div className="animate-pulse space-y-4 w-full max-w-xl px-4">

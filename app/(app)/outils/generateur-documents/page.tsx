@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 const SafeDocGeneratorWizard = dynamic(
   () => import("@/components/outils/SafeDocGeneratorWizard").then(m => ({ default: m.SafeDocGeneratorWizard })),
   {
-    ssr: false,
     loading: () => (
       <div className="animate-pulse space-y-4">
         <div className="flex gap-2">

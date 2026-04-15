@@ -3,7 +3,6 @@ import dynamic from "next/dynamic";
 import { Navbar } from "@/components/marketing/Navbar";
 
 const AuditChat = dynamic(() => import("@/components/audit/AuditChat"), {
-  ssr: false,
   loading: () => (
     <div className="flex-1 flex items-center justify-center">
       <div className="animate-pulse space-y-4 w-full max-w-xl px-4">
