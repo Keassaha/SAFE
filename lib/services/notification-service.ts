@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
 
 export interface SendNotificationParams {
   cabinetId: string;
@@ -37,6 +38,14 @@ export async function sendClientNotification(params: SendNotificationParams) {
   // Check opt-out (future: add notificationOptOut field to Client)
   // For now, all clients receive notifications
 
+  // Send the email via Resend
+  let emailStatus = "sent";
+  try {
+    await sendEmail({ to: client.email, subject, html: body });
+  } catch {
+    emailStatus = "failed";
+  }
+
   // Log the notification
   const log = await prisma.notificationLog.create({
     data: {
@@ -47,15 +56,12 @@ export async function sendClientNotification(params: SendNotificationParams) {
       channel: "email",
       sentTo: client.email,
       subject,
-      status: "sent", // Will be "queued" when email service is integrated
+      status: emailStatus,
       metadata: metadata ? JSON.stringify(metadata) : null,
     },
   });
 
-  // TODO: Integrate with Resend/SendGrid to actually send the email
-  // await resend.emails.send({ to: client.email, subject, html: body });
-
-  return { sent: true, notificationId: log.id, sentTo: client.email };
+  return { sent: emailStatus === "sent", notificationId: log.id, sentTo: client.email };
 }
 
 /** Generate notification content for a status change */
