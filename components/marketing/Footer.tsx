@@ -11,7 +11,7 @@ const footerLinks = {
   legal: [
     { label: "Politique de confidentialité", href: "/confidentialite" },
     { label: "Conditions d'utilisation", href: "/conditions" },
-    { label: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
+    { label: "bonjour@safe.quebec", href: "mailto:bonjour@safe.quebec" },
   ],
 };
 

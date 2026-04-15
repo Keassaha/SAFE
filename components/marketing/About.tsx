@@ -11,10 +11,10 @@ import {
 const stats = [
   {
     icon: MapPin,
-    title: "Données hébergées au Canada",
-    description: "Serveurs à Montréal et Toronto, conformes aux lois canadiennes sur la vie privée.",
-    stat: "100%",
-    statLabel: "canadien",
+    title: "Une interface adaptée à votre pratique",
+    description: "Chaque cabinet est différent. Droit familial, immigration, criminel, corporatif. SAFE s'adapte à votre réalité : vos types de mandats, vos flux de travail, votre équipe.",
+    stat: "Sur mesure",
+    statLabel: "",
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",
@@ -27,10 +27,10 @@ const stats = [
   },
   {
     icon: ShieldCheck,
-    title: "Zéro compromis sur la conformité",
-    description: "Chaque fonctionnalité est validée pour respecter le Règlement B-1 r.5 du Barreau.",
-    stat: "0",
-    statLabel: "compromis",
+    title: "Des employés virtuels qui gèrent le récurrent",
+    description: "Facturation, réconciliation du fidéicommis, relances, rapports. Nos agents IA prennent en charge les tâches répétitives pour que vous restiez sur vos dossiers.",
+    stat: "Automatisé",
+    statLabel: "",
     accent: {
       icon: "text-violet-400",
       bg: "bg-violet-500/15",
@@ -43,10 +43,10 @@ const stats = [
   },
   {
     icon: Activity,
-    title: "Accès sécurisé à vos dossiers",
-    description: "Disponibilité garantie avec sauvegardes automatiques et chiffrement bout en bout.",
+    title: "Un système qui travaille même quand vous dormez",
+    description: "Alertes de conformité, échéanciers, rappels de délais. SAFE surveille ce que vous n'avez pas le temps de surveiller.",
     stat: "24/7",
-    statLabel: "disponible",
+    statLabel: "",
     accent: {
       icon: "text-cyan-400",
       bg: "bg-cyan-500/15",
@@ -188,7 +188,7 @@ export function About() {
             viewport={{ once: true }}
             className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--safe-sage)] mb-4"
           >
-            Le vrai problème
+            Comment ça fonctionne
           </motion.p>
 
           <motion.h2
@@ -198,8 +198,8 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
-            Vous n&apos;avez pas fait le Barreau pour devenir{" "}
-            <span className="italic text-[var(--safe-sage)]">comptable.</span>
+            On cerne votre réalité. On bâtit{" "}
+            <span className="italic text-[var(--safe-sage)]">votre solution.</span>
           </motion.h2>
 
           <motion.p
@@ -209,8 +209,7 @@ export function About() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
-            SAFE automatise la conformité et la facturation pour que vous puissiez
-            redevenir avocat.
+            SAFE s&apos;adapte à votre cabinet et à votre type de pratique. Pas le contraire.
           </motion.p>
         </div>
 

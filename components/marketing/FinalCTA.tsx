@@ -64,7 +64,7 @@ export function FinalCTA() {
 
         {/* Final nudge */}
         <p className="text-xs text-[var(--safe-text-muted)]/40 font-sans">
-          Le tarif fondateur passera de 99$ à 149$/mois après les 50 premières inscriptions.
+          Le tarif fondateur est réservé aux 50 premières inscriptions. Tarif garanti à vie.
         </p>
       </div>
     </section>

@@ -45,38 +45,27 @@ export function Hero() {
             </span>
           </motion.div>
 
-          {/* Pain point hook — tension immediate */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="text-base sm:text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-4 sm:mb-5 font-sans"
-          >
-            10h récupérées par mois. Fidéicommis réconcilié en 1 clic. Inspection prête en permanence.
-          </motion.p>
-
-          {/* Headline — fully visible on load, simple fade-in */}
+          {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[1.08] tracking-[-0.02em] text-[var(--safe-white)] mb-6 sm:mb-8"
           >
-            Passez l&apos;inspection du Barreau{" "}
+            Un système conçu pour votre cabinet.{" "}
             <span className="italic text-[var(--safe-sage)]">
-              les yeux fermés.
+              Pas l&apos;inverse.
             </span>
           </motion.h1>
 
-          {/* Subtitle — solution with specificity */}
+          {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="text-base sm:text-lg lg:text-xl text-[var(--safe-text-muted)] max-w-2xl mx-auto mb-3 leading-relaxed font-sans"
           >
-            Facturation, fidéicommis et conformité au Barreau automatisés.
-            Vous pratiquez le droit, SAFE s&apos;occupe du reste.
+            SAFE est un système sécurisé de gestion de cabinet qui vous fait économiser du temps et de l&apos;argent. On commence par comprendre votre réalité, on identifie ce qui vous ralentit, et on bâtit une solution sur mesure pour le résoudre.
           </motion.p>
 
           {/* Social proof micro-line */}

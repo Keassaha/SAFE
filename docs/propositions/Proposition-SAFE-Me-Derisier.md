@@ -88,7 +88,7 @@ Tous les plans sont disponibles en facturation mensuelle ou annuelle. **En chois
 
 ---
 
-### Plan Cabinet — 249 $/mois (ou 199 $/mois en annuel) ⭐ Recommandé
+### Plan Cabinet — 149 $/mois (ou 119 $/mois en annuel) ⭐ Recommandé
 
 **Idéal si votre cabinet compte plusieurs professionnels ou si vous souhaitez une conformité complète avec alertes proactives.**
 

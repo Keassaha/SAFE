@@ -1632,7 +1632,7 @@ export default function OnboardingChat() {
                 <p className="text-xs text-[var(--safe-sage)] font-sans mb-4">
                   {calculationResult.plan.price === 79
                     ? (lang === "fr" ? "Pour avocat solo — 1 utilisateur" : "For solo lawyer — 1 user")
-                    : calculationResult.plan.price === 249
+                    : calculationResult.plan.price === 149
                     ? (lang === "fr" ? "Pour cabinet — 2 à 5 utilisateurs" : "For firm — 2 to 5 users")
                     : (lang === "fr" ? "Pour cabinet établi — 6 à 15 utilisateurs" : "For established firm — 6 to 15 users")}
                 </p>
@@ -1710,7 +1710,7 @@ export default function OnboardingChat() {
                 </div>
                 <div className="rounded-safe bg-white/70 border border-green-200 p-4 text-center">
                   <p className="text-2xl font-bold text-green-600 font-sans">
-                    +{((calculationResult.plan.price === 79 ? 2500 : calculationResult.plan.price === 249 ? 4000 : 6000) - calculationResult.plan.price).toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $
+                    +{((calculationResult.plan.price === 79 ? 2500 : calculationResult.plan.price === 149 ? 4000 : 6000) - calculationResult.plan.price).toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $
                   </p>
                   <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
                     {lang === "fr" ? "économisés / mois" : "saved / month"}
