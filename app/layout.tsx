@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Instrument_Serif, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { MotionProvider } from "@/components/providers/MotionProvider";
 import { authOptions } from "@/lib/auth";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -17,27 +18,18 @@ export const viewport: Viewport = {
 
 const inter = Inter({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
+  preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-sans-serif",
-  display: "swap",
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -68,11 +60,13 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${jetbrainsMono.variable} ${plusJakartaSans.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <SessionProvider session={session ?? null}>{children}</SessionProvider>
+          <SessionProvider session={session ?? null}>
+            <MotionProvider>{children}</MotionProvider>
+          </SessionProvider>
           <Toaster richColors position="top-right" />
         </NextIntlClientProvider>
       </body>

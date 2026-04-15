@@ -1,6 +1,23 @@
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SafeDocGeneratorWizard } from "@/components/outils/SafeDocGeneratorWizard";
+import dynamic from "next/dynamic";
+
+const SafeDocGeneratorWizard = dynamic(
+  () => import("@/components/outils/SafeDocGeneratorWizard").then(m => ({ default: m.SafeDocGeneratorWizard })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse space-y-4">
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-8 w-24 bg-neutral-200 rounded-safe-sm" />
+          ))}
+        </div>
+        <div className="h-60 bg-neutral-100 rounded-safe-sm" />
+      </div>
+    ),
+  }
+);
 
 export default async function GenerateurDocumentsPage() {
   await requireCabinetAndUser();

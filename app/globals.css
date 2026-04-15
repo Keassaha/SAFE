@@ -750,6 +750,31 @@
   animation: blob-drift-2 20s ease-in-out infinite reverse;
 }
 
+/* ── Mobile: disable blob animations, reduce size & blur for GPU perf ── */
+@media (max-width: 768px) {
+  .landing-blob {
+    filter: blur(40px);
+    opacity: 0.3;
+    animation: none !important;
+  }
+  .landing-blob-1 { width: 250px; height: 250px; }
+  .landing-blob-2 { width: 200px; height: 200px; }
+  .landing-blob-3 { width: 180px; height: 180px; }
+  .landing-blob-4 { width: 150px; height: 150px; }
+}
+
+/* ── Respect prefers-reduced-motion globally ── */
+@media (prefers-reduced-motion: reduce) {
+  .landing-blob,
+  .typing-dot,
+  [class*="blob"] {
+    animation: none !important;
+  }
+  .safe-landing-glow::before {
+    animation: none !important;
+  }
+}
+
 /* Grain texture overlay */
 .landing-grain::after {
   content: "";
