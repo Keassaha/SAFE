@@ -51,6 +51,9 @@ model Cabinet {
   dossierReminders        DossierReminder[]
   auditSubmissions        AuditSubmission[]
   interfaceConfig         CabinetInterface?
+  trustReconciliations    TrustReconciliation[]
+  trustComplianceReports  TrustComplianceReport[]
+  notificationLogs        NotificationLog[]
 }
 
 enum UserRole {
@@ -100,6 +103,9 @@ model User {
   mandateSubstitut          DossierMandate[] @relation("MandateAvocatSubstitut")
   trustMovementsValidated   DossierTrustMovement[] @relation("TrustMovementValidatedBy")
   dossierClosuresClosed     DossierClosure[] @relation("DossierClosureClosedBy")
+  reconciliationsCertified  TrustReconciliation[] @relation("ReconciliationCertifiedBy")
+  complianceReportsGenerated TrustComplianceReport[] @relation("ComplianceReportGeneratedBy")
+  conflictChecksPerformed    ConflictCheck[] @relation("ConflictCheckPerformedBy")
   resetToken                String?
   resetTokenExpiry          DateTime?
 }
@@ -370,6 +376,7 @@ enum DossierType {
   litige_civil
   criminel
   immigration
+  immobilier
   corporate
   autre
 }
@@ -407,6 +414,26 @@ model Dossier {
   dateOuverture              DateTime               @default(now())
   dateCloture                DateTime?
   retentionJusqua            DateTime?
+
+  // Immobilier-specific fields (D2)
+  sousType                   String?                // "achat" | "vente" | "condo" | "hypotheque" | "ee" | "parrainage" | "travail" | "appel"
+  closingDate                DateTime?
+  propertyAddress            String?
+  fintracVerified            Boolean                @default(false)
+  fintracVerifiedAt          DateTime?
+  fintracVerifiedById        String?
+  fintracDocuments           String?                // JSON: { doc1: "type", doc2: "type" }
+  condoPINParking            String?
+  condoPINLocker             String?
+
+  // Immigration-specific fields (D3)
+  irccStatut                 String?                // "consultation" | "preparation" | "soumission" | "biometrie" | "suivi" | "decision" | "cloture"
+  irccNumDossier             String?                // IRCC application number
+  itaDate                    DateTime?              // Date ITA reçu (Express Entry — 60j deadline)
+  submissionDeadline         DateTime?              // Calculé auto: itaDate + 60j
+  cnpCode                    String?                // National Occupation Classification
+  cnpValidated               Boolean                @default(false)
+
   createdAt                  DateTime               @default(now())
   updatedAt                  DateTime               @updatedAt
 
@@ -438,6 +465,11 @@ model Dossier {
   trustMovements       DossierTrustMovement[]
   closure              DossierClosure?
   reminders            DossierReminder[]
+  immigrationBackground ImmigrationBackground?
+  immigrationDocuments  ImmigrationDocument[]
+  conflictChecks        ConflictCheck[]
+  notificationLogs      NotificationLog[]
+  billingStages         DossierBillingStage[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -1037,6 +1069,7 @@ model Invoice {
   interestCharges   InterestCharge[]
   deboursDossiers   DeboursDossier[]
   trustTransactions TrustTransaction[]
+  billingStages     DossierBillingStage[]
 
   @@index([cabinetId])
   @@index([cabinetId, statut])
@@ -1446,19 +1479,22 @@ model Expense {
 
 // --- Catalogue des types de débours (tblDebours) ---
 model DeboursType {
-  id          String   @id @default(cuid())
-  cabinetId   String
-  nom         String
-  categorie   String
-  description String?
-  taxable     Boolean  @default(false)
-  coutDefaut  Float?
-  actif       Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  cabinetId       String
+  nom             String
+  categorie       String
+  description     String?
+  taxable         Boolean  @default(false)
+  isGovernment    Boolean  @default(false) // Frais gouvernementaux (IRCC, LTT, etc.) — non-taxable
+  gouvernementRef String?  // "IRCC", "LTT", "FINTRAC", etc.
+  coutDefaut      Float?
+  actif           Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   cabinet          Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   deboursDossiers  DeboursDossier[]
+  deboursTemplates DeboursTemplate[]
 
   @@index([cabinetId])
   @@index([cabinetId, categorie])
@@ -1895,4 +1931,199 @@ model CabinetInterface {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// --- Rapprochement fidéicommis (By-Law 9 / B-1 r.5) ---
+model TrustReconciliation {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  cabinet       Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  periode       String   // "2026-04" (YYYY-MM)
+
+  // Données 3-way reconciliation
+  soldeBancaire    Float    // Solde selon relevé bancaire
+  chequesEnCirculation Float @default(0) // Chèques émis non encaissés
+  depotsEnTransit  Float    @default(0) // Dépôts non encore crédités
+  soldeRapproche   Float    // soldeBancaire - chequesEnCirculation + depotsEnTransit
+  soldeRegistre    Float    // Somme transactions SAFE (source de vérité)
+  soldeParDossier  Float    // Somme TrustAccount.currentBalance
+  ecart            Float    @default(0) // soldeRapproche - soldeRegistre (doit être 0)
+
+  // Certification par l'avocat
+  certifiedAt    DateTime?
+  certifiedById  String?
+  certifiedBy    User?    @relation("ReconciliationCertifiedBy", fields: [certifiedById], references: [id], onDelete: SetNull)
+
+  // Intérêts Law Foundation of Ontario / Barreau
+  interetsLFO      Float    @default(0)
+  interetsPayesAt  DateTime?
+
+  status        String   @default("draft") // "draft" | "complete" | "certified"
+  notes         String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  complianceReports TrustComplianceReport[]
+
+  @@unique([cabinetId, periode])
+  @@index([cabinetId])
+  @@index([cabinetId, status])
+}
+
+// --- Rapport conformité fidéicommis (PDF exportable) ---
+model TrustComplianceReport {
+  id              String   @id @default(cuid())
+  cabinetId       String
+  cabinet         Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  periode         String   // "2026-04"
+  type            String   @default("monthly") // "monthly" | "quarterly" | "annual"
+  generatedAt     DateTime @default(now())
+  generatedById   String
+  generatedBy     User     @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
+
+  pdfUrl          String?  // URL Supabase Storage
+  status          String   @default("draft") // "draft" | "final"
+  data            String?  // JSON: snapshot transactions
+
+  reconciliationId String?
+  reconciliation   TrustReconciliation? @relation(fields: [reconciliationId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, periode])
+}
+
+// --- Déclaration antécédents immigration (D7) ---
+model ImmigrationBackground {
+  id                  String   @id @default(cuid())
+  dossierId           String   @unique
+  dossier             Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  priorRefusal        Boolean  @default(false)
+  priorRefusalDetails String?
+  overstay            Boolean  @default(false)
+  overstayDetails     String?
+  criminalRecord      Boolean  @default(false)
+  criminalDetails     String?
+  deportation         Boolean  @default(false)
+  deportationDetails  String?
+  misrepresentation   Boolean  @default(false)
+  misrepresentationDetails String?
+
+  clientSignedAt      DateTime?
+  completedAt         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([dossierId])
+}
+
+// --- Suivi documents immigration avec expiration (D8) ---
+model ImmigrationDocument {
+  id          String   @id @default(cuid())
+  dossierId   String
+  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  type        String   // "medical" | "police_cert" | "biometrics" | "language_test" | "education_credential"
+  label       String?  // Human-readable label
+  issuedAt    DateTime?
+  expiresAt   DateTime? // Calculated based on type (medical: 12mo, biometrics: 10yr)
+
+  alertSent30d Boolean @default(false)
+  alertSent7d  Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([expiresAt])
+}
+
+// --- Vérification conflits d'intérêts (C3) ---
+model ConflictCheck {
+  id              String   @id @default(cuid())
+  cabinetId       String
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  checkedAt       DateTime @default(now())
+  checkedById     String
+  checkedBy       User     @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+
+  clientName      String   // Name searched
+  conflictsFound  Boolean  @default(false)
+  conflicts       String?  // JSON: [{ dossierId, clientName, relation, dossierIntitule }]
+
+  resolution      String?  // "confirmed_no_conflict" | "waived_by_client" | "declined" | null
+  resolvedAt      DateTime?
+  resolutionNotes String?
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, checkedAt])
+}
+
+// --- Notifications client (COM1, COM2) ---
+model NotificationLog {
+  id          String   @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId   String?
+  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  clientId    String?
+
+  type        String   // "status_change" | "closing_reminder" | "ircc_update" | "document_expiry"
+  channel     String   @default("email") // "email" | "sms"
+
+  sentAt      DateTime @default(now())
+  sentTo      String   // email address
+  subject     String
+  status      String   @default("sent") // "sent" | "failed" | "bounced"
+
+  metadata    String?  // JSON: { oldStatus, newStatus, closingDate, etc. }
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, sentAt])
+}
+
+// --- Facturation par étape (B4) ---
+model DossierBillingStage {
+  id          String   @id @default(cuid())
+  dossierId   String
+  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  nom         String   // "Preparation", "Submission", "Follow-up"
+  ordre       Int
+  montant     Float
+  pourcentage Float?   // e.g. 50, 25, 25
+
+  statut      String   @default("pending") // "pending" | "ready" | "invoiced"
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  invoicedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dossierId, ordre])
+}
+
+// --- Templates de débours attendus par type de dossier (B6) ---
+model DeboursTemplate {
+  id            String  @id @default(cuid())
+  cabinetId     String
+  dossierType   String  // "immobilier", "immigration", "immobilier_condo", etc.
+  deboursTypeId String
+  isRequired    Boolean @default(false) // true = bloquant, false = suggestion
+
+  deboursType   DeboursType @relation(fields: [deboursTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, dossierType, deboursTypeId])
+  @@index([cabinetId, dossierType])
 }

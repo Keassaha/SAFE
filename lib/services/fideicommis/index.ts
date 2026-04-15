@@ -1,5 +1,5 @@
 /**
- * Module fidéicommis — soldes et transactions.
+ * Module fidéicommis — soldes, transactions et rapprochement.
  */
 
 export { getTrustBalance, getGlobalTrustBalance } from "./trust-balance-service";
@@ -11,3 +11,19 @@ export {
   type CreateTrustWithdrawalParams,
   type CreateTrustCorrectionParams,
 } from "./trust-transaction-service";
+export {
+  createReconciliation,
+  certifyReconciliation,
+  getLatestReconciliation,
+  getReconciliations,
+  getReconciliation,
+  getReconciliationStatus,
+  type CreateReconciliationParams,
+  type CertifyReconciliationParams,
+} from "./reconciliation-service";
+export {
+  generateReportData,
+  createComplianceReport,
+  getComplianceReports,
+  type GenerateReportParams,
+} from "./lso-report-service";

@@ -122,6 +122,54 @@ export async function createTrustDeposit(params: CreateTrustDepositParams): Prom
   return { transactionId: tx.id };
 }
 
+/**
+ * Validates that a withdrawal does not constitute a cross-allocation between
+ * trust (client) funds and operating (firm) accounts.
+ * By-Law 9 LSO / B-1 r.5 Barreau QC — commingling is prohibited.
+ */
+async function validateNoCrossAllocation(params: {
+  cabinetId: string;
+  clientId: string;
+  dossierId: string;
+  factureId?: string | null;
+  createdById?: string | null;
+}): Promise<void> {
+  const { cabinetId, clientId, factureId, createdById } = params;
+
+  if (!factureId) return; // Simple withdrawal, not cross-allocation
+
+  // Ensure the invoice belongs to the SAME client as the trust account
+  const invoice = await prisma.invoice.findFirst({
+    where: { id: factureId, cabinetId },
+    select: { clientId: true },
+  });
+
+  if (invoice && invoice.clientId !== clientId) {
+    // Log the blocked attempt
+    await createAuditLog({
+      cabinetId,
+      userId: createdById ?? undefined,
+      entityType: "TrustTransaction",
+      entityId: "BLOCKED",
+      action: "create",
+      metadata: { blocked: true, reason: "TRUST_CROSS_ALLOCATION_BLOCKED" },
+      newValues: {
+        attemptedClientId: clientId,
+        invoiceClientId: invoice.clientId,
+        factureId,
+      },
+      performedBy: createdById ?? undefined,
+      performedAt: new Date(),
+    });
+
+    throw new Error(
+      "Transfer between trust accounts of different clients is prohibited. " +
+      "Trust funds for one client cannot be applied to another client's invoice. " +
+      "(By-Law 9, LSO / B-1 r.5, Barreau QC)"
+    );
+  }
+}
+
 /** Enregistre un retrait. Vérifie le solde avant ; si factureId fourni, met à jour la facture. */
 export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams): Promise<{ transactionId: string }> {
   const {
@@ -139,6 +187,9 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
 
   if (montant <= 0) throw new Error("Le montant du retrait doit être strictement positif");
   if (!clientId || !dossierId) throw new Error("Client et dossier sont obligatoires");
+
+  // F5: Cross-allocation protection (By-Law 9 / B-1 r.5)
+  await validateNoCrossAllocation({ cabinetId, clientId, dossierId, factureId, createdById });
 
   const balance = await getTrustBalance({ cabinetId, clientId, dossierId });
   if (montant > balance) {

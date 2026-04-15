@@ -10,6 +10,13 @@ import {
 import { routes } from "@/lib/routes";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { ImmobilierFields } from "@/components/dossiers/ImmobilierFields";
+import { FintracChecklist } from "@/components/dossiers/FintracChecklist";
+import { ImmigrationWorkflow } from "@/components/dossiers/ImmigrationWorkflow";
+import { BackgroundDeclarationForm } from "@/components/dossiers/BackgroundDeclarationForm";
+import { DocumentExpiryTracker } from "@/components/dossiers/DocumentExpiryTracker";
+import { ConflictCheckWidget } from "@/components/dossiers/ConflictCheckWidget";
+import { BillingStageConfig } from "@/components/facturation/BillingStageConfig";
 import type { Dossier, Client, User } from "@prisma/client";
 
 export function DossierForm({
@@ -21,7 +28,7 @@ export function DossierForm({
   error,
   canEditSensitive,
 }: {
-  dossier?: Dossier & { client?: Client };
+  dossier?: Dossier & { client?: Pick<Client, "prenom" | "nom" | "raisonSociale"> };
   clients: Client[];
   avocats?: Pick<User, "id" | "nom">[];
   assistants?: Pick<User, "id" | "nom">[];
@@ -125,10 +132,45 @@ export function DossierForm({
           <option value="litige_civil">{t("typeCivilLitigation")}</option>
           <option value="criminel">{t("typeCriminal")}</option>
           <option value="immigration">{t("typeImmigration")}</option>
+          <option value="immobilier">Real Estate</option>
           <option value="corporate">{t("typeCorporate")}</option>
           <option value="autre">{t("typeOther")}</option>
         </select>
       </div>
+
+      {/* Immobilier-specific fields (D2) */}
+      {(dossier?.type === "immobilier" || (!isEdit)) && (
+        <div id="immobilier-section" className={dossier?.type === "immobilier" || !isEdit ? "" : "hidden"}>
+          <ImmobilierFields
+            sousType={(dossier as { sousType?: string | null })?.sousType}
+            closingDate={
+              (dossier as { closingDate?: Date | null })?.closingDate
+                ? new Date((dossier as { closingDate: Date }).closingDate).toISOString().slice(0, 10)
+                : null
+            }
+            propertyAddress={(dossier as { propertyAddress?: string | null })?.propertyAddress}
+            condoPINParking={(dossier as { condoPINParking?: string | null })?.condoPINParking}
+            condoPINLocker={(dossier as { condoPINLocker?: string | null })?.condoPINLocker}
+            isEdit={isEdit}
+          />
+          <div className="mt-4">
+            <FintracChecklist
+              fintracVerified={(dossier as { fintracVerified?: boolean })?.fintracVerified}
+              fintracDocuments={
+                (dossier as { fintracDocuments?: string | null })?.fintracDocuments
+                  ? JSON.parse((dossier as { fintracDocuments: string }).fintracDocuments)
+                  : null
+              }
+              closingDate={
+                (dossier as { closingDate?: Date | null })?.closingDate
+                  ? new Date((dossier as { closingDate: Date }).closingDate).toISOString().slice(0, 10)
+                  : null
+              }
+              isEdit={isEdit}
+            />
+          </div>
+        </div>
+      )}
       <div>
         <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
           {tc("status")}
@@ -245,6 +287,47 @@ export function DossierForm({
           )}
         </>
       )}
+      {/* Immigration sections (D3, D6, D7, D8, B4) — only in edit mode */}
+      {isEdit && dossier?.type === "immigration" && (
+        <div className="space-y-4">
+          <ImmigrationWorkflow dossierId={dossier.id} />
+          <BillingStageConfig dossierId={dossier.id} />
+          <BackgroundDeclarationForm dossierId={dossier.id} />
+          <DocumentExpiryTracker dossierId={dossier.id} />
+        </div>
+      )}
+
+      {/* Immigration sousType for new dossiers */}
+      {!isEdit && (
+        <div id="immigration-sous-type-section" className="hidden">
+          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+            Immigration Type
+          </label>
+          <select
+            name="sousType"
+            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30"
+          >
+            <option value="ee">Express Entry</option>
+            <option value="parrainage">Sponsorship</option>
+            <option value="travail">Work Permit</option>
+            <option value="appel">Appeal / Judicial Review</option>
+          </select>
+        </div>
+      )}
+
+      {/* Conflict check (C3) — only in edit mode */}
+      {isEdit && dossier && (
+        <ConflictCheckWidget
+          dossierId={dossier.id}
+          clientId={dossier.clientId}
+          clientName={
+            dossier.client
+              ? [dossier.client.prenom, dossier.client.nom, dossier.client.raisonSociale].filter(Boolean).join(" ")
+              : "Unknown"
+          }
+        />
+      )}
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit">

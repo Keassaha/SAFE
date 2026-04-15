@@ -5,8 +5,11 @@ import { useTranslations } from "next-intl";
 import { SoldeCards } from "./SoldeCards";
 import { TransactionsTable } from "./TransactionsTable";
 import { ReleveGenerator } from "./ReleveGenerator";
+import { ReconciliationAlert } from "./ReconciliationAlert";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
+import { Scale, FileText } from "lucide-react";
 
 interface ClientOption {
   id: string;
@@ -39,7 +42,23 @@ export function FideicommisDashboard({
 
   return (
     <div className="space-y-6">
+      <ReconciliationAlert />
       <SoldeCards cabinetId={cabinetId} seuilBas={seuilBas} />
+
+      <div className="flex flex-wrap gap-3">
+        <Link href="/comptes/rapprochement">
+          <Button variant="secondary">
+            <Scale className="w-4 h-4" />
+            Reconciliation
+          </Button>
+        </Link>
+        <Link href="/comptes/rapports">
+          <Button variant="secondary">
+            <FileText className="w-4 h-4" />
+            Compliance Reports
+          </Button>
+        </Link>
+      </div>
 
       <Card>
         <CardContent className="p-4">

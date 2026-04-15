@@ -6,6 +6,7 @@ const dossierTypeEnum = z.enum([
   "litige_civil",
   "criminel",
   "immigration",
+  "immobilier",
   "corporate",
   "autre",
 ]);

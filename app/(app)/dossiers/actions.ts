@@ -75,6 +75,23 @@ export async function createDossier(formData: FormData) {
           modeFacturation: (parsed.data.modeFacturation as ModeFacturationDossier | null) ?? null,
           tauxHoraire: parsed.data.tauxHoraire ?? null,
           retentionJusqua: parsed.data.retentionJusqua ?? null,
+          // Immobilier fields (D2)
+          ...(parsed.data.type === "immobilier" ? {
+            sousType: (formData.get("sousType") as string) || null,
+            closingDate: formData.get("closingDate") ? new Date(formData.get("closingDate") as string) : null,
+            propertyAddress: formData.get("propertyAddress") ? sanitizeInput(formData.get("propertyAddress") as string) : null,
+            fintracVerified: formData.get("fintracVerified") === "on",
+            fintracVerifiedAt: formData.get("fintracVerified") === "on" ? new Date() : null,
+            fintracVerifiedById: formData.get("fintracVerified") === "on" ? userId : null,
+            fintracDocuments: formData.get("fintracDocuments") ? (formData.get("fintracDocuments") as string) : null,
+            condoPINParking: formData.get("condoPINParking") ? sanitizeInput(formData.get("condoPINParking") as string) : null,
+            condoPINLocker: formData.get("condoPINLocker") ? sanitizeInput(formData.get("condoPINLocker") as string) : null,
+          } : {}),
+          // Immigration fields (D3)
+          ...(parsed.data.type === "immigration" ? {
+            sousType: (formData.get("sousType") as string) || null,
+            irccStatut: "consultation",
+          } : {}),
         },
       });
       break;
@@ -176,6 +193,18 @@ export async function updateDossier(id: string, formData: FormData) {
       tauxHoraire: parsed.data.tauxHoraire ?? null,
       dateCloture: parsed.data.dateCloture ?? undefined,
       retentionJusqua: parsed.data.retentionJusqua ?? null,
+      // Immobilier fields (D2)
+      ...(parsed.data.type === "immobilier" ? {
+        sousType: (formData.get("sousType") as string) || null,
+        closingDate: formData.get("closingDate") ? new Date(formData.get("closingDate") as string) : null,
+        propertyAddress: formData.get("propertyAddress") ? sanitizeInput(formData.get("propertyAddress") as string) : null,
+        fintracVerified: formData.get("fintracVerified") === "on",
+        fintracVerifiedAt: formData.get("fintracVerified") === "on" ? new Date() : null,
+        fintracVerifiedById: formData.get("fintracVerified") === "on" ? userId : null,
+        fintracDocuments: formData.get("fintracDocuments") ? (formData.get("fintracDocuments") as string) : null,
+        condoPINParking: formData.get("condoPINParking") ? sanitizeInput(formData.get("condoPINParking") as string) : null,
+        condoPINLocker: formData.get("condoPINLocker") ? sanitizeInput(formData.get("condoPINLocker") as string) : null,
+      } : {}),
     },
   });
   await createAuditLog({
