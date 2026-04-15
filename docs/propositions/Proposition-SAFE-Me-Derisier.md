@@ -104,7 +104,7 @@ Tous les plans sont disponibles en facturation mensuelle ou annuelle. **En chois
 | Onboarding | Session personnalisée 1-on-1 (30 min) |
 | Support | Prioritaire (24h) |
 
-*Économie de 600 $/an avec le forfait annuel.*
+*Économie de 360 $/an avec le forfait annuel.*
 
 ---
 
