@@ -1605,8 +1605,9 @@ export default function OnboardingChat() {
                     </p>
                   </div>
                   <span className="text-lg font-bold text-[var(--safe-accent)] font-sans">
-                    {calculationResult.plan.price}$/
-                    {lang === "fr" ? "mois" : "month"}
+                    {calculationResult.plan.price === 0
+                      ? (lang === "fr" ? "Sur devis" : "Custom quote")
+                      : `${calculationResult.plan.price}$/${lang === "fr" ? "mois" : "month"}`}
                   </span>
                 </div>
               </div>
@@ -1618,14 +1619,22 @@ export default function OnboardingChat() {
                 <p className="text-xs text-[var(--safe-sage)] font-sans uppercase tracking-wider mb-2">
                   {lang === "fr" ? "Votre investissement :" : "Your investment:"}
                 </p>
-                <div className="flex items-baseline justify-center gap-1 mb-1">
-                  <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
-                    {calculationResult.plan.price}$
-                  </span>
-                  <span className="text-lg text-[var(--safe-sage)] font-sans">
-                    {lang === "fr" ? "/mois" : "/month"}
-                  </span>
-                </div>
+                {calculationResult.plan.price === 0 ? (
+                  <div className="mb-1">
+                    <span className="text-4xl font-bold text-[var(--safe-white)] font-sans">
+                      {lang === "fr" ? "Sur devis" : "Custom quote"}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline justify-center gap-1 mb-1">
+                    <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
+                      {calculationResult.plan.price}$
+                    </span>
+                    <span className="text-lg text-[var(--safe-sage)] font-sans">
+                      {lang === "fr" ? "/mois" : "/month"}
+                    </span>
+                  </div>
+                )}
                 <p className="text-sm text-[var(--safe-white)] font-sans font-medium mb-1">
                   {lang === "fr" ? `Plan ${calculationResult.plan.name.fr}` : `${calculationResult.plan.name.en} Plan`}
                 </p>
@@ -1634,7 +1643,9 @@ export default function OnboardingChat() {
                     ? (lang === "fr" ? "Pour avocat solo — 1 utilisateur" : "For solo lawyer — 1 user")
                     : calculationResult.plan.price === 149
                     ? (lang === "fr" ? "Pour cabinet — 2 à 5 utilisateurs" : "For firm — 2 to 5 users")
-                    : (lang === "fr" ? "Pour cabinet établi — 6 à 15 utilisateurs" : "For established firm — 6 to 15 users")}
+                    : calculationResult.plan.price === 0
+                    ? (lang === "fr" ? "Pour cabinet établi — 6 utilisateurs et plus" : "For established firm — 6+ users")
+                    : (lang === "fr" ? "Pour cabinet établi — 6 utilisateurs et plus" : "For established firm — 6+ users")}
                 </p>
 
                 {/* Badges */}
@@ -1664,13 +1675,13 @@ export default function OnboardingChat() {
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-green-400" />
                     <span className="text-sm font-bold text-[var(--safe-white)] font-sans">
-                      {calculationResult.plan.price === 499
+                      {calculationResult.plan.price === 0
                         ? (lang === "fr" ? "Garantie Conformité — 90 jours" : "90-Day Compliance Guarantee")
                         : (lang === "fr" ? "Garantie Satisfait ou Remboursé — 30 jours" : "30-Day Money-Back Guarantee")}
                     </span>
                   </div>
                   <p className="text-xs text-[var(--safe-sage)] font-sans leading-relaxed">
-                    {calculationResult.plan.price === 499
+                    {calculationResult.plan.price === 0
                       ? (lang === "fr"
                         ? "Si vous n’êtes pas prêt pour l’inspection du Barreau en 90 jours, on vous rembourse intégralement. Aucune question posée."
                         : "If you’re not ready for the Bar inspection within 90 days, we refund you in full. No questions asked.")
@@ -1710,7 +1721,9 @@ export default function OnboardingChat() {
                 </div>
                 <div className="rounded-safe bg-white/70 border border-green-200 p-4 text-center">
                   <p className="text-2xl font-bold text-green-600 font-sans">
-                    +{((calculationResult.plan.price === 99 ? 2500 : calculationResult.plan.price === 149 ? 4000 : 6000) - calculationResult.plan.price).toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $
+                    {calculationResult.plan.price === 0
+                      ? "+6 000 $"
+                      : `+${((calculationResult.plan.price === 99 ? 2500 : calculationResult.plan.price === 149 ? 4000 : 6000) - calculationResult.plan.price).toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $`}
                   </p>
                   <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
                     {lang === "fr" ? "économisés / mois" : "saved / month"}
@@ -1718,9 +1731,13 @@ export default function OnboardingChat() {
                 </div>
               </div>
               <p className="text-xs text-green-700 font-sans mt-3 text-center font-medium">
-                {lang === "fr"
-                  ? `Votre abonnement de ${calculationResult.plan.price}$/mois se rentabilise dès la première semaine.`
-                  : `Your $${calculationResult.plan.price}/month subscription pays for itself in the first week.`}
+                {calculationResult.plan.price === 0
+                  ? (lang === "fr"
+                    ? "Un conseiller vous contactera pour établir un devis adapté à votre cabinet."
+                    : "An advisor will contact you to provide a custom quote for your firm.")
+                  : (lang === "fr"
+                    ? `Votre abonnement de ${calculationResult.plan.price}$/mois se rentabilise dès la première semaine.`
+                    : `Your $${calculationResult.plan.price}/month subscription pays for itself in the first week.`)}
               </p>
             </div>
 
@@ -1740,7 +1757,9 @@ export default function OnboardingChat() {
                   ) : (
                     <>
                       <Sparkles className="w-5 h-5" />
-                      {lang === "fr" ? "Oui, je veux configurer mon cabinet avec SAFE" : "Yes, I want to set up my firm with SAFE"}
+                      {calculationResult.plan.price === 0
+                        ? (lang === "fr" ? "Réserver ma consultation gratuite" : "Book my free consultation")
+                        : (lang === "fr" ? "Oui, je veux configurer mon cabinet avec SAFE" : "Yes, I want to set up my firm with SAFE")}
                       <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </>
                   )}

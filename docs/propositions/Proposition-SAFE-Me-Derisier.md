@@ -108,13 +108,13 @@ Tous les plans sont disponibles en facturation mensuelle ou annuelle. **En chois
 
 ---
 
-### Plan Cabinet+ — 499 $/mois (ou 399 $/mois en annuel)
+### Plan Cabinet+ — Sur devis
 
 **Idéal pour les cabinets en croissance qui veulent la tranquillité d'esprit totale.**
 
 | | |
 |---|---|
-| Utilisateurs | Jusqu'à 15 |
+| Utilisateurs | 6 et plus |
 | Fidéicommis | Illimités |
 | Conformité | Rapport pré-inspection automatisé |
 | IA | Agents illimités |
@@ -124,7 +124,7 @@ Tous les plans sont disponibles en facturation mensuelle ou annuelle. **En chois
 | Support | Téléphone + canal Slack dédié |
 | SLA | Garanti |
 
-*Économie de 1 200 $/an avec le forfait annuel.*
+*Tarif adapté à la taille et aux besoins de votre cabinet. Contactez-nous pour un devis personnalisé.*
 
 ---
 
