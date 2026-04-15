@@ -46,12 +46,13 @@ const PLANS = [
   },
   {
     name: "Cabinet+",
-    monthlyPrice: "499",
-    annualPrice: "399",
-    annualSaving: "1 200",
+    monthlyPrice: "",
+    annualPrice: "",
+    annualSaving: "",
+    surDevis: true,
     description: "La tranquillité d'esprit totale pour les cabinets établis.",
     features: [
-      "Jusqu'à 15 utilisateurs",
+      "6 utilisateurs et plus",
       "Comptes en fidéicommis illimités",
       "Rapport pré-inspection automatisé",
       "Intégrations sur mesure",
@@ -173,19 +174,27 @@ export function Pricing() {
 
               {/* Price */}
               <div className="mb-2 flex items-end gap-1">
-                <span className="text-4xl sm:text-5xl font-bold text-[var(--safe-white)] font-sans">
-                  {annual ? plan.annualPrice : plan.monthlyPrice}$
-                </span>
-                <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
-                  /mois
-                </span>
+                {plan.surDevis ? (
+                  <span className="text-3xl sm:text-4xl font-bold text-[var(--safe-white)] font-sans">
+                    Sur devis
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-4xl sm:text-5xl font-bold text-[var(--safe-white)] font-sans">
+                      {annual ? plan.annualPrice : plan.monthlyPrice}$
+                    </span>
+                    <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
+                      /mois
+                    </span>
+                  </>
+                )}
               </div>
-              {annual && (
+              {annual && plan.annualSaving && (
                 <p className="text-xs text-emerald-400 font-sans mb-6">
                   Économisez {plan.annualSaving}$/an
                 </p>
               )}
-              {!annual && <div className="mb-6" />}
+              {(!annual || !plan.annualSaving) && <div className="mb-6" />}
 
               {/* Features */}
               <ul className="space-y-3.5 mb-8 flex-grow">
