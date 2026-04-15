@@ -29,7 +29,7 @@ const PLANS = [
     monthlyPrice: "149",
     annualPrice: "119",
     annualSaving: "360",
-    description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
+    description: "Votre équipe se concentre sur le droit. La paperasse, c'est réglé.",
     features: [
       "Jusqu'à 5 utilisateurs",
       "Dossiers illimités",
@@ -42,14 +42,14 @@ const PLANS = [
     ],
     popular: true,
     cta: "Faire mon audit gratuit",
-    href: "/demo",
+    href: "/audit-gratuit",
   },
   {
     name: "Cabinet+",
     monthlyPrice: "499",
     annualPrice: "399",
     annualSaving: "1 200",
-    description: "Pour les cabinets qui veulent la tranquillité d'esprit totale.",
+    description: "La tranquillité d'esprit totale pour les cabinets établis.",
     features: [
       "Jusqu'à 15 utilisateurs",
       "Comptes en fidéicommis illimités",
@@ -101,7 +101,7 @@ export function Pricing() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
           >
-            Pas de frais cachés. Pas d&apos;engagement à long terme. Annulez en tout temps.
+            Pas de frais cachés. Pas d&apos;engagement. Annulez en tout temps.
             Satisfait ou remboursé 30 jours.
           </motion.p>
 

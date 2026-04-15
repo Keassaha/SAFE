@@ -253,25 +253,25 @@ const STEPS = [
   {
     number: "01",
     icon: Phone,
-    title: "Découverte",
+    title: "Audit gratuit",
     description:
-      "Un appel de 30 minutes pour comprendre votre pratique, vos outils actuels et ce qui vous empêche de dormir avant l'inspection.",
+      "On évalue votre cabinet en 10 minutes. Conformité, efficacité, points de risque. Vous recevez un rapport personnalisé avec un portrait clair de votre situation.",
     accent: { icon: "text-blue-400", bg: "bg-blue-500/15", border: "border-blue-400/25" },
   },
   {
     number: "02",
     icon: Settings,
-    title: "Configuration",
+    title: "Consultation téléphonique",
     description:
-      "On configure SAFE selon votre cabinet : taux horaires, modèles de facturation, comptes en fidéicommis et listes de taxes.",
+      "Un appel de 30 minutes pour creuser les résultats de votre audit, comprendre vos besoins spécifiques et définir la configuration idéale pour votre cabinet.",
     accent: { icon: "text-amber-400", bg: "bg-amber-500/15", border: "border-amber-400/25" },
   },
   {
     number: "03",
     icon: Rocket,
-    title: "Lancement",
+    title: "Création de votre système",
     description:
-      "Formation complète de votre équipe et accompagnement dédié pendant les 30 premiers jours de transition.",
+      "On configure SAFE selon votre pratique : interface, automatisations, comptes en fidéicommis, modèles de facturation. Vous choisissez votre plan et vous êtes opérationnel en 30 jours.",
     accent: { icon: "text-emerald-400", bg: "bg-emerald-500/15", border: "border-emerald-400/25" },
   },
 ];
@@ -290,7 +290,7 @@ export function ProcessTimeline() {
             viewport={{ once: true }}
             className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
-            Processus d&apos;intégration
+            Le processus
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -299,8 +299,8 @@ export function ProcessTimeline() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight max-w-3xl mx-auto"
           >
-            Opérationnel en 30 jours.{" "}
-            <span className="italic text-[var(--safe-sage)]">Sans perdre une journée facturable.</span>
+            De votre réalité à votre système.{" "}
+            <span className="italic text-[var(--safe-sage)]">En trois étapes.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -309,9 +309,7 @@ export function ProcessTimeline() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans max-w-2xl mx-auto"
           >
-            On sait que changer de système fait peur. C&apos;est pour ça qu&apos;on fait le gros
-            du travail pour vous. Migration, configuration, formation, pendant que vous
-            continuez de pratiquer.
+            Changer de système fait peur. On le sait. C&apos;est pour ça qu&apos;on fait le gros du travail pendant que vous continuez de pratiquer.
           </motion.p>
         </div>
 

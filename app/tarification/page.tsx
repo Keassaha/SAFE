@@ -68,7 +68,7 @@ const PLANS = [
     monthlyPrice: 149,
     annualPrice: 119,
     annualSaving: "360",
-    description: "Tout ce qu'il faut pour que votre équipe se concentre sur le droit, pas la paperasse.",
+    description: "Votre équipe se concentre sur le droit. La paperasse, c'est réglé.",
     features: [
       "Jusqu'à 5 utilisateurs",
       "Dossiers illimités",
@@ -91,7 +91,7 @@ const PLANS = [
     monthlyPrice: 499,
     annualPrice: 399,
     annualSaving: "1 200",
-    description: "Pour les cabinets qui veulent la tranquillité d'esprit totale.",
+    description: "La tranquillité d'esprit totale pour les cabinets établis.",
     features: [
       "Jusqu'à 15 utilisateurs",
       "Comptes en fidéicommis illimités",
@@ -228,7 +228,7 @@ export default function TarificationPage() {
               transition={{ delay: 0.1, duration: 0.6 }}
               className="font-sans text-4xl md:text-5xl lg:text-7xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
             >
-              Moins cher qu&apos;une heure de votre temps.{" "}
+              Moins cher qu&apos;une demi-heure de votre temps facturable.{" "}
               <span className="italic text-[var(--safe-sage)]">Rentable dès le jour 1.</span>
             </motion.h1>
             <motion.p

@@ -11,10 +11,10 @@ import {
 const PAINS = [
   {
     icon: Clock,
-    title: "48% de votre temps perdu en admin",
+    title: "60 % de votre temps passe en admin",
     description:
-      "Les avocats ne facturent que 2,9 heures par jour sur 8. Le reste passe en tâches administratives non facturables.",
-    stat: "48%",
+      "Facturation, réconciliation, relances, classement. Sur une journée de 8 heures, vous n'en facturez que 3. Le reste, personne ne vous paie pour le faire.",
+    stat: "60%",
     statLabel: "perdu",
     source: "Clio Legal Trends Report 2024",
     accent: {
@@ -28,28 +28,10 @@ const PAINS = [
     },
   },
   {
-    icon: Calculator,
-    title: "30% de vos revenus jamais collectés",
-    description:
-      "Entre les heures non facturées et les factures impayées, seuls 70% du travail effectué génère un revenu réel.",
-    stat: "30%",
-    statLabel: "perdu",
-    source: "Bloomberg Law 2024",
-    accent: {
-      icon: "text-amber-400",
-      bg: "bg-amber-500/15",
-      border: "border-amber-400/20",
-      gradient: "from-amber-500/20 via-amber-400/5 to-transparent",
-      line: "bg-amber-400",
-      statBg: "bg-amber-400/10",
-      statText: "text-amber-400",
-    },
-  },
-  {
     icon: AlertTriangle,
-    title: "L'inspection peut arriver demain",
+    title: "La conformité au Barreau ne pardonne pas",
     description:
-      "Fidéicommis, registres, facturation. Chaque transaction doit être tracée et conforme au Règlement B-1 r.5.",
+      "Fidéicommis, registres, piste d'audit. Si vos livres ne sont pas conformes au Règlement B-1 r.5 le jour de l'inspection, les conséquences sont immédiates. Et l'inspection peut arriver demain.",
     stat: "B-1 r.5",
     statLabel: "requis",
     source: "Barreau du Québec",
@@ -61,6 +43,24 @@ const PAINS = [
       line: "bg-orange-400",
       statBg: "bg-orange-400/10",
       statText: "text-orange-400",
+    },
+  },
+  {
+    icon: Calculator,
+    title: "30 % de vos revenus ne sont jamais collectés",
+    description:
+      "Heures non comptabilisées, factures envoyées en retard, montants jamais suivis. Vous travaillez, mais une partie de ce travail ne génère aucun revenu.",
+    stat: "30%",
+    statLabel: "perdu",
+    source: "Bloomberg Law 2024",
+    accent: {
+      icon: "text-amber-400",
+      bg: "bg-amber-500/15",
+      border: "border-amber-400/20",
+      gradient: "from-amber-500/20 via-amber-400/5 to-transparent",
+      line: "bg-amber-400",
+      statBg: "bg-amber-400/10",
+      statText: "text-amber-400",
     },
   },
 ];
@@ -193,11 +193,11 @@ export function PainPoints() {
         {/* Header */}
         <div className="text-center mb-12 sm:mb-16">
           <p className="text-sm font-sans font-semibold uppercase tracking-widest text-red-400/80 mb-4">
-            Les chiffres parlent
+            Ce qui vous ralentit
           </p>
           <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight">
-            Ce que la paperasse{" "}
-            <span className="italic text-red-400/90">vous coûte vraiment.</span>
+            Trois problèmes. Un seul système{" "}
+            <span className="italic text-red-400/90">pour les régler.</span>
           </h2>
         </div>
 
@@ -211,8 +211,8 @@ export function PainPoints() {
         {/* Transition to solution */}
         <div className="text-center mt-12 sm:mt-16">
           <p className="text-lg sm:text-xl text-[var(--safe-white)] font-sans font-medium">
-            Et si tout ça disparaissait{" "}
-            <span className="italic text-[var(--safe-sage)]">en 30 jours ?</span>
+            Et si on réglait les trois{" "}
+            <span className="italic text-[var(--safe-sage)]">en même temps ?</span>
           </p>
           <div className="mt-6 flex justify-center animate-bounce">
             <div className="w-8 h-8 rounded-full border border-[var(--safe-sage)]/20 flex items-center justify-center">

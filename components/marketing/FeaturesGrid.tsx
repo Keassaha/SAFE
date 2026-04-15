@@ -18,9 +18,9 @@ const OUTCOMES = [
     icon: HeartHandshake,
     title: "Récupérez vos soirées",
     description:
-      "SAFE automatise la saisie, les rappels et les calculs. Vous rentrez chez vous l'esprit libre.",
+      "La facturation qui prenait 25 minutes passe à 2 minutes. Les réconciliations manuelles disparaissent. Vous rentrez chez vous l'esprit libre.",
     stat: "10h+",
-    statLabel: "économisées/mois",
+    statLabel: "/mois",
     image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&h=400&fit=crop&q=80",
     cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
@@ -38,9 +38,9 @@ const OUTCOMES = [
     icon: FolderCheck,
     title: "Fidéicommis réconcilié en 1 clic",
     description:
-      "Chaque transaction est tracée, chaque solde est vérifié, chaque rapport est prêt pour l'inspection.",
-    stat: "100%",
-    statLabel: "réconcilié",
+      "Dépôts, retraits, double validation, soldes en temps réel par client et par dossier. Fini le Excel le soir.",
+    stat: "1 clic",
+    statLabel: "",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
@@ -56,9 +56,9 @@ const OUTCOMES = [
   },
   {
     icon: ShieldCheck,
-    title: "Conforme B-1 r.5, toujours",
+    title: "Toujours prêt pour l'inspection",
     description:
-      "Facturation, fidéicommis, conservation des données. Tout respecte le Règlement et la Loi 25. Automatiquement.",
+      "Piste d'audit inaltérable. Relevés exportables. Quand l'inspecteur frappe, tout est prêt.",
     stat: "B-1 r.5",
     statLabel: "conforme",
     image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop&q=80",
@@ -76,11 +76,11 @@ const OUTCOMES = [
   },
   {
     icon: Clock,
-    title: "Zéro délai manqué",
+    title: "Aucun délai manqué",
     description:
-      "Alertes automatiques pour vos échéances de cour et prescriptions. Toujours un pas en avance.",
+      "Échéanciers judiciaires, délais de prescription et de signification. Alertes automatiques à 7 jours, 3 jours et 24 heures.",
     stat: "0",
-    statLabel: "délai manqué",
+    statLabel: "oubli",
     image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
@@ -96,11 +96,11 @@ const OUTCOMES = [
   },
   {
     icon: TrendingUp,
-    title: "Rentabilité visible en un coup d'oeil",
+    title: "Rentabilité visible instantanément",
     description:
-      "SAFE vous montre la rentabilité par avocat, par mandat. Décisions basées sur des chiffres, pas sur l'intuition.",
+      "Revenus par dossier, par avocat, par mandat. Rapports TPS/TVQ prêts pour Revenu Québec.",
     stat: "1 clic",
-    statLabel: "pour savoir",
+    statLabel: "",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80",
     cta: { label: "Faire mon audit gratuit", href: "/audit-gratuit" },
     accent: {
@@ -116,11 +116,11 @@ const OUTCOMES = [
   },
   {
     icon: Brain,
-    title: "Conçu pour le Barreau du Québec",
+    title: "Conçu pour le droit canadien",
     description:
-      "Vérification de conformité, alertes automatiques, rapports prêts pour l'inspection. Tout est intégré.",
-    stat: "24/7",
-    statLabel: "disponible",
+      "Pas un logiciel américain adapté. Bâti pour le B-1 r.5, la Loi 25 et le By-Law 9 dès la première ligne de code.",
+    stat: "QC + ON",
+    statLabel: "",
     image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop&q=80",
     cta: { label: "Réserver une démo", href: "/demo" },
     accent: {
@@ -281,7 +281,7 @@ export function FeaturesGrid() {
             viewport={{ once: true }}
             className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
           >
-            Opérationnel en 30 jours
+            Ce que SAFE change concrètement
           </motion.p>
 
           <motion.h2
@@ -291,8 +291,8 @@ export function FeaturesGrid() {
             transition={{ duration: 0.6 }}
             className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
           >
-            Ce que SAFE change{" "}
-            <span className="italic text-[var(--safe-sage)]">concrètement.</span>
+            Les résultats, pas{" "}
+            <span className="italic text-[var(--safe-sage)]">les fonctionnalités.</span>
           </motion.h2>
 
           <motion.p
