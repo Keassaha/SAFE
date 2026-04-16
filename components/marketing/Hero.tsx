@@ -14,7 +14,7 @@ import Link from "next/link";
    HERO — bold type, soft entrance, premium dark feel
    ═══════════════════════════════════════════════ */
 
-const ease = [0.16, 1, 0.3, 1];
+const ease = [0.16, 1, 0.3, 1] as const;
 const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
 
 export function Hero() {

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Check, ArrowRight, Shield } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ArrowRight, Shield, Sparkles } from "lucide-react";
 import Link from "next/link";
+
+const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
 
 const PLANS = [
   {
@@ -62,184 +64,515 @@ const PLANS = [
       "SLA garanti",
     ],
     popular: false,
-    cta: "Réserver une démo",
-    href: "/demo",
+    cta: "Réserver un appel",
+    href: CALENDLY_URL,
   },
 ];
+
+/* ── card spring for stagger ── */
+const cardVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.96 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.7,
+      delay: i * 0.15,
+      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+    },
+  }),
+};
 
 export function Pricing() {
   const [annual, setAnnual] = useState(true);
 
   return (
-    <section className="section-night relative py-16 sm:py-28 lg:py-36">
-      <div className="landing-grain absolute inset-0 pointer-events-none" />
+    <section
+      style={{ background: "var(--safe-darkest)" }}
+      className="relative py-20 sm:py-32 lg:py-40 overflow-hidden"
+    >
+      {/* Background ambient glow */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: "20%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "900px",
+          height: "500px",
+          background: "radial-gradient(ellipse, rgba(110,231,183,0.06) 0%, transparent 70%)",
+          filter: "blur(80px)",
+        }}
+      />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
+        {/* ── Header ── */}
+        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 mb-6"
+            style={{
+              background: "rgba(110,231,183,0.08)",
+              border: "1px solid rgba(110,231,183,0.15)",
+              borderRadius: "9999px",
+              padding: "6px 18px",
+            }}
           >
-            Tarification
-          </motion.p>
+            <Sparkles style={{ width: 14, height: 14, color: "#6ee7b7" }} />
+            <span style={{ fontSize: "13px", fontWeight: 500, color: "#6ee7b7", letterSpacing: "0.04em" }}>
+              Tarification
+            </span>
+          </motion.div>
+
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              fontFamily: "var(--font-sans, system-ui, sans-serif)",
+              fontSize: "clamp(2rem, 5vw, 3.5rem)",
+              fontWeight: 700,
+              color: "#ffffff",
+              lineHeight: 1.1,
+              letterSpacing: "-0.03em",
+              marginBottom: "1.5rem",
+            }}
           >
             Moins cher qu&apos;une heure de votre temps.{" "}
-            <span className="italic text-[var(--safe-sage)]">Rentable dès le jour 1.</span>
+            <span style={{ fontStyle: "italic", color: "#6ee7b7" }}>
+              Rentable dès le jour 1.
+            </span>
           </motion.h2>
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-base sm:text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
+            style={{
+              fontSize: "clamp(1rem, 2vw, 1.2rem)",
+              color: "rgba(255,255,255,0.5)",
+              lineHeight: 1.7,
+              maxWidth: "600px",
+              margin: "0 auto",
+            }}
           >
             Pas de frais cachés. Pas d&apos;engagement. Annulez en tout temps.
             Satisfait ou remboursé 30 jours.
           </motion.p>
 
-          {/* Annual/Monthly toggle */}
+          {/* ── Pill toggle ── */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="mt-8 inline-flex items-center gap-3 bg-white/[0.04] border border-white/[0.08] rounded-full p-1.5"
+            className="mt-10 inline-flex items-center"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "9999px",
+              padding: "4px",
+              gap: "4px",
+            }}
           >
             <button
               onClick={() => setAnnual(false)}
-              className={`px-5 py-2 rounded-full text-sm font-medium font-sans transition-all duration-300 ${
-                !annual
-                  ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)]"
-                  : "text-[var(--safe-text-muted)] hover:text-white"
-              }`}
+              style={{
+                padding: "10px 24px",
+                borderRadius: "9999px",
+                fontSize: "14px",
+                fontWeight: 600,
+                transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                border: "none",
+                cursor: "pointer",
+                background: !annual ? "#6ee7b7" : "transparent",
+                color: !annual ? "#050a0f" : "rgba(255,255,255,0.45)",
+              }}
             >
               Mensuel
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className={`px-5 py-2 rounded-full text-sm font-medium font-sans transition-all duration-300 flex items-center gap-2 ${
-                annual
-                  ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)]"
-                  : "text-[var(--safe-text-muted)] hover:text-white"
-              }`}
+              style={{
+                padding: "10px 24px",
+                borderRadius: "9999px",
+                fontSize: "14px",
+                fontWeight: 600,
+                transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: annual ? "#6ee7b7" : "transparent",
+                color: annual ? "#050a0f" : "rgba(255,255,255,0.45)",
+              }}
             >
               Annuel
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                annual
-                  ? "bg-[var(--safe-darkest)]/20 text-[var(--safe-darkest)]"
-                  : "bg-emerald-500/20 text-emerald-400"
-              }`}>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  padding: "2px 8px",
+                  borderRadius: "9999px",
+                  background: annual ? "rgba(5,10,15,0.2)" : "rgba(110,231,183,0.15)",
+                  color: annual ? "#050a0f" : "#6ee7b7",
+                }}
+              >
                 -20%
               </span>
             </button>
           </motion.div>
         </div>
 
-        {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {PLANS.map((plan, idx) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: idx * 0.12 }}
-              className={`card-dark relative rounded-safe-md p-5 sm:p-8 flex flex-col ${
-                plan.popular
-                  ? "bg-[var(--safe-darkest)] border-2 border-[#8EB69B]/40 shadow-2xl shadow-[var(--safe-accent)]/10 md:scale-[1.02] lg:scale-105"
-                  : "bg-[var(--safe-dark)] border border-[#051F20]/10 hover:border-[#8EB69B]/20 transition-colors duration-300"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 right-8 -translate-y-1/2 bg-[var(--safe-sage)] text-[var(--safe-darkest)] text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full font-sans">
-                  Le plus populaire
-                </div>
-              )}
+        {/* ── Pricing cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
+          {PLANS.map((plan, idx) => {
+            const isPopular = plan.popular;
 
-              <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-2 font-sans tracking-tight">
-                {plan.name}
-              </h3>
-              <p className="text-sm text-[var(--safe-text-muted)] mb-6 font-sans leading-relaxed">
-                {plan.description}
-              </p>
-
-              {/* Price */}
-              <div className="mb-2 flex items-end gap-1">
-                {plan.surDevis ? (
-                  <span className="text-3xl sm:text-4xl font-bold text-[var(--safe-white)] font-sans">
-                    Sur devis
-                  </span>
-                ) : (
-                  <>
-                    <span className="text-4xl sm:text-5xl font-bold text-[var(--safe-white)] font-sans">
-                      {annual ? plan.annualPrice : plan.monthlyPrice}$
-                    </span>
-                    <span className="text-[var(--safe-text-muted)] mb-1.5 font-sans">
-                      /mois
-                    </span>
-                  </>
-                )}
-              </div>
-              {annual && plan.annualSaving && (
-                <p className="text-xs text-emerald-400 font-sans mb-6">
-                  Économisez {plan.annualSaving}$/an
-                </p>
-              )}
-              {(!annual || !plan.annualSaving) && <div className="mb-6" />}
-
-              {/* Features */}
-              <ul className="space-y-3.5 mb-8 flex-grow">
-                {plan.features.map((feat) => (
-                  <li key={feat} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 text-[var(--safe-sage)] shrink-0 mt-0.5" />
-                    <span className="text-sm text-[var(--safe-white)]/80 font-sans">
-                      {feat}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <Link
-                href={plan.href}
-                className={`group w-full py-3 rounded-full font-semibold text-center text-sm transition-all duration-300 flex items-center justify-center gap-2 font-sans ${
-                  plan.popular
-                    ? "bg-[var(--safe-sage)] text-[var(--safe-darkest)] hover:bg-[var(--safe-lightest)]"
-                    : "bg-white/5 text-[var(--safe-white)] hover:bg-white/10 border border-white/10"
-                }`}
+            return (
+              <motion.div
+                key={plan.name}
+                custom={idx}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                whileHover={{
+                  y: -6,
+                  scale: 1.02,
+                  transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                }}
+                style={{
+                  position: "relative",
+                  borderRadius: "24px",
+                  padding: isPopular ? "3px" : "1px",
+                  background: isPopular
+                    ? "linear-gradient(160deg, rgba(110,231,183,0.4), rgba(110,231,183,0.08) 50%, rgba(110,231,183,0.25))"
+                    : "rgba(255,255,255,0.08)",
+                }}
               >
-                {plan.cta}
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-              </Link>
-            </motion.div>
-          ))}
+                {/* Inner card */}
+                <div
+                  style={{
+                    borderRadius: "22px",
+                    padding: "36px 32px 32px",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    background: isPopular
+                      ? "linear-gradient(180deg, rgba(110,231,183,0.06) 0%, rgba(5,10,15,0.98) 30%)"
+                      : "rgba(255,255,255,0.03)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                  }}
+                >
+                  {/* Popular badge */}
+                  {isPopular && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-14px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        background: "linear-gradient(135deg, #6ee7b7, #34d399)",
+                        color: "#050a0f",
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        padding: "6px 20px",
+                        borderRadius: "9999px",
+                        whiteSpace: "nowrap",
+                        boxShadow: "0 4px 20px rgba(110,231,183,0.3)",
+                      }}
+                    >
+                      Le plus populaire
+                    </div>
+                  )}
+
+                  {/* Plan name */}
+                  <h3
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      color: "#ffffff",
+                      letterSpacing: "-0.02em",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {plan.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.45)",
+                      lineHeight: 1.6,
+                      marginBottom: "28px",
+                    }}
+                  >
+                    {plan.description}
+                  </p>
+
+                  {/* Price */}
+                  <div style={{ marginBottom: "8px", display: "flex", alignItems: "baseline", gap: "4px" }}>
+                    {(plan as { surDevis?: boolean }).surDevis ? (
+                      <span
+                        style={{
+                          fontSize: "clamp(2rem, 4vw, 2.8rem)",
+                          fontWeight: 800,
+                          color: "#ffffff",
+                          letterSpacing: "-0.03em",
+                        }}
+                      >
+                        Sur devis
+                      </span>
+                    ) : (
+                      <>
+                        <AnimatePresence mode="wait">
+                          <motion.span
+                            key={annual ? "annual" : "monthly"}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.25 }}
+                            style={{
+                              fontSize: "clamp(2.8rem, 5vw, 3.5rem)",
+                              fontWeight: 800,
+                              color: "#ffffff",
+                              letterSpacing: "-0.03em",
+                              lineHeight: 1,
+                            }}
+                          >
+                            {annual ? plan.annualPrice : plan.monthlyPrice}$
+                          </motion.span>
+                        </AnimatePresence>
+                        <span
+                          style={{
+                            fontSize: "15px",
+                            color: "rgba(255,255,255,0.35)",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          /mois
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Savings line */}
+                  {annual && plan.annualSaving ? (
+                    <p style={{ fontSize: "13px", color: "#6ee7b7", fontWeight: 500, marginBottom: "28px" }}>
+                      Économisez {plan.annualSaving}$/an
+                    </p>
+                  ) : (
+                    <div style={{ marginBottom: "28px" }} />
+                  )}
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: "1px",
+                      background: "rgba(255,255,255,0.06)",
+                      marginBottom: "24px",
+                    }}
+                  />
+
+                  {/* Features */}
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, flex: 1 }}>
+                    {plan.features.map((feat, fi) => (
+                      <li
+                        key={feat}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "14px",
+                          marginBottom: fi === plan.features.length - 1 ? 0 : "16px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "50%",
+                            background: isPopular ? "rgba(110,231,183,0.15)" : "rgba(255,255,255,0.06)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            marginTop: "1px",
+                          }}
+                        >
+                          <Check
+                            style={{
+                              width: "12px",
+                              height: "12px",
+                              color: isPopular ? "#6ee7b7" : "rgba(255,255,255,0.5)",
+                            }}
+                          />
+                        </div>
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            color: "rgba(255,255,255,0.7)",
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {feat}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA button */}
+                  {plan.href.startsWith("http") ? (
+                    <a
+                      href={plan.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        width: "100%",
+                        marginTop: "32px",
+                        padding: "16px 24px",
+                        borderRadius: "9999px",
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                        background: isPopular ? "#6ee7b7" : "rgba(255,255,255,0.06)",
+                        color: isPopular ? "#050a0f" : "#ffffff",
+                        border: isPopular ? "none" : "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: isPopular ? "0 8px 32px rgba(110,231,183,0.25)" : "none",
+                      }}
+                      className="group"
+                      onMouseEnter={(e) => {
+                        if (isPopular) {
+                          e.currentTarget.style.background = "#a7f3d0";
+                          e.currentTarget.style.boxShadow = "0 12px 40px rgba(110,231,183,0.35)";
+                        } else {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isPopular) {
+                          e.currentTarget.style.background = "#6ee7b7";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(110,231,183,0.25)";
+                        } else {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                        }
+                      }}
+                    >
+                      {plan.cta}
+                      <ArrowRight
+                        style={{ width: "16px", height: "16px" }}
+                        className="transition-transform duration-300 group-hover:translate-x-0.5"
+                      />
+                    </a>
+                  ) : (
+                    <Link
+                      href={plan.href}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        width: "100%",
+                        marginTop: "32px",
+                        padding: "16px 24px",
+                        borderRadius: "9999px",
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                        background: isPopular ? "#6ee7b7" : "rgba(255,255,255,0.06)",
+                        color: isPopular ? "#050a0f" : "#ffffff",
+                        border: isPopular ? "none" : "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: isPopular ? "0 8px 32px rgba(110,231,183,0.25)" : "none",
+                      }}
+                      className="group"
+                      onMouseEnter={(e) => {
+                        if (isPopular) {
+                          e.currentTarget.style.background = "#a7f3d0";
+                          e.currentTarget.style.boxShadow = "0 12px 40px rgba(110,231,183,0.35)";
+                        } else {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isPopular) {
+                          e.currentTarget.style.background = "#6ee7b7";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(110,231,183,0.25)";
+                        } else {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                        }
+                      }}
+                    >
+                      {plan.cta}
+                      <ArrowRight
+                        style={{ width: "16px", height: "16px" }}
+                        className="transition-transform duration-300 group-hover:translate-x-0.5"
+                      />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Guarantee badge */}
+        {/* ── Guarantee badges ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
+          className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-center"
         >
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-emerald-400" />
-            <span className="text-sm text-[var(--safe-text-muted)] font-sans">30 jours satisfait ou remboursé</span>
-          </div>
-          <span className="hidden sm:block text-white/10">|</span>
-          <span className="text-sm text-[var(--safe-text-muted)] font-sans">Aucun engagement, annulez en 2 clics</span>
-          <span className="hidden sm:block text-white/10">|</span>
-          <span className="text-sm text-[var(--safe-text-muted)] font-sans">Vos données exportables en tout temps</span>
+          {[
+            { icon: Shield, text: "30 jours satisfait ou remboursé" },
+            { text: "Aucun engagement, annulez en 2 clics" },
+            { text: "Vos données exportables en tout temps" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3">
+              {item.icon && (
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    background: "rgba(110,231,183,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <item.icon style={{ width: "14px", height: "14px", color: "#6ee7b7" }} />
+                </div>
+              )}
+              {!item.icon && i > 0 && (
+                <span className="hidden sm:block" style={{ color: "rgba(255,255,255,0.08)", marginRight: "8px" }}>
+                  |
+                </span>
+              )}
+              <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>
+                {item.text}
+              </span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>
