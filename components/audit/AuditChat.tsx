@@ -1394,7 +1394,7 @@ function ScoreGauge({ score, size = 160 }: { score: number; size?: number }) {
    Main Component
    ───────────────────────────────────────────── */
 
-export default function AuditChat() {
+export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(-1); // -1 = intro
   const [responses, setResponses] = useState<Partial<AuditResponses>>({});
@@ -1474,7 +1474,7 @@ export default function AuditChat() {
           {
             id: uid(),
             sender: "auditor",
-            text: "👋 Bonjour ! Je suis Me Audrey Fortier, auditrice spécialisée en efficacité des cabinets juridiques.\n\n📋 Cet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\n🔒 Tout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
+            text: "👋 Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\n📋 Cet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\n🔒 Tout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
             timestamp: Date.now(),
           },
         ]);
@@ -1832,11 +1832,11 @@ export default function AuditChat() {
         <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md px-4 py-3">
           <div className="max-w-2xl mx-auto flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
-              AF
+              J
             </div>
             <div className="flex-1">
               <h1 className="text-lg font-semibold font-sans tracking-tight text-[var(--safe-text-title)]">Rapport d&apos;audit d&apos;efficacité</h1>
-              <p className="text-xs text-[var(--safe-text-secondary)] font-sans">Me Audrey Fortier — {new Date().toLocaleDateString("fr-CA")}</p>
+              <p className="text-xs text-[var(--safe-text-secondary)] font-sans">Jérémy, fondateur de SAFE — {new Date().toLocaleDateString("fr-CA")}</p>
             </div>
             <button
               onClick={handleDownloadPDF}
@@ -2035,7 +2035,7 @@ export default function AuditChat() {
               </button>
               <a
                 href="/demo"
-                className="group flex items-center justify-center gap-2 w-full py-3 rounded-safe-md border border-[var(--safe-sage)] bg-white/50 text-[var(--safe-text-title)] font-medium text-sm font-sans hover:bg-[var(--safe-sage)]/20 transition-all duration-300"
+                className="group flex items-center justify-center gap-2 w-full py-3 rounded-safe-md border border-[var(--safe-sage)] bg-white/60 text-[var(--safe-text-title)] font-medium text-sm font-sans hover:bg-[var(--safe-sage)]/20 transition-all duration-300"
               >
                 <Calendar className="w-4 h-4" />
                 Réserver une démo personnalisée
@@ -2065,15 +2065,15 @@ export default function AuditChat() {
       <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 ring-2 ring-[var(--safe-text-secondary)]/20">
-            AF
+            J
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Me Audrey Fortier</h1>
+            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémy — SAFE</h1>
             <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
               {isTyping ? (
                 <span className="text-[var(--safe-text-secondary)] font-medium">écrit...</span>
               ) : (
-                "Auditrice — Efficacité des cabinets juridiques"
+                "Fondateur — SAFE"
               )}
             </p>
           </div>
@@ -2139,7 +2139,7 @@ export default function AuditChat() {
               >
                 {msg.sender === "auditor" && (
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 mr-2 mt-1">
-                    AF
+                    J
                   </div>
                 )}
                 <div
@@ -2390,7 +2390,7 @@ export default function AuditChat() {
           {isTyping && (
             <div className="flex items-start gap-2 audit-msg-appear">
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
-                AF
+                J
               </div>
               <div className="rounded-safe-md rounded-bl-md bg-[var(--safe-text-title)] border border-[var(--safe-text-title)]/10 px-4 py-3">
                 <div className="flex gap-1">

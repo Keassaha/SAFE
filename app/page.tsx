@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import { Navbar } from "@/components/marketing/Navbar";
 import { Hero } from "@/components/marketing/Hero";
-import { LogosTicker } from "@/components/marketing/LogosTicker";
 import { PainPoints } from "@/components/marketing/PainPoints";
 import { Footer } from "@/components/marketing/Footer";
 
@@ -14,11 +13,10 @@ const FinalCTA = dynamic(() => import("@/components/marketing/FinalCTA").then(m 
 
 export default function HomePage() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-[var(--safe-darkest)] text-[var(--safe-white)] scroll-smooth">
+    <div className="relative flex flex-col min-h-screen text-[var(--safe-white)] scroll-smooth">
       <Navbar />
-      <main className="flex-1">
+      <main className="relative z-10 flex-1">
         <Hero />
-        <LogosTicker />
         <PainPoints />
         <About />
         <FeaturesGrid />

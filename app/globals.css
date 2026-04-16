@@ -59,7 +59,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* SAFE V2 Marketing Palette */
-  --safe-darkest: #051F20;     /* Fonds principaux, hero */
+  --safe-darkest: #0b1f19;     /* Fonds principaux, hero */
   --safe-dark: #0B2B26;        /* Navigation, sidebar, footer */
   --safe-mid-dark: #163832;    /* Cartes, sections secondaires */
   --safe-accent: #235347;      /* Accents, hover, boutons primaires */
@@ -146,6 +146,11 @@
   --dashboard-blob-4: radial-gradient(ellipse 50% 50% at 92% 85%, rgba(45, 106, 79, 0.02) 0%, transparent 50%);
   --dashboard-blob-5: radial-gradient(circle 28% at 50% 45%, rgba(255, 255, 255, 0.3) 0%, transparent 40%);
 
+  /* Warm gold accent — CTA principal + éléments de confiance (Barreau) */
+  --safe-warm: #D4A574;
+  --safe-warm-soft: rgba(212, 165, 116, 0.15);
+  --safe-warm-glow: rgba(212, 165, 116, 0.35);
+
   /* Legacy aliases (for Tailwind primary/accent/neutral) */
   --safe-primary-800: var(--safe-green-800);
   --safe-primary-700: var(--safe-green-700);
@@ -191,109 +196,46 @@
   }
 }
 
-/* ═══ Marketing: Progressive day-to-night gradient theme ═══ */
+/* ═══ Marketing: Unified dark stars theme (all sections transparent) ═══ */
 
-/* Tier 1 — Morning: warm cream (top of page) */
-.section-light, .section-morning {
-  background: #F8FDF9;
-  --safe-white: #051F20;
-  --safe-text-muted: #3D6B5A;
-  --safe-sage: #1A5C3A;
-}
-
-/* Blanc cassé — warm off-white for fonctionnalités page */
-.section-blanc-casse {
-  background: #F5F0E8;
-  --safe-white: #051F20;
-  --safe-text-muted: #3D6B5A;
-  --safe-sage: #1A5C3A;
-}
-
-/* Transition blanc cassé → afternoon */
-.section-blanc-casse-mid {
-  background: linear-gradient(to bottom, #F0EBE1 0%, #E4EADF 40%, #D4DFCF 100%);
-  --safe-white: #051F20;
-  --safe-text-muted: #2F5747;
-  --safe-sage: #1A5C3A;
-}
-
-/* Tier 2 — Afternoon: soft sage green (longer gradient) */
-.section-afternoon {
-  background: linear-gradient(to bottom, #F8FDF9 0%, #E8F2EC 30%, #D8E8DF 60%, #C8DDD0 100%);
-  --safe-white: #051F20;
-  --safe-text-muted: #2B4A3E;
-  --safe-sage: #1A5C3A;
-}
-
-/* Tier 3 — Dusk: deep green */
-.section-dusk {
-  position: relative;
-  background: #0F3029;
-  --safe-white: #DAF1DE;
-  --safe-text-muted: #7DAA98;
-  --safe-sage: #8EB69B;
-}
-
-/* Tier 4 — Night: deepest dark */
+/* All section tiers now share one transparent dark palette so the global
+   StarsBackground canvas shows through every page consistently. */
+.section-light,
+.section-morning,
+.section-blanc-casse,
+.section-blanc-casse-mid,
+.section-afternoon,
+.section-dusk,
 .section-night {
   position: relative;
-  background: #051F20;
+  background: transparent;
   --safe-white: #F8FDF9;
   --safe-text-muted: #6B8F7B;
   --safe-sage: #8EB69B;
 }
 
-/* ── Section bridges (milieu seulement — pas début/fin) ── */
-
-/* dusk → night */
-.section-dusk + .section-night::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: linear-gradient(to bottom, #0F3029 0%, #0A2822 50%, #051F20 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* night → dusk */
-.section-night + .section-dusk::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: linear-gradient(to bottom, #051F20 0%, #0A2822 50%, #0F3029 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Dark cards inside light/afternoon sections restore white text */
+/* Dark cards inherit unified palette */
 .section-light .card-dark,
 .section-morning .card-dark,
 .section-afternoon .card-dark,
 .section-blanc-casse .card-dark,
-.section-blanc-casse-mid .card-dark {
+.section-blanc-casse-mid .card-dark,
+.section-dusk .card-dark,
+.section-night .card-dark {
   --safe-white: #F8FDF9;
   --safe-text-muted: #6B8F7B;
   --safe-sage: #8EB69B;
 }
 
-/* Grain texture adapts per tier */
+/* Grain texture unified across tiers */
 .section-light .landing-grain,
 .section-morning .landing-grain,
 .section-blanc-casse .landing-grain,
-.section-blanc-casse-mid .landing-grain {
-  opacity: 0.3;
-}
-.section-afternoon .landing-grain {
+.section-blanc-casse-mid .landing-grain,
+.section-afternoon .landing-grain,
+.section-dusk .landing-grain,
+.section-night .landing-grain {
   opacity: 0.4;
-}
-.section-dusk .landing-grain {
-  opacity: 0.6;
 }
 
 /* App shell: full layout uses deep emerald gradient */
@@ -636,6 +578,82 @@
     -webkit-backdrop-filter: blur(8px);
   }
 
+  /* ── Dashboard — UXPeak-inspired polish ── */
+  .dash-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .dash-blob-1 {
+    width: 400px; height: 400px; top: 5%; left: 5%;
+    background: radial-gradient(circle, rgba(45,106,79,0.06) 0%, transparent 70%);
+    animation: dash-drift-1 20s ease-in-out infinite;
+  }
+  .dash-blob-2 {
+    width: 320px; height: 320px; top: 40%; right: 0;
+    background: radial-gradient(circle, rgba(45,106,79,0.04) 0%, transparent 70%);
+    animation: dash-drift-2 25s ease-in-out infinite;
+  }
+  .dash-blob-3 {
+    width: 260px; height: 260px; bottom: 10%; left: 30%;
+    background: radial-gradient(circle, rgba(90,143,123,0.05) 0%, transparent 70%);
+    animation: dash-drift-3 18s ease-in-out infinite;
+  }
+  .dash-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.02;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+  }
+  .dash-header {
+    position: relative;
+    overflow: hidden;
+    animation: dash-header-breathe 4s ease-in-out infinite;
+  }
+  .dash-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+    animation: dash-shimmer 8s cubic-bezier(.22,1,.36,1) infinite;
+  }
+
+}
+
+@keyframes dash-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(25px, -15px) scale(1.04); }
+  66% { transform: translate(-15px, 10px) scale(0.96); }
+}
+@keyframes dash-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, 20px) scale(1.06); }
+}
+@keyframes dash-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(15px, 15px) scale(0.97); }
+  80% { transform: translate(-10px, -8px) scale(1.03); }
+}
+@keyframes dash-header-breathe {
+  0%, 100% { box-shadow: 0 4px 16px rgba(5,31,32,0.15); }
+  50% { box-shadow: 0 4px 24px rgba(5,31,32,0.25), 0 0 40px rgba(45,106,79,0.06); }
+}
+@keyframes dash-shimmer {
+  0% { transform: translateX(-200%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ── Mobile: disable dash blob animations for GPU perf ── */
+@media (max-width: 768px) {
+  .dash-blob { animation: none !important; opacity: 0.5; }
+  .dash-blob-1 { width: 200px; height: 200px; }
+  .dash-blob-2 { width: 160px; height: 160px; }
+  .dash-blob-3 { display: none; }
 }
 
 @layer utilities {
@@ -981,5 +999,337 @@
   }
   .audit-gauge-fill {
     animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Landing v3 — warm gold CTAs, canvas stars, cursor-glow FAQ
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Warm gold CTA — shimmer sweep sur hover */
+.btn-warm {
+  position: relative;
+  overflow: hidden;
+  background: var(--safe-warm);
+  color: #0a1a12;
+  font-weight: 700;
+  box-shadow: 0 0 30px rgba(212, 165, 116, 0.3);
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+.btn-warm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-warm:hover {
+  box-shadow: 0 0 50px rgba(212, 165, 116, 0.45);
+  transform: translateY(-2px);
+}
+.btn-warm:hover::before {
+  transform: translateX(200%);
+}
+
+/* Pill badge warm gold — Barreau */
+.pill-warm {
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  color: var(--safe-warm);
+  box-shadow: 0 0 20px rgba(212, 165, 116, 0.15);
+}
+
+/* Sage green CTA — shimmer sweep sur hover */
+.btn-sage {
+  position: relative;
+  overflow: hidden;
+  background: var(--safe-sage);
+  color: #0a1a12;
+  font-weight: 700;
+  box-shadow: 0 0 30px rgba(142, 182, 155, 0.3);
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+.btn-sage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-sage:hover {
+  box-shadow: 0 0 50px rgba(142, 182, 155, 0.45);
+  transform: translateY(-2px);
+}
+.btn-sage:hover::before {
+  transform: translateX(200%);
+}
+
+/* ─── Audit page dark mode — variables override ─── */
+.audit-dark-mode {
+  --safe-white: #0C120E;
+  --safe-text-title: #F8FDF9;
+  --safe-text-secondary: #8EB69B;
+}
+.audit-dark-mode header {
+  background: rgba(5, 31, 32, 0.92) !important;
+  border-color: rgba(142, 182, 155, 0.15) !important;
+}
+
+/* Pulse on live counter change */
+@keyframes counterPulse {
+  0% { transform: scale(1); color: var(--safe-sage); }
+  50% { transform: scale(1.1); color: var(--safe-warm); }
+  100% { transform: scale(1); color: var(--safe-sage); }
+}
+.counter-pulse {
+  display: inline-block;
+  animation: counterPulse 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Canvas stars layer */
+.stars-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+/* Float animation for dashboard mockup */
+@keyframes vfloat {
+  0%, 100% { transform: translateY(-8px); }
+  50% { transform: translateY(8px); }
+}
+.v-float { animation: vfloat 6s ease-in-out infinite; }
+
+/* Pulse ring (Phase 4 timeline) */
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--safe-warm);
+  animation: pulseRing 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Twinkle keyframes (for potential JS-less stars) */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+/* Reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* FAQ cursor-glow (accordion v2) */
+.faq-item-v2 {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(142, 182, 155, 0.12);
+  background: linear-gradient(180deg, rgba(19, 28, 22, 0.45), rgba(12, 18, 14, 0.25));
+  border-radius: 16px;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease,
+              box-shadow 0.4s ease;
+}
+.faq-item-v2:hover {
+  transform: translateY(-3px);
+  border-color: rgba(90, 143, 123, 0.35);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    0 0 25px rgba(90, 143, 123, 0.12);
+}
+.faq-item-v2.is-open {
+  background: linear-gradient(180deg, rgba(19, 28, 22, 0.7), rgba(12, 18, 14, 0.4));
+  border-color: rgba(90, 143, 123, 0.35);
+}
+.faq-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  left: -9999px;
+  top: -9999px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(90, 143, 123, 0.07) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.faq-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(142, 182, 155, 0.08),
+    transparent
+  );
+  pointer-events: none;
+  transition: left 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item-v2:hover .faq-shimmer {
+  left: 160%;
+}
+.faq-accent-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--safe-sage), var(--safe-warm));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+}
+.faq-item-v2.is-open .faq-accent-line,
+.faq-item-v2:hover .faq-accent-line {
+  transform: scaleY(1);
+}
+.faq-item-v2:hover .faq-accent-line {
+  box-shadow: 0 0 12px rgba(142, 182, 155, 0.5);
+}
+.faq-icon-btn {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+}
+.faq-item-v2:hover .faq-icon-btn {
+  transform: scale(1.12);
+  box-shadow: 0 0 18px rgba(142, 182, 155, 0.4);
+}
+.faq-item-v2.is-open .faq-icon-btn {
+  transform: rotate(45deg);
+}
+.faq-content-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item-v2.is-open .faq-content-grid {
+  grid-template-rows: 1fr;
+}
+.faq-content-inner {
+  overflow: hidden;
+}
+
+/* Integration cube colored hover */
+.integration-cube {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease,
+              box-shadow 0.45s ease;
+}
+.integration-cube:hover {
+  transform: translateY(-5px);
+}
+.integration-cube[data-brand="google"]:hover {
+  border-color: rgba(66, 133, 244, 0.5);
+  box-shadow: 0 20px 50px rgba(66, 133, 244, 0.22);
+}
+.integration-cube[data-brand="microsoft"]:hover {
+  border-color: rgba(0, 164, 239, 0.5);
+  box-shadow: 0 20px 50px rgba(0, 164, 239, 0.22);
+}
+.integration-cube[data-brand="stripe"]:hover {
+  border-color: rgba(99, 91, 255, 0.5);
+  box-shadow: 0 20px 50px rgba(99, 91, 255, 0.22);
+}
+.integration-cube[data-brand="clio"]:hover {
+  border-color: rgba(155, 89, 182, 0.5);
+  box-shadow: 0 20px 50px rgba(155, 89, 182, 0.22);
+}
+.integration-cube[data-brand="mail"]:hover {
+  border-color: rgba(212, 165, 116, 0.5);
+  box-shadow: 0 20px 50px rgba(212, 165, 116, 0.22);
+}
+
+/* Slider thumb with sage glow (for ROI calculator) */
+.range-safe {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(142, 182, 155, 0.18);
+  border-radius: 9999px;
+  outline: none;
+}
+.range-safe::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--safe-sage);
+  border: 2px solid #0a1a12;
+  box-shadow: 0 0 18px rgba(142, 182, 155, 0.55);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.range-safe::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.range-safe::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--safe-sage);
+  border: 2px solid #0a1a12;
+  box-shadow: 0 0 18px rgba(142, 182, 155, 0.55);
+  cursor: pointer;
+}
+
+/* Timeline gauge gradient */
+.timeline-gauge {
+  background: linear-gradient(
+    180deg,
+    #3D6B5A 0%,
+    #5A8F7B 35%,
+    #8EB69B 70%,
+    #D4A574 100%
+  );
+  box-shadow: 0 0 24px rgba(212, 165, 116, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counter-pulse,
+  .v-float,
+  .pulse-ring,
+  .btn-warm::before {
+    animation: none;
+    transition: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

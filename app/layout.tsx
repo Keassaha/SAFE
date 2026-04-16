@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { StarsBackground } from "@/components/marketing/StarsBackground";
 import { authOptions } from "@/lib/auth";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -62,7 +63,8 @@ export default async function RootLayout({
       lang={locale}
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen font-sans">
+      <body className="min-h-screen font-sans bg-[var(--safe-darkest)] text-[var(--safe-white)]">
+        <StarsBackground />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider session={session ?? null}>
             <MotionProvider>{children}</MotionProvider>
