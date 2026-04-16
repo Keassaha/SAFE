@@ -22,6 +22,9 @@ export type InvoiceTemplateProps = {
   cabinet?: {
     nom: string;
     adresse?: string | null;
+    telephone?: string | null;
+    email?: string | null;
+    barreauNumero?: string | null;
   } | null;
   client?: {
     raisonSociale: string | null;
@@ -105,9 +108,9 @@ export function InvoiceTemplate({
       className={`invoice-template bg-[var(--safe-neutral-surface)] text-[var(--safe-text-title)] overflow-hidden rounded-[var(--safe-radius-xl)] border border-[var(--safe-neutral-border)] shadow-[var(--safe-shadow-lg)] print:shadow-none print:border print:rounded-safe-sm ${className}`}
       style={{ fontFamily: "var(--font-sans)" }}
     >
-      <header className="relative bg-[var(--safe-green-900)] text-white px-6 py-5 sm:px-8 sm:py-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--safe-green-800)] to-[var(--safe-green-950)] opacity-95" />
-        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[var(--safe-green-600)]/20 to-transparent" />
+      <header className="relative bg-neutral-900 text-white px-6 py-5 sm:px-8 sm:py-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950 opacity-95" />
+        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-neutral-600/20 to-transparent" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-[var(--safe-green-100)] text-xs font-semibold uppercase tracking-widest mb-1">
@@ -151,9 +154,21 @@ export function InvoiceTemplate({
           <p className="font-semibold text-[var(--safe-text-title)]">
             {cabinet?.nom ?? "Cabinet"}
           </p>
+          {cabinet?.barreauNumero && (
+            <p className="text-xs text-[var(--safe-text-secondary)]">
+              LSO# {cabinet.barreauNumero}
+            </p>
+          )}
           {cabinet?.adresse && (
             <p className="mt-1 text-sm text-[var(--safe-text-secondary)] whitespace-pre-line">
               {cabinet.adresse}
+            </p>
+          )}
+          {(cabinet?.telephone || cabinet?.email) && (
+            <p className="mt-1 text-sm text-[var(--safe-text-secondary)]">
+              {cabinet.telephone && <span>{cabinet.telephone}</span>}
+              {cabinet.telephone && cabinet.email && <span> | </span>}
+              {cabinet.email && <span>{cabinet.email}</span>}
             </p>
           )}
         </div>

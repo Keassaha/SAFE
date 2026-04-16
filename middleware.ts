@@ -18,6 +18,7 @@ function isProtectedPath(pathname: string): boolean {
     "/outils",
     "/gestion",
     "/import",
+    "/conformite",
   ];
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }

@@ -29,6 +29,7 @@ import {
   Eye,
   FileMinus,
   Coins,
+  ListChecks,
 } from "lucide-react";
 import {
   canViewClients,
@@ -85,8 +86,8 @@ const NAV_ITEMS: NavItem[] = [
   {
     id: "temps",
     href: routes.temps,
-    labelKey: "nav.timesheets",
-    icon: Clock,
+    labelKey: "nav.timesheets", // Overridden dynamically for forfait mode
+    icon: Clock, // Overridden dynamically for forfait mode
     show: () => true,
   },
   {
@@ -231,14 +232,17 @@ export function SidebarNavList({
   role,
   onNavigate,
   navClassName,
+  billingMode,
 }: {
   role?: string;
   onNavigate?: () => void;
   navClassName?: string;
+  billingMode?: "forfait" | "horaire";
 }) {
   const t = useTranslations("shell.sidebar");
   const pathname = usePathname();
   const userRole = (role as UserRole) ?? "avocat";
+  const isForfait = billingMode === "forfait";
   const [expandedId, setExpandedId] = useState<string | null>(() => getExpandedId(pathname));
 
   useEffect(() => {
@@ -256,6 +260,10 @@ export function SidebarNavList({
         {NAV_ITEMS.map((item) => {
           if (!item.show(userRole)) return null;
 
+          // Override for forfait mode: "temps" → "Task Register"
+          const displayLabel = item.id === "temps" && isForfait ? "Task Register" : t(item.labelKey);
+          const DisplayIcon = item.id === "temps" && isForfait ? ListChecks : item.icon;
+
           const visibleChildren = item.children?.filter((c) => c.show(userRole)) ?? [];
           const hasChildren = visibleChildren.length > 0;
           const isExpanded = expandedId === item.id;
@@ -267,8 +275,8 @@ export function SidebarNavList({
             <li key={item.id}>
               <NavLink
                 href={item.href}
-                label={t(item.labelKey)}
-                icon={item.icon}
+                label={displayLabel}
+                icon={DisplayIcon}
                 isActive={isActive}
                 hasChildren={hasChildren}
                 isExpanded={isExpanded}

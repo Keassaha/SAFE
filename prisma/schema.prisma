@@ -12,6 +12,10 @@ model Cabinet {
   id        String   @id @default(cuid())
   nom       String
   adresse   String?
+  telephone String?
+  email     String?
+  logoUrl   String?
+  barreauNumero String?  // LSO#, Barreau# for invoice header
   config    String?  // JSON: tauxInteret, devise, formatFacture
   plan      String   @default("essentiel")
   stripeCustomerId       String?  @unique
@@ -54,6 +58,8 @@ model Cabinet {
   trustReconciliations    TrustReconciliation[]
   trustComplianceReports  TrustComplianceReport[]
   notificationLogs        NotificationLog[]
+  forfaitServices         ForfaitService[]
+  registreTaches          RegistreTache[]
 }
 
 enum UserRole {
@@ -470,6 +476,7 @@ model Dossier {
   conflictChecks        ConflictCheck[]
   notificationLogs      NotificationLog[]
   billingStages         DossierBillingStage[]
+  registreTaches        RegistreTache[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -905,6 +912,7 @@ enum InvoiceLineSourceType {
   time_entry
   expense
   debours_dossier
+  registre_tache
   manual
   interest_run
   credit_note
@@ -1109,6 +1117,7 @@ model InvoiceLine {
   timeEntryRef     TimeEntry?      @relation("InvoiceLineRef")
   expenses         Expense[]
   deboursDossier   DeboursDossier? @relation("DeboursDossierInvoiceLine")
+  registreTache    RegistreTache?  @relation("RegistreTacheInvoiceLine")
   interestCharges  InterestCharge[]
   rabaisItems      InvoiceItem[]
 
@@ -2064,6 +2073,68 @@ model ConflictCheck {
   @@index([cabinetId])
   @@index([dossierId])
   @@index([cabinetId, checkedAt])
+}
+
+// --- Grille de forfaits (catalogue de services avec prix) ---
+model ForfaitService {
+  id          String       @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  code        String       // short code: "IMMO-ACHAT", "IMM-EE"
+  nom         String       // "Real estate purchase", "Express Entry"
+  description String?
+  montant     Float        // default price
+  categorie   DossierType? // immobilier, immigration, etc.
+  sousType    String?      // "achat", "condo", "ee", "parrainage"
+  taxable     Boolean      @default(true)
+  actif       Boolean      @default(true)
+  sortOrder   Int          @default(0)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  registreTaches RegistreTache[]
+
+  @@unique([cabinetId, code])
+  @@index([cabinetId])
+  @@index([cabinetId, categorie])
+}
+
+// --- Registre de tâches forfaitaires (par dossier) ---
+model RegistreTache {
+  id               String   @id @default(cuid())
+  cabinetId        String
+  cabinet          Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId        String
+  dossier          Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  clientId         String?
+
+  forfaitServiceId String?
+  forfaitService   ForfaitService? @relation(fields: [forfaitServiceId], references: [id], onDelete: SetNull)
+
+  description      String   // pré-remplie depuis ForfaitService.nom, modifiable
+  montantBase      Float    // prix catalogue au moment de l'ajout
+  ajustement       Float    @default(0) // +/- ajustement de prix
+  rabais           Float    @default(0) // montant du rabais
+  rabaisRaison     String?  // raison du rabais (affichée sur facture)
+  montantFinal     Float    // montantBase + ajustement - rabais
+  taxable          Boolean  @default(true)
+
+  date             DateTime @default(now())
+  statut           String   @default("complete") // "en_cours" | "complete" | "facture"
+
+  invoiceLineId    String?  @unique
+  invoiceLine      InvoiceLine? @relation("RegistreTacheInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, statut])
+  @@index([dossierId, statut])
 }
 
 // --- Notifications client (COM1, COM2) ---

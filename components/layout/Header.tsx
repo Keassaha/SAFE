@@ -18,6 +18,8 @@ interface HeaderProps {
   hasUnreadNotifications?: boolean;
   /** Ouvre le menu navigation (app shell mobile) */
   onOpenMobileNav?: () => void;
+  /** Mode de facturation du cabinet — si "forfait", masque le chrono */
+  billingMode?: "forfait" | "horaire";
 }
 
 export function Header({
@@ -26,6 +28,7 @@ export function Header({
   cabinetId,
   hasUnreadNotifications = false,
   onOpenMobileNav,
+  billingMode,
 }: HeaderProps) {
   const t = useTranslations("shell.header");
   const currentUserId = (user as { id?: string })?.id ?? "";
@@ -86,7 +89,9 @@ export function Header({
         <div className="safe-topbar-locale text-gray-600">
           <LocaleSwitcher />
         </div>
-        <GlobalTimer cabinetId={cabinetId ?? null} currentUserId={currentUserId} />
+        {billingMode !== "forfait" && (
+          <GlobalTimer cabinetId={cabinetId ?? null} currentUserId={currentUserId} />
+        )}
 
         <button
           type="button"

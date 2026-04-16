@@ -12,20 +12,22 @@ type AppChromeProps = {
   role: string;
   user: Session["user"];
   cabinetId: string | null;
+  billingMode?: "forfait" | "horaire";
 };
 
-export function AppChrome({ children, role, user, cabinetId }: AppChromeProps) {
+export function AppChrome({ children, role, user, cabinetId, billingMode }: AppChromeProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="flex h-[100dvh] bg-[var(--safe-neutral-page)] font-sans overflow-hidden text-[var(--safe-text-title)]">
-      <Sidebar role={role} />
-      <MobileSidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} role={role} />
+      <Sidebar role={role} billingMode={billingMode} />
+      <MobileSidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} role={role} billingMode={billingMode} />
       <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
         <Header
           title="SAFE"
           user={user}
           cabinetId={cabinetId}
+          billingMode={billingMode}
           onOpenMobileNav={() => setMobileNavOpen(true)}
         />
         <main
