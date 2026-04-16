@@ -1836,5 +1836,12 @@
   },
   "validation": {
     "close": "Fermer"
+  },
+  "inscriptionGate": {
+    "title": "L'inscription n'est pas encore disponible",
+    "description": "Pour découvrir SAFE, commencez par notre audit gratuit. En 8 minutes, obtenez un rapport personnalisé sur l'efficacité de votre cabinet. Notre équipe vous accompagnera ensuite dans la mise en place.",
+    "backHome": "Retour à l'accueil",
+    "continue": "Continuer vers l'audit",
+    "chooseLanguage": "Choisissez votre langue"
   }
 }

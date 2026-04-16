@@ -1836,5 +1836,12 @@
   },
   "validation": {
     "close": "Close"
+  },
+  "inscriptionGate": {
+    "title": "Registration is not yet available",
+    "description": "To discover SAFE, start with our free audit. In 8 minutes, get a personalized report on your firm's efficiency. Our team will then guide you through the setup.",
+    "backHome": "Back to home",
+    "continue": "Continue to the audit",
+    "chooseLanguage": "Choose your language"
   }
 }

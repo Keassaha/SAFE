@@ -58,8 +58,8 @@ function AuthPageContent() {
 
   function switchTab(tab: AuthTab) {
     if (tab === "signup") {
-      // Inscription fermée — rediriger vers l'audit gratuit
-      router.push("/audit-gratuit?from=inscription");
+      // Inscription fermée — rediriger vers la page interstitielle
+      router.push("/inscription-gate");
       return;
     }
     setActiveTab(tab);
