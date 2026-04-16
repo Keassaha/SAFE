@@ -7,6 +7,20 @@ import { sanitizeInput } from "@/lib/utils/sanitize";
 import { isRateLimited } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  // Inscription fermée au public — seul un appel avec le token interne est autorisé
+  const SIGNUP_SECRET = process.env.SIGNUP_SECRET;
+  const authHeader = request.headers.get("x-signup-token");
+  if (!SIGNUP_SECRET || authHeader !== SIGNUP_SECRET) {
+    return NextResponse.json(
+      {
+        error:
+          "L'inscription est actuellement fermée. Commencez par un audit gratuit pour découvrir SAFE.",
+        redirectTo: "/audit-gratuit",
+      },
+      { status: 403 }
+    );
+  }
+
   // Rate limiting: 3 inscriptions par minute par IP
   const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   if (isRateLimited(`signup-${ip}`, 3, 60_000)) {

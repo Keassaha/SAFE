@@ -20,11 +20,29 @@ export const metadata: Metadata = {
     "Répondez à quelques questions et recevez un rapport d'audit personnalisé pour votre cabinet d'avocats. Gratuit et confidentiel.",
 };
 
-export default function AuditGratuitPage() {
+export default async function AuditGratuitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const fromInscription = params.from === "inscription";
+
   return (
     <div className="relative flex flex-col h-screen overflow-hidden bg-[var(--safe-white)]">
       <Navbar />
       <main className="flex-1 overflow-hidden pt-24">
+        {fromInscription && (
+          <div className="mx-auto max-w-2xl px-4 mb-4">
+            <div className="rounded-safe border border-primary-200 bg-primary-50 px-5 py-4 text-sm text-primary-900 shadow-sm">
+              <p className="font-semibold">L&apos;inscription directe n&apos;est pas encore disponible.</p>
+              <p className="mt-1 text-primary-700">
+                Commencez par notre audit gratuit de 8 minutes pour découvrir comment SAFE peut transformer votre cabinet.
+                À la fin, notre équipe vous accompagnera personnellement dans la mise en place.
+              </p>
+            </div>
+          </div>
+        )}
         <AuditChat />
       </main>
     </div>

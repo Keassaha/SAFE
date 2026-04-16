@@ -57,18 +57,15 @@ function AuthPageContent() {
   }, [searchParams]);
 
   function switchTab(tab: AuthTab) {
+    if (tab === "signup") {
+      // Inscription fermée — rediriger vers l'audit gratuit
+      router.push("/audit-gratuit?from=inscription");
+      return;
+    }
     setActiveTab(tab);
     setError("");
-    if (tab === "signup") {
-      setSuccess("");
-    }
     const params = new URLSearchParams(searchParams.toString());
-    if (tab === "signup") {
-      params.set("tab", "signup");
-      params.delete("registered");
-    } else {
-      params.delete("tab");
-    }
+    params.delete("tab");
     const query = params.toString();
     router.replace(query ? `/connexion?${query}` : "/connexion");
   }
