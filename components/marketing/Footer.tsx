@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
+const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+
 const footerLinks = {
   produit: [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Tarification", href: "/tarification" },
-    { label: "Réserver une démo", href: "/demo" },
+    { label: "Réserver un appel", href: CALENDLY_URL },
     { label: "Audit gratuit", href: "/audit-gratuit" },
   ],
   legal: [
     { label: "Politique de confidentialité", href: "/confidentialite" },
     { label: "Conditions d'utilisation", href: "/conditions" },
-    { label: "bonjour@safe.quebec", href: "mailto:bonjour@safe.quebec" },
+    { label: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
   ],
 };
 
@@ -39,12 +41,23 @@ export function Footer() {
             <ul className="space-y-3.5">
               {footerLinks.produit.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.href.startsWith("http") ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-[var(--safe-text-muted)] hover:text-[var(--safe-sage)] transition-colors duration-300 font-sans"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
