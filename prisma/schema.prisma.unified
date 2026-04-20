@@ -1,0 +1,2532 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Cabinet {
+  id        String   @id @default(cuid())
+  nom       String
+  adresse   String?
+  telephone String?
+  email     String?
+  logoUrl   String?
+  barreauNumero String?
+  config    String?
+  plan      String   @default("essentiel")
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users                    User[]
+  clients                  Client[]
+  dossiers                 Dossier[]
+  timeEntries              TimeEntry[]
+  expenses                 Expense[]
+  invoices                 Invoice[]
+  payments                 Payment[]
+  documents                Document[]
+  redactionDocuments       RedactionDocument[]
+  emails                   Email[]
+  smses                    SMS[]
+  auditLogs                AuditLog[]
+  documentRetentionPolicies DocumentRetentionPolicy[]
+  trustAccounts            TrustAccount[]
+  trustTransactions        TrustTransaction[]
+  billingRuns              BillingRun[]
+  creditNotes              CreditNote[]
+  deboursTypes             DeboursType[]
+  deboursDossiers          DeboursDossier[]
+  expenseCategories        ExpenseCategory[]
+  bankImportSessions       BankImportSession[]
+  bankImportTransactions   BankImportTransaction[]
+  expenseCategorizationRules ExpenseCategorizationRule[]
+  cabinetExpenses          CabinetExpense[]
+  journalEntries          JournalGeneralEntry[]
+  employees                Employee[]
+  payrollPeriods          PayrollPeriod[]
+  importHistories         ImportHistory[]
+  calendarEvents          CalendarEvent[]
+  dossierTrustMovements   DossierTrustMovement[]
+  dossierReminders        DossierReminder[]
+  auditSubmissions        AuditSubmission[]
+  interfaceConfig         CabinetInterface?
+  trustReconciliations    TrustReconciliation[]
+  trustComplianceReports  TrustComplianceReport[]
+  notificationLogs        NotificationLog[]
+  forfaitServices         ForfaitService[]
+  registreTaches          RegistreTache[]
+  automationRules         AutomationRule[]
+  templates               Template[]
+  notifications           Notification[]
+}
+
+enum UserRole {
+  admin_cabinet
+  avocat
+  assistante
+  comptabilite
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  email              String
+  passwordHash       String
+  nom                String
+  role               UserRole
+  defaultHourlyRate  Float?
+  isBillable         Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  cabinet                    Cabinet                    @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  timeEntries                TimeEntry[]
+  dossiersResponsable        Dossier[]                  @relation("AvocatResponsable")
+  dossiersAssistantJuridique Dossier[]                 @relation("AssistantJuridiqueDossier")
+  documentsUploaded          Document[]
+  documentsReviewed          Document[]                 @relation("DocumentReviewedBy")
+  redactionDocumentsCreated  RedactionDocument[]        @relation("RedactionDocumentAuthor")
+  redactionDocumentsReviewed RedactionDocument[]        @relation("RedactionDocumentReviewedBy")
+  auditLogs                  AuditLog[]
+  consentLogsRecorded        ConsentLog[]
+  clientsLawyerInCharge      Client[]                   @relation("LawyerInCharge")
+  clientsAssignedLawyer      Client[]                   @relation("AssignedLawyer")
+  clientsAssistantAssigned   Client[]                   @relation("AssistantAssigned")
+  tasksAssigned              Task[]                     @relation("TaskAssignee")
+  tasksCreated               Task[]                     @relation("TaskCreator")
+  tasksCompleted             Task[]                     @relation("TaskCompleter")
+  dossierActesAssignees     DossierActe[]
+  dossierNotesCreated        DossierNote[]
+  invoiceItems               InvoiceItem[]
+  invoicesValidated          Invoice[]
+  timeEntriesApproved        TimeEntry[]   @relation("TimeEntryApprovedBy")
+  bankImportSessionsCreated  BankImportSession[]
+  cabinetExpensesCreated     CabinetExpense[]
+  journalEntriesCreated     JournalGeneralEntry[]
+  employee                  Employee?
+  importHistories           ImportHistory[]
+  calendarEventsAssigned    CalendarEvent[]  @relation("CalendarEventAssignee")
+  calendarEventsCreated     CalendarEvent[]  @relation("CalendarEventCreator")
+  mandateResponsable        DossierMandate[] @relation("MandateAvocatResponsable")
+  mandateSubstitut          DossierMandate[] @relation("MandateAvocatSubstitut")
+  trustMovementsValidated   DossierTrustMovement[] @relation("TrustMovementValidatedBy")
+  dossierClosuresClosed     DossierClosure[] @relation("DossierClosureClosedBy")
+  reconciliationsCertified  TrustReconciliation[] @relation("ReconciliationCertifiedBy")
+  complianceReportsGenerated TrustComplianceReport[] @relation("ComplianceReportGeneratedBy")
+  conflictChecksPerformed    ConflictCheck[] @relation("ConflictCheckPerformedBy")
+  emailsSent                 Email[]         @relation("EmailSender")
+  smsesSent                  SMS[]           @relation("SMSSender")
+  notificationsCreated       Notification[]
+  resetToken                String?
+  resetTokenExpiry          DateTime?
+}
+
+enum EmployeeRole {
+  ADMIN_ACCOUNTANT
+  LEAD_LAWYER
+  LAWYER
+  LEGAL_ASSISTANT
+  ACCOUNTING_TECHNICIAN
+  INTERN
+  READ_ONLY
+}
+
+enum EmployeeStatus {
+  active
+  inactive
+}
+
+enum PayrollFrequency {
+  weekly
+}
+
+enum PayrollPeriodStatus {
+  draft
+  closed
+}
+
+enum PayslipStatus {
+  draft
+  generated
+  paid
+}
+
+enum PayslipAdjustmentType {
+  bonus
+  deduction
+  correction
+}
+
+model Employee {
+  id            String         @id @default(cuid())
+  cabinetId     String
+  userId        String?        @unique
+  firstName     String
+  lastName      String
+  fullName      String
+  email         String
+  phone         String?
+  address       String?
+  hireDate      DateTime
+  status        EmployeeStatus @default(active)
+  role          EmployeeRole
+  jobTitle      String?
+  hourlyRate    Float          @default(0)
+  supervisorId  String?
+  responsibilities String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  supervisor  Employee?   @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  subordinates Employee[] @relation("EmployeeSupervisor")
+  payslips    Payslip[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, status])
+  @@index([userId])
+  @@index([supervisorId])
+}
+
+model PayrollPeriod {
+  id          String               @id @default(cuid())
+  cabinetId   String
+  periodStart DateTime
+  periodEnd   DateTime
+  frequency  PayrollFrequency     @default(weekly)
+  status      PayrollPeriodStatus  @default(draft)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  cabinet  Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  payslips Payslip[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, periodStart])
+}
+
+model Payslip {
+  id               String        @id @default(cuid())
+  employeeId       String
+  payrollPeriodId  String
+  hoursWorked      Float         @default(0)
+  hourlyRate       Float
+  grossPay         Float        @default(0)
+  deductions       Float        @default(0)
+  netPay           Float        @default(0)
+  status           PayslipStatus @default(draft)
+  paymentDate      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  employee   Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period     PayrollPeriod       @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
+  adjustments PayslipAdjustment[]
+
+  @@index([employeeId])
+  @@index([payrollPeriodId])
+}
+
+model PayslipAdjustment {
+  id          String               @id @default(cuid())
+  payslipId   String
+  type        PayslipAdjustmentType
+  amount      Float
+  description String?
+  createdAt   DateTime             @default(now())
+
+  payslip Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  @@index([payslipId])
+}
+
+enum TypeClient {
+  personne_physique
+  personne_morale
+}
+
+enum ClientStatus {
+  actif
+  inactif
+  archive
+}
+
+enum PreferredContactMethod {
+  email
+  phone
+  mail
+}
+
+enum IdType {
+  passport
+  driver_license
+  other
+}
+
+enum RepresentationType {
+  plaintiff
+  defendant
+  advisor
+}
+
+enum PreferredPaymentMethod {
+  card
+  transfer
+  trust
+  cheque
+}
+
+model Client {
+  id                        String    @id @default(cuid())
+  cabinetId                 String
+  typeClient                TypeClient @default(personne_morale)
+  status                    ClientStatus @default(actif)
+  raisonSociale             String?
+  prenom                    String?
+  nom                       String?
+  dateNaissance             DateTime?
+  numeroRegistreEntreprise  String?
+  contact                   String?
+  email                     String?
+  emailSecondaire           String?
+  telephone                 String?
+  telephoneSecondaire       String?
+  adresse                   String?
+  addressLine1              String?
+  addressLine2              String?
+  city                      String?
+  province                  String?
+  postalCode                String?
+  country                   String?
+  preferredContactMethod    PreferredContactMethod?
+  langue                    String?
+  nas                       String?
+  consentementCollecteAt    DateTime?
+  finalitesConsentement     String?
+  dateVerificationIdentite  DateTime?
+  methodeVerificationIdentite String?
+  idType                    IdType?
+  idNumber                  String?
+  idExpiration              DateTime?
+  identityVerified          Boolean   @default(false)
+  verificationDate          DateTime?
+  retentionJusqua           DateTime?
+  notesConfidentielles      String?
+  lawyerInChargeId          String?
+  assignedLawyerId          String?
+  assistantAssignedId       String?
+  representationType        RepresentationType?
+  retainerSigned            Boolean   @default(false)
+  retainerDate              DateTime?
+  trustAccountBalance       Float     @default(0)
+  trustAccountId            String?
+  allowTrustPayments        Boolean   @default(false)
+  lastTrustTransactionDate  DateTime?
+  billingContactName        String?
+  billingEmail              String?
+  billingAddress            String?
+  paymentTerms              String?
+  preferredPaymentMethod    PreferredPaymentMethod?
+  creditLimit               Float?
+  clientCode                String?
+  displayName               String?
+  billingAddressLine1       String?
+  billingAddressLine2       String?
+  billingCity               String?
+  billingProvince           String?
+  billingPostalCode         String?
+  billingCountry            String?
+  languagePreference        String?
+  paymentTermsDays          Int?
+  defaultInterestRateAnnual Float?
+  isActive                  Boolean   @default(true)
+  conflictChecked           Boolean   @default(false)
+  conflictCheckDate         DateTime?
+  conflictNotes             String?
+  documentRefs              String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  cabinet             Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  lawyerInCharge      User?               @relation("LawyerInCharge", fields: [lawyerInChargeId], references: [id], onDelete: SetNull)
+  assignedLawyer      User?               @relation("AssignedLawyer", fields: [assignedLawyerId], references: [id], onDelete: SetNull)
+  assistantAssigned   User?               @relation("AssistantAssigned", fields: [assistantAssignedId], references: [id], onDelete: SetNull)
+  dossiers            Dossier[]
+  timeEntries         TimeEntry[]
+  expenses            Expense[]
+  invoices            Invoice[]
+  documents           Document[]
+  trustAccounts       TrustAccount[]
+  trustTransactions   TrustTransaction[]
+  identityVerifications ClientIdentityVerification[]
+  consentLogs         ConsentLog[]
+  payments            Payment[]
+  creditNotes         CreditNote[]
+  billingRuns         BillingRun[]
+  deboursDossiers     DeboursDossier[]
+  journalEntries      JournalGeneralEntry[]
+  calendarEvents      CalendarEvent[]  @relation("CalendarEventClient")
+
+  @@index([cabinetId])
+  @@index([cabinetId, raisonSociale])
+  @@index([cabinetId, status])
+  @@index([assignedLawyerId])
+}
+
+enum DossierStatut {
+  ouvert
+  actif
+  en_attente
+  cloture
+  archive
+}
+
+enum DossierType {
+  droit_famille
+  litige_civil
+  criminel
+  immigration
+  immobilier
+  corporate
+  autre
+}
+
+enum ModeFacturationDossier {
+  horaire
+  forfait
+  retainer
+  contingent
+}
+
+model Dossier {
+  id                         String                 @id @default(cuid())
+  cabinetId                  String
+  clientId                   String
+  avocatResponsableId       String?
+  assistantJuridiqueId       String?
+  reference                  String?
+  numeroDossier              String?
+  matterCode                 String?
+  intitule                   String
+  statut                     DossierStatut          @default(actif)
+  type                       DossierType?
+  descriptionConfidentielle  String?
+  resumeDossier              String?
+  notesStrategieJuridique    String?
+  tribunalNom                String?
+  districtJudiciaire         String?
+  numeroDossierTribunal      String?
+  nomJuge                    String?
+  modeFacturation            ModeFacturationDossier?
+  tauxHoraire                Float?
+  soldeFiducieDossier        Float?                 @default(0)
+  autoriserPaiementFiducie   Boolean                @default(false)
+  dateOuverture              DateTime               @default(now())
+  dateCloture                DateTime?
+  retentionJusqua            DateTime?
+  lastActivityAt             DateTime               @default(now())
+
+  // Immobilier-specific fields
+  sousType                   String?
+  closingDate                DateTime?
+  propertyAddress            String?
+  fintracVerified            Boolean                @default(false)
+  fintracVerifiedAt          DateTime?
+  fintracVerifiedById        String?
+  fintracDocuments           String?
+  condoPINParking            String?
+  condoPINLocker             String?
+
+  // Immigration-specific fields
+  irccStatut                 String?
+  irccNumDossier             String?
+  itaDate                    DateTime?
+  submissionDeadline         DateTime?
+  cnpCode                    String?
+  cnpValidated               Boolean                @default(false)
+
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+
+  cabinet              Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client               Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  avocatResponsable    User?            @relation("AvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  assistantJuridique   User?            @relation("AssistantJuridiqueDossier", fields: [assistantJuridiqueId], references: [id], onDelete: SetNull)
+  timeEntries          TimeEntry[]
+  expenses             Expense[]
+  documents            Document[]
+  redactionDocuments   RedactionDocument[]
+  tasks                Task[]
+  evenements           DossierEvenement[]
+  actesLexTrack        DossierActe[]
+  notes                DossierNote[]
+  invoices             Invoice[]
+  trustAccounts        TrustAccount[]
+  trustTransactions    TrustTransaction[]
+  invoiceLines         InvoiceLine[]
+  deboursDossiers      DeboursDossier[]
+  cabinetExpenses      CabinetExpense[]
+  journalEntries      JournalGeneralEntry[]
+  calendarEvents      CalendarEvent[]  @relation("CalendarEventDossier")
+  clientInfo           DossierClientInfo?
+  mandate              DossierMandate?
+  pieces               DossierPiece[]
+  procedures           DossierProcedure[]
+  judgments            DossierJudgment[]
+  correspondence       DossierCorrespondence[]
+  trustMovements       DossierTrustMovement[]
+  closure              DossierClosure?
+  reminders            DossierReminder[]
+  immigrationBackground ImmigrationBackground?
+  immigrationDocuments  ImmigrationDocument[]
+  conflictChecks        ConflictCheck[]
+  notificationLogs      NotificationLog[]
+  billingStages         DossierBillingStage[]
+  registreTaches        RegistreTache[]
+
+  @@unique([cabinetId, numeroDossier])
+  @@index([cabinetId])
+  @@index([cabinetId, clientId])
+  @@index([cabinetId, statut])
+  @@index([cabinetId, type])
+  @@index([avocatResponsableId])
+  @@index([assistantJuridiqueId])
+  @@index([cabinetId, lastActivityAt])
+}
+
+// ========== TASKS (Module Gestion de Projet) ==========
+
+enum TaskCategory {
+  PROCEDURE
+  COMMUNICATION_CLIENT
+  COMMUNICATION_COLLEAGUE
+  DRAFTING
+  RESEARCH
+  NEGOTIATION
+  COURT_APPEARANCE
+  BILLING
+  ADMIN
+  OTHER
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  BLOCKED
+}
+
+model Task {
+  id            String       @id @default(cuid())
+  dossierId     String
+  cabinetId     String
+  assigneeId    String?
+  createdById   String
+  title         String
+  description   String?
+  category      TaskCategory @default(OTHER)
+  priority      TaskPriority @default(NORMAL)
+  status        TaskStatus   @default(PENDING)
+  dueDate       DateTime?
+  completedAt   DateTime?
+  completedById String?
+  autoGenerated Boolean      @default(false)
+  ruleTriggeredId String?
+  reminderSent  Boolean      @default(false)
+  parentTaskId  String?
+  tags          String[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  dossier       Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet       Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  assignee      User?        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy     User         @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  completedBy   User?        @relation("TaskCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+  ruleTriggered AutomationRule? @relation(fields: [ruleTriggeredId], references: [id], onDelete: SetNull)
+  parentTask    Task?        @relation("TaskChain", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  childTasks    Task[]       @relation("TaskChain")
+  calendarEvent CalendarEvent?
+  notifications Notification[]
+
+  @@index([dossierId, status])
+  @@index([assigneeId, status, dueDate])
+  @@index([dueDate, status])
+  @@index([cabinetId])
+}
+
+// ========== AUTOMATION RULES (Module Gestion de Projet) ==========
+
+enum RuleType {
+  INACTIVITY_ALERT
+  FORCE_ACTIVE_TASK
+  PRE_DEADLINE_REMINDER
+  AUTO_TASK_AFTER_COMPLETION
+  PRACTICE_SPECIFIC
+}
+
+enum RuleScope {
+  FIRM
+  USER
+  CASE_TYPE
+  CLIENT
+}
+
+model AutomationRule {
+  id                String         @id @default(cuid())
+  cabinetId         String
+  type              RuleType
+  name              String
+  description       String?
+  isActive          Boolean        @default(true)
+  config            Json
+  scope             RuleScope      @default(FIRM)
+  scopeFilters      Json?
+  notificationChannels String[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  cabinet   Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  triggers  RuleTrigger[]
+  tasks     Task[]
+
+  @@index([cabinetId, isActive, type])
+}
+
+model RuleTrigger {
+  id              String   @id @default(cuid())
+  dossierId       String
+  cabinetId       String
+  ruleId          String
+  triggeredAt     DateTime @default(now())
+  resolvedAt      DateTime?
+  actionTaken     String?
+  notificationsSent Int    @default(0)
+  createdAt       DateTime @default(now())
+
+  dossier Dossier        @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  rule    AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId, resolvedAt])
+  @@index([triggeredAt])
+}
+
+// ========== CALENDAR EVENTS (Fusion existant + nouveau) ==========
+
+enum CalendarEventType {
+  rendez_vous_client
+  audience
+  reunion_interne
+  echeance
+  rappel
+  court_appearance
+  deadline
+  client_meeting
+  internal_meeting
+  deposition
+  task_due
+  autre
+}
+
+enum CalendarEventStatus {
+  planifie
+  confirme
+  annule
+  termine
+}
+
+model CalendarEvent {
+  id            String              @id @default(cuid())
+  cabinetId     String
+  dossierId     String?
+  clientId      String?
+  userId        String?
+  taskId        String?             @unique
+  title         String
+  description   String?
+  type          CalendarEventType   @default(rendez_vous_client)
+  status        CalendarEventStatus @default(planifie)
+  startAt       DateTime
+  endAt         DateTime
+  date          DateTime?           // Backward compat avec old date field
+  startTime     String?             // HH:mm
+  endTime       String?             // HH:mm
+  allDay        Boolean             @default(false)
+  location      String?
+  videoLink     String?
+  color         String?
+  externalId    String?
+  externalSource String?
+  remindersBefore Int[]             // En minutes: [10, 60, 1440]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  cabinet   Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier   Dossier? @relation("CalendarEventDossier", fields: [dossierId], references: [id], onDelete: SetNull)
+  client    Client?  @relation("CalendarEventClient", fields: [clientId], references: [id], onDelete: SetNull)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  createdBy User?    @relation("CalendarEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  assignee  User?    @relation("CalendarEventAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+
+  createdById String?
+  assigneeId  String?
+
+  @@index([cabinetId])
+  @@index([cabinetId, startAt])
+  @@index([cabinetId, assigneeId])
+  @@index([userId, startAt])
+  @@index([dossierId])
+}
+
+// ========== NOTIFICATIONS (Module Gestion de Projet) ==========
+
+enum NotificationType {
+  TASK_DUE_SOON
+  TASK_OVERDUE
+  CASE_INACTIVE
+  CASE_NEEDS_TASK
+  DEADLINE_APPROACHING
+  NEW_TASK_ASSIGNED
+  TASK_COMPLETED
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  URGENT
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  cabinetId  String
+  userId     String
+  dossierId  String?
+  taskId     String?
+  eventId    String?
+  title      String
+  body       String
+  type       NotificationType
+  severity   NotificationSeverity @default(INFO)
+  readAt     DateTime?
+  actionUrl  String?
+  channels   String[]
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  cabinet Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dossier Dossier?     @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  task    Task?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  event   CalendarEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt])
+  @@index([cabinetId])
+}
+
+// ========== REDACTION DOCUMENTS (Module Documents) ==========
+
+enum DocumentType {
+  LEGAL_DOCUMENT
+  EMAIL
+  SMS
+  LETTER
+  PROCEDURE
+  LEGAL_OPINION
+  CONTRACT
+}
+
+enum DocumentStatus {
+  DRAFT
+  AI_GENERATED
+  PENDING_REVIEW
+  FINALIZED
+  SENT
+  ARCHIVED
+}
+
+enum TemplateCategory {
+  CORRESPONDENCE
+  RETAINER_AND_MANDATE
+  CIVIL_PROCEDURE
+  FAMILY_LAW
+  REAL_ESTATE
+  SUCCESSIONS
+  LABOUR
+  CRIMINAL
+  GENERAL
+}
+
+enum PracticeArea {
+  CIVIL
+  FAMILY
+  REAL_ESTATE
+  CRIMINAL
+  LABOUR
+  SUCCESSIONS
+  CORPORATE
+  IMMIGRATION
+  GENERAL
+}
+
+enum Jurisdiction {
+  QC
+  ON
+}
+
+enum EmailStatus {
+  DRAFT
+  SENDING
+  SENT
+  FAILED
+  BOUNCED
+}
+
+enum SMSStatus {
+  DRAFT
+  SENDING
+  SENT
+  FAILED
+  UNDELIVERED
+}
+
+enum AISuggestionStatus {
+  PENDING
+  ACCEPTED
+  MODIFIED
+  REJECTED
+}
+
+model RedactionDocument {
+  id              String           @id @default(cuid())
+  dossierId       String
+  cabinetId       String
+  authorId        String
+  type            DocumentType
+  templateId      String?
+  title           String
+  content         Json
+  variables       Json
+  status          DocumentStatus   @default(DRAFT)
+  generatedByAI   Boolean          @default(false)
+  aiPrompt        String?
+  fileUrl         String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  finalizedAt     DateTime?
+
+  dossier         Dossier          @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet         Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  author          User             @relation("RedactionDocumentAuthor", fields: [authorId], references: [id])
+  template        Template?        @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  versions        DocumentVersion[]
+  emails          Email[]
+  aiSuggestions   AISuggestion[]
+
+  @@index([dossierId, status])
+  @@index([authorId])
+  @@index([cabinetId])
+}
+
+model DocumentVersion {
+  id           String   @id @default(cuid())
+  documentId   String
+  content      Json
+  variables    Json
+  versionNumber Int
+  createdBy    String
+  createdAt    DateTime @default(now())
+  note         String?
+
+  document     RedactionDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, versionNumber])
+  @@index([documentId])
+}
+
+model Template {
+  id            String        @id @default(cuid())
+  cabinetId     String
+  name          String
+  category      TemplateCategory
+  practice      PracticeArea
+  jurisdiction  Jurisdiction  @default(QC)
+  description   String?
+  content       Json
+  variables     Json
+  isSystem      Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  cabinet       Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  documents     RedactionDocument[]
+
+  @@index([cabinetId, category, practice, jurisdiction])
+}
+
+model Email {
+  id           String       @id @default(cuid())
+  dossierId    String
+  cabinetId    String
+  senderId     String
+  recipient    String
+  recipientName String?
+  cc           String[]
+  bcc          String[]
+  subject      String
+  body         String
+  status       EmailStatus  @default(DRAFT)
+  attachments  Json
+  documentId   String?
+  providerId   String?
+  sentAt       DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  dossier      Dossier             @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet      Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  sender       User                @relation("EmailSender", fields: [senderId], references: [id])
+  document     RedactionDocument?  @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model SMS {
+  id           String     @id @default(cuid())
+  dossierId    String
+  cabinetId    String
+  senderId     String
+  recipient    String
+  recipientName String?
+  body         String
+  status       SMSStatus  @default(DRAFT)
+  providerId   String?
+  segments     Int        @default(1)
+  sentAt       DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  sender  User    @relation("SMSSender", fields: [senderId], references: [id])
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model AISuggestion {
+  id          String   @id @default(cuid())
+  documentId  String
+  position    Int
+  suggestion  String
+  context     String?
+  status      AISuggestionStatus @default(PENDING)
+  acceptedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  document    RedactionDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, status])
+}
+
+// ========== EXISTING MODELS (Conserved) ==========
+
+model DossierClientInfo {
+  id                   String    @id @default(cuid())
+  dossierId            String    @unique
+  nasEncrypted         String?
+  dateNaissance        DateTime? @db.Date
+  regimeMatrimonial    String?
+  dateMariage          DateTime? @db.Date
+  dateSeparation       DateTime? @db.Date
+  statutMatrimonial    String?
+  enfants              Json?
+  situationFinanciere  Json?
+  identiteCoordonnees  Json?
+  situationFamiliale   Json?
+  updatedAt            DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierMandate {
+  id                    String    @id @default(cuid())
+  dossierId              String    @unique
+  numeroDossier          String?   @unique
+  dateOuverture          DateTime?
+  avocatResponsableId    String?
+  avocatSubstitutId      String?
+  typeCause              String?
+  districtJudiciaire     String?
+  tribunal               String?
+  numeroRole             String?
+  estimationHonoraires   Decimal?  @db.Decimal(12, 2)
+  provisionInitiale      Decimal?  @db.Decimal(12, 2)
+  statutDossier          String?
+  checklist              Json?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  dossier             Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  avocatResponsable   User?   @relation("MandateAvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  avocatSubstitut     User?   @relation("MandateAvocatSubstitut", fields: [avocatSubstitutId], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+}
+
+model DossierPiece {
+  id            String    @id @default(cuid())
+  dossierId     String
+  partie        String
+  numero        String
+  titre         String
+  description   String?
+  categorie     String?
+  statut        String    @default("Manquant")
+  dateReception DateTime? @db.Date
+  fichierUrl    String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([dossierId, partie])
+}
+
+model DossierProcedure {
+  id                String    @id @default(cuid())
+  dossierId         String
+  typeProcedure     String
+  description       String?
+  dateDepot         DateTime? @db.Date
+  dateSignification DateTime? @db.Date
+  statut            String    @default("À déposer")
+  fichierUrl        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierJudgment {
+  id                 String    @id @default(cuid())
+  dossierId           String
+  typeJugement        String
+  dispositions       String?
+  dateJugement       DateTime? @db.Date
+  dateLimiteAppel    DateTime? @db.Date
+  statutAppel        String?   @default("En cours")
+  fichierUrl         String?
+  createdAt           DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierCorrespondence {
+  id                  String    @id @default(cuid())
+  dossierId           String
+  typeCommunication   String
+  titre               String?
+  expediteur          String?
+  destinataire        String?
+  dateCommunication   DateTime? @db.Date
+  fichierUrl          String?
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+}
+
+model DossierTrustMovement {
+  id             String    @id @default(cuid())
+  dossierId      String
+  cabinetId      String
+  amount         Decimal   @db.Decimal(12, 2)
+  direction      String
+  typeMouvement  String?
+  description    String?
+  status         String    @default("PENDING")
+  validatedById  String?
+  validatedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  dossier       Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet       Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  validatedBy   User?   @relation("TrustMovementValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model DossierClosure {
+  id              String     @id @default(cuid())
+  dossierId       String     @unique
+  checklist       Json?
+  closedById      String?
+  closedAt        DateTime?
+  destructionDate DateTime?  @db.Date
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  closedBy User?  @relation("DossierClosureClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+}
+
+model DossierReminder {
+  id        String   @id @default(cuid())
+  dossierId String?
+  cabinetId String
+  type      String?
+  message   String?
+  dueDate   DateTime @db.Date
+  isSent    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model DossierNote {
+  id           String   @id @default(cuid())
+  dossierId    String
+  createdById  String?
+  typeNote     String?
+  content      String
+  confidentiel Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+  @@index([createdById])
+}
+
+enum DossierEvenementType {
+  audience
+  reunion_client
+  echeance
+  depot
+  relance_facture
+}
+
+model DossierEvenement {
+  id        String               @id @default(cuid())
+  dossierId String
+  type      DossierEvenementType
+  titre     String
+  date      DateTime
+  lieu      String?
+  notes     String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([dossierId, date])
+}
+
+enum LexTrackPhase {
+  INSTRUCTION
+  MISE_EN_ETAT
+  PLAIDOIRIES
+  DELIBERE
+}
+
+enum LexTrackActeType {
+  analyse
+  acte
+  recherche
+  admin
+  audience
+  echeance
+}
+
+enum LexTrackActeStatut {
+  todo
+  inprogress
+  upcoming
+  done
+}
+
+enum LexTrackPriorite {
+  basse
+  moyenne
+  haute
+  critique
+}
+
+model DossierActe {
+  id          String              @id @default(cuid())
+  dossierId   String
+  assigneeId  String
+  phase       LexTrackPhase
+  type        LexTrackActeType
+  status      LexTrackActeStatut  @default(todo)
+  priority    LexTrackPriorite    @default(moyenne)
+  title       String
+  description String?
+  deadline    DateTime
+  tags        String?
+  sortOrder   Int                 @default(0)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  assignee User    @relation(fields: [assigneeId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([assigneeId])
+  @@index([dossierId, phase])
+  @@index([dossierId, assigneeId])
+}
+
+enum TimeEntryStatut {
+  brouillon
+  valide
+  facture
+}
+
+enum BillingStatus {
+  NON_BILLED
+  READY_TO_BILL
+  IN_DRAFT_INVOICE
+  BILLED
+  NON_BILLABLE
+  WRITTEN_OFF
+  CANCELLED
+}
+
+model TimeEntry {
+  id              String           @id @default(cuid())
+  cabinetId       String
+  dossierId       String?
+  clientId        String?
+  userId          String
+  date            DateTime
+  dureeMinutes    Int
+  description     String?
+  typeActivite    String?
+  facturable      Boolean          @default(true)
+  statut          TimeEntryStatut  @default(brouillon)
+  tauxHoraire     Float
+  montant         Float
+  workDate        DateTime?
+  startTime       DateTime?
+  endTime         DateTime?
+  durationHours   Float?
+  internalNote    String?
+  hourlyRate      Float?
+  feeAmount      Float?
+  taxable         Boolean          @default(true)
+  billingStatus   BillingStatus?   @default(NON_BILLED)
+  invoiceId       String?
+  invoiceLineId   String?          @unique
+  isWrittenOff    Boolean          @default(false)
+  writeOffReason  String?
+  approvedById    String?
+  approvedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  cabinet       Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier       Dossier?      @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  client        Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice         Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  invoiceLine     InvoiceLine? @relation("InvoiceLineRef", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+  invoiceLines    InvoiceLine[] @relation("TimeEntryAsSource")
+  invoiceItems    InvoiceItem[]
+  approvedBy      User?        @relation("TimeEntryApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, dossierId])
+  @@index([cabinetId, clientId])
+  @@index([cabinetId, date])
+  @@index([cabinetId, userId])
+  @@index([cabinetId, statut])
+  @@index([billingStatus])
+  @@index([invoiceId])
+}
+
+enum InvoiceStatut {
+  brouillon
+  envoyee
+  partiellement_payee
+  payee
+  en_retard
+}
+
+enum InvoiceStatusBilling {
+  DRAFT
+  READY_TO_ISSUE
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+  CREDITED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERPAID
+}
+
+enum AllocationStatus {
+  UNALLOCATED
+  PARTIALLY_ALLOCATED
+  ALLOCATED
+  REVERSED
+}
+
+enum IssueMethod {
+  manual
+  generated_from_billing
+  recurring
+  trust_transfer
+}
+
+enum InvoiceLineType {
+  fee
+  expense
+  adjustment
+  interest
+  credit
+  trust_application
+}
+
+enum InvoiceLineSourceType {
+  time_entry
+  expense
+  debours_dossier
+  registre_tache
+  manual
+  interest_run
+  credit_note
+  trust
+}
+
+enum CreditNoteStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_APPLIED
+  FULLY_APPLIED
+  CANCELLED
+}
+
+enum ReminderType {
+  reminder_1
+  reminder_2
+  final_notice
+  interest_notice
+}
+
+enum ReminderChannel {
+  email
+  manual
+  printed
+}
+
+enum TrustTransactionTypeBilling {
+  deposit
+  withdrawal
+  transfer_to_invoice
+  correction
+  refund
+}
+
+enum SourceAccountType {
+  operating
+  trust
+  external
+}
+
+enum PaymentMethodBilling {
+  cash
+  cheque
+  e_transfer
+  card
+  bank_transfer
+  trust
+  other
+}
+
+enum BillingRunType {
+  preview
+  draft_generation
+  final_generation
+}
+
+enum MatterGroupMode {
+  by_matter
+  by_client
+  mixed
+}
+
+enum InvoiceItemType {
+  honoraires
+  debours_taxable
+  debours_non_taxable
+  frais_rappel
+  interets
+  rabais
+}
+
+enum PaymentMethod {
+  carte
+  virement
+  cheque
+  trust
+  autre
+}
+
+enum TrustTransactionType {
+  deposit
+  withdrawal
+  correction
+}
+
+enum TrustModePaiement {
+  CHEQUE
+  VIREMENT
+  INTERAC
+  ESPECES
+  AUTRE
+}
+
+model Invoice {
+  id                        String        @id @default(cuid())
+  cabinetId                 String
+  clientId                  String
+  dossierId                 String?
+  numero                    String
+  dateEmission               DateTime
+  dateEcheance              DateTime
+  statut                    InvoiceStatut @default(brouillon)
+  invoiceStatus             InvoiceStatusBilling? @default(DRAFT)
+  montantTotal              Float         @default(0)
+  montantPaye               Float         @default(0)
+  subtotalTaxable           Float         @default(0)
+  tps                       Float         @default(0)
+  tvq                       Float         @default(0)
+  deboursNonTaxableTotal    Float         @default(0)
+  trustApplied              Float         @default(0)
+  balanceDue                Float         @default(0)
+  tauxInteret               Float?
+  dateLimiteInterets        DateTime?
+  lastReminderDay           Int?
+  lastInterestAppliedAt     DateTime?
+  validatedAt               DateTime?
+  validatedById             String?
+  currency                  String?       @default("CAD")
+  subtotalFees              Float         @default(0)
+  subtotalExpenses          Float         @default(0)
+  subtotalAdjustments       Float         @default(0)
+  subtotalInterest          Float         @default(0)
+  subtotalBeforeTax         Float         @default(0)
+  taxGst                    Float         @default(0)
+  taxQst                    Float         @default(0)
+  taxTotal                  Float         @default(0)
+  trustAppliedAmount        Float         @default(0)
+  creditAppliedAmount       Float         @default(0)
+  totalInvoiceAmount        Float         @default(0)
+  totalPaidAmount           Float         @default(0)
+  interestAccrued           Float         @default(0)
+  paymentStatus             PaymentStatus? @default(UNPAID)
+  issueMethod               IssueMethod?
+  billingGroupKey           String?
+  clientNote                String?
+  internalNote              String?
+  sentAt                    DateTime?
+  approvedAt                DateTime?
+  approvedById              String?
+  cancelledAt               DateTime?
+  cancelReason              String?
+  createdById               String?
+  shareToken                String?       @unique
+  shareTokenExpiresAt       DateTime?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+
+  cabinet           Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier           Dossier?          @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  validatedBy       User?             @relation(fields: [validatedById], references: [id], onDelete: SetNull)
+  invoiceItems      InvoiceItem[]
+  invoiceLines      InvoiceLine[]
+  payments          Payment[]
+  paymentAllocations PaymentAllocation[]
+  reminderLogs      InvoiceReminder[]
+  expenses          Expense[]
+  timeEntries       TimeEntry[]
+  creditNotes       CreditNote[]
+  creditNoteApplications CreditNoteApplication[]
+  interestCharges   InterestCharge[]
+  deboursDossiers   DeboursDossier[]
+  trustTransactions TrustTransaction[]
+  billingStages     DossierBillingStage[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, statut])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([validatedById])
+  @@index([invoiceStatus])
+  @@index([paymentStatus])
+}
+
+model InvoiceLine {
+  id                String   @id @default(cuid())
+  invoiceId         String
+  timeEntryId       String?
+  description       String
+  quantite          Float
+  tauxUnitaire      Float
+  montant           Float
+  lineType          InvoiceLineType?  @default(fee)
+  sourceType        InvoiceLineSourceType? @default(manual)
+  sourceId          String?
+  matterId          String?
+  serviceDate       DateTime?
+  lineSubtotal      Float?
+  taxable           Boolean  @default(true)
+  gstAmount         Float    @default(0)
+  qstAmount         Float    @default(0)
+  lineTotal         Float?
+  sortOrder         Int       @default(0)
+  validationComment String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  invoice       Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  timeEntry     TimeEntry? @relation("TimeEntryAsSource", fields: [timeEntryId], references: [id], onDelete: SetNull)
+  matter        Dossier?   @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  timeEntryRef     TimeEntry?      @relation("InvoiceLineRef")
+  expenses         Expense[]
+  deboursDossier   DeboursDossier? @relation("DeboursDossierInvoiceLine")
+  registreTache    RegistreTache?  @relation("RegistreTacheInvoiceLine")
+  interestCharges  InterestCharge[]
+  rabaisItems      InvoiceItem[]
+
+  @@index([invoiceId])
+  @@index([timeEntryId])
+  @@index([matterId])
+}
+
+model InvoiceItem {
+  id                      String          @id @default(cuid())
+  invoiceId               String
+  type                    InvoiceItemType
+  description             String
+  date                    DateTime
+  hours                   Float?
+  rate                    Float?
+  amount                  Float
+  userId                  String?
+  professionalDisplayName String?
+  timeEntryId             String?
+  parentItemId            String?
+  parentLineId            String?
+  validationComment       String?
+  createdAt               DateTime        @default(now())
+
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  timeEntry   TimeEntry?  @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
+  parentItem  InvoiceItem?  @relation("RabaisParentItem", fields: [parentItemId], references: [id], onDelete: Cascade)
+  rabaisEnfants InvoiceItem[] @relation("RabaisParentItem")
+  parentLine  InvoiceLine? @relation(fields: [parentLineId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([type])
+  @@index([parentItemId])
+  @@index([parentLineId])
+}
+
+model Payment {
+  id                  String        @id @default(cuid())
+  cabinetId           String
+  clientId            String?
+  invoiceId           String?
+  montant             Float
+  datePaiement        DateTime
+  mode                String?
+  method              PaymentMethod @default(autre)
+  reference           String?
+  paymentMethod       PaymentMethodBilling? @default(other)
+  referenceNumber     String?
+  sourceAccountType   SourceAccountType? @default(operating)
+  allocationStatus    AllocationStatus @default(UNALLOCATED)
+  note                String?
+  receivedById        String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now()) @updatedAt
+
+  cabinet             Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client              Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  invoice             Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  paymentAllocations  PaymentAllocation[]
+
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([invoiceId])
+  @@index([allocationStatus])
+}
+
+model PaymentAllocation {
+  id             String   @id @default(cuid())
+  paymentId      String
+  invoiceId      String
+  allocatedAmount Float
+  allocatedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([invoiceId])
+}
+
+enum InvoiceReminderType {
+  rappel_only
+  frais
+  frais_et_interets
+}
+
+model InvoiceReminder {
+  id              String              @id @default(cuid())
+  invoiceId       String
+  reminderDay     Int?
+  type            InvoiceReminderType?
+  reminderType    ReminderType?
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  status          String?
+  channel         ReminderChannel?
+  amountFrais     Float?
+  amountInterets  Float?
+  note            String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([invoiceId, sentAt])
+}
+
+model TrustAccount {
+  id             String   @id @default(cuid())
+  cabinetId      String
+  clientId       String
+  matterId       String?
+  currentBalance Float    @default(0)
+  currency       String  @default("CAD")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cabinet   Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client    Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matter    Dossier?           @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  transactions TrustTransaction[]
+
+  @@unique([cabinetId, clientId, matterId])
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([matterId])
+}
+
+model TrustTransaction {
+  id                String                    @id @default(cuid())
+  cabinetId         String
+  trustAccountId    String?
+  clientId          String
+  dossierId         String?
+  date              DateTime
+  amount            Float
+  type              TrustTransactionType
+  transactionType   TrustTransactionTypeBilling?
+  balanceAfter      Float?
+  invoiceId         String?
+  note              String?
+  description       String?
+  reference         String?
+  modePaiement      TrustModePaiement?
+  correctionOfId    String?
+  createdById       String?
+  createdAt         DateTime                  @default(now())
+
+  cabinet         Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustAccount    TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
+  client          Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier         Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  invoice         Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  correctionOf    TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
+  corrections     TrustTransaction[] @relation("TrustCorrection")
+
+  @@index([cabinetId])
+  @@index([trustAccountId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([date])
+  @@index([cabinetId, clientId, dossierId, date])
+}
+
+model CreditNote {
+  id               String           @id @default(cuid())
+  cabinetId        String
+  clientId         String
+  invoiceId        String
+  creditNoteNumber String
+  creditDate       DateTime
+  reason           String?
+  status           CreditNoteStatus @default(DRAFT)
+  subtotalCredit   Float            @default(0)
+  gstCredit        Float            @default(0)
+  qstCredit        Float            @default(0)
+  totalCredit      Float            @default(0)
+  appliedAmount    Float            @default(0)
+  remainingAmount  Float            @default(0)
+  createdById      String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  cabinet       Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client        Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoice       Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  applications  CreditNoteApplication[]
+
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([invoiceId])
+  @@index([status])
+}
+
+model CreditNoteApplication {
+  id            String   @id @default(cuid())
+  creditNoteId  String
+  invoiceId     String
+  appliedAmount Float
+  appliedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  creditNote CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+  invoice    Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([creditNoteId])
+  @@index([invoiceId])
+}
+
+model InterestCharge {
+  id              String    @id @default(cuid())
+  invoiceId       String
+  calculationDate DateTime
+  annualRate      Float
+  daysOverdue     Int
+  baseAmount      Float
+  interestAmount  Float
+  status          String
+  invoiceLineId   String?
+  createdAt       DateTime  @default(now())
+
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceLine InvoiceLine? @relation(fields: [invoiceLineId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([invoiceLineId])
+}
+
+model BillingRun {
+  id                  String         @id @default(cuid())
+  cabinetId           String
+  runType             BillingRunType
+  clientId            String
+  matterGroupMode     MatterGroupMode?
+  generatedInvoiceId  String?
+  createdById         String?
+  createdAt           DateTime       @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId])
+  @@index([clientId])
+}
+
+enum IdentityVerificationStatus {
+  en_attente
+  verifie
+  refuse
+}
+
+model ClientIdentityVerification {
+  id          String                     @id @default(cuid())
+  clientId    String
+  date        DateTime
+  methode     String
+  statut      IdentityVerificationStatus @default(en_attente)
+  documentId  String?
+  notes       String?
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+}
+
+model Document {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  clientId      String?
+  dossierId     String?
+  documentType  String?
+  nom           String
+  mimeType      String
+  sizeBytes     Int
+  storageKey    String
+  hash          String?
+  uploadedById  String
+  retentionJusqua DateTime?
+  templateCode  String?
+  aiAssisted    Boolean? @default(false)
+  reviewedAt    DateTime?
+  reviewedById  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cabinet   Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client    Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier   Dossier?  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  uploadedBy User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  reviewedBy User?    @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  identityVerifications ClientIdentityVerification[]
+
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([cabinetId, dossierId])
+  @@index([templateCode])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  cabinetId    String
+  userId       String?
+  entityType   String
+  entityId     String
+  action       String
+  metadata     String?
+  oldValues    String?
+  newValues    String?
+  performedBy  String?
+  performedAt  DateTime?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, entityType])
+  @@index([cabinetId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model Expense {
+  id             String        @id @default(cuid())
+  cabinetId      String
+  clientId       String
+  matterId       String?
+  expenseDate    DateTime
+  description    String
+  vendorName     String?
+  amount         Float
+  taxable        Boolean       @default(false)
+  recoverable    Boolean       @default(true)
+  billingStatus  BillingStatus @default(NON_BILLED)
+  invoiceId      String?
+  invoiceLineId  String?
+  receiptUrl     String?
+  createdById    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matter      Dossier?    @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  invoice     Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  invoiceLine InvoiceLine? @relation(fields: [invoiceLineId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([matterId])
+  @@index([billingStatus])
+  @@index([invoiceId])
+}
+
+model DeboursType {
+  id              String   @id @default(cuid())
+  cabinetId       String
+  nom             String
+  categorie       String
+  description     String?
+  taxable         Boolean  @default(false)
+  isGovernment    Boolean  @default(false)
+  gouvernementRef String?
+  coutDefaut      Float?
+  actif           Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  cabinet          Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  deboursDossiers  DeboursDossier[]
+  deboursTemplates DeboursTemplate[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, categorie])
+}
+
+model DeboursDossier {
+  id             String    @id @default(cuid())
+  cabinetId      String
+  dossierId      String
+  clientId       String
+  deboursTypeId  String?
+  description    String
+  quantite       Float     @default(1)
+  montant        Float
+  taxable        Boolean   @default(false)
+  date           DateTime
+  payeParCabinet Boolean   @default(true)
+  refacturable   Boolean   @default(true)
+  factureId      String?
+  invoiceLineId  String?   @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier     Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  deboursType DeboursType? @relation(fields: [deboursTypeId], references: [id], onDelete: SetNull)
+  facture     Invoice?    @relation(fields: [factureId], references: [id], onDelete: SetNull)
+  invoiceLine InvoiceLine? @relation("DeboursDossierInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([clientId])
+  @@index([factureId])
+  @@index([cabinetId, date])
+}
+
+model ConsentLog {
+  id               String    @id @default(cuid())
+  clientId         String
+  finalites        String
+  consentementAt  DateTime  @default(now())
+  userId           String?
+  versionPolitique String?
+  revokedAt        DateTime?
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+}
+
+model DocumentRetentionPolicy {
+  id             String   @id @default(cuid())
+  cabinetId      String
+  documentType   String
+  retentionYears Int
+  legalBasis     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, documentType])
+  @@index([cabinetId])
+}
+
+enum ExpenseJournalTransactionType {
+  DEPENSE
+  CREDIT
+  IGNORE
+  TRANSFERT
+  AUTRE
+}
+
+enum ExpenseJournalValidationStatus {
+  NOUVEAU
+  PROPOSE
+  A_VALIDER
+  VALIDE
+  CORRIGE
+  IGNORE
+}
+
+enum ExpenseCategorizationRuleSource {
+  SYSTEM
+  USER
+}
+
+model ExpenseCategory {
+  id          String   @id @default(cuid())
+  cabinetId   String
+  name        String
+  code        String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cabinet         Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinetExpenses CabinetExpense[]
+
+  @@unique([cabinetId, name])
+  @@index([cabinetId])
+}
+
+model BankImportSession {
+  id                    String   @id @default(cuid())
+  cabinetId             String
+  fileName              String
+  importedAt            DateTime @default(now())
+  importedById          String?
+  nbLignes              Int      @default(0)
+  nbDepensesDetectees   Int      @default(0)
+  nbAValider            Int      @default(0)
+  status                String   @default("pending")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  cabinet      Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  importedBy   User?                   @relation(fields: [importedById], references: [id], onDelete: SetNull)
+  transactions BankImportTransaction[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, importedAt])
+}
+
+model BankImportTransaction {
+  id                   String    @id @default(cuid())
+  sessionId            String
+  cabinetId            String
+  date                 DateTime
+  rawDescription       String
+  rawAmount            Float
+  rawType              String?
+  rawBalance           Float?
+  reference            String?
+  normalizedSupplier   String?
+  suggestedCategoryId  String?
+  suggestedCategoryName String?
+  suggestedRefacturable Boolean?
+  suggestedDossierId   String?
+  confidence           Float?
+  status               String    @default("new")
+  cabinetExpenseId     String?   @unique
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  session       BankImportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  cabinet       Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinetExpense CabinetExpense?  @relation(fields: [cabinetExpenseId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@index([cabinetId])
+  @@index([cabinetId, date])
+  @@index([status])
+}
+
+model CabinetExpense {
+  id                     String    @id @default(cuid())
+  cabinetId              String
+  transactionImportId    String?   @unique
+  date                   DateTime
+  descriptionBancaire    String
+  fournisseurNormalise   String?
+  categoryId             String?
+  categoryName           String?
+  sousCategorie          String?
+  montant                Float
+  montantHt              Float?
+  tps                    Float?
+  tvq                    Float?
+  montantTtc             Float?
+  typeTransaction        ExpenseJournalTransactionType @default(DEPENSE)
+  dossierId              String?
+  refacturable           Boolean   @default(false)
+  statutValidation       ExpenseJournalValidationStatus @default(NOUVEAU)
+  confidence             Float?
+  createdById            String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  cabinet           Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  category          ExpenseCategory?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  dossier           Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  createdBy         User?                   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  importTransaction BankImportTransaction?
+
+  @@index([cabinetId])
+  @@index([cabinetId, date])
+  @@index([categoryId])
+  @@index([dossierId])
+  @@index([statutValidation])
+  @@index([typeTransaction])
+}
+
+model ExpenseCategorizationRule {
+  id                    String   @id @default(cuid())
+  cabinetId             String
+  pattern               String
+  fournisseurNormalise  String?
+  categoryName          String
+  categoryId            String?
+  refacturable         Boolean  @default(false)
+  dossierId             String?
+  confidence            Float    @default(0.9)
+  source                ExpenseCategorizationRuleSource @default(USER)
+  usageCount            Int      @default(0)
+  lastUsedAt            DateTime?
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId])
+  @@index([cabinetId, source])
+  @@index([isActive])
+}
+
+enum JournalTransactionType {
+  FACTURE
+  PAIEMENT
+  DEPOT_FIDEICOMMIS
+  RETRAIT_FIDEICOMMIS
+  DEBOURS
+  DEPENSE
+  AJUSTEMENT
+  CORRECTION
+}
+
+enum JournalSourceModule {
+  FACTURATION
+  PAIEMENTS
+  FIDEICOMMIS
+  DEPENSES
+  DEBOURS
+  IMPORT_BANCAIRE
+  AJUSTEMENT_MANUEL
+  CORRECTION_SYSTEME
+}
+
+model JournalGeneralEntry {
+  id                String              @id @default(cuid())
+  cabinetId          String
+  dateTransaction   DateTime
+  typeTransaction   JournalTransactionType
+  reference         String?
+  clientId          String?
+  dossierId         String?
+  description       String
+  categorie         String?
+  montantEntree     Float                @default(0)
+  montantSortie     Float                @default(0)
+  solde             Float                @default(0)
+  sourceModule      JournalSourceModule
+  sourceId          String?
+  utilisateurId     String?
+  createdAt         DateTime             @default(now())
+
+  cabinet    Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client     Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  dossier    Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  utilisateur User?   @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+
+  @@map("journal_general")
+  @@index([cabinetId])
+  @@index([cabinetId, dateTransaction])
+  @@index([cabinetId, typeTransaction])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([sourceModule])
+  @@index([cabinetId, clientId, dateTransaction])
+}
+
+enum ImportHistoryStatus {
+  success
+  partial
+  failed
+}
+
+enum ImportHistorySource {
+  safe_import
+  journal_depenses
+}
+
+model ImportHistory {
+  id             String              @id @default(cuid())
+  cabinetId      String
+  userId         String?
+  source         ImportHistorySource @default(safe_import)
+  documentType   String
+  fileName       String
+  status         ImportHistoryStatus @default(success)
+  totalRows      Int                 @default(0)
+  createdCount   Int                 @default(0)
+  updatedCount   Int                 @default(0)
+  skippedCount   Int                 @default(0)
+  errorCount     Int                 @default(0)
+  errors         String?
+  durationMs     Int?
+  createdAt      DateTime            @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, createdAt])
+  @@index([cabinetId, status])
+  @@index([cabinetId, documentType])
+}
+
+model AuditSubmission {
+  id            String   @id @default(cuid())
+  type          String
+  source        String   @default("audit_gratuit")
+  status        String   @default("nouveau")
+
+  prospectNom       String
+  prospectEmail     String?
+  prospectTelephone String?
+  prospectCabinet   String?
+
+  cabinetId     String?
+  cabinet       Cabinet? @relation(fields: [cabinetId], references: [id])
+
+  reponses      String?
+  scoreGlobal   Int?
+  scores        String?
+  rapport       String?
+  configSafe    String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([prospectEmail])
+  @@index([cabinetId])
+  @@index([status])
+}
+
+model CabinetInterface {
+  id          String   @id @default(cuid())
+  cabinetId   String   @unique
+  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id])
+
+  ongletsActifs   String?
+  ongletsMasques  String?
+  modules         String?
+  widgets         String?
+  disciplines     String?
+  checklistsParType String?
+  champsParType   String?
+  modeFacturation String?
+  conformite      String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TrustReconciliation {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  cabinet       Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  periode       String
+
+  soldeBancaire    Float
+  chequesEnCirculation Float @default(0)
+  depotsEnTransit  Float    @default(0)
+  soldeRapproche   Float
+  soldeRegistre    Float
+  soldeParDossier  Float
+  ecart            Float    @default(0)
+
+  certifiedAt    DateTime?
+  certifiedById  String?
+  certifiedBy    User?    @relation("ReconciliationCertifiedBy", fields: [certifiedById], references: [id], onDelete: SetNull)
+
+  interetsLFO      Float    @default(0)
+  interetsPayesAt  DateTime?
+
+  status        String   @default("draft")
+  notes         String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  complianceReports TrustComplianceReport[]
+
+  @@unique([cabinetId, periode])
+  @@index([cabinetId])
+  @@index([cabinetId, status])
+}
+
+model TrustComplianceReport {
+  id              String   @id @default(cuid())
+  cabinetId       String
+  cabinet         Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  periode         String
+  type            String   @default("monthly")
+  generatedAt     DateTime @default(now())
+  generatedById   String
+  generatedBy     User     @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
+
+  pdfUrl          String?
+  status          String   @default("draft")
+  data            String?
+
+  reconciliationId String?
+  reconciliation   TrustReconciliation? @relation(fields: [reconciliationId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, periode])
+}
+
+model ImmigrationBackground {
+  id                  String   @id @default(cuid())
+  dossierId           String   @unique
+  dossier             Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  priorRefusal        Boolean  @default(false)
+  priorRefusalDetails String?
+  overstay            Boolean  @default(false)
+  overstayDetails     String?
+  criminalRecord      Boolean  @default(false)
+  criminalDetails     String?
+  deportation         Boolean  @default(false)
+  deportationDetails  String?
+  misrepresentation   Boolean  @default(false)
+  misrepresentationDetails String?
+
+  clientSignedAt      DateTime?
+  completedAt         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([dossierId])
+}
+
+model ImmigrationDocument {
+  id          String   @id @default(cuid())
+  dossierId   String
+  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  type        String
+  label       String?
+  issuedAt    DateTime?
+  expiresAt   DateTime?
+
+  alertSent30d Boolean @default(false)
+  alertSent7d  Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([expiresAt])
+}
+
+model ConflictCheck {
+  id              String   @id @default(cuid())
+  cabinetId       String
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  checkedAt       DateTime @default(now())
+  checkedById     String
+  checkedBy       User     @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+
+  clientName      String
+  conflictsFound  Boolean  @default(false)
+  conflicts       String?
+
+  resolution      String?
+  resolvedAt      DateTime?
+  resolutionNotes String?
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, checkedAt])
+}
+
+model ForfaitService {
+  id          String       @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  code        String
+  nom         String
+  description String?
+  montant     Float
+  categorie   DossierType?
+  sousType    String?
+  taxable     Boolean      @default(true)
+  actif       Boolean      @default(true)
+  sortOrder   Int          @default(0)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  registreTaches RegistreTache[]
+
+  @@unique([cabinetId, code])
+  @@index([cabinetId])
+  @@index([cabinetId, categorie])
+}
+
+model RegistreTache {
+  id               String   @id @default(cuid())
+  cabinetId        String
+  cabinet          Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId        String
+  dossier          Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  clientId         String?
+
+  forfaitServiceId String?
+  forfaitService   ForfaitService? @relation(fields: [forfaitServiceId], references: [id], onDelete: SetNull)
+
+  description      String
+  montantBase      Float
+  ajustement       Float    @default(0)
+  rabais           Float    @default(0)
+  rabaisRaison     String?
+  montantFinal     Float
+  taxable          Boolean  @default(true)
+
+  date             DateTime @default(now())
+  statut           String   @default("complete")
+
+  invoiceLineId    String?  @unique
+  invoiceLine      InvoiceLine? @relation("RegistreTacheInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, statut])
+  @@index([dossierId, statut])
+}
+
+model NotificationLog {
+  id          String   @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId   String?
+  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  clientId    String?
+
+  type        String
+  channel     String   @default("email")
+
+  sentAt      DateTime @default(now())
+  sentTo      String
+  subject     String
+  status      String   @default("sent")
+
+  metadata    String?
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, sentAt])
+}
+
+model DossierBillingStage {
+  id          String   @id @default(cuid())
+  dossierId   String
+  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  nom         String
+  ordre       Int
+  montant     Float
+  pourcentage Float?
+
+  statut      String   @default("pending")
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  invoicedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dossierId, ordre])
+}
+
+model DeboursTemplate {
+  id            String  @id @default(cuid())
+  cabinetId     String
+  dossierType   String
+  deboursTypeId String
+  isRequired    Boolean @default(false)
+
+  deboursType   DeboursType @relation(fields: [deboursTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, dossierType, deboursTypeId])
+  @@index([cabinetId, dossierType])
+}
