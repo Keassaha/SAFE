@@ -103,7 +103,7 @@ export function HonorairesView({
       <Card>
         <CardHeader
           title={t("honorairesLabel")}
-          subtitle={`${clients.length} client${clients.length !== 1 ? "s" : ""} avec honoraires à facturer`}
+          action={<span className="text-sm text-[var(--safe-text-secondary)]">{clients.length} client{clients.length !== 1 ? "s" : ""} avec honoraires à facturer</span>}
         />
         <CardContent>
           {clients.length === 0 ? (
