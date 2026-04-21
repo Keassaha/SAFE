@@ -60,6 +60,8 @@ model Cabinet {
   notificationLogs        NotificationLog[]
   forfaitServices         ForfaitService[]
   registreTaches          RegistreTache[]
+  richDocuments           RichDocument[]
+  workSessions            WorkSession[]
 }
 
 enum UserRole {
@@ -114,6 +116,13 @@ model User {
   conflictChecksPerformed    ConflictCheck[] @relation("ConflictCheckPerformedBy")
   resetToken                String?
   resetTokenExpiry          DateTime?
+
+  // Phase 1 — Atelier de Rédaction
+  richDocsCreated            RichDocument[]       @relation("RichDocCreatedBy")
+  richDocsEdited             RichDocument[]       @relation("RichDocLastEditedBy")
+  richDocsArchived           RichDocument[]       @relation("RichDocArchivedBy")
+  richDocVersions            RichDocumentVersion[]
+  workSessions               WorkSession[]
 }
 
 enum EmployeeRole {
@@ -362,6 +371,8 @@ model Client {
   deboursDossiers     DeboursDossier[]
   journalEntries      JournalGeneralEntry[]
   calendarEvents      CalendarEvent[]  @relation("CalendarEventClient")
+  richDocuments       RichDocument[]
+  workSessions        WorkSession[]
 
   @@index([cabinetId])
   @@index([cabinetId, raisonSociale])
@@ -477,6 +488,8 @@ model Dossier {
   notificationLogs      NotificationLog[]
   billingStages         DossierBillingStage[]
   registreTaches        RegistreTache[]
+  richDocuments         RichDocument[]
+  workSessions          WorkSession[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -848,6 +861,7 @@ model TimeEntry {
   invoiceLines    InvoiceLine[] @relation("TimeEntryAsSource")
   invoiceItems    InvoiceItem[]
   approvedBy      User?        @relation("TimeEntryApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  workSession     WorkSession?
 
   @@index([cabinetId])
   @@index([cabinetId, dossierId])
@@ -2197,4 +2211,108 @@ model DeboursTemplate {
 
   @@unique([cabinetId, dossierType, deboursTypeId])
   @@index([cabinetId, dossierType])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHASE 1 — ATELIER DE RÉDACTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Document riche créé dans l'éditeur Tiptap (distinct du model Document = fichiers uploadés)
+model RichDocument {
+  id          String   @id @default(cuid())
+  cabinetId   String
+  dossierId   String
+  clientId    String
+  createdById String
+
+  titre       String
+  content     String   @default("{}") // JSON Tiptap/ProseMirror
+  type        String   @default("note") // "note" | "lettre" | "contrat" | "procedure" | "requete" | "autre"
+  statut      String   @default("brouillon") // "brouillon" | "final" | "archive"
+
+  // Conformité Barreau — jamais de suppression réelle
+  isArchived  Boolean  @default(false)
+  archivedAt  DateTime?
+  archivedById String?
+
+  // Métadonnées utiles
+  lastEditedById String?
+  lastEditedAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cabinet     Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier     Dossier   @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdBy   User      @relation("RichDocCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  lastEditedBy User?    @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
+  archivedBy  User?     @relation("RichDocArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
+
+  versions     RichDocumentVersion[]
+  workSessions WorkSession[]
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([cabinetId, dossierId])
+  @@index([cabinetId, statut])
+}
+
+// Historique des versions — immutable, audit trail Barreau
+model RichDocumentVersion {
+  id             String   @id @default(cuid())
+  richDocumentId String
+  cabinetId      String
+  createdById    String
+
+  content        String   // Snapshot JSON du contenu Tiptap
+  versionNumber  Int
+  label          String?  // "Version initiale", "Après révision client", etc.
+  hash           String?  // SHA-256 du contenu pour intégrité
+
+  createdAt      DateTime @default(now())
+
+  richDocument   RichDocument @relation(fields: [richDocumentId], references: [id], onDelete: Cascade)
+  createdBy      User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([richDocumentId])
+  @@index([cabinetId])
+}
+
+// Session de travail chrono — créée quand l'avocat clique "Terminé"
+// Génère automatiquement une TimeEntry
+model WorkSession {
+  id             String   @id @default(cuid())
+  cabinetId      String
+  userId         String
+  dossierId      String
+  clientId       String
+  richDocumentId String?  // null si session manuelle (hors éditeur)
+
+  startedAt      DateTime
+  endedAt        DateTime?
+  dureeMinutes   Int?     // calculé à la fermeture
+
+  typeActivite   String   @default("redaction") // "redaction" | "revision" | "consultation" | "recherche" | "autre"
+  description    String?  // pré-remplie IA ou saisie manuelle
+
+  statut         String   @default("en_cours") // "en_cours" | "pause" | "termine"
+
+  // Lien vers la fiche de temps créée automatiquement
+  timeEntryId    String?  @unique
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cabinet        Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dossier        Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client         Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  richDocument   RichDocument? @relation(fields: [richDocumentId], references: [id], onDelete: SetNull)
+  timeEntry      TimeEntry?   @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([userId])
+  @@index([dossierId])
+  @@index([cabinetId, statut])
 }

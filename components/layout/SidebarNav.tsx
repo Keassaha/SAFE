@@ -86,6 +86,13 @@ const NAV_ITEMS: NavItem[] = [
     show: canViewDossiers,
   },
   {
+    id: "atelier",
+    href: "/atelier",
+    labelKey: "nav.atelier",
+    icon: FileText,
+    show: canViewDossiers,
+  },
+  {
     id: "temps",
     href: routes.temps,
     labelKey: "nav.timesheets", // Overridden dynamically for forfait mode
