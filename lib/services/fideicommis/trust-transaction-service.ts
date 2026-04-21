@@ -1,6 +1,7 @@
 /**
  * Service des transactions fidéicommis : dépôt, retrait, correction.
  * Règles : append-only (aucun update/delete), solde vérifié avant retrait, audit systématique.
+ * Chaque transaction crée une entrée dans le Journal Général (module FIDEICOMMIS).
  */
 
 import type { TrustModePaiement } from "@prisma/client";
@@ -104,6 +105,23 @@ export async function createTrustDeposit(params: CreateTrustDepositParams): Prom
     await db.dossier.update({
       where: { id: dossierId },
       data: { soldeFiducieDossier: newBalance },
+    });
+    await db.journalGeneralEntry.create({
+      data: {
+        cabinetId,
+        dateTransaction: dateTransaction,
+        typeTransaction: "DEPOT_FIDEICOMMIS",
+        reference: reference ?? undefined,
+        clientId,
+        dossierId,
+        description: description ?? `Dépôt fidéicommis — ${montant.toFixed(2)} $`,
+        montantEntree: montant,
+        montantSortie: 0,
+        solde: newBalance,
+        sourceModule: "FIDEICOMMIS",
+        sourceId: created.id,
+        utilisateurId: createdById ?? undefined,
+      },
     });
     return created;
   });
@@ -256,6 +274,27 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
         },
       });
     }
+    await db.journalGeneralEntry.create({
+      data: {
+        cabinetId,
+        dateTransaction: dateTransaction,
+        typeTransaction: "RETRAIT_FIDEICOMMIS",
+        reference: reference ?? undefined,
+        clientId,
+        dossierId,
+        description:
+          description ??
+          (factureId
+            ? `Retrait fidéicommis → facture — ${montant.toFixed(2)} $`
+            : `Retrait fidéicommis — ${montant.toFixed(2)} $`),
+        montantEntree: 0,
+        montantSortie: montant,
+        solde: newBalance,
+        sourceModule: "FIDEICOMMIS",
+        sourceId: created.id,
+        utilisateurId: createdById ?? undefined,
+      },
+    });
     return created;
   });
 
@@ -334,6 +373,23 @@ export async function createTrustCorrection(params: CreateTrustCorrectionParams)
     await db.dossier.update({
       where: { id: dossierId },
       data: { soldeFiducieDossier: newBalance },
+    });
+    await db.journalGeneralEntry.create({
+      data: {
+        cabinetId,
+        dateTransaction: dateTransaction,
+        typeTransaction: "CORRECTION",
+        reference: reference ?? undefined,
+        clientId,
+        dossierId,
+        description: description ?? `Correction fidéicommis — ${montant > 0 ? "+" : ""}${montant.toFixed(2)} $`,
+        montantEntree: montant > 0 ? montant : 0,
+        montantSortie: montant < 0 ? Math.abs(montant) : 0,
+        solde: newBalance,
+        sourceModule: "CORRECTION_SYSTEME",
+        sourceId: created.id,
+        utilisateurId: createdById ?? undefined,
+      },
     });
     return created;
   });

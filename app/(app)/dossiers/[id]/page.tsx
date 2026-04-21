@@ -252,6 +252,7 @@ export default async function DossierDetailPage({
         <DossierDetailTabs
           dossierId={id}
           statutDossier={statutDossier}
+          dossierType={dossier.type}
         />
       </div>
     </div>

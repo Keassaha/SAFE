@@ -13,6 +13,7 @@ import {
   DossierDetailFideicommis,
   DossierDetailNotesHonoraires,
   DossierDetailFermeture,
+  DossierDetailImmigration,
 } from "./index";
 import {
   FileSignature,
@@ -25,9 +26,10 @@ import {
   Wallet,
   StickyNote,
   Archive,
+  Globe,
 } from "lucide-react";
 
-const TAB_IDS = [
+const BASE_TAB_IDS = [
   "mandat",
   "formulaires",
   "pieces-madame",
@@ -40,12 +42,18 @@ const TAB_IDS = [
   "fermeture",
 ] as const;
 
+const ALL_TAB_IDS = [...BASE_TAB_IDS, "immigration"] as const;
+
+type TabId = (typeof ALL_TAB_IDS)[number];
+
 const TABS_CONFIG: Array<{
-  id: (typeof TAB_IDS)[number];
+  id: TabId;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  onlyForTypes?: string[];
 }> = [
   { id: "mandat", label: "Mandat", icon: FileSignature },
+  { id: "immigration", label: "Immigration", icon: Globe, onlyForTypes: ["immigration"] },
   { id: "formulaires", label: "Formulaires", icon: FileText },
   { id: "pieces-madame", label: "Pièces Madame", icon: FolderOpen },
   { id: "pieces-monsieur", label: "Pièces Monsieur", icon: FolderClosed },
@@ -60,17 +68,22 @@ const TABS_CONFIG: Array<{
 export interface DossierDetailTabsProps {
   dossierId: string;
   statutDossier: string;
+  dossierType?: string | null;
 }
 
-export function DossierDetailTabs({ dossierId, statutDossier }: DossierDetailTabsProps) {
-  const [activeTab, setActiveTab] = useState<string>(TAB_IDS[0]);
+export function DossierDetailTabs({ dossierId, statutDossier, dossierType }: DossierDetailTabsProps) {
+  const visibleTabs = TABS_CONFIG.filter(
+    (tab) => !tab.onlyForTypes || tab.onlyForTypes.includes(dossierType ?? "")
+  );
+
+  const [activeTab, setActiveTab] = useState<string>(visibleTabs[0].id);
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* Liste verticale des onglets à gauche — alignement fixe icône + texte */}
         <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-safe border border-white/10 bg-white/5 p-1.5 shadow-inner lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
-          {TABS_CONFIG.map((tab) => {
+          {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
@@ -89,36 +102,41 @@ export function DossierDetailTabs({ dossierId, statutDossier }: DossierDetailTab
 
         {/* Contenu à droite */}
         <div className="min-w-0 flex-1">
-      <TabsContent value="mandat" className="mt-0">
-        <DossierDetailMandat dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="formulaires" className="mt-0">
-        <DossierDetailFormulaires dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="pieces-madame" className="mt-0">
-        <DossierDetailPiecesMadame dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="pieces-monsieur" className="mt-0">
-        <DossierDetailPiecesMonsieur dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="procedures" className="mt-0">
-        <DossierDetailProcedures dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="jugements" className="mt-0">
-        <DossierDetailJugements dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="correspondance" className="mt-0">
-        <DossierDetailCorrespondance dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="fideicommis" className="mt-0">
-        <DossierDetailFideicommis dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="notes-honoraires" className="mt-0">
-        <DossierDetailNotesHonoraires dossierId={dossierId} />
-      </TabsContent>
-      <TabsContent value="fermeture" className="mt-0">
-        <DossierDetailFermeture dossierId={dossierId} statutDossier={statutDossier} />
-      </TabsContent>
+          <TabsContent value="mandat" className="mt-0">
+            <DossierDetailMandat dossierId={dossierId} />
+          </TabsContent>
+          {dossierType === "immigration" && (
+            <TabsContent value="immigration" className="mt-0">
+              <DossierDetailImmigration dossierId={dossierId} />
+            </TabsContent>
+          )}
+          <TabsContent value="formulaires" className="mt-0">
+            <DossierDetailFormulaires dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="pieces-madame" className="mt-0">
+            <DossierDetailPiecesMadame dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="pieces-monsieur" className="mt-0">
+            <DossierDetailPiecesMonsieur dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="procedures" className="mt-0">
+            <DossierDetailProcedures dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="jugements" className="mt-0">
+            <DossierDetailJugements dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="correspondance" className="mt-0">
+            <DossierDetailCorrespondance dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="fideicommis" className="mt-0">
+            <DossierDetailFideicommis dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="notes-honoraires" className="mt-0">
+            <DossierDetailNotesHonoraires dossierId={dossierId} />
+          </TabsContent>
+          <TabsContent value="fermeture" className="mt-0">
+            <DossierDetailFermeture dossierId={dossierId} statutDossier={statutDossier} />
+          </TabsContent>
         </div>
       </div>
     </Tabs>
