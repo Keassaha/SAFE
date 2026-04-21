@@ -159,6 +159,78 @@ export default async function DossierDetailPage({
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <div className="relative inline-block">
+              <details className="group">
+                <summary className="list-none inline-flex items-center gap-1.5 rounded-safe-sm border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors cursor-pointer">
+                  📄 Generate Document
+                  <svg className="w-3 h-3 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="absolute right-0 mt-2 w-64 rounded-safe-sm bg-white shadow-xl border border-slate-200 z-50 overflow-hidden">
+                  <a
+                    href={`/api/documents/engagement-letter/${id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
+                  >
+                    📋 Engagement Letter
+                    <span className="block text-xs text-slate-500 mt-0.5">LSO-compliant retainer letter</span>
+                  </a>
+                  {dossier.type === "immobilier" && (
+                    <a
+                      href={`/api/documents/fintrac-declaration/${id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
+                    >
+                      🛡 FINTRAC Declaration
+                      <span className="block text-xs text-slate-500 mt-0.5">Anti-money laundering form</span>
+                    </a>
+                  )}
+                  {dossier.type === "immigration" && (
+                    <>
+                      <a
+                        href={`/api/documents/imm-5476/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
+                      >
+                        🛂 IMM 5476 — Représentant
+                        <span className="block text-xs text-slate-500 mt-0.5">Formulaire IRCC nov. 2025 (obligatoire)</span>
+                      </a>
+                      <a
+                        href={`/api/documents/antecedents-declaration/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
+                      >
+                        📋 Déclaration d&apos;antécédents
+                        <span className="block text-xs text-slate-500 mt-0.5">Obligation Barreau QC — B-1, r.3.1</span>
+                      </a>
+                      <a
+                        href={`/api/documents/immigration-mandate/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
+                      >
+                        ✍️ Mandat immigration
+                        <span className="block text-xs text-slate-500 mt-0.5">Clause non-garantie + frais IRCC</span>
+                      </a>
+                    </>
+                  )}
+                  <a
+                    href={`/api/documents/closure-letter/${id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    📁 File Closure Letter
+                    <span className="block text-xs text-slate-500 mt-0.5">Final account + retention notice</span>
+                  </a>
+                </div>
+              </details>
+            </div>
             <Link
               href={routes.client(dossier.clientId)}
               className="inline-flex items-center rounded-safe-sm border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors"
