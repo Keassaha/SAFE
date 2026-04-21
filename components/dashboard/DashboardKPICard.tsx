@@ -71,11 +71,12 @@ export function DashboardKPICard({
     <motion.div
       className={`overflow-hidden p-5 md:p-6 rounded-safe-md shadow-sm ${heroCard} ${className}`}
       whileHover={{
-        y: -2,
-        boxShadow: "0 8px 24px rgba(26, 46, 40, 0.1)",
-        transition: { type: "tween", duration: 0.2 },
+        y: -4,
+        boxShadow: "0 12px 32px rgba(26, 46, 40, 0.12), 0 0 24px rgba(45, 106, 79, 0.06)",
+        borderColor: "rgba(45, 106, 79, 0.15)",
+        transition: { type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] },
       }}
-      transition={{ type: "tween", duration: 0.2 }}
+      transition={{ type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <p className={`text-sm font-medium ${isHero ? "text-white/80" : "text-[var(--safe-text-secondary)]"}`}>

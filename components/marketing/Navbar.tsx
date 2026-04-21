@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
+const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
   { label: "Tarification", href: "/tarification" },
@@ -61,12 +63,14 @@ export function Navbar() {
             >
               Connexion
             </Link>
-            <Link
-              href="/demo"
+            <a
+              href={CALENDLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="whitespace-nowrap px-5 py-2 text-sm font-medium rounded-full bg-[#8EB69B] text-[#051F20] hover:bg-[#DAF1DE] transition-all duration-300 font-sans"
             >
-              Réserver une démo
-            </Link>
+              Réserver un appel
+            </a>
           </div>
 
           {/* Mobile toggle */}
@@ -115,13 +119,15 @@ export function Navbar() {
                 >
                   Connexion
                 </Link>
-                <Link
-                  href="/demo"
+                <a
+                  href={CALENDLY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => setMobileOpen(false)}
                   className="text-center py-3 text-sm font-medium rounded-full bg-[#8EB69B] text-[#051F20] font-sans"
                 >
-                  Réserver une démo
-                </Link>
+                  Réserver un appel
+                </a>
               </div>
             </div>
           </motion.div>

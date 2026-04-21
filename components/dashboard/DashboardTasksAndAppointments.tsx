@@ -90,7 +90,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
   ];
 
   return (
-    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm overflow-hidden">
+    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
       <div className="flex items-center border-b border-[var(--safe-neutral-100)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;

@@ -3,9 +3,12 @@
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Mail, Phone, MapPin, Send, ArrowRight, Calendar, MessageSquare, Shield, Clock } from "lucide-react";
-import Link from "next/link";
 import { Navbar } from "@/components/marketing/Navbar";
 import { Footer } from "@/components/marketing/Footer";
+
+const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_EMBED_URL =
+  "https://calendly.com/ptiahou/30min?hide_landing_page_details=1&hide_gdpr_banner=1";
 
 /* ───── Animated envelope illustration ───── */
 function EnvelopeIllustration() {
@@ -99,6 +102,46 @@ function EnvelopeIllustration() {
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    cabinet: "",
+    numLawyers: "",
+    message: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erreur lors de l'envoi");
+      }
+
+      setSubmitted(true);
+      setFormData({ name: "", email: "", cabinet: "", numLawyers: "", message: "" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[var(--safe-darkest)] text-[var(--safe-white)] scroll-smooth">
@@ -160,8 +203,8 @@ export default function ContactPage() {
                   className="space-y-4"
                 >
                   {[
-                    { icon: Mail, label: "Courriel", value: "bonjour@safe.quebec", href: "mailto:bonjour@safe.quebec" },
-                    { icon: Phone, label: "Téléphone", value: "+1 (418) 555-1234", href: "tel:+14185551234" },
+                    { icon: Mail, label: "Courriel", value: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
+                    { icon: Phone, label: "Téléphone", value: "+1 (819) 271-8656", href: "tel:+18192718656" },
                     { icon: MapPin, label: "Bureau", value: "Québec, QC, Canada", href: null },
                   ].map((item, i) => (
                     <motion.div
@@ -210,13 +253,23 @@ export default function ContactPage() {
                   <p className="text-sm text-[var(--safe-text-muted)] font-sans mb-4">
                     Réservez un créneau de 30 minutes directement dans notre agenda.
                   </p>
-                  <Link
-                    href="/demo"
+                  <a
+                    href={CALENDLY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--safe-sage)] hover:text-[var(--safe-lightest)] transition-colors font-sans"
                   >
                     Réserver un appel
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
+                  </a>
+                  <div className="mt-5 rounded-safe-md overflow-hidden border border-white/10 bg-black/20">
+                    <iframe
+                      title="Calendly"
+                      src={CALENDLY_EMBED_URL}
+                      className="w-full h-[620px]"
+                      frameBorder="0"
+                    />
+                  </div>
                 </motion.div>
               </div>
 
@@ -250,12 +303,14 @@ export default function ContactPage() {
                   </motion.div>
                 ) : (
                   <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setSubmitted(true);
-                    }}
+                    onSubmit={handleSubmit}
                     className="rounded-safe-md border border-white/5 bg-[var(--safe-dark)]/50 p-8 space-y-5"
                   >
+                    {error && (
+                      <div className="p-4 rounded-safe bg-red-500/10 border border-red-500/30 text-red-300 text-sm font-sans">
+                        {error}
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
                         <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
@@ -263,8 +318,12 @@ export default function ContactPage() {
                         </label>
                         <input
                           type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
+                          disabled={loading}
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="Me Prénom Nom"
                         />
                       </div>
@@ -274,8 +333,12 @@ export default function ContactPage() {
                         </label>
                         <input
                           type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
+                          disabled={loading}
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="courriel@cabinet.ca"
                         />
                       </div>
@@ -287,7 +350,11 @@ export default function ContactPage() {
                         </label>
                         <input
                           type="text"
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm"
+                          name="cabinet"
+                          value={formData.cabinet}
+                          onChange={handleChange}
+                          disabled={loading}
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="Nom de votre cabinet"
                         />
                       </div>
@@ -295,7 +362,13 @@ export default function ContactPage() {
                         <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
                           Nombre d&apos;avocats
                         </label>
-                        <select className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm">
+                        <select
+                          name="numLawyers"
+                          value={formData.numLawyers}
+                          onChange={handleChange}
+                          disabled={loading}
+                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
+                        >
                           <option value="">Sélectionnez</option>
                           <option value="1">1 (solo)</option>
                           <option value="2-5">2 à 5</option>
@@ -309,18 +382,23 @@ export default function ContactPage() {
                         Message
                       </label>
                       <textarea
+                        name="message"
                         rows={5}
+                        value={formData.message}
+                        onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-safe bg-[var(--safe-darkest)]/50 border border-white/10 text-[var(--safe-white)] placeholder-[var(--safe-text-muted)] focus:border-[var(--safe-sage)]/40 focus:outline-none transition-colors font-sans text-sm resize-none"
+                        disabled={loading}
+                        className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm resize-none disabled:opacity-50"
                         placeholder="Comment pouvons-nous vous aider ?"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="group w-full py-3 rounded-full font-semibold text-sm bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 flex items-center justify-center gap-2 font-sans"
+                      disabled={loading}
+                      className="group w-full py-3 rounded-full font-semibold text-sm bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 flex items-center justify-center gap-2 font-sans disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Envoyer le message
-                      <Send className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      {loading ? "Envoi en cours..." : "Envoyer le message"}
+                      {!loading && <Send className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />}
                     </button>
                   </form>
                 )}

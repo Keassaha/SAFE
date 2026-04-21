@@ -1,8 +1,6 @@
 # SAFE Module A — Supabase project config
 # Run: npx supabase link (then) npx supabase db push
 
-[project]
-id = "safe-module-a"
 
 [api]
 enabled = true

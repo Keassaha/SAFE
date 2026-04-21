@@ -87,7 +87,7 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
   ];
 
   return (
-    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
+    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold text-[var(--safe-text-title)] tracking-tight">

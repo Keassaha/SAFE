@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFE Inc. | Logiciel Cabinet d'Avocats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        bgBase: '#0a1a12',
+                        primary: '#5A8F7B',
+                        primaryLight: '#7DAA98',
+                        primaryDark: '#3D6B5A',
+                        primaryPale: '#8EB69B',
+                        accent: '#D4A574',
+                        textTitle: '#f2f2f7',
+                        textBody: '#8a9790',
+                        textMuted: '#576860',
+                        cardBorder: 'rgba(142,182,155,0.09)'
+                    },
+                    transitionTimingFunction: {
+                        'uxpeak': 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a1a12; color: #8a9790; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a1a12; }
+        ::-webkit-scrollbar-thumb { background: #1a271f; border-radius: 4px; }
+
+        .glass-card {
+            background: linear-gradient(180deg, rgba(19,28,22,0.55) 0%, rgba(12,18,14,0.3) 100%);
+            border: 1px solid rgba(142,182,155,0.09);
+            backdrop-filter: blur(24px);
+            border-radius: 16px;
+            position: relative;
+        }
+        .glass-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(142,182,155,0.2), transparent);
+            z-index: 10;
+        }
+        .section-label {
+            color: #5A8F7B; font-size: 12px; text-transform: uppercase; letter-spacing: 2.5px;
+            font-weight: 600; display: block; margin-bottom: 20px;
+        }
+        @keyframes sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        .btn-shimmer { position: relative; overflow: hidden; }
+        .btn-shimmer::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg) translateX(-150%);
+            transition: all 0.5s ease;
+        }
+        .btn-shimmer:hover::after { animation: sweep 1.5s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration, 4s) ease-in-out infinite alternate; animation-delay: var(--delay, 0s); pointer-events: none; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            70% { transform: scale(1.3); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0; }
+        }
+        .reveal { opacity: 1; transform: translateY(0); transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .faq-content-grid { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+        .faq-item.is-open .faq-content-grid { grid-template-rows: 1fr; }
+        .faq-content-inner { overflow: hidden; }
+        .faq-item {
+            transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
+                        border-color 0.5s cubic-bezier(0.22,1,0.36,1),
+                        box-shadow 0.5s cubic-bezier(0.22,1,0.36,1),
+                        background 0.5s cubic-bezier(0.22,1,0.36,1);
+        }
+        .faq-item:hover {
+            transform: translateY(-3px);
+            border-color: rgba(90,143,123,0.35) !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 25px rgba(90,143,123,0.12);
+        }
+        .faq-item.is-open { background: linear-gradient(180deg, rgba(19,28,22,0.7), rgba(12,18,14,0.4)); border-color: rgba(142,182,155,0.2); }
+        .faq-item.is-open:hover { border-color: rgba(90,143,123,0.5) !important; box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 30px rgba(90,143,123,0.18); }
+        /* Accent line */
+        .faq-accent-line { transform-origin: top; transform: scaleY(0); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s; }
+        .faq-item.is-open .faq-accent-line { transform: scaleY(1); }
+        .faq-item:hover .faq-accent-line { box-shadow: 0 0 10px rgba(90,143,123,0.6); }
+        /* Shimmer sweep on hover */
+        .faq-shimmer {
+            position: absolute; top: 0; bottom: 0; width: 50%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            transform: skewX(-15deg);
+            pointer-events: none; z-index: 5;
+            left: -100%; opacity: 0;
+        }
+        .faq-item:hover .faq-shimmer { animation: faqShimmer 0.65s cubic-bezier(0.22,1,0.36,1) forwards; }
+        @keyframes faqShimmer { 0% { left: -100%; opacity: 1; } 100% { left: 160%; opacity: 1; } }
+        /* Cursor glow */
+        .faq-glow {
+            position: absolute; width: 350px; height: 350px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(90,143,123,0.07), transparent 65%);
+            pointer-events: none; transform: translate(-50%, -50%);
+            opacity: 0; transition: opacity 0.3s; z-index: 1;
+        }
+        .faq-item:hover .faq-glow { opacity: 1; }
+        /* Icon button hover */
+        .faq-icon-btn { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s, background 0.4s, border-color 0.4s; }
+        .faq-item:hover .faq-icon-btn { transform: scale(1.12); box-shadow: 0 0 12px rgba(90,143,123,0.3); }
+        .lens-cross { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .lens-cross::before, .lens-cross::after {
+            content: ''; position: absolute; background: linear-gradient(90deg, transparent, #D4A574, transparent);
+            transform: translate(-50%, -50%); opacity: 0.6;
+        }
+        .lens-cross::before { width: 40px; height: 1px; }
+        .lens-cross::after { width: 1px; height: 40px; }
+    </style>
+</head>
+<body class="relative">
+    <div id="stars-container" class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-60 mix-blend-screen"></div>
+    <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/15 blur-[150px] rounded-full pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-primaryDark/12 blur-[180px] rounded-full pointer-events-none z-0"></div>
+    <div class="fixed top-[40%] right-[-10%] w-[30%] h-[40%] bg-accent/5 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 flex items-center justify-between px-2 py-2 border border-cardBorder backdrop-blur-[20px] rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]" style="background:rgba(12,18,14,0.55)">
+        <a href="#" class="flex items-center gap-2 pl-4">
+            <i class="ph-fill ph-scales text-primary text-xl"></i>
+            <span class="text-textTitle font-bold tracking-tight text-[15px]">SAFE</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="#" class="text-[13px] font-medium text-textMuted hover:text-textTitle transition-colors duration-200">Dashboard</a>
+            <a href="#" class="text-[13px] font-medium text-textMuted hover:text-textTitle transition-colors duration-200">Facturation</a>
+            <a href="#" class="text-[13px] font-medium text-textMuted hover:text-textTitle transition-colors duration-200">Clients</a>
+            <a href="#" class="text-[13px] font-medium text-textMuted hover:text-textTitle transition-colors duration-200">Dossiers</a>
+        </div>
+        <button class="btn-shimmer bg-primary hover:bg-primaryLight text-[#050807] font-semibold text-[13px] px-5 py-2.5 rounded-full transition-all duration-uxpeak shadow-[0_0_20px_rgba(90,143,123,0.3)]">Audit gratuit</button>
+    </nav>
+
+    <main class="relative z-10 flex flex-col items-center">
+        <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 pt-32 pb-20 max-w-5xl mx-auto w-full reveal">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#131c16] border border-primary/20 mb-8 backdrop-blur-md">
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(90,143,123,0.8)]"></div>
+                <span class="text-primary text-[11px] font-semibold tracking-wide uppercase">Plateforme SaaS pour avocats</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-[-0.03em] leading-[1.05] mb-6 text-transparent bg-clip-text bg-gradient-to-b from-[#ffffff] via-[#f2f2f7] to-[#576860]">Gerez votre cabinet.<br/>Sans effort.</h1>
+            <p class="text-lg md:text-xl text-textBody max-w-2xl font-light leading-relaxed mb-10">La solution tout-en-un pour le cadre juridique quebecois. Concentrez-vous sur le droit, on s'occupe de l'administration.</p>
+            <div class="flex flex-col sm:flex-row items-center gap-4 mb-16 w-full justify-center">
+                <button class="btn-shimmer w-full sm:w-auto bg-primary text-[#050807] font-semibold px-8 py-4 rounded-full flex items-center justify-center gap-2 hover:bg-primaryLight transition-all duration-uxpeak shadow-[0_0_30px_rgba(90,143,123,0.2)] hover:shadow-[0_0_40px_rgba(90,143,123,0.4)] hover:-translate-y-0.5">Commencer l'audit <i class="ph-bold ph-arrow-right"></i></button>
+                <button class="w-full sm:w-auto px-8 py-4 rounded-full font-medium text-textTitle bg-transparent border border-cardBorder hover:border-primary/50 hover:bg-primary/5 transition-all duration-uxpeak flex items-center justify-center">En savoir plus</button>
+            </div>
+            <div class="flex items-center justify-center gap-8 md:gap-16 pt-8 border-t border-cardBorder/50 w-full max-w-3xl">
+                <div class="flex flex-col items-center"><span class="text-textTitle font-bold text-2xl md:text-3xl">150+</span><span class="text-textMuted text-[11px] uppercase tracking-wider mt-1">Cabinets</span></div>
+                <div class="w-[1px] h-8 bg-cardBorder"></div>
+                <div class="flex flex-col items-center"><span class="text-textTitle font-bold text-2xl md:text-3xl">98%</span><span class="text-textMuted text-[11px] uppercase tracking-wider mt-1">Satisfaction</span></div>
+                <div class="w-[1px] h-8 bg-cardBorder"></div>
+                <div class="flex flex-col items-center"><span class="text-textTitle font-bold text-2xl md:text-3xl">24/7</span><span class="text-textMuted text-[11px] uppercase tracking-wider mt-1">Support</span></div>
+            </div>
+        </section>
+
+        <section class="py-24 px-4 w-full max-w-6xl mx-auto flex flex-col items-center reveal">
+            <div class="text-center mb-16">
+                <span class="section-label">Fonctionnalites</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-textTitle tracking-tight">Tout ce dont votre cabinet a besoin</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                <div class="glass-card group p-8 transition-uxpeak duration-500 hover:-translate-y-[5px] hover:border-primary/40 hover:shadow-[0_8px_30px_rgba(90,143,123,0.15)] flex flex-col h-full">
+                    <div class="w-[42px] h-[42px] rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 transition-uxpeak duration-500 group-hover:scale-110 group-hover:bg-primary/20"><i class="ph ph-folder-open text-primary text-xl"></i></div>
+                    <h3 class="text-lg font-semibold text-textTitle mb-3">Dossiers Centralises</h3>
+                    <p class="text-[14px] text-textBody leading-relaxed mb-8 flex-grow">Retrouvez chaque piece, note et courriel lie a un mandat en une fraction de seconde.</p>
+                    <div class="flex gap-2 mt-auto"><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Recherche IA</span><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Conformite</span></div>
+                </div>
+                <div class="glass-card group p-8 transition-uxpeak duration-500 hover:-translate-y-[5px] hover:border-primary/40 hover:shadow-[0_8px_30px_rgba(90,143,123,0.15)] flex flex-col h-full">
+                    <div class="w-[42px] h-[42px] rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 transition-uxpeak duration-500 group-hover:scale-110 group-hover:bg-primary/20"><i class="ph ph-receipt text-primary text-xl"></i></div>
+                    <h3 class="text-lg font-semibold text-textTitle mb-3">Facturation Intelligente</h3>
+                    <p class="text-[14px] text-textBody leading-relaxed mb-8 flex-grow">Convertissez vos heures en factures conformes du Barreau d'un seul clic.</p>
+                    <div class="flex gap-2 mt-auto"><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Trames auto</span><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Fiduciaire</span></div>
+                </div>
+                <div class="glass-card group p-8 transition-uxpeak duration-500 hover:-translate-y-[5px] hover:border-primary/40 hover:shadow-[0_8px_30px_rgba(90,143,123,0.15)] flex flex-col h-full">
+                    <div class="w-[42px] h-[42px] rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 transition-uxpeak duration-500 group-hover:scale-110 group-hover:bg-primary/20"><i class="ph ph-users-three text-primary text-xl"></i></div>
+                    <h3 class="text-lg font-semibold text-textTitle mb-3">Portail Client Securise</h3>
+                    <p class="text-[14px] text-textBody leading-relaxed mb-8 flex-grow">Vos clients deposent leurs pieces et signent numeriquement dans un espace chiffre.</p>
+                    <div class="flex gap-2 mt-auto"><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Chiffrement</span><span class="text-[10px] px-2 py-1 rounded border border-cardBorder text-textMuted">Signatures</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 w-full max-w-4xl mx-auto px-4 reveal flex flex-col items-center">
+            <span class="section-label">Votre Parcours</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-textTitle tracking-tight mb-20 text-center">Du premier contact<br/>au cabinet optimise</h2>
+            <div class="relative w-full md:px-12">
+                <div class="absolute left-[20px] md:left-[39px] top-0 bottom-0 w-[2px] bg-cardBorder rounded-full"></div>
+                <div id="timeline-gauge" class="absolute left-[20px] md:left-[39px] top-0 w-[2px] bg-gradient-to-b from-[#3D6B5A] via-[#5A8F7B] via-60% to-[#D4A574] rounded-full z-10" style="height:0%; transition: height 0.1s linear;"></div>
+                <div class="relative z-20 flex gap-8 md:gap-12 mb-16 group">
+                    <div class="relative flex-none mt-1"><div class="w-10 h-10 rounded-full bg-[#0a1a12] border-2 border-[#3D6B5A] flex items-center justify-center transition-all duration-uxpeak group-hover:scale-110 group-hover:bg-[#3D6B5A]/20"><span class="text-[12px] font-bold text-[#3D6B5A]">01</span></div></div>
+                    <div class="pt-2 pb-4"><span class="text-[11px] font-mono text-textMuted mb-2 block uppercase tracking-widest">Phase 1</span><h4 class="text-xl font-bold text-textTitle mb-2">Audit & Decouverte</h4><p class="text-sm text-textBody leading-relaxed mb-4 max-w-lg">Analyse approfondie de vos processus actuels et identification des opportunites.</p><div class="flex gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Entrevue</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Analyse</span></div></div>
+                </div>
+                <div class="relative z-20 flex gap-8 md:gap-12 mb-16 group">
+                    <div class="relative flex-none mt-1"><div class="w-10 h-10 rounded-full bg-[#0a1a12] border-2 border-[#5A8F7B] flex items-center justify-center transition-all duration-uxpeak group-hover:scale-110 group-hover:bg-[#5A8F7B]/20"><span class="text-[12px] font-bold text-[#5A8F7B]">02</span></div></div>
+                    <div class="pt-2 pb-4"><span class="text-[11px] font-mono text-textMuted mb-2 block uppercase tracking-widest">Phase 2</span><h4 class="text-xl font-bold text-textTitle mb-2">Configuration & Migration</h4><p class="text-sm text-textBody leading-relaxed mb-4 max-w-lg">Import de vos donnees et parametrage sur mesure de votre environnement.</p><div class="flex gap-2 flex-wrap"><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Setup</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Migration</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Formation</span></div></div>
+                </div>
+                <div class="relative z-20 flex gap-8 md:gap-12 mb-16 group">
+                    <div class="relative flex-none mt-1"><div class="w-10 h-10 rounded-full bg-[#0a1a12] border-2 border-[#8EB69B] flex items-center justify-center transition-all duration-uxpeak group-hover:scale-110 group-hover:bg-[#8EB69B]/20"><span class="text-[12px] font-bold text-[#8EB69B]">03</span></div></div>
+                    <div class="pt-2 pb-4"><span class="text-[11px] font-mono text-textMuted mb-2 block uppercase tracking-widest">Phase 3</span><h4 class="text-xl font-bold text-textTitle mb-2">Lancement & Support</h4><p class="text-sm text-textBody leading-relaxed mb-4 max-w-lg">Go-live avec accompagnement continu et assistance VIP.</p><div class="flex gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Go-live</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-[#131c16] border border-cardBorder text-textBody">Support 24/7</span></div></div>
+                </div>
+                <div class="relative z-20 flex gap-8 md:gap-12 group">
+                    <div class="relative flex-none mt-1"><div class="w-10 h-10 rounded-full bg-[#0a1a12] border-2 border-[#D4A574] flex items-center justify-center transition-all duration-uxpeak group-hover:scale-110 shadow-[0_0_15px_rgba(212,165,116,0.3)]"><span class="text-[12px] font-bold text-[#D4A574]">04</span><div class="absolute inset-0 rounded-full border-2 border-[#D4A574] animate-[pulse-ring_3s_cubic-bezier(0.22,1,0.36,1)_infinite]"></div><div class="lens-cross"></div></div></div>
+                    <div class="pt-2"><span class="text-[11px] font-mono text-textMuted mb-2 block uppercase tracking-widest">Continu</span><h4 class="text-xl font-bold text-[#D4A574] mb-2">Croissance & Scaling</h4><p class="text-sm text-textBody leading-relaxed max-w-lg">Automatisations IA, rentabilite par dossier et expansion sans friction.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 w-full text-center reveal border-y border-cardBorder/30 bg-[#070b09]/50 relative overflow-hidden backdrop-blur-sm mt-8 flex flex-col items-center">
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-[600px] h-[200px] bg-primary/5 blur-[100px] rounded-full"></div></div>
+            <span class="section-label relative z-10">Integrations</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-textTitle tracking-tight mb-12 relative z-10">Connecte a vos outils</h2>
+            <div class="flex flex-wrap items-center justify-center gap-6 relative z-10 max-w-4xl mx-auto px-4">
+                <div class="w-24 h-24 rounded-[20px] bg-gradient-to-b from-[rgba(19,28,22,0.55)] to-[rgba(12,18,14,0.3)] border border-cardBorder flex items-center justify-center transition-all duration-uxpeak hover:-translate-y-[5px] hover:border-[#4285F4]/50 hover:shadow-[0_10px_30px_rgba(66,133,244,0.15)] group cursor-pointer"><i class="ph ph-google-logo text-[40px] text-textMuted group-hover:text-[#4285F4] transition-colors duration-uxpeak"></i></div>
+                <div class="w-24 h-24 rounded-[20px] bg-gradient-to-b from-[rgba(19,28,22,0.55)] to-[rgba(12,18,14,0.3)] border border-cardBorder flex items-center justify-center transition-all duration-uxpeak hover:-translate-y-[5px] hover:border-[#00A4EF]/50 hover:shadow-[0_10px_30px_rgba(0,164,239,0.15)] group cursor-pointer"><i class="ph ph-windows-logo text-[40px] text-textMuted group-hover:text-[#00A4EF] transition-colors duration-uxpeak"></i></div>
+                <div class="w-24 h-24 rounded-[20px] bg-gradient-to-b from-[rgba(19,28,22,0.55)] to-[rgba(12,18,14,0.3)] border border-cardBorder flex items-center justify-center transition-all duration-uxpeak hover:-translate-y-[5px] hover:border-[#635BFF]/50 hover:shadow-[0_10px_30px_rgba(99,91,255,0.15)] group cursor-pointer"><i class="ph ph-stripe-logo text-[40px] text-textMuted group-hover:text-[#635BFF] transition-colors duration-uxpeak"></i></div>
+                <div class="w-24 h-24 rounded-[20px] bg-gradient-to-b from-[rgba(19,28,22,0.55)] to-[rgba(12,18,14,0.3)] border border-cardBorder flex items-center justify-center transition-all duration-uxpeak hover:-translate-y-[5px] hover:border-[#9b59b6]/50 hover:shadow-[0_10px_30px_rgba(155,89,182,0.15)] group cursor-pointer"><i class="ph ph-books text-[40px] text-textMuted group-hover:text-[#9b59b6] transition-colors duration-uxpeak"></i></div>
+                <div class="w-24 h-24 rounded-[20px] bg-gradient-to-b from-[rgba(19,28,22,0.55)] to-[rgba(12,18,14,0.3)] border border-cardBorder flex items-center justify-center transition-all duration-uxpeak hover:-translate-y-[5px] hover:border-[#D4A574]/50 hover:shadow-[0_10px_30px_rgba(212,165,116,0.15)] group cursor-pointer"><i class="ph ph-envelope-simple text-[40px] text-textMuted group-hover:text-[#D4A574] transition-colors duration-uxpeak"></i></div>
+            </div>
+        </section>
+
+        <section class="py-24 px-4 w-full max-w-3xl mx-auto flex flex-col items-center reveal">
+            <span class="section-label">FAQ</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-textTitle tracking-tight mb-16">Questions frequentes</h2>
+            <div class="w-full flex flex-col gap-4">
+                <div class="faq-item is-open group relative bg-[#070b09] border border-cardBorder rounded-2xl cursor-pointer overflow-hidden" onclick="toggleFaq(this)">
+                    <div class="faq-glow"></div>
+                    <div class="faq-shimmer"></div>
+                    <div class="faq-accent-line absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#5A8F7B] to-transparent z-10"></div>
+                    <div class="relative z-10 flex items-center justify-between p-6 md:p-8"><h4 class="text-base md:text-lg font-medium text-textTitle select-none transition-colors duration-300 group-hover:text-white">Conforme aux regles du Barreau du Quebec ?</h4><div class="faq-icon-btn w-8 h-8 rounded-full border border-cardBorder flex items-center justify-center ml-4 flex-shrink-0 group-[.is-open]:bg-primary group-[.is-open]:border-primary"><i class="ph ph-plus text-textMuted transition-all duration-300 group-[.is-open]:text-[#050807] group-[.is-open]:rotate-45"></i></div></div>
+                    <div class="faq-content-grid relative z-10"><div class="faq-content-inner"><div class="px-6 md:px-8 pb-8 pt-0"><p class="text-sm text-textBody leading-relaxed">Absolument. Gestion fiduciaire, numerotation des factures et archivage repondent a 100% aux exigences du Barreau.</p></div></div></div>
+                </div>
+                <div class="faq-item group relative bg-[#070b09] border border-cardBorder rounded-2xl cursor-pointer overflow-hidden" onclick="toggleFaq(this)">
+                    <div class="faq-glow"></div>
+                    <div class="faq-shimmer"></div>
+                    <div class="faq-accent-line absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#5A8F7B] to-transparent z-10"></div>
+                    <div class="relative z-10 flex items-center justify-between p-6 md:p-8"><h4 class="text-base md:text-lg font-medium text-textTitle select-none transition-colors duration-300 group-hover:text-white">Combien de temps pour la mise en place ?</h4><div class="faq-icon-btn w-8 h-8 rounded-full border border-cardBorder flex items-center justify-center ml-4 flex-shrink-0 group-[.is-open]:bg-primary group-[.is-open]:border-primary"><i class="ph ph-plus text-textMuted transition-all duration-300 group-[.is-open]:text-[#050807] group-[.is-open]:rotate-45"></i></div></div>
+                    <div class="faq-content-grid relative z-10"><div class="faq-content-inner"><div class="px-6 md:px-8 pb-8 pt-0"><p class="text-sm text-textBody leading-relaxed">Entre 2 et 4 semaines. Migration complete et zero interruption d'activite.</p></div></div></div>
+                </div>
+                <div class="faq-item group relative bg-[#070b09] border border-cardBorder rounded-2xl cursor-pointer overflow-hidden" onclick="toggleFaq(this)">
+                    <div class="faq-glow"></div>
+                    <div class="faq-shimmer"></div>
+                    <div class="faq-accent-line absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#5A8F7B] to-transparent z-10"></div>
+                    <div class="relative z-10 flex items-center justify-between p-6 md:p-8"><h4 class="text-base md:text-lg font-medium text-textTitle select-none transition-colors duration-300 group-hover:text-white">Y a-t-il un contrat minimum ?</h4><div class="faq-icon-btn w-8 h-8 rounded-full border border-cardBorder flex items-center justify-center ml-4 flex-shrink-0 group-[.is-open]:bg-primary group-[.is-open]:border-primary"><i class="ph ph-plus text-textMuted transition-all duration-300 group-[.is-open]:text-[#050807] group-[.is-open]:rotate-45"></i></div></div>
+                    <div class="faq-content-grid relative z-10"><div class="faq-content-inner"><div class="px-6 md:px-8 pb-8 pt-0"><p class="text-sm text-textBody leading-relaxed">Non, abonnement mensuel sans engagement. Vos donnees sont exportables en tout temps.</p></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="w-full border-t border-primaryDark/30 bg-[#071410] py-12 px-4 flex flex-col items-center reveal mt-8">
+            <div class="flex items-center gap-2 mb-4 opacity-80"><i class="ph-fill ph-scales text-primary text-xl"></i><span class="text-textTitle font-bold tracking-tight text-[15px]">SAFE</span></div>
+            <p class="text-[11px] text-textMuted/60 uppercase tracking-widest">&copy; 2026 SAFE Inc. Tous droits reserves.</p>
+        </footer>
+    </main>
+
+    <script>
+        const starContainer = document.getElementById('stars-container');
+        for (let i = 0; i < 60; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`; star.style.height = `${size}px`;
+            star.style.top = `${Math.random()*100}%`; star.style.left = `${Math.random()*100}%`;
+            star.style.setProperty('--duration', `${Math.random()*3+2}s`);
+            star.style.setProperty('--delay', `${Math.random()*5}s`);
+            starContainer.appendChild(star);
+        }
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); revealObserver.unobserve(entry.target); } });
+        }, { threshold: 0.15 });
+        revealElements.forEach(el => revealObserver.observe(el));
+        // Timeline gauge — driven by scroll
+        const timelineGauge = document.getElementById('timeline-gauge');
+        const timelineSection = timelineGauge?.closest('section');
+        function updateTimelineGauge() {
+            if (!timelineGauge || !timelineSection) return;
+            const rect = timelineSection.getBoundingClientRect();
+            const sectionTop = rect.top;
+            const sectionHeight = rect.height;
+            const viewH = window.innerHeight;
+            // progress: 0 when section top hits bottom of viewport, 1 when section bottom hits top
+            const progress = Math.min(1, Math.max(0, (viewH - sectionTop) / (sectionHeight + viewH * 0.3)));
+            timelineGauge.style.height = (progress * 100) + '%';
+        }
+        window.addEventListener('scroll', updateTimelineGauge, { passive: true });
+        updateTimelineGauge();
+
+        // FAQ cursor glow tracking
+        document.querySelectorAll('.faq-item').forEach(item => {
+            const glow = item.querySelector('.faq-glow');
+            item.addEventListener('mousemove', e => {
+                const rect = item.getBoundingClientRect();
+                glow.style.left = (e.clientX - rect.left) + 'px';
+                glow.style.top = (e.clientY - rect.top) + 'px';
+            });
+        });
+
+        function toggleFaq(el) {
+            const isOpen = el.classList.contains('is-open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('is-open'));
+            if (!isOpen) el.classList.add('is-open');
+        }
+    </script>
+</body>
+</html>

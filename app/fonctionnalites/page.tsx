@@ -595,9 +595,10 @@ export default function FonctionnalitesPage() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-lg text-[var(--safe-text-muted)] max-w-2xl mx-auto font-sans leading-relaxed"
             >
-              Chaque module est conçu spécifiquement pour la réalité des cabinets
-              d&apos;avocats au Québec. Aucune fonctionnalité superflue, aucun compromis
-              sur la conformité.
+              Facturer en 1 clic avec calcul automatique TPS/TVQ. Réconcilier votre
+              fidéicommis sans erreur. Ne jamais manquer un délai de cour. Voir la
+              rentabilité de chaque dossier en temps réel. Passer une inspection du
+              Barreau sans stress. Et bien plus encore.
             </motion.p>
           </div>
         </section>

@@ -293,10 +293,11 @@
         "accountingView": "Vue comptable",
         "comptabilite": "Comptabilité",
         "planning": "Calendrier",
-        "documentGenerator": "Générateur de documents",
+        "documentGenerator": "Documents",
         "familyCalculator": "Calculateur familial",
         "safeImport": "SAFE Import",
         "reports": "Rapports",
+        "compliance": "Conformité",
         "settings": "Paramètres"
       },
       "profile": {
@@ -587,6 +588,11 @@
   },
   "facturation": {
     "title": "Facturation",
+    "tabs": {
+      "honoraires": "Honoraires",
+      "suivi": "Suivi",
+      "paiements": "Paiements"
+    },
     "listTitle": "Liste des factures",
     "filterByInvoiceType": "Type de facture",
     "amountLabel": "Montant",

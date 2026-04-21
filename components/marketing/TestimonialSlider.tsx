@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
+import { Quote, Star, BadgeCheck } from "lucide-react";
 
 const TESTIMONIALS = [
   {
@@ -107,8 +107,22 @@ export function TestimonialSlider() {
                 className="card-dark min-w-[280px] sm:min-w-[320px] md:min-w-[420px] max-w-[420px] bg-[var(--safe-darkest)] border border-[var(--safe-sage)]/10 rounded-safe-md p-5 sm:p-8 flex flex-col justify-between hover:border-[var(--safe-sage)]/30 transition-colors duration-500 shrink-0"
               >
                 <div>
-                  <Quote className="w-8 h-8 text-[var(--safe-sage)] opacity-30 mb-6" />
-                  <p className="text-base sm:text-lg text-[var(--safe-white)] mb-6 sm:mb-8 leading-relaxed font-sans">
+                  <div className="flex items-center justify-between mb-5">
+                    <Quote className="w-8 h-8 text-[var(--safe-sage)] opacity-30" aria-hidden />
+                    {/* 5 stars — warm gold */}
+                    <div className="flex items-center gap-0.5" aria-label="5 &eacute;toiles sur 5">
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star
+                          key={si}
+                          className="w-4 h-4 text-[var(--safe-warm)]"
+                          fill="currentColor"
+                          strokeWidth={0}
+                          aria-hidden
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-base sm:text-lg text-[var(--safe-white)] italic mb-6 sm:mb-8 leading-relaxed font-sans">
                     &ldquo;{t.quote}&rdquo;
                   </p>
                 </div>
@@ -116,13 +130,17 @@ export function TestimonialSlider() {
                   <div className={`w-12 h-12 rounded-full ${t.color.bg} border ${t.color.border} flex items-center justify-center font-sans text-lg ${t.color.text}`}>
                     {t.initials}
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h4 className="text-[var(--safe-white)] font-semibold font-sans text-sm tracking-tight">
                       {t.name}
                     </h4>
-                    <p className="text-xs text-[var(--safe-text-muted)] font-sans">
+                    <p className="text-xs text-[var(--safe-text-muted)] font-sans truncate">
                       {t.title}
                     </p>
+                    <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20 text-[10px] font-semibold tracking-wide text-[var(--safe-sage)] font-sans">
+                      <BadgeCheck className="w-3 h-3" aria-hidden />
+                      V&eacute;rifi&eacute; Barreau du Qu&eacute;bec
+                    </span>
                   </div>
                 </div>
               </motion.div>

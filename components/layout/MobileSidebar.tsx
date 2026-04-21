@@ -13,11 +13,15 @@ export function MobileSidebar({
   onClose,
   role,
   billingMode,
+  activeNavIds,
+  hiddenNavIds,
 }: {
   open: boolean;
   onClose: () => void;
   role?: string;
   billingMode?: "forfait" | "horaire";
+  activeNavIds?: string[] | null;
+  hiddenNavIds?: string[];
 }) {
   const t = useTranslations("shell.header");
 
@@ -67,7 +71,14 @@ export function MobileSidebar({
           </button>
         </div>
 
-        <SidebarNavList role={role} billingMode={billingMode} onNavigate={onClose} navClassName="flex-1 overflow-y-auto px-3 py-3 hide-scrollbar min-h-0" />
+        <SidebarNavList
+          role={role}
+          billingMode={billingMode}
+          activeNavIds={activeNavIds}
+          hiddenNavIds={hiddenNavIds}
+          onNavigate={onClose}
+          navClassName="flex-1 overflow-y-auto px-3 py-3 hide-scrollbar min-h-0"
+        />
 
         <SidebarBottomSection onNavigate={onClose} />
       </div>

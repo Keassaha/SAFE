@@ -30,6 +30,7 @@ import {
   FileMinus,
   Coins,
   ListChecks,
+  ShieldCheck,
 } from "lucide-react";
 import {
   canViewClients,
@@ -45,6 +46,7 @@ import {
 import { routes } from "@/lib/routes";
 
 type SubItem = {
+  id?: string; // Optional id for CabinetInterface filtering. Defaults to a slug derived from href.
   href: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -98,12 +100,12 @@ const NAV_ITEMS: NavItem[] = [
     show: canManageInvoices,
     exactMatch: true,
     children: [
-      { href: routes.facturationHonoraires, labelKey: "nav.billableFees", icon: Coins, show: canManageInvoices },
-      { href: routes.facturationVerification, labelKey: "nav.verification", icon: CheckCircle, show: canManageInvoices },
-      { href: routes.facturationSuivi, labelKey: "nav.followUp", icon: Eye, show: canManageInvoices },
-      { href: routes.facturationPaiements, labelKey: "nav.payments", icon: CreditCard, show: canManageInvoices },
-      { href: routes.facturationNotesCredit, labelKey: "nav.creditNotes", icon: FileMinus, show: canManageInvoices },
-      { href: routes.facturationFrais, labelKey: "nav.disbursements", icon: Receipt, show: canManageInvoices },
+      { id: "facturation-honoraires", href: routes.facturationHonoraires, labelKey: "nav.billableFees", icon: Coins, show: canManageInvoices },
+      { id: "facturation-verification", href: routes.facturationVerification, labelKey: "nav.verification", icon: CheckCircle, show: canManageInvoices },
+      { id: "facturation-suivi", href: routes.facturationSuivi, labelKey: "nav.followUp", icon: Eye, show: canManageInvoices },
+      { id: "facturation-paiements", href: routes.facturationPaiements, labelKey: "nav.payments", icon: CreditCard, show: canManageInvoices },
+      { id: "facturation-notes-credit", href: routes.facturationNotesCredit, labelKey: "nav.creditNotes", icon: FileMinus, show: canManageInvoices },
+      { id: "facturation-frais", href: routes.facturationFrais, labelKey: "nav.disbursements", icon: Receipt, show: canManageInvoices },
     ],
   },
   {
@@ -112,7 +114,21 @@ const NAV_ITEMS: NavItem[] = [
     labelKey: "nav.comptabilite",
     icon: BookOpen,
     show: (role) => canManageExpenseJournal(role) || canManageInvoices(role),
-    children: [{ href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust }],
+    children: [{ id: "comptes", href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust }],
+  },
+  {
+    id: "documents",
+    href: routes.outilsGenerateurDocuments,
+    labelKey: "nav.documentGenerator",
+    icon: ScrollText,
+    show: canViewDocuments,
+  },
+  {
+    id: "conformite",
+    href: "/conformite",
+    labelKey: "nav.compliance",
+    icon: ShieldCheck,
+    show: () => true,
   },
   {
     id: "outils",
@@ -122,12 +138,11 @@ const NAV_ITEMS: NavItem[] = [
     show: () => true,
     exactMatch: true,
     children: [
-      { href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
-      { href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: canManageDossiers },
-      { href: routes.outilsGenerateurDocuments, labelKey: "nav.documentGenerator", icon: ScrollText, show: canViewDocuments },
-      { href: routes.outilsCalculateurFamilial, labelKey: "nav.familyCalculator", icon: Calculator, show: canViewDocuments },
-      { href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
-      { href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
+      { id: "rapports", href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
+      { id: "planning", href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: canManageDossiers },
+      { id: "outils-calculateur-familial", href: routes.outilsCalculateurFamilial, labelKey: "nav.familyCalculator", icon: Calculator, show: canViewDocuments },
+      { id: "safe-import", href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
+      { id: "employees", href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
     ],
   },
   {
@@ -138,6 +153,42 @@ const NAV_ITEMS: NavItem[] = [
     show: () => true,
   },
 ];
+
+/**
+ * Filter NAV_ITEMS by CabinetInterface settings.
+ *
+ * - If `activeNavIds` is provided (whitelist), only items whose id matches are kept.
+ * - Items whose id is in `hiddenNavIds` (blacklist) are filtered out.
+ * - Children are filtered by their id (or href slug fallback) using the same rules.
+ *
+ * Whitelist takes precedence: if both are set, an id must be in `activeNavIds`
+ * AND not in `hiddenNavIds` to be visible.
+ */
+function filterByCabinetInterface(
+  items: NavItem[],
+  activeNavIds: string[] | null | undefined,
+  hiddenNavIds: string[] | undefined
+): NavItem[] {
+  const hidden = new Set(hiddenNavIds ?? []);
+  const active = activeNavIds && activeNavIds.length > 0 ? new Set(activeNavIds) : null;
+
+  return items
+    .filter((item) => {
+      if (hidden.has(item.id)) return false;
+      if (active && !active.has(item.id)) return false;
+      return true;
+    })
+    .map((item) => {
+      if (!item.children) return item;
+      const filteredChildren = item.children.filter((c) => {
+        const cid = c.id ?? c.href;
+        if (hidden.has(cid)) return false;
+        // Children are not subject to the active whitelist (parent already passed it)
+        return true;
+      });
+      return { ...item, children: filteredChildren };
+    });
+}
 
 export function isPathActive(pathname: string, href: string, exact?: boolean): boolean {
   if (exact) return pathname === href;
@@ -233,11 +284,15 @@ export function SidebarNavList({
   onNavigate,
   navClassName,
   billingMode,
+  activeNavIds,
+  hiddenNavIds,
 }: {
   role?: string;
   onNavigate?: () => void;
   navClassName?: string;
   billingMode?: "forfait" | "horaire";
+  activeNavIds?: string[] | null;
+  hiddenNavIds?: string[];
 }) {
   const t = useTranslations("shell.sidebar");
   const pathname = usePathname();
@@ -254,10 +309,12 @@ export function SidebarNavList({
     setExpandedId((prev) => (prev === id ? null : id));
   }, []);
 
+  const visibleItems = filterByCabinetInterface(NAV_ITEMS, activeNavIds, hiddenNavIds);
+
   return (
     <nav className={navClassName} aria-label={t("navigationLabel")}>
       <ul className="flex flex-col gap-0.5" role="list">
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           if (!item.show(userRole)) return null;
 
           // Override for forfait mode: "temps" → "Task Register"

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { DashboardKpis } from "@/lib/dashboard/types";
 
-/* ── KPI Card ── */
+/* ── KPI Card — Popcorn-inspired ── */
 
 interface KPICardProps {
   title: string;
@@ -24,71 +24,82 @@ interface KPICardProps {
   trend?: number;
   trendLabel?: string;
   icon: React.ReactNode;
-  accent: "emerald" | "blue" | "amber" | "red" | "violet" | "cyan";
+  gradient: string;
+  iconColor: string;
   isHero?: boolean;
 }
 
-const ACCENT = {
-  emerald: { iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
-  blue: { iconBg: "bg-blue-100", iconText: "text-blue-700" },
-  amber: { iconBg: "bg-amber-100", iconText: "text-amber-700" },
-  red: { iconBg: "bg-red-100", iconText: "text-red-600" },
-  violet: { iconBg: "bg-violet-100", iconText: "text-violet-700" },
-  cyan: { iconBg: "bg-cyan-100", iconText: "text-cyan-700" },
-};
-
-function KPICard({ title, value, subtitle, trend, trendLabel, icon, accent, isHero }: KPICardProps) {
-  const s = ACCENT[accent];
+function KPICard({ title, value, subtitle, trend, trendLabel, icon, gradient, iconColor, isHero }: KPICardProps) {
   const trendUp = trend != null && trend > 0;
   const trendDown = trend != null && trend < 0;
 
   return (
     <div
-      className={`rounded-safe-md p-4 md:p-5 transition-shadow hover:shadow-md ${
+      className={`relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:scale-[1.01] ${
         isHero
-          ? "bg-green-900 text-white"
-          : "bg-white border border-[var(--safe-neutral-border)]"
+          ? "bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+          : "bg-white/70 backdrop-blur-sm border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)]"
       }`}
     >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <p className={`text-xs font-semibold uppercase tracking-wider ${isHero ? "text-white/70" : "text-[var(--safe-text-muted)]"}`}>
-          {title}
-        </p>
+      {/* Decorative gradient orb */}
+      {!isHero && (
         <div
-          className={`w-8 h-8 rounded-safe-sm flex items-center justify-center shrink-0 ${
-            isHero ? "bg-white/15 text-white" : `${s.iconBg} ${s.iconText}`
-          }`}
-        >
-          {icon}
-        </div>
-      </div>
-      <p className={`font-heading text-2xl md:text-3xl font-bold tracking-tight ${isHero ? "text-white" : "text-[var(--safe-text-title)]"}`}>
-        {value}
-      </p>
-      {subtitle && (
-        <p className={`text-xs mt-0.5 ${isHero ? "text-white/60" : "text-[var(--safe-text-muted)]"}`}>{subtitle}</p>
+          className={`absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-20 blur-2xl pointer-events-none ${gradient}`}
+        />
       )}
-      {trend != null && (
-        <div className="flex items-center gap-1.5 mt-2">
-          <span
-            className={`inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${
-              trendUp
-                ? isHero ? "bg-emerald-400/20 text-emerald-200" : "bg-emerald-50 text-emerald-700"
-                : trendDown
-                  ? isHero ? "bg-red-400/20 text-red-200" : "bg-red-50 text-red-600"
-                  : isHero ? "bg-white/10 text-white/60" : "bg-gray-100 text-gray-500"
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <p className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${
+            isHero ? "text-white/70" : "text-neutral-400"
+          }`}>
+            {title}
+          </p>
+          <div
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-110 ${
+              isHero ? "bg-white/15" : `${gradient}`
             }`}
           >
-            {trendUp && <TrendingUp className="w-3 h-3" />}
-            {trendDown && <TrendingDown className="w-3 h-3" />}
-            {trend === 0 && <Minus className="w-3 h-3" />}
-            {trend > 0 ? "+" : ""}{trend}%
-          </span>
-          {trendLabel && (
-            <span className={`text-xs ${isHero ? "text-white/40" : "text-[var(--safe-text-muted)]"}`}>{trendLabel}</span>
-          )}
+            <span className={isHero ? "text-white" : iconColor}>{icon}</span>
+          </div>
         </div>
-      )}
+
+        <p className={`text-2xl md:text-3xl font-bold tracking-tight tabular-nums ${
+          isHero ? "text-white" : "text-neutral-800"
+        }`}>
+          {value}
+        </p>
+
+        {subtitle && (
+          <p className={`text-[12px] mt-1 ${isHero ? "text-white/60" : "text-neutral-400"}`}>
+            {subtitle}
+          </p>
+        )}
+
+        {trend != null && (
+          <div className="flex items-center gap-2 mt-3">
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
+                trendUp
+                  ? isHero ? "bg-white/15 text-emerald-100" : "bg-emerald-50 text-emerald-600"
+                  : trendDown
+                    ? isHero ? "bg-white/15 text-red-200" : "bg-red-50 text-red-500"
+                    : isHero ? "bg-white/10 text-white/60" : "bg-neutral-100 text-neutral-400"
+              }`}
+            >
+              {trendUp && <TrendingUp className="w-3 h-3" />}
+              {trendDown && <TrendingDown className="w-3 h-3" />}
+              {trend === 0 && <Minus className="w-3 h-3" />}
+              {trend > 0 ? "+" : ""}{trend}%
+            </span>
+            {trendLabel && (
+              <span className={`text-[11px] ${isHero ? "text-white/40" : "text-neutral-300"}`}>
+                {trendLabel}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -110,9 +121,9 @@ export function DashboardKPICards({ kpis, visibility }: DashboardKPICardsProps) 
   if (!visibility.showFinancialKpis) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Row 1: Financial KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title={t("kpi.revenueInvoiced")}
           value={kpis.revenueThisMonth.value}
@@ -120,7 +131,8 @@ export function DashboardKPICards({ kpis, visibility }: DashboardKPICardsProps) 
           trend={kpis.revenueThisMonth.trend}
           trendLabel={kpis.revenueThisMonth.trendLabel}
           icon={<DollarSign className="w-4 h-4" />}
-          accent="emerald"
+          gradient="bg-emerald-100"
+          iconColor="text-emerald-600"
           isHero
         />
         <KPICard
@@ -130,53 +142,60 @@ export function DashboardKPICards({ kpis, visibility }: DashboardKPICardsProps) 
           trend={kpis.paymentsReceived.trend}
           trendLabel={kpis.paymentsReceived.trendLabel}
           icon={<CreditCard className="w-4 h-4" />}
-          accent="blue"
+          gradient="bg-blue-100"
+          iconColor="text-blue-600"
         />
         <KPICard
           title={t("kpi.cashNotReceived")}
           value={kpis.cashNotReceived.value}
           subtitle={kpis.cashNotReceived.subtitle}
           icon={<FileWarning className="w-4 h-4" />}
-          accent="amber"
+          gradient="bg-amber-100"
+          iconColor="text-amber-600"
         />
         <KPICard
           title={t("kpi.recoveryRate")}
           value={kpis.recoveryRate.value}
           subtitle={kpis.recoveryRate.subtitle}
           icon={<Percent className="w-4 h-4" />}
-          accent="cyan"
+          gradient="bg-cyan-100"
+          iconColor="text-cyan-600"
         />
       </div>
 
       {/* Row 2: Productivity KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title={t("kpi.hoursWorked")}
           value={kpis.hoursWorked.value}
           subtitle={kpis.hoursWorked.subtitle}
           icon={<Clock className="w-4 h-4" />}
-          accent="violet"
+          gradient="bg-violet-100"
+          iconColor="text-violet-600"
         />
         <KPICard
           title={t("kpi.hoursBilled")}
           value={kpis.hoursBilled.value}
           subtitle={kpis.hoursBilled.subtitle}
           icon={<FileCheck className="w-4 h-4" />}
-          accent="blue"
+          gradient="bg-blue-100"
+          iconColor="text-blue-600"
         />
         <KPICard
           title={t("kpi.billingRate")}
           value={kpis.billingRate.value}
           subtitle={kpis.billingRate.subtitle}
           icon={<Percent className="w-4 h-4" />}
-          accent="emerald"
+          gradient="bg-emerald-100"
+          iconColor="text-emerald-600"
         />
         <KPICard
           title={t("kpi.revenuePerLawyer")}
           value={kpis.revenuePerLawyer.value}
           subtitle={kpis.revenuePerLawyer.subtitle}
           icon={<UserCheck className="w-4 h-4" />}
-          accent="cyan"
+          gradient="bg-cyan-100"
+          iconColor="text-cyan-600"
         />
       </div>
     </div>

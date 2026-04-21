@@ -33,7 +33,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
   const locale = useLocale();
 
   return (
-    <div className="bg-white rounded-safe-md border border-[var(--safe-neutral-border)] shadow-sm p-5 md:p-6">
+    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">

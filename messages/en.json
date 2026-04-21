@@ -293,10 +293,11 @@
         "accountingView": "Accounting view",
         "comptabilite": "Accounting",
         "planning": "Calendar",
-        "documentGenerator": "Document generator",
+        "documentGenerator": "Documents",
         "familyCalculator": "Family calculator",
         "safeImport": "SAFE Import",
         "reports": "Reports",
+        "compliance": "Compliance",
         "settings": "Settings"
       },
       "profile": {
@@ -587,6 +588,11 @@
   },
   "facturation": {
     "title": "Billing",
+    "tabs": {
+      "honoraires": "Fees",
+      "suivi": "Follow-up",
+      "paiements": "Payments"
+    },
     "listTitle": "Invoice list",
     "filterByInvoiceType": "Invoice type",
     "amountLabel": "Amount",

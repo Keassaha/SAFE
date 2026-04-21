@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Check, ArrowRight, ChevronDown, Shield, Sparkles, Zap, Clock, Lock } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { Check, ArrowRight, Shield, Sparkles, Zap, Clock, Lock, Plus } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/marketing/Navbar";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
@@ -54,7 +54,6 @@ const PLANS = [
       "Facturation conforme B-1 r.5",
       "1 compte en fidéicommis",
       "Audit de conformité de base",
-      "Agent IA Finance, 50 requêtes/mois",
       "Échéanciers & alertes",
       "Support par courriel (48h)",
     ],
@@ -76,8 +75,6 @@ const PLANS = [
       "3 comptes en fidéicommis",
       "Rapports financiers avancés",
       "Audit complet + alertes conformité",
-      "Agent IA Finance, 200 requêtes/mois",
-      "Agent IA Assistant, 100 requêtes/mois",
       "Échéanciers & alertes de cour",
       "Onboarding 1-on-1 (30 min)",
       "Support prioritaire (24h)",
@@ -98,7 +95,6 @@ const PLANS = [
       "6 utilisateurs et plus",
       "Comptes en fidéicommis illimités",
       "Rapport pré-inspection automatisé",
-      "Agents IA illimités",
       "Intégrations sur mesure",
       "Migration de données complète",
       "Onboarding concierge (3 sessions)",
@@ -121,8 +117,6 @@ const comparisonFeatures = [
   { name: "Facturation conforme B-1 r.5", solo: true, cabinet: true, cabinetPlus: true },
   { name: "Échéanciers & alertes", solo: true, cabinet: true, cabinetPlus: true },
   { name: "Audit de conformité", solo: "De base", cabinet: "Complet + alertes", cabinetPlus: "Complet + rapport pré-inspection" },
-  { name: "Agent IA Finance", solo: "50 req/mois", cabinet: "200 req/mois", cabinetPlus: "Illimité" },
-  { name: "Agent IA Assistant", solo: false, cabinet: "100 req/mois", cabinetPlus: "Illimité" },
   { name: "Rapports financiers avancés", solo: false, cabinet: true, cabinetPlus: true },
   { name: "Onboarding", solo: "Self-serve + vidéos", cabinet: "Session 1-on-1 (30 min)", cabinetPlus: "Concierge (3 sessions)" },
   { name: "Migration de données", solo: false, cabinet: false, cabinetPlus: true },
@@ -169,38 +163,66 @@ const faqs = [
 
 function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
   const [open, setOpen] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+
+  /* Cursor-tracking glow */
+  function onMove(e: React.MouseEvent<HTMLDivElement>) {
+    const el = itemRef.current;
+    const glow = glowRef.current;
+    if (!el || !glow) return;
+    const r = el.getBoundingClientRect();
+    glow.style.left = `${e.clientX - r.left}px`;
+    glow.style.top = `${e.clientY - r.top}px`;
+  }
+  function onLeave() {
+    const glow = glowRef.current;
+    if (!glow) return;
+    glow.style.left = "-9999px";
+    glow.style.top = "-9999px";
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      ref={itemRef}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.05 }}
-      className="border-b border-[var(--safe-sage)]/15"
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ delay: index * 0.04 }}
+      className={`faq-item-v2 mb-3 ${open ? "is-open" : ""}`}
     >
+      <span ref={glowRef} className="faq-glow" aria-hidden />
+      <span className="faq-shimmer" aria-hidden />
+      <span className="faq-accent-line" aria-hidden />
+
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-5 text-left group"
+        className="relative z-10 w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
+        aria-expanded={open}
       >
-        <span className="text-[var(--safe-white)] font-medium font-sans pr-4">{q}</span>
-        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3 }}>
-          <ChevronDown className="w-5 h-5 text-[var(--safe-sage)] shrink-0" />
-        </motion.div>
+        <span className="text-[var(--safe-white)] font-medium font-sans">
+          {q}
+        </span>
+        <span
+          className="faq-icon-btn shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
+          style={{
+            background: "rgba(142,182,155,0.08)",
+            border: "1px solid rgba(142,182,155,0.22)",
+          }}
+        >
+          <Plus className="w-4 h-4 text-[var(--safe-sage)]" aria-hidden />
+        </span>
       </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <p className="pb-5 text-[var(--safe-text-muted)] font-sans leading-relaxed">
-              {a}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+      <div className="relative z-10 faq-content-grid">
+        <div className="faq-content-inner">
+          <p className="px-6 pb-5 text-[var(--safe-text-muted)] font-sans leading-relaxed">
+            {a}
+          </p>
+        </div>
+      </div>
     </motion.div>
   );
 }

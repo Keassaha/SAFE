@@ -148,7 +148,7 @@ export function AIArchitecture() {
           >
             <Brain className="w-4 h-4 text-emerald-400" />
             <span className="text-sm text-emerald-400 font-medium font-sans">
-              Intelligence artificielle + Expertise comptable
+              Modules IA (optionnels)
             </span>
           </motion.div>
 
@@ -173,8 +173,8 @@ export function AIArchitecture() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-lg text-white/60 leading-relaxed font-sans"
           >
-            Des agents IA spécialisés qui automatisent les tâches répétitives
-            tout en respectant les normes du Barreau. Chaque action reste sous
+            Des modules IA en option pour accélérer certaines tâches répétitives,
+            tout en respectant les normes de conformité. Chaque action reste sous
             votre contrôle.
           </motion.p>
 
@@ -344,7 +344,7 @@ export function AIArchitecture() {
                 href="/fonctionnalites"
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 font-sans transition-colors duration-300"
               >
-                Découvrir tous les agents IA
+                Découvrir les modules IA
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
             </motion.div>

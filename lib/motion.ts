@@ -36,13 +36,13 @@ export const fadeInUp: Variants = {
   exit: { opacity: 0, y: 8 },
 };
 
-/** Stagger container: children delay 50–80ms */
+/** Stagger container: children delay 80ms, snappy UXPeak easing */
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
+      staggerChildren: 0.08,
       delayChildren: 0.05,
     },
   },
@@ -53,8 +53,8 @@ export const staggerContainer: Variants = {
 };
 
 export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
   exit: { opacity: 0, y: 6 },
 };
 
