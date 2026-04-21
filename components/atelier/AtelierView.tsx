@@ -6,16 +6,17 @@ import { FolderOpen, Clock, FileText, ChevronRight, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
-// Couleurs par type de dossier — métaphore chemises papier
+// Couleurs par type de dossier — Vert + Beige clair (Option 2)
+// Clés alignées avec l'enum DossierType de Prisma
 const DOSSIER_COLORS: Record<string, { bg: string; border: string; tab: string; icon: string }> = {
-  famille:       { bg: "bg-blue-50",   border: "border-blue-200",   tab: "bg-blue-400",   icon: "text-blue-500" },
-  immobilier:    { bg: "bg-amber-50",  border: "border-amber-200",  tab: "bg-amber-500",  icon: "text-amber-600" },
-  litige:        { bg: "bg-red-50",    border: "border-red-200",    tab: "bg-red-400",    icon: "text-red-500" },
-  contrat:       { bg: "bg-gray-50",   border: "border-gray-200",   tab: "bg-gray-400",   icon: "text-gray-500" },
-  immigration:   { bg: "bg-green-50",  border: "border-green-200",  tab: "bg-green-500",  icon: "text-green-600" },
-  succession:    { bg: "bg-purple-50", border: "border-purple-200", tab: "bg-purple-400", icon: "text-purple-500" },
-  corporatif:    { bg: "bg-indigo-50", border: "border-indigo-200", tab: "bg-indigo-400", icon: "text-indigo-500" },
-  default:       { bg: "bg-stone-50",  border: "border-stone-200",  tab: "bg-stone-400",  icon: "text-stone-500" },
+  droit_famille: { bg: "bg-amber-50",  border: "border-emerald-300", tab: "bg-emerald-600", icon: "text-emerald-600" },
+  immobilier:    { bg: "bg-white",     border: "border-emerald-200", tab: "bg-emerald-600", icon: "text-emerald-600" },
+  litige_civil:  { bg: "bg-amber-50",  border: "border-emerald-300", tab: "bg-emerald-700", icon: "text-emerald-700" },
+  criminel:      { bg: "bg-white",     border: "border-red-200",     tab: "bg-red-600",     icon: "text-red-600" },
+  immigration:   { bg: "bg-amber-50",  border: "border-emerald-300", tab: "bg-emerald-600", icon: "text-emerald-600" },
+  corporate:     { bg: "bg-white",     border: "border-indigo-200",  tab: "bg-indigo-600",  icon: "text-indigo-600" },
+  autre:         { bg: "bg-amber-50",  border: "border-emerald-300", tab: "bg-emerald-600", icon: "text-emerald-600" },
+  default:       { bg: "bg-white",     border: "border-emerald-200", tab: "bg-emerald-600", icon: "text-emerald-600" },
 };
 
 function getDossierColor(type?: string | null) {

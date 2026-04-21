@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  FileText, Plus, Clock, ArrowLeft, FolderOpen,
-  FileEdit, CheckCircle, Archive, ChevronDown
+  FileText, Plus, ArrowLeft, FolderOpen,
+  FileEdit, CheckCircle, Archive, ChevronDown, Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { UploadZone } from "./UploadZone";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   note: "Note interne",
@@ -50,17 +51,26 @@ interface DossierDetail {
   richDocuments: RichDoc[];
 }
 
+interface DossierSimple {
+  id: string;
+  intitule: string;
+  clientNom: string;
+  numeroDossier?: string | null;
+}
+
 interface Props {
   dossier: DossierDetail;
   currentUserId: string;
+  allDossiers?: DossierSimple[];
 }
 
-export function DossierAtelierView({ dossier }: Props) {
+export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [newDocTitle, setNewDocTitle] = useState("");
   const [newDocType, setNewDocType] = useState<string>("note");
   const [filter, setFilter] = useState<string>("tous");
+  const [tab, setTab] = useState<"redaction" | "fichiers">("redaction");
 
   const docs = dossier.richDocuments.filter((d) =>
     filter === "tous" ? true : d.type === filter
@@ -122,50 +132,101 @@ export function DossierAtelierView({ dossier }: Props) {
           </div>
         </div>
 
-        {/* Nouveau document */}
-        <NewDocPopover
-          onConfirm={handleCreateDoc}
-          isLoading={isCreating}
-          title={newDocTitle}
-          setTitle={setNewDocTitle}
-          type={newDocType}
-          setType={setNewDocType}
-        />
-      </div>
-
-      {/* Filtres par type */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {["tous", "note", "lettre", "contrat", "procedure", "requete", "autre"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setFilter(t)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              filter === t
-                ? "bg-[var(--safe-primary)] text-white"
-                : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
-            }`}
-          >
-            {t === "tous" ? `Tous (${dossier.richDocuments.length})` : DOC_TYPE_LABELS[t]}
-          </button>
-        ))}
-      </div>
-
-      {/* Liste des documents — style "pile de feuilles" */}
-      {docs.length === 0 ? (
-        <div className="py-16 text-center border-2 border-dashed border-[var(--safe-neutral-border)] rounded-xl">
-          <FileText className="w-10 h-10 text-[var(--safe-neutral-border)] mx-auto mb-3" />
-          <p className="text-[var(--safe-text-secondary)] text-sm">
-            Aucun document dans ce dossier.
-          </p>
-          <p className="text-xs text-[var(--safe-text-secondary)] mt-1">
-            Créez votre premier document avec le bouton ci-dessus.
-          </p>
+        {/* Actions selon onglet actif */}
+        <div className="flex items-center gap-2">
+          {tab === "redaction" && (
+            <NewDocPopover
+              onConfirm={handleCreateDoc}
+              isLoading={isCreating}
+              title={newDocTitle}
+              setTitle={setNewDocTitle}
+              type={newDocType}
+              setType={setNewDocType}
+            />
+          )}
         </div>
-      ) : (
-        <div className="space-y-2">
-          {docs.map((doc) => (
-            <DocumentRow key={doc.id} doc={doc} dossierId={dossier.id} />
-          ))}
+      </div>
+
+      {/* Onglets */}
+      <div className="flex items-center gap-1 border-b border-[var(--safe-neutral-border)]">
+        <button
+          onClick={() => setTab("redaction")}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            tab === "redaction"
+              ? "border-[var(--safe-primary)] text-[var(--safe-primary)]"
+              : "border-transparent text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          Rédaction
+          <span className="ml-1 text-xs bg-[var(--safe-neutral-bg)] px-1.5 py-0.5 rounded-full">
+            {dossier.richDocuments.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setTab("fichiers")}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            tab === "fichiers"
+              ? "border-[var(--safe-primary)] text-[var(--safe-primary)]"
+              : "border-transparent text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
+          }`}
+        >
+          <Upload className="w-4 h-4" />
+          Fichiers uploadés
+        </button>
+      </div>
+
+      {/* Contenu selon onglet */}
+      {tab === "redaction" && (
+        <>
+          {/* Filtres par type */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {["tous", "note", "lettre", "contrat", "procedure", "requete", "autre"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setFilter(t)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  filter === t
+                    ? "bg-[var(--safe-primary)] text-white"
+                    : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
+                }`}
+              >
+                {t === "tous" ? `Tous (${dossier.richDocuments.length})` : DOC_TYPE_LABELS[t]}
+              </button>
+            ))}
+          </div>
+
+          {docs.length === 0 ? (
+            <div className="py-16 text-center border-2 border-dashed border-[var(--safe-neutral-border)] rounded-xl">
+              <FileText className="w-10 h-10 text-[var(--safe-neutral-border)] mx-auto mb-3" />
+              <p className="text-[var(--safe-text-secondary)] text-sm">
+                Aucun document dans ce dossier.
+              </p>
+              <p className="text-xs text-[var(--safe-text-secondary)] mt-1">
+                Créez votre premier document avec le bouton ci-dessus.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {docs.map((doc) => (
+                <DocumentRow key={doc.id} doc={doc} dossierId={dossier.id} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === "fichiers" && (
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--safe-text-secondary)]">
+            Uploadez des fichiers (PDF, Word, images). L&apos;IA suggère automatiquement le bon dossier — vous validez avant de classer.
+          </p>
+          <UploadZone
+            dossiers={allDossiers}
+            currentDossierId={dossier.id}
+            currentClientId={dossier.client.id}
+            onSuccess={() => {/* refresh futur */}}
+          />
         </div>
       )}
     </div>

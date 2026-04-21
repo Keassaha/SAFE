@@ -32,10 +32,24 @@ export default async function DossierAtelierPage({ params }: Props) {
 
   if (!dossier) notFound();
 
+  // Tous les dossiers du cabinet pour la classification IA (upload peut aller dans n'importe quel dossier)
+  const allDossiers = await prisma.dossier.findMany({
+    where: { cabinetId, statut: { not: "cloture" } },
+    include: { client: { select: { raisonSociale: true } } },
+    orderBy: { updatedAt: "desc" },
+    take: 100,
+  });
+
   return (
     <DossierAtelierView
       dossier={dossier as any}
       currentUserId={session.userId}
+      allDossiers={allDossiers.map((d) => ({
+        id: d.id,
+        intitule: d.intitule,
+        clientNom: d.client.raisonSociale ?? "Sans nom",
+        numeroDossier: d.numeroDossier,
+      }))}
     />
   );
 }
