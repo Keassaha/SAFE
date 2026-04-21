@@ -25,8 +25,6 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
     switch (invoice.statut) {
       case "brouillon":
         return "Brouillon";
-      case "verification":
-        return "Validée";
       case "envoyee":
       case "partiellement_payee":
       case "payee":
@@ -157,13 +155,13 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
 
         {/* Actions */}
         <div className="flex gap-2 justify-end pt-4 border-t">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button variant="secondary" onClick={onClose} disabled={isLoading}>
             Fermer
           </Button>
 
           {invoice.statut === "brouillon" && (
             <>
-              <Button variant="outline" onClick={handleValidate} disabled={isLoading}>
+              <Button variant="secondary" onClick={handleValidate} disabled={isLoading}>
                 Valider
               </Button>
               <Button onClick={handleValidateAndSend} disabled={isLoading}>
@@ -172,19 +170,8 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
             </>
           )}
 
-          {invoice.statut === "verification" && (
-            <>
-              <Button variant="outline" onClick={handleValidate} disabled={isLoading}>
-                Enregistrer
-              </Button>
-              <Button onClick={handleSend} disabled={isLoading}>
-                Envoyer
-              </Button>
-            </>
-          )}
-
           {["envoyee", "partiellement_payee", "payee", "en_retard"].includes(invoice.statut) && (
-            <Button variant="outline" disabled={isLoading}>
+            <Button variant="secondary" disabled={isLoading}>
               Voir détails
             </Button>
           )}

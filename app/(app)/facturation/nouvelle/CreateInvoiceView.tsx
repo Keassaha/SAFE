@@ -43,7 +43,7 @@ interface CabinetInfo {
 
 interface ClientInfo {
   id: string;
-  raisonSociale: string;
+  raisonSociale: string | null;
   billingAddress?: string | null;
   billingCity?: string | null;
   billingProvince?: string | null;

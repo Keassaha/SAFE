@@ -77,8 +77,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       )}
 
       <Button
-        variant="outline"
-        size="sm"
+        variant="secondary"
         onClick={onPreview}
         className="w-full mt-2 h-8 text-xs"
       >

@@ -1,22 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import type { TimeEntry, Expense, Client, Dossier } from "@prisma/client";
+import type { TimeEntry, Expense } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
 
+type ClientSelect = { id: string; raisonSociale: string | null } | null;
+type DossierSelect = { id: string; intitule: string } | null;
+
 interface HonorairesViewProps {
   cabinetId: string;
   timeEntries: (TimeEntry & {
-    client: Client | null;
-    dossier: Dossier | null;
+    client: ClientSelect;
+    dossier: DossierSelect;
   })[];
   expenses: (Expense & {
-    client: Client | null;
-    dossier: Dossier | null;
+    client: ClientSelect;
   })[];
 }
 

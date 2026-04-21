@@ -28,7 +28,6 @@ export default async function FacturationHonorairesPage() {
     },
     include: {
       client: { select: { id: true, raisonSociale: true } },
-      dossier: { select: { id: true, intitule: true } },
     },
   });
 
