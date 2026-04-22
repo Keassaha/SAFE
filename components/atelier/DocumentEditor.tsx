@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { TerminerDialog } from "./TerminerDialog";
 import { MoveDocumentDialog } from "./MoveDocumentDialog";
+import { VersionsPanel } from "./VersionsPanel";
 
 interface DocData {
   id: string;
@@ -111,6 +112,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
   const [showTerminer, setShowTerminer] = useState(false);
   const [showMove, setShowMove] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
   const [titre, setTitre] = useState(doc.titre);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -343,7 +345,10 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               Déplacer
             </button>
           )}
-          <button className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded">
+          <button
+            onClick={() => setShowVersions(true)}
+            className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded"
+          >
             <History className="w-3.5 h-3.5" />
             Versions
           </button>
@@ -410,6 +415,26 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             const target = allDossiers.find((d) => d.intitule === targetIntitule);
             if (target) router.push(`/atelier/${target.id}`);
             else router.push("/atelier");
+          }}
+        />
+      )}
+
+      {showVersions && (
+        <VersionsPanel
+          documentId={doc.id}
+          onClose={() => setShowVersions(false)}
+          onRestore={(restoredContent) => {
+            // Injecter le contenu restauré dans l'éditeur Tiptap
+            if (editor) {
+              try {
+                const json = JSON.parse(restoredContent);
+                editor.commands.setContent(json);
+              } catch {
+                editor.commands.setContent(restoredContent);
+              }
+              setSavedAt(new Date()); // marquer comme "à jour"
+            }
+            setShowVersions(false);
           }}
         />
       )}
