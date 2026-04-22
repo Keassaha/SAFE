@@ -8,10 +8,11 @@ import StarterKit from "@tiptap/starter-kit";
 import {
   ArrowLeft, Clock, CheckCircle, Pause, Play,
   Bold, Italic, List, ListOrdered, Heading2, Heading3,
-  Save, FileDown, History
+  Save, FileDown, History, FolderOpen, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { TerminerDialog } from "./TerminerDialog";
+import { MoveDocumentDialog } from "./MoveDocumentDialog";
 
 interface DocData {
   id: string;
@@ -34,10 +35,18 @@ interface WorkSessionData {
   statut: string;
 }
 
+interface DossierSimple {
+  id: string;
+  intitule: string;
+  clientNom: string;
+  numeroDossier?: string | null;
+}
+
 interface Props {
   doc: DocData;
   activeSession: WorkSessionData | null;
   currentUserId: string;
+  allDossiers?: DossierSimple[];
 }
 
 // ─── Chrono Hook
@@ -94,12 +103,14 @@ function useChrono(session: WorkSessionData | null) {
   return { statut, setStatut, elapsed, minutes, formatTime, resetInactivity };
 }
 
-export function DocumentEditor({ doc, activeSession }: Props) {
+export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) {
   const router = useRouter();
   const [sessionId, setSessionId] = useState<string | null>(activeSession?.id ?? null);
   const [isSaving, setIsSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [showTerminer, setShowTerminer] = useState(false);
+  const [showMove, setShowMove] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [titre, setTitre] = useState(doc.titre);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -323,12 +334,42 @@ export function DocumentEditor({ doc, activeSession }: Props) {
             <ListOrdered className="w-4 h-4" />
           </FormatButton>
           <div className="flex-1" />
+          {allDossiers.length > 1 && (
+            <button
+              onClick={() => setShowMove(true)}
+              className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              Déplacer
+            </button>
+          )}
           <button className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded">
             <History className="w-3.5 h-3.5" />
             Versions
           </button>
-          <button className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded">
-            <FileDown className="w-3.5 h-3.5" />
+          <button
+            onClick={async () => {
+              setIsExportingPdf(true);
+              try {
+                await save(); // sauvegarder avant export
+                const res = await fetch(`/api/atelier/documents/${doc.id}/pdf`);
+                if (res.ok) {
+                  const blob = await res.blob();
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${titre.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }
+              } finally {
+                setIsExportingPdf(false);
+              }
+            }}
+            disabled={isExportingPdf}
+            className="flex items-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] px-2 py-1 rounded disabled:opacity-50"
+          >
+            {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />}
             Export PDF
           </button>
         </div>
@@ -352,6 +393,23 @@ export function DocumentEditor({ doc, activeSession }: Props) {
             setShowTerminer(false);
             chrono.setStatut("inactif");
             router.push(`/atelier/${doc.dossier.id}`);
+          }}
+        />
+      )}
+
+      {showMove && (
+        <MoveDocumentDialog
+          documentId={doc.id}
+          documentTitre={titre}
+          currentDossierId={doc.dossier.id}
+          dossiers={allDossiers}
+          onClose={() => setShowMove(false)}
+          onSuccess={(_, targetIntitule) => {
+            setShowMove(false);
+            // Rediriger vers le dossier cible après déplacement
+            const target = allDossiers.find((d) => d.intitule === targetIntitule);
+            if (target) router.push(`/atelier/${target.id}`);
+            else router.push("/atelier");
           }}
         />
       )}

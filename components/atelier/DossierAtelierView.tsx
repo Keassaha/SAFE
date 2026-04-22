@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { UploadZone } from "./UploadZone";
+import { MoveDocumentDialog } from "./MoveDocumentDialog";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   note: "Note interne",
@@ -209,7 +210,12 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
           ) : (
             <div className="space-y-2">
               {docs.map((doc) => (
-                <DocumentRow key={doc.id} doc={doc} dossierId={dossier.id} />
+                <DocumentRow
+                  key={doc.id}
+                  doc={doc}
+                  dossierId={dossier.id}
+                  allDossiers={allDossiers}
+                />
               ))}
             </div>
           )}
@@ -233,50 +239,85 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
   );
 }
 
-function DocumentRow({ doc, dossierId }: { doc: RichDoc; dossierId: string }) {
+function DocumentRow({
+  doc,
+  dossierId,
+  allDossiers = [],
+}: {
+  doc: RichDoc;
+  dossierId: string;
+  allDossiers?: DossierSimple[];
+}) {
+  const [showMove, setShowMove] = useState(false);
+  const router = useRouter();
   const typeColor = DOC_TYPE_COLORS[doc.type] ?? DOC_TYPE_COLORS.autre;
   const typeLabel = DOC_TYPE_LABELS[doc.type] ?? "Autre";
 
   return (
-    <Link
-      href={`/atelier/${dossierId}/${doc.id}`}
-      className="group flex items-center gap-4 p-4 rounded-lg border border-[var(--safe-neutral-border)] bg-white hover:border-[var(--safe-primary)] hover:shadow-sm transition-all"
-    >
-      {/* Icone type document */}
-      <div className="w-10 h-10 rounded-lg bg-[var(--safe-neutral-bg)] flex items-center justify-center shrink-0 group-hover:bg-[var(--safe-primary)]/10 transition-colors">
-        <FileEdit className="w-5 h-5 text-[var(--safe-text-secondary)] group-hover:text-[var(--safe-primary)]" />
-      </div>
+    <>
+      <div className="group flex items-center gap-4 p-4 rounded-lg border border-[var(--safe-neutral-border)] bg-white hover:border-[var(--safe-primary)] hover:shadow-sm transition-all">
+        {/* Icone type document */}
+        <Link href={`/atelier/${dossierId}/${doc.id}`} className="w-10 h-10 rounded-lg bg-[var(--safe-neutral-bg)] flex items-center justify-center shrink-0 group-hover:bg-[var(--safe-primary)]/10 transition-colors">
+          <FileEdit className="w-5 h-5 text-[var(--safe-text-secondary)] group-hover:text-[var(--safe-primary)]" />
+        </Link>
 
-      {/* Infos principales */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <p className="font-medium text-[var(--safe-text-title)] truncate text-sm">
-            {doc.titre}
+        {/* Infos principales */}
+        <Link href={`/atelier/${dossierId}/${doc.id}`} className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="font-medium text-[var(--safe-text-title)] truncate text-sm">
+              {doc.titre}
+            </p>
+            {doc.statut === "final" && (
+              <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
+            )}
+            {doc.statut === "archive" && (
+              <Archive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            )}
+          </div>
+          <p className="text-xs text-[var(--safe-text-secondary)]">
+            Modifié{" "}
+            {formatDistanceToNow(new Date(doc.lastEditedAt ?? doc.updatedAt), {
+              locale: fr,
+              addSuffix: true,
+            })}
+            {doc.lastEditedBy && ` par ${doc.lastEditedBy.nom}`}
+            {" · "}
+            {doc._count.versions} version{doc._count.versions !== 1 ? "s" : ""}
           </p>
-          {doc.statut === "final" && (
-            <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
-          )}
-          {doc.statut === "archive" && (
-            <Archive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-          )}
-        </div>
-        <p className="text-xs text-[var(--safe-text-secondary)]">
-          Modifié{" "}
-          {formatDistanceToNow(new Date(doc.lastEditedAt ?? doc.updatedAt), {
-            locale: fr,
-            addSuffix: true,
-          })}
-          {doc.lastEditedBy && ` par ${doc.lastEditedBy.nom}`}
-          {" · "}
-          {doc._count.versions} version{doc._count.versions !== 1 ? "s" : ""}
-        </p>
+        </Link>
+
+        {/* Badge type */}
+        <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${typeColor}`}>
+          {typeLabel}
+        </span>
+
+        {/* Bouton Déplacer */}
+        {allDossiers.length > 1 && (
+          <button
+            onClick={(e) => { e.preventDefault(); setShowMove(true); }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] shrink-0"
+            title="Déplacer vers un autre dossier"
+          >
+            <FolderOpen className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
-      {/* Badge type */}
-      <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${typeColor}`}>
-        {typeLabel}
-      </span>
-    </Link>
+      {showMove && (
+        <MoveDocumentDialog
+          documentId={doc.id}
+          documentTitre={doc.titre}
+          currentDossierId={dossierId}
+          dossiers={allDossiers}
+          onClose={() => setShowMove(false)}
+          onSuccess={(targetId) => {
+            setShowMove(false);
+            router.push(`/atelier/${targetId}`);
+            router.refresh();
+          }}
+        />
+      )}
+    </>
   );
 }
 

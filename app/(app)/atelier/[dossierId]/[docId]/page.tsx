@@ -12,6 +12,14 @@ export default async function DocumentEditorPage({ params }: Props) {
   const session = await requireCabinetAndUser();
   if (!session) notFound();
 
+  // Tous les dossiers du cabinet pour Move + classification
+  const allDossiers = await prisma.dossier.findMany({
+    where: { cabinetId: session.cabinetId, statut: { not: "cloture" } },
+    include: { client: { select: { raisonSociale: true } } },
+    orderBy: { updatedAt: "desc" },
+    take: 100,
+  });
+
   const doc = await prisma.richDocument.findFirst({
     where: {
       id: docId,
@@ -50,6 +58,12 @@ export default async function DocumentEditorPage({ params }: Props) {
       doc={doc as any}
       activeSession={activeSession as any}
       currentUserId={session.userId}
+      allDossiers={allDossiers.map((d) => ({
+        id: d.id,
+        intitule: d.intitule,
+        clientNom: d.client.raisonSociale ?? "Sans nom",
+        numeroDossier: d.numeroDossier,
+      }))}
     />
   );
 }
