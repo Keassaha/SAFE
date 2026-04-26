@@ -74,6 +74,23 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
+  // Documents rédigés via l'éditeur (RichDocument) — tous dossiers du client
+  const richDocs = await prisma.richDocument.findMany({
+    where: { clientId: id, cabinetId, isArchived: false },
+    orderBy: { updatedAt: "desc" },
+    take: 30,
+    select: {
+      id: true,
+      titre: true,
+      type: true,
+      statut: true,
+      updatedAt: true,
+      dossierId: true,
+      dossier: { select: { intitule: true, numeroDossier: true } },
+      lastEditedBy: { select: { nom: true } },
+    },
+  });
+
   const t = await getTranslations("clients");
   const tc = await getTranslations("common");
 
@@ -305,6 +322,71 @@ export default async function ClientDetailPage({
             />
           </div>
         </div>
+      )}
+
+      {!showForm && (
+        <Card className="mt-4">
+          <CardHeader
+            title="Documents rédigés"
+            action={
+              <span className="text-xs text-slate-500">
+                Tous dossiers · {richDocs.length} document{richDocs.length > 1 ? "s" : ""}
+              </span>
+            }
+          />
+          <CardContent>
+            {richDocs.length === 0 ? (
+              <p className="text-sm text-slate-500 italic">
+                Aucun document rédigé via l'éditeur pour ce client.
+              </p>
+            ) : (
+              <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
+                {richDocs.map((d, i) => {
+                  const statutColor =
+                    d.statut === "final"
+                      ? "text-green-700 bg-green-50 border-green-200"
+                      : d.statut === "brouillon"
+                      ? "text-amber-700 bg-amber-50 border-amber-200"
+                      : "text-slate-600 bg-slate-50 border-slate-200";
+                  const statutLabel =
+                    d.statut === "final"
+                      ? "Final"
+                      : d.statut === "brouillon"
+                      ? "Brouillon"
+                      : "Archivé";
+                  return (
+                    <Link
+                      key={d.id}
+                      href={`/edition/${d.dossierId}/${d.id}`}
+                      className={`flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors ${
+                        i > 0 ? "border-t border-slate-100" : ""
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-slate-900 truncate">
+                          {d.titre}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          {d.type} · Dossier{" "}
+                          {d.dossier?.numeroDossier ?? d.dossier?.intitule ?? "—"}
+                          {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
+                          {" · "}
+                          {new Date(d.updatedAt).toLocaleDateString("fr-CA", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </div>
+                      </div>
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ${statutColor}`}>
+                        {statutLabel}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {!showForm && (

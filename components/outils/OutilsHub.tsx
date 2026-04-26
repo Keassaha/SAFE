@@ -1,32 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { ScrollText, Calculator } from "lucide-react";
 import { WIZARD_COLORS as C } from "@/lib/documents/famille/wizard-data";
-import { routes } from "@/lib/routes";
-import { useTranslations } from "next-intl";
+
+type Tool = {
+  id: string;
+  href: string;
+  label: string;
+  desc: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; style?: React.CSSProperties }>;
+  color: string;
+};
 
 export function OutilsHub() {
-  const t = useTranslations("outils");
+  const TOOLS: Tool[] = [];
 
-  const TOOLS = [
-    {
-      id: "generateur",
-      href: routes.outilsGenerateurDocuments,
-      label: t("documentGenerator"),
-      desc: t("documentGeneratorDesc"),
-      icon: ScrollText,
-      color: C.bl500,
-    },
-    {
-      id: "calculateur",
-      href: routes.outilsCalculateurFamilial,
-      label: t("familyCalculator"),
-      desc: t("familyCalculatorDesc"),
-      icon: Calculator,
-      color: C.warn,
-    },
-  ];
+  if (TOOLS.length === 0) {
+    return (
+      <div
+        style={{
+          padding: "32px 20px",
+          borderRadius: 12,
+          background: C.white,
+          border: `1px dashed ${C.sl100}`,
+          textAlign: "center",
+          color: C.sl400,
+          fontSize: 13,
+        }}
+      >
+        Aucun outil disponible pour le moment.
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {TOOLS.map((tool) => {
