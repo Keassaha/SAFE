@@ -49,6 +49,7 @@ export function DossierCreationWizard({
     { value: "litige_civil", label: t("typeCivilLitigation") },
     { value: "criminel", label: t("typeCriminal") },
     { value: "immigration", label: t("typeImmigration") },
+    { value: "immobilier", label: "Immobilier / Real Estate" },
     { value: "corporate", label: t("typeCorporate") },
     { value: "autre", label: t("typeOther") },
   ];

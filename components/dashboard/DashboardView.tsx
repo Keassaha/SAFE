@@ -1,5 +1,6 @@
 "use client";
 
+
 import { motion } from "framer-motion";
 import { useLocale } from "next-intl";
 import Link from "next/link";
@@ -201,16 +202,9 @@ function Sparkline({
   });
   const line = "M" + pts.join(" L");
   const area = `M0,${height} L` + pts.join(" L") + ` L${width},${height} Z`;
-  const id = `sk-${Math.random().toString(36).slice(2, 7)}`;
   return (
     <svg width={width} height={height} aria-hidden className="shrink-0">
-      <defs>
-        <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${id})`} />
+      <path d={area} fill={color} fillOpacity={0.15} />
       <path d={line} fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
@@ -868,6 +862,10 @@ export function DashboardView({ payload }: DashboardViewProps) {
     revenueChartData,
     lastReconciliation,
     lawyerHoursTarget,
+    activeClientsCount,
+    inactiveClientsCount,
+    activeDossiersCount,
+    dossiersParStatut,
   } = payload;
 
   const { reduceMotion } = useSafeMotion();
@@ -1029,6 +1027,37 @@ export function DashboardView({ payload }: DashboardViewProps) {
                 href={routes.temps}
                 icon={Clock}
                 iconTone="gold"
+              />
+            </div>
+
+            {/* 1a-bis · Compteurs opérationnels */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <Kpi
+                label="Clients actifs"
+                value={String(activeClientsCount)}
+                sub={
+                  inactiveClientsCount > 0 ? (
+                    <>{inactiveClientsCount} inactif{inactiveClientsCount > 1 ? "s" : ""}</>
+                  ) : undefined
+                }
+                href={routes.clients}
+              />
+              <Kpi
+                label="Clients inactifs"
+                value={String(inactiveClientsCount)}
+                href={routes.clients}
+              />
+              <Kpi
+                label="Dossiers actifs"
+                value={String(activeDossiersCount)}
+                sub={
+                  dossiersParStatut.en_attente > 0 ? (
+                    <>{dossiersParStatut.en_attente} en attente</>
+                  ) : dossiersParStatut.ouvert > 0 ? (
+                    <>{dossiersParStatut.ouvert} ouvert{dossiersParStatut.ouvert > 1 ? "s" : ""}</>
+                  ) : undefined
+                }
+                href={routes.dossiers}
               />
             </div>
 

@@ -93,6 +93,10 @@ export default async function TableauDeBordPage() {
     activeTrustAccountsCount,
     overdueInvoicesForInterest,
     outstandingByClient,
+    activeClientsCount,
+    inactiveClientsCount,
+    activeDossiersCount,
+    dossiersStatutGroups,
   ] = await Promise.all([
     getGlobalTrustBalance(cabinetId),
     prisma.payment.findMany({
@@ -307,7 +311,7 @@ export default async function TableauDeBordPage() {
         createdAt: true,
       },
     }).catch(() => null),
-    prisma.client.count({ where: { cabinetId } }),
+    prisma.client.count({ where: { cabinetId, status: "actif" } }),
     prisma.dossier.count({ where: { cabinetId } }),
     prisma.timeEntry.count({ where: { cabinetId } }),
     prisma.invoice.count({ where: { cabinetId } }),
@@ -340,6 +344,14 @@ export default async function TableauDeBordPage() {
         client: { select: { id: true, raisonSociale: true } },
       },
       orderBy: { dateEmission: "asc" },
+    }),
+    prisma.client.count({ where: { cabinetId, status: "actif" } }),
+    prisma.client.count({ where: { cabinetId, status: { not: "actif" } } }),
+    prisma.dossier.count({ where: { cabinetId, statut: { in: ["actif", "ouvert", "en_attente"] } } }),
+    prisma.dossier.groupBy({
+      by: ["statut"],
+      where: { cabinetId },
+      _count: { id: true },
     }),
   ]);
 
@@ -809,6 +821,16 @@ export default async function TableauDeBordPage() {
     }
   }
 
+  // ── Dossiers par statut ──
+  const dossiersParStatut = { ouvert: 0, actif: 0, en_attente: 0, cloture: 0 };
+  for (const g of dossiersStatutGroups) {
+    const s = g.statut as string;
+    if (s === "ouvert") dossiersParStatut.ouvert = g._count.id;
+    else if (s === "actif") dossiersParStatut.actif = g._count.id;
+    else if (s === "en_attente") dossiersParStatut.en_attente = g._count.id;
+    else if (s === "cloture") dossiersParStatut.cloture = g._count.id;
+  }
+
   // ── Final payload ──
   const payload: DashboardPayload = {
     visibility,
@@ -833,6 +855,10 @@ export default async function TableauDeBordPage() {
     onboardingChecklist,
     lastReconciliation,
     lawyerHoursTarget,
+    activeClientsCount,
+    inactiveClientsCount,
+    activeDossiersCount,
+    dossiersParStatut,
   };
 
   return <DashboardView payload={payload} />;

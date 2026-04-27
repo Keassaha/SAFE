@@ -196,4 +196,9 @@ export interface DashboardPayload {
   lastReconciliation?: TrustReconciliationSummary | null;
   /** Cible heures facturables / mois / avocat (réglage cabinet). Défaut 140. */
   lawyerHoursTarget?: number;
+  /** Compteurs opérationnels rapides */
+  activeClientsCount: number;
+  inactiveClientsCount: number;
+  activeDossiersCount: number;
+  dossiersParStatut: { ouvert: number; actif: number; en_attente: number; cloture: number };
 }
