@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { Logo } from "@/components/brand/Logo";
+import { LogoMark } from "@/components/brand/Logo";
 
 const AuditForm = dynamic(
   () => import("@/components/audit-gratuit/AuditForm").then((m) => m.AuditForm),
@@ -41,16 +41,8 @@ export default function AuditGratuitPage() {
     <div className="min-h-screen audit-v2-bg flex flex-col px-4 py-6 relative">
       {/* Top bar: logo + menu button */}
       <div className="w-full max-w-6xl mx-auto flex items-center justify-between mb-4">
-        <Link href="/" className="inline-flex items-center gap-2.5 group">
-          <span className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-black ring-1 ring-white/10">
-            <Logo size={24} accentColor="#FFFFFF" />
-          </span>
-          <span
-            className="text-[18px] text-[#111] leading-none"
-            style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-          >
-            Safe
-          </span>
+        <Link href="/">
+          <LogoMark size={28} />
         </Link>
 
         <div className="relative">
@@ -114,17 +106,6 @@ export default function AuditGratuitPage() {
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-xl text-center"
           >
-            <div className="mb-8 flex justify-center">
-              <motion.div
-                initial={{ scale: 0.85, opacity: 0, rotate: -6 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="audit-v2-mark-shell relative w-20 h-20 rounded-2xl bg-black flex items-center justify-center shadow-xl shadow-black/35 ring-1 ring-white/5"
-              >
-                <Logo size={52} accentColor="#FFFFFF" />
-              </motion.div>
-            </div>
-
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-[#E5E0D5] mb-6">
               <span className="w-2 h-2 rounded-full bg-[var(--safe-green-800)] animate-pulse" />
               <span className="text-[11px] font-medium text-neutral-600 tracking-wide">

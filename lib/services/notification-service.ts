@@ -31,6 +31,11 @@ export async function sendClientNotification(params: SendNotificationParams) {
     select: { email: true, raisonSociale: true, prenom: true, nom: true },
   });
 
+  const cabinet = await prisma.cabinet.findUnique({
+    where: { id: cabinetId },
+    select: { nom: true },
+  });
+
   if (!client?.email) {
     return { sent: false, reason: "no_email" };
   }
@@ -41,7 +46,7 @@ export async function sendClientNotification(params: SendNotificationParams) {
   // Send the email via Resend
   let emailStatus = "sent";
   try {
-    await sendEmail({ to: client.email, subject, html: body });
+    await sendEmail({ to: client.email, subject, html: body, cabinetNom: cabinet?.nom });
   } catch {
     emailStatus = "failed";
   }

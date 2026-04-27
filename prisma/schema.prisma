@@ -63,6 +63,7 @@ model Cabinet {
   richDocuments           RichDocument[]
   workSessions            WorkSession[]
   dossierSections         DossierSection[]
+  invitations             Invitation[]
 }
 
 enum UserRole {
@@ -2339,4 +2340,25 @@ model WorkSession {
   @@index([userId])
   @@index([dossierId])
   @@index([cabinetId, statut])
+}
+
+
+// ========== Invitations équipe ==========
+
+model Invitation {
+  id            String    @id @default(cuid())
+  cabinetId     String
+  createdById   String
+  email         String
+  role          UserRole
+  token         String    @unique
+  expiresAt     DateTime
+  acceptedAt    DateTime?
+  compensation  String?   // JSON: { type, montant, isBillable, tauxHoraireFact, visibleRentabilite, saisieParEmployee }
+  createdAt     DateTime  @default(now())
+
+  cabinet       Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId])
+  @@index([token])
 }

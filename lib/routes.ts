@@ -35,6 +35,8 @@ export const routes = {
   parametresAudit: "/parametres/audit",
   parametresRetention: "/parametres/retention",
   parametresEnvoiFacture: "/parametres/envoi-facture",
+  parametresEquipe: "/parametres/equipe",
+  rejoindre: (token: string) => `/rejoindre/${token}`,
   employees: "/employees",
   employee: (id: string) => `/employees/${id}`,
   employeeNouveau: "/employees/nouveau",

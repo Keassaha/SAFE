@@ -26,7 +26,7 @@ export async function POST(
   try {
     const invoice = await prisma.invoice.findFirst({
       where: { id, cabinetId: cabinetId || undefined },
-      include: { client: true },
+      include: { client: true, cabinet: { select: { nom: true } } },
     });
 
     if (!invoice) {
@@ -56,6 +56,7 @@ export async function POST(
       to: clientEmail,
       subject: `Facture ${invoice.numero} — ${invoice.client?.nom || ""}`,
       html,
+      cabinetNom: invoice.cabinet.nom,
     });
 
     return NextResponse.json({ success: true, message: "Facture envoyée par email" });

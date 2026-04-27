@@ -8,7 +8,15 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM = process.env.EMAIL_FROM || "SAFE <noreply@safecabinet.ca>";
+const SENDING_ADDRESS = "factures@safecabinet.ca";
+const DEFAULT_FROM = process.env.EMAIL_FROM || `SAFE <${SENDING_ADDRESS}>`;
+
+function buildFrom(cabinetNom?: string): string {
+  if (!cabinetNom) return DEFAULT_FROM;
+  // "Derisier Law <factures@safecabinet.ca>"
+  const safeName = cabinetNom.replace(/[<>"]/g, "");
+  return `${safeName} <${SENDING_ADDRESS}>`;
+}
 
 interface SendEmailAttachment {
   filename: string;
@@ -19,17 +27,19 @@ interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  cabinetNom?: string;
   attachments?: SendEmailAttachment[];
 }
 
-export async function sendEmail({ to, subject, html, attachments }: SendEmailOptions) {
+export async function sendEmail({ to, subject, html, cabinetNom, attachments }: SendEmailOptions) {
+  const from = buildFrom(cabinetNom);
   if (!resend) {
-    console.log(`[EMAIL MOCK] To: ${to} | Subject: ${subject}${attachments?.length ? ` | ${attachments.length} attachment(s)` : ""}`);
+    console.log(`[EMAIL MOCK] From: ${from} | To: ${to} | Subject: ${subject}${attachments?.length ? ` | ${attachments.length} attachment(s)` : ""}`);
     return { id: "mock", success: true };
   }
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from,
     to,
     subject,
     html,
@@ -131,6 +141,61 @@ export function documentEmailHtml(
         </div>
         <p style="color: #6b7280; font-size: 12px; margin-bottom: 0; border-top: 1px solid #e5e7eb; padding-top: 16px;">
           ${cabinetName} — ${isFr ? "Envoyé via" : "Sent via"} SAFE &mdash; safecabinet.ca
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+export function invitationEmailHtml({
+  cabinetNom,
+  inviteUrl,
+  role,
+}: {
+  cabinetNom: string;
+  inviteUrl: string;
+  role: string;
+}) {
+  const roleLabel: Record<string, string> = {
+    assistante: "Assistante juridique",
+    avocat: "Avocate / Avocat",
+    comptabilite: "Comptabilité",
+    admin_cabinet: "Administrateur·trice",
+  };
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; background: #ffffff;">
+      <div style="background: #1a1a1a; padding: 28px 32px; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600; line-height: 1.3;">
+          Vous avez été invité·e à rejoindre ${cabinetNom}
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; padding: 32px;">
+        <p style="color: #374151; margin-top: 0; font-size: 15px; line-height: 1.6;">
+          Bonjour,
+        </p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+          <strong>${cabinetNom}</strong> vous invite à rejoindre leur espace de travail sur SAFE en tant que
+          <strong>${roleLabel[role] ?? role}</strong>.
+        </p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+          SAFE est la plateforme de gestion utilisée par votre cabinet pour la facturation, les dossiers et la conformité.
+        </p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${inviteUrl}"
+             style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 36px;
+                    text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;
+                    letter-spacing: 0.01em;">
+            Créer mon compte →
+          </a>
+        </div>
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 18px; margin-bottom: 24px;">
+          <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.5;">
+            Ce lien est valide <strong>72 heures</strong>. Si vous ne vous attendiez pas à cette invitation,
+            vous pouvez ignorer cet email en toute sécurité.
+          </p>
+        </div>
+        <p style="color: #9ca3af; font-size: 12px; margin: 0; border-top: 1px solid #f3f4f6; padding-top: 20px;">
+          ${cabinetNom} · Géré via SAFE &mdash; safecabinet.ca
         </p>
       </div>
     </div>

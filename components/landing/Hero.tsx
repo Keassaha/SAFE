@@ -49,7 +49,6 @@ export function Hero() {
         <Link href="/audit-gratuit">
           <Button variant="primary" size="lg">Faire mon audit gratuit &rarr;</Button>
         </Link>
-        <Button variant="primary" size="lg">Voir la démo</Button>
       </motion.div>
 
       <motion.div 

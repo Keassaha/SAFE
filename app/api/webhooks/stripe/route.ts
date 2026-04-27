@@ -42,7 +42,7 @@ export async function POST(req: Request) {
             session.subscription as string
           );
           const periodEnd = subscriptionCurrentPeriodEndUnix(subscription);
-          await prisma.cabinet.update({
+          await prisma.cabinet.updateMany({
             where: { stripeCustomerId: session.customer as string },
             data: {
               stripeSubscriptionId: subscription.id,
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
         if (subId && invoice.customer) {
           const subscription = await getStripe().subscriptions.retrieve(subId);
           const periodEndInv = subscriptionCurrentPeriodEndUnix(subscription);
-          await prisma.cabinet.update({
+          await prisma.cabinet.updateMany({
             where: { stripeCustomerId: invoice.customer as string },
             data: {
               stripePriceId: subscription.items.data[0]?.price.id ?? null,
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
         const periodEndUpd = subscriptionCurrentPeriodEndUnix(subscription);
-        await prisma.cabinet.update({
+        await prisma.cabinet.updateMany({
           where: { stripeCustomerId: subscription.customer as string },
           data: {
             stripeSubscriptionId: subscription.id,
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        await prisma.cabinet.update({
+        await prisma.cabinet.updateMany({
           where: { stripeCustomerId: subscription.customer as string },
           data: {
             plan: "essentiel",

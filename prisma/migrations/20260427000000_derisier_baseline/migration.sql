@@ -44,7 +44,7 @@ CREATE TYPE "PreferredPaymentMethod" AS ENUM ('card', 'transfer', 'trust', 'cheq
 CREATE TYPE "DossierStatut" AS ENUM ('ouvert', 'actif', 'en_attente', 'cloture', 'archive');
 
 -- CreateEnum
-CREATE TYPE "DossierType" AS ENUM ('droit_famille', 'litige_civil', 'criminel', 'immigration', 'corporate', 'autre');
+CREATE TYPE "DossierType" AS ENUM ('droit_famille', 'litige_civil', 'criminel', 'immigration', 'immobilier', 'corporate', 'autre');
 
 -- CreateEnum
 CREATE TYPE "ModeFacturationDossier" AS ENUM ('horaire', 'forfait', 'retainer', 'contingent');
@@ -95,7 +95,7 @@ CREATE TYPE "IssueMethod" AS ENUM ('manual', 'generated_from_billing', 'recurrin
 CREATE TYPE "InvoiceLineType" AS ENUM ('fee', 'expense', 'adjustment', 'interest', 'credit', 'trust_application');
 
 -- CreateEnum
-CREATE TYPE "InvoiceLineSourceType" AS ENUM ('time_entry', 'expense', 'debours_dossier', 'manual', 'interest_run', 'credit_note', 'trust');
+CREATE TYPE "InvoiceLineSourceType" AS ENUM ('time_entry', 'expense', 'debours_dossier', 'registre_tache', 'manual', 'interest_run', 'credit_note', 'trust');
 
 -- CreateEnum
 CREATE TYPE "CreditNoteStatus" AS ENUM ('DRAFT', 'ISSUED', 'PARTIALLY_APPLIED', 'FULLY_APPLIED', 'CANCELLED');
@@ -171,7 +171,16 @@ CREATE TABLE "Cabinet" (
     "id" TEXT NOT NULL,
     "nom" TEXT NOT NULL,
     "adresse" TEXT,
+    "telephone" TEXT,
+    "email" TEXT,
+    "logoUrl" TEXT,
+    "barreauNumero" TEXT,
     "config" TEXT,
+    "plan" TEXT NOT NULL DEFAULT 'essentiel',
+    "stripeCustomerId" TEXT,
+    "stripeSubscriptionId" TEXT,
+    "stripePriceId" TEXT,
+    "stripeCurrentPeriodEnd" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -190,6 +199,8 @@ CREATE TABLE "User" (
     "isBillable" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "resetToken" TEXT,
+    "resetTokenExpiry" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -268,7 +279,7 @@ CREATE TABLE "Client" (
     "cabinetId" TEXT NOT NULL,
     "typeClient" "TypeClient" NOT NULL DEFAULT 'personne_morale',
     "status" "ClientStatus" NOT NULL DEFAULT 'actif',
-    "raisonSociale" TEXT NOT NULL,
+    "raisonSociale" TEXT,
     "prenom" TEXT,
     "nom" TEXT,
     "dateNaissance" TIMESTAMP(3),
@@ -364,6 +375,21 @@ CREATE TABLE "Dossier" (
     "dateOuverture" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "dateCloture" TIMESTAMP(3),
     "retentionJusqua" TIMESTAMP(3),
+    "sousType" TEXT,
+    "closingDate" TIMESTAMP(3),
+    "propertyAddress" TEXT,
+    "fintracVerified" BOOLEAN NOT NULL DEFAULT false,
+    "fintracVerifiedAt" TIMESTAMP(3),
+    "fintracVerifiedById" TEXT,
+    "fintracDocuments" TEXT,
+    "condoPINParking" TEXT,
+    "condoPINLocker" TEXT,
+    "irccStatut" TEXT,
+    "irccNumDossier" TEXT,
+    "itaDate" TIMESTAMP(3),
+    "submissionDeadline" TIMESTAMP(3),
+    "cnpCode" TEXT,
+    "cnpValidated" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -371,12 +397,188 @@ CREATE TABLE "Dossier" (
 );
 
 -- CreateTable
+CREATE TABLE "DossierClientInfo" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "nasEncrypted" TEXT,
+    "dateNaissance" DATE,
+    "regimeMatrimonial" TEXT,
+    "dateMariage" DATE,
+    "dateSeparation" DATE,
+    "statutMatrimonial" TEXT,
+    "enfants" JSONB,
+    "situationFinanciere" JSONB,
+    "identiteCoordonnees" JSONB,
+    "situationFamiliale" JSONB,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierClientInfo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierMandate" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "numeroDossier" TEXT,
+    "dateOuverture" TIMESTAMP(3),
+    "avocatResponsableId" TEXT,
+    "avocatSubstitutId" TEXT,
+    "typeCause" TEXT,
+    "districtJudiciaire" TEXT,
+    "tribunal" TEXT,
+    "numeroRole" TEXT,
+    "estimationHonoraires" DECIMAL(12,2),
+    "provisionInitiale" DECIMAL(12,2),
+    "statutDossier" TEXT,
+    "checklist" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierMandate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierPiece" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "partie" TEXT NOT NULL,
+    "numero" TEXT NOT NULL,
+    "titre" TEXT NOT NULL,
+    "description" TEXT,
+    "categorie" TEXT,
+    "statut" TEXT NOT NULL DEFAULT 'Manquant',
+    "dateReception" DATE,
+    "fichierUrl" TEXT,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierPiece_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierProcedure" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "typeProcedure" TEXT NOT NULL,
+    "description" TEXT,
+    "dateDepot" DATE,
+    "dateSignification" DATE,
+    "statut" TEXT NOT NULL DEFAULT 'À déposer',
+    "fichierUrl" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierProcedure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierJudgment" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "typeJugement" TEXT NOT NULL,
+    "dispositions" TEXT,
+    "dateJugement" DATE,
+    "dateLimiteAppel" DATE,
+    "statutAppel" TEXT DEFAULT 'En cours',
+    "fichierUrl" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierJudgment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierCorrespondence" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "typeCommunication" TEXT NOT NULL,
+    "titre" TEXT,
+    "expediteur" TEXT,
+    "destinataire" TEXT,
+    "dateCommunication" DATE,
+    "fichierUrl" TEXT,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierCorrespondence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierTrustMovement" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
+    "direction" TEXT NOT NULL,
+    "typeMouvement" TEXT,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "validatedById" TEXT,
+    "validatedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "DossierTrustMovement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierClosure" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "checklist" JSONB,
+    "closedById" TEXT,
+    "closedAt" TIMESTAMP(3),
+    "destructionDate" DATE,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierClosure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierReminder" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT,
+    "cabinetId" TEXT NOT NULL,
+    "type" TEXT,
+    "message" TEXT,
+    "dueDate" DATE NOT NULL,
+    "isSent" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "DossierReminder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierSection" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "sectionKey" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "ordre" INTEGER NOT NULL,
+    "origine" TEXT NOT NULL DEFAULT 'template',
+    "sourceReglementaire" TEXT,
+    "icone" TEXT,
+    "description" TEXT,
+    "privilegiee" BOOLEAN NOT NULL DEFAULT false,
+    "archive" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "DossierSection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "DossierNote" (
     "id" TEXT NOT NULL,
     "dossierId" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
     "createdById" TEXT,
+    "typeNote" TEXT,
+    "content" TEXT NOT NULL,
+    "confidentiel" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "DossierNote_pkey" PRIMARY KEY ("id")
 );
@@ -518,6 +720,8 @@ CREATE TABLE "Invoice" (
     "cancelledAt" TIMESTAMP(3),
     "cancelReason" TEXT,
     "createdById" TEXT,
+    "shareToken" TEXT,
+    "shareTokenExpiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -820,6 +1024,8 @@ CREATE TABLE "DeboursType" (
     "categorie" TEXT NOT NULL,
     "description" TEXT,
     "taxable" BOOLEAN NOT NULL DEFAULT false,
+    "isGovernment" BOOLEAN NOT NULL DEFAULT false,
+    "gouvernementRef" TEXT,
     "coutDefaut" DOUBLE PRECISION,
     "actif" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1048,6 +1254,294 @@ CREATE TABLE "CalendarEvent" (
     CONSTRAINT "CalendarEvent_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "AuditSubmission" (
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'audit_gratuit',
+    "status" TEXT NOT NULL DEFAULT 'nouveau',
+    "prospectNom" TEXT NOT NULL,
+    "prospectEmail" TEXT,
+    "prospectTelephone" TEXT,
+    "prospectCabinet" TEXT,
+    "cabinetId" TEXT,
+    "reponses" TEXT,
+    "scoreGlobal" INTEGER,
+    "scores" TEXT,
+    "rapport" TEXT,
+    "configSafe" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AuditSubmission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CabinetInterface" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "ongletsActifs" TEXT,
+    "ongletsMasques" TEXT,
+    "modules" TEXT,
+    "widgets" TEXT,
+    "disciplines" TEXT,
+    "checklistsParType" TEXT,
+    "champsParType" TEXT,
+    "modeFacturation" TEXT,
+    "conformite" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CabinetInterface_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TrustReconciliation" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "periode" TEXT NOT NULL,
+    "soldeBancaire" DOUBLE PRECISION NOT NULL,
+    "chequesEnCirculation" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "depotsEnTransit" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "soldeRapproche" DOUBLE PRECISION NOT NULL,
+    "soldeRegistre" DOUBLE PRECISION NOT NULL,
+    "soldeParDossier" DOUBLE PRECISION NOT NULL,
+    "ecart" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "certifiedAt" TIMESTAMP(3),
+    "certifiedById" TEXT,
+    "interetsLFO" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "interetsPayesAt" TIMESTAMP(3),
+    "status" TEXT NOT NULL DEFAULT 'draft',
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TrustReconciliation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TrustComplianceReport" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "periode" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'monthly',
+    "generatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "generatedById" TEXT NOT NULL,
+    "pdfUrl" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'draft',
+    "data" TEXT,
+    "reconciliationId" TEXT,
+
+    CONSTRAINT "TrustComplianceReport_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ImmigrationBackground" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "priorRefusal" BOOLEAN NOT NULL DEFAULT false,
+    "priorRefusalDetails" TEXT,
+    "overstay" BOOLEAN NOT NULL DEFAULT false,
+    "overstayDetails" TEXT,
+    "criminalRecord" BOOLEAN NOT NULL DEFAULT false,
+    "criminalDetails" TEXT,
+    "deportation" BOOLEAN NOT NULL DEFAULT false,
+    "deportationDetails" TEXT,
+    "misrepresentation" BOOLEAN NOT NULL DEFAULT false,
+    "misrepresentationDetails" TEXT,
+    "clientSignedAt" TIMESTAMP(3),
+    "completedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ImmigrationBackground_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ImmigrationDocument" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "label" TEXT,
+    "issuedAt" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
+    "alertSent30d" BOOLEAN NOT NULL DEFAULT false,
+    "alertSent7d" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ImmigrationDocument_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ConflictCheck" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "checkedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "checkedById" TEXT NOT NULL,
+    "clientName" TEXT NOT NULL,
+    "conflictsFound" BOOLEAN NOT NULL DEFAULT false,
+    "conflicts" TEXT,
+    "resolution" TEXT,
+    "resolvedAt" TIMESTAMP(3),
+    "resolutionNotes" TEXT,
+
+    CONSTRAINT "ConflictCheck_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ForfaitService" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "nom" TEXT NOT NULL,
+    "description" TEXT,
+    "montant" DOUBLE PRECISION NOT NULL,
+    "categorie" "DossierType",
+    "sousType" TEXT,
+    "taxable" BOOLEAN NOT NULL DEFAULT true,
+    "actif" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ForfaitService_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RegistreTache" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "clientId" TEXT,
+    "forfaitServiceId" TEXT,
+    "description" TEXT NOT NULL,
+    "montantBase" DOUBLE PRECISION NOT NULL,
+    "ajustement" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "rabais" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "rabaisRaison" TEXT,
+    "montantFinal" DOUBLE PRECISION NOT NULL,
+    "taxable" BOOLEAN NOT NULL DEFAULT true,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "statut" TEXT NOT NULL DEFAULT 'complete',
+    "invoiceLineId" TEXT,
+    "createdById" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RegistreTache_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "NotificationLog" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "dossierId" TEXT,
+    "clientId" TEXT,
+    "type" TEXT NOT NULL,
+    "channel" TEXT NOT NULL DEFAULT 'email',
+    "sentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sentTo" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'sent',
+    "metadata" TEXT,
+
+    CONSTRAINT "NotificationLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DossierBillingStage" (
+    "id" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "nom" TEXT NOT NULL,
+    "ordre" INTEGER NOT NULL,
+    "montant" DOUBLE PRECISION NOT NULL,
+    "pourcentage" DOUBLE PRECISION,
+    "statut" TEXT NOT NULL DEFAULT 'pending',
+    "invoiceId" TEXT,
+    "invoicedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DossierBillingStage_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DeboursTemplate" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "dossierType" TEXT NOT NULL,
+    "deboursTypeId" TEXT NOT NULL,
+    "isRequired" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "DeboursTemplate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RichDocument" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "createdById" TEXT NOT NULL,
+    "titre" TEXT NOT NULL,
+    "content" TEXT NOT NULL DEFAULT '{}',
+    "type" TEXT NOT NULL DEFAULT 'note',
+    "statut" TEXT NOT NULL DEFAULT 'brouillon',
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
+    "archivedAt" TIMESTAMP(3),
+    "archivedById" TEXT,
+    "lastEditedById" TEXT,
+    "lastEditedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RichDocument_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RichDocumentVersion" (
+    "id" TEXT NOT NULL,
+    "richDocumentId" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "createdById" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "versionNumber" INTEGER NOT NULL,
+    "label" TEXT,
+    "hash" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "RichDocumentVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkSession" (
+    "id" TEXT NOT NULL,
+    "cabinetId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "dossierId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "richDocumentId" TEXT,
+    "startedAt" TIMESTAMP(3) NOT NULL,
+    "endedAt" TIMESTAMP(3),
+    "dureeMinutes" INTEGER,
+    "typeActivite" TEXT NOT NULL DEFAULT 'redaction',
+    "description" TEXT,
+    "statut" TEXT NOT NULL DEFAULT 'en_cours',
+    "timeEntryId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "WorkSession_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Cabinet_stripeCustomerId_key" ON "Cabinet"("stripeCustomerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Cabinet_stripeSubscriptionId_key" ON "Cabinet"("stripeSubscriptionId");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_userId_key" ON "Employee"("userId");
 
@@ -1112,6 +1606,60 @@ CREATE INDEX "Dossier_assistantJuridiqueId_idx" ON "Dossier"("assistantJuridique
 CREATE UNIQUE INDEX "Dossier_cabinetId_numeroDossier_key" ON "Dossier"("cabinetId", "numeroDossier");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "DossierClientInfo_dossierId_key" ON "DossierClientInfo"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierClientInfo_dossierId_idx" ON "DossierClientInfo"("dossierId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DossierMandate_dossierId_key" ON "DossierMandate"("dossierId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DossierMandate_numeroDossier_key" ON "DossierMandate"("numeroDossier");
+
+-- CreateIndex
+CREATE INDEX "DossierMandate_dossierId_idx" ON "DossierMandate"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierPiece_dossierId_idx" ON "DossierPiece"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierPiece_dossierId_partie_idx" ON "DossierPiece"("dossierId", "partie");
+
+-- CreateIndex
+CREATE INDEX "DossierProcedure_dossierId_idx" ON "DossierProcedure"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierJudgment_dossierId_idx" ON "DossierJudgment"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierCorrespondence_dossierId_idx" ON "DossierCorrespondence"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierTrustMovement_dossierId_idx" ON "DossierTrustMovement"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierTrustMovement_cabinetId_idx" ON "DossierTrustMovement"("cabinetId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DossierClosure_dossierId_key" ON "DossierClosure"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierClosure_dossierId_idx" ON "DossierClosure"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierReminder_dossierId_idx" ON "DossierReminder"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierReminder_cabinetId_idx" ON "DossierReminder"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "DossierSection_dossierId_idx" ON "DossierSection"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierSection_cabinetId_idx" ON "DossierSection"("cabinetId");
+
+-- CreateIndex
 CREATE INDEX "DossierNote_dossierId_idx" ON "DossierNote"("dossierId");
 
 -- CreateIndex
@@ -1167,6 +1715,9 @@ CREATE INDEX "TimeEntry_billingStatus_idx" ON "TimeEntry"("billingStatus");
 
 -- CreateIndex
 CREATE INDEX "TimeEntry_invoiceId_idx" ON "TimeEntry"("invoiceId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Invoice_shareToken_key" ON "Invoice"("shareToken");
 
 -- CreateIndex
 CREATE INDEX "Invoice_cabinetId_idx" ON "Invoice"("cabinetId");
@@ -1477,6 +2028,132 @@ CREATE INDEX "CalendarEvent_clientId_idx" ON "CalendarEvent"("clientId");
 -- CreateIndex
 CREATE INDEX "CalendarEvent_dossierId_idx" ON "CalendarEvent"("dossierId");
 
+-- CreateIndex
+CREATE INDEX "AuditSubmission_prospectEmail_idx" ON "AuditSubmission"("prospectEmail");
+
+-- CreateIndex
+CREATE INDEX "AuditSubmission_cabinetId_idx" ON "AuditSubmission"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "AuditSubmission_status_idx" ON "AuditSubmission"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CabinetInterface_cabinetId_key" ON "CabinetInterface"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "TrustReconciliation_cabinetId_idx" ON "TrustReconciliation"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "TrustReconciliation_cabinetId_status_idx" ON "TrustReconciliation"("cabinetId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TrustReconciliation_cabinetId_periode_key" ON "TrustReconciliation"("cabinetId", "periode");
+
+-- CreateIndex
+CREATE INDEX "TrustComplianceReport_cabinetId_idx" ON "TrustComplianceReport"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "TrustComplianceReport_cabinetId_periode_idx" ON "TrustComplianceReport"("cabinetId", "periode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ImmigrationBackground_dossierId_key" ON "ImmigrationBackground"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "ImmigrationBackground_dossierId_idx" ON "ImmigrationBackground"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "ImmigrationDocument_dossierId_idx" ON "ImmigrationDocument"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "ImmigrationDocument_expiresAt_idx" ON "ImmigrationDocument"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "ConflictCheck_cabinetId_idx" ON "ConflictCheck"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "ConflictCheck_dossierId_idx" ON "ConflictCheck"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "ConflictCheck_cabinetId_checkedAt_idx" ON "ConflictCheck"("cabinetId", "checkedAt");
+
+-- CreateIndex
+CREATE INDEX "ForfaitService_cabinetId_idx" ON "ForfaitService"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "ForfaitService_cabinetId_categorie_idx" ON "ForfaitService"("cabinetId", "categorie");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ForfaitService_cabinetId_code_key" ON "ForfaitService"("cabinetId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RegistreTache_invoiceLineId_key" ON "RegistreTache"("invoiceLineId");
+
+-- CreateIndex
+CREATE INDEX "RegistreTache_cabinetId_idx" ON "RegistreTache"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "RegistreTache_dossierId_idx" ON "RegistreTache"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "RegistreTache_cabinetId_statut_idx" ON "RegistreTache"("cabinetId", "statut");
+
+-- CreateIndex
+CREATE INDEX "RegistreTache_dossierId_statut_idx" ON "RegistreTache"("dossierId", "statut");
+
+-- CreateIndex
+CREATE INDEX "NotificationLog_cabinetId_idx" ON "NotificationLog"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "NotificationLog_dossierId_idx" ON "NotificationLog"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "NotificationLog_cabinetId_sentAt_idx" ON "NotificationLog"("cabinetId", "sentAt");
+
+-- CreateIndex
+CREATE INDEX "DossierBillingStage_dossierId_idx" ON "DossierBillingStage"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "DossierBillingStage_dossierId_ordre_idx" ON "DossierBillingStage"("dossierId", "ordre");
+
+-- CreateIndex
+CREATE INDEX "DeboursTemplate_cabinetId_dossierType_idx" ON "DeboursTemplate"("cabinetId", "dossierType");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DeboursTemplate_cabinetId_dossierType_deboursTypeId_key" ON "DeboursTemplate"("cabinetId", "dossierType", "deboursTypeId");
+
+-- CreateIndex
+CREATE INDEX "RichDocument_cabinetId_idx" ON "RichDocument"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "RichDocument_dossierId_idx" ON "RichDocument"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "RichDocument_cabinetId_dossierId_idx" ON "RichDocument"("cabinetId", "dossierId");
+
+-- CreateIndex
+CREATE INDEX "RichDocument_cabinetId_statut_idx" ON "RichDocument"("cabinetId", "statut");
+
+-- CreateIndex
+CREATE INDEX "RichDocumentVersion_richDocumentId_idx" ON "RichDocumentVersion"("richDocumentId");
+
+-- CreateIndex
+CREATE INDEX "RichDocumentVersion_cabinetId_idx" ON "RichDocumentVersion"("cabinetId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkSession_timeEntryId_key" ON "WorkSession"("timeEntryId");
+
+-- CreateIndex
+CREATE INDEX "WorkSession_cabinetId_idx" ON "WorkSession"("cabinetId");
+
+-- CreateIndex
+CREATE INDEX "WorkSession_userId_idx" ON "WorkSession"("userId");
+
+-- CreateIndex
+CREATE INDEX "WorkSession_dossierId_idx" ON "WorkSession"("dossierId");
+
+-- CreateIndex
+CREATE INDEX "WorkSession_cabinetId_statut_idx" ON "WorkSession"("cabinetId", "statut");
+
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -1524,6 +2201,57 @@ ALTER TABLE "Dossier" ADD CONSTRAINT "Dossier_avocatResponsableId_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "Dossier" ADD CONSTRAINT "Dossier_assistantJuridiqueId_fkey" FOREIGN KEY ("assistantJuridiqueId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierClientInfo" ADD CONSTRAINT "DossierClientInfo_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierMandate" ADD CONSTRAINT "DossierMandate_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierMandate" ADD CONSTRAINT "DossierMandate_avocatResponsableId_fkey" FOREIGN KEY ("avocatResponsableId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierMandate" ADD CONSTRAINT "DossierMandate_avocatSubstitutId_fkey" FOREIGN KEY ("avocatSubstitutId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierPiece" ADD CONSTRAINT "DossierPiece_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierProcedure" ADD CONSTRAINT "DossierProcedure_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierJudgment" ADD CONSTRAINT "DossierJudgment_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierCorrespondence" ADD CONSTRAINT "DossierCorrespondence_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierTrustMovement" ADD CONSTRAINT "DossierTrustMovement_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierTrustMovement" ADD CONSTRAINT "DossierTrustMovement_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierTrustMovement" ADD CONSTRAINT "DossierTrustMovement_validatedById_fkey" FOREIGN KEY ("validatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierClosure" ADD CONSTRAINT "DossierClosure_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierClosure" ADD CONSTRAINT "DossierClosure_closedById_fkey" FOREIGN KEY ("closedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierReminder" ADD CONSTRAINT "DossierReminder_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierReminder" ADD CONSTRAINT "DossierReminder_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "DossierNote" ADD CONSTRAINT "DossierNote_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1813,3 +2541,107 @@ ALTER TABLE "CalendarEvent" ADD CONSTRAINT "CalendarEvent_assigneeId_fkey" FOREI
 -- AddForeignKey
 ALTER TABLE "CalendarEvent" ADD CONSTRAINT "CalendarEvent_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AddForeignKey
+ALTER TABLE "AuditSubmission" ADD CONSTRAINT "AuditSubmission_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CabinetInterface" ADD CONSTRAINT "CabinetInterface_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TrustReconciliation" ADD CONSTRAINT "TrustReconciliation_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TrustReconciliation" ADD CONSTRAINT "TrustReconciliation_certifiedById_fkey" FOREIGN KEY ("certifiedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TrustComplianceReport" ADD CONSTRAINT "TrustComplianceReport_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TrustComplianceReport" ADD CONSTRAINT "TrustComplianceReport_generatedById_fkey" FOREIGN KEY ("generatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TrustComplianceReport" ADD CONSTRAINT "TrustComplianceReport_reconciliationId_fkey" FOREIGN KEY ("reconciliationId") REFERENCES "TrustReconciliation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ImmigrationBackground" ADD CONSTRAINT "ImmigrationBackground_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ImmigrationDocument" ADD CONSTRAINT "ImmigrationDocument_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConflictCheck" ADD CONSTRAINT "ConflictCheck_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConflictCheck" ADD CONSTRAINT "ConflictCheck_checkedById_fkey" FOREIGN KEY ("checkedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ForfaitService" ADD CONSTRAINT "ForfaitService_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RegistreTache" ADD CONSTRAINT "RegistreTache_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RegistreTache" ADD CONSTRAINT "RegistreTache_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RegistreTache" ADD CONSTRAINT "RegistreTache_forfaitServiceId_fkey" FOREIGN KEY ("forfaitServiceId") REFERENCES "ForfaitService"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RegistreTache" ADD CONSTRAINT "RegistreTache_invoiceLineId_fkey" FOREIGN KEY ("invoiceLineId") REFERENCES "InvoiceLine"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "NotificationLog" ADD CONSTRAINT "NotificationLog_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "NotificationLog" ADD CONSTRAINT "NotificationLog_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierBillingStage" ADD CONSTRAINT "DossierBillingStage_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DossierBillingStage" ADD CONSTRAINT "DossierBillingStage_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "Invoice"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeboursTemplate" ADD CONSTRAINT "DeboursTemplate_deboursTypeId_fkey" FOREIGN KEY ("deboursTypeId") REFERENCES "DeboursType"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_lastEditedById_fkey" FOREIGN KEY ("lastEditedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocument" ADD CONSTRAINT "RichDocument_archivedById_fkey" FOREIGN KEY ("archivedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocumentVersion" ADD CONSTRAINT "RichDocumentVersion_richDocumentId_fkey" FOREIGN KEY ("richDocumentId") REFERENCES "RichDocument"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RichDocumentVersion" ADD CONSTRAINT "RichDocumentVersion_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_richDocumentId_fkey" FOREIGN KEY ("richDocumentId") REFERENCES "RichDocument"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkSession" ADD CONSTRAINT "WorkSession_timeEntryId_fkey" FOREIGN KEY ("timeEntryId") REFERENCES "TimeEntry"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -7,7 +7,7 @@
 
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronMark } from "@/components/branding/SafeLogo";
+import { LogoMark } from "@/components/brand/Logo";
 import {
   QUESTIONS, SECTIONS, visibleQuestions, PROVINCES,
   type Question,
@@ -328,14 +328,7 @@ export function AuditForm({ lang }: AuditFormProps) {
 function TopHeader() {
   return (
     <div className="flex items-center justify-between mb-10">
-      <div className="flex items-center gap-3">
-        <div className="audit-v2-mark-shell w-11 h-11 rounded-lg bg-black flex items-center justify-center ring-1 ring-white/10">
-          <ChevronMark size={28} tone="onBrand" title="SAFE" />
-        </div>
-        <span className="text-[22px] text-[#111]" style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}>
-          Safe
-        </span>
-      </div>
+      <LogoMark size={34} />
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-300/70 bg-white/60 backdrop-blur-sm">
         <span className="w-1.5 h-1.5 rounded-full bg-[var(--safe-green-800)]" />
         <span className="text-[11px] text-neutral-700 tracking-wide">Confidentiel</span>
