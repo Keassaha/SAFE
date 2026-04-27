@@ -62,6 +62,7 @@ model Cabinet {
   registreTaches          RegistreTache[]
   richDocuments           RichDocument[]
   workSessions            WorkSession[]
+  dossierSections         DossierSection[]
 }
 
 enum UserRole {
@@ -490,6 +491,7 @@ model Dossier {
   registreTaches        RegistreTache[]
   richDocuments         RichDocument[]
   workSessions          WorkSession[]
+  sections              DossierSection[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -667,6 +669,28 @@ model DossierReminder {
 
   dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([cabinetId])
+}
+
+model DossierSection {
+  id                  String   @id @default(cuid())
+  dossierId           String
+  cabinetId           String
+  sectionKey          String   // maps to UI component: "mandat" | "formulaires" | "procedures" | etc.
+  label               String
+  ordre               Int
+  origine             String   @default("template") // "template" | "user"
+  sourceReglementaire String?
+  icone               String?  // lucide icon name
+  description         String?
+  privilegiee         Boolean  @default(false)
+  archive             Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
   @@index([dossierId])
   @@index([cabinetId])
