@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Mail, Phone, MapPin, Send, ArrowRight, Calendar, MessageSquare, Shield, Clock } from "lucide-react";
 import { Navbar } from "@/components/marketing/Navbar";
-import { Footer } from "@/components/marketing/Footer";
+import { Footer } from "@/components/landing/Footer";
 
 const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
 const CALENDLY_EMBED_URL =
@@ -35,9 +35,9 @@ function EnvelopeIllustration() {
           <motion.div
             animate={inView ? { y: [0, -4, 0] } : {}}
             transition={{ delay: item.delay + 0.5, duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-9 h-9 rounded-safe bg-white/[0.04] border border-white/[0.08] flex items-center justify-center"
+            className="w-9 h-9 rounded-safe bg-surface-2 border border-border flex items-center justify-center"
           >
-            <item.icon className="w-4 h-4 text-[var(--safe-sage)]/50" />
+            <item.icon className="w-4 h-4 text-forest-600/50" />
           </motion.div>
         </motion.div>
       ))}
@@ -51,8 +51,8 @@ function EnvelopeIllustration() {
       >
         <div className="relative">
           {/* Envelope body */}
-          <div className="w-28 h-20 rounded-safe bg-[var(--safe-accent)]/20 border border-[var(--safe-sage)]/20 flex items-center justify-center">
-            <Mail className="w-10 h-10 text-[var(--safe-sage)]" />
+          <div className="w-28 h-20 rounded-safe bg-text-secondary/20 border border-forest-600/20 flex items-center justify-center">
+            <Mail className="w-10 h-10 text-forest-600" />
           </div>
 
           {/* Animated notification badge */}
@@ -62,7 +62,7 @@ function EnvelopeIllustration() {
             transition={{ delay: 1.0, type: "spring", stiffness: 400 }}
             className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[var(--safe-sage)] flex items-center justify-center"
           >
-            <span className="text-xs font-bold text-[var(--safe-darkest)]">1</span>
+            <span className="text-xs font-bold text-text-primary">1</span>
           </motion.div>
 
           {/* Response time text */}
@@ -72,7 +72,7 @@ function EnvelopeIllustration() {
             transition={{ delay: 1.3 }}
             className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
-            <span className="text-xs text-[var(--safe-sage)] font-sans font-medium">Réponse en 24h</span>
+            <span className="text-xs text-forest-600 font-sans font-medium">Réponse en 24h</span>
           </motion.div>
         </div>
       </motion.div>
@@ -144,16 +144,16 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-[var(--safe-darkest)] text-[var(--safe-white)] scroll-smooth">
+    <div className="relative flex flex-col min-h-screen bg-canvas text-text-primary scroll-smooth">
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="section-dusk relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
-          <div className="landing-grain absolute inset-0 pointer-events-none" />
-          <div className="absolute inset-0 landing-grid opacity-20 pointer-events-none" />
+        <section className="bg-surface-2 sm:border-y border-[0.5px] border-border relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
+          
+          
 
           {/* Background glow */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[var(--safe-accent)] opacity-10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-text-secondary opacity-10 rounded-full blur-[120px] pointer-events-none" />
 
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
@@ -162,7 +162,7 @@ export default function ContactPage() {
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
+                  className="text-lg font-sans italic text-forest-600 mb-4"
                 >
                   Contact
                 </motion.p>
@@ -170,16 +170,16 @@ export default function ContactPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.6 }}
-                  className="font-sans text-5xl md:text-6xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
+                  className="font-sans text-5xl md:text-6xl text-text-primary mb-6 leading-[1.05] tracking-tight"
                 >
                   Parlons de votre{" "}
-                  <span className="italic text-[var(--safe-sage)]">cabinet</span>.
+                  <span className="italic text-forest-600">cabinet</span>.
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.6 }}
-                  className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans mb-10"
+                  className="text-lg text-text-body leading-relaxed font-sans mb-10"
                 >
                   Que vous ayez des questions sur SAFE ou que vous souhaitiez planifier une
                   démonstration, notre équipe est là pour vous accompagner.
@@ -216,21 +216,21 @@ export default function ContactPage() {
                     >
                       <motion.div
                         whileHover={{ scale: 1.03 }}
-                        className="w-11 h-11 rounded-safe bg-[var(--safe-accent)]/15 flex items-center justify-center shrink-0"
+                        className="w-11 h-11 rounded-safe bg-text-secondary/15 flex items-center justify-center shrink-0"
                       >
-                        <item.icon className="w-5 h-5 text-[var(--safe-sage)]" />
+                        <item.icon className="w-5 h-5 text-forest-600" />
                       </motion.div>
                       <div>
-                        <p className="text-sm text-[var(--safe-text-muted)] font-sans">{item.label}</p>
+                        <p className="text-sm text-text-body font-sans">{item.label}</p>
                         {item.href ? (
                           <a
                             href={item.href}
-                            className="text-[var(--safe-white)] font-medium font-sans hover:text-[var(--safe-sage)] transition-colors"
+                            className="text-text-primary font-medium font-sans hover:text-forest-600 transition-colors"
                           >
                             {item.value}
                           </a>
                         ) : (
-                          <p className="text-[var(--safe-white)] font-medium font-sans">{item.value}</p>
+                          <p className="text-text-primary font-medium font-sans">{item.value}</p>
                         )}
                       </div>
                     </motion.div>
@@ -242,27 +242,27 @@ export default function ContactPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.6 }}
-                  className="mt-8 p-6 rounded-safe-md border border-white/5 bg-[var(--safe-dark)]/50"
+                  className="mt-8 p-6 rounded-safe-md border border-white/5 bg-surface"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <Calendar className="w-5 h-5 text-[var(--safe-sage)]" />
-                    <h3 className="text-base font-semibold text-[var(--safe-white)] font-sans tracking-tight">
+                    <Calendar className="w-5 h-5 text-forest-600" />
+                    <h3 className="text-base font-semibold text-text-primary font-sans tracking-tight">
                       Préférez-vous un appel ?
                     </h3>
                   </div>
-                  <p className="text-sm text-[var(--safe-text-muted)] font-sans mb-4">
+                  <p className="text-sm text-text-body font-sans mb-4">
                     Réservez un créneau de 30 minutes directement dans notre agenda.
                   </p>
                   <a
                     href={CALENDLY_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--safe-sage)] hover:text-[var(--safe-lightest)] transition-colors font-sans"
+                    className="group inline-flex items-center gap-2 text-sm font-medium text-forest-600 hover:text-[var(--safe-lightest)] transition-colors font-sans"
                   >
                     Réserver un appel
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </a>
-                  <div className="mt-5 rounded-safe-md overflow-hidden border border-white/10 bg-black/20">
+                  <div className="mt-5 rounded-safe-md overflow-hidden border border-border bg-black/20">
                     <iframe
                       title="Calendly"
                       src={CALENDLY_EMBED_URL}
@@ -284,7 +284,7 @@ export default function ContactPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="rounded-safe-md border border-[var(--safe-sage)]/20 bg-[var(--safe-dark)]/50 p-10 text-center"
+                    className="rounded-safe-md border border-forest-600/20 bg-surface p-10 text-center"
                   >
                     <motion.div
                       initial={{ scale: 0 }}
@@ -292,19 +292,19 @@ export default function ContactPage() {
                       transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                       className="w-16 h-16 rounded-full bg-[var(--safe-sage)]/20 flex items-center justify-center mx-auto mb-6"
                     >
-                      <Send className="w-7 h-7 text-[var(--safe-sage)]" />
+                      <Send className="w-7 h-7 text-forest-600" />
                     </motion.div>
-                    <h3 className="text-2xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+                    <h3 className="text-2xl font-bold text-text-primary mb-3 font-sans tracking-tight">
                       Message envoyé !
                     </h3>
-                    <p className="text-[var(--safe-text-muted)] font-sans">
+                    <p className="text-text-body font-sans">
                       Nous vous répondrons dans les 24 heures ouvrables.
                     </p>
                   </motion.div>
                 ) : (
                   <form
                     onSubmit={handleSubmit}
-                    className="rounded-safe-md border border-white/5 bg-[var(--safe-dark)]/50 p-8 space-y-5"
+                    className="rounded-safe-md border border-white/5 bg-surface p-8 space-y-5"
                   >
                     {error && (
                       <div className="p-4 rounded-safe bg-red-500/10 border border-red-500/30 text-red-300 text-sm font-sans">
@@ -313,7 +313,7 @@ export default function ContactPage() {
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
+                        <label className="block text-sm text-forest-600 mb-2 font-sans">
                           Nom complet
                         </label>
                         <input
@@ -323,12 +323,12 @@ export default function ContactPage() {
                           onChange={handleChange}
                           required
                           disabled={loading}
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
+                          className="w-full px-4 py-3 rounded-safe bg-surface-2 border border-border text-text-primary placeholder-[#2B4A3E]/60 focus:border-forest-600/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="Me Prénom Nom"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
+                        <label className="block text-sm text-forest-600 mb-2 font-sans">
                           Courriel
                         </label>
                         <input
@@ -338,14 +338,14 @@ export default function ContactPage() {
                           onChange={handleChange}
                           required
                           disabled={loading}
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
+                          className="w-full px-4 py-3 rounded-safe bg-surface-2 border border-border text-text-primary placeholder-[#2B4A3E]/60 focus:border-forest-600/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="courriel@cabinet.ca"
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
+                        <label className="block text-sm text-forest-600 mb-2 font-sans">
                           Cabinet
                         </label>
                         <input
@@ -354,12 +354,12 @@ export default function ContactPage() {
                           value={formData.cabinet}
                           onChange={handleChange}
                           disabled={loading}
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
+                          className="w-full px-4 py-3 rounded-safe bg-surface-2 border border-border text-text-primary placeholder-[#2B4A3E]/60 focus:border-forest-600/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                           placeholder="Nom de votre cabinet"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
+                        <label className="block text-sm text-forest-600 mb-2 font-sans">
                           Nombre d&apos;avocats
                         </label>
                         <select
@@ -367,7 +367,7 @@ export default function ContactPage() {
                           value={formData.numLawyers}
                           onChange={handleChange}
                           disabled={loading}
-                          className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
+                          className="w-full px-4 py-3 rounded-safe bg-surface-2 border border-border text-text-primary focus:border-forest-600/50 focus:outline-none transition-colors font-sans text-sm disabled:opacity-50"
                         >
                           <option value="">Sélectionnez</option>
                           <option value="1">1 (solo)</option>
@@ -378,7 +378,7 @@ export default function ContactPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm text-[var(--safe-sage)] mb-2 font-sans">
+                      <label className="block text-sm text-forest-600 mb-2 font-sans">
                         Message
                       </label>
                       <textarea
@@ -388,14 +388,14 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         disabled={loading}
-                        className="w-full px-4 py-3 rounded-safe bg-[var(--safe-lightest)] border border-white/10 text-[var(--safe-darkest)] placeholder-[#2B4A3E]/60 focus:border-[var(--safe-sage)]/50 focus:outline-none transition-colors font-sans text-sm resize-none disabled:opacity-50"
+                        className="w-full px-4 py-3 rounded-safe bg-surface-2 border border-border text-text-primary placeholder-[#2B4A3E]/60 focus:border-forest-600/50 focus:outline-none transition-colors font-sans text-sm resize-none disabled:opacity-50"
                         placeholder="Comment pouvons-nous vous aider ?"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={loading}
-                      className="group w-full py-3 rounded-full font-semibold text-sm bg-[var(--safe-accent)] text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-[var(--safe-darkest)] transition-all duration-300 flex items-center justify-center gap-2 font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group w-full py-3 rounded-full font-semibold text-sm bg-text-secondary text-[var(--safe-lightest)] hover:bg-[var(--safe-sage)] hover:text-text-primary transition-all duration-300 flex items-center justify-center gap-2 font-sans disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? "Envoi en cours..." : "Envoyer le message"}
                       {!loading && <Send className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />}

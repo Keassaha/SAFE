@@ -88,8 +88,8 @@ async function main() {
     where: { cabinetId: cabinet.id },
     create: {
       cabinetId: cabinet.id,
-      ongletsActifs: JSON.stringify(["tableau-de-bord", "clients", "dossiers", "facturation", "comptes", "documents", "conformite", "parametres"]),
-      ongletsMasques: JSON.stringify(["temps", "fiches-de-temps", "employees"]),
+      ongletsActifs: JSON.stringify(["tableau-de-bord", "clients", "dossiers", "temps", "facturation", "comptes", "documents", "conformite", "parametres"]),
+      ongletsMasques: JSON.stringify(["fiches-de-temps", "employees"]),
       modules: JSON.stringify({
         facturation: { principal: "forfait", periodeFact: "bimonthly", joursRelance: 60, tauxInterets: 0, taxes: { mode: "hst", taux: 13 }, methodesAcceptees: ["cheque", "wire", "bank_draft", "carte", "interac", "cash"] },
         fideicommis: { regle: "bylaw9-lso", interets: "LFO", reconciliation: "mensuelle", alerteRetard: 20, protectionCroisee: true },

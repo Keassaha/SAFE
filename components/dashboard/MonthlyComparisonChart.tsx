@@ -19,6 +19,11 @@ export interface MonthlyComparisonChartProps {
   rows: MonthlyComparisonRow[];
 }
 
+/**
+ * Éditorial Chaleureux comparison chart.
+ * Forest solid bars for "invoiced", warm gold bars for "collected".
+ * Sand grid + sand-600 axis text.
+ */
 export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
   const t = useTranslations("dashboard");
   const locale = useLocale();
@@ -34,14 +39,39 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
   const hasData = chartData.length > 0;
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
+    <div
+      className="p-5 md:p-6"
+      style={{
+        background: "var(--sand-50)",
+        border: "1px solid var(--sand-300)",
+        borderRadius: 12,
+        boxShadow: "0 1px 2px rgba(11,11,12,0.04)",
+      }}
+    >
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
-            <BarChart2 className="w-4 h-4 text-emerald-600" aria-hidden />
+          <h3
+            className="flex items-center gap-2 tracking-tight"
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "var(--zinc-950)",
+              letterSpacing: "-0.01em",
+              margin: 0,
+            }}
+          >
+            <BarChart2
+              className="w-4 h-4"
+              strokeWidth={1.5}
+              style={{ color: "var(--brand-800)" }}
+              aria-hidden
+            />
             {t("monthlyComparison.title")}
           </h3>
-          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
+          <p
+            className="mt-0.5"
+            style={{ fontSize: 12, color: "var(--sand-600)", margin: 0 }}
+          >
             {t("monthlyComparison.subtitle", { year })}
           </p>
         </div>
@@ -58,29 +88,29 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
             >
               <defs>
                 <linearGradient id="invoicedGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.6} />
+                  <stop offset="0%" stopColor="#1F3A2E" stopOpacity={0.95} />
+                  <stop offset="100%" stopColor="#1F3A2E" stopOpacity={0.75} />
                 </linearGradient>
                 <linearGradient id="collectedGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.6} />
+                  <stop offset="0%" stopColor="#F4A045" stopOpacity={0.95} />
+                  <stop offset="100%" stopColor="#F4A045" stopOpacity={0.70} />
                 </linearGradient>
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e0ebe4"
+                stroke="#E8DCC4"
                 vertical={false}
               />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
+                tick={{ fill: "#8B8680", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
+                tick={{ fill: "#8B8680", fontSize: 11 }}
                 width={60}
                 tickFormatter={(v: number) =>
                   v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
@@ -88,14 +118,18 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  background: "var(--safe-neutral-surface)",
-                  border: "1px solid var(--safe-neutral-border)",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 16px rgba(26,46,40,0.08)",
-                  color: "var(--safe-text-title)",
+                  background: "#FCFAF4",
+                  border: "1px solid #E8DCC4",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 16px rgba(11,11,12,0.08)",
+                  color: "#0B0B0C",
                   fontSize: "13px",
                 }}
-                labelStyle={{ color: "var(--safe-text-secondary)", fontWeight: 600, marginBottom: 4 }}
+                labelStyle={{
+                  color: "#605B52",
+                  fontWeight: 600,
+                  marginBottom: 4,
+                }}
                 formatter={(value: number, name: string) => [
                   formatCurrency(value, "CAD", locale),
                   name === "invoiced"
@@ -114,7 +148,7 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
                 }
                 iconType="circle"
                 iconSize={8}
-                wrapperStyle={{ fontSize: "12px", color: "var(--safe-text-secondary)" }}
+                wrapperStyle={{ fontSize: "12px", color: "#605B52" }}
               />
               <Bar
                 dataKey="invoiced"
@@ -132,8 +166,16 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-64 flex flex-col items-center justify-center text-sm text-[var(--safe-text-muted)] gap-2">
-          <BarChart2 className="w-10 h-10 text-[var(--safe-neutral-300)]" aria-hidden />
+        <div
+          className="h-64 flex flex-col items-center justify-center gap-2"
+          style={{ fontSize: 13, color: "var(--sand-600)" }}
+        >
+          <BarChart2
+            className="w-10 h-10"
+            strokeWidth={1.5}
+            style={{ color: "var(--sand-400)" }}
+            aria-hidden
+          />
           {t("noRevenueData")}
         </div>
       )}

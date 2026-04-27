@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { ForfaitServiceTable } from "@/components/forfait/ForfaitServiceTable";
 import { RegistreTacheTable } from "@/components/forfait/RegistreTacheTable";
 import { AjouterTacheModal } from "@/components/forfait/AjouterTacheModal";
@@ -22,6 +23,7 @@ interface RegistreTachesPageProps {
 }
 
 export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
+  const t = useTranslations("temps.taskRegister");
   const [showAddModal, setShowAddModal] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("registre");
   const queryClient = useQueryClient();
@@ -36,7 +38,7 @@ export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Error generating invoice");
+        throw new Error(err.error || t("errorGenerating"));
       }
       return res.json();
     },
@@ -53,11 +55,11 @@ export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger value="registre">Task Register</TabsTrigger>
-            <TabsTrigger value="grille">Fee Schedule</TabsTrigger>
+            <TabsTrigger value="registre">{t("registerTab")}</TabsTrigger>
+            <TabsTrigger value="grille">{t("feeScheduleTab")}</TabsTrigger>
           </TabsList>
           <Button variant="primary" onClick={() => setShowAddModal(true)}>
-            <Plus className="w-4 h-4" /> Add Task
+            <Plus className="w-4 h-4" /> {t("addTask")}
           </Button>
         </div>
 
@@ -74,13 +76,13 @@ export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
 
       {facturerMutation.isError && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-safe text-sm text-red-700">
-          {facturerMutation.error instanceof Error ? facturerMutation.error.message : "Error"}
+          {facturerMutation.error instanceof Error ? facturerMutation.error.message : t("errorGenerating")}
         </div>
       )}
 
       {facturerMutation.isPending && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-safe text-sm text-blue-700 flex items-center gap-2">
-          <Receipt className="w-4 h-4" /> Generating invoice...
+          <Receipt className="w-4 h-4" /> {t("generatingInvoice")}
         </div>
       )}
 

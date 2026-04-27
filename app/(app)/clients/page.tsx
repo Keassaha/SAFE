@@ -55,7 +55,7 @@ export default async function ClientsPage({
   const where = buildClientListWhere(cabinetId, { q, status, type });
   const orderBy = getClientListOrderBy(sortBy, sortOrder);
 
-  const [clients, totalCount, stats, lawyers] = await Promise.all([
+  const [clients, totalCount, stats, lawyers, invoiceTotalsByClient, unbilledTasksByClient] = await Promise.all([
     prisma.client.findMany({
       where,
       orderBy,
@@ -77,6 +77,18 @@ export default async function ClientsPage({
       select: { id: true, nom: true },
       orderBy: { nom: "asc" },
     }),
+    // Accumulated fees (billed): sum of non-cancelled invoices per client
+    prisma.invoice.groupBy({
+      by: ["clientId"],
+      where: { cabinetId, cancelledAt: null },
+      _sum: { montantTotal: true },
+    }),
+    // Accumulated fees (unbilled forfait work): sum of open RegistreTache per client
+    prisma.registreTache.groupBy({
+      by: ["clientId"],
+      where: { cabinetId, statut: { not: "facture" } },
+      _sum: { montantFinal: true },
+    }),
   ]);
 
   const totalClients = stats.reduce((s, g) => s + g._count, 0);
@@ -84,9 +96,17 @@ export default async function ClientsPage({
   const activeCasesResult = await prisma.dossier.count({
     where: { cabinetId, statut: "actif" },
   });
-  const unbilledAmount =
-    (await prisma.client.aggregate({ where: { cabinetId }, _sum: { trustAccountBalance: true } }))
-      ._sum.trustAccountBalance ?? 0;
+
+  // Build a per-client aggregate map (billed + unbilled fees)
+  const feesByClient = new Map<string, number>();
+  for (const row of invoiceTotalsByClient) {
+    feesByClient.set(row.clientId, (feesByClient.get(row.clientId) ?? 0) + (row._sum.montantTotal ?? 0));
+  }
+  for (const row of unbilledTasksByClient) {
+    if (!row.clientId) continue;
+    feesByClient.set(row.clientId, (feesByClient.get(row.clientId) ?? 0) + (row._sum.montantFinal ?? 0));
+  }
+  const unbilledAmount = Array.from(feesByClient.values()).reduce((s, v) => s + v, 0);
 
   const rows: ClientRow[] = clients.map((c) => ({
     id: c.id,
@@ -99,6 +119,7 @@ export default async function ClientsPage({
     telephone: c.telephone,
     langue: c.langue,
     trustAccountBalance: c.trustAccountBalance,
+    honorairesAccumules: feesByClient.get(c.id) ?? 0,
     assignedLawyerNom: c.assignedLawyer?.nom ?? null,
     dossiersActifsCount: c._count.dossiers,
     lastActivityAt: c.updatedAt,

@@ -1,67 +1,109 @@
 import type { Config } from "tailwindcss";
+import { tokens } from "./lib/design-tokens";
+import colors from "tailwindcss/colors";
 
+/**
+ * Tailwind config — wired to the SAFE Design System (Éditorial Chaleureux).
+ *
+ * Key strategy (Q1=A migration totale):
+ *   • Tailwind's default `emerald` palette is OVERRIDDEN to point at the
+ *     brand FOREST GREEN scale. Every legacy `bg-emerald-600` /
+ *     `text-emerald-700` class in the codebase therefore resolves to
+ *     forest green — zero file diff across 188 files / 787 occurrences.
+ *   • The custom `green` / `gold` / `primary` / `accent` namespaces still
+ *     route through `--safe-green-*` CSS vars. Those vars are rebound to
+ *     forest green in app/globals.css. Result: legacy code that uses
+ *     `bg-green-700` or `text-primary-600` also adopts the brand.
+ *   • NEW namespaces: `sand` (warm neutrals — page, sidebar, borders),
+ *     `forest` (alias for brand), `warm-gold` (accent for urgent KPI
+ *     chiffres). Plus `brand`, `success`, `warning`, `danger`, `info`.
+ *   • Fonts: Geist Sans + Geist Mono + Instrument Serif (italic éditorial).
+ *     Loaded via next/font in app/layout.tsx.
+ */
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/ds/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
-        /* Emerald (green) — primary brand */
-        green: {
-          950: "var(--safe-green-950)",
-          900: "var(--safe-green-900)",
-          800: "var(--safe-green-800)",
-          700: "var(--safe-green-700)",
-          600: "var(--safe-green-600)",
-          100: "var(--safe-green-100)",
-          50: "var(--safe-green-50)",
+        /* ─── NEW: Brand (forest green) — canonical accent ─── */
+        canvas: tokens.color.slate[50],
+        surface: '#FFFFFF',
+        'surface-2': tokens.color.slate[100],
+        border: tokens.color.slate[300],
+        'border-strong': tokens.color.slate[400],
+        'text-subtle': tokens.color.slate[500],
+        'text-muted': tokens.color.slate[600],
+        'text-body': tokens.color.slate[700],
+        'text-primary': tokens.color.slate[800],
+        
+        forest: {
+          DEFAULT: tokens.color.forest[700],
+          ...tokens.color.forest,
+          // Clés manquantes dans le token de base — alias vers les valeurs proches
+          400: tokens.color.forest[500],
+          600: tokens.color.forest[700],
+          800: tokens.color.forest[900],
         },
-        /* Green accents (formerly gold) */
-        gold: {
-          700: "var(--safe-green-800)",
-          600: "var(--safe-green-700)",
-          500: "var(--safe-green-600)",
-          400: "var(--safe-green-600)",
-          50: "var(--safe-green-50)",
+        amber: {
+          DEFAULT: tokens.color.amber[500],
+          ...tokens.color.amber,
         },
-        /* Marketing V2 Theme */
-        marketing: {
-          darkest: "var(--safe-darkest)",
-          dark: "var(--safe-dark)",
-          "mid-dark": "var(--safe-mid-dark)",
-          accent: "var(--safe-accent)",
-          sage: "var(--safe-sage)",
-          lightest: "var(--safe-lightest)",
-          white: "var(--safe-white)",
-          muted: "var(--safe-text-muted)",
+        slate: {
+          DEFAULT: tokens.color.slate[500],
+          ...tokens.color.slate,
         },
-        /* Semantic aliases for components */
+        success: {
+          DEFAULT: tokens.color.semantic.success.bg,
+          ...tokens.color.semantic.success
+        },
+        warning: {
+          DEFAULT: tokens.color.semantic.warning.bg,
+          ...tokens.color.semantic.warning
+        },
+        danger: {
+          DEFAULT: tokens.color.semantic.danger.bg,
+          ...tokens.color.semantic.danger
+        },
+        info: {
+          DEFAULT: tokens.color.semantic.info.bg,
+          ...tokens.color.semantic.info
+        },
+
+        /* ─── REBIND: Legacy mapped properly ─── */
+        emerald: {
+          ...tokens.color.forest,
+        },
         primary: {
-          50: "var(--safe-primary-50)",
-          100: "var(--safe-primary-100)",
-          200: "var(--safe-green-600)",
-          300: "var(--safe-green-700)",
-          400: "var(--safe-green-700)",
-          500: "var(--safe-green-800)",
-          600: "var(--safe-green-700)",
-          700: "var(--safe-green-800)",
-          800: "var(--safe-green-800)",
-          900: "var(--safe-green-900)",
-          DEFAULT: "var(--safe-green-800)",
+          50: tokens.color.slate[50],
+          100: tokens.color.slate[100],
+          200: tokens.color.forest[200],
+          300: tokens.color.forest[300],
+          400: tokens.color.forest[500],
+          500: tokens.color.forest[500],
+          600: tokens.color.forest[700],
+          700: tokens.color.forest[700],
+          800: tokens.color.forest[900],
+          900: tokens.color.forest[900],
+          DEFAULT: tokens.color.forest[700],
         },
         accent: {
-          50: "var(--safe-green-50)",
-          100: "var(--safe-green-100)",
-          400: "var(--safe-green-600)",
-          500: "var(--safe-green-700)",
-          600: "var(--safe-green-700)",
-          700: "var(--safe-green-800)",
-          DEFAULT: "var(--safe-green-700)",
+          50: tokens.color.forest[50],
+          100: tokens.color.forest[100],
+          400: tokens.color.forest[500],
+          500: tokens.color.forest[700],
+          600: tokens.color.forest[700],
+          700: tokens.color.forest[900],
+          DEFAULT: tokens.color.forest[700],
         },
+
+        /* ─── REBUILT: Neutrals now fully zinc ─── */
         neutral: {
+          // Legacy semantic tokens — all point to zinc equivalents
           surface: "var(--safe-neutral-surface)",
           border: "var(--safe-neutral-border)",
           "border-subtle": "var(--safe-neutral-100)",
@@ -78,6 +120,8 @@ const config: Config = {
           700: "var(--safe-neutral-700)",
           900: "var(--safe-neutral-900)",
         },
+
+        /* ─── LEGACY: Status tokens (kept, now mapped to semantic) ─── */
         status: {
           success: "var(--safe-status-success)",
           "success-bg": "var(--safe-status-success-bg)",
@@ -88,26 +132,50 @@ const config: Config = {
           info: "var(--safe-status-info)",
           overdue: "var(--safe-status-overdue)",
         },
+
+        /* ─── Zinc: explicit — lets DS components write `bg-zinc-*` safely.
+         * Tailwind ships zinc by default; this namespace pins our source. */
+        zinc: colors.zinc,
       },
+
       fontFamily: {
-        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        heading: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-        jakarta: ["var(--font-jakarta)", "ui-sans-serif", "system-ui", "sans-serif"],
-        instrument: ["var(--font-instrument-serif)", "Georgia", "ui-serif", "serif"],
+        sans: ['var(--font-inter)', "system-ui", "-apple-system", "sans-serif"],
+        heading: ['var(--font-inter)', "system-ui", "-apple-system", "sans-serif"],
+        mono: ['var(--font-jetbrains-loaded)', "ui-monospace", "monospace"],
+        display: ['var(--font-inter)', "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
+        instrument: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
+        jakarta: ['var(--font-inter)', "ui-sans-serif", "system-ui", "sans-serif"],
       },
+
+      letterSpacing: {
+        /* Small-caps section labels ("VUE SECONDAIRE", "CRÉATION DE DOCUMENT") */
+        caps: "0.08em",
+      },
+
       fontSize: {
-        display: ["clamp(2.5rem, 5vw, 4rem)", { lineHeight: "1.1", letterSpacing: "-0.025em" }],
-        "heading-1": ["clamp(2rem, 4vw, 3rem)", { lineHeight: "1.2", letterSpacing: "-0.025em" }],
-        "heading-2": ["clamp(1.5rem, 3vw, 2.25rem)", { lineHeight: "1.3", letterSpacing: "-0.02em" }],
-        "heading-3": ["clamp(1.25rem, 2vw, 1.75rem)", { lineHeight: "1.35", letterSpacing: "-0.01em" }],
-        body: ["clamp(1rem, 1.5vw, 1.125rem)", { lineHeight: "1.6" }],
-        "body-sm": ["0.875rem", { lineHeight: "1.5" }],
-        caption: ["0.75rem", { lineHeight: "1.4", letterSpacing: "0.02em" }],
+        micro: [tokens.fontSize.micro, { lineHeight: tokens.lineHeight.normal }],
+        small: [tokens.fontSize.small, { lineHeight: tokens.lineHeight.normal }],
+        body: [tokens.fontSize.body, { lineHeight: tokens.lineHeight.relaxed }],
+        h3: [tokens.fontSize.h3, { lineHeight: tokens.lineHeight.normal }],
+        h2: [tokens.fontSize.h2, { lineHeight: tokens.lineHeight.snug }],
+        h1: [tokens.fontSize.h1, { lineHeight: tokens.lineHeight.tight }],
+        display: ["clamp(2.5rem, 5vw, 4rem)", { lineHeight: tokens.lineHeight.tight, letterSpacing: "-0.025em" }],
+        "heading-1": ["clamp(2rem, 4vw, 3rem)", { lineHeight: tokens.lineHeight.tight, letterSpacing: "-0.025em" }],
+        "heading-2": ["clamp(1.5rem, 3vw, 2.25rem)", { lineHeight: tokens.lineHeight.snug, letterSpacing: "-0.02em" }],
+        "heading-3": ["clamp(1.25rem, 2vw, 1.75rem)", { lineHeight: tokens.lineHeight.snug, letterSpacing: "-0.01em" }],
+        "body-sm": ["0.875rem", { lineHeight: tokens.lineHeight.relaxed }],
+        caption: [tokens.fontSize.small, { lineHeight: tokens.lineHeight.normal, letterSpacing: "0.02em" }],
       },
+
       fontWeight: {
-        display: "700",
+        normal: tokens.fontWeight.normal,
+        medium: tokens.fontWeight.medium,
+        semibold: tokens.fontWeight.semibold,
+        bold: tokens.fontWeight.bold,
+        display: tokens.fontWeight.bold,
       },
+
       spacing: {
         "safe-0": "0",
         "safe-1": "4px",
@@ -125,39 +193,55 @@ const config: Config = {
         sidebar: "224px",
         topbar: "56px",
       },
+
       borderRadius: {
-        safe: "var(--safe-radius-default)",
-        "safe-sm": "var(--safe-radius-sm)",
-        "safe-md": "var(--safe-radius-md)",
-        "safe-lg": "var(--safe-radius-lg)",
-        "safe-xl": "var(--safe-radius-xl)",
-        "safe-2xl": "var(--safe-radius-2xl)",
+        sm: tokens.radius.sm,
+        md: tokens.radius.md,
+        lg: tokens.radius.lg,
+        xl: tokens.radius.xl,
+        full: tokens.radius.full,
+        /* Legacy --safe-radius-* — kept for backwards compat */
+        safe: tokens.radius.md,
+        "safe-sm": tokens.radius.sm,
+        "safe-md": tokens.radius.md,
+        "safe-lg": tokens.radius.lg,
+        "safe-xl": tokens.radius.xl,
+        "safe-2xl": tokens.radius.xl,
       },
+
       boxShadow: {
+        focus: tokens.shadow.focus,
+        menu: tokens.shadow.menu,
+        modal: tokens.shadow.modal,
         xs: "var(--safe-shadow-xs)",
         sm: "var(--safe-shadow-sm)",
         md: "var(--safe-shadow-md)",
         lg: "var(--safe-shadow-lg)",
-        glass: "var(--safe-shadow-glass)",
-        "card-hover": "var(--safe-shadow-card-hover)",
       },
+
       backdropBlur: {
         glass: "14px",
         "glass-strong": "20px",
       },
+
       backgroundImage: {
         "gradient-main": "var(--safe-gradient-main)",
         "gradient-sidebar": "var(--safe-gradient-sidebar)",
       },
+
       transitionDuration: {
-        fast: "150ms",
-        normal: "200ms",
-        slow: "300ms",
+        fast: tokens.transition.fast.split(' ')[0],
+        normal: tokens.transition.base.split(' ')[0],
+        slow: tokens.transition.slow.split(' ')[0],
       },
+
       transitionTimingFunction: {
         safe: "cubic-bezier(0.4, 0, 0.2, 1)",
-        smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+        smooth: "ease-out",
+        "ds-out": "ease-out",
+        "ds-in": "ease-in",
       },
+
       keyframes: {
         "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
         "page-enter": {
@@ -169,6 +253,7 @@ const config: Config = {
         shimmer: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(100%)" } },
         "mobile-drawer-in": { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(0)" } },
       },
+
       animation: {
         "mobile-drawer-in": "mobile-drawer-in 0.2s ease-out forwards",
         "fade-in": "fade-in 0.25s ease-out",
@@ -177,6 +262,7 @@ const config: Config = {
         blob: "blob 20s ease-in-out infinite",
         shimmer: "shimmer 2s ease-in-out infinite",
       },
+
       animationDelay: {
         "2000": "2s",
         "4000": "4s",

@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { SafeLogo } from "@/components/branding/SafeLogo";
+import { Logo } from "@/components/brand/Logo";
 
 const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
   { label: "Tarification", href: "/tarification" },
-  { label: "Audit gratuit", href: "/audit-onboarding" },
+  { label: "Audit gratuit", href: "/audit-gratuit" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
 ];
@@ -27,18 +27,19 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 pt-4">
+    <header className="fixed top-2 md:top-4 left-0 right-0 z-50 px-4 lg:px-8">
       <nav
-        className={`mx-auto max-w-6xl transition-all duration-500 rounded-safe-md ${
+        className={`mx-auto max-w-6xl transition-all duration-500 rounded-[12px] md:rounded-[16px] overflow-visible ${
           scrolled
-            ? "bg-[#051F20]/95 backdrop-blur-md shadow-2xl shadow-black/20 border border-white/[0.06]"
-            : "bg-[#051F20]/85 backdrop-blur-sm border border-white/[0.04]"
+            ? "bg-[#0A0A0A]/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/10"
+            : "bg-[#0A0A0A]/85 backdrop-blur-sm shadow-lg border border-white/5"
         }`}
       >
         <div className="flex items-center justify-between h-[60px] px-5 lg:px-6">
           {/* Logo */}
-          <Link href="/" className="inline-block shrink-0 group transition-transform duration-300 hover:scale-[1.02]">
-            <SafeLogo variant="dark" noPulse className="shrink-0" />
+          <Link href="/" className="inline-flex items-center gap-2 group transition-transform duration-300 hover:scale-[1.02]">
+            <Logo size={22} accentColor="#FFFFFF" />
+            <span className="font-serif text-[17px] tracking-[-0.02em] text-white mt-0.5">Safe</span>
           </Link>
 
           {/* Desktop nav — centered */}
@@ -47,10 +48,10 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative whitespace-nowrap px-3 py-2 text-sm text-[#8EB69B] hover:text-[#F8FDF9] transition-colors duration-300 group font-sans"
+                className="relative whitespace-nowrap px-3 py-2 text-sm text-[#A1A1A1] hover:text-white transition-colors duration-300 group font-sans"
               >
                 {link.label}
-                <span className="absolute bottom-0.5 left-3 right-3 h-px bg-[#8EB69B] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                <span className="absolute bottom-0.5 left-3 right-3 h-px bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </Link>
             ))}
           </div>
@@ -59,7 +60,7 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-2 shrink-0">
             <Link
               href="/connexion"
-              className="whitespace-nowrap px-3 py-2 text-sm text-[#8EB69B] hover:text-[#F8FDF9] transition-colors duration-300 font-sans"
+              className="whitespace-nowrap px-3 py-2 text-sm text-[#A1A1A1] hover:text-white transition-colors duration-300 font-sans"
             >
               Connexion
             </Link>
@@ -67,7 +68,7 @@ export function Navbar() {
               href={CALENDLY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="whitespace-nowrap px-5 py-2 text-sm font-medium rounded-full bg-[#8EB69B] text-[#051F20] hover:bg-[#DAF1DE] transition-all duration-300 font-sans"
+              className="whitespace-nowrap px-5 py-2 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 transition-all duration-300 font-sans"
             >
               Réserver un appel
             </a>
@@ -76,7 +77,7 @@ export function Navbar() {
           {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 text-[#8EB69B] hover:text-[#F8FDF9] transition-colors"
+            className="lg:hidden p-2 text-[#A1A1A1] hover:text-white transition-colors"
             aria-label="Menu"
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -92,7 +93,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#051F20] rounded-safe-md border border-[#8EB69B]/15 shadow-2xl shadow-black/40"
+            className="lg:hidden mt-2 mx-auto max-w-6xl overflow-hidden bg-[#0A0A0A] rounded-safe-md border border-white/[0.1] shadow-2xl shadow-black/40"
           >
             <div className="px-6 py-5 space-y-1">
               {navLinks.map((link, i) => (
@@ -103,9 +104,9 @@ export function Navbar() {
                   transition={{ delay: i * 0.05 }}
                 >
                   <Link
-                    href={link.href}
+                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block py-3 text-lg text-[#8EB69B] hover:text-[#F8FDF9] transition-colors border-b border-white/5 font-sans"
+                    className="block py-3 text-lg text-[#A1A1A1] hover:text-white transition-colors border-b border-white/5 font-sans"
                   >
                     {link.label}
                   </Link>
@@ -115,7 +116,7 @@ export function Navbar() {
                 <Link
                   href="/connexion"
                   onClick={() => setMobileOpen(false)}
-                  className="text-center py-3 text-sm text-[#8EB69B] hover:text-[#F8FDF9] transition-colors font-sans"
+                  className="text-center py-3 text-sm text-[#A1A1A1] hover:text-white transition-colors font-sans"
                 >
                   Connexion
                 </Link>
@@ -124,7 +125,7 @@ export function Navbar() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileOpen(false)}
-                  className="text-center py-3 text-sm font-medium rounded-full bg-[#8EB69B] text-[#051F20] font-sans"
+                  className="text-center py-3 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 font-sans"
                 >
                   Réserver un appel
                 </a>

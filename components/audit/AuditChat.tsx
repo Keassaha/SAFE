@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronMark } from "@/components/branding/SafeLogo";
 import {
   Send,
   CheckCircle2,
@@ -54,6 +55,8 @@ interface ChatMessage {
   id: string;
   sender: "auditor" | "user";
   text: string;
+  fullText?: string;          // full text kept while streaming
+  streaming?: boolean;        // true while typewriter is running
   timestamp: number;
   options?: QuestionOption[];
   questionType?: Question["type"];
@@ -101,11 +104,13 @@ interface AuditResponses {
   per_item_volume: string;
   annual_revenue: string;
   time_tracking_method: string;
+  invoice_detail: string;
   monthly_billing_time: string;
   collection_rate: string;
   discount_practice: string;
   price_list: string;
   discount_documentation: string;
+  retainer_management: string;
   ircc_portal_usage: string;
   pension_calculation_tool: string;
 
@@ -114,13 +119,21 @@ interface AuditResponses {
   reconciliation_frequency: string;
   trust_multi_account: string;
   trust_segregation: string;
+  disbursements_tracking: string;
 
   // Pilier 7 : Opérations & conformité
   weekly_admin_hours: string;
   bar_inspection_confidence: number;
+  continuity_plan: string;
+  continuing_education: string;
   loi25_compliance_level: string;
   data_protection_measures: string[];
   current_tools: string[];
+
+  // Pilier 4 : Gestion de la clientèle (suppléments)
+  document_naming: string;
+  client_communication: string;
+  complaint_process: string;
 
   // Contact
   contact_name: string;
@@ -215,12 +228,12 @@ const PHASES = [
 ];
 
 const PHASE_TRANSITIONS: Record<number, string> = {
-  2: "✅ Parfait, j'ai un bon portrait de votre cabinet !\n\n📁 Passons à la gestion de vos dossiers au quotidien.",
-  3: "📁 Très bien !\n\n⏰ Abordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires.",
-  4: "⏰ Noté !\n\n👥 Parlons maintenant de la gestion de votre clientèle — accueil, conflits d'intérêts et conformité.",
-  5: "👥 Merci pour ces réponses importantes !\n\n💰 Passons à la facturation et au recouvrement — la santé financière de votre cabinet.",
-  6: "💰 Bien reçu !\n\n🏦 Abordons le fidéicommis et la comptabilité — le cœur de la conformité réglementaire.",
-  7: "🏦 Presque terminé !\n\n🛡️ Dernière section : vos opérations quotidiennes et votre conformité en matière de protection des données.",
+  2: "Parfait — j'ai maintenant un bon portrait de votre cabinet.\n\nPassons à la gestion de vos dossiers au quotidien. C'est là que se cachent souvent les premières inefficacités.",
+  3: "Très bien. Ces informations me donnent déjà de bons indicateurs.\n\nAbordons maintenant un sujet crucial : la gestion de vos échéances et délais judiciaires — le facteur de risque numéro un de la responsabilité professionnelle.",
+  4: "Noté.\n\nParlons maintenant de la gestion de votre clientèle — processus d'accueil, conflits d'intérêts et conformité Loi 25. Ce sont des domaines scrutés de près lors des inspections.",
+  5: "Merci pour ces réponses. Elles me permettent déjà d'identifier quelques axes d'amélioration.\n\nPassons à la facturation et au recouvrement — directement lié à la santé financière de votre cabinet.",
+  6: "Bien reçu.\n\nAbordons maintenant le fidéicommis et la comptabilité. C'est le cœur de la conformité réglementaire, et l'un des domaines les plus examinés lors d'une inspection professionnelle.",
+  7: "Presque terminé.\n\nDernière section : vos opérations quotidiennes, votre plan de continuité et votre conformité en protection des données. Quelques questions importantes nous restent.",
 };
 
 const QUESTIONS: Question[] = [
@@ -339,6 +352,18 @@ const QUESTIONS: Question[] = [
       { label: "Je ferme le dossier quand j'y pense", value: "informel" },
       { label: "Les dossiers restent ouverts indéfiniment", value: "jamais" },
       { label: "Mon logiciel gère la fermeture", value: "logiciel" },
+    ],
+  },
+  {
+    key: "document_naming",
+    phase: 2,
+    text: "Comment organisez-vous vos documents à l'intérieur de chaque dossier ?",
+    type: "single",
+    options: [
+      { label: "Nomenclature standardisée appliquée par toute l'équipe", value: "standardisee" },
+      { label: "Organisation par type de document (contrats, courriels, etc.)", value: "par_type" },
+      { label: "Chacun range à sa façon — pas de convention commune", value: "libre" },
+      { label: "Tout dans un seul dossier, difficile à retrouver parfois", value: "desorganise" },
     ],
   },
   {
@@ -475,6 +500,31 @@ const QUESTIONS: Question[] = [
     ],
   },
 
+  {
+    key: "client_communication",
+    phase: 4,
+    text: "Comment informez-vous vos clients de l'évolution de leur dossier ?",
+    type: "single",
+    options: [
+      { label: "Mises à jour proactives régulières — sans attendre que le client demande", value: "proactif" },
+      { label: "Uniquement lors des étapes importantes du dossier", value: "etapes_cles" },
+      { label: "Surtout quand le client me contacte pour avoir des nouvelles", value: "reactif" },
+      { label: "C'est un aspect que je pourrais améliorer", value: "faiblesse" },
+    ],
+  },
+  {
+    key: "complaint_process",
+    phase: 4,
+    text: "Avez-vous un processus pour gérer les insatisfactions ou plaintes de clients ?",
+    type: "single",
+    options: [
+      { label: "Oui — procédure documentée, incluant un registre des plaintes", value: "formel" },
+      { label: "Je gère chaque situation au cas par cas", value: "cas_par_cas" },
+      { label: "Rarement eu de plaintes — je n'y ai pas vraiment réfléchi", value: "inconnu" },
+      { label: "Non — c'est un angle mort que je reconnais", value: "aucun" },
+    ],
+  },
+
   // ═══ PILIER 5 : Facturation & recouvrement ═══
   {
     key: "billing_mode",
@@ -568,6 +618,31 @@ const QUESTIONS: Question[] = [
       { label: "À la fin de la semaine ou du mois (estimations)", value: "fin_semaine" },
       { label: "Je ne les enregistre pas systématiquement", value: "pas_systematique" },
       { label: "Non applicable (je ne facture pas à l'heure)", value: "na" },
+    ],
+  },
+  {
+    key: "invoice_detail",
+    phase: 5,
+    text: "Vos notes d'honoraires incluent-elles le détail du travail effectué (date, description, durée) ?",
+    type: "single",
+    options: [
+      { label: "Oui — détail complet par entrée de temps, conformément au Code de déontologie", value: "detail_complet" },
+      { label: "Résumé par grande tâche, pas toujours daté", value: "resume" },
+      { label: "Description générale du mandat, sans détail d'heures", value: "general" },
+      { label: "Montant global uniquement", value: "forfait_brut" },
+    ],
+  },
+  {
+    key: "retainer_management",
+    phase: 5,
+    condition: (r) => Array.isArray(r.billing_mode) && r.billing_mode.includes("retainer"),
+    text: "Lorsque vous recevez une provision d'un client, comment la traitez-vous ?",
+    type: "single",
+    options: [
+      { label: "Dépôt immédiat en fidéicommis, imputé au fil des travaux facturés", value: "fideicommis_correct" },
+      { label: "Dépôt en fidéicommis, mais la procédure d'imputation n'est pas systématique", value: "fideicommis_partiel" },
+      { label: "Je la dépose directement dans mon compte de bureau", value: "bureau" },
+      { label: "Je n'ai pas de politique claire pour les provisions", value: "pas_clair" },
     ],
   },
   {
@@ -695,6 +770,19 @@ const QUESTIONS: Question[] = [
     ],
   },
 
+  {
+    key: "disbursements_tracking",
+    phase: 6,
+    text: "Comment suivez-vous et facturez-vous vos déboursés (frais de cour, messagerie, photocopies, etc.) ?",
+    type: "single",
+    options: [
+      { label: "Suivi automatique dans mon logiciel — tout est capté en temps réel", value: "automatique" },
+      { label: "Registre manuel mis à jour à chaque dépense", value: "manuel_rigoureux" },
+      { label: "Estimation globale en fin de dossier", value: "estimation" },
+      { label: "Je ne facture pas toujours tous mes déboursés", value: "manques" },
+    ],
+  },
+
   // ═══ PILIER 7 : Opérations & conformité ═══
   {
     key: "weekly_admin_hours",
@@ -706,6 +794,30 @@ const QUESTIONS: Question[] = [
       { label: "2 à 5 heures", value: "2_5h" },
       { label: "5 à 10 heures", value: "5_10h" },
       { label: "Plus de 10 heures", value: "plus_10h" },
+    ],
+  },
+  {
+    key: "continuity_plan",
+    phase: 7,
+    text: "En cas d'absence imprévue ou prolongée, avez-vous un plan pour assurer la continuité de service à vos clients ?",
+    type: "single",
+    options: [
+      { label: "Oui — avocat(e) remplaçant(e) désigné(e), accord formalisé et clients informés du protocole", value: "plan_formel" },
+      { label: "Arrangement informel avec un(e) collègue de confiance", value: "informel" },
+      { label: "J'y ai réfléchi, mais rien n'est encore formalisé", value: "reflechi_non_formalise" },
+      { label: "Non — je reconnais que c'est une vulnérabilité", value: "aucun" },
+    ],
+  },
+  {
+    key: "continuing_education",
+    phase: 7,
+    text: "Comment gérez-vous vos heures de formation continue obligatoires ?",
+    type: "single",
+    options: [
+      { label: "Formations planifiées à l'avance, registre à jour en tout temps", value: "planifie" },
+      { label: "Je complète les heures requises avant la date limite annuelle", value: "avant_deadline" },
+      { label: "C'est souvent stressant — je le fais à la dernière minute", value: "derniere_minute" },
+      { label: "Je ne suis pas certain(e) d'être à jour avec mes exigences", value: "incertain" },
     ],
   },
   {
@@ -766,7 +878,7 @@ const QUESTIONS: Question[] = [
   {
     key: "contact",
     phase: 7,
-    text: "🎉 Votre audit est presque terminé ! Pour recevoir votre rapport personnalisé par courriel, pourriez-vous me laisser vos coordonnées ?",
+    text: "Votre audit est complété.\n\nPour recevoir votre rapport personnalisé par courriel et accéder à l'analyse complète, veuillez me laisser vos coordonnées. Elles resteront strictement confidentielles.",
     type: "contact",
   },
 ];
@@ -951,6 +1063,56 @@ function getReaction(key: string, value: string | number | string[], allResponse
     case "data_protection_measures":
       if (Array.isArray(value) && value.includes("aucune")) return "Aucune mesure formelle de protection des données — c'est un risque important pour la confidentialité de vos clients et pour votre conformité.";
       if (Array.isArray(value) && value.length >= 4) return "Vous avez plusieurs mesures en place — c'est très bien. Voyons le portrait d'ensemble.";
+      return null;
+
+    case "document_naming":
+      if (value === "standardisee") return "Une nomenclature standardisée, c'est l'un des leviers les plus sous-estimés de la productivité. Ça réduit considérablement le temps perdu à chercher des documents.";
+      if (value === "desorganise") return "Un classement difficile à naviguer ralentit chaque recherche et peut compliquer une inspection. C'est corrigeable avec quelques conventions simples.";
+      if (value === "libre") return "Sans convention commune, chaque départ ou arrivée dans l'équipe crée de la confusion dans les dossiers. Un système partagé change vraiment la donne.";
+      return null;
+
+    case "client_communication":
+      if (value === "proactif") return "Des mises à jour proactives — c'est une des meilleures façons de réduire les appels entrants et de fidéliser vos clients.";
+      if (value === "reactif") return "La communication réactive est souvent source de frustration pour les clients. Un simple rappel automatique aux étapes clés peut transformer l'expérience client.";
+      if (value === "faiblesse") return "Reconnaître cet aspect, c'est déjà un bon point de départ. Des outils simples permettent d'automatiser les mises à jour sans y penser.";
+      return null;
+
+    case "complaint_process":
+      if (value === "formel") return "Un registre de plaintes documenté — c'est à la fois une protection déontologique et un outil d'amélioration continue. Bien géré.";
+      if (value === "aucun") return "L'absence de processus formel laisse les insatisfactions sans réponse structurée. Le Code de déontologie recommande une gestion documentée des plaintes.";
+      if (value === "inconnu") return "Même sans plaintes fréquentes, avoir un processus documenté vous protège. C'est une question d'organisation, pas de taille de cabinet.";
+      return null;
+
+    case "invoice_detail":
+      if (value === "detail_complet") return "Des notes d'honoraires bien détaillées réduisent les litiges avec les clients et facilitent grandement une inspection du Barreau. Excellente pratique.";
+      if (value === "forfait_brut") return "Un montant global sans détail peut exposer à des contestations. Le Code de déontologie (art. 3.08.03) exige que les honoraires soient justifiables et transparents.";
+      if (value === "general") return "Une description générale est un minimum, mais en cas de contestation ou d'inspection, un détail par entrée de temps est beaucoup plus solide.";
+      return null;
+
+    case "retainer_management":
+      if (value === "bureau") return "Attention : une provision reçue d'un client doit être déposée en fidéicommis avant d'être gagnée. La déposer directement au bureau est une non-conformité grave.";
+      if (value === "fideicommis_partiel") return "Le bon réflexe fidéicommis est là. Il s'agit maintenant de systématiser l'imputation pour que chaque provision soit correctement traitée dès réception.";
+      if (value === "fideicommis_correct") return "Dépôt en fidéicommis et imputation systématique — c'est exactement la procédure requise. Votre gestion des provisions est conforme.";
+      if (value === "pas_clair") return "Une politique claire sur les provisions est essentielle. Le traitement d'une provision directement au bureau plutôt qu'en fidéicommis est l'une des irrégularités les plus fréquentes lors des inspections.";
+      return null;
+
+    case "disbursements_tracking":
+      if (value === "manques") return "Les déboursés non facturés représentent une fuite silencieuse dans vos revenus. Dans certains cabinets, ça peut représenter 3 à 5 % du chiffre d'affaires annuel.";
+      if (value === "automatique") return "Le suivi automatique des déboursés, c'est la garantie que rien ne passe à travers les mailles. Un avantage concret de la technologie.";
+      if (value === "estimation") return "Les estimations en fin de dossier sous-évaluent presque toujours les déboursés réels. Un suivi en temps réel récupère systématiquement plus.";
+      return null;
+
+    case "continuity_plan":
+      if (value === "plan_formel") return "Un plan de continuité formalisé — c'est une marque de professionnalisme et une obligation éthique envers vos clients. Très bien.";
+      if (value === "aucun") return "L'absence de plan de continuité expose vos clients à une rupture de service en cas d'imprévu. Le Barreau considère cela comme une obligation déontologique de base.";
+      if (value === "informel") return "Un arrangement informel est mieux que rien. Pour vraiment protéger vos clients (et vous), un accord écrit avec votre collègue reste préférable.";
+      if (value === "reflechi_non_formalise") return "Vous avez l'essentiel : la conscience du risque. La formalisation prend généralement moins d'une heure et vous apporte une vraie tranquillité d'esprit.";
+      return null;
+
+    case "continuing_education":
+      if (value === "planifie") return "Des formations planifiées à l'avance — vous transformez une obligation en investissement. C'est la meilleure façon de rester à la pointe.";
+      if (value === "incertain") return "Être à jour avec la formation continue est une exigence du Barreau. Un retard peut entraîner une suspension du droit de pratique. C'est à vérifier rapidement.";
+      if (value === "derniere_minute") return "La formation à la dernière minute vous expose à des choix limités et du stress inutile. Avec un calendrier annuel, c'est une contrainte qui disparaît presque.";
       return null;
 
     default:
@@ -1410,6 +1572,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const lastAuditorRef = useRef<HTMLDivElement>(null);
+  const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scrollToLatest = useCallback(() => {
     setTimeout(() => {
@@ -1417,38 +1580,92 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
     }, 100);
   }, []);
 
-  // Simulate typing delay then add auditor message
+  // Affiche les points de frappe puis diffuse le texte caractère par caractère
+  // ⚠️ Intervalle LOCAL à chaque appel — évite toute interférence entre messages
   const addAuditorMessage = useCallback(
     (text: string, question?: Question) => {
       setIsTyping(true);
-      const delay = Math.min(1200, 400 + text.length * 8);
+      const typingDelay = Math.min(500, 180 + text.length * 2);
 
       return new Promise<void>((resolve) => {
-        setTimeout(() => {
+        const typingTimer = setTimeout(() => {
           setIsTyping(false);
-          const msg: ChatMessage = {
-            id: uid(),
+          const msgId = uid();
+
+          const baseMsg: ChatMessage = {
+            id: msgId,
             sender: "auditor",
-            text,
+            text: "",
+            fullText: text,
+            streaming: true,
             timestamp: Date.now(),
           };
           if (question) {
-            msg.options = question.options;
-            msg.questionType = question.type;
-            msg.questionKey = question.key;
-            msg.scaleMin = question.scaleMin;
-            msg.scaleMax = question.scaleMax;
-            msg.scaleLabels = question.scaleLabels;
-            msg.placeholder = question.placeholder;
+            baseMsg.options       = question.options;
+            baseMsg.questionType  = question.type;
+            baseMsg.questionKey   = question.key;
+            baseMsg.scaleMin      = question.scaleMin;
+            baseMsg.scaleMax      = question.scaleMax;
+            baseMsg.scaleLabels   = question.scaleLabels;
+            baseMsg.placeholder   = question.placeholder;
           }
-          setMessages((prev) => [...prev, msg]);
+
+          setMessages((prev) => [...prev, baseMsg]);
           scrollToLatest();
-          resolve();
-        }, delay);
+
+          // Streaming — ~60 pas max quelle que soit la longueur
+          const charsPerStep = Math.max(1, Math.ceil(text.length / 60));
+          let charIdx = 0;
+          let resolved = false;
+
+          const localInterval = setInterval(() => {
+            charIdx += charsPerStep;
+            const done = charIdx >= text.length;
+            const sliced = done ? text : text.slice(0, charIdx);
+
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === msgId ? { ...m, text: sliced, streaming: !done } : m
+              )
+            );
+
+            if (done && !resolved) {
+              resolved = true;
+              clearInterval(localInterval);
+              scrollToLatest();
+              resolve();
+            }
+          }, 14);
+
+          // Filet de sécurité : résolution forcée après 3 s même si quelque chose bloque
+          const safetyTimer = setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              clearInterval(localInterval);
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === msgId ? { ...m, text: text, streaming: false } : m
+                )
+              );
+              resolve();
+            }
+          }, 3500);
+
+          // Track pour cleanup unmount
+          streamIntervalRef.current = localInterval;
+          void typingTimer; void safetyTimer;
+        }, typingDelay);
       });
     },
     [scrollToLatest]
   );
+
+  // Cleanup à l'unmount
+  useEffect(() => {
+    return () => {
+      if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    };
+  }, []);
 
   // Add user message
   const addUserMessage = useCallback(
@@ -1474,7 +1691,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
           {
             id: uid(),
             sender: "auditor",
-            text: "👋 Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\n📋 Cet audit gratuit prend environ 8 minutes. Mes questions couvrent 7 piliers de votre pratique — gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\n🔒 Tout est confidentiel. À la fin, vous recevrez un rapport personnalisé avec votre score de conformité.\n\nOn commence ?",
+            text: "Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\nCet audit couvre 7 piliers de votre pratique : gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nEnviron 8 minutes · 100 % confidentiel.\n\nÀ la fin, vous recevrez un diagnostic personnalisé : votre score de conformité, les risques identifiés, l'impact financier estimé et un plan d'action concret.\n\nPrêt(e) à commencer ?",
             timestamp: Date.now(),
           },
         ]);
@@ -1743,8 +1960,9 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
         // Silently fail — ne pas bloquer l'expérience utilisateur
       }
 
+      const firstName = contactForm.name.trim().split(" ")[0];
       await addAuditorMessage(
-        "Merci beaucoup pour votre temps et votre confiance ! Votre rapport d'audit personnalisé est prêt. Voyons ensemble les résultats..."
+        `Merci ${firstName} — votre audit est complété.\n\nVous venez de parcourir les 7 piliers de gestion de votre cabinet. Je génère maintenant votre diagnostic personnalisé : score de conformité, risques prioritaires et plan d'action chiffré.\n\nVoyons les résultats ensemble.`
       );
 
       setShowResults(true);
@@ -1828,30 +2046,54 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
 
     return (
       <div className="flex flex-col h-full bg-[var(--safe-white)] text-[var(--safe-text-title)]">
-        {/* Header */}
+        {/* Header rapport */}
         <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md px-4 py-3">
           <div className="max-w-2xl mx-auto flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
-              J
+            {/* Logo SAFE */}
+            <div className="w-10 h-10 rounded-xl bg-[var(--safe-text-title)] flex items-center justify-center shrink-0 ring-1 ring-white/5">
+              <ChevronMark size={26} tone="onBrand" title="SAFE" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold font-sans tracking-tight text-[var(--safe-text-title)]">Rapport d&apos;audit d&apos;efficacité</h1>
-              <p className="text-xs text-[var(--safe-text-secondary)] font-sans">Jérémy, fondateur de SAFE — {new Date().toLocaleDateString("fr-CA")}</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base font-bold font-sans tracking-tight text-[var(--safe-text-title)] truncate">
+                Rapport d&apos;audit · {responses.contact_firm || responses.contact_name || "Cabinet"}
+              </h1>
+              <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
+                SAFE — {new Date().toLocaleDateString("fr-CA", { year: "numeric", month: "long", day: "numeric" })}
+              </p>
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm bg-[var(--safe-text-title)] text-[var(--safe-white)] text-xs font-sans font-medium hover:bg-[var(--safe-text-secondary)] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm bg-[var(--safe-text-title)] text-[var(--safe-white)] text-xs font-sans font-medium hover:bg-[var(--safe-text-secondary)] transition-colors shrink-0"
             >
               <Download className="w-3.5 h-3.5" />
-              Télécharger PDF
+              PDF
             </button>
           </div>
         </header>
 
         <main className="flex-1 min-h-0 overflow-y-auto px-4 py-8">
           <div className="max-w-2xl mx-auto space-y-6">
+            {/* Bannière félicitations */}
+            <div className="audit-result-card rounded-safe-md bg-[var(--safe-text-title)] px-6 py-4 audit-slide-up flex items-center gap-4">
+              <div className="text-3xl audit-celebrate-icon">
+                {displayScore >= 75 ? "🏆" : displayScore >= 55 ? "📊" : "🔍"}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-[var(--safe-white)] font-sans">
+                  {displayScore >= 75
+                    ? "Félicitations — votre cabinet affiche un excellent niveau de maturité !"
+                    : displayScore >= 55
+                    ? "Audit complété — votre cabinet a de solides bases à consolider."
+                    : "Audit complété — plusieurs opportunités d'amélioration ont été identifiées."}
+                </p>
+                <p className="text-xs text-[var(--safe-sage)] font-sans mt-0.5">
+                  Voici votre diagnostic personnalisé, {responses.contact_name?.split(" ")[0] || "cher(e) confrère/consœur"}.
+                </p>
+              </div>
+            </div>
+
             {/* Score + Summary card */}
-            <div className="audit-result-card rounded-safe-md border border-[var(--safe-sage)]/30 bg-white/60 p-6 audit-slide-up">
+            <div className="audit-result-card rounded-safe-md border border-[var(--safe-sage)]/30 bg-white/60 p-6 audit-slide-up" style={{ animationDelay: "0.05s" }}>
               <div className="flex items-start gap-6">
                 <div className="text-center">
                   <ScoreGauge score={computed.pain_score} />
@@ -1864,7 +2106,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                   <p className="text-sm text-[var(--safe-text-secondary)] font-sans leading-relaxed">{computed.overall_summary}</p>
                   {computed.strengths.length > 0 && (
                     <div className="mt-3 p-3 rounded-safe bg-green-50 border border-green-200">
-                      <p className="text-xs font-semibold text-green-700 font-sans mb-1">Vos points forts</p>
+                      <p className="text-xs font-semibold text-green-700 font-sans mb-1">Points forts identifiés</p>
                       {computed.strengths.map((str, i) => (
                         <p key={i} className="text-xs text-green-700 font-sans">✓ {str}</p>
                       ))}
@@ -2150,11 +2392,14 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                   }`}
                 >
                   {msg.text}
+                  {msg.streaming && (
+                    <span className="audit-typewriter-cursor inline-block w-[2px] h-[1em] bg-[var(--safe-sage)] ml-0.5 align-middle" />
+                  )}
                 </div>
               </div>
 
-              {/* Options (only for unanswered auditor questions) */}
-              {msg.sender === "auditor" && !msg.answered && msg.questionKey && (
+              {/* Options (only for unanswered auditor questions, after streaming) */}
+              {msg.sender === "auditor" && !msg.answered && !msg.streaming && msg.questionKey && (
                 <div className="ml-9 mt-3 audit-options-appear">
                   {/* Single select options */}
                   {msg.questionType === "single" && msg.options && (
@@ -2402,8 +2647,8 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             </div>
           )}
 
-          {/* Start button */}
-          {!started && messages.length > 0 && !isTyping && (
+          {/* Start button — apparaît seulement quand le texte d'intro est entièrement affiché */}
+          {!started && messages.length > 0 && !isTyping && !messages[messages.length - 1]?.streaming && (
             <div className="flex justify-center mt-4 audit-options-appear">
               <button
                 onClick={handleStart}

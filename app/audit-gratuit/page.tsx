@@ -1,68 +1,229 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { AnimatePresence, motion } from "framer-motion";
+import { Logo } from "@/components/brand/Logo";
 
-const AuditChat = dynamic(() => import("@/components/audit/AuditChat"), {
-  loading: () => (
-    <div className="flex-1 flex items-center justify-center">
-      <div className="animate-pulse space-y-4 w-full max-w-xl px-4">
-        <div className="h-12 bg-neutral-200 rounded-safe-sm w-3/4" />
-        <div className="h-8 bg-neutral-100 rounded-safe-sm w-1/2" />
-        <div className="h-32 bg-neutral-100 rounded-safe-sm" />
+const AuditForm = dynamic(
+  () => import("@/components/audit-gratuit/AuditForm").then((m) => m.AuditForm),
+  {
+    loading: () => (
+      <div className="min-h-screen audit-v2-bg flex items-center justify-center">
+        <div className="animate-pulse text-neutral-400 text-sm tracking-wide">Chargement…</div>
       </div>
-    </div>
-  ),
-});
+    ),
+  }
+);
 
+type Phase = "intro" | "language" | "form";
 type Lang = "fr" | "en";
 
 export default function AuditGratuitPage() {
-  const [lang, setLang] = useState<Lang | null>(null);
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [lang, setLang] = useState<Lang>("fr");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  if (!lang) {
-    return (
-      <div className="min-h-screen auth-container flex items-center justify-center px-4 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md text-center"
-        >
-          <div className="mb-10 flex justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white font-sans tracking-tight">S</span>
-            </div>
-          </div>
-          <p className="mb-10 text-lg font-medium text-white">Safe</p>
-          <p className="mb-10 text-sm font-medium text-white/70">Choisissez votre langue</p>
-          <div className="flex justify-center gap-5">
-            <button
-              onClick={() => setLang("fr")}
-              className="group relative h-24 w-36 overflow-hidden rounded-safe-md border border-white/20 bg-white/8 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/14 hover:shadow-lg hover:scale-[1.03] active:scale-[0.98]"
-            >
-              <span className="block text-2xl font-bold text-white">FR</span>
-              <span className="mt-1 block text-xs text-white/55 transition-colors group-hover:text-white/75">Français</span>
-            </button>
-            <button
-              onClick={() => setLang("en")}
-              className="group relative h-24 w-36 overflow-hidden rounded-safe-md border border-white/20 bg-white/8 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/14 hover:shadow-lg hover:scale-[1.03] active:scale-[0.98]"
-            >
-              <span className="block text-2xl font-bold text-white">EN</span>
-              <span className="mt-1 block text-xs text-white/55 transition-colors group-hover:text-white/75">English</span>
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
+  if (phase === "form") {
+    return <AuditForm lang={lang} />;
   }
 
+  const menuLinks = [
+    { href: "/", label: "Accueil" },
+    { href: "/#produit", label: "Fonctionnalités" },
+    { href: "/tarification", label: "Tarification" },
+    { href: "/contact", label: "Contact" },
+    { href: "/login", label: "Connexion" },
+  ];
+
   return (
-    <div className="relative flex flex-col h-screen overflow-hidden bg-[var(--safe-white)]">
-      <main className="flex-1 overflow-hidden">
-        <AuditChat lang={lang} />
-      </main>
+    <div className="min-h-screen audit-v2-bg flex flex-col px-4 py-6 relative">
+      {/* Top bar: logo + menu button */}
+      <div className="w-full max-w-6xl mx-auto flex items-center justify-between mb-4">
+        <Link href="/" className="inline-flex items-center gap-2.5 group">
+          <span className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-black ring-1 ring-white/10">
+            <Logo size={24} accentColor="#FFFFFF" />
+          </span>
+          <span
+            className="text-[18px] text-[#111] leading-none"
+            style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+          >
+            Safe
+          </span>
+        </Link>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label="Ouvrir le menu"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/80 border border-[#E5E0D5] text-[13px] font-medium text-[#111] hover:bg-white transition-colors shadow-sm"
+          >
+            <span className="flex flex-col gap-[3px]">
+              <span className={`block w-4 h-[1.5px] bg-[#111] transition-transform ${menuOpen ? "translate-y-[4.5px] rotate-45" : ""}`} />
+              <span className={`block w-4 h-[1.5px] bg-[#111] transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-4 h-[1.5px] bg-[#111] transition-transform ${menuOpen ? "-translate-y-[4.5px] -rotate-45" : ""}`} />
+            </span>
+            Menu
+          </button>
+
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                key="menu"
+                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute right-0 top-[calc(100%+8px)] w-60 rounded-2xl bg-white border border-[#E5E0D5] shadow-xl shadow-black/5 p-2 z-50"
+              >
+                {menuLinks.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="block px-4 py-2.5 rounded-lg text-[13px] text-neutral-700 hover:bg-[#F4EFE3] hover:text-[#111] transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+                <div className="h-px bg-[#E5E0D5] my-2 mx-3" />
+                <Link
+                  href="/contact"
+                  className="block px-4 py-2.5 rounded-lg text-[13px] font-medium text-white bg-[var(--safe-green-800)] hover:bg-[var(--safe-green-900)] transition-colors text-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Réserver un appel
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center">
+      <AnimatePresence mode="wait">
+        {phase === "intro" && (
+          <motion.div
+            key="intro"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-xl text-center"
+          >
+            <div className="mb-8 flex justify-center">
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0, rotate: -6 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="audit-v2-mark-shell relative w-20 h-20 rounded-2xl bg-black flex items-center justify-center shadow-xl shadow-black/35 ring-1 ring-white/5"
+              >
+                <Logo size={52} accentColor="#FFFFFF" />
+              </motion.div>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-[#E5E0D5] mb-6">
+              <span className="w-2 h-2 rounded-full bg-[var(--safe-green-800)] animate-pulse" />
+              <span className="text-[11px] font-medium text-neutral-600 tracking-wide">
+                Audit gratuit · Rapport sous 24 h
+              </span>
+            </div>
+
+            <h1
+              className="text-[40px] sm:text-[48px] font-normal text-[#111] mb-5 leading-[1.05] tracking-tight"
+              style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+            >
+              Diagnostic de performance{" "}
+              <span className="italic text-[var(--safe-green-800)]">de votre cabinet</span>
+            </h1>
+
+            <p className="text-neutral-600 text-[15px] mb-10 leading-relaxed max-w-md mx-auto">
+              15 à 20 minutes pour comprendre votre cabinet, identifier vos leviers
+              d&apos;efficacité et recevoir une offre SAFE taillée pour vous.
+            </p>
+
+            <div className="grid grid-cols-3 gap-3 mb-10">
+              {[
+                { num: "01", label: "Conformité", sub: "Barreau & LSO" },
+                { num: "02", label: "Devis",      sub: "Valeur du marché" },
+                { num: "03", label: "Offre",      sub: "Adaptée à vous" },
+              ].map((it) => (
+                <div key={it.label} className="audit-v2-card text-left">
+                  <div
+                    className="text-[13px] mb-3 text-[var(--safe-green-800)]"
+                    style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif", letterSpacing: "0.08em" }}
+                  >
+                    — {it.num}
+                  </div>
+                  <p className="text-[13px] font-semibold text-[#111]">{it.label}</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">{it.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPhase("language")}
+              className="audit-v2-btn-primary mx-auto text-[15px] px-9 py-4"
+            >
+              Commencer l&apos;audit →
+            </button>
+
+            <p className="mt-5 text-[11px] text-neutral-400 tracking-wide">
+              Confidentiel · Aucune carte de crédit requise
+            </p>
+          </motion.div>
+        )}
+
+        {phase === "language" && (
+          <motion.div
+            key="language"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-md text-center"
+          >
+            <button
+              onClick={() => setPhase("intro")}
+              className="audit-v2-btn-ghost mb-8"
+            >
+              ← Retour
+            </button>
+            <h2
+              className="text-[28px] font-normal text-[#111] mb-2"
+              style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+            >
+              Choisissez votre langue
+            </h2>
+            <p className="text-neutral-500 text-sm mb-8">Choose your language</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {(["fr", "en"] as const).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => { setLang(l); setPhase("form"); }}
+                  className="audit-v2-card-lg group hover:border-[var(--safe-green-800)] transition-colors"
+                  style={{ padding: "22px 18px" }}
+                >
+                  <div
+                    className="text-[36px] text-[#111] leading-none"
+                    style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+                  >
+                    {l.toUpperCase()}
+                  </div>
+                  <div className="mt-2 text-[12px] text-neutral-500">
+                    {l === "fr" ? "Français · Québec" : "English · Canada"}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </div>
     </div>
   );
 }

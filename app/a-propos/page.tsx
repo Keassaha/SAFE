@@ -5,8 +5,8 @@ import { motion, useInView } from "framer-motion";
 import { Shield, Heart, Lock, Accessibility, ArrowRight, Scale, Briefcase, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/marketing/Navbar";
-import { FinalCTA } from "@/components/marketing/FinalCTA";
-import { Footer } from "@/components/marketing/Footer";
+import { FinalCta } from "@/components/landing/FinalCta";
+import { Footer } from "@/components/landing/Footer";
 
 /* ───── Animated SAFE logo illustration ───── */
 function SAFEIllustration() {
@@ -25,7 +25,7 @@ function SAFEIllustration() {
     <div ref={ref} className="relative w-full aspect-square max-w-md mx-auto">
       {/* Outer orbit ring */}
       <motion.div
-        className="absolute inset-[10%] rounded-full border border-[var(--safe-sage)]/10"
+        className="absolute inset-[10%] rounded-full border border-forest-600/10"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -33,7 +33,7 @@ function SAFEIllustration() {
 
       {/* Inner orbit ring */}
       <motion.div
-        className="absolute inset-[25%] rounded-full border border-[var(--safe-sage)]/5"
+        className="absolute inset-[25%] rounded-full border border-forest-600/5"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 0.8, delay: 0.4 }}
@@ -46,9 +46,9 @@ function SAFEIllustration() {
         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
         className="absolute inset-0 flex items-center justify-center"
       >
-        <div className="w-20 h-20 rounded-safe-md bg-[var(--safe-accent)]/20 border border-[var(--safe-sage)]/20 flex flex-col items-center justify-center">
-          <Shield className="w-8 h-8 text-[var(--safe-sage)] mb-1" />
-          <span className="text-xs font-bold text-[var(--safe-white)] font-sans tracking-wide">SAFE</span>
+        <div className="w-20 h-20 rounded-safe-md bg-text-secondary/20 border border-forest-600/20 flex flex-col items-center justify-center">
+          <Shield className="w-8 h-8 text-forest-600 mb-1" />
+          <span className="text-xs font-bold text-text-primary font-sans tracking-wide">SAFE</span>
         </div>
       </motion.div>
 
@@ -66,11 +66,11 @@ function SAFEIllustration() {
             <motion.div
               animate={inView ? { y: [0, -3, 0] } : {}}
               transition={{ delay: 1.5 + i * 0.2, duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="w-11 h-11 rounded-safe bg-white/[0.04] border border-white/[0.08] flex items-center justify-center hover:border-[var(--safe-sage)]/20 transition-colors"
+              className="w-11 h-11 rounded-safe bg-surface-2 border border-border flex items-center justify-center hover:border-forest-600/20 transition-colors"
             >
-              <item.icon className="w-5 h-5 text-[var(--safe-sage)]/60" />
+              <item.icon className="w-5 h-5 text-forest-600/60" />
             </motion.div>
-            <span className="mt-1 text-xs text-[var(--safe-text-muted)] font-sans">{item.label}</span>
+            <span className="mt-1 text-xs text-text-body font-sans">{item.label}</span>
           </motion.div>
         );
       })}
@@ -128,12 +128,12 @@ function StoryTimeline() {
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
             transition={{ delay: 0.4 + i * 0.2, type: "spring" }}
-            className="shrink-0 w-14 h-8 rounded-safe-sm bg-[var(--safe-accent)]/15 border border-[var(--safe-sage)]/15 flex items-center justify-center"
+            className="shrink-0 w-14 h-8 rounded-safe-sm bg-text-secondary/15 border border-forest-600/15 flex items-center justify-center"
           >
-            <span className="text-xs font-bold text-[var(--safe-sage)] font-sans">{event.year}</span>
+            <span className="text-xs font-bold text-forest-600 font-sans">{event.year}</span>
           </motion.div>
           <div className="pt-1">
-            <p className="text-sm text-[var(--safe-white)] font-sans">{event.text}</p>
+            <p className="text-sm text-text-primary font-sans">{event.text}</p>
           </div>
         </motion.div>
       ))}
@@ -170,20 +170,20 @@ const values = [
 
 export default function AProposPage() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-[var(--safe-darkest)] text-[var(--safe-white)] scroll-smooth">
+    <div className="relative flex flex-col min-h-screen bg-canvas text-text-primary scroll-smooth">
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="section-morning relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
-          <div className="landing-grain absolute inset-0 pointer-events-none" />
-          <div className="absolute inset-0 landing-grid opacity-20 pointer-events-none" />
+        <section className="bg-canvas sm:border-y border-[0.5px] border-border relative pt-36 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
+          
+          
 
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="max-w-3xl">
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-lg font-sans italic text-[var(--safe-sage)] mb-4"
+                className="text-lg font-sans italic text-forest-600 mb-4"
               >
                 À propos
               </motion.p>
@@ -191,17 +191,17 @@ export default function AProposPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.6 }}
-                className="font-sans text-5xl md:text-6xl lg:text-7xl text-[var(--safe-white)] mb-8 leading-[1.05] tracking-tight"
+                className="font-sans text-5xl md:text-6xl lg:text-7xl text-text-primary mb-8 leading-[1.05] tracking-tight"
               >
                 25 minutes pour{" "}
-                <span className="italic text-[var(--safe-sage)]">une facture.</span>{" "}
+                <span className="italic text-forest-600">une facture.</span>{" "}
                 On a décidé de changer ça.
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans"
+                className="text-lg text-text-body leading-relaxed font-sans"
               >
                 SAFE, le Système Automatisé de Facturation et d&apos;Exploitation, est né
                 d&apos;une frustration réelle dans un cabinet d&apos;avocats. Pas d&apos;un
@@ -212,18 +212,18 @@ export default function AProposPage() {
         </section>
 
         {/* Story */}
-        <section className="section-dusk relative py-20 lg:py-28">
-          <div className="landing-grain absolute inset-0 pointer-events-none" />
+        <section className="bg-surface-2 sm:border-y border-[0.5px] border-border relative py-20 lg:py-28">
+          
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
               <div>
-                <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
+                <p className="text-lg font-sans italic text-forest-600 mb-4">
                   L&apos;histoire
                 </p>
-                <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
+                <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-8 leading-tight tracking-tight">
                   D&apos;une frustration à une solution.
                 </h2>
-                <div className="space-y-6 text-[var(--safe-text-muted)] font-sans leading-relaxed">
+                <div className="space-y-6 text-text-body font-sans leading-relaxed">
                   <p>
                     Tout a commencé par un défi simple : une avocate avait besoin d&apos;un
                     système rigoureux pour gérer la comptabilité de son cabinet. De la facturation
@@ -241,7 +241,7 @@ export default function AProposPage() {
                     pas au Canada. Rien qui soit à la fois simple, abordable et conforme aux
                     exigences du Barreau. Alors on l&apos;a construite.
                   </p>
-                  <p className="text-[var(--safe-white)] font-medium">
+                  <p className="text-text-primary font-medium">
                     SAFE, le Système Automatisé de Facturation et d&apos;Exploitation. Un outil
                     sur mesure, conforme aux barreaux, conçu pour aider les avocats à tenir leur
                     comptabilité sans y perdre leur temps.
@@ -258,20 +258,20 @@ export default function AProposPage() {
         </section>
 
         {/* Mission */}
-        <section className="section-night relative py-20 lg:py-28">
-          <div className="landing-grain absolute inset-0 pointer-events-none" />
+        <section className="bg-surface sm:border-y border-[0.5px] border-border relative py-20 lg:py-28">
+          
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
               <div className="lg:max-w-lg">
-                <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
+                <p className="text-lg font-sans italic text-forest-600 mb-4">
                   La mission
                 </p>
-                <h2 className="font-sans text-3xl md:text-5xl text-[var(--safe-white)] mb-8 leading-tight tracking-tight">
+                <h2 className="font-sans text-3xl md:text-5xl text-text-primary mb-8 leading-tight tracking-tight">
                   Fournir un système sur mesure, conforme aux barreaux, pour que les avocats
                   gèrent leur comptabilité{" "}
-                  <span className="italic text-[var(--safe-sage)]">sans y perdre leur temps.</span>
+                  <span className="italic text-forest-600">sans y perdre leur temps.</span>
                 </h2>
-                <p className="text-lg text-[var(--safe-text-muted)] font-sans leading-relaxed">
+                <p className="text-lg text-text-body font-sans leading-relaxed">
                   La conformité ne devrait jamais être un obstacle à la pratique du droit.
                   SAFE automatise la facturation, le fidéicommis et la conformité pour que
                   vous puissiez dédier votre énergie à vos clients, pas à la paperasse.
@@ -287,14 +287,14 @@ export default function AProposPage() {
         </section>
 
         {/* Values */}
-        <section className="section-morning relative py-20 lg:py-28">
-          <div className="landing-grain absolute inset-0 pointer-events-none" />
+        <section className="bg-canvas sm:border-y border-[0.5px] border-border relative py-20 lg:py-28">
+          
           <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
             <div className="text-center mb-16">
-              <p className="text-lg font-sans italic text-[var(--safe-sage)] mb-4">
+              <p className="text-lg font-sans italic text-forest-600 mb-4">
                 Nos valeurs
               </p>
-              <h2 className="font-sans text-3xl md:text-4xl text-[var(--safe-white)] tracking-tight">
+              <h2 className="font-sans text-3xl md:text-4xl text-text-primary tracking-tight">
                 Les principes qui guident chaque décision.
               </h2>
             </div>
@@ -306,19 +306,19 @@ export default function AProposPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="card-dark group p-8 rounded-safe-md border border-[var(--safe-sage)]/10 bg-[var(--safe-darkest)] hover:border-[var(--safe-sage)]/30 transition-colors duration-500"
+                  className="card-dark group p-8 rounded-safe-md border border-forest-600/10 bg-canvas hover:border-forest-600/30 transition-colors duration-500"
                 >
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 180, damping: 20 }}
-                    className="w-12 h-12 rounded-safe bg-[var(--safe-accent)]/15 flex items-center justify-center mb-5"
+                    className="w-12 h-12 rounded-safe bg-text-secondary/15 flex items-center justify-center mb-5"
                   >
-                    <value.icon className="w-6 h-6 text-[var(--safe-sage)]" />
+                    <value.icon className="w-6 h-6 text-forest-600" />
                   </motion.div>
-                  <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+                  <h3 className="text-xl font-bold text-text-primary mb-3 font-sans tracking-tight">
                     {value.title}
                   </h3>
-                  <p className="text-[var(--safe-text-muted)] leading-relaxed font-sans">
+                  <p className="text-text-body leading-relaxed font-sans">
                     {value.description}
                   </p>
                 </motion.div>
@@ -327,7 +327,7 @@ export default function AProposPage() {
           </div>
         </section>
 
-        <FinalCTA />
+        <FinalCta />
       </main>
       <Footer />
     </div>

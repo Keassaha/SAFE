@@ -56,6 +56,7 @@ const INTERFACE_CONFIG = {
     "dashboard",
     "clients",
     "dossiers",
+    "temps",
     "facturation",
     "comptabilite",
     "comptes",
@@ -64,7 +65,6 @@ const INTERFACE_CONFIG = {
     "parametres",
   ]),
   ongletsMasques: JSON.stringify([
-    "temps",
     "fiches-de-temps",
     "employees",
     "rapports",
@@ -293,7 +293,7 @@ async function main() {
   console.log(`     Province:      Ontario (LSO #${CABINET_CONFIG.barreauNumero})`);
   console.log(`     Practice:      Real Estate + Immigration`);
   console.log(`     Billing:       Flat fee, bimonthly, HST 13%`);
-  console.log(`     Hidden tabs:   Time / Timesheets / Employees`);
+  console.log(`     Hidden tabs:   Timesheets (legacy) / Employees`);
   console.log(`     Integrations:  Resend (ready), Stripe (disabled), DocuSign (disabled)`);
   console.log("");
 }

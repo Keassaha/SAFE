@@ -4,10 +4,15 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SafeLogo } from "@/components/branding/SafeLogo";
 import { routes } from "@/lib/routes";
 import { SidebarBottomSection, SidebarNavList } from "@/components/layout/SidebarNav";
+import type { SidebarCounts } from "@/lib/services/sidebar-counts";
 
+/**
+ * Éditorial Chaleureux — mobile drawer variant of the sidebar.
+ * Matches desktop Sidebar: sand-300 bg, black logo + Safe wordmark,
+ * forest-green counts. Slides in from the left over a dimmed backdrop.
+ */
 export function MobileSidebar({
   open,
   onClose,
@@ -15,6 +20,7 @@ export function MobileSidebar({
   billingMode,
   activeNavIds,
   hiddenNavIds,
+  counts,
 }: {
   open: boolean;
   onClose: () => void;
@@ -22,6 +28,7 @@ export function MobileSidebar({
   billingMode?: "forfait" | "horaire";
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
+  counts?: SidebarCounts | null;
 }) {
   const t = useTranslations("shell.header");
 
@@ -48,26 +55,48 @@ export function MobileSidebar({
     <div className="fixed inset-0 z-[100] lg:hidden" role="dialog" aria-modal="true" aria-label={t("menuTitle")}>
       <button
         type="button"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-[var(--zinc-950)]/40 backdrop-blur-sm"
         aria-label={t("closeMenu")}
         onClick={onClose}
       />
-      <div className="absolute left-0 top-0 bottom-0 w-[min(100vw-3rem,280px)] flex flex-col bg-green-950 shadow-2xl border-r border-white/10 animate-mobile-drawer-in pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="flex items-center justify-between gap-2 px-4 pt-3 sm:pt-4 pb-4 border-b border-white/10 shrink-0">
+      <div
+        className="absolute left-0 top-0 bottom-0 w-[min(100vw-3rem,280px)] flex flex-col shadow-2xl border-r animate-mobile-drawer-in pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]"
+        style={{
+          background: "var(--sand-300)",
+          borderRightColor: "var(--sand-400)",
+        }}
+      >
+        <div
+          className="flex items-center justify-between gap-2 px-4 pt-3 sm:pt-4 pb-4 border-b shrink-0"
+          style={{ borderBottomColor: "var(--sand-400)" }}
+        >
           <Link
             href={routes.tableauDeBord}
-            className="flex items-center min-w-0"
+            className="flex items-center gap-2.5 min-w-0"
             onClick={onClose}
           >
-            <SafeLogo className="shrink-0" variant="dark" noPulse />
+            <span
+              className="flex w-8 h-8 shrink-0 items-center justify-center rounded-md text-[13px] font-bold tracking-tight"
+              style={{ background: "var(--zinc-950)", color: "var(--sand-100)" }}
+              aria-hidden
+            >
+              S
+            </span>
+            <span
+              className="text-[17px] font-semibold tracking-tight leading-none"
+              style={{ color: "var(--zinc-950)" }}
+            >
+              Safe
+            </span>
           </Link>
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 p-2 rounded-safe text-white/70 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-green-700/40"
+            className="shrink-0 p-2 rounded-md transition-colors hover:bg-[var(--sand-50)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40"
             aria-label={t("closeMenu")}
+            style={{ color: "var(--zinc-950)" }}
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -76,6 +105,7 @@ export function MobileSidebar({
           billingMode={billingMode}
           activeNavIds={activeNavIds}
           hiddenNavIds={hiddenNavIds}
+          counts={counts}
           onNavigate={onClose}
           navClassName="flex-1 overflow-y-auto px-3 py-3 hide-scrollbar min-h-0"
         />

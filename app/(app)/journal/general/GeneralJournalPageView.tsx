@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -13,7 +13,9 @@ import {
 import type { JournalKpiData, JournalEntryRow } from "@/types/journal";
 import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
 import type { JournalTransactionType } from "@prisma/client";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
+import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 
 const PAGE_SIZE = 50;
 const TRANSACTION_TYPES: { value: "" | JournalTransactionType; label: string }[] = [
@@ -40,6 +42,7 @@ export function GeneralJournalPageView({
 }: {
   initialKpis: JournalKpiData;
 }) {
+  const { reduceMotion } = useSafeMotion();
   const now = new Date();
   const [kpis, setKpis] = useState<JournalKpiData>(initialKpis);
   const [dateFrom, setDateFrom] = useState<string>(() => toDateStr(startOfMonth(now)));
@@ -120,61 +123,58 @@ export function GeneralJournalPageView({
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
   return (
-    <div className="space-y-8 pb-12">
-      <PageHeader
-        title="Journal général"
-        description="Registre central des écritures comptables (append-only). Filtrez par période, type et recherchez par référence, description ou client."
-        action={
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleExport}
-            disabled={exporting}
-          >
-            {exporting ? (
-              <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
-            ) : (
-              <Download className="w-4 h-4" aria-hidden />
-            )}
-            <span className="ml-2">Exporter CSV</span>
-          </Button>
-        }
-      />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium text-neutral-500">Solde global</p>
-            <p className="text-xl font-semibold text-neutral-900 mt-1 tabular-nums">
-              {formatCurrency(soldeGlobal)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium text-neutral-500">Revenus (ce mois)</p>
-            <p className="text-xl font-semibold text-neutral-900 mt-1 tabular-nums">
-              {formatCurrency(kpis.totalRevenus)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium text-neutral-500">Dépenses (ce mois)</p>
-            <p className="text-xl font-semibold text-neutral-900 mt-1 tabular-nums">
-              {formatCurrency(kpis.totalDepenses)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium text-neutral-500">Transactions ce mois</p>
-            <p className="text-xl font-semibold text-neutral-900 mt-1 tabular-nums">
-              {kpis.nbTransactionsCeMois}
-            </p>
-          </CardContent>
-        </Card>
+    <div className="space-y-6 pb-12">
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleExport}
+          disabled={exporting}
+        >
+          {exporting ? (
+            <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+          ) : (
+            <Download className="w-4 h-4" aria-hidden />
+          )}
+          <span className="ml-2">Exporter CSV</span>
+        </Button>
       </div>
+
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        variants={reduceMotion ? staggerContainerReduced : staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        <ComptaKpiCard
+          label="Solde global"
+          value={soldeGlobal}
+          format="currency"
+          icon={Scale}
+          semantic={soldeGlobal >= 0 ? "credit" : "debit"}
+        />
+        <ComptaKpiCard
+          label="Revenus (ce mois)"
+          value={kpis.totalRevenus}
+          format="currency"
+          icon={TrendingUp}
+          semantic="credit"
+        />
+        <ComptaKpiCard
+          label="Dépenses (ce mois)"
+          value={kpis.totalDepenses}
+          format="currency"
+          icon={TrendingDown}
+          semantic="debit"
+        />
+        <ComptaKpiCard
+          label="Transactions ce mois"
+          value={kpis.nbTransactionsCeMois}
+          format="integer"
+          icon={Activity}
+          semantic="neutral"
+        />
+      </motion.div>
 
       <Card>
         <CardHeader title="Filtres" />
@@ -187,35 +187,35 @@ export function GeneralJournalPageView({
             }}
           >
             <div>
-              <label className="block text-sm font-medium text-neutral-500 mb-1">
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
                 Du
               </label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-40 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-500 mb-1">
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
                 Au
               </label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-40 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-500 mb-1">
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
                 Type
               </label>
               <select
                 value={typeTransaction}
                 onChange={(e) => setTypeTransaction(e.target.value)}
-                className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               >
                 {TRANSACTION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -225,7 +225,7 @@ export function GeneralJournalPageView({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-500 mb-1">
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
                 Recherche
               </label>
               <input
@@ -233,7 +233,7 @@ export function GeneralJournalPageView({
                 placeholder="Référence, description, client…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-56 h-10 px-3 rounded-safe-sm border border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
               />
             </div>
             <Button type="submit" variant="primary">
@@ -255,38 +255,44 @@ export function GeneralJournalPageView({
         <CardContent className="p-0 overflow-x-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-600" aria-hidden />
+              <Loader2 className="w-8 h-8 animate-spin text-forest-700" aria-hidden />
             </div>
           ) : (
             <>
+              <motion.div
+                variants={reduceMotion ? undefined : fadeInUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+              >
               <table className="min-w-full">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50/80">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <tr className="border-b-[0.5px] border-slate-200 bg-slate-50">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Type
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Référence
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Client
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Dossier
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Entrée
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Sortie
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       Solde
                     </th>
                   </tr>
@@ -294,44 +300,47 @@ export function GeneralJournalPageView({
                 <tbody>
                   {entries.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={9}
-                        className="py-8 text-center text-sm text-neutral-500"
-                      >
-                        Aucune écriture pour ces critères.
+                      <td colSpan={9} className="py-16 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+                            <BookOpen className="w-8 h-8 text-slate-500" />
+                          </div>
+                          <p className="text-[16px] font-medium text-slate-800">Aucune écriture pour ces critères.</p>
+                          <p className="text-[14px] text-slate-600 mt-2 max-w-[400px] mx-auto">Veuillez modifier vos filtres pour trouver ce que vous cherchez.</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     entries.map((e) => (
                       <tr
                         key={e.id}
-                        className="border-b border-neutral-100 hover:bg-neutral-50/60"
+                        className="border-b-[0.5px] border-slate-100 hover:bg-neutral-50/60 transition-colors"
                       >
-                        <td className="px-4 py-3 text-sm text-neutral-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] text-slate-700 whitespace-nowrap">
                           {formatDate(e.dateTransaction)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-neutral-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] text-slate-700 whitespace-nowrap">
                           {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
                         </td>
-                        <td className="px-4 py-3 text-sm text-neutral-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] font-mono text-slate-700 whitespace-nowrap">
                           {e.reference ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-neutral-700 max-w-[180px] truncate">
+                        <td className="px-4 py-3 text-[14px] text-slate-700 max-w-[180px] truncate">
                           {e.clientName ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-neutral-700 max-w-[180px] truncate">
+                        <td className="px-4 py-3 text-[14px] font-mono text-slate-700 max-w-[180px] truncate">
                           {e.dossierLabel ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-neutral-700 max-w-[220px] truncate">
+                        <td className="px-4 py-3 text-[14px] text-slate-700 max-w-[220px] truncate">
                           {e.description}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right tabular-nums text-neutral-700">
+                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-forest-700">
                           {e.montantEntree > 0 ? formatCurrency(e.montantEntree) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right tabular-nums text-neutral-700">
+                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-red-600">
                           {e.montantSortie > 0 ? formatCurrency(e.montantSortie) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right tabular-nums font-medium text-neutral-900">
+                        <td className={`px-4 py-3 text-[14px] text-right font-mono tabular-nums font-medium ${e.solde >= 0 ? "text-forest-700" : "text-red-600"}`}>
                           {formatCurrency(e.solde)}
                         </td>
                       </tr>
@@ -339,6 +348,7 @@ export function GeneralJournalPageView({
                   )}
                 </tbody>
               </table>
+              </motion.div>
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200">
                   <p className="text-sm text-neutral-500">

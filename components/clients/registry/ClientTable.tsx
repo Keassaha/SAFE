@@ -23,6 +23,8 @@ export type ClientRow = {
   telephone: string | null;
   langue: string | null;
   trustAccountBalance: number;
+  /** Honoraires accumulés (facturés + travail non facturé) pour le client. */
+  honorairesAccumules: number;
   assignedLawyerNom: string | null;
   dossiersActifsCount: number;
   lastActivityAt: Date | null;
@@ -210,7 +212,9 @@ export function ClientTable({
             </div>
             <div className="flex items-center gap-4 text-xs text-neutral-muted">
               <span>{row.dossiersActifsCount} {t("activeMatters").toLowerCase()}</span>
-              <span>{formatCurrency(row.trustAccountBalance)}</span>
+              <span className="font-medium text-neutral-text-primary tabular-nums">
+                {formatCurrency(row.honorairesAccumules)}
+              </span>
               {row.lastActivityAt && (
                 <span className="ml-auto">
                   {new Intl.DateTimeFormat("fr-CA", {
@@ -267,14 +271,8 @@ export function ClientTable({
               <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
                 {t("activeMatters")}
               </th>
-              <th className="px-4 py-3 text-left">
-                <SortHeader
-                  label={t("unbilled")}
-                  field="trustAccountBalance"
-                  currentSortBy={sortBy}
-                  currentSortOrder={sortOrder}
-                  getSortUrl={getSortUrl}
-                />
+              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+                {t("accumulatedFees")}
               </th>
               <th className="px-4 py-3 text-left">
                 <SortHeader
@@ -357,12 +355,9 @@ export function ClientTable({
                     : row.dossiersActifsCount}
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className="text-neutral-text-primary">
-                    {formatCurrency(row.trustAccountBalance)}
+                  <span className="text-neutral-text-primary font-medium tabular-nums">
+                    {formatCurrency(row.honorairesAccumules)}
                   </span>
-                  {row.trustAccountBalance > 0 && (
-                    <span className="block text-xs text-status-success">{t("billable")}</span>
-                  )}
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge

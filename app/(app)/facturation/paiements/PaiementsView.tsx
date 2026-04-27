@@ -1,15 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Pencil, Link2, ArrowLeft } from "lucide-react";
+import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
+
+type AllocationStatusKey = "UNALLOCATED" | "PARTIALLY_ALLOCATED" | "ALLOCATED" | "REVERSED";
+
+const ALLOCATION_STATUS_LABELS: Record<AllocationStatusKey, string> = {
+  UNALLOCATED: "Non alloué",
+  PARTIALLY_ALLOCATED: "Part. alloué",
+  ALLOCATED: "Alloué",
+  REVERSED: "Annulé",
+};
+
+const ALLOCATION_STATUS_VARIANTS: Record<AllocationStatusKey, "success" | "warning" | "neutral" | "error"> = {
+  ALLOCATED: "success",
+  PARTIALLY_ALLOCATED: "warning",
+  UNALLOCATED: "neutral",
+  REVERSED: "error",
+};
 
 interface FacturationPaiementsViewProps {
   cabinetId: string;
@@ -30,6 +49,7 @@ type PaymentRow = {
 };
 
 export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
+  const { reduceMotion } = useSafeMotion();
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
@@ -94,34 +114,26 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
 
   return (
     <div className="space-y-6">
-      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            {!embeddedInComptabilite && (
-              <Link
-                href={routes.facturation}
-                className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
-              >
-                <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-                Retour à la vue d&apos;ensemble
-              </Link>
-            )}
-            <h1 className="text-2xl font-semibold tracking-tight">Paiements</h1>
-            <p className="mt-1 text-white/80 text-sm">
-              Liste des paiements reçus et leur allocation aux factures.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="soft"
-            onClick={openCreate}
-            className="shrink-0"
-          >
-            <Plus className="w-4 h-4 mr-2" aria-hidden />
-            Nouveau paiement
-          </Button>
-        </div>
-      </header>
+      {!embeddedInComptabilite && (
+        <Link
+          href={routes.facturation}
+          className="inline-flex items-center gap-2 text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] text-sm"
+        >
+          <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+          Retour à la vue d&apos;ensemble
+        </Link>
+      )}
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={openCreate}
+          className="shrink-0"
+        >
+          <Plus className="w-4 h-4 mr-2" aria-hidden />
+          Nouveau paiement
+        </Button>
+      </div>
 
       <Card>
         <CardHeader title="Paiements récents" />
@@ -133,31 +145,42 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           ) : payments.length === 0 ? (
             <p className="text-neutral-500 py-8 text-center">Aucun paiement.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <motion.div
+              className="overflow-x-auto"
+              variants={reduceMotion ? undefined : fadeInUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            >
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50">
-                    <th className="text-left py-3 px-3 font-medium">Date</th>
-                    <th className="text-left py-3 px-3 font-medium">Client</th>
-                    <th className="text-left py-3 px-3 font-medium">Facture</th>
-                    <th className="text-right py-3 px-3 font-medium">Montant</th>
-                    <th className="text-right py-3 px-3 font-medium">Alloué</th>
-                    <th className="text-right py-3 px-3 font-medium">Non alloué</th>
-                    <th className="text-left py-3 px-3 font-medium">Statut</th>
-                    <th className="text-right py-3 px-3 font-medium w-32">Actions</th>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Date</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Client</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Facture</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Montant</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Alloué</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Non alloué</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Statut</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500 w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {payments.map((p) => (
-                    <tr key={p.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
-                      <td className="py-2 px-3">{formatDate(p.datePaiement)}</td>
-                      <td className="py-2 px-3">{p.client?.raisonSociale ?? "—"}</td>
-                      <td className="py-2 px-3">{p.invoice?.numero ?? "—"}</td>
-                      <td className="py-2 px-3 text-right">{formatCurrency(p.montant)}</td>
-                      <td className="py-2 px-3 text-right">{formatCurrency(p.allocatedAmount)}</td>
-                      <td className="py-2 px-3 text-right">{formatCurrency(p.unallocatedAmount)}</td>
-                      <td className="py-2 px-3">{p.allocationStatus}</td>
-                      <td className="py-2 px-3 text-right">
+                    <tr key={p.id} className="border-b border-neutral-100 hover:bg-neutral-50/60 transition-colors">
+                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{formatDate(p.datePaiement)}</td>
+                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{p.client?.raisonSociale ?? "—"}</td>
+                      <td className="py-2.5 px-3 text-[13px] font-mono text-slate-700">{p.invoice?.numero ?? "—"}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.montant)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-forest-700">{formatCurrency(p.allocatedAmount)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.unallocatedAmount)}</td>
+                      <td className="py-2.5 px-3">
+                        <StatusBadge
+                          label={ALLOCATION_STATUS_LABELS[p.allocationStatus as AllocationStatusKey]}
+                          variant={ALLOCATION_STATUS_VARIANTS[p.allocationStatus as AllocationStatusKey]}
+                        />
+                      </td>
+                      <td className="py-2.5 px-3 text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             type="button"
@@ -185,7 +208,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                   ))}
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           )}
         </CardContent>
       </Card>

@@ -23,6 +23,10 @@ export interface RevenueChartProps {
   range?: RevenueChartRange;
 }
 
+/**
+ * Éditorial Chaleureux revenue chart.
+ * Sand-50 card, forest-green area + stroke, sand grid lines.
+ */
 export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProps) {
   const t = useTranslations("dashboard");
 
@@ -37,29 +41,61 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
   const hasData = chartData.length > 0;
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
+    <div
+      className="p-5 md:p-6"
+      style={{
+        background: "var(--sand-50)",
+        border: "1px solid var(--sand-300)",
+        borderRadius: 12,
+        boxShadow: "0 1px 2px rgba(11,11,12,0.04)",
+      }}
+    >
       <div className="flex items-start justify-between mb-5 flex-wrap gap-2">
         <div>
-          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
-            <TrendingUp className="w-4 h-4 text-emerald-600" aria-hidden />
+          <h3
+            className="flex items-center gap-2 tracking-tight"
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "var(--zinc-950)",
+              letterSpacing: "-0.01em",
+              margin: 0,
+            }}
+          >
+            <TrendingUp
+              className="w-4 h-4"
+              strokeWidth={1.5}
+              style={{ color: "var(--brand-800)" }}
+              aria-hidden
+            />
             {t("revenueEncashments")}
           </h3>
-          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
+          <p
+            className="mt-0.5"
+            style={{ fontSize: 12, color: "var(--sand-600)", margin: 0 }}
+          >
             {t("perMonth")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-safe-sm bg-[var(--safe-neutral-page)] p-1">
+          <div
+            className="flex p-1 rounded-md"
+            style={{
+              background: "var(--sand-100)",
+              border: "1px solid var(--sand-300)",
+            }}
+          >
             {RANGE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setRange(opt.value)}
-                className={`px-3 py-1.5 rounded-safe-sm text-xs font-medium transition-colors ${
-                  range === opt.value
-                    ? "bg-[var(--safe-gradient-sidebar)] text-white shadow-sm"
-                    : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] hover:bg-white"
-                }`}
+                className="px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                style={{
+                  background: range === opt.value ? "var(--brand-800)" : "transparent",
+                  color:
+                    range === opt.value ? "var(--sand-50)" : "var(--sand-700)",
+                }}
               >
                 {opt.label}
               </button>
@@ -67,10 +103,15 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
           </div>
           <Link
             href={routes.rapports}
-            className="w-8 h-8 rounded-safe-sm bg-[var(--safe-neutral-page)] hover:bg-[var(--safe-neutral-100)] flex items-center justify-center transition-colors text-[var(--safe-text-secondary)]"
+            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors"
+            style={{
+              background: "var(--sand-100)",
+              border: "1px solid var(--sand-300)",
+              color: "var(--sand-700)",
+            }}
             aria-label={t("viewReports")}
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-4 h-4" strokeWidth={1.5} />
           </Link>
         </div>
       </div>
@@ -83,43 +124,43 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
             >
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="#1F3A2E" stopOpacity={0.22} />
+                  <stop offset="100%" stopColor="#1F3A2E" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e0ebe4"
+                stroke="#E8DCC4"
                 vertical={false}
               />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
+                tick={{ fill: "#8B8680", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "var(--safe-text-muted)", fontSize: 11 }}
+                tick={{ fill: "#8B8680", fontSize: 11 }}
                 width={50}
               />
               <Tooltip
                 contentStyle={{
-                  background: "var(--safe-neutral-surface)",
-                  border: "1px solid var(--safe-neutral-border)",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 16px rgba(26,46,40,0.08)",
-                  color: "var(--safe-text-title)",
+                  background: "#FCFAF4",
+                  border: "1px solid #E8DCC4",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 16px rgba(11,11,12,0.08)",
+                  color: "#0B0B0C",
                   fontSize: "13px",
                 }}
-                labelStyle={{ color: "var(--safe-text-secondary)", fontWeight: 500 }}
+                labelStyle={{ color: "#605B52", fontWeight: 500 }}
               />
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#10b981"
-                strokeWidth={2.5}
+                stroke="#1F3A2E"
+                strokeWidth={2}
                 fill="url(#revenueGradient)"
                 isAnimationActive
                 animationBegin={0}
@@ -129,8 +170,16 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-52 flex flex-col items-center justify-center text-sm text-[var(--safe-text-muted)] gap-2">
-          <BarChart2 className="w-10 h-10 text-[var(--safe-neutral-300)]" aria-hidden />
+        <div
+          className="h-52 flex flex-col items-center justify-center gap-2"
+          style={{ fontSize: 13, color: "var(--sand-600)" }}
+        >
+          <BarChart2
+            className="w-10 h-10"
+            strokeWidth={1.5}
+            style={{ color: "var(--sand-400)" }}
+            aria-hidden
+          />
           {t("noRevenueData")}
         </div>
       )}

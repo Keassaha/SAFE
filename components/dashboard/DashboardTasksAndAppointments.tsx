@@ -16,11 +16,17 @@ import { routes } from "@/lib/routes";
 import type { DashboardTaskItem, DashboardEventItem } from "@/lib/dashboard/types";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
+/**
+ * Éditorial Chaleureux priority pills.
+ * urgent/high  → danger  (pillBg + pillText)
+ * medium       → warning (gold warm)
+ * low          → sand neutral
+ */
 const PRIORITE_STYLES: Record<string, { bg: string; text: string }> = {
-  urgent: { bg: "bg-red-50", text: "text-red-700" },
-  high: { bg: "bg-orange-50", text: "text-orange-700" },
-  medium: { bg: "bg-amber-50", text: "text-amber-700" },
-  low: { bg: "bg-gray-100", text: "text-gray-600" },
+  urgent: { bg: "var(--safe-status-error-bg)", text: "var(--safe-status-error)" },
+  high: { bg: "var(--safe-status-error-bg)", text: "var(--safe-status-error)" },
+  medium: { bg: "var(--safe-status-warning-bg)", text: "var(--safe-status-warning)" },
+  low: { bg: "var(--sand-100)", text: "var(--sand-700)" },
 };
 
 interface Props {
@@ -55,7 +61,10 @@ function formatEventDateTime(
 ): string {
   const date = new Date(isoString);
   const dateStr = formatRelativeDate(isoString, locale, t);
-  const timeStr = date.toLocaleTimeString(toIntlLocale(locale), { hour: "2-digit", minute: "2-digit" });
+  const timeStr = date.toLocaleTimeString(toIntlLocale(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return t("atTime", { date: dateStr, time: timeStr });
 }
 
@@ -90,8 +99,19 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
   ];
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-      <div className="flex items-center border-b border-[var(--safe-neutral-100)]">
+    <div
+      className="overflow-hidden"
+      style={{
+        background: "var(--sand-50)",
+        border: "1px solid var(--sand-300)",
+        borderRadius: 12,
+        boxShadow: "0 1px 2px rgba(11,11,12,0.04)",
+      }}
+    >
+      <div
+        className="flex items-center"
+        style={{ borderBottom: "1px solid var(--sand-300)" }}
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -100,19 +120,26 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-all ${
-                isActive
-                  ? "text-[var(--safe-gradient-sidebar)] border-b-2 border-emerald-600 bg-emerald-50/50"
-                  : "text-[var(--safe-text-muted)] hover:text-[var(--safe-text-title)] hover:bg-[var(--safe-neutral-page)]"
-              }`}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm transition-colors"
+              style={{
+                color: isActive ? "var(--zinc-950)" : "var(--sand-600)",
+                fontWeight: isActive ? 600 : 500,
+                background: isActive ? "var(--sand-100)" : "transparent",
+                borderBottom: isActive
+                  ? "2px solid var(--brand-800)"
+                  : "2px solid transparent",
+                marginBottom: -1,
+              }}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" strokeWidth={1.5} />
               {tab.label}
               {tab.count > 0 && (
                 <span
-                  className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-                    isActive ? "bg-emerald-100 text-emerald-700" : "bg-[var(--safe-neutral-100)] text-[var(--safe-text-secondary)]"
-                  }`}
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    background: isActive ? "var(--brand-800)" : "var(--sand-200)",
+                    color: isActive ? "var(--sand-50)" : "var(--sand-700)",
+                  }}
                 >
                   {tab.count}
                 </span>
@@ -127,8 +154,14 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
           <div className="space-y-2">
             {tasks.length === 0 ? (
               <div className="text-center py-8">
-                <CheckSquare className="w-8 h-8 text-[var(--safe-neutral-300)] mx-auto mb-2" />
-                <p className="text-sm text-[var(--safe-text-muted)]">{t("noTasks")}</p>
+                <CheckSquare
+                  className="w-8 h-8 mx-auto mb-2"
+                  strokeWidth={1.5}
+                  style={{ color: "var(--sand-400)" }}
+                />
+                <p className="text-sm" style={{ color: "var(--sand-600)" }}>
+                  {t("noTasks")}
+                </p>
               </div>
             ) : (
               tasks.map((task) => {
@@ -138,32 +171,64 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                   <Link
                     key={task.id}
                     href={`${routes.dossiers}/${task.dossierId}`}
-                    className={`block rounded-safe border p-3 transition-all hover:shadow-sm group ${
-                      overdue
-                        ? "border-red-200 bg-red-50/50"
-                        : "border-[var(--safe-neutral-100)] bg-[var(--safe-white)] hover:bg-white"
-                    }`}
+                    className="block rounded-md p-3 transition-all hover:shadow-sm group"
+                    style={{
+                      background: overdue ? "var(--safe-status-error-bg)" : "var(--sand-100)",
+                      border: `1px solid ${overdue ? "var(--safe-status-error)" : "var(--sand-300)"}`,
+                      textDecoration: "none",
+                    }}
                   >
                     <div className="flex items-start gap-3">
                       <div
-                        className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                          task.statut === "en_cours" ? "bg-amber-500" : "bg-gray-300"
-                        }`}
+                        className="w-2 h-2 rounded-full mt-2 shrink-0"
+                        style={{
+                          background:
+                            task.statut === "en_cours"
+                              ? "var(--safe-status-warning)"
+                              : "var(--sand-400)",
+                        }}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-700 transition-colors">
+                          <p
+                            className="text-sm truncate transition-colors"
+                            style={{
+                              fontWeight: 600,
+                              color: "var(--zinc-950)",
+                            }}
+                          >
                             {task.titre}
                           </p>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${prio.bg} ${prio.text}`}>
-                            {priorityLabels[(task.priorite as keyof typeof priorityLabels) ?? "medium"] ?? priorityLabels.medium}
+                          <span
+                            className="text-xs font-semibold px-2 py-0.5 rounded-md shrink-0"
+                            style={{ background: prio.bg, color: prio.text }}
+                          >
+                            {priorityLabels[
+                              (task.priorite as keyof typeof priorityLabels) ?? "medium"
+                            ] ?? priorityLabels.medium}
                           </span>
                         </div>
-                        <p className="text-xs text-[var(--safe-text-muted)] truncate">{task.dossierIntitule}</p>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--safe-text-muted)]">
+                        <p
+                          className="text-xs truncate"
+                          style={{ color: "var(--sand-600)" }}
+                        >
+                          {task.dossierIntitule}
+                        </p>
+                        <div
+                          className="flex items-center gap-3 mt-1.5 text-xs"
+                          style={{ color: "var(--sand-600)" }}
+                        >
                           {task.dateEcheance && (
-                            <span className={`flex items-center gap-1 ${overdue ? "text-red-600 font-medium" : ""}`}>
-                              <Clock className="w-3 h-3" />
+                            <span
+                              className="flex items-center gap-1"
+                              style={{
+                                color: overdue
+                                  ? "var(--safe-status-error)"
+                                  : "var(--sand-600)",
+                                fontWeight: overdue ? 600 : 400,
+                              }}
+                            >
+                              <Clock className="w-3 h-3" strokeWidth={1.5} />
                               {formatRelativeDate(task.dateEcheance, locale, t)}
                             </span>
                           )}
@@ -172,7 +237,11 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[var(--safe-neutral-300)] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
+                      <ChevronRight
+                        className="w-4 h-4 shrink-0 mt-1 transition-colors group-hover:translate-x-0.5"
+                        strokeWidth={1.5}
+                        style={{ color: "var(--sand-600)" }}
+                      />
                     </div>
                   </Link>
                 );
@@ -185,48 +254,91 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
           <div className="space-y-2">
             {events.length === 0 ? (
               <div className="text-center py-8">
-                <Calendar className="w-8 h-8 text-[var(--safe-neutral-300)] mx-auto mb-2" />
-                <p className="text-sm text-[var(--safe-text-muted)]">{t("noAppointments")}</p>
+                <Calendar
+                  className="w-8 h-8 mx-auto mb-2"
+                  strokeWidth={1.5}
+                  style={{ color: "var(--sand-400)" }}
+                />
+                <p className="text-sm" style={{ color: "var(--sand-600)" }}>
+                  {t("noAppointments")}
+                </p>
               </div>
             ) : (
               events.map((event) => {
-                const eventType = (event.type as keyof typeof eventTypeLabels) in eventTypeLabels
-                  ? (event.type as keyof typeof eventTypeLabels)
-                  : "echeance";
+                const eventType =
+                  (event.type as keyof typeof eventTypeLabels) in eventTypeLabels
+                    ? (event.type as keyof typeof eventTypeLabels)
+                    : "echeance";
                 return (
                   <Link
                     key={event.id}
                     href={`${routes.dossiers}/${event.dossierId}`}
-                    className="block rounded-safe border border-[var(--safe-neutral-100)] bg-[var(--safe-white)] p-3 transition-all hover:shadow-sm hover:bg-white group"
+                    className="block rounded-md p-3 transition-all hover:shadow-sm group"
+                    style={{
+                      background: "var(--sand-100)",
+                      border: "1px solid var(--sand-300)",
+                      textDecoration: "none",
+                    }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-safe bg-emerald-50 flex items-center justify-center shrink-0">
-                        <Calendar className="w-4 h-4 text-emerald-600" />
+                      <div
+                        className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"
+                        style={{
+                          background: "var(--sand-50)",
+                          border: "1px solid var(--sand-300)",
+                        }}
+                      >
+                        <Calendar
+                          className="w-4 h-4"
+                          strokeWidth={1.5}
+                          style={{ color: "var(--brand-800)" }}
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-700 transition-colors">
+                          <p
+                            className="text-sm truncate"
+                            style={{ fontWeight: 600, color: "var(--zinc-950)" }}
+                          >
                             {event.titre}
                           </p>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                          <span
+                            className="text-xs font-semibold px-2 py-0.5 rounded-md shrink-0"
+                            style={{
+                              background: "var(--safe-status-success-bg)",
+                              color: "var(--safe-status-success)",
+                            }}
+                          >
                             {eventTypeLabels[eventType]}
                           </span>
                         </div>
-                        <p className="text-xs text-[var(--safe-text-muted)] truncate">{event.dossierIntitule}</p>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--safe-text-muted)]">
+                        <p
+                          className="text-xs truncate"
+                          style={{ color: "var(--sand-600)" }}
+                        >
+                          {event.dossierIntitule}
+                        </p>
+                        <div
+                          className="flex items-center gap-3 mt-1.5 text-xs"
+                          style={{ color: "var(--sand-600)" }}
+                        >
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                            <Clock className="w-3 h-3" strokeWidth={1.5} />
                             {formatEventDateTime(event.date, locale, t)}
                           </span>
                           {event.lieu && (
                             <span className="flex items-center gap-1 truncate">
-                              <MapPin className="w-3 h-3" />
+                              <MapPin className="w-3 h-3" strokeWidth={1.5} />
                               {event.lieu}
                             </span>
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[var(--safe-neutral-300)] group-hover:text-emerald-600 transition-colors shrink-0 mt-1" />
+                      <ChevronRight
+                        className="w-4 h-4 shrink-0 mt-1 transition-colors group-hover:translate-x-0.5"
+                        strokeWidth={1.5}
+                        style={{ color: "var(--sand-600)" }}
+                      />
                     </div>
                   </Link>
                 );

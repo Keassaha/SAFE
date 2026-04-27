@@ -1,105 +1,75 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
+import { motion } from "framer-motion";
+import { ArrowDownCircle, CalendarRange, Tag, CheckCircle2, FolderOpen, Upload } from "lucide-react";
+import { staggerContainer, staggerContainerReduced, useSafeMotion } from "@/lib/motion";
+import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
+  const { reduceMotion } = useSafeMotion();
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            Dépenses du mois
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-xl font-semibold text-[var(--safe-text-title)]">
-            {formatCurrency(data.totalMonth)}
-          </p>
-          {data.variation != null && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-[var(--safe-text-muted)]">
-              {data.variation > 0 && <TrendingUp className="h-3.5 w-3.5" />}
-              {data.variation < 0 && <TrendingDown className="h-3.5 w-3.5" />}
-              {data.variation === 0 && <Minus className="h-3.5 w-3.5" />}
-              {data.variation > 0 ? "+" : ""}
-              {data.variation.toFixed(1)} % vs mois préc.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+    <motion.div
+      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+      variants={reduceMotion ? staggerContainerReduced : staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      <ComptaKpiCard
+        label="Dépenses du mois"
+        value={data.totalMonth}
+        format="currency"
+        icon={ArrowDownCircle}
+        semantic="debit"
+        trend={
+          data.variation != null
+            ? { value: -(data.variation), label: "vs mois préc." }
+            : undefined
+        }
+      />
 
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            Dépenses année
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-xl font-semibold text-[var(--safe-text-title)]">
-            {formatCurrency(data.totalYear)}
-          </p>
-        </CardContent>
-      </Card>
+      <ComptaKpiCard
+        label="Dépenses année"
+        value={data.totalYear}
+        format="currency"
+        icon={CalendarRange}
+        semantic="debit"
+      />
 
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            Non catégorisées
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-xl font-semibold text-[var(--safe-text-title)]">
-            {data.uncategorizedCount}
-          </p>
-        </CardContent>
-      </Card>
+      <ComptaKpiCard
+        label="Non catégorisées"
+        value={data.uncategorizedCount}
+        format="integer"
+        icon={Tag}
+        semantic={data.uncategorizedCount > 0 ? "alert" : "neutral"}
+      />
 
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            À valider
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-xl font-semibold text-[var(--safe-text-title)]">
-            {data.toValidateCount}
-          </p>
-        </CardContent>
-      </Card>
+      <ComptaKpiCard
+        label="À valider"
+        value={data.toValidateCount}
+        format="integer"
+        icon={CheckCircle2}
+        semantic={data.toValidateCount > 0 ? "alert" : "neutral"}
+      />
 
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            Catégorie la plus coûteuse
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-sm font-medium text-[var(--safe-text-title)] truncate" title={data.topCategoryName ?? undefined}>
-            {data.topCategoryName ?? "—"}
-          </p>
-          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
-            {formatCurrency(data.topCategoryAmount)}
-          </p>
-        </CardContent>
-      </Card>
+      <ComptaKpiCard
+        label="Catégorie coûteuse"
+        value={data.topCategoryAmount}
+        format="currency"
+        icon={FolderOpen}
+        semantic="debit"
+        subText={data.topCategoryName ?? "—"}
+      />
 
-      <Card>
-        <div className="px-6 pt-4 pb-1">
-          <span className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider">
-            Importées ce mois
-          </span>
-        </div>
-        <CardContent className="pt-0">
-          <p className="text-xl font-semibold text-[var(--safe-text-title)]">
-            {data.importedThisMonth}
-          </p>
-          <p className="text-xs text-[var(--safe-text-muted)] mt-0.5">
-            transactions
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <ComptaKpiCard
+        label="Importées ce mois"
+        value={data.importedThisMonth}
+        format="integer"
+        icon={Upload}
+        semantic="neutral"
+        subText="transactions"
+      />
+    </motion.div>
   );
 }

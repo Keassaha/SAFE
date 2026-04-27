@@ -15,6 +15,7 @@ interface PageHeaderProps {
   backHref?: string;
   backLabel?: string;
   breadcrumbs?: BreadcrumbItem[];
+  variant?: "default" | "dashboard" | "compact";
 }
 
 export function PageHeader({
@@ -24,30 +25,59 @@ export function PageHeader({
   backHref,
   backLabel,
   breadcrumbs,
+  variant = "default",
 }: PageHeaderProps) {
   const t = useTranslations("ui");
+
+  // Define styles based on Design System variant
+  const containerClasses = {
+    default: "dash-header relative overflow-hidden rounded-lg p-8 [&>*]:relative [&>*]:z-10",
+    dashboard: "bg-transparent py-4",
+    compact: "dash-header relative overflow-hidden rounded-lg p-5 [&>*]:relative [&>*]:z-10",
+  }[variant] || "dash-header relative overflow-hidden rounded-lg p-8 [&>*]:relative [&>*]:z-10";
+
+  const containerStyle: React.CSSProperties =
+    variant === "default" || variant === "compact"
+      ? {
+          background:
+            "linear-gradient(115deg, #0F2A22 0%, #1F3A2E 35%, #234539 65%, #2B6A4E 100%)",
+        }
+      : {};
+
+  const titleClasses = {
+    default: "text-[32px] font-sans font-semibold text-forest-50",
+    dashboard: "text-[32px] font-sans font-semibold text-slate-900",
+    compact: "text-[22px] font-sans font-semibold text-forest-50",
+  }[variant] || "text-[32px] font-sans font-semibold text-forest-50";
+
+  const descriptionClasses = variant === "dashboard" ? "text-[14px] text-slate-600 font-sans" : "text-[14px] text-forest-200 font-sans";
+  const backTextClasses = variant === "dashboard" ? "text-slate-600 hover:text-slate-900" : "text-forest-50/70 hover:text-forest-50";
+  const breadcrumbTextClasses = variant === "dashboard" ? "text-slate-600" : "text-forest-50/70";
+  const breadcrumbHoverClasses = variant === "dashboard" ? "hover:text-slate-900" : "hover:text-forest-50";
+  const breadcrumbActiveClasses = variant === "dashboard" ? "text-slate-900" : "text-forest-50";
+
   return (
-    <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+    <header className={`${containerClasses}`} style={containerStyle}>
       {backHref && (
         <Link
           href={backHref}
-          className="inline-flex items-center gap-1 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200 mb-2"
+          className={`inline-flex items-center gap-1 text-sm font-medium transition-colors duration-200 mb-2 ${backTextClasses}`}
         >
           <ChevronLeft className="w-4 h-4" aria-hidden />
           {backLabel ?? t("back")}
         </Link>
       )}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav aria-label={t("breadcrumbs")} className="flex items-center gap-1.5 text-sm text-white/70 mb-2">
+        <nav aria-label={t("breadcrumbs")} className={`flex items-center gap-1.5 text-sm mb-2 ${breadcrumbTextClasses}`}>
           {breadcrumbs.map((item, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <span aria-hidden>/</span>}
               {item.href ? (
-                <Link href={item.href} className="hover:text-white transition-colors duration-200">
+                <Link href={item.href} className={`transition-colors duration-200 ${breadcrumbHoverClasses}`}>
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-white">{item.label}</span>
+                <span className={`${breadcrumbActiveClasses}`}>{item.label}</span>
               )}
             </span>
           ))}
@@ -55,14 +85,14 @@ export function PageHeader({
       )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
+          <h1 className={`${titleClasses} tracking-tight`}>
             {title}
           </h1>
           {description && (
-            <p className="mt-1 text-sm text-white/70">{description}</p>
+            <p className={`mt-1 ${descriptionClasses}`}>{description}</p>
           )}
         </div>
-        {action && <div className="shrink-0">{action}</div>}
+        {action && <div className="shrink-0 flex items-center gap-3 pageheader-action">{action}</div>}
       </div>
     </header>
   );

@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { BookOpen, Receipt, CreditCard } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { PageHeader } from "@/components/ui/PageHeader";
 // Types Prisma générés (pas d'instance prisma sur le namespace @prisma/client)
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import type { JournalKpiData } from "@/types/journal";
@@ -17,7 +17,11 @@ import { tMicro } from "@/lib/motion";
 
 export type ComptabiliteTabId = "general" | "depenses" | "paiements";
 
-const TABS: { id: ComptabiliteTabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const TABS: {
+  id: ComptabiliteTabId;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+}[] = [
   { id: "general", label: "Journal général", icon: BookOpen },
   { id: "depenses", label: "Journal des dépenses", icon: Receipt },
   { id: "paiements", label: "Paiements", icon: CreditCard },
@@ -44,16 +48,18 @@ export function ComptabilitePageView({
   const searchParams = useSearchParams();
   const tab = (searchParams.get("tab") as ComptabiliteTabId) || "general";
   const effectiveTab = TABS.some((t) => t.id === tab) ? tab : "general";
+  const ease = [0.16, 1, 0.3, 1] as const;
 
   return (
-    <div className="space-y-6 pb-12">
-      <PageHeader
-        title="Comptabilité"
-        description="Journal général, journal des dépenses et paiements en un seul endroit."
-      />
+    <div className="max-w-[1180px] w-full mx-auto px-2 pb-24 pt-4 font-sans space-y-6 animate-fade-in">
+      <PageHeader title="Comptabilité" />
 
-      <nav
-        className="relative flex gap-1 border-b border-neutral-200"
+      {/* ── Tab strip ──────────────────────────────────── */}
+      <motion.nav
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease }}
+        className="relative flex gap-8 border-b-[0.5px] border-border mb-8"
         aria-label="Onglets comptabilité"
       >
         {TABS.map((t) => {
@@ -63,45 +69,52 @@ export function ComptabilitePageView({
             <Link
               key={t.id}
               href={routes.comptabiliteTab(t.id)}
-              className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
+              className={`relative flex items-center gap-2 py-3 text-[13px] transition-colors duration-200 ${
                 isActive
-                  ? "text-primary-700"
-                  : "text-neutral-500 hover:text-neutral-700"
+                  ? "font-medium text-text-primary"
+                  : "text-text-muted hover:text-text-primary"
               }`}
             >
               {isActive && (
                 <motion.span
                   layoutId="comptabilite-tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-forest-600"
                   transition={tMicro}
                   aria-hidden
                 />
               )}
-              <Icon className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">{t.label}</span>
+              <Icon className="w-4 h-4 relative z-10" strokeWidth={1.75} />
+              <span className="relative z-10 font-sans">{t.label}</span>
             </Link>
           );
         })}
-      </nav>
+      </motion.nav>
 
-      {effectiveTab === "general" && (
-        <GeneralJournalPageView initialKpis={initialJournalKpis} />
-      )}
-      {effectiveTab === "depenses" && (
-        <ExpenseJournalPageView
-          cabinetId={cabinetId}
-          kpis={expenseData.kpis}
-          sessions={expenseData.sessions}
-          categories={expenseData.categories}
-          transactions={expenseData.transactions}
-        />
-      )}
-      {effectiveTab === "paiements" && (
-        <FacturationPaiementsView
-          cabinetId={cabinetId}
-          embeddedInComptabilite
-        />
-      )}
+      <motion.div
+        key={effectiveTab}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease, delay: 0.05 }}
+      >
+        {effectiveTab === "general" && (
+          <GeneralJournalPageView initialKpis={initialJournalKpis} />
+        )}
+        {effectiveTab === "depenses" && (
+          <ExpenseJournalPageView
+            cabinetId={cabinetId}
+            kpis={expenseData.kpis}
+            sessions={expenseData.sessions}
+            categories={expenseData.categories}
+            transactions={expenseData.transactions}
+          />
+        )}
+        {effectiveTab === "paiements" && (
+          <FacturationPaiementsView
+            cabinetId={cabinetId}
+            embeddedInComptabilite
+          />
+        )}
+      </motion.div>
     </div>
   );
 }

@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
 import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
-import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+
+/**
+ * Ontario HST rate (13%).
+ * Aligned with the backend `createFreeformInvoice()` which also applies 13% HST
+ * on taxable lines. If the cabinet operates in Québec, swap this for TPS/TVQ.
+ */
+const HST_RATE = 0.13;
 import {
   ArrowLeft,
   Plus,
@@ -15,6 +21,9 @@ import {
   Pencil,
   FileText,
   Sparkles,
+  User as UserIcon,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -31,6 +40,41 @@ interface LineItem {
   rate: number;
   amount: number;
   type: string;
+  /** Only used in forfait mode — links the line to the catalog entry */
+  forfaitServiceId?: string | null;
+  /** Responsable de la tâche (avocat·e). */
+  responsableUserId: string | null;
+  responsableNom: string | null;
+}
+
+export interface UserLite {
+  id: string;
+  nom: string;
+}
+
+/** Extracts initials from a lawyer's name, stripping "Me" prefix. Ex: "Me M.-A. Derisier" → "MD" */
+function initialsOf(fullName: string | null | undefined): string {
+  if (!fullName) return "";
+  return fullName
+    .replace(/^Me\.?\s+/i, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((token) => token.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, "").charAt(0))
+    .filter(Boolean)
+    .join("")
+    .toUpperCase();
+}
+
+export interface ForfaitServiceLite {
+  id: string;
+  code: string;
+  nom: string;
+  description: string | null;
+  montant: number;
+  categorie: string | null;
+  sousType: string | null;
+  taxable: boolean;
 }
 
 interface CabinetInfo {
@@ -56,6 +100,10 @@ interface ClientInfo {
 interface CreateInvoiceViewProps {
   cabinet: CabinetInfo;
   clients: ClientInfo[];
+  billingMode?: "forfait" | "horaire";
+  forfaitServices?: ForfaitServiceLite[];
+  currentUser: UserLite;
+  lawyers: UserLite[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -99,8 +147,16 @@ const lineInput =
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) {
+export function CreateInvoiceView({
+  cabinet,
+  clients,
+  billingMode = "horaire",
+  forfaitServices = [],
+  currentUser,
+  lawyers,
+}: CreateInvoiceViewProps) {
   const router = useRouter();
+  const isForfait = billingMode === "forfait";
 
   /* ---- form state ---- */
   const [language, setLanguage] = useState<"fr" | "en">("fr");
@@ -115,6 +171,13 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
   );
   const [clientNote, setClientNote] = useState("");
 
+  /* ---- submit state ---- */
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const defaultResponsableId = currentUser.id;
+  const defaultResponsableNom = currentUser.nom ?? null;
+
   const [lines, setLines] = useState<LineItem[]>([
     {
       id: uid(),
@@ -123,7 +186,10 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
       hours: 0,
       rate: 0,
       amount: 0,
-      type: "honoraires",
+      type: isForfait ? "forfait" : "honoraires",
+      forfaitServiceId: null,
+      responsableUserId: defaultResponsableId,
+      responsableNom: defaultResponsableNom,
     },
   ]);
 
@@ -132,9 +198,8 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
 
   const totals = useMemo(() => {
     const subtotal = lines.reduce((s, l) => s + l.amount, 0);
-    const tps = Math.round(subtotal * TPS_RATE * 100) / 100;
-    const tvq = Math.round(subtotal * TVQ_RATE * 100) / 100;
-    return { subtotal, tps, tvq, total: subtotal + tps + tvq };
+    const hst = Math.round(subtotal * HST_RATE * 100) / 100;
+    return { subtotal, hst, total: subtotal + hst };
   }, [lines]);
 
   const previewItems: InvoiceCleanItem[] = lines.map((l) => ({
@@ -145,6 +210,8 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
     hours: l.hours || null,
     rate: l.rate || null,
     amount: l.amount,
+    responsable: l.responsableNom,
+    responsableInitiales: initialsOf(l.responsableNom),
   }));
 
   /* ---- handlers ---- */
@@ -160,11 +227,34 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
       prev.map((l) => {
         if (l.id !== id) return l;
         const updated = { ...l, ...patch };
-        if ("hours" in patch || "rate" in patch) {
+        // In horaire mode, amount is derived from hours × rate.
+        // In forfait mode, amount is set directly (from the service catalog
+        // or via manual edit), so we leave it alone here.
+        if (!isForfait && ("hours" in patch || "rate" in patch)) {
           updated.amount =
             Math.round((updated.hours ?? 0) * (updated.rate ?? 0) * 100) / 100;
         }
         return updated;
+      })
+    );
+  }
+
+  /** Pick a forfait service from the catalog — autofills description + montant */
+  function selectForfaitService(lineId: string, serviceId: string) {
+    const svc = forfaitServices.find((s) => s.id === serviceId) ?? null;
+    setLines((prev) =>
+      prev.map((l) => {
+        if (l.id !== lineId) return l;
+        if (!svc) {
+          return { ...l, forfaitServiceId: null };
+        }
+        return {
+          ...l,
+          forfaitServiceId: svc.id,
+          description: svc.nom,
+          amount: svc.montant,
+          type: "forfait",
+        };
       })
     );
   }
@@ -179,13 +269,84 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
         hours: 0,
         rate: 0,
         amount: 0,
-        type: "honoraires",
+        type: isForfait ? "forfait" : "honoraires",
+        forfaitServiceId: null,
+        responsableUserId: defaultResponsableId,
+        responsableNom: defaultResponsableNom,
       },
     ]);
   }
 
+  function selectResponsable(lineId: string, userId: string) {
+    const user = lawyers.find((u) => u.id === userId) ?? null;
+    updateLine(lineId, {
+      responsableUserId: user?.id ?? null,
+      responsableNom: user?.nom ?? null,
+    });
+  }
+
   function removeLine(id: string) {
     setLines((prev) => (prev.length > 1 ? prev.filter((l) => l.id !== id) : prev));
+  }
+
+  async function handleCreate() {
+    if (isSubmitting) return;
+    setSubmitError(null);
+
+    // --- Validation ---
+    if (!selectedClientId) {
+      setSubmitError("Veuillez sélectionner un client.");
+      return;
+    }
+    const validLines = lines.filter(
+      (l) => l.description.trim().length > 0 && l.amount > 0
+    );
+    if (validLines.length === 0) {
+      setSubmitError(
+        "Ajoutez au moins une ligne avec une description et un montant."
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/registre-taches/facturer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "libre",
+          clientId: selectedClientId,
+          lignes: validLines.map((l) => ({
+            description: l.description.trim(),
+            montant: l.amount,
+            taxable: true,
+          })),
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        invoice?: { id?: string };
+        error?: string;
+      };
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors de la création de la facture.");
+      }
+
+      const invoiceId = data.invoice?.id;
+      if (invoiceId) {
+        router.push(`/facturation/factures/${invoiceId}`);
+      } else {
+        router.push("/facturation");
+      }
+      router.refresh();
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Erreur inattendue."
+      );
+      setIsSubmitting(false);
+    }
   }
 
   /* ---------------------------------------------------------------- */
@@ -193,13 +354,7 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
   /* ---------------------------------------------------------------- */
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "conic-gradient(from 220deg at 70% 20%, #f0fdf4 0deg, #ecfdf5 60deg, #f0f9ff 120deg, #fefce8 200deg, #fdf4ff 280deg, #f0fdf4 360deg)",
-      }}
-    >
+    <div className="min-h-screen bg-transparent">
       {/* ── Top bar ── */}
       <div className="sticky top-0 z-30 flex items-center justify-between bg-white/60 backdrop-blur-xl border-b border-white/40 px-8 py-4">
         <button
@@ -222,18 +377,42 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="px-5 py-2.5 rounded-xl text-sm font-medium text-neutral-600 bg-white/80 border border-neutral-200/60 hover:bg-white hover:border-neutral-300 transition-all duration-200 hover:shadow-sm"
+            disabled={isSubmitting}
+            className="px-5 py-2.5 rounded-xl text-sm font-medium text-neutral-600 bg-white/80 border border-neutral-200/60 hover:bg-white hover:border-neutral-300 transition-all duration-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Annuler
           </button>
-          <button className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+          <button
+            onClick={handleCreate}
+            disabled={isSubmitting}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
             <span className="flex items-center gap-2">
-              <Sparkles size={14} />
-              Créer la facture
+              {isSubmitting ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Sparkles size={14} />
+              )}
+              {isSubmitting ? "Création…" : "Créer la facture"}
             </span>
           </button>
         </div>
       </div>
+
+      {submitError && (
+        <div className="px-8 pt-4 max-w-[1600px] mx-auto">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <p className="flex-1">{submitError}</p>
+            <button
+              onClick={() => setSubmitError(null)}
+              className="text-red-400 hover:text-red-600 text-xs font-medium"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Main: form + preview side-by-side ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 max-w-[1600px] mx-auto">
@@ -251,7 +430,7 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
                       onChange={(e) => setLanguage(e.target.value as "fr" | "en")}
                       className={selectBase}
                     >
-                      <option value="fr">Fran\u00e7ais</option>
+                      <option value="fr">Français</option>
                       <option value="en">English</option>
                     </select>
                     <ChevronDown
@@ -316,12 +495,7 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
                     <p className="text-neutral-700 mt-0.5">{cabinet.email}</p>
                   </div>
                 )}
-                {cabinet.barreauNumero && (
-                  <div>
-                    <span className="text-neutral-400 text-xs">Barreau</span>
-                    <p className="text-neutral-700 mt-0.5">{cabinet.barreauNumero}</p>
-                  </div>
-                )}
+                {/* NB: numéro du Barreau volontairement omis — donnée confidentielle */}
               </div>
             </div>
           </div>
@@ -476,7 +650,17 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
           <div className={card}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className={sectionTitle}>Lignes de facturation</h3>
+                <div>
+                  <h3 className={sectionTitle}>
+                    {isForfait ? "Tâches facturées" : "Lignes de facturation"}
+                  </h3>
+                  {isForfait && (
+                    <p className="text-[11px] text-neutral-400 mt-1">
+                      Sélectionnez une tâche préenregistrée — le montant se
+                      remplit automatiquement.
+                    </p>
+                  )}
+                </div>
                 <button
                   onClick={addLine}
                   className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
@@ -487,77 +671,193 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
               </div>
 
               <div className="space-y-3">
-                {lines.map((line) => (
-                  <div
-                    key={line.id}
-                    className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
-                  >
-                    <div className="col-span-5">
-                      <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                        Description
-                      </label>
-                      <input
-                        value={line.description}
-                        onChange={(e) =>
-                          updateLine(line.id, { description: e.target.value })
-                        }
-                        placeholder="Description du service…"
-                        className={lineInput}
-                      />
+                {lines.map((line) => {
+                  const detailsRow = (
+                    <div className="col-span-12 flex items-center gap-4 pt-2.5 mt-1 border-t border-neutral-100/80">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <CalendarDays size={12} className="text-neutral-400 shrink-0" />
+                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
+                          Date
+                        </span>
+                        <input
+                          type="date"
+                          value={line.date}
+                          onChange={(e) => updateLine(line.id, { date: e.target.value })}
+                          className="flex-1 h-7 px-2 rounded-md border border-transparent text-xs text-neutral-600 bg-transparent hover:border-neutral-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none tabular-nums"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <UserIcon size={12} className="text-neutral-400 shrink-0" />
+                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
+                          Responsable
+                        </span>
+                        <div className="relative flex-1">
+                          <select
+                            value={line.responsableUserId ?? ""}
+                            onChange={(e) => selectResponsable(line.id, e.target.value)}
+                            className="w-full h-7 pl-2 pr-6 rounded-md border border-transparent text-xs text-neutral-600 bg-transparent hover:border-neutral-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none appearance-none"
+                          >
+                            <option value="">—</option>
+                            {lawyers.map((u) => (
+                              <option key={u.id} value={u.id}>
+                                {u.nom}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={11}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                          />
+                        </div>
+                        {line.responsableNom && (
+                          <span
+                            className="shrink-0 inline-flex items-center justify-center min-w-[26px] h-[18px] px-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-[9px] font-bold text-emerald-700 tracking-wide"
+                            title={line.responsableNom}
+                          >
+                            {initialsOf(line.responsableNom)}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="col-span-2">
-                      <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                        Heures
-                      </label>
-                      <input
-                        type="number"
-                        step="0.25"
-                        min="0"
-                        value={line.hours || ""}
-                        onChange={(e) =>
-                          updateLine(line.id, {
-                            hours: parseFloat(e.target.value) || 0,
-                          })
-                        }
-                        className={`${lineInput} text-right`}
-                      />
+                  );
+
+                  return isForfait ? (
+                    /* ── Forfait mode: task picker + editable amount ── */
+                    <div
+                      key={line.id}
+                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
+                    >
+                      <div className="col-span-9">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Tâche préenregistrée
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={line.forfaitServiceId ?? ""}
+                            onChange={(e) =>
+                              selectForfaitService(line.id, e.target.value)
+                            }
+                            className={`${lineInput} pr-8 appearance-none`}
+                          >
+                            <option value="">
+                              {forfaitServices.length === 0
+                                ? "Aucune tâche — configurez le registre"
+                                : "Sélectionner une tâche…"}
+                            </option>
+                            {forfaitServices.map((svc) => (
+                              <option key={svc.id} value={svc.id}>
+                                {svc.nom} — {svc.montant.toFixed(2)} $
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={14}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                          />
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Montant
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={line.amount || ""}
+                          onChange={(e) =>
+                            updateLine(line.id, {
+                              amount: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          className={`${lineInput} text-right font-semibold`}
+                        />
+                      </div>
+                      <div className="col-span-1 flex justify-end">
+                        <button
+                          onClick={() => removeLine(line.id)}
+                          className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                          title="Supprimer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {detailsRow}
                     </div>
-                    <div className="col-span-2">
-                      <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                        Taux
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={line.rate || ""}
-                        onChange={(e) =>
-                          updateLine(line.id, {
-                            rate: parseFloat(e.target.value) || 0,
-                          })
-                        }
-                        className={`${lineInput} text-right`}
-                      />
+                  ) : (
+                    /* ── Horaire mode: description + hours × rate ── */
+                    <div
+                      key={line.id}
+                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
+                    >
+                      <div className="col-span-5">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Description
+                        </label>
+                        <input
+                          value={line.description}
+                          onChange={(e) =>
+                            updateLine(line.id, { description: e.target.value })
+                          }
+                          placeholder="Description du service…"
+                          className={lineInput}
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Heures
+                        </label>
+                        <input
+                          type="number"
+                          step="0.25"
+                          min="0"
+                          value={line.hours || ""}
+                          onChange={(e) =>
+                            updateLine(line.id, {
+                              hours: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          className={`${lineInput} text-right`}
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Taux
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={line.rate || ""}
+                          onChange={(e) =>
+                            updateLine(line.id, {
+                              rate: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          className={`${lineInput} text-right`}
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          Montant
+                        </label>
+                        <p className="h-10 flex items-center justify-end text-sm font-bold text-neutral-800 tabular-nums">
+                          {line.amount.toFixed(2)} $
+                        </p>
+                      </div>
+                      <div className="col-span-1 flex justify-end">
+                        <button
+                          onClick={() => removeLine(line.id)}
+                          className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                          title="Supprimer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {detailsRow}
                     </div>
-                    <div className="col-span-2">
-                      <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                        Montant
-                      </label>
-                      <p className="h-10 flex items-center justify-end text-sm font-bold text-neutral-800 tabular-nums">
-                        {line.amount.toFixed(2)} $
-                      </p>
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <button
-                        onClick={() => removeLine(line.id)}
-                        className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-                        title="Supprimer"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Totals summary */}
@@ -567,12 +867,8 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
                   <span className="tabular-nums">{totals.subtotal.toFixed(2)} $</span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
-                  <span>TPS (5%)</span>
-                  <span className="tabular-nums">{totals.tps.toFixed(2)} $</span>
-                </div>
-                <div className="flex justify-between text-neutral-400">
-                  <span>TVQ (9,975%)</span>
-                  <span className="tabular-nums">{totals.tvq.toFixed(2)} $</span>
+                  <span>TVH (13%)</span>
+                  <span className="tabular-nums">{totals.hst.toFixed(2)} $</span>
                 </div>
                 <div className="flex justify-between font-bold text-neutral-800 text-base pt-3 border-t border-neutral-100">
                   <span>Total</span>
@@ -625,10 +921,10 @@ export function CreateInvoiceView({ cabinet, clients }: CreateInvoiceViewProps) 
               }
               items={previewItems}
               subtotalTaxable={totals.subtotal}
-              tps={totals.tps}
-              tvq={totals.tvq}
+              hst={totals.hst}
               montantTotal={totals.total}
               clientNote={clientNote || undefined}
+              language={language}
             />
           </div>
         </div>

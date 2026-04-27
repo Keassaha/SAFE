@@ -11,3 +11,4 @@ export { DossierDetailNotesHonoraires } from "./DossierDetailNotesHonoraires";
 export { DossierDetailFermeture } from "./DossierDetailFermeture";
 export { DossierDetailTabs } from "./DossierDetailTabs";
 export { DossierDetailImmigration } from "./DossierDetailImmigration";
+export { DossierDetailSection } from "./DossierDetailSection";

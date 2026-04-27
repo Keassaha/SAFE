@@ -1,118 +1,76 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { HeroVideo } from "@/components/landing/HeroVideo";
-import { Button } from "@/components/ui/Button";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.11, delayChildren: 0.06 } },
-};
+import React from 'react';
+import { Button } from './ui/Button';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export function Hero() {
+  const ease = [0.16, 1, 0.3, 1] as const;
+
   return (
-    <section className="relative flex min-h-[min(100dvh,920px)] items-center justify-center overflow-hidden pt-20 pb-16 md:pt-24">
-      {/* Fond vidéo HLS/MP4 (optionnel) */}
-      <HeroVideo />
+    <section className="pt-[144px] pb-[80px] px-6 text-center max-w-5xl mx-auto flex flex-col items-center overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease }}
+        className="inline-flex items-center gap-2 px-3 py-1 bg-surface border border-[0.5px] border-border-strong rounded-full mb-8 z-10 relative"
+      >
+        <div className="w-1.5 h-1.5 rounded-full bg-forest-600" />
+        <span className="text-[12px] font-sans tracking-[0.02em] text-text-body font-medium uppercase letter-spacing-[0.1em]">
+          Conforme Barreau du Québec · Règlement B-1, r.5
+        </span>
+      </motion.div>
 
-      {/* Subtle radial glow for depth */}
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(255,255,255,0.08),transparent_60%)]"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_-10%,rgba(218,119,86,0.1),transparent_55%)]"
-        aria-hidden
-      />
+      <motion.h1
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1, ease }}
+        className="font-serif text-[56px] leading-[1.02] tracking-[-0.035em] text-text-primary max-w-3xl mb-4 z-10 relative"
+      >
+        La plateforme financière pour les cabinets <br/><span className="italic text-forest-600">d&apos;avocats modernes.</span>
+      </motion.h1>
 
-      {/* Grille Linear */}
-      <div className="absolute inset-0 landing-grid pointer-events-none opacity-[0.15]" />
+      <motion.p
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease }}
+        className="text-[17px] text-text-body max-w-[540px] font-sans leading-[1.6] mb-10 z-10 relative"
+      >
+        Facturation, fidéicommis, conformité. Pensé pour le Québec. Construit par quelqu&apos;un qui a tenu vos livres.
+      </motion.p>
 
-      {/* Blobs mesh */}
-      <div className="absolute inset-0 overflow-hidden landing-grain">
-        <div className="landing-blob landing-blob-1 opacity-[0.2]" />
-        <div className="landing-blob landing-blob-2 opacity-[0.18]" />
-        <div className="landing-blob landing-blob-3 opacity-[0.15]" />
-        <div className="landing-blob landing-blob-4 opacity-[0.12]" />
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3, ease }}
+        className="flex flex-col sm:flex-row items-center gap-4 mb-20 z-10 relative"
+      >
+        <Link href="/audit-gratuit">
+          <Button variant="primary" size="lg">Faire mon audit gratuit &rarr;</Button>
+        </Link>
+        <Button variant="primary" size="lg">Voir la démo</Button>
+      </motion.div>
 
-      {/* Inner ring */}
-      <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.06]" aria-hidden />
-
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="space-y-8"
-        >
-          {/* Badge glassmorphism */}
-          <motion.div variants={fadeUp} className="flex justify-center">
-            <div className="landing-badge inline-flex items-center gap-3 rounded-full px-1.5 py-1.5 pl-2">
-              <span className="rounded-full bg-gold-600 px-3 py-0.5 font-sans text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
-                Nouveau
-              </span>
-              <span className="pr-3 font-sans text-sm text-white/75">
-                Dites bonjour &agrave; SAFE v3.2
-              </span>
-              <Sparkles className="mr-1 h-3.5 w-3.5 text-gold-400" aria-hidden />
-            </div>
-          </motion.div>
-
-          {/* Titre */}
-          <motion.h1
-            variants={fadeUp}
-            className="font-sans text-4xl font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-5xl lg:text-5xl"
-          >
-            Vos r&eacute;seaux.
-            <br />
-            <span className="font-sans text-base font-normal italic text-gold-400">
-              Une interface rapide.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeUp}
-            className="mx-auto max-w-xl font-sans text-base leading-relaxed text-white/60 sm:text-lg"
-          >
-            SAFE unifie le cycle comptable de votre cabinet &mdash; temps, facturation,
-            fid&eacute;icommis et Loi 25 &mdash; dans une seule exp&eacute;rience claire et rapide.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            variants={fadeUp}
-            className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
-          >
-            <Link href="#tarifs" tabIndex={-1}>
-              <Button variant="landing-primary" className="h-12 min-w-[200px] text-sm px-7">
-                R&eacute;server une d&eacute;mo gratuite
-              </Button>
-            </Link>
-            <Link href="/connexion?tab=signup" tabIndex={-1}>
-              <Button variant="landing-secondary" className="h-12 min-w-[200px] text-sm px-7">
-                Commencer maintenant
-              </Button>
-            </Link>
-          </motion.div>
-
-          {/* Caption */}
-          <motion.p variants={fadeUp} className="font-sans text-xs text-white/35">
-            Aucune carte requise &middot; H&eacute;bergement au Canada
-          </motion.p>
-        </motion.div>
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.4, ease }}
+        className="flex items-center justify-center divide-x divide-border w-full max-w-[600px] border-y border-[0.5px] border-border py-6 z-10 relative"
+      >
+        <div className="flex flex-col items-center flex-1">
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Temps réel</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Rapprochement</span>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">12,4&nbsp;h</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Économisées</span>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <span className="font-serif text-3xl font-medium tabular-nums tracking-[-0.02em] text-forest-600">100&nbsp;%</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Conforme</span>
+        </div>
+      </motion.div>
     </section>
   );
 }

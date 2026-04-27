@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { ExpenseJournalKpis } from "@/components/expense-journal/ExpenseJournalKpis";
 import { ImportStatementBlock } from "@/components/expense-journal/ImportStatementBlock";
 import { ExpensesJournalTable } from "@/components/expense-journal/ExpensesJournalTable";
@@ -45,12 +44,7 @@ export function ExpenseJournalPageView({
   const selectedTransaction = transactions.find((t) => t.id === selectedTransactionId);
 
   return (
-    <div className="space-y-8 pb-12">
-      <PageHeader
-        title="Journal des dépenses"
-        description="Importez votre relevé bancaire, catégorisez et validez les dépenses du cabinet."
-      />
-
+    <div className="space-y-6 pb-12">
       <ExpenseJournalKpis data={kpis} />
 
       <ImportStatementBlock

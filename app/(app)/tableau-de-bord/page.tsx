@@ -23,6 +23,8 @@ import type {
   DossierEvolutionItem,
   DashboardIndicators,
   OnboardingChecklist,
+  DossierEtape,
+  TrustReconciliationSummary,
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
 import { DashboardView } from "@/components/dashboard/DashboardView";
@@ -79,6 +81,8 @@ export default async function TableauDeBordPage() {
     rawEvents,
     dossiersForEvolution,
     cabinetForOnboarding,
+    cabinetConfigRow,
+    latestReconciliation,
     clientsCount,
     dossiersCount,
     timeEntriesCount,
@@ -288,6 +292,21 @@ export default async function TableauDeBordPage() {
       where: { id: cabinetId },
       select: { nom: true, adresse: true },
     }),
+    prisma.cabinet.findUnique({
+      where: { id: cabinetId },
+      select: { config: true },
+    }),
+    prisma.trustReconciliation.findFirst({
+      where: { cabinetId },
+      orderBy: [{ periode: "desc" }, { createdAt: "desc" }],
+      select: {
+        periode: true,
+        certifiedAt: true,
+        status: true,
+        ecart: true,
+        createdAt: true,
+      },
+    }).catch(() => null),
     prisma.client.count({ where: { cabinetId } }),
     prisma.dossier.count({ where: { cabinetId } }),
     prisma.timeEntry.count({ where: { cabinetId } }),
@@ -714,8 +733,22 @@ export default async function TableauDeBordPage() {
   }));
 
   // ── Dossier evolution ──
+  const classifyEtape = (
+    statut: string,
+    tasksDone: number,
+    taskCount: number,
+  ): DossierEtape => {
+    const s = statut.toLowerCase();
+    if (/clo|ferm|closed/.test(s)) return "Clôture";
+    const pct = taskCount > 0 ? (tasksDone / taskCount) * 100 : 0;
+    if (pct >= 75) return "Finalisation";
+    if (pct >= 25) return "Exécution";
+    return "Ouverture";
+  };
+
   const dossierEvolution: DossierEvolutionItem[] = dossiersForEvolution.map((d) => {
     const tasksDone = d.taches.filter((t) => t.statut === "terminee").length;
+    const taskCount = d.taches.length;
     const futureDeadlines = d.taches
       .map((t) => t.dateEcheance)
       .filter((dt): dt is Date => dt != null && new Date(dt) >= now)
@@ -730,16 +763,51 @@ export default async function TableauDeBordPage() {
       id: d.id,
       intitule: d.intitule,
       statut: d.statut,
+      etape: classifyEtape(d.statut, tasksDone, taskCount),
       clientName: d.client.raisonSociale ?? "",
       avocatName: d.avocatResponsable?.nom ?? null,
       createdAt: d.createdAt.toISOString(),
       updatedAt: d.updatedAt.toISOString(),
-      taskCount: d.taches.length,
+      taskCount,
       tasksDone,
       eventCount: d.evenements.length,
       nextDeadline: allFutureDates.length > 0 ? allFutureDates[0].toISOString() : null,
     };
   });
+
+  // ── Last reconciliation ──
+  let lastReconciliation: TrustReconciliationSummary | null = null;
+  if (latestReconciliation) {
+    const refDate = latestReconciliation.certifiedAt ?? latestReconciliation.createdAt;
+    const daysSince = Math.max(
+      0,
+      Math.floor((now.getTime() - new Date(refDate).getTime()) / (1000 * 60 * 60 * 24)),
+    );
+    lastReconciliation = {
+      periode: latestReconciliation.periode,
+      certifiedAt: latestReconciliation.certifiedAt
+        ? latestReconciliation.certifiedAt.toISOString()
+        : null,
+      status: latestReconciliation.status,
+      ecart: latestReconciliation.ecart,
+      daysSince,
+    };
+  }
+
+  // ── Cabinet target hours (parsed from config JSON) ──
+  let lawyerHoursTarget = 140;
+  if (cabinetConfigRow?.config) {
+    try {
+      const parsed = JSON.parse(cabinetConfigRow.config) as {
+        lawyerHoursTarget?: number;
+      };
+      if (typeof parsed.lawyerHoursTarget === "number" && parsed.lawyerHoursTarget > 0) {
+        lawyerHoursTarget = parsed.lawyerHoursTarget;
+      }
+    } catch {
+      // silent — default stays
+    }
+  }
 
   // ── Final payload ──
   const payload: DashboardPayload = {
@@ -763,6 +831,8 @@ export default async function TableauDeBordPage() {
     indicators,
     allKpisZero,
     onboardingChecklist,
+    lastReconciliation,
+    lawyerHoursTarget,
   };
 
   return <DashboardView payload={payload} />;

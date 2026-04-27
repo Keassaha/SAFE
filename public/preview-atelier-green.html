@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperçu Atelier - Option 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+    <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <aside class="w-64 shrink-0 bg-white border-r border-gray-200 p-4 space-y-1">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 mb-3">
+                Clients (3)
+            </p>
+
+            <!-- Client 1 - Selected -->
+            <button class="w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2.5 bg-emerald-600 text-white shadow-sm">
+                <span class="text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-white/20">
+                    A
+                </span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">Acme Corp</p>
+                    <p class="text-xs text-white/70">5 dossiers</p>
+                </div>
+                <svg class="w-3.5 h-3.5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+
+            <!-- Client 2 -->
+            <button class="w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2.5 hover:bg-gray-100 text-gray-900">
+                <span class="text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-gray-200 text-gray-600">
+                    B
+                </span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">Biotech Solutions</p>
+                    <p class="text-xs text-gray-500">3 dossiers</p>
+                </div>
+            </button>
+
+            <!-- Client 3 -->
+            <button class="w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2.5 hover:bg-gray-100 text-gray-900">
+                <span class="text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-gray-200 text-gray-600">
+                    C
+                </span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">Conseil Juridique</p>
+                    <p class="text-xs text-gray-500">7 dossiers</p>
+                </div>
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 p-8">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-900 mb-1">
+                    Acme Corp
+                </h2>
+                <p class="text-sm text-gray-500 mb-6">
+                    5 dossiers actifs
+                </p>
+
+                <!-- Grille de dossiers -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <!-- Dossier 1: Famille (Beige) -->
+                    <div class="rounded-lg border-2 bg-amber-50 border-emerald-300 shadow-sm hover:shadow-md transition overflow-hidden group cursor-pointer hover:-translate-y-0.5">
+                        <div class="h-2 bg-emerald-600 w-1/2 rounded-b-sm mx-4"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm">Droit Famille</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">#2024-FAM-001</p>
+                                </div>
+                                <svg class="w-5 h-5 shrink-0 text-emerald-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4m0 0v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7"></path></svg>
+                            </div>
+                            <div class="space-y-1.5 border-t border-emerald-200 pt-3">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Accord de séparation</span>
+                                    <span class="text-gray-400 shrink-0">il y a 2j</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Pension alimentaire</span>
+                                    <span class="text-gray-400 shrink-0">il y a 5j</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-gray-500">8 documents</span>
+                                <span class="text-xs font-medium text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    Ouvrir <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dossier 2: Immobilier (Blanc) -->
+                    <div class="rounded-lg border-2 bg-white border-emerald-200 shadow-sm hover:shadow-md transition overflow-hidden group cursor-pointer hover:-translate-y-0.5">
+                        <div class="h-2 bg-emerald-600 w-1/2 rounded-b-sm mx-4"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm">Immobilier</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">#2024-IMM-042</p>
+                                </div>
+                                <svg class="w-5 h-5 shrink-0 text-emerald-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4m0 0v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7"></path></svg>
+                            </div>
+                            <div class="space-y-1.5 border-t border-emerald-100 pt-3">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Acte de vente</span>
+                                    <span class="text-gray-400 shrink-0">il y a 1j</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Hypothèque</span>
+                                    <span class="text-gray-400 shrink-0">il y a 3j</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-gray-500">12 documents</span>
+                                <span class="text-xs font-medium text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    Ouvrir <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dossier 3: Litige (Beige) - Onglet plus foncé -->
+                    <div class="rounded-lg border-2 bg-amber-50 border-emerald-300 shadow-sm hover:shadow-md transition overflow-hidden group cursor-pointer hover:-translate-y-0.5">
+                        <div class="h-2 bg-emerald-700 w-1/2 rounded-b-sm mx-4"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm">Litige Commercial</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">#2024-LIT-089</p>
+                                </div>
+                                <svg class="w-5 h-5 shrink-0 text-emerald-700 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4m0 0v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7"></path></svg>
+                            </div>
+                            <div class="space-y-1.5 border-t border-emerald-200 pt-3">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Requête en annulation</span>
+                                    <span class="text-gray-400 shrink-0">il y a 1j</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Mémoire en défense</span>
+                                    <span class="text-gray-400 shrink-0">il y a 4j</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-gray-500">6 documents</span>
+                                <span class="text-xs font-medium text-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    Ouvrir <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dossier 4: Contrat (Blanc) -->
+                    <div class="rounded-lg border-2 bg-white border-emerald-200 shadow-sm hover:shadow-md transition overflow-hidden group cursor-pointer hover:-translate-y-0.5">
+                        <div class="h-2 bg-emerald-600 w-1/2 rounded-b-sm mx-4"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm">Rédaction Contrats</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">#2024-CON-056</p>
+                                </div>
+                                <svg class="w-5 h-5 shrink-0 text-emerald-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4m0 0v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7"></path></svg>
+                            </div>
+                            <div class="space-y-1.5 border-t border-emerald-100 pt-3">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Contrat de prestation</span>
+                                    <span class="text-gray-400 shrink-0">il y a 2j</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Contrat d'emploi</span>
+                                    <span class="text-gray-400 shrink-0">il y a 6j</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-gray-500">4 documents</span>
+                                <span class="text-xs font-medium text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    Ouvrir <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dossier 5: Immigration (Beige) -->
+                    <div class="rounded-lg border-2 bg-amber-50 border-emerald-300 shadow-sm hover:shadow-md transition overflow-hidden group cursor-pointer hover:-translate-y-0.5">
+                        <div class="h-2 bg-emerald-600 w-1/2 rounded-b-sm mx-4"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm">Immigration</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">#2024-IMG-023</p>
+                                </div>
+                                <svg class="w-5 h-5 shrink-0 text-emerald-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4m0 0v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7"></path></svg>
+                            </div>
+                            <div class="space-y-1.5 border-t border-emerald-200 pt-3">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Dossier de résidence</span>
+                                    <span class="text-gray-400 shrink-0">il y a 3j</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="truncate text-gray-600 flex-1">Demande de travail</span>
+                                    <span class="text-gray-400 shrink-0">il y a 7j</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-gray-500">3 documents</span>
+                                <span class="text-xs font-medium text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    Ouvrir <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

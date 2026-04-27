@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { TempsPageClient } from "./TempsPageClient";
 import { RegistreTachesPage } from "./RegistreTachesPage";
@@ -16,18 +17,18 @@ export default async function TempsPage() {
   const isForfait = modules?.facturation?.principal === "forfait";
 
   if (isForfait) {
-    const dossiers = await prisma.dossier.findMany({
-      where: { cabinetId, statut: { in: ["ouvert", "actif", "en_attente"] } },
-      select: { id: true, intitule: true, numeroDossier: true, clientId: true },
-      orderBy: { intitule: "asc" },
-    });
+    const [dossiers, t] = await Promise.all([
+      prisma.dossier.findMany({
+        where: { cabinetId, statut: { in: ["ouvert", "actif", "en_attente"] } },
+        select: { id: true, intitule: true, numeroDossier: true, clientId: true },
+        orderBy: { intitule: "asc" },
+      }),
+      getTranslations("temps.taskRegister"),
+    ]);
 
     return (
       <div className="space-y-6 animate-fade-in">
-        <PageHeader
-          title="Task Register"
-          description="Record tasks performed on matters. Prices are pre-filled from your fee schedule. Generate invoices when ready."
-        />
+        <PageHeader title={t("title")} description={t("description")} />
         <RegistreTachesPage dossiers={dossiers} />
       </div>
     );

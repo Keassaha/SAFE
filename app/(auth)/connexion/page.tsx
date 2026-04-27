@@ -8,7 +8,7 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
 
 const inputClass =
-  "w-full h-11 rounded-safe border border-white/35 bg-white/78 px-4 text-sm text-neutral-text-primary placeholder:text-neutral-muted outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/25";
+  "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-forest-600 focus:ring-1 focus:ring-forest-600 font-sans";
 
 type AuthTab = "signin" | "signup";
 
@@ -138,24 +138,22 @@ function AuthPageContent() {
   }
 
   return (
-    <div className="auth-card mx-auto w-full max-w-[520px] overflow-hidden border border-white/25 p-6 shadow-2xl md:p-8">
-      <div className="mb-6 text-center">
-        <div className="mb-4 flex justify-center">
-          <SafeLogo variant="dark" className="shrink-0" />
-        </div>
-        <p className="mt-2 text-sm text-white/80">
+    <div className="mx-auto w-full max-w-[480px] bg-surface rounded-[12px] border border-[0.5px] border-border p-6 shadow-sm sm:p-8">
+      <div className="mb-8 text-center sm:text-left">
+        <h2 className="text-[24px] font-serif tracking-[-0.02em] text-text-primary mb-2">Bienvenue</h2>
+        <p className="text-[14px] font-sans text-text-body">
           Accédez à votre espace de travail sécurisé
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 rounded-full bg-white/45 p-1 backdrop-blur-sm">
+      <div className="mb-8 flex p-1 bg-surface-2 border border-border rounded-[8px]">
         <button
           type="button"
           onClick={() => switchTab("signin")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+          className={`flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
             activeTab === "signin"
-              ? "bg-primary-700 text-white shadow-sm"
-              : "text-white/70 hover:text-white"
+              ? "bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-border text-text-primary"
+              : "text-text-muted hover:text-text-primary border border-transparent"
           }`}
         >
           Connexion
@@ -163,10 +161,10 @@ function AuthPageContent() {
         <button
           type="button"
           onClick={() => switchTab("signup")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+          className={`flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
             activeTab === "signup"
-              ? "bg-primary-700 text-white shadow-sm"
-              : "text-white/70 hover:text-white"
+               ? "bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-border text-text-primary"
+               : "text-text-muted hover:text-text-primary border border-transparent"
           }`}
         >
           Inscription
@@ -192,7 +190,7 @@ function AuthPageContent() {
       {activeTab === "signin" ? (
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
-            <label htmlFor="cabinetName" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="cabinetName" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Nom du cabinet
             </label>
             <input
@@ -206,7 +204,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Courriel
             </label>
             <input
@@ -220,7 +218,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Mot de passe
             </label>
             <input
@@ -232,22 +230,22 @@ function AuthPageContent() {
               className={inputClass}
             />
           </div>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-white/80">
-              Les employées se connectent avec le nom exact du cabinet, leur courriel et leur mot de passe.
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-[12px] text-text-subtle font-sans leading-[1.5] max-w-[240px]">
+              Les employées se connectent avec le nom exact du cabinet, courriel et mot de passe.
             </p>
-            <Link href="/forgot-password" className="text-xs text-primary-300 hover:text-primary-200 whitespace-nowrap ml-2">
-              Mot de passe oublié ?
+            <Link href="/forgot-password" className="text-[12px] text-forest-600 hover:text-forest-700 underline underline-offset-4 whitespace-nowrap ml-2">
+              Oublié ?
             </Link>
           </div>
-          <Button type="submit" className="h-11 w-full bg-primary-700 hover:bg-primary-800">
+          <Button type="submit" className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none">
             {loading ? "Connexion..." : "Se connecter"}
           </Button>
         </form>
       ) : (
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
-            <label htmlFor="signupCabinetName" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="signupCabinetName" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Nom du cabinet
             </label>
             <input
@@ -260,7 +258,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupAddress" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="signupAddress" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Adresse du cabinet
             </label>
             <input
@@ -273,8 +271,8 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupNom" className="mb-1 block text-sm font-medium text-white/90">
-              Nom de l&apos;avocat responsable
+            <label htmlFor="signupNom" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
+              Nom de l'avocat responsable
             </label>
             <input
               id="signupNom"
@@ -286,7 +284,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupEmail" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="signupEmail" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Courriel
             </label>
             <input
@@ -299,7 +297,7 @@ function AuthPageContent() {
             />
           </div>
           <div>
-            <label htmlFor="signupPassword" className="mb-1 block text-sm font-medium text-white/90">
+            <label htmlFor="signupPassword" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Mot de passe
             </label>
             <input
@@ -312,7 +310,7 @@ function AuthPageContent() {
               className={inputClass}
             />
           </div>
-          <Button type="submit" className="h-11 w-full">
+          <Button type="submit" className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none">
             {loading ? "Création..." : "Créer le cabinet"}
           </Button>
         </form>
@@ -325,19 +323,19 @@ export default function ConnexionPage() {
   return (
     <Suspense
       fallback={
-        <div className="auth-card mx-auto w-full max-w-[520px] rounded-safe-md p-8">
-          <div className="mx-auto mb-4 h-14 w-14 rounded-safe-md bg-white/20 animate-pulse" />
-          <div className="mx-auto mb-2 h-8 w-32 rounded bg-white/30 animate-pulse" />
-          <div className="mx-auto mb-6 h-4 w-60 rounded bg-white/20 animate-pulse" />
-          <div className="mb-6 h-11 rounded-full bg-white/20 animate-pulse" />
+        <div className="mx-auto w-full max-w-[480px] bg-surface rounded-[12px] border border-[0.5px] border-border p-8">
+          <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-surface-2 animate-pulse" />
+          <div className="mx-auto mb-2 h-8 w-32 rounded bg-surface-2 animate-pulse" />
+          <div className="mx-auto mb-6 h-4 w-60 rounded bg-surface-2 animate-pulse" />
+          <div className="mb-6 h-11 rounded-full bg-surface-2 animate-pulse" />
           <div className="space-y-4">
-            <div className="h-4 w-24 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
-            <div className="h-4 w-24 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
-            <div className="h-4 w-28 rounded bg-white/20 animate-pulse" />
-            <div className="h-11 rounded-safe bg-white/25 animate-pulse" />
-            <div className="mt-2 h-11 rounded-safe bg-white/30 animate-pulse" />
+            <div className="h-4 w-24 rounded bg-surface-2 animate-pulse" />
+            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
+            <div className="h-4 w-24 rounded bg-surface-2 animate-pulse" />
+            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
+            <div className="h-4 w-28 rounded bg-surface-2 animate-pulse" />
+            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
+            <div className="mt-2 h-11 rounded-safe bg-text-muted/20 animate-pulse" />
           </div>
         </div>
       }

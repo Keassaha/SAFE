@@ -10,6 +10,7 @@ import { dossierEvenementSchema } from "@/lib/validations/dossierEvenement";
 import { dossierNoteSchema } from "@/lib/validations/dossierNote";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { generateCartable } from "@/lib/dossiers/cartable-service";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
@@ -105,6 +106,8 @@ export async function createDossier(formData: FormData) {
   if (!dossier) {
     return { ok: false as const, error: "invalid" };
   }
+  await generateCartable(dossier.id, cabinetId, dossier.type);
+
   await createAuditLog({
     cabinetId,
     userId,

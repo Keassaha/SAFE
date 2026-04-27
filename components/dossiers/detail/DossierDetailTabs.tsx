@@ -14,6 +14,7 @@ import {
   DossierDetailNotesHonoraires,
   DossierDetailFermeture,
   DossierDetailImmigration,
+  DossierDetailSection,
 } from "./index";
 import {
   FileSignature,
@@ -27,74 +28,96 @@ import {
   StickyNote,
   Archive,
   Globe,
+  BookOpen,
+  Calendar,
+  Search,
+  ClipboardList,
+  MessageSquareWarning,
+  LucideIcon,
 } from "lucide-react";
 
-const BASE_TAB_IDS = [
-  "mandat",
-  "formulaires",
-  "pieces-madame",
-  "pieces-monsieur",
-  "procedures",
-  "jugements",
-  "correspondance",
-  "fideicommis",
-  "notes-honoraires",
-  "fermeture",
-] as const;
+const ICON_MAP: Record<string, LucideIcon> = {
+  FileSignature,
+  FileText,
+  FolderOpen,
+  FolderClosed,
+  Scale,
+  Gavel,
+  Mail,
+  Wallet,
+  StickyNote,
+  Archive,
+  Globe,
+  BookOpen,
+  Calendar,
+  Search,
+  ClipboardList,
+  MessageSquareWarning,
+};
 
-const ALL_TAB_IDS = [...BASE_TAB_IDS, "immigration"] as const;
+// Section keys that have a dedicated component
+const DEDICATED_COMPONENTS: Record<
+  string,
+  React.ComponentType<{ dossierId: string; statutDossier?: string }>
+> = {
+  mandat: DossierDetailMandat,
+  formulaires: DossierDetailFormulaires,
+  "pieces-madame": DossierDetailPiecesMadame,
+  "pieces-monsieur": DossierDetailPiecesMonsieur,
+  "pieces-demanderesse": DossierDetailPiecesMadame,
+  "pieces-defendeur": DossierDetailPiecesMonsieur,
+  pieces: DossierDetailPiecesMadame,
+  procedures: DossierDetailProcedures,
+  jugements: DossierDetailJugements,
+  correspondance: DossierDetailCorrespondance,
+  fideicommis: DossierDetailFideicommis,
+  "notes-honoraires": DossierDetailNotesHonoraires,
+  fermeture: DossierDetailFermeture as React.ComponentType<{ dossierId: string; statutDossier?: string }>,
+  immigration: DossierDetailImmigration,
+};
 
-type TabId = (typeof ALL_TAB_IDS)[number];
-
-const TABS_CONFIG: Array<{
-  id: TabId;
+export interface SectionData {
+  id: string;
+  sectionKey: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  onlyForTypes?: string[];
-}> = [
-  { id: "mandat", label: "Mandat", icon: FileSignature },
-  { id: "immigration", label: "Immigration", icon: Globe, onlyForTypes: ["immigration"] },
-  { id: "formulaires", label: "Formulaires", icon: FileText },
-  { id: "pieces-madame", label: "Pièces Madame", icon: FolderOpen },
-  { id: "pieces-monsieur", label: "Pièces Monsieur", icon: FolderClosed },
-  { id: "procedures", label: "Procédures", icon: Scale },
-  { id: "jugements", label: "Jugements", icon: Gavel },
-  { id: "correspondance", label: "Correspondance", icon: Mail },
-  { id: "fideicommis", label: "Fidéicommis", icon: Wallet },
-  { id: "notes-honoraires", label: "Notes & Honoraires", icon: StickyNote },
-  { id: "fermeture", label: "Fermeture", icon: Archive },
-];
+  ordre: number;
+  origine: string;
+  sourceReglementaire: string | null;
+  icone: string | null;
+  description: string | null;
+  privilegiee: boolean;
+}
 
 export interface DossierDetailTabsProps {
   dossierId: string;
   statutDossier: string;
-  dossierType?: string | null;
+  sections: SectionData[];
 }
 
-export function DossierDetailTabs({ dossierId, statutDossier, dossierType }: DossierDetailTabsProps) {
-  const visibleTabs = TABS_CONFIG.filter(
-    (tab) => !tab.onlyForTypes || tab.onlyForTypes.includes(dossierType ?? "")
-  );
-
-  const [activeTab, setActiveTab] = useState<string>(visibleTabs[0].id);
+export function DossierDetailTabs({ dossierId, statutDossier, sections }: DossierDetailTabsProps) {
+  const [activeTab, setActiveTab] = useState<string>(sections[0]?.sectionKey ?? "mandat");
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-        {/* Liste verticale des onglets à gauche — alignement fixe icône + texte */}
-        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-safe border border-white/10 bg-white/5 p-1.5 shadow-inner lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
-          {visibleTabs.map((tab) => {
-            const Icon = tab.icon;
+        {/* Liste verticale des onglets — Liquid Glass clair */}
+        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-safe border border-slate-200/70 bg-white/75 backdrop-blur-sm p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
+          {sections.map((section) => {
+            const iconName = section.icone ?? "FileText";
+            const Icon = ICON_MAP[iconName] ?? FileText;
             return (
               <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-safe-sm px-3 py-2 text-left text-sm font-medium text-white/90 transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-[var(--safe-green-700)] data-[state=active]:text-white data-[state=active]:shadow data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white"
+                key={section.sectionKey}
+                value={section.sectionKey}
+                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-safe-sm px-3 py-2 text-left text-sm font-medium text-slate-700 transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-600/20 data-[state=inactive]:hover:bg-slate-100 data-[state=inactive]:hover:text-slate-900"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center lg:h-9 lg:w-9">
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className="truncate">{tab.label}</span>
+                <span className="truncate">{section.label}</span>
+                {section.origine === "user" && (
+                  <span className="ml-auto shrink-0 h-1.5 w-1.5 rounded-full bg-emerald-400" title="Section personnalisée" />
+                )}
               </TabsTrigger>
             );
           })}
@@ -102,41 +125,24 @@ export function DossierDetailTabs({ dossierId, statutDossier, dossierType }: Dos
 
         {/* Contenu à droite */}
         <div className="min-w-0 flex-1">
-          <TabsContent value="mandat" className="mt-0">
-            <DossierDetailMandat dossierId={dossierId} />
-          </TabsContent>
-          {dossierType === "immigration" && (
-            <TabsContent value="immigration" className="mt-0">
-              <DossierDetailImmigration dossierId={dossierId} />
-            </TabsContent>
-          )}
-          <TabsContent value="formulaires" className="mt-0">
-            <DossierDetailFormulaires dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="pieces-madame" className="mt-0">
-            <DossierDetailPiecesMadame dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="pieces-monsieur" className="mt-0">
-            <DossierDetailPiecesMonsieur dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="procedures" className="mt-0">
-            <DossierDetailProcedures dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="jugements" className="mt-0">
-            <DossierDetailJugements dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="correspondance" className="mt-0">
-            <DossierDetailCorrespondance dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="fideicommis" className="mt-0">
-            <DossierDetailFideicommis dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="notes-honoraires" className="mt-0">
-            <DossierDetailNotesHonoraires dossierId={dossierId} />
-          </TabsContent>
-          <TabsContent value="fermeture" className="mt-0">
-            <DossierDetailFermeture dossierId={dossierId} statutDossier={statutDossier} />
-          </TabsContent>
+          {sections.map((section) => {
+            const Dedicated = DEDICATED_COMPONENTS[section.sectionKey];
+            return (
+              <TabsContent key={section.sectionKey} value={section.sectionKey} className="mt-0">
+                {Dedicated ? (
+                  <Dedicated dossierId={dossierId} statutDossier={statutDossier} />
+                ) : (
+                  <DossierDetailSection
+                    dossierId={dossierId}
+                    sectionKey={section.sectionKey}
+                    label={section.label}
+                    description={section.description}
+                    sourceReglementaire={section.sourceReglementaire}
+                  />
+                )}
+              </TabsContent>
+            );
+          })}
         </div>
       </div>
     </Tabs>

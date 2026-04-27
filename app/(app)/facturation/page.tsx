@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { FacturationMainKpis, type FacturationMainKpisData } from "@/components/facturation/FacturationMainKpis";
@@ -26,6 +27,11 @@ export default async function FacturationPage({
 }) {
   const t = await getTranslations("facturation");
   const cabinetId = await requireCabinetId();
+
+  // Detect billing mode — shares the layout's cached CabinetInterface fetch
+  // (React.cache dedupes, so no second DB query here)
+  const { billingMode } = await getCabinetInterfaceDerived(cabinetId);
+
   const { statut: statutParam, q, dateFrom: dateFromParam, dateTo: dateToParam } = await searchParams;
   const currentStatut =
     STATUT_OPTIONS.some((o) => o.value === statutParam) && statutParam
@@ -160,7 +166,7 @@ export default async function FacturationPage({
       <Card>
         <CardHeader
           title={t("listTitle")}
-          action={<FacturationActions />}
+          action={<FacturationActions billingMode={billingMode} />}
         />
         <CardContent className="space-y-4">
           <FacturationFilters

@@ -6,10 +6,10 @@
  */
 export function DossierDetailFermeture({
   dossierId,
-  statutDossier,
+  statutDossier = "",
 }: {
   dossierId: string;
-  statutDossier: string;
+  statutDossier?: string;
 }) {
   const isFerme = statutDossier === "cloture" || statutDossier === "FERMÉ";
   return (

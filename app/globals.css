@@ -54,9 +54,69 @@
    ============================================ */
 
 :root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-sans);
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* ───────────────────────────────────────────────────────────
+   *  FONTS — Éditorial Chaleureux
+   *  - Geist Sans / Geist Mono : UI, body, chiffres KPI
+   *  - Instrument Serif        : italiques éditoriaux
+   *                              ("— registre en temps réel")
+   *  All three loaded in app/layout.tsx via next/font.
+   *  ─────────────────────────────────────────────────────────── */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-serif: var(--font-instrument-serif), Georgia, ui-serif, serif;
+  /* Legacy fonts kept addressable for marketing pages only */
+  --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* ───────────────────────────────────────────────────────────
+   *  BRAND — Forest green scale (Éditorial Chaleureux)
+   *  Mirrors lib/ds/tokens.ts `brand`. canonical = --brand-800.
+   *  ─────────────────────────────────────────────────────────── */
+  --brand-50:  #EEF5F0;
+  --brand-100: #D4E8D9;
+  --brand-200: #B8D6C0;
+  --brand-300: #8EB69B;
+  --brand-400: #5A8F7B;
+  --brand-500: #3D6B5A;
+  --brand-600: #2B4A3E;
+  --brand-700: #234539;
+  --brand-800: #1F3A2E; /* ← canonical brand (forest deep) */
+  --brand-900: #162B20;
+  --brand-950: #0E2419;
+  --brand:     var(--brand-800);
+  /* RGB channel format — required for Tailwind `/opacity` with CSS vars */
+  --brand-rgb: 31 58 46;
+
+  /* ───────────────────────────────────────────────────────────
+   *  SAND — Warm neutrals (page, sidebar, borders)
+   *  Sidebar (--sand-300) is 1 ton darker than page (--sand-100).
+   *  ─────────────────────────────────────────────────────────── */
+  --sand-50:  #FCFAF4; /* crème très léger (cards, hover sidebar) */
+  --sand-100: #F7F2E8; /* ivoire chaud (PAGE BG) */
+  --sand-200: #EDE5D4; /* sable très pâle (borders subtle) */
+  --sand-300: #E8DCC4; /* sable (SIDEBAR BG) */
+  --sand-400: #D4C8B0; /* taupe clair (borders strong, séparateurs) */
+  --sand-500: #B8AB91;
+  --sand-600: #8B8680; /* taupe doux (text muted) */
+  --sand-700: #5C5852; /* charbon chaud (text secondary alt) */
+  --sand-800: #3D3A36;
+  --sand-900: #1F1D1A;
+
+  /* ZINC — Neutres pour textes sur surfaces chaudes + inverses noires */
+  --zinc-50:  #FAFAFA;
+  --zinc-100: #F4F4F5;
+  --zinc-200: #E4E4E7;
+  --zinc-300: #D4D4D8;
+  --zinc-400: #A1A1AA;
+  --zinc-500: #71717A;
+  --zinc-600: #52525B;
+  --zinc-700: #3F3F46;
+  --zinc-800: #27272A;
+  --zinc-900: #18181B;
+  --zinc-950: #0B0B0C; /* encre (text primary + inverse surfaces) */
+
+  /* GOLD WARM — chiffres critiques sur cards noires ("6 229 $" TPS) */
+  --warm-gold: #F4A045;
 
   /* SAFE V2 Marketing Palette */
   --safe-darkest: #0b1f19;     /* Fonds principaux, hero */
@@ -66,56 +126,71 @@
   --safe-sage: #8EB69B;        /* Boutons secondaires, tags, badges */
   --safe-lightest: #DAF1DE;    /* Surfaces, inputs, fonds clairs */
   --safe-white: #F8FDF9;       /* Texte sur fond sombre, fond page */
-  --safe-text-muted: #6B8F7B;  /* Texte secondaire */
+  /* NB: --safe-text-muted est (re)défini plus bas dans la hiérarchie texte (slate-500). */
 
-  /* Emerald (green) */
-  --safe-green-950: #1a2e28;
-  --safe-green-900: #2B4A3E; /* Deep sage */
-  --safe-green-800: #3D6B5A; /* Forest sage */
-  --safe-green-700: #5A8F7B;
-  --safe-green-600: #7DAA98;
-  --safe-green-100: #dceee6;
-  --safe-green-50: #FAF9F7; /* Warm cream */
+  /* ───────────────────────────────────────────────────────────
+   *  ÉDITORIAL CHALEUREUX — REBIND (forest green)
+   *  The --safe-green-* variables keep their legacy names but
+   *  now carry the brand FOREST GREEN scale (from lib/ds/tokens
+   *  `brand.*`). Every `bg-green-*` / `text-primary-*` /
+   *  `bg-emerald-*` class in the codebase therefore flips to
+   *  forest green automatically. Zero file diff across the app.
+   *  ─────────────────────────────────────────────────────────── */
+  --safe-green-950: #0E2419; /* brand.950 */
+  --safe-green-900: #162B20; /* brand.900 */
+  --safe-green-800: #1F3A2E; /* brand.800 — CANONICAL ACCENT */
+  --safe-green-700: #234539; /* brand.700 */
+  --safe-green-600: #2B4A3E; /* brand.600 */
+  --safe-green-100: #D4E8D9; /* brand.100 */
+  --safe-green-50:  #EEF5F0; /* brand.50  */
 
-  /* Accent greens (replaces former coral/gold) */
-  --safe-gold-700: #3D6B5A;
-  --safe-gold-600: #5A8F7B;
-  --safe-gold-500: #7DAA98;
-  --safe-gold-400: #8EB69B;
-  --safe-gold-50: #F0F7F3;
+  /* Gold tokens — redirected to warm gold (used sparingly, KPI-critical) */
+  --safe-gold-700: #A8611C; /* goldWarm.700 */
+  --safe-gold-600: #D88128; /* goldWarm.600 */
+  --safe-gold-500: #F4A045; /* goldWarm.500 — canonical */
+  --safe-gold-400: #F5C96B; /* goldWarm.300 */
+  --safe-gold-50:  #FEF6E3; /* goldWarm.50  */
 
-  /* Neutrals */
-  --safe-neutral-900: #1a2e28;
-  --safe-neutral-700: #3d5a4e;
-  --safe-neutral-500: #6b8f7b;
-  --safe-neutral-300: #c8ddd0;
-  --safe-neutral-100: #e8f0eb;
-  --safe-neutral-border: #d0ddd6;
-  --safe-neutral-bg: #F2F7F4;
+  /* Neutrals — rebinded to zinc scale (Minimal Monochrome) */
+  --safe-neutral-950: #09090B; /* zinc-950 — sidebar/hero/CTA */
+  --safe-neutral-900: #18181B; /* zinc-900 — titres */
+  --safe-neutral-800: #27272A; /* zinc-800 — surfaces inverses élevées */
+  --safe-neutral-700: #3F3F46; /* zinc-700 — corps */
+  --safe-neutral-500: #71717A; /* zinc-500 — muted */
+  --safe-neutral-400: #A1A1AA; /* zinc-400 — hints on dark */
+  --safe-neutral-300: #D4D4D8; /* zinc-300 — borders strong */
+  --safe-neutral-200: #E4E4E7; /* zinc-200 — borders default */
+  --safe-neutral-100: #F4F4F5; /* zinc-100 — surfaces alt */
+  --safe-neutral-50:  #FAFAFA; /* zinc-50  — surfaces subtle */
+  --safe-neutral-border: #E4E4E7;
+  --safe-neutral-bg: #FFFFFF;
 
-  /* Text hierarchy (dark text on light backgrounds) */
-  --safe-text-title: #1a2e28;
-  --safe-text-secondary: #4a6a5c;
-  --safe-text-metric: #2B4A3E;
+  /* Text hierarchy — zinc scale (Minimal Monochrome) */
+  --safe-text-title: #18181B;      /* zinc-900 — titres, headers, KPI */
+  --safe-text-secondary: #3F3F46;  /* zinc-700 — corps principal */
+  --safe-text-muted: #71717A;      /* zinc-500 — labels, hints, captions */
+  --safe-text-metric: #18181B;     /* chiffres KPI — max contraste */
+  --safe-text-inverse: #FAFAFA;    /* zinc-50  — texte sur fond sombre */
+  --safe-text-inverse-muted: #A1A1AA; /* zinc-400 — muted sur fond sombre */
 
-  /* Charts */
-  --safe-chart-primary: #3e7a66;
-  --safe-chart-secondary: #3e7a66;
-  --safe-chart-grid: rgba(0, 0, 0, 0.05);
+  /* Charts — brand forest, neutral grid */
+  --safe-chart-primary: #1F3A2E;   /* brand.800 */
+  --safe-chart-secondary: #3D6B5A; /* brand.500 */
+  --safe-chart-grid: rgba(11, 11, 12, 0.05);
 
-  /* Icons */
-  --safe-icon-default: #1f5a47;
-  --safe-icon-accent: #5A8F7B;
+  /* Icons — zinc-800 default, brand accent */
+  --safe-icon-default: #27272A;
+  --safe-icon-accent: #1F3A2E;
 
-  /* Status (accessible on light backgrounds) */
-  --safe-status-success: #166534;
-  --safe-status-success-bg: #dcfce7;
-  --safe-status-warning: #b45309;
-  --safe-status-warning-bg: #fef3c7;
-  --safe-status-error: #b91c1c;
-  --safe-status-error-bg: #fee2e2;
-  --safe-status-info: #0e3b2f;
-  --safe-status-overdue: #6b7280;
+  /* Status — semantic pills (WCAG AA on warm), aligned with lib/ds/tokens.ts */
+  --safe-status-success: #1F3A2E;    /* success.pillText */
+  --safe-status-success-bg: #D4E8D9; /* success.pillBg */
+  --safe-status-warning: #8B6B1F;    /* warning.pillText */
+  --safe-status-warning-bg: #F5E6C8; /* warning.pillBg */
+  --safe-status-error: #8A3A2D;      /* danger.pillText */
+  --safe-status-error-bg: #F3D8D2;   /* danger.pillBg  */
+  --safe-status-info: #1F3A2E;       /* brand.800 (info unified with brand) */
+  --safe-status-overdue: #8B8680;    /* sand.600 */
 
   /* Radius */
   --safe-radius-sm: 8px;
@@ -126,25 +201,25 @@
   --safe-radius-2xl: 28px;
   --safe-radius-full: 9999px;
 
-  /* Shadows */
-  --safe-shadow-xs: 0 1px 2px rgba(45, 106, 79, 0.04);
-  --safe-shadow-sm: 0 2px 4px rgba(45, 106, 79, 0.04), 0 1px 2px rgba(45, 106, 79, 0.06);
-  --safe-shadow-md: 0 4px 8px rgba(45, 106, 79, 0.04), 0 2px 4px rgba(45, 106, 79, 0.04);
-  --safe-shadow-lg: 0 8px 32px rgba(45, 106, 79, 0.12);
-  --safe-shadow-glass: 0 20px 40px rgba(45, 106, 79, 0.15);
-  --safe-shadow-card-hover: 0 24px 48px rgba(45, 106, 79, 0.18), 0 4px 12px rgba(45, 106, 79, 0.08);
+  /* Shadows — Éditorial: near-invisible, border-first */
+  --safe-shadow-xs: 0 1px 0 0 rgba(11, 11, 12, 0.03);
+  --safe-shadow-sm: 0 1px 2px 0 rgba(11, 11, 12, 0.04);
+  --safe-shadow-md: 0 2px 4px -1px rgba(11, 11, 12, 0.05), 0 1px 2px -1px rgba(11, 11, 12, 0.03);
+  --safe-shadow-lg: 0 8px 16px -4px rgba(11, 11, 12, 0.06), 0 4px 6px -2px rgba(11, 11, 12, 0.03);
+  --safe-shadow-glass: 0 16px 32px -8px rgba(11, 11, 12, 0.08), 0 8px 12px -4px rgba(11, 11, 12, 0.04);
+  --safe-shadow-card-hover: 0 8px 16px -4px rgba(11, 11, 12, 0.06), 0 4px 6px -2px rgba(11, 11, 12, 0.03);
 
-  /* Layout gradients */
-  --safe-gradient-main: #F2F7F4;
-  --safe-gradient-sidebar: #1A3C2D;
+  /* Layout gradients — ivoire canvas / sand sidebar */
+  --safe-gradient-main: #F7F2E8;   /* sand-100 — ivoire page */
+  --safe-gradient-sidebar: #E8DCC4; /* sand-300 — sand sidebar */
 
-  /* Main area: off-white green theme */
-  --dashboard-bg-base: #F2F7F4; /* Off-white with green tint */
-  --dashboard-blob-1: radial-gradient(ellipse 80% 50% at 15% 25%, rgba(45, 106, 79, 0.04) 0%, transparent 55%);
-  --dashboard-blob-2: radial-gradient(ellipse 60% 45% at 85% 15%, rgba(45, 106, 79, 0.03) 0%, transparent 50%);
-  --dashboard-blob-3: radial-gradient(circle 35% at 8% 75%, rgba(45, 106, 79, 0.04) 0%, transparent 45%);
-  --dashboard-blob-4: radial-gradient(ellipse 50% 50% at 92% 85%, rgba(45, 106, 79, 0.02) 0%, transparent 50%);
-  --dashboard-blob-5: radial-gradient(circle 28% at 50% 45%, rgba(255, 255, 255, 0.3) 0%, transparent 40%);
+  /* Main area: ivoire chaud (éditorial canvas) */
+  --dashboard-bg-base: #F7F2E8;
+  --dashboard-blob-1: transparent;
+  --dashboard-blob-2: transparent;
+  --dashboard-blob-3: transparent;
+  --dashboard-blob-4: transparent;
+  --dashboard-blob-5: transparent;
 
   /* Warm gold accent — CTA principal + éléments de confiance (Barreau) */
   --safe-warm: #D4A574;
@@ -157,15 +232,53 @@
   --safe-primary-600: var(--safe-green-600);
   --safe-primary-100: var(--safe-green-100);
   --safe-primary-50: var(--safe-green-50);
-  --safe-neutral-page: #F2F7F4;
-  --safe-neutral-surface: #ffffff;
-  --safe-neutral-elevated: #ffffff;
+  --safe-neutral-page: #F7F2E8;        /* sand-100 — ivoire chaud (Éditorial canvas) */
+  --safe-neutral-surface: #FCFAF4;     /* sand-50  — crème très léger (cards) */
+  --safe-neutral-elevated: #FFFFFF;    /* blanc pur (cards élevées) */
   --safe-neutral-text-primary: var(--safe-text-title);
   --safe-neutral-text-secondary: var(--safe-text-secondary);
   --safe-neutral-muted: var(--safe-text-secondary);
-  --safe-neutral-text-inverse: #f5f7f6;
-  --safe-neutral-border-subtle: var(--safe-neutral-100);
-  --safe-neutral-border-strong: var(--safe-neutral-300);
+  --safe-neutral-text-inverse: #F7F2E8;
+  /* Borders — sand scale */
+  --safe-neutral-border-subtle: #EDE5D4;  /* sand-200 */
+  --safe-neutral-border-strong: #D4C8B0;  /* sand-400 */
+
+  /* ───────────────────────────────────────────────────────────
+   *  SEMANTIC DS TOKENS — pre-composed, for new components
+   *  (mirrors lib/ds/tokens.ts `tokens` export)
+   *  ─────────────────────────────────────────────────────────── */
+  --ds-surface-page:            var(--sand-100); /* #F7F2E8 */
+  --ds-surface-card:            var(--sand-50);  /* #FCFAF4 */
+  --ds-surface-card-alt:        #FFFFFF;
+  --ds-surface-sidebar:         var(--sand-300); /* #E8DCC4 */
+  --ds-surface-subtle:          var(--sand-200);
+  --ds-surface-muted:           var(--sand-300);
+  --ds-surface-inverse:         var(--zinc-950);
+  --ds-surface-inverse-subtle:  var(--zinc-900);
+
+  --ds-text-primary:            var(--zinc-950); /* encre */
+  --ds-text-secondary:          var(--sand-700); /* charbon chaud */
+  --ds-text-muted:              var(--sand-600); /* taupe doux */
+  --ds-text-inverse:            var(--sand-100);
+  --ds-text-inverse-muted:      var(--sand-500);
+  --ds-text-brand:              var(--brand-800);
+  --ds-text-warm-gold:          var(--warm-gold);
+
+  --ds-border-subtle:           var(--sand-200);
+  --ds-border-default:          var(--sand-300);
+  --ds-border-strong:           var(--sand-400);
+  --ds-border-inverse:          var(--zinc-800);
+
+  --ds-brand:                   var(--brand-800);
+  --ds-brand-hover:             var(--brand-900);
+  --ds-brand-subtle:            var(--brand-100);
+  --ds-brand-subtle-hover:      var(--brand-200);
+  --ds-brand-on-brand:          #FFFFFF;
+
+  --ds-success:                 var(--brand-800);
+  --ds-warning:                 #C89830;
+  --ds-danger:                  #B8543A;
+  --ds-info:                    var(--brand-800);
 }
 
 @layer base {
@@ -192,7 +305,7 @@
   }
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--safe-neutral-100), 0 0 0 4px rgba(31, 90, 71, 0.35);
+    box-shadow: 0 0 0 2px #F7F2E8, 0 0 0 4px rgba(31, 58, 46, 0.45); /* brand.800 halo sur ivoire */
   }
 }
 
@@ -622,6 +735,44 @@
     animation: dash-shimmer 8s cubic-bezier(.22,1,.36,1) infinite;
   }
 
+  /* Force action buttons inside .dash-header to render light-on-dark
+     (otherwise secondary/ghost variants use forest-700 text on forest gradient = invisible). */
+  .dash-header .pageheader-action .text-forest-700,
+  .dash-header .pageheader-action .text-forest-900,
+  .dash-header .pageheader-action .text-slate-900 {
+    color: #F1F8F2 !important;
+  }
+  .dash-header .pageheader-action .border-forest-700\/50,
+  .dash-header .pageheader-action .border-slate-300 {
+    border-color: rgba(255, 255, 255, 0.45) !important;
+  }
+  .dash-header .pageheader-action .hover\:bg-forest-50:hover,
+  .dash-header .pageheader-action .hover\:bg-slate-50:hover,
+  .dash-header .pageheader-action .hover\:bg-slate-800:hover {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+  }
+  .dash-header .pageheader-action .hover\:text-forest-900:hover,
+  .dash-header .pageheader-action .hover\:text-primary-700:hover {
+    color: #FFFFFF !important;
+  }
+  /* Keep "primary" buttons readable: lift them with a soft white tint
+     so bg-forest-700 doesn't blend into the lighter end of the gradient. */
+  .dash-header .pageheader-action .bg-forest-700 {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #FFFFFF !important;
+  }
+  .dash-header .pageheader-action .bg-forest-700:hover {
+    background-color: rgba(255, 255, 255, 0.28) !important;
+  }
+  .dash-header .pageheader-action .bg-slate-900 {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    color: #FFFFFF !important;
+  }
+  .dash-header .pageheader-action .bg-slate-900:hover {
+    background-color: rgba(255, 255, 255, 0.28) !important;
+  }
+
 }
 
 @keyframes dash-drift-1 {
@@ -984,6 +1135,38 @@
   100% { transform: translateY(-40px) rotate(180deg); opacity: 0; }
 }
 
+/* ── Typewriter cursor clignotant ──────────────────────── */
+@keyframes audit-cursor-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.audit-typewriter-cursor {
+  animation: audit-cursor-blink 0.65s step-end infinite;
+  border-radius: 1px;
+  vertical-align: middle;
+}
+
+/* ── Icône de célébration (résultats) ──────────────────── */
+@keyframes audit-celebrate-pop {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  55%  { transform: scale(1.3) rotate(8deg); opacity: 1; }
+  75%  { transform: scale(0.9) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.audit-celebrate-icon {
+  display: inline-block;
+  animation: audit-celebrate-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+/* ── Lueur pulsée du logo intro ────────────────────────── */
+@keyframes audit-intro-glow-anim {
+  0%, 100% { box-shadow: 0 0 0  0 rgba(255,255,255,0.00); }
+  50%       { box-shadow: 0 0 28px 8px rgba(255,255,255,0.07); }
+}
+.audit-intro-glow {
+  animation: audit-intro-glow-anim 3.5s ease-in-out infinite;
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .audit-msg-appear,
@@ -998,6 +1181,14 @@
     opacity: 0.5;
   }
   .audit-gauge-fill {
+    animation: none;
+  }
+  .audit-typewriter-cursor {
+    animation: none;
+    opacity: 1;
+  }
+  .audit-celebrate-icon,
+  .audit-intro-glow {
     animation: none;
   }
 }
@@ -1332,4 +1523,242 @@
     transform: none;
     transition: none;
   }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   AUDIT GRATUIT v2 — Palette crème + vert SAFE
+   Design : image fournie (serif + JT + cartes), orange → vert.
+─────────────────────────────────────────────────────────────── */
+
+.audit-v2-bg {
+  background:
+    radial-gradient(ellipse at top left,  rgba(212,232,217,0.55), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(238,245,240,0.8), transparent 55%),
+    #F8F5EF;
+  color: #111;
+}
+
+.audit-v2-card {
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(229, 224, 213, 0.9);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow:
+    0 1px 2px rgba(17,17,17,0.03),
+    0 4px 24px -12px rgba(17,17,17,0.08);
+  backdrop-filter: blur(6px);
+}
+
+.audit-v2-card-lg {
+  background: #FFFFFF;
+  border: 1px solid rgba(229, 224, 213, 0.9);
+  border-radius: 18px;
+  padding: 28px 28px;
+  box-shadow:
+    0 1px 2px rgba(17,17,17,0.04),
+    0 8px 32px -14px rgba(17,17,17,0.10);
+}
+
+@media (min-width: 640px) {
+  .audit-v2-card-lg { padding: 36px 36px; }
+}
+
+.audit-v2-input,
+.audit-v2-textarea {
+  width: 100%;
+  background: #FBFAF6;
+  border: 1px solid #E5E0D5;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: #111;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  font-family: inherit;
+}
+.audit-v2-input::placeholder,
+.audit-v2-textarea::placeholder { color: #9A9388; }
+.audit-v2-input:focus,
+.audit-v2-textarea:focus {
+  outline: none;
+  border-color: var(--safe-green-800);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(31, 58, 46, 0.08);
+}
+.audit-v2-textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
+
+.audit-v2-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: 14px 16px;
+  background: #FBFAF6;
+  border: 1px solid #E5E0D5;
+  border-radius: 12px;
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    color .18s ease,
+    box-shadow .22s ease,
+    transform .16s ease;
+  cursor: pointer;
+  min-height: 60px;
+  will-change: transform;
+}
+/* Hover sur option NON-sélectionnée : fond blanc + lift, liseré vert */
+.audit-v2-option:not(.audit-v2-option--active):hover {
+  border-color: var(--safe-green-800);
+  background: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -12px rgba(31,58,46,0.25);
+}
+.audit-v2-option:not(.audit-v2-option--active):active {
+  transform: translateY(0) scale(0.985);
+}
+/* Option sélectionnée : reste verte en permanence, y compris au hover */
+.audit-v2-option--active {
+  background: var(--safe-green-800);
+  border-color: var(--safe-green-800);
+  color: #FFFFFF;
+  box-shadow: 0 8px 26px -10px rgba(31,58,46,0.55);
+  transform: translateY(-1px);
+}
+.audit-v2-option--active:hover {
+  background: #162B20; /* safe-green-900 : teinte plus profonde au hover, lisible */
+  border-color: #162B20;
+  box-shadow: 0 10px 30px -10px rgba(14,36,25,0.65);
+}
+.audit-v2-option--active:active {
+  transform: translateY(0) scale(0.985);
+}
+.audit-v2-option--compact { padding: 10px 12px; min-height: 44px; }
+.audit-v2-option-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.35;
+}
+.audit-v2-option-sub {
+  font-size: 12px;
+  color: #7A7368;
+  line-height: 1.4;
+}
+.audit-v2-option--active .audit-v2-option-sub { color: rgba(212,232,217,0.85); }
+.audit-v2-option-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.22);
+  border-radius: 999px;
+  font-size: 11px;
+  color: #FFFFFF;
+}
+.audit-v2-option--compact .audit-v2-option-check { right: 10px; width: 16px; height: 16px; font-size: 10px; }
+
+.audit-v2-btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #111;
+  color: #FFFFFF;
+  padding: 13px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all .2s ease;
+  box-shadow: 0 8px 24px -12px rgba(17,17,17,0.45);
+}
+.audit-v2-btn-primary:hover:not(:disabled) {
+  background: var(--safe-green-800);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -12px rgba(31,58,46,0.45);
+}
+.audit-v2-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.audit-v2-btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: #4A4A4A;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all .18s ease;
+}
+.audit-v2-btn-ghost:hover {
+  color: #111;
+  background: rgba(255,255,255,0.7);
+  border-color: #E5E0D5;
+}
+
+.audit-v2-kpi {
+  background: #FFFFFF;
+  border: 1px solid #E5E0D5;
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.audit-v2-kpi-val {
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-size: 22px;
+  color: #111;
+  line-height: 1.1;
+}
+.audit-v2-kpi-lab {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #8A8578;
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+.audit-v2-offer {
+  background: linear-gradient(135deg, #0E2419 0%, #1F3A2E 100%);
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 26px 28px;
+  text-align: left;
+  box-shadow: 0 16px 40px -16px rgba(14,36,25,0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-v2-option,
+  .audit-v2-btn-primary,
+  .audit-v2-btn-ghost,
+  .audit-v2-input,
+  .audit-v2-textarea {
+    transition: none;
+  }
+}
+
+/* ── Audit v2 — micro-animations ─────────────────────────────── */
+@keyframes audit-v2-mark-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(143, 180, 159, 0.0), 0 10px 24px -12px rgba(14,36,25,0.45); }
+  50%      { box-shadow: 0 0 0 6px rgba(143, 180, 159, 0.08), 0 14px 32px -12px rgba(14,36,25,0.55); }
+}
+.audit-v2-mark-shell {
+  animation: audit-v2-mark-glow 4s ease-in-out infinite;
+}
+
+@keyframes audit-v2-progress-shine {
+  0%   { transform: translateX(-60%); opacity: 0; }
+  40%  { opacity: 0.7; }
+  100% { transform: translateX(260%); opacity: 0; }
+}
+.audit-v2-progress-shine::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+  animation: audit-v2-progress-shine 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-v2-mark-shell,
+  .audit-v2-progress-shine::after { animation: none; }
 }

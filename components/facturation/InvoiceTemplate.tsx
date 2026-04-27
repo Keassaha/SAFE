@@ -154,11 +154,7 @@ export function InvoiceTemplate({
           <p className="font-semibold text-[var(--safe-text-title)]">
             {cabinet?.nom ?? "Cabinet"}
           </p>
-          {cabinet?.barreauNumero && (
-            <p className="text-xs text-[var(--safe-text-secondary)]">
-              LSO# {cabinet.barreauNumero}
-            </p>
-          )}
+          {/* NB: numéro du Barreau volontairement omis — donnée confidentielle */}
           {cabinet?.adresse && (
             <p className="mt-1 text-sm text-[var(--safe-text-secondary)] whitespace-pre-line">
               {cabinet.adresse}

@@ -1,10 +1,17 @@
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import type { InvoiceStatut } from "@prisma/client";
+import { getTranslations } from "next-intl/server";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { routes } from "@/lib/routes";
 import { SuiviPipelineView } from "./SuiviPipelineView";
 
 export default async function FacturationSuiviPage() {
   const cabinetId = await requireCabinetId();
+  const t = await getTranslations("facturation");
 
   const envoyeeStatuts: InvoiceStatut[] = ["envoyee", "partiellement_payee", "payee", "en_retard"];
 
@@ -30,7 +37,20 @@ export default async function FacturationSuiviPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title={t("billingAndFollowUp")}
+        description={t("billingDescription")}
+        action={
+          <Link href={routes.facturationFactureNouvelle}>
+            <Button variant="primary" type="button">
+              <Plus className="w-4 h-4 mr-2 inline-block" aria-hidden />
+              {t("newInvoice")}
+            </Button>
+          </Link>
+        }
+      />
+
       <SuiviPipelineView
         brouillons={brouillons}
         validees={[]}

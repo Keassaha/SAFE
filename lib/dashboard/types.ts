@@ -124,10 +124,15 @@ export interface DashboardEventItem {
   dossierId: string;
 }
 
+/** Étape normalisée du pipeline — classification métier du dossier. */
+export type DossierEtape = "Ouverture" | "Exécution" | "Finalisation" | "Clôture";
+
 export interface DossierEvolutionItem {
   id: string;
   intitule: string;
   statut: string;
+  /** Étape normalisée (pipeline cockpit). Calculée côté serveur. */
+  etape: DossierEtape;
   clientName: string;
   avocatName: string | null;
   createdAt: string;
@@ -136,6 +141,15 @@ export interface DossierEvolutionItem {
   tasksDone: number;
   eventCount: number;
   nextDeadline: string | null;
+}
+
+/** Dernière réconciliation fidéicommis (null = jamais faite). */
+export interface TrustReconciliationSummary {
+  periode: string; // YYYY-MM
+  certifiedAt: string | null;
+  status: string; // "draft" | "complete" | "certified"
+  ecart: number;
+  daysSince: number;
 }
 
 export interface OnboardingChecklist {
@@ -178,4 +192,8 @@ export interface DashboardPayload {
   indicators: DashboardIndicators;
   allKpisZero?: boolean;
   onboardingChecklist?: OnboardingChecklist;
+  /** Dernière réconciliation fidéicommis (null = jamais). */
+  lastReconciliation?: TrustReconciliationSummary | null;
+  /** Cible heures facturables / mois / avocat (réglage cabinet). Défaut 140. */
+  lawyerHoursTarget?: number;
 }
