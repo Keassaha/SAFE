@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 import type { UserRole } from "@prisma/client";
 import {
   LayoutDashboard,
@@ -15,20 +16,11 @@ import {
   BookOpen,
   BarChart3,
   ChevronRight,
-  ChevronDown,
-  User,
   Wallet,
-  ScrollText,
-  Calculator,
   Upload,
   Settings,
-  CalendarDays,
   Wrench,
   CreditCard,
-  CheckCircle,
-  Eye,
-  FileMinus,
-  Coins,
   ListChecks,
   ShieldCheck,
 } from "lucide-react";
@@ -44,12 +36,20 @@ import {
   canViewDocuments,
 } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
+import type { SidebarCounts } from "@/lib/services/sidebar-counts";
+import type { Session } from "next-auth";
+
+type IconProps = {
+  className?: string;
+  strokeWidth?: number | string;
+  style?: React.CSSProperties;
+};
 
 type SubItem = {
   id?: string; // Optional id for CabinetInterface filtering. Defaults to a slug derived from href.
   href: string;
   labelKey: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<IconProps>;
   show: (role: UserRole) => boolean;
 };
 
@@ -57,13 +57,15 @@ type NavItem = {
   id: string;
   href: string;
   labelKey: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<IconProps>;
   show: (role: UserRole) => boolean;
   exactMatch?: boolean;
   children?: SubItem[];
+  dividerBefore?: boolean; // Renders a thin separator above this item
 };
 
 const NAV_ITEMS: NavItem[] = [
+  // ── Tableau de bord (Toujours visible) ────────────────────
   {
     id: "dashboard",
     href: routes.tableauDeBord,
@@ -71,93 +73,65 @@ const NAV_ITEMS: NavItem[] = [
     icon: LayoutDashboard,
     show: () => true,
   },
+
+  // ── Pratique (Dossiers & Clients & Employés) ──────────────
   {
-    id: "clients",
+    id: "gestion",
     href: routes.clients,
-    labelKey: "nav.clients",
-    icon: Users,
-    show: canViewClients,
-  },
-  {
-    id: "dossiers",
-    href: routes.dossiers,
-    labelKey: "nav.matters",
+    labelKey: "nav.practice",
     icon: FolderOpen,
-    show: canViewDossiers,
-  },
-  {
-    id: "atelier",
-    href: "/atelier",
-    labelKey: "nav.atelier",
-    icon: FileText,
-    show: canViewDossiers,
-  },
-  {
-    id: "temps",
-    href: routes.temps,
-    labelKey: "nav.timesheets", // Overridden dynamically for forfait mode
-    icon: Clock, // Overridden dynamically for forfait mode
-    show: () => true,
-  },
-  {
-    id: "facturation",
-    href: routes.facturation,
-    labelKey: "nav.billing",
-    icon: FileText,
-    show: canManageInvoices,
-    exactMatch: true,
-    children: [
-      { id: "facturation-honoraires", href: routes.facturationHonoraires, labelKey: "nav.billableFees", icon: Coins, show: canManageInvoices },
-      { id: "facturation-verification", href: routes.facturationVerification, labelKey: "nav.verification", icon: CheckCircle, show: canManageInvoices },
-      { id: "facturation-suivi", href: routes.facturationSuivi, labelKey: "nav.followUp", icon: Eye, show: canManageInvoices },
-      { id: "facturation-paiements", href: routes.facturationPaiements, labelKey: "nav.payments", icon: CreditCard, show: canManageInvoices },
-      { id: "facturation-notes-credit", href: routes.facturationNotesCredit, labelKey: "nav.creditNotes", icon: FileMinus, show: canManageInvoices },
-      { id: "facturation-frais", href: routes.facturationFrais, labelKey: "nav.disbursements", icon: Receipt, show: canManageInvoices },
-    ],
-  },
-  {
-    id: "comptabilite",
-    href: routes.comptabilite,
-    labelKey: "nav.comptabilite",
-    icon: BookOpen,
-    show: (role) => canManageExpenseJournal(role) || canManageInvoices(role),
-    children: [{ id: "comptes", href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust }],
-  },
-  {
-    id: "documents",
-    href: routes.outilsGenerateurDocuments,
-    labelKey: "nav.documentGenerator",
-    icon: ScrollText,
-    show: canViewDocuments,
-  },
-  {
-    id: "conformite",
-    href: "/conformite",
-    labelKey: "nav.compliance",
-    icon: ShieldCheck,
-    show: () => true,
-  },
-  {
-    id: "outils",
-    href: routes.rapports,
-    labelKey: "sections.tools",
-    icon: Wrench,
     show: () => true,
     exactMatch: true,
+    dividerBefore: true,
     children: [
-      { id: "rapports", href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
-      { id: "planning", href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: canManageDossiers },
-      { id: "outils-calculateur-familial", href: routes.outilsCalculateurFamilial, labelKey: "nav.familyCalculator", icon: Calculator, show: canViewDocuments },
-      { id: "safe-import", href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
+      { id: "clients", href: routes.clients, labelKey: "nav.clients", icon: Users, show: canViewClients },
+      { id: "dossiers", href: routes.dossiers, labelKey: "nav.matters", icon: FolderOpen, show: canViewDossiers },
       { id: "employees", href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
     ],
   },
+
+
+  // ── Finances ─────────────────────────────────────────────
+  {
+    id: "finances",
+    href: routes.facturation,
+    labelKey: "nav.finances",
+    icon: Receipt,
+    show: (role) => canManageInvoices(role) || canManageExpenseJournal(role),
+    exactMatch: true,
+    dividerBefore: true,
+    children: [
+      { id: "facturation", href: routes.facturation, labelKey: "nav.billing", icon: Receipt, show: canManageInvoices },
+      { id: "comptabilite", href: routes.comptabilite, labelKey: "nav.comptabilite", icon: BookOpen, show: (role) => canManageExpenseJournal(role) || canManageInvoices(role) },
+      { id: "comptes", href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust },
+      { id: "temps", href: routes.temps, labelKey: "nav.timesheets", icon: Clock, show: () => true }, // Prestation & honoraires (Temps)
+    ],
+  },
+
+  // ── Outils ───────────────────────────────────────────────
+  {
+    id: "outils",
+    href: routes.rapports,
+    labelKey: "nav.tools",
+    icon: Wrench,
+    show: () => true,
+    exactMatch: true,
+    dividerBefore: true,
+    children: [
+      { id: "edition", href: routes.edition, labelKey: "nav.edition", icon: FileText, show: canViewDocuments },
+      { id: "rapports", href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
+      { id: "safe-import", href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },
+    ],
+  },
+
+  // ── Paramètres ───────────────────────────────────────────
   {
     id: "parametres",
     href: routes.parametres,
     labelKey: "nav.settings",
     icon: Settings,
     show: () => true,
+    dividerBefore: true,
   },
 ];
 
@@ -213,6 +187,41 @@ export function getExpandedId(pathname: string): string | null {
   return null;
 }
 
+const SIDEBAR_EXPAND_STORAGE_KEY = "safe.sidebar.expanded";
+
+function loadExpandedFromStorage(): Set<string> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(SIDEBAR_EXPAND_STORAGE_KEY);
+    if (!raw) return null;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return null;
+    return new Set(arr.filter((x) => typeof x === "string"));
+  } catch {
+    return null;
+  }
+}
+
+function saveExpandedToStorage(set: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      SIDEBAR_EXPAND_STORAGE_KEY,
+      JSON.stringify(Array.from(set))
+    );
+  } catch {
+    /* ignore quota/storage errors */
+  }
+}
+
+/**
+ * Éditorial Chaleureux nav row:
+ *   [icon black 1.5px]  [label black]  ...  [count forest green]  [chevron?]
+ *
+ * Active (parent): white background + 3px forest-green left accent + label semibold
+ * Active (sub):    forest-green text (no pill)
+ * Hover:           sand-50 background
+ */
 function NavLink({
   href,
   label,
@@ -221,69 +230,117 @@ function NavLink({
   isSubItem,
   hasChildren,
   isExpanded,
+  count,
   onToggle,
   onNavigate,
 }: {
   href: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<IconProps>;
   isActive: boolean;
   isSubItem?: boolean;
   hasChildren?: boolean;
   isExpanded?: boolean;
+  count?: number;
   onToggle?: () => void;
   onNavigate?: () => void;
 }) {
+  const showActivePill = isActive && !isSubItem;
+
   const content = (
     <>
+      {showActivePill && (
+        <span
+          aria-hidden
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full"
+          style={{ background: "var(--brand-800)" }}
+        />
+      )}
+      <Icon
+        className={`w-[18px] h-[18px] shrink-0 ${isActive && isSubItem ? "" : ""}`}
+        strokeWidth={isActive ? 2 : 1.5}
+        style={{
+          color: isActive && isSubItem ? "var(--brand-800)" : "var(--zinc-950)",
+        }}
+      />
       <span
-        className={`
-          flex w-9 h-9 shrink-0 items-center justify-center rounded-safe-sm transition-colors duration-200
-          ${isActive && !isSubItem ? "bg-green-700 text-white shadow-sm" : ""}
-          ${isActive && isSubItem ? "bg-white/10 text-green-400" : ""}
-          ${!isActive ? "text-white/50 group-hover:text-white group-hover:bg-white/10" : ""}
-        `}
-      >
-        <Icon className={`w-[18px] h-[18px] ${isActive ? "[stroke-width:2.2]" : "[stroke-width:1.8]"}`} />
-      </span>
-      <span
-        className={`
-          flex-1 min-w-0 truncate text-sm font-medium leading-none
-          ${isActive ? "text-white font-semibold" : "text-white/70 group-hover:text-white"}
-        `}
+        className={`flex-1 min-w-0 truncate text-[13.5px] leading-none ${
+          isActive ? "font-semibold" : "font-medium"
+        }`}
+        style={{
+          color: isActive && isSubItem ? "var(--brand-800)" : "var(--zinc-950)",
+        }}
       >
         {label}
       </span>
-      {hasChildren && (
-        <span className="shrink-0 text-white/40 transition-transform duration-200">
-          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+      {typeof count === "number" && count > 0 && (
+        <span
+          className="shrink-0 text-[12px] font-semibold tabular-nums leading-none"
+          style={{ color: "var(--brand-800)" }}
+        >
+          {count}
         </span>
+      )}
+      {hasChildren && (
+        <motion.span
+          className="shrink-0 flex items-center justify-center"
+          style={{ color: "var(--sand-600)" }}
+          animate={{ rotate: isExpanded ? 90 : 0 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.75} />
+        </motion.span>
       )}
     </>
   );
 
-  const baseClasses = `
-    group relative flex items-center gap-3 px-3 py-1.5 rounded-safe
-    transition-all duration-200 cursor-pointer
-    ${isSubItem ? "ml-5 pl-3" : ""}
-    ${isActive && !isSubItem ? "bg-white/10" : ""}
-    ${isActive && isSubItem ? "bg-white/5" : ""}
-    ${!isActive ? "hover:bg-white/[0.07]" : ""}
-  `;
+  const baseClasses = [
+    "group relative flex items-center gap-2.5 rounded-md transition-colors duration-150 cursor-pointer",
+    isSubItem ? "ml-6 pl-3 py-1.5 pr-2.5" : "pl-3 pr-2.5 py-2",
+    showActivePill ? "bg-white" : "",
+    !isActive ? "hover:bg-[var(--sand-50)]" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (hasChildren && onToggle) {
     return (
-      <button type="button" onClick={onToggle} className={`${baseClasses} w-full text-left`} aria-expanded={isExpanded}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`${baseClasses} w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40`}
+        aria-expanded={isExpanded}
+      >
         {content}
       </button>
     );
   }
 
   return (
-    <Link href={href} className={baseClasses} aria-current={isActive ? "page" : undefined} onClick={() => onNavigate?.()}>
+    <Link
+      href={href}
+      className={`${baseClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40`}
+      aria-current={isActive ? "page" : undefined}
+      onClick={() => onNavigate?.()}
+    >
       {content}
     </Link>
   );
+}
+
+/** Map nav item id → count key from SidebarCounts. */
+function countFor(id: string, counts?: SidebarCounts | null): number | undefined {
+  if (!counts) return undefined;
+  switch (id) {
+    case "clients":
+      return counts.clients;
+    case "dossiers":
+      return counts.dossiers;
+    case "facturation":
+      return counts.facturation;
+    default:
+      return undefined;
+  }
 }
 
 export function SidebarNavList({
@@ -293,6 +350,7 @@ export function SidebarNavList({
   billingMode,
   activeNavIds,
   hiddenNavIds,
+  counts,
 }: {
   role?: string;
   onNavigate?: () => void;
@@ -300,20 +358,55 @@ export function SidebarNavList({
   billingMode?: "forfait" | "horaire";
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
+  counts?: SidebarCounts | null;
 }) {
   const t = useTranslations("shell.sidebar");
   const pathname = usePathname();
   const userRole = (role as UserRole) ?? "avocat";
   const isForfait = billingMode === "forfait";
-  const [expandedId, setExpandedId] = useState<string | null>(() => getExpandedId(pathname));
 
+  // État multi-collapse : plusieurs groupes peuvent être ouverts en parallèle.
+  // Hydratation côté client depuis localStorage + auto-ouverture du groupe actif.
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
+    const set = new Set<string>();
+    const active = getExpandedId(pathname);
+    if (active) set.add(active);
+    return set;
+  });
+
+  // Charge l'état persisté au montage (évite mismatch SSR).
+  useEffect(() => {
+    const stored = loadExpandedFromStorage();
+    const active = getExpandedId(pathname);
+    setExpandedIds((prev) => {
+      const next = new Set<string>(stored ?? prev);
+      if (active) next.add(active); // garde toujours le groupe actif ouvert
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-ouvre le groupe du chemin actif à chaque navigation.
   useEffect(() => {
     const active = getExpandedId(pathname);
-    if (active) setExpandedId(active);
+    if (!active) return;
+    setExpandedIds((prev) => {
+      if (prev.has(active)) return prev;
+      const next = new Set(prev);
+      next.add(active);
+      saveExpandedToStorage(next);
+      return next;
+    });
   }, [pathname]);
 
   const toggleExpand = useCallback((id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      saveExpandedToStorage(next);
+      return next;
+    });
   }, []);
 
   const visibleItems = filterByCabinetInterface(NAV_ITEMS, activeNavIds, hiddenNavIds);
@@ -324,19 +417,25 @@ export function SidebarNavList({
         {visibleItems.map((item) => {
           if (!item.show(userRole)) return null;
 
-          // Override for forfait mode: "temps" → "Task Register"
-          const displayLabel = item.id === "temps" && isForfait ? "Task Register" : t(item.labelKey);
+          // Override for forfait mode: "temps" → "Fiche de temps" / "Task Register" (task register view)
+          const displayLabel = item.id === "temps" && isForfait ? t("nav.taskRegister") : t(item.labelKey);
           const DisplayIcon = item.id === "temps" && isForfait ? ListChecks : item.icon;
 
           const visibleChildren = item.children?.filter((c) => c.show(userRole)) ?? [];
           const hasChildren = visibleChildren.length > 0;
-          const isExpanded = expandedId === item.id;
+          const isExpanded = expandedIds.has(item.id);
           const isParentActive = isPathActive(pathname, item.href, item.exactMatch);
           const anyChildActive = visibleChildren.some((c) => isPathActive(pathname, c.href));
           const isActive = isParentActive || anyChildActive;
 
           return (
             <li key={item.id}>
+              {item.dividerBefore && (
+                <hr
+                  className="my-2 border-0 h-px"
+                  style={{ background: "var(--sand-400)" }}
+                />
+              )}
               <NavLink
                 href={item.href}
                 label={displayLabel}
@@ -344,37 +443,51 @@ export function SidebarNavList({
                 isActive={isActive}
                 hasChildren={hasChildren}
                 isExpanded={isExpanded}
+                count={countFor(item.id, counts)}
                 onToggle={hasChildren ? () => toggleExpand(item.id) : undefined}
                 onNavigate={hasChildren ? undefined : onNavigate}
               />
 
-              {hasChildren && isExpanded && (
-                <ul className="flex flex-col gap-0.5 mt-0.5 animate-fade-in" role="list">
-                  {!item.exactMatch && (
-                    <li>
-                      <NavLink
-                        href={item.href}
-                        label={t(item.labelKey)}
-                        icon={item.icon}
-                        isActive={isParentActive && !anyChildActive}
-                        isSubItem
-                        onNavigate={onNavigate}
-                      />
-                    </li>
+              {hasChildren && (
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.ul
+                      key={`${item.id}-children`}
+                      role="list"
+                      className="flex flex-col gap-0.5 mt-0.5 overflow-hidden"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {!item.exactMatch && (
+                        <li>
+                          <NavLink
+                            href={item.href}
+                            label={t(item.labelKey)}
+                            icon={item.icon}
+                            isActive={isParentActive && !anyChildActive}
+                            isSubItem
+                            onNavigate={onNavigate}
+                          />
+                        </li>
+                      )}
+                      {visibleChildren.map((child) => (
+                        <li key={child.href}>
+                          <NavLink
+                            href={child.href}
+                            label={t(child.labelKey)}
+                            icon={child.icon}
+                            isActive={isPathActive(pathname, child.href)}
+                            isSubItem
+                            count={countFor(child.id ?? "", counts)}
+                            onNavigate={onNavigate}
+                          />
+                        </li>
+                      ))}
+                    </motion.ul>
                   )}
-                  {visibleChildren.map((child) => (
-                    <li key={child.href}>
-                      <NavLink
-                        href={child.href}
-                        label={t(child.labelKey)}
-                        icon={child.icon}
-                        isActive={isPathActive(pathname, child.href)}
-                        isSubItem
-                        onNavigate={onNavigate}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                </AnimatePresence>
               )}
             </li>
           );
@@ -384,42 +497,55 @@ export function SidebarNavList({
   );
 }
 
-export function SidebarBottomSection({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarBottomSection({
+  onNavigate,
+  user,
+}: {
+  onNavigate?: () => void;
+  user?: Session["user"];
+}) {
   const t = useTranslations("shell.sidebar");
 
-  return (
-    <div className="px-3 pb-4 pt-2 border-t border-white/10 space-y-3 shrink-0">
-      <div className="bg-white/[0.07] rounded-safe-md p-4 relative overflow-hidden border border-white/10">
-        <h4 className="text-white/90 font-semibold text-sm leading-snug mb-2.5 tracking-tight">
-          Passez à la vitesse supérieure avec SAFE Pro.
-        </h4>
-        <button
-          type="button"
-          className="bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-safe-sm hover:brightness-110 transition-all shadow-sm"
-        >
-          Découvrir Pro
-        </button>
-        <div className="absolute -right-4 -bottom-4 w-20 h-20 border-[10px] border-white/5 rounded-full pointer-events-none" />
-      </div>
+  const displayName = user?.name ?? t("profile.title");
+  const initial = (displayName?.[0] ?? "S").toUpperCase();
+  const subtitle = user?.email ?? t("profile.subtitle");
 
+  return (
+    <div
+      className="px-3 pb-3 pt-2 border-t shrink-0"
+      style={{ borderTopColor: "var(--sand-400)" }}
+    >
       <Link
         href={routes.parametres}
         onClick={() => onNavigate?.()}
-        className="
-          flex items-center gap-3 px-3 py-2
-          rounded-safe bg-white/[0.07] hover:bg-white/10
-          transition-colors duration-200 border border-white/10
-          focus:outline-none focus:ring-2 focus:ring-green-700/30
-        "
+        className="flex items-center gap-2.5 px-2 py-2 rounded-md transition-colors duration-150 hover:bg-[var(--sand-50)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40"
       >
-        <span className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full bg-green-700/20 border border-green-700/30">
-          <User className="w-4 h-4 text-green-400" />
+        <span
+          className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold"
+          style={{ background: "var(--brand-800)", color: "#FFFFFF" }}
+          aria-hidden
+        >
+          {initial}
         </span>
         <div className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold leading-none text-white truncate">{t("profile.title")}</span>
-          <span className="block text-xs leading-none text-white/50 truncate mt-1">{t("profile.subtitle")}</span>
+          <span
+            className="block text-[13px] font-semibold leading-tight truncate"
+            style={{ color: "var(--zinc-950)" }}
+          >
+            {displayName}
+          </span>
+          <span
+            className="block text-[11px] leading-tight truncate mt-0.5"
+            style={{ color: "var(--sand-600)" }}
+          >
+            {subtitle}
+          </span>
         </div>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-white/40" />
+        <ChevronRight
+          className="h-3.5 w-3.5 shrink-0"
+          strokeWidth={1.75}
+          style={{ color: "var(--sand-600)" }}
+        />
       </Link>
     </div>
   );

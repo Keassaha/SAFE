@@ -6,8 +6,9 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
-import { DossierDetailTabs } from "@/components/dossiers/detail";
+import { DossierBriefcase } from "@/components/dossiers/briefcase";
 import { canViewSensitiveFields } from "@/lib/auth/permissions";
+import { getDossierSections, generateCartable } from "@/lib/dossiers/cartable-service";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 
@@ -42,6 +43,28 @@ export default async function DossierDetailPage({
     },
   });
   if (!dossier) notFound();
+
+  // Sections cartable — génération auto si dossier existant sans sections
+  let sections = await getDossierSections(id, cabinetId);
+  if (sections.length === 0 && dossier.type) {
+    await generateCartable(id, cabinetId, dossier.type);
+    sections = await getDossierSections(id, cabinetId);
+  }
+
+  // Documents rédigés via l'éditeur (RichDocument) liés à ce dossier
+  const richDocs = await prisma.richDocument.findMany({
+    where: { dossierId: id, cabinetId, isArchived: false },
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      titre: true,
+      type: true,
+      statut: true,
+      updatedAt: true,
+      lastEditedBy: { select: { nom: true } },
+      _count: { select: { versions: true } },
+    },
+  });
 
   const t = await getTranslations("matters");
   const tc = await getTranslations("common");
@@ -119,127 +142,55 @@ export default async function DossierDetailPage({
 
   return (
     <div className="space-y-0">
-      {/* En-tête dossier : hiérarchie claire, actions à droite */}
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-[var(--safe-neutral-900)]/95 backdrop-blur-md px-6 py-4 shadow-lg">
+      {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
+      <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/75 backdrop-blur-md px-6 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href={routes.dossiers}
-                className="text-sm font-medium text-[var(--safe-green-600)] hover:text-[var(--safe-green-100)] transition-colors"
+                className="text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors"
               >
                 ← {t("backToList")}
               </Link>
-              <span className="text-[var(--safe-neutral-500)]">·</span>
-              <span className="text-sm text-white/80 truncate">{clientName}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-sm text-slate-600 truncate">{clientName}</span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
               {numeroDossier} — {dossier.intitule}
             </h1>
             <div className="flex flex-wrap items-center gap-2">
               {dossier.avocatResponsable?.nom && (
-                <span className="rounded-safe-sm bg-white/10 px-3 py-1 text-xs font-medium text-white/90">
+                <span className="rounded-safe-sm bg-slate-100 border border-slate-200/60 px-3 py-1 text-xs font-medium text-slate-700">
                   Avocat : {dossier.avocatResponsable.nom}
                 </span>
               )}
               <span
                 className={`inline-flex items-center rounded-safe-sm px-3 py-1 text-xs font-semibold ${
                   dossier.statut === "actif" || dossier.statut === "ouvert"
-                    ? "bg-[var(--safe-status-success)]/20 text-[var(--safe-green-100)]"
-                    : "bg-white/10 text-white/80"
+                    ? "bg-emerald-50 border border-emerald-200/70 text-emerald-700"
+                    : "bg-slate-100 border border-slate-200/60 text-slate-600"
                 }`}
               >
                 {STATUT_LABELS[dossier.statut] ?? dossier.statut}
               </span>
               {mandatIncomplet && (
-                <span className="inline-flex items-center gap-1 rounded-safe-sm bg-red-500/20 px-3 py-1 text-xs font-medium text-red-200">
+                <span className="inline-flex items-center gap-1 rounded-safe-sm bg-red-50 border border-red-200/70 px-3 py-1 text-xs font-medium text-red-700">
                   ⚠ Mandat incomplet
                 </span>
               )}
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <div className="relative inline-block">
-              <details className="group">
-                <summary className="list-none inline-flex items-center gap-1.5 rounded-safe-sm border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors cursor-pointer">
-                  📄 Generate Document
-                  <svg className="w-3 h-3 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <div className="absolute right-0 mt-2 w-64 rounded-safe-sm bg-white shadow-xl border border-slate-200 z-50 overflow-hidden">
-                  <a
-                    href={`/api/documents/engagement-letter/${id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
-                  >
-                    📋 Engagement Letter
-                    <span className="block text-xs text-slate-500 mt-0.5">LSO-compliant retainer letter</span>
-                  </a>
-                  {dossier.type === "immobilier" && (
-                    <a
-                      href={`/api/documents/fintrac-declaration/${id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
-                    >
-                      🛡 FINTRAC Declaration
-                      <span className="block text-xs text-slate-500 mt-0.5">Anti-money laundering form</span>
-                    </a>
-                  )}
-                  {dossier.type === "immigration" && (
-                    <>
-                      <a
-                        href={`/api/documents/imm-5476/${id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
-                      >
-                        🛂 IMM 5476 — Représentant
-                        <span className="block text-xs text-slate-500 mt-0.5">Formulaire IRCC nov. 2025 (obligatoire)</span>
-                      </a>
-                      <a
-                        href={`/api/documents/antecedents-declaration/${id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
-                      >
-                        📋 Déclaration d&apos;antécédents
-                        <span className="block text-xs text-slate-500 mt-0.5">Obligation Barreau QC — B-1, r.3.1</span>
-                      </a>
-                      <a
-                        href={`/api/documents/immigration-mandate/${id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100"
-                      >
-                        ✍️ Mandat immigration
-                        <span className="block text-xs text-slate-500 mt-0.5">Clause non-garantie + frais IRCC</span>
-                      </a>
-                    </>
-                  )}
-                  <a
-                    href={`/api/documents/closure-letter/${id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
-                  >
-                    📁 File Closure Letter
-                    <span className="block text-xs text-slate-500 mt-0.5">Final account + retention notice</span>
-                  </a>
-                </div>
-              </details>
-            </div>
             <Link
               href={routes.client(dossier.clientId)}
-              className="inline-flex items-center rounded-safe-sm border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              className="inline-flex items-center rounded-safe-sm border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white hover:border-slate-300 transition-colors"
             >
               {t("viewClient")}
             </Link>
             <Link
               href={`${routes.dossier(id)}?edit=1`}
-              className="inline-flex items-center rounded-safe-sm bg-[var(--safe-green-600)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--safe-green-700)] transition-colors shadow-md"
+              className="inline-flex items-center rounded-safe-sm bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-600/20"
             >
               {t("editMatter")}
             </Link>
@@ -247,14 +198,79 @@ export default async function DossierDetailPage({
         </div>
       </header>
 
-      {/* Onglets de détail */}
-      <div className="p-4 sm:p-6">
-        <DossierDetailTabs
-          dossierId={id}
-          statutDossier={statutDossier}
-          dossierType={dossier.type}
-        />
-      </div>
+      {/* Documents rédigés via l'éditeur SAFE */}
+      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">Documents rédigés</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Documents créés depuis l'éditeur · liés à ce dossier
+            </p>
+          </div>
+          <Link
+            href={`/edition/${id}`}
+            className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-medium transition-colors"
+          >
+            + Nouveau / Atelier
+          </Link>
+        </div>
+        {richDocs.length === 0 ? (
+          <div className="text-xs text-slate-500 italic py-3 px-3 bg-slate-50 rounded-md border border-slate-200">
+            Aucun document rédigé pour ce dossier.{" "}
+            <Link href={`/edition/${id}`} className="text-emerald-700 hover:underline">
+              Créer le premier
+            </Link>
+          </div>
+        ) : (
+          <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
+            {richDocs.map((d, i) => {
+              const statutColor =
+                d.statut === "final"
+                  ? "text-green-700 bg-green-50 border-green-200"
+                  : d.statut === "brouillon"
+                  ? "text-amber-700 bg-amber-50 border-amber-200"
+                  : "text-slate-600 bg-slate-50 border-slate-200";
+              const statutLabel =
+                d.statut === "final" ? "Final" : d.statut === "brouillon" ? "Brouillon" : "Archivé";
+              return (
+                <Link
+                  key={d.id}
+                  href={`/edition/${id}/${d.id}`}
+                  className={`flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors ${
+                    i > 0 ? "border-t border-slate-100" : ""
+                  }`}
+                >
+                  <div className="text-slate-400">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                      <path d="M14 3v5h5" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-slate-900 truncate">{d.titre}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {d.type} · {d._count.versions} version{d._count.versions > 1 ? "s" : ""}
+                      {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
+                      {" · "}
+                      {new Date(d.updatedAt).toLocaleDateString("fr-CA", { day: "numeric", month: "short" })}
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full border ${statutColor}`}>
+                    {statutLabel}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Cartables de détail */}
+      <DossierBriefcase
+        dossierId={id}
+        statutDossier={statutDossier}
+        sections={sections}
+      />
     </div>
   );
 }
