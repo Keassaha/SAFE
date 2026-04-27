@@ -1,5 +1,9 @@
+-- Migration idempotente : la table peut déjà exister (créée auparavant via
+-- `prisma db push`). On utilise IF NOT EXISTS partout et un bloc DO pour
+-- les contraintes FK qui ne supportent pas IF NOT EXISTS.
+
 -- CreateTable
-CREATE TABLE "DossierSection" (
+CREATE TABLE IF NOT EXISTS "DossierSection" (
     "id" TEXT NOT NULL,
     "dossierId" TEXT NOT NULL,
     "cabinetId" TEXT NOT NULL,
@@ -18,13 +22,22 @@ CREATE TABLE "DossierSection" (
 );
 
 -- CreateIndex
-CREATE INDEX "DossierSection_dossierId_idx" ON "DossierSection"("dossierId");
+CREATE INDEX IF NOT EXISTS "DossierSection_dossierId_idx" ON "DossierSection"("dossierId");
+CREATE INDEX IF NOT EXISTS "DossierSection_cabinetId_idx" ON "DossierSection"("cabinetId");
 
--- CreateIndex
-CREATE INDEX "DossierSection_cabinetId_idx" ON "DossierSection"("cabinetId");
+-- AddForeignKey (ignore if already exists)
+DO $$
+BEGIN
+    ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_dossierId_fkey"
+        FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_dossierId_fkey" FOREIGN KEY ("dossierId") REFERENCES "Dossier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_cabinetId_fkey" FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+    ALTER TABLE "DossierSection" ADD CONSTRAINT "DossierSection_cabinetId_fkey"
+        FOREIGN KEY ("cabinetId") REFERENCES "Cabinet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
