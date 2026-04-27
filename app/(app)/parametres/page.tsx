@@ -384,7 +384,7 @@ export default async function ParametresPage() {
           ]}
           statusLabel={activeCategorizationRulesCount > 0 || latestImport ? t("operational") : t("toEnrich")}
           statusVariant={activeCategorizationRulesCount > 0 || latestImport ? "neutral" : "warning"}
-          href={latestImport ? routes.safeImport : routes.outilsGenerateurDocuments}
+          href={latestImport ? routes.safeImport : routes.outils}
           cta={latestImport ? t("viewImports") : t("openTools")}
         />
       </div>
