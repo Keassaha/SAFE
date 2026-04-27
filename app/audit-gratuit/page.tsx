@@ -147,9 +147,9 @@ export default function AuditGratuitPage() {
 
             <div className="grid grid-cols-3 gap-3 mb-10">
               {[
-                { num: "01", label: "Conformité", sub: "Barreau & LSO" },
-                { num: "02", label: "Devis",      sub: "Valeur du marché" },
-                { num: "03", label: "Offre",      sub: "Adaptée à vous" },
+                { num: "01", label: "Plus de revenus", sub: "Fuites de facturation colmatées" },
+                { num: "02", label: "Plus de temps",   sub: "8 h / sem en moyenne libérées" },
+                { num: "03", label: "Plus tranquille", sub: "Conformité Barreau assurée" },
               ].map((it) => (
                 <div key={it.label} className="audit-v2-card text-left">
                   <div

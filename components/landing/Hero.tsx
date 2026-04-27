@@ -59,16 +59,16 @@ export function Hero() {
         className="flex items-center justify-center divide-x divide-border w-full max-w-[600px] border-y border-[0.5px] border-border py-6 z-10 relative"
       >
         <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Temps réel</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Rapprochement</span>
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Quotidien</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Rapprochement fidéicommis</span>
         </div>
         <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">12,4&nbsp;h</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Économisées</span>
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">8&nbsp;h&nbsp;/&nbsp;sem</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Temps économisé</span>
         </div>
         <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl font-medium tabular-nums tracking-[-0.02em] text-forest-600">100&nbsp;%</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Conforme</span>
+          <span className="font-serif text-3xl font-medium tabular-nums tracking-[-0.02em] text-forest-600">B-1&nbsp;r.5</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Conforme par défaut</span>
         </div>
       </motion.div>
     </section>
