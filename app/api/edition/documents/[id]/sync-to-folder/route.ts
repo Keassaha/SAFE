@@ -5,7 +5,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { buildPdfDocument } from "../pdf/route";
+import { buildPdfDocument } from "@/lib/edition/pdf-builder";
 import { prepareStorageForUpload } from "@/lib/services/document";
 
 /**
