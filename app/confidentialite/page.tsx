@@ -93,14 +93,14 @@ export default function ConfidentialitePage() {
                 <li><strong>Droit de retrait du consentement :</strong> retirer votre consentement à tout moment.</li>
               </ul>
               <p className="mt-3">
-                Pour exercer ces droits, écrivez-nous à <a href="mailto:ptiahou@gmail.com" className="text-[var(--safe-accent)] underline">ptiahou@gmail.com</a>.
+                Pour exercer ces droits, écrivez-nous à <a href="mailto:jeremie@safecabinet.ca" className="text-[var(--safe-accent)] underline">jeremie@safecabinet.ca</a>.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold mb-3">8. Responsable de la protection des renseignements</h2>
               <p>
-                Conformément à la Loi 25, un responsable de la protection des renseignements personnels a été désigné. Pour toute question relative à cette politique, contactez-nous à <a href="mailto:ptiahou@gmail.com" className="text-[var(--safe-accent)] underline">ptiahou@gmail.com</a>.
+                Conformément à la Loi 25, un responsable de la protection des renseignements personnels a été désigné. Pour toute question relative à cette politique, contactez-nous à <a href="mailto:jeremie@safecabinet.ca" className="text-[var(--safe-accent)] underline">jeremie@safecabinet.ca</a>.
               </p>
             </section>
 

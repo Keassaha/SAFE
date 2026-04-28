@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },

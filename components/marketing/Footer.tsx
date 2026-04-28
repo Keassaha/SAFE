@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 
 const footerLinks = {
   produit: [
@@ -13,7 +13,7 @@ const footerLinks = {
   legal: [
     { label: "Politique de confidentialité", href: "/confidentialite" },
     { label: "Conditions d'utilisation", href: "/conditions" },
-    { label: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
+    { label: "jeremie@safecabinet.ca", href: "mailto:jeremie@safecabinet.ca" },
   ],
 };
 

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Send notification email to support
     try {
       await sendEmail({
-        to: "ptiahou@gmail.com",
+        to: "jeremie@safecabinet.ca",
         subject: `[Nouveau Contact] ${name} — ${cabinet || "Cabinet non spécifié"}`,
         html: `
           <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">

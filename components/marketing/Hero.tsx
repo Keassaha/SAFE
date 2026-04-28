@@ -15,7 +15,7 @@ import Link from "next/link";
    ═══════════════════════════════════════════════ */
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);

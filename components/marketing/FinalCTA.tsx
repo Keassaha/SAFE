@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Shield, Clock, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 
 /* ── Decorative sparkle dots ── */
 function SparkleField() {

@@ -120,7 +120,7 @@ export default function ConditionsPage() {
             <section>
               <h2 className="text-xl font-semibold mb-3">13. Contact</h2>
               <p>
-                Pour toute question relative aux présentes conditions, contactez-nous à <a href="mailto:ptiahou@gmail.com" className="text-[var(--safe-accent)] underline">ptiahou@gmail.com</a>.
+                Pour toute question relative aux présentes conditions, contactez-nous à <a href="mailto:jeremie@safecabinet.ca" className="text-[var(--safe-accent)] underline">jeremie@safecabinet.ca</a>.
               </p>
             </section>
           </div>

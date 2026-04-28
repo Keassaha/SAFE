@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 
 const OUTCOMES = [
   {

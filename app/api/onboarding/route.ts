@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     try {
       await sendEmail({
-        to: "ptiahou@gmail.com",
+        to: "jeremie@safecabinet.ca",
         subject: adminSubject,
         html: onboardingAdminEmailHtml(data, lang, calc),
       });

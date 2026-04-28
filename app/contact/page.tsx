@@ -6,9 +6,9 @@ import { Mail, Phone, MapPin, Send, ArrowRight, Calendar, MessageSquare, Shield,
 import { Navbar } from "@/components/marketing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 
-const CALENDLY_URL = "https://calendly.com/ptiahou/30min";
+const CALENDLY_URL = "https://calendly.com/jeremie/30min";
 const CALENDLY_EMBED_URL =
-  "https://calendly.com/ptiahou/30min?hide_landing_page_details=1&hide_gdpr_banner=1";
+  "https://calendly.com/jeremie/30min?hide_landing_page_details=1&hide_gdpr_banner=1";
 
 /* ───── Animated envelope illustration ───── */
 function EnvelopeIllustration() {
@@ -203,7 +203,7 @@ export default function ContactPage() {
                   className="space-y-4"
                 >
                   {[
-                    { icon: Mail, label: "Courriel", value: "ptiahou@gmail.com", href: "mailto:ptiahou@gmail.com" },
+                    { icon: Mail, label: "Courriel", value: "jeremie@safecabinet.ca", href: "mailto:jeremie@safecabinet.ca" },
                     { icon: Phone, label: "Téléphone", value: "+1 (819) 271-8656", href: "tel:+18192718656" },
                     { icon: MapPin, label: "Bureau", value: "Québec, QC, Canada", href: null },
                   ].map((item, i) => (
