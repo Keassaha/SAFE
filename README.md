@@ -1,77 +1,77 @@
-# SAFE — Système Automatisé de Facturation et d'Exploitation
+# SAFE
 
-Plateforme SaaS pour la gestion des dossiers juridiques, des heures travaillées, de la facturation et des paiements pour petits cabinets d'avocats canadiens (1 à 5 avocats).
+SAFE est une plateforme SaaS de gestion de cabinet juridique orientee operations, facturation et conformite. Le repo courant contient l'application produit. Le pipeline client et les documents business vivent hors repo.
+
+## Source de verite
+
+- Code produit: ce repo
+- Delivery client: `/Users/Bookkeeping/Desktop/Delivery Syst`
+- Business SAFE Inc.: `/Users/Bookkeeping/Desktop/SAFE Inc.`
+
+Le detail est documente dans [docs/SOURCE_OF_TRUTH.md](/Users/Bookkeeping/SAAS%20-%20SAFE%2002/docs/SOURCE_OF_TRUTH.md:1).
+
+## Etat actuel
+
+Le projet n'est plus un MVP simple. Le code couvre deja:
+
+- auth et gestion multi-cabinet
+- clients, dossiers et permissions par role
+- facturation, paiements, notes de credit et suivi
+- fiducie, rapprochement et conformite
+- edition documentaire, PDF, upload et versions
+- import, rapports, comptabilite, employes et parametres
+- onboarding, audit gratuit et configuration par `CabinetInterface`
+
+Le cabinet Derisier est le cas d'activation le plus avance. Son statut consolide est suivi dans [docs/DERISIER_ACTIVATION_STATUS.md](/Users/Bookkeeping/SAAS%20-%20SAFE%2002/docs/DERISIER_ACTIVATION_STATUS.md:1).
 
 ## Stack
 
-- **Frontend** : Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
-- **Backend** : Next.js API Routes, Server Actions
-- **Base de données** : PostgreSQL avec Prisma
-- **Auth** : NextAuth.js (Credentials + JWT), rôles : admin_cabinet, avocat, assistante, comptabilite
+- Frontend: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS
+- Backend: Route Handlers Next.js, Server Actions, NextAuth
+- Data: PostgreSQL + Prisma
+- Integrations presentes ou prevues: Supabase, Stripe, Resend, Anthropic
 
-## Démarrage
+## Demarrage local
 
-1. **Installation**
+1. Installer les dependances:
 
 ```bash
 npm install
 ```
 
-2. **Variables d'environnement**
+2. Copier `.env.example` vers `.env` et renseigner au minimum:
 
-Copiez `.env.example` vers `.env` et ajustez si besoin :
+- `DATABASE_URL`
+- `DIRECT_URL` si tu utilises une URL de migration separee
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL=http://localhost:3001`
 
-- `DATABASE_URL` : URL PostgreSQL (ex. Neon, Vercel Postgres, Supabase). Voir [DEPLOYMENT.md](./DEPLOYMENT.md) pour le déploiement sur Vercel.
-- `DIRECT_URL` : *(optionnel en local)* URL de connexion directe à PostgreSQL. Si votre fournisseur ne donne qu’une seule URL, vous pouvez mettre la même valeur que `DATABASE_URL`. En production (Vercel), voir [DEPLOYMENT.md](./DEPLOYMENT.md).
-- `NEXTAUTH_SECRET` : secret pour les sessions (générer avec `openssl rand -base64 32`)
-- `NEXTAUTH_URL` : URL de l'app (ex. `http://localhost:3001` ; en prod ex. `https://votre-app.vercel.app`). Le script `npm run dev` lance l’app sur le port **3001**.
-
-3. **Base de données**
+3. Generer Prisma puis appliquer les migrations:
 
 ```bash
 npx prisma generate
 npx prisma migrate deploy
 ```
-(Requiert une base PostgreSQL et `DATABASE_URL` dans `.env`.)
 
-4. **Lancement**
+4. Lancer l'app:
 
 ```bash
 npm run dev
 ```
 
-Ouvrez [http://localhost:3001](http://localhost:3001). Créez un compte via **Créer un compte** (premier utilisateur = administrateur du cabinet).
+L'app tourne sur `http://localhost:3001`.
 
-## Fonctionnalités MVP
+## Scripts utiles
 
-- **Auth** : Inscription (création cabinet + admin), connexion, déconnexion
-- **Clients** : CRUD, liste et fiche détail
-- **Dossiers** : CRUD, liaison client, statut actif/clôturé
-- **Fiches de temps** : CRUD, liaison dossier / utilisateur, calcul montant
-- **Facturation** : Création facture à partir des fiches de temps, numérotation, lignes manuelles, PDF
-- **Paiements** : Enregistrement des paiements, mise à jour du solde facture
-- **Tableau de bord** : KPIs (CA, encaissements, créances, dossiers actifs), graphique revenus par mois
-- **Rapports** : Filtres année / client / avocat, revenus par client et par avocat
-
-## Rôles et permissions
-
-- **Administrateur** : Accès complet (paramètres cabinet, utilisateurs, tout le reste).
-- **Avocat** : Fiches de temps, lecture clients/dossiers/factures.
-- **Assistante** : Clients, dossiers, fiches de temps, facturation (création/brouillons).
-- **Comptabilité** : Facturation, paiements, rapports ; lecture sur le reste.
-
-Les liens du menu latéral sont filtrés selon le rôle. Les actions serveur vérifient `cabinetId` pour l’isolation multi-tenant.
-
-## Structure du projet
-
-- `app/` : Routes (landing, auth, app protégée)
-- `components/` : UI, layout, formulaires par module
-- `lib/` : DB (Prisma), auth, validations (Zod), utils
-- `prisma/` : Schéma et migrations
-
-## Commandes utiles
-
-- `npm run dev` : serveur de développement
+- `npm run dev` : serveur local
 - `npm run build` : build production
-- `npm run db:studio` : interface Prisma Studio pour la base
-- `npm run db:migrate` : créer une migration
+- `npm run test:run` : tests unitaires
+- `npm run db:generate` : regenere Prisma Client
+- `npm run db:migrate` : cree une migration locale
+- `npm run db:studio` : ouvre Prisma Studio
+
+## Notes d'exploitation
+
+- Les copies flottantes `SAFE Inc./` et `.agents/Delivery Syst/` dans le workspace ne sont pas autoritaires et sont ignorees par Git.
+- La build locale n'a plus besoin d'aller chercher de fonts Google pour compiler.
+- `IMPLEMENTATION_SUMMARY.md` sert maintenant de statut de consolidation, pas de roadmap fictive.

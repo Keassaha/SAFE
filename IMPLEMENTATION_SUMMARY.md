@@ -1,143 +1,76 @@
-# SAFE Inc. 6-8 Week Integration Roadmap
+# SAFE Consolidation Summary
 
-**Status**: Ready to begin Phase 1  
-**Unified Schema**: `/prisma/schema.prisma.unified`  
-**Detailed Plan**: `planning/implementation-plan-unified-modules.md`
+Date de mise a jour: 2026-04-28
 
----
+Ce fichier ne decrit plus une roadmap theorique "pret a commencer". Il sert de photo d'etat du produit et des travaux de consolidation en cours.
 
-## What's Happening
+## Ou on en est
 
-You identified accounting coherence issues in SAFE (multiple sources of truth, no sync, inconsistent data). Before fixing those, you've decided to integrate two critical modules that will provide the foundation:
+SAFE est deja un produit large, avec des modules actifs pour:
 
-1. **Documents & Rédaction** (Tiptap editor, templates, email/SMS)
-2. **Gestion de Projet & Calendrier** (tasks, automation, notifications)
+- clients, dossiers et permissions
+- facturation, paiements, notes de credit et suivi
+- fiducie, conformite et rapprochement
+- edition documentaire, upload, versions et PDF
+- comptabilite, import, rapports et dashboard
+- onboarding, audit gratuit et configuration par cabinet
+- employes, invitations et parametres
 
-Then: **Accounting Coherence Fixes** (sync hub, reconciliation, audit trail)
+Le travail prioritaire n'est plus de "commencer Phase 1", mais de consolider quatre axes:
 
-This sequence makes sense because the project/task workflow will feed cleaner data into the accounting system.
+1. source de verite documentaire
+2. activation client Derisier
+3. hygiene Git et environnement
+4. reproductibilite technique et couverture de tests
 
----
+## Source de verite
 
-## 4-Phase Breakdown
+- Le repo SAFE est la source de verite du code.
+- `Delivery Syst` est la source de verite du delivery client.
+- `SAFE Inc.` est la source de verite business et operations.
 
-### Phase 1: Database Migration (Week 1-2)
-**3 tasks**, foundation layer.
-- Create Prisma migration (new models: RedactionDocument, Task, Template, Email, SMS, etc.)
-- Seed 20+ system templates (legal correspondence, retainer, procedure templates)
-- Deploy to staging + validate
+Reference: [docs/SOURCE_OF_TRUTH.md](/Users/Bookkeeping/SAAS%20-%20SAFE%2002/docs/SOURCE_OF_TRUTH.md:1)
 
-**Success**: Migration runs, zero data loss, templates visible.
+## Etat produit
 
-### Phase 2: Documents & Rédaction (Week 2-4)
-**14 tasks**, users can create/edit legal documents.
-- Tiptap editor component + variable substitution
-- RedactionDocument CRUD routes
-- PDF/DOCX export
-- Email/SMS composition + queue
-- AI suggestions (Claude integration)
-- Document versioning + finalization
-- Search/filter + retention policy
+### Stable dans le repo
 
-**Success**: Users create a letter template, edit it, export to PDF, email it with one click.
+- schema Prisma principal en place
+- module Edition integre a la navigation
+- dashboard, invitations equipe et refonte UI deja livres
+- seeds Derisier presents pour checklists, debours, retention et emails
 
-### Phase 3: Project Management & Calendar (Week 4-6)
-**16 tasks**, users can manage tasks + calendar.
-- Task CRUD + Kanban board (drag-drop status change)
-- Calendar (firm-wide, shows all events + task deadlines)
-- **Force-active-task rule** (prevents dossier closure without active task — MANDATORY)
-- Automation rules (inactivity alerts, deadline reminders, auto-task creation)
-- BullMQ + Redis for background jobs
-- Multi-channel notifications (in-app, email, SMS, push)
-- External calendar sync (Google, Outlook)
+### En transition
 
-**Success**: Users see all tasks in a Kanban, drag to mark complete, get notified, can't close a dossier without an active task.
+- activation Derisier encore bloquee sur validation production
+- certaines docs historiques ne refletaient plus l'etat reel
+- copies flottantes de dossiers externes presentes dans le workspace
 
-### Phase 4: Accounting Coherence (Week 6+)
-**12 tasks**, accounting data is reliable.
-- Invoice recalculation engine (atomic, cascades to payments)
-- Trust account synchronization (always matches transaction sum)
-- Debours (expense) synchronization
-- Payment reconciliation (auto-match bank imports)
-- Daily reconciliation job (detects inconsistencies automatically)
-- Manual override UI + audit logging
-- Dashboard consistency checks
+### A durcir
 
-**Success**: Invoice amount = sum of time entries. Trust balance = sum of transactions. All changes logged.
+- build reproductible sans dependance reseau inutile
+- tests unitaires sur la logique critique de facturation
+- hygiene des variables d'environnement locales
 
----
+## Derisier
 
-## Key Architectural Decisions (Already Made)
+Derisier est le cas d'activation le plus avance, mais pas encore ferme.
 
-### 1. **Dossier-Centric**
-All features scoped to a specific case, EXCEPT Calendar (firm-wide, only exception).  
-**Why**: Prevents cross-dossier leakage, isolates context.
+Statut repo: `blocked-on-production-validation`
 
-### 2. **RedactionDocument ≠ Document**
-- Document: file uploads (existing)
-- RedactionDocument: Tiptap editing (new)  
-**Why**: Different workflows, avoids schema collision.
+Reference: [docs/DERISIER_ACTIVATION_STATUS.md](/Users/Bookkeeping/SAAS%20-%20SAFE%2002/docs/DERISIER_ACTIVATION_STATUS.md:1)
 
-### 3. **Task Renamed from DossierTache**
-Extended with automation + parent-child chaining.  
-**Why**: Better semantics, supports complex workflows.
+Les blocants restants sont surtout hors repo:
 
-### 4. **Force-Active-Task Rule (MANDATORY)**
-Cannot close dossier without Task.status = IN_PROGRESS.  
-**Why**: Prevents ghost cases, ensures explicit transitions.
+- configuration production et DB cible
+- application du JSON `CabinetInterface`
+- execution des seeds sur la bonne base
+- invitation et verification des roles
+- Resend, Stripe, DocuSign et webhooks
 
-### 5. **BullMQ + Redis**
-Single queue handles automation, email, SMS, notifications.  
-**Why**: Consistent infrastructure, persistent, retry logic, monitoring included.
+## Chantiers immediats
 
-### 6. **AI Integration**
-Claude API for document suggestions (grammar, tone, legal templates).  
-**Why**: Reduces review time, improves document quality.
-
----
-
-## Task Sequencing
-
-Critical path:
-1. Phase 1.1 (migration) → everything depends on it
-2. Phase 1.2-1.3 (templates + staging validation) → Phase 2 unblocked
-3. Phase 2 can run in parallel with Phase 3 prep
-4. Phase 3.1 (BullMQ setup) → automation rules unblocked
-5. Phase 4 depends on Phases 2-3 foundation (documents + tasks exist)
-
-See `implementation-plan-unified-modules.md` for full dependency graph per task.
-
----
-
-## Success Metrics
-
-**Phase 1**: Migration runs, templates seeded, zero errors.  
-**Phase 2**: 2-3 users create/edit documents with AI suggestions, PDF export works.  
-**Phase 3**: Tasks visible in Kanban, Calendar displays 100+ events, force-active-task rule enforced.  
-**Phase 4**: Invoice = sum(TimeEntry), Trust balance = sum(Transactions), audit log 100%.
-
----
-
-## Next Step: Ready?
-
-The unified schema is committed. The detailed plan is written.
-
-**Option A**: Start Phase 1.1 immediately (create migration, seed templates).  
-**Option B**: Review the detailed plan first, clarify any questions.  
-**Option C**: Start a different area (frontend prep for Phase 2/3, Redis setup for Phase 3).
-
-Which would you prefer?
-
----
-
-## Key Files
-
-- **Unified Schema**: `prisma/schema.prisma.unified`
-- **Detailed Plan**: `planning/implementation-plan-unified-modules.md`
-- **This Summary**: `IMPLEMENTATION_SUMMARY.md`
-- **Memory**: `.claude/projects/-Users-Bookkeeping-SAAS---SAFE-02/memory/project_module_integration.md`
-
----
-
-**Estimated Effort**: 160-200 developer-hours over 6-8 weeks.  
-**Risk Level**: Medium (database migration, complex automation rules). Mitigated by staging tests, rollback plans, audit trails.
+- garder le repo comme seule verite code et ignorer les copies locales
+- maintenir `README.md` et ce fichier comme reflets de l'etat reel
+- fermer Derisier via la checklist Delivery, pas via des suppositions dans le repo
+- elargir la couverture de tests autour de la logique de facturation et d'interets

@@ -1,6 +1,8 @@
 node_modules
+.DS_Store
 .env
 .env.local
+.env.production.local
 uploads/
 .next
 
@@ -15,3 +17,7 @@ uploads/
 
 # Claude / agents locaux
 .claude/
+
+# Copies flottantes a conserver hors repo
+.agents/Delivery Syst/
+SAFE Inc./

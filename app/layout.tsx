@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
@@ -18,33 +19,13 @@ export const viewport: Viewport = {
 };
 
 /**
- * Fonts — Éditorial Chaleureux (DS Foundations)
+ * Fonts — local-first to keep builds reproducible.
  *
- * - Inter: UI, body, KPI numbers (DS defaults)
- * - Instrument Serif: italiques éditoriales
- * - JetBrains Mono: references and technical elements
+ * - Geist Sans / Mono are bundled through the `geist` package.
+ * - The editorial serif is exposed as a CSS variable with a local fallback stack.
  */
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-jetbrains-loaded",
-  display: "swap",
-  preload: false,
-});
+const editorialSerifStack =
+  '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -74,7 +55,8 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      style={{ "--font-instrument-serif": editorialSerifStack } as React.CSSProperties}
     >
       <body className="min-h-screen font-sans bg-slate-50 text-slate-800 antialiased selection:bg-forest-100 selection:text-forest-600">
         <NextIntlClientProvider locale={locale} messages={messages}>

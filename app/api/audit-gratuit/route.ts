@@ -19,6 +19,7 @@ import { sendEmail } from "@/lib/email";
 import { buildRecommendation } from "@/lib/audit-gratuit/recommendation";
 import { renderAuditReportPdf } from "@/lib/audit-gratuit/pdf";
 import { auditGratuitClientEmail } from "@/lib/email-templates/audit-gratuit-client";
+import { runConfigurationEngine } from "@/lib/configuration";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -62,8 +63,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Calcul de la recommandation
+  // Calcul de la recommandation existante (offre, devis, ROI, risques)
   const recommendation = buildRecommendation(answers);
+
+  // Moteur de recommandation de bundle (audit -> bundle -> configuration).
+  // Non bloquant: si l'engine échoue, on continue avec la recommandation classique.
+  let configEngineOutput: ReturnType<typeof runConfigurationEngine> | null = null;
+  try {
+    configEngineOutput = runConfigurationEngine(answers, { source: "audit_gratuit_v2" });
+  } catch (e) {
+    console.error("[audit-gratuit] configuration engine failed:", e);
+  }
 
   // Sauvegarde
   const submission = await prisma.auditSubmission.create({
@@ -81,8 +91,21 @@ export async function POST(req: NextRequest) {
         paybackWeeks: recommendation.roi.paybackWeeks,
         savingsPercent: recommendation.safeOffer.savings.percent,
         urgency: recommendation.urgencyLevel,
+        recommendedBundleId: configEngineOutput?.bundleRecommendation.bundleId,
+        bundleConfidence: configEngineOutput?.bundleRecommendation.confidence,
       }),
-      rapport: JSON.stringify(recommendation),
+      rapport: JSON.stringify({
+        ...recommendation,
+        configurationEngine: configEngineOutput
+          ? {
+              bundleRecommendation: configEngineOutput.bundleRecommendation,
+              auditProfiles: configEngineOutput.auditSnapshot.profiles,
+            }
+          : null,
+      }),
+      configSafe: configEngineOutput
+        ? JSON.stringify(configEngineOutput.configurationPackage)
+        : null,
       status: "nouveau",
     },
   });

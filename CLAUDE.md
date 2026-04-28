@@ -60,4 +60,53 @@ Documents opérationnels, légaux, financiers et marketing de SAFE Inc.
 
 ---
 
+## Pack recherche interne
+
+Pour toute recherche longue, sensible ou destinée à devenir une référence réutilisable, consulter aussi:
+
+- `docs/research/RESEARCH_STANDARDS.md`
+- `docs/research/RESEARCH_TEMPLATE.md`
+- `docs/research/RESEARCH_QA_CHECKLIST.md`
+- `docs/research/PROCEDURE_recherche_complete.md`
+
+Objectif: produire des recherches longues, claires, sourcées et avec marquage explicite des zones d'incertitude.
+
+---
+
+## Bibliotheque de bundles
+
+Pour toute reflexion sur le scale, l'onboarding, la configuration par cabinet ou l'automatisation du delivery, consulter aussi:
+
+- `docs/bundles/BUNDLE_SCHEMA.md`
+- `docs/bundles/SAFE_BUNDLE_LIBRARY.md`
+- `docs/bundles/BUNDLE_DECISION_RULES.md`
+
+Ces fichiers definissent les bundles standards SAFE et la frontiere entre standard, override et custom.
+
+---
+
+## Schema d'audit
+
+Pour toute evolution de l'audit gratuit, de la consultation de validation ou du mapping audit -> bundle, consulter aussi:
+
+- `docs/audit/AUDIT_SCHEMA_CANONIQUE.md`
+- `docs/audit/AUDIT_TO_BUNDLE_MAPPING.md`
+- `docs/audit/CONSULTATION_PHASE2.md`
+
+Ces fichiers definissent la structure cible de l'audit, les profils derives attendus et la maniere de recommander un bundle sans repartir de zero a chaque cabinet.
+
+---
+
+## Modele de configuration
+
+Pour toute conception du moteur `audit -> bundle -> configuration`, consulter aussi:
+
+- `docs/configuration/CONFIG_GENERATION_MODEL.md`
+- `docs/configuration/CONFIG_ARTIFACTS.md`
+- `lib/configuration/types.ts`
+
+Ces fichiers definissent les artefacts de sortie, les entites du modele et la structure canonique du paquet de configuration a generer.
+
+---
+
 **Dernière mise à jour** : 2026-04-15
