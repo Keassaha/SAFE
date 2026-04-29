@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
+import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -192,7 +193,8 @@ export default async function ClientDetailPage({
     dateEcheance: inv.dateEcheance,
     montantTotal: inv.montantTotal,
     balanceDue: inv.balanceDue,
-    statut: inv.statut,
+    // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+    statut: deriveLegacyStatut(inv),
     dossierIntitule: inv.dossier?.intitule ?? null,
     dossierId: inv.dossierId,
     paymentsCount: inv.payments.length,

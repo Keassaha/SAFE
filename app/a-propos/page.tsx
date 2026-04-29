@@ -108,10 +108,10 @@ function StoryTimeline() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const events = [
-    { year: "2024", text: "Le constat : 25 minutes pour une seule facture. Il doit y avoir une meilleure façon." },
-    { year: "2024", text: "Recherche : les outils existants sont trop chers, trop complexes, pas adaptés au Barreau." },
-    { year: "2025", text: "Première version de SAFE, le Système Automatisé de Facturation et d'Exploitation." },
-    { year: "2026", text: "Lancement officiel, conforme B-1 r.5, Loi 25, et compatible Québec et Ontario." },
+    { year: "2024", text: "Le constat : trop de cabinets passent autant de temps sur l'opérationnel que sur le droit." },
+    { year: "2025", text: "Septembre — Fondation de SAFE par Jérémie Tiahou. Construction du socle conforme B-1 r.5." },
+    { year: "2025", text: "Pensé d'abord en comptabilité, ensuite en logiciel. Hébergement canadien, Loi 25, By-Laws de la LSO." },
+    { year: "2026", text: "Premier cycle de cabinets accompagnés. Migration assistée, mise en service, accompagnement humain." },
   ];
 
   return (
@@ -193,9 +193,8 @@ export default function AProposPage() {
                 transition={{ delay: 0.1, duration: 0.6 }}
                 className="font-sans text-5xl md:text-6xl lg:text-7xl text-text-primary mb-8 leading-[1.05] tracking-tight"
               >
-                25 minutes pour{" "}
-                <span className="italic text-forest-600">une facture.</span>{" "}
-                On a décidé de changer ça.
+                Beaucoup de cabinets s&apos;appuient encore sur des processus manuels{" "}
+                <span className="italic text-forest-600">qui freinent leur efficacité.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -203,9 +202,7 @@ export default function AProposPage() {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="text-lg text-text-body leading-relaxed font-sans"
               >
-                SAFE, le Système Automatisé de Facturation et d&apos;Exploitation, est né
-                d&apos;une frustration réelle dans un cabinet d&apos;avocats. Pas d&apos;un
-                laboratoire de recherche.
+                SAFE a été fondé en septembre 2025 par Jérémie Tiahou. Formé en gestion d&apos;entreprise et spécialisé dans la comptabilité des petites structures, il a conçu SAFE autour d&apos;une observation simple : des dirigeants compétents — avocats inclus — passent autant de temps sur l&apos;opérationnel et la comptabilité que sur leur métier. SAFE a été conçu pour corriger ce déséquilibre.
               </motion.p>
             </div>
           </div>
@@ -218,33 +215,23 @@ export default function AProposPage() {
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
               <div>
                 <p className="text-lg font-sans italic text-forest-600 mb-4">
-                  L&apos;histoire
+                  Notre conviction
                 </p>
                 <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-8 leading-tight tracking-tight">
-                  D&apos;une frustration à une solution.
+                  Un cabinet d&apos;avocats mérite mieux qu&apos;un outil générique.
                 </h2>
                 <div className="space-y-6 text-text-body font-sans leading-relaxed">
                   <p>
-                    Tout a commencé par un défi simple : une avocate avait besoin d&apos;un
-                    système rigoureux pour gérer la comptabilité de son cabinet. De la facturation
-                    jusqu&apos;au suivi des dépenses, tout devait être fiable et conforme.
+                    Quand la facturation, les suivis sensibles et la conformité reposent sur Excel, sur des habitudes orales et sur des vérifications manuelles, le cabinet devient plus lourd à faire tourner et plus stressant à piloter.
                   </p>
                   <p>
-                    Le problème ? Son système, c&apos;était Excel. Chaque facture prenait
-                    25 minutes à préparer. Quand tu as encore dix autres tâches qui t&apos;attendent,
-                    ça devient un supplice. Les outils sur le marché existaient, mais ils étaient
-                    trop coûteux, bourrés de fonctionnalités inutiles que l&apos;avocat paie sans
-                    jamais utiliser.
+                    Les logiciels universels demandent au cabinet de s&apos;adapter à eux. SAFE fait l&apos;inverse : il s&apos;adapte à la réalité d&apos;une pratique juridique en province, à ses obligations, à son équipe et à son mode de facturation.
                   </p>
                   <p>
-                    On a cherché la bonne solution. Elle n&apos;existait pas. Pas au Québec,
-                    pas au Canada. Rien qui soit à la fois simple, abordable et conforme aux
-                    exigences du Barreau. Alors on l&apos;a construite.
+                    Audit, validation, configuration, migration, mise en service. À chaque étape, quelqu&apos;un vous accompagne. La technologie est au service du cabinet, pas l&apos;inverse.
                   </p>
                   <p className="text-text-primary font-medium">
-                    SAFE, le Système Automatisé de Facturation et d&apos;Exploitation. Un outil
-                    sur mesure, conforme aux barreaux, conçu pour aider les avocats à tenir leur
-                    comptabilité sans y perdre leur temps.
+                    Nous ne livrons pas un logiciel. Nous mettons un cabinet en ordre.
                   </p>
                 </div>
               </div>

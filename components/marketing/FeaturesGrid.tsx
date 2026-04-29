@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
+// Le CTA "Réserver un appel" pointe vers la page de contact.
+const BOOK_CALL_HREF = "/contact";
 
 const OUTCOMES = [
   {
@@ -37,7 +38,7 @@ const OUTCOMES = [
     description:
       "Dépôts, retraits, double validation, soldes en temps réel par client et par dossier. Moins de saisie, plus de temps facturable.",
     stat: "1 clic",
-    cta: { label: "Réserver un appel", href: CALENDLY_URL },
+    cta: { label: "Réserver un appel", href: BOOK_CALL_HREF },
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",
@@ -71,7 +72,7 @@ const OUTCOMES = [
     description:
       "Échéanciers judiciaires, rappels et alertes automatiques. Zéro oubli : vous avancez avec confiance.",
     stat: "0 oubli",
-    cta: { label: "Réserver un appel", href: CALENDLY_URL },
+    cta: { label: "Réserver un appel", href: BOOK_CALL_HREF },
     accent: {
       icon: "text-amber-400",
       bg: "bg-amber-500/15",

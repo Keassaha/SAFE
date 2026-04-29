@@ -49,6 +49,7 @@ export const routes = {
   gestion: "/gestion",
   gestionLexTrack: "/gestion/lextrack",
   gestionLexTrackDossier: (dossierId: string) => `/gestion/lextrack?dossierId=${encodeURIComponent(dossierId)}`,
+  gestionAssistante: "/gestion/assistante",
   safeImport: "/import",
   edition: "/edition",
   editionBibliotheque: "/edition/bibliotheque",

@@ -14,31 +14,31 @@ type Step = {
 const STEPS: Step[] = [
   {
     num: '01',
-    title: "Audit d'efficacité",
-    desc: "Analyse gratuite de vos processus actuels via un questionnaire de 10 minutes.",
+    title: "Audit",
+    desc: "On identifie les zones de friction, les risques et les priorités du cabinet.",
     time: "10 min",
-    detail: "Vous recevez un rapport personnalisé avec vos risques et un score de conformité.",
+    detail: "Rapport personnalisé. Aucun engagement, aucune démonstration commerciale.",
   },
   {
     num: '02',
-    title: "Consultation téléphonique",
-    desc: "Validation de vos besoins spécifiques et présentation du plan de migration.",
+    title: "Validation",
+    desc: "On confirme le bon cadre pour votre pratique, votre équipe et votre mode de facturation.",
     time: "30 min",
-    detail: "Un appel 1:1 avec un fondateur. Pas de vendeur, pas de script.",
+    detail: "Un appel direct avec l'équipe SAFE. Pas de scénario commercial.",
   },
   {
     num: '03',
-    title: "Préparation du système",
-    desc: "Configuration de votre compte, import de votre charte de comptes et formations.",
+    title: "Mise en ordre",
+    desc: "On configure SAFE, on prépare la migration et on structure le socle du cabinet.",
     time: "7-14 jours",
     detail: "On fait le travail lourd. Vous validez à chaque étape clé.",
   },
   {
     num: '04',
-    title: "Livraison du système",
-    desc: "Vous êtes prêt. Vos premiers dossiers s'ouvrent dans SAFE.",
+    title: "Mise en service",
+    desc: "Le cabinet devient plus simple à piloter, plus clair à suivre et plus solide au quotidien.",
     time: "J+15 à 30",
-    detail: "Accompagnement 30 jours inclus. Support courriel prioritaire à vie.",
+    detail: "Première facture envoyée dès la première semaine. Premier mois de fidéicommis concilié dans les 30 jours.",
   },
 ];
 
@@ -64,15 +64,14 @@ export function ProcessTimeline() {
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
           Le processus
         </span>
-        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-xl mb-4">
-          On s&apos;occupe de tout.{" "}
+        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl mb-4">
+          On ne vous laisse pas seul{" "}
           <span className="italic text-forest-600">
-            Vous continuez de pratiquer.
+            avec un nouvel outil.
           </span>
         </h2>
-        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-md">
-          Changer de système fait peur. On le sait. On fait le gros du travail
-          pendant que vous pratiquez.
+        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
+          Quatre étapes, une seule logique : remettre les choses en ordre, ensemble.
         </p>
       </motion.div>
 

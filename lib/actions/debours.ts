@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { deboursDossierSchema } from "@/lib/validations/debours";
 import { createAuditLog } from "@/lib/services/audit";
+import { writeJournalForDeboursPaiement } from "@/lib/services/journal/debours-dossier-journal";
+import { applyDeboursDossierCorrection } from "@/lib/services/journal/append-only-corrections";
 
 async function getDossierCabinetId(dossierId: string): Promise<string | null> {
   const dossier = await prisma.dossier.findFirst({
@@ -54,20 +56,37 @@ export async function createDeboursDossier(formData: FormData) {
     return { ok: false as const, error: "invalid" };
   }
 
-  const created = await prisma.deboursDossier.create({
-    data: {
-      cabinetId,
-      dossierId: parsed.data.dossierId,
-      clientId: parsed.data.clientId,
-      deboursTypeId: parsed.data.deboursTypeId ?? null,
-      description: parsed.data.description,
-      quantite: parsed.data.quantite,
-      montant: parsed.data.montant,
-      taxable: parsed.data.taxable,
-      date: parsed.data.date,
-      payeParCabinet: parsed.data.payeParCabinet,
-      refacturable: parsed.data.refacturable,
-    },
+  // Atomicité : la création du débours et l'éventuelle écriture journal
+  // doivent réussir ensemble. Le helper journal est un no-op silencieux
+  // si `payeParCabinet=false`, donc on l'appelle dans tous les cas — il
+  // gère la décision lui-même.
+  const created = await prisma.$transaction(async (txClient) => {
+    const debours = await txClient.deboursDossier.create({
+      data: {
+        cabinetId,
+        dossierId: parsed.data.dossierId,
+        clientId: parsed.data.clientId,
+        deboursTypeId: parsed.data.deboursTypeId ?? null,
+        description: parsed.data.description,
+        quantite: parsed.data.quantite,
+        montant: parsed.data.montant,
+        taxable: parsed.data.taxable,
+        date: parsed.data.date,
+        payeParCabinet: parsed.data.payeParCabinet,
+        refacturable: parsed.data.refacturable,
+      },
+      include: { deboursType: true },
+    });
+
+    // Doctrine §4 — un débours payé par le cabinet est une vraie sortie de
+    // trésorerie. L'helper est idempotent et silencieux si non payé.
+    await writeJournalForDeboursPaiement(debours, {
+      client: txClient,
+      utilisateurId: userId,
+      deboursType: debours.deboursType,
+    });
+
+    return debours;
   });
 
   await createAuditLog({
@@ -81,6 +100,8 @@ export async function createDeboursDossier(formData: FormData) {
 
   revalidatePath(`/dossiers/${dossierId}`);
   revalidatePath("/facturation/frais");
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
   revalidatePath("/tableau-de-bord");
   return { ok: true as const, id: created.id };
 }
@@ -88,9 +109,11 @@ export async function createDeboursDossier(formData: FormData) {
 export async function updateDeboursDossier(id: string, formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
 
+  // On lit l'état complet pré-update pour pouvoir détecter un changement
+  // matériel et déclencher la correction append-only le cas échéant.
   const existing = await prisma.deboursDossier.findFirst({
     where: { id, cabinetId },
-    select: { dossierId: true, factureId: true },
+    include: { deboursType: true },
   });
   if (!existing) {
     redirect("/dossiers");
@@ -117,18 +140,57 @@ export async function updateDeboursDossier(id: string, formData: FormData) {
     return { ok: false as const, error: "invalid" };
   }
 
-  await prisma.deboursDossier.update({
-    where: { id },
-    data: {
-      deboursTypeId: parsed.data.deboursTypeId ?? null,
-      description: parsed.data.description,
-      quantite: parsed.data.quantite,
-      montant: parsed.data.montant,
-      taxable: parsed.data.taxable,
-      date: parsed.data.date,
-      payeParCabinet: parsed.data.payeParCabinet,
-      refacturable: parsed.data.refacturable,
-    },
+  // Atomicité : update + (création journal initiale OU correction append-only)
+  // dans une seule transaction. La couche choisit le bon chemin selon l'état :
+  //
+  //   - L'entité n'a JAMAIS été journalisée (pas d'écriture initiale dans le
+  //     journal pour ce sourceId) → on appelle `writeJournalForDeboursPaiement`
+  //     qui crée l'écriture initiale si applicable. Cas typique : le débours
+  //     a été créé avec `payeParCabinet=false`, puis l'opérateur le passe à
+  //     `true` lors d'un update.
+  //
+  //   - L'entité A DÉJÀ été journalisée → tout changement matériel passe par
+  //     `applyDeboursDossierCorrection` qui émet une CORRECTION + un re-jeu
+  //     versionné si nécessaire. Append-only respecté.
+  //     Voir docs/accounting/APPEND_ONLY_CORRECTIONS.md.
+  await prisma.$transaction(async (txClient) => {
+    const updated = await txClient.deboursDossier.update({
+      where: { id },
+      data: {
+        deboursTypeId: parsed.data.deboursTypeId ?? null,
+        description: parsed.data.description,
+        quantite: parsed.data.quantite,
+        montant: parsed.data.montant,
+        taxable: parsed.data.taxable,
+        date: parsed.data.date,
+        payeParCabinet: parsed.data.payeParCabinet,
+        refacturable: parsed.data.refacturable,
+      },
+      include: { deboursType: true },
+    });
+
+    // Cherche l'écriture initiale au journal (sourceId exact).
+    const initialEntry = await txClient.journalGeneralEntry.findFirst({
+      where: { cabinetId, sourceModule: "DEBOURS", sourceId: id },
+      select: { id: true },
+    });
+
+    if (!initialEntry) {
+      // Jamais journalisé — on tente la création initiale (no-op si
+      // payeParCabinet=false ou montant=0).
+      await writeJournalForDeboursPaiement(updated, {
+        client: txClient,
+        utilisateurId: userId,
+        deboursType: updated.deboursType,
+      });
+    } else {
+      // Déjà journalisé — toute modification matérielle passe par la correction.
+      await applyDeboursDossierCorrection(existing as typeof updated, updated, {
+        client: txClient,
+        utilisateurId: userId,
+        deboursType: updated.deboursType,
+      });
+    }
   });
 
   await createAuditLog({
@@ -141,6 +203,8 @@ export async function updateDeboursDossier(id: string, formData: FormData) {
   });
 
   revalidatePath(`/dossiers/${existing.dossierId}`);
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
   return { ok: true as const };
 }
 

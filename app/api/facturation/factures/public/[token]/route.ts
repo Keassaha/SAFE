@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 
 /**
  * GET: retourne la facture pour un token de partage (lien client).
@@ -99,7 +100,8 @@ export async function GET(
   return NextResponse.json({
     id: invoice.id,
     numero: invoice.numero,
-    statut: invoice.statut,
+    // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+    statut: deriveLegacyStatut(invoice),
     dateEmission: invoice.dateEmission,
     dateEcheance: invoice.dateEcheance,
     clientId: invoice.clientId,

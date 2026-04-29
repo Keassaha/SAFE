@@ -18,6 +18,7 @@ export function ImportResultSummary({
     releve_bancaire: t("bankStatement"),
     registre_clients: t("clientRegistry"),
     fiches_temps: t("timesheets"),
+    migration_comptable: "Migration comptable",
   };
   const hasErrors = result.errors.length > 0;
   const allSuccess = result.created > 0 && result.errors.length === 0;
@@ -50,6 +51,28 @@ export function ImportResultSummary({
         <MetricCard label={t("ignored")} value={result.skipped} color="warning" />
         <MetricCard label={t("errorsLabel")} value={result.errors.length} color="error" />
       </div>
+
+      {result.documentType === "migration_comptable" && result.accountingBreakdown && (
+        <Card>
+          <CardHeader title="Détail comptable" />
+          <CardContent>
+            <p className="text-xs safe-text-secondary mb-3">
+              Répartition des décisions du moteur d&apos;import. Tout ce qui n&apos;est pas écrit
+              au journal reste consultable dans l&apos;historique d&apos;import (ID&nbsp;:&nbsp;
+              <strong>{result.accountingBreakdown.importHistoryId ?? "—"}</strong>).
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <MetricCard label="Lignes propres" value={result.accountingBreakdown.cleanCount} color="success" />
+              <MetricCard label="Avertissements" value={result.accountingBreakdown.warningCount} color="warning" />
+              <MetricCard label="Bloquées" value={result.accountingBreakdown.blockedCount} color="error" />
+              <MetricCard label="Synthèse / total" value={result.accountingBreakdown.summaryCount} />
+              <MetricCard label="Doublons" value={result.accountingBreakdown.duplicateCount} color="warning" />
+              <MetricCard label="Écrites au journal" value={result.accountingBreakdown.willImportCount} color="success" />
+              <MetricCard label="Ignorées" value={result.accountingBreakdown.willSkipCount} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {hasErrors && (
         <Card>

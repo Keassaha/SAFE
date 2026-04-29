@@ -11,6 +11,7 @@ import { useFacture, useValiderFacture, useEnvoyerFacture, usePatchFacture, useA
 import { InvoiceTemplate } from "@/components/facturation/InvoiceTemplate";
 import { computeBillingTotals, TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
 import type { BillingLineRow } from "@/lib/invoice-calculations";
+import { isInvoiceDraft, deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, Save, Trash2, Plus, DollarSign, MinusCircle, Copy, FileText, Send, Link2 } from "lucide-react";
@@ -393,8 +394,12 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
     );
   }
 
-  const isDraft = invoice.statut === "brouillon";
+  // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Le statut "brouillon" est dérivé via le helper canonique (couvre DRAFT + READY_TO_ISSUE).
+  // Le libellé `derivedStatut` reflète l'état métier réel pour l'affichage.
+  const isDraft = isInvoiceDraft(invoice);
   const isReadyToSend = invoice.invoiceStatus === "READY_TO_ISSUE";
+  const derivedStatut = deriveLegacyStatut(invoice);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -416,7 +421,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
           </Link>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Facture {invoice.numero} {!isDraft && `— ${invoice.statut}`}
+          Facture {invoice.numero} {!isDraft && `— ${derivedStatut}`}
         </h1>
         <p className="mt-1 text-white/80 text-sm">
           Client : {invoice.client?.raisonSociale} — Dossier :{" "}
@@ -861,7 +866,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
           numero={invoice.numero}
           dateEmission={invoice.dateEmission}
           dateEcheance={invoice.dateEcheance}
-          statut={invoice.statut}
+          statut={derivedStatut}
           cabinet={invoice.cabinet ?? undefined}
           client={invoice.client ?? undefined}
           dossier={invoice.dossier ?? undefined}

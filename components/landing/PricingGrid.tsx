@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Button } from './ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,11 +29,11 @@ export function PricingGrid() {
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
           Tarification
         </span>
-        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary mb-4 max-w-xl">
-          Moins cher qu&apos;une heure <span className="italic text-forest-600">de votre temps.</span>
+        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary mb-4 max-w-2xl">
+          Choisissez le niveau d&apos;accompagnement <span className="italic text-forest-600">adapté à votre cabinet.</span>
         </h2>
-        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-md">
-          Pas de frais cachés. Pas d&apos;engagement. Satisfait ou remboursé 30 jours.
+        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
+          Le bon choix dépend moins du nombre d&apos;utilisateurs que du niveau de complexité du cabinet. Si vous hésitez, l&apos;audit gratuit clarifie en quelques minutes.
         </p>
       </motion.div>
 
@@ -161,10 +162,10 @@ export function PricingGrid() {
             )}
           </div>
           <p className="text-[13px] text-text-body font-sans leading-[1.5] mb-6">
-            Vous pratiquez seul et voulez dormir tranquille avant l&apos;inspection.
+            Pour l&apos;avocat·e qui pratique en solo et veut un système clair pour la facturation, le fidéicommis, les dossiers et la conformité.
           </p>
           <ul className="flex flex-col gap-3 mb-8 flex-1">
-            {['1 utilisateur inclus', 'Facturation illimitée', 'Fidéicommis B-1 r.5', 'Support email priorité normale', 'Portail client', 'Export comptable JDE'].map(f => (
+            {['1 utilisateur', 'Facturation et fidéicommis conformes', 'Suivi des paiements et comptes à recevoir', 'Portail client sécurisé', 'Mise en route et formation incluses'].map(f => (
               <li key={f} className="flex items-start gap-2 text-[13px] text-text-body">
                 <span className="text-forest-600 mt-0.5">✓</span>
                 <span>{f}</span>
@@ -215,10 +216,10 @@ export function PricingGrid() {
             )}
           </div>
           <p className="text-[13px] text-[#D4E8D9] font-sans leading-[1.5] mb-6">
-            Pour les cabinets en croissance avec des assistants ou parajuristes.
+            Pour le cabinet en croissance, avec un·e adjoint·e ou un·e parajuriste, qui a besoin de rôles clairs et d&apos;un pilotage plus visible.
           </p>
           <ul className="flex flex-col gap-3 mb-8 flex-1">
-            {['3 utilisateurs inclus', 'Droits d\'accès granulaires', 'Fidéicommis B-1 r.5', 'Support prioritaire 24h', 'Rapports de rentabilité avocat', 'Intégration bancaire', 'Marque blanche'].map(f => (
+            {['Jusqu\'à 3 utilisateurs', 'Tout ce qui est inclus dans Solo', 'Permissions par rôle (avocat·e, adjoint·e, comptable)', 'Journal d\'audit complet', 'Reporting mensuel pour le teneur de livres', 'Onboarding personnalisé'].map(f => (
               <li key={f} className="flex items-start gap-2 text-[13px] text-[#D4E8D9]">
                 <span className="text-[#A9D3B6] mt-0.5">✓</span>
                 <span>{f}</span>
@@ -238,21 +239,28 @@ export function PricingGrid() {
         >
           <h3 className="font-sans font-medium text-[15px] text-text-primary mb-2">Cabinet+</h3>
           <div className="flex items-baseline gap-1 mb-1">
-            <span className="font-serif text-[42px] tracking-[-0.02em] text-text-primary">Sur mesure</span>
+            <span className="font-serif text-[28px] tracking-[-0.02em] text-text-primary">Sur devis</span>
           </div>
-          <div className="h-4 mb-4" />
+          <div className="h-4 mb-4">
+            <span className="text-[11px] text-text-muted font-medium">
+              Frais de mise en service dès 1 997 $ · engagement 12 mois
+            </span>
+          </div>
           <p className="text-[13px] text-text-body font-sans leading-[1.5] mb-6 mt-1">
-            Plus de 10 avocats. Besoins d&apos;intégration avancés et migration assistée de A à Z.
+            Pour les cabinets établis, avec migration de données historiques, intégrations comptables ou exigences de conformité plus marquées.
           </p>
           <ul className="flex flex-col gap-3 mb-8 flex-1">
-            {['Utilisateurs illimités', 'Migration des données historiques', 'Formation sur site', 'Gestionnaire de compte dédié', 'SLA garanti', 'API personnalisée', 'Audits réguliers'].map(f => (
+            {['Utilisateurs au-delà de 3', 'Migration accompagnée des données existantes', 'Intégrations comptables (QuickBooks, Sage, Acomba)', 'Gestionnaire de compte SAFE dédié', 'Onboarding sur mesure'].map(f => (
               <li key={f} className="flex items-start gap-2 text-[13px] text-text-body">
                 <span className="text-text-muted mt-0.5">✓</span>
                 <span>{f}</span>
               </li>
             ))}
           </ul>
-          <Button variant="primary" className="w-full">Réserver un appel &rarr;</Button>
+          {/* CTA "Réserver un appel" → page de contact (envoi vers jeremie@safecabinet.ca). */}
+          <Link href="/contact" className="block">
+            <Button variant="primary" className="w-full">Réserver un appel &rarr;</Button>
+          </Link>
         </motion.div>
 
       </div>

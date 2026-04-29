@@ -6,7 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
+// Le CTA "Réserver un appel" pointe désormais vers la page de contact —
+// le formulaire envoie directement à jeremie@safecabinet.ca.
+const BOOK_CALL_HREF = "/contact";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
@@ -64,14 +66,12 @@ export function Navbar() {
             >
               Connexion
             </Link>
-            <a
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={BOOK_CALL_HREF}
               className="whitespace-nowrap px-5 py-2 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 transition-all duration-300 font-sans"
             >
               Réserver un appel
-            </a>
+            </Link>
           </div>
 
           {/* Mobile toggle */}
@@ -120,15 +120,13 @@ export function Navbar() {
                 >
                   Connexion
                 </Link>
-                <a
-                  href={CALENDLY_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href={BOOK_CALL_HREF}
                   onClick={() => setMobileOpen(false)}
                   className="text-center py-3 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 font-sans"
                 >
                   Réserver un appel
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>

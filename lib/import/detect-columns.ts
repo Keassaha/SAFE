@@ -41,6 +41,51 @@ const BANK_ALIASES: AliasMap = {
   reference: ["reference", "ref", "référence", "numero", "number"],
 };
 
+const ACCOUNTING_LEDGER_ALIASES: AliasMap = {
+  date: [
+    "date", "date transaction", "date opération", "date operation",
+    "date écriture", "date ecriture", "transaction date", "posting date",
+    "date pièce", "date piece",
+  ],
+  description: [
+    "description", "libellé", "libelle", "memo", "narration", "objet",
+    "details", "détails", "explication",
+  ],
+  reference: [
+    "reference", "référence", "ref", "réf", "numero pièce", "numero piece",
+    "no pièce", "no piece", "numero facture", "no facture", "voucher",
+    "numero", "number",
+  ],
+  clientName: [
+    "client", "tiers", "fournisseur", "raison sociale", "nom client",
+    "compte tiers", "supplier", "vendor",
+  ],
+  numeroDossier: [
+    "no_dossier", "n0_dossier", "no dossier", "numéro dossier",
+    "numero dossier", "dossier", "matter", "n° dossier",
+  ],
+  categorie: [
+    "categorie", "catégorie", "category", "type compte", "compte cat",
+    "rubrique", "classe", "famille",
+  ],
+  compte: [
+    "compte", "account", "no compte", "n° compte", "numero compte",
+    "compte gl", "gl account", "numéro compte",
+  ],
+  debit: ["debit", "débit", "dr", "withdrawal"],
+  credit: ["credit", "crédit", "cr", "deposit"],
+  amount: ["amount", "montant", "somme", "total", "valeur"],
+  balance: ["balance", "solde", "solde courant", "running balance"],
+  sourceModule: [
+    "source", "source module", "module", "origine", "origin",
+    "source_module",
+  ],
+  typeTransaction: [
+    "type transaction", "type_transaction", "type", "transaction type",
+    "type opération", "type operation", "nature",
+  ],
+};
+
 function normalizeHeader(h: string): string {
   return h.replace(/[_\s]+/g, " ").trim().toLowerCase();
 }
@@ -60,16 +105,26 @@ function findBestMatch(headers: string[], aliases: string[]): string | null {
   return null;
 }
 
-export function detectColumns(headers: string[], type: DocumentType): ColumnMapping {
-  const aliasMap = type === "registre_clients"
-    ? CLIENT_ALIASES
-    : type === "fiches_temps"
-      ? TIME_ENTRY_ALIASES
-      : BANK_ALIASES;
+function aliasMapFor(type: DocumentType): AliasMap {
+  switch (type) {
+    case "registre_clients":
+      return CLIENT_ALIASES;
+    case "fiches_temps":
+      return TIME_ENTRY_ALIASES;
+    case "releve_bancaire":
+      return BANK_ALIASES;
+    case "migration_comptable":
+      return ACCOUNTING_LEDGER_ALIASES;
+  }
+}
 
+export function detectColumns(headers: string[], type: DocumentType): ColumnMapping {
+  const aliasMap = aliasMapFor(type);
+  // On ignore les colonnes meta (préfixe `__`) afin qu'elles ne soient jamais mappées.
+  const visibleHeaders = headers.filter((h) => !h.startsWith("__"));
   const mapping: ColumnMapping = {};
   for (const [field, aliases] of Object.entries(aliasMap)) {
-    mapping[field] = findBestMatch(headers, aliases);
+    mapping[field] = findBestMatch(visibleHeaders, aliases);
   }
   return mapping;
 }
@@ -104,6 +159,23 @@ export function getFieldLabels(type: DocumentType): Record<string, string> {
       tauxHoraire: "Taux horaire",
       montant: "Montant",
       statut: "Statut",
+    };
+  }
+  if (type === "migration_comptable") {
+    return {
+      date: "Date",
+      description: "Description",
+      reference: "Référence / pièce",
+      clientName: "Client / Tiers",
+      numeroDossier: "Numéro dossier",
+      categorie: "Catégorie / Rubrique",
+      compte: "Compte (GL)",
+      debit: "Débit",
+      credit: "Crédit",
+      amount: "Montant unique",
+      balance: "Solde",
+      sourceModule: "Source / Module",
+      typeTransaction: "Type transaction",
     };
   }
   return {

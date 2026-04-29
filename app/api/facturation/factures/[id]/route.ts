@@ -8,6 +8,7 @@ import {
   computeInvoiceTotals,
   toInvoiceTotalsFields,
 } from "@/lib/invoice-calculations";
+import { isInvoiceDraft, deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import type { UserRole } from "@prisma/client";
 
 function getSessionData() {
@@ -97,7 +98,10 @@ export async function GET(
   return NextResponse.json({
     id: invoice.id,
     numero: invoice.numero,
-    statut: invoice.statut,
+    // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+    // L'enum legacy `statut` est dérivé à la sérialisation pour refléter
+    // l'état métier réel (combinaison `invoiceStatus + paymentStatus + dateEcheance`).
+    statut: deriveLegacyStatut(invoice),
     dateEmission: invoice.dateEmission,
     dateEcheance: invoice.dateEcheance,
     clientId: invoice.clientId,
@@ -148,7 +152,7 @@ export async function PATCH(
   if (!existing) {
     return NextResponse.json({ error: "Facture introuvable" }, { status: 404 });
   }
-  if (existing.statut !== "brouillon") {
+  if (!isInvoiceDraft(existing)) {
     return NextResponse.json(
       { error: "Seules les factures brouillon peuvent être modifiées" },
       { status: 400 }

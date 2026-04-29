@@ -17,26 +17,26 @@ export function ProblemSection() {
 
   const cards: Card[] = [
     {
-      stat: "60\u00A0%",
-      eyebrow: "du temps perdu",
-      title: "L\u2019admin vole vos heures facturables.",
-      body: "Facturation, r\u00E9conciliation, relances, classement. Sur 8 heures, vous n\u2019en facturez que 3.",
-      source: "Clio Legal Trends Report 2024",
+      stat: "Excel",
+      eyebrow: "Outils bricol\u00E9s",
+      title: "Des heures travaill\u00E9es qui ne sont jamais factur\u00E9es.",
+      body: "Facturation faite trop tard. Temps non captur\u00E9. Sur 8 heures pratiqu\u00E9es, une partie ne devient jamais une facture envoy\u00E9e.",
+      source: "Observation cabinets canadiens",
     },
     {
-      stat: "B-1 r.5",
-      eyebrow: "R\u00E8glement obligatoire",
+      stat: "Manuel",
+      eyebrow: "Op\u00E9rations sensibles",
       eyebrowColor: "text-forest-600",
-      title: "Une inspection peut arriver demain.",
-      body: "Fid\u00E9icommis, registres, piste d\u2019audit. Si vos livres ne sont pas conformes, les cons\u00E9quences sont imm\u00E9diates.",
-      source: "Barreau du Qu\u00E9bec",
+      title: "Le fid\u00E9icommis tenu \u00E0 la main.",
+      body: "Registre suivi de m\u00E9moire, conciliation report\u00E9e, piste d\u2019audit reconstitu\u00E9e. Quand l\u2019inspection arrive, c\u2019est trop tard pour ranger.",
+      source: "R\u00E8glement B-1, r.5",
     },
     {
-      stat: "30\u00A0%",
-      eyebrow: "revenus perdus",
-      title: "Une partie de votre travail ne g\u00E9n\u00E8re rien.",
-      body: "Temps non consign\u00E9, factures oubli\u00E9es, erreurs de saisie. Le manque d\u2019outils vous co\u00FBte cher.",
-      source: "Bloomberg Law 2024",
+      stat: "Vous",
+      eyebrow: "Vigilance personnelle",
+      title: "Un cabinet qui repose sur vos week-ends.",
+      body: "D\u00E9lais suivis de m\u00E9moire, conformit\u00E9 d\u00E9pendant de votre attention, dossiers dispers\u00E9s. La sensation que tout repose sur votre vigilance personnelle.",
+      source: "Le co\u00FBt invisible du bricolage",
     },
   ];
 
@@ -52,8 +52,8 @@ export function ProblemSection() {
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
           Le problème
         </span>
-        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-xl">
-          Vous êtes avocat. <span className="italic text-forest-600">Pas comptable.</span>
+        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl">
+          Ce n&apos;est pas le droit qui vous ralentit. <span className="italic text-forest-600">C&apos;est l&apos;opérationnel.</span>
         </h2>
       </motion.div>
 

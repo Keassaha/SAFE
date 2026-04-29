@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import { motion, useInView } from "framer-motion";
-import { Mail, Phone, MapPin, Send, ArrowRight, Calendar, MessageSquare, Shield, Clock } from "lucide-react";
+import { Mail, MapPin, Send, ArrowRight, MessageSquare, Shield, Clock } from "lucide-react";
 import { Navbar } from "@/components/marketing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
-const CALENDLY_EMBED_URL =
-  "https://calendly.com/jeremie/30min?hide_landing_page_details=1&hide_gdpr_banner=1";
 
 /* ───── Animated envelope illustration ───── */
 function EnvelopeIllustration() {
@@ -22,7 +19,7 @@ function EnvelopeIllustration() {
         { icon: MessageSquare, x: 15, y: 20, delay: 0.8 },
         { icon: Shield, x: 80, y: 25, delay: 1.0 },
         { icon: Clock, x: 20, y: 75, delay: 1.2 },
-        { icon: Phone, x: 78, y: 72, delay: 1.4 },
+        { icon: MapPin, x: 78, y: 72, delay: 1.4 },
       ].map((item, i) => (
         <motion.div
           key={i}
@@ -181,8 +178,7 @@ export default function ContactPage() {
                   transition={{ delay: 0.2, duration: 0.6 }}
                   className="text-lg text-text-body leading-relaxed font-sans mb-10"
                 >
-                  Que vous ayez des questions sur SAFE ou que vous souhaitiez planifier une
-                  démonstration, notre équipe est là pour vous accompagner.
+                  Si vous voulez savoir si SAFE convient à votre pratique, à votre mode de facturation ou à votre réalité opérationnelle, on peut le voir ensemble simplement.
                 </motion.p>
 
                 {/* Animated illustration */}
@@ -204,8 +200,7 @@ export default function ContactPage() {
                 >
                   {[
                     { icon: Mail, label: "Courriel", value: "jeremie@safecabinet.ca", href: "mailto:jeremie@safecabinet.ca" },
-                    { icon: Phone, label: "Téléphone", value: "+1 (819) 271-8656", href: "tel:+18192718656" },
-                    { icon: MapPin, label: "Bureau", value: "Québec, QC, Canada", href: null },
+                    { icon: MapPin, label: "Bureau", value: "Gatineau, QC", href: null },
                   ].map((item, i) => (
                     <motion.div
                       key={item.label}
@@ -237,39 +232,26 @@ export default function ContactPage() {
                   ))}
                 </motion.div>
 
-                {/* Calendly CTA */}
+                {/* Audit gratuit prompt — sober alternative au Calendly */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.6 }}
                   className="mt-8 p-6 rounded-safe-md border border-white/5 bg-surface"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <Calendar className="w-5 h-5 text-forest-600" />
-                    <h3 className="text-base font-semibold text-text-primary font-sans tracking-tight">
-                      Préférez-vous un appel ?
-                    </h3>
-                  </div>
+                  <h3 className="text-base font-semibold text-text-primary font-sans tracking-tight mb-3">
+                    Préférez commencer par l&apos;audit ?
+                  </h3>
                   <p className="text-sm text-text-body font-sans mb-4">
-                    Réservez un créneau de 30 minutes directement dans notre agenda.
+                    Si vous voulez d&apos;abord une lecture claire de votre situation actuelle, l&apos;audit gratuit prend 10 minutes et donne un rapport personnalisé.
                   </p>
-                  <a
-                    href={CALENDLY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/audit-gratuit"
                     className="group inline-flex items-center gap-2 text-sm font-medium text-forest-600 hover:text-[var(--safe-lightest)] transition-colors font-sans"
                   >
-                    Réserver un appel
+                    Faire mon audit gratuit
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                  </a>
-                  <div className="mt-5 rounded-safe-md overflow-hidden border border-border bg-black/20">
-                    <iframe
-                      title="Calendly"
-                      src={CALENDLY_EMBED_URL}
-                      className="w-full h-[620px]"
-                      frameBorder="0"
-                    />
-                  </div>
+                  </Link>
                 </motion.div>
               </div>
 

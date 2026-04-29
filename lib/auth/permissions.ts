@@ -59,6 +59,22 @@ export function canManageDossiers(role: UserRole): boolean {
   return ["admin_cabinet", "assistante"].includes(role);
 }
 
+/**
+ * Accès à la file assistante (`/gestion/assistante`).
+ * Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
+ */
+export function canViewAssistantQueue(role: UserRole): boolean {
+  return ["assistante", "admin_cabinet", "avocat"].includes(role);
+}
+
+/**
+ * Droit de prendre en charge un dossier (assigner `assistantJuridiqueId = self`).
+ * Réservé aux assistantes et aux admin de cabinet.
+ */
+export function canAssignSelfAsAssistant(role: UserRole): boolean {
+  return ["assistante", "admin_cabinet"].includes(role);
+}
+
 /** Voir la section temps / liste des entrées. */
 export function canManageTimeEntries(role: UserRole): boolean {
   return true;

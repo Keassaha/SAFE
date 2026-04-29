@@ -13,7 +13,7 @@ export function Footer() {
               <span className="font-serif text-[17px] tracking-[-0.02em] text-surface">Safe</span>
             </div>
             <p className="text-[13px] text-[#A1A1A1] font-sans leading-[1.6]">
-              La plateforme financière pour les cabinets d'avocats modernes. Facturation, fidéicommis et conformité sans effort.
+              Le système qui met votre cabinet en ordre. Facturation, fidéicommis, conformité, migration, organisation — pensé pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario.
             </p>
           </div>
           
@@ -34,9 +34,9 @@ export function Footer() {
 
           <div className="flex flex-col gap-3">
             <h4 className="text-[13px] font-sans font-medium text-surface mb-2">Contact</h4>
-            <Link href="mailto:bonjour@safecabinet.ca" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">bonjour@safecabinet.ca</Link>
-            <span className="text-[13px] text-[#A1A1A1]">Ouvert du Lundi au Vendredi</span>
-            <span className="text-[13px] text-[#A1A1A1]">Montréal, QC</span>
+            <Link href="mailto:jeremie@safecabinet.ca" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">jeremie@safecabinet.ca</Link>
+            <span className="text-[13px] text-[#A1A1A1]">Ouvert du lundi au vendredi</span>
+            <span className="text-[13px] text-[#A1A1A1]">Gatineau, QC</span>
           </div>
         </div>
 

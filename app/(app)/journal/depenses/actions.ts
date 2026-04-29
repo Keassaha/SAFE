@@ -8,6 +8,8 @@ import { normalizeSupplier } from "@/lib/expense-journal/normalize-supplier";
 import { parseBankStatementCsv } from "@/lib/expense-journal/parse-statement";
 import { ExpenseJournalTransactionType, ExpenseJournalValidationStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { writeJournalForCabinetExpense } from "@/lib/services/journal/cabinet-expense-journal";
+import { applyCabinetExpenseCorrection } from "@/lib/services/journal/append-only-corrections";
 
 export type ImportResult = {
   sessionId: string;
@@ -198,36 +200,160 @@ export async function validateImportedTransaction(
     return { success: true };
   }
 
-  const cabinetExpense = await prisma.cabinetExpense.create({
-    data: {
-      cabinetId,
-      transactionImportId: tx.id,
-      date: tx.date,
-      descriptionBancaire: tx.rawDescription,
-      fournisseurNormalise: tx.normalizedSupplier,
-      categoryId: categoryId ?? undefined,
-      categoryName,
-      montant: tx.rawAmount,
-      montantTtc: tx.rawAmount,
-      typeTransaction,
-      dossierId: input.dossierId ?? undefined,
-      refacturable: input.refacturable ?? false,
-      statutValidation: ExpenseJournalValidationStatus.VALIDE,
-      confidence: tx.confidence ?? undefined,
-      createdById: userId,
-    },
-  });
+  // Atomicité : la création de la CabinetExpense, la mise à jour de la
+  // BankImportTransaction et l'écriture au journal général doivent réussir
+  // ensemble, ou échouer ensemble. Si l'écriture journal échoue, on ne veut
+  // surtout pas garder une CabinetExpense orpheline (incohérence comptable).
+  // L'idempotence du helper journal (sourceModule + sourceId) protège
+  // de toute façon contre un retry après crash partiel.
+  const cabinetExpense = await prisma.$transaction(async (txClient) => {
+    const expense = await txClient.cabinetExpense.create({
+      data: {
+        cabinetId,
+        transactionImportId: tx.id,
+        date: tx.date,
+        descriptionBancaire: tx.rawDescription,
+        fournisseurNormalise: tx.normalizedSupplier,
+        categoryId: categoryId ?? undefined,
+        categoryName,
+        montant: tx.rawAmount,
+        montantTtc: tx.rawAmount,
+        typeTransaction,
+        dossierId: input.dossierId ?? undefined,
+        refacturable: input.refacturable ?? false,
+        statutValidation: ExpenseJournalValidationStatus.VALIDE,
+        confidence: tx.confidence ?? undefined,
+        createdById: userId,
+      },
+    });
 
-  await prisma.bankImportTransaction.update({
-    where: { id: tx.id },
-    data: {
-      status: "validated",
-      cabinetExpenseId: cabinetExpense.id,
-    },
+    await txClient.bankImportTransaction.update({
+      where: { id: tx.id },
+      data: {
+        status: "validated",
+        cabinetExpenseId: expense.id,
+      },
+    });
+
+    // Doctrine §4 — toute CabinetExpense validée doit produire une écriture
+    // journal append-only. L'helper est idempotent (sourceModule + sourceId).
+    await writeJournalForCabinetExpense(expense, {
+      client: txClient,
+      utilisateurId: userId,
+    });
+
+    return expense;
   });
 
   revalidatePath("/journal/depenses");
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
   return { success: true, cabinetExpenseId: cabinetExpense.id };
+}
+
+/* ───────────────────── Édition d'une CabinetExpense ───────────────────── */
+
+export type EditCabinetExpenseInput = {
+  /** Champs éditables. Tout champ non fourni n'est pas modifié. */
+  montant?: number;
+  date?: Date;
+  typeTransaction?: ExpenseJournalTransactionType;
+  dossierId?: string | null;
+  categoryId?: string | null;
+  categoryName?: string;
+  descriptionBancaire?: string;
+  fournisseurNormalise?: string | null;
+  sousCategorie?: string | null;
+  refacturable?: boolean;
+};
+
+export type EditCabinetExpenseResult =
+  | { success: true; cabinetExpenseId: string; correction?: { correctionId: string; replayId?: string; reasons: string[] } }
+  | { success: false; error: string };
+
+/**
+ * Édite une `CabinetExpense` déjà validée et applique la doctrine de correction
+ * append-only au journal général.
+ *
+ * Doctrine: docs/accounting/APPEND_ONLY_CORRECTIONS.md
+ *
+ * Comportement:
+ *   - Atomicité: update + correction journal dans la même transaction.
+ *   - Si l'expense n'a jamais été journalisée (cas rare, statut PROPOSE p.ex.),
+ *     on tente une création initiale via `writeJournalForCabinetExpense`.
+ *   - Si l'expense est déjà journalisée et que le changement est matériel,
+ *     on émet une CORRECTION + un re-jeu versionné.
+ *   - Si non matériel, l'update applicatif est fait, le journal n'est pas
+ *     touché.
+ */
+export async function editCabinetExpense(
+  expenseId: string,
+  patch: EditCabinetExpenseInput,
+): Promise<EditCabinetExpenseResult> {
+  const { cabinetId, userId } = await requireCabinetAndUser();
+
+  const before = await prisma.cabinetExpense.findFirst({
+    where: { id: expenseId, cabinetId },
+  });
+  if (!before) {
+    return { success: false, error: "Dépense introuvable" };
+  }
+
+  let correction: { correctionId: string; replayId?: string; reasons: string[] } | undefined;
+
+  const after = await prisma.$transaction(async (txClient) => {
+    const updated = await txClient.cabinetExpense.update({
+      where: { id: expenseId },
+      data: {
+        montant: patch.montant ?? before.montant,
+        montantTtc: patch.montant ?? before.montantTtc,
+        date: patch.date ?? before.date,
+        typeTransaction: patch.typeTransaction ?? before.typeTransaction,
+        dossierId: patch.dossierId !== undefined ? patch.dossierId : before.dossierId,
+        categoryId: patch.categoryId !== undefined ? patch.categoryId : before.categoryId,
+        categoryName: patch.categoryName ?? before.categoryName,
+        descriptionBancaire: patch.descriptionBancaire ?? before.descriptionBancaire,
+        fournisseurNormalise:
+          patch.fournisseurNormalise !== undefined ? patch.fournisseurNormalise : before.fournisseurNormalise,
+        sousCategorie:
+          patch.sousCategorie !== undefined ? patch.sousCategorie : before.sousCategorie,
+        refacturable: patch.refacturable ?? before.refacturable,
+      },
+    });
+
+    const initialEntry = await txClient.journalGeneralEntry.findFirst({
+      where: { cabinetId, sourceModule: "DEPENSES", sourceId: expenseId },
+      select: { id: true },
+    });
+
+    if (!initialEntry) {
+      // Cas rare: l'expense n'a pas encore été journalisée (jamais validée).
+      await writeJournalForCabinetExpense(updated, {
+        client: txClient,
+        utilisateurId: userId,
+      });
+    } else {
+      const result = await applyCabinetExpenseCorrection(before, updated, {
+        client: txClient,
+        utilisateurId: userId,
+      });
+      if (result.action === "corrected") {
+        correction = {
+          correctionId: result.correctionId,
+          replayId: result.replayId,
+          reasons: result.reasons,
+        };
+      }
+    }
+
+    return updated;
+  });
+
+  revalidatePath("/journal/depenses");
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
+
+  return { success: true, cabinetExpenseId: after.id, correction };
 }
 
 export type BulkApplyInput = {

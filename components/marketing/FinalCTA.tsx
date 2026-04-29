@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, Shield, Clock, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
+// Le CTA "Réserver un appel" pointe vers la page de contact.
+const BOOK_CALL_HREF = "/contact";
 
 /* ── Decorative sparkle dots ── */
 function SparkleField() {
@@ -260,10 +261,8 @@ export function FinalCTA() {
             />
           </Link>
 
-          <a
-            href={CALENDLY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={BOOK_CALL_HREF}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -290,7 +289,7 @@ export function FinalCTA() {
             }}
           >
             Réserver un appel
-          </a>
+          </Link>
         </motion.div>
 
         {/* ── Final nudge ── */}

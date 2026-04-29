@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { FactureClientView } from "./FactureClientView";
 
 type Props = { params: Promise<{ token: string }> };
@@ -86,7 +87,7 @@ export default async function FactureClientPage({ params }: Props) {
           numero={invoice.numero}
           dateEmission={invoice.dateEmission.toISOString()}
           dateEcheance={invoice.dateEcheance.toISOString()}
-          statut={invoice.statut}
+          statut={deriveLegacyStatut(invoice)}
           cabinet={invoice.cabinet}
           client={invoice.client}
           dossier={invoice.dossier}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Receipt, Users, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Receipt, Users, Clock, CheckCircle2, AlertTriangle, BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { DocumentType, ClassificationResult } from "@/lib/import/types";
 
@@ -8,12 +8,19 @@ const TYPE_ICONS: Record<DocumentType, typeof Receipt> = {
   releve_bancaire: Receipt,
   registre_clients: Users,
   fiches_temps: Clock,
+  migration_comptable: BookOpen,
 };
 
 const TYPE_BADGE_CLASSES: Record<DocumentType, string> = {
   releve_bancaire: "bg-[var(--safe-status-warning-bg)] text-[var(--safe-status-warning)] border-[var(--safe-status-warning)]/20",
   registre_clients: "bg-[var(--safe-green-50)] text-[var(--safe-green-800)] border-[var(--safe-green-600)]/20",
   fiches_temps: "bg-[var(--safe-green-50)] text-[var(--safe-green-800)] border-[var(--safe-green-600)]/20",
+  migration_comptable: "bg-[var(--safe-green-50)] text-[var(--safe-green-800)] border-[var(--safe-green-600)]/20",
+};
+
+// Label de secours non i18n (le fichier messages/* ne contient pas encore l'entrée).
+const FALLBACK_LABELS: Partial<Record<DocumentType, string>> = {
+  migration_comptable: "Migration comptable",
 };
 
 export function FileClassificationCard({
@@ -32,6 +39,7 @@ export function FileClassificationCard({
     releve_bancaire: t("bankStatement"),
     registre_clients: t("clientRegistry"),
     fiches_temps: t("timesheets"),
+    migration_comptable: FALLBACK_LABELS.migration_comptable!,
   };
   const Icon = TYPE_ICONS[classification.type];
   const badgeClass = TYPE_BADGE_CLASSES[classification.type];

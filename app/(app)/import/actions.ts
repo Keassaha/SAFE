@@ -11,12 +11,21 @@ import type {
   NormalizedClient,
   NormalizedTimeEntry,
   NormalizedBankTransaction,
+  NormalizedAccountingEntry,
   ImportResult,
   NormalizedRow,
+  AccountingPreviewBreakdown,
 } from "@/lib/import/types";
 import { normalizeSupplier } from "@/lib/expense-journal/normalize-supplier";
 import { suggestCategoryFromRules, isExpenseTransaction } from "@/lib/expense-journal/categorization-rules";
 import { ensureExpenseCategories } from "@/app/(app)/journal/depenses/actions";
+import { createJournalEntry } from "@/lib/services/journal/journal-service";
+import {
+  computeSourceLine,
+  buildAccountingIdempotencyQuery,
+} from "@/lib/import/normalizers/accounting-ledger";
+import { isJournalIdempotencyConflict } from "@/lib/services/journal/idempotency";
+import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
 
 type DossierStatut = "ouvert" | "actif" | "en_attente" | "cloture" | "archive";
 
@@ -157,6 +166,8 @@ export async function executeImport(
     errors: [],
   };
 
+  let accountingDecisions: AccountingDecisionLog | null = null;
+
   try {
     if (type === "registre_clients") {
       await importClients(cabinetId, normalized as NormalizedRow<NormalizedClient>[], result);
@@ -164,6 +175,14 @@ export async function executeImport(
       await importTimeEntries(cabinetId, userId, normalized as NormalizedRow<NormalizedTimeEntry>[], result);
     } else if (type === "releve_bancaire") {
       await importBankStatements(cabinetId, userId, normalized as NormalizedRow<NormalizedBankTransaction>[], result, fileName);
+    } else if (type === "migration_comptable") {
+      accountingDecisions = await importAccountingLedger(
+        cabinetId,
+        userId,
+        normalized as NormalizedRow<NormalizedAccountingEntry>[],
+        result,
+        fileName,
+      );
     }
   } catch (err) {
     result.errors.push({ row: 0, message: err instanceof Error ? err.message : "Erreur critique" });
@@ -176,7 +195,16 @@ export async function executeImport(
       ? "partial"
       : "failed";
 
-  await prisma.importHistory.create({
+  // Pour la migration comptable on enrichit le journal d'erreurs avec le détail
+  // décisionnel: warnings, summary, doublons, exclus. C'est ce qui permet à l'opérateur
+  // de comprendre ce qui a été écrit, ce qui a été ignoré et pourquoi.
+  const errorsPayload = type === "migration_comptable" && accountingDecisions
+    ? JSON.stringify(accountingDecisions)
+    : result.errors.length > 0
+      ? JSON.stringify(result.errors.slice(0, 50))
+      : null;
+
+  const importHistory = await prisma.importHistory.create({
     data: {
       cabinetId,
       userId,
@@ -189,15 +217,24 @@ export async function executeImport(
       updatedCount: result.updated,
       skippedCount: result.skipped,
       errorCount: result.errors.length,
-      errors: result.errors.length > 0 ? JSON.stringify(result.errors.slice(0, 50)) : null,
+      errors: errorsPayload,
       durationMs,
     },
+    select: { id: true },
   });
+
+  if (type === "migration_comptable" && accountingDecisions) {
+    result.accountingBreakdown = {
+      ...accountingDecisions.breakdown,
+      importHistoryId: importHistory.id,
+    };
+  }
 
   revalidatePath("/clients");
   revalidatePath("/dossiers");
   revalidatePath("/temps");
   revalidatePath("/journal/depenses");
+  revalidatePath("/journal/general");
   revalidatePath("/import");
 
   return result;
@@ -356,6 +393,240 @@ async function importBankStatements(
     where: { id: session.id },
     data: { nbAValider: toValidate },
   });
+}
+
+/* ───────────────────── Migration comptable ───────────────────── */
+
+type AccountingDecisionLog = {
+  kind: "migration_comptable";
+  fileName: string;
+  breakdown: AccountingPreviewBreakdown;
+  /** Lignes vraiment écrites au journal (id source + référence). */
+  written: Array<{ row: number; ref: string; journalId: string; direction: "IN" | "OUT"; amount: number }>;
+  /** Lignes refusées avec la raison principale. */
+  rejected: Array<{ row: number; reason: string; severity: "blocked" | "warning" | "summary" | "duplicate" }>;
+};
+
+const TYPE_TRANSACTION_MAP: Record<string, JournalTransactionType> = {
+  FACTURE: "FACTURE",
+  INVOICE: "FACTURE",
+  PAIEMENT: "PAIEMENT",
+  PAYMENT: "PAIEMENT",
+  ENCAISSEMENT: "PAIEMENT",
+  RECEIPT: "PAIEMENT",
+  DEPOT_FIDEICOMMIS: "DEPOT_FIDEICOMMIS",
+  TRUST_DEPOSIT: "DEPOT_FIDEICOMMIS",
+  RETRAIT_FIDEICOMMIS: "RETRAIT_FIDEICOMMIS",
+  TRUST_WITHDRAWAL: "RETRAIT_FIDEICOMMIS",
+  DEBOURS: "DEBOURS",
+  DISBURSEMENT: "DEBOURS",
+  DEPENSE: "DEPENSE",
+  EXPENSE: "DEPENSE",
+  AJUSTEMENT: "AJUSTEMENT",
+  ADJUSTMENT: "AJUSTEMENT",
+  CORRECTION: "CORRECTION",
+};
+
+const SOURCE_MODULE_MAP: Record<string, JournalSourceModule> = {
+  FACTURATION: "FACTURATION",
+  BILLING: "FACTURATION",
+  PAIEMENTS: "PAIEMENTS",
+  PAYMENTS: "PAIEMENTS",
+  FIDEICOMMIS: "FIDEICOMMIS",
+  TRUST: "FIDEICOMMIS",
+  DEPENSES: "DEPENSES",
+  EXPENSES: "DEPENSES",
+  DEBOURS: "DEBOURS",
+  DISBURSEMENT: "DEBOURS",
+  IMPORT_BANCAIRE: "IMPORT_BANCAIRE",
+  BANK_IMPORT: "IMPORT_BANCAIRE",
+  AJUSTEMENT_MANUEL: "AJUSTEMENT_MANUEL",
+  CORRECTION_SYSTEME: "CORRECTION_SYSTEME",
+};
+
+function resolveTypeTransaction(raw: string | undefined): JournalTransactionType {
+  if (!raw) return "AJUSTEMENT";
+  const key = raw.trim().toUpperCase().replace(/\s+/g, "_");
+  return TYPE_TRANSACTION_MAP[key] ?? "AJUSTEMENT";
+}
+
+function resolveSourceModule(raw: string | undefined): JournalSourceModule {
+  if (!raw) return "AJUSTEMENT_MANUEL";
+  const key = raw.trim().toUpperCase().replace(/\s+/g, "_");
+  return SOURCE_MODULE_MAP[key] ?? "AJUSTEMENT_MANUEL";
+}
+
+/**
+ * Import prudent vers `JournalGeneralEntry`:
+ *   - n'écrit que les lignes "ok" (pas d'erreur, pas summary, direction connue, montant>0, date présente)
+ *   - applique une idempotence stable via `JournalGeneralEntry.sourceId`,
+ *     qui contient le fingerprint de la ligne source. La `reference` reste
+ *     la référence métier source telle qu'elle est dans le fichier (jamais bricolée).
+ *   - tout le reste (warnings, summary, doublons internes, blocages) est consigné
+ *     dans `ImportHistory.errors` sous une structure JSON exploitable par l'UI
+ *
+ * On reste compatible avec l'existant: aucune migration Prisma ajoutée.
+ */
+async function importAccountingLedger(
+  cabinetId: string,
+  userId: string,
+  rows: NormalizedRow<NormalizedAccountingEntry>[],
+  result: ImportResult,
+  fileName: string,
+): Promise<AccountingDecisionLog> {
+  const log: AccountingDecisionLog = {
+    kind: "migration_comptable",
+    fileName,
+    breakdown: {
+      cleanCount: 0,
+      warningCount: 0,
+      blockedCount: 0,
+      summaryCount: 0,
+      duplicateCount: 0,
+      willImportCount: 0,
+      willSkipCount: 0,
+    },
+    written: [],
+    rejected: [],
+  };
+
+  // Premier passage: détection des doublons internes au lot.
+  const fpCounts = new Map<string, number>();
+  for (const r of rows) {
+    if (r.rowFingerprint) fpCounts.set(r.rowFingerprint, (fpCounts.get(r.rowFingerprint) ?? 0) + 1);
+  }
+  const seenInBatch = new Set<string>();
+
+  for (const row of rows) {
+    const data = row.data;
+    const sourceLine = computeSourceLine(row);
+
+    // Décompte des compteurs.
+    if (row.errors.length > 0) log.breakdown.blockedCount++;
+    else if (row.warnings.length > 0 || row.isSummaryRow) log.breakdown.warningCount++;
+    else log.breakdown.cleanCount++;
+
+    if (row.isSummaryRow) log.breakdown.summaryCount++;
+    if (data.rowFingerprint && (fpCounts.get(data.rowFingerprint) ?? 0) > 1) {
+      log.breakdown.duplicateCount++;
+    }
+
+    // Décision d'écriture.
+    if (row.errors.length > 0) {
+      log.rejected.push({
+        row: sourceLine,
+        reason: row.errors.map((e) => e.message).join("; "),
+        severity: "blocked",
+      });
+      result.skipped++;
+      continue;
+    }
+    if (row.isSummaryRow) {
+      log.rejected.push({
+        row: sourceLine,
+        reason: data.sourceRowKind === "opening_balance" ? "Solde d'ouverture (informatif)" : "Ligne de total/sous-total/report",
+        severity: "summary",
+      });
+      result.skipped++;
+      continue;
+    }
+    if (data.direction === "UNKNOWN" || data.amount <= 0 || !data.date) {
+      log.rejected.push({
+        row: sourceLine,
+        reason: !data.date ? "Date absente" : data.amount <= 0 ? "Montant nul" : "Direction indéterminée",
+        severity: "warning",
+      });
+      result.skipped++;
+      continue;
+    }
+    // Doublon interne au lot: on garde la 1ère, on rejette les autres.
+    if (data.rowFingerprint) {
+      if (seenInBatch.has(data.rowFingerprint)) {
+        log.rejected.push({
+          row: sourceLine,
+          reason: "Doublon dans le lot (1ère occurrence conservée)",
+          severity: "duplicate",
+        });
+        result.skipped++;
+        continue;
+      }
+      seenInBatch.add(data.rowFingerprint);
+    }
+
+    // Idempotence inter-lots: on cherche une écriture existante par `sourceId`
+    // (alimenté avec le fingerprint à la création). C'est insensible au contenu
+    // de la `reference`, donc fiable même si la ligne source porte une référence métier.
+    const idempotencyQuery = buildAccountingIdempotencyQuery(cabinetId, data.rowFingerprint);
+    if (idempotencyQuery) {
+      const existing = await prisma.journalGeneralEntry.findFirst({
+        where: idempotencyQuery,
+        select: { id: true },
+      });
+      if (existing) {
+        log.rejected.push({
+          row: sourceLine,
+          reason: "Déjà importé dans un lot précédent (même fingerprint)",
+          severity: "duplicate",
+        });
+        result.skipped++;
+        continue;
+      }
+    }
+
+    try {
+      const typeTransaction = resolveTypeTransaction(data.typeTransaction);
+      const sourceModule = resolveSourceModule(data.sourceModule);
+      // La référence stockée reste la référence métier brute du fichier.
+      // Le fingerprint vit dans `sourceId` (clé d'idempotence).
+      const reference = data.reference ?? null;
+
+      const created = await createJournalEntry({
+        cabinetId,
+        dateTransaction: new Date(data.date),
+        typeTransaction,
+        reference,
+        clientId: null, // Résolution client/dossier laissée à une étape ultérieure (custom backlog).
+        dossierId: null,
+        description: data.description || data.rawRowText?.slice(0, 200) || "(import comptable)",
+        categorie: data.categorie ?? data.compte ?? null,
+        montantEntree: data.direction === "IN" ? data.amount : 0,
+        montantSortie: data.direction === "OUT" ? data.amount : 0,
+        sourceModule,
+        sourceId: data.rowFingerprint ?? null,
+        utilisateurId: userId,
+      });
+
+      log.written.push({
+        row: sourceLine,
+        ref: reference ?? "",
+        journalId: created.id,
+        direction: data.direction === "IN" ? "IN" : "OUT",
+        amount: data.amount,
+      });
+      result.created++;
+    } catch (err) {
+      // Course concurrente sur l'index unique partiel `JournalGeneralEntry_idempotency_key`:
+      // un autre lot a écrit la même ligne (même fingerprint) entre notre findFirst
+      // et notre create. On la traite comme un duplicate, pas comme une erreur.
+      if (isJournalIdempotencyConflict(err)) {
+        log.rejected.push({
+          row: sourceLine,
+          reason: "Déjà importé (course concurrente détectée par contrainte unique)",
+          severity: "duplicate",
+        });
+        result.skipped++;
+        continue;
+      }
+      const msg = err instanceof Error ? err.message : "Erreur inconnue";
+      log.rejected.push({ row: sourceLine, reason: `Échec écriture: ${msg}`, severity: "blocked" });
+      result.errors.push({ row: sourceLine, message: msg });
+      result.skipped++;
+    }
+  }
+
+  log.breakdown.willImportCount = log.written.length;
+  log.breakdown.willSkipCount = rows.length - log.written.length;
+  return log;
 }
 
 export type ImportHistoryEntry = {

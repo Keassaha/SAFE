@@ -5,6 +5,14 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import { getGlobalTrustBalance } from "@/lib/services/fideicommis";
+import {
+  legacyStatutToInvoiceWhere,
+  whereInvoiceForReports,
+  whereInvoiceIssuedActive,
+  whereInvoicePartiallyPaid,
+  whereInvoiceOverdue,
+  deriveLegacyStatut,
+} from "@/lib/billing/invoice-status";
 import type {
   RapportsPayload,
   RapportFacturationRow,
@@ -54,14 +62,20 @@ export async function loadRapportsPayload(
 ): Promise<RapportsPayload> {
   const { dateDebut, dateFin, clientId, userId, statut } = filters;
 
+  // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Quand aucun filtre statut n'est posé, le rapport montre les factures
+  // émises (DRAFT exclus). Sinon, le filtre URL legacy est traduit en
+  // where canonique via le helper.
+  const statutFilter = statut
+    ? legacyStatutToInvoiceWhere(statut)
+    : whereInvoiceForReports();
+
   const invoiceWhere: Prisma.InvoiceWhereInput = {
     cabinetId,
     dateEmission: { gte: dateDebut, lte: dateFin },
     ...(clientId ? { clientId } : {}),
     ...(userId ? { dossier: { avocatResponsableId: userId } } : {}),
-    ...(statut
-      ? { statut: statut as "brouillon" | "envoyee" | "partiellement_payee" | "payee" | "en_retard" }
-      : { statut: { not: "brouillon" as const } }),
+    ...(statutFilter ?? {}),
   };
 
   const [
@@ -91,10 +105,13 @@ export async function loadRapportsPayload(
       },
       select: { montant: true },
     }),
+    // Outstanding = factures émises non entièrement payées (issued_active +
+    // partially_paid + overdue), peu importe la date d'échéance.
     prisma.invoice.aggregate({
       where: {
         cabinetId,
-        statut: { in: ["envoyee", "partiellement_payee", "en_retard"] },
+        invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] },
+        paymentStatus: { in: ["UNPAID", "PARTIAL"] },
         ...(clientId ? { clientId } : {}),
       },
       _sum: { balanceDue: true },
@@ -149,7 +166,8 @@ export async function loadRapportsPayload(
   const outstandingInvoicesForAging = await prisma.invoice.findMany({
     where: {
       cabinetId,
-      statut: { in: ["envoyee", "partiellement_payee", "en_retard"] },
+      invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] },
+      paymentStatus: { in: ["UNPAID", "PARTIAL"] },
       ...(clientId ? { clientId } : {}),
     },
     select: { id: true, dateEcheance: true, balanceDue: true, montantTotal: true, montantPaye: true },
@@ -204,7 +222,8 @@ export async function loadRapportsPayload(
       total,
       paiementRecu: paid,
       solde,
-      statut: getStatutLabel(inv.statut),
+      // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+      statut: getStatutLabel(deriveLegacyStatut(inv)),
     };
   });
 

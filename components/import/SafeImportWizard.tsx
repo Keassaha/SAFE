@@ -11,7 +11,7 @@ import { ColumnMappingForm } from "./ColumnMappingForm";
 import { PreviewTable } from "./PreviewTable";
 import { ImportResultSummary } from "./ImportResultSummary";
 import { ImportHistoryTable } from "./ImportHistoryTable";
-import { analyzeFile, generatePreview } from "@/lib/import/pipeline";
+import { analyzeFile, generatePreview, generateAccountingPreview } from "@/lib/import/pipeline";
 import { detectColumns, getFieldLabels } from "@/lib/import/detect-columns";
 import { executeImport } from "@/app/(app)/import/actions";
 import { Loader2, Upload, ArrowRight, ArrowLeft, History } from "lucide-react";
@@ -21,6 +21,7 @@ import type {
   ColumnMapping,
   NormalizedRow,
   ImportResult,
+  AccountingPreviewBreakdown,
 } from "@/lib/import/types";
 import type { AnalysisResult } from "@/lib/import/pipeline";
 
@@ -45,6 +46,7 @@ export function SafeImportWizard() {
   const [mapping, setMapping] = useState<ColumnMapping>({});
   const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({});
   const [previewRows, setPreviewRows] = useState<NormalizedRow[]>([]);
+  const [accountingBreakdown, setAccountingBreakdown] = useState<AccountingPreviewBreakdown | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -83,8 +85,15 @@ export function SafeImportWizard() {
 
   const goToPreview = useCallback(() => {
     if (!analysis) return;
-    const preview = generatePreview(analysis.parsed, docType, mapping, 50);
-    setPreviewRows(preview.preview);
+    if (docType === "migration_comptable") {
+      const preview = generateAccountingPreview(analysis.parsed, mapping, 50);
+      setPreviewRows(preview.preview);
+      setAccountingBreakdown(preview.breakdown);
+    } else {
+      const preview = generatePreview(analysis.parsed, docType, mapping, 50);
+      setPreviewRows(preview.preview);
+      setAccountingBreakdown(null);
+    }
     setStep("preview");
   }, [analysis, docType, mapping]);
 
@@ -122,6 +131,7 @@ export function SafeImportWizard() {
     setMapping({});
     setFieldLabels({});
     setPreviewRows([]);
+    setAccountingBreakdown(null);
     setImportResult(null);
   }, []);
 
@@ -255,6 +265,19 @@ export function SafeImportWizard() {
           {/* Step: Preview */}
           {step === "preview" && analysis && (
             <div className="space-y-6">
+              {accountingBreakdown && (
+                <Card>
+                  <CardHeader title="Décision d'import comptable" />
+                  <CardContent>
+                    <AccountingBreakdownPanel
+                      breakdown={accountingBreakdown}
+                      sheetName={analysis.parsed.sheetName}
+                      availableSheets={analysis.parsed.availableSheets}
+                      ignoredCount={analysis.parsed.ignoredCount}
+                    />
+                  </CardContent>
+                </Card>
+              )}
               <Card>
                 <CardHeader title={t("previewBeforeImport")} />
                 <CardContent>
@@ -262,6 +285,7 @@ export function SafeImportWizard() {
                     rows={previewRows}
                     fieldLabels={fieldLabels}
                     totalRows={analysis.parsed.rows.length}
+                    showSummaryBadge={docType === "migration_comptable"}
                   />
                 </CardContent>
               </Card>
@@ -276,6 +300,11 @@ export function SafeImportWizard() {
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
                       {t("importInProgress")}
+                    </>
+                  ) : accountingBreakdown ? (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Importer {accountingBreakdown.willImportCount.toLocaleString()} ligne(s) propre(s)
                     </>
                   ) : (
                     <>
@@ -308,6 +337,69 @@ export function SafeImportWizard() {
       )}
 
       {activeTab === "history" && <ImportHistoryTable />}
+    </div>
+  );
+}
+
+function AccountingBreakdownPanel({
+  breakdown,
+  sheetName,
+  availableSheets,
+  ignoredCount,
+}: {
+  breakdown: AccountingPreviewBreakdown;
+  sheetName?: string;
+  availableSheets?: string[];
+  ignoredCount?: number;
+}) {
+  const items = [
+    { label: "Lignes propres", value: breakdown.cleanCount, tone: "success" as const },
+    { label: "Avertissements", value: breakdown.warningCount, tone: "warning" as const },
+    { label: "Bloquées", value: breakdown.blockedCount, tone: "error" as const },
+    { label: "Synthèse / total", value: breakdown.summaryCount, tone: "muted" as const },
+    { label: "Doublons probables", value: breakdown.duplicateCount, tone: "warning" as const },
+    { label: "À importer au journal", value: breakdown.willImportCount, tone: "success" as const },
+    { label: "À ignorer", value: breakdown.willSkipCount, tone: "muted" as const },
+  ];
+  return (
+    <div className="space-y-3">
+      <p className="text-xs safe-text-secondary">
+        Seules les lignes propres (sans erreur, hors total/synthèse, doublons écartés)
+        seront écrites dans le journal général. Tout le reste reste consigné dans
+        l&apos;historique d&apos;import pour audit.
+      </p>
+      {sheetName && (
+        <p className="text-xs safe-text-secondary">
+          Feuille active&nbsp;: <strong>{sheetName}</strong>
+          {availableSheets && availableSheets.length > 1 && (
+            <> · Autres feuilles disponibles&nbsp;: {availableSheets.filter((s) => s !== sheetName).join(", ")}</>
+          )}
+          {ignoredCount ? <> · {ignoredCount} ligne(s) vide(s) ignorée(s) par le parser</> : null}
+        </p>
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        {items.map((it) => (
+          <div
+            key={it.label}
+            className="flex flex-col items-center gap-1 px-3 py-3 rounded-[var(--safe-radius-lg)] bg-white/70 border border-[var(--safe-neutral-border)]/60"
+          >
+            <span
+              className={`text-2xl font-bold ${
+                it.tone === "success"
+                  ? "text-[var(--safe-status-success)]"
+                  : it.tone === "warning"
+                    ? "text-[var(--safe-status-warning)]"
+                    : it.tone === "error"
+                      ? "text-[var(--safe-status-error)]"
+                      : "safe-text-metric"
+              }`}
+            >
+              {it.value.toLocaleString()}
+            </span>
+            <span className="text-xs safe-text-secondary text-center">{it.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

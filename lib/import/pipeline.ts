@@ -5,13 +5,17 @@ import { detectColumns, getFieldLabels } from "./detect-columns";
 import { normalizeClientRow } from "./normalizers/client";
 import { normalizeTimeEntryRow } from "./normalizers/time-entry";
 import { normalizeBankRow } from "./normalizers/bank-statement";
+import { normalizeAccountingRow } from "./normalizers/accounting-ledger";
 import type {
   ParsedFile,
   DocumentType,
   ClassificationResult,
   ColumnMapping,
   NormalizedRow,
+  NormalizedAccountingEntry,
   PreviewResult,
+  AccountingPreviewResult,
+  AccountingPreviewBreakdown,
 } from "./types";
 
 export type AnalysisResult = {
@@ -66,6 +70,8 @@ export function normalizeRows(
         return normalizeTimeEntryRow(row, mapping, i);
       case "releve_bancaire":
         return normalizeBankRow(row, mapping, i);
+      case "migration_comptable":
+        return normalizeAccountingRow(row, mapping, i);
     }
   });
 }
@@ -89,5 +95,90 @@ export function generatePreview(
     preview: normalized,
     validCount,
     errorCount,
+  };
+}
+
+/**
+ * Analyse intégrale d'un fichier de migration comptable: toutes les lignes
+ * sont passées au normalizer, on calcule un breakdown décisionnel et on
+ * détecte les doublons probables par fingerprint.
+ *
+ * Le preview ne tronque pas: on a besoin du total exact pour décider.
+ */
+export function generateAccountingPreview(
+  parsed: ParsedFile,
+  mapping: ColumnMapping,
+  maxPreviewRows = 50,
+): AccountingPreviewResult {
+  const normalized = normalizeRows(parsed.rows, "migration_comptable", mapping) as NormalizedRow<NormalizedAccountingEntry>[];
+
+  // Détection des doublons par fingerprint à l'intérieur du même lot.
+  const seen = new Map<string, number>();
+  for (const row of normalized) {
+    const fp = row.rowFingerprint;
+    if (!fp) continue;
+    seen.set(fp, (seen.get(fp) ?? 0) + 1);
+  }
+
+  let cleanCount = 0;
+  let warningCount = 0;
+  let blockedCount = 0;
+  let summaryCount = 0;
+  let duplicateCount = 0;
+  let willImportCount = 0;
+
+  // On garde une trace des fingerprints déjà "écrits" en simulation
+  // pour rester cohérent avec actions.ts (1ère occurrence conservée).
+  const writtenFingerprints = new Set<string>();
+
+  for (const row of normalized) {
+    const isDup = row.rowFingerprint ? (seen.get(row.rowFingerprint) ?? 0) > 1 : false;
+    if (isDup) {
+      duplicateCount++;
+      row.warnings.push(`Doublon probable (${seen.get(row.rowFingerprint!)} occurrences)`);
+      if (row.severity === "ok") row.severity = "warning";
+    }
+
+    if (row.isSummaryRow) summaryCount++;
+    if (row.errors.length > 0) blockedCount++;
+    else if (row.warnings.length > 0 || row.isSummaryRow) warningCount++;
+    else cleanCount++;
+
+    const writableShape = row.errors.length === 0
+      && !row.isSummaryRow
+      && row.data.direction !== "UNKNOWN"
+      && row.data.amount > 0
+      && Boolean(row.data.date);
+
+    if (!writableShape) continue;
+    // Doublons: on garde la 1ère occurrence et on rejette les suivantes — comme actions.ts.
+    if (row.rowFingerprint) {
+      if (writtenFingerprints.has(row.rowFingerprint)) continue;
+      writtenFingerprints.add(row.rowFingerprint);
+    }
+    willImportCount++;
+  }
+
+  const breakdown: AccountingPreviewBreakdown = {
+    cleanCount,
+    warningCount,
+    blockedCount,
+    summaryCount,
+    duplicateCount,
+    willImportCount,
+    willSkipCount: normalized.length - willImportCount,
+  };
+
+  return {
+    fileName: parsed.fileName,
+    documentType: "migration_comptable",
+    totalRows: parsed.rows.length,
+    mapping,
+    preview: normalized.slice(0, maxPreviewRows),
+    validCount: cleanCount,
+    errorCount: blockedCount,
+    breakdown,
+    sheetName: parsed.sheetName,
+    availableSheets: parsed.availableSheets,
   };
 }

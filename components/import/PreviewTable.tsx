@@ -8,10 +8,12 @@ export function PreviewTable({
   rows,
   fieldLabels,
   totalRows,
+  showSummaryBadge = false,
 }: {
   rows: NormalizedRow[];
   fieldLabels: Record<string, string>;
   totalRows: number;
+  showSummaryBadge?: boolean;
 }) {
   const t = useTranslations("import");
   const fields = Object.keys(fieldLabels);
@@ -70,19 +72,37 @@ export function PreviewTable({
                     hasError ? "bg-[var(--safe-status-error-bg)]/30" : ""
                   }`}
                 >
-                  <td className="px-3 py-2 text-xs safe-text-secondary">{row.index + 1}</td>
+                  <td className="px-3 py-2 text-xs safe-text-secondary">{row.sourceRowIndex ?? row.index + 1}</td>
                   <td className="px-3 py-2">
-                    {hasError ? (
-                      <span className="inline-flex items-center gap-1" title={row.errors.map((e) => e.message).join(", ")}>
-                        <AlertCircle className="w-3.5 h-3.5 text-[var(--safe-status-error)]" />
-                      </span>
-                    ) : hasWarning ? (
-                      <span className="inline-flex items-center gap-1" title={row.warnings.join(", ")}>
-                        <AlertTriangle className="w-3.5 h-3.5 text-[var(--safe-status-warning)]" />
-                      </span>
-                    ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[var(--safe-status-success)]" />
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {hasError ? (
+                        <span className="inline-flex items-center gap-1" title={row.errors.map((e) => e.message).join(", ")}>
+                          <AlertCircle className="w-3.5 h-3.5 text-[var(--safe-status-error)]" />
+                        </span>
+                      ) : hasWarning ? (
+                        <span className="inline-flex items-center gap-1" title={row.warnings.join(", ")}>
+                          <AlertTriangle className="w-3.5 h-3.5 text-[var(--safe-status-warning)]" />
+                        </span>
+                      ) : (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--safe-status-success)]" />
+                      )}
+                      {showSummaryBadge && row.isSummaryRow && (
+                        <span
+                          className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--safe-neutral-bg)] safe-text-secondary"
+                          title="Ligne de total / sous-total / report — exclue de l'écriture"
+                        >
+                          synthèse
+                        </span>
+                      )}
+                      {showSummaryBadge && row.warnings.some((w) => w.startsWith("Doublon")) && (
+                        <span
+                          className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--safe-status-warning-bg)] text-[var(--safe-status-warning)]"
+                          title="Doublon probable dans le lot"
+                        >
+                          doublon
+                        </span>
+                      )}
+                    </div>
                   </td>
                   {fields.map((f) => (
                     <td key={f} className="px-3 py-2 text-xs safe-text-title whitespace-nowrap max-w-[200px] truncate">

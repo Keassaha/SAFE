@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
-
 const footerLinks = {
   produit: [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Tarification", href: "/tarification" },
-    { label: "Réserver un appel", href: CALENDLY_URL },
+    // Le CTA "Réserver un appel" pointe vers la page de contact.
+    { label: "Réserver un appel", href: "/contact" },
     { label: "Audit gratuit", href: "/audit-gratuit" },
   ],
   legal: [

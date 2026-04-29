@@ -23,6 +23,7 @@ import {
   CreditCard,
   ListChecks,
   ShieldCheck,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   canViewClients,
@@ -86,6 +87,15 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { id: "clients", href: routes.clients, labelKey: "nav.clients", icon: Users, show: canViewClients },
       { id: "dossiers", href: routes.dossiers, labelKey: "nav.matters", icon: FolderOpen, show: canViewDossiers },
+      // File assistante — couche assistante active. Visible pour assistante, admin_cabinet, avocat.
+      // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
+      {
+        id: "file-assistante",
+        href: routes.gestionAssistante,
+        labelKey: "nav.assistantQueue",
+        icon: ClipboardCheck,
+        show: (role) => role === "assistante" || role === "admin_cabinet" || role === "avocat",
+      },
       { id: "employees", href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
     ],
   },

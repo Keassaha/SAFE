@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { whereInvoiceOverdue } from "@/lib/billing/invoice-status";
 import { routes } from "@/lib/routes";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -189,8 +190,9 @@ export default async function ParametresPage() {
     prisma.trustAccount.count({
       where: { cabinetId },
     }),
+    // Doctrine: voir docs/accounting/INVOICE_STATUS_NORMALIZATION.md
     prisma.invoice.count({
-      where: { cabinetId, statut: "en_retard" },
+      where: { cabinetId, ...whereInvoiceOverdue() },
     }),
     prisma.documentRetentionPolicy.count({
       where: { cabinetId },

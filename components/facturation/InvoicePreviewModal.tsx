@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { isInvoiceDraft, isInvoiceIssued, getInvoiceLifecycleCategory } from "@/lib/billing/invoice-status";
 
 interface InvoicePreviewModalProps {
   invoice: Invoice & {
@@ -21,17 +22,21 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Le label affiché est dérivé de la catégorie canonique pour rester
+  // cohérent avec la vraie situation métier (invoiceStatus + paymentStatus).
+  const isDraft = isInvoiceDraft(invoice);
+  const isIssued = isInvoiceIssued(invoice);
   const getStatus = () => {
-    switch (invoice.statut) {
-      case "brouillon":
-        return "Brouillon";
-      case "envoyee":
-      case "partiellement_payee":
-      case "payee":
-      case "en_retard":
-        return "Envoyée";
-      default:
-        return invoice.statut;
+    const category = getInvoiceLifecycleCategory(invoice);
+    switch (category) {
+      case "draft": return "Brouillon";
+      case "cancelled": return "Annulée";
+      case "credited": return "Avoir émis";
+      case "paid": return "Payée";
+      case "overdue": return "En retard";
+      case "partially_paid": return "Partiellement payée";
+      case "issued_active": return "Envoyée";
     }
   };
 
@@ -159,7 +164,7 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
             Fermer
           </Button>
 
-          {invoice.statut === "brouillon" && (
+          {isDraft && (
             <>
               <Button variant="secondary" onClick={handleValidate} disabled={isLoading}>
                 Valider
@@ -170,7 +175,7 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
             </>
           )}
 
-          {["envoyee", "partiellement_payee", "payee", "en_retard"].includes(invoice.statut) && (
+          {isIssued && (
             <Button variant="secondary" disabled={isLoading}>
               Voir détails
             </Button>

@@ -1,9 +1,17 @@
 /**
  * Service relances : création et envoi de relances pour factures en retard.
+ *
+ * Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+ *
+ * « En retard » est dérivé dynamiquement (pas un état stocké).
+ * Source de vérité unique = `whereInvoiceOverdue(now)` dans
+ * `lib/billing/invoice-status.ts`. Le service ne lit plus
+ * `invoiceStatus.OVERDUE` qui n'est jamais écrit en base.
  */
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
+import { whereInvoiceOverdue } from "@/lib/billing/invoice-status";
 
 export type ReminderType = "reminder_1" | "reminder_2" | "final_notice" | "interest_notice";
 export type ReminderChannel = "email" | "manual" | "printed";
@@ -54,17 +62,27 @@ export async function createReminder(params: {
   return { reminderId: reminder.id };
 }
 
-/** Liste les factures en retard (échéance dépassée, solde > 0) */
+/**
+ * Liste les factures en retard (échéance dépassée, solde > 0).
+ *
+ * Le filtrage est entièrement délégué à `whereInvoiceOverdue(now)` qui couvre :
+ *   - `invoiceStatus ∈ {ISSUED, PARTIALLY_PAID, OVERDUE}` (déjà émise)
+ *   - `paymentStatus ∈ {UNPAID, PARTIAL}` (jamais payée)
+ *   - `dateEcheance < now` (échéance dépassée)
+ *
+ * On ajoute un garde-fou `balanceDue > 0` directement au niveau Prisma plutôt
+ * qu'en post-filter pour bénéficier de l'index et éviter le over-fetch.
+ */
 export async function listOverdueInvoices(cabinetId: string, filters?: {
   clientId?: string;
   limit?: number;
 }) {
   const now = new Date();
-  const list = await prisma.invoice.findMany({
+  return prisma.invoice.findMany({
     where: {
       cabinetId,
-      dateEcheance: { lt: now },
-      invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] },
+      ...whereInvoiceOverdue(now),
+      balanceDue: { gt: 0 },
       ...(filters?.clientId ? { clientId: filters.clientId } : {}),
     },
     orderBy: { dateEcheance: "asc" },
@@ -74,7 +92,4 @@ export async function listOverdueInvoices(cabinetId: string, filters?: {
       dossier: { select: { id: true, intitule: true } },
     },
   });
-  return list.filter(
-    (inv) => (inv.balanceDue ?? inv.montantTotal - inv.montantPaye) > 0
-  );
 }

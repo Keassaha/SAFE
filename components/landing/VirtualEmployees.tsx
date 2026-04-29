@@ -60,19 +60,16 @@ export function VirtualEmployees() {
         className="mb-16 text-center flex flex-col items-center"
       >
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
-          Copilote · pas remplaçant
+          L&apos;IA chez SAFE
         </span>
         <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl mb-4">
-          Le copilote idéal de votre{" "}
+          L&apos;IA assiste.{" "}
           <span className="italic text-forest-600">
-            adjointe ou de votre comptable.
+            Vous décidez.
           </span>
         </h2>
-        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
-          Nos agents IA ne remplacent pas votre équipe — ils lui épargnent les
-          tâches répétitives. Préparation de factures, rapprochement des paiements,
-          détection d&apos;écarts : tout passe par une validation humaine avant d&apos;être
-          exécuté.
+        <p className="text-[15px] text-text-body font-sans leading-[1.65] max-w-2xl">
+          Quand SAFE détecte qu&apos;un dossier n&apos;a pas été facturé depuis 21 jours, il prépare la facture pour révision. Quand un retrait du fidéicommis ne correspond pas à un mandat ouvert, il le signale avant la transaction. Quand un délai approche, il alerte avant qu&apos;il ne devienne urgent. Vous validez à chaque fois.
         </p>
 
         {/* Bande de réassurance — le jugement reste humain */}

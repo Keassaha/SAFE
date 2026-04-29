@@ -13,27 +13,33 @@ type Feature = {
 const FEATURES: Feature[] = [
   {
     num: "01",
-    kicker: "Vision",
-    title: "Une vision claire de votre comptabilité.",
-    body: "Revenus, dépenses, rentabilité par avocat et par dossier. Tout est là, en temps réel, sans gymnastique Excel.",
+    kicker: "Facturation",
+    title: "Une facturation plus rigoureuse.",
+    body: "Les heures se transforment en factures. Les factures se transforment en paiements. Sans relances bricolées dans Word, sans temps non capturé.",
   },
   {
     num: "02",
-    kicker: "Automatisation",
-    title: "Un système qui réduit votre charge admin.",
-    body: "Facturation, relances, réconciliation bancaire, classement. Le travail répétitif s'exécute pendant que vous plaidez.",
+    kicker: "Fidéicommis",
+    title: "Un fidéicommis plus clair.",
+    body: "Registre tenu, conciliation mensuelle, piste d'audit complète. La conformité B-1, r.5 et By-Laws de la LSO en continu — pas seulement le jour de l'inspection.",
   },
   {
     num: "03",
-    kicker: "Échéances",
-    title: "Aucun délai manqué.",
-    body: "Échéances Barreau, fiscales et dossiers calculées automatiquement. Vous êtes alerté avant qu'il ne soit tard.",
+    kicker: "Conformité",
+    title: "Une conformité plus sereine.",
+    body: "Obligations Barreau et LSO connues, suivies, traçables. Une inspection ne devrait pas être un événement à préparer en urgence.",
   },
   {
     num: "04",
-    kicker: "Conformité",
-    title: "Toujours prêt pour l'inspection.",
-    body: "Fidéicommis, registres, piste d'audit. Conforme B-1, r.5 en continu — pas seulement le jour de l'inspection.",
+    kicker: "Dossiers",
+    title: "Des dossiers mieux organisés.",
+    body: "Clients, mandats, échéances et documents au même endroit. Un dimanche soir ne devrait plus servir à retrouver un email perdu.",
+  },
+  {
+    num: "05",
+    kicker: "Migration",
+    title: "Une migration mieux encadrée.",
+    body: "Quelqu'un vous accompagne du fichier Excel actuel jusqu'au système en service. Pas de migration laissée à votre charge.",
   },
 ];
 
@@ -50,17 +56,18 @@ export function FeaturesGrid() {
         className="mb-16 text-center flex flex-col items-center"
       >
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
-          Les fonctionnalités
+          La promesse
         </span>
-        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-xl mb-4">
-          Tout ce qui compte. <span className="italic text-forest-600">Rien de superflu.</span>
+        <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl mb-4">
+          SAFE ne vend pas un logiciel. <span className="italic text-forest-600">SAFE installe un système.</span>
         </h2>
-        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-md">
-          Quatre piliers. Pensés pour les cabinets du Québec. Le reste, on l&apos;a retiré.
+        <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
+          Cinq piliers, un seul objectif : remettre le cabinet en ordre.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Grille de cubes animés — même pattern que la section ProblemSection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {FEATURES.map((f, i) => (
           <AnimatedCard
             key={f.num}
@@ -76,6 +83,7 @@ export function FeaturesGrid() {
     </section>
   );
 }
+
 
 /**
  * Carte animée partagée entre FeaturesGrid et ProblemSection.

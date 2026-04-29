@@ -28,6 +28,13 @@ import type {
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
 import { DashboardView } from "@/components/dashboard/DashboardView";
+import {
+  whereInvoiceDraft,
+  whereInvoiceIssuedActive,
+  whereInvoiceOverdue,
+  whereInvoiceForReports,
+  getInvoiceLifecycleCategory,
+} from "@/lib/billing/invoice-status";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -210,17 +217,24 @@ export default async function TableauDeBordPage() {
       orderBy: { updatedAt: "desc" },
       take: 10,
     }),
+    // Doctrine: voir docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+    // Liste des factures les plus pertinentes pour le dashboard:
+    // brouillons + émises actives + en retard.
     prisma.invoice.findMany({
       where: {
         cabinetId,
-        statut: { in: ["brouillon", "envoyee", "en_retard"] },
+        OR: [
+          whereInvoiceDraft(),
+          whereInvoiceIssuedActive(now),
+          whereInvoiceOverdue(now),
+        ],
       },
       include: { client: { select: { raisonSociale: true } } },
       orderBy: { dateEmission: "desc" },
       take: 10,
     }),
     prisma.invoice.count({
-      where: { cabinetId, statut: "en_retard" },
+      where: { cabinetId, ...whereInvoiceOverdue(now) },
     }),
     prisma.auditLog.findMany({
       where: {
@@ -316,10 +330,10 @@ export default async function TableauDeBordPage() {
     prisma.timeEntry.count({ where: { cabinetId } }),
     prisma.invoice.count({ where: { cabinetId } }),
     prisma.invoice.count({
-      where: { cabinetId, statut: "envoyee" },
+      where: { cabinetId, ...whereInvoiceIssuedActive(now) },
     }),
     prisma.invoice.count({
-      where: { cabinetId, statut: "brouillon" },
+      where: { cabinetId, ...whereInvoiceDraft() },
     }),
     prisma.timeEntry.count({
       where: { cabinetId, statut: { not: "facture" }, facturable: true },
@@ -328,13 +342,13 @@ export default async function TableauDeBordPage() {
       where: { cabinetId },
     }).catch(() => 0 as number),
     prisma.invoice.findMany({
-      where: { cabinetId, statut: "en_retard" },
+      where: { cabinetId, ...whereInvoiceOverdue(now) },
       select: { balanceDue: true, dateEcheance: true },
     }),
     prisma.invoice.findMany({
       where: {
         cabinetId,
-        statut: { in: ["envoyee", "partiellement_payee", "en_retard"] },
+        ...whereInvoiceForReports(),
         balanceDue: { gt: 0 },
       },
       select: {
@@ -654,21 +668,28 @@ export default async function TableauDeBordPage() {
   });
 
   // ── Billing follow-up ──
-  const billingFollowUp: BillingFollowUpRow[] = billingFollowUpInvoices.map((inv) => ({
-    id: inv.id,
-    clientName: inv.client.raisonSociale ?? "",
-    invoiceNumber: inv.numero,
-    amount: inv.montantTotal,
-    dateIssued: inv.dateEmission,
-    status:
-      inv.statut === "brouillon"
-        ? t("draft")
-        : inv.statut === "envoyee"
-          ? t("issued")
-          : inv.statut === "en_retard"
-            ? t("overdue")
-            : inv.statut,
-  }));
+  // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Le libellé suit la catégorie canonique pour rester aligné sur la
+  // vraie situation métier (overdue dynamique, partially_paid, etc.).
+  const billingFollowUp: BillingFollowUpRow[] = billingFollowUpInvoices.map((inv) => {
+    const category = getInvoiceLifecycleCategory(inv, now);
+    let status: string;
+    switch (category) {
+      case "draft": status = t("draft"); break;
+      case "overdue": status = t("overdue"); break;
+      case "issued_active":
+      case "partially_paid": status = t("issued"); break;
+      default: status = category;
+    }
+    return {
+      id: inv.id,
+      clientName: inv.client.raisonSociale ?? "",
+      invoiceNumber: inv.numero,
+      amount: inv.montantTotal,
+      dateIssued: inv.dateEmission,
+      status,
+    };
+  });
 
   // ── Alerts ──
   const alerts: DashboardAlert[] = [];

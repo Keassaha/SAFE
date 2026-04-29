@@ -7,8 +7,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
 import { DossierBriefcase } from "@/components/dossiers/briefcase";
-import { canViewSensitiveFields } from "@/lib/auth/permissions";
+import { canViewSensitiveFields, canAssignSelfAsAssistant } from "@/lib/auth/permissions";
 import { getDossierSections, generateCartable } from "@/lib/dossiers/cartable-service";
+import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
+import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
+import { DossierPreparationCard } from "@/components/dossiers/DossierPreparationCard";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 
@@ -140,6 +143,17 @@ export default async function DossierDetailPage({
   const numeroDossier = dossier.numeroDossier ?? dossier.reference ?? "Dossier";
   const statutDossier = dossier.mandate?.statutDossier ?? dossier.statut;
 
+  // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
+  // Calcul de l'état de préparation (dérivé, jamais stocké).
+  const preparationSnapshot = await loadDossierPreparationSnapshot(
+    cabinetId,
+    id,
+    { callerUserId: userId },
+  );
+  const preparationStatus = preparationSnapshot
+    ? getDossierPreparationStatus(preparationSnapshot)
+    : null;
+
   return (
     <div className="space-y-0">
       {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
@@ -197,6 +211,18 @@ export default async function DossierDetailPage({
           </div>
         </div>
       </header>
+
+      {/* Carte État de préparation — V2 couche assistante active (deep links + bouton). */}
+      {preparationStatus && (
+        <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+          <DossierPreparationCard
+            status={preparationStatus}
+            dossierId={dossier.id}
+            clientId={dossier.clientId}
+            canSelfAssign={canAssignSelfAsAssistant(role as UserRole)}
+          />
+        </section>
+      )}
 
       {/* Documents rédigés via l'éditeur SAFE */}
       <section className="px-6 py-5 border-b border-slate-200/70 bg-white">

@@ -135,19 +135,19 @@ function DemoPreview() {
 
 const valuePoints = [
   {
-    icon: Clock,
-    title: "30 minutes",
-    description: "Un appel court et ciblé pour comprendre vos besoins.",
+    icon: Users,
+    title: "Adaptée à votre pratique",
+    description: "Démo calibrée selon votre province (Québec ou Ontario), votre taille et votre mode de facturation.",
+  },
+  {
+    icon: Monitor,
+    title: "Avec vos données, si vous voulez",
+    description: "Si vous le souhaitez, nous appliquons les flux de SAFE à un dossier-type de votre cabinet — pas un cas fictif.",
   },
   {
     icon: Shield,
-    title: "Sans engagement",
-    description: "Aucune obligation. Explorez SAFE à votre rythme.",
-  },
-  {
-    icon: Users,
-    title: "Personnalisé",
-    description: "Une démo adaptée à la taille et aux besoins de votre cabinet.",
+    title: "Aucune pression commerciale",
+    description: "30 minutes. Échange direct avec l'équipe. Pas de scénario commercial, pas de relance insistante.",
   },
 ];
 
@@ -182,8 +182,8 @@ export default function DemoPage() {
                   transition={{ delay: 0.1, duration: 0.6 }}
                   className="font-sans text-5xl md:text-6xl text-[var(--safe-white)] mb-6 leading-[1.05] tracking-tight"
                 >
-                  Voyez SAFE{" "}
-                  <span className="italic text-[var(--safe-sage)]">en action</span>.
+                  Voyez comment SAFE met un cabinet{" "}
+                  <span className="italic text-[var(--safe-sage)]">en ordre</span>.
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -191,8 +191,7 @@ export default function DemoPage() {
                   transition={{ delay: 0.2, duration: 0.6 }}
                   className="text-lg text-[var(--safe-text-muted)] leading-relaxed font-sans mb-8"
                 >
-                  Réservez un appel découverte gratuit de 30 minutes. Nous vous montrerons
-                  comment SAFE peut transformer la gestion de votre cabinet.
+                  En 30 minutes, nous vous montrons concrètement comment SAFE structure la facturation, les dossiers, les paiements, le fidéicommis et le suivi opérationnel du cabinet.
                 </motion.p>
 
                 {/* Animated demo preview */}
@@ -250,10 +249,11 @@ export default function DemoPage() {
                   </h3>
                   <ul className="space-y-2.5">
                     {[
-                      "Création et suivi d'un dossier client complet",
-                      "Facturation conforme B-1 r.5 avec calcul automatique TPS/TVQ",
-                      "Gestion des comptes en fidéicommis",
-                      "Tableau de bord et rapports financiers",
+                      "Le parcours d'une facture, du temps capturé jusqu'au paiement",
+                      "La logique du fidéicommis : dépôt, retrait, conciliation, piste d'audit",
+                      "La gestion d'un dossier client de l'ouverture à la clôture",
+                      "La manière dont la conformité est rendue visible et traçable",
+                      "Les étapes d'une migration depuis votre outil actuel",
                     ].map((item, i) => (
                       <motion.li
                         key={item}

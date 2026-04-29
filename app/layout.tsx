@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { Instrument_Serif } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
@@ -11,21 +12,25 @@ import { authOptions } from "@/lib/auth";
 import { Toaster } from "sonner";
 import "./globals.css";
 
+/**
+ * Instrument Serif — display éditorial italique (Rodrigo Fuenzalida).
+ * Référence chez Hims, Thinking Machines, Phantom.
+ * Pairing parfait avec Geist Sans pour le ton éditorial premium.
+ */
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-instrument-serif",
+});
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
 };
-
-/**
- * Fonts — local-first to keep builds reproducible.
- *
- * - Geist Sans / Mono are bundled through the `geist` package.
- * - The editorial serif is exposed as a CSS variable with a local fallback stack.
- */
-const editorialSerifStack =
-  '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -55,8 +60,11 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
-      style={{ "--font-instrument-serif": editorialSerifStack } as React.CSSProperties}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
+      style={{
+        "--font-inter": "var(--font-geist-sans)",
+        "--font-jetbrains-loaded": "var(--font-geist-mono)",
+      } as React.CSSProperties}
     >
       <body className="min-h-screen font-sans bg-slate-50 text-slate-800 antialiased selection:bg-forest-100 selection:text-forest-600">
         <NextIntlClientProvider locale={locale} messages={messages}>

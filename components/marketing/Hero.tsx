@@ -15,7 +15,9 @@ import Link from "next/link";
    ═══════════════════════════════════════════════ */
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
+// Le CTA "Réserver un appel" pointe vers la page de contact —
+// le formulaire envoie directement à jeremie@safecabinet.ca.
+const BOOK_CALL_HREF = "/contact";
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -98,15 +100,13 @@ export function Hero() {
               Faire mon audit gratuit
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
-            <a
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={BOOK_CALL_HREF}
               className="group flex items-center gap-2.5 px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-medium rounded-full border border-[var(--safe-sage)]/25 text-[var(--safe-sage)] transition-all duration-300 hover:border-[var(--safe-sage)]/50 hover:bg-[var(--safe-sage)]/5 hover:scale-[1.02] active:scale-[0.98] font-sans"
             >
               <Sparkles className="w-5 h-5" />
               R&eacute;server un appel
-            </a>
+            </Link>
           </motion.div>
         </div>
       </div>

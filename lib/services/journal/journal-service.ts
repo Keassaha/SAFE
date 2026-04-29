@@ -3,7 +3,7 @@
  * Append-only : aucune modification ni suppression des écritures.
  */
 
-import type { Prisma } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type {
   JournalEntryCreateInput,
@@ -14,11 +14,25 @@ import type {
 } from "@/types/journal";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
 
-/** Crée une écriture au journal (append-only). Calcule le solde courant. */
+/**
+ * Type du client Prisma accepté : soit le client global, soit un `TransactionClient`
+ * issu de `prisma.$transaction(async tx => ...)`. Permet d'enchaîner plusieurs
+ * écritures dans la même transaction atomique.
+ */
+type JournalPrismaClient = PrismaClient | Prisma.TransactionClient;
+
+/**
+ * Crée une écriture au journal (append-only). Calcule le solde courant.
+ *
+ * Le paramètre optionnel `client` permet d'exécuter dans une transaction Prisma —
+ * indispensable quand l'écriture journal doit rester atomique avec la création
+ * de l'entité métier source (ex: `CabinetExpense` validée).
+ */
 export async function createJournalEntry(
-  input: JournalEntryCreateInput
+  input: JournalEntryCreateInput,
+  client: JournalPrismaClient = prisma,
 ): Promise<{ id: string }> {
-  const lastEntry = await prisma.journalGeneralEntry.findFirst({
+  const lastEntry = await client.journalGeneralEntry.findFirst({
     where: { cabinetId: input.cabinetId },
     orderBy: [{ dateTransaction: "desc" }, { createdAt: "desc" }],
     select: { solde: true },
@@ -27,7 +41,7 @@ export async function createJournalEntry(
   const solde =
     previousSolde + input.montantEntree - input.montantSortie;
 
-  const entry = await prisma.journalGeneralEntry.create({
+  const entry = await client.journalGeneralEntry.create({
     data: {
       cabinetId: input.cabinetId,
       dateTransaction: input.dateTransaction,

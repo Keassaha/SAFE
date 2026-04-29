@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Shield, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-const CALENDLY_URL = "https://calendly.com/jeremie/30min";
+// Le CTA "Réserver un appel" pointe vers la page de contact.
+const BOOK_CALL_HREF = "/contact";
 
 const PLANS = [
   {
@@ -65,7 +66,7 @@ const PLANS = [
     ],
     popular: false,
     cta: "Réserver un appel",
-    href: CALENDLY_URL,
+    href: BOOK_CALL_HREF,
   },
 ];
 

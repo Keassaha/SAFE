@@ -7,6 +7,7 @@ import {
   parseCabinetConfig,
   getEnvoiFactureClientConfig,
 } from "@/lib/cabinet-config";
+import { isInvoiceDraft } from "@/lib/billing/invoice-status";
 import type { UserRole } from "@prisma/client";
 import { randomBytes } from "crypto";
 
@@ -54,7 +55,9 @@ export async function POST(
     where: { id, cabinetId },
     select: {
       id: true,
-      statut: true,
+      invoiceStatus: true,
+      paymentStatus: true,
+      dateEcheance: true,
       cancelledAt: true,
       shareToken: true,
       shareTokenExpiresAt: true,
@@ -64,7 +67,7 @@ export async function POST(
   if (!invoice) {
     return NextResponse.json({ error: "Facture introuvable" }, { status: 404 });
   }
-  if (invoice.statut === "brouillon") {
+  if (isInvoiceDraft(invoice)) {
     return NextResponse.json(
       { error: "Générez le lien après avoir envoyé la facture au client." },
       { status: 400 }

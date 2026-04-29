@@ -1,6 +1,5 @@
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import type { InvoiceStatut } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Plus } from "lucide-react";
@@ -8,16 +7,18 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
 import { SuiviPipelineView } from "./SuiviPipelineView";
+import { whereInvoiceDraft, whereInvoiceForReports } from "@/lib/billing/invoice-status";
 
 export default async function FacturationSuiviPage() {
   const cabinetId = await requireCabinetId();
   const t = await getTranslations("facturation");
 
-  const envoyeeStatuts: InvoiceStatut[] = ["envoyee", "partiellement_payee", "payee", "en_retard"];
-
+  // Doctrine: voir docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Bucket "envoyées" pour le pipeline = toutes les factures qui ont été émises
+  // (PAID inclus pour visualiser l'historique du pipeline).
   const [brouillons, envoyees] = await Promise.all([
     prisma.invoice.findMany({
-      where: { cabinetId, statut: "brouillon" },
+      where: { cabinetId, ...whereInvoiceDraft() },
       include: {
         client: { select: { id: true, raisonSociale: true } },
         dossier: { select: { id: true, intitule: true } },
@@ -26,7 +27,7 @@ export default async function FacturationSuiviPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.invoice.findMany({
-      where: { cabinetId, statut: { in: envoyeeStatuts } },
+      where: { cabinetId, ...whereInvoiceForReports() },
       include: {
         client: { select: { id: true, raisonSociale: true } },
         dossier: { select: { id: true, intitule: true } },

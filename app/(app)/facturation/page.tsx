@@ -10,6 +10,15 @@ import { FacturationTable } from "@/components/facturation/FacturationTable";
 import { FacturationActions } from "@/components/facturation/FacturationActions";
 import type { InvoiceStatut } from "@prisma/client";
 import type { FacturationTableRow } from "@/components/facturation/FacturationTable";
+import { aggregateBillableTimeEntries } from "@/lib/billing/queries";
+import {
+  whereInvoiceDraft,
+  whereInvoiceIssuedActive,
+  whereInvoiceOverdue,
+  whereInvoiceForReports,
+  legacyStatutToInvoiceWhere,
+  deriveLegacyStatut,
+} from "@/lib/billing/invoice-status";
 
 const STATUT_OPTIONS: { value: "" | InvoiceStatut; label: string }[] = [
   { value: "", label: "" },
@@ -45,6 +54,11 @@ export default async function FacturationPage({
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
+  // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
+  // Le filtre URL `?statut=...` est traduit en where canonique pour
+  // ne pas dépendre du champ `statut` legacy qui n'est plus la source de vérité.
+  const statutFilter = legacyStatutToInvoiceWhere(currentStatut, now);
+
   const [
     invoices,
     facturablesTime,
@@ -57,7 +71,7 @@ export default async function FacturationPage({
     prisma.invoice.findMany({
       where: {
         cabinetId,
-        ...(currentStatut ? { statut: currentStatut } : {}),
+        ...(statutFilter ?? {}),
         ...(dateFrom ? { dateEmission: { gte: dateFrom, ...(dateTo ? { lte: dateTo } : {}) } } : {}),
         ...(dateTo && !dateFrom ? { dateEmission: { lte: dateTo } } : {}),
         ...(currentSearch
@@ -77,19 +91,9 @@ export default async function FacturationPage({
       },
       orderBy: { dateEmission: "desc" },
     }),
-    prisma.timeEntry.aggregate({
-      where: {
-        cabinetId,
-        facturable: true,
-        invoiceId: null,
-        OR: [
-          { statut: { in: ["brouillon", "valide"] } },
-          { billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] } },
-        ],
-      },
-      _count: true,
-      _sum: { feeAmount: true, montant: true },
-    }),
+    // Doctrine §3 — feeAmount prime sur montant, write-offs exclus.
+    // Encapsulé dans `aggregateBillableTimeEntries` pour garder la règle au même endroit.
+    aggregateBillableTimeEntries(prisma, cabinetId),
     prisma.expense.aggregate({
       where: {
         cabinetId,
@@ -99,36 +103,31 @@ export default async function FacturationPage({
       _count: true,
       _sum: { amount: true },
     }),
+    // KPI "envoyées" : factures émises actives (non en retard, non payées).
     prisma.invoice.aggregate({
-      where: {
-        cabinetId,
-        statut: "envoyee",
-        invoiceStatus: "ISSUED",
-      },
+      where: { cabinetId, ...whereInvoiceIssuedActive(now) },
       _count: true,
       _sum: { montantTotal: true },
     }),
+    // KPI "en retard" : calcul dynamique (dateEcheance < now).
     prisma.invoice.aggregate({
-      where: { cabinetId, statut: "en_retard" },
+      where: { cabinetId, ...whereInvoiceOverdue(now) },
       _count: true,
       _sum: { balanceDue: true },
     }),
+    // KPI "brouillons" : DRAFT + READY_TO_ISSUE.
     prisma.invoice.count({
-      where: { cabinetId, statut: "brouillon" },
+      where: { cabinetId, ...whereInvoiceDraft() },
     }),
+    // Taux d'encaissement : sur l'ensemble des factures émises (PAID inclus).
     prisma.invoice.aggregate({
-      where: {
-        cabinetId,
-        invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE"] },
-      },
+      where: { cabinetId, ...whereInvoiceForReports() },
       _sum: { montantTotal: true, totalPaidAmount: true },
     }),
   ]);
 
-  const facturablesSum =
-    (facturablesTime._sum.feeAmount ?? facturablesTime._sum.montant ?? 0) +
-    (facturablesExpenses._sum.amount ?? 0);
-  const facturablesCount = facturablesTime._count + facturablesExpenses._count;
+  const facturablesSum = facturablesTime.total + (facturablesExpenses._sum.amount ?? 0);
+  const facturablesCount = facturablesTime.count + facturablesExpenses._count;
   const totalEmitted = issuedForTaux._sum.montantTotal ?? 0;
   const totalPaid = issuedForTaux._sum.totalPaidAmount ?? 0;
   const kpis: FacturationMainKpisData = {
@@ -154,7 +153,8 @@ export default async function FacturationPage({
     dateEcheance: inv.dateEcheance,
     montantTotal: inv.montantTotal,
     balanceDue: inv.balanceDue,
-    statut: inv.statut,
+    // Doctrine: statut affiché = dérivé de invoiceStatus + paymentStatus + dateEcheance.
+    statut: deriveLegacyStatut(inv, now),
     lastReminderDay: inv.lastReminderDay,
     lastReminderSentAt: inv.reminderLogs[0]?.sentAt ?? null,
   }));

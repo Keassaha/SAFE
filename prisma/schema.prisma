@@ -1791,6 +1791,17 @@ enum JournalSourceModule {
   CORRECTION_SYSTEME
 }
 
+/// Journal général — append-only.
+///
+/// Idempotence structurelle: un index UNIQUE PARTIEL est maintenu hors-Prisma
+/// sur (cabinetId, sourceModule, sourceId) WHERE sourceId IS NOT NULL.
+/// Cf. migration `20260429120000_add_journal_idempotency_unique_index`.
+///
+/// Conséquences à respecter pour toute évolution de ce modèle :
+///   - tout INSERT avec sourceId non null pour un triplet déjà présent → P2002.
+///   - les lignes sans sourceId (ajustements manuels libres) restent autorisées.
+///   - aucune mutation rétroactive: les corrections passent par une nouvelle
+///     ligne `typeTransaction = CORRECTION`.
 model JournalGeneralEntry {
   id                String              @id @default(cuid())
   cabinetId          String

@@ -18,7 +18,7 @@ export function Hero() {
       >
         <div className="w-1.5 h-1.5 rounded-full bg-forest-600" />
         <span className="text-[12px] font-sans tracking-[0.02em] text-text-body font-medium uppercase letter-spacing-[0.1em]">
-          Conforme Barreau du Québec · Règlement B-1, r.5
+          Conçu pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario
         </span>
       </motion.div>
 
@@ -28,16 +28,16 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 0.1, ease }}
         className="font-serif text-[56px] leading-[1.02] tracking-[-0.035em] text-text-primary max-w-3xl mb-4 z-10 relative"
       >
-        La plateforme financière pour les cabinets <br/><span className="italic text-forest-600">d&apos;avocats modernes.</span>
+        Le système qui met votre cabinet <span className="italic text-forest-600">en ordre.</span>
       </motion.h1>
 
       <motion.p
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease }}
-        className="text-[17px] text-text-body max-w-[540px] font-sans leading-[1.6] mb-10 z-10 relative"
+        className="text-[17px] text-text-body max-w-[620px] font-sans leading-[1.6] mb-10 z-10 relative"
       >
-        Facturation, fidéicommis, conformité. Pensé pour le Québec. Construit par quelqu&apos;un qui a tenu vos livres.
+        Facturation, fidéicommis, conformité, migration, organisation. SAFE remplace Excel, les oublis et les processus bricolés par un système plus clair, plus calme et plus fiable.
       </motion.p>
 
       <motion.div 
@@ -58,16 +58,16 @@ export function Hero() {
         className="flex items-center justify-center divide-x divide-border w-full max-w-[600px] border-y border-[0.5px] border-border py-6 z-10 relative"
       >
         <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Quotidien</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Rapprochement fidéicommis</span>
-        </div>
-        <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">8&nbsp;h&nbsp;/&nbsp;sem</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Temps économisé</span>
-        </div>
-        <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl font-medium tabular-nums tracking-[-0.02em] text-forest-600">B-1&nbsp;r.5</span>
+          <span className="font-serif text-3xl font-medium tabular-nums tracking-[-0.02em] text-forest-600">B-1&nbsp;r.5 · LSO</span>
           <span className="text-[13px] text-text-subtle font-sans mt-1">Conforme par défaut</span>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Canada</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Données hébergées</span>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Guidée</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Migration accompagnée</span>
         </div>
       </motion.div>
     </section>

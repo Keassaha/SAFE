@@ -2,7 +2,6 @@ import React from 'react';
 import { Navbar } from '@/components/marketing/Navbar';
 import { Hero } from '@/components/landing/Hero';
 import { ProblemSection } from '@/components/landing/ProblemSection';
-import { Testimonial } from '@/components/landing/Testimonial';
 import { FeaturesGrid } from '@/components/landing/FeaturesGrid';
 import { VirtualEmployees } from '@/components/landing/VirtualEmployees';
 import { ProcessTimeline } from '@/components/landing/ProcessTimeline';
@@ -17,7 +16,6 @@ export default function LandingPage() {
       <main className="pt-20">
         <Hero />
         <ProblemSection />
-        <Testimonial />
         <FeaturesGrid />
         <VirtualEmployees />
         <ProcessTimeline />

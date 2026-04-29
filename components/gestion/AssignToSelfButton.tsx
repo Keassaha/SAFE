@@ -1,0 +1,54 @@
+"use client";
+
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { UserPlus } from "lucide-react";
+import { assignDossierToSelf } from "@/app/(app)/gestion/assistante/actions";
+
+interface AssignToSelfButtonProps {
+  dossierId: string;
+  /** Affichage compact pour les cartes denses. */
+  compact?: boolean;
+}
+
+export function AssignToSelfButton({ dossierId, compact = false }: AssignToSelfButtonProps) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startTransition(async () => {
+      const res = await assignDossierToSelf(dossierId);
+      if (!res.ok) {
+        if (res.error === "already_taken") toast.error("Ce dossier est déjà pris en charge.");
+        else if (res.error === "forbidden") toast.error("Vous n'avez pas le droit de vous assigner.");
+        else toast.error("Action impossible.");
+        return;
+      }
+      if (res.alreadyAssigned) {
+        toast.info("Ce dossier vous est déjà assigné.");
+      } else {
+        toast.success("Dossier assigné — bonne préparation.");
+      }
+      router.refresh();
+    });
+  };
+
+  const sizing = compact
+    ? "text-xs px-2 py-1"
+    : "text-sm px-3 py-1.5";
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isPending}
+      className={`inline-flex items-center gap-1.5 rounded-safe-sm border border-emerald-300 bg-emerald-50 text-emerald-800 font-medium hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${sizing}`}
+    >
+      <UserPlus className="w-3.5 h-3.5" aria-hidden />
+      {isPending ? "Assignation…" : "Assigner à moi"}
+    </button>
+  );
+}
