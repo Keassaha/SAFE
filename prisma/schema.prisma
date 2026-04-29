@@ -9,61 +9,62 @@ datasource db {
 }
 
 model Cabinet {
-  id        String   @id @default(cuid())
-  nom       String
-  adresse   String?
-  telephone String?
-  email     String?
-  logoUrl   String?
-  barreauNumero String?  // LSO#, Barreau# for invoice header
-  config    String?  // JSON: tauxInteret, devise, formatFacture
-  plan      String   @default("essentiel")
-  stripeCustomerId       String?  @unique
-  stripeSubscriptionId   String?  @unique
+  id                     String    @id @default(cuid())
+  nom                    String
+  adresse                String?
+  telephone              String?
+  email                  String?
+  logoUrl                String?
+  barreauNumero          String? // LSO#, Barreau# for invoice header
+  config                 String? // JSON: tauxInteret, devise, formatFacture
+  plan                   String    @default("essentiel")
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
-  users                    User[]
-  clients                  Client[]
-  dossiers                 Dossier[]
-  timeEntries              TimeEntry[]
-  expenses                 Expense[]
-  invoices                 Invoice[]
-  payments                 Payment[]
-  documents                Document[]
-  auditLogs                AuditLog[]
-  documentRetentionPolicies DocumentRetentionPolicy[]
-  trustAccounts            TrustAccount[]
-  trustTransactions        TrustTransaction[]
-  billingRuns              BillingRun[]
-  creditNotes              CreditNote[]
-  deboursTypes             DeboursType[]
-  deboursDossiers          DeboursDossier[]
-  expenseCategories        ExpenseCategory[]
-  bankImportSessions       BankImportSession[]
-  bankImportTransactions   BankImportTransaction[]
+  users                      User[]
+  clients                    Client[]
+  dossiers                   Dossier[]
+  timeEntries                TimeEntry[]
+  expenses                   Expense[]
+  invoices                   Invoice[]
+  payments                   Payment[]
+  documents                  Document[]
+  auditLogs                  AuditLog[]
+  documentRetentionPolicies  DocumentRetentionPolicy[]
+  trustAccounts              TrustAccount[]
+  trustTransactions          TrustTransaction[]
+  billingRuns                BillingRun[]
+  creditNotes                CreditNote[]
+  deboursTypes               DeboursType[]
+  deboursDossiers            DeboursDossier[]
+  expenseCategories          ExpenseCategory[]
+  bankImportSessions         BankImportSession[]
+  bankImportTransactions     BankImportTransaction[]
   expenseCategorizationRules ExpenseCategorizationRule[]
-  cabinetExpenses          CabinetExpense[]
-  journalEntries          JournalGeneralEntry[]
-  employees                Employee[]
-  payrollPeriods          PayrollPeriod[]
-  importHistories         ImportHistory[]
-  calendarEvents          CalendarEvent[]
-  dossierTrustMovements   DossierTrustMovement[]
-  dossierReminders        DossierReminder[]
-  auditSubmissions        AuditSubmission[]
-  interfaceConfig         CabinetInterface?
-  trustReconciliations    TrustReconciliation[]
-  trustComplianceReports  TrustComplianceReport[]
-  notificationLogs        NotificationLog[]
-  forfaitServices         ForfaitService[]
-  registreTaches          RegistreTache[]
-  richDocuments           RichDocument[]
-  workSessions            WorkSession[]
-  dossierSections         DossierSection[]
-  invitations             Invitation[]
+  cabinetExpenses            CabinetExpense[]
+  journalEntries             JournalGeneralEntry[]
+  employees                  Employee[]
+  payrollPeriods             PayrollPeriod[]
+  importHistories            ImportHistory[]
+  calendarEvents             CalendarEvent[]
+  dossierTrustMovements      DossierTrustMovement[]
+  dossierReminders           DossierReminder[]
+  auditSubmissions           AuditSubmission[]
+  interfaceConfig            CabinetInterface?
+  trustReconciliations       TrustReconciliation[]
+  trustComplianceReports     TrustComplianceReport[]
+  notificationLogs           NotificationLog[]
+  forfaitServices            ForfaitService[]
+  registreTaches             RegistreTache[]
+  richDocuments              RichDocument[]
+  workSessions               WorkSession[]
+  dossierSections            DossierSection[]
+  invitations                Invitation[]
+  readyForReviewSignals      DossierReadyForReviewSignal[]
 }
 
 enum UserRole {
@@ -74,57 +75,63 @@ enum UserRole {
 }
 
 model User {
-  id                 String   @id @default(cuid())
-  cabinetId          String
-  email              String
-  passwordHash       String
-  nom                String
-  role               UserRole
-  defaultHourlyRate  Float?
-  isBillable         Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                String   @id @default(cuid())
+  cabinetId         String
+  email             String
+  passwordHash      String
+  nom               String
+  role              UserRole
+  defaultHourlyRate Float?
+  isBillable        Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  cabinet                    Cabinet                    @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet                    Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   timeEntries                TimeEntry[]
-  dossiersResponsable        Dossier[]                  @relation("AvocatResponsable")
-  dossiersAssistantJuridique Dossier[]                 @relation("AssistantJuridiqueDossier")
+  dossiersResponsable        Dossier[]               @relation("AvocatResponsable")
+  dossiersAssistantJuridique Dossier[]               @relation("AssistantJuridiqueDossier")
   documentsUploaded          Document[]
-  documentsReviewed          Document[]                 @relation("DocumentReviewedBy")
+  documentsReviewed          Document[]              @relation("DocumentReviewedBy")
   auditLogs                  AuditLog[]
   consentLogsRecorded        ConsentLog[]
-  clientsLawyerInCharge      Client[]                   @relation("LawyerInCharge")
-  clientsAssignedLawyer      Client[]                    @relation("AssignedLawyer")
-  clientsAssistantAssigned   Client[]                    @relation("AssistantAssigned")
+  clientsLawyerInCharge      Client[]                @relation("LawyerInCharge")
+  clientsAssignedLawyer      Client[]                @relation("AssignedLawyer")
+  clientsAssistantAssigned   Client[]                @relation("AssistantAssigned")
   dossierTachesAssignees     DossierTache[]
-  dossierActesAssignees     DossierActe[]
+  dossierActesAssignees      DossierActe[]
   dossierNotesCreated        DossierNote[]
   invoiceItems               InvoiceItem[]
-  invoicesValidated          Invoice[]     // factures validées par cet utilisateur
-  timeEntriesApproved        TimeEntry[]   @relation("TimeEntryApprovedBy")
+  invoicesValidated          Invoice[] // factures validées par cet utilisateur
+  timeEntriesApproved        TimeEntry[]             @relation("TimeEntryApprovedBy")
   bankImportSessionsCreated  BankImportSession[]
   cabinetExpensesCreated     CabinetExpense[]
-  journalEntriesCreated     JournalGeneralEntry[]
-  employee                  Employee?
-  importHistories           ImportHistory[]
-  calendarEventsAssigned    CalendarEvent[]  @relation("CalendarEventAssignee")
-  calendarEventsCreated     CalendarEvent[]  @relation("CalendarEventCreator")
-  mandateResponsable        DossierMandate[] @relation("MandateAvocatResponsable")
-  mandateSubstitut          DossierMandate[] @relation("MandateAvocatSubstitut")
-  trustMovementsValidated   DossierTrustMovement[] @relation("TrustMovementValidatedBy")
-  dossierClosuresClosed     DossierClosure[] @relation("DossierClosureClosedBy")
-  reconciliationsCertified  TrustReconciliation[] @relation("ReconciliationCertifiedBy")
+  journalEntriesCreated      JournalGeneralEntry[]
+  employee                   Employee?
+  importHistories            ImportHistory[]
+  calendarEventsAssigned     CalendarEvent[]         @relation("CalendarEventAssignee")
+  calendarEventsCreated      CalendarEvent[]         @relation("CalendarEventCreator")
+  mandateResponsable         DossierMandate[]        @relation("MandateAvocatResponsable")
+  mandateSubstitut           DossierMandate[]        @relation("MandateAvocatSubstitut")
+  trustMovementsValidated    DossierTrustMovement[]  @relation("TrustMovementValidatedBy")
+  dossierClosuresClosed      DossierClosure[]        @relation("DossierClosureClosedBy")
+  reconciliationsCertified   TrustReconciliation[]   @relation("ReconciliationCertifiedBy")
   complianceReportsGenerated TrustComplianceReport[] @relation("ComplianceReportGeneratedBy")
-  conflictChecksPerformed    ConflictCheck[] @relation("ConflictCheckPerformedBy")
-  resetToken                String?
-  resetTokenExpiry          DateTime?
+  conflictChecksPerformed    ConflictCheck[]         @relation("ConflictCheckPerformedBy")
+
+  // Signaux "dossier prêt pour revue" — voir docs/product/READY_FOR_REVIEW_SIGNAL.md
+  readyForReviewSignalsAsAvocat     DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAvocat")
+  readyForReviewSignalsCreated      DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalCreatedBy")
+  readyForReviewSignalsAcknowledged DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAcknowledgedBy")
+
+  resetToken       String?
+  resetTokenExpiry DateTime?
 
   // Phase 1 — Atelier de Rédaction
-  richDocsCreated            RichDocument[]       @relation("RichDocCreatedBy")
-  richDocsEdited             RichDocument[]       @relation("RichDocLastEditedBy")
-  richDocsArchived           RichDocument[]       @relation("RichDocArchivedBy")
-  richDocVersions            RichDocumentVersion[]
-  workSessions               WorkSession[]
+  richDocsCreated  RichDocument[]        @relation("RichDocCreatedBy")
+  richDocsEdited   RichDocument[]        @relation("RichDocLastEditedBy")
+  richDocsArchived RichDocument[]        @relation("RichDocArchivedBy")
+  richDocVersions  RichDocumentVersion[]
+  workSessions     WorkSession[]
 }
 
 enum EmployeeRole {
@@ -164,30 +171,30 @@ enum PayslipAdjustmentType {
 }
 
 model Employee {
-  id            String         @id @default(cuid())
-  cabinetId     String
-  userId        String?        @unique
-  firstName     String
-  lastName      String
-  fullName      String
-  email         String
-  phone         String?
-  address       String?
-  hireDate      DateTime
-  status        EmployeeStatus @default(active)
-  role          EmployeeRole
-  jobTitle      String?
-  hourlyRate    Float          @default(0)
-  supervisorId  String?
-  responsibilities String?    // assigned responsibilities / workflow
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  cabinetId        String
+  userId           String?        @unique
+  firstName        String
+  lastName         String
+  fullName         String
+  email            String
+  phone            String?
+  address          String?
+  hireDate         DateTime
+  status           EmployeeStatus @default(active)
+  role             EmployeeRole
+  jobTitle         String?
+  hourlyRate       Float          @default(0)
+  supervisorId     String?
+  responsibilities String? // assigned responsibilities / workflow
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  supervisor  Employee?   @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  cabinet      Cabinet    @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  supervisor   Employee?  @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
   subordinates Employee[] @relation("EmployeeSupervisor")
-  payslips    Payslip[]
+  payslips     Payslip[]
 
   @@index([cabinetId])
   @@index([cabinetId, status])
@@ -196,14 +203,14 @@ model Employee {
 }
 
 model PayrollPeriod {
-  id          String               @id @default(cuid())
+  id          String              @id @default(cuid())
   cabinetId   String
   periodStart DateTime
   periodEnd   DateTime
-  frequency  PayrollFrequency     @default(weekly)
-  status      PayrollPeriodStatus  @default(draft)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  frequency   PayrollFrequency    @default(weekly)
+  status      PayrollPeriodStatus @default(draft)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
   cabinet  Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   payslips Payslip[]
@@ -213,21 +220,21 @@ model PayrollPeriod {
 }
 
 model Payslip {
-  id               String        @id @default(cuid())
-  employeeId       String
-  payrollPeriodId  String
-  hoursWorked      Float         @default(0)
-  hourlyRate       Float
-  grossPay         Float        @default(0)
-  deductions       Float        @default(0)
-  netPay           Float        @default(0)
-  status           PayslipStatus @default(draft)
-  paymentDate      DateTime?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id              String        @id @default(cuid())
+  employeeId      String
+  payrollPeriodId String
+  hoursWorked     Float         @default(0)
+  hourlyRate      Float
+  grossPay        Float         @default(0)
+  deductions      Float         @default(0)
+  netPay          Float         @default(0)
+  status          PayslipStatus @default(draft)
+  paymentDate     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  employee   Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  period     PayrollPeriod       @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
+  employee    Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period      PayrollPeriod       @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
   adjustments PayslipAdjustment[]
 
   @@index([employeeId])
@@ -235,12 +242,12 @@ model Payslip {
 }
 
 model PayslipAdjustment {
-  id          String               @id @default(cuid())
+  id          String                @id @default(cuid())
   payslipId   String
   type        PayslipAdjustmentType
   amount      Float
   description String?
-  createdAt   DateTime             @default(now())
+  createdAt   DateTime              @default(now())
 
   payslip Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
 
@@ -284,97 +291,98 @@ enum PreferredPaymentMethod {
 }
 
 model Client {
-  id                        String    @id @default(cuid())
-  cabinetId                 String
-  typeClient                TypeClient @default(personne_morale)
-  status                    ClientStatus @default(actif)
-  raisonSociale             String?
-  prenom                    String?
-  nom                       String?
-  dateNaissance             DateTime?
-  numeroRegistreEntreprise  String?
-  contact                   String?
-  email                     String?
-  emailSecondaire           String?
-  telephone                 String?
-  telephoneSecondaire       String?
-  adresse                   String?
-  addressLine1              String?
-  addressLine2              String?
-  city                      String?
-  province                  String?
-  postalCode                String?
-  country                   String?
-  preferredContactMethod    PreferredContactMethod?
-  langue                    String?   // FR, EN
-  nas                       String?
-  consentementCollecteAt    DateTime?
-  finalitesConsentement     String?
-  dateVerificationIdentite  DateTime?
+  id                          String                  @id @default(cuid())
+  cabinetId                   String
+  typeClient                  TypeClient              @default(personne_morale)
+  status                      ClientStatus            @default(actif)
+  raisonSociale               String?
+  prenom                      String?
+  nom                         String?
+  dateNaissance               DateTime?
+  numeroRegistreEntreprise    String?
+  contact                     String?
+  email                       String?
+  emailSecondaire             String?
+  telephone                   String?
+  telephoneSecondaire         String?
+  adresse                     String?
+  addressLine1                String?
+  addressLine2                String?
+  city                        String?
+  province                    String?
+  postalCode                  String?
+  country                     String?
+  preferredContactMethod      PreferredContactMethod?
+  langue                      String? // FR, EN
+  nas                         String?
+  consentementCollecteAt      DateTime?
+  finalitesConsentement       String?
+  dateVerificationIdentite    DateTime?
   methodeVerificationIdentite String?
-  idType                    IdType?
-  idNumber                  String?
-  idExpiration              DateTime?
-  identityVerified          Boolean   @default(false)
-  verificationDate          DateTime?
-  retentionJusqua           DateTime?
-  notesConfidentielles      String?
-  lawyerInChargeId          String?
-  assignedLawyerId          String?
-  assistantAssignedId       String?
-  representationType        RepresentationType?
-  retainerSigned            Boolean   @default(false)
-  retainerDate              DateTime?
-  trustAccountBalance       Float     @default(0)
-  trustAccountId            String?
-  allowTrustPayments        Boolean   @default(false)
-  lastTrustTransactionDate  DateTime?
-  billingContactName        String?
-  billingEmail              String?
-  billingAddress            String?
-  paymentTerms              String?
-  preferredPaymentMethod    PreferredPaymentMethod?
-  creditLimit               Float?
-  clientCode                String?
-  displayName               String?
-  billingAddressLine1       String?
-  billingAddressLine2       String?
-  billingCity               String?
-  billingProvince           String?
-  billingPostalCode         String?
-  billingCountry            String?
-  languagePreference        String?
-  paymentTermsDays          Int?
-  defaultInterestRateAnnual Float?
-  isActive                  Boolean   @default(true)
-  conflictChecked           Boolean   @default(false)
-  conflictCheckDate         DateTime?
-  conflictNotes             String?
-  documentRefs              String?   // JSON: retainer_agreement, id_documents, court_documents, client_correspondence
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
+  idType                      IdType?
+  idNumber                    String?
+  idExpiration                DateTime?
+  identityVerified            Boolean                 @default(false)
+  verificationDate            DateTime?
+  retentionJusqua             DateTime?
+  notesConfidentielles        String?
+  lawyerInChargeId            String?
+  assignedLawyerId            String?
+  assistantAssignedId         String?
+  representationType          RepresentationType?
+  retainerSigned              Boolean                 @default(false)
+  retainerDate                DateTime?
+  trustAccountBalance         Float                   @default(0)
+  trustAccountId              String?
+  allowTrustPayments          Boolean                 @default(false)
+  lastTrustTransactionDate    DateTime?
+  billingContactName          String?
+  billingEmail                String?
+  billingAddress              String?
+  paymentTerms                String?
+  preferredPaymentMethod      PreferredPaymentMethod?
+  creditLimit                 Float?
+  clientCode                  String?
+  displayName                 String?
+  billingAddressLine1         String?
+  billingAddressLine2         String?
+  billingCity                 String?
+  billingProvince             String?
+  billingPostalCode           String?
+  billingCountry              String?
+  languagePreference          String?
+  paymentTermsDays            Int?
+  defaultInterestRateAnnual   Float?
+  isActive                    Boolean                 @default(true)
+  conflictChecked             Boolean                 @default(false)
+  conflictCheckDate           DateTime?
+  conflictNotes               String?
+  documentRefs                String? // JSON: retainer_agreement, id_documents, court_documents, client_correspondence
+  createdAt                   DateTime                @default(now())
+  updatedAt                   DateTime                @updatedAt
 
-  cabinet             Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  lawyerInCharge      User?               @relation("LawyerInCharge", fields: [lawyerInChargeId], references: [id], onDelete: SetNull)
-  assignedLawyer      User?               @relation("AssignedLawyer", fields: [assignedLawyerId], references: [id], onDelete: SetNull)
-  assistantAssigned   User?               @relation("AssistantAssigned", fields: [assistantAssignedId], references: [id], onDelete: SetNull)
-  dossiers            Dossier[]
-  timeEntries         TimeEntry[]
-  expenses            Expense[]
-  invoices            Invoice[]
-  documents           Document[]
-  trustAccounts       TrustAccount[]
-  trustTransactions   TrustTransaction[]
+  cabinet               Cabinet                       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  lawyerInCharge        User?                         @relation("LawyerInCharge", fields: [lawyerInChargeId], references: [id], onDelete: SetNull)
+  assignedLawyer        User?                         @relation("AssignedLawyer", fields: [assignedLawyerId], references: [id], onDelete: SetNull)
+  assistantAssigned     User?                         @relation("AssistantAssigned", fields: [assistantAssignedId], references: [id], onDelete: SetNull)
+  dossiers              Dossier[]
+  timeEntries           TimeEntry[]
+  expenses              Expense[]
+  invoices              Invoice[]
+  documents             Document[]
+  trustAccounts         TrustAccount[]
+  trustTransactions     TrustTransaction[]
   identityVerifications ClientIdentityVerification[]
-  consentLogs         ConsentLog[]
-  payments            Payment[]
-  creditNotes         CreditNote[]
-  billingRuns         BillingRun[]
-  deboursDossiers     DeboursDossier[]
-  journalEntries      JournalGeneralEntry[]
-  calendarEvents      CalendarEvent[]  @relation("CalendarEventClient")
-  richDocuments       RichDocument[]
-  workSessions        WorkSession[]
+  consentLogs           ConsentLog[]
+  payments              Payment[]
+  creditNotes           CreditNote[]
+  billingRuns           BillingRun[]
+  deboursDossiers       DeboursDossier[]
+  journalEntries        JournalGeneralEntry[]
+  calendarEvents        CalendarEvent[]               @relation("CalendarEventClient")
+  richDocuments         RichDocument[]
+  workSessions          WorkSession[]
+  readyForReviewSignals DossierReadyForReviewSignal[]
 
   @@index([cabinetId])
   @@index([cabinetId, raisonSociale])
@@ -408,82 +416,82 @@ enum ModeFacturationDossier {
 }
 
 model Dossier {
-  id                         String                 @id @default(cuid())
-  cabinetId                  String
-  clientId                   String
+  id                        String                  @id @default(cuid())
+  cabinetId                 String
+  clientId                  String
   avocatResponsableId       String?
-  assistantJuridiqueId       String?
-  reference                  String?
-  numeroDossier              String?
-  matterCode                 String?
-  intitule                   String
-  statut                     DossierStatut          @default(actif)
-  type                       DossierType?
-  descriptionConfidentielle  String?
-  resumeDossier              String?
-  notesStrategieJuridique    String?
-  tribunalNom                String?
-  districtJudiciaire         String?
-  numeroDossierTribunal      String?
-  nomJuge                    String?
-  modeFacturation            ModeFacturationDossier?
-  tauxHoraire                Float?
-  soldeFiducieDossier        Float?                 @default(0)
-  autoriserPaiementFiducie   Boolean                @default(false)
-  dateOuverture              DateTime               @default(now())
-  dateCloture                DateTime?
-  retentionJusqua            DateTime?
+  assistantJuridiqueId      String?
+  reference                 String?
+  numeroDossier             String?
+  matterCode                String?
+  intitule                  String
+  statut                    DossierStatut           @default(actif)
+  type                      DossierType?
+  descriptionConfidentielle String?
+  resumeDossier             String?
+  notesStrategieJuridique   String?
+  tribunalNom               String?
+  districtJudiciaire        String?
+  numeroDossierTribunal     String?
+  nomJuge                   String?
+  modeFacturation           ModeFacturationDossier?
+  tauxHoraire               Float?
+  soldeFiducieDossier       Float?                  @default(0)
+  autoriserPaiementFiducie  Boolean                 @default(false)
+  dateOuverture             DateTime                @default(now())
+  dateCloture               DateTime?
+  retentionJusqua           DateTime?
 
   // Immobilier-specific fields (D2)
-  sousType                   String?                // "achat" | "vente" | "condo" | "hypotheque" | "ee" | "parrainage" | "travail" | "appel"
-  closingDate                DateTime?
-  propertyAddress            String?
-  fintracVerified            Boolean                @default(false)
-  fintracVerifiedAt          DateTime?
-  fintracVerifiedById        String?
-  fintracDocuments           String?                // JSON: { doc1: "type", doc2: "type" }
-  condoPINParking            String?
-  condoPINLocker             String?
+  sousType            String? // "achat" | "vente" | "condo" | "hypotheque" | "ee" | "parrainage" | "travail" | "appel"
+  closingDate         DateTime?
+  propertyAddress     String?
+  fintracVerified     Boolean   @default(false)
+  fintracVerifiedAt   DateTime?
+  fintracVerifiedById String?
+  fintracDocuments    String? // JSON: { doc1: "type", doc2: "type" }
+  condoPINParking     String?
+  condoPINLocker      String?
 
   // Immigration-specific fields (D3)
-  irccStatut                 String?                // "consultation" | "preparation" | "soumission" | "biometrie" | "suivi" | "decision" | "cloture"
-  irccNumDossier             String?                // IRCC application number
-  itaDate                    DateTime?              // Date ITA reçu (Express Entry — 60j deadline)
-  submissionDeadline         DateTime?              // Calculé auto: itaDate + 60j
-  cnpCode                    String?                // National Occupation Classification
-  cnpValidated               Boolean                @default(false)
+  irccStatut         String? // "consultation" | "preparation" | "soumission" | "biometrie" | "suivi" | "decision" | "cloture"
+  irccNumDossier     String? // IRCC application number
+  itaDate            DateTime? // Date ITA reçu (Express Entry — 60j deadline)
+  submissionDeadline DateTime? // Calculé auto: itaDate + 60j
+  cnpCode            String? // National Occupation Classification
+  cnpValidated       Boolean   @default(false)
 
-  createdAt                  DateTime               @default(now())
-  updatedAt                  DateTime               @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  cabinet              Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client               Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  avocatResponsable    User?            @relation("AvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
-  assistantJuridique   User?            @relation("AssistantJuridiqueDossier", fields: [assistantJuridiqueId], references: [id], onDelete: SetNull)
-  timeEntries          TimeEntry[]
-  expenses             Expense[]
-  documents            Document[]
-  taches               DossierTache[]
-  evenements           DossierEvenement[]
-  actesLexTrack        DossierActe[]
-  notes                DossierNote[]
-  invoices             Invoice[]
-  trustAccounts        TrustAccount[]
-  trustTransactions    TrustTransaction[]
-  invoiceLines         InvoiceLine[]
-  deboursDossiers      DeboursDossier[]
-  cabinetExpenses      CabinetExpense[]
-  journalEntries      JournalGeneralEntry[]
-  calendarEvents      CalendarEvent[]  @relation("CalendarEventDossier")
-  clientInfo           DossierClientInfo?
-  mandate              DossierMandate?
-  pieces               DossierPiece[]
-  procedures           DossierProcedure[]
-  judgments            DossierJudgment[]
-  correspondence       DossierCorrespondence[]
-  trustMovements       DossierTrustMovement[]
-  closure              DossierClosure?
-  reminders            DossierReminder[]
+  cabinet               Cabinet                       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client                Client                        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  avocatResponsable     User?                         @relation("AvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  assistantJuridique    User?                         @relation("AssistantJuridiqueDossier", fields: [assistantJuridiqueId], references: [id], onDelete: SetNull)
+  timeEntries           TimeEntry[]
+  expenses              Expense[]
+  documents             Document[]
+  taches                DossierTache[]
+  evenements            DossierEvenement[]
+  actesLexTrack         DossierActe[]
+  notes                 DossierNote[]
+  invoices              Invoice[]
+  trustAccounts         TrustAccount[]
+  trustTransactions     TrustTransaction[]
+  invoiceLines          InvoiceLine[]
+  deboursDossiers       DeboursDossier[]
+  cabinetExpenses       CabinetExpense[]
+  journalEntries        JournalGeneralEntry[]
+  calendarEvents        CalendarEvent[]               @relation("CalendarEventDossier")
+  clientInfo            DossierClientInfo?
+  mandate               DossierMandate?
+  pieces                DossierPiece[]
+  procedures            DossierProcedure[]
+  judgments             DossierJudgment[]
+  correspondence        DossierCorrespondence[]
+  trustMovements        DossierTrustMovement[]
+  closure               DossierClosure?
+  reminders             DossierReminder[]
   immigrationBackground ImmigrationBackground?
   immigrationDocuments  ImmigrationDocument[]
   conflictChecks        ConflictCheck[]
@@ -493,6 +501,7 @@ model Dossier {
   richDocuments         RichDocument[]
   workSessions          WorkSession[]
   sections              DossierSection[]
+  readyForReviewSignals DossierReadyForReviewSignal[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -504,19 +513,19 @@ model Dossier {
 }
 
 model DossierClientInfo {
-  id                   String    @id @default(cuid())
-  dossierId            String    @unique
-  nasEncrypted         String?
-  dateNaissance        DateTime? @db.Date
-  regimeMatrimonial    String?
-  dateMariage          DateTime? @db.Date
-  dateSeparation       DateTime? @db.Date
-  statutMatrimonial    String?
-  enfants              Json?
-  situationFinanciere  Json?
-  identiteCoordonnees  Json?
-  situationFamiliale   Json?
-  updatedAt            DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  dossierId           String    @unique
+  nasEncrypted        String?
+  dateNaissance       DateTime? @db.Date
+  regimeMatrimonial   String?
+  dateMariage         DateTime? @db.Date
+  dateSeparation      DateTime? @db.Date
+  statutMatrimonial   String?
+  enfants             Json?
+  situationFinanciere Json?
+  identiteCoordonnees Json?
+  situationFamiliale  Json?
+  updatedAt           DateTime  @updatedAt
 
   dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
@@ -524,26 +533,26 @@ model DossierClientInfo {
 }
 
 model DossierMandate {
-  id                    String    @id @default(cuid())
-  dossierId              String    @unique
-  numeroDossier          String?   @unique
-  dateOuverture          DateTime?
-  avocatResponsableId    String?
-  avocatSubstitutId      String?
-  typeCause              String?
-  districtJudiciaire     String?
-  tribunal               String?
-  numeroRole             String?
-  estimationHonoraires   Decimal?  @db.Decimal(12, 2)
-  provisionInitiale      Decimal?  @db.Decimal(12, 2)
-  statutDossier          String?
-  checklist              Json?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  id                   String    @id @default(cuid())
+  dossierId            String    @unique
+  numeroDossier        String?   @unique
+  dateOuverture        DateTime?
+  avocatResponsableId  String?
+  avocatSubstitutId    String?
+  typeCause            String?
+  districtJudiciaire   String?
+  tribunal             String?
+  numeroRole           String?
+  estimationHonoraires Decimal?  @db.Decimal(12, 2)
+  provisionInitiale    Decimal?  @db.Decimal(12, 2)
+  statutDossier        String?
+  checklist            Json?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  dossier             Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  avocatResponsable   User?   @relation("MandateAvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
-  avocatSubstitut     User?   @relation("MandateAvocatSubstitut", fields: [avocatSubstitutId], references: [id], onDelete: SetNull)
+  dossier           Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  avocatResponsable User?   @relation("MandateAvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  avocatSubstitut   User?   @relation("MandateAvocatSubstitut", fields: [avocatSubstitutId], references: [id], onDelete: SetNull)
 
   @@index([dossierId])
 }
@@ -587,16 +596,16 @@ model DossierProcedure {
 }
 
 model DossierJudgment {
-  id                 String    @id @default(cuid())
-  dossierId           String
-  typeJugement        String
-  dispositions       String?
-  dateJugement       DateTime? @db.Date
-  dateLimiteAppel    DateTime? @db.Date
-  statutAppel        String?   @default("En cours")
-  fichierUrl         String?
-  createdAt           DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  dossierId       String
+  typeJugement    String
+  dispositions    String?
+  dateJugement    DateTime? @db.Date
+  dateLimiteAppel DateTime? @db.Date
+  statutAppel     String?   @default("En cours")
+  fichierUrl      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
@@ -604,17 +613,17 @@ model DossierJudgment {
 }
 
 model DossierCorrespondence {
-  id                  String    @id @default(cuid())
-  dossierId           String
-  typeCommunication   String
-  titre               String?
-  expediteur          String?
-  destinataire        String?
-  dateCommunication   DateTime? @db.Date
-  fichierUrl          String?
-  notes               String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  dossierId         String
+  typeCommunication String
+  titre             String?
+  expediteur        String?
+  destinataire      String?
+  dateCommunication DateTime? @db.Date
+  fichierUrl        String?
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
@@ -622,38 +631,38 @@ model DossierCorrespondence {
 }
 
 model DossierTrustMovement {
-  id             String    @id @default(cuid())
-  dossierId      String
-  cabinetId      String
-  amount         Decimal   @db.Decimal(12, 2)
-  direction      String
-  typeMouvement  String?
-  description    String?
-  status         String    @default("PENDING")
-  validatedById  String?
-  validatedAt    DateTime?
-  createdAt      DateTime  @default(now())
+  id            String    @id @default(cuid())
+  dossierId     String
+  cabinetId     String
+  amount        Decimal   @db.Decimal(12, 2)
+  direction     String
+  typeMouvement String?
+  description   String?
+  status        String    @default("PENDING")
+  validatedById String?
+  validatedAt   DateTime?
+  createdAt     DateTime  @default(now())
 
-  dossier       Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  cabinet       Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  validatedBy   User?   @relation("TrustMovementValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+  dossier     Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet     Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  validatedBy User?   @relation("TrustMovementValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
 
   @@index([dossierId])
   @@index([cabinetId])
 }
 
 model DossierClosure {
-  id              String     @id @default(cuid())
-  dossierId       String     @unique
+  id              String    @id @default(cuid())
+  dossierId       String    @unique
   checklist       Json?
   closedById      String?
   closedAt        DateTime?
-  destructionDate DateTime?  @db.Date
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  destructionDate DateTime? @db.Date
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  closedBy User?  @relation("DossierClosureClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
+  closedBy User?   @relation("DossierClosureClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
 
   @@index([dossierId])
 }
@@ -679,12 +688,12 @@ model DossierSection {
   id                  String   @id @default(cuid())
   dossierId           String
   cabinetId           String
-  sectionKey          String   // maps to UI component: "mandat" | "formulaires" | "procedures" | etc.
+  sectionKey          String // maps to UI component: "mandat" | "formulaires" | "procedures" | etc.
   label               String
   ordre               Int
   origine             String   @default("template") // "template" | "user"
   sourceReglementaire String?
-  icone               String?  // lucide icon name
+  icone               String? // lucide icon name
   description         String?
   privilegiee         Boolean  @default(false)
   archive             Boolean  @default(false)
@@ -729,19 +738,19 @@ enum DossierTacheStatut {
 }
 
 model DossierTache {
-  id          String              @id @default(cuid())
-  dossierId   String
-  titre       String
-  description String?
-  assigneeId  String?
-  priorite    DossierTachePriorite @default(medium)
-  statut      DossierTacheStatut  @default(a_faire)
+  id           String               @id @default(cuid())
+  dossierId    String
+  titre        String
+  description  String?
+  assigneeId   String?
+  priorite     DossierTachePriorite @default(medium)
+  statut       DossierTacheStatut   @default(a_faire)
   dateEcheance DateTime?
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
   dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  assignee User?  @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  assignee User?   @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
 
   @@index([dossierId])
   @@index([assigneeId])
@@ -805,20 +814,20 @@ enum LexTrackPriorite {
 }
 
 model DossierActe {
-  id          String              @id @default(cuid())
+  id          String             @id @default(cuid())
   dossierId   String
   assigneeId  String
   phase       LexTrackPhase
   type        LexTrackActeType
-  status      LexTrackActeStatut  @default(todo)
-  priority    LexTrackPriorite    @default(moyenne)
+  status      LexTrackActeStatut @default(todo)
+  priority    LexTrackPriorite   @default(moyenne)
   title       String
   description String?
   deadline    DateTime
-  tags        String?             // JSON array: ["stratégie", "dépôt", "tribunal", ...]
-  sortOrder   Int                 @default(0)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  tags        String? // JSON array: ["stratégie", "dépôt", "tribunal", ...]
+  sortOrder   Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   dossier  Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   assignee User    @relation(fields: [assigneeId], references: [id], onDelete: Cascade)
@@ -846,47 +855,47 @@ enum BillingStatus {
 }
 
 model TimeEntry {
-  id              String           @id @default(cuid())
-  cabinetId       String
-  dossierId       String?
-  clientId        String?
-  userId          String
-  date            DateTime
-  dureeMinutes    Int
-  description     String?
-  typeActivite    String?
-  facturable      Boolean          @default(true)
-  statut          TimeEntryStatut  @default(brouillon)
-  tauxHoraire     Float
-  montant         Float
-  workDate        DateTime?
-  startTime       DateTime?
-  endTime         DateTime?
-  durationHours   Float?
-  internalNote    String?
-  hourlyRate      Float?
+  id             String          @id @default(cuid())
+  cabinetId      String
+  dossierId      String?
+  clientId       String?
+  userId         String
+  date           DateTime
+  dureeMinutes   Int
+  description    String?
+  typeActivite   String?
+  facturable     Boolean         @default(true)
+  statut         TimeEntryStatut @default(brouillon)
+  tauxHoraire    Float
+  montant        Float
+  workDate       DateTime?
+  startTime      DateTime?
+  endTime        DateTime?
+  durationHours  Float?
+  internalNote   String?
+  hourlyRate     Float?
   feeAmount      Float?
-  taxable         Boolean          @default(true)
-  billingStatus   BillingStatus?   @default(NON_BILLED)
-  invoiceId       String?
-  invoiceLineId   String?          @unique
-  isWrittenOff    Boolean          @default(false)
-  writeOffReason  String?
-  approvedById    String?
-  approvedAt      DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  taxable        Boolean         @default(true)
+  billingStatus  BillingStatus?  @default(NON_BILLED)
+  invoiceId      String?
+  invoiceLineId  String?         @unique
+  isWrittenOff   Boolean         @default(false)
+  writeOffReason String?
+  approvedById   String?
+  approvedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-  cabinet       Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  dossier       Dossier?      @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  client        Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invoice         Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  invoiceLine     InvoiceLine? @relation("InvoiceLineRef", fields: [invoiceLineId], references: [id], onDelete: SetNull)
-  invoiceLines    InvoiceLine[] @relation("TimeEntryAsSource")
-  invoiceItems    InvoiceItem[]
-  approvedBy      User?        @relation("TimeEntryApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
-  workSession     WorkSession?
+  cabinet      Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier      Dossier?      @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice      Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  invoiceLine  InvoiceLine?  @relation("InvoiceLineRef", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+  invoiceLines InvoiceLine[] @relation("TimeEntryAsSource")
+  invoiceItems InvoiceItem[]
+  approvedBy   User?         @relation("TimeEntryApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  workSession  WorkSession?
 
   @@index([cabinetId])
   @@index([cabinetId, dossierId])
@@ -1047,76 +1056,76 @@ enum TrustModePaiement {
 }
 
 model Invoice {
-  id                        String        @id @default(cuid())
-  cabinetId                 String
-  clientId                  String
-  dossierId                 String?
-  numero                    String
-  dateEmission               DateTime
-  dateEcheance              DateTime
-  statut                    InvoiceStatut @default(brouillon)
-  invoiceStatus             InvoiceStatusBilling? @default(DRAFT)
-  montantTotal              Float         @default(0)
-  montantPaye               Float         @default(0)
-  subtotalTaxable           Float         @default(0)
-  tps                       Float         @default(0)
-  tvq                       Float         @default(0)
-  deboursNonTaxableTotal    Float         @default(0)
-  trustApplied              Float         @default(0)
-  balanceDue                Float         @default(0)
-  tauxInteret               Float?
-  dateLimiteInterets        DateTime?
-  lastReminderDay           Int?
-  lastInterestAppliedAt     DateTime?
-  validatedAt               DateTime?
-  validatedById             String?
-  currency                  String?       @default("CAD")
-  subtotalFees              Float         @default(0)
-  subtotalExpenses          Float         @default(0)
-  subtotalAdjustments       Float         @default(0)
-  subtotalInterest          Float         @default(0)
-  subtotalBeforeTax         Float         @default(0)
-  taxGst                    Float         @default(0)
-  taxQst                    Float         @default(0)
-  taxTotal                  Float         @default(0)
-  trustAppliedAmount        Float         @default(0)
-  creditAppliedAmount       Float         @default(0)
-  totalInvoiceAmount        Float         @default(0)
-  totalPaidAmount           Float         @default(0)
-  interestAccrued           Float         @default(0)
-  paymentStatus             PaymentStatus? @default(UNPAID)
-  issueMethod               IssueMethod?
-  billingGroupKey           String?
-  clientNote                String?
-  internalNote              String?
-  sentAt                    DateTime?
-  approvedAt                DateTime?
-  approvedById              String?
-  cancelledAt               DateTime?
-  cancelReason              String?
-  createdById               String?
-  shareToken                String?       @unique  // token pour lien unique d'envoi au client
-  shareTokenExpiresAt       DateTime?     // expiration du lien (option config cabinet)
-  createdAt                 DateTime      @default(now())
-  updatedAt                 DateTime      @updatedAt
+  id                     String                @id @default(cuid())
+  cabinetId              String
+  clientId               String
+  dossierId              String?
+  numero                 String
+  dateEmission           DateTime
+  dateEcheance           DateTime
+  statut                 InvoiceStatut         @default(brouillon)
+  invoiceStatus          InvoiceStatusBilling? @default(DRAFT)
+  montantTotal           Float                 @default(0)
+  montantPaye            Float                 @default(0)
+  subtotalTaxable        Float                 @default(0)
+  tps                    Float                 @default(0)
+  tvq                    Float                 @default(0)
+  deboursNonTaxableTotal Float                 @default(0)
+  trustApplied           Float                 @default(0)
+  balanceDue             Float                 @default(0)
+  tauxInteret            Float?
+  dateLimiteInterets     DateTime?
+  lastReminderDay        Int?
+  lastInterestAppliedAt  DateTime?
+  validatedAt            DateTime?
+  validatedById          String?
+  currency               String?               @default("CAD")
+  subtotalFees           Float                 @default(0)
+  subtotalExpenses       Float                 @default(0)
+  subtotalAdjustments    Float                 @default(0)
+  subtotalInterest       Float                 @default(0)
+  subtotalBeforeTax      Float                 @default(0)
+  taxGst                 Float                 @default(0)
+  taxQst                 Float                 @default(0)
+  taxTotal               Float                 @default(0)
+  trustAppliedAmount     Float                 @default(0)
+  creditAppliedAmount    Float                 @default(0)
+  totalInvoiceAmount     Float                 @default(0)
+  totalPaidAmount        Float                 @default(0)
+  interestAccrued        Float                 @default(0)
+  paymentStatus          PaymentStatus?        @default(UNPAID)
+  issueMethod            IssueMethod?
+  billingGroupKey        String?
+  clientNote             String?
+  internalNote           String?
+  sentAt                 DateTime?
+  approvedAt             DateTime?
+  approvedById           String?
+  cancelledAt            DateTime?
+  cancelReason           String?
+  createdById            String?
+  shareToken             String?               @unique // token pour lien unique d'envoi au client
+  shareTokenExpiresAt    DateTime? // expiration du lien (option config cabinet)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
 
-  cabinet           Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  dossier           Dossier?          @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  validatedBy       User?             @relation(fields: [validatedById], references: [id], onDelete: SetNull)
-  invoiceItems      InvoiceItem[]
-  invoiceLines      InvoiceLine[]
-  payments          Payment[]
-  paymentAllocations PaymentAllocation[]
-  reminderLogs      InvoiceReminder[]
-  expenses          Expense[]
-  timeEntries       TimeEntry[]
-  creditNotes       CreditNote[]
+  cabinet                Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client                 Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier                Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  validatedBy            User?                   @relation(fields: [validatedById], references: [id], onDelete: SetNull)
+  invoiceItems           InvoiceItem[]
+  invoiceLines           InvoiceLine[]
+  payments               Payment[]
+  paymentAllocations     PaymentAllocation[]
+  reminderLogs           InvoiceReminder[]
+  expenses               Expense[]
+  timeEntries            TimeEntry[]
+  creditNotes            CreditNote[]
   creditNoteApplications CreditNoteApplication[]
-  interestCharges   InterestCharge[]
-  deboursDossiers   DeboursDossier[]
-  trustTransactions TrustTransaction[]
-  billingStages     DossierBillingStage[]
+  interestCharges        InterestCharge[]
+  deboursDossiers        DeboursDossier[]
+  trustTransactions      TrustTransaction[]
+  billingStages          DossierBillingStage[]
 
   @@index([cabinetId])
   @@index([cabinetId, statut])
@@ -1128,37 +1137,37 @@ model Invoice {
 }
 
 model InvoiceLine {
-  id                String   @id @default(cuid())
+  id                String                 @id @default(cuid())
   invoiceId         String
   timeEntryId       String?
   description       String
   quantite          Float
   tauxUnitaire      Float
   montant           Float
-  lineType          InvoiceLineType?  @default(fee)
+  lineType          InvoiceLineType?       @default(fee)
   sourceType        InvoiceLineSourceType? @default(manual)
   sourceId          String?
   matterId          String?
   serviceDate       DateTime?
   lineSubtotal      Float?
-  taxable           Boolean  @default(true)
-  gstAmount         Float    @default(0)
-  qstAmount         Float    @default(0)
+  taxable           Boolean                @default(true)
+  gstAmount         Float                  @default(0)
+  qstAmount         Float                  @default(0)
   lineTotal         Float?
-  sortOrder         Int       @default(0)
-  validationComment String?  // instructions / commentaires par ligne pour la page de validation
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @default(now()) @updatedAt
+  sortOrder         Int                    @default(0)
+  validationComment String? // instructions / commentaires par ligne pour la page de validation
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @default(now()) @updatedAt
 
-  invoice       Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  timeEntry     TimeEntry? @relation("TimeEntryAsSource", fields: [timeEntryId], references: [id], onDelete: SetNull)
-  matter        Dossier?   @relation(fields: [matterId], references: [id], onDelete: SetNull)
-  timeEntryRef     TimeEntry?      @relation("InvoiceLineRef")
-  expenses         Expense[]
-  deboursDossier   DeboursDossier? @relation("DeboursDossierInvoiceLine")
-  registreTache    RegistreTache?  @relation("RegistreTacheInvoiceLine")
-  interestCharges  InterestCharge[]
-  rabaisItems      InvoiceItem[]
+  invoice         Invoice          @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  timeEntry       TimeEntry?       @relation("TimeEntryAsSource", fields: [timeEntryId], references: [id], onDelete: SetNull)
+  matter          Dossier?         @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  timeEntryRef    TimeEntry?       @relation("InvoiceLineRef")
+  expenses        Expense[]
+  deboursDossier  DeboursDossier?  @relation("DeboursDossierInvoiceLine")
+  registreTache   RegistreTache?   @relation("RegistreTacheInvoiceLine")
+  interestCharges InterestCharge[]
+  rabaisItems     InvoiceItem[]
 
   @@index([invoiceId])
   @@index([timeEntryId])
@@ -1171,23 +1180,23 @@ model InvoiceItem {
   type                    InvoiceItemType
   description             String
   date                    DateTime
-  hours                   Float?          // pour honoraires (durée en heures)
-  rate                    Float?          // pour honoraires (taux horaire)
+  hours                   Float? // pour honoraires (durée en heures)
+  rate                    Float? // pour honoraires (taux horaire)
   amount                  Float
-  userId                  String?         // professionnel pour honoraires
-  professionalDisplayName String?         // nom affiché si différent de user
+  userId                  String? // professionnel pour honoraires
+  professionalDisplayName String? // nom affiché si différent de user
   timeEntryId             String?
-  parentItemId            String?        // pour rabais : ligne d'honoraire (InvoiceItem) parente
-  parentLineId            String?        // pour rabais : ligne d'honoraire (InvoiceLine) parente
-  validationComment       String?        // instructions / commentaires par ligne pour la validation
+  parentItemId            String? // pour rabais : ligne d'honoraire (InvoiceItem) parente
+  parentLineId            String? // pour rabais : ligne d'honoraire (InvoiceLine) parente
+  validationComment       String? // instructions / commentaires par ligne pour la validation
   createdAt               DateTime        @default(now())
 
-  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  timeEntry   TimeEntry?  @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
-  parentItem  InvoiceItem?  @relation("RabaisParentItem", fields: [parentItemId], references: [id], onDelete: Cascade)
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  timeEntry     TimeEntry?    @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
+  parentItem    InvoiceItem?  @relation("RabaisParentItem", fields: [parentItemId], references: [id], onDelete: Cascade)
   rabaisEnfants InvoiceItem[] @relation("RabaisParentItem")
-  parentLine  InvoiceLine? @relation(fields: [parentLineId], references: [id], onDelete: Cascade)
+  parentLine    InvoiceLine?  @relation(fields: [parentLineId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
   @@index([type])
@@ -1196,28 +1205,28 @@ model InvoiceItem {
 }
 
 model Payment {
-  id                  String        @id @default(cuid())
-  cabinetId           String
-  clientId            String?       // requis pour nouveaux paiements; dérivé de facture si absent
-  invoiceId           String?
-  montant             Float
-  datePaiement        DateTime
-  mode                String?
-  method              PaymentMethod @default(autre)
-  reference           String?
-  paymentMethod       PaymentMethodBilling? @default(other)
-  referenceNumber     String?
-  sourceAccountType   SourceAccountType? @default(operating)
-  allocationStatus    AllocationStatus @default(UNALLOCATED)
-  note                String?
-  receivedById        String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @default(now()) @updatedAt
+  id                String                @id @default(cuid())
+  cabinetId         String
+  clientId          String? // requis pour nouveaux paiements; dérivé de facture si absent
+  invoiceId         String?
+  montant           Float
+  datePaiement      DateTime
+  mode              String?
+  method            PaymentMethod         @default(autre)
+  reference         String?
+  paymentMethod     PaymentMethodBilling? @default(other)
+  referenceNumber   String?
+  sourceAccountType SourceAccountType?    @default(operating)
+  allocationStatus  AllocationStatus      @default(UNALLOCATED)
+  note              String?
+  receivedById      String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @default(now()) @updatedAt
 
-  cabinet             Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client              Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  invoice             Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  paymentAllocations  PaymentAllocation[]
+  cabinet            Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client             Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  invoice            Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  paymentAllocations PaymentAllocation[]
 
   @@index([cabinetId])
   @@index([clientId])
@@ -1226,12 +1235,12 @@ model Payment {
 }
 
 model PaymentAllocation {
-  id             String   @id @default(cuid())
-  paymentId      String
-  invoiceId      String
+  id              String   @id @default(cuid())
+  paymentId       String
+  invoiceId       String
   allocatedAmount Float
-  allocatedAt    DateTime @default(now())
-  createdAt      DateTime @default(now())
+  allocatedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
@@ -1241,26 +1250,26 @@ model PaymentAllocation {
 }
 
 enum InvoiceReminderType {
-  rappel_only      // J+5, J+15 : email rappel uniquement
-  frais           // J+10 : 5$ frais + envoi facture + écriture dossier
+  rappel_only // J+5, J+15 : email rappel uniquement
+  frais // J+10 : 5$ frais + envoi facture + écriture dossier
   frais_et_interets // J+20, J+30... : 5$ + intérêts 14%/an + envoi + écriture
 }
 
 model InvoiceReminder {
-  id              String              @id @default(cuid())
-  invoiceId       String
-  reminderDay     Int?                // 5, 10, 15, 20, 30, 40...
-  type            InvoiceReminderType?
-  reminderType    ReminderType?       // reminder_1, reminder_2, final_notice, interest_notice
-  scheduledAt     DateTime?
-  sentAt          DateTime?
-  status          String?
-  channel         ReminderChannel?    // email, manual, printed
-  amountFrais     Float?
-  amountInterets  Float?
-  note            String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id             String               @id @default(cuid())
+  invoiceId      String
+  reminderDay    Int? // 5, 10, 15, 20, 30, 40...
+  type           InvoiceReminderType?
+  reminderType   ReminderType? // reminder_1, reminder_2, final_notice, interest_notice
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  status         String?
+  channel        ReminderChannel? // email, manual, printed
+  amountFrais    Float?
+  amountInterets Float?
+  note           String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
@@ -1274,13 +1283,13 @@ model TrustAccount {
   clientId       String
   matterId       String?
   currentBalance Float    @default(0)
-  currency       String  @default("CAD")
+  currency       String   @default("CAD")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  cabinet   Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client    Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  matter    Dossier?           @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matter       Dossier?           @relation(fields: [matterId], references: [id], onDelete: SetNull)
   transactions TrustTransaction[]
 
   @@unique([cabinetId, clientId, matterId])
@@ -1290,32 +1299,32 @@ model TrustAccount {
 }
 
 model TrustTransaction {
-  id                String                    @id @default(cuid())
-  cabinetId         String
-  trustAccountId    String?
-  clientId          String
-  dossierId         String?
-  date              DateTime
-  amount            Float
-  type              TrustTransactionType
-  transactionType   TrustTransactionTypeBilling?
-  balanceAfter      Float?
-  invoiceId         String?
-  note              String?
-  description       String?
-  reference         String?
-  modePaiement      TrustModePaiement?
-  correctionOfId    String?
-  createdById       String?
-  createdAt         DateTime                  @default(now())
+  id              String                       @id @default(cuid())
+  cabinetId       String
+  trustAccountId  String?
+  clientId        String
+  dossierId       String?
+  date            DateTime
+  amount          Float
+  type            TrustTransactionType
+  transactionType TrustTransactionTypeBilling?
+  balanceAfter    Float?
+  invoiceId       String?
+  note            String?
+  description     String?
+  reference       String?
+  modePaiement    TrustModePaiement?
+  correctionOfId  String?
+  createdById     String?
+  createdAt       DateTime                     @default(now())
 
-  cabinet         Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  trustAccount    TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
-  client          Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  dossier         Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  invoice         Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  correctionOf    TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
-  corrections     TrustTransaction[] @relation("TrustCorrection")
+  cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustAccount TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier      Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  invoice      Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  correctionOf TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
+  corrections  TrustTransaction[] @relation("TrustCorrection")
 
   @@index([cabinetId])
   @@index([trustAccountId])
@@ -1341,13 +1350,13 @@ model CreditNote {
   appliedAmount    Float            @default(0)
   remainingAmount  Float            @default(0)
   createdById      String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
-  cabinet       Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client        Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  invoice       Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  applications  CreditNoteApplication[]
+  cabinet      Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client       Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoice      Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  applications CreditNoteApplication[]
 
   @@index([cabinetId])
   @@index([clientId])
@@ -1371,7 +1380,7 @@ model CreditNoteApplication {
 }
 
 model InterestCharge {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
   invoiceId       String
   calculationDate DateTime
   annualRate      Float
@@ -1380,9 +1389,9 @@ model InterestCharge {
   interestAmount  Float
   status          String
   invoiceLineId   String?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime @default(now())
 
-  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice     Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   invoiceLine InvoiceLine? @relation(fields: [invoiceLineId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
@@ -1390,14 +1399,14 @@ model InterestCharge {
 }
 
 model BillingRun {
-  id                  String         @id @default(cuid())
-  cabinetId           String
-  runType             BillingRunType
-  clientId            String
-  matterGroupMode     MatterGroupMode?
-  generatedInvoiceId  String?
-  createdById         String?
-  createdAt           DateTime       @default(now())
+  id                 String           @id @default(cuid())
+  cabinetId          String
+  runType            BillingRunType
+  clientId           String
+  matterGroupMode    MatterGroupMode?
+  generatedInvoiceId String?
+  createdById        String?
+  createdAt          DateTime         @default(now())
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -1415,15 +1424,15 @@ enum IdentityVerificationStatus {
 }
 
 model ClientIdentityVerification {
-  id          String                     @id @default(cuid())
-  clientId    String
-  date        DateTime
-  methode     String   // pièce d'identité, vidéo, etc.
-  statut      IdentityVerificationStatus @default(en_attente)
-  documentId  String?  // référence optionnelle vers Document (preuve)
-  notes       String?
-  createdAt   DateTime                   @default(now())
-  updatedAt   DateTime                   @updatedAt
+  id         String                     @id @default(cuid())
+  clientId   String
+  date       DateTime
+  methode    String // pièce d'identité, vidéo, etc.
+  statut     IdentityVerificationStatus @default(en_attente)
+  documentId String? // référence optionnelle vers Document (preuve)
+  notes      String?
+  createdAt  DateTime                   @default(now())
+  updatedAt  DateTime                   @updatedAt
 
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
@@ -1432,31 +1441,31 @@ model ClientIdentityVerification {
 }
 
 model Document {
-  id            String   @id @default(cuid())
-  cabinetId     String
-  clientId      String?
-  dossierId     String?
-  documentType  String?  // depot_tribunal, contrat, correspondance, preuve, etc.
-  nom           String
-  mimeType      String
-  sizeBytes     Int
-  storageKey    String   // chemin ou clé objet (fichier local ou S3)
-  hash          String?  // intégrité
-  uploadedById  String
+  id              String    @id @default(cuid())
+  cabinetId       String
+  clientId        String?
+  dossierId       String?
+  documentType    String? // depot_tribunal, contrat, correspondance, preuve, etc.
+  nom             String
+  mimeType        String
+  sizeBytes       Int
+  storageKey      String // chemin ou clé objet (fichier local ou S3)
+  hash            String? // intégrité
+  uploadedById    String
   retentionJusqua DateTime?
   // Générateur droit familial : type template (taxonomie), assistance IA, révision humaine
-  templateCode  String?  // code taxonomie (ex. demande_divorce_contestee, formulaire_annexe_i)
-  aiAssisted    Boolean? @default(false)
-  reviewedAt    DateTime?
-  reviewedById  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  templateCode    String? // code taxonomie (ex. demande_divorce_contestee, formulaire_annexe_i)
+  aiAssisted      Boolean?  @default(false)
+  reviewedAt      DateTime?
+  reviewedById    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  cabinet   Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client    Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  dossier   Dossier?  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  uploadedBy User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
-  reviewedBy User?    @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  cabinet               Cabinet                      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client                Client?                      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier               Dossier?                     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  uploadedBy            User                         @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  reviewedBy            User?                        @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
   identityVerifications ClientIdentityVerification[]
 
   @@index([cabinetId])
@@ -1467,20 +1476,20 @@ model Document {
 }
 
 model AuditLog {
-  id           String   @id @default(cuid())
-  cabinetId    String
-  userId       String?
-  entityType   String
-  entityId     String
-  action       String
-  metadata     String?  // JSON (legacy)
-  oldValues    String?  // JSON
-  newValues    String?  // JSON
-  performedBy  String?
-  performedAt  DateTime?
-  ip           String?
-  userAgent    String?
-  createdAt    DateTime @default(now())
+  id          String    @id @default(cuid())
+  cabinetId   String
+  userId      String?
+  entityType  String
+  entityId    String
+  action      String
+  metadata    String? // JSON (legacy)
+  oldValues   String? // JSON
+  newValues   String? // JSON
+  performedBy String?
+  performedAt DateTime?
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -1494,28 +1503,28 @@ model AuditLog {
 // --- Module Facturation (billing) ---
 
 model Expense {
-  id             String        @id @default(cuid())
-  cabinetId      String
-  clientId       String
-  matterId       String?
-  expenseDate    DateTime
-  description    String
-  vendorName     String?
-  amount         Float
-  taxable        Boolean       @default(false)
-  recoverable    Boolean       @default(true)
-  billingStatus  BillingStatus @default(NON_BILLED)
-  invoiceId      String?
-  invoiceLineId  String?
-  receiptUrl     String?
-  createdById    String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  cabinetId     String
+  clientId      String
+  matterId      String?
+  expenseDate   DateTime
+  description   String
+  vendorName    String?
+  amount        Float
+  taxable       Boolean       @default(false)
+  recoverable   Boolean       @default(true)
+  billingStatus BillingStatus @default(NON_BILLED)
+  invoiceId     String?
+  invoiceLineId String?
+  receiptUrl    String?
+  createdById   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  matter      Dossier?    @relation(fields: [matterId], references: [id], onDelete: SetNull)
-  invoice     Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matter      Dossier?     @relation(fields: [matterId], references: [id], onDelete: SetNull)
+  invoice     Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   invoiceLine InvoiceLine? @relation(fields: [invoiceLineId], references: [id], onDelete: SetNull)
 
   @@index([cabinetId])
@@ -1534,7 +1543,7 @@ model DeboursType {
   description     String?
   taxable         Boolean  @default(false)
   isGovernment    Boolean  @default(false) // Frais gouvernementaux (IRCC, LTT, etc.) — non-taxable
-  gouvernementRef String?  // "IRCC", "LTT", "FINTRAC", etc.
+  gouvernementRef String? // "IRCC", "LTT", "FINTRAC", etc.
   coutDefaut      Float?
   actif           Boolean  @default(true)
   createdAt       DateTime @default(now())
@@ -1550,28 +1559,28 @@ model DeboursType {
 
 // --- Débours par dossier (tblDeboursDossier) ---
 model DeboursDossier {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   cabinetId      String
   dossierId      String
   clientId       String
   deboursTypeId  String?
   description    String
-  quantite       Float     @default(1)
+  quantite       Float    @default(1)
   montant        Float
-  taxable        Boolean   @default(false)
+  taxable        Boolean  @default(false)
   date           DateTime
-  payeParCabinet Boolean   @default(true)
-  refacturable   Boolean   @default(true)
+  payeParCabinet Boolean  @default(true)
+  refacturable   Boolean  @default(true)
   factureId      String?
-  invoiceLineId  String?   @unique
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  invoiceLineId  String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier     Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
   deboursType DeboursType? @relation(fields: [deboursTypeId], references: [id], onDelete: SetNull)
-  facture     Invoice?    @relation(fields: [factureId], references: [id], onDelete: SetNull)
+  facture     Invoice?     @relation(fields: [factureId], references: [id], onDelete: SetNull)
   invoiceLine InvoiceLine? @relation("DeboursDossierInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
 
   @@index([cabinetId])
@@ -1584,9 +1593,9 @@ model DeboursDossier {
 model ConsentLog {
   id               String    @id @default(cuid())
   clientId         String
-  finalites        String    // JSON des finalités consenties
-  consentementAt  DateTime  @default(now())
-  userId           String?   // utilisateur ayant enregistré
+  finalites        String // JSON des finalités consenties
+  consentementAt   DateTime  @default(now())
+  userId           String? // utilisateur ayant enregistré
   versionPolitique String?
   revokedAt        DateTime?
 
@@ -1599,7 +1608,7 @@ model ConsentLog {
 model DocumentRetentionPolicy {
   id             String   @id @default(cuid())
   cabinetId      String
-  documentType   String   // ex. contrat, piece_identite
+  documentType   String // ex. contrat, piece_identite
   retentionYears Int
   legalBasis     String?
   createdAt      DateTime @default(now())
@@ -1636,15 +1645,15 @@ enum ExpenseCategorizationRuleSource {
 }
 
 model ExpenseCategory {
-  id          String   @id @default(cuid())
-  cabinetId   String
-  name        String   // ex. "Loyer / bureau", "Logiciels / abonnements"
-  code        String?  // optionnel, ex. LOYER, LOGICIELS
-  isSystem    Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  cabinetId String
+  name      String // ex. "Loyer / bureau", "Logiciels / abonnements"
+  code      String? // optionnel, ex. LOYER, LOGICIELS
+  isSystem  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   cabinet         Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   cabinetExpenses CabinetExpense[]
@@ -1654,17 +1663,17 @@ model ExpenseCategory {
 }
 
 model BankImportSession {
-  id                    String   @id @default(cuid())
-  cabinetId             String
-  fileName              String
-  importedAt            DateTime @default(now())
-  importedById          String?
-  nbLignes              Int      @default(0)
-  nbDepensesDetectees   Int      @default(0)
-  nbAValider            Int      @default(0)
-  status                String   @default("pending") // pending | processed | partial
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  cabinetId           String
+  fileName            String
+  importedAt          DateTime @default(now())
+  importedById        String?
+  nbLignes            Int      @default(0)
+  nbDepensesDetectees Int      @default(0)
+  nbAValider          Int      @default(0)
+  status              String   @default("pending") // pending | processed | partial
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   cabinet      Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   importedBy   User?                   @relation(fields: [importedById], references: [id], onDelete: SetNull)
@@ -1675,29 +1684,29 @@ model BankImportSession {
 }
 
 model BankImportTransaction {
-  id                   String    @id @default(cuid())
-  sessionId            String
-  cabinetId            String
-  date                 DateTime
-  rawDescription       String
-  rawAmount            Float
-  rawType              String?   // debit | credit
-  rawBalance           Float?
-  reference            String?
-  normalizedSupplier   String?
-  suggestedCategoryId  String?
+  id                    String   @id @default(cuid())
+  sessionId             String
+  cabinetId             String
+  date                  DateTime
+  rawDescription        String
+  rawAmount             Float
+  rawType               String? // debit | credit
+  rawBalance            Float?
+  reference             String?
+  normalizedSupplier    String?
+  suggestedCategoryId   String?
   suggestedCategoryName String?
   suggestedRefacturable Boolean?
-  suggestedDossierId   String?
-  confidence           Float?
-  status               String    @default("new") // new | categorized | to_validate | validated | corrected | ignored
-  cabinetExpenseId     String?   @unique // une fois validé, lien vers CabinetExpense
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  suggestedDossierId    String?
+  confidence            Float?
+  status                String   @default("new") // new | categorized | to_validate | validated | corrected | ignored
+  cabinetExpenseId      String?  @unique // une fois validé, lien vers CabinetExpense
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
-  session       BankImportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  cabinet       Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  cabinetExpense CabinetExpense?  @relation(fields: [cabinetExpenseId], references: [id], onDelete: SetNull)
+  session        BankImportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  cabinet        Cabinet           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinetExpense CabinetExpense?   @relation(fields: [cabinetExpenseId], references: [id], onDelete: SetNull)
 
   @@index([sessionId])
   @@index([cabinetId])
@@ -1706,33 +1715,33 @@ model BankImportTransaction {
 }
 
 model CabinetExpense {
-  id                     String    @id @default(cuid())
-  cabinetId              String
-  transactionImportId    String?   @unique
-  date                   DateTime
-  descriptionBancaire    String
-  fournisseurNormalise   String?
-  categoryId             String?
-  categoryName           String?
-  sousCategorie          String?
-  montant                Float
-  montantHt              Float?
-  tps                    Float?
-  tvq                    Float?
-  montantTtc             Float?
-  typeTransaction        ExpenseJournalTransactionType @default(DEPENSE)
-  dossierId              String?
-  refacturable           Boolean   @default(false)
-  statutValidation       ExpenseJournalValidationStatus @default(NOUVEAU)
-  confidence             Float?
-  createdById            String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  id                   String                         @id @default(cuid())
+  cabinetId            String
+  transactionImportId  String?                        @unique
+  date                 DateTime
+  descriptionBancaire  String
+  fournisseurNormalise String?
+  categoryId           String?
+  categoryName         String?
+  sousCategorie        String?
+  montant              Float
+  montantHt            Float?
+  tps                  Float?
+  tvq                  Float?
+  montantTtc           Float?
+  typeTransaction      ExpenseJournalTransactionType  @default(DEPENSE)
+  dossierId            String?
+  refacturable         Boolean                        @default(false)
+  statutValidation     ExpenseJournalValidationStatus @default(NOUVEAU)
+  confidence           Float?
+  createdById          String?
+  createdAt            DateTime                       @default(now())
+  updatedAt            DateTime                       @updatedAt
 
-  cabinet           Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  category          ExpenseCategory?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  dossier           Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  createdBy         User?                   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  cabinet           Cabinet                @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  category          ExpenseCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  dossier           Dossier?               @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  createdBy         User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
   importTransaction BankImportTransaction?
 
   @@index([cabinetId])
@@ -1744,21 +1753,21 @@ model CabinetExpense {
 }
 
 model ExpenseCategorizationRule {
-  id                    String   @id @default(cuid())
-  cabinetId             String
-  pattern               String   // regex ou mot-clé (ex. "VIDEOTRON", "SOQUIJ")
-  fournisseurNormalise  String?
-  categoryName          String   // nom de la catégorie (ExenseCategory.name)
-  categoryId            String?
-  refacturable         Boolean  @default(false)
-  dossierId             String?
-  confidence            Float    @default(0.9)
-  source                ExpenseCategorizationRuleSource @default(USER)
-  usageCount            Int      @default(0)
-  lastUsedAt            DateTime?
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String                          @id @default(cuid())
+  cabinetId            String
+  pattern              String // regex ou mot-clé (ex. "VIDEOTRON", "SOQUIJ")
+  fournisseurNormalise String?
+  categoryName         String // nom de la catégorie (ExenseCategory.name)
+  categoryId           String?
+  refacturable         Boolean                         @default(false)
+  dossierId            String?
+  confidence           Float                           @default(0.9)
+  source               ExpenseCategorizationRuleSource @default(USER)
+  usageCount           Int                             @default(0)
+  lastUsedAt           DateTime?
+  isActive             Boolean                         @default(true)
+  createdAt            DateTime                        @default(now())
+  updatedAt            DateTime                        @updatedAt
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
@@ -1803,29 +1812,28 @@ enum JournalSourceModule {
 ///   - aucune mutation rétroactive: les corrections passent par une nouvelle
 ///     ligne `typeTransaction = CORRECTION`.
 model JournalGeneralEntry {
-  id                String              @id @default(cuid())
-  cabinetId          String
-  dateTransaction   DateTime
-  typeTransaction   JournalTransactionType
-  reference         String?
-  clientId          String?
-  dossierId         String?
-  description       String
-  categorie         String?
-  montantEntree     Float                @default(0)
-  montantSortie     Float                @default(0)
-  solde             Float                @default(0)
-  sourceModule      JournalSourceModule
-  sourceId          String?
-  utilisateurId     String?
-  createdAt         DateTime             @default(now())
+  id              String                 @id @default(cuid())
+  cabinetId       String
+  dateTransaction DateTime
+  typeTransaction JournalTransactionType
+  reference       String?
+  clientId        String?
+  dossierId       String?
+  description     String
+  categorie       String?
+  montantEntree   Float                  @default(0)
+  montantSortie   Float                  @default(0)
+  solde           Float                  @default(0)
+  sourceModule    JournalSourceModule
+  sourceId        String?
+  utilisateurId   String?
+  createdAt       DateTime               @default(now())
 
-  cabinet    Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client     Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  dossier    Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  utilisateur User?   @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  utilisateur User?    @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
 
-  @@map("journal_general")
   @@index([cabinetId])
   @@index([cabinetId, dateTransaction])
   @@index([cabinetId, typeTransaction])
@@ -1833,6 +1841,7 @@ model JournalGeneralEntry {
   @@index([dossierId])
   @@index([sourceModule])
   @@index([cabinetId, clientId, dateTransaction])
+  @@map("journal_general")
 }
 
 // ========== Historique des imports ==========
@@ -1849,21 +1858,21 @@ enum ImportHistorySource {
 }
 
 model ImportHistory {
-  id             String              @id @default(cuid())
-  cabinetId      String
-  userId         String?
-  source         ImportHistorySource @default(safe_import)
-  documentType   String
-  fileName       String
-  status         ImportHistoryStatus @default(success)
-  totalRows      Int                 @default(0)
-  createdCount   Int                 @default(0)
-  updatedCount   Int                 @default(0)
-  skippedCount   Int                 @default(0)
-  errorCount     Int                 @default(0)
-  errors         String?             // JSON: Array<{ row: number; message: string }>
-  durationMs     Int?
-  createdAt      DateTime            @default(now())
+  id           String              @id @default(cuid())
+  cabinetId    String
+  userId       String?
+  source       ImportHistorySource @default(safe_import)
+  documentType String
+  fileName     String
+  status       ImportHistoryStatus @default(success)
+  totalRows    Int                 @default(0)
+  createdCount Int                 @default(0)
+  updatedCount Int                 @default(0)
+  skippedCount Int                 @default(0)
+  errorCount   Int                 @default(0)
+  errors       String? // JSON: Array<{ row: number; message: string }>
+  durationMs   Int?
+  createdAt    DateTime            @default(now())
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -1900,8 +1909,8 @@ model CalendarEvent {
   type        CalendarEventType   @default(rendez_vous_client)
   status      CalendarEventStatus @default(planifie)
   date        DateTime
-  startTime   String?             // HH:mm
-  endTime     String?             // HH:mm
+  startTime   String? // HH:mm
+  endTime     String? // HH:mm
   allDay      Boolean             @default(false)
   location    String?
   clientId    String?
@@ -1929,10 +1938,10 @@ model CalendarEvent {
 // ════════════════════════════════════════════
 
 model AuditSubmission {
-  id            String   @id @default(cuid())
-  type          String   // "cabinet" | "fichiers"
-  source        String   @default("audit_gratuit") // "audit_gratuit" | "audit_premium" | "onboarding"
-  status        String   @default("nouveau") // "nouveau" | "en_analyse" | "termine"
+  id     String @id @default(cuid())
+  type   String // "cabinet" | "fichiers"
+  source String @default("audit_gratuit") // "audit_gratuit" | "audit_premium" | "onboarding"
+  status String @default("nouveau") // "nouveau" | "en_analyse" | "termine"
 
   // Prospect info (avant création du cabinet dans SAFE)
   prospectNom       String
@@ -1941,20 +1950,20 @@ model AuditSubmission {
   prospectCabinet   String?
 
   // Lié à un cabinet existant si le prospect est déjà client
-  cabinetId     String?
-  cabinet       Cabinet? @relation(fields: [cabinetId], references: [id])
+  cabinetId String?
+  cabinet   Cabinet? @relation(fields: [cabinetId], references: [id])
 
   // Réponses du questionnaire (JSON structuré)
-  reponses      String?  // JSON: toutes les réponses pilier par pilier
+  reponses String? // JSON: toutes les réponses pilier par pilier
 
   // Résultats de l'audit
-  scoreGlobal   Int?     // 0-100
-  scores        String?  // JSON: score par pilier
-  rapport       String?  // JSON: rapport détaillé avec anomalies et corrections
-  configSafe    String?  // JSON: configuration d'interface sur mesure générée
+  scoreGlobal Int? // 0-100
+  scores      String? // JSON: score par pilier
+  rapport     String? // JSON: rapport détaillé avec anomalies et corrections
+  configSafe  String? // JSON: configuration d'interface sur mesure générée
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([prospectEmail])
   @@index([cabinetId])
@@ -1963,66 +1972,66 @@ model AuditSubmission {
 
 // Configuration d'interface dynamique par cabinet
 model CabinetInterface {
-  id          String   @id @default(cuid())
-  cabinetId   String   @unique
-  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id])
+  id        String  @id @default(cuid())
+  cabinetId String  @unique
+  cabinet   Cabinet @relation(fields: [cabinetId], references: [id])
 
   // Onglets actifs/masqués
-  ongletsActifs   String?  // JSON: ["tableau-de-bord", "clients", "dossiers", ...]
-  ongletsMasques  String?  // JSON: ["temps", "rapports-avances", ...]
+  ongletsActifs  String? // JSON: ["tableau-de-bord", "clients", "dossiers", ...]
+  ongletsMasques String? // JSON: ["temps", "rapports-avances", ...]
 
   // Modules spécifiques activés
-  modules         String?  // JSON: { grille_tarifaire: true, rabais_client: true, ... }
+  modules String? // JSON: { grille_tarifaire: true, rabais_client: true, ... }
 
   // Widgets du dashboard
-  widgets         String?  // JSON: ["factures_impayees", "echeances_7_jours", ...]
+  widgets String? // JSON: ["factures_impayees", "echeances_7_jours", ...]
 
   // Config dossiers par discipline
-  disciplines     String?  // JSON: ["famille", "immigration", "immobilier"]
+  disciplines       String? // JSON: ["famille", "immigration", "immobilier"]
   checklistsParType String? // JSON: { ouverture: [...], fermeture: [...] }
-  champsParType   String?  // JSON: { famille: [...], immigration: [...] }
+  champsParType     String? // JSON: { famille: [...], immigration: [...] }
 
   // Mode de facturation
-  modeFacturation String?  // JSON: { principal: "par_item", grille: true, rabais: true }
+  modeFacturation String? // JSON: { principal: "par_item", grille: true, rabais: true }
 
   // Conformité
-  conformite      String?  // JSON: { verif_conflits: true, loi25: true, retention: {...} }
+  conformite String? // JSON: { verif_conflits: true, loi25: true, retention: {...} }
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // --- Rapprochement fidéicommis (By-Law 9 / B-1 r.5) ---
 model TrustReconciliation {
-  id            String   @id @default(cuid())
-  cabinetId     String
-  cabinet       Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  cabinetId String
+  cabinet   Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
-  periode       String   // "2026-04" (YYYY-MM)
+  periode String // "2026-04" (YYYY-MM)
 
   // Données 3-way reconciliation
-  soldeBancaire    Float    // Solde selon relevé bancaire
+  soldeBancaire        Float // Solde selon relevé bancaire
   chequesEnCirculation Float @default(0) // Chèques émis non encaissés
-  depotsEnTransit  Float    @default(0) // Dépôts non encore crédités
-  soldeRapproche   Float    // soldeBancaire - chequesEnCirculation + depotsEnTransit
-  soldeRegistre    Float    // Somme transactions SAFE (source de vérité)
-  soldeParDossier  Float    // Somme TrustAccount.currentBalance
-  ecart            Float    @default(0) // soldeRapproche - soldeRegistre (doit être 0)
+  depotsEnTransit      Float @default(0) // Dépôts non encore crédités
+  soldeRapproche       Float // soldeBancaire - chequesEnCirculation + depotsEnTransit
+  soldeRegistre        Float // Somme transactions SAFE (source de vérité)
+  soldeParDossier      Float // Somme TrustAccount.currentBalance
+  ecart                Float @default(0) // soldeRapproche - soldeRegistre (doit être 0)
 
   // Certification par l'avocat
-  certifiedAt    DateTime?
-  certifiedById  String?
-  certifiedBy    User?    @relation("ReconciliationCertifiedBy", fields: [certifiedById], references: [id], onDelete: SetNull)
+  certifiedAt   DateTime?
+  certifiedById String?
+  certifiedBy   User?     @relation("ReconciliationCertifiedBy", fields: [certifiedById], references: [id], onDelete: SetNull)
 
   // Intérêts Law Foundation of Ontario / Barreau
-  interetsLFO      Float    @default(0)
-  interetsPayesAt  DateTime?
+  interetsLFO     Float     @default(0)
+  interetsPayesAt DateTime?
 
-  status        String   @default("draft") // "draft" | "complete" | "certified"
-  notes         String?
+  status String  @default("draft") // "draft" | "complete" | "certified"
+  notes  String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   complianceReports TrustComplianceReport[]
 
@@ -2033,19 +2042,19 @@ model TrustReconciliation {
 
 // --- Rapport conformité fidéicommis (PDF exportable) ---
 model TrustComplianceReport {
-  id              String   @id @default(cuid())
-  cabinetId       String
-  cabinet         Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  cabinetId String
+  cabinet   Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
-  periode         String   // "2026-04"
-  type            String   @default("monthly") // "monthly" | "quarterly" | "annual"
-  generatedAt     DateTime @default(now())
-  generatedById   String
-  generatedBy     User     @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
+  periode       String // "2026-04"
+  type          String   @default("monthly") // "monthly" | "quarterly" | "annual"
+  generatedAt   DateTime @default(now())
+  generatedById String
+  generatedBy   User     @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
 
-  pdfUrl          String?  // URL Supabase Storage
-  status          String   @default("draft") // "draft" | "final"
-  data            String?  // JSON: snapshot transactions
+  pdfUrl String? // URL Supabase Storage
+  status String  @default("draft") // "draft" | "final"
+  data   String? // JSON: snapshot transactions
 
   reconciliationId String?
   reconciliation   TrustReconciliation? @relation(fields: [reconciliationId], references: [id], onDelete: SetNull)
@@ -2056,46 +2065,46 @@ model TrustComplianceReport {
 
 // --- Déclaration antécédents immigration (D7) ---
 model ImmigrationBackground {
-  id                  String   @id @default(cuid())
-  dossierId           String   @unique
-  dossier             Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  dossierId String  @unique
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  priorRefusal        Boolean  @default(false)
-  priorRefusalDetails String?
-  overstay            Boolean  @default(false)
-  overstayDetails     String?
-  criminalRecord      Boolean  @default(false)
-  criminalDetails     String?
-  deportation         Boolean  @default(false)
-  deportationDetails  String?
-  misrepresentation   Boolean  @default(false)
+  priorRefusal             Boolean @default(false)
+  priorRefusalDetails      String?
+  overstay                 Boolean @default(false)
+  overstayDetails          String?
+  criminalRecord           Boolean @default(false)
+  criminalDetails          String?
+  deportation              Boolean @default(false)
+  deportationDetails       String?
+  misrepresentation        Boolean @default(false)
   misrepresentationDetails String?
 
-  clientSignedAt      DateTime?
-  completedAt         DateTime?
+  clientSignedAt DateTime?
+  completedAt    DateTime?
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([dossierId])
 }
 
 // --- Suivi documents immigration avec expiration (D8) ---
 model ImmigrationDocument {
-  id          String   @id @default(cuid())
-  dossierId   String
-  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  type        String   // "medical" | "police_cert" | "biometrics" | "language_test" | "education_credential"
-  label       String?  // Human-readable label
-  issuedAt    DateTime?
-  expiresAt   DateTime? // Calculated based on type (medical: 12mo, biometrics: 10yr)
+  type      String // "medical" | "police_cert" | "biometrics" | "language_test" | "education_credential"
+  label     String? // Human-readable label
+  issuedAt  DateTime?
+  expiresAt DateTime? // Calculated based on type (medical: 12mo, biometrics: 10yr)
 
   alertSent30d Boolean @default(false)
   alertSent7d  Boolean @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([dossierId])
   @@index([expiresAt])
@@ -2103,20 +2112,20 @@ model ImmigrationDocument {
 
 // --- Vérification conflits d'intérêts (C3) ---
 model ConflictCheck {
-  id              String   @id @default(cuid())
-  cabinetId       String
-  dossierId       String
-  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  cabinetId String
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  checkedAt       DateTime @default(now())
-  checkedById     String
-  checkedBy       User     @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+  checkedAt   DateTime @default(now())
+  checkedById String
+  checkedBy   User     @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
 
-  clientName      String   // Name searched
-  conflictsFound  Boolean  @default(false)
-  conflicts       String?  // JSON: [{ dossierId, clientName, relation, dossierIntitule }]
+  clientName     String // Name searched
+  conflictsFound Boolean @default(false)
+  conflicts      String? // JSON: [{ dossierId, clientName, relation, dossierIntitule }]
 
-  resolution      String?  // "confirmed_no_conflict" | "waived_by_client" | "declined" | null
+  resolution      String? // "confirmed_no_conflict" | "waived_by_client" | "declined" | null
   resolvedAt      DateTime?
   resolutionNotes String?
 
@@ -2127,22 +2136,22 @@ model ConflictCheck {
 
 // --- Grille de forfaits (catalogue de services avec prix) ---
 model ForfaitService {
-  id          String       @id @default(cuid())
-  cabinetId   String
-  cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  cabinetId String
+  cabinet   Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
-  code        String       // short code: "IMMO-ACHAT", "IMM-EE"
-  nom         String       // "Real estate purchase", "Express Entry"
+  code        String // short code: "IMMO-ACHAT", "IMM-EE"
+  nom         String // "Real estate purchase", "Express Entry"
   description String?
-  montant     Float        // default price
+  montant     Float // default price
   categorie   DossierType? // immobilier, immigration, etc.
-  sousType    String?      // "achat", "condo", "ee", "parrainage"
+  sousType    String? // "achat", "condo", "ee", "parrainage"
   taxable     Boolean      @default(true)
   actif       Boolean      @default(true)
   sortOrder   Int          @default(0)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   registreTaches RegistreTache[]
 
@@ -2153,33 +2162,33 @@ model ForfaitService {
 
 // --- Registre de tâches forfaitaires (par dossier) ---
 model RegistreTache {
-  id               String   @id @default(cuid())
-  cabinetId        String
-  cabinet          Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  dossierId        String
-  dossier          Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  clientId         String?
+  id        String  @id @default(cuid())
+  cabinetId String
+  cabinet   Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  clientId  String?
 
   forfaitServiceId String?
   forfaitService   ForfaitService? @relation(fields: [forfaitServiceId], references: [id], onDelete: SetNull)
 
-  description      String   // pré-remplie depuis ForfaitService.nom, modifiable
-  montantBase      Float    // prix catalogue au moment de l'ajout
-  ajustement       Float    @default(0) // +/- ajustement de prix
-  rabais           Float    @default(0) // montant du rabais
-  rabaisRaison     String?  // raison du rabais (affichée sur facture)
-  montantFinal     Float    // montantBase + ajustement - rabais
-  taxable          Boolean  @default(true)
+  description  String // pré-remplie depuis ForfaitService.nom, modifiable
+  montantBase  Float // prix catalogue au moment de l'ajout
+  ajustement   Float   @default(0) // +/- ajustement de prix
+  rabais       Float   @default(0) // montant du rabais
+  rabaisRaison String? // raison du rabais (affichée sur facture)
+  montantFinal Float // montantBase + ajustement - rabais
+  taxable      Boolean @default(true)
 
-  date             DateTime @default(now())
-  statut           String   @default("complete") // "en_cours" | "complete" | "facture"
+  date   DateTime @default(now())
+  statut String   @default("complete") // "en_cours" | "complete" | "facture"
 
-  invoiceLineId    String?  @unique
-  invoiceLine      InvoiceLine? @relation("RegistreTacheInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
+  invoiceLineId String?      @unique
+  invoiceLine   InvoiceLine? @relation("RegistreTacheInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
 
-  createdById      String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([cabinetId])
   @@index([dossierId])
@@ -2189,47 +2198,85 @@ model RegistreTache {
 
 // --- Notifications client (COM1, COM2) ---
 model NotificationLog {
-  id          String   @id @default(cuid())
-  cabinetId   String
-  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  dossierId   String?
-  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  clientId    String?
+  id        String   @id @default(cuid())
+  cabinetId String
+  cabinet   Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  clientId  String?
 
-  type        String   // "status_change" | "closing_reminder" | "ircc_update" | "document_expiry"
-  channel     String   @default("email") // "email" | "sms"
+  type    String // "status_change" | "closing_reminder" | "ircc_update" | "document_expiry"
+  channel String @default("email") // "email" | "sms"
 
-  sentAt      DateTime @default(now())
-  sentTo      String   // email address
-  subject     String
-  status      String   @default("sent") // "sent" | "failed" | "bounced"
+  sentAt  DateTime @default(now())
+  sentTo  String // email address
+  subject String
+  status  String   @default("sent") // "sent" | "failed" | "bounced"
 
-  metadata    String?  // JSON: { oldStatus, newStatus, closingDate, etc. }
+  metadata String? // JSON: { oldStatus, newStatus, closingDate, etc. }
 
   @@index([cabinetId])
   @@index([dossierId])
   @@index([cabinetId, sentAt])
 }
 
+/// Signal "dossier prêt pour revue avocat".
+///
+/// Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
+///
+/// Un signal est créé quand un dossier passe à l'état dérivé `pret_pour_revue`
+/// suite à une action de l'assistante. Il est destiné à l'avocat responsable
+/// (ou aux admin du cabinet quand aucun avocat n'est assigné).
+///
+/// Déduplication structurelle: index UNIQUE PARTIEL `(dedupeKey) WHERE "readAt" IS NULL`,
+/// maintenu hors-Prisma via la migration `20260429180000_add_ready_for_review_signal`.
+/// Tant que le signal n'est pas marqué lu, on ne peut pas en créer un second
+/// pour la même clé `(dossierId, avocatResponsableId)`.
+model DossierReadyForReviewSignal {
+  id                  String    @id @default(cuid())
+  cabinetId           String
+  dossierId           String
+  clientId            String
+  avocatResponsableId String?
+  createdById         String?
+  reason              String? // ex: "preparation_complete"
+  /// Clé canonique pour la déduplication: `${dossierId}:${avocatResponsableId ?? "no_avocat"}`.
+  dedupeKey           String
+  createdAt           DateTime  @default(now())
+  readAt              DateTime?
+  acknowledgedById    String?
+
+  cabinet           Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier           Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client            Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  avocatResponsable User?   @relation("ReadyForReviewSignalAvocat", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
+  createdBy         User?   @relation("ReadyForReviewSignalCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  acknowledgedBy    User?   @relation("ReadyForReviewSignalAcknowledgedBy", fields: [acknowledgedById], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId, readAt])
+  @@index([cabinetId, avocatResponsableId, readAt])
+  @@index([dossierId])
+}
+
 // --- Facturation par étape (B4) ---
 model DossierBillingStage {
-  id          String   @id @default(cuid())
-  dossierId   String
-  dossier     Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  nom         String   // "Preparation", "Submission", "Follow-up"
+  nom         String // "Preparation", "Submission", "Follow-up"
   ordre       Int
   montant     Float
-  pourcentage Float?   // e.g. 50, 25, 25
+  pourcentage Float? // e.g. 50, 25, 25
 
-  statut      String   @default("pending") // "pending" | "ready" | "invoiced"
-  invoiceId   String?
-  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  statut    String   @default("pending") // "pending" | "ready" | "invoiced"
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
 
-  invoicedAt  DateTime?
+  invoicedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([dossierId])
   @@index([dossierId, ordre])
@@ -2239,11 +2286,11 @@ model DossierBillingStage {
 model DeboursTemplate {
   id            String  @id @default(cuid())
   cabinetId     String
-  dossierType   String  // "immobilier", "immigration", "immobilier_condo", etc.
+  dossierType   String // "immobilier", "immigration", "immobilier_condo", etc.
   deboursTypeId String
   isRequired    Boolean @default(false) // true = bloquant, false = suggestion
 
-  deboursType   DeboursType @relation(fields: [deboursTypeId], references: [id], onDelete: Cascade)
+  deboursType DeboursType @relation(fields: [deboursTypeId], references: [id], onDelete: Cascade)
 
   @@unique([cabinetId, dossierType, deboursTypeId])
   @@index([cabinetId, dossierType])
@@ -2255,35 +2302,35 @@ model DeboursTemplate {
 
 // Document riche créé dans l'éditeur Tiptap (distinct du model Document = fichiers uploadés)
 model RichDocument {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   cabinetId   String
   dossierId   String
   clientId    String
   createdById String
 
-  titre       String
-  content     String   @default("{}") // JSON Tiptap/ProseMirror
-  type        String   @default("note") // "note" | "lettre" | "contrat" | "procedure" | "requete" | "autre"
-  statut      String   @default("brouillon") // "brouillon" | "final" | "archive"
+  titre   String
+  content String @default("{}") // JSON Tiptap/ProseMirror
+  type    String @default("note") // "note" | "lettre" | "contrat" | "procedure" | "requete" | "autre"
+  statut  String @default("brouillon") // "brouillon" | "final" | "archive"
 
   // Conformité Barreau — jamais de suppression réelle
-  isArchived  Boolean  @default(false)
-  archivedAt  DateTime?
+  isArchived   Boolean   @default(false)
+  archivedAt   DateTime?
   archivedById String?
 
   // Métadonnées utiles
   lastEditedById String?
   lastEditedAt   DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  cabinet     Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  dossier     Dossier   @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdBy   User      @relation("RichDocCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
-  lastEditedBy User?    @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
-  archivedBy  User?     @relation("RichDocArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
+  cabinet      Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier      Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client       Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdBy    User    @relation("RichDocCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  lastEditedBy User?   @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
+  archivedBy   User?   @relation("RichDocArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
 
   versions     RichDocumentVersion[]
   workSessions WorkSession[]
@@ -2296,20 +2343,20 @@ model RichDocument {
 
 // Historique des versions — immutable, audit trail Barreau
 model RichDocumentVersion {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   richDocumentId String
   cabinetId      String
   createdById    String
 
-  content        String   // Snapshot JSON du contenu Tiptap
-  versionNumber  Int
-  label          String?  // "Version initiale", "Après révision client", etc.
-  hash           String?  // SHA-256 du contenu pour intégrité
+  content       String // Snapshot JSON du contenu Tiptap
+  versionNumber Int
+  label         String? // "Version initiale", "Après révision client", etc.
+  hash          String? // SHA-256 du contenu pour intégrité
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  richDocument   RichDocument @relation(fields: [richDocumentId], references: [id], onDelete: Cascade)
-  createdBy      User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  richDocument RichDocument @relation(fields: [richDocumentId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([richDocumentId])
   @@index([cabinetId])
@@ -2318,34 +2365,34 @@ model RichDocumentVersion {
 // Session de travail chrono — créée quand l'avocat clique "Terminé"
 // Génère automatiquement une TimeEntry
 model WorkSession {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   cabinetId      String
   userId         String
   dossierId      String
   clientId       String
-  richDocumentId String?  // null si session manuelle (hors éditeur)
+  richDocumentId String? // null si session manuelle (hors éditeur)
 
-  startedAt      DateTime
-  endedAt        DateTime?
-  dureeMinutes   Int?     // calculé à la fermeture
+  startedAt    DateTime
+  endedAt      DateTime?
+  dureeMinutes Int? // calculé à la fermeture
 
-  typeActivite   String   @default("redaction") // "redaction" | "revision" | "consultation" | "recherche" | "autre"
-  description    String?  // pré-remplie IA ou saisie manuelle
+  typeActivite String  @default("redaction") // "redaction" | "revision" | "consultation" | "recherche" | "autre"
+  description  String? // pré-remplie IA ou saisie manuelle
 
-  statut         String   @default("en_cours") // "en_cours" | "pause" | "termine"
+  statut String @default("en_cours") // "en_cours" | "pause" | "termine"
 
   // Lien vers la fiche de temps créée automatiquement
-  timeEntryId    String?  @unique
+  timeEntryId String? @unique
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  cabinet        Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dossier        Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client         Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  richDocument   RichDocument? @relation(fields: [richDocumentId], references: [id], onDelete: SetNull)
-  timeEntry      TimeEntry?   @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
+  cabinet      Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dossier      Dossier       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  richDocument RichDocument? @relation(fields: [richDocumentId], references: [id], onDelete: SetNull)
+  timeEntry    TimeEntry?    @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
 
   @@index([cabinetId])
   @@index([userId])
@@ -2353,22 +2400,21 @@ model WorkSession {
   @@index([cabinetId, statut])
 }
 
-
 // ========== Invitations équipe ==========
 
 model Invitation {
-  id            String    @id @default(cuid())
-  cabinetId     String
-  createdById   String
-  email         String
-  role          UserRole
-  token         String    @unique
-  expiresAt     DateTime
-  acceptedAt    DateTime?
-  compensation  String?   // JSON: { type, montant, isBillable, tauxHoraireFact, visibleRentabilite, saisieParEmployee }
-  createdAt     DateTime  @default(now())
+  id           String    @id @default(cuid())
+  cabinetId    String
+  createdById  String
+  email        String
+  role         UserRole
+  token        String    @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  compensation String? // JSON: { type, montant, isBillable, tauxHoraireFact, visibleRentabilite, saisieParEmployee }
+  createdAt    DateTime  @default(now())
 
-  cabinet       Cabinet   @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
   @@index([cabinetId])
   @@index([token])

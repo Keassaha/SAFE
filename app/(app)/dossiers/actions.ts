@@ -11,6 +11,9 @@ import { dossierNoteSchema } from "@/lib/validations/dossierNote";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
 import { generateCartable } from "@/lib/dossiers/cartable-service";
+import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
+import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
+import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
@@ -172,6 +175,16 @@ export async function updateDossier(id: string, formData: FormData) {
     }
   }
   const intitule = parsed.data.intitule?.trim() || current?.intitule || "Dossier";
+
+  // Capture l'état AVANT l'update pour détecter une transition vers `pret_pour_revue`.
+  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
+  const beforeSnap = await loadDossierPreparationSnapshot(
+    cabinetId,
+    id,
+    { callerUserId: userId },
+  );
+  const beforeState = beforeSnap ? getDossierPreparationStatus(beforeSnap).state : null;
+
   await prisma.dossier.updateMany({
     where: { id, cabinetId },
     data: {
@@ -218,8 +231,17 @@ export async function updateDossier(id: string, formData: FormData) {
     action: "update",
     metadata: { reference: parsed.data.reference ?? undefined, intitule },
   });
+
+  // Émet le signal "prêt pour revue" si la transition est observée après l'update.
+  // No-op si pas de transition ou si un signal pending existe déjà.
+  await detectAndEmitIfReady(cabinetId, id, {
+    beforeState,
+    callerUserId: userId,
+  });
+
   revalidatePath("/dossiers");
   revalidatePath(`/dossiers/${id}`);
+  revalidatePath("/tableau-de-bord");
   redirect("/dossiers");
 }
 

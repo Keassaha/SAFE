@@ -35,6 +35,8 @@ import {
   whereInvoiceForReports,
   getInvoiceLifecycleCategory,
 } from "@/lib/billing/invoice-status";
+import { listUnreadSignalsForUser } from "@/lib/services/ready-for-review-service";
+import { ReadyForReviewInbox } from "@/components/dashboard/ReadyForReviewInbox";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -882,5 +884,21 @@ export default async function TableauDeBordPage() {
     dossiersParStatut,
   };
 
-  return <DashboardView payload={payload} />;
+  // Inbox "prêt pour revue" — visible pour les avocats et admin du cabinet.
+  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
+  const showReadyInbox = userRole === "avocat" || userRole === "admin_cabinet";
+  const readyForReviewSignals = showReadyInbox
+    ? await listUnreadSignalsForUser(cabinetId, userId, {
+        scopeAllForAdmin: userRole === "admin_cabinet",
+      })
+    : [];
+
+  return (
+    <div className="space-y-5">
+      {showReadyInbox && readyForReviewSignals.length > 0 && (
+        <ReadyForReviewInbox signals={readyForReviewSignals} />
+      )}
+      <DashboardView payload={payload} />
+    </div>
+  );
 }

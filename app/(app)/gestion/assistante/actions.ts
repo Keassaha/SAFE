@@ -11,6 +11,12 @@ import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canAssignSelfAsAssistant } from "@/lib/auth/permissions";
 import { createAuditLog } from "@/lib/services/audit";
+import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
+import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
+import {
+  detectAndEmitIfReady,
+  markSignalRead,
+} from "@/lib/services/ready-for-review-service";
 import type { UserRole } from "@prisma/client";
 
 export type AssignToSelfResult =
@@ -60,6 +66,16 @@ export async function assignDossierToSelf(dossierId: string): Promise<AssignToSe
     return { ok: false, error: "already_taken" };
   }
 
+  // Capture l'état AVANT modification pour détecter une éventuelle transition
+  // vers `pret_pour_revue` (l'assistante manquante était peut-être le seul
+  // manquant restant — l'auto-assignation peut donc rendre le dossier prêt).
+  const beforeSnap = await loadDossierPreparationSnapshot(
+    cabinetId,
+    dossier.id,
+    { callerUserId: userId },
+  );
+  const beforeState = beforeSnap ? getDossierPreparationStatus(beforeSnap).state : null;
+
   await prisma.dossier.update({
     where: { id: dossier.id },
     data: { assistantJuridiqueId: userId },
@@ -74,9 +90,40 @@ export async function assignDossierToSelf(dossierId: string): Promise<AssignToSe
     metadata: { assistantJuridiqueId: userId, source: "assistant_queue_self_assign" },
   });
 
+  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
+  // Émet le signal si la transition vers `pret_pour_revue` est observée.
+  await detectAndEmitIfReady(cabinetId, dossier.id, {
+    beforeState,
+    callerUserId: userId,
+  });
+
   revalidatePath("/gestion/assistante");
   revalidatePath(`/dossiers/${dossier.id}`);
   revalidatePath("/dossiers");
+  revalidatePath("/tableau-de-bord");
 
   return { ok: true, alreadyAssigned: false };
+}
+
+/* ═════════════════════ Marquage signal "vu" ═════════════════════ */
+
+export type MarkReadyForReviewReadResult =
+  | { ok: true; alreadyRead: boolean }
+  | { ok: false; error: "not_found" | "forbidden" };
+
+/**
+ * Marque un signal "prêt pour revue" comme lu par l'utilisateur courant.
+ * Accessible aux avocats, admin, et au destinataire d'un signal sans avocat.
+ */
+export async function markReadyForReviewRead(signalId: string): Promise<MarkReadyForReviewReadResult> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  const isAdmin = role === "admin_cabinet";
+
+  const result = await markSignalRead(signalId, cabinetId, userId, isAdmin);
+
+  if (result.ok) {
+    revalidatePath("/tableau-de-bord");
+  }
+
+  return result;
 }
