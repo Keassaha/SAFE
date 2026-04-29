@@ -152,7 +152,7 @@ export default function ConfidentialitePage() {
               </p>
             </section>
 
-            <section>
+            <section id="securite" className="scroll-mt-32">
               <h2 className="text-xl font-semibold mb-3">6. Localisation et sécurité des données</h2>
               <p>
                 Les données de la plateforme sont hébergées sur une infrastructure cloud située <strong>au

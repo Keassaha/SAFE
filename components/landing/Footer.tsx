@@ -27,9 +27,9 @@ export function Footer() {
 
           <div className="flex flex-col gap-3">
             <h4 className="text-[13px] font-sans font-medium text-surface mb-2">Légal</h4>
-            <Link href="/terms" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Conditions d'utilisation</Link>
-            <Link href="/privacy" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Politique de confidentialité</Link>
-            <Link href="/security" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Sécurité et Loi 25</Link>
+            <Link href="/conditions" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Conditions d&apos;utilisation</Link>
+            <Link href="/confidentialite" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Politique de confidentialité</Link>
+            <Link href="/confidentialite#securite" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Sécurité et Loi 25</Link>
           </div>
 
           <div className="flex flex-col gap-3">
