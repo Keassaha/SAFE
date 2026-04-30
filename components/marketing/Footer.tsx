@@ -4,7 +4,7 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 const footerLinks = {
   produit: [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
-    { label: "Tarification", href: "/tarification" },
+    { label: "Prix après audit", href: "/tarification" },
     // Le CTA "Réserver un appel" pointe vers la page de contact.
     { label: "Réserver un appel", href: "/contact" },
     { label: "Audit gratuit", href: "/audit-gratuit" },

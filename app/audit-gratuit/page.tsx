@@ -32,7 +32,7 @@ export default function AuditGratuitPage() {
   const menuLinks = [
     { href: "/", label: "Accueil" },
     { href: "/#produit", label: "Fonctionnalités" },
-    { href: "/tarification", label: "Tarification" },
+    { href: "/tarification", label: "Prix après audit" },
     { href: "/contact", label: "Contact" },
     { href: "/login", label: "Connexion" },
   ];
@@ -123,7 +123,7 @@ export default function AuditGratuitPage() {
 
             <p className="text-neutral-600 text-[15px] mb-10 leading-relaxed max-w-md mx-auto">
               15 à 20 minutes pour comprendre votre cabinet, identifier vos leviers
-              d&apos;efficacité et recevoir une offre SAFE taillée pour vous.
+              d&apos;efficacité et recevoir d&apos;abord un diagnostic clair.
             </p>
 
             <div className="grid grid-cols-3 gap-3 mb-10">
@@ -153,7 +153,7 @@ export default function AuditGratuitPage() {
             </button>
 
             <p className="mt-5 text-[11px] text-neutral-400 tracking-wide">
-              Confidentiel · Aucune carte de crédit requise
+              Confidentiel · Aucune carte de crédit · Tarif proposé après l&apos;audit
             </p>
           </motion.div>
         )}

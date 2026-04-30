@@ -20,7 +20,7 @@ export function Footer() {
           <div className="flex flex-col gap-3">
             <h4 className="text-[13px] font-sans font-medium text-surface mb-2">Produit</h4>
             <Link href="#produit" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Fonctionnalités</Link>
-            <Link href="#tarification" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Tarification</Link>
+            <Link href="#tarification" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Prix après audit</Link>
             <Link href="#audit" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Audit d'efficacité</Link>
             <Link href="/login" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Connexion au portail</Link>
           </div>

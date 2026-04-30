@@ -4,7 +4,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 type Feature = {
-  num: string;
   kicker: string;
   title: string;
   body: string;
@@ -12,34 +11,24 @@ type Feature = {
 
 const FEATURES: Feature[] = [
   {
-    num: "01",
     kicker: "Facturation",
     title: "Une facturation plus rigoureuse.",
     body: "Les heures se transforment en factures. Les factures se transforment en paiements. Sans relances bricolées dans Word, sans temps non capturé.",
   },
   {
-    num: "02",
     kicker: "Fidéicommis",
     title: "Un fidéicommis plus clair.",
     body: "Registre tenu, conciliation mensuelle, piste d'audit complète. La conformité B-1, r.5 et By-Laws de la LSO en continu — pas seulement le jour de l'inspection.",
   },
   {
-    num: "03",
     kicker: "Conformité",
     title: "Une conformité plus sereine.",
     body: "Obligations Barreau et LSO connues, suivies, traçables. Une inspection ne devrait pas être un événement à préparer en urgence.",
   },
   {
-    num: "04",
     kicker: "Dossiers",
     title: "Des dossiers mieux organisés.",
     body: "Clients, mandats, échéances et documents au même endroit. Un dimanche soir ne devrait plus servir à retrouver un email perdu.",
-  },
-  {
-    num: "05",
-    kicker: "Migration",
-    title: "Une migration mieux encadrée.",
-    body: "Quelqu'un vous accompagne du fichier Excel actuel jusqu'au système en service. Pas de migration laissée à votre charge.",
   },
 ];
 
@@ -62,18 +51,17 @@ export function FeaturesGrid() {
           SAFE ne vend pas un logiciel. <span className="italic text-forest-600">SAFE installe un système.</span>
         </h2>
         <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
-          Cinq piliers, un seul objectif : remettre le cabinet en ordre.
+          Quatre piliers, un seul objectif : remettre le cabinet en ordre.
         </p>
       </motion.div>
 
       {/* Grille de cubes animés — même pattern que la section ProblemSection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[680px] mx-auto">
         {FEATURES.map((f, i) => (
           <AnimatedCard
-            key={f.num}
+            key={f.kicker}
             index={i}
             ease={ease}
-            num={f.num}
             kicker={f.kicker}
             title={f.title}
             body={f.body}
@@ -93,7 +81,6 @@ export function FeaturesGrid() {
 export function AnimatedCard({
   index,
   ease,
-  num,
   kicker,
   kickerColor,
   title,
@@ -102,7 +89,6 @@ export function AnimatedCard({
 }: {
   index: number;
   ease: readonly [number, number, number, number];
-  num: string;
   kicker: string;
   kickerColor?: string;
   title: string;
@@ -116,7 +102,7 @@ export function AnimatedCard({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, delay: 0.1 + index * 0.1, ease }}
       whileHover="hover"
-      className="group relative flex flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)] hover:-translate-y-1"
+      className="group relative flex min-h-[330px] flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)] hover:-translate-y-1"
     >
       {/* Halo radial vert qui s'étend au hover */}
       <motion.span
@@ -140,15 +126,8 @@ export function AnimatedCard({
         transition={{ duration: 0.9, ease }}
       />
 
-      {/* Header : numéro italique + kicker */}
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <motion.span
-          className="font-serif italic text-[26px] text-forest-600 tabular-nums leading-none"
-          variants={{ hover: { x: 4 } }}
-          transition={{ duration: 0.5, ease }}
-        >
-          {num}
-        </motion.span>
+      {/* Header */}
+      <div className="flex items-center justify-end mb-8 relative z-10">
         <motion.span
           className={`text-[11px] font-sans uppercase tracking-[0.12em] ${
             kickerColor ?? "text-text-muted"

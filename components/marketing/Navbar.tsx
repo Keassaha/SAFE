@@ -12,7 +12,7 @@ const BOOK_CALL_HREF = "/contact";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
-  { label: "Tarification", href: "/tarification" },
+  { label: "Prix après audit", href: "/tarification" },
   { label: "Audit gratuit", href: "/audit-gratuit" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
