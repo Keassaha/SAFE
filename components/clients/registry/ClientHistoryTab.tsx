@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Clock } from "lucide-react";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 export type ActivityItem = {
   id: string;
@@ -18,6 +19,7 @@ interface ClientHistoryTabProps {
 
 export function ClientHistoryTab({ items }: ClientHistoryTabProps) {
   const t = useTranslations("clients");
+  const intlLocale = toIntlLocale(useLocale());
 
   return (
     <Card>
@@ -43,7 +45,7 @@ export function ClientHistoryTab({ items }: ClientHistoryTabProps) {
                 className="flex gap-3 py-2 border-b border-neutral-border/60 last:border-0"
               >
                 <span className="text-xs text-neutral-muted shrink-0 w-20">
-                  {new Intl.DateTimeFormat("fr-CA", {
+                  {new Intl.DateTimeFormat(intlLocale, {
                     day: "numeric",
                     month: "short",
                     year: "numeric",

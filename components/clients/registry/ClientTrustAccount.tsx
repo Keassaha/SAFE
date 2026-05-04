@@ -1,18 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Wallet } from "lucide-react";
 import { routes } from "@/lib/routes";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/format";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientTrustAccountProps {
   clientId?: string;
@@ -31,6 +25,8 @@ export function ClientTrustAccount({
 }: ClientTrustAccountProps) {
   const t = useTranslations("clients");
   const tc = useTranslations("common");
+  const locale = useLocale();
+  const intlLocale = toIntlLocale(locale);
 
   return (
     <Card>
@@ -39,7 +35,7 @@ export function ClientTrustAccount({
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-muted">{t("trustBalance")}</span>
           <span className="text-lg font-semibold text-neutral-text-primary">
-            {formatCurrency(balance)}
+            {formatCurrency(balance, "CAD", locale)}
           </span>
         </div>
         {trustAccountId && (
@@ -55,7 +51,7 @@ export function ClientTrustAccount({
         {lastTransactionDate && (
           <p className="text-xs text-neutral-muted">
             {t("lastOperation")} :{" "}
-            {new Intl.DateTimeFormat("fr-CA", {
+            {new Intl.DateTimeFormat(intlLocale, {
               dateStyle: "medium",
             }).format(lastTransactionDate)}
           </p>

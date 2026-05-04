@@ -17,6 +17,7 @@ interface NewClientModalProps {
 export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps) {
   const t = useTranslations("temps");
   const tc = useTranslations("common");
+  const tErr = useTranslations("errors");
   const [raisonSociale, setRaisonSociale] = useState("");
   const [typeClient, setTypeClient] = useState<"personne_physique" | "personne_morale">("personne_morale");
   const [pending, setPending] = useState(false);
@@ -34,7 +35,9 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
     try {
       const result = await createClientQuick({ raisonSociale: trimmed, typeClient });
       if ("error" in result) {
-        setError(result.error);
+        // Server action returns i18n key (e.g. "client.duplicate") + optional params.
+        // We translate with the `errors` namespace so language switching takes effect.
+        setError(tErr(result.error, result.errorParams));
         return;
       }
       toast.success(t("clientRegistered"));
@@ -62,14 +65,6 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
         {t("registerNewClientDesc")}
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label={t("businessNameOrName")}
-          value={raisonSociale}
-          onChange={(e) => setRaisonSociale(e.target.value)}
-          placeholder={t("clientNamePlaceholder")}
-          required
-          autoFocus
-        />
         <div>
           <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("clientType")}</label>
           <select
@@ -81,6 +76,14 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
             <option value="personne_physique">{t("naturalPerson")}</option>
           </select>
         </div>
+        <Input
+          label={typeClient === "personne_morale" ? t("businessNameLabel") : t("individualNameLabel")}
+          value={raisonSociale}
+          onChange={(e) => setRaisonSociale(e.target.value)}
+          placeholder={typeClient === "personne_morale" ? t("businessNamePlaceholder") : t("individualNamePlaceholder")}
+          required
+          autoFocus
+        />
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>

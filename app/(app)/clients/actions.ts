@@ -7,12 +7,53 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { clientSchema } from "@/lib/validations/client";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { findClientDuplicate, formatClientDisplayName } from "@/lib/clients/detect-duplicate";
+
+function buildConflictNotes(params: {
+  userNotes?: string;
+  status: string;
+  query: string;
+  checkedAt: string;
+  acknowledged: boolean;
+  matches: Array<{ kind?: string; label?: string; reason?: string; risk?: string }>;
+}): string | undefined {
+  const lines: string[] = [];
+  if (params.checkedAt) {
+    const when = (() => {
+      try {
+        return new Date(params.checkedAt).toISOString();
+      } catch {
+        return params.checkedAt;
+      }
+    })();
+    lines.push(`[Contrôle automatique de conflit — ${when}]`);
+  } else {
+    lines.push(`[Contrôle automatique de conflit]`);
+  }
+  lines.push(`Statut: ${params.status}${params.acknowledged ? " (risque acquitté)" : ""}`);
+  if (params.query) lines.push(`Requête: ${params.query}`);
+  if (params.matches.length > 0) {
+    lines.push(`Correspondances (${params.matches.length}):`);
+    for (const m of params.matches.slice(0, 20)) {
+      const parts = [m.kind, m.risk, m.reason, m.label].filter(Boolean);
+      lines.push(`  - ${parts.join(" | ")}`);
+    }
+  } else {
+    lines.push("Aucune correspondance.");
+  }
+  if (params.userNotes && params.userNotes.trim()) {
+    lines.push("");
+    lines.push("Notes:");
+    lines.push(params.userNotes.trim());
+  }
+  return lines.join("\n");
+}
 
 export async function createClient(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
   const raw: Record<string, unknown> = {
-    raisonSociale: formData.get("raisonSociale") as string,
-    typeClient: formData.get("typeClient") as string | undefined,
+    raisonSociale: (formData.get("raisonSociale") as string) || undefined,
+    typeClient: (formData.get("typeClient") as string) || undefined,
     prenom: (formData.get("prenom") as string) || undefined,
     nom: (formData.get("nom") as string) || undefined,
     dateNaissance: formData.get("dateNaissance") ? (formData.get("dateNaissance") as string) : undefined,
@@ -48,14 +89,60 @@ export async function createClient(formData: FormData) {
     billingAddress: (formData.get("billingAddress") as string) || undefined,
     paymentTerms: (formData.get("paymentTerms") as string) || undefined,
     preferredPaymentMethod: (formData.get("preferredPaymentMethod") as string) || undefined,
-    conflictChecked: formData.get("conflictChecked") === "true" || formData.get("conflictChecked") === "on",
-    conflictCheckDate: formData.get("conflictCheckDate") ? new Date(formData.get("conflictCheckDate") as string) : undefined,
     conflictNotes: (formData.get("conflictNotes") as string) || undefined,
   };
+
+  // Trace du contrôle de conflit automatique exécuté côté wizard.
+  const conflictStatus = (formData.get("conflictCheckStatus") as string) || "pending";
+  const conflictCheckedAtRaw = (formData.get("conflictCheckedAt") as string) || "";
+  const conflictAcknowledged = formData.get("conflictAcknowledged") === "true";
+  const conflictMatchesRaw = (formData.get("conflictCheckMatches") as string) || "[]";
+  const conflictQuery = (formData.get("conflictCheckQuery") as string) || "";
+
+  let conflictMatches: Array<{ kind: string; label: string; reason: string; risk: string }> = [];
+  try {
+    const parsed = JSON.parse(conflictMatchesRaw);
+    if (Array.isArray(parsed)) conflictMatches = parsed;
+  } catch {
+    conflictMatches = [];
+  }
+
+  const conflictResolved =
+    conflictStatus === "clear" ||
+    ((conflictStatus === "possible_match" || conflictStatus === "high_risk") && conflictAcknowledged);
+
+  const conflictCheckDate = conflictCheckedAtRaw ? new Date(conflictCheckedAtRaw) : undefined;
+
+  raw.conflictChecked = conflictResolved;
+  raw.conflictCheckDate = conflictCheckDate;
+  raw.conflictNotes = buildConflictNotes({
+    userNotes: typeof raw.conflictNotes === "string" ? raw.conflictNotes : undefined,
+    status: conflictStatus,
+    query: conflictQuery,
+    checkedAt: conflictCheckedAtRaw,
+    acknowledged: conflictAcknowledged,
+    matches: conflictMatches,
+  });
+
   const parsed = clientSchema.safeParse(raw);
   if (!parsed.success) {
     redirect("/clients/nouveau?error=invalid");
   }
+  if (conflictStatus === "high_risk" && !conflictAcknowledged) {
+    redirect("/clients/nouveau?error=conflict_unresolved");
+  }
+
+  const duplicate = await findClientDuplicate({
+    cabinetId,
+    typeClient: parsed.data.typeClient,
+    raisonSociale: parsed.data.raisonSociale,
+    prenom: parsed.data.prenom,
+    nom: parsed.data.nom,
+  });
+  if (duplicate) {
+    redirect(`/clients/nouveau?error=duplicate&existingId=${duplicate.id}`);
+  }
+
   const s = (v: string | undefined | null) => v ? sanitizeInput(v) : v;
   const data = {
     ...parsed.data,
@@ -125,46 +212,84 @@ export async function createClient(formData: FormData) {
   redirect("/clients?success=created");
 }
 
-/** Crée un client avec le minimum (raison sociale + type) et retourne l'id sans redirection (pour saisie rapide / modals). */
-export async function createClientQuick(data: { raisonSociale: string; typeClient?: "personne_physique" | "personne_morale" }): Promise<{ id: string; raisonSociale: string } | { error: string }> {
+/**
+ * Crée un client avec le minimum (raison sociale + type) et retourne l'id sans redirection (pour saisie rapide / modals).
+ *
+ * Doctrine i18n : retourne des codes d'erreur (clés du namespace `errors.*`) au lieu de
+ * messages localisés. Le client (composant React) traduit avec `useTranslations("errors")`.
+ */
+export async function createClientQuick(
+  data: { raisonSociale: string; typeClient?: "personne_physique" | "personne_morale" },
+): Promise<
+  | { id: string; raisonSociale: string }
+  | { error: string; errorParams?: Record<string, string> }
+> {
   const { cabinetId, userId } = await requireCabinetAndUser();
-  const raisonSociale = data.raisonSociale?.trim();
-  if (!raisonSociale) {
-    return { error: "Raison sociale requise" };
+  const trimmed = data.raisonSociale?.trim();
+  if (!trimmed) {
+    return { error: "client.nameRequired" };
   }
   const typeClient = data.typeClient ?? "personne_morale";
-  const parsed = clientSchema.safeParse({
-    raisonSociale,
-    typeClient,
-  });
-  if (!parsed.success) {
-    return { error: "Données invalides" };
+
+  let payload: { raisonSociale?: string; prenom?: string; nom?: string; typeClient: typeof typeClient };
+  if (typeClient === "personne_physique") {
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    const nom = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+    const prenom = parts.length > 1 ? parts.slice(0, -1).join(" ") : "";
+    if (!nom) return { error: "client.nameRequired" };
+    payload = { typeClient, prenom: prenom || nom, nom };
+  } else {
+    payload = { typeClient, raisonSociale: trimmed };
   }
+
+  const parsed = clientSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { error: "client.invalidData" };
+  }
+
+  const duplicate = await findClientDuplicate({
+    cabinetId,
+    typeClient: parsed.data.typeClient,
+    raisonSociale: parsed.data.raisonSociale,
+    prenom: parsed.data.prenom,
+    nom: parsed.data.nom,
+  });
+  if (duplicate) {
+    return {
+      error: "client.duplicate",
+      errorParams: { name: formatClientDisplayName(duplicate) },
+    };
+  }
+
   const client = await prisma.client.create({
     data: {
       cabinetId,
-      raisonSociale: sanitizeInput(parsed.data.raisonSociale),
       typeClient: parsed.data.typeClient as "personne_physique" | "personne_morale",
+      raisonSociale: parsed.data.raisonSociale ? sanitizeInput(parsed.data.raisonSociale) : null,
+      prenom: parsed.data.prenom ? sanitizeInput(parsed.data.prenom) : null,
+      nom: parsed.data.nom ? sanitizeInput(parsed.data.nom) : null,
     },
   });
+
+  const displayName = client.raisonSociale ?? [client.prenom, client.nom].filter(Boolean).join(" ").trim();
   await createAuditLog({
     cabinetId,
     userId,
     entityType: "Client",
     entityId: client.id,
     action: "create",
-    metadata: { raisonSociale: client.raisonSociale },
+    metadata: { raisonSociale: displayName },
   });
   revalidatePath("/clients");
   revalidatePath("/temps");
-  return { id: client.id, raisonSociale: client.raisonSociale ?? "" } as { id: string; raisonSociale: string };
+  return { id: client.id, raisonSociale: displayName } as { id: string; raisonSociale: string };
 }
 
 export async function updateClient(id: string, formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
   const raw = {
-    raisonSociale: formData.get("raisonSociale") as string,
-    typeClient: formData.get("typeClient") as string | undefined,
+    raisonSociale: (formData.get("raisonSociale") as string) || undefined,
+    typeClient: (formData.get("typeClient") as string) || undefined,
     prenom: (formData.get("prenom") as string) || undefined,
     nom: (formData.get("nom") as string) || undefined,
     contact: (formData.get("contact") as string) || undefined,
@@ -184,19 +309,35 @@ export async function updateClient(id: string, formData: FormData) {
   if (!parsed.success) {
     redirect(`/clients/${id}?error=invalid`);
   }
+
+  const duplicate = await findClientDuplicate({
+    cabinetId,
+    typeClient: parsed.data.typeClient,
+    raisonSociale: parsed.data.raisonSociale,
+    prenom: parsed.data.prenom,
+    nom: parsed.data.nom,
+    excludeId: id,
+  });
+  if (duplicate) {
+    redirect(`/clients/${id}?error=duplicate&existingId=${duplicate.id}`);
+  }
+
   const su = (v: string | undefined | null) => v ? sanitizeInput(v) : v;
   const data = {
     ...parsed.data,
     typeClient: parsed.data.typeClient ?? "personne_morale",
     email: parsed.data.email || null,
   };
+  const isPhysique = data.typeClient === "personne_physique";
   await prisma.client.updateMany({
     where: { id, cabinetId },
     data: {
-      raisonSociale: su(data.raisonSociale) ?? undefined,
       typeClient: data.typeClient,
-      prenom: su(data.prenom) ?? null,
-      nom: su(data.nom) ?? null,
+      // Clear the wrong-type name field so a type switch doesn't leave a stale
+      // value behind: morale → null prenom/nom ; physique → null raisonSociale.
+      raisonSociale: isPhysique ? null : (su(data.raisonSociale) ?? null),
+      prenom: isPhysique ? (su(data.prenom) ?? null) : null,
+      nom: isPhysique ? (su(data.nom) ?? null) : null,
       contact: su(data.contact) ?? null,
       email: data.email,
       telephone: data.telephone ?? null,
@@ -217,7 +358,7 @@ export async function updateClient(id: string, formData: FormData) {
   });
   revalidatePath("/clients");
   revalidatePath(`/clients/${id}`);
-  redirect("/clients");
+  redirect(`/clients/${id}`);
 }
 
 export async function updateClientForm(formData: FormData) {

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
+import { toIntlLocale } from "@/lib/i18n/locale";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
@@ -14,6 +16,7 @@ import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { DossierPreparationCard } from "@/components/dossiers/DossierPreparationCard";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
+import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 
 function clientDisplayName(dossier: {
   client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
@@ -35,6 +38,7 @@ export default async function DossierDetailPage({
   const { id } = await params;
   const { error, edit } = await searchParams;
   const { cabinetId, userId, role } = await requireCabinetAndUser();
+  const intlLocale = toIntlLocale(await getLocale());
 
   const dossier = await prisma.dossier.findFirst({
     where: { id, cabinetId },
@@ -50,7 +54,7 @@ export default async function DossierDetailPage({
   // Sections cartable — génération auto si dossier existant sans sections
   let sections = await getDossierSections(id, cabinetId);
   if (sections.length === 0 && dossier.type) {
-    await generateCartable(id, cabinetId, dossier.type);
+    await generateCartable(id, cabinetId, dossier.type, dossier.sousType);
     sections = await getDossierSections(id, cabinetId);
   }
 
@@ -88,7 +92,7 @@ export default async function DossierDetailPage({
   const showEditForm = edit === "1";
 
   if (showEditForm) {
-    const [clients, avocats, assistants] = await Promise.all([
+    const [clients, avocats, assistants, cabinetBillingMode] = await Promise.all([
       prisma.client.findMany({
         where: { cabinetId },
         orderBy: { raisonSociale: "asc" },
@@ -103,6 +107,7 @@ export default async function DossierDetailPage({
         select: { id: true, nom: true },
         orderBy: { nom: "asc" },
       }),
+      getCabinetBillingMode(cabinetId),
     ]);
     const canEditSensitive = canViewSensitiveFields(role as UserRole, {
       avocatResponsableId: dossier.avocatResponsableId,
@@ -125,6 +130,7 @@ export default async function DossierDetailPage({
               avocats={avocats}
               assistants={assistants}
               canEditSensitive={canEditSensitive}
+              cabinetBillingMode={cabinetBillingMode}
               error={
                 error === "invalid"
                   ? tc("invalidData")
@@ -278,7 +284,7 @@ export default async function DossierDetailPage({
                       {d.type} · {d._count.versions} version{d._count.versions > 1 ? "s" : ""}
                       {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
                       {" · "}
-                      {new Date(d.updatedAt).toLocaleDateString("fr-CA", { day: "numeric", month: "short" })}
+                      {new Date(d.updatedAt).toLocaleDateString(intlLocale, { day: "numeric", month: "short" })}
                     </div>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full border ${statutColor}`}>

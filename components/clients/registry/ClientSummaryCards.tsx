@@ -1,24 +1,18 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Users, UserCheck, FolderOpen, DollarSign } from "lucide-react";
 import { useSafeMotion } from "@/lib/motion";
 import { staggerContainer, staggerItem, staggerContainerReduced, staggerItemReduced } from "@/lib/motion";
+import { formatCurrency } from "@/lib/utils/format";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientSummaryCardsProps {
   totalClients: number;
   activeClients: number;
   activeCasesCount: number;
   unbilledAmount: number;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export function ClientSummaryCards({
@@ -28,31 +22,33 @@ export function ClientSummaryCards({
   unbilledAmount,
 }: ClientSummaryCardsProps) {
   const t = useTranslations("clients");
+  const locale = useLocale();
+  const intlLocale = toIntlLocale(locale);
   const activePercent = totalClients > 0 ? Math.round((activeClients / totalClients) * 100) : 0;
 
   const cards = [
     {
       title: t("totalClients"),
-      value: totalClients.toLocaleString("fr-CA"),
+      value: totalClients.toLocaleString(intlLocale),
       icon: Users,
       sub: null,
     },
     {
       title: t("activeClients"),
-      value: activeClients.toLocaleString("fr-CA"),
+      value: activeClients.toLocaleString(intlLocale),
       icon: UserCheck,
       sub: `${activePercent}% ${t("ofTotal")}`,
       subClassName: "text-status-success",
     },
     {
       title: t("activeMatters"),
-      value: activeCasesCount.toLocaleString("fr-CA"),
+      value: activeCasesCount.toLocaleString(intlLocale),
       icon: FolderOpen,
       sub: t("distributedOver", { count: activeCasesCount }),
     },
     {
       title: t("unbilledAmount"),
-      value: formatCurrency(unbilledAmount),
+      value: formatCurrency(unbilledAmount, "CAD", locale),
       icon: DollarSign,
       sub: null,
     },

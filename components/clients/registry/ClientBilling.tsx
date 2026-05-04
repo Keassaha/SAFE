@@ -1,16 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { DollarSign, FileText, CheckCircle } from "lucide-react";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/format";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientBillingProps {
   totalBilled: number;
@@ -30,23 +24,25 @@ export function ClientBilling({
   transactions = [],
 }: ClientBillingProps) {
   const t = useTranslations("clients");
+  const locale = useLocale();
+  const intlLocale = toIntlLocale(locale);
 
   const cards = [
     {
       title: t("totalBilled"),
-      value: formatCurrency(totalBilled),
+      value: formatCurrency(totalBilled, "CAD", locale),
       sub: t("invoicesCount", { count: invoiceCount }),
       icon: FileText,
     },
     {
       title: t("totalReceived"),
-      value: formatCurrency(totalReceived),
+      value: formatCurrency(totalReceived, "CAD", locale),
       sub: t("paymentsCount", { count: paymentCount }),
       icon: CheckCircle,
     },
     {
       title: t("balanceDue"),
-      value: formatCurrency(balanceDue),
+      value: formatCurrency(balanceDue, "CAD", locale),
       sub: null,
       icon: DollarSign,
     },
@@ -94,10 +90,10 @@ export function ClientBilling({
                   className="flex justify-between items-center py-2 border-b border-neutral-border/60 last:border-0"
                 >
                   <span className="text-sm text-neutral-text-secondary">
-                    {new Intl.DateTimeFormat("fr-CA").format(tx.date)} — {tx.label}
+                    {new Intl.DateTimeFormat(intlLocale).format(tx.date)} — {tx.label}
                   </span>
                   <span className="text-sm font-medium">
-                    {formatCurrency(tx.amount)}
+                    {formatCurrency(tx.amount, "CAD", locale)}
                   </span>
                 </li>
               ))}

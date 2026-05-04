@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Mail, Phone, MapPin, Globe } from "lucide-react";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 type ClientOverviewData = {
   typeClient: string;
@@ -33,6 +34,7 @@ function formatAddress(data: ClientOverviewData): string {
 export function ClientOverview({ data }: { data: ClientOverviewData }) {
   const t = useTranslations("clients");
   const tc = useTranslations("common");
+  const intlLocale = toIntlLocale(useLocale());
 
   return (
     <div className="space-y-6">
@@ -75,7 +77,7 @@ export function ClientOverview({ data }: { data: ClientOverviewData }) {
           </div>
           <p className="text-xs text-neutral-muted pt-2">
             {t("createdOn")} :{" "}
-            {new Intl.DateTimeFormat("fr-CA", {
+            {new Intl.DateTimeFormat(intlLocale, {
               day: "numeric",
               month: "long",
               year: "numeric",

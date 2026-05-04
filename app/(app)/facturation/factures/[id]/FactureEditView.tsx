@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { toIntlLocale } from "@/lib/i18n/locale";
 import { routes } from "@/lib/routes";
 import { useFacture, useValiderFacture, useEnvoyerFacture, usePatchFacture, useAnnulerFacture, useDuplicateFacture, useLienClientFacture, useEnvoyerFactureEmail } from "@/lib/hooks/useFacturation";
 import { InvoiceTemplate } from "@/components/facturation/InvoiceTemplate";
@@ -37,6 +39,7 @@ interface FactureEditViewProps {
 
 export function FactureEditView({ invoiceId }: FactureEditViewProps) {
   const router = useRouter();
+  const intlLocale = toIntlLocale(useLocale());
   const { data: invoice, isLoading, refetch } = useFacture(invoiceId);
   const validerMutation = useValiderFacture(invoiceId);
   const envoyerMutation = useEnvoyerFacture(invoiceId);
@@ -1097,7 +1100,7 @@ export function FactureEditView({ invoiceId }: FactureEditViewProps) {
                 {lienClientExpiresAt && (
                   <span className="block mt-2 text-neutral-500">
                     Lien valide jusqu&apos;au{" "}
-                    {new Date(lienClientExpiresAt).toLocaleDateString("fr-CA", {
+                    {new Date(lienClientExpiresAt).toLocaleDateString(intlLocale, {
                       day: "numeric",
                       month: "long",
                       year: "numeric",

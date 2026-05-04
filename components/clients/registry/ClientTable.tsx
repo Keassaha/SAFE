@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Eye, Pencil, Archive, FolderOpen, FolderX, Check, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { archiveClient, archiveClientsBulk } from "@/app/(app)/clients/actions";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatCurrency } from "@/lib/utils/format";
+import { toIntlLocale } from "@/lib/i18n/locale";
 import type { ClientStatus } from "@prisma/client";
 import type { ClientSortField, ClientSortOrder } from "@/lib/clients/query";
 
@@ -36,14 +38,6 @@ interface ClientTableProps {
   canArchive: boolean;
   sortBy?: ClientSortField;
   sortOrder?: ClientSortOrder;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 function displayName(row: ClientRow): string {
@@ -99,6 +93,8 @@ export function ClientTable({
   const searchParams = useSearchParams();
   const t = useTranslations("clients");
   const tc = useTranslations("common");
+  const locale = useLocale();
+  const intlLocale = toIntlLocale(locale);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isArchiving, setIsArchiving] = useState(false);
 
@@ -213,11 +209,11 @@ export function ClientTable({
             <div className="flex items-center gap-4 text-xs text-neutral-muted">
               <span>{row.dossiersActifsCount} {t("activeMatters").toLowerCase()}</span>
               <span className="font-medium text-neutral-text-primary tabular-nums">
-                {formatCurrency(row.honorairesAccumules)}
+                {formatCurrency(row.honorairesAccumules, "CAD", locale)}
               </span>
               {row.lastActivityAt && (
                 <span className="ml-auto">
-                  {new Intl.DateTimeFormat("fr-CA", {
+                  {new Intl.DateTimeFormat(intlLocale, {
                     day: "numeric",
                     month: "short",
                   }).format(row.lastActivityAt)}
@@ -356,7 +352,7 @@ export function ClientTable({
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className="text-neutral-text-primary font-medium tabular-nums">
-                    {formatCurrency(row.honorairesAccumules)}
+                    {formatCurrency(row.honorairesAccumules, "CAD", locale)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -379,7 +375,7 @@ export function ClientTable({
                 </td>
                 <td className="px-4 py-3 text-sm text-neutral-muted">
                   {row.lastActivityAt
-                    ? new Intl.DateTimeFormat("fr-CA", {
+                    ? new Intl.DateTimeFormat(intlLocale, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",

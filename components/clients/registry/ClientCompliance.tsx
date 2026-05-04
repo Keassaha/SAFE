@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientComplianceProps {
   conflictChecked: boolean;
@@ -21,6 +22,7 @@ export function ClientCompliance({
 }: ClientComplianceProps) {
   const t = useTranslations("clients");
   const tc = useTranslations("common");
+  const intlLocale = toIntlLocale(useLocale());
 
   return (
     <div className="space-y-6">
@@ -40,7 +42,7 @@ export function ClientCompliance({
           {conflictCheckDate && (
             <p className="text-xs text-neutral-muted">
               {tc("date")} :{" "}
-              {new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium" }).format(
+              {new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(
                 conflictCheckDate
               )}
             </p>
@@ -68,7 +70,7 @@ export function ClientCompliance({
           {verificationDate && (
             <p className="text-xs text-neutral-muted">
               {tc("date")} :{" "}
-              {new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium" }).format(
+              {new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(
                 verificationDate
               )}
             </p>

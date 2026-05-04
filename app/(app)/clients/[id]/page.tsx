@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
+import { toIntlLocale } from "@/lib/i18n/locale";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -13,13 +15,14 @@ import { IdentityVerificationSection } from "@/components/clients/IdentityVerifi
 import {
   canViewSensitiveFields,
   canEditBillingTrust,
+  canEditClients,
 } from "@/lib/auth/permissions";
 import { ClientProfile } from "@/components/clients/registry/ClientProfile";
 import { ClientQuickActions } from "@/components/clients/registry/ClientQuickActions";
 import type { ClientProfileData } from "@/components/clients/registry/ClientProfile";
 import type { ActivityItem } from "@/components/clients/registry/ClientHistoryTab";
 import type { UserRole } from "@prisma/client";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function ClientDetailPage({
@@ -32,6 +35,7 @@ export default async function ClientDetailPage({
   const { id } = await params;
   const { error, edit } = await searchParams;
   const { cabinetId, userId, role } = await requireCabinetAndUser();
+  const intlLocale = toIntlLocale(await getLocale());
 
   const [
     client,
@@ -252,6 +256,7 @@ export default async function ClientDetailPage({
 
   const showForm = edit === "1";
   const canEditBilling = canEditBillingTrust(role as UserRole);
+  const canEditClient = canEditClients(role as UserRole);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -269,12 +274,17 @@ export default async function ClientDetailPage({
               email={client.email}
               telephone={client.telephone}
               clientId={id}
-              clientName={
-                client.typeClient === "personne_physique" && (client.prenom || client.nom)
-                  ? [client.nom, client.prenom].filter(Boolean).join(", ")
-                  : client.raisonSociale ?? ""
-              }
+              canExport={documents.length > 0 || richDocs.length > 0 || dossiers.length > 0}
             />
+            {canEditClient && !showForm && (
+              <Link
+                href={`${routes.client(id)}?edit=1`}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5 hover:bg-primary-50 hover:border-primary-200 hover:shadow-md active:translate-y-0"
+              >
+                <Pencil className="w-4 h-4" />
+                {tc("edit")}
+              </Link>
+            )}
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
                 client.status === "actif"
@@ -290,13 +300,15 @@ export default async function ClientDetailPage({
                   ? t("statusInactive")
                   : t("statusArchived")}
             </span>
-            <Link
-              href={routes.dossiers + `?clientId=${id}`}
-              className="text-sm font-medium text-primary-700 hover:underline inline-flex items-center gap-1"
-            >
-              {t("viewFullMatter")}
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
+            {dossiers.length > 0 && (
+              <Link
+                href={routes.dossiers + `?clientId=${id}`}
+                className="inline-flex items-center gap-1.5 rounded-safe-sm border border-white/25 bg-white/10 px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              >
+                {t("viewFullMatter")}
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            )}
             <Link href={routes.clientVerificationIdentite(id)}>
               <Button variant="secondary">{t("identityVerification")}</Button>
             </Link>
@@ -312,6 +324,7 @@ export default async function ClientDetailPage({
               client={client}
               error={error === "invalid" ? tc("invalidData") : undefined}
               canEditSensitive={canEditSensitive}
+              cancelHref={routes.client(id)}
             />
           </CardContent>
         </Card>
@@ -373,7 +386,7 @@ export default async function ClientDetailPage({
                           {d.dossier?.numeroDossier ?? d.dossier?.intitule ?? "—"}
                           {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
                           {" · "}
-                          {new Date(d.updatedAt).toLocaleDateString("fr-CA", {
+                          {new Date(d.updatedAt).toLocaleDateString(intlLocale, {
                             day: "numeric",
                             month: "short",
                           })}
