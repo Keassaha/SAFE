@@ -7,9 +7,9 @@
   },
   "scripts": {
     "dev": "npm run dev:free && next dev --turbopack -p 3001",
-    "dev:free": "lsof -ti:3001 | xargs kill -9 2>/dev/null || true",
+    "dev:free": "lsof -ti:3000,3001 | xargs kill -9 2>/dev/null || true",
     "build": "next build",
-    "vercel-build": "if [ -z \"${DATABASE_URL:-}\" ]; then if [ -n \"${POSTGRES_PRISMA_URL:-}\" ]; then export DATABASE_URL=\"$POSTGRES_PRISMA_URL\"; elif [ -n \"${POSTGRES_URL:-}\" ]; then export DATABASE_URL=\"$POSTGRES_URL\"; else unset DATABASE_URL; fi; fi && if [ -z \"${DIRECT_URL:-}\" ]; then _vb_direct=\"${POSTGRES_URL_NON_POOLING:-}\"; [ -n \"$_vb_direct\" ] || _vb_direct=\"${DATABASE_URL:-}\"; if [ -n \"$_vb_direct\" ]; then export DIRECT_URL=\"$_vb_direct\"; else unset DIRECT_URL; fi; fi && export PRISMA_HIDE_UPDATE_MESSAGE=1 && prisma generate && (prisma migrate resolve --rolled-back 20250309180000_init 2>/dev/null || true) && (prisma migrate resolve --rolled-back 20250311000000_add_invoice_share_token 2>/dev/null || true) && (prisma migrate resolve --rolled-back 20250312000000_add_dossier_mandate 2>/dev/null || true) && (prisma migrate resolve --rolled-back 20260426000000_add_dossier_sections 2>/dev/null || true) && (prisma migrate resolve --applied 20260427000000_derisier_baseline 2>/dev/null || true) && prisma migrate deploy && next build",
+    "vercel-build": "node scripts/vercel-build.mjs",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
@@ -17,7 +17,14 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:baseline": "prisma migrate resolve --applied \"20250309180000_init\"",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "seed:derisier:audit": "node scripts/rebuild-derisier-from-audit.mjs",
+    "verify:derisier": "node scripts/verify-derisier-delivery.mjs",
+    "clients:find-duplicates": "node scripts/find-client-duplicates.mjs",
+    "clients:merge-duplicates": "node scripts/merge-client-duplicates.mjs",
+    "i18n:audit": "node scripts/i18n-audit.mjs",
+    "i18n:audit:update-baseline": "node scripts/i18n-audit.mjs --update-baseline",
+    "i18n:keys": "node scripts/i18n-check-keys.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
