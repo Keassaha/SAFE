@@ -801,7 +801,7 @@ function CtaFinal() {
 
 export function TarificationContent() {
   return (
-    <div className="relative" style={{ background: "var(--dashboard-bg-base, var(--safe-neutral-page, #F7F2E8))" }}>
+    <div className="relative">
       <Hero />
       <PourquoiMaintenant />
       <PaliersGrid />
