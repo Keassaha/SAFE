@@ -227,31 +227,7 @@ export function FinalCTA() {
         >
           <Link
             href="/audit-gratuit"
-            className="group"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "18px 40px",
-              borderRadius: "9999px",
-              fontSize: "17px",
-              fontWeight: 700,
-              textDecoration: "none",
-              background: "linear-gradient(135deg, #6ee7b7, #34d399)",
-              color: "#050a0f",
-              boxShadow: "0 8px 40px rgba(110,231,183,0.3), 0 0 80px rgba(110,231,183,0.1)",
-              transition: "all 0.35s cubic-bezier(0.22,1,0.36,1)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 12px 50px rgba(110,231,183,0.4), 0 0 100px rgba(110,231,183,0.15)";
-              e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 8px 40px rgba(110,231,183,0.3), 0 0 80px rgba(110,231,183,0.1)";
-              e.currentTarget.style.transform = "translateY(0) scale(1)";
-            }}
+            className="safe-site-cta-primary group px-10 py-[18px] text-[17px]"
           >
             <Sparkles style={{ width: "18px", height: "18px" }} />
             Faire mon audit gratuit
@@ -263,30 +239,7 @@ export function FinalCTA() {
 
           <Link
             href={BOOK_CALL_HREF}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "18px 36px",
-              borderRadius: "9999px",
-              fontSize: "16px",
-              fontWeight: 600,
-              textDecoration: "none",
-              color: "#6ee7b7",
-              border: "1px solid rgba(110,231,183,0.2)",
-              background: "transparent",
-              transition: "all 0.35s cubic-bezier(0.22,1,0.36,1)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(110,231,183,0.06)";
-              e.currentTarget.style.borderColor = "rgba(110,231,183,0.4)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = "rgba(110,231,183,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
+            className="safe-site-cta-secondary px-9 py-[18px] text-base"
           >
             Réserver un appel
           </Link>

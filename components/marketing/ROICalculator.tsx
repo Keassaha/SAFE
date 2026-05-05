@@ -181,7 +181,7 @@ export function ROICalculator() {
 
             <Link
               href="/audit-gratuit"
-              className="btn-warm group inline-flex items-center gap-2.5 mt-8 px-7 py-3.5 rounded-full text-sm sm:text-base font-sans"
+              className="safe-site-cta-primary group mt-8 px-7 py-3.5 text-sm sm:text-base font-sans"
             >
               R&eacute;cup&eacute;rez ces heures &mdash; Audit gratuit
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

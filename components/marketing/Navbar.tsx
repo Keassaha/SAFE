@@ -68,7 +68,7 @@ export function Navbar() {
             </Link>
             <Link
               href={BOOK_CALL_HREF}
-              className="whitespace-nowrap px-5 py-2 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 transition-all duration-300 font-sans"
+              className="safe-site-cta-primary whitespace-nowrap min-h-[38px] px-5 py-2 text-sm font-sans"
             >
               Réserver un appel
             </Link>
@@ -123,7 +123,7 @@ export function Navbar() {
                 <Link
                   href={BOOK_CALL_HREF}
                   onClick={() => setMobileOpen(false)}
-                  className="text-center py-3 text-sm font-medium rounded-full bg-forest-700 text-forest-50 hover:bg-forest-600 font-sans"
+                  className="safe-site-cta-primary text-center py-3 text-sm font-sans"
                 >
                   Réserver un appel
                 </Link>

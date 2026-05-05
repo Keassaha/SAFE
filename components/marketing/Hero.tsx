@@ -86,7 +86,7 @@ export function Hero() {
             Vous gagnez du temps et de l&apos;argent.
           </motion.p>
 
-          {/* CTAs — warm gold primary, ghost secondary */}
+          {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,14 +95,14 @@ export function Hero() {
           >
             <Link
               href="/audit-gratuit"
-              className="btn-sage group relative flex items-center gap-2.5 px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg rounded-full font-sans active:scale-[0.98]"
+              className="safe-site-cta-primary group px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-sans"
             >
               Faire mon audit gratuit
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
               href={BOOK_CALL_HREF}
-              className="group flex items-center gap-2.5 px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-medium rounded-full border border-[var(--safe-sage)]/25 text-[var(--safe-sage)] transition-all duration-300 hover:border-[var(--safe-sage)]/50 hover:bg-[var(--safe-sage)]/5 hover:scale-[1.02] active:scale-[0.98] font-sans"
+              className="safe-site-cta-secondary group px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-sans"
             >
               <Sparkles className="w-5 h-5" />
               R&eacute;server un appel

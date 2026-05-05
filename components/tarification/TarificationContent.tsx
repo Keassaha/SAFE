@@ -28,16 +28,9 @@ function GradientOrb({
   className?: string;
   color?: "emerald" | "sand";
 }) {
-  const colors = {
-    emerald: "from-emerald-300/35 to-emerald-500/15",
-    sand: "from-amber-100/40 to-amber-200/20",
-  };
-  return (
-    <div
-      aria-hidden
-      className={`pointer-events-none absolute rounded-full bg-gradient-to-br blur-3xl ${colors[color]} ${className}`}
-    />
-  );
+  void className;
+  void color;
+  return null;
 }
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
@@ -92,13 +85,13 @@ function PrimaryButton({
   size?: "md" | "lg";
 }) {
   const sizes = {
-    md: "px-5 py-2.5 text-[13.5px]",
+    md: "",
     lg: "px-6 py-3 text-[14.5px]",
   };
   return (
     <Link
       href={href}
-      className={`inline-flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 text-white font-medium shadow-lg shadow-emerald-700/20 hover:shadow-xl hover:shadow-emerald-700/25 hover:scale-[1.02] active:scale-[0.99] transition-all ${sizes[size]}`}
+      className={`safe-site-cta-primary ${sizes[size]}`}
     >
       {children}
     </Link>
@@ -115,7 +108,7 @@ function GhostButton({
   return (
     <Link
       href={href}
-      className="inline-flex items-center justify-center rounded-full border border-emerald-700/20 bg-white/60 backdrop-blur-sm text-emerald-900 font-medium px-5 py-2.5 text-[13.5px] hover:bg-white/90 hover:border-emerald-700/40 transition-all"
+      className="safe-site-cta-secondary"
     >
       {children}
     </Link>
@@ -386,11 +379,7 @@ function PaliersGrid() {
             </ul>
             <Link
               href={AUDIT_HREF}
-              className={`relative mt-auto inline-flex items-center justify-center rounded-full font-medium px-5 py-2.5 text-[13.5px] transition-all ${
-                p.highlight
-                  ? "bg-white text-emerald-900 hover:bg-white/95 shadow-md hover:shadow-lg"
-                  : "bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-lg shadow-emerald-700/20 hover:shadow-xl hover:shadow-emerald-700/25"
-              } hover:scale-[1.02] active:scale-[0.99]`}
+              className="safe-site-cta-primary relative mt-auto"
             >
               {p.cta} &rarr;
             </Link>
@@ -498,7 +487,7 @@ function PackEmployeVirtuel() {
         </p>
         <Link
           href={AUDIT_HREF}
-          className="relative inline-flex items-center justify-center rounded-full bg-white text-emerald-900 px-6 py-3 text-[14px] font-medium shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+          className="safe-site-cta-primary relative"
         >
           Activer mon Pack &rarr;
         </Link>
@@ -812,7 +801,7 @@ function CtaFinal() {
 
 export function TarificationContent() {
   return (
-    <div className="relative" style={{ background: "var(--sand-100, #F7F2E8)" }}>
+    <div className="relative" style={{ background: "var(--dashboard-bg-base, var(--safe-neutral-page, #F7F2E8))" }}>
       <Hero />
       <PourquoiMaintenant />
       <PaliersGrid />

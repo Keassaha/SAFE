@@ -61,7 +61,7 @@ export function FinalCta() {
         className="flex items-center justify-center mb-16"
       >
         <Link href="/audit-gratuit" className="block">
-          <Button variant="dark" size="lg" className="px-8">Faire mon audit gratuit &rarr;</Button>
+          <Button variant="primary" size="lg" className="px-8">Faire mon audit gratuit &rarr;</Button>
         </Link>
       </motion.div>
 

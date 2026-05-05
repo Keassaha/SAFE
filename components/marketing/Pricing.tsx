@@ -437,43 +437,7 @@ export function Pricing() {
                       href={plan.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        width: "100%",
-                        marginTop: "32px",
-                        padding: "16px 24px",
-                        borderRadius: "9999px",
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        textDecoration: "none",
-                        transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
-                        background: isPopular ? "#6ee7b7" : "rgba(255,255,255,0.06)",
-                        color: isPopular ? "#050a0f" : "#ffffff",
-                        border: isPopular ? "none" : "1px solid rgba(255,255,255,0.1)",
-                        boxShadow: isPopular ? "0 8px 32px rgba(110,231,183,0.25)" : "none",
-                      }}
-                      className="group"
-                      onMouseEnter={(e) => {
-                        if (isPopular) {
-                          e.currentTarget.style.background = "#a7f3d0";
-                          e.currentTarget.style.boxShadow = "0 12px 40px rgba(110,231,183,0.35)";
-                        } else {
-                          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (isPopular) {
-                          e.currentTarget.style.background = "#6ee7b7";
-                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(110,231,183,0.25)";
-                        } else {
-                          e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                        }
-                      }}
+                      className="safe-site-cta-primary group mt-8 w-full px-6 py-4 text-[15px]"
                     >
                       {plan.cta}
                       <ArrowRight
@@ -484,43 +448,7 @@ export function Pricing() {
                   ) : (
                     <Link
                       href={plan.href}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        width: "100%",
-                        marginTop: "32px",
-                        padding: "16px 24px",
-                        borderRadius: "9999px",
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        textDecoration: "none",
-                        transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
-                        background: isPopular ? "#6ee7b7" : "rgba(255,255,255,0.06)",
-                        color: isPopular ? "#050a0f" : "#ffffff",
-                        border: isPopular ? "none" : "1px solid rgba(255,255,255,0.1)",
-                        boxShadow: isPopular ? "0 8px 32px rgba(110,231,183,0.25)" : "none",
-                      }}
-                      className="group"
-                      onMouseEnter={(e) => {
-                        if (isPopular) {
-                          e.currentTarget.style.background = "#a7f3d0";
-                          e.currentTarget.style.boxShadow = "0 12px 40px rgba(110,231,183,0.35)";
-                        } else {
-                          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (isPopular) {
-                          e.currentTarget.style.background = "#6ee7b7";
-                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(110,231,183,0.25)";
-                        } else {
-                          e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                        }
-                      }}
+                      className="safe-site-cta-primary group mt-8 w-full px-6 py-4 text-[15px]"
                     >
                       {plan.cta}
                       <ArrowRight
