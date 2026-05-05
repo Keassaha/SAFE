@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency } from "@/lib/utils/format";
 import { Receipt, Trash2, Tag } from "lucide-react";
 
+type StatusVariant = "success" | "warning" | "neutral" | "error";
+
 interface RegistreTache {
   id: string;
   description: string;
@@ -20,7 +22,16 @@ interface RegistreTache {
   date: string;
   statut: string;
   forfaitService: { code: string; nom: string } | null;
-  dossier: { intitule: string; numeroDossier: string | null } | null;
+  invoiceLine: {
+    invoice: {
+      sentAt: string | null;
+    } | null;
+  } | null;
+  dossier: {
+    intitule: string;
+    numeroDossier: string | null;
+    client: { typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null } | null;
+  } | null;
 }
 
 interface RegistreTacheTableProps {
@@ -92,7 +103,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
               <thead>
                 <tr className="border-b text-left">
                   <th className="pb-2 font-medium">{t("columnDate")}</th>
-                  {!dossierId && <th className="pb-2 font-medium">{t("columnMatter")}</th>}
+                  {!dossierId && <th className="pb-2 font-medium">{t("columnClient")}</th>}
                   <th className="pb-2 font-medium">{t("columnService")}</th>
                   <th className="pb-2 font-medium text-right">{t("columnBase")}</th>
                   <th className="pb-2 font-medium text-right">{t("columnAdjustment")}</th>
@@ -103,59 +114,73 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
                 </tr>
               </thead>
               <tbody>
-                {taches.map(task => (
-                  <tr key={task.id} className="border-b last:border-0 hover:bg-neutral-50">
-                    <td className="py-2 text-neutral-500 whitespace-nowrap">
-                      {new Date(task.date).toLocaleDateString(dateLocale)}
-                    </td>
-                    {!dossierId && (
-                      <td className="py-2 text-xs">
-                        {task.dossier?.numeroDossier && <span className="font-mono">{task.dossier.numeroDossier}</span>}
-                        {task.dossier?.intitule && <span className="text-neutral-500 ml-1">{task.dossier.intitule}</span>}
+                {taches.map(task => {
+                  const isSentToClient = Boolean(task.invoiceLine?.invoice?.sentAt);
+                  const statusLabel =
+                    isSentToClient ? t("statusInvoiced")
+                    : task.statut === "en_cours" ? t("statusInProgress")
+                    : t("statusNotInvoiced");
+                  const statusVariant: StatusVariant =
+                    isSentToClient ? "success"
+                    : task.statut === "en_cours" ? "neutral"
+                    : "warning";
+
+                  return (
+                    <tr key={task.id} className="border-b last:border-0 hover:bg-neutral-50">
+                      <td className="py-2 text-neutral-500 whitespace-nowrap">
+                        {new Date(task.date).toLocaleDateString(dateLocale)}
                       </td>
-                    )}
-                    <td className="py-2">
-                      <span className="font-medium">{task.description}</span>
-                      {task.forfaitService && (
-                        <span className="ml-1 text-xs text-neutral-400 font-mono">[{task.forfaitService.code}]</span>
+                      {!dossierId && (
+                        <td className="py-2 text-xs">
+                          <span className="font-medium">{formatClientName(task.dossier?.client ?? null) || "—"}</span>
+                          {task.dossier?.numeroDossier && (
+                            <span className="block text-neutral-400 font-mono">{task.dossier.numeroDossier}</span>
+                          )}
+                        </td>
                       )}
-                    </td>
-                    <td className="py-2 text-right tabular-nums">{formatCurrency(task.montantBase)}</td>
-                    <td className="py-2 text-right tabular-nums">
-                      {task.ajustement !== 0 ? (
-                        <span className={task.ajustement > 0 ? "text-blue-600" : "text-amber-600"}>
-                          {task.ajustement > 0 ? "+" : ""}{formatCurrency(task.ajustement)}
-                        </span>
-                      ) : "—"}
-                    </td>
-                    <td className="py-2 text-right tabular-nums">
-                      {task.rabais > 0 ? (
-                        <span className="text-green-600 flex items-center justify-end gap-1">
-                          <Tag className="w-3 h-3" />
-                          -{formatCurrency(task.rabais)}
-                        </span>
-                      ) : "—"}
-                    </td>
-                    <td className="py-2 text-right tabular-nums font-medium">{formatCurrency(task.montantFinal)}</td>
-                    <td className="py-2">
-                      <StatusBadge
-                        label={task.statut === "facture" ? t("statusInvoiced") : task.statut === "complete" ? t("statusReady") : t("statusInProgress")}
-                        variant={task.statut === "facture" ? "success" : task.statut === "complete" ? "warning" : "neutral"}
-                      />
-                    </td>
-                    <td className="py-2">
-                      {task.statut !== "facture" && (
-                        <button
-                          onClick={() => deleteMutation.mutate(task.id)}
-                          className="text-neutral-300 hover:text-red-500 transition-colors"
-                          title={t("removeTask")}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      <td className="py-2">
+                        <span className="font-medium">{task.description}</span>
+                        {task.forfaitService && (
+                          <span className="ml-1 text-xs text-neutral-400 font-mono">[{task.forfaitService.code}]</span>
+                        )}
+                      </td>
+                      <td className="py-2 text-right tabular-nums">{formatCurrency(task.montantBase)}</td>
+                      <td className="py-2 text-right tabular-nums">
+                        {task.ajustement !== 0 ? (
+                          <span className={task.ajustement > 0 ? "text-blue-600" : "text-amber-600"}>
+                            {task.ajustement > 0 ? "+" : ""}{formatCurrency(task.ajustement)}
+                          </span>
+                        ) : "—"}
+                      </td>
+                      <td className="py-2 text-right tabular-nums">
+                        {task.rabais > 0 ? (
+                          <span className="text-green-600 flex items-center justify-end gap-1">
+                            <Tag className="w-3 h-3" />
+                            -{formatCurrency(task.rabais)}
+                          </span>
+                        ) : "—"}
+                      </td>
+                      <td className="py-2 text-right tabular-nums font-medium">{formatCurrency(task.montantFinal)}</td>
+                      <td className="py-2">
+                        <StatusBadge
+                          label={statusLabel}
+                          variant={statusVariant}
+                        />
+                      </td>
+                      <td className="py-2">
+                        {task.statut !== "facture" && (
+                          <button
+                            onClick={() => deleteMutation.mutate(task.id)}
+                            className="text-neutral-300 hover:text-red-500 transition-colors"
+                            title={t("removeTask")}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -163,4 +188,12 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
       </CardContent>
     </Card>
   );
+}
+
+function formatClientName(client: NonNullable<RegistreTache["dossier"]>["client"]) {
+  if (!client) return "";
+  if (client.typeClient === "personne_physique") {
+    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || client.raisonSociale || "";
+  }
+  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
 }

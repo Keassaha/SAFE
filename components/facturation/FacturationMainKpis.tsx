@@ -68,8 +68,8 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       label: tFacturation("billable"),
       icon: DollarSign,
       valueColor: "text-status-success",
-      href: "/facturation/honoraires",
-      statutFilter: "", // links to separate billable entries registry
+      href: "/facturation#facturables",
+      statutFilter: "", // ancre interne vers la section "Facturables par client"
       getValue: (k) => `${k.facturablesCount}`,
       getSub: (k) => formatCurrency(k.facturablesSum),
       subPrefixKey: "amountLabel",

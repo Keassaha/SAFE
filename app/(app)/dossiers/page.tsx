@@ -94,7 +94,7 @@ export default async function DossiersPage({
     }),
     prisma.client.findMany({
       where: { cabinetId },
-      select: { id: true, raisonSociale: true },
+      select: { id: true, typeClient: true, raisonSociale: true, prenom: true, nom: true },
       orderBy: { raisonSociale: "asc" },
     }),
     prisma.dossierActe.groupBy({

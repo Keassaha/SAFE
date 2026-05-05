@@ -29,6 +29,11 @@ interface ClassificationResult {
   confidence: number;
   reasoning: string;
   suggestedTitre: string;
+  suggestedSectionKey?: string;
+  suggestedSubtype?: string;
+  docketMode?: string;
+  needsReview?: boolean;
+  practiceReason?: string;
 }
 
 interface PendingUpload {
@@ -317,6 +322,13 @@ function UploadCard({
                   <ConfidenceBadge score={classification.confidence} />
                 </div>
                 <p className="text-xs text-[var(--safe-text-secondary)]">{classification.reasoning}</p>
+                {classification.suggestedSectionKey ? (
+                  <p className="text-xs text-[var(--safe-text-secondary)]">
+                    Section suggérée : <span className="font-medium">{classification.suggestedSectionKey}</span>
+                    {classification.suggestedSubtype ? ` · ${classification.suggestedSubtype}` : ""}
+                    {classification.needsReview ? " · revue recommandée" : ""}
+                  </p>
+                ) : null}
               </div>
             </div>
           ) : (

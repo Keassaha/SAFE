@@ -161,6 +161,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
                     { key: "avocat", header: t("lawyer") },
                     { key: "date", header: tc("date") },
                     { key: "montantHT", header: t("amountHT") },
+                    { key: "rabais", header: "Rabais" },
                     { key: "taxes", header: t("taxes") },
                     { key: "total", header: tc("total") },
                     { key: "paiementRecu", header: t("paymentReceived") },

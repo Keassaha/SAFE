@@ -94,6 +94,14 @@ export async function loadRapportsPayload(
       include: {
         client: { select: { raisonSociale: true } },
         dossier: { select: { intitule: true, avocatResponsableId: true } },
+        invoiceLines: {
+          select: {
+            lineType: true,
+            montant: true,
+            lineSubtotal: true,
+            discountReason: true,
+          },
+        },
       },
       orderBy: { dateEmission: "desc" },
     }),
@@ -161,6 +169,16 @@ export async function loadRapportsPayload(
   ]);
 
   const totalInvoiced = invoices.reduce((s, i) => s + (i.totalInvoiceAmount ?? i.montantTotal ?? 0), 0);
+  const totalRabais = invoices.reduce((sum, invoice) => {
+    const invoiceRabais = invoice.invoiceLines.reduce((lineSum, line) => {
+      const amount = line.lineSubtotal ?? line.montant ?? 0;
+      const isRabais =
+        line.lineType === "adjustment" &&
+        (amount < 0 || line.discountReason != null);
+      return isRabais ? lineSum + Math.abs(amount) : lineSum;
+    }, 0);
+    return sum + invoiceRabais;
+  }, 0);
   const totalPaid = paymentsInPeriod.reduce((s, p) => s + p.montant, 0);
   const facturesImpayees = outstandingAggregate._sum.balanceDue ?? 0;
   const outstandingInvoicesForAging = await prisma.invoice.findMany({
@@ -207,6 +225,13 @@ export async function loadRapportsPayload(
     const total = inv.totalInvoiceAmount ?? inv.montantTotal ?? 0;
     const paid = inv.totalPaidAmount ?? inv.montantPaye ?? 0;
     const solde = inv.balanceDue ?? total - paid;
+    const rabais = inv.invoiceLines.reduce((sum, line) => {
+      const amount = line.lineSubtotal ?? line.montant ?? 0;
+      const isRabais =
+        line.lineType === "adjustment" &&
+        (amount < 0 || line.discountReason != null);
+      return isRabais ? sum + Math.abs(amount) : sum;
+    }, 0);
     const avocatName = inv.dossier?.avocatResponsableId
       ? users.find((u) => u.id === inv.dossier?.avocatResponsableId)?.nom ?? null
       : null;
@@ -218,6 +243,7 @@ export async function loadRapportsPayload(
       avocat: avocatName,
       date: inv.dateEmission.toISOString().slice(0, 10),
       montantHT: ht,
+      rabais,
       taxes,
       total,
       paiementRecu: paid,
@@ -360,6 +386,7 @@ export async function loadRapportsPayload(
     },
     kpis: {
       revenusFactures: totalInvoiced,
+      rabaisAccordes: totalRabais,
       paiementsRecus: totalPaid,
       facturesImpayees: facturesImpayees,
       soldeFideicommis: trustBalance,

@@ -19,6 +19,7 @@ export interface RapportFacturationRow {
   avocat: string | null;
   date: string;
   montantHT: number;
+  rabais: number;
   taxes: number;
   total: number;
   paiementRecu: number;
@@ -80,6 +81,7 @@ export interface RapportsPayload {
   filters: RapportsFilters;
   kpis: {
     revenusFactures: number;
+    rabaisAccordes: number;
     paiementsRecus: number;
     facturesImpayees: number;
     soldeFideicommis: number;

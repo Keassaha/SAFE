@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
 import { buildPdfDocument } from "@/lib/edition/pdf-builder";
-import { prepareStorageForUpload } from "@/lib/services/document";
+import { prepareStorageForUpload, writeDocumentObject } from "@/lib/services/document";
 
 /**
  * POST /api/edition/documents/[id]/sync-to-folder
@@ -69,13 +67,14 @@ export async function POST(
 
   // Préparer le storage (réutilise la clé existante si possible)
   const documentIdForStorage = existing?.id ?? `rich-${richDoc.id}`;
-  const { fullPath, storageKey } = await prepareStorageForUpload(
+  const { storageKey } = await prepareStorageForUpload(
     session.cabinetId,
     documentIdForStorage,
   );
 
-  await fs.mkdir(path.dirname(fullPath), { recursive: true });
-  await fs.writeFile(fullPath + ".pdf", buffer);
+  await writeDocumentObject(`${storageKey}.pdf`, buffer, "application/pdf", {
+    upsert: Boolean(existing),
+  });
 
   if (existing) {
     const updated = await prisma.document.update({

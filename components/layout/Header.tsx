@@ -42,7 +42,7 @@ interface HeaderProps {
   cabinetId?: string | null;
   hasUnreadNotifications?: boolean;
   onOpenMobileNav?: () => void;
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
   activeNavIds?: string[] | null;
   role?: string;
 }

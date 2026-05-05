@@ -79,6 +79,8 @@ function attachSessionCookieDeletes(res: NextResponse | Response): NextResponse 
 
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
   const { request: req, cleared } = await stripUnreadableSessionCookie(request);
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", req.nextUrl.pathname);
 
   // Rediriger les utilisateurs connectés qui visitent /connexion ou /inscription vers le dashboard
   const authPages = ["/connexion", "/inscription"];
@@ -98,15 +100,15 @@ export default async function middleware(request: NextRequest, event: NextFetchE
       return cleared ? attachSessionCookieDeletes(res) : res;
     }
     return cleared
-      ? attachSessionCookieDeletes(NextResponse.next({ request: { headers: req.headers } }))
-      : NextResponse.next();
+      ? attachSessionCookieDeletes(NextResponse.next({ request: { headers: requestHeaders } }))
+      : NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   if (cleared) {
-    return attachSessionCookieDeletes(NextResponse.next({ request: { headers: req.headers } }));
+    return attachSessionCookieDeletes(NextResponse.next({ request: { headers: requestHeaders } }));
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

@@ -69,7 +69,7 @@ export async function POST(
         montant,
         feeAmount: montant,
         statut: "brouillon",
-        billingStatus: "NON_BILLED",
+        billingStatus: "READY_TO_BILL",
       },
     });
 

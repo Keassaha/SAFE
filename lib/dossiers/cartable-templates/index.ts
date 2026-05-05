@@ -85,6 +85,66 @@ const DROIT_FAMILLE: SectionTemplate[] = [
   },
 ];
 
+const PROTECTION_TUF: SectionTemplate[] = [
+  {
+    sectionKey: "mandat",
+    label: "Mandat et engagement",
+    ordre: 0,
+    sourceReglementaire: "RCNEPA art. 15-16 · Code déonto. art. 3.08",
+    icone: "FileSignature",
+    description: "Ouverture du mandat, vérification identité, conflits et autorisations",
+  },
+  {
+    sectionKey: "evaluations-medicales",
+    label: "Évaluations médicales / psychosociales",
+    ordre: 1,
+    icone: "ClipboardList",
+    description: "Évaluations de capacité, rapports psychosociaux, pièces médicales",
+  },
+  {
+    sectionKey: "procedures",
+    label: "Procédures",
+    ordre: 2,
+    sourceReglementaire: "C.p.c. art. 109 et s.",
+    icone: "Scale",
+    description: "Demandes, requêtes, avis, protocoles et actes de procédure",
+  },
+  {
+    sectionKey: "pieces",
+    label: "Pièces",
+    ordre: 3,
+    icone: "FolderOpen",
+    description: "Pièces client, preuves, annexes et documents de soutien",
+  },
+  {
+    sectionKey: "audiences",
+    label: "Audiences et ordonnances",
+    ordre: 4,
+    icone: "Gavel",
+    description: "Dates d'audience, ordonnances, jugements et suivis",
+  },
+  {
+    sectionKey: "correspondance",
+    label: "Correspondance",
+    ordre: 5,
+    icone: "Mail",
+  },
+  {
+    sectionKey: "notes-honoraires",
+    label: "Notes et honoraires",
+    ordre: 6,
+    icone: "StickyNote",
+    privilegiee: true,
+  },
+  {
+    sectionKey: "fermeture",
+    label: "Fermeture du dossier",
+    ordre: 7,
+    sourceReglementaire: "RCNEPA art. 18-19",
+    icone: "Archive",
+  },
+];
+
 const LITIGE_CIVIL: SectionTemplate[] = [
   {
     sectionKey: "mandat",
@@ -281,23 +341,38 @@ const IMMIGRATION: SectionTemplate[] = [
     description: "Passeport, photos, certificats de police (GRC + pays), EMI, traductions assermentées",
   },
   {
+    sectionKey: "soumissions",
+    label: "Soumissions et représentations",
+    ordre: 4,
+    sourceReglementaire: "LIPR art. 91 · Instructions ministérielles IRCC",
+    icone: "FileText",
+    description: "Lettres explicatives, représentations, soumissions et réponses argumentées",
+  },
+  {
     sectionKey: "correspondance",
     label: "Correspondance",
-    ordre: 4,
+    ordre: 5,
     icone: "Mail",
     description: "Échanges avec IRCC, MIFI, ambassades, demandes de renseignements ATIP",
   },
   {
+    sectionKey: "decisions",
+    label: "Décisions",
+    ordre: 6,
+    icone: "Gavel",
+    description: "Approbations, refus, demandes de passeport, lettres de décision",
+  },
+  {
     sectionKey: "notes-honoraires",
     label: "Notes et honoraires",
-    ordre: 5,
+    ordre: 7,
     icone: "StickyNote",
     privilegiee: true,
   },
   {
     sectionKey: "fermeture",
     label: "Fermeture du dossier",
-    ordre: 6,
+    ordre: 8,
     sourceReglementaire: "RCNEPA art. 18-19",
     icone: "Archive",
   },
@@ -313,32 +388,55 @@ const IMMOBILIER: SectionTemplate[] = [
     description: "Mandat, vérification FINTRAC, identification client (art. 3 LRPCFAT)",
   },
   {
-    sectionKey: "formulaires",
-    label: "Actes et formulaires",
+    sectionKey: "offre-convention",
+    label: "Offre et convention",
     ordre: 1,
-    sourceReglementaire: "Code civil art. 1553 et s. · RDPRM · Loi sur le notariat",
+    sourceReglementaire: "Code civil art. 1385 et s.",
     icone: "FileText",
-    description: "Promesse d'achat, acte de vente, hypothèque, quittance, RDPRM",
+    description: "Promesse d'achat, offre acceptée, annexes et conditions",
   },
   {
-    sectionKey: "procedures",
-    label: "Procédures et titres",
+    sectionKey: "financement-hypotheque",
+    label: "Financement et hypothèque",
     ordre: 2,
+    sourceReglementaire: "LRPCFAT · Instructions prêteur",
+    icone: "Wallet",
+    description: "Engagement hypothécaire, instructions du prêteur, quittances à obtenir",
+  },
+  {
+    sectionKey: "recherche-titres",
+    label: "Recherche de titres",
+    ordre: 3,
     sourceReglementaire: "Code civil art. 2938 et s.",
-    icone: "Scale",
+    icone: "Search",
     description: "Examen de titres, rapport de recherche, publication des droits",
+  },
+  {
+    sectionKey: "documents-cloture",
+    label: "Documents de clôture",
+    ordre: 4,
+    sourceReglementaire: "Code civil art. 1553 et s. · RDPRM",
+    icone: "FileSignature",
+    description: "Acte de vente, hypothèque, quittance, remises finales",
+  },
+  {
+    sectionKey: "debours-ajustements",
+    label: "Débours et ajustements",
+    ordre: 5,
+    icone: "Receipt",
+    description: "État des ajustements, débours, taxes, remises et solde à la clôture",
   },
   {
     sectionKey: "correspondance",
     label: "Correspondance",
-    ordre: 3,
+    ordre: 6,
     icone: "Mail",
     description: "Échanges avec courtiers, prêteurs, parties, notaire",
   },
   {
     sectionKey: "fideicommis",
     label: "Fidéicommis",
-    ordre: 4,
+    ordre: 7,
     sourceReglementaire: "RCNEPA art. 14-19, 44-55",
     icone: "Wallet",
     description: "Dépôt, débours, ajustements, solde à la clôture",
@@ -347,14 +445,14 @@ const IMMOBILIER: SectionTemplate[] = [
   {
     sectionKey: "notes-honoraires",
     label: "Notes et honoraires",
-    ordre: 5,
+    ordre: 8,
     icone: "StickyNote",
     privilegiee: true,
   },
   {
     sectionKey: "fermeture",
     label: "Fermeture du dossier",
-    ordre: 6,
+    ordre: 9,
     sourceReglementaire: "RCNEPA art. 18-19",
     icone: "Archive",
     description: "Closing, remise des actes, archivage",
@@ -552,7 +650,21 @@ export const CARTABLE_TEMPLATES: Record<DossierType, SectionTemplate[]> = {
   autre: AUTRE,
 };
 
-export function getCartableTemplate(type: DossierType | null | undefined): SectionTemplate[] {
+function isProtectionSousType(sousType?: string | null): boolean {
+  const value = (sousType ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return ["protection", "tuf", "curatelle", "tutelle"].some((term) => value.includes(term));
+}
+
+export function getCartableTemplate(
+  type: DossierType | null | undefined,
+  sousType?: string | null
+): SectionTemplate[] {
+  if ((type === "droit_famille" || type === "litige_civil") && isProtectionSousType(sousType)) {
+    return PROTECTION_TUF;
+  }
   if (!type) return AUTRE;
   return CARTABLE_TEMPLATES[type] ?? AUTRE;
 }

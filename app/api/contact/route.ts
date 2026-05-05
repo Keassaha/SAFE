@@ -1,8 +1,17 @@
 import { sendEmail } from "@/lib/email";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request.headers);
+    if (await isRateLimited(`contact-${ip}`, 5, 60_000)) {
+      return NextResponse.json(
+        { error: "Trop de tentatives. Réessayez dans une minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { name, email, cabinet, numLawyers, message } = body;
 

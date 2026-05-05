@@ -15,7 +15,16 @@ interface DossierOption {
   id: string;
   intitule: string;
   numeroDossier: string | null;
+  type: string | null;
+  statut: string;
   clientId: string;
+  client: {
+    id: string;
+    typeClient: string;
+    raisonSociale: string | null;
+    prenom: string | null;
+    nom: string | null;
+  } | null;
 }
 
 interface RegistreTachesPageProps {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierCreationWizard } from "@/components/dossiers/registry/DossierCreationWizard";
+import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 
 export default async function NouveauDossierPage({
   searchParams,
@@ -14,11 +15,11 @@ export default async function NouveauDossierPage({
   const params = await searchParams;
   const initialClientId = params.clientId?.trim() || undefined;
 
-  const [clients, avocats, assistants] = await Promise.all([
+  const [clients, avocats, assistants, cabinetBillingMode] = await Promise.all([
     prisma.client.findMany({
       where: { cabinetId },
       orderBy: { raisonSociale: "asc" },
-      select: { id: true, raisonSociale: true },
+      select: { id: true, typeClient: true, raisonSociale: true, prenom: true, nom: true },
     }),
     prisma.user.findMany({
       where: { cabinetId, role: { in: ["admin_cabinet", "avocat"] } },
@@ -30,6 +31,7 @@ export default async function NouveauDossierPage({
       select: { id: true, nom: true },
       orderBy: { nom: "asc" },
     }),
+    getCabinetBillingMode(cabinetId),
   ]);
 
   return (
@@ -48,6 +50,7 @@ export default async function NouveauDossierPage({
             avocats={avocats}
             assistants={assistants}
             initialClientId={initialClientId}
+            cabinetBillingMode={cabinetBillingMode}
             initialError={params.error === "invalid" ? "Vérifiez les champs obligatoires (client et type)." : undefined}
           />
         </CardContent>

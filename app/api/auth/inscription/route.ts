@@ -4,7 +4,7 @@ import { getDatabaseConfigError } from "@/lib/db-vercel-check";
 import bcrypt from "bcryptjs";
 import { signUpSchema } from "@/lib/validations/auth";
 import { sanitizeInput } from "@/lib/utils/sanitize";
-import { isRateLimited } from "@/lib/rate-limit";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   // Inscription fermée au public — seul un appel avec le token interne est autorisé
@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limiting: 3 inscriptions par minute par IP
-  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
-  if (isRateLimited(`signup-${ip}`, 3, 60_000)) {
+  const ip = getClientIp(request.headers);
+  if (await isRateLimited(`signup-${ip}`, 3, 60_000)) {
     return NextResponse.json(
       { error: "Trop de tentatives. Réessayez dans une minute." },
       { status: 429 }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     const cabinet = await prisma.cabinet.create({
       data: {
         nom: sanitizeInput(nomCabinet),

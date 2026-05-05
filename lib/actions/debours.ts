@@ -8,6 +8,9 @@ import { deboursDossierSchema } from "@/lib/validations/debours";
 import { createAuditLog } from "@/lib/services/audit";
 import { writeJournalForDeboursPaiement } from "@/lib/services/journal/debours-dossier-journal";
 import { applyDeboursDossierCorrection } from "@/lib/services/journal/append-only-corrections";
+import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
+import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
+import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
 
 async function getDossierCabinetId(dossierId: string): Promise<string | null> {
   const dossier = await prisma.dossier.findFirst({
@@ -56,6 +59,16 @@ export async function createDeboursDossier(formData: FormData) {
     return { ok: false as const, error: "invalid" };
   }
 
+  // Doctrine signal: docs/product/READY_FOR_REVIEW_SIGNAL.md §8.
+  // Capturer l'état AVANT pour détecter une transition vers `pret_pour_revue`
+  // (la saisie d'un débours requis lève le manquant `debours`).
+  const beforeSnap = await loadDossierPreparationSnapshot(
+    cabinetId,
+    parsed.data.dossierId,
+    { callerUserId: userId },
+  );
+  const beforeState = beforeSnap ? getDossierPreparationStatus(beforeSnap).state : null;
+
   // Atomicité : la création du débours et l'éventuelle écriture journal
   // doivent réussir ensemble. Le helper journal est un no-op silencieux
   // si `payeParCabinet=false`, donc on l'appelle dans tous les cas — il
@@ -98,6 +111,11 @@ export async function createDeboursDossier(formData: FormData) {
     metadata: { dossierId: created.dossierId, montant: created.montant, description: created.description },
   });
 
+  await detectAndEmitIfReady(cabinetId, created.dossierId, {
+    beforeState,
+    callerUserId: userId,
+  });
+
   revalidatePath(`/dossiers/${dossierId}`);
   revalidatePath("/facturation/frais");
   revalidatePath("/journal/general");
@@ -121,6 +139,14 @@ export async function updateDeboursDossier(id: string, formData: FormData) {
   if (existing.factureId) {
     return { ok: false as const, error: "already_invoiced" };
   }
+
+  // Doctrine signal: docs/product/READY_FOR_REVIEW_SIGNAL.md §8.
+  // Un update peut renseigner le type/montant d'un débours requis déjà créé
+  // et ainsi lever le manquant `debours`.
+  const beforeSnap = await loadDossierPreparationSnapshot(cabinetId, existing.dossierId, {
+    callerUserId: userId,
+  });
+  const beforeState = beforeSnap ? getDossierPreparationStatus(beforeSnap).state : null;
 
   const raw = {
     dossierId: existing.dossierId,
@@ -202,9 +228,15 @@ export async function updateDeboursDossier(id: string, formData: FormData) {
     metadata: { montant: parsed.data.montant, description: parsed.data.description },
   });
 
+  await detectAndEmitIfReady(cabinetId, existing.dossierId, {
+    beforeState,
+    callerUserId: userId,
+  });
+
   revalidatePath(`/dossiers/${existing.dossierId}`);
   revalidatePath("/journal/general");
   revalidatePath("/comptabilite");
+  revalidatePath("/gestion/assistante");
   return { ok: true as const };
 }
 

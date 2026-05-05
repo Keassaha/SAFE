@@ -21,7 +21,10 @@ model Cabinet {
   stripeCustomerId       String?   @unique
   stripeSubscriptionId   String?   @unique
   stripePriceId          String?
+  stripeSubscriptionStatus String?
   stripeCurrentPeriodEnd DateTime?
+  stripeCancelAtPeriodEnd Boolean   @default(false)
+  stripeTrialEnd         DateTime?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
@@ -31,6 +34,7 @@ model Cabinet {
   timeEntries                TimeEntry[]
   expenses                   Expense[]
   invoices                   Invoice[]
+  invoiceSendLogs            InvoiceSendLog[]
   payments                   Payment[]
   documents                  Document[]
   auditLogs                  AuditLog[]
@@ -65,6 +69,8 @@ model Cabinet {
   dossierSections            DossierSection[]
   invitations                Invitation[]
   readyForReviewSignals      DossierReadyForReviewSignal[]
+  stripeWebhookEvents        StripeWebhookEvent[]
+  dossierDocketEntries       DossierDocketEntry[]
 }
 
 enum UserRole {
@@ -102,6 +108,7 @@ model User {
   dossierNotesCreated        DossierNote[]
   invoiceItems               InvoiceItem[]
   invoicesValidated          Invoice[] // factures validées par cet utilisateur
+  invoiceSendLogs            InvoiceSendLog[]
   timeEntriesApproved        TimeEntry[]             @relation("TimeEntryApprovedBy")
   bankImportSessionsCreated  BankImportSession[]
   cabinetExpensesCreated     CabinetExpense[]
@@ -369,6 +376,7 @@ model Client {
   timeEntries           TimeEntry[]
   expenses              Expense[]
   invoices              Invoice[]
+  invoiceSendLogs       InvoiceSendLog[]
   documents             Document[]
   trustAccounts         TrustAccount[]
   trustTransactions     TrustTransaction[]
@@ -383,6 +391,7 @@ model Client {
   richDocuments         RichDocument[]
   workSessions          WorkSession[]
   readyForReviewSignals DossierReadyForReviewSignal[]
+  dossierDocketEntries  DossierDocketEntry[]
 
   @@index([cabinetId])
   @@index([cabinetId, raisonSociale])
@@ -476,6 +485,7 @@ model Dossier {
   actesLexTrack         DossierActe[]
   notes                 DossierNote[]
   invoices              Invoice[]
+  invoiceSendLogs       InvoiceSendLog[]
   trustAccounts         TrustAccount[]
   trustTransactions     TrustTransaction[]
   invoiceLines          InvoiceLine[]
@@ -502,6 +512,7 @@ model Dossier {
   workSessions          WorkSession[]
   sections              DossierSection[]
   readyForReviewSignals DossierReadyForReviewSignal[]
+  docketEntries         DossierDocketEntry[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -1118,6 +1129,7 @@ model Invoice {
   payments               Payment[]
   paymentAllocations     PaymentAllocation[]
   reminderLogs           InvoiceReminder[]
+  sendLogs               InvoiceSendLog[]
   expenses               Expense[]
   timeEntries            TimeEntry[]
   creditNotes            CreditNote[]
@@ -1127,6 +1139,7 @@ model Invoice {
   trustTransactions      TrustTransaction[]
   billingStages          DossierBillingStage[]
 
+  @@unique([cabinetId, numero])
   @@index([cabinetId])
   @@index([cabinetId, statut])
   @@index([clientId])
@@ -1156,6 +1169,12 @@ model InvoiceLine {
   lineTotal         Float?
   sortOrder         Int                    @default(0)
   validationComment String? // instructions / commentaires par ligne pour la page de validation
+  // Rabais canoniques (cf. doctrine refonte facturation phase 1) :
+  // - parentLineId pointe sur la ligne d'honoraires/débours rabattue (self-relation).
+  // - discountReason est la raison libre affichable au client (ex. "Courtoisie professionnelle").
+  // Une ligne de rabais a typiquement lineType="adjustment" et un montant négatif.
+  parentLineId      String?
+  discountReason    String?
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @default(now()) @updatedAt
 
@@ -1168,10 +1187,13 @@ model InvoiceLine {
   registreTache   RegistreTache?   @relation("RegistreTacheInvoiceLine")
   interestCharges InterestCharge[]
   rabaisItems     InvoiceItem[]
+  parentLine      InvoiceLine?     @relation("InvoiceLineDiscount", fields: [parentLineId], references: [id], onDelete: SetNull)
+  discountLines   InvoiceLine[]    @relation("InvoiceLineDiscount")
 
   @@index([invoiceId])
   @@index([timeEntryId])
   @@index([matterId])
+  @@index([parentLineId])
 }
 
 model InvoiceItem {
@@ -1275,6 +1297,40 @@ model InvoiceReminder {
 
   @@index([invoiceId])
   @@index([invoiceId, sentAt])
+}
+
+// Trace d'envoi initial d'une facture officielle (séparé de InvoiceReminder qui couvre les relances).
+// Une entrée par tentative d'envoi : succès comme échec. Source de vérité de l'historique d'envoi
+// affiché dans la fiche client et l'éditeur de facture.
+model InvoiceSendLog {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  cabinetId      String
+  clientId       String
+  dossierId      String?
+  sentById       String?
+  recipientEmail String
+  subject        String
+  body           String?
+  status         String   @default("sent") // "sent" | "failed" | "queued"
+  errorMessage   String?
+  pdfUrl         String?
+  attachmentName String?
+  attachmentSize Int?
+  sentAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  sentBy  User?    @relation(fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([invoiceId, createdAt])
 }
 
 model TrustAccount {
@@ -1441,25 +1497,30 @@ model ClientIdentityVerification {
 }
 
 model Document {
-  id              String    @id @default(cuid())
-  cabinetId       String
-  clientId        String?
-  dossierId       String?
-  documentType    String? // depot_tribunal, contrat, correspondance, preuve, etc.
-  nom             String
-  mimeType        String
-  sizeBytes       Int
-  storageKey      String // chemin ou clé objet (fichier local ou S3)
-  hash            String? // intégrité
-  uploadedById    String
-  retentionJusqua DateTime?
+  id                        String    @id @default(cuid())
+  cabinetId                 String
+  clientId                  String?
+  dossierId                 String?
+  documentType              String? // depot_tribunal, contrat, correspondance, preuve, etc.
+  nom                       String
+  mimeType                  String
+  sizeBytes                 Int
+  storageKey                String // chemin ou clé objet (fichier local ou S3)
+  hash                      String? // intégrité
+  uploadedById              String
+  retentionJusqua           DateTime?
+  sectionKey                String? // section de cartable suggérée/confirmée
+  classificationSubtype     String?
+  classificationConfidence  Int?
+  classificationNeedsReview Boolean   @default(false)
+  classificationReason      String?
   // Générateur droit familial : type template (taxonomie), assistance IA, révision humaine
-  templateCode    String? // code taxonomie (ex. demande_divorce_contestee, formulaire_annexe_i)
-  aiAssisted      Boolean?  @default(false)
-  reviewedAt      DateTime?
-  reviewedById    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  templateCode              String? // code taxonomie (ex. demande_divorce_contestee, formulaire_annexe_i)
+  aiAssisted                Boolean?  @default(false)
+  reviewedAt                DateTime?
+  reviewedById              String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
   cabinet               Cabinet                      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client                Client?                      @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -1467,11 +1528,13 @@ model Document {
   uploadedBy            User                         @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
   reviewedBy            User?                        @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
   identityVerifications ClientIdentityVerification[]
+  docketEntries         DossierDocketEntry[]
 
   @@index([cabinetId])
   @@index([clientId])
   @@index([dossierId])
   @@index([cabinetId, dossierId])
+  @@index([cabinetId, dossierId, sectionKey])
   @@index([templateCode])
 }
 
@@ -1970,6 +2033,19 @@ model AuditSubmission {
   @@index([status])
 }
 
+model StripeWebhookEvent {
+  id          String   @id
+  type        String
+  cabinetId   String?
+  processedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  cabinet Cabinet? @relation(fields: [cabinetId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([cabinetId])
+}
+
 // Configuration d'interface dynamique par cabinet
 model CabinetInterface {
   id        String  @id @default(cuid())
@@ -2258,6 +2334,54 @@ model DossierReadyForReviewSignal {
   @@index([dossierId])
 }
 
+/// Cahier structuré du dossier.
+///
+/// Doctrine: docs/product/PRACTICE_BRIEFCASE_AND_DOCKET_SYSTEM.md
+///
+/// Le cahier adapte sa lecture à la pratique:
+/// - `procedure` pour famille / protection / criminel
+/// - `suivi` pour immigration
+/// - `transaction` pour immobilier
+///
+/// Une entrée peut provenir d'un document importé, d'un document riche ou d'une
+/// saisie manuelle future. Les imports créent seulement des entrées pour les
+/// documents significatifs, avec revue humaine lorsque la confiance est faible.
+model DossierDocketEntry {
+  id                   String    @id @default(cuid())
+  cabinetId            String
+  clientId             String
+  dossierId            String
+  entryType            String
+  docketMode           String
+  title                String
+  status               String    @default("a_reviser")
+  eventDate            DateTime?
+  sequenceNumber       Int       @default(0)
+  sectionKey           String
+  linkedDocumentId     String?
+  linkedRichDocumentId String?
+  source               String    @default("manual")
+  confidence           Int?
+  needsReview          Boolean   @default(true)
+  notes                String?
+  metadata             String?
+  createdById          String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  cabinet            Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client             Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier            Dossier       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  linkedDocument     Document?     @relation(fields: [linkedDocumentId], references: [id], onDelete: SetNull)
+  linkedRichDocument RichDocument? @relation(fields: [linkedRichDocumentId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([cabinetId, dossierId])
+  @@index([cabinetId, dossierId, docketMode])
+  @@index([linkedDocumentId])
+  @@index([linkedRichDocumentId])
+}
+
 // --- Facturation par étape (B4) ---
 model DossierBillingStage {
   id        String  @id @default(cuid())
@@ -2332,8 +2456,9 @@ model RichDocument {
   lastEditedBy User?   @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
   archivedBy   User?   @relation("RichDocArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
 
-  versions     RichDocumentVersion[]
-  workSessions WorkSession[]
+  versions      RichDocumentVersion[]
+  workSessions  WorkSession[]
+  docketEntries DossierDocketEntry[]
 
   @@index([cabinetId])
   @@index([dossierId])

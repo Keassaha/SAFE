@@ -4,18 +4,22 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import {
+  createManualJournalEntryAction,
   getJournalEntriesAction,
   getJournalKpisAction,
+  getManualJournalContextAction,
   exportJournalAction,
 } from "./actions";
 import type { JournalKpiData, JournalEntryRow } from "@/types/journal";
 import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
 import type { JournalTransactionType } from "@prisma/client";
-import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Activity, Plus } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
+import type { ManualJournalContext } from "./actions";
 
 const PAGE_SIZE = 50;
 const TRANSACTION_TYPES: { value: "" | JournalTransactionType; label: string }[] = [
@@ -55,6 +59,12 @@ export function GeneralJournalPageView({
   const [soldeGlobal, setSoldeGlobal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [manualModalOpen, setManualModalOpen] = useState(false);
+  const [manualSubmitting, setManualSubmitting] = useState(false);
+  const [manualError, setManualError] = useState<string | null>(null);
+  const [manualContext, setManualContext] = useState<ManualJournalContext | null>(null);
+  const [manualType, setManualType] = useState<JournalTransactionType>("FACTURE");
+  const [manualClientId, setManualClientId] = useState("");
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
@@ -120,11 +130,60 @@ export function GeneralJournalPageView({
     }
   }
 
+  async function openManualEntry() {
+    setManualModalOpen(true);
+    setManualError(null);
+    if (!manualContext) {
+      try {
+        setManualContext(await getManualJournalContextAction());
+      } catch (err) {
+        setManualError(err instanceof Error ? err.message : "Erreur de chargement");
+      }
+    }
+  }
+
+  async function handleManualSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setManualSubmitting(true);
+    setManualError(null);
+    const formData = new FormData(e.currentTarget);
+    try {
+      await createManualJournalEntryAction({
+        dateTransaction: formData.get("dateTransaction") as string,
+        typeTransaction: formData.get("typeTransaction") as JournalTransactionType,
+        reference: (formData.get("reference") as string) || null,
+        clientId: (formData.get("clientId") as string) || null,
+        dossierId: (formData.get("dossierId") as string) || null,
+        description: formData.get("description") as string,
+        categorie: (formData.get("categorie") as string) || null,
+        montantEntree: Number(formData.get("montantEntree") || 0),
+        montantSortie: Number(formData.get("montantSortie") || 0),
+      });
+      setManualModalOpen(false);
+      setPage(1);
+      await Promise.all([loadEntries(), refreshKpis()]);
+    } catch (err) {
+      setManualError(err instanceof Error ? err.message : "Écriture impossible");
+    } finally {
+      setManualSubmitting(false);
+    }
+  }
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+  const manualDossiers = manualContext?.dossiers.filter((dossier) => !manualClientId || dossier.clientId === manualClientId) ?? [];
+  const defaultDirection = defaultDirectionFor(manualType);
 
   return (
     <div className="space-y-6 pb-12">
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={openManualEntry}
+        >
+          <Plus className="w-4 h-4" aria-hidden />
+          <span className="ml-2">Nouvelle écriture</span>
+        </Button>
         <Button
           type="button"
           variant="secondary"
@@ -139,6 +198,184 @@ export function GeneralJournalPageView({
           <span className="ml-2">Exporter CSV</span>
         </Button>
       </div>
+
+      <Modal
+        open={manualModalOpen}
+        onClose={() => {
+          if (!manualSubmitting) setManualModalOpen(false);
+        }}
+        title="Nouvelle écriture"
+        maxWidth="max-w-2xl"
+      >
+        <form key={manualType} onSubmit={handleManualSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={() => setManualType("FACTURE")}
+              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
+                manualType === "FACTURE"
+                  ? "border-forest-700 bg-forest-50 text-forest-900"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Facture envoyée
+            </button>
+            <button
+              type="button"
+              onClick={() => setManualType("PAIEMENT")}
+              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
+                manualType === "PAIEMENT"
+                  ? "border-forest-700 bg-forest-50 text-forest-900"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Paiement reçu
+            </button>
+            <button
+              type="button"
+              onClick={() => setManualType("DEPENSE")}
+              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
+                manualType === "DEPENSE"
+                  ? "border-forest-700 bg-forest-50 text-forest-900"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Dépense
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Date</label>
+              <input
+                name="dateTransaction"
+                type="date"
+                required
+                defaultValue={toDateStr(new Date())}
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Type</label>
+              <select
+                name="typeTransaction"
+                value={manualType}
+                onChange={(e) => setManualType(e.target.value as JournalTransactionType)}
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              >
+                {Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Client</label>
+              <select
+                name="clientId"
+                value={manualClientId}
+                onChange={(e) => setManualClientId(e.target.value)}
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              >
+                <option value="">Aucun client</option>
+                {manualContext?.clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Dossier</label>
+              <select
+                name="dossierId"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              >
+                <option value="">Aucun dossier</option>
+                {manualDossiers.map((dossier) => (
+                  <option key={dossier.id} value={dossier.id}>
+                    {dossier.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Référence</label>
+              <input
+                name="reference"
+                placeholder={manualType === "FACTURE" ? "No facture" : "Référence"}
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Catégorie</label>
+              <input
+                name="categorie"
+                defaultValue={defaultCategoryFor(manualType)}
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Description</label>
+            <input
+              name="description"
+              required
+              defaultValue={defaultDescriptionFor(manualType)}
+              className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Entrée</label>
+              <input
+                name="montantEntree"
+                type="number"
+                min="0"
+                step="0.01"
+                required={defaultDirection === "IN"}
+                defaultValue={defaultDirection === "IN" ? "" : "0"}
+                placeholder="0,00"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Sortie</label>
+              <input
+                name="montantSortie"
+                type="number"
+                min="0"
+                step="0.01"
+                required={defaultDirection === "OUT"}
+                defaultValue={defaultDirection === "OUT" ? "" : "0"}
+                placeholder="0,00"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              />
+            </div>
+          </div>
+
+          {manualError && <p className="text-sm text-red-600">{manualError}</p>}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="secondary" disabled={manualSubmitting} onClick={() => setManualModalOpen(false)}>
+              Annuler
+            </Button>
+            <Button type="submit" disabled={manualSubmitting}>
+              {manualSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : null}
+              Enregistrer
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <motion.div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
@@ -380,4 +617,60 @@ export function GeneralJournalPageView({
       </Card>
     </div>
   );
+}
+
+function defaultDirectionFor(type: JournalTransactionType): "IN" | "OUT" {
+  switch (type) {
+    case "DEPENSE":
+    case "DEBOURS":
+    case "RETRAIT_FIDEICOMMIS":
+      return "OUT";
+    case "FACTURE":
+    case "PAIEMENT":
+    case "DEPOT_FIDEICOMMIS":
+    case "AJUSTEMENT":
+    case "CORRECTION":
+      return "IN";
+  }
+}
+
+function defaultCategoryFor(type: JournalTransactionType): string {
+  switch (type) {
+    case "FACTURE":
+      return "Facturation client";
+    case "PAIEMENT":
+      return "Paiement client";
+    case "DEPENSE":
+      return "Dépense cabinet";
+    case "DEBOURS":
+      return "Débours";
+    case "DEPOT_FIDEICOMMIS":
+    case "RETRAIT_FIDEICOMMIS":
+      return "Fidéicommis";
+    case "AJUSTEMENT":
+      return "Ajustement manuel";
+    case "CORRECTION":
+      return "Correction";
+  }
+}
+
+function defaultDescriptionFor(type: JournalTransactionType): string {
+  switch (type) {
+    case "FACTURE":
+      return "Facture envoyée manuellement";
+    case "PAIEMENT":
+      return "Paiement reçu manuellement";
+    case "DEPENSE":
+      return "Dépense saisie manuellement";
+    case "DEBOURS":
+      return "Débours saisi manuellement";
+    case "DEPOT_FIDEICOMMIS":
+      return "Dépôt fidéicommis saisi manuellement";
+    case "RETRAIT_FIDEICOMMIS":
+      return "Retrait fidéicommis saisi manuellement";
+    case "AJUSTEMENT":
+      return "Ajustement manuel";
+    case "CORRECTION":
+      return "Correction manuelle";
+  }
 }

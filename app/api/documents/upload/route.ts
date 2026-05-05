@@ -6,14 +6,9 @@ import type { UserRole } from "@prisma/client";
 import {
   createDocumentRecord,
   prepareStorageForUpload,
-  canAccessDocument,
+  writeDocumentObject,
 } from "@/lib/services/document";
-import { createAuditLog } from "@/lib/services/audit";
-import fs from "fs/promises";
-import path from "path";
 import { randomUUID } from "crypto";
-
-const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
 export async function POST(request: Request) {
   const auth = await getSessionOrRespond();
@@ -65,14 +60,14 @@ export async function POST(request: Request) {
   }
 
   const documentId = randomUUID();
-  const { fullPath, storageKey } = await prepareStorageForUpload(cabinetId, documentId);
+  const { storageKey } = await prepareStorageForUpload(cabinetId, documentId);
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(fullPath, buffer);
+    await writeDocumentObject(storageKey, buffer, file.type || "application/octet-stream");
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "Erreur lors de l'écriture du fichier" }, { status: 500 });
+    return NextResponse.json({ error: "Erreur lors du stockage du fichier" }, { status: 500 });
   }
 
   const doc = await createDocumentRecord({

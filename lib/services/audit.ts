@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 
 export type AuditEntityType =
+  | "Cabinet"
   | "Client"
   | "Dossier"
   | "Document"

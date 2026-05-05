@@ -73,7 +73,7 @@ export async function createEmployee(input: CreateEmployeeInput) {
     let createdUserId: string | null = null;
 
     if (wantsLogin && legacyRole && input.password) {
-      const passwordHash = await bcrypt.hash(input.password, 10);
+      const passwordHash = await bcrypt.hash(input.password, 12);
       const createdUser = await tx.user.create({
         data: {
           cabinetId,

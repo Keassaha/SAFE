@@ -124,6 +124,17 @@ export interface DashboardEventItem {
   dossierId: string;
 }
 
+export interface DashboardReadyForReviewSignal {
+  id: string;
+  dossierId: string;
+  dossierIntitule: string;
+  numeroDossier: string | null;
+  clientName: string | null;
+  reason: string | null;
+  createdAt: string;
+  createdByName: string | null;
+}
+
 /** Étape normalisée du pipeline — classification métier du dossier. */
 export type DossierEtape = "Ouverture" | "Exécution" | "Finalisation" | "Clôture";
 
@@ -188,6 +199,7 @@ export interface DashboardPayload {
   deboursNonRembourses?: string;
   upcomingTasks: DashboardTaskItem[];
   upcomingEvents: DashboardEventItem[];
+  readyForReviewSignals: DashboardReadyForReviewSignal[];
   dossierEvolution: DossierEvolutionItem[];
   indicators: DashboardIndicators;
   allKpisZero?: boolean;

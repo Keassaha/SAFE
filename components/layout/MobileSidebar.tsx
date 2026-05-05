@@ -25,7 +25,7 @@ export function MobileSidebar({
   open: boolean;
   onClose: () => void;
   role?: string;
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
   counts?: SidebarCounts | null;

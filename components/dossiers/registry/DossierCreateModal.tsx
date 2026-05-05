@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { DossierCreationWizard } from "./DossierCreationWizard";
 
 interface DossierCreateModalProps {
-  clients: { id: string; raisonSociale: string | null }[];
+  clients: { id: string; typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   avocats: { id: string; nom: string }[];
   assistants?: { id: string; nom: string }[];
   canCreate: boolean;

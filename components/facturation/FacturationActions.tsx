@@ -18,7 +18,7 @@ import { routes } from "@/lib/routes";
 
 interface FacturationActionsProps {
   /** When forfait, the "from registre" path is prioritized in the modal */
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
 }
 
 export function FacturationActions({ billingMode = "horaire" }: FacturationActionsProps) {

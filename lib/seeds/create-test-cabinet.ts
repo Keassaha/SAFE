@@ -22,7 +22,7 @@ async function main() {
   console.log(`Cabinet: ${cabinetNom} (${cabinetId})`);
   console.log(`Admin: ${adminEmail} / ${adminPassword}`);
 
-  const passwordHash = await bcrypt.hash(adminPassword, 10);
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
 
   const cabinet = await prisma.cabinet.upsert({
     where: { id: cabinetId },
@@ -96,4 +96,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

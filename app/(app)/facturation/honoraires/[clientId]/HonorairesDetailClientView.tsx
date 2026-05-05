@@ -3,19 +3,13 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { UserRole } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
-import {
-  useFacturationHonorairesDetail,
-  useCreerFactureDepuisTemps,
-  useCreerEtEnvoyerFactureDepuisTemps,
-} from "@/lib/hooks/useFacturation";
+import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
 import { TPS_RATE, TVQ_RATE, MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
-import { ArrowLeft, FileText, Loader2, Send } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 
 interface HonorairesDetailClientViewProps {
   clientId: string;
@@ -25,55 +19,74 @@ interface HonorairesDetailClientViewProps {
 export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailClientViewProps) {
   const router = useRouter();
   const { data, isLoading } = useFacturationHonorairesDetail(clientId);
-  const creerMutation = useCreerFactureDepuisTemps();
-  const creerEtEnvoyerMutation = useCreerEtEnvoyerFactureDepuisTemps();
-  const canCreateAndSend =
-    role === ("admin_cabinet" satisfies UserRole) ||
-    role === ("comptabilite" satisfies UserRole);
+  void role;
 
   const entries = useMemo(() => data?.entries ?? [], [data?.entries]);
   const expenses = useMemo(() => data?.expenses ?? [], [data?.expenses]);
+  const registreTaches = useMemo(() => data?.registreTaches ?? [], [data?.registreTaches]);
+  const draftInvoiceId = useMemo(() => {
+    return (
+      entries.find((e) => e.isDrafted)?.invoiceId ??
+      expenses.find((e) => e.isDrafted)?.invoiceId ??
+      registreTaches.find((t) => t.isDrafted)?.invoiceId ??
+      null
+    );
+  }, [entries, expenses, registreTaches]);
   const clientName = data?.clientName ?? "Client";
 
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set());
   const [selectedExpenseIds, setSelectedExpenseIds] = useState<Set<string>>(new Set());
+  const [selectedRegistreTacheIds, setSelectedRegistreTacheIds] = useState<Set<string>>(new Set());
   const hasInitializedSelection = useRef(false);
 
   useEffect(() => {
-    if ((entries.length > 0 || expenses.length > 0) && !hasInitializedSelection.current) {
+    if ((entries.length > 0 || expenses.length > 0 || registreTaches.length > 0) && !hasInitializedSelection.current) {
       hasInitializedSelection.current = true;
-      setSelectedEntryIds(new Set(entries.map((e) => e.id)));
-      setSelectedExpenseIds(new Set(expenses.map((e) => e.id)));
+      setSelectedEntryIds(new Set(entries.filter((e) => !e.isDrafted).map((e) => e.id)));
+      setSelectedExpenseIds(new Set(expenses.filter((e) => !e.isDrafted).map((e) => e.id)));
+      setSelectedRegistreTacheIds(new Set(registreTaches.filter((t) => !t.isDrafted).map((t) => t.id)));
     }
-  }, [entries, expenses]);
+  }, [entries, expenses, registreTaches]);
 
-  const { totalHonoraires, totalDebours, totalHeures, tps, tvq, totalTTC } = useMemo(() => {
+  const { totalHonoraires, totalDebours, totalForfaits, totalAjustements, totalRabais, totalHeures, tps, tvq, totalTTC } = useMemo(() => {
     const selectedEntries = entries.filter((e) => selectedEntryIds.has(e.id));
     const selectedExpenses = expenses.filter((e) => selectedExpenseIds.has(e.id));
+    const selectedTaches = registreTaches.filter((t) => selectedRegistreTacheIds.has(t.id));
     const totalHonoraires = selectedEntries.reduce((s, e) => s + e.montant, 0);
     const totalDebours = selectedExpenses.reduce((s, e) => s + e.amount, 0);
+    const totalForfaits = selectedTaches.reduce((s, t) => s + t.amount, 0);
+    const totalAjustements = selectedTaches.reduce((s, t) => s + t.ajustement, 0);
+    const totalRabais = selectedTaches.reduce((s, t) => s + t.rabais, 0);
     const totalHeures = selectedEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
-    const subtotal = totalHonoraires + totalDebours;
-    const tpsVal = Math.round(subtotal * TPS_RATE * 100) / 100;
-    const tvqVal = Math.round(subtotal * TVQ_RATE * 100) / 100;
+    const subtotal = totalHonoraires + totalDebours + totalForfaits;
+    const subtotalTaxable =
+      selectedEntries.reduce((s, e) => s + ((e.taxable ?? true) ? e.montant : 0), 0) +
+      selectedExpenses.reduce((s, e) => s + (e.taxable ? e.amount : 0), 0) +
+      selectedTaches.reduce((s, t) => s + (t.taxable ? t.amount : 0), 0);
+    const tpsVal = Math.round(subtotalTaxable * TPS_RATE * 100) / 100;
+    const tvqVal = Math.round(subtotalTaxable * TVQ_RATE * 100) / 100;
     const total = Math.round((subtotal + tpsVal + tvqVal) * 100) / 100;
     return {
       totalHonoraires,
       totalDebours,
+      totalForfaits,
+      totalAjustements,
+      totalRabais,
       totalHeures,
       tps: tpsVal,
       tvq: tvqVal,
       totalTTC: total,
     };
-  }, [entries, expenses, selectedEntryIds, selectedExpenseIds]);
+  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds]);
 
-  const totalSelected = selectedEntryIds.size + selectedExpenseIds.size;
+  const totalSelected = selectedEntryIds.size + selectedExpenseIds.size + selectedRegistreTacheIds.size;
 
   /** Lignes pour l’ébauche : honoraires puis débours, avec date et description */
   const draftLines = useMemo(() => {
     const selectedEntries = entries.filter((e) => selectedEntryIds.has(e.id));
     const selectedExpenses = expenses.filter((e) => selectedExpenseIds.has(e.id));
-    const lines: { id: string; date: Date; description: string; amount: number; type: "honoraire" | "débours" }[] = [];
+    const selectedTaches = registreTaches.filter((t) => selectedRegistreTacheIds.has(t.id));
+    const lines: { id: string; date: Date; description: string; amount: number; type: "honoraire" | "débours" | "forfait" | "rabais" }[] = [];
     for (const e of selectedEntries) {
       lines.push({
         id: e.id,
@@ -92,11 +105,33 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
         type: "débours",
       });
     }
+    for (const t of selectedTaches) {
+      lines.push({
+        id: `tache-${t.id}`,
+        date: new Date(t.date),
+        description:
+          t.ajustement !== 0
+            ? `${t.description} (ajustement ${t.ajustement > 0 ? "+" : ""}${formatCurrency(t.ajustement)})`
+            : t.description,
+        amount: t.montantBase + t.ajustement,
+        type: "forfait",
+      });
+      if (t.rabais > 0) {
+        lines.push({
+          id: `rabais-${t.id}`,
+          date: new Date(t.date),
+          description: t.rabaisRaison ? `Rabais — ${t.rabaisRaison}` : `Rabais — ${t.description}`,
+          amount: -Math.abs(t.rabais),
+          type: "rabais",
+        });
+      }
+    }
     lines.sort((a, b) => a.date.getTime() - b.date.getTime());
     return lines;
-  }, [entries, expenses, selectedEntryIds, selectedExpenseIds]);
+  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds]);
 
   const toggleEntry = (id: string) => {
+    if (entries.find((entry) => entry.id === id)?.isDrafted) return;
     setSelectedEntryIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -106,6 +141,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
   };
 
   const toggleExpense = (id: string) => {
+    if (expenses.find((expense) => expense.id === id)?.isDrafted) return;
     setSelectedExpenseIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -114,61 +150,56 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
     });
   };
 
+  const toggleRegistreTache = (id: string) => {
+    if (registreTaches.find((tache) => tache.id === id)?.isDrafted) return;
+    setSelectedRegistreTacheIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const toggleAllEntries = () => {
-    if (selectedEntryIds.size === entries.length) {
+    const selectable = entries.filter((e) => !e.isDrafted);
+    if (selectedEntryIds.size === selectable.length) {
       setSelectedEntryIds(new Set());
     } else {
-      setSelectedEntryIds(new Set(entries.map((e) => e.id)));
+      setSelectedEntryIds(new Set(selectable.map((e) => e.id)));
     }
   };
 
   const toggleAllExpenses = () => {
-    if (selectedExpenseIds.size === expenses.length) {
+    const selectable = expenses.filter((e) => !e.isDrafted);
+    if (selectedExpenseIds.size === selectable.length) {
       setSelectedExpenseIds(new Set());
     } else {
-      setSelectedExpenseIds(new Set(expenses.map((e) => e.id)));
+      setSelectedExpenseIds(new Set(selectable.map((e) => e.id)));
     }
   };
 
-  const handleCreerFacture = async () => {
-    const timeEntryIds = Array.from(selectedEntryIds);
-    const expenseIds = Array.from(selectedExpenseIds);
-    if (timeEntryIds.length === 0 && expenseIds.length === 0) {
-      alert("Sélectionnez au moins une fiche de temps ou un débours.");
-      return;
-    }
-    try {
-      const { invoiceId } = await creerMutation.mutateAsync({
-        clientId,
-        timeEntryIds: timeEntryIds.length ? timeEntryIds : [],
-        expenseIds: expenseIds.length ? expenseIds : undefined,
-      });
-      router.push(routes.facturationFactureEdit(invoiceId));
-    } catch (e) {
-      console.error(e);
-      alert((e as Error).message ?? "Erreur lors de la création de la facture");
+  const toggleAllRegistreTaches = () => {
+    const selectable = registreTaches.filter((t) => !t.isDrafted);
+    if (selectedRegistreTacheIds.size === selectable.length) {
+      setSelectedRegistreTacheIds(new Set());
+    } else {
+      setSelectedRegistreTacheIds(new Set(selectable.map((t) => t.id)));
     }
   };
 
-  const handleCreerEtEnvoyerFacture = async () => {
-    const timeEntryIds = Array.from(selectedEntryIds);
-    const expenseIds = Array.from(selectedExpenseIds);
-    if (timeEntryIds.length === 0 && expenseIds.length === 0) {
-      alert("Sélectionnez au moins une fiche de temps ou un débours.");
+  const handlePreparerFacture = () => {
+    if (totalSelected === 0) {
+      alert("Sélectionnez au moins une fiche de temps, un débours ou une tâche.");
       return;
     }
-    try {
-      const { invoiceId } = await creerEtEnvoyerMutation.mutateAsync({
-        clientId,
-        timeEntryIds: timeEntryIds.length ? timeEntryIds : [],
-        expenseIds: expenseIds.length ? expenseIds : undefined,
-      });
-      toast.success("Facture créée et marquée comme envoyée.");
-      router.push(routes.facturationFactureEdit(invoiceId));
-    } catch (e) {
-      console.error(e);
-      alert((e as Error).message ?? "Erreur lors de la création et de l'envoi de la facture");
-    }
+    const params = new URLSearchParams({ clientId });
+    const timeEntryIds = Array.from(selectedEntryIds);
+    const expenseIds = Array.from(selectedExpenseIds);
+    const registreTacheIds = Array.from(selectedRegistreTacheIds);
+    if (timeEntryIds.length > 0) params.set("timeEntryIds", timeEntryIds.join(","));
+    if (expenseIds.length > 0) params.set("expenseIds", expenseIds.join(","));
+    if (registreTacheIds.length > 0) params.set("registreTacheIds", registreTacheIds.join(","));
+    router.push(`${routes.facturationFactureNouvelle}?${params.toString()}`);
   };
 
   return (
@@ -224,8 +255,10 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                     {draftLines.map((line) => (
                       <tr key={line.id} className="border-b border-neutral-100">
                         <td className="py-2 px-4 text-neutral-600">{formatDate(line.date)}</td>
-                        <td className="py-2 px-4">{line.description}</td>
-                        <td className="py-2 px-4 text-right font-medium">
+                        <td className={line.type === "rabais" ? "py-2 px-4 text-emerald-700" : "py-2 px-4"}>
+                          {line.description}
+                        </td>
+                        <td className={`py-2 px-4 text-right font-medium ${line.type === "rabais" ? "text-emerald-700" : ""}`}>
                           {formatCurrency(line.amount)}
                         </td>
                       </tr>
@@ -242,6 +275,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <span className="text-neutral-600">Sous-total débours</span>
                   <span>{formatCurrency(totalDebours)}</span>
                 </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-neutral-600">Sous-total forfaits</span>
+                  <span>{formatCurrency(totalForfaits)}</span>
+                </div>
+                {totalAjustements !== 0 && (
+                  <div className="flex justify-between text-sm text-amber-700">
+                    <span>Ajustements inclus</span>
+                    <span>{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
+                  </div>
+                )}
+                {totalRabais > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-700">
+                    <span>Rabais accordés</span>
+                    <span>-{formatCurrency(totalRabais)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">TPS (5 %)</span>
                   <span>{formatCurrency(tps)}</span>
@@ -267,13 +316,8 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="primary"
-                onClick={handleCreerFacture}
-                disabled={
-                  creerMutation.isPending ||
-                  creerEtEnvoyerMutation.isPending ||
-                  totalSelected === 0 ||
-                  totalTTC < MIN_AMOUNT_TO_BILL
-                }
+                onClick={handlePreparerFacture}
+                disabled={totalSelected === 0 || totalTTC < MIN_AMOUNT_TO_BILL}
                 title={
                   totalTTC < MIN_AMOUNT_TO_BILL && totalSelected > 0
                     ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
@@ -281,38 +325,17 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 }
                 className="gap-2"
               >
-                {creerMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <FileText className="w-4 h-4" />
-                )}
-                Créer la facture
+                <FileText className="w-4 h-4" />
+                Préparer la facture
               </Button>
-              {canCreateAndSend ? (
-                <Button
-                  variant="secondary"
-                  onClick={handleCreerEtEnvoyerFacture}
-                  disabled={
-                    creerMutation.isPending ||
-                    creerEtEnvoyerMutation.isPending ||
-                    totalSelected === 0 ||
-                    totalTTC < MIN_AMOUNT_TO_BILL
-                  }
-                  title={
-                    totalTTC < MIN_AMOUNT_TO_BILL && totalSelected > 0
-                      ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
-                      : undefined
-                  }
-                  className="gap-2"
-                >
-                  {creerEtEnvoyerMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                  Créer et envoyer
-                </Button>
-              ) : null}
+              {draftInvoiceId && (
+                <Link href={routes.facturationFactureApercu(draftInvoiceId)}>
+                  <Button variant="secondary" className="gap-2">
+                    <FileText className="w-4 h-4" />
+                    Voir facture en cours
+                  </Button>
+                </Link>
+              )}
             </div>
           }
         />
@@ -321,9 +344,9 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
             </div>
-          ) : entries.length === 0 && expenses.length === 0 ? (
+          ) : entries.length === 0 && expenses.length === 0 && registreTaches.length === 0 ? (
             <p className="text-neutral-500 py-8 text-center">
-              Aucune fiche de temps ni débours à facturer pour ce client.
+              Aucune fiche de temps, débours ni tâche à facturer pour ce client.
             </p>
           ) : (
             <>
@@ -360,13 +383,21 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               <input
                                 type="checkbox"
                                 checked={selectedEntryIds.has(e.id)}
+                                disabled={e.isDrafted}
                                 onChange={() => toggleEntry(e.id)}
                                 aria-label={`Inclure ${e.description ?? "ligne"}`}
                               />
                             </td>
                             <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
                             <td className="py-2 px-3">{e.userNom}</td>
-                            <td className="py-2 px-3">{e.description ?? "—"}</td>
+                            <td className="py-2 px-3">
+                              {e.description ?? "—"}
+                              {e.isDrafted && (
+                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                  Facture {e.invoiceNumero ?? "en cours"}
+                                </span>
+                              )}
+                            </td>
                             <td className="py-2 px-3 text-right">
                               {(e.dureeMinutes / 60).toFixed(1)} h
                             </td>
@@ -415,15 +446,92 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               <input
                                 type="checkbox"
                                 checked={selectedExpenseIds.has(e.id)}
+                                disabled={e.isDrafted}
                                 onChange={() => toggleExpense(e.id)}
                                 aria-label={`Inclure ${e.description}`}
                               />
                             </td>
                             <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
-                            <td className="py-2 px-3">{e.description}</td>
+                            <td className="py-2 px-3">
+                              {e.description}
+                              {e.isDrafted && (
+                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                  Facture {e.invoiceNumero ?? "en cours"}
+                                </span>
+                              )}
+                            </td>
                             <td className="py-2 px-3">{e.vendorName ?? "—"}</td>
                             <td className="py-2 px-3 text-right">{formatCurrency(e.amount)}</td>
                             <td className="py-2 px-3 text-right">{e.taxable ? "Oui" : "Non"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+              {registreTaches.length > 0 && (
+                <>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Tâches forfaitaires</h3>
+                  <div className="overflow-x-auto mb-6">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr className="border-b border-neutral-200 bg-neutral-50">
+                          <th className="w-10 py-3 px-3">
+                            <input
+                              type="checkbox"
+                              checked={registreTaches.length > 0 && selectedRegistreTacheIds.size === registreTaches.length}
+                              onChange={toggleAllRegistreTaches}
+                              aria-label="Tout sélectionner (tâches)"
+                            />
+                          </th>
+                          <th className="text-left py-3 px-3 font-medium">Date</th>
+                          <th className="text-left py-3 px-3 font-medium">Dossier</th>
+                          <th className="text-left py-3 px-3 font-medium">Description</th>
+                          <th className="text-right py-3 px-3 font-medium">Base</th>
+                          <th className="text-right py-3 px-3 font-medium">Ajust.</th>
+                          <th className="text-right py-3 px-3 font-medium">Rabais</th>
+                          <th className="text-right py-3 px-3 font-medium">Total</th>
+                          <th className="text-right py-3 px-3 font-medium">Taxable</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {registreTaches.map((t) => (
+                          <tr
+                            key={t.id}
+                            className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                          >
+                            <td className="py-2 px-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedRegistreTacheIds.has(t.id)}
+                                disabled={t.isDrafted}
+                                onChange={() => toggleRegistreTache(t.id)}
+                                aria-label={`Inclure ${t.description}`}
+                              />
+                            </td>
+                            <td className="py-2 px-3 text-neutral-600">{formatDate(t.date)}</td>
+                            <td className="py-2 px-3">{t.dossierIntitule ?? "—"}</td>
+                            <td className="py-2 px-3">
+                              {t.description}
+                              {t.isDrafted && (
+                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                  Facture {t.invoiceNumero ?? "en cours"}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-right">{formatCurrency(t.montantBase)}</td>
+                            <td className={`py-2 px-3 text-right ${t.ajustement !== 0 ? "text-amber-700 font-medium" : "text-neutral-400"}`}>
+                              {t.ajustement !== 0 ? `${t.ajustement > 0 ? "+" : ""}${formatCurrency(t.ajustement)}` : "—"}
+                            </td>
+                            <td className={`py-2 px-3 text-right ${t.rabais > 0 ? "text-emerald-700 font-medium" : "text-neutral-400"}`}>
+                              {t.rabais > 0 ? `-${formatCurrency(t.rabais)}` : "—"}
+                              {t.rabaisRaison && (
+                                <p className="text-[10px] font-normal text-neutral-400">{t.rabaisRaison}</p>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-right font-medium">{formatCurrency(t.amount)}</td>
+                            <td className="py-2 px-3 text-right">{t.taxable ? "Oui" : "Non"}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -441,6 +549,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <span className="text-neutral-600">Sous-total débours</span>
                   <span className="font-medium">{formatCurrency(totalDebours)}</span>
                 </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-neutral-600">Sous-total forfaits</span>
+                  <span className="font-medium">{formatCurrency(totalForfaits)}</span>
+                </div>
+                {totalAjustements !== 0 && (
+                  <div className="flex justify-between text-sm text-amber-700">
+                    <span>Ajustements inclus</span>
+                    <span className="font-medium">{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
+                  </div>
+                )}
+                {totalRabais > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-700">
+                    <span>Rabais accordés</span>
+                    <span className="font-medium">-{formatCurrency(totalRabais)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">Total heures sélectionnées</span>
                   <span>{totalHeures.toFixed(1)} h</span>

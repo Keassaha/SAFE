@@ -3,7 +3,7 @@ import { z } from "zod";
 export const typeClientEnum = z.enum(["personne_physique", "personne_morale"]);
 
 export const clientSchema = z.object({
-  raisonSociale: z.string().min(1, "Raison sociale requise"),
+  raisonSociale: z.string().optional(),
   typeClient: typeClientEnum.optional().default("personne_morale"),
   prenom: z.string().optional(),
   nom: z.string().optional(),
@@ -39,6 +39,34 @@ export const clientSchema = z.object({
   conflictChecked: z.coerce.boolean().optional(),
   conflictCheckDate: z.coerce.date().optional().nullable(),
   conflictNotes: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const type = data.typeClient ?? "personne_morale";
+  if (type === "personne_morale") {
+    if (!data.raisonSociale || !data.raisonSociale.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["raisonSociale"],
+        message: "Raison sociale requise pour une personne morale",
+      });
+    }
+  } else {
+    const hasPrenom = data.prenom && data.prenom.trim();
+    const hasNom = data.nom && data.nom.trim();
+    if (!hasPrenom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["prenom"],
+        message: "Prénom requis pour une personne physique",
+      });
+    }
+    if (!hasNom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["nom"],
+        message: "Nom requis pour une personne physique",
+      });
+    }
+  }
 });
 
 export type ClientInput = z.infer<typeof clientSchema>;

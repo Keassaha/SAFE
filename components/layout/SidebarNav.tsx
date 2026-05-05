@@ -365,7 +365,7 @@ export function SidebarNavList({
   role?: string;
   onNavigate?: () => void;
   navClassName?: string;
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
   counts?: SidebarCounts | null;

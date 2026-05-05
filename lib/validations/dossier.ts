@@ -48,7 +48,7 @@ export const dossierSchema = z.object({
     modeFacturationEnum.nullable()
   ),
   tauxHoraire: z.preprocess(
-    (v) => (v === "" || v === undefined ? null : Number(v)),
+    (v) => (v === "" || v === undefined || v === null ? null : Number(v)),
     z.number().positive().nullable()
   ),
   dateOuverture: z.coerce.date().optional(),

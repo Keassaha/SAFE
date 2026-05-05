@@ -245,7 +245,7 @@ async function main() {
   // 3. Users
   console.log(`\n👥 Seeding users...`);
   for (const userConfig of USERS) {
-    const passwordHash = await bcrypt.hash(userConfig.password, 10);
+    const passwordHash = await bcrypt.hash(userConfig.password, 12);
     const existing = await prisma.user.findFirst({
       where: {
         email: userConfig.email.toLowerCase(),

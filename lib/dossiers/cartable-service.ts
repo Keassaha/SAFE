@@ -5,9 +5,10 @@ import { getCartableTemplate } from "./cartable-templates";
 export async function generateCartable(
   dossierId: string,
   cabinetId: string,
-  type: DossierType | null | undefined
+  type: DossierType | null | undefined,
+  sousType?: string | null
 ): Promise<void> {
-  const sections = getCartableTemplate(type);
+  const sections = getCartableTemplate(type, sousType);
 
   await prisma.dossierSection.createMany({
     data: sections.map((s) => ({

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { requireCabinetId } from "@/lib/auth/session";
+import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -8,9 +8,15 @@ import { FacturationMainKpis, type FacturationMainKpisData } from "@/components/
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
 import { FacturationTable } from "@/components/facturation/FacturationTable";
 import { FacturationActions } from "@/components/facturation/FacturationActions";
+import { HonorairesAFacturerView } from "./honoraires/HonorairesAFacturerView";
 import type { InvoiceStatut } from "@prisma/client";
 import type { FacturationTableRow } from "@/components/facturation/FacturationTable";
-import { aggregateBillableTimeEntries } from "@/lib/billing/queries";
+import {
+  aggregateBillableRegistreTaches,
+  aggregateBillableExpenses,
+  aggregateBillableTimeEntries,
+  countBillableClients,
+} from "@/lib/billing/queries";
 import {
   whereInvoiceDraft,
   whereInvoiceIssuedActive,
@@ -35,7 +41,7 @@ export default async function FacturationPage({
   searchParams: Promise<{ statut?: string; q?: string; dateFrom?: string; dateTo?: string }>;
 }) {
   const t = await getTranslations("facturation");
-  const cabinetId = await requireCabinetId();
+  const { cabinetId, role } = await requireCabinetAndUser();
 
   // Detect billing mode — shares the layout's cached CabinetInterface fetch
   // (React.cache dedupes, so no second DB query here)
@@ -62,7 +68,9 @@ export default async function FacturationPage({
   const [
     invoices,
     facturablesTime,
+    facturablesForfaits,
     facturablesExpenses,
+    facturablesClientCount,
     envoyeesAgg,
     enRetardAgg,
     brouillonsCount,
@@ -94,15 +102,9 @@ export default async function FacturationPage({
     // Doctrine §3 — feeAmount prime sur montant, write-offs exclus.
     // Encapsulé dans `aggregateBillableTimeEntries` pour garder la règle au même endroit.
     aggregateBillableTimeEntries(prisma, cabinetId),
-    prisma.expense.aggregate({
-      where: {
-        cabinetId,
-        invoiceId: null,
-        billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] },
-      },
-      _count: true,
-      _sum: { amount: true },
-    }),
+    aggregateBillableRegistreTaches(prisma, cabinetId),
+    aggregateBillableExpenses(prisma, cabinetId),
+    countBillableClients(prisma, cabinetId),
     // KPI "envoyées" : factures émises actives (non en retard, non payées).
     prisma.invoice.aggregate({
       where: { cabinetId, ...whereInvoiceIssuedActive(now) },
@@ -126,12 +128,14 @@ export default async function FacturationPage({
     }),
   ]);
 
-  const facturablesSum = facturablesTime.total + (facturablesExpenses._sum.amount ?? 0);
-  const facturablesCount = facturablesTime.count + facturablesExpenses._count;
+  const facturablesSum =
+    facturablesTime.total +
+    facturablesForfaits.total +
+    facturablesExpenses.total;
   const totalEmitted = issuedForTaux._sum.montantTotal ?? 0;
   const totalPaid = issuedForTaux._sum.totalPaidAmount ?? 0;
   const kpis: FacturationMainKpisData = {
-    facturablesCount,
+    facturablesCount: facturablesClientCount,
     facturablesSum,
     envoyeesCount: envoyeesAgg._count,
     envoyeesSum: envoyeesAgg._sum.montantTotal ?? 0,
@@ -163,6 +167,11 @@ export default async function FacturationPage({
     <div className="space-y-6">
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
+
+      <section id="facturables" className="scroll-mt-24">
+        <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
+      </section>
+
       <Card>
         <CardHeader
           title={t("listTitle")}

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail, passwordResetEmailHtml } from "@/lib/email";
-import { isRateLimited } from "@/lib/rate-limit";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   // Rate limiting: 5 tentatives par minute par IP
-  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-  if (isRateLimited(`forgot-${ip}`, 5, 60_000)) {
+  const ip = getClientIp(req.headers);
+  if (await isRateLimited(`forgot-${ip}`, 5, 60_000)) {
     return NextResponse.json(
       { error: "Trop de tentatives. Réessayez dans une minute." },
       { status: 429 }

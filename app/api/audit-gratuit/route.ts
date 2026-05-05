@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sanitizeObject } from "@/lib/utils/sanitize";
-import { isRateLimited } from "@/lib/rate-limit";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { buildRecommendation } from "@/lib/audit-gratuit/recommendation";
 import { renderAuditReportPdf } from "@/lib/audit-gratuit/pdf";
@@ -40,8 +40,8 @@ function getContact(answers: Record<string, unknown>) {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for") || "unknown";
-  if (isRateLimited(`audit-v2-${ip}`, 5, 60_000)) {
+  const ip = getClientIp(req.headers);
+  if (await isRateLimited(`audit-v2-${ip}`, 5, 60_000)) {
     return NextResponse.json({ error: "Trop de tentatives." }, { status: 429 });
   }
 

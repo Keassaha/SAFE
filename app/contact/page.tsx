@@ -243,7 +243,7 @@ export default function ContactPage() {
                     Préférez commencer par l&apos;audit ?
                   </h3>
                   <p className="text-sm text-text-body font-sans mb-4">
-                    Si vous voulez d&apos;abord une lecture claire de votre situation actuelle, l&apos;audit gratuit prend 10 minutes et donne un rapport personnalisé.
+                    Si vous voulez d&apos;abord une lecture claire de votre situation actuelle, l&apos;audit gratuit prend 15 à 20 min et donne un rapport personnalisé.
                   </p>
                   <Link
                     href="/audit-gratuit"

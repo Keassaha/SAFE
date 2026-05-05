@@ -7,33 +7,36 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
 import { SuiviPipelineView } from "./SuiviPipelineView";
-import { whereInvoiceDraft, whereInvoiceForReports } from "@/lib/billing/invoice-status";
+import { whereInvoiceIssuedActive, whereInvoiceOverdue } from "@/lib/billing/invoice-status";
 
 export default async function FacturationSuiviPage() {
   const cabinetId = await requireCabinetId();
   const t = await getTranslations("facturation");
 
+  // Cette page est dédiée au suivi POST-émission (envoyées, en retard, encaissement).
+  // Les brouillons et factures à préparer sont gérés depuis /facturation (#facturables).
   // Doctrine: voir docs/accounting/INVOICE_STATUS_NORMALIZATION.md
-  // Bucket "envoyées" pour le pipeline = toutes les factures qui ont été émises
-  // (PAID inclus pour visualiser l'historique du pipeline).
-  const [brouillons, envoyees] = await Promise.all([
+  const now = new Date();
+  const [envoyees, enRetard] = await Promise.all([
+    // Émises actives, non payées, non en retard. Disjoint de whereInvoiceOverdue
+    // par la condition `dateEcheance >= now`, donc pas de doublon entre colonnes.
     prisma.invoice.findMany({
-      where: { cabinetId, ...whereInvoiceDraft() },
-      include: {
-        client: { select: { id: true, raisonSociale: true } },
-        dossier: { select: { id: true, intitule: true } },
-        invoiceLines: true,
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.invoice.findMany({
-      where: { cabinetId, ...whereInvoiceForReports() },
+      where: { cabinetId, ...whereInvoiceIssuedActive(now) },
       include: {
         client: { select: { id: true, raisonSociale: true } },
         dossier: { select: { id: true, intitule: true } },
         invoiceLines: true,
       },
       orderBy: { dateEmission: "desc" },
+    }),
+    prisma.invoice.findMany({
+      where: { cabinetId, ...whereInvoiceOverdue(now) },
+      include: {
+        client: { select: { id: true, raisonSociale: true } },
+        dossier: { select: { id: true, intitule: true } },
+        invoiceLines: true,
+      },
+      orderBy: { dateEcheance: "asc" },
     }),
   ]);
 
@@ -53,9 +56,8 @@ export default async function FacturationSuiviPage() {
       />
 
       <SuiviPipelineView
-        brouillons={brouillons}
-        validees={[]}
         envoyees={envoyees}
+        enRetard={enRetard}
         cabinetId={cabinetId}
       />
     </div>

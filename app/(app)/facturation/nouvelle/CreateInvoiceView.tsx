@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
-import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
-import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
-
-/**
- * Ontario HST rate (13%).
- * Aligned with the backend `createFreeformInvoice()` which also applies 13% HST
- * on taxable lines. If the cabinet operates in Québec, swap this for TPS/TVQ.
- */
-const HST_RATE = 0.13;
+import { InvoicePreview } from "@/lib/invoice-template/InvoicePreview";
+import type {
+  PresentedInvoice,
+  PresentedLine,
+} from "@/lib/services/billing/invoice-presenter";
+import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
 import {
   ArrowLeft,
   Plus,
@@ -24,6 +22,8 @@ import {
   User as UserIcon,
   Loader2,
   AlertCircle,
+  Percent,
+  Receipt,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -34,6 +34,8 @@ type DueDatePreset = "3" | "7" | "14" | "30" | "custom";
 
 interface LineItem {
   id: string;
+  sourceId?: string | null;
+  sourceType?: "manual" | "time_entry" | "expense" | "registre_tache";
   description: string;
   date: string;
   hours: number;
@@ -45,6 +47,12 @@ interface LineItem {
   /** Responsable de la tâche (avocat·e). */
   responsableUserId: string | null;
   responsableNom: string | null;
+  taxable?: boolean;
+  dossierLabel?: string | null;
+  montantBase?: number;
+  ajustement?: number;
+  rabais?: number;
+  rabaisRaison?: string | null;
 }
 
 export interface UserLite {
@@ -83,11 +91,23 @@ interface CabinetInfo {
   telephone?: string | null;
   email?: string | null;
   barreauNumero?: string | null;
+  logoUrl?: string | null;
+  config?: string | null;
+}
+
+interface ClientDossierLite {
+  id: string;
+  intitule: string;
+  numeroDossier: string | null;
+  reference: string | null;
 }
 
 interface ClientInfo {
   id: string;
+  typeClient?: string | null;
   raisonSociale: string | null;
+  prenom?: string | null;
+  nom?: string | null;
   billingAddress?: string | null;
   billingCity?: string | null;
   billingProvince?: string | null;
@@ -95,15 +115,50 @@ interface ClientInfo {
   billingCountry?: string | null;
   telephone?: string | null;
   email?: string | null;
+  dossiers?: ClientDossierLite[];
 }
+
+/** Display label for a client option/picker — handles morale + physique uniformly. */
+function clientDisplayName(c: Pick<ClientInfo, "typeClient" | "raisonSociale" | "prenom" | "nom">): string {
+  if (c.typeClient === "personne_physique") {
+    const composed = [c.prenom, c.nom].filter(Boolean).join(" ").trim();
+    if (composed) return composed;
+  }
+  if (c.raisonSociale && c.raisonSociale.trim()) return c.raisonSociale.trim();
+  const composed = [c.prenom, c.nom].filter(Boolean).join(" ").trim();
+  return composed || "Client sans nom";
+}
+
+type ClientBillable = {
+  id: string;
+  sourceType: "time_entry" | "expense" | "registre_tache";
+  clientId: string;
+  dossierId: string | null;
+  dossierLabel: string | null;
+  description: string;
+  date: string;
+  hours: number;
+  rate: number;
+  amount: number;
+  montantBase: number;
+  ajustement: number;
+  taxable: boolean;
+  responsableUserId: string | null;
+  responsableNom: string | null;
+  rabais: number;
+  rabaisRaison: string | null;
+};
 
 interface CreateInvoiceViewProps {
   cabinet: CabinetInfo;
   clients: ClientInfo[];
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
   forfaitServices?: ForfaitServiceLite[];
   currentUser: UserLite;
   lawyers: UserLite[];
+  nextInvoiceNumber: string;
+  initialClientId?: string;
+  clientBillables: ClientBillable[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -154,16 +209,20 @@ export function CreateInvoiceView({
   forfaitServices = [],
   currentUser,
   lawyers,
+  nextInvoiceNumber,
+  initialClientId = "",
+  clientBillables,
 }: CreateInvoiceViewProps) {
   const router = useRouter();
   const isForfait = billingMode === "forfait";
 
   /* ---- form state ---- */
   const [language, setLanguage] = useState<"fr" | "en">("fr");
-  const [currency, setCurrency] = useState("CAD");
+  // Currency is locked to CAD — Canadian cabinets only. Surfaced as a read-only badge.
+  const currency = "CAD";
   const [documentType, setDocumentType] = useState("Facture");
-  const [documentNumber, setDocumentNumber] = useState("");
-  const [selectedClientId, setSelectedClientId] = useState("");
+  const [documentNumber] = useState(nextInvoiceNumber);
+  const [selectedClientId, setSelectedClientId] = useState(initialClientId);
   const [dateEmission, setDateEmission] = useState(toISODate(new Date()));
   const [dueDatePreset, setDueDatePreset] = useState<DueDatePreset>("30");
   const [dateEcheance, setDateEcheance] = useState(
@@ -181,6 +240,8 @@ export function CreateInvoiceView({
   const [lines, setLines] = useState<LineItem[]>([
     {
       id: uid(),
+      sourceType: "manual",
+      sourceId: null,
       description: "",
       date: toISODate(new Date()),
       hours: 0,
@@ -190,29 +251,247 @@ export function CreateInvoiceView({
       forfaitServiceId: null,
       responsableUserId: defaultResponsableId,
       responsableNom: defaultResponsableNom,
+      taxable: true,
+      dossierLabel: null,
+      rabais: 0,
+      rabaisRaison: null,
     },
   ]);
 
   /* ---- derived ---- */
   const selectedClient = clients.find((c) => c.id === selectedClientId) ?? null;
+  const billablesForSelectedClient = useMemo(
+    () => clientBillables.filter((item) => item.clientId === selectedClientId),
+    [clientBillables, selectedClientId]
+  );
+  const selectedSourceLines = useMemo(
+    () => lines.filter((line) => line.sourceType && line.sourceType !== "manual" && line.sourceId),
+    [lines]
+  );
 
+  // Rabais lines store positive amounts but reduce the subtotal.
+  // Frais (admin fees) add to the subtotal like a regular taxable line.
   const totals = useMemo(() => {
-    const subtotal = lines.reduce((s, l) => s + l.amount, 0);
-    const hst = Math.round(subtotal * HST_RATE * 100) / 100;
-    return { subtotal, hst, total: subtotal + hst };
+    let subtotalHonoraires = 0;
+    let totalRabais = 0;
+    let totalFrais = 0;
+    let taxableBase = 0;
+    for (const l of lines) {
+      const amt = l.amount || 0;
+      if (l.type === "rabais") {
+        totalRabais += amt;
+        if (l.taxable !== false) taxableBase -= amt;
+      } else if (l.type === "frais_administratifs") {
+        totalFrais += amt;
+        if (l.taxable !== false) taxableBase += amt;
+      } else {
+        subtotalHonoraires += amt;
+        if (l.taxable !== false) taxableBase += amt;
+        if (l.rabais && l.rabais > 0) {
+          totalRabais += l.rabais;
+          if (l.taxable !== false) taxableBase -= l.rabais;
+        }
+      }
+    }
+    const subtotal = subtotalHonoraires + totalFrais - totalRabais;
+    const tps = Math.round(taxableBase * TPS_RATE * 100) / 100;
+    const tvq = Math.round(taxableBase * TVQ_RATE * 100) / 100;
+    return {
+      subtotalHonoraires,
+      totalRabais,
+      totalFrais,
+      subtotal,
+      tps,
+      tvq,
+      total: subtotal + tps + tvq,
+    };
   }, [lines]);
 
-  const previewItems: InvoiceCleanItem[] = lines.map((l) => ({
-    id: l.id,
-    type: l.type,
-    description: l.description || "—",
-    date: l.date,
-    hours: l.hours || null,
-    rate: l.rate || null,
-    amount: l.amount,
-    responsable: l.responsableNom,
-    responsableInitiales: initialsOf(l.responsableNom),
-  }));
+  /**
+   * Construit un `PresentedInvoice` "fictif" à partir de l'état du form,
+   * pour alimenter le composant canonique `InvoiceDocument` via PDFViewer.
+   * Garantit que l'aperçu est strictement le même rendu que le PDF final.
+   */
+  const presentedPreview: PresentedInvoice = useMemo(() => {
+    const cabinetTaxes = getCabinetTaxNumbers(parseCabinetConfig(cabinet.config ?? null));
+    const lineToType = (l: LineItem): PresentedLine["type"] => {
+      if (l.type === "rabais") return "rabais";
+      if (l.type === "frais_administratifs") return "debours_taxable";
+      if (l.type === "debours_non_taxable") return "debours_non_taxable";
+      if (l.type === "debours_taxable") return "debours_taxable";
+      // honoraires + forfait → "honoraires"
+      return "honoraires";
+    };
+
+    const presentedLines: PresentedLine[] = lines.flatMap<PresentedLine>((l) => {
+      const baseLine: PresentedLine = {
+        id: l.id,
+        type: lineToType(l),
+        description: l.description || "—",
+        date: l.date,
+        hours: l.type === "rabais" || l.type === "frais_administratifs" ? null : l.hours || null,
+        rate: l.type === "rabais" || l.type === "frais_administratifs" ? null : l.rate || null,
+        amount: l.type === "rabais" ? -Math.abs(l.amount) : l.amount,
+        userNom: l.type === "rabais" || l.type === "frais_administratifs" ? null : l.responsableNom,
+        parentLineId: null,
+        source: "invoice_line",
+      };
+
+      const out: PresentedLine[] = [baseLine];
+
+      // Si la ligne porte un rabais (provenant d'un registre_tache), le rendre
+      // explicitement comme une ligne de rabais distincte sur la facture.
+      if (l.type !== "rabais" && l.rabais && l.rabais > 0) {
+        out.push({
+          id: `${l.id}-rabais`,
+          type: "rabais",
+          description: l.rabaisRaison ? `Rabais — ${l.rabaisRaison}` : `Rabais — ${l.description || "ligne"}`,
+          date: l.date,
+          hours: null,
+          rate: null,
+          amount: -Math.abs(l.rabais),
+          userNom: null,
+          parentLineId: l.id,
+          source: "invoice_line",
+        });
+      }
+
+      return out;
+    });
+
+    return {
+      id: "preview",
+      numero: documentNumber || "BROUILLON",
+      dateEmission: new Date(dateEmission),
+      dateEcheance: new Date(dateEcheance),
+      statut: "brouillon",
+      invoiceStatus: null,
+      currency,
+      cabinet: {
+        id: "preview-cabinet",
+        nom: cabinet.nom ?? "—",
+        adresse: cabinet.adresse ?? null,
+        telephone: cabinet.telephone ?? null,
+        email: cabinet.email ?? null,
+        barreauNumero: cabinet.barreauNumero ?? null,
+        logoUrl: cabinet.logoUrl ?? null,
+        taxNumbers: {
+          hstNumber: cabinetTaxes.hstNumber ?? null,
+          gstNumber: cabinetTaxes.gstNumber ?? null,
+          qstNumber: cabinetTaxes.qstNumber ?? null,
+          businessNumber: cabinetTaxes.businessNumber ?? null,
+        },
+      },
+      client: selectedClient
+        ? {
+            id: selectedClient.id,
+            raisonSociale: selectedClient.raisonSociale ?? null,
+            prenom: selectedClient.prenom ?? null,
+            nom: selectedClient.nom ?? null,
+            typeClient: selectedClient.typeClient ?? "personne_morale",
+            email: selectedClient.email ?? null,
+            billingAddress: selectedClient.billingAddress ?? null,
+            billingCity: selectedClient.billingCity ?? null,
+            billingProvince: selectedClient.billingProvince ?? null,
+            billingPostalCode: selectedClient.billingPostalCode ?? null,
+            billingCountry: selectedClient.billingCountry ?? null,
+          }
+        : null,
+      dossier:
+        selectedClient?.dossiers && selectedClient.dossiers.length > 0
+          ? {
+              id: selectedClient.dossiers[0].id,
+              intitule: selectedClient.dossiers[0].intitule,
+              numeroDossier: selectedClient.dossiers[0].numeroDossier,
+              modeFacturation: isForfait ? "forfait" : "horaire",
+            }
+          : null,
+      lines: presentedLines,
+      isForfait,
+      totals: {
+        subtotalTaxable: totals.subtotal,
+        tps: totals.tps,
+        tvq: totals.tvq,
+        deboursNonTaxableTotal: 0,
+        montantTotal: totals.total,
+        montantPaye: 0,
+        balanceDue: totals.total,
+        totalRabais: totals.totalRabais,
+      },
+      clientNote: clientNote || null,
+      isLocked: false,
+    };
+  }, [
+    cabinet,
+    selectedClient,
+    lines,
+    documentNumber,
+    dateEmission,
+    dateEcheance,
+    currency,
+    isForfait,
+    totals,
+    clientNote,
+  ]);
+
+
+  useEffect(() => {
+    if (!selectedClientId) return;
+    if (billablesForSelectedClient.length === 0) {
+      setLines([
+        {
+          id: uid(),
+          sourceType: "manual",
+          sourceId: null,
+          description: "",
+          date: toISODate(new Date()),
+          hours: 0,
+          rate: 0,
+          amount: 0,
+          type: isForfait ? "forfait" : "honoraires",
+          forfaitServiceId: null,
+          responsableUserId: defaultResponsableId,
+          responsableNom: defaultResponsableNom,
+          taxable: true,
+          dossierLabel: null,
+          rabais: 0,
+          rabaisRaison: null,
+        },
+      ]);
+      return;
+    }
+
+    setLines(
+      billablesForSelectedClient.map((item) => ({
+        id: `${item.sourceType}-${item.id}`,
+        sourceType: item.sourceType,
+        sourceId: item.id,
+        description:
+          item.ajustement !== 0
+            ? `${item.description} (ajustement ${item.ajustement > 0 ? "+" : ""}${item.ajustement.toFixed(2)} $)`
+            : item.description,
+        date: item.date,
+        hours: item.hours,
+        rate: item.rate,
+        amount: item.amount,
+        type:
+          item.sourceType === "expense"
+            ? "debours_taxable"
+            : isForfait || item.sourceType === "registre_tache"
+              ? "forfait"
+              : "honoraires",
+        forfaitServiceId: null,
+        responsableUserId: item.responsableUserId,
+        responsableNom: item.responsableNom,
+        taxable: item.taxable,
+        dossierLabel: item.dossierLabel,
+        montantBase: item.montantBase,
+        ajustement: item.ajustement,
+        rabais: item.rabais,
+        rabaisRaison: item.rabaisRaison,
+      }))
+    );
+  }, [billablesForSelectedClient, defaultResponsableId, defaultResponsableNom, isForfait, selectedClientId]);
 
   /* ---- handlers ---- */
   function handleDueDatePreset(preset: DueDatePreset) {
@@ -264,6 +543,8 @@ export function CreateInvoiceView({
       ...prev,
       {
         id: uid(),
+        sourceType: "manual",
+        sourceId: null,
         description: "",
         date: toISODate(new Date()),
         hours: 0,
@@ -273,6 +554,58 @@ export function CreateInvoiceView({
         forfaitServiceId: null,
         responsableUserId: defaultResponsableId,
         responsableNom: defaultResponsableNom,
+        taxable: true,
+        dossierLabel: null,
+        rabais: 0,
+        rabaisRaison: null,
+      },
+    ]);
+  }
+
+  function addRabais() {
+    setLines((prev) => [
+      ...prev,
+      {
+        id: uid(),
+        sourceType: "manual",
+        sourceId: null,
+        description: "Rabais — ",
+        date: toISODate(new Date()),
+        hours: 0,
+        rate: 0,
+        amount: 0,
+        type: "rabais",
+        forfaitServiceId: null,
+        responsableUserId: null,
+        responsableNom: null,
+        taxable: true,
+        dossierLabel: null,
+        rabais: 0,
+        rabaisRaison: null,
+      },
+    ]);
+  }
+
+  function addFrais() {
+    setLines((prev) => [
+      ...prev,
+      {
+        id: uid(),
+        sourceType: "manual",
+        sourceId: null,
+        description: "Frais administratifs",
+        date: toISODate(new Date()),
+        hours: 0,
+        rate: 0,
+        amount: 0,
+        type: "frais_administratifs",
+        forfaitServiceId: null,
+        responsableUserId: null,
+        responsableNom: null,
+        taxable: true,
+        dossierLabel: null,
+        rabais: 0,
+        rabaisRaison: null,
       },
     ]);
   }
@@ -298,12 +631,12 @@ export function CreateInvoiceView({
       setSubmitError("Veuillez sélectionner un client.");
       return;
     }
-    const validLines = lines.filter(
-      (l) => l.description.trim().length > 0 && l.amount > 0
+    const manualLines = lines.filter(
+      (l) => (l.sourceType ?? "manual") === "manual" && l.description.trim().length > 0 && l.amount > 0
     );
-    if (validLines.length === 0) {
+    if (manualLines.length === 0 && selectedSourceLines.length === 0) {
       setSubmitError(
-        "Ajoutez au moins une ligne avec une description et un montant."
+        "Ajoutez au moins une ligne ou sélectionnez un client avec des éléments à facturer."
       );
       return;
     }
@@ -314,12 +647,30 @@ export function CreateInvoiceView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "libre",
+          mode: "client-billables",
           clientId: selectedClientId,
-          lignes: validLines.map((l) => ({
+          dateEmission,
+          dateEcheance,
+          currency,
+          clientNote,
+          timeEntryIds: selectedSourceLines
+            .filter((l) => l.sourceType === "time_entry")
+            .map((l) => l.sourceId)
+            .filter((id): id is string => typeof id === "string"),
+          expenseIds: selectedSourceLines
+            .filter((l) => l.sourceType === "expense")
+            .map((l) => l.sourceId)
+            .filter((id): id is string => typeof id === "string"),
+          registreTacheIds: selectedSourceLines
+            .filter((l) => l.sourceType === "registre_tache")
+            .map((l) => l.sourceId)
+            .filter((id): id is string => typeof id === "string"),
+          lignesManuelles: manualLines.map((l) => ({
             description: l.description.trim(),
-            montant: l.amount,
-            taxable: true,
+            // Rabais stored positive in form, sent as negative to the accounting engine
+            // so the line behaves as a credit. Frais and honoraires keep positive sign.
+            montant: l.type === "rabais" ? -Math.abs(l.amount) : l.amount,
+            taxable: l.taxable ?? true,
           })),
         }),
       });
@@ -441,19 +792,13 @@ export function CreateInvoiceView({
                 </div>
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>Devise</label>
-                  <div className="relative">
-                    <select
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className={selectBase}
-                    >
-                      <option value="CAD">$CAD</option>
-                      <option value="USD">$USD</option>
-                    </select>
-                    <ChevronDown
-                      size={14}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-                    />
+                  <div
+                    className={`${inputBase} flex items-center justify-between bg-neutral-50 text-neutral-700 cursor-not-allowed select-none`}
+                    aria-readonly="true"
+                    title="La devise est fixée à CAD pour les cabinets canadiens."
+                  >
+                    <span className="font-semibold">CAD</span>
+                    <span className="text-xs text-neutral-400">Dollar canadien</span>
                   </div>
                 </div>
               </div>
@@ -531,10 +876,13 @@ export function CreateInvoiceView({
                   </label>
                   <input
                     value={documentNumber}
-                    onChange={(e) => setDocumentNumber(e.target.value)}
-                    placeholder="FV 00001/2026"
-                    className={inputBase}
+                    readOnly
+                    aria-readonly="true"
+                    className={`${inputBase} bg-neutral-50 text-neutral-500 cursor-not-allowed`}
                   />
+                  <p className="mt-1.5 text-[11px] text-neutral-400">
+                    Attribué automatiquement à la création.
+                  </p>
                 </div>
               </div>
             </div>
@@ -591,7 +939,7 @@ export function CreateInvoiceView({
             </div>
           </div>
 
-          {/* Client selection */}
+          {/* Client selection — Name first, then dossier, then contact info */}
           <div className={card}>
             <div className="p-6">
               <h3 className={`mb-5 ${sectionTitle}`}>Client</h3>
@@ -604,7 +952,7 @@ export function CreateInvoiceView({
                   <option value="">Sélectionner un client…</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.raisonSociale}
+                      {clientDisplayName(c)}
                     </option>
                   ))}
                 </select>
@@ -615,31 +963,82 @@ export function CreateInvoiceView({
               </div>
 
               {selectedClient && (
-                <div className="mt-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-100/60 text-sm space-y-1">
-                  <p className="font-semibold text-neutral-800">
-                    {selectedClient.raisonSociale}
-                  </p>
-                  {selectedClient.billingAddress && (
-                    <p className="text-neutral-500">
-                      {selectedClient.billingAddress}
+                <div className="mt-4 rounded-xl bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-100/60 text-sm">
+                  {/* 1. Client name (always first) */}
+                  <div className="px-4 pt-4">
+                    <p className="font-semibold text-neutral-900 text-base leading-tight">
+                      {clientDisplayName(selectedClient)}
                     </p>
+                  </div>
+
+                  {/* 2. Dossiers ouverts du client */}
+                  {selectedClient.dossiers && selectedClient.dossiers.length > 0 && (
+                    <div className="px-4 mt-2.5 pb-2.5 border-b border-emerald-100/50">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-700/70 mb-1.5">
+                        Dossier{selectedClient.dossiers.length > 1 ? "s" : ""} ouvert
+                        {selectedClient.dossiers.length > 1 ? "s" : ""}
+                      </p>
+                      <div className="space-y-0.5">
+                        {selectedClient.dossiers.slice(0, 4).map((d) => (
+                          <p key={d.id} className="text-neutral-700 text-[13px] leading-snug">
+                            {d.numeroDossier && (
+                              <span className="font-mono text-emerald-700 mr-1.5">
+                                {d.numeroDossier}
+                              </span>
+                            )}
+                            <span>{d.intitule}</span>
+                          </p>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  {selectedClient.billingCity && (
-                    <p className="text-neutral-500">
-                      {[
-                        selectedClient.billingCity,
-                        selectedClient.billingProvince,
-                        selectedClient.billingPostalCode,
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
+
+                  {/* 3. Coordonnées */}
+                  <div className="px-4 py-3 space-y-0.5">
+                    {selectedClient.billingAddress && (
+                      <p className="text-neutral-500">{selectedClient.billingAddress}</p>
+                    )}
+                    {(selectedClient.billingCity ||
+                      selectedClient.billingProvince ||
+                      selectedClient.billingPostalCode) && (
+                      <p className="text-neutral-500">
+                        {[
+                          selectedClient.billingCity,
+                          selectedClient.billingProvince,
+                          selectedClient.billingPostalCode,
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      </p>
+                    )}
+                    {selectedClient.telephone && (
+                      <p className="text-neutral-500">{selectedClient.telephone}</p>
+                    )}
+                    {selectedClient.email && (
+                      <p className="text-neutral-500">{selectedClient.email}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {selectedClient && (
+                <div className="mt-4 rounded-xl border border-neutral-100 bg-white/70 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-[0.08em]">
+                      Éléments détectés
                     </p>
-                  )}
-                  {selectedClient.telephone && (
-                    <p className="text-neutral-500">{selectedClient.telephone}</p>
-                  )}
-                  {selectedClient.email && (
-                    <p className="text-neutral-500">{selectedClient.email}</p>
+                    <span className="text-xs font-semibold text-emerald-700">
+                      {billablesForSelectedClient.length} ligne{billablesForSelectedClient.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  {billablesForSelectedClient.length > 0 ? (
+                    <p className="mt-2 text-sm text-neutral-500">
+                      Les tâches, honoraires, débours et rabais non facturés sont chargés automatiquement.
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-sm text-neutral-500">
+                      Aucun élément existant à facturer. Vous pouvez créer la facture from scratch.
+                    </p>
                   )}
                 </div>
               )}
@@ -661,13 +1060,31 @@ export function CreateInvoiceView({
                     </p>
                   )}
                 </div>
-                <button
-                  onClick={addLine}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
-                >
-                  <Plus size={14} />
-                  Ajouter
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={addLine}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
+                  >
+                    <Plus size={14} />
+                    Ligne
+                  </button>
+                  <button
+                    onClick={addRabais}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
+                    title="Ajouter un rabais — réduit le sous-total"
+                  >
+                    <Percent size={14} />
+                    Rabais
+                  </button>
+                  <button
+                    onClick={addFrais}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-all duration-200"
+                    title="Ajouter des frais administratifs"
+                  >
+                    <Receipt size={14} />
+                    Frais
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -721,6 +1138,84 @@ export function CreateInvoiceView({
                     </div>
                   );
 
+                  const isAdjustment = line.type === "rabais" || line.type === "frais_administratifs";
+                  if (isAdjustment) {
+                    const isRabais = line.type === "rabais";
+                    return (
+                      <div
+                        key={line.id}
+                        className={`grid grid-cols-12 gap-3 items-end p-4 rounded-xl border transition-all duration-200 ${
+                          isRabais
+                            ? "bg-emerald-50/50 border-emerald-100/80 hover:border-emerald-200"
+                            : "bg-amber-50/40 border-amber-100/80 hover:border-amber-200"
+                        }`}
+                      >
+                        <div className="col-span-9">
+                          <label className="block text-[11px] font-semibold uppercase tracking-[0.08em] mb-1 flex items-center gap-1.5"
+                            style={{ color: isRabais ? "#047857" : "#92400e" }}
+                          >
+                            {isRabais ? <Percent size={11} /> : <Receipt size={11} />}
+                            {isRabais ? "Rabais" : "Frais administratifs"}
+                          </label>
+                          <input
+                            value={line.description}
+                            onChange={(e) =>
+                              updateLine(line.id, { description: e.target.value })
+                            }
+                            placeholder={
+                              isRabais
+                                ? "Motif du rabais (ex. fidélité, geste commercial)…"
+                                : "Description des frais (ex. frais de greffe, copies)…"
+                            }
+                            className={lineInput}
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                            Montant
+                          </label>
+                          <div className="relative">
+                            {isRabais && (
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-bold pointer-events-none">
+                                −
+                              </span>
+                            )}
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={line.amount || ""}
+                              onChange={(e) =>
+                                updateLine(line.id, {
+                                  amount: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              className={`${lineInput} text-right font-semibold ${isRabais ? "pl-7" : ""}`}
+                            />
+                          </div>
+                          <label className="mt-1.5 flex items-center gap-1.5 text-[10px] text-neutral-400">
+                            <input
+                              type="checkbox"
+                              checked={line.taxable !== false}
+                              onChange={(e) => updateLine(line.id, { taxable: e.target.checked })}
+                              className="rounded border-neutral-300"
+                            />
+                            Taxable (TPS/TVQ)
+                          </label>
+                        </div>
+                        <div className="col-span-1 flex justify-end">
+                          <button
+                            onClick={() => removeLine(line.id)}
+                            className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return isForfait ? (
                     /* ── Forfait mode: task picker + editable amount ── */
                     <div
@@ -729,32 +1224,69 @@ export function CreateInvoiceView({
                     >
                       <div className="col-span-9">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Tâche préenregistrée
+                          {line.sourceType === "manual" ? "Tâche préenregistrée" : "Élément à facturer"}
                         </label>
-                        <div className="relative">
-                          <select
-                            value={line.forfaitServiceId ?? ""}
-                            onChange={(e) =>
-                              selectForfaitService(line.id, e.target.value)
-                            }
-                            className={`${lineInput} pr-8 appearance-none`}
-                          >
-                            <option value="">
-                              {forfaitServices.length === 0
-                                ? "Aucune tâche — configurez le registre"
-                                : "Sélectionner une tâche…"}
-                            </option>
-                            {forfaitServices.map((svc) => (
-                              <option key={svc.id} value={svc.id}>
-                                {svc.nom} — {svc.montant.toFixed(2)} $
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown
-                            size={14}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                        {line.sourceType === "manual" ? (
+                          <div className="space-y-2">
+                            <div className="relative">
+                              <select
+                                value={line.forfaitServiceId ?? ""}
+                                onChange={(e) =>
+                                  selectForfaitService(line.id, e.target.value)
+                                }
+                                className={`${lineInput} pr-8 appearance-none`}
+                              >
+                                <option value="">
+                                  {forfaitServices.length === 0
+                                    ? "Saisie libre"
+                                    : "Sélectionner une tâche ou saisir librement…"}
+                                </option>
+                                {forfaitServices.map((svc) => (
+                                  <option key={svc.id} value={svc.id}>
+                                    {svc.nom} — {svc.montant.toFixed(2)} $
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown
+                                size={14}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                              />
+                            </div>
+                            <input
+                              value={line.description}
+                              onChange={(e) =>
+                                updateLine(line.id, { description: e.target.value })
+                              }
+                              placeholder="Description libre…"
+                              className={lineInput}
+                            />
+                          </div>
+                        ) : (
+                          <input
+                            value={line.description}
+                            readOnly
+                            className={`${lineInput} bg-neutral-50 text-neutral-500`}
                           />
-                        </div>
+                        )}
+                        {line.dossierLabel && (
+                          <p className="mt-1 text-[10px] text-neutral-400 truncate">
+                            {line.dossierLabel}
+                          </p>
+                        )}
+                        {((line.ajustement ?? 0) !== 0 || (line.rabais ?? 0) > 0) && (
+                          <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                            {(line.ajustement ?? 0) !== 0 && (
+                              <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
+                                Ajustement {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
+                              </span>
+                            )}
+                            {(line.rabais ?? 0) > 0 && (
+                              <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">
+                                Rabais -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
@@ -765,12 +1297,13 @@ export function CreateInvoiceView({
                           step="0.01"
                           min="0"
                           value={line.amount || ""}
+                          readOnly={line.sourceType !== "manual"}
                           onChange={(e) =>
                             updateLine(line.id, {
                               amount: parseFloat(e.target.value) || 0,
                             })
                           }
-                          className={`${lineInput} text-right font-semibold`}
+                          className={`${lineInput} text-right font-semibold ${line.sourceType !== "manual" ? "bg-neutral-50 text-neutral-500" : ""}`}
                         />
                       </div>
                       <div className="col-span-1 flex justify-end">
@@ -796,12 +1329,32 @@ export function CreateInvoiceView({
                         </label>
                         <input
                           value={line.description}
+                          readOnly={line.sourceType !== "manual"}
                           onChange={(e) =>
                             updateLine(line.id, { description: e.target.value })
                           }
                           placeholder="Description du service…"
-                          className={lineInput}
+                          className={`${lineInput} ${line.sourceType !== "manual" ? "bg-neutral-50 text-neutral-500" : ""}`}
                         />
+                        {line.dossierLabel && (
+                          <p className="mt-1 text-[10px] text-neutral-400 truncate">
+                            {line.dossierLabel}
+                          </p>
+                        )}
+                        {((line.ajustement ?? 0) !== 0 || (line.rabais ?? 0) > 0) && (
+                          <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                            {(line.ajustement ?? 0) !== 0 && (
+                              <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
+                                Ajustement {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
+                              </span>
+                            )}
+                            {(line.rabais ?? 0) > 0 && (
+                              <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">
+                                Rabais -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
@@ -862,13 +1415,33 @@ export function CreateInvoiceView({
 
               {/* Totals summary */}
               <div className="mt-5 pt-5 border-t border-neutral-100 space-y-2.5 text-sm">
-                <div className="flex justify-between text-neutral-400">
+                <div className="flex justify-between text-neutral-500">
+                  <span>Sous-total honoraires</span>
+                  <span className="tabular-nums">{totals.subtotalHonoraires.toFixed(2)} $</span>
+                </div>
+                {totals.totalFrais > 0 && (
+                  <div className="flex justify-between text-amber-700">
+                    <span>Frais administratifs</span>
+                    <span className="tabular-nums">+{totals.totalFrais.toFixed(2)} $</span>
+                  </div>
+                )}
+                {totals.totalRabais > 0 && (
+                  <div className="flex justify-between text-emerald-700">
+                    <span>Rabais accordé</span>
+                    <span className="tabular-nums">−{totals.totalRabais.toFixed(2)} $</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-neutral-500 pt-1.5 border-t border-neutral-100/60">
                   <span>Sous-total</span>
-                  <span className="tabular-nums">{totals.subtotal.toFixed(2)} $</span>
+                  <span className="tabular-nums font-medium">{totals.subtotal.toFixed(2)} $</span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
-                  <span>TVH (13%)</span>
-                  <span className="tabular-nums">{totals.hst.toFixed(2)} $</span>
+                  <span>TPS (5%)</span>
+                  <span className="tabular-nums">{totals.tps.toFixed(2)} $</span>
+                </div>
+                <div className="flex justify-between text-neutral-400">
+                  <span>TVQ (9,975%)</span>
+                  <span className="tabular-nums">{totals.tvq.toFixed(2)} $</span>
                 </div>
                 <div className="flex justify-between font-bold text-neutral-800 text-base pt-3 border-t border-neutral-100">
                   <span>Total</span>
@@ -900,32 +1473,12 @@ export function CreateInvoiceView({
             <h2 className={sectionTitle}>Aperçu en direct</h2>
           </div>
           <div className="rounded-2xl border border-white/60 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.09)]">
-            <InvoiceTemplateClean
-              numero={documentNumber || "BROUILLON"}
-              dateEmission={dateEmission}
-              dateEcheance={dateEcheance}
-              cabinet={cabinet}
-              client={
-                selectedClient
-                  ? {
-                      raisonSociale: selectedClient.raisonSociale,
-                      billingAddress: selectedClient.billingAddress,
-                      billingCity: selectedClient.billingCity,
-                      billingProvince: selectedClient.billingProvince,
-                      billingPostalCode: selectedClient.billingPostalCode,
-                      billingCountry: selectedClient.billingCountry,
-                      telephone: selectedClient.telephone,
-                      email: selectedClient.email,
-                    }
-                  : null
-              }
-              items={previewItems}
-              subtotalTaxable={totals.subtotal}
-              hst={totals.hst}
-              montantTotal={totals.total}
-              clientNote={clientNote || undefined}
-              language={language}
-            />
+            {/*
+             * Aperçu canonique : rend le document via @react-pdf/renderer.
+             * Le PDF téléchargé final utilisera EXACTEMENT le même composant
+             * <InvoiceDocument>, garantissant un rendu strictement identique.
+             */}
+            <InvoicePreview invoice={presentedPreview} language={language} />
           </div>
         </div>
       </div>

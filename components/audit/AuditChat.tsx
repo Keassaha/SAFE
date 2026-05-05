@@ -1691,7 +1691,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
           {
             id: uid(),
             sender: "auditor",
-            text: "Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\nCet audit couvre 7 piliers de votre pratique : gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nEnviron 8 minutes · 100 % confidentiel.\n\nÀ la fin, vous recevrez un diagnostic personnalisé : votre score de conformité, les risques identifiés, l'impact financier estimé et un plan d'action concret.\n\nPrêt(e) à commencer ?",
+            text: "Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\nCet audit couvre 7 piliers de votre pratique : gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nEnviron 15 à 20 min · 100 % confidentiel.\n\nÀ la fin, vous recevrez un diagnostic personnalisé : votre score de conformité, les risques identifiés, l'impact financier estimé et un plan d'action concret.\n\nPrêt(e) à commencer ?",
             timestamp: Date.now(),
           },
         ]);

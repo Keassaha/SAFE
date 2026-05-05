@@ -1,17 +1,23 @@
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getStripe, subscriptionIdFromInvoice } from "@/lib/stripe";
 import {
-  getStripe,
-  subscriptionCurrentPeriodEndUnix,
-  subscriptionIdFromInvoice,
-} from "@/lib/stripe";
+  applyDeletedSubscription,
+  applySubscriptionToCabinet,
+  recordStripeEvent,
+  retrieveSubscription,
+} from "@/lib/services/stripe-subscription";
 import { prisma } from "@/lib/db";
+
+function logIfNoCabinetUpdated(event: Stripe.Event, operation: string, count: number) {
+  if (count === 0) {
+    console.error(`[stripe] ${operation} updated 0 Cabinet rows for event ${event.id}`);
+  }
+}
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const headersList = await headers();
-  const signature = headersList.get("stripe-signature");
+  const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
@@ -24,7 +30,6 @@ export async function POST(req: Request) {
   }
 
   let event: Stripe.Event;
-
   try {
     event = getStripe().webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
@@ -33,80 +38,66 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  const shouldProcess = await recordStripeEvent(event);
+  if (!shouldProcess) {
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode === "subscription" && session.subscription && session.customer) {
-          const subscription = await getStripe().subscriptions.retrieve(
-            session.subscription as string
-          );
-          const periodEnd = subscriptionCurrentPeriodEndUnix(subscription);
-          await prisma.cabinet.updateMany({
-            where: { stripeCustomerId: session.customer as string },
-            data: {
-              stripeSubscriptionId: subscription.id,
-              stripePriceId: subscription.items.data[0]?.price.id ?? null,
-              stripeCurrentPeriodEnd:
-                periodEnd != null ? new Date(periodEnd * 1000) : null,
-            },
+          const subscription = await retrieveSubscription(session.subscription as string);
+          const count = await applySubscriptionToCabinet({
+            cabinetId: session.metadata?.cabinetId ?? null,
+            customerId: session.customer as string,
+            subscription,
           });
+          logIfNoCabinetUpdated(event, "checkout.session.completed", count);
         }
         break;
       }
 
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const subId = subscriptionIdFromInvoice(invoice);
-        if (subId && invoice.customer) {
-          const subscription = await getStripe().subscriptions.retrieve(subId);
-          const periodEndInv = subscriptionCurrentPeriodEndUnix(subscription);
-          await prisma.cabinet.updateMany({
-            where: { stripeCustomerId: invoice.customer as string },
-            data: {
-              stripePriceId: subscription.items.data[0]?.price.id ?? null,
-              stripeCurrentPeriodEnd:
-                periodEndInv != null ? new Date(periodEndInv * 1000) : null,
-            },
-          });
-        }
-        break;
-      }
-
+      case "customer.subscription.created":
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        const periodEndUpd = subscriptionCurrentPeriodEndUnix(subscription);
-        await prisma.cabinet.updateMany({
-          where: { stripeCustomerId: subscription.customer as string },
-          data: {
-            stripeSubscriptionId: subscription.id,
-            stripePriceId: subscription.items.data[0]?.price.id ?? null,
-            stripeCurrentPeriodEnd:
-              periodEndUpd != null ? new Date(periodEndUpd * 1000) : null,
-          },
+        const count = await applySubscriptionToCabinet({
+          cabinetId: subscription.metadata?.cabinetId ?? null,
+          customerId: subscription.customer as string,
+          subscription,
         });
+        logIfNoCabinetUpdated(event, event.type, count);
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        await prisma.cabinet.updateMany({
-          where: { stripeCustomerId: subscription.customer as string },
-          data: {
-            plan: "essentiel",
-            stripeSubscriptionId: null,
-            stripePriceId: null,
-            stripeCurrentPeriodEnd: null,
-          },
-        });
+        const count = await applyDeletedSubscription(subscription);
+        logIfNoCabinetUpdated(event, "customer.subscription.deleted", count);
+        break;
+      }
+
+      case "invoice.payment_succeeded":
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subId = subscriptionIdFromInvoice(invoice);
+        if (subId && invoice.customer) {
+          const subscription = await retrieveSubscription(subId);
+          const count = await applySubscriptionToCabinet({
+            customerId: invoice.customer as string,
+            subscription,
+          });
+          logIfNoCabinetUpdated(event, event.type, count);
+        }
         break;
       }
 
       default:
-        // Événement non géré — on retourne 200 quand même
         break;
     }
   } catch (err) {
+    await prisma.stripeWebhookEvent.delete({ where: { id: event.id } }).catch(() => undefined);
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`Webhook handler error: ${message}`);
     return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });

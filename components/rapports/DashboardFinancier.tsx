@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 interface DashboardFinancierProps {
   kpis: {
     revenusFactures: number;
+    rabaisAccordes: number;
     paiementsRecus: number;
     facturesImpayees: number;
     soldeFideicommis: number;
@@ -42,6 +43,12 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
       accent: "blue" as const,
     },
     {
+      title: "Rabais accordés",
+      value: formatCurrency(kpis.rabaisAccordes),
+      icon: <Percent className="w-5 h-5" aria-hidden />,
+      accent: "red" as const,
+    },
+    {
       title: t("unpaidInvoices"),
       value: formatCurrency(kpis.facturesImpayees),
       icon: <FileWarning className="w-5 h-5" aria-hidden />,
@@ -51,19 +58,19 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
       title: t("trustBalance"),
       value: formatCurrency(kpis.soldeFideicommis),
       icon: <Landmark className="w-5 h-5" aria-hidden />,
-      accent: "teal" as const,
+      accent: "emerald" as const,
     },
     {
       title: t("billableHours"),
       value: `${kpis.heuresFacturables} h`,
       icon: <Clock className="w-5 h-5" aria-hidden />,
-      accent: "violet" as const,
+      accent: "blue" as const,
     },
     {
       title: t("realizationRate"),
       value: `${kpis.tauxRealisation} %`,
       icon: <Percent className="w-5 h-5" aria-hidden />,
-      accent: "orange" as const,
+      accent: "amber" as const,
     },
   ];
 

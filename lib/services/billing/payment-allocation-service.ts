@@ -5,7 +5,83 @@
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
+import { writeJournalForPayment } from "@/lib/services/journal/billing-journal";
 import { recalculateInvoiceTotals } from "./invoice-service";
+
+export interface AllocationItem {
+  invoiceId: string;
+  allocatedAmount: number;
+}
+
+/**
+ * Validation pure des règles d'allocation. Centralisée pour pouvoir être
+ * testée sans Prisma.
+ *
+ * Règles :
+ *   - chaque allocation > 0 (les <= 0 sont rejetées explicitement) ;
+ *   - chaque invoiceId apparaît au plus une fois dans la requête (rejet
+ *     explicite des doublons — l'utilisateur doit consolider lui-même) ;
+ *   - somme des allocations ≤ (montant du paiement − déjà alloué sur ce paiement) ;
+ *   - chaque allocation ≤ solde restant DÛ de la facture (balanceDue).
+ */
+export function validateAllocationRequest(input: {
+  paymentTotal: number;
+  alreadyAllocatedFromThisPayment: number;
+  allocations: AllocationItem[];
+  invoiceBalances: Map<string, number>;
+}): { ok: true; items: AllocationItem[] } | { ok: false; error: string } {
+  const {
+    paymentTotal,
+    alreadyAllocatedFromThisPayment,
+    allocations,
+    invoiceBalances,
+  } = input;
+
+  if (allocations.length === 0) {
+    return { ok: false, error: "Aucune allocation fournie" };
+  }
+
+  for (const { allocatedAmount } of allocations) {
+    if (!Number.isFinite(allocatedAmount) || allocatedAmount <= 0) {
+      return { ok: false, error: "Le montant d'allocation doit être strictement positif" };
+    }
+  }
+
+  const seen = new Set<string>();
+  for (const { invoiceId } of allocations) {
+    if (seen.has(invoiceId)) {
+      return {
+        ok: false,
+        error: `Allocation en double sur la facture ${invoiceId} : consolidez les montants en une seule entrée.`,
+      };
+    }
+    seen.add(invoiceId);
+  }
+
+  const totalRequested = allocations.reduce((s, a) => s + a.allocatedAmount, 0);
+  const remainingOnPayment = paymentTotal - alreadyAllocatedFromThisPayment;
+  if (totalRequested > remainingOnPayment + 0.0001) {
+    return {
+      ok: false,
+      error: `Le total des allocations (${totalRequested}) dépasse le solde non alloué du paiement (${remainingOnPayment}).`,
+    };
+  }
+
+  for (const { invoiceId, allocatedAmount } of allocations) {
+    const balance = invoiceBalances.get(invoiceId);
+    if (balance == null) {
+      return { ok: false, error: `Facture ${invoiceId} introuvable` };
+    }
+    if (allocatedAmount > balance + 0.0001) {
+      return {
+        ok: false,
+        error: `Allocation de ${allocatedAmount} sur la facture ${invoiceId} excède son solde dû (${balance}).`,
+      };
+    }
+  }
+
+  return { ok: true, items: allocations };
+}
 
 export async function createPayment(params: {
   cabinetId: string;
@@ -34,23 +110,36 @@ export async function createPayment(params: {
     allocatedAmount,
   } = params;
 
-  const payment = await prisma.payment.create({
-    data: {
-      cabinetId,
-      clientId,
-      datePaiement: paymentDate,
-      montant: amount,
-      mode: paymentMethod,
-      method: "autre",
-      reference: referenceNumber ?? undefined,
-      paymentMethod: paymentMethod as "cash" | "cheque" | "e_transfer" | "card" | "bank_transfer" | "trust" | "other",
-      referenceNumber: referenceNumber ?? undefined,
-      sourceAccountType: (sourceAccountType as "operating" | "trust" | "external") ?? "operating",
-      allocationStatus: "UNALLOCATED",
-      note: note ?? undefined,
-      receivedById: receivedById ?? undefined,
-      invoiceId: invoiceId ?? undefined,
-    },
+  const payment = await prisma.$transaction(async (tx) => {
+    const created = await tx.payment.create({
+      data: {
+        cabinetId,
+        clientId,
+        datePaiement: paymentDate,
+        montant: amount,
+        mode: paymentMethod,
+        method: "autre",
+        reference: referenceNumber ?? undefined,
+        paymentMethod: paymentMethod as "cash" | "cheque" | "e_transfer" | "card" | "bank_transfer" | "trust" | "other",
+        referenceNumber: referenceNumber ?? undefined,
+        sourceAccountType: (sourceAccountType as "operating" | "trust" | "external") ?? "operating",
+        allocationStatus: "UNALLOCATED",
+        note: note ?? undefined,
+        receivedById: receivedById ?? undefined,
+        invoiceId: invoiceId ?? undefined,
+      },
+      include: {
+        client: { select: { raisonSociale: true, prenom: true, nom: true } },
+        invoice: { select: { numero: true, dossierId: true } },
+      },
+    });
+
+    await writeJournalForPayment(created, {
+      client: tx,
+      utilisateurId: receivedById ?? null,
+    });
+
+    return created;
   });
 
   if (invoiceId && allocatedAmount != null && allocatedAmount > 0) {
@@ -150,43 +239,86 @@ export async function updatePayment(params: {
   });
 }
 
-/** Alloue un paiement à une ou plusieurs factures */
+/** Alloue un paiement à une ou plusieurs factures.
+ *
+ * Concurrence : la validation balance/paiement est rejouée **dans la transaction**
+ * sous verrou Postgres advisory (`pg_advisory_xact_lock`) sur le paiement et sur
+ * chaque facture cible. Cela sérialise les requêtes concurrentes touchant les
+ * mêmes factures/paiement et empêche la sur-allocation, même si deux clients
+ * envoient simultanément des allocations identiques.
+ *
+ * La pré-validation hors transaction reste utile pour fail-fast sur les
+ * requêtes manifestement invalides (montants ≤ 0, doublons, paiement annulé).
+ */
 export async function allocateToInvoices(params: {
   paymentId: string;
-  allocations: { invoiceId: string; allocatedAmount: number }[];
+  allocations: AllocationItem[];
   performedById?: string | null;
   cabinetId?: string;
 }): Promise<void> {
   const { paymentId, allocations, performedById, cabinetId: enforcedCabinetId } = params;
 
+  // 1. Lecture initiale du paiement (sans verrou) pour fail-fast sur paiement
+  // inexistant/annulé. La revalidation sous verrou est faite plus loin.
   const payment = await prisma.payment.findFirst({
     where: { id: paymentId, ...(enforcedCabinetId ? { cabinetId: enforcedCabinetId } : {}) },
-    include: { paymentAllocations: true },
+    select: { id: true, cabinetId: true, allocationStatus: true },
   });
   if (!payment) throw new Error("Paiement introuvable");
   if (payment.allocationStatus === "REVERSED") {
     throw new Error("Ce paiement a été annulé");
   }
 
-  const alreadyAllocated = payment.paymentAllocations.reduce(
-    (s, a) => s + a.allocatedAmount,
-    0
-  );
-  const newTotal = allocations.reduce((s, a) => s + a.allocatedAmount, 0);
-  if (alreadyAllocated + newTotal > payment.montant) {
-    throw new Error("Le total des allocations ne peut pas dépasser le montant du paiement");
-  }
-
   const cabinetId = payment.cabinetId;
+  // Trié pour ordonner les advisory locks de manière déterministe entre
+  // requêtes concurrentes — évite les deadlocks lock-A-puis-B vs lock-B-puis-A.
+  const invoiceIds = Array.from(new Set(allocations.map((a) => a.invoiceId))).sort();
   const now = new Date();
 
-  await prisma.$transaction(async (tx) => {
-    for (const { invoiceId, allocatedAmount } of allocations) {
-      if (allocatedAmount <= 0) continue;
-      const inv = await tx.invoice.findFirst({
-        where: { id: invoiceId, cabinetId },
-      });
-      if (!inv) throw new Error(`Facture ${invoiceId} introuvable`);
+  // 2. Toute la logique d'écriture sous verrou advisory + revalidation atomique
+  const validatedItems = await prisma.$transaction(async (tx) => {
+    // Verrou advisory : sérialise les transactions concurrentes touchant ce
+    // paiement et ces factures. Libéré automatiquement au commit/rollback.
+    // Pattern réutilisé depuis lib/services/journal/journal-service.ts.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`payment:${paymentId}`}))`;
+    for (const invoiceId of invoiceIds) {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`invoice:${invoiceId}`}))`;
+    }
+
+    // Re-lecture sous verrou : c'est l'état "vrai" et personne ne peut
+    // muter ces lignes tant que la tx n'est pas terminée.
+    const paymentLocked = await tx.payment.findFirst({
+      where: { id: paymentId, cabinetId },
+      include: { paymentAllocations: true },
+    });
+    if (!paymentLocked) throw new Error("Paiement introuvable");
+    if (paymentLocked.allocationStatus === "REVERSED") {
+      throw new Error("Ce paiement a été annulé");
+    }
+    const alreadyAllocatedFromThisPayment = paymentLocked.paymentAllocations.reduce(
+      (s, a) => s + a.allocatedAmount,
+      0,
+    );
+
+    const invoices = await tx.invoice.findMany({
+      where: { id: { in: invoiceIds }, cabinetId },
+      select: { id: true, balanceDue: true },
+    });
+    const invoiceBalances = new Map<string, number>(
+      invoices.map((i) => [i.id, i.balanceDue ?? 0]),
+    );
+
+    // Validation atomique : sous verrou, balance et déjà-alloué sont fiables.
+    const validation = validateAllocationRequest({
+      paymentTotal: paymentLocked.montant,
+      alreadyAllocatedFromThisPayment,
+      allocations,
+      invoiceBalances,
+    });
+    if (!validation.ok) throw new Error(validation.error);
+
+    // Écritures
+    for (const { invoiceId, allocatedAmount } of validation.items) {
       await tx.paymentAllocation.create({
         data: {
           paymentId,
@@ -198,10 +330,10 @@ export async function allocateToInvoices(params: {
     }
 
     const totalAllocated =
-      alreadyAllocated +
-      allocations.reduce((s, a) => s + a.allocatedAmount, 0);
+      alreadyAllocatedFromThisPayment +
+      validation.items.reduce((s, a) => s + a.allocatedAmount, 0);
     const status =
-      totalAllocated >= payment.montant
+      totalAllocated >= paymentLocked.montant
         ? "ALLOCATED"
         : totalAllocated > 0
           ? "PARTIALLY_ALLOCATED"
@@ -210,11 +342,13 @@ export async function allocateToInvoices(params: {
       where: { id: paymentId },
       data: { allocationStatus: status },
     });
-  });
 
-  for (const { invoiceId } of allocations) {
-    await recalculateInvoiceTotals(invoiceId);
-  }
+    for (const { invoiceId } of validation.items) {
+      await recalculateInvoiceTotals(invoiceId, tx);
+    }
+
+    return validation.items;
+  });
 
   await createAuditLog({
     cabinetId,
@@ -222,7 +356,7 @@ export async function allocateToInvoices(params: {
     entityType: "Payment",
     entityId: paymentId,
     action: "update",
-    newValues: { allocations },
+    newValues: { allocations: validatedItems },
     performedBy: performedById ?? undefined,
     performedAt: now,
   });

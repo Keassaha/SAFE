@@ -8,6 +8,7 @@
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
+import { normalizeClientName, clientDedupeKey } from "@/lib/clients/normalize-name";
 
 interface ConflictResult {
   dossierId: string;
@@ -212,4 +213,229 @@ export async function getConflictChecks(dossierId: string) {
       checkedBy: { select: { nom: true } },
     },
   });
+}
+
+// --- Vérification au niveau client (avant création de dossier) ---
+
+export type ClientConflictCheckStatus = "clear" | "possible_match" | "high_risk" | "error";
+
+export type ClientConflictMatchKind = "client" | "dossier" | "adverse_party" | "other";
+
+export interface ClientConflictMatch {
+  kind: ClientConflictMatchKind;
+  id: string;
+  label: string;
+  reason: string;
+  risk: "low" | "medium" | "high";
+  href?: string;
+}
+
+export interface ClientConflictCheckResult {
+  status: ClientConflictCheckStatus;
+  checkedAt: string;
+  query: string;
+  matches: ClientConflictMatch[];
+}
+
+export interface ClientConflictCheckInput {
+  typeClient?: "personne_physique" | "personne_morale" | string | null;
+  raisonSociale?: string | null;
+  prenom?: string | null;
+  nom?: string | null;
+  email?: string | null;
+}
+
+const MIN_QUERY_LENGTH = 3;
+const ACTIVE_DOSSIER_STATUTS = ["ouvert", "actif", "en_attente"] as const;
+
+/**
+ * Vérification de conflit déclenchée à la création d'un client.
+ *
+ * Pure : ne persiste rien. Le résultat est figé côté wizard puis archivé
+ * dans `Client.conflictNotes` lors de la création effective.
+ *
+ * Recherche dans le cabinet courant :
+ *  - clients existants (clé de dédoublonnage normalisée + email exact)
+ *  - dossiers actifs (intitulé contenant le nom = potentielle partie adverse,
+ *    référence/numéro de dossier en correspondance exacte)
+ *  - historique ConflictCheck pour signaler une vérification antérieure
+ */
+export async function runClientConflictCheck(
+  cabinetId: string,
+  input: ClientConflictCheckInput
+): Promise<ClientConflictCheckResult> {
+  const checkedAt = new Date().toISOString();
+  const query = buildClientQuery(input);
+
+  if (query.length < MIN_QUERY_LENGTH) {
+    return { status: "clear", checkedAt, query, matches: [] };
+  }
+
+  const normalized = normalizeClientName(query);
+  const tokens = normalized.split(/\s+/).filter((t) => t.length >= 2);
+  const dedupeKey = clientDedupeKey({
+    typeClient: input.typeClient ?? undefined,
+    raisonSociale: input.raisonSociale,
+    prenom: input.prenom,
+    nom: input.nom,
+  });
+  const emailLower = input.email?.trim().toLowerCase() || null;
+
+  if (tokens.length === 0 && !dedupeKey && !emailLower) {
+    return { status: "clear", checkedAt, query, matches: [] };
+  }
+
+  const matches: ClientConflictMatch[] = [];
+  const matchingClientIds = new Set<string>();
+
+  try {
+    // 1. Clients existants — même clé normalisée ou même email
+    const candidates = await prisma.client.findMany({
+      where: { cabinetId, status: { not: "archive" } },
+      select: {
+        id: true,
+        typeClient: true,
+        raisonSociale: true,
+        prenom: true,
+        nom: true,
+        email: true,
+      },
+      take: 500,
+    });
+
+    for (const c of candidates) {
+      const candidateKey = clientDedupeKey({
+        typeClient: c.typeClient,
+        raisonSociale: c.raisonSociale,
+        prenom: c.prenom,
+        nom: c.nom,
+      });
+      const sameKey = dedupeKey.length > 0 && candidateKey === dedupeKey;
+      const sameEmail = emailLower && c.email && c.email.toLowerCase() === emailLower;
+      if (!sameKey && !sameEmail) continue;
+
+      matchingClientIds.add(c.id);
+      matches.push({
+        kind: "client",
+        id: c.id,
+        label: formatClientLabel(c),
+        reason: sameKey ? "existing_client_same_name" : "existing_client_same_email",
+        risk: "medium",
+        href: `/clients/${c.id}`,
+      });
+    }
+
+    // 2. Dossiers actifs — intitulé / référence
+    if (tokens.length > 0) {
+      const dossiers = await prisma.dossier.findMany({
+        where: {
+          cabinetId,
+          statut: { in: [...ACTIVE_DOSSIER_STATUTS] },
+        },
+        select: {
+          id: true,
+          intitule: true,
+          numeroDossier: true,
+          reference: true,
+          clientId: true,
+        },
+        take: 500,
+      });
+
+      for (const d of dossiers) {
+        const intituleNorm = normalizeClientName(d.intitule);
+        const intituleHits = intituleNorm.length > 0 && tokens.every((t) => intituleNorm.includes(t));
+        const refValue = [d.numeroDossier, d.reference].filter(Boolean).join(" ").trim();
+        const refNorm = refValue ? normalizeClientName(refValue) : "";
+        const refHits = refNorm.length > 0 && tokens.every((t) => refNorm.includes(t));
+        if (!intituleHits && !refHits) continue;
+
+        const linkedToMatchingClient = matchingClientIds.has(d.clientId);
+
+        if (intituleHits && !linkedToMatchingClient) {
+          matches.push({
+            kind: "adverse_party",
+            id: d.id,
+            label: d.intitule,
+            reason: "name_in_other_matter_title",
+            risk: "high",
+            href: `/dossiers/${d.id}`,
+          });
+        } else if (intituleHits) {
+          matches.push({
+            kind: "dossier",
+            id: d.id,
+            label: d.intitule,
+            reason: "matter_for_existing_client",
+            risk: "low",
+            href: `/dossiers/${d.id}`,
+          });
+        } else if (refHits) {
+          matches.push({
+            kind: "dossier",
+            id: d.id,
+            label: `${d.numeroDossier ?? d.reference ?? ""} — ${d.intitule}`.trim(),
+            reason: "matching_reference",
+            risk: "low",
+            href: `/dossiers/${d.id}`,
+          });
+        }
+      }
+    }
+
+    // 3. Historique des contrôles de conflit
+    if (tokens.length > 0) {
+      const historic = await prisma.conflictCheck.findMany({
+        where: { cabinetId, conflictsFound: true },
+        select: { id: true, clientName: true, dossierId: true, checkedAt: true },
+        orderBy: { checkedAt: "desc" },
+        take: 50,
+      });
+      for (const h of historic) {
+        const hn = normalizeClientName(h.clientName);
+        if (hn.length === 0) continue;
+        if (!tokens.every((t) => hn.includes(t))) continue;
+        matches.push({
+          kind: "other",
+          id: h.id,
+          label: h.clientName,
+          reason: "previous_conflict_recorded",
+          risk: "medium",
+          href: `/dossiers/${h.dossierId}`,
+        });
+      }
+    }
+  } catch {
+    return { status: "error", checkedAt, query, matches: [] };
+  }
+
+  const hasHigh = matches.some((m) => m.risk === "high");
+  const hasMediumOrLow = matches.length > 0;
+  const status: ClientConflictCheckStatus = hasHigh
+    ? "high_risk"
+    : hasMediumOrLow
+      ? "possible_match"
+      : "clear";
+
+  return { status, checkedAt, query, matches };
+}
+
+function buildClientQuery(input: ClientConflictCheckInput): string {
+  const isPhysique = input.typeClient === "personne_physique";
+  if (isPhysique) {
+    const parts = [input.prenom, input.nom].map((s) => s?.trim() ?? "").filter(Boolean);
+    if (parts.length > 0) return parts.join(" ");
+    return (input.nom ?? "").trim();
+  }
+  return (input.raisonSociale ?? "").trim();
+}
+
+function formatClientLabel(c: {
+  raisonSociale: string | null;
+  prenom: string | null;
+  nom: string | null;
+}): string {
+  if (c.raisonSociale && c.raisonSociale.trim()) return c.raisonSociale;
+  const composed = [c.prenom, c.nom].filter(Boolean).join(" ").trim();
+  return composed || "—";
 }

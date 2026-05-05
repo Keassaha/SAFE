@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { canAccessDocument } from "@/lib/services/document";
+import { canAccessDocument, readDocumentObject } from "@/lib/services/document";
 import { createAuditLog } from "@/lib/services/audit";
 import type { UserRole } from "@prisma/client";
-import fs from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/db";
-
-const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
 export async function GET(
   _request: Request,
@@ -38,10 +34,9 @@ export async function GET(
     return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
   }
 
-  const fullPath = path.join(UPLOAD_BASE, doc.storageKey);
   let buffer: Buffer;
   try {
-    buffer = await fs.readFile(fullPath);
+    buffer = await readDocumentObject(doc.storageKey);
   } catch {
     return NextResponse.json({ error: "Fichier introuvable" }, { status: 404 });
   }

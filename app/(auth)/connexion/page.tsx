@@ -2,13 +2,16 @@
 
 import { signInWithCredentialsClient } from "@/lib/auth/credentials-sign-in-client";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
 
-const inputClass =
-  "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-forest-600 focus:ring-1 focus:ring-forest-600 font-sans";
+const inputBaseClass =
+  "w-full h-11 rounded-[6px] border border-border bg-surface text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-forest-600 focus:ring-1 focus:ring-forest-600 font-sans";
+const inputClass = `${inputBaseClass} px-4`;
+const passwordInputClass = `${inputBaseClass} pl-4 pr-12`;
 
 type AuthTab = "signin" | "signup";
 
@@ -25,11 +28,13 @@ function AuthPageContent() {
   const [cabinetName, setCabinetName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [signupNom, setSignupNom] = useState("");
   const [signupCabinetName, setSignupCabinetName] = useState("");
   const [signupAddress, setSignupAddress] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [error, setError] = useState("");
   const [dbConfigError, setDbConfigError] = useState("");
   const [success, setSuccess] = useState(
@@ -221,14 +226,30 @@ function AuthPageContent() {
             <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Mot de passe
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className={inputClass}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                className={passwordInputClass}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                title={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+            </div>
           </div>
           <div className="flex items-center justify-between pt-1">
             <p className="text-[12px] text-text-subtle font-sans leading-[1.5] max-w-[240px]">
@@ -300,15 +321,31 @@ function AuthPageContent() {
             <label htmlFor="signupPassword" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
               Mot de passe
             </label>
-            <input
-              id="signupPassword"
-              type="password"
-              value={signupPassword}
-              onChange={(e) => setSignupPassword(e.target.value)}
-              minLength={8}
-              required
-              className={inputClass}
-            />
+            <div className="relative">
+              <input
+                id="signupPassword"
+                type={showSignupPassword ? "text" : "password"}
+                value={signupPassword}
+                onChange={(e) => setSignupPassword(e.target.value)}
+                autoComplete="new-password"
+                minLength={8}
+                required
+                className={passwordInputClass}
+              />
+              <button
+                type="button"
+                onClick={() => setShowSignupPassword((value) => !value)}
+                aria-label={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                title={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              >
+                {showSignupPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none">
             {loading ? "Création..." : "Créer le cabinet"}

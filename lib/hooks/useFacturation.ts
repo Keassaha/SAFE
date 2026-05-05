@@ -10,11 +10,14 @@ export type HonorairesRow = {
   totalHeures: number;
   totalHonoraires: number;
   totalDebours: number;
+  totalForfaits: number;
   taxesEstimees: number;
   totalAFacturer: number;
   lastDate: string;
   timeEntryIds: string[];
   expenseIds: string[];
+  registreTacheIds: string[];
+  draftInvoiceIds?: string[];
 };
 
 export type HonorairesDetailEntry = {
@@ -30,6 +33,9 @@ export type HonorairesDetailEntry = {
   dossierId: string | null;
   dossierIntitule: string | null;
   taxable?: boolean;
+  invoiceId?: string | null;
+  invoiceNumero?: string | null;
+  isDrafted?: boolean;
 };
 
 export type HonorairesDetailExpense = {
@@ -41,7 +47,37 @@ export type HonorairesDetailExpense = {
   amount: number;
   taxable: boolean;
   dossierId: string | null;
+  invoiceId?: string | null;
+  invoiceNumero?: string | null;
+  isDrafted?: boolean;
 };
+
+export type HonorairesDetailRegistreTache = {
+  id: string;
+  kind: "registre_tache";
+  date: string;
+  description: string;
+  montantBase: number;
+  ajustement: number;
+  rabais: number;
+  rabaisRaison: string | null;
+  amount: number;
+  taxable: boolean;
+  dossierId: string;
+  dossierIntitule: string | null;
+  invoiceId?: string | null;
+  invoiceNumero?: string | null;
+  isDrafted?: boolean;
+};
+
+function readInvoiceId(data: Record<string, unknown>): string {
+  const invoice = data.invoice as { id?: unknown } | undefined;
+  const invoiceId = data.invoiceId ?? data.id ?? invoice?.id;
+  if (typeof invoiceId !== "string" || invoiceId.length === 0) {
+    throw new Error("La facture a été créée, mais son identifiant est introuvable.");
+  }
+  return invoiceId;
+}
 
 function buildQueryString(filters: FacturationHonorairesQueryInput): string {
   const params = new URLSearchParams();
@@ -80,6 +116,7 @@ export function useFacturationHonorairesDetail(clientId: string | null) {
       clientName: string | null;
       entries: HonorairesDetailEntry[];
       expenses: HonorairesDetailExpense[];
+      registreTaches: HonorairesDetailRegistreTache[];
     }> => {
       const res = await fetch(
         `/api/facturation/honoraires?clientId=${encodeURIComponent(clientId!)}`
@@ -94,6 +131,7 @@ export function useFacturationHonorairesDetail(clientId: string | null) {
         ...data,
         entries: (data.entries ?? []).map((e: { date: string }) => ({ ...e, date: norm(e.date) })),
         expenses: (data.expenses ?? []).map((e: { date: string }) => ({ ...e, date: norm(e.date) })),
+        registreTaches: (data.registreTaches ?? []).map((t: { date: string }) => ({ ...t, date: norm(t.date) })),
       };
     },
     enabled: Boolean(clientId),
@@ -108,7 +146,25 @@ export function useCreerFactureDepuisTemps() {
       dossierId?: string | null;
       timeEntryIds: string[];
       expenseIds?: string[];
+      registreTacheIds?: string[];
     }) => {
+      if (body.registreTacheIds?.length) {
+        const res = await fetch("/api/registre-taches/facturer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "client-billables",
+            clientId: body.clientId,
+            timeEntryIds: body.timeEntryIds,
+            expenseIds: body.expenseIds ?? [],
+            registreTacheIds: body.registreTacheIds,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? "Erreur création facture");
+        return { invoiceId: readInvoiceId(data) };
+      }
+
       const res = await fetch("/api/facturation/factures/creer-depuis-temps", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -132,7 +188,31 @@ export function useCreerEtEnvoyerFactureDepuisTemps() {
       dossierId?: string | null;
       timeEntryIds: string[];
       expenseIds?: string[];
+      registreTacheIds?: string[];
     }) => {
+      if (body.registreTacheIds?.length) {
+        const res = await fetch("/api/registre-taches/facturer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "client-billables",
+            clientId: body.clientId,
+            timeEntryIds: body.timeEntryIds,
+            expenseIds: body.expenseIds ?? [],
+            registreTacheIds: body.registreTacheIds,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? "Erreur création facture");
+        const invoiceId = readInvoiceId(data);
+        const sendRes = await fetch(`/api/facturation/factures/${invoiceId}/envoyer`, {
+          method: "POST",
+        });
+        const sendData = await sendRes.json().catch(() => ({}));
+        if (!sendRes.ok) throw new Error(sendData.error ?? "Erreur envoi facture");
+        return { invoiceId } as { invoiceId: string };
+      }
+
       const res = await fetch("/api/facturation/factures/creer-et-envoyer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

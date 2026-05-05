@@ -3,28 +3,32 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { UserRole } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
-import {
-  useFacturationHonoraires,
-  useCreerFactureDepuisTemps,
-  useCreerEtEnvoyerFactureDepuisTemps,
-} from "@/lib/hooks/useFacturation";
+import { useFacturationHonoraires } from "@/lib/hooks/useFacturation";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
 import type { FacturationHonorairesQueryInput } from "@/lib/validations/facturation";
-import { Search, Eye, FileText, Loader2, ArrowLeft, Send } from "lucide-react";
-import { toast } from "sonner";
+import { Search, Eye, FileText, FilePlus2, Loader2, ArrowLeft } from "lucide-react";
+
+const ICON_BTN_BASE =
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-500 focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed";
+const ICON_BTN_OUTLINE =
+  "border border-forest-700/30 text-forest-700 bg-white hover:bg-forest-50";
+const ICON_BTN_GHOST =
+  "border border-transparent text-forest-700 hover:bg-forest-50";
+const ICON_BTN_PRIMARY = "bg-forest-700 text-forest-50 hover:opacity-90";
 
 interface HonorairesAFacturerViewProps {
   cabinetId: string;
   role: string;
+  /** En mode embedded, le hero gradient et le lien retour sont masqués pour intégration dans /facturation. */
+  embedded?: boolean;
 }
 
-export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturerViewProps) {
+export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: HonorairesAFacturerViewProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<FacturationHonorairesQueryInput>({});
   const [searchQ, setSearchQ] = useState("");
@@ -36,89 +40,50 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
 
   const { data, isLoading } = useFacturationHonoraires(effectiveFilters);
   const { data: context } = useTempsContext(cabinetId);
-  const creerMutation = useCreerFactureDepuisTemps();
-  const creerEtEnvoyerMutation = useCreerEtEnvoyerFactureDepuisTemps();
-  const canCreateAndSend =
-    role === ("admin_cabinet" satisfies UserRole) ||
-    role === ("comptabilite" satisfies UserRole);
+  void role;
 
   const rows = data?.rows ?? [];
   const dossiers = context?.dossiers ?? [];
   const users = context?.users ?? [];
 
-  const handleGenererFacture = async (
-    clientId: string,
-    timeEntryIds: string[],
-    dossierId?: string | null,
-    expenseIds?: string[]
-  ) => {
-    try {
-      const { invoiceId } = await creerMutation.mutateAsync({
-        clientId,
-        dossierId: dossierId ?? undefined,
-        timeEntryIds,
-        expenseIds: expenseIds ?? [],
-      });
-      router.push(routes.facturationFactureEdit(invoiceId));
-    } catch (e) {
-      console.error(e);
-      alert((e as Error).message ?? "Erreur lors de la création de la facture");
-    }
-  };
-
-  const handleCreerEtEnvoyerFacture = async (
-    clientId: string,
-    timeEntryIds: string[],
-    dossierId?: string | null,
-    expenseIds?: string[]
-  ) => {
-    try {
-      const { invoiceId } = await creerEtEnvoyerMutation.mutateAsync({
-        clientId,
-        dossierId: dossierId ?? undefined,
-        timeEntryIds,
-        expenseIds: expenseIds ?? [],
-      });
-      toast.success("Facture créée et marquée comme envoyée.");
-      router.push(routes.facturationFactureEdit(invoiceId));
-    } catch (e) {
-      console.error(e);
-      alert((e as Error).message ?? "Erreur lors de la création et de l'envoi de la facture");
-    }
+  const handlePreparerFacture = (clientId: string) => {
+    router.push(`${routes.facturationFactureNouvelle}?clientId=${encodeURIComponent(clientId)}`);
   };
 
   return (
     <div className="space-y-6">
-      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
-        <Link
-          href={routes.facturation}
-          className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
-        >
-          <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-          Retour à la vue d&apos;ensemble
-        </Link>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Honoraires à facturer</h1>
-            <p className="mt-1 text-white/80 text-sm">
-              Regroupez les fiches de temps non facturées par client et générez des factures.
-            </p>
-            <p className="mt-1 text-white/70 text-xs">
-              Le client peut être facturé lorsque le total est supérieur ou égal à {MIN_AMOUNT_TO_BILL}&nbsp;$.
-            </p>
+      {!embedded && (
+        <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+          <Link
+            href={routes.facturation}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+            Retour à la vue d&apos;ensemble
+          </Link>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Honoraires à facturer</h1>
+              <p className="mt-1 text-white/80 text-sm">
+                Regroupez les fiches de temps non facturées par client et générez des factures.
+              </p>
+              <p className="mt-1 text-white/70 text-xs">
+                Le client peut être facturé lorsque le total est supérieur ou égal à {MIN_AMOUNT_TO_BILL}&nbsp;$.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href={routes.temps}>
+                <Button
+                  variant="secondary"
+                  className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                >
+                  Fiche de temps
+                </Button>
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Link href={routes.temps}>
-              <Button
-                variant="secondary"
-                className="bg-white/20 text-white border-white/30 hover:bg-white/30"
-              >
-                Fiche de temps
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       <Card>
         <CardHeader title="Filtres" />
@@ -221,6 +186,7 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                     <th className="text-right py-3 px-3 font-medium">Total heures</th>
                     <th className="text-right py-3 px-3 font-medium">Total honoraires</th>
                     <th className="text-right py-3 px-3 font-medium">Total débours</th>
+                    <th className="text-right py-3 px-3 font-medium">Total forfaits</th>
                     <th className="text-right py-3 px-3 font-medium">Taxes estimées</th>
                     <th className="text-right py-3 px-3 font-medium">Total à facturer</th>
                     <th className="text-left py-3 px-3 font-medium">Dernière date</th>
@@ -228,7 +194,11 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row) => (
+                  {rows.map((row) => {
+                    const selectableCount =
+                      row.timeEntryIds.length + row.expenseIds.length + row.registreTacheIds.length;
+                    const firstDraftInvoiceId = row.draftInvoiceIds?.[0] ?? null;
+                    return (
                     <tr
                       key={row.clientId}
                       className="border-b border-neutral-100 hover:bg-neutral-50/80"
@@ -245,6 +215,9 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                         {formatCurrency(row.totalDebours)}
                       </td>
                       <td className="py-3 px-3 text-right">
+                        {formatCurrency(row.totalForfaits)}
+                      </td>
+                      <td className="py-3 px-3 text-right">
                         {formatCurrency(row.taxesEstimees)}
                       </td>
                       <td className="py-3 px-3 text-right font-medium">
@@ -255,76 +228,45 @@ export function HonorairesAFacturerView({ cabinetId, role }: HonorairesAFacturer
                       </td>
                       <td className="py-3 px-3 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={routes.facturationHonorairesClient(row.clientId)}>
-                            <Button variant="tertiary" className="gap-1">
-                              <Eye className="w-4 h-4" />
-                              Voir le détail
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="primary"
-                            className="gap-1"
-                            disabled={
-                              creerMutation.isPending ||
-                              creerEtEnvoyerMutation.isPending ||
-                              row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                            }
-                            title={
-                              row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                                ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
-                                : undefined
-                            }
-                            onClick={() =>
-                              handleGenererFacture(
-                                row.clientId,
-                                row.timeEntryIds,
-                                undefined,
-                                row.expenseIds
-                              )
-                            }
-                          >
-                            {creerMutation.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <FileText className="w-4 h-4" />
-                            )}
-                            Générer la facture
-                          </Button>
-                          {canCreateAndSend ? (
-                            <Button
-                              variant="secondary"
-                              className="gap-1"
-                              disabled={
-                                creerMutation.isPending ||
-                                creerEtEnvoyerMutation.isPending ||
-                                row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                              }
-                              title={
-                                row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                                  ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
-                                  : undefined
-                              }
-                              onClick={() =>
-                                handleCreerEtEnvoyerFacture(
-                                  row.clientId,
-                                  row.timeEntryIds,
-                                  undefined,
-                                  row.expenseIds
-                                )
-                              }
+                          {firstDraftInvoiceId && (
+                            <Link
+                              href={routes.facturationFactureApercu(firstDraftInvoiceId)}
+                              aria-label="Voir la facture"
+                              title="Voir la facture"
+                              className={`${ICON_BTN_BASE} ${ICON_BTN_OUTLINE}`}
                             >
-                              {creerEtEnvoyerMutation.isPending ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Send className="w-4 h-4" />
-                              )}
-                              Créer et envoyer
-                            </Button>
-                          ) : null}
+                              <FileText className="h-4 w-4" aria-hidden />
+                            </Link>
+                          )}
+                          <Link
+                            href={routes.facturationHonorairesClient(row.clientId)}
+                            aria-label="Voir le détail"
+                            title="Voir le détail"
+                            className={`${ICON_BTN_BASE} ${ICON_BTN_GHOST}`}
+                          >
+                            <Eye className="h-4 w-4" aria-hidden />
+                          </Link>
+                          <button
+                            type="button"
+                            disabled={selectableCount === 0 || row.totalAFacturer < MIN_AMOUNT_TO_BILL}
+                            aria-label="Préparer la facture"
+                            title={
+                              selectableCount === 0
+                                ? "Toutes les prestations non envoyées sont déjà dans une facture brouillon."
+                                : row.totalAFacturer < MIN_AMOUNT_TO_BILL
+                                ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
+                                : "Préparer la facture"
+                            }
+                            onClick={() => handlePreparerFacture(row.clientId)}
+                            className={`${ICON_BTN_BASE} ${ICON_BTN_PRIMARY}`}
+                          >
+                            <FilePlus2 className="h-4 w-4" aria-hidden />
+                          </button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  );
+                  })}
                 </tbody>
               </table>
             </div>

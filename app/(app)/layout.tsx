@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { AppChrome } from "@/components/layout/AppChrome";
@@ -7,6 +8,11 @@ import { TimerProvider } from "@/lib/contexts/TimerContext";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
+import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
+import {
+  isSubscriptionExemptPath,
+  shouldBlockForSubscription,
+} from "@/lib/services/subscription-guard";
 
 export default async function AppLayout({
   children,
@@ -20,6 +26,15 @@ export default async function AppLayout({
 
   const role = (session.user as { role?: string }).role ?? "avocat";
   const cabinetId = (session.user as { cabinetId?: string }).cabinetId ?? null;
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+
+  if (cabinetId && !isSubscriptionExemptPath(pathname)) {
+    const subscription = await getCabinetSubscriptionState(cabinetId);
+    if (shouldBlockForSubscription(pathname, subscription)) {
+      redirect("/parametres/abonnement");
+    }
+  }
 
   // Detect billing mode + nav visibility from CabinetInterface
   // (cached per-request via React.cache — shared with pages that need the same config)

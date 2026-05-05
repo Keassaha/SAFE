@@ -15,7 +15,7 @@ type AppChromeProps = {
   role: string;
   user: Session["user"];
   cabinetId: string | null;
-  billingMode?: "forfait" | "horaire";
+  billingMode?: "forfait" | "horaire" | "mixed";
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
   trustStatus?: TrustReconciliationStatus | null;

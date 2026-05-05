@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { Invoice, InvoiceLine } from "@prisma/client";
 import { InvoicePreviewModal } from "@/components/facturation/InvoicePreviewModal";
@@ -13,80 +12,25 @@ type InvoiceWithRelations = Invoice & {
 };
 
 interface SuiviPipelineViewProps {
-  brouillons: InvoiceWithRelations[];
-  validees: InvoiceWithRelations[];
   envoyees: InvoiceWithRelations[];
+  enRetard: InvoiceWithRelations[];
   cabinetId: string;
 }
 
 export function SuiviPipelineView({
-  brouillons,
-  validees,
   envoyees,
+  enRetard,
   cabinetId,
 }: SuiviPipelineViewProps) {
-  const t = useTranslations("facturation");
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithRelations | null>(null);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Brouillon Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Envoyées : factures émises actives + payées (historique du pipeline) */}
         <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
           <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
-            Brouillon
-            <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
-              ({brouillons.length})
-            </span>
-          </h3>
-          <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
-            {brouillons.length === 0 ? (
-              <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
-                Aucune facture en brouillon
-              </p>
-            ) : (
-              brouillons.map((invoice) => (
-                <InvoiceCard
-                  key={invoice.id}
-                  invoice={invoice}
-                  onPreview={() => setSelectedInvoice(invoice)}
-                  status="brouillon"
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Validée Column */}
-        <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
-          <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
-            Validée
-            <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
-              ({validees.length})
-            </span>
-          </h3>
-          <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
-            {validees.length === 0 ? (
-              <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
-                Aucune facture validée
-              </p>
-            ) : (
-              validees.map((invoice) => (
-                <InvoiceCard
-                  key={invoice.id}
-                  invoice={invoice}
-                  onPreview={() => setSelectedInvoice(invoice)}
-                  status="validee"
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Envoyée Column */}
-        <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
-          <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
-            Envoyée
+            Envoyées
             <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
               ({envoyees.length})
             </span>
@@ -103,6 +47,32 @@ export function SuiviPipelineView({
                   invoice={invoice}
                   onPreview={() => setSelectedInvoice(invoice)}
                   status="envoyee"
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* En retard : dérivé de dateEcheance < now sur factures émises non payées */}
+        <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
+          <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
+            En retard
+            <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
+              ({enRetard.length})
+            </span>
+          </h3>
+          <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+            {enRetard.length === 0 ? (
+              <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+                Aucune facture en retard
+              </p>
+            ) : (
+              enRetard.map((invoice) => (
+                <InvoiceCard
+                  key={invoice.id}
+                  invoice={invoice}
+                  onPreview={() => setSelectedInvoice(invoice)}
+                  status="en_retard"
                 />
               ))
             )}

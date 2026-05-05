@@ -30,12 +30,19 @@ Sans `NEXTAUTH_URL` correcte, les callbacks NextAuth peuvent échouer.
 Le fichier `vercel.json` impose la commande de build `npm run vercel-build`, qui exécute :
 
 - `prisma generate`
+- un baselining conditionnel : si la base contient déjà des tables applicatives, la migration `20260427000000_derisier_baseline` est marquée comme appliquée ; si la base est vide, elle reste en attente et sera exécutée par Prisma
 - `prisma migrate deploy` (crée les tables ; utilise `DIRECT_URL` si définie, sinon `DATABASE_URL`)
 - `next build`
 
 Déployez par push sur la branche liée ou `vercel --prod`. Si le build échoue sur `prisma migrate deploy` (erreur type « PREPARE » ou « protocol »), définissez **`DIRECT_URL`** avec l’URL de connexion directe Supabase (port 5432). Après le déploiement, la création de compte et la connexion fonctionnent.
 
-### 4. Erreur P3005 : « The database schema is not empty » (baseline)
+### 4. Base neuve vs base existante
+
+Sur une base PostgreSQL vide, ne marquez pas manuellement `20260427000000_derisier_baseline` comme appliquée. `npm run vercel-build` détecte une base vide et laisse `prisma migrate deploy` créer les tables.
+
+Sur une base existante qui contient déjà les tables applicatives, `npm run vercel-build` marque automatiquement `20260427000000_derisier_baseline` comme appliquée avant `migrate deploy`. Cela évite de rejouer le SQL de baseline par-dessus un schéma déjà présent.
+
+### 5. Erreur P3005 : « The database schema is not empty » (baseline)
 
 Si la base de production (ex. Supabase) a déjà été créée avec des tables (SQL manuel, ancien schéma, autre outil) et que le build Vercel échoue avec :
 
@@ -80,7 +87,26 @@ CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
 
 Référence : [Baselining a database (Prisma)](https://www.prisma.io/docs/orm/prisma-migrate/workflows/baselining).
 
-### 5. « La base de données ne répond pas » sur Vercel
+### 6. Stockage documents et rate limit
+
+En production, configurez Supabase Storage pour les documents :
+
+| Variable | Description |
+|----------|-------------|
+| `SUPABASE_URL` | URL du projet Supabase. |
+| `SUPABASE_SERVICE_ROLE` ou `SUPABASE_SERVICE_ROLE_KEY` | Clé service role, uniquement côté serveur/Vercel. |
+| `SUPABASE_STORAGE_BUCKET` | Bucket documents, défaut `documents`. |
+
+En production, configurez aussi un store KV/Redis REST pour le rate limit serverless :
+
+| Variable | Description |
+|----------|-------------|
+| `KV_REST_API_URL` + `KV_REST_API_TOKEN` | Vercel KV. |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Alternative Upstash Redis. |
+
+Sans ces variables, le fallback mémoire ne sert qu’au développement local.
+
+### 7. « La base de données ne répond pas » sur Vercel
 
 Si l’app affiche ce message après déploiement, la connexion à la base échoue au **runtime**. Vérifiez dans l’ordre :
 

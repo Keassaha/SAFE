@@ -1,1231 +1,848 @@
 "use client";
 
-
-import { motion } from "framer-motion";
-import { useLocale } from "next-intl";
+import type { ComponentType, ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   AlertTriangle,
-  ArrowUpRight,
-  ArrowDownRight,
+  Banknote,
+  BriefcaseBusiness,
+  CalendarClock,
   CheckCircle2,
   ChevronRight,
-  Shield,
-  TrendingUp,
-  Wallet,
+  CircleDollarSign,
+  FileCheck2,
+  FileText,
+  Landmark,
+  ListTodo,
   Receipt,
-  Clock,
+  UserCheck,
+  Wallet,
 } from "lucide-react";
-import { useSafeMotion, staggerContainer, staggerItem } from "@/lib/motion";
 import { routes } from "@/lib/routes";
+import { PageHeader } from "@/components/ui/PageHeader";
+import {
+  staggerContainer,
+  staggerItem,
+  staggerContainerReduced,
+  staggerItemReduced,
+  useSafeMotion,
+} from "@/lib/motion";
 import type {
+  BillingFollowUpRow,
   DashboardPayload,
   DossierEvolutionItem,
-  DossierEtape,
-  OutstandingAccountRow,
   MonthlyComparisonRow,
-  LawyerProductivityRow,
+  OutstandingAccountRow,
   TrustReconciliationSummary,
 } from "@/lib/dashboard/types";
+import { MarkSignalReadButton } from "./MarkSignalReadButton";
 
 export interface DashboardViewProps {
   payload: DashboardPayload;
 }
 
-/* ────────────────────────────────────────────────────────────── */
-/*  Design tokens — "Éditorial Chaleureux"                        */
-/* ────────────────────────────────────────────────────────────── */
+const TRUST_RECONCILIATION_ROUTE = "/comptes/rapprochement";
+const OVERDUE_INVOICES_ROUTE = `${routes.facturationSuivi}?retard=1`;
+const ACTIVE_CLIENTS_ROUTE = `${routes.clients}?status=actif`;
 
-const T = {
-  page: "#F7F2E8",
-  surface: "#FCFAF4",
-  borderSubtle: "#EDE5D4",
-  borderStrong: "#D4C8B0",
+type Tone = "ok" | "warn" | "danger" | "neutral";
 
-  brand50: "#EEF5F0",
-  brand100: "#D4E8D9",
-  brand600: "#2B4A3E",
-  brand700: "#234539",
-  brand800: "#1F3A2E",
-
-  gold50: "#FEF6E3",
-  gold400: "#F5C96B",
-  gold500: "#F4A045",
-  gold700: "#A8611C",
-
-  textTitle: "#18181B",
-  textBody: "#3F3F46",
-  textMuted: "#71717A",
-  textFaint: "#A1A1AA",
-
-  successBg: "#D4E8D9",
-  successFg: "#1F3A2E",
-  warningBg: "#F5E6C8",
-  warningFg: "#8B6B1F",
-  dangerBg: "#F3D8D2",
-  dangerFg: "#8A3A2D",
-
-  credit: "#1F3A2E",
-  debit: "#B84A3E",
-  pending: "#BA7517",
-  neutral: "#6B6B66",
-} as const;
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Atoms                                                          */
-/* ────────────────────────────────────────────────────────────── */
-
-function Eyebrow({
-  children,
-  gold = false,
-  className = "",
-}: {
-  children: React.ReactNode;
-  gold?: boolean;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`text-[10.5px] font-sans uppercase tracking-[0.12em] font-semibold ${className}`}
-      style={{ color: gold ? T.gold700 : T.textMuted }}
-    >
-      {children}
-    </span>
-  );
-}
-
-function SectionHead({
-  eyebrow,
-  title,
-  gold,
-  right,
-}: {
-  eyebrow: string;
+type ActionItem = {
+  key: string;
   title: string;
-  gold?: boolean;
-  right?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-end justify-between gap-4 mb-4">
-      <div>
-        <Eyebrow gold={gold} className="block mb-1">
-          {eyebrow}
-        </Eyebrow>
-        <h2 className="text-[22px] font-sans font-semibold leading-[1.15] tracking-tight safe-text-title">
-          {title}
-        </h2>
-      </div>
-      {right}
-    </div>
-  );
-}
-
-function Card({
-  children,
-  className = "",
-  href,
-  interactive = true,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  href?: string;
-  interactive?: boolean;
-}) {
-  // Adopts the Clients-page shell: white bg, rounded-20px, soft green border (#d0ddd6),
-  // soft shadow, translateY(-2px) + shadow-card-hover on hover.
-  const base = `card-glass overflow-hidden ${interactive ? "safe-hover-lift" : ""}`;
-  if (href) {
-    return (
-      <Link href={href} className={`group block ${base} ${className}`}>
-        {children}
-      </Link>
-    );
-  }
-  return <div className={`${base} ${className}`}>{children}</div>;
-}
-
-function Delta({
-  value,
-  label,
-  invert = false,
-}: {
-  value?: number;
-  label?: string;
-  invert?: boolean;
-}) {
-  if (value === undefined || value === null) return null;
-  const up = value > 0;
-  const neutral = value === 0;
-  const good = invert ? !up : up;
-  const color = neutral ? T.neutral : good ? T.credit : T.debit;
-  const Icon = neutral ? null : up ? ArrowUpRight : ArrowDownRight;
-  return (
-    <span
-      className="inline-flex items-center gap-0.5 text-[11px] font-mono font-medium tabular-nums"
-      style={{ color }}
-    >
-      {Icon && <Icon className="w-2.5 h-2.5" strokeWidth={2.25} />}
-      {neutral ? "—" : `${up ? "+" : ""}${value.toFixed(1).replace(/\.0$/, "")}%`}
-      {label && (
-        <span className="text-[10.5px] ml-1 font-sans font-normal" style={{ color: T.textMuted }}>
-          {label}
-        </span>
-      )}
-    </span>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Sparkline                                                      */
-/* ────────────────────────────────────────────────────────────── */
-
-function Sparkline({
-  data,
-  color = T.credit,
-  width = 96,
-  height = 28,
-}: {
-  data: number[];
-  color?: string;
-  width?: number;
-  height?: number;
-}) {
-  if (data.length < 2) return null;
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const stepX = width / (data.length - 1);
-  const pts = data.map((v, i) => {
-    const x = i * stepX;
-    const y = height - ((v - min) / range) * (height - 2) - 1;
-    return `${x},${y}`;
-  });
-  const line = "M" + pts.join(" L");
-  const area = `M0,${height} L` + pts.join(" L") + ` L${width},${height} Z`;
-  return (
-    <svg width={width} height={height} aria-hidden className="shrink-0">
-      <path d={area} fill={color} fillOpacity={0.15} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  KPI card                                                       */
-/* ────────────────────────────────────────────────────────────── */
-
-function Kpi({
-  label,
-  value,
-  delta,
-  deltaLabel,
-  invertDelta,
-  spark,
-  sparkColor,
-  sub,
-  href,
-  icon: Icon,
-  iconTone = "default",
-}: {
-  label: string;
-  value: string;
-  delta?: number;
-  deltaLabel?: string;
-  invertDelta?: boolean;
-  spark?: number[];
-  sparkColor?: string;
-  sub?: React.ReactNode;
-  href?: string;
-  icon?: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  iconTone?: "default" | "success" | "gold" | "danger";
-}) {
-  const iconClass =
-    iconTone === "success"
-      ? "bg-status-success-bg text-status-success"
-      : iconTone === "gold"
-        ? "bg-[#FEF6E3] text-[#A8611C]"
-        : iconTone === "danger"
-          ? "bg-[#F3D8D2] text-[#8A3A2D]"
-          : "bg-green-100 text-[var(--safe-icon-default)]";
-
-  return (
-    <Card href={href} className="p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
-            {label}
-          </p>
-          <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
-            {value}
-          </p>
-          <div className="mt-1 flex items-center gap-2 text-sm">
-            <Delta value={delta} label={deltaLabel} invert={invertDelta} />
-            {sub && <span className="text-[12px] safe-text-secondary">{sub}</span>}
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          {Icon && (
-            <div
-              className={`w-11 h-11 rounded-safe flex items-center justify-center ${iconClass}`}
-            >
-              <Icon className="w-5 h-5" aria-hidden />
-            </div>
-          )}
-          {spark && spark.length >= 2 && <Sparkline data={spark} color={sparkColor ?? T.credit} />}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  6-month chart                                                  */
-/* ────────────────────────────────────────────────────────────── */
-
-function SixMonthChart({ rows }: { rows: MonthlyComparisonRow[] }) {
-  if (rows.length < 2) {
-    return (
-      <div className="px-4 py-10 text-center">
-        <p className="font-sans text-[13px]" style={{ color: T.textMuted }}>
-          Pas assez de données pour tracer la tendance.
-        </p>
-      </div>
-    );
-  }
-  const w = 720;
-  const h = 180;
-  const padL = 40;
-  const padR = 16;
-  const padT = 16;
-  const padB = 28;
-  const innerW = w - padL - padR;
-  const innerH = h - padT - padB;
-
-  const maxV = Math.max(...rows.flatMap((r) => [r.invoiced, r.collected]), 1);
-  const stepX = innerW / (rows.length - 1);
-
-  const toXY = (v: number, i: number) => {
-    const x = padL + i * stepX;
-    const y = padT + innerH - (v / maxV) * innerH;
-    return [x, y] as const;
-  };
-
-  const pathFrom = (fn: (r: MonthlyComparisonRow) => number) =>
-    "M" + rows.map((r, i) => toXY(fn(r), i).join(",")).join(" L");
-
-  const pathInvoiced = pathFrom((r) => r.invoiced);
-  const pathCollected = pathFrom((r) => r.collected);
-
-  // Area between (invoiced - collected = cash qui dort)
-  const gapArea =
-    "M" +
-    rows.map((r, i) => toXY(r.invoiced, i).join(",")).join(" L") +
-    " L" +
-    rows
-      .slice()
-      .reverse()
-      .map((r, i) => toXY(r.collected, rows.length - 1 - i).join(","))
-      .join(" L") +
-    " Z";
-
-  const money = (v: number) =>
-    new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(v);
-
-  return (
-    <div className="px-4 py-4">
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="none">
-        {/* grid */}
-        {[0.25, 0.5, 0.75, 1].map((p) => (
-          <line
-            key={p}
-            x1={padL}
-            x2={w - padR}
-            y1={padT + innerH * (1 - p)}
-            y2={padT + innerH * (1 - p)}
-            stroke={T.borderSubtle}
-            strokeWidth="1"
-            strokeDasharray="2,3"
-          />
-        ))}
-
-        {/* gap area — cash qui dort */}
-        <path d={gapArea} fill={T.pending} fillOpacity="0.12" />
-
-        {/* invoiced line (dashed) */}
-        <path
-          d={pathInvoiced}
-          fill="none"
-          stroke={T.neutral}
-          strokeWidth="1.5"
-          strokeDasharray="4,3"
-          strokeLinecap="round"
-        />
-
-        {/* collected line (solid forest) */}
-        <path d={pathCollected} fill="none" stroke={T.credit} strokeWidth="2" strokeLinecap="round" />
-
-        {/* points on collected */}
-        {rows.map((r, i) => {
-          const [x, y] = toXY(r.collected, i);
-          return <circle key={`c-${i}`} cx={x} cy={y} r="2.5" fill={T.credit} />;
-        })}
-
-        {/* x-axis month labels */}
-        {rows.map((r, i) => {
-          const x = padL + i * stepX;
-          return (
-            <text
-              key={`lbl-${i}`}
-              x={x}
-              y={h - 8}
-              textAnchor="middle"
-              fontSize="10"
-              fill={T.textMuted}
-              fontFamily="Inter, sans-serif"
-            >
-              {r.month}
-            </text>
-          );
-        })}
-
-        {/* y-axis max label */}
-        <text
-          x={padL - 6}
-          y={padT + 4}
-          textAnchor="end"
-          fontSize="10"
-          fill={T.textFaint}
-          fontFamily="Inter, ui-sans-serif, system-ui, sans-serif"
-        >
-          {money(maxV).replace(/\s?\$/, "")}
-        </text>
-        <text
-          x={padL - 6}
-          y={padT + innerH}
-          textAnchor="end"
-          fontSize="10"
-          fill={T.textFaint}
-          fontFamily="Inter, ui-sans-serif, system-ui, sans-serif"
-        >
-          0
-        </text>
-      </svg>
-
-      {/* legend */}
-      <div className="flex items-center gap-5 mt-2 text-[11.5px]" style={{ color: T.textMuted }}>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-[2px]" style={{ background: T.credit }} />
-          Encaissé
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            className="w-3 h-[2px]"
-            style={{ background: T.neutral, borderTop: `1px dashed ${T.neutral}` }}
-          />
-          Facturé
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-2" style={{ background: T.pending, opacity: 0.3 }} />
-          <span className="font-sans">cash qui dort</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Aging buckets                                                  */
-/* ────────────────────────────────────────────────────────────── */
-
-function agingBuckets(accounts: OutstandingAccountRow[]) {
-  const b = {
-    "0-30": { clients: new Set<string>(), amount: 0 },
-    "30-60": { clients: new Set<string>(), amount: 0 },
-    "60-90": { clients: new Set<string>(), amount: 0 },
-    "90+": { clients: new Set<string>(), amount: 0 },
-  };
-  for (const a of accounts) {
-    const d = a.daysSinceFirstInvoice;
-    const bucket = d <= 30 ? "0-30" : d <= 60 ? "30-60" : d <= 90 ? "60-90" : "90+";
-    b[bucket].clients.add(a.clientId);
-    b[bucket].amount += a.balanceDue;
-  }
-  const total = Object.values(b).reduce((s, x) => s + x.amount, 0);
-  return { ...b, total };
-}
-
-function AgingBuckets({ accounts }: { accounts: OutstandingAccountRow[] }) {
-  const buckets = agingBuckets(accounts);
-  const money = (v: number) =>
-    new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(v);
-
-  const cells: Array<{
-    key: keyof typeof buckets;
-    label: string;
-    tone: string;
-    ageLabel: string;
-  }> = [
-    { key: "0-30", label: "0–30 j", tone: T.credit, ageLabel: "Récent" },
-    { key: "30-60", label: "30–60 j", tone: T.pending, ageLabel: "Relance" },
-    { key: "60-90", label: "60–90 j", tone: T.pending, ageLabel: "Pressant" },
-    { key: "90+", label: "90+ j", tone: T.debit, ageLabel: "Critique" },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {cells.map((c) => {
-        const b = buckets[c.key] as { clients: Set<string>; amount: number };
-        const pct = buckets.total > 0 ? (b.amount / buckets.total) * 100 : 0;
-        return (
-          <Card key={c.key} href={routes.facturationSuivi} className="hover:border-forest-600/40">
-            <div className="px-4 py-3.5">
-              <div className="flex items-center justify-between mb-2">
-                <Eyebrow>{c.label}</Eyebrow>
-                <span
-                  className="text-[9.5px] font-sans uppercase tracking-[0.08em] font-semibold px-1.5 py-0.5 rounded"
-                  style={{ background: `${c.tone}12`, color: c.tone }}
-                >
-                  {c.ageLabel}
-                </span>
-              </div>
-              <div
-                className="text-[18px] tabular-nums font-semibold leading-none mb-1"
-                style={{ color: c.tone }}
-              >
-                {money(b.amount)}
-              </div>
-              <div className="text-[11px] font-sans" style={{ color: T.textMuted }}>
-                <span className="tabular-nums" style={{ color: T.textBody }}>
-                  {b.clients.size}
-                </span>{" "}
-                client{b.clients.size > 1 ? "s" : ""} ·{" "}
-                <span className="tabular-nums">{pct.toFixed(0)}%</span>
-              </div>
-            </div>
-          </Card>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Pipeline par étape                                             */
-/* ────────────────────────────────────────────────────────────── */
-
-function Pipeline({ dossiers }: { dossiers: DossierEvolutionItem[] }) {
-  const byEtape: Record<DossierEtape, DossierEvolutionItem[]> = {
-    Ouverture: [],
-    Exécution: [],
-    Finalisation: [],
-    Clôture: [],
-  };
-  for (const d of dossiers) byEtape[d.etape].push(d);
-
-  const medianDays = (arr: DossierEvolutionItem[]) => {
-    if (arr.length === 0) return null;
-    const ages = arr
-      .map((d) => Math.round((Date.now() - new Date(d.createdAt).getTime()) / (1000 * 60 * 60 * 24)))
-      .sort((a, b) => a - b);
-    const mid = Math.floor(ages.length / 2);
-    return ages.length % 2 === 0 ? Math.round((ages[mid - 1] + ages[mid]) / 2) : ages[mid];
-  };
-
-  const cols: Array<{ key: DossierEtape; accent: string }> = [
-    { key: "Ouverture", accent: T.neutral },
-    { key: "Exécution", accent: T.credit },
-    { key: "Finalisation", accent: T.pending },
-    { key: "Clôture", accent: T.brand800 },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {cols.map((c) => {
-        const list = byEtape[c.key];
-        const med = medianDays(list);
-        return (
-          <Card key={c.key} href={routes.dossiers} className="hover:border-forest-600/40">
-            <div className="px-4 py-3.5 flex flex-col gap-2.5 h-full">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: c.accent }}
-                  />
-                  <span
-                    className="text-[11px] font-sans font-semibold"
-                    style={{ color: T.textTitle }}
-                  >
-                    {c.key}
-                  </span>
-                </div>
-                <span
-                  className="text-[18px] tabular-nums font-semibold leading-none"
-                  style={{ color: c.accent }}
-                >
-                  {list.length}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 mt-0.5">
-                {list.slice(0, 3).map((d) => (
-                  <span
-                    key={d.id}
-                    className="text-[11px] font-sans truncate"
-                    style={{ color: T.textBody }}
-                    title={d.intitule}
-                  >
-                    {d.clientName}
-                  </span>
-                ))}
-                {list.length > 3 && (
-                  <span className="text-[10.5px] font-sans" style={{ color: T.textFaint }}>
-                    +{list.length - 3} autres
-                  </span>
-                )}
-                {list.length === 0 && (
-                  <span
-                    className="text-[11px] font-sans"
-                    style={{ color: T.textFaint }}
-                  >
-                    Aucun
-                  </span>
-                )}
-              </div>
-              {med !== null && (
-                <div
-                  className="text-[10.5px] font-sans mt-auto pt-1.5 border-t"
-                  style={{ color: T.textMuted, borderColor: T.borderSubtle }}
-                >
-                  Durée médiane ·{" "}
-                  <span className="tabular-nums" style={{ color: T.textBody }}>
-                    {med} j
-                  </span>
-                </div>
-              )}
-            </div>
-          </Card>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Dossiers à risque                                              */
-/* ────────────────────────────────────────────────────────────── */
-
-type RiskReason = {
-  kind: "immobile" | "deadline" | "checklist";
-  label: string;
-  tone: string;
+  context: string;
+  reason: string;
+  href: string;
+  tone: Tone;
+  rank: number;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  extra?: ReactNode;
 };
 
-function detectRisk(d: DossierEvolutionItem): RiskReason | null {
-  const immobileDays = Math.round(
-    (Date.now() - new Date(d.updatedAt).getTime()) / (1000 * 60 * 60 * 24),
+type PipelineColumn = {
+  key: string;
+  title: string;
+  count: number;
+  href: string;
+  items: Array<{ id: string; label: string; sub?: string; href: string }>;
+};
+
+type TrustRisk = {
+  severity: "danger" | "warn" | "ok";
+  label: string;
+  detail: string;
+};
+
+type HealthCard = {
+  key: string;
+  title: string;
+  value: string;
+  sub?: string;
+  href: string;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  iconBg: string;
+};
+
+function toneBorder(tone: Tone) {
+  if (tone === "danger") return "bg-[#FBE4DF] text-[#8A342A] border-[#EAB9AF]";
+  if (tone === "warn") return "bg-[#FFF4D8] text-[#94620C] border-[#E7C66F]";
+  if (tone === "ok") return "bg-[#E7F2EA] text-[#1F3A2E] border-[#BED6C6]";
+  return "bg-[#F3F6F4] text-[#3B4A43] border-[#DCE5E0]";
+}
+
+function LinkLabel({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-[#1F3A2E] hover:underline"
+    >
+      {children}
+      <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+    </Link>
   );
-  if (immobileDays > 30) {
-    return { kind: "immobile", label: `Immobile ${immobileDays} j`, tone: T.neutral };
+}
+
+function SectionTitle({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-3 flex items-end justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-base font-semibold tracking-tight safe-text-title">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-xs leading-5 safe-text-secondary">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function formatShortDate(value: Date | string | null, locale: string) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short" }).format(new Date(value));
+}
+
+function daysUntil(value: Date | string | null) {
+  if (!value) return null;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(value);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - start.getTime()) / 86_400_000);
+}
+
+function parseFormattedMoney(value?: string) {
+  if (!value) return 0;
+  const normalized = value.replace(/[^\d,.-]/g, "").replace(/\s/g, "").replace(",", ".");
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function getTrustRisk(
+  lastReconciliation: TrustReconciliationSummary | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+): TrustRisk {
+  if (!lastReconciliation) {
+    return {
+      severity: "danger",
+      label: t("trustNeverReconciled"),
+      detail: t("trustNeverReconciledDetail"),
+    };
   }
-  if (d.nextDeadline) {
-    const daysLeft = Math.round(
-      (new Date(d.nextDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-    );
-    if (daysLeft < 0) {
-      return { kind: "deadline", label: `En retard ${-daysLeft} j`, tone: T.debit };
-    }
-    if (daysLeft <= 7) {
-      return { kind: "deadline", label: `Échéance dans ${daysLeft} j`, tone: T.pending };
-    }
+  if (Math.abs(lastReconciliation.ecart) > 0.01) {
+    const amount = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "CAD",
+      maximumFractionDigits: 2,
+    }).format(Math.abs(lastReconciliation.ecart));
+    return {
+      severity: "danger",
+      label: t("trustGap", { amount }),
+      detail: t("trustGapDetail"),
+    };
+  }
+  if (lastReconciliation.daysSince > 35) {
+    return {
+      severity: "warn",
+      label: t("trustDaysSince", { days: lastReconciliation.daysSince }),
+      detail: t("trustOutdatedDetail"),
+    };
+  }
+  return {
+    severity: "ok",
+    label: t("trustUpToDate", { days: lastReconciliation.daysSince }),
+    detail: t("trustOkDetail"),
+  };
+}
+
+function isOverdueInvoice(row: BillingFollowUpRow) {
+  const status = row.status.toLowerCase();
+  return status.includes("retard") || status.includes("overdue");
+}
+
+function detectRisk(
+  d: DossierEvolutionItem,
+  t: ReturnType<typeof useTranslations>,
+): { label: string; tone: Tone; rank: number } | null {
+  const daysInactive = Math.round((Date.now() - new Date(d.updatedAt).getTime()) / 86_400_000);
+  const deadlineDays = daysUntil(d.nextDeadline);
+  if (deadlineDays !== null && deadlineDays < 0) {
+    return { label: t("riskOverdueDeadline", { days: Math.abs(deadlineDays) }), tone: "danger", rank: 1 };
+  }
+  if (deadlineDays !== null && deadlineDays <= 7) {
+    return {
+      label: deadlineDays === 0 ? t("riskDeadlineToday") : t("riskDeadlineSoon", { days: deadlineDays }),
+      tone: "warn",
+      rank: 3,
+    };
+  }
+  if (daysInactive > 30) {
+    return { label: t("riskNoActivity", { days: daysInactive }), tone: "warn", rank: 3 };
   }
   if (d.taskCount > 0 && d.tasksDone / d.taskCount < 0.5) {
-    return {
-      kind: "checklist",
-      label: `Checklist ${d.tasksDone}/${d.taskCount}`,
-      tone: T.pending,
-    };
+    return { label: t("riskChecklist", { done: d.tasksDone, total: d.taskCount }), tone: "warn", rank: 4 };
   }
   return null;
 }
 
-function RiskTable({ dossiers }: { dossiers: DossierEvolutionItem[] }) {
-  const dateShort = (d: Date | string) =>
-    new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short" }).format(new Date(d));
+function buildActionItems(
+  payload: DashboardPayload,
+  trustRisk: TrustRisk,
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+): ActionItem[] {
+  const items: ActionItem[] = [];
 
-  const flagged = dossiers
-    .map((d) => ({ d, risk: detectRisk(d) }))
-    .filter((x): x is { d: DossierEvolutionItem; risk: RiskReason } => x.risk !== null)
-    .sort((a, b) => {
-      const order = { deadline: 0, checklist: 1, immobile: 2 } as const;
-      return order[a.risk.kind] - order[b.risk.kind];
+  if (payload.visibility.showTrustBalance && trustRisk.severity !== "ok") {
+    items.push({
+      key: "trust-reconciliation",
+      title: t("actionTrust"),
+      context: t("actionTrustContext"),
+      reason: trustRisk.detail,
+      href: TRUST_RECONCILIATION_ROUTE,
+      tone: trustRisk.severity === "danger" ? "danger" : "warn",
+      rank: 1,
+      icon: Landmark,
+    });
+  }
+
+  if (payload.visibility.showBillingFollowUp) {
+    payload.billingFollowUp
+      .filter(isOverdueInvoice)
+      .slice(0, 2)
+      .forEach((invoice) => {
+        items.push({
+          key: `invoice-${invoice.id}`,
+          title: t("actionInvoiceFollowup"),
+          context: `${invoice.clientName} · ${invoice.invoiceNumber}`,
+          reason: t("actionInvoiceReason", {
+            amount: invoice.amount.toLocaleString(locale, {
+              style: "currency",
+              currency: "CAD",
+              maximumFractionDigits: 0,
+            }),
+          }),
+          href: routes.facturationSuivi,
+          tone: "danger",
+          rank: 2,
+          icon: Receipt,
+        });
+      });
+
+    const disbursements = parseFormattedMoney(payload.deboursARefacturer);
+    if (disbursements > 0) {
+      items.push({
+        key: "disbursements",
+        title: t("actionDisbursements"),
+        context: t("actionBillingContext"),
+        reason: t("actionDisbursementsReason", { amount: payload.deboursARefacturer ?? "" }),
+        href: routes.facturationFrais,
+        tone: "warn",
+        rank: 2,
+        icon: Banknote,
+      });
+    }
+
+    const unbilledValue = parseFormattedMoney(payload.kpis.unbilledHoursValue.value);
+    if (unbilledValue > 0) {
+      items.push({
+        key: "ready-to-bill",
+        title: t("actionReadyToBill"),
+        context: t("actionBillingContext"),
+        reason: t("actionReadyToBillReason", { amount: payload.kpis.unbilledHoursValue.value }),
+        href: routes.facturationHonoraires,
+        tone: "warn",
+        rank: 2,
+        icon: CircleDollarSign,
+      });
+    }
+  }
+
+  payload.upcomingTasks
+    .filter((task) => {
+      const d = daysUntil(task.dateEcheance);
+      return d !== null && d <= 7;
     })
-    .slice(0, 6);
+    .slice(0, 2)
+    .forEach((task) => {
+      const d = daysUntil(task.dateEcheance);
+      items.push({
+        key: `task-${task.id}`,
+        title: task.titre,
+        context: task.dossierIntitule,
+        reason:
+          d !== null && d < 0
+            ? t("actionTaskOverdue", { days: Math.abs(d) })
+            : t("actionTaskDue", { date: formatShortDate(task.dateEcheance, locale) }),
+        href: routes.dossier(task.dossierId),
+        tone: d !== null && d < 0 ? "danger" : "warn",
+        rank: d !== null && d < 0 ? 1 : 3,
+        icon: ListTodo,
+      });
+    });
+
+  payload.upcomingEvents.slice(0, 2).forEach((event) => {
+    const d = daysUntil(event.date);
+    if (d !== null && d <= 7) {
+      items.push({
+        key: `event-${event.id}`,
+        title: event.titre,
+        context: event.dossierIntitule,
+        reason:
+          d === 0 ? t("actionEventToday") : t("actionEventDate", { date: formatShortDate(event.date, locale) }),
+        href: routes.dossier(event.dossierId),
+        tone: d < 0 ? "danger" : "warn",
+        rank: 3,
+        icon: CalendarClock,
+      });
+    }
+  });
+
+  payload.readyForReviewSignals.slice(0, 3).forEach((signal) => {
+    items.push({
+      key: `ready-${signal.id}`,
+      title: t("actionReady"),
+      context: `${signal.clientName ?? t("noClient")} · ${signal.numeroDossier ?? signal.dossierIntitule}`,
+      reason: signal.reason ?? t("actionReadyDefault"),
+      href: routes.dossier(signal.dossierId),
+      tone: "ok",
+      rank: 4,
+      icon: FileCheck2,
+      extra: <MarkSignalReadButton signalId={signal.id} />,
+    });
+  });
+
+  payload.dossierEvolution
+    .map((d) => ({ dossier: d, risk: detectRisk(d, t) }))
+    .filter((x): x is { dossier: DossierEvolutionItem; risk: NonNullable<ReturnType<typeof detectRisk>> } => x.risk !== null)
+    .slice(0, 2)
+    .forEach(({ dossier, risk }) => {
+      items.push({
+        key: `risk-${dossier.id}`,
+        title: t("actionRisk"),
+        context: `${dossier.clientName} · ${dossier.intitule}`,
+        reason: risk.label,
+        href: routes.dossier(dossier.id),
+        tone: risk.tone,
+        rank: risk.rank,
+        icon: AlertTriangle,
+      });
+    });
+
+  return items.sort((a, b) => a.rank - b.rank).slice(0, 6);
+}
+
+function buildPipelineColumns(
+  payload: DashboardPayload,
+  t: ReturnType<typeof useTranslations>,
+): PipelineColumn[] {
+  const byStatus = (status: string) => payload.dossierEvolution.filter((d) => d.statut === status);
+  const byStep = (step: string) => payload.dossierEvolution.filter((d) => d.etape === step);
+  const readySignals = payload.readyForReviewSignals;
+  const toDossierItems = (rows: DossierEvolutionItem[]) =>
+    rows.slice(0, 3).map((d) => ({
+      id: d.id,
+      label: d.clientName || d.intitule,
+      sub: d.intitule,
+      href: routes.dossier(d.id),
+    }));
+  const readyItems = readySignals.slice(0, 3).map((s) => ({
+    id: s.id,
+    label: s.clientName ?? s.dossierIntitule,
+    sub: s.numeroDossier ?? t("pipelineReadyForReview"),
+    href: routes.dossier(s.dossierId),
+  }));
+  const billableItems = payload.activeCases.slice(0, 3).map((d) => ({
+    id: d.id,
+    label: d.clientName || d.caseName,
+    sub: d.caseName,
+    href: routes.dossier(d.id),
+  }));
+
+  const open = [...byStatus("ouvert"), ...byStep("Ouverture")].filter(
+    (d, index, list) => list.findIndex((x) => x.id === d.id) === index,
+  );
+  const preparation = byStep("Exécution");
+  const waiting = byStatus("en_attente");
+
+  return [
+    {
+      key: "open",
+      title: t("pipelineOpen"),
+      count: payload.dossiersParStatut.ouvert || open.length,
+      href: routes.dossiers,
+      items: toDossierItems(open),
+    },
+    {
+      key: "prep",
+      title: t("pipelinePrep"),
+      count: preparation.length || payload.dossiersParStatut.actif,
+      href: routes.dossiers,
+      items: toDossierItems(preparation),
+    },
+    {
+      key: "waiting",
+      title: t("pipelineWaiting"),
+      count: payload.dossiersParStatut.en_attente || waiting.length,
+      href: routes.dossiers,
+      items: toDossierItems(waiting),
+    },
+    {
+      key: "review",
+      title: t("pipelineReview"),
+      count: readySignals.length,
+      href: routes.gestionAssistante,
+      items: readyItems,
+    },
+    {
+      key: "bill",
+      title: t("pipelineBill"),
+      count: payload.indicators.unbilledEntries,
+      href: routes.facturationHonoraires,
+      items: billableItems,
+    },
+  ];
+}
+
+function buildHealthCards(
+  payload: DashboardPayload,
+  trustRisk: TrustRisk,
+  totalOutstanding: number,
+  totalClients: number,
+  t: ReturnType<typeof useTranslations>,
+): HealthCard[] {
+  const activePercent =
+    totalClients > 0 ? Math.round((payload.activeClientsCount / totalClients) * 100) : 0;
+
+  const cards: HealthCard[] = [
+    {
+      key: "activeClients",
+      title: t("kpiActiveClients"),
+      value: payload.activeClientsCount.toLocaleString("fr-CA"),
+      sub: totalClients > 0 ? t("kpiActiveClientsSub", { percent: activePercent }) : undefined,
+      href: ACTIVE_CLIENTS_ROUTE,
+      icon: UserCheck,
+      iconBg: "bg-status-success-bg text-status-success",
+    },
+  ];
+
+  if (payload.visibility.showFinancialKpis) {
+    cards.push({
+      key: "collected",
+      title: t("kpiCollected"),
+      value: payload.kpis.paymentsReceived.value,
+      sub: payload.kpis.paymentsReceived.trendLabel,
+      href: routes.facturationPaiements,
+      icon: Wallet,
+      iconBg: "bg-green-100 text-[var(--safe-icon-default)]",
+    });
+    cards.push({
+      key: "outstanding",
+      title: t("kpiOutstanding"),
+      value: payload.kpis.outstandingInvoices.value,
+      sub:
+        payload.outstandingAccounts.length > 0
+          ? t("kpiOutstandingSub", { count: payload.outstandingAccounts.length })
+          : undefined,
+      href: routes.facturationSuivi,
+      icon: Receipt,
+      iconBg: totalOutstanding > 0 ? "bg-[#FFF4D8] text-[#94620C]" : "bg-green-100 text-green-700",
+    });
+  }
+
+  cards.push({
+    key: "activeMatters",
+    title: t("kpiActiveMatters"),
+    value: payload.activeDossiersCount.toLocaleString("fr-CA"),
+    sub:
+      payload.dossiersParStatut.en_attente > 0
+        ? t("kpiActiveMattersSub", { count: payload.dossiersParStatut.en_attente })
+        : undefined,
+    href: routes.dossiers,
+    icon: BriefcaseBusiness,
+    iconBg: "bg-green-100 text-green-700",
+  });
+
+  if (payload.visibility.showTrustBalance) {
+    cards.push({
+      key: "trust",
+      title: t("kpiTrust"),
+      value: payload.soldeFideicommis ?? payload.kpis.trustBalance.value,
+      sub: trustRisk.label,
+      href: routes.comptes,
+      icon: Landmark,
+      iconBg:
+        trustRisk.severity === "danger"
+          ? "bg-[#FBE4DF] text-[#8A342A]"
+          : trustRisk.severity === "warn"
+            ? "bg-[#FFF4D8] text-[#94620C]"
+            : "bg-green-50 text-[var(--safe-icon-accent)]",
+    });
+  }
+
+  return cards;
+}
+
+function HealthCardsGrid({ cards }: { cards: HealthCard[] }) {
+  const { reduceMotion } = useSafeMotion();
+  const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
+  const itemVariants = reduceMotion ? staggerItemReduced : staggerItem;
+  const cols = cards.length >= 5 ? "lg:grid-cols-5" : "lg:grid-cols-4";
 
   return (
-    <Card>
-      <div
-        className="px-4 py-2.5 flex items-center justify-between"
-        style={{ borderBottom: `1px solid ${T.borderSubtle}` }}
-      >
-        <div>
-          <h3 className="text-[15px] font-sans font-semibold tracking-tight safe-text-title">
-            Dossiers à risque
-          </h3>
-          <p className="text-[11px] font-sans mt-0.5" style={{ color: T.textMuted }}>
-            {flagged.length} dossier{flagged.length > 1 ? "s" : ""} à traiter
-          </p>
-        </div>
-        <Link
-          href={routes.dossiers}
-          className="text-[11.5px] font-sans font-medium inline-flex items-center gap-1"
-          style={{ color: T.brand700 }}
-        >
-          Tout voir <ArrowUpRight className="w-3 h-3" />
-        </Link>
-      </div>
-      {flagged.length === 0 ? (
-        <div className="px-4 py-8 text-center">
-          <p className="font-sans text-[13px]" style={{ color: T.textMuted }}>
-            Aucun dossier à risque. Bravo.
-          </p>
-        </div>
-      ) : (
-        <div className="divide-y" style={{ borderColor: T.borderSubtle }}>
-          {flagged.map(({ d, risk }) => (
+    <motion.div
+      className={`grid grid-cols-1 sm:grid-cols-2 ${cols} gap-4`}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {cards.map((card) => {
+        const Icon = card.icon;
+        return (
+          <motion.div key={card.key} variants={itemVariants} className="h-full">
             <Link
-              key={d.id}
-              href={routes.dossier(d.id)}
-              className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-200 hover:bg-primary-50/40 group"
-              style={{ borderColor: T.borderSubtle }}
+              href={card.href}
+              className="block h-full card-glass rounded-safe-lg p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
             >
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-sans font-semibold truncate safe-text-title group-hover:text-primary-700 transition-colors">
-                  {d.clientName}
-                </p>
-                <p
-                  className="text-[11px] font-sans truncate"
-                  style={{ color: T.textMuted }}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
+                    {card.title}
+                  </p>
+                  <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
+                    {card.value}
+                  </p>
+                  {card.sub && <p className="mt-1 text-sm safe-text-secondary">{card.sub}</p>}
+                </div>
+                <div
+                  className={`w-11 h-11 shrink-0 rounded-safe flex items-center justify-center ${card.iconBg}`}
                 >
-                  {d.intitule}
-                </p>
+                  <Icon className="w-5 h-5" aria-hidden />
+                </div>
               </div>
-              <span
-                className="text-[10.5px] font-sans font-semibold px-1.5 py-0.5 rounded whitespace-nowrap"
-                style={{ background: `${risk.tone}14`, color: risk.tone }}
+            </Link>
+          </motion.div>
+        );
+      })}
+    </motion.div>
+  );
+}
+
+function ActionList({
+  items,
+  t,
+}: {
+  items: ActionItem[];
+  t: ReturnType<typeof useTranslations>;
+}) {
+  return (
+    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
+      <div className="divide-y divide-[#E5ECE8]">
+        {items.length === 0 ? (
+          <div className="flex items-center gap-3 px-4 py-8">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BED6C6] bg-[#E7F2EA] text-[#1F3A2E]">
+              <CheckCircle2 className="h-5 w-5" aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-semibold safe-text-title">{t("allClear")}</p>
+              <p className="text-xs safe-text-secondary">{t("allClearSub")}</p>
+            </div>
+          </div>
+        ) : (
+          items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#F6F8F7]"
               >
-                {risk.label}
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border ${toneBorder(item.tone)}`}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="truncate text-sm font-semibold safe-text-title">{item.title}</p>
+                    <span className="truncate text-xs safe-text-secondary">{item.context}</span>
+                  </div>
+                  <p className="mt-0.5 line-clamp-1 text-xs safe-text-secondary">{item.reason}</p>
+                </div>
+                {item.extra}
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-[#8E9A94] transition-transform group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </Link>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PipelineBoard({
+  columns,
+  t,
+}: {
+  columns: PipelineColumn[];
+  t: ReturnType<typeof useTranslations>;
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+      {columns.map((column) => (
+        <div
+          key={column.key}
+          className="flex min-h-[190px] flex-col rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-3"
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h3 className="truncate text-sm font-semibold safe-text-title">{column.title}</h3>
+            <span className="rounded-md bg-[#F3F6F4] px-2 py-1 text-sm font-semibold tabular-nums safe-text-title">
+              {column.count}
+            </span>
+          </div>
+          <div className="flex flex-1 flex-col gap-2">
+            {column.items.length === 0 ? (
+              <p className="rounded-md border border-dashed border-[#DCE5E0] px-3 py-3 text-xs text-[#8E9A94]">
+                {t("pipelineEmpty")}
+              </p>
+            ) : (
+              column.items.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="rounded-md border border-[#E5ECE8] px-3 py-2 transition-colors hover:border-[#BED6C6] hover:bg-[#F6F8F7]"
+                >
+                  <p className="truncate text-xs font-semibold safe-text-title">{item.label}</p>
+                  {item.sub && <p className="mt-0.5 truncate text-[11px] safe-text-secondary">{item.sub}</p>}
+                </Link>
+              ))
+            )}
+          </div>
+          <LinkLabel href={column.href}>{t("seeAll")}</LinkLabel>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActivityRecent({
+  payload,
+  locale,
+  t,
+}: {
+  payload: DashboardPayload;
+  locale: string;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const items = [
+    ...payload.transactionItems.slice(0, 4).map((p) => ({
+      id: `payment-${p.id}`,
+      label: t("activityPayment"),
+      detail: p.label,
+      meta: `${p.date} · ${p.amount.toLocaleString(locale, {
+        style: "currency",
+        currency: "CAD",
+        maximumFractionDigits: 0,
+      })}`,
+      href: p.href ?? routes.facturationPaiements,
+    })),
+    ...payload.activityFeed.slice(0, 4).map((a) => ({
+      id: `activity-${a.id}`,
+      label: a.action,
+      detail: a.entityType,
+      meta: `${formatShortDate(a.timestamp, locale)}${a.userDisplayName ? ` · ${a.userDisplayName}` : ""}`,
+      href: routes.parametresAudit,
+    })),
+  ].slice(0, 6);
+
+  return (
+    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
+      {items.length === 0 ? (
+        <p className="px-4 py-6 text-sm safe-text-secondary">{t("activityEmpty")}</p>
+      ) : (
+        <div className="divide-y divide-[#E5ECE8]">
+          {items.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[#F6F8F7]"
+            >
+              <FileText className="h-4 w-4 shrink-0 text-[#68776F]" aria-hidden />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium safe-text-title">{item.label}</p>
+                <p className="truncate text-xs safe-text-secondary">{item.detail}</p>
+              </div>
+              <span className="hidden shrink-0 text-xs tabular-nums sm:inline safe-text-secondary">
+                {item.meta}
               </span>
-              <span
-                className="text-[10.5px] tabular-nums whitespace-nowrap hidden md:inline"
-                style={{ color: T.textMuted }}
-              >
-                {dateShort(d.updatedAt)}
-              </span>
-              <ChevronRight className="w-3.5 h-3.5" style={{ color: T.textFaint }} />
             </Link>
           ))}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
-/* ────────────────────────────────────────────────────────────── */
-/*  Charge par avocat                                              */
-/* ────────────────────────────────────────────────────────────── */
-
-function LawyerLoad({
+function SixMonthChart({
   rows,
-  target,
+  t,
 }: {
-  rows: LawyerProductivityRow[];
-  target: number;
+  rows: MonthlyComparisonRow[];
+  t: ReturnType<typeof useTranslations>;
 }) {
-  if (rows.length === 0) {
+  if (rows.length < 2) {
     return (
-      <Card>
-        <div className="px-4 py-8 text-center">
-          <p className="font-sans text-[13px]" style={{ color: T.textMuted }}>
-            Aucune donnée de productivité disponible.
-          </p>
-        </div>
-      </Card>
+      <div className="rounded-safe-lg border border-[#E5ECE8] bg-white p-6 text-center text-sm safe-text-secondary">
+        {t("chartNoData")}
+      </div>
     );
   }
-  const maxCap = Math.max(target, ...rows.map((r) => r.billableHours));
+
+  const max = Math.max(...rows.flatMap((r) => [r.invoiced, r.collected]), 1);
+  const points = (selector: (row: MonthlyComparisonRow) => number) =>
+    rows
+      .map((row, index) => {
+        const x = (index / Math.max(rows.length - 1, 1)) * 100;
+        const y = 100 - (selector(row) / max) * 82 - 8;
+        return `${x},${y}`;
+      })
+      .join(" ");
+
   return (
-    <Card>
-      <div
-        className="px-4 py-2.5 flex items-center justify-between"
-        style={{ borderBottom: `1px solid ${T.borderSubtle}` }}
-      >
-        <h3 className="text-[13px] font-sans font-semibold" style={{ color: T.textTitle }}>
-          Charge par avocat
-        </h3>
-        <span className="text-[10.5px] font-sans" style={{ color: T.textMuted }}>
-          Cible ·{" "}
-          <span className="tabular-nums" style={{ color: T.textBody }}>
-            {target} h
-          </span>
+    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold safe-text-title">{t("chartTitle")}</h3>
+        <LinkLabel href={routes.rapports}>{t("reports")}</LinkLabel>
+      </div>
+      <svg viewBox="0 0 100 100" className="h-44 w-full" preserveAspectRatio="none" aria-hidden>
+        {[25, 50, 75].map((y) => (
+          <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="#DCE5E0" strokeWidth="0.4" />
+        ))}
+        <polyline
+          points={points((r) => r.invoiced)}
+          fill="none"
+          stroke="#8E9A94"
+          strokeWidth="1.2"
+          strokeDasharray="3 2"
+          vectorEffect="non-scaling-stroke"
+        />
+        <polyline
+          points={points((r) => r.collected)}
+          fill="none"
+          stroke="#1F3A2E"
+          strokeWidth="1.8"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs safe-text-secondary">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-0.5 w-4 bg-[#1F3A2E]" /> {t("chartCollected")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-0.5 w-4 border-t border-dashed border-[#8E9A94]" /> {t("chartInvoiced")}
         </span>
       </div>
-      <div className="divide-y" style={{ borderColor: T.borderSubtle }}>
-        {rows.slice(0, 6).map((r) => {
-          const pct = (r.billableHours / target) * 100;
-          const barPct = (r.billableHours / maxCap) * 100;
-          const over = pct > 100;
-          const low = pct < 60;
-          const color = over ? T.debit : low ? T.neutral : T.credit;
-          return (
-            <div
-              key={r.userId}
-              className="px-4 py-2.5"
-              style={{ borderColor: T.borderSubtle }}
-            >
-              <div className="flex items-center justify-between mb-1.5">
-                <span
-                  className="text-[12.5px] font-sans font-medium truncate"
-                  style={{ color: T.textTitle }}
-                >
-                  {r.lawyerName}
-                </span>
-                <span
-                  className="text-[11px] tabular-nums font-medium whitespace-nowrap"
-                  style={{ color }}
-                >
-                  {r.billableHours.toFixed(1)} h{" "}
-                  <span style={{ color: T.textMuted }}>/ {target} h</span>
-                </span>
-              </div>
-              <div
-                className="relative h-1.5 rounded-full overflow-hidden"
-                style={{ background: T.borderSubtle }}
-              >
-                <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-all"
-                  style={{ width: `${Math.min(barPct, 100)}%`, background: color }}
-                />
-                {/* Target marker */}
-                <div
-                  className="absolute inset-y-0 w-[1px]"
-                  style={{ left: `${(target / maxCap) * 100}%`, background: T.textMuted }}
-                />
-              </div>
-              <div
-                className="flex items-center justify-between mt-1 text-[10.5px] font-sans"
-                style={{ color: T.textMuted }}
-              >
-                <span>
-                  Taux facturation{" "}
-                  <span
-                    className="tabular-nums font-medium"
-                    style={{ color: T.textBody }}
-                  >
-                    {r.billingRate.toFixed(0)}%
-                  </span>
-                </span>
-                <span className="font-sans">
-                  {over ? "Overbooké" : low ? "De la capacité" : "Bonne cadence"}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Card>
+    </div>
   );
 }
-
-/* ────────────────────────────────────────────────────────────── */
-/*  Main view                                                      */
-/* ────────────────────────────────────────────────────────────── */
 
 export function DashboardView({ payload }: DashboardViewProps) {
   const locale = useLocale();
   const intlLocale = locale === "en" ? "en-CA" : "fr-CA";
-  const money = (n: number, compact = true) =>
-    new Intl.NumberFormat(intlLocale, {
-      style: "currency",
-      currency: "CAD",
-      maximumFractionDigits: compact ? 0 : 2,
-    }).format(n);
+  const t = useTranslations("dashboard");
 
-  const {
-    kpis,
-    monthlyComparison,
-    outstandingAccounts,
-    dossierEvolution,
-    lawyerProductivity,
-    indicators,
-    soldeFideicommis,
-    alerts,
-    revenueChartData,
-    lastReconciliation,
-    lawyerHoursTarget,
-    activeClientsCount,
-    inactiveClientsCount,
-    activeDossiersCount,
-    dossiersParStatut,
-  } = payload;
-
-  const { reduceMotion } = useSafeMotion();
-  const containerVariants = reduceMotion
-    ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
-    : staggerContainer;
-  const itemVariants = reduceMotion
-    ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
-    : staggerItem;
-
-  const collectedSpark = revenueChartData.map((p) => p.value);
-  const invoicedSpark = revenueChartData.map((p) => p.invoiced ?? 0);
-
-  const totalOutstanding = outstandingAccounts.reduce((s, a) => s + a.balanceDue, 0);
-
-  // Fidé : alerte réelle = (1) jamais réconcilié, OU (2) écart > 0 à la dernière,
-  //                      OU (3) dernière réco > 35 jours (B-1 r.5 ≤ 25 j + marge).
-  const trustRisk: {
-    severity: "danger" | "warn" | "ok";
-    label: string;
-    detail: string;
-  } = (() => {
-    if (!lastReconciliation) {
-      return {
-        severity: "danger",
-        label: "Jamais réconcilié",
-        detail:
-          "Le Règlement B-1 r.5 exige une réconciliation mensuelle dans les 25 jours.",
-      };
-    }
-    if (Math.abs(lastReconciliation.ecart) > 0.01) {
-      return {
-        severity: "danger",
-        label: `Écart de ${new Intl.NumberFormat(intlLocale, { style: "currency", currency: "CAD", maximumFractionDigits: 2 }).format(Math.abs(lastReconciliation.ecart))}`,
-        detail: "Écart 3-voies non résolu à la dernière réconciliation.",
-      };
-    }
-    if (lastReconciliation.daysSince > 35) {
-      return {
-        severity: "warn",
-        label: `${lastReconciliation.daysSince} j depuis`,
-        detail: "La prochaine réconciliation devrait être en cours.",
-      };
-    }
-    return {
-      severity: "ok",
-      label: `À jour · ${lastReconciliation.daysSince} j`,
-      detail: "",
-    };
-  })();
-  const trustBadCompliance = trustRisk.severity !== "ok";
+  const trustRisk = getTrustRisk(payload.lastReconciliation, intlLocale, t);
+  const totalOutstanding = payload.outstandingAccounts.reduce(
+    (sum: number, account: OutstandingAccountRow) => sum + account.balanceDue,
+    0,
+  );
+  const totalClients = payload.activeClientsCount + payload.inactiveClientsCount;
+  const actionItems = buildActionItems(payload, trustRisk, intlLocale, t);
+  const pipelineColumns = buildPipelineColumns(payload, t);
+  const healthCards = buildHealthCards(payload, trustRisk, totalOutstanding, totalClients, t);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <motion.div
-        className="w-full max-w-[1440px] mx-auto pb-16"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="flex flex-col gap-10 px-6 md:px-10 pt-4 pb-8">
-          <motion.div variants={itemVariants}>
-            <header
-              className="dash-header relative overflow-hidden rounded-lg p-8"
-              style={{
-                background:
-                  "linear-gradient(115deg, #0F2A22 0%, #1F3A2E 35%, #234539 65%, #2B6A4E 100%)",
-              }}
-            >
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h1 className="text-[32px] font-sans font-semibold tracking-tight text-forest-50 leading-[1.15]">
-                    Tableau de bord
-                  </h1>
-                  <p className="mt-1 text-[14px] font-sans text-forest-200">
-                    Votre cockpit financier et la production des dossiers, en un clin d&apos;œil.
-                  </p>
-                </div>
-                <Link
-                  href={routes.rapports}
-                  className="shrink-0 inline-flex items-center gap-1.5 text-[13px] font-medium text-forest-50 bg-white/10 hover:bg-white/20 transition-colors px-3.5 py-2 rounded-md backdrop-blur-sm border border-white/15"
-                >
-                  Rapports détaillés
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </header>
-          </motion.div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        action={
+          <LinkLabel href={routes.rapports}>
+            <span className="text-forest-50">{t("detailedReports")}</span>
+          </LinkLabel>
+        }
+      />
 
-          {/* ═══════════════════════════════════════════════ */}
-          {/*  1 · COCKPIT FINANCIER                          */}
-          {/* ═══════════════════════════════════════════════ */}
-          <motion.section variants={itemVariants}>
-            <SectionHead
-              eyebrow="01 · Cockpit financier"
-              title="Où est l'argent cette semaine ?"
-              gold
-              right={
-                <Link
-                  href={routes.rapports}
-                  className="text-[12px] font-sans font-medium inline-flex items-center gap-1"
-                  style={{ color: T.brand700 }}
-                >
-                  Rapports détaillés <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              }
-            />
+      <section>
+        <SectionTitle title={t("zoneToHandle")} subtitle={t("zoneToHandleSub")} />
+        <ActionList items={actionItems} t={t} />
+      </section>
 
-            {/* 1a · KPIs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <Kpi
-                label="Revenus · mois"
-                value={kpis.revenueThisMonth.value}
-                delta={kpis.revenueThisMonth.trend}
-                deltaLabel="M-1"
-                spark={invoicedSpark}
-                href={routes.rapports}
-                icon={TrendingUp}
-                iconTone="success"
-              />
-              <Kpi
-                label="Encaissé · mois"
-                value={kpis.paymentsReceived.value}
-                delta={kpis.paymentsReceived.trend}
-                deltaLabel="M-1"
-                spark={collectedSpark}
-                href={routes.facturationPaiements}
-                icon={Wallet}
-                iconTone="default"
-              />
-              <Kpi
-                label="À recouvrer"
-                value={kpis.outstandingInvoices.value}
-                sparkColor={T.debit}
-                sub={
-                  <>
-                    <span className="tabular-nums safe-text-title font-semibold">
-                      {outstandingAccounts.length}
-                    </span>{" "}
-                    client{outstandingAccounts.length > 1 ? "s" : ""}
-                  </>
-                }
-                href={routes.facturationSuivi}
-                icon={Receipt}
-                iconTone="danger"
-              />
-              <Kpi
-                label="Non-facturé qui dort"
-                value={kpis.unbilledHoursValue.value}
-                sparkColor={T.pending}
-                sub={
-                  <>
-                    <span className="tabular-nums safe-text-title font-semibold">
-                      {indicators.unbilledEntries}
-                    </span>{" "}
-                    entrée{indicators.unbilledEntries > 1 ? "s" : ""}
-                  </>
-                }
-                href={routes.temps}
-                icon={Clock}
-                iconTone="gold"
-              />
+      {healthCards.length > 0 && (
+        <section>
+          <SectionTitle title={t("zoneHealth")} subtitle={t("zoneHealthSub")} />
+          <HealthCardsGrid cards={healthCards} />
+        </section>
+      )}
+
+      <section>
+        <SectionTitle
+          title={t("zonePipeline")}
+          subtitle={t("zonePipelineSub")}
+          action={<LinkLabel href={routes.dossiers}>{t("allMatters")}</LinkLabel>}
+        />
+        <PipelineBoard columns={pipelineColumns} t={t} />
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <div>
+          <SectionTitle title={t("zoneActivity")} subtitle={t("zoneActivitySub")} />
+          {payload.visibility.showActivityFeed ? (
+            <ActivityRecent payload={payload} locale={intlLocale} t={t} />
+          ) : (
+            <div className="rounded-safe-lg border border-[#E5ECE8] bg-white p-6 text-sm safe-text-secondary">
+              {t("activityEmpty")}
             </div>
-
-            {/* 1a-bis · Compteurs opérationnels */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <Kpi
-                label="Clients actifs"
-                value={String(activeClientsCount)}
-                sub={
-                  inactiveClientsCount > 0 ? (
-                    <>{inactiveClientsCount} inactif{inactiveClientsCount > 1 ? "s" : ""}</>
-                  ) : undefined
-                }
-                href={routes.clients}
-              />
-              <Kpi
-                label="Clients inactifs"
-                value={String(inactiveClientsCount)}
-                href={routes.clients}
-              />
-              <Kpi
-                label="Dossiers actifs"
-                value={String(activeDossiersCount)}
-                sub={
-                  dossiersParStatut.en_attente > 0 ? (
-                    <>{dossiersParStatut.en_attente} en attente</>
-                  ) : dossiersParStatut.ouvert > 0 ? (
-                    <>{dossiersParStatut.ouvert} ouvert{dossiersParStatut.ouvert > 1 ? "s" : ""}</>
-                  ) : undefined
-                }
-                href={routes.dossiers}
-              />
-            </div>
-
-            {/* 1b · Graphique 6 mois + Fidé */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 mb-6">
-              <Card>
-                <div
-                  className="px-4 py-2.5 flex items-center justify-between"
-                  style={{ borderBottom: `1px solid ${T.borderSubtle}` }}
-                >
-                  <div>
-                    <h3
-                      className="text-[13px] font-sans font-semibold"
-                      style={{ color: T.textTitle }}
-                    >
-                      Facturé vs encaissé · 6 mois
-                    </h3>
-                    <p
-                      className="text-[11px] font-sans mt-0.5"
-                      style={{ color: T.textMuted }}
-                    >
-                      L'écart ambré, c'est ton cash qui dort.
-                    </p>
-                  </div>
-                </div>
-                <SixMonthChart rows={monthlyComparison.slice(-6)} />
-              </Card>
-
-              {/* Fidéicommis en contexte */}
-              <Card
-                href={routes.comptes}
-                className="hover:border-forest-600/40"
-              >
-                <div className="px-4 py-3.5 flex flex-col h-full gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5" style={{ color: T.brand700 }} />
-                      <Eyebrow>Fidéicommis</Eyebrow>
-                    </div>
-                    {trustRisk.severity === "danger" ? (
-                      <span
-                        className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded"
-                        style={{ background: T.dangerBg, color: T.dangerFg }}
-                      >
-                        <AlertTriangle className="w-2.5 h-2.5" />
-                        Action requise
-                      </span>
-                    ) : trustRisk.severity === "warn" ? (
-                      <span
-                        className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded"
-                        style={{ background: T.warningBg, color: T.warningFg }}
-                      >
-                        <AlertTriangle className="w-2.5 h-2.5" />
-                        À surveiller
-                      </span>
-                    ) : (
-                      <span
-                        className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded"
-                        style={{ background: T.successBg, color: T.successFg }}
-                      >
-                        <CheckCircle2 className="w-2.5 h-2.5" />
-                        B-1 r.5 conforme
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    className="text-[28px] tabular-nums font-semibold leading-none tracking-[-0.01em]"
-                    style={{ color: T.gold700 }}
-                  >
-                    {soldeFideicommis ?? kpis.trustBalance.value}
-                  </div>
-                  <div
-                    className="grid grid-cols-2 gap-3 pt-2.5"
-                    style={{ borderTop: `1px solid ${T.borderSubtle}` }}
-                  >
-                    <div>
-                      <Eyebrow>Comptes actifs</Eyebrow>
-                      <div
-                        className="text-[16px] tabular-nums font-semibold mt-1"
-                        style={{ color: T.textTitle }}
-                      >
-                        {indicators.activeTrustAccounts}
-                      </div>
-                    </div>
-                    <div>
-                      <Eyebrow>Dernière réco.</Eyebrow>
-                      <div
-                        className="text-[13px] font-sans mt-1"
-                        style={{
-                          color: trustBadCompliance ? T.debit : T.textBody,
-                        }}
-                      >
-                        {trustRisk.label}
-                      </div>
-                    </div>
-                  </div>
-                  {trustRisk.detail && (
-                    <p
-                      className="text-[11px] font-sans leading-[1.4]"
-                      style={{
-                        color:
-                          trustRisk.severity === "danger"
-                            ? T.dangerFg
-                            : T.warningFg,
-                      }}
-                    >
-                      {trustRisk.detail}
-                    </p>
-                  )}
-                </div>
-              </Card>
-            </div>
-
-            {/* 1c · Âge des créances */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[15px] font-sans font-semibold tracking-tight safe-text-title">
-                  Âge des créances
-                </h3>
-                <span className="text-[11px] font-sans" style={{ color: T.textMuted }}>
-                  Total ·{" "}
-                  <span
-                    className="tabular-nums font-semibold"
-                    style={{ color: T.textTitle }}
-                  >
-                    {money(totalOutstanding)}
-                  </span>
-                </span>
-              </div>
-              <AgingBuckets accounts={outstandingAccounts} />
-            </div>
-          </motion.section>
-
-          {/* ═══════════════════════════════════════════════ */}
-          {/*  2 · PRODUCTION DES DOSSIERS                    */}
-          {/* ═══════════════════════════════════════════════ */}
-          <motion.section variants={itemVariants}>
-            <SectionHead
-              eyebrow="02 · Production"
-              title="Où en sont les dossiers ?"
-              gold
-              right={
-                <Link
-                  href={routes.dossiers}
-                  className="text-[12px] font-sans font-medium inline-flex items-center gap-1"
-                  style={{ color: T.brand700 }}
-                >
-                  Tous les dossiers <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              }
-            />
-
-            {/* 2a · Pipeline */}
-            <div className="mb-4">
-              <Pipeline dossiers={dossierEvolution} />
-            </div>
-
-            {/* 2b + 2c · À-risque + charge avocat */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <RiskTable dossiers={dossierEvolution} />
-              <LawyerLoad
-                rows={lawyerProductivity}
-                target={lawyerHoursTarget ?? 140}
-              />
-            </div>
-          </motion.section>
+          )}
         </div>
-      </motion.div>
+        {payload.visibility.showRevenueChart && (
+          <div>
+            <SectionTitle title={t("zoneTrend")} subtitle={t("zoneTrendSub")} />
+            <SixMonthChart rows={payload.monthlyComparison.slice(-6)} t={t} />
+          </div>
+        )}
+      </section>
     </div>
   );
 }

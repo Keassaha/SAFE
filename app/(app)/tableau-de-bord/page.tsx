@@ -25,6 +25,7 @@ import type {
   OnboardingChecklist,
   DossierEtape,
   TrustReconciliationSummary,
+  DashboardReadyForReviewSignal,
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
 import { DashboardView } from "@/components/dashboard/DashboardView";
@@ -36,7 +37,6 @@ import {
   getInvoiceLifecycleCategory,
 } from "@/lib/billing/invoice-status";
 import { listUnreadSignalsForUser } from "@/lib/services/ready-for-review-service";
-import { ReadyForReviewInbox } from "@/components/dashboard/ReadyForReviewInbox";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -854,6 +854,25 @@ export default async function TableauDeBordPage() {
     else if (s === "cloture") dossiersParStatut.cloture = g._count.id;
   }
 
+  // Inbox "prêt pour revue" — visible pour les avocats et admin du cabinet.
+  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
+  const showReadyInbox = userRole === "avocat" || userRole === "admin_cabinet";
+  const readyForReviewSignalsRaw = showReadyInbox
+    ? await listUnreadSignalsForUser(cabinetId, userId, {
+        scopeAllForAdmin: userRole === "admin_cabinet",
+      })
+    : [];
+  const readyForReviewSignals: DashboardReadyForReviewSignal[] = readyForReviewSignalsRaw.map((s) => ({
+    id: s.id,
+    dossierId: s.dossierId,
+    dossierIntitule: s.dossierIntitule,
+    numeroDossier: s.numeroDossier,
+    clientName: s.clientName,
+    reason: s.reason,
+    createdAt: s.createdAt.toISOString(),
+    createdByName: s.createdByName,
+  }));
+
   // ── Final payload ──
   const payload: DashboardPayload = {
     visibility,
@@ -872,6 +891,7 @@ export default async function TableauDeBordPage() {
     deboursNonRembourses: formatCurrency(deboursNonRembourses, "CAD", locale),
     upcomingTasks,
     upcomingEvents,
+    readyForReviewSignals,
     dossierEvolution,
     indicators,
     allKpisZero,
@@ -884,20 +904,8 @@ export default async function TableauDeBordPage() {
     dossiersParStatut,
   };
 
-  // Inbox "prêt pour revue" — visible pour les avocats et admin du cabinet.
-  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
-  const showReadyInbox = userRole === "avocat" || userRole === "admin_cabinet";
-  const readyForReviewSignals = showReadyInbox
-    ? await listUnreadSignalsForUser(cabinetId, userId, {
-        scopeAllForAdmin: userRole === "admin_cabinet",
-      })
-    : [];
-
   return (
     <div className="space-y-5">
-      {showReadyInbox && readyForReviewSignals.length > 0 && (
-        <ReadyForReviewInbox signals={readyForReviewSignals} />
-      )}
       <DashboardView payload={payload} />
     </div>
   );

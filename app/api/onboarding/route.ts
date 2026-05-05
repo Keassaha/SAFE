@@ -6,33 +6,16 @@ import {
   onboardingClientEmailHtml,
   getClientEmailSubject,
 } from "@/lib/email-templates/onboarding-client";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import type { OnboardingData, Lang } from "@/lib/onboarding/types";
-
-/* ─────────────────────────────────────────────
-   Rate limiting (simple in-memory)
-   ───────────────────────────────────────────── */
-const rateMap = new Map<string, { count: number; reset: number }>();
-const RATE_LIMIT = 5;
-const RATE_WINDOW = 60_000; // 1 min
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.reset) {
-    rateMap.set(ip, { count: 1, reset: now + RATE_WINDOW });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > RATE_LIMIT;
-}
 
 /* ─────────────────────────────────────────────
    POST /api/onboarding
    ───────────────────────────────────────────── */
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    if (isRateLimited(ip)) {
+    const ip = getClientIp(req.headers);
+    if (await isRateLimited(`onboarding-${ip}`, 5, 60_000)) {
       return NextResponse.json({ error: "Rate limited" }, { status: 429 });
     }
 

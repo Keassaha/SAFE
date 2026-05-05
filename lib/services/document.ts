@@ -4,10 +4,30 @@ import { prisma } from "@/lib/db";
 import { createAuditLog } from "./audit";
 import { canManageDocuments, canViewDocuments } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
 import path from "path";
 import fs from "fs/promises";
 
 const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
+const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "documents";
+
+function getSupabaseStorageClient() {
+  const url = process.env.SUPABASE_URL;
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_SERVICE_ROLE_SECRET;
+
+  if (!url || !serviceRoleKey) return null;
+
+  return createClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  }).storage.from(STORAGE_BUCKET);
+}
+
+function shouldUseLocalStorage() {
+  return process.env.STORAGE_PROVIDER === "local" || process.env.NODE_ENV !== "production";
+}
 
 function getStoragePath(cabinetId: string, documentId: string): string {
   const year = new Date().getFullYear();
@@ -97,6 +117,64 @@ export async function getDocumentStoragePath(documentId: string, cabinetId: stri
   return path.join(UPLOAD_BASE, doc.storageKey);
 }
 
+export async function writeDocumentObject(
+  storageKey: string,
+  buffer: Buffer,
+  contentType = "application/octet-stream",
+  options: { upsert?: boolean } = {}
+): Promise<void> {
+  const bucket = getSupabaseStorageClient();
+
+  if (bucket) {
+    const { error } = await bucket.upload(storageKey, buffer, {
+      contentType,
+      upsert: options.upsert ?? false,
+    });
+    if (error) throw error;
+    return;
+  }
+
+  if (!shouldUseLocalStorage()) {
+    throw new Error("Supabase Storage is not configured for document uploads");
+  }
+
+  const fullPath = path.join(UPLOAD_BASE, storageKey);
+  await fs.mkdir(path.dirname(fullPath), { recursive: true });
+  await fs.writeFile(fullPath, buffer);
+}
+
+export async function readDocumentObject(storageKey: string): Promise<Buffer> {
+  const bucket = getSupabaseStorageClient();
+
+  if (bucket) {
+    const { data, error } = await bucket.download(storageKey);
+    if (error) throw error;
+    return Buffer.from(await data.arrayBuffer());
+  }
+
+  if (!shouldUseLocalStorage()) {
+    throw new Error("Supabase Storage is not configured for document downloads");
+  }
+
+  return fs.readFile(path.join(UPLOAD_BASE, storageKey));
+}
+
+async function deleteDocumentObject(storageKey: string): Promise<void> {
+  const bucket = getSupabaseStorageClient();
+
+  if (bucket) {
+    const { error } = await bucket.remove([storageKey]);
+    if (error) throw error;
+    return;
+  }
+
+  if (!shouldUseLocalStorage()) {
+    throw new Error("Supabase Storage is not configured for document deletion");
+  }
+
+  await fs.unlink(path.join(UPLOAD_BASE, storageKey));
+}
+
 /**
  * Supprime le document (fichier + enregistrement) et enregistre l'audit.
  */
@@ -105,9 +183,8 @@ export async function deleteDocument(documentId: string, cabinetId: string, user
     where: { id: documentId, cabinetId },
   });
   if (!doc) return false;
-  const fullPath = path.join(UPLOAD_BASE, doc.storageKey);
   try {
-    await fs.unlink(fullPath);
+    await deleteDocumentObject(doc.storageKey);
   } catch {
     // fichier déjà absent
   }
@@ -148,9 +225,10 @@ export async function listDocuments(params: {
  */
 export async function prepareStorageForUpload(cabinetId: string, documentId: string): Promise<{ fullPath: string; storageKey: string }> {
   const year = new Date().getFullYear();
-  const dir = path.join(UPLOAD_BASE, cabinetId, String(year));
-  await fs.mkdir(dir, { recursive: true });
-  const storageKey = path.join(cabinetId, String(year), documentId);
+  const storageKey = path.posix.join(cabinetId, String(year), documentId);
   const fullPath = path.join(UPLOAD_BASE, storageKey);
+  if (shouldUseLocalStorage()) {
+    await fs.mkdir(path.dirname(fullPath), { recursive: true });
+  }
   return { fullPath, storageKey };
 }

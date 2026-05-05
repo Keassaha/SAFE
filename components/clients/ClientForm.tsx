@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createClient, updateClientForm, deleteClient } from "@/app/(app)/clients/actions";
@@ -12,14 +13,20 @@ export function ClientForm({
   client,
   error,
   canEditSensitive,
+  cancelHref,
 }: {
   client?: Client;
   error?: string | null;
   canEditSensitive?: boolean;
+  cancelHref?: string;
 }) {
   const t = useTranslations("clients");
   const tc = useTranslations("common");
   const isEdit = !!client;
+  const [typeClient, setTypeClient] = useState<"personne_morale" | "personne_physique">(
+    (client?.typeClient as "personne_morale" | "personne_physique" | undefined) ?? "personne_morale"
+  );
+  const isMorale = typeClient === "personne_morale";
 
   return (
     <form
@@ -35,32 +42,36 @@ export function ClientForm({
         </label>
         <select
           name="typeClient"
-          defaultValue={client?.typeClient ?? "personne_morale"}
+          value={typeClient}
+          onChange={(e) => setTypeClient(e.target.value as "personne_morale" | "personne_physique")}
           className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
         >
           <option value="personne_morale">{t("legalEntity")}</option>
           <option value="personne_physique">{t("naturalPerson")}</option>
         </select>
       </div>
-      <Input
-        label={t("businessName")}
-        name="raisonSociale"
-        defaultValue={client?.raisonSociale ?? ""}
-        required
-      />
-      {(client?.typeClient === "personne_physique" || !isEdit) && (
-        <>
+      {isMorale ? (
+        <Input
+          label={t("businessName")}
+          name="raisonSociale"
+          defaultValue={client?.raisonSociale ?? ""}
+          required
+        />
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
           <Input
             label={t("firstName")}
             name="prenom"
             defaultValue={client?.prenom ?? ""}
+            required
           />
           <Input
             label={t("lastName")}
             name="nom"
             defaultValue={client?.nom ?? ""}
+            required
           />
-        </>
+        </div>
       )}
       <Input
         label={t("contact")}
@@ -140,7 +151,7 @@ export function ClientForm({
         {isEdit && client && (
           <DeleteClientButton clientId={client.id} />
         )}
-        <Link href={routes.clients}>
+        <Link href={cancelHref ?? routes.clients}>
           <Button type="button" variant="secondary">
             {tc("cancel")}
           </Button>

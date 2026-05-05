@@ -14,9 +14,9 @@ const STEPS = [
     number: "01",
     icon: ClipboardCheck,
     title: "Audit d'efficacit\u00e9",
-    duration: "10 min",
+    duration: "15 à 20 min",
     description:
-      "R\u00e9pondez \u00e0 quelques questions sur votre cabinet. En 10 minutes, vous recevez un rapport personnalis\u00e9 : conformit\u00e9, efficacit\u00e9, points de risque \u2014 un portrait clair de votre situation.",
+      "R\u00e9pondez \u00e0 quelques questions sur votre cabinet. En 15 à 20 min, vous recevez un rapport personnalis\u00e9 : conformit\u00e9, efficacit\u00e9, points de risque \u2014 un portrait clair de votre situation.",
     accent: {
       icon: "text-emerald-400",
       bg: "bg-emerald-500/15",

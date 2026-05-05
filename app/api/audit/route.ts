@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sanitizeObject } from "@/lib/utils/sanitize";
-import { isRateLimited } from "@/lib/rate-limit";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { auditCompleteEmailHtml } from "@/lib/email-templates/audit-complete";
 
@@ -9,8 +9,8 @@ import { auditCompleteEmailHtml } from "@/lib/email-templates/audit-complete";
  * POST /api/audit — Recevoir une soumission d'audit (public)
  */
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for") || "unknown";
-  if (isRateLimited(`audit-${ip}`, 5, 60_000)) {
+  const ip = getClientIp(req.headers);
+  if (await isRateLimited(`audit-${ip}`, 5, 60_000)) {
     return NextResponse.json({ error: "Trop de tentatives." }, { status: 429 });
   }
 

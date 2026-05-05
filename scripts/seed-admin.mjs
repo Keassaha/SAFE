@@ -17,7 +17,7 @@ async function main() {
   if (existing) {
     console.log(`✅ User exists: ${existing.email} (cabinet: ${existing.cabinet.nom})`);
     console.log(`   Updating password...`);
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     await prisma.user.update({
       where: { id: existing.id },
       data: { passwordHash, role: "admin_cabinet" },
@@ -30,7 +30,7 @@ async function main() {
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 12);
   const cabinet = await prisma.cabinet.create({
     data: { nom: cabinetName, plan: "essentiel" },
   });

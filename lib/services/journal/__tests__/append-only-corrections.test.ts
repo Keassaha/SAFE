@@ -94,6 +94,7 @@ function buildMockClient(store: MockJournalStore): PrismaClient {
   });
 
   return {
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
     journalGeneralEntry: { findFirst, findMany, create, update, delete: deleteOp },
   } as unknown as PrismaClient;
 }

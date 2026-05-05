@@ -1,18 +1,41 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/app/(app)/clients/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { routes } from "@/lib/routes";
-import { User, Contact, Scale, CreditCard, ShieldCheck, FileCheck } from "lucide-react";
+import { normalizeClientName } from "@/lib/clients/normalize-name";
+import { User, Contact, Scale, CreditCard, ShieldCheck, FileCheck, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 
 interface LawyerOption {
   id: string;
   nom: string;
 }
+
+type ConflictStatus = "clear" | "possible_match" | "high_risk" | "error";
+
+interface ConflictMatch {
+  kind: "client" | "dossier" | "adverse_party" | "other";
+  id: string;
+  label: string;
+  reason: string;
+  risk: "low" | "medium" | "high";
+  href?: string;
+}
+
+interface ConflictCheckResult {
+  status: ConflictStatus;
+  checkedAt: string;
+  query: string;
+  matches: ConflictMatch[];
+}
+
+const DEBOUNCE_MS = 500;
+const MIN_QUERY_LENGTH = 3;
 
 export function ClientCreationWizard({
   lawyers = [],
@@ -36,15 +59,84 @@ export function ClientCreationWizard({
   ] as const;
 
   const [step, setStep] = useState(1);
+  const [typeClient, setTypeClient] = useState<"personne_morale" | "personne_physique">(
+    (initialData?.typeClient as "personne_morale" | "personne_physique" | undefined) ?? "personne_morale"
+  );
+  const isMorale = typeClient === "personne_morale";
   const [error, setError] = useState<string | null>(
     initialError === "invalid" ? t("invalidDataError") : null
   );
   const formRef = useRef<HTMLFormElement>(null);
 
-  function buildFormData(form: HTMLFormElement): FormData {
-    const fd = new FormData(form);
-    return fd;
-  }
+  // --- Contrôle de conflit automatique ---
+  const [conflictName, setConflictName] = useState({
+    raisonSociale: initialData?.raisonSociale ?? "",
+    prenom: initialData?.prenom ?? "",
+    nom: initialData?.nom ?? "",
+    email: initialData?.email ?? "",
+  });
+  const [conflictResult, setConflictResult] = useState<ConflictCheckResult | null>(null);
+  const [conflictLoading, setConflictLoading] = useState(false);
+  const [conflictAcknowledged, setConflictAcknowledged] = useState(false);
+  const lastQuerySignatureRef = useRef<string>("");
+
+  useEffect(() => {
+    const query = isMorale
+      ? conflictName.raisonSociale.trim()
+      : [conflictName.prenom, conflictName.nom].map((s) => s.trim()).filter(Boolean).join(" ");
+    const normalized = normalizeClientName(query);
+    if (normalized.length < MIN_QUERY_LENGTH) {
+      setConflictResult(null);
+      setConflictLoading(false);
+      lastQuerySignatureRef.current = "";
+      return;
+    }
+    const signature = `${typeClient}|${normalized}|${conflictName.email.trim().toLowerCase()}`;
+    if (signature === lastQuerySignatureRef.current) return;
+
+    let cancelled = false;
+    setConflictLoading(true);
+    const handle = window.setTimeout(async () => {
+      try {
+        const res = await fetch("/api/clients/conflict-check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            typeClient,
+            raisonSociale: isMorale ? conflictName.raisonSociale : undefined,
+            prenom: !isMorale ? conflictName.prenom : undefined,
+            nom: !isMorale ? conflictName.nom : undefined,
+            email: conflictName.email || undefined,
+          }),
+        });
+        if (cancelled) return;
+        if (!res.ok) {
+          setConflictResult({ status: "error", checkedAt: new Date().toISOString(), query, matches: [] });
+          setConflictLoading(false);
+          return;
+        }
+        const data = (await res.json()) as ConflictCheckResult;
+        if (cancelled) return;
+        setConflictResult(data);
+        setConflictAcknowledged(false);
+        lastQuerySignatureRef.current = signature;
+      } catch {
+        if (!cancelled) {
+          setConflictResult({ status: "error", checkedAt: new Date().toISOString(), query, matches: [] });
+        }
+      } finally {
+        if (!cancelled) setConflictLoading(false);
+      }
+    }, DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [typeClient, isMorale, conflictName]);
+
+  const blockedByConflict =
+    conflictResult?.status === "high_risk" && !conflictAcknowledged;
 
   function get(name: string): string {
     const form = formRef.current;
@@ -55,8 +147,11 @@ export function ClientCreationWizard({
 
   function validateCurrentStep(): string | null {
     if (step === 1) {
-      const raisonSociale = get("raisonSociale")?.trim();
-      if (!raisonSociale) return t("requiredFieldError");
+      if (isMorale) {
+        if (!get("raisonSociale")?.trim()) return t("requiredBusinessName");
+      } else {
+        if (!get("prenom")?.trim() || !get("nom")?.trim()) return t("requiredIndividualName");
+      }
     }
     return null;
   }
@@ -86,44 +181,30 @@ export function ClientCreationWizard({
     setStep(targetStep);
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    const form = e.currentTarget;
-    const formData = buildFormData(form);
-    try {
-      await createClient(formData);
-    } catch (err: unknown) {
-      if (
-        err &&
-        typeof err === "object" &&
-        "digest" in err &&
-        String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")
-      ) {
-        return;
-      }
-      setError(t("genericError"));
-    }
-  }
-
   function getSummary(): Array<{ label: string; value: string }> {
     const form = formRef.current;
     if (!form) return [];
     const get = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)?.value ?? "";
+    const isPhysique = get("typeClient") === "personne_physique";
+    const conflictLabel = conflictResult ? t(`conflictStatus_${conflictResult.status}`) : t("conflictStatus_pending");
     return [
-      { label: t("summaryType"), value: get("typeClient") === "personne_physique" ? t("individual") : t("company") },
-      { label: t("summaryName"), value: get("raisonSociale") || "—" },
-      { label: t("summaryFirstName"), value: get("prenom") || "—" },
-      { label: t("summaryLastName"), value: get("nom") || "—" },
+      { label: t("summaryType"), value: isPhysique ? t("individual") : t("company") },
+      ...(isPhysique
+        ? [
+            { label: t("summaryFirstName"), value: get("prenom") || "—" },
+            { label: t("summaryLastName"), value: get("nom") || "—" },
+          ]
+        : [{ label: t("summaryName"), value: get("raisonSociale") || "—" }]),
       { label: t("summaryEmail"), value: get("email") || "—" },
       { label: t("summaryPhone"), value: get("telephone") || "—" },
       { label: t("summaryLawyer"), value: lawyers.find((l) => l.id === get("assignedLawyerId"))?.nom ?? "—" },
       { label: t("summaryRetainer"), value: form.elements.namedItem("retainerSigned") && (form.elements.namedItem("retainerSigned") as HTMLInputElement).checked ? tc("yes") : tc("no") },
+      { label: t("summaryConflict"), value: conflictLabel },
     ];
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} action={createClient} className="space-y-6">
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {STEPS.map((s) => {
           const Icon = s.icon;
@@ -161,33 +242,65 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="typeClient"
-                defaultValue={initialData?.typeClient ?? "personne_morale"}
+                value={typeClient}
+                onChange={(e) => setTypeClient(e.target.value as "personne_morale" | "personne_physique")}
                 className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="personne_morale">{t("company")}</option>
                 <option value="personne_physique">{t("individual")}</option>
               </select>
+              <p className="mt-1 text-xs text-neutral-muted">
+                {isMorale ? t("companyHint") : t("individualHint")}
+              </p>
             </div>
-            <Input
-              label={t("businessNameLabel")}
-              name="raisonSociale"
-              required
-              defaultValue={initialData?.raisonSociale}
-              placeholder={t("businessNamePlaceholder")}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Input label={t("firstName")} name="prenom" defaultValue={initialData?.prenom} placeholder={t("firstName")} />
-              <Input label={t("lastName")} name="nom" defaultValue={initialData?.nom} placeholder={t("lastName")} />
-            </div>
-            <Input
-              label={t("dateOfBirth")}
-              name="dateNaissance"
-              type="date"
-            />
-            <Input
-              label={t("registrationNumber")}
-              name="numeroRegistreEntreprise"
-              placeholder={tc("optional")}
+            {isMorale ? (
+              <>
+                <Input
+                  label={t("businessNameLabel")}
+                  name="raisonSociale"
+                  required
+                  defaultValue={initialData?.raisonSociale}
+                  placeholder={t("businessNamePlaceholder")}
+                  onChange={(e) => setConflictName((s) => ({ ...s, raisonSociale: e.target.value }))}
+                />
+                <Input
+                  label={t("registrationNumber")}
+                  name="numeroRegistreEntreprise"
+                  placeholder={tc("optional")}
+                />
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label={t("firstName")}
+                    name="prenom"
+                    required
+                    defaultValue={initialData?.prenom}
+                    placeholder={t("firstName")}
+                    onChange={(e) => setConflictName((s) => ({ ...s, prenom: e.target.value }))}
+                  />
+                  <Input
+                    label={t("lastName")}
+                    name="nom"
+                    required
+                    defaultValue={initialData?.nom}
+                    placeholder={t("lastName")}
+                    onChange={(e) => setConflictName((s) => ({ ...s, nom: e.target.value }))}
+                  />
+                </div>
+                <Input
+                  label={t("dateOfBirth")}
+                  name="dateNaissance"
+                  type="date"
+                />
+              </>
+            )}
+            <ConflictCheckBanner
+              t={t}
+              loading={conflictLoading}
+              result={conflictResult}
+              compact
             />
           </div>
         </div>
@@ -203,6 +316,7 @@ export function ClientCreationWizard({
               type="email"
               defaultValue={initialData?.email}
               placeholder="courriel@exemple.com"
+              onChange={(e) => setConflictName((s) => ({ ...s, email: e.target.value }))}
             />
             <Input
               label={t("secondaryEmail")}
@@ -368,23 +482,23 @@ export function ClientCreationWizard({
             <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("complianceTitle")}
             </h3>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="conflictChecked"
-                id="conflictChecked"
-                value="on"
-                className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
-              />
-              <label htmlFor="conflictChecked" className="text-sm text-neutral-text-secondary">
-                {t("conflictCheckDone")}
-              </label>
-            </div>
-            <Input
-              label={t("conflictCheckDate")}
-              name="conflictCheckDate"
-              type="date"
+            <p className="text-sm text-neutral-muted">{t("conflictCheckIntro")}</p>
+            <ConflictCheckBanner
+              t={t}
+              loading={conflictLoading}
+              result={conflictResult}
             />
+            {conflictResult?.status === "high_risk" && (
+              <label className="flex items-start gap-2 rounded-safe border border-status-error/40 bg-status-error/5 p-3 text-sm text-neutral-text-primary">
+                <input
+                  type="checkbox"
+                  checked={conflictAcknowledged}
+                  onChange={(e) => setConflictAcknowledged(e.target.checked)}
+                  className="mt-0.5 rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                />
+                <span>{t("conflictAcknowledge")}</span>
+              </label>
+            )}
             <div>
               <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
                 {t("conflictNotes")}
@@ -415,9 +529,41 @@ export function ClientCreationWizard({
                 </div>
               ))}
             </div>
+            <ConflictCheckBanner
+              t={t}
+              loading={conflictLoading}
+              result={conflictResult}
+              compact
+            />
           </div>
         </div>
       </div>
+
+      <input
+        type="hidden"
+        name="conflictCheckStatus"
+        value={conflictResult?.status ?? "pending"}
+      />
+      <input
+        type="hidden"
+        name="conflictCheckedAt"
+        value={conflictResult?.checkedAt ?? ""}
+      />
+      <input
+        type="hidden"
+        name="conflictCheckQuery"
+        value={conflictResult?.query ?? ""}
+      />
+      <input
+        type="hidden"
+        name="conflictCheckMatches"
+        value={conflictResult ? JSON.stringify(conflictResult.matches) : "[]"}
+      />
+      <input
+        type="hidden"
+        name="conflictAcknowledged"
+        value={conflictAcknowledged ? "true" : "false"}
+      />
 
       {error && (
         <p className="text-sm text-status-error">{error}</p>
@@ -445,7 +591,12 @@ export function ClientCreationWizard({
             </Button>
           ) : (
             <>
-              <Button type="submit">{t("createClient")}</Button>
+              <CreateClientSubmitButton
+                label={t("createClient")}
+                pendingLabel={t("creatingClient")}
+                blocked={blockedByConflict}
+                blockedLabel={t("conflictBlockSubmit")}
+              />
               <Button
                 type="button"
                 variant="secondary"
@@ -463,5 +614,131 @@ export function ClientCreationWizard({
         </div>
       </div>
     </form>
+  );
+}
+
+function ConflictCheckBanner({
+  t,
+  loading,
+  result,
+  compact,
+}: {
+  t: ReturnType<typeof useTranslations>;
+  loading: boolean;
+  result: ConflictCheckResult | null;
+  compact?: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 rounded-safe-sm border border-neutral-border bg-neutral-50 px-3 py-2 text-sm text-neutral-muted">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        {t("conflictCheckLoading")}
+      </div>
+    );
+  }
+  if (!result) {
+    if (compact) return null;
+    return (
+      <div className="rounded-safe-sm border border-dashed border-neutral-border bg-neutral-50 px-3 py-2 text-sm text-neutral-muted">
+        {t("conflictCheckIdle")}
+      </div>
+    );
+  }
+
+  if (result.status === "error") {
+    return (
+      <div className="flex items-start gap-2 rounded-safe-sm border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-sm text-neutral-text-primary">
+        <AlertTriangle className="w-4 h-4 mt-0.5 text-status-warning" />
+        <span>{t("conflictCheckError")}</span>
+      </div>
+    );
+  }
+
+  if (result.status === "clear") {
+    return (
+      <div className="flex items-start gap-2 rounded-safe-sm border border-status-success/40 bg-status-success/10 px-3 py-2 text-sm text-neutral-text-primary">
+        <CheckCircle2 className="w-4 h-4 mt-0.5 text-status-success" />
+        <div>
+          <div className="font-medium">{t("conflictStatus_clear")}</div>
+          <div className="text-xs text-neutral-muted">
+            {t("conflictCheckMeta", { query: result.query, time: formatTime(result.checkedAt) })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isHigh = result.status === "high_risk";
+  const containerCls = isHigh
+    ? "border-status-error/50 bg-status-error/10"
+    : "border-status-warning/50 bg-status-warning/10";
+  const iconCls = isHigh ? "text-status-error" : "text-status-warning";
+
+  return (
+    <div className={`rounded-safe-sm border ${containerCls} p-3 text-sm text-neutral-text-primary`}>
+      <div className="flex items-start gap-2">
+        <AlertTriangle className={`w-4 h-4 mt-0.5 ${iconCls}`} />
+        <div className="flex-1 space-y-1">
+          <div className="font-semibold">{t(`conflictStatus_${result.status}`)}</div>
+          <div className="text-xs text-neutral-muted">
+            {t("conflictCheckMeta", { query: result.query, time: formatTime(result.checkedAt) })}
+          </div>
+        </div>
+      </div>
+      {!compact && result.matches.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {result.matches.slice(0, 8).map((m, idx) => (
+            <li
+              key={`${m.kind}-${m.id}-${idx}`}
+              className="rounded-safe-sm bg-white/70 border border-neutral-border px-3 py-2"
+            >
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-neutral-muted">
+                <span>{t(`conflictKind_${m.kind}`)}</span>
+                <span>·</span>
+                <span>{t(`conflictRisk_${m.risk}`)}</span>
+              </div>
+              <div className="mt-1 text-sm font-medium text-neutral-text-primary">
+                {m.href ? (
+                  <Link href={m.href} target="_blank" className="hover:underline">
+                    {m.label}
+                  </Link>
+                ) : (
+                  m.label
+                )}
+              </div>
+              <div className="text-xs text-neutral-muted">{t(`conflictReason_${m.reason}`)}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function formatTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleTimeString();
+  } catch {
+    return iso;
+  }
+}
+
+function CreateClientSubmitButton({
+  label,
+  pendingLabel,
+  blocked,
+  blockedLabel,
+}: {
+  label: string;
+  pendingLabel: string;
+  blocked: boolean;
+  blockedLabel: string;
+}) {
+  const { pending } = useFormStatus();
+  const disabled = pending || blocked;
+  return (
+    <Button type="submit" disabled={disabled} title={blocked ? blockedLabel : undefined}>
+      {pending ? pendingLabel : blocked ? blockedLabel : label}
+    </Button>
   );
 }

@@ -32,6 +32,12 @@ export async function createJournalEntry(
   input: JournalEntryCreateInput,
   client: JournalPrismaClient = prisma,
 ): Promise<{ id: string }> {
+  if (client === prisma) {
+    return prisma.$transaction((tx) => createJournalEntry(input, tx));
+  }
+
+  await client.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.cabinetId}))`;
+
   const lastEntry = await client.journalGeneralEntry.findFirst({
     where: { cabinetId: input.cabinetId },
     orderBy: [{ dateTransaction: "desc" }, { createdAt: "desc" }],
@@ -252,7 +258,7 @@ export async function calculateJournalBalance(
     prisma.journalGeneralEntry.aggregate({
       where: {
         ...wherePeriod,
-        typeTransaction: { in: ["FACTURE", "PAIEMENT"] },
+        typeTransaction: "FACTURE",
       },
       _sum: { montantEntree: true, montantSortie: true },
     }),
@@ -282,7 +288,7 @@ export async function calculateJournalBalance(
     prisma.journalGeneralEntry.aggregate({
       where: {
         ...wherePrevMonth,
-        typeTransaction: { in: ["FACTURE", "PAIEMENT"] },
+        typeTransaction: "FACTURE",
       },
       _sum: { montantEntree: true, montantSortie: true },
     }),

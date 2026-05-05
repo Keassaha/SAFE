@@ -15,9 +15,12 @@ export const routes = {
     clientId ? `/dossiers/nouveau?clientId=${encodeURIComponent(clientId)}` : "/dossiers/nouveau",
   temps: "/temps",
   facturation: "/facturation",
-  facturationHonoraires: "/facturation/honoraires",
+  /** Section "Facturables" intégrée à /facturation. La route /facturation/honoraires redirige ici. */
+  facturationHonoraires: "/facturation#facturables",
   facturationHonorairesClient: (clientId: string) => `/facturation/honoraires/${clientId}`,
-  facturationFactureNouvelle: "/facturation/factures/nouvelle",
+  facturationFactureNouvelle: "/facturation/nouvelle",
+  facturationFactureApercu: (id: string) => `/facturation/factures/${id}`,
+  /** @deprecated Le chemin affiche maintenant l'aperçu canonique de la facture. */
   facturationFactureEdit: (id: string) => `/facturation/factures/${id}`,
   /** Lien public pour que le client consulte sa facture (sans auth) */
   factureClient: (token: string) => `/facture/${token}`,
@@ -32,10 +35,13 @@ export const routes = {
   comptabilite: "/comptabilite",
   comptabiliteTab: (tab: "general" | "depenses" | "paiements") => `/comptabilite?tab=${tab}`,
   parametres: "/parametres",
+  parametresCabinet: "/parametres/cabinet",
+  parametresAbonnement: "/parametres/abonnement",
   parametresAudit: "/parametres/audit",
   parametresRetention: "/parametres/retention",
   parametresEnvoiFacture: "/parametres/envoi-facture",
-  parametresEquipe: "/parametres/equipe",
+  /** @deprecated /parametres/equipe a été supprimée. Utiliser routes.employees. */
+  parametresEquipe: "/employees",
   rejoindre: (token: string) => `/rejoindre/${token}`,
   employees: "/employees",
   employee: (id: string) => `/employees/${id}`,

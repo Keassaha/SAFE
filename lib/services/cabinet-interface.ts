@@ -13,8 +13,10 @@ export const getCabinetInterface = cache(async (cabinetId: string) => {
   });
 });
 
+export type CabinetBillingMode = "forfait" | "horaire" | "mixed";
+
 export interface CabinetInterfaceDerived {
-  billingMode: "forfait" | "horaire";
+  billingMode: CabinetBillingMode;
   activeNavIds: string[] | null;
   hiddenNavIds: string[];
 }
@@ -26,14 +28,16 @@ export interface CabinetInterfaceDerived {
 export const getCabinetInterfaceDerived = cache(
   async (cabinetId: string): Promise<CabinetInterfaceDerived> => {
     const config = await getCabinetInterface(cabinetId);
-    let billingMode: "forfait" | "horaire" = "horaire";
+    let billingMode: CabinetBillingMode = "horaire";
     let activeNavIds: string[] | null = null;
     let hiddenNavIds: string[] = [];
 
     if (config?.modules) {
       try {
         const modules = JSON.parse(config.modules);
-        if (modules?.facturation?.principal === "forfait") billingMode = "forfait";
+        const principal = modules?.facturation?.principal;
+        if (principal === "forfait") billingMode = "forfait";
+        else if (principal === "mixed" || principal === "mixte") billingMode = "mixed";
       } catch {
         /* ignore parse errors */
       }
@@ -58,3 +62,10 @@ export const getCabinetInterfaceDerived = cache(
     return { billingMode, activeNavIds, hiddenNavIds };
   }
 );
+
+export async function getCabinetBillingMode(
+  cabinetId: string
+): Promise<CabinetBillingMode> {
+  const { billingMode } = await getCabinetInterfaceDerived(cabinetId);
+  return billingMode;
+}

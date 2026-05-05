@@ -12,6 +12,7 @@ import { timeEntryCreateSchema } from "@/lib/validations/time-entry";
 import { tempsQuerySchema } from "@/lib/validations/temps";
 import { computeMontant } from "@/lib/temps/utils";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { resolveEditableTimeEntryBillingFields } from "@/lib/billing/time-entry-lifecycle";
 import type { Prisma, UserRole } from "@prisma/client";
 
 function getSessionData() {
@@ -218,6 +219,10 @@ export async function POST(request: Request) {
       statut: (input.statut as "brouillon" | "valide" | "facture") ?? "brouillon",
       tauxHoraire: input.tauxHoraire,
       montant,
+      ...resolveEditableTimeEntryBillingFields({
+        facturable: input.facturable ?? true,
+        montant,
+      }),
     },
     include: {
       dossier: {

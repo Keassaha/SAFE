@@ -46,11 +46,16 @@ function renderTextNode(node: TiptapNode, key: number): React.ReactElement {
 
 // Rendu du contenu inline d'un paragraphe
 function renderInlineContent(nodes: TiptapNode[] = []): React.ReactElement[] {
-  return nodes.flatMap((node, i) => {
-    if (node.type === "text") return [renderTextNode(node, i)];
-    if (node.type === "hardBreak") return [React.createElement(Text, { key: i }, "\n")];
-    return [];
+  const elements: React.ReactElement[] = [];
+  nodes.forEach((node, i) => {
+    if (node.type === "text") {
+      elements.push(renderTextNode(node, i));
+    }
+    if (node.type === "hardBreak") {
+      elements.push(React.createElement(Text, { key: i }, "\n"));
+    }
   });
+  return elements;
 }
 
 // Rendu d'un bloc

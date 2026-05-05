@@ -11,6 +11,7 @@ const columns = [
   { key: "avocat", header: "Avocat", render: (r: RapportFacturationRow) => r.avocat ?? "—" },
   { key: "date", header: "Date", render: (r: RapportFacturationRow) => formatDate(r.date) },
   { key: "montantHT", header: "Montant HT", render: (r: RapportFacturationRow) => formatCurrency(r.montantHT) },
+  { key: "rabais", header: "Rabais", render: (r: RapportFacturationRow) => formatCurrency(r.rabais) },
   { key: "taxes", header: "Taxes", render: (r: RapportFacturationRow) => formatCurrency(r.taxes) },
   { key: "total", header: "Total", render: (r: RapportFacturationRow) => formatCurrency(r.total) },
   { key: "paiementRecu", header: "Paiement reçu", render: (r: RapportFacturationRow) => formatCurrency(r.paiementRecu) },

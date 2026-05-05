@@ -1,0 +1,106 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { CheckCircle2, ExternalLink, Mail, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { routes } from "@/lib/routes";
+
+type FacturePreviewActionsProps = {
+  invoiceId: string;
+  invoiceStatus: string | null;
+};
+
+async function postInvoiceAction(
+  invoiceId: string,
+  action: "valider" | "envoyer-email" | "annuler"
+) {
+  const response = await fetch(`/api/facturation/factures/${invoiceId}/${action}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: action === "annuler" ? JSON.stringify({ cancelReason: "Annulé depuis l'aperçu" }) : "{}",
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Action impossible pour cette facture");
+  }
+  return payload;
+}
+
+export function FacturePreviewActions({
+  invoiceId,
+  invoiceStatus,
+}: FacturePreviewActionsProps) {
+  const router = useRouter();
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const isDraft = invoiceStatus === "DRAFT" || invoiceStatus == null;
+  const canIssue = invoiceStatus === "DRAFT" || invoiceStatus === "READY_TO_ISSUE";
+
+  const runAction = async (
+    action: "valider" | "envoyer-email" | "annuler",
+    successMessage: string
+  ) => {
+    try {
+      setPendingAction(action);
+      await postInvoiceAction(invoiceId, action);
+      toast.success(successMessage);
+      if (action === "annuler") {
+        router.push(routes.facturation);
+      } else {
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Action impossible pour cette facture");
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-3">
+      <Link
+        href={`/api/facturation/factures/${invoiceId}/pdf`}
+        target="_blank"
+        className="inline-flex h-[38px] items-center justify-center gap-1.5 rounded-md border border-forest-700/50 px-4 text-[14px] font-medium text-forest-700 transition-base hover:bg-forest-50"
+      >
+        <ExternalLink className="h-4 w-4" />
+        Voir le PDF
+      </Link>
+      {isDraft ? (
+        <Button
+          variant="secondary"
+          className="gap-2"
+          disabled={pendingAction != null}
+          onClick={() => runAction("valider", "Facture approuvée.")}
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          Approuver la facture
+        </Button>
+      ) : null}
+      {canIssue ? (
+        <Button
+          variant="primary"
+          className="gap-2"
+          disabled={pendingAction != null}
+          onClick={() => runAction("envoyer-email", "Facture envoyée par courriel.")}
+        >
+          <Mail className="h-4 w-4" />
+          Envoyer par courriel
+        </Button>
+      ) : null}
+      {isDraft ? (
+        <Button
+          variant="ghost"
+          className="gap-2 text-[#A32D2D] hover:bg-[#FCEBEB]"
+          disabled={pendingAction != null}
+          onClick={() => runAction("annuler", "Brouillon annulé.")}
+        >
+          <Trash2 className="h-4 w-4" />
+          Annuler le brouillon
+        </Button>
+      ) : null}
+    </div>
+  );
+}

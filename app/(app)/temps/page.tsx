@@ -20,7 +20,23 @@ export default async function TempsPage() {
     const [dossiers, t] = await Promise.all([
       prisma.dossier.findMany({
         where: { cabinetId, statut: { in: ["ouvert", "actif", "en_attente"] } },
-        select: { id: true, intitule: true, numeroDossier: true, clientId: true },
+        select: {
+          id: true,
+          intitule: true,
+          numeroDossier: true,
+          type: true,
+          statut: true,
+          clientId: true,
+          client: {
+            select: {
+              id: true,
+              typeClient: true,
+              raisonSociale: true,
+              prenom: true,
+              nom: true,
+            },
+          },
+        },
         orderBy: { intitule: "asc" },
       }),
       getTranslations("temps.taskRegister"),

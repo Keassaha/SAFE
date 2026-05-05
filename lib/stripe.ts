@@ -87,3 +87,30 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+
+const PLAN_PRICE_ENV: Record<PlanKey, string> = {
+  essentiel: "STRIPE_PRICE_ID_ESSENTIEL",
+  professionnel: "STRIPE_PRICE_ID_PROFESSIONNEL",
+  cabinet: "STRIPE_PRICE_ID_CABINET",
+};
+
+export function appBaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.NEXTAUTH_URL ??
+    "http://localhost:3000"
+  ).replace(/\/$/, "");
+}
+
+export function stripePriceIdForPlan(plan: PlanKey): string | null {
+  return process.env[PLAN_PRICE_ENV[plan]] ?? process.env.STRIPE_PRICE_ID ?? null;
+}
+
+export function planFromStripePriceId(priceId: string | null | undefined): PlanKey | null {
+  if (!priceId) return null;
+  for (const plan of Object.keys(PLAN_PRICE_ENV) as PlanKey[]) {
+    if (process.env[PLAN_PRICE_ENV[plan]] === priceId) return plan;
+  }
+  if (process.env.STRIPE_PRICE_ID === priceId) return "professionnel";
+  return null;
+}

@@ -13,7 +13,12 @@ import {
 } from "@/lib/invoice-calculations";
 import type { BillingLineRow } from "@/lib/invoice-calculations";
 import { createAuditLog } from "@/lib/services/audit";
-import type { Prisma } from "@prisma/client";
+import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
+import { derivePaymentStatus } from "@/lib/billing/payment-status";
+import { writeJournalForIssuedInvoice } from "@/lib/services/journal/billing-journal";
+import type { Prisma, PrismaClient } from "@prisma/client";
+
+type DbClient = PrismaClient | Prisma.TransactionClient;
 
 const NON_ISSUED_STATUSES = ["DRAFT", "READY_TO_ISSUE"] as const;
 const ISSUED_STATUSES = ["ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE"] as const;
@@ -42,20 +47,11 @@ export async function createDraftFromBillableItems(params: {
     timeEntryIds.length > 0
       ? await prisma.timeEntry.findMany({
           where: {
+            ...buildBillableTimeEntryWhere(cabinetId, [
+              { OR: [{ clientId }, { dossier: { clientId } }] },
+            ]),
             id: { in: timeEntryIds },
-            cabinetId,
-            clientId,
             ...(dossierId != null ? { dossierId } : {}),
-            facturable: true,
-            invoiceId: null,
-            AND: [
-              {
-                OR: [
-                  { billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] } },
-                  { billingStatus: null },
-                ],
-              },
-            ],
           },
           include: { user: { select: { id: true, nom: true } } },
         })
@@ -97,119 +93,140 @@ export async function createDraftFromBillableItems(params: {
     );
   }
 
-  const numero = await getNextInvoiceNumero(cabinetId);
   const now = new Date();
   // Dû à la réception : même date que l'émission
   const dueDate = new Date(now);
 
-  const invoice = await prisma.invoice.create({
-    data: {
-      cabinetId,
-      clientId,
-      dossierId: dossierId ?? null,
-      numero,
-      dateEmission: now,
-      dateEcheance: dueDate,
-      statut: "brouillon",
-      invoiceStatus: "DRAFT",
-      paymentStatus: "UNPAID",
-      issueMethod: "generated_from_billing",
-      createdById: createdById ?? null,
-    },
+  // Atomicité : génération du numéro (sous advisory lock), facture +
+  // invoiceLines + updates des sources + recalcul des totaux dans une seule
+  // transaction. Si une étape échoue, aucun brouillon partiel ne reste,
+  // et les TimeEntry/Expense ne sont pas marqués IN_DRAFT_INVOICE sans
+  // facture associée. Le lock advisory dans getNextInvoiceNumero(tx)
+  // sérialise les générations concurrentes de numéro pour le même cabinet.
+  const { invoiceId, numero } = await prisma.$transaction(async (tx) => {
+    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    const invoice = await tx.invoice.create({
+      data: {
+        cabinetId,
+        clientId,
+        dossierId: dossierId ?? null,
+        numero,
+        dateEmission: now,
+        dateEcheance: dueDate,
+        statut: "brouillon",
+        invoiceStatus: "DRAFT",
+        paymentStatus: "UNPAID",
+        issueMethod: "generated_from_billing",
+        createdById: createdById ?? null,
+      },
+    });
+
+    let sortOrder = 0;
+    for (const te of timeEntries) {
+      const lineSubtotal = te.feeAmount ?? te.montant;
+      const taxable = te.taxable ?? true;
+      const gst = Math.round(lineSubtotal * TPS_RATE * 100) / 100;
+      const qst = Math.round(lineSubtotal * TVQ_RATE * 100) / 100;
+      const lineTotal = lineSubtotal + gst + qst;
+      const line = await tx.invoiceLine.create({
+        data: {
+          invoiceId: invoice.id,
+          timeEntryId: te.id,
+          lineType: "fee",
+          sourceType: "time_entry",
+          sourceId: te.id,
+          matterId: te.dossierId,
+          serviceDate: te.date,
+          description: te.description ?? "Honoraires",
+          quantite: te.durationHours ?? te.dureeMinutes / 60,
+          tauxUnitaire: te.hourlyRate ?? te.tauxHoraire,
+          lineSubtotal,
+          taxable,
+          gstAmount: gst,
+          qstAmount: qst,
+          lineTotal,
+          sortOrder: sortOrder++,
+          montant: lineSubtotal,
+        },
+      });
+      await tx.timeEntry.update({
+        where: { id: te.id },
+        data: {
+          billingStatus: "IN_DRAFT_INVOICE",
+          invoiceId: invoice.id,
+          invoiceLineId: line.id,
+        },
+      });
+    }
+
+    for (const exp of expenses) {
+      const lineSubtotal = exp.amount;
+      const taxable = exp.taxable;
+      const gst = taxable ? Math.round(lineSubtotal * TPS_RATE * 100) / 100 : 0;
+      const qst = taxable ? Math.round(lineSubtotal * TVQ_RATE * 100) / 100 : 0;
+      const lineTotal = lineSubtotal + gst + qst;
+      const line = await tx.invoiceLine.create({
+        data: {
+          invoiceId: invoice.id,
+          lineType: "expense",
+          sourceType: "expense",
+          sourceId: exp.id,
+          matterId: exp.matterId,
+          serviceDate: exp.expenseDate,
+          description: exp.description,
+          quantite: 1,
+          tauxUnitaire: exp.amount,
+          lineSubtotal,
+          taxable,
+          gstAmount: gst,
+          qstAmount: qst,
+          lineTotal,
+          sortOrder: sortOrder++,
+          montant: lineSubtotal,
+        },
+      });
+      await tx.expense.update({
+        where: { id: exp.id },
+        data: {
+          billingStatus: "IN_DRAFT_INVOICE",
+          invoiceId: invoice.id,
+          invoiceLineId: line.id,
+        },
+      });
+    }
+
+    await recalculateInvoiceTotals(invoice.id, tx);
+    return { invoiceId: invoice.id, numero };
   });
 
-  let sortOrder = 0;
-  for (const te of timeEntries) {
-    const lineSubtotal = te.feeAmount ?? te.montant;
-    const taxable = te.taxable ?? true;
-    const gst = Math.round(lineSubtotal * TPS_RATE * 100) / 100;
-    const qst = Math.round(lineSubtotal * TVQ_RATE * 100) / 100;
-    const lineTotal = lineSubtotal + gst + qst;
-    const line = await prisma.invoiceLine.create({
-      data: {
-        invoiceId: invoice.id,
-        timeEntryId: te.id,
-        lineType: "fee",
-        sourceType: "time_entry",
-        sourceId: te.id,
-        matterId: te.dossierId,
-        serviceDate: te.date,
-        description: te.description ?? "Honoraires",
-        quantite: te.durationHours ?? te.dureeMinutes / 60,
-        tauxUnitaire: te.hourlyRate ?? te.tauxHoraire,
-        lineSubtotal,
-        taxable,
-        gstAmount: gst,
-        qstAmount: qst,
-        lineTotal,
-        sortOrder: sortOrder++,
-        montant: lineSubtotal,
-      },
-    });
-    await prisma.timeEntry.update({
-      where: { id: te.id },
-      data: {
-        billingStatus: "IN_DRAFT_INVOICE",
-        invoiceId: invoice.id,
-        invoiceLineId: line.id,
-      },
-    });
-  }
-
-  for (const exp of expenses) {
-    const lineSubtotal = exp.amount;
-    const taxable = exp.taxable;
-    const gst = taxable ? Math.round(lineSubtotal * TPS_RATE * 100) / 100 : 0;
-    const qst = taxable ? Math.round(lineSubtotal * TVQ_RATE * 100) / 100 : 0;
-    const lineTotal = lineSubtotal + gst + qst;
-    const line = await prisma.invoiceLine.create({
-      data: {
-        invoiceId: invoice.id,
-        lineType: "expense",
-        sourceType: "expense",
-        sourceId: exp.id,
-        matterId: exp.matterId,
-        serviceDate: exp.expenseDate,
-        description: exp.description,
-        quantite: 1,
-        tauxUnitaire: exp.amount,
-        lineSubtotal,
-        taxable,
-        gstAmount: gst,
-        qstAmount: qst,
-        lineTotal,
-        sortOrder: sortOrder++,
-        montant: lineSubtotal,
-      },
-    });
-    await prisma.expense.update({
-      where: { id: exp.id },
-      data: {
-        billingStatus: "IN_DRAFT_INVOICE",
-        invoiceId: invoice.id,
-        invoiceLineId: line.id,
-      },
-    });
-  }
-
-  await recalculateInvoiceTotals(invoice.id);
+  // Audit en best-effort hors transaction : la facture est déjà cohérente.
   await createAuditLog({
     cabinetId,
     userId: createdById ?? undefined,
     entityType: "Invoice",
-    entityId: invoice.id,
+    entityId: invoiceId,
     action: "create",
     newValues: { numero, clientId, dossierId, timeEntryIds, expenseIds },
     performedBy: createdById ?? undefined,
     performedAt: new Date(),
   });
 
-  return { invoiceId: invoice.id };
+  return { invoiceId };
 }
 
-/** Recalcule et persiste les totaux d'une facture à partir de ses lignes, items manuels et allocations */
-export async function recalculateInvoiceTotals(invoiceId: string): Promise<void> {
-  const invoice = await prisma.invoice.findUnique({
+/**
+ * Recalcule et persiste les totaux d'une facture à partir de ses lignes,
+ * items manuels et allocations.
+ *
+ * Accepte un `client` Prisma optionnel pour pouvoir s'inscrire dans une
+ * transaction parent (`createDraftFromBillableItems`, `allocateToInvoices`,
+ * etc.). Sans argument : utilise le `prisma` partagé (comportement legacy).
+ */
+export async function recalculateInvoiceTotals(
+  invoiceId: string,
+  client: DbClient = prisma,
+): Promise<void> {
+  const invoice = await client.invoice.findUnique({
     where: { id: invoiceId },
     include: {
       invoiceLines: true,
@@ -300,14 +317,9 @@ export async function recalculateInvoiceTotals(invoiceId: string): Promise<void>
     creditApplied
   );
 
-  const paymentStatus =
-    totals.balanceDue <= 0
-      ? "PAID"
-      : totalPaidAmount > 0
-        ? "PARTIAL"
-        : "UNPAID";
+  const paymentStatus = derivePaymentStatus(totals.balanceDue, totalPaidAmount);
 
-  await prisma.invoice.update({
+  await client.invoice.update({
     where: { id: invoiceId },
     data: {
       subtotalFees: totals.subtotalFees,
@@ -379,7 +391,10 @@ export async function issueInvoice(params: {
   const { invoiceId, approvedById, cabinetId: enforcedCabinetId } = params;
   const invoice = await prisma.invoice.findFirst({
     where: { id: invoiceId, ...(enforcedCabinetId ? { cabinetId: enforcedCabinetId } : {}) },
-    include: { invoiceLines: true },
+    include: {
+      invoiceLines: true,
+      client: { select: { raisonSociale: true, prenom: true, nom: true } },
+    },
   });
   if (!invoice) throw new Error("Facture introuvable");
   if (invoice.invoiceStatus !== "DRAFT" && invoice.invoiceStatus !== "READY_TO_ISSUE") {
@@ -401,8 +416,12 @@ export async function issueInvoice(params: {
           data: { billingStatus: "BILLED" },
         });
       }
+      await tx.registreTache.updateMany({
+        where: { invoiceLineId: line.id },
+        data: { statut: "facture" },
+      });
     }
-    await tx.invoice.update({
+    const issuedInvoice = await tx.invoice.update({
       where: { id: invoiceId },
       data: {
         invoiceStatus: "ISSUED",
@@ -414,6 +433,13 @@ export async function issueInvoice(params: {
         validatedById: approvedById ?? undefined,
       },
     });
+    await writeJournalForIssuedInvoice(
+      {
+        ...issuedInvoice,
+        client: invoice.client,
+      },
+      { client: tx, utilisateurId: approvedById ?? null },
+    );
   });
 
   await createAuditLog({
@@ -469,6 +495,13 @@ export async function cancelDraft(params: {
           },
         });
       }
+      await tx.registreTache.updateMany({
+        where: { invoiceLineId: line.id },
+        data: {
+          statut: "complete",
+          invoiceLineId: null,
+        },
+      });
     }
     // Supprimer les lignes de facture du brouillon annulé
     await tx.invoiceLine.deleteMany({ where: { invoiceId } });

@@ -85,6 +85,55 @@ export function invoiceEmailHtml(
   `;
 }
 
+/**
+ * Lettre d'accompagnement professionnelle pour l'envoi officiel d'une facture.
+ *
+ * Doctrine phase 1 : le corps du courriel ne doit JAMAIS prétendre joindre une
+ * pièce qui n'existe pas. Si `hasAttachment` est false, le texte indique
+ * clairement comment récupérer la facture.
+ *
+ * Le contenu de la facture (lignes, taxes, totaux) reste dans le PDF officiel —
+ * il n'est pas inséré dans le HTML.
+ */
+export function invoiceAccompanyingEmailHtml(opts: {
+  clientName: string;
+  invoiceNumber: string;
+  cabinetName: string;
+  dueDate?: string;
+  /** Lien public optionnel pour consulter la facture en ligne. */
+  shareUrl?: string;
+  /** True si un PDF est réellement joint au courriel. */
+  hasAttachment: boolean;
+}): { subject: string; html: string } {
+  const subject = `Facture ${opts.invoiceNumber} — ${opts.cabinetName}`;
+  const greeting = `Bonjour ${opts.clientName},`;
+  const intro = opts.hasAttachment
+    ? `Veuillez trouver <strong>en pièce jointe</strong> notre facture n° <strong>${opts.invoiceNumber}</strong> relativement à votre dossier.`
+    : opts.shareUrl
+      ? `Vous trouverez notre facture n° <strong>${opts.invoiceNumber}</strong> à l'adresse sécurisée ci-dessous.`
+      : `Notre facture n° <strong>${opts.invoiceNumber}</strong> a été émise. Notre équipe vous transmettra le document officiel sous peu.`;
+  const dueLine = opts.dueDate
+    ? `<p style="margin: 12px 0;">Échéance : <strong>${opts.dueDate}</strong>.</p>`
+    : "";
+  const linkBlock =
+    !opts.hasAttachment && opts.shareUrl
+      ? `<p style="margin: 24px 0;"><a href="${opts.shareUrl}" style="display: inline-block; padding: 10px 18px; background: #0F2A22; color: #FFFFFF; text-decoration: none; border-radius: 4px; font-weight: 600;">Consulter la facture</a></p>`
+      : "";
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1a1a1a;">
+      <p style="margin: 0 0 16px 0;">${greeting}</p>
+      <p style="margin: 0 0 12px 0;">${intro}</p>
+      ${dueLine}
+      ${linkBlock}
+      <p style="margin: 16px 0;">N'hésitez pas à communiquer avec nous pour toute question.</p>
+      <p style="margin: 16px 0 0 0;">Cordialement,<br/><strong>${opts.cabinetName}</strong></p>
+      <hr style="margin: 32px 0 12px 0; border: none; border-top: 1px solid #e5e5e5;" />
+      <p style="color: #888; font-size: 11px; margin: 0;">Cet envoi a été émis par SAFE pour le compte de ${opts.cabinetName}.</p>
+    </div>
+  `;
+  return { subject, html };
+}
+
 export function reminderEmailHtml(
   clientName: string,
   invoiceNumber: string,

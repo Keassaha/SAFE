@@ -9,6 +9,7 @@ import {
 import { createAuditLog } from "@/lib/services/audit";
 import { timeEntryUpdateSchema } from "@/lib/validations/time-entry";
 import { computeMontant } from "@/lib/temps/utils";
+import { resolveEditableTimeEntryBillingFields } from "@/lib/billing/time-entry-lifecycle";
 import type { UserRole } from "@prisma/client";
 
 async function getSessionData() {
@@ -57,6 +58,7 @@ export async function PATCH(
   const dureeMinutes = input.dureeMinutes ?? existing.dureeMinutes;
   const tauxHoraire = input.tauxHoraire ?? existing.tauxHoraire;
   const montant = computeMontant(dureeMinutes, tauxHoraire);
+  const facturable = input.facturable ?? existing.facturable;
 
   // Synchroniser clientId avec le dossier : si le dossier change, dériver le client du dossier
   let clientIdUpdate: string | null | undefined = input.clientId;
@@ -87,6 +89,11 @@ export async function PATCH(
       ...(input.statut != null && { statut: input.statut as "brouillon" | "valide" | "facture" }),
       ...(input.tauxHoraire != null && { tauxHoraire: input.tauxHoraire }),
       montant,
+      ...resolveEditableTimeEntryBillingFields({
+        facturable,
+        montant,
+        currentBillingStatus: existing.billingStatus,
+      }),
     },
     include: {
       dossier: {

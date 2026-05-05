@@ -18,6 +18,7 @@ import { DocumentExpiryTracker } from "@/components/dossiers/DocumentExpiryTrack
 import { ConflictCheckWidget } from "@/components/dossiers/ConflictCheckWidget";
 import { BillingStageConfig } from "@/components/facturation/BillingStageConfig";
 import type { Dossier, Client, User } from "@prisma/client";
+import type { CabinetBillingMode } from "@/lib/services/cabinet-interface";
 
 export function DossierForm({
   dossier,
@@ -27,6 +28,7 @@ export function DossierForm({
   initialClientId,
   error,
   canEditSensitive,
+  cabinetBillingMode = "horaire",
 }: {
   dossier?: Dossier & { client?: Pick<Client, "prenom" | "nom" | "raisonSociale"> };
   clients: Client[];
@@ -35,7 +37,9 @@ export function DossierForm({
   initialClientId?: string;
   error?: string | null;
   canEditSensitive?: boolean;
+  cabinetBillingMode?: CabinetBillingMode;
 }) {
+  const isCabinetForfait = cabinetBillingMode === "forfait";
   const t = useTranslations("matters");
   const tc = useTranslations("common");
 
@@ -241,27 +245,33 @@ export function DossierForm({
               />
             </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("billingMode")}</label>
-            <select
-              name="modeFacturation"
-              defaultValue={(dossier as { modeFacturation?: string | null })?.modeFacturation ?? ""}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
-            >
-              <option value="">{t("noMatterNone")}</option>
-              <option value="horaire">{t("billingHourly")}</option>
-              <option value="forfait">{t("billingFlat")}</option>
-              <option value="retainer">{t("billingRetainer")}</option>
-              <option value="contingent">{t("billingContingent")}</option>
-            </select>
-          </div>
-          <Input
-            label={t("hourlyRate")}
-            name="tauxHoraire"
-            type="number"
-            step="0.01"
-            defaultValue={(dossier as { tauxHoraire?: number | null })?.tauxHoraire ?? ""}
-          />
+          {isCabinetForfait ? (
+            <input type="hidden" name="modeFacturation" value="forfait" />
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("billingMode")}</label>
+                <select
+                  name="modeFacturation"
+                  defaultValue={(dossier as { modeFacturation?: string | null })?.modeFacturation ?? ""}
+                  className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+                >
+                  <option value="">{t("noMatterNone")}</option>
+                  <option value="horaire">{t("billingHourly")}</option>
+                  <option value="forfait">{t("billingFlat")}</option>
+                  <option value="retainer">{t("billingRetainer")}</option>
+                  <option value="contingent">{t("billingContingent")}</option>
+                </select>
+              </div>
+              <Input
+                label={t("hourlyRate")}
+                name="tauxHoraire"
+                type="number"
+                step="0.01"
+                defaultValue={(dossier as { tauxHoraire?: number | null })?.tauxHoraire ?? ""}
+              />
+            </>
+          )}
           <Input
             label={t("retentionUntil")}
             name="retentionJusqua"
@@ -334,11 +344,13 @@ export function DossierForm({
           {isEdit ? tc("save") : t("createMatter")}
         </Button>
         {isEdit && dossier && dossier.statut !== "archive" && (
-          <form action={archiveDossier.bind(null, dossier.id)} className="inline">
-            <Button type="submit" variant="secondary">
-              {t("archiveMatter")}
-            </Button>
-          </form>
+          <Button
+            type="submit"
+            variant="secondary"
+            formAction={archiveDossier.bind(null, dossier.id)}
+          >
+            {t("archiveMatter")}
+          </Button>
         )}
         <Link href={routes.dossiers}>
           <Button type="button" variant="secondary">

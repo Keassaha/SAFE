@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Button } from './ui/Button';
 import { motion } from 'framer-motion';
 
@@ -59,7 +60,9 @@ export function FinalCta() {
         transition={{ duration: 0.8, delay: 0.3, ease }}
         className="flex items-center justify-center mb-16"
       >
-        <Button variant="dark" size="lg" className="px-8">Faire mon audit gratuit &rarr;</Button>
+        <Link href="/audit-gratuit" className="block">
+          <Button variant="dark" size="lg" className="px-8">Faire mon audit gratuit &rarr;</Button>
+        </Link>
       </motion.div>
 
       <motion.div 

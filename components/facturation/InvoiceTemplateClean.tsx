@@ -19,6 +19,11 @@ const LABELS = {
     colAmount: "Montant",
     noLines: "Aucune ligne de facturation",
     subtotal: "Sous-total",
+    subtotalHonoraires: "Sous-total honoraires",
+    rabaisLabel: "Rabais",
+    fraisLabel: "Frais",
+    totalRabais: "Rabais accordé",
+    totalFrais: "Frais administratifs",
     gst: "TPS (5%)",
     qst: "TVQ (9,975%)",
     hst: "TVH (13%)",
@@ -46,6 +51,11 @@ const LABELS = {
     colAmount: "Amount",
     noLines: "No billing lines",
     subtotal: "Subtotal",
+    subtotalHonoraires: "Fees subtotal",
+    rabaisLabel: "Discount",
+    fraisLabel: "Fee",
+    totalRabais: "Discount applied",
+    totalFrais: "Administrative fees",
     gst: "GST (5%)",
     qst: "QST (9.975%)",
     hst: "HST (13%)",
@@ -102,6 +112,10 @@ export type InvoiceCleanProps = {
   } | null;
   items: InvoiceCleanItem[];
   subtotalTaxable?: number;
+  /** Total des rabais accordés sur la facture (positif). Affiché s'il > 0. */
+  totalRabais?: number;
+  /** Total des frais administratifs (positif). Affiché s'il > 0. */
+  totalFrais?: number;
   /** Quebec GST (TPS 5%). Leave at 0 for Ontario / HST cabinets. */
   tps?: number;
   /** Quebec QST (TVQ 9,975%). Leave at 0 for Ontario / HST cabinets. */
@@ -139,6 +153,8 @@ export function InvoiceTemplateClean({
   dossier,
   items,
   subtotalTaxable = 0,
+  totalRabais = 0,
+  totalFrais = 0,
   tps = 0,
   tvq = 0,
   hst = 0,
@@ -279,51 +295,77 @@ export function InvoiceTemplateClean({
           {/* Rows */}
           <div>
             {items.length > 0 ? (
-              items.map((item, i) => (
-                <div
-                  key={item.id}
-                  className={`grid grid-cols-[auto_1fr_auto] items-start gap-5 px-5 py-3.5 ${
-                    i !== items.length - 1 ? "border-b border-neutral-100" : ""
-                  } ${i % 2 === 1 ? "bg-neutral-50/40" : "bg-white"}`}
-                >
-                  <p className="text-neutral-500 text-[11.5px] tabular-nums whitespace-nowrap min-w-[80px] pt-0.5">
-                    {item.date ? fmtDate(item.date) : "—"}
-                  </p>
-                  <div className="min-w-0">
-                    <div className="flex items-start gap-2">
-                      <p className="text-neutral-800 text-[12.5px] leading-snug flex-1 min-w-0">
-                        {item.description || "—"}
-                      </p>
-                      {item.responsableInitiales && (
-                        <span
-                          className="shrink-0 inline-flex items-center justify-center min-w-[28px] h-[20px] px-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-[9px] font-bold text-emerald-700 tracking-wide tabular-nums"
-                          title={item.responsable ?? undefined}
-                        >
-                          {item.responsableInitiales}
-                        </span>
-                      )}
-                    </div>
-                    {(item.responsable || (item.hours != null && item.hours > 0)) && (
-                      <p className="text-neutral-400 text-[10.5px] mt-1 font-medium flex items-center gap-1.5 flex-wrap">
-                        {item.hours != null && item.hours > 0 && (
-                          <span>
-                            {item.hours}h × {item.rate != null ? fmtMoney(item.rate) : "—"}/h
+              items.map((item, i) => {
+                const isRabais = item.type === "rabais";
+                const isFrais = item.type === "frais_administratifs";
+                const rowBg = isRabais
+                  ? "bg-emerald-50/50"
+                  : isFrais
+                    ? "bg-amber-50/40"
+                    : i % 2 === 1
+                      ? "bg-neutral-50/40"
+                      : "bg-white";
+                return (
+                  <div
+                    key={item.id}
+                    className={`grid grid-cols-[auto_1fr_auto] items-start gap-5 px-5 py-3.5 ${
+                      i !== items.length - 1 ? "border-b border-neutral-100" : ""
+                    } ${rowBg}`}
+                  >
+                    <p className="text-neutral-500 text-[11.5px] tabular-nums whitespace-nowrap min-w-[80px] pt-0.5">
+                      {item.date ? fmtDate(item.date) : "—"}
+                    </p>
+                    <div className="min-w-0">
+                      <div className="flex items-start gap-2">
+                        {(isRabais || isFrais) && (
+                          <span
+                            className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-[0.08em] ${
+                              isRabais
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-amber-100 text-amber-700"
+                            }`}
+                          >
+                            {isRabais ? t.rabaisLabel : t.fraisLabel}
                           </span>
                         )}
-                        {item.responsable && (
-                          <>
-                            {item.hours != null && item.hours > 0 && <span className="text-neutral-200">·</span>}
-                            <span>{t.by} {item.responsable}</span>
-                          </>
+                        <p className="text-neutral-800 text-[12.5px] leading-snug flex-1 min-w-0">
+                          {item.description || "—"}
+                        </p>
+                        {item.responsableInitiales && (
+                          <span
+                            className="shrink-0 inline-flex items-center justify-center min-w-[28px] h-[20px] px-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-[9px] font-bold text-emerald-700 tracking-wide tabular-nums"
+                            title={item.responsable ?? undefined}
+                          >
+                            {item.responsableInitiales}
+                          </span>
                         )}
-                      </p>
-                    )}
+                      </div>
+                      {(item.responsable || (item.hours != null && item.hours > 0)) && (
+                        <p className="text-neutral-400 text-[10.5px] mt-1 font-medium flex items-center gap-1.5 flex-wrap">
+                          {item.hours != null && item.hours > 0 && (
+                            <span>
+                              {item.hours}h × {item.rate != null ? fmtMoney(item.rate) : "—"}/h
+                            </span>
+                          )}
+                          {item.responsable && (
+                            <>
+                              {item.hours != null && item.hours > 0 && <span className="text-neutral-200">·</span>}
+                              <span>{t.by} {item.responsable}</span>
+                            </>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                    <p
+                      className={`font-semibold tabular-nums text-[13px] whitespace-nowrap text-right min-w-[80px] ${
+                        isRabais ? "text-emerald-700" : "text-neutral-900"
+                      }`}
+                    >
+                      {fmtMoney(item.amount)}
+                    </p>
                   </div>
-                  <p className="text-neutral-900 font-semibold tabular-nums text-[13px] whitespace-nowrap text-right min-w-[80px]">
-                    {fmtMoney(item.amount)}
-                  </p>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="py-8 text-neutral-300 italic text-[12px] text-center">
                 {t.noLines}
@@ -337,8 +379,20 @@ export function InvoiceTemplateClean({
       <div className="px-10 pb-6">
         <div className="flex justify-end">
           <div className="w-full sm:w-[58%] space-y-1">
+            {totalFrais > 0 && (
+              <div className="flex justify-between text-amber-700 text-[12px] py-1">
+                <span>{t.totalFrais}</span>
+                <span className="tabular-nums font-medium">+{fmtMoney(totalFrais)}</span>
+              </div>
+            )}
+            {totalRabais > 0 && (
+              <div className="flex justify-between text-emerald-700 text-[12px] py-1">
+                <span>{t.totalRabais}</span>
+                <span className="tabular-nums font-medium">−{fmtMoney(totalRabais)}</span>
+              </div>
+            )}
             {subtotalTaxable > 0 && (
-              <div className="flex justify-between text-neutral-500 text-[12px] py-1">
+              <div className="flex justify-between text-neutral-500 text-[12px] py-1 border-t border-neutral-100/60 pt-1.5 mt-0.5">
                 <span>{t.subtotal}</span>
                 <span className="tabular-nums font-medium">
                   {fmtMoney(subtotalTaxable)}

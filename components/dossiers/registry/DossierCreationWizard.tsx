@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createDossier } from "@/app/(app)/dossiers/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { routes } from "@/lib/routes";
+import type { CabinetBillingMode } from "@/lib/services/cabinet-interface";
 import {
   FileText,
   User,
@@ -17,11 +19,12 @@ import {
 } from "lucide-react";
 
 interface DossierCreationWizardProps {
-  clients: { id: string; raisonSociale: string | null }[];
+  clients: { id: string; typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   avocats: { id: string; nom: string }[];
   assistants?: { id: string; nom: string }[];
   initialClientId?: string;
   initialError?: string;
+  cabinetBillingMode?: CabinetBillingMode;
 }
 
 export function DossierCreationWizard({
@@ -30,7 +33,9 @@ export function DossierCreationWizard({
   assistants = [],
   initialClientId,
   initialError,
+  cabinetBillingMode = "horaire",
 }: DossierCreationWizardProps) {
+  const isCabinetForfait = cabinetBillingMode === "forfait";
   const t = useTranslations("matters");
   const tc = useTranslations("common");
 
@@ -72,33 +77,9 @@ export function DossierCreationWizard({
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(initialError ?? null);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState(initialClientId ?? "");
   const formRef = useRef<HTMLFormElement>(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    const clientId = get("clientId")?.trim();
-    const type = get("type")?.trim();
-    if (!clientId || !type) {
-      setError(t("errorSelectClientAndType"));
-      return;
-    }
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    try {
-      const result = await createDossier(formData);
-      if (result && !result.ok) {
-        setError(
-          result.error === "invalid"
-            ? t("errorCheckFields")
-            : t("errorOccurred")
-        );
-        return;
-      }
-    } catch {
-      setError(t("errorOccurred"));
-    }
-  }
 
   function get(name: string): string {
     const form = formRef.current;
@@ -109,12 +90,10 @@ export function DossierCreationWizard({
 
   function validateCurrentStep(): string | null {
     if (step === 1) {
-      const type = get("type")?.trim();
-      if (!type) return t("errorSelectType");
+      if (!selectedType.trim()) return t("errorSelectType");
     }
     if (step === 2) {
-      const clientId = get("clientId")?.trim();
-      if (!clientId) return t("errorSelectClient");
+      if (!selectedClientId.trim()) return t("errorSelectClient");
     }
     return null;
   }
@@ -144,15 +123,27 @@ export function DossierCreationWizard({
     setStep(targetStep);
   }
 
+  async function submitDossier(formData: FormData) {
+    setError(null);
+    const result = await createDossier(formData);
+    if (result && !result.ok) {
+      setError(
+        result.error === "invalid"
+          ? t("errorCheckFields")
+          : t("errorOccurred")
+      );
+    }
+  }
+
   function getSummary(): Array<{ label: string; value: string }> {
-    const client = clients.find((c) => c.id === get("clientId"));
+    const client = clients.find((c) => c.id === selectedClientId);
     const avocat = avocats.find((a) => a.id === get("avocatResponsableId"));
     const assistant = assistants.find((a) => a.id === get("assistantJuridiqueId"));
     const year = new Date().getFullYear();
     return [
       { label: t("matterNumberHeader"), value: t("matterNumberAutoSummary", { year }) },
-      { label: tc("type"), value: TYPE_OPTIONS.find((o) => o.value === get("type"))?.label ?? "—" },
-      { label: tc("client"), value: client?.raisonSociale ?? "—" },
+      { label: tc("type"), value: TYPE_OPTIONS.find((o) => o.value === selectedType)?.label ?? "—" },
+      { label: tc("client"), value: formatClientLabel(client) || "—" },
       { label: t("summaryReference"), value: get("reference") || "—" },
       { label: t("matterTitle"), value: get("intitule") || "—" },
       { label: tc("status"), value: STATUT_OPTIONS.find((o) => o.value === get("statut"))?.label ?? "—" },
@@ -162,15 +153,27 @@ export function DossierCreationWizard({
       { label: t("summaryDistrict"), value: get("districtJudiciaire") || "—" },
       { label: t("courtFileNumber"), value: get("numeroDossierTribunal") || "—" },
       { label: t("summaryJudge"), value: get("nomJuge") || "—" },
-      { label: t("summaryBillingMode"), value: MODE_FACTURATION_OPTIONS.find((o) => o.value === get("modeFacturation"))?.label ?? "—" },
-      { label: t("summaryHourlyRate"), value: get("tauxHoraire") ? `${get("tauxHoraire")} $/h` : "—" },
+      {
+        label: t("summaryBillingMode"),
+        value: isCabinetForfait
+          ? t("billingFlat")
+          : MODE_FACTURATION_OPTIONS.find((o) => o.value === get("modeFacturation"))?.label ?? "—",
+      },
+      ...(isCabinetForfait
+        ? []
+        : [
+            {
+              label: t("summaryHourlyRate"),
+              value: get("tauxHoraire") ? `${get("tauxHoraire")} $/h` : "—",
+            },
+          ]),
     ];
   }
 
   const year = new Date().getFullYear();
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} action={submitDossier} className="space-y-6">
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {STEPS.map((s) => {
           const Icon = s.icon;
@@ -214,6 +217,8 @@ export function DossierCreationWizard({
               <select
                 name="type"
                 required
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
                 className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 {TYPE_OPTIONS.map((o) => (
@@ -255,13 +260,14 @@ export function DossierCreationWizard({
               <select
                 name="clientId"
                 required
-                defaultValue={initialClientId ?? ""}
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
                 className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.raisonSociale}
+                    {formatClientLabel(c)}
                   </option>
                 ))}
               </select>
@@ -331,29 +337,43 @@ export function DossierCreationWizard({
             <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
               {t("stepBilling")}
             </h3>
-            <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {t("billingModeLabel")}
-              </label>
-              <select
-                name="modeFacturation"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
-              >
-                {MODE_FACTURATION_OPTIONS.map((o) => (
-                  <option key={o.value || "none"} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Input
-              label={t("hourlyRate")}
-              name="tauxHoraire"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder={t("optional")}
-            />
+            {isCabinetForfait ? (
+              <>
+                <input type="hidden" name="modeFacturation" value="forfait" />
+                <div className="rounded-safe-sm border border-neutral-border bg-neutral-surface/50 px-3 py-2 text-sm text-neutral-muted">
+                  <span className="font-medium text-neutral-text-secondary">
+                    {t("billingFlat")}
+                  </span>{" "}
+                  — {t("billingFlatCabinetNote")}
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                    {t("billingModeLabel")}
+                  </label>
+                  <select
+                    name="modeFacturation"
+                    className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  >
+                    {MODE_FACTURATION_OPTIONS.map((o) => (
+                      <option key={o.value || "none"} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Input
+                  label={t("hourlyRate")}
+                  name="tauxHoraire"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder={t("optional")}
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -390,7 +410,7 @@ export function DossierCreationWizard({
         </div>
         <div className="flex flex-col gap-2">
           {step === 6 &&
-            (!get("type")?.trim() || !get("clientId")?.trim()) && (
+            (!selectedType.trim() || !selectedClientId.trim()) && (
               <p className="text-sm text-amber-600">
                 {t("selectTypeAndClient")}
               </p>
@@ -402,12 +422,11 @@ export function DossierCreationWizard({
               </Button>
             ) : (
               <>
-                <Button
-                  type="submit"
-                  disabled={!get("type")?.trim() || !get("clientId")?.trim()}
-                >
-                  {t("createMatter")}
-                </Button>
+                <CreateDossierSubmitButton
+                  label={t("createMatter")}
+                  pendingLabel={t("creatingMatter")}
+                  disabled={!selectedType.trim() || !selectedClientId.trim()}
+                />
                 <Button type="button" variant="secondary" onClick={() => goToStep(5)}>
                   {tc("back")}
                 </Button>
@@ -423,4 +442,29 @@ export function DossierCreationWizard({
       </div>
     </form>
   );
+}
+
+function CreateDossierSubmitButton({
+  label,
+  pendingLabel,
+  disabled,
+}: {
+  label: string;
+  pendingLabel: string;
+  disabled: boolean;
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={disabled || pending}>
+      {pending ? pendingLabel : label}
+    </Button>
+  );
+}
+
+function formatClientLabel(client?: DossierCreationWizardProps["clients"][number]) {
+  if (!client) return "";
+  if (client.typeClient === "personne_physique") {
+    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || client.raisonSociale || "";
+  }
+  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
 }

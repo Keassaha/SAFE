@@ -49,6 +49,7 @@ function buildMockClient(store: MockJgeStore): PrismaClient {
     return { id: `jge-${store.createCalls.length}` };
   });
   return {
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
     journalGeneralEntry: { findFirst, create },
   } as unknown as PrismaClient;
 }

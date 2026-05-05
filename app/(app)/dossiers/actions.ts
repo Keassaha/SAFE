@@ -14,6 +14,7 @@ import { generateCartable } from "@/lib/dossiers/cartable-service";
 import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
 import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
+import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
@@ -48,6 +49,16 @@ export async function createDossier(formData: FormData) {
   if (!parsed.data.type) {
     return { ok: false as const, error: "invalid" };
   }
+
+  // Cabinets configurés en facturation forfaitaire : la facturation horaire
+  // ne doit pas pouvoir être enregistrée sur un dossier, même si le client
+  // envoie horaire/tauxHoraire (formulaire bypassé, ancien tab ouvert).
+  const cabinetBillingMode = await getCabinetBillingMode(cabinetId);
+  if (cabinetBillingMode === "forfait") {
+    parsed.data.modeFacturation = "forfait";
+    parsed.data.tauxHoraire = null;
+  }
+
   const intitule = sanitizeInput(parsed.data.intitule?.trim() || "Dossier");
   const year = new Date().getFullYear();
   const maxAttempts = 10;
@@ -109,7 +120,7 @@ export async function createDossier(formData: FormData) {
   if (!dossier) {
     return { ok: false as const, error: "invalid" };
   }
-  await generateCartable(dossier.id, cabinetId, dossier.type);
+  await generateCartable(dossier.id, cabinetId, dossier.type, dossier.sousType);
 
   await createAuditLog({
     cabinetId,
@@ -156,6 +167,15 @@ export async function updateDossier(id: string, formData: FormData) {
   if (!parsed.success) {
     redirect(`/dossiers/${id}?error=invalid`);
   }
+
+  // Cabinets configurés en facturation forfaitaire : on neutralise toute
+  // tentative d'enregistrer un mode horaire (cf. createDossier).
+  const cabinetBillingMode = await getCabinetBillingMode(cabinetId);
+  if (cabinetBillingMode === "forfait") {
+    parsed.data.modeFacturation = "forfait";
+    parsed.data.tauxHoraire = null;
+  }
+
   const current = await prisma.dossier.findFirst({
     where: { id, cabinetId },
     select: { descriptionConfidentielle: true, notesStrategieJuridique: true, intitule: true },
@@ -318,7 +338,7 @@ export async function createDossierTache(formData: FormData) {
 }
 
 export async function updateDossierTache(id: string, formData: FormData) {
-  const { cabinetId } = await requireCabinetAndUser();
+  const { cabinetId, userId } = await requireCabinetAndUser();
   const tache = await prisma.dossierTache.findFirst({
     where: { id },
     include: { dossier: true },
@@ -341,6 +361,21 @@ export async function updateDossierTache(id: string, formData: FormData) {
   if (!parsed.success) {
     redirect(`/dossiers/${tache.dossierId}?error=tache_invalid`);
   }
+
+  // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md §8.
+  // Une tâche complétée peut indirectement faire passer un dossier à
+  // `pret_pour_revue` (par ex. en levant un manquant `event_deadline`).
+  // On limite la capture de l'état d'avant aux transitions de complétion
+  // pour ne pas charger le snapshot inutilement.
+  const willComplete =
+    tache.statut !== "terminee" && parsed.data.statut === "terminee";
+  const beforeSnap = willComplete
+    ? await loadDossierPreparationSnapshot(cabinetId, tache.dossierId, {
+        callerUserId: userId,
+      })
+    : null;
+  const beforeState = beforeSnap ? getDossierPreparationStatus(beforeSnap).state : null;
+
   await prisma.dossierTache.update({
     where: { id },
     data: {
@@ -352,6 +387,14 @@ export async function updateDossierTache(id: string, formData: FormData) {
       dateEcheance: parsed.data.dateEcheance ?? null,
     },
   });
+
+  if (willComplete) {
+    await detectAndEmitIfReady(cabinetId, tache.dossierId, {
+      beforeState,
+      callerUserId: userId,
+    });
+  }
+
   revalidatePath(`/dossiers/${tache.dossierId}`);
   redirect(`/dossiers/${tache.dossierId}`);
 }

@@ -5,8 +5,14 @@ import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { facturationHonorairesQuerySchema } from "@/lib/validations/facturation";
 import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import {
+  buildUnsentBillableTimeEntryWhere,
+  buildHonorairesRegistreTacheWhere,
+} from "@/lib/billing/queries";
 import type { UserRole } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
+
+const NOT_SENT_INVOICE_STATUSES = ["DRAFT", "READY_TO_ISSUE"] as const;
 
 function getSessionData() {
   return getServerSession(authOptions).then((session) => {
@@ -18,7 +24,7 @@ function getSessionData() {
   });
 }
 
-/** Filtre : fiches de temps éligibles (non facturées, facturables, pas déjà sur un brouillon).
+/** Filtre : fiches de temps non envoyées (libres ou déjà dans une facture brouillon/validation).
  *  Inclut les entrées liées au client soit par clientId, soit par dossier (dossier.clientId). */
 function buildHonorairesWhere(cabinetId: string, filters: {
   clientId?: string;
@@ -28,72 +34,65 @@ function buildHonorairesWhere(cabinetId: string, filters: {
   dateTo?: Date;
   q?: string;
 }) {
-  const statusOr = [
-    { statut: { in: ["brouillon", "valide"] as const } },
-    { billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] as const } },
-  ];
-  const where: Record<string, unknown> = {
-    cabinetId,
-    facturable: true,
-    invoiceId: null,
-    // Statut éligible ET (clientId = X OU dossier du client X)
-    ...(filters.clientId
-      ? {
-          AND: [
-            { OR: statusOr },
-            {
-              OR: [
-                { clientId: filters.clientId },
-                { dossier: { clientId: filters.clientId } },
-              ],
-            },
-          ],
-        }
-      : { OR: statusOr }),
-    ...(filters.dossierId && { dossierId: filters.dossierId }),
-    ...(filters.userId && { userId: filters.userId }),
-    ...((filters.dateFrom || filters.dateTo) && {
+  const and: Prisma.TimeEntryWhereInput[] = [];
+
+  if (filters.clientId) {
+    and.push({
+      OR: [
+        { clientId: filters.clientId },
+        { dossier: { clientId: filters.clientId } },
+      ],
+    });
+  }
+
+  if (filters.q?.trim()) {
+    const q = filters.q.trim();
+    and.push({
+      OR: [
+        { description: { contains: q, mode: "insensitive" } },
+        { client: { raisonSociale: { contains: q, mode: "insensitive" } } },
+        { dossier: { client: { raisonSociale: { contains: q, mode: "insensitive" } } } },
+      ],
+    });
+  }
+
+  if (filters.dossierId) and.push({ dossierId: filters.dossierId });
+  if (filters.userId) and.push({ userId: filters.userId });
+  if (filters.dateFrom || filters.dateTo) {
+    and.push({
       date: {
         ...(filters.dateFrom && { gte: filters.dateFrom }),
         ...(filters.dateTo && { lte: filters.dateTo }),
       },
-    }),
-  };
-  if (filters.q?.trim()) {
-    const q = filters.q.trim();
-    where.AND = [
-      { OR: statusOr },
-      {
-        OR: [
-          { description: { contains: q, mode: "insensitive" } },
-          { client: { raisonSociale: { contains: q, mode: "insensitive" } } },
-          { dossier: { client: { raisonSociale: { contains: q, mode: "insensitive" } } } },
-        ],
-      },
-    ];
-    delete where.OR;
+    });
   }
-  return where as Prisma.TimeEntryWhereInput;
+
+  return buildUnsentBillableTimeEntryWhere(cabinetId, and);
 }
 
-/** Filtre : débours éligibles à facturer */
+// La construction du filtre RegistreTache vit dans `lib/billing/queries.ts`
+// (`buildHonorairesRegistreTacheWhere`) pour qu'elle soit réutilisable et testable
+// hors de la couche route Next.js.
+
+/** Filtre : débours non envoyés */
 function buildExpensesWhere(cabinetId: string, filters: {
   clientId?: string;
   matterId?: string;
   dateFrom?: Date;
   dateTo?: Date;
 }) {
-  const where: {
-    cabinetId: string;
-    billingStatus: { in: ("NON_BILLED" | "READY_TO_BILL")[] };
-    invoiceId: null;
-    clientId?: string;
-    matterId?: string | null;
-    expenseDate?: { gte?: Date; lte?: Date };
-  } = {
+  const where: Prisma.ExpenseWhereInput = {
     cabinetId,
-    billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] },
-    invoiceId: null,
+    OR: [
+      {
+        invoiceId: null,
+        billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] },
+      },
+      {
+        billingStatus: "IN_DRAFT_INVOICE",
+        invoice: { invoiceStatus: { in: [...NOT_SENT_INVOICE_STATUSES] } },
+      },
+    ],
   };
   if (filters.clientId) where.clientId = filters.clientId;
   if (filters.matterId) where.matterId = filters.matterId;
@@ -134,8 +133,9 @@ export async function GET(request: Request) {
     dateFrom: filters.dateFrom,
     dateTo: filters.dateTo,
   });
+  const registreTachesWhere = buildHonorairesRegistreTacheWhere(cabinetId, filters);
 
-  const [entries, expenses] = await Promise.all([
+  const [entries, expenses, registreTaches] = await Promise.all([
     prisma.timeEntry.findMany({
       where,
       orderBy: { date: "desc" },
@@ -151,12 +151,35 @@ export async function GET(request: Request) {
           },
         },
         user: { select: { id: true, nom: true } },
+        invoice: { select: { id: true, numero: true, invoiceStatus: true } },
       },
     }),
     prisma.expense.findMany({
       where: expenseWhere,
       orderBy: { expenseDate: "desc" },
-      include: { client: { select: { id: true, raisonSociale: true } } },
+      include: {
+        client: { select: { id: true, raisonSociale: true } },
+        invoice: { select: { id: true, numero: true, invoiceStatus: true } },
+      },
+    }),
+    prisma.registreTache.findMany({
+      where: registreTachesWhere,
+      orderBy: { date: "desc" },
+      include: {
+        dossier: {
+          select: {
+            id: true,
+            intitule: true,
+            numeroDossier: true,
+            client: { select: { id: true, raisonSociale: true } },
+          },
+        },
+        invoiceLine: {
+          select: {
+            invoice: { select: { id: true, numero: true, invoiceStatus: true } },
+          },
+        },
+      },
     }),
   ]);
 
@@ -166,6 +189,7 @@ export async function GET(request: Request) {
       entries[0]?.client?.raisonSociale ??
       entries[0]?.dossier?.client?.raisonSociale ??
       expenses[0]?.client?.raisonSociale ??
+      registreTaches[0]?.dossier?.client?.raisonSociale ??
       null;
     return NextResponse.json({
       clientId: filters.clientId,
@@ -177,12 +201,15 @@ export async function GET(request: Request) {
         description: e.description,
         dureeMinutes: e.dureeMinutes,
         tauxHoraire: e.tauxHoraire,
-        montant: e.montant,
+        montant: e.feeAmount ?? e.montant,
         userId: e.userId,
         userNom: e.user.nom,
         dossierId: e.dossierId,
         dossierIntitule: e.dossier?.intitule ?? null,
         taxable: e.taxable ?? true,
+        invoiceId: e.invoiceId,
+        invoiceNumero: e.invoice?.numero ?? null,
+        isDrafted: e.invoice?.invoiceStatus === "DRAFT" || e.invoice?.invoiceStatus === "READY_TO_ISSUE",
       })),
       expenses: expenses.map((exp) => ({
         id: exp.id,
@@ -193,6 +220,28 @@ export async function GET(request: Request) {
         amount: exp.amount,
         taxable: exp.taxable,
         dossierId: exp.matterId,
+        invoiceId: exp.invoiceId,
+        invoiceNumero: exp.invoice?.numero ?? null,
+        isDrafted: exp.invoice?.invoiceStatus === "DRAFT" || exp.invoice?.invoiceStatus === "READY_TO_ISSUE",
+      })),
+      registreTaches: registreTaches.map((tache) => ({
+        id: tache.id,
+        kind: "registre_tache" as const,
+        date: tache.date,
+        description: tache.description,
+        montantBase: tache.montantBase,
+        ajustement: tache.ajustement,
+        rabais: tache.rabais,
+        rabaisRaison: tache.rabaisRaison,
+        amount: tache.montantFinal,
+        taxable: tache.taxable,
+        dossierId: tache.dossierId,
+        dossierIntitule: tache.dossier.intitule,
+        invoiceId: tache.invoiceLine?.invoice?.id ?? null,
+        invoiceNumero: tache.invoiceLine?.invoice?.numero ?? null,
+        isDrafted:
+          tache.invoiceLine?.invoice?.invoiceStatus === "DRAFT" ||
+          tache.invoiceLine?.invoice?.invoiceStatus === "READY_TO_ISSUE",
       })),
     });
   }
@@ -207,9 +256,13 @@ export async function GET(request: Request) {
       totalHeures: number;
       totalHonoraires: number;
       totalDebours: number;
+      totalForfaits: number;
+      totalTaxable: number;
       lastDate: Date;
       timeEntryIds: string[];
       expenseIds: string[];
+      registreTacheIds: string[];
+      draftInvoiceIds: string[];
     }
   >();
 
@@ -222,6 +275,7 @@ export async function GET(request: Request) {
     const existing = byClient.get(effectiveClientId);
     const totalHeures = e.dureeMinutes / 60;
     const totalHonoraires = e.feeAmount ?? e.montant;
+    const taxableAmount = (e.taxable ?? true) ? totalHonoraires : 0;
     if (!existing) {
       byClient.set(effectiveClientId, {
         clientId: effectiveClientId,
@@ -230,15 +284,21 @@ export async function GET(request: Request) {
         totalHeures,
         totalHonoraires,
         totalDebours: 0,
+        totalForfaits: 0,
+        totalTaxable: taxableAmount,
         lastDate: e.date,
-        timeEntryIds: [e.id],
+        timeEntryIds: e.invoiceId ? [] : [e.id],
         expenseIds: [],
+        registreTacheIds: [],
+        draftInvoiceIds: e.invoiceId ? [e.invoiceId] : [],
       });
     } else {
       existing.count += 1;
       existing.totalHeures += totalHeures;
       existing.totalHonoraires += totalHonoraires;
-      existing.timeEntryIds.push(e.id);
+      existing.totalTaxable += taxableAmount;
+      if (e.invoiceId) existing.draftInvoiceIds.push(e.invoiceId);
+      else existing.timeEntryIds.push(e.id);
       if (e.date > existing.lastDate) existing.lastDate = e.date;
     }
   }
@@ -249,30 +309,69 @@ export async function GET(request: Request) {
       byClient.set(exp.clientId, {
         clientId: exp.clientId,
         clientName: exp.client.raisonSociale ?? "",
-        count: 0,
+        count: 1,
         totalHeures: 0,
         totalHonoraires: 0,
         totalDebours: exp.amount,
+        totalForfaits: 0,
+        totalTaxable: exp.taxable ? exp.amount : 0,
         lastDate: exp.expenseDate,
         timeEntryIds: [],
-        expenseIds: [exp.id],
+        expenseIds: exp.invoiceId ? [] : [exp.id],
+        registreTacheIds: [],
+        draftInvoiceIds: exp.invoiceId ? [exp.invoiceId] : [],
       });
     } else {
       existing.totalDebours += exp.amount;
-      existing.expenseIds.push(exp.id);
+      existing.count += 1;
+      if (exp.taxable) existing.totalTaxable += exp.amount;
+      if (exp.invoiceId) existing.draftInvoiceIds.push(exp.invoiceId);
+      else existing.expenseIds.push(exp.id);
       if (exp.expenseDate > existing.lastDate) existing.lastDate = exp.expenseDate;
     }
   }
 
+  for (const tache of registreTaches) {
+    const effectiveClientId = tache.clientId ?? tache.dossier.client?.id ?? undefined;
+    const effectiveClientName = tache.dossier.client?.raisonSociale ?? undefined;
+    if (!effectiveClientId || !effectiveClientName) continue;
+    const existing = byClient.get(effectiveClientId);
+    if (!existing) {
+      byClient.set(effectiveClientId, {
+        clientId: effectiveClientId,
+        clientName: effectiveClientName,
+        count: 1,
+        totalHeures: 0,
+        totalHonoraires: 0,
+        totalDebours: 0,
+        totalForfaits: tache.montantFinal,
+        totalTaxable: tache.taxable ? tache.montantFinal : 0,
+        lastDate: tache.date,
+        timeEntryIds: [],
+        expenseIds: [],
+        registreTacheIds: tache.invoiceLine?.invoice?.id ? [] : [tache.id],
+        draftInvoiceIds: tache.invoiceLine?.invoice?.id ? [tache.invoiceLine.invoice.id] : [],
+      });
+    } else {
+      existing.totalForfaits += tache.montantFinal;
+      existing.count += 1;
+      if (tache.taxable) existing.totalTaxable += tache.montantFinal;
+      if (tache.invoiceLine?.invoice?.id) existing.draftInvoiceIds.push(tache.invoiceLine.invoice.id);
+      else existing.registreTacheIds.push(tache.id);
+      if (tache.date > existing.lastDate) existing.lastDate = tache.date;
+    }
+  }
+
   const rows = Array.from(byClient.values()).map((row) => {
-    const subtotalTaxable = row.totalHonoraires + row.totalDebours;
-    const tps = Math.round(subtotalTaxable * TPS_RATE * 100) / 100;
-    const tvq = Math.round(subtotalTaxable * TVQ_RATE * 100) / 100;
+    const subtotal = row.totalHonoraires + row.totalDebours + row.totalForfaits;
+    const tps = Math.round(row.totalTaxable * TPS_RATE * 100) / 100;
+    const tvq = Math.round(row.totalTaxable * TVQ_RATE * 100) / 100;
     const taxesEstimees = tps + tvq;
-    const totalAFacturer = row.totalHonoraires + row.totalDebours + taxesEstimees;
+    const totalAFacturer = subtotal + taxesEstimees;
     return {
       ...row,
-      count: row.count + row.expenseIds.length,
+      count: row.count,
+      draftInvoiceIds: Array.from(new Set(row.draftInvoiceIds)),
       taxesEstimees,
       totalAFacturer: Math.round(totalAFacturer * 100) / 100,
     };

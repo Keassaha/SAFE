@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SafeLogo } from "@/components/branding/SafeLogo";
+import { Logo } from "@/components/brand/Logo";
 
 const footerLinks = {
   produit: [
@@ -18,13 +18,17 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--safe-dark)] border-t border-white/5 pt-12 sm:pt-20 pb-8 sm:pb-10">
+    <footer className="bg-[#0A0A0A] border-t border-white/5 pt-12 sm:pt-20 pb-8 sm:pb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 mb-12 sm:mb-16">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-6 group transition-opacity duration-300 hover:opacity-[0.85]">
-              <SafeLogo variant="dark" noPulse className="shrink-0" />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 mb-6 group transition-transform duration-300 hover:scale-[1.02]"
+            >
+              <Logo size={22} accentColor="#FFFFFF" />
+              <span className="font-serif text-[17px] tracking-[-0.02em] text-white mt-0.5">Safe</span>
             </Link>
             <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
               Facturation, fidéicommis et conformité au Barreau, automatisés.

@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { classifyDocument, extractTextFromPDF } from "@/lib/ai/classify-document";
+import { writeDocumentObject } from "@/lib/services/document";
+import { suggestPracticeDocument } from "@/lib/dossiers/practice-docket";
 import path from "path";
-import fs from "fs/promises";
 import { randomUUID } from "crypto";
 import { createHash } from "crypto";
 
-const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 const ALLOWED_TYPES = [
   "application/pdf",
@@ -46,15 +46,12 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
   const hash = createHash("sha256").update(buffer).digest("hex");
 
-  // Sauvegarder le fichier sur disque
+  // Sauvegarder le fichier dans le provider persistant
   const year = new Date().getFullYear();
   const fileId = randomUUID();
   const ext = path.extname(file.name) || ".bin";
-  const storageDir = path.join(UPLOAD_BASE, session.cabinetId, String(year));
-  await fs.mkdir(storageDir, { recursive: true });
-  const storagePath = path.join(storageDir, `${fileId}${ext}`);
-  await fs.writeFile(storagePath, buffer);
   const storageKey = `${session.cabinetId}/${year}/${fileId}${ext}`;
+  await writeDocumentObject(storageKey, buffer, file.type || "application/octet-stream");
 
   // Extraire le texte si PDF
   let textContent = "";
@@ -87,7 +84,7 @@ export async function POST(req: NextRequest) {
       take: 50, // Limiter pour le prompt
     });
 
-    classification = await classifyDocument({
+    const aiClassification = await classifyDocument({
       filename: file.name,
       mimeType: file.type,
       textContent: textContent || undefined,
@@ -99,6 +96,24 @@ export async function POST(req: NextRequest) {
         numeroDossier: d.numeroDossier,
       })),
     });
+
+    if (aiClassification) {
+      const dossier = dossiers.find((d) => d.id === aiClassification.dossierId);
+      const practiceSuggestion = suggestPracticeDocument({
+        dossierType: dossier?.type,
+        dossierSousType: dossier?.sousType,
+        fileName: aiClassification.suggestedTitre || file.name,
+        documentType: aiClassification.documentType,
+      });
+      classification = {
+        ...aiClassification,
+        suggestedSectionKey: practiceSuggestion.sectionKey,
+        suggestedSubtype: practiceSuggestion.subtype,
+        docketMode: practiceSuggestion.docketMode,
+        needsReview: practiceSuggestion.needsReview,
+        practiceReason: practiceSuggestion.reason,
+      };
+    }
   }
 
   return NextResponse.json({

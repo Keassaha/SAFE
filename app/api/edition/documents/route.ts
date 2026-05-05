@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { createDocketEntryForRichDocument } from "@/lib/dossiers/docket-service";
 
 const CreateDocSchema = z.object({
   dossierId: z.string().min(1),
@@ -43,11 +44,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { dossierId, clientId, titre, type, content } = parsed.data;
+  const { dossierId, titre, type, content } = parsed.data;
 
   // Vérifier que le dossier appartient bien au cabinet
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, cabinetId: session.cabinetId },
+    include: { sections: { where: { archive: false }, select: { sectionKey: true } } },
   });
   if (!dossier) return NextResponse.json({ error: "Dossier introuvable" }, { status: 404 });
 
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
     data: {
       cabinetId: session.cabinetId,
       dossierId,
-      clientId,
+      clientId: dossier.clientId,
       createdById: session.userId,
       lastEditedById: session.userId,
       lastEditedAt: new Date(),
@@ -75,6 +77,13 @@ export async function POST(req: NextRequest) {
       versionNumber: 1,
       label: "Version initiale",
     },
+  });
+
+  await createDocketEntryForRichDocument({
+    dossier,
+    richDocument: doc,
+    availableSectionKeys: dossier.sections.map((section) => section.sectionKey),
+    createdById: session.userId,
   });
 
   return NextResponse.json(doc, { status: 201 });

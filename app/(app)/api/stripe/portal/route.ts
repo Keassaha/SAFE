@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, appBaseUrl } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
+import { requireCabinetAndUser } from "@/lib/auth/session";
 
 export async function POST() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.cabinetId) {
+    let sessionData: { cabinetId: string };
+    try {
+      sessionData = await requireCabinetAndUser();
+    } catch {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const cabinet = await prisma.cabinet.findUnique({
-      where: { id: session.user.cabinetId },
+      where: { id: sessionData.cabinetId },
     });
 
     if (!cabinet?.stripeCustomerId) {
@@ -24,7 +25,7 @@ export async function POST() {
 
     const portalSession = await getStripe().billingPortal.sessions.create({
       customer: cabinet.stripeCustomerId,
-      return_url: `${process.env.NEXTAUTH_URL}/parametres`,
+      return_url: `${appBaseUrl()}/parametres/abonnement`,
     });
 
     return NextResponse.json({ url: portalSession.url });

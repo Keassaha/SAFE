@@ -10,7 +10,7 @@ interface InvoiceCardProps {
     dossier: { id: string; intitule: string } | null;
   };
   onPreview: () => void;
-  status: "brouillon" | "validee" | "envoyee";
+  status: "brouillon" | "validee" | "envoyee" | "en_retard";
 }
 
 export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
@@ -22,6 +22,8 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
         return "bg-blue-50 border-blue-200";
       case "envoyee":
         return "bg-green-50 border-green-200";
+      case "en_retard":
+        return "bg-red-50 border-red-200";
     }
   };
 
@@ -33,8 +35,12 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
         return "bg-blue-100 text-blue-700";
       case "envoyee":
         return "bg-green-100 text-green-700";
+      case "en_retard":
+        return "bg-red-100 text-red-700";
     }
   };
+
+  const showRetardBadge = status === "en_retard";
 
   return (
     <div className={`rounded-lg border p-3 space-y-2 ${getStatusColor()}`}>
@@ -49,9 +55,16 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
             </p>
           )}
         </div>
-        <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${getStatusBadgeColor()}`}>
-          {invoice.numero}
-        </span>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${getStatusBadgeColor()}`}>
+            {invoice.numero}
+          </span>
+          {showRetardBadge && (
+            <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-red-600 text-white whitespace-nowrap">
+              En retard
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-between items-baseline pt-1 border-t border-current border-opacity-10">
@@ -61,10 +74,10 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
         </span>
       </div>
 
-      {invoice.balanceDue > 0 && status === "envoyee" && (
+      {invoice.balanceDue > 0 && (status === "envoyee" || status === "en_retard") && (
         <div className="flex justify-between items-baseline text-xs">
           <span className="text-[var(--safe-text-secondary)]">Reste dû:</span>
-          <span className="font-semibold text-[var(--safe-text-title)]">
+          <span className={`font-semibold ${status === "en_retard" ? "text-red-700" : "text-[var(--safe-text-title)]"}`}>
             {formatCurrency(invoice.balanceDue)}
           </span>
         </div>

@@ -34,7 +34,7 @@ async function main() {
   console.log(`Cabinet: ${cabinet.nom} (${cabinet.id})`);
 
   // 2. Create Me Derisier (avocate principale)
-  const passwordHash = await bcrypt.hash("Derisier2026", 10);
+  const passwordHash = await bcrypt.hash("Derisier2026", 12);
 
   const avocate = await prisma.user.upsert({
     where: {
@@ -59,7 +59,7 @@ async function main() {
   console.log(`User: ${avocate.nom} (${avocate.email}) — role: ${avocate.role}`);
 
   // 3. Create Natalya (assistante)
-  const assistantHash = await bcrypt.hash("Natalya2026", 10);
+  const assistantHash = await bcrypt.hash("Natalya2026", 12);
 
   const assistante = await prisma.user.upsert({
     where: {

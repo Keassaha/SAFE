@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
+import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
 import { invoiceItemUpdateSchema } from "@/lib/validations/facturation";
 import { z } from "zod";
 import type { UserRole } from "@prisma/client";
@@ -69,55 +70,63 @@ export async function POST(
     );
   }
 
-  const numero = await getNextInvoiceNumero(cabinetId);
   const now = new Date();
 
-  const newInvoice = await prisma.invoice.create({
-    data: {
-      cabinetId: source.cabinetId,
-      clientId: source.clientId,
-      dossierId: source.dossierId,
-      numero,
-      dateEmission: now,
-      dateEcheance: now,
-      statut: "brouillon",
-      invoiceStatus: "DRAFT",
-      paymentStatus: "UNPAID",
-      issueMethod: "manual",
-    },
-  });
+  // Atomicité : numéro (sous advisory lock) + invoice + items + recalcul des
+  // totaux dans une seule transaction. Le numéro est généré via
+  // `getNextInvoiceNumero(cabinetId, tx)` pour propager le verrou advisory
+  // sur (cabinetId, year) jusqu'au commit. Combiné avec
+  // `@@unique([cabinetId, numero])`, cela élimine la collision concurrente.
+  const newInvoiceId = await prisma.$transaction(async (tx) => {
+    const numero = await getNextInvoiceNumero(cabinetId, tx);
 
-  const oldIdToNewId = new Map<string, string>();
-
-  for (const item of items) {
-    const date =
-      typeof item.date === "string"
-        ? new Date(item.date)
-        : item.date instanceof Date
-          ? item.date
-          : now;
-    const parentKey = item.parentItemId ?? item.parentLineId ?? undefined;
-    const newParentItemId = parentKey ? oldIdToNewId.get(parentKey) ?? null : null;
-
-    const created = await prisma.invoiceItem.create({
+    const newInvoice = await tx.invoice.create({
       data: {
-        invoiceId: newInvoice.id,
-        type: (item.type || "honoraires") as "honoraires" | "debours_taxable" | "debours_non_taxable" | "frais_rappel" | "interets" | "rabais",
-        description: item.description.trim() || "Honoraires",
-        date,
-        hours: item.hours ?? null,
-        rate: item.rate ?? null,
-        amount: item.amount,
-        professionalDisplayName: item.professionalDisplayName ?? undefined,
-        parentItemId: newParentItemId ?? undefined,
-        parentLineId: undefined,
+        cabinetId: source.cabinetId,
+        clientId: source.clientId,
+        dossierId: source.dossierId,
+        numero,
+        dateEmission: now,
+        dateEcheance: now,
+        statut: "brouillon",
+        invoiceStatus: "DRAFT",
+        paymentStatus: "UNPAID",
+        issueMethod: "manual",
       },
     });
-    if (item.id) oldIdToNewId.set(item.id, created.id);
-  }
 
-  const { recalculateInvoiceTotals } = await import("@/lib/services/billing/invoice-service");
-  await recalculateInvoiceTotals(newInvoice.id);
+    const oldIdToNewId = new Map<string, string>();
 
-  return NextResponse.json({ id: newInvoice.id });
+    for (const item of items) {
+      const date =
+        typeof item.date === "string"
+          ? new Date(item.date)
+          : item.date instanceof Date
+            ? item.date
+            : now;
+      const parentKey = item.parentItemId ?? item.parentLineId ?? undefined;
+      const newParentItemId = parentKey ? oldIdToNewId.get(parentKey) ?? null : null;
+
+      const created = await tx.invoiceItem.create({
+        data: {
+          invoiceId: newInvoice.id,
+          type: (item.type || "honoraires") as "honoraires" | "debours_taxable" | "debours_non_taxable" | "frais_rappel" | "interets" | "rabais",
+          description: item.description.trim() || "Honoraires",
+          date,
+          hours: item.hours ?? null,
+          rate: item.rate ?? null,
+          amount: item.amount,
+          professionalDisplayName: item.professionalDisplayName ?? undefined,
+          parentItemId: newParentItemId ?? undefined,
+          parentLineId: undefined,
+        },
+      });
+      if (item.id) oldIdToNewId.set(item.id, created.id);
+    }
+
+    await recalculateInvoiceTotals(newInvoice.id, tx);
+    return newInvoice.id;
+  });
+
+  return NextResponse.json({ id: newInvoiceId });
 }

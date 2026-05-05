@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { resolveAvailableSectionKey, suggestPracticeDocument } from "@/lib/dossiers/practice-docket";
 
 export async function getBriefcaseData(dossierId: string) {
   const { cabinetId } = await requireCabinetAndUser();
@@ -20,6 +21,10 @@ export async function getBriefcaseData(dossierId: string) {
         uploadedById: true,
         storageKey: true,
         mimeType: true,
+        sectionKey: true,
+        classificationSubtype: true,
+        classificationConfidence: true,
+        classificationNeedsReview: true,
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -43,10 +48,15 @@ export async function getBriefcaseData(dossierId: string) {
       select: {
         id: true,
         type: true,
+        sousType: true,
         mandate: {
           select: {
             checklist: true,
           },
+        },
+        sections: {
+          where: { archive: false },
+          select: { sectionKey: true },
         },
       },
     }),
@@ -63,6 +73,9 @@ interface DocumentItem {
   title: string;
   type: "document" | "rich-document";
   documentType?: string;
+  subtype?: string | null;
+  confidence?: number | null;
+  needsReview?: boolean;
   hasContent: boolean;
   isRequired?: boolean;
   createdAt: Date;
@@ -91,6 +104,10 @@ function organizeByCategoryAndSubsection(
   const requiredLabels = mandateChecklist
     .filter((item) => item.obligatoire === true)
     .map((item) => item.label?.toLowerCase() ?? "");
+  const availableSectionKeys = dossier?.sections?.map((s: { sectionKey: string }) => s.sectionKey) ?? [];
+  for (const sectionKey of availableSectionKeys) {
+    briefcases[sectionKey] ??= { items: [], subsections: {} };
+  }
 
   // Organize documents by type
   documents.forEach((doc) => {
@@ -100,26 +117,21 @@ function organizeByCategoryAndSubsection(
       title: doc.nom,
       type: "document",
       documentType: docType,
+      subtype: doc.classificationSubtype,
+      confidence: doc.classificationConfidence,
+      needsReview: doc.classificationNeedsReview,
       hasContent: true,
       createdAt: doc.createdAt,
     };
 
-    // Categorize by document type
-    if (docType === "mandat" || docType === "engagement") {
-      briefcases.mandat.items.push(item);
-    } else if (docType === "formulaire") {
-      briefcases.formulaires.items.push(item);
-    } else if (docType === "procedure") {
-      briefcases.procedures.items.push(item);
-    } else if (docType === "jugement" || docType === "judgment") {
-      briefcases.jugements.items.push(item);
-    } else if (docType === "correspondance" || docType === "correspondence") {
-      briefcases.correspondance.items.push(item);
-    } else if (docType === "closure" || docType === "fermeture") {
-      briefcases.fermeture.items.push(item);
-    } else {
-      briefcases.formulaires.items.push(item);
-    }
+    const suggestion = suggestPracticeDocument({
+      dossierType: dossier?.type,
+      dossierSousType: dossier?.sousType,
+      fileName: doc.nom,
+      documentType: docType,
+    });
+    const sectionKey = resolveAvailableSectionKey(doc.sectionKey ?? suggestion.sectionKey, availableSectionKeys);
+    (briefcases[sectionKey] ?? briefcases.formulaires).items.push(item);
   });
 
   // Organize rich documents
@@ -133,13 +145,14 @@ function organizeByCategoryAndSubsection(
       createdAt: doc.createdAt,
     };
 
-    if (doc.type === "lettre" || doc.type === "procedure") {
-      briefcases.procedures.items.push(item);
-    } else if (doc.type === "contrat") {
-      briefcases.mandat.items.push(item);
-    } else {
-      briefcases.formulaires.items.push(item);
-    }
+    const suggestion = suggestPracticeDocument({
+      dossierType: dossier?.type,
+      dossierSousType: dossier?.sousType,
+      fileName: doc.titre,
+      richDocumentType: doc.type,
+    });
+    const sectionKey = resolveAvailableSectionKey(suggestion.sectionKey, availableSectionKeys);
+    (briefcases[sectionKey] ?? briefcases.formulaires).items.push(item);
   });
 
   // Sort items by creation date
