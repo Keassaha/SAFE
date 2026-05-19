@@ -16,6 +16,7 @@ export interface MarketQuote {
   totalMonthly: number;
   totalAnnual: number;
   lines: QuoteLine[];
+  setupOneTime: number;   // implantation an 1, présentée hors comparaison récurrente
   note: string;
 }
 
@@ -35,10 +36,13 @@ export interface SafeOffer {
 }
 
 export interface RoiEstimate {
-  hoursPerWeek: number;
+  declaredHours: number;     // heures admin déclarées (hypothèse retenue)
+  automationRate: number;    // part automatisée par SAFE (0 à 1)
+  hoursPerWeek: number;      // heures récupérées par semaine
   hourlyValue: number;       // $/h du praticien (médiane de la fourchette)
+  weeks: number;             // semaines ouvrées retenues
   weeklyValue: number;
-  annualValue: number;       // 46 semaines ouvrées
+  annualValue: number;
   paybackWeeks: number;      // nb semaines pour rentabiliser SAFE
 }
 
@@ -88,6 +92,7 @@ export interface Recommendation {
     executiveSummary: string;
     diagnostic: string[];    // 3-5 constats
     opportunites: string[];  // 3-5 opportunités
+    roiExplanation: string;  // calcul de la valeur récupérable, posé en clair
     prochainesEtapes: string[];
   };
 }
@@ -185,13 +190,8 @@ export function buildMarketQuote(a: AuditAnswers): MarketQuote {
     });
   }
 
-  lines.push({
-    label: "Implantation, paramétrage & formation (an 1)",
-    detail: "Étalé sur 12 mois",
-    monthly: Math.round(setupExt / 12),
-    annual:  setupExt,
-  });
-
+  // L'implantation de la première année n'est pas récurrente, donc elle est
+  // présentée à part et n'entre pas dans la comparaison mensuelle.
   const totalMonthly = lines.reduce((s, l) => s + l.monthly, 0);
   const totalAnnual  = lines.reduce((s, l) => s + l.annual, 0);
 
@@ -199,9 +199,12 @@ export function buildMarketQuote(a: AuditAnswers): MarketQuote {
     lines,
     totalMonthly,
     totalAnnual,
+    setupOneTime: setupExt,
     note:
-      "Estimation basée sur les tarifs publics des principaux éditeurs (Clio, PCLaw, LawPay, QuickBooks) " +
-      "pour un cabinet comparable au vôtre, en dollars canadiens, taxes non incluses.",
+      "Cette estimation repose sur les tarifs publics des principaux éditeurs, soit Clio, PCLaw, " +
+      "LawPay et QuickBooks, pour un cabinet comparable au vôtre. Les montants sont en dollars " +
+      "canadiens, taxes non incluses. Les frais d'implantation de la première année sont indiqués " +
+      "séparément, car ils ne se répètent pas les années suivantes.",
   };
 }
 
@@ -215,8 +218,8 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
       name: "SAFE Solo",
       tagline: "Pour l'avocat·e indépendant·e qui veut professionnaliser son cabinet sans embaucher.",
       seats: "1 utilisateur",
-      monthly: 129,
-      annual: 129 * 12,
+      monthly: 99,
+      annual: 99 * 12,
       setupFee: 0,
       included: [
         "Facturation intelligente (horaire, forfait, mixte)",
@@ -236,8 +239,8 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
       name: "SAFE Duo",
       tagline: "Pour le praticien accompagné d'un(e) adjoint(e) ou d'un(e) parajuriste.",
       seats: "2 utilisateurs",
-      monthly: 229,
-      annual: 229 * 12,
+      monthly: 149,
+      annual: 149 * 12,
       setupFee: 0,
       included: [
         "Tout ce qui est inclus dans SAFE Solo",
@@ -257,8 +260,8 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
     name: "SAFE Équipe",
     tagline: "Pour le cabinet établi avec une équipe et une structure à consolider.",
     seats: "3 utilisateurs et plus",
-    monthly: 389,
-    annual: 389 * 12,
+    monthly: 149,
+    annual: 149 * 12,
     setupFee: 0,
     included: [
       "Tout ce qui est inclus dans SAFE Duo",
@@ -276,15 +279,21 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
 /* ── ROI ───────────────────────────────────────────────────────────── */
 
 export function buildRoi(a: AuditAnswers, offer: SafeOffer): RoiEstimate {
-  const hoursPerWeek = midAdminHours(a.heures_admin) * 0.6; // SAFE vise 60 % de réduction
-  const hourlyValue  = midHourlyRate(a.taux_horaire);
-  const weeklyValue  = hoursPerWeek * hourlyValue;
-  const annualValue  = weeklyValue * 46; // 46 semaines ouvrées
-  const paybackWeeks = offer.monthly > 0 ? offer.monthly / weeklyValue : 0;
+  const declaredHours  = midAdminHours(a.heures_admin);
+  const automationRate = 0.6; // hypothèse prudente de réduction de la charge admin
+  const hoursPerWeek   = declaredHours * automationRate;
+  const hourlyValue    = midHourlyRate(a.taux_horaire);
+  const weeks          = 46;  // semaines ouvrées dans l'année
+  const weeklyValue    = hoursPerWeek * hourlyValue;
+  const annualValue    = weeklyValue * weeks;
+  const paybackWeeks   = offer.monthly > 0 && weeklyValue > 0 ? offer.monthly / weeklyValue : 0;
 
   return {
+    declaredHours,
+    automationRate,
     hoursPerWeek: Number(hoursPerWeek.toFixed(1)),
     hourlyValue,
+    weeks,
     weeklyValue: Math.round(weeklyValue),
     annualValue: Math.round(annualValue),
     paybackWeeks: Number(paybackWeeks.toFixed(1)),
@@ -501,13 +510,18 @@ export function buildRiskAssessment(a: AuditAnswers): { risks: RiskItem[]; score
   if (risks.length === 0) {
     risks.push({
       id: "baseline",
-      title: "Aucun risque majeur identifié",
+      title: "Aucune exposition disciplinaire majeure",
       severity: "faible",
       category: "Organisation",
-      reference: "—",
-      finding: "Vos réponses ne révèlent pas d'exposition disciplinaire significative.",
-      impact: "Vous pouvez vous concentrer sur les gains d'efficacité et de croissance plutôt que sur la mise en conformité.",
-      action: "SAFE vous permet de consolider votre avance et d'accélérer votre croissance sans embauche.",
+      reference: province === "ON"
+        ? "LSO · Rules of Professional Conduct"
+        : "Barreau du Québec · Règlement B-1, r.5",
+      finding:
+        "Vos réponses ne révèlent pas de manquement réglementaire évident, ce qui place votre cabinet dans une bonne position de départ.",
+      impact:
+        "Vous pouvez donc concentrer vos efforts sur l'efficacité et la croissance, plutôt que sur une remise en conformité.",
+      action:
+        "SAFE consolide cette base en automatisant la facturation et le fidéicommis, afin que la conformité reste acquise même lorsque votre volume de dossiers augmente.",
     });
   }
 
@@ -605,62 +619,89 @@ export function buildRecommendation(a: AuditAnswers): Recommendation {
   const plans = buildSitePlans(a, recommendedPlanId);
   const { risks, score: riskScore } = buildRiskAssessment(a);
 
-  // Narrative
-  const identite = (a.identite as { nom_complet?: string })?.nom_complet || "Confrère / consoeur";
-  const raison   = String(a.raison_sociale || "votre cabinet");
+  // ── Narrative ──────────────────────────────────────────────────────
+  // Voix opérateur : phrases construites, connecteurs logiques explicites,
+  // aucun tiret en milieu de phrase, aucun chiffre sans calcul traçable.
   const ville    = (a.localisation as { ville?: string })?.ville || "";
   const province = (a.localisation as { province?: string })?.province || "QC";
+  const fmt = (n: number) => n.toLocaleString("fr-CA");
 
   const diagnostic: string[] = [];
   const opportunites: string[] = [];
 
-  // Diagnostic — signaux faibles
+  // Diagnostic : ce que les réponses révèlent.
   if (String(a.visibilite_creances) === "manuel" || String(a.visibilite_creances) === "non") {
-    diagnostic.push("Vous n'avez pas de vision claire de vos comptes à recevoir en temps réel — un angle mort classique qui coûte en moyenne 12 % du chiffre facturé.");
+    diagnostic.push(
+      "Vous n'avez pas de vision instantanée de vos comptes à recevoir, car cette information demande aujourd'hui une consultation manuelle. C'est un angle mort fréquent, puisqu'un cabinet qui ne suit pas ses créances de près laisse en moyenne 12 % du montant facturé en radiations et en retards."
+    );
   }
   if (String(a.delai_paiement) === "gt60" || String(a.delai_paiement) === "31_60") {
-    diagnostic.push("Vos délais de paiement dépassent la moyenne du marché (28 jours). Chaque tranche de 30 jours additionnels grève votre trésorerie.");
+    diagnostic.push(
+      "Vos délais de paiement dépassent la moyenne du marché, qui se situe autour de 28 jours selon le Clio Legal Trends Report. Chaque tranche de 30 jours supplémentaires pèse donc directement sur votre trésorerie."
+    );
   }
   if (String(a.heures_admin) === "gt10" || String(a.heures_admin) === "6_10") {
-    const val = roi.annualValue.toLocaleString("fr-CA");
-    diagnostic.push(`Vous consacrez plus de ${midAdminHours(a.heures_admin)} h par semaine à des tâches non facturables — l'équivalent de ${val} $ de valeur honoraire par année.`);
+    diagnostic.push(
+      `Vous consacrez une part importante de votre semaine à des tâches administratives non facturables. Ce temps a une valeur réelle, car il représente environ ${fmt(roi.annualValue)} $ d'honoraires potentiels sur une année.`
+    );
   }
   if (String(a.gestion_fideicommis) === "aucun") {
-    diagnostic.push("Votre gestion du fidéicommis n'est pas structurée. C'est le principal risque disciplinaire en pratique privée.");
+    diagnostic.push(
+      "Votre gestion du fidéicommis ne repose pas encore sur un système dédié. Or il s'agit du principal poste de risque disciplinaire en pratique privée, donc ce point mérite une attention prioritaire."
+    );
   }
   if (String(a.logiciel_actuel) === "aucun") {
-    diagnostic.push("Vous n'avez pas encore de logiciel dédié. Vous êtes dans la fenêtre idéale pour partir sur les bonnes fondations, sans migration complexe.");
+    diagnostic.push(
+      "Vous n'utilisez pas encore de logiciel de gestion dédié. C'est en réalité une bonne nouvelle, car vous pouvez partir directement sur des fondations conformes, sans migration complexe depuis un ancien système."
+    );
   }
   if (diagnostic.length === 0) {
-    diagnostic.push("Votre structure actuelle fonctionne, mais plusieurs leviers d'efficacité restent inexploités.");
+    diagnostic.push(
+      "Votre cabinet fonctionne déjà correctement, et vos réponses ne révèlent pas de problème structurel. Toutefois, plusieurs leviers d'efficacité restent inexploités, et ce rapport les chiffre pour vous."
+    );
   }
 
-  // Opportunités
+  // Opportunités.
   opportunites.push(
-    `Récupérer ${roi.hoursPerWeek} h par semaine grâce à l'automatisation de la facturation, du fidéicommis et du suivi des créances — soit environ ${roi.annualValue.toLocaleString("fr-CA")} $ de valeur honoraire par année.`
+    `Récupérer environ ${roi.hoursPerWeek} heures par semaine en automatisant la facturation, le fidéicommis et le suivi des créances. Sur une année, cette récupération représente près de ${fmt(roi.annualValue)} $ de valeur honoraire, comme l'explique la section consacrée au calcul.`
   );
-  opportunites.push(
-    `Économiser environ ${safeOffer.savings.monthly.toLocaleString("fr-CA")} $ par mois sur vos outils actuels (${safeOffer.savings.percent} %), tout en centralisant la conformité Barreau.`
-  );
-  if (province === "QC") {
-    opportunites.push("Être aligné avec le Règlement B-1, r.5 sur la comptabilité en fidéicommis sans effort manuel — rapports générés automatiquement pour le syndic.");
-  } else if (province === "ON") {
-    opportunites.push("Être aligné avec les règles By-Law 9 de la Law Society of Ontario sur les mixed trust accounts — rapports LawPRO-ready automatiques.");
+  if (safeOffer.savings.monthly > 0) {
+    opportunites.push(
+      `Réduire vos dépenses logicielles d'environ ${fmt(safeOffer.savings.monthly)} $ par mois par rapport à une combinaison d'outils équivalente, tout en regroupant la conformité Barreau au même endroit.`
+    );
+  }
+  if (province === "ON") {
+    opportunites.push(
+      "Rester aligné avec le By-Law 9 de la Law Society of Ontario sur les comptes en fiducie, puisque les rapports exigés sont générés automatiquement."
+    );
+  } else {
+    opportunites.push(
+      "Rester aligné avec le Règlement B-1, r.5 sur la comptabilité en fidéicommis sans effort manuel, puisque les rapports destinés au syndic sont générés automatiquement."
+    );
   }
   if (String(a.evolution) === "forte" || String(a.evolution) === "moderee") {
-    opportunites.push("Structurer votre croissance sans embauche immédiate : SAFE absorbe la charge admin des dossiers supplémentaires.");
+    opportunites.push(
+      "Absorber la croissance de votre cabinet sans embauche immédiate, car SAFE prend en charge la part administrative des nouveaux dossiers."
+    );
   }
 
-  const executiveSummary =
-    `Ce rapport synthétise les réponses fournies par ${identite} pour ${raison}${ville ? ` (${ville})` : ""}. ` +
-    `L'analyse identifie ${diagnostic.length} constat${diagnostic.length > 1 ? "s" : ""} significatif${diagnostic.length > 1 ? "s" : ""} et chiffre l'opportunité à ` +
-    `${roi.annualValue.toLocaleString("fr-CA")} $ par année en valeur honoraire récupérée, ` +
-    `avec une réduction de ${safeOffer.savings.percent} % sur vos dépenses logicielles actuelles.`;
+  // Explication transparente du calcul de la valeur récupérable.
+  const roiExplanation =
+    "Vous avez indiqué consacrer plusieurs heures par semaine à des tâches administratives non facturables. " +
+    `Pour rester prudents, nous retenons une hypothèse de ${roi.declaredHours} heures. ` +
+    `SAFE automatise environ ${Math.round(roi.automationRate * 100)} % de cette charge, ce qui vous rend ${roi.hoursPerWeek} heures chaque semaine. ` +
+    `En appliquant ensuite votre taux horaire de ${fmt(roi.hourlyValue)} $ sur ${roi.weeks} semaines travaillées, la valeur récupérée s'établit à ${fmt(roi.annualValue)} $ par année.`;
+
+  // Résumé exécutif, court et personnalisé, sans effet de publipostage.
+  const verdictIsSain = riskScore.verdict === "sain";
+  const executiveSummary = verdictIsSain
+    ? `Ce diagnostic repose entièrement sur les réponses transmises lors de votre audit. Votre cabinet ne présente pas d'exposition disciplinaire majeure, ce qui constitue une bonne base de départ. En revanche, vos réponses révèlent une marge d'efficacité réelle, car plusieurs tâches encore manuelles peuvent être automatisées. Cette marge représente une valeur estimée à ${fmt(roi.annualValue)} $ par année, détaillée plus loin dans ce rapport.`
+    : `Ce diagnostic repose entièrement sur les réponses transmises lors de votre audit. L'analyse identifie ${diagnostic.length} constat${diagnostic.length > 1 ? "s" : ""} qui mérite${diagnostic.length > 1 ? "nt" : ""} votre attention, ainsi qu'une marge d'efficacité que ce rapport chiffre précisément. Au total, l'opportunité est estimée à ${fmt(roi.annualValue)} $ par année en valeur honoraire récupérée.`;
 
   const prochainesEtapes = [
-    "Planifier un appel de 30 minutes avec l'équipe SAFE pour revoir ce rapport en détail.",
-    "Confirmer votre offre et la date de bascule (mise en place en 5 à 10 jours ouvrables).",
-    "Transmettre les données de départ (clients actifs, dossiers en cours, soldes fidéicommis).",
+    "Planifier un appel de 30 minutes avec l'équipe SAFE afin de revoir ce rapport ensemble.",
+    "Confirmer votre formule et la date de bascule, sachant que la mise en place prend de 5 à 10 jours ouvrables.",
+    "Transmettre vos données de départ, c'est-à-dire vos clients actifs, vos dossiers en cours et vos soldes de fidéicommis.",
   ];
 
   return {
@@ -672,6 +713,6 @@ export function buildRecommendation(a: AuditAnswers): Recommendation {
     riskScore,
     roi,
     urgencyLevel: urgencyLevelOf(a),
-    narrative: { executiveSummary, diagnostic, opportunites, prochainesEtapes },
+    narrative: { executiveSummary, diagnostic, opportunites, roiExplanation, prochainesEtapes },
   };
 }

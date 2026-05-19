@@ -1,9 +1,16 @@
 /**
  * SAFE — Rapport d'audit PDF (génération serveur)
  * @react-pdf/renderer v4
+ *
+ * Structure : Couverture · 01 Synthèse · 02 Ce que vos réponses révèlent ·
+ * 03 Conformité · 04 Valeur récupérable · 05 Comparatif et formule ·
+ * 06 Prochaines étapes · Annexe Vos réponses.
+ *
+ * Règles de voix : titres en serif, corps en sans, connecteurs logiques,
+ * aucun tiret cadratin en milieu de phrase.
  */
 
-import { Document, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Svg, Path, renderToBuffer } from "@react-pdf/renderer";
 import type { Recommendation, RiskItem, RiskSeverity, SitePlan } from "./recommendation";
 import { QUESTIONS, SECTIONS, visibleQuestions, PROVINCES } from "./questions";
 
@@ -21,6 +28,7 @@ const C = {
   border:   "#E5E0D5",
   borderLt: "#EEE9DC",
   accent:   "#235347",
+  logoLight:"#F0F9F4",
   risk: {
     critique: "#7A1F1F",
     eleve:    "#A94A14",
@@ -37,7 +45,7 @@ const C = {
 
 const s = StyleSheet.create({
   page: {
-    backgroundColor: C.bg, padding: 48, fontSize: 10.5, color: C.ink,
+    backgroundColor: C.bg, padding: 48, paddingBottom: 64, fontSize: 10.5, color: C.ink,
     fontFamily: "Helvetica", lineHeight: 1.55,
   },
   pageCover: {
@@ -46,9 +54,8 @@ const s = StyleSheet.create({
   },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    marginBottom: 28, paddingBottom: 10, borderBottomWidth: 0.5, borderBottomColor: C.border,
+    marginBottom: 26, paddingBottom: 10, borderBottomWidth: 0.5, borderBottomColor: C.border,
   },
-  brand: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.ink, letterSpacing: 1.5 },
   confidential: { fontSize: 8, color: C.soft, textTransform: "uppercase", letterSpacing: 1 },
   footer: {
     position: "absolute", bottom: 24, left: 48, right: 48,
@@ -61,7 +68,7 @@ const s = StyleSheet.create({
     letterSpacing: 2, marginBottom: 10, fontFamily: "Helvetica-Bold",
   },
   h1: { fontSize: 30, fontFamily: "Times-Roman", color: C.ink, lineHeight: 1.1 },
-  h1White: { fontSize: 34, fontFamily: "Times-Roman", color: C.card, lineHeight: 1.1 },
+  h1White: { fontSize: 34, fontFamily: "Times-Roman", color: C.card, lineHeight: 1.12 },
   italic: { fontFamily: "Times-Italic" },
   h2: { fontSize: 20, fontFamily: "Times-Roman", marginBottom: 12, color: C.ink },
   h3: { fontSize: 12, fontFamily: "Helvetica-Bold", marginTop: 14, marginBottom: 6, color: C.ink },
@@ -84,9 +91,9 @@ const s = StyleSheet.create({
   kpiValue: { fontSize: 18, fontFamily: "Times-Roman", color: C.ink },
   kpiSuffix: { fontSize: 10, color: C.muted, marginTop: 2 },
 
-  bullet: { flexDirection: "row", marginBottom: 6 },
-  bulletDot: { width: 10, color: C.green, fontFamily: "Helvetica-Bold" },
-  bulletText: { flex: 1, fontSize: 10.5, color: C.muted, lineHeight: 1.55 },
+  bullet: { flexDirection: "row", marginBottom: 8 },
+  bulletDot: { width: 12, color: C.green, fontFamily: "Helvetica-Bold", fontSize: 10.5 },
+  bulletText: { flex: 1, fontSize: 10.5, color: C.muted, lineHeight: 1.6 },
 
   tableRow: {
     flexDirection: "row", borderBottomWidth: 0.5, borderBottomColor: C.border, paddingVertical: 8,
@@ -116,20 +123,6 @@ const s = StyleSheet.create({
   qaQ:   { fontSize: 10, color: C.ink, marginBottom: 4 },
   qaA:   { fontSize: 10, color: C.muted, fontFamily: "Helvetica-Oblique" },
 
-  // TOC
-  tocRow: {
-    flexDirection: "row", alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 0.5, borderBottomColor: C.borderLt,
-  },
-  tocNum: {
-    width: 38, fontSize: 18, fontFamily: "Times-Roman", color: C.green,
-  },
-  tocBody: { flex: 1, paddingRight: 12 },
-  tocTitle: { fontSize: 13, color: C.ink, fontFamily: "Helvetica-Bold", marginBottom: 2 },
-  tocSub:   { fontSize: 9.5, color: C.muted, lineHeight: 1.45 },
-  tocPage:  { fontSize: 10, color: C.soft, fontFamily: "Helvetica-Bold", letterSpacing: 1 },
-
   // Risks
   riskCard: {
     borderWidth: 0.5, borderColor: C.border, borderRadius: 6,
@@ -152,18 +145,33 @@ const s = StyleSheet.create({
     flexDirection: "row", borderWidth: 0.5, borderColor: C.border, borderRadius: 6,
     marginBottom: 14, overflow: "hidden",
   },
-  scoreNum: {
-    width: 110, padding: 18, backgroundColor: C.ink, alignItems: "center", justifyContent: "center",
+  scorePanel: {
+    width: 168, padding: 18, backgroundColor: C.ink, justifyContent: "center",
   },
-  scoreNumVal: { fontSize: 46, fontFamily: "Times-Roman", color: C.card, lineHeight: 1 },
-  scoreNumSuf: { fontSize: 9, color: "#C8D4CB", marginTop: 4, letterSpacing: 1, textTransform: "uppercase" },
+  scorePanelLabel: { fontSize: 8, color: "#8FB49F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 },
+  scoreVerdictBig: { fontSize: 22, fontFamily: "Times-Roman", color: C.card, lineHeight: 1.15 },
+  scoreIndexLine: { fontSize: 8.5, color: "#C8D4CB", marginTop: 8, lineHeight: 1.5 },
   scoreRight: { flex: 1, padding: 16, backgroundColor: C.card },
-  scoreVerdict: { fontSize: 9, color: C.green, fontFamily: "Helvetica-Bold", textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 },
-  scoreTxt: { fontSize: 10.5, color: C.muted, lineHeight: 1.55 },
-  scoreLegend: { flexDirection: "row", gap: 12, marginTop: 10 },
+  scoreTxt: { fontSize: 10.5, color: C.muted, lineHeight: 1.6 },
+  scoreLegend: { flexDirection: "row", gap: 12, marginTop: 10, flexWrap: "wrap" },
   scoreLegendItem: { flexDirection: "row", alignItems: "center", gap: 4 },
   scoreDot: { width: 8, height: 8, borderRadius: 4 },
   scoreLegendLabel: { fontSize: 8, color: C.soft, letterSpacing: 0.5 },
+
+  // Calc strip (section 04)
+  calcStrip: { flexDirection: "row", gap: 6, marginTop: 6, marginBottom: 12 },
+  calcCell: {
+    flex: 1, backgroundColor: C.card, borderWidth: 0.5, borderColor: C.border,
+    borderRadius: 6, padding: 10,
+  },
+  calcCellAccent: {
+    flex: 1, backgroundColor: C.greenBg, borderWidth: 0.5, borderColor: C.green,
+    borderRadius: 6, padding: 10,
+  },
+  calcLabel: { fontSize: 7.5, color: C.soft, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 },
+  calcValue: { fontSize: 15, fontFamily: "Times-Roman", color: C.ink },
+  calcValueAccent: { fontSize: 15, fontFamily: "Times-Roman", color: C.green },
+  calcOp: { alignSelf: "center", fontSize: 12, color: C.soft, fontFamily: "Helvetica-Bold" },
 
   // Plans
   planRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
@@ -179,6 +187,8 @@ const s = StyleSheet.create({
   planNameDark: { fontSize: 10, fontFamily: "Helvetica-Bold", color: C.card, marginBottom: 4 },
   planPrice: { fontSize: 22, fontFamily: "Times-Roman", color: C.ink, marginBottom: 2 },
   planPriceDark: { fontSize: 22, fontFamily: "Times-Roman", color: C.card, marginBottom: 2 },
+  planPriceTxt: { fontSize: 14, fontFamily: "Helvetica-Bold", color: C.ink, marginBottom: 3, marginTop: 4 },
+  planPriceTxtDark: { fontSize: 14, fontFamily: "Helvetica-Bold", color: C.card, marginBottom: 3, marginTop: 4 },
   planSuf: { fontSize: 9, color: C.soft, marginBottom: 8 },
   planSufDark: { fontSize: 9, color: "#A1A1A1", marginBottom: 8 },
   planTagline: { fontSize: 9, color: C.muted, marginBottom: 8, lineHeight: 1.45 },
@@ -188,39 +198,74 @@ const s = StyleSheet.create({
   planFeatDotDark: { width: 9, fontSize: 9, color: "#8FB49F", fontFamily: "Helvetica-Bold" },
   planFeatText: { flex: 1, fontSize: 9, color: C.muted, lineHeight: 1.4 },
   planFeatTextDark: { flex: 1, fontSize: 9, color: "#D4D4D4", lineHeight: 1.4 },
-  planBadge: {
-    position: "absolute", top: -8, left: 12,
-    backgroundColor: C.green, color: C.card,
-    fontSize: 7, fontFamily: "Helvetica-Bold", letterSpacing: 1,
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, textTransform: "uppercase",
-  },
 
-  // Cover (dark)
+  // Steps
+  stepCard: {
+    flexDirection: "row", backgroundColor: C.card, padding: 14, borderRadius: 6,
+    borderWidth: 0.5, borderColor: C.border, marginBottom: 10, alignItems: "center",
+  },
+  stepNum: {
+    width: 30, height: 30, borderRadius: 15, backgroundColor: C.greenBg,
+    color: C.green, fontFamily: "Times-Roman", fontSize: 14,
+    textAlign: "center", paddingTop: 6, marginRight: 12,
+  },
+  stepText: { flex: 1, fontSize: 10.5, color: C.muted, lineHeight: 1.55 },
+
+  // Cover
   coverEyebrow: { fontSize: 9, color: "#C8D4CB", letterSpacing: 3, textTransform: "uppercase", marginBottom: 18 },
-  coverSub: { fontSize: 12, color: "#D4E8D9", marginTop: 18, maxWidth: 420, lineHeight: 1.55 },
-  coverMeta: { flexDirection: "row", gap: 28, marginTop: 28 },
+  coverSub: { fontSize: 12, color: "#D4E8D9", marginTop: 16, maxWidth: 430, lineHeight: 1.6 },
+  coverMeta: { flexDirection: "row", gap: 26, marginTop: 24, flexWrap: "wrap" },
   coverMetaLabel: { fontSize: 8, color: "#8FA89A", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 3 },
   coverMetaValue: { fontSize: 11, color: C.card, fontFamily: "Helvetica-Bold" },
   coverStripe: {
-    marginTop: 34, padding: 20, borderRadius: 6,
+    marginTop: 26, padding: 18, borderRadius: 6,
     backgroundColor: "#0E2419", borderLeftWidth: 3, borderLeftColor: C.greenLt,
   },
   coverStripeLabel: { fontSize: 8, color: "#8FB49F", letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 },
   coverStripeTxt: { fontSize: 11, color: "#E8F0EA", lineHeight: 1.6 },
+  coverIndex: { marginTop: 22, borderTopWidth: 0.5, borderTopColor: "#2B4A3C", paddingTop: 14 },
+  coverIndexTitle: { fontSize: 8, color: "#8FA89A", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 },
+  coverIndexRow: { flexDirection: "row", marginBottom: 4 },
+  coverIndexNum: { width: 22, fontSize: 9, color: "#8FB49F", fontFamily: "Helvetica-Bold" },
+  coverIndexText: { fontSize: 9.5, color: "#D4E8D9" },
   coverFooter: {
     position: "absolute", bottom: 36, left: 48, right: 48,
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
   },
-  coverBrand: { fontSize: 13, color: C.card, fontFamily: "Helvetica-Bold", letterSpacing: 2 },
   coverRef: { fontSize: 8, color: "#8FA89A", letterSpacing: 1 },
 });
+
+/* ── Logo vectoriel ────────────────────────────────────────────────── */
+
+function BrandLogo({ light = false, size = 20 }: { light?: boolean; size?: number }) {
+  const mark = light ? C.logoLight : C.green;
+  const word = light ? C.card : C.ink;
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <Svg width={size} height={size} viewBox="0 0 24 24">
+        <Path
+          d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z"
+          fill={mark}
+        />
+        <Path
+          d="M 19.5,18.5 Q 20.5,20.5 18.5,20 L 11.5,20 Q 9.5,20.5 10.5,18.5 L 14,11.5 Q 15,9.5 16,11.5 Z"
+          fill={mark}
+          fillOpacity={0.55}
+        />
+      </Svg>
+      <Text style={{ fontSize: 13, fontFamily: "Helvetica-Bold", letterSpacing: 1.6, color: word, marginLeft: 7 }}>
+        SAFE
+      </Text>
+    </View>
+  );
+}
 
 /* ── Helpers ───────────────────────────────────────────────────────── */
 
 function fmtAnswer(qid: string, raw: unknown): string {
   const q = QUESTIONS.find((x) => x.id === qid);
   if (!q) return String(raw ?? "");
-  if (raw == null || raw === "") return "— Non renseigné —";
+  if (raw == null || raw === "") return "Non renseigné";
 
   if (q.subfields && typeof raw === "object") {
     const obj = raw as Record<string, unknown>;
@@ -249,10 +294,9 @@ function fmtAnswer(qid: string, raw: unknown): string {
     return raw.join(", ");
   }
 
-  // Gère "other:…"
   if (typeof raw === "string" && raw.startsWith("other:")) {
     const txt = raw.replace(/^other:/, "").trim();
-    return txt ? `Autre — ${txt}` : "Autre";
+    return txt ? `Autre : ${txt}` : "Autre";
   }
 
   if (q.options) {
@@ -273,19 +317,19 @@ const SEV_LABEL: Record<RiskSeverity, string> = {
 const VERDICT_COPY: Record<Recommendation["riskScore"]["verdict"], { label: string; text: string }> = {
   sain: {
     label: "Profil sain",
-    text: "Aucune exposition disciplinaire significative n'a été détectée. Le potentiel est surtout du côté de l'efficacité.",
+    text: "Vos réponses ne révèlent aucune exposition disciplinaire significative. Vous pouvez donc concentrer vos efforts sur l'efficacité plutôt que sur la mise en conformité.",
   },
   a_surveiller: {
     label: "À surveiller",
-    text: "Quelques signaux faibles à corriger avant qu'ils ne deviennent des problèmes. Rien d'urgent, mais à traiter.",
+    text: "Quelques signaux faibles sont à corriger avant qu'ils ne deviennent des problèmes. Rien n'est urgent, mais ces points méritent d'être traités.",
   },
   a_corriger: {
     label: "À corriger",
-    text: "Plusieurs points de friction sérieux. Une remise en ordre en 30 jours limite fortement votre exposition.",
+    text: "Plusieurs points de friction sérieux sont présents. Une remise en ordre sur 30 jours limite donc fortement votre exposition.",
   },
   a_securiser: {
-    label: "À sécuriser rapidement",
-    text: "Des risques critiques sont présents. Une mise en conformité prioritaire est requise pour limiter l'exposition disciplinaire.",
+    label: "À sécuriser",
+    text: "Des risques critiques sont présents. Une mise en conformité prioritaire est donc requise pour limiter votre exposition disciplinaire.",
   },
 };
 
@@ -320,13 +364,15 @@ function PlanCard({ plan, fmtMoney }: { plan: SitePlan; fmtMoney: (n: number) =>
   if (recommended) {
     return (
       <View style={s.planCardDark}>
-        <View style={{ marginBottom: 6 }}>
-          <Text style={{ fontSize: 7, color: C.greenLt, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "Helvetica-Bold" }}>
-            Recommandé pour vous
-          </Text>
-        </View>
+        <Text style={{ fontSize: 7, color: C.greenLt, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "Helvetica-Bold", marginBottom: 6 }}>
+          Recommandé pour vous
+        </Text>
         <Text style={s.planNameDark}>{plan.name}</Text>
-        <Text style={s.planPriceDark}>{plan.monthly == null ? plan.priceLabel : fmtMoney(plan.monthly)}</Text>
+        {plan.monthly == null ? (
+          <Text style={s.planPriceTxtDark}>{plan.priceLabel}</Text>
+        ) : (
+          <Text style={s.planPriceDark}>{fmtMoney(plan.monthly)}</Text>
+        )}
         <Text style={s.planSufDark}>{plan.monthly == null ? "tarification personnalisée" : `/ mois · ${plan.seats}`}</Text>
         <Text style={s.planTaglineDark}>{plan.tagline}</Text>
         {plan.features.map((f, i) => (
@@ -341,7 +387,11 @@ function PlanCard({ plan, fmtMoney }: { plan: SitePlan; fmtMoney: (n: number) =>
   return (
     <View style={s.planCard}>
       <Text style={s.planName}>{plan.name}</Text>
-      <Text style={s.planPrice}>{plan.monthly == null ? plan.priceLabel : fmtMoney(plan.monthly)}</Text>
+      {plan.monthly == null ? (
+        <Text style={s.planPriceTxt}>{plan.priceLabel}</Text>
+      ) : (
+        <Text style={s.planPrice}>{fmtMoney(plan.monthly)}</Text>
+      )}
       <Text style={s.planSuf}>{plan.monthly == null ? "tarification personnalisée" : `/ mois · ${plan.seats}`}</Text>
       <Text style={s.planTagline}>{plan.tagline}</Text>
       {plan.features.map((f, i) => (
@@ -369,7 +419,7 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
   const prospect = (answers.identite as { nom_complet?: string; titre?: string }) || {};
   const nomClient = prospect.nom_complet || "—";
   const titre = prospect.titre || "";
-  const raison = String(answers.raison_sociale || "—");
+  const raison = String(answers.raison_sociale || "Votre cabinet");
   const localisation = (answers.localisation as { ville?: string; province?: string }) || {};
   const ville = localisation.ville || "";
   const provinceLabel = PROVINCES.find((p) => p.value === localisation.province)?.label || "";
@@ -379,27 +429,29 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
   const fmtMoney = (n: number) => `${n.toLocaleString("fr-CA")} $`;
 
   const verdict = VERDICT_COPY[riskScore.verdict];
+  const recommendedPlan = plans.find((p) => p.recommended);
 
   const PageHeader = (
     <View style={s.header} fixed>
-      <Text style={s.brand}>SAFE</Text>
+      <BrandLogo />
       <Text style={s.confidential}>Confidentiel · {dateStr}</Text>
     </View>
   );
   const PageFooter = (
     <View style={s.footer} fixed>
-      <Text>SAFE — Rapport d'audit pour {raison}</Text>
+      <Text>SAFE · Rapport d'audit pour {raison}</Text>
       <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
     </View>
   );
 
-  const TOC = [
-    { num: "01", title: "Synthèse",                  sub: "Votre diagnostic en un coup d'œil, score de risque global et opportunités chiffrées.", page: "P. 03" },
-    { num: "02", title: "Vos réponses",              sub: "Intégralité des informations transmises pendant l'audit, par section.",                 page: "P. 04" },
-    { num: "03", title: "Analyse des risques",       sub: "Points d'exposition identifiés, référencés aux règles du Barreau et de la LSO.",        page: "P. 06" },
-    { num: "04", title: "Devis marché comparable",   sub: "Ce que coûterait une stack équivalente (Clio, QuickBooks, LawPay…) en 2025-2026.",     page: "P. 08" },
-    { num: "05", title: "Nos 3 formules",            sub: "Solo, Cabinet et Cabinet+ — avec la formule recommandée pour votre profil.",            page: "P. 09" },
-    { num: "06", title: "Prochaines étapes",         sub: "Comment on avance ensemble, échéances et mot du fondateur.",                            page: "P. 10" },
+  const COVER_INDEX = [
+    "Synthèse du diagnostic",
+    "Ce que vos réponses révèlent",
+    "Conformité Barreau et LSO",
+    "Votre valeur récupérable",
+    "Comparatif et formule recommandée",
+    "Prochaines étapes",
+    "Annexe : vos réponses complètes",
   ];
 
   return (
@@ -412,115 +464,91 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
     >
       {/* ───────── PAGE 1 · COUVERTURE ───────── */}
       <Page size="A4" style={s.pageCover}>
-        <View>
-          <Text style={s.coverEyebrow}>Rapport d'audit · Confidentiel</Text>
-          <Text style={s.h1White}>
-            Diagnostic de performance{"\n"}
-            <Text style={[s.italic, { color: C.greenLt }]}>de votre cabinet.</Text>
-          </Text>
-          <Text style={s.coverSub}>
-            Préparé à partir de vos réponses par Jérémie Tiahou, fondateur de SAFE.
-            Ce rapport chiffre vos opportunités, évalue votre exposition aux règles du Barreau
-            et propose une formule adaptée à votre profil.
-          </Text>
+        <View style={{ marginBottom: 22 }}>
+          <BrandLogo light size={26} />
+        </View>
 
-          <View style={s.coverMeta}>
-            <View>
-              <Text style={s.coverMetaLabel}>Cabinet</Text>
-              <Text style={s.coverMetaValue}>{raison}</Text>
-            </View>
-            <View>
-              <Text style={s.coverMetaLabel}>Destinataire</Text>
-              <Text style={s.coverMetaValue}>{nomClient}{titre ? `, ${titre}` : ""}</Text>
-            </View>
-            <View>
-              <Text style={s.coverMetaLabel}>Localisation</Text>
-              <Text style={s.coverMetaValue}>{ville}{provinceLabel ? `, ${provinceLabel}` : ""}</Text>
-            </View>
-            <View>
-              <Text style={s.coverMetaLabel}>Date</Text>
-              <Text style={s.coverMetaValue}>{dateStr}</Text>
-            </View>
+        <Text style={s.coverEyebrow}>Rapport d'audit confidentiel</Text>
+        <Text style={s.h1White}>
+          Diagnostic de performance{"\n"}
+          <Text style={[s.italic, { color: C.greenLt }]}>de votre cabinet.</Text>
+        </Text>
+        <Text style={s.coverSub}>
+          Ce rapport a été préparé par Jérémie Tiahou, fondateur de SAFE, à partir des réponses
+          que vous avez transmises. Il chiffre vos opportunités, évalue votre exposition aux
+          règles du Barreau et propose une formule adaptée à votre profil.
+        </Text>
+
+        <View style={s.coverMeta}>
+          <View>
+            <Text style={s.coverMetaLabel}>Cabinet</Text>
+            <Text style={s.coverMetaValue}>{raison}</Text>
           </View>
+          <View>
+            <Text style={s.coverMetaLabel}>Destinataire</Text>
+            <Text style={s.coverMetaValue}>{nomClient}{titre ? `, ${titre}` : ""}</Text>
+          </View>
+          <View>
+            <Text style={s.coverMetaLabel}>Localisation</Text>
+            <Text style={s.coverMetaValue}>{ville}{provinceLabel ? `, ${provinceLabel}` : ""}</Text>
+          </View>
+          <View>
+            <Text style={s.coverMetaLabel}>Date</Text>
+            <Text style={s.coverMetaValue}>{dateStr}</Text>
+          </View>
+        </View>
 
-          <View style={s.coverStripe}>
-            <Text style={s.coverStripeLabel}>Verdict préliminaire · {verdict.label}</Text>
-            <Text style={s.coverStripeTxt}>{verdict.text}</Text>
-            <View style={{ flexDirection: "row", gap: 24, marginTop: 14 }}>
-              <View>
-                <Text style={s.coverMetaLabel}>Valeur récupérable / an</Text>
-                <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{fmtMoney(roi.annualValue)}</Text>
-              </View>
-              <View>
-                <Text style={s.coverMetaLabel}>Heures libérées / sem.</Text>
-                <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{roi.hoursPerWeek} h</Text>
-              </View>
-              <View>
-                <Text style={s.coverMetaLabel}>Économie vs marché</Text>
-                <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{safeOffer.savings.percent} %</Text>
-              </View>
+        <View style={s.coverStripe}>
+          <Text style={s.coverStripeLabel}>Verdict préliminaire · {verdict.label}</Text>
+          <Text style={s.coverStripeTxt}>{verdict.text}</Text>
+          <View style={{ flexDirection: "row", gap: 24, marginTop: 14 }}>
+            <View>
+              <Text style={s.coverMetaLabel}>Valeur récupérable / an</Text>
+              <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{fmtMoney(roi.annualValue)}</Text>
+            </View>
+            <View>
+              <Text style={s.coverMetaLabel}>Heures libérées / sem.</Text>
+              <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{roi.hoursPerWeek} h</Text>
+            </View>
+            <View>
+              <Text style={s.coverMetaLabel}>Économie vs marché</Text>
+              <Text style={[s.coverMetaValue, { fontSize: 16, fontFamily: "Times-Roman" }]}>{safeOffer.savings.percent} %</Text>
             </View>
           </View>
         </View>
 
-        <View style={s.coverFooter}>
-          <Text style={s.coverBrand}>SAFE</Text>
-          <Text style={s.coverRef}>RÉF · {submissionId}</Text>
-        </View>
-      </Page>
-
-      {/* ───────── PAGE 2 · SOMMAIRE / STRUCTURE ───────── */}
-      <Page size="A4" style={s.page}>
-        {PageHeader}
-        <Text style={s.kicker}>— Structure du rapport</Text>
-        <Text style={s.h1}>
-          Ce que vous allez <Text style={[s.italic, { color: C.green }]}>lire</Text>.
-        </Text>
-        <Text style={[s.p, { marginTop: 14, maxWidth: 460 }]}>
-          Le rapport est construit pour être lu en 10 minutes. Chaque section répond à une
-          question concrète que vous vous posez sur votre cabinet.
-        </Text>
-
-        <View style={{ marginTop: 18 }}>
-          {TOC.map((t) => (
-            <View key={t.num} style={s.tocRow} wrap={false}>
-              <Text style={s.tocNum}>{t.num}</Text>
-              <View style={s.tocBody}>
-                <Text style={s.tocTitle}>{t.title}</Text>
-                <Text style={s.tocSub}>{t.sub}</Text>
-              </View>
-              <Text style={s.tocPage}>{t.page}</Text>
+        <View style={s.coverIndex}>
+          <Text style={s.coverIndexTitle}>Ce que contient ce rapport</Text>
+          {COVER_INDEX.map((t, i) => (
+            <View key={i} style={s.coverIndexRow}>
+              <Text style={s.coverIndexNum}>{String(i + 1).padStart(2, "0")}</Text>
+              <Text style={s.coverIndexText}>{t}</Text>
             </View>
           ))}
         </View>
 
-        <View style={[s.greenCard, { marginTop: 18 }]}>
-          <Text style={[s.h3, { marginTop: 0 }]}>Méthodologie</Text>
-          <Text style={s.p}>
-            Les opportunités sont chiffrées à partir de vos propres réponses (taux horaire, heures
-            administratives, dossiers actifs). Les références réglementaires proviennent du
-            Règlement sur la comptabilité et les normes d'exercice du Barreau du Québec (B-1, r.5),
-            du Code de déontologie des avocats (B-1, r.3.1) et, pour l'Ontario, du By-Law 9 et des
-            Rules of Professional Conduct de la Law Society of Ontario.
-          </Text>
+        <View style={s.coverFooter}>
+          <BrandLogo light size={18} />
+          <Text style={s.coverRef}>Réf · {submissionId}</Text>
         </View>
-
-        {PageFooter}
       </Page>
 
-      {/* ───────── PAGE 3 · SYNTHÈSE ───────── */}
+      {/* ───────── PAGE 2 · SYNTHÈSE ───────── */}
       <Page size="A4" style={s.page}>
         {PageHeader}
         <Text style={s.kicker}>Section 01 · Synthèse</Text>
-        <Text style={s.h2}>Votre diagnostic en un coup d'œil</Text>
+        <Text style={s.h2}>Votre diagnostic en bref</Text>
 
         <View style={s.scoreBox}>
-          <View style={s.scoreNum}>
-            <Text style={s.scoreNumVal}>{riskScore.total}</Text>
-            <Text style={s.scoreNumSuf}>/ 100</Text>
+          <View style={s.scorePanel}>
+            <Text style={s.scorePanelLabel}>Verdict</Text>
+            <Text style={s.scoreVerdictBig}>{verdict.label}</Text>
+            <Text style={s.scoreIndexLine}>
+              Indice d'exposition : {riskScore.total} sur 100.{"\n"}
+              Plus l'indice est bas, plus votre cabinet est protégé.
+            </Text>
           </View>
           <View style={s.scoreRight}>
-            <Text style={s.scoreVerdict}>— {verdict.label}</Text>
             <Text style={s.scoreTxt}>{verdict.text}</Text>
             <View style={s.scoreLegend}>
               <View style={s.scoreLegendItem}>
@@ -544,8 +572,8 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
         </View>
 
         <View style={s.greenCard}>
-          <Text style={[s.h3, { marginTop: 0 }]}>En un coup d'œil</Text>
-          <Text style={s.p}>{narrative.executiveSummary}</Text>
+          <Text style={[s.h3, { marginTop: 0 }]}>En quelques mots</Text>
+          <Text style={[s.p, { marginBottom: 0 }]}>{narrative.executiveSummary}</Text>
         </View>
 
         <View style={s.kpiRow}>
@@ -566,17 +594,42 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
           </View>
         </View>
 
+        <View style={[s.greenCard, { marginTop: 4 }]}>
+          <Text style={[s.h3, { marginTop: 0 }]}>Comment lire ce rapport</Text>
+          <Text style={[s.p, { marginBottom: 0 }]}>
+            Les chiffres présentés ici proviennent uniquement de vos réponses, car aucun montant
+            n'est inventé. Les références réglementaires renvoient au Règlement B-1, r.5 et au
+            Code de déontologie des avocats pour le Québec, ainsi qu'au By-Law 9 de la Law Society
+            of Ontario pour l'Ontario. Le détail du calcul de la valeur récupérable est présenté
+            à la section 04.
+          </Text>
+        </View>
+
+        {PageFooter}
+      </Page>
+
+      {/* ───────── PAGE 3 · CE QUE VOS RÉPONSES RÉVÈLENT ───────── */}
+      <Page size="A4" style={s.page}>
+        {PageHeader}
+        <Text style={s.kicker}>Section 02 · Lecture de vos réponses</Text>
+        <Text style={s.h2}>Ce que vos réponses révèlent</Text>
+        <Text style={s.p}>
+          Cette section traduit vos réponses en constats concrets. Chaque point ci-dessous découle
+          directement de ce que vous avez indiqué, car l'objectif est de partir de votre réalité
+          plutôt que de généralités.
+        </Text>
+
         <Text style={s.h3}>Constats</Text>
         {narrative.diagnostic.map((d, i) => (
-          <View key={i} style={s.bullet}>
-            <Text style={s.bulletDot}>▸</Text>
+          <View key={i} style={s.bullet} wrap={false}>
+            <Text style={s.bulletDot}>{String(i + 1)}.</Text>
             <Text style={s.bulletText}>{d}</Text>
           </View>
         ))}
 
         <Text style={s.h3}>Opportunités identifiées</Text>
         {narrative.opportunites.map((o, i) => (
-          <View key={i} style={s.bullet}>
+          <View key={i} style={s.bullet} wrap={false}>
             <Text style={s.bulletDot}>▸</Text>
             <Text style={s.bulletText}>{o}</Text>
           </View>
@@ -585,46 +638,15 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
         {PageFooter}
       </Page>
 
-      {/* ───────── PAGE 4+ · VOS RÉPONSES ───────── */}
+      {/* ───────── PAGE 4 · CONFORMITÉ ───────── */}
       <Page size="A4" style={s.page}>
         {PageHeader}
-        <Text style={s.kicker}>Section 02 · Vos réponses</Text>
-        <Text style={s.h2}>Toutes les informations que vous nous avez transmises</Text>
-        <Text style={s.p}>
-          Cette section reprend l'intégralité de vos réponses, organisées par thème.
-          Elle sert de référence partagée entre vous et l'équipe SAFE pour tout le suivi.
-        </Text>
-
-        {SECTIONS.map((sec) => {
-          const qs = visibleQs.filter((q) => q.section === sec.id);
-          if (qs.length === 0) return null;
-          return (
-            <View key={sec.id} style={{ marginTop: 18 }} wrap={false}>
-              <Text style={s.h3}>{sec.number}. {sec.title}</Text>
-              {qs.map((q) => (
-                <View key={q.id} style={s.qaBlock} wrap={false}>
-                  <Text style={s.qaNum}>{q.number}</Text>
-                  <Text style={s.qaQ}>{q.label}</Text>
-                  <Text style={s.qaA}>{fmtAnswer(q.id, answers[q.id])}</Text>
-                </View>
-              ))}
-            </View>
-          );
-        })}
-
-        {PageFooter}
-      </Page>
-
-      {/* ───────── PAGE 6 · ANALYSE DES RISQUES ───────── */}
-      <Page size="A4" style={s.page}>
-        {PageHeader}
-        <Text style={s.kicker}>Section 03 · Analyse des risques</Text>
+        <Text style={s.kicker}>Section 03 · Conformité Barreau et LSO</Text>
         <Text style={s.h2}>Ce que disent les règles de votre Barreau</Text>
         <Text style={s.p}>
-          Chaque point ci-dessous est déduit directement de vos réponses et rattaché à une
-          disposition concrète du cadre professionnel applicable à votre province.
-          Plus le niveau est élevé, plus le risque d'exposition disciplinaire ou de perte
-          financière est important.
+          {riskScore.verdict === "sain"
+            ? "Vos réponses ne révèlent pas de manquement réglementaire évident. Le point ci-dessous confirme cette bonne position et indique comment SAFE vous aide à la préserver dans le temps."
+            : "Chaque point ci-dessous est déduit directement de vos réponses, puis rattaché à une disposition concrète du cadre professionnel applicable à votre province. Plus le niveau est élevé, plus le risque d'exposition disciplinaire ou de perte financière est important."}
         </Text>
 
         {risks.map((r) => (
@@ -632,22 +654,86 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
         ))}
 
         <Text style={[s.small, { marginTop: 8, fontFamily: "Helvetica-Oblique" }]}>
-          Les références aux règlements sont fournies à titre indicatif pour faciliter votre
-          discussion avec votre syndic ou votre conseiller juridique. Ce rapport ne constitue
-          pas un avis juridique.
+          Les références aux règlements sont fournies à titre indicatif, afin de faciliter votre
+          discussion avec votre syndic ou votre conseiller juridique. Ce rapport ne constitue pas
+          un avis juridique.
         </Text>
 
         {PageFooter}
       </Page>
 
-      {/* ───────── PAGE 8 · DEVIS MARCHÉ ───────── */}
+      {/* ───────── PAGE 5 · VALEUR RÉCUPÉRABLE ───────── */}
       <Page size="A4" style={s.page}>
         {PageHeader}
-        <Text style={s.kicker}>Section 04 · Valeur du marché</Text>
+        <Text style={s.kicker}>Section 04 · Votre valeur récupérable</Text>
+        <Text style={s.h2}>D'où vient le chiffre</Text>
+        <Text style={s.p}>{narrative.roiExplanation}</Text>
+
+        <Text style={s.h3}>Le calcul, étape par étape</Text>
+        <View style={s.calcStrip}>
+          <View style={s.calcCell}>
+            <Text style={s.calcLabel}>Heures admin retenues</Text>
+            <Text style={s.calcValue}>{roi.declaredHours} h</Text>
+          </View>
+          <Text style={s.calcOp}>×</Text>
+          <View style={s.calcCell}>
+            <Text style={s.calcLabel}>Part automatisée</Text>
+            <Text style={s.calcValue}>{Math.round(roi.automationRate * 100)} %</Text>
+          </View>
+          <Text style={s.calcOp}>=</Text>
+          <View style={s.calcCellAccent}>
+            <Text style={s.calcLabel}>Heures rendues / sem.</Text>
+            <Text style={s.calcValueAccent}>{roi.hoursPerWeek} h</Text>
+          </View>
+        </View>
+        <View style={s.calcStrip}>
+          <View style={s.calcCell}>
+            <Text style={s.calcLabel}>Heures rendues / sem.</Text>
+            <Text style={s.calcValue}>{roi.hoursPerWeek} h</Text>
+          </View>
+          <Text style={s.calcOp}>×</Text>
+          <View style={s.calcCell}>
+            <Text style={s.calcLabel}>Votre taux horaire</Text>
+            <Text style={s.calcValue}>{fmtMoney(roi.hourlyValue)}</Text>
+          </View>
+          <Text style={s.calcOp}>×</Text>
+          <View style={s.calcCell}>
+            <Text style={s.calcLabel}>Semaines travaillées</Text>
+            <Text style={s.calcValue}>{roi.weeks}</Text>
+          </View>
+        </View>
+
+        <View style={s.greenCard}>
+          <Text style={[s.h3, { marginTop: 0 }]}>Résultat</Text>
+          <View style={{ flexDirection: "row", gap: 24, marginTop: 4 }}>
+            <View>
+              <Text style={s.kpiLabel}>Valeur récupérée par année</Text>
+              <Text style={[s.kpiValue, { color: C.green, fontSize: 22 }]}>{fmtMoney(roi.annualValue)}</Text>
+            </View>
+            <View>
+              <Text style={s.kpiLabel}>Soit par semaine</Text>
+              <Text style={[s.kpiValue, { color: C.green, fontSize: 22 }]}>{fmtMoney(roi.weeklyValue)}</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={[s.small, { marginTop: 8, fontFamily: "Helvetica-Oblique" }]}>
+          Cette estimation est volontairement prudente, car elle ne tient compte que des heures
+          administratives, sans inclure le temps facturable aujourd'hui oublié ni les créances
+          actuellement non recouvrées.
+        </Text>
+
+        {PageFooter}
+      </Page>
+
+      {/* ───────── PAGE 6 · COMPARATIF ET FORMULE ───────── */}
+      <Page size="A4" style={s.page}>
+        {PageHeader}
+        <Text style={s.kicker}>Section 05 · Comparatif et formule recommandée</Text>
         <Text style={s.h2}>Ce que coûterait une stack comparable</Text>
         <Text style={s.p}>{marketQuote.note}</Text>
 
-        <View style={[s.tableHead, { marginTop: 14 }]}>
+        <View style={[s.tableHead, { marginTop: 10 }]}>
           <Text style={[s.tableCellLabel, { color: C.green }]}>Composant</Text>
           <Text style={[s.tableCellDetail, { color: C.green }]}>Détail</Text>
           <Text style={[s.tableCellAmount, { color: C.green }]}>Mensuel</Text>
@@ -660,12 +746,17 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
           </View>
         ))}
         <View style={s.tableTotal}>
-          <Text style={s.tableTotalLabel}>Total estimé marché</Text>
+          <Text style={s.tableTotalLabel}>Total mensuel récurrent</Text>
           <Text style={s.tableTotalDetail}>{fmtMoney(marketQuote.totalAnnual)} / an</Text>
           <Text style={s.tableTotalAmount}>{fmtMoney(marketQuote.totalMonthly)}</Text>
         </View>
+        <Text style={[s.small, { marginTop: 6 }]}>
+          À ce total récurrent s'ajoutent, la première année seulement, environ {fmtMoney(marketQuote.setupOneTime)} de
+          frais d'implantation et de formation. Comme ces frais ne se répètent pas, ils ne sont
+          pas inclus dans la comparaison ci-dessus.
+        </Text>
 
-        <View style={[s.greenCard, { marginTop: 14 }]}>
+        <View style={[s.greenCard, { marginTop: 12 }]}>
           <Text style={[s.h3, { marginTop: 0 }]}>Votre économie avec SAFE</Text>
           <View style={{ flexDirection: "row", gap: 24, marginTop: 4 }}>
             <View>
@@ -683,47 +774,44 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
           </View>
         </View>
 
-        <Text style={[s.small, { marginTop: 12, fontFamily: "Helvetica-Oblique" }]}>
-          Estimations basées sur les grilles publiques 2025-2026 (Clio Manage Pro, QuickBooks Online Plus,
-          LawPay, Trustbooks). Montants en dollars canadiens, taxes non incluses, hors coûts internes de formation.
-        </Text>
-
         {PageFooter}
       </Page>
 
-      {/* ───────── PAGE 9 · LES 3 FORMULES ───────── */}
+      {/* ───────── PAGE 7 · VOTRE FORMULE ───────── */}
       <Page size="A4" style={s.page}>
         {PageHeader}
-        <Text style={s.kicker}>Section 05 · Nos 3 formules</Text>
-        <Text style={s.h2}>
-          Moins cher qu'une heure <Text style={[s.italic, { color: C.green }]}>de votre temps.</Text>
-        </Text>
+        <Text style={s.kicker}>Section 05 · Votre formule</Text>
+        <Text style={s.h2}>La formule qui correspond à votre profil</Text>
         <Text style={s.p}>
-          Pas de frais cachés. Pas d'engagement. Satisfait ou remboursé 30 jours.
-          La formule encadrée est celle que nous recommandons pour votre profil.
+          SAFE propose trois formules, et vous pouvez passer de l'une à l'autre à tout moment,
+          sans frais. La formule encadrée ci-dessous est celle qui couvre votre périmètre réel,
+          car elle ne vous fait pas payer pour des sièges inutilisés.
         </Text>
 
-        <View style={[s.planRow, { marginTop: 14 }]}>
+        <View style={[s.planRow, { marginTop: 8 }]} wrap={false}>
           {plans.map((p) => (
             <PlanCard key={p.id} plan={p} fmtMoney={fmtMoney} />
           ))}
         </View>
 
-        <View style={s.darkCard}>
-          <Text style={[s.confidential, { color: "#C8D4CB", marginBottom: 6 }]}>Pourquoi cette formule</Text>
-          <Text style={[s.p, { color: "#E8E2D4", marginTop: 0, marginBottom: 0 }]}>
-            D'après vos réponses (nombre d'utilisateurs, volume de dossiers, structure de l'équipe),
-            la formule <Text style={{ fontFamily: "Helvetica-Bold", color: C.card }}>{plans.find((p) => p.recommended)?.name}</Text>{" "}
-            est celle qui couvre votre périmètre réel sans vous faire payer pour des sièges inutilisés.
-            Vous pouvez changer de formule à tout moment sans frais.
-          </Text>
-        </View>
+        {recommendedPlan && (
+          <View style={s.darkCard} wrap={false}>
+            <Text style={[s.confidential, { color: "#C8D4CB", marginBottom: 6 }]}>Pourquoi cette formule</Text>
+            <Text style={[s.p, { color: "#E8E2D4", marginTop: 0, marginBottom: 0 }]}>
+              D'après vos réponses sur le nombre d'utilisateurs, le volume de dossiers et la
+              structure de votre équipe, la formule{" "}
+              <Text style={{ fontFamily: "Helvetica-Bold", color: C.card }}>{recommendedPlan.name}</Text>{" "}
+              est celle qui correspond à votre situation. La mise en place est offerte, et la
+              garantie « satisfait ou remboursé 30 jours » s'applique.
+            </Text>
+          </View>
+        )}
 
         <View style={s.kpiRow}>
           <View style={s.kpi}>
             <Text style={s.kpiLabel}>Mise en place</Text>
             <Text style={[s.kpiValue, { fontSize: 14 }]}>Offerte</Text>
-            <Text style={s.kpiSuffix}>formation 1-on-1 incluse</Text>
+            <Text style={s.kpiSuffix}>formation incluse</Text>
           </View>
           <View style={s.kpi}>
             <Text style={s.kpiLabel}>Garantie</Text>
@@ -733,35 +821,40 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
           <View style={s.kpi}>
             <Text style={s.kpiLabel}>Hébergement</Text>
             <Text style={[s.kpiValue, { fontSize: 14 }]}>Canada</Text>
-            <Text style={s.kpiSuffix}>conforme PIPEDA / Loi 25</Text>
+            <Text style={s.kpiSuffix}>conforme PIPEDA et Loi 25</Text>
           </View>
         </View>
 
         {PageFooter}
       </Page>
 
-      {/* ───────── PAGE 10 · PROCHAINES ÉTAPES ───────── */}
+      {/* ───────── PAGE 8 · PROCHAINES ÉTAPES ───────── */}
       <Page size="A4" style={s.page}>
         {PageHeader}
         <Text style={s.kicker}>Section 06 · Prochaines étapes</Text>
         <Text style={s.h2}>Comment on avance ensemble</Text>
+        <Text style={s.p}>
+          Si ce rapport vous parle, voici les trois étapes concrètes pour démarrer. Aucune ne vous
+          engage, car la première reste une simple conversation.
+        </Text>
 
         {narrative.prochainesEtapes.map((e, i) => (
-          <View key={i} style={s.card} wrap={false}>
-            <Text style={[s.kicker, { marginBottom: 4 }]}>Étape {String(i + 1).padStart(2, "0")}</Text>
-            <Text style={[s.qaQ, { marginBottom: 0 }]}>{e}</Text>
+          <View key={i} style={s.stepCard} wrap={false}>
+            <Text style={s.stepNum}>{i + 1}</Text>
+            <Text style={s.stepText}>{e}</Text>
           </View>
         ))}
 
         <View style={[s.darkCard, { marginTop: 14 }]}>
           <Text style={[s.confidential, { color: "#C8D4CB" }]}>Mot du fondateur</Text>
           <Text style={[s.p, { color: "#E8E2D4", marginTop: 8, marginBottom: 0 }]}>
-            « J'ai construit SAFE après avoir tenu les livres de cabinets juridiques pendant des années.
-            Chaque heure que vous passez à chercher une facture, concilier un fidéicommis ou relancer un
-            client, c'est une heure qui n'est pas facturée. SAFE vous la rend. »
+            « J'ai construit SAFE après avoir tenu les livres de cabinets d'avocats pendant des
+            années. J'ai vu, mois après mois, où le temps et l'argent s'évaporaient. Chaque heure
+            passée à chercher une facture, à concilier un fidéicommis ou à relancer un client est
+            une heure qui n'est pas facturée. C'est précisément cette heure que SAFE vous rend. »
           </Text>
           <Text style={[s.p, { color: "#C8D4CB", marginTop: 10, marginBottom: 0, fontFamily: "Helvetica-Oblique" }]}>
-            — Jérémie Tiahou, fondateur de SAFE
+            Jérémie Tiahou, fondateur de SAFE
           </Text>
         </View>
 
@@ -769,6 +862,37 @@ export function AuditReportDocument({ answers, recommendation, submissionId, cre
           <Text style={s.kpiLabel}>Référence du rapport</Text>
           <Text style={{ fontFamily: "Courier", fontSize: 10, color: C.ink }}>{submissionId}</Text>
         </View>
+
+        {PageFooter}
+      </Page>
+
+      {/* ───────── ANNEXE · VOS RÉPONSES ───────── */}
+      <Page size="A4" style={s.page}>
+        {PageHeader}
+        <Text style={s.kicker}>Annexe · Vos réponses</Text>
+        <Text style={s.h2}>L'historique de votre audit</Text>
+        <Text style={s.p}>
+          Cette annexe reprend l'intégralité des questions posées et des réponses que vous avez
+          fournies, organisées par thème. Elle sert de référence partagée entre vous et l'équipe
+          SAFE pour assurer le suivi.
+        </Text>
+
+        {SECTIONS.map((sec) => {
+          const qs = visibleQs.filter((q) => q.section === sec.id);
+          if (qs.length === 0) return null;
+          return (
+            <View key={sec.id} style={{ marginTop: 16 }} wrap={false}>
+              <Text style={s.h3}>{sec.number}. {sec.title}</Text>
+              {qs.map((q, i) => (
+                <View key={q.id} style={s.qaBlock} wrap={false}>
+                  <Text style={s.qaNum}>{sec.number}.{i + 1}</Text>
+                  <Text style={s.qaQ}>{q.label}</Text>
+                  <Text style={s.qaA}>{fmtAnswer(q.id, answers[q.id])}</Text>
+                </View>
+              ))}
+            </View>
+          );
+        })}
 
         {PageFooter}
       </Page>
