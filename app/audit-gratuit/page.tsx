@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogoMark } from "@/components/brand/Logo";
@@ -17,10 +18,11 @@ const AuditForm = dynamic(
   }
 );
 
-type Phase = "intro" | "language" | "form";
+type Phase = "intro" | "categorie" | "language" | "form";
 type Lang = "fr" | "en";
 
 export default function AuditGratuitPage() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("intro");
   const [lang, setLang] = useState<Lang>("fr");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -146,7 +148,7 @@ export default function AuditGratuitPage() {
             </div>
 
             <button
-              onClick={() => setPhase("language")}
+              onClick={() => setPhase("categorie")}
               className="audit-v2-btn-primary mx-auto text-[15px] px-9 py-4"
             >
               Commencer l&apos;audit →
@@ -155,6 +157,58 @@ export default function AuditGratuitPage() {
             <p className="mt-5 text-[11px] text-neutral-400 tracking-wide">
               Confidentiel · Aucune carte de crédit · Tarif proposé après l&apos;audit
             </p>
+          </motion.div>
+        )}
+
+        {phase === "categorie" && (
+          <motion.div
+            key="categorie"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-lg text-center"
+          >
+            <button onClick={() => setPhase("intro")} className="audit-v2-btn-ghost mb-8">
+              ← Retour
+            </button>
+            <h2
+              className="text-[28px] font-normal text-[#111] mb-2"
+              style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+            >
+              Où en êtes-vous ?
+            </h2>
+            <p className="text-neutral-500 text-sm mb-8">
+              Le parcours s&apos;adapte à votre situation.
+            </p>
+
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => setPhase("language")}
+                className="audit-v2-card-lg group hover:border-[var(--safe-green-800)] transition-colors text-left"
+                style={{ padding: "22px 22px" }}
+              >
+                <div className="text-[15px] font-semibold text-[#111]">
+                  J&apos;ai déjà un cabinet
+                </div>
+                <div className="mt-1 text-[12.5px] text-neutral-500">
+                  Diagnostic de performance, analyse de conformité et formule recommandée.
+                </div>
+              </button>
+
+              <button
+                onClick={() => router.push("/carriere-solo")}
+                className="audit-v2-card-lg group hover:border-[var(--safe-green-800)] transition-colors text-left"
+                style={{ padding: "22px 22px" }}
+              >
+                <div className="text-[15px] font-semibold text-[#111]">
+                  Je veux lancer mon cabinet
+                </div>
+                <div className="mt-1 text-[12.5px] text-neutral-500">
+                  Checklist Carrière Solo personnalisée, conforme Québec et Ontario.
+                </div>
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -168,7 +222,7 @@ export default function AuditGratuitPage() {
             className="w-full max-w-md text-center"
           >
             <button
-              onClick={() => setPhase("intro")}
+              onClick={() => setPhase("categorie")}
               className="audit-v2-btn-ghost mb-8"
             >
               ← Retour
