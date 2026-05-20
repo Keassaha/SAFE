@@ -144,6 +144,12 @@
   --safe-green-100: #D4E8D9; /* brand.100 */
   --safe-green-50:  #EEF5F0; /* brand.50  */
 
+  /* CTA — vert légèrement plus clair que --safe-green-800
+   * pour donner aux boutons publics un ton plus chaleureux.
+   * Aligné sur la teinte « forest.700 » du design system. */
+  --safe-cta:       #2D6B47;
+  --safe-cta-hover: #1F3A2E; /* = --safe-green-800, pour un appui plus profond au survol */
+
   /* Gold tokens — redirected to warm gold (used sparingly, KPI-critical) */
   --safe-gold-700: #A8611C; /* goldWarm.700 */
   --safe-gold-600: #D88128; /* goldWarm.600 */
@@ -1272,14 +1278,14 @@
   gap: 8px;
   min-height: 44px;
   border-radius: 10px;
-  background: var(--safe-green-800);
+  background: var(--safe-cta);
   color: var(--safe-text-inverse);
-  border: 1px solid var(--safe-green-800);
+  border: 1px solid var(--safe-cta);
   padding: 12px 22px;
   font-size: 14px;
   font-weight: 600;
   line-height: 1;
-  box-shadow: 0 10px 24px -16px rgba(31, 58, 46, 0.65);
+  box-shadow: 0 10px 24px -16px rgba(45, 107, 71, 0.55);
   transition:
     background-color 0.18s ease,
     border-color 0.18s ease,
@@ -1288,9 +1294,9 @@
 }
 
 .safe-site-cta-primary:hover {
-  background: var(--safe-green-900);
-  border-color: var(--safe-green-900);
-  box-shadow: 0 14px 30px -16px rgba(14, 36, 25, 0.75);
+  background: var(--safe-cta-hover);
+  border-color: var(--safe-cta-hover);
+  box-shadow: 0 14px 30px -16px rgba(31, 58, 46, 0.7);
   transform: translateY(-1px);
 }
 
@@ -1721,7 +1727,7 @@
 
 .audit-v2-btn-primary {
   display: inline-flex; align-items: center; gap: 10px;
-  background: var(--safe-green-800);
+  background: var(--safe-cta);
   color: #FFFFFF;
   padding: 13px 22px;
   border-radius: 10px;
@@ -1729,12 +1735,12 @@
   font-weight: 600;
   letter-spacing: 0;
   transition: all .2s ease;
-  box-shadow: 0 10px 24px -16px rgba(31,58,46,0.65);
+  box-shadow: 0 10px 24px -16px rgba(45,107,71,0.55);
 }
 .audit-v2-btn-primary:hover:not(:disabled) {
-  background: var(--safe-green-900);
+  background: var(--safe-cta-hover);
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px -16px rgba(14,36,25,0.75);
+  box-shadow: 0 14px 30px -16px rgba(31,58,46,0.7);
 }
 .audit-v2-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
