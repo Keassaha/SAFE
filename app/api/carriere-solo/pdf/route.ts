@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
         "Cache-Control": "no-store",
       },
     });
-  } catch {
+  } catch (e) {
+    console.error("[carriere-solo/pdf] generation failed:", e);
     return NextResponse.json({ error: "La génération du PDF a échoué." }, { status: 500 });
   }
 }

@@ -41,13 +41,13 @@ const s = StyleSheet.create({
   },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    marginBottom: 22, paddingBottom: 10, borderBottomWidth: 0.5, borderBottomColor: C.border,
+    marginBottom: 22, paddingBottom: 10,
   },
   confidential: { fontSize: 8, color: C.soft, textTransform: "uppercase", letterSpacing: 1 },
   footer: {
     position: "absolute", bottom: 22, left: 44, right: 44,
     flexDirection: "row", justifyContent: "space-between",
-    fontSize: 8, color: C.soft, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: C.border,
+    fontSize: 8, color: C.soft, paddingTop: 8,
   },
   kicker: {
     fontSize: 9, color: C.forest, textTransform: "uppercase",
@@ -75,8 +75,7 @@ const s = StyleSheet.create({
   coverRef: { fontSize: 8, color: "#8FA89A", letterSpacing: 1 },
 
   item: {
-    backgroundColor: C.card, borderWidth: 0.5, borderColor: C.border,
-    borderRadius: 6, padding: 13, marginBottom: 9,
+    backgroundColor: C.card, padding: 13, marginBottom: 9,
   },
   badgeRow: { flexDirection: "row", gap: 6, marginBottom: 6 },
   badge: {
@@ -91,7 +90,7 @@ const s = StyleSheet.create({
 
   sansAvec: {
     marginTop: 8, backgroundColor: C.forestBg, borderLeftWidth: 3, borderLeftColor: C.forest,
-    borderRadius: 4, padding: 10,
+    padding: 10,
   },
   saRow: { flexDirection: "row", gap: 12 },
   saCol: { flex: 1 },
@@ -271,23 +270,28 @@ function ChecklistDocument({ generated, createdAt }: Props) {
         </View>
       </Page>
 
-      {/* Checklist */}
+      {/* Une page par section : limite la profondeur de pagination interne
+          de react-pdf, qui produit autrement des coordonnées invalides
+          sur les longues listes d'items densément stylés. */}
+      {generated.sections.map((section, idx) => (
+        <Page key={section.meta.id} size="A4" style={s.page}>
+          {Header}
+          <View wrap={false}>
+            <Text style={s.kicker}>Section {String(idx + 1).padStart(2, "0")}</Text>
+            <Text style={s.h2}>{section.meta.title}</Text>
+            <Text style={s.sectionSub}>{section.meta.subtitle}</Text>
+          </View>
+          {section.items.map((item) => (
+            <ItemView key={item.id} item={item} generated={generated} />
+          ))}
+          {Footer}
+        </Page>
+      ))}
+
+      {/* CTA final isolé sur sa propre page. */}
       <Page size="A4" style={s.page}>
         {Header}
-        {generated.sections.map((section, idx) => (
-          <View key={section.meta.id} style={{ marginBottom: 14 }}>
-            <View wrap={false}>
-              <Text style={s.kicker}>Section {String(idx + 1).padStart(2, "0")}</Text>
-              <Text style={s.h2}>{section.meta.title}</Text>
-              <Text style={s.sectionSub}>{section.meta.subtitle}</Text>
-            </View>
-            {section.items.map((item) => (
-              <ItemView key={item.id} item={item} generated={generated} />
-            ))}
-          </View>
-        ))}
-
-        <View style={s.cta} wrap={false}>
+        <View style={s.cta}>
           <Text style={s.ctaKicker}>Programme Carrière Solo</Text>
           <Text style={s.ctaTitle}>Tu n'es pas obligé de faire ça seul.</Text>
           <Text style={s.ctaTxt}>
@@ -297,7 +301,6 @@ function ChecklistDocument({ generated, createdAt }: Props) {
             safecabinet.ca pour demander à intégrer le Programme Carrière Solo.
           </Text>
         </View>
-
         {Footer}
       </Page>
     </Document>
