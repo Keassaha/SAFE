@@ -12,6 +12,7 @@ import {
   generateInvoicePdf,
   invoicePdfFilename,
 } from "@/lib/services/billing/invoice-pdf";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import type { UserRole } from "@prisma/client";
 
 /**
@@ -100,7 +101,12 @@ export async function POST(
     );
   }
 
-  const presented = presentInvoice(invoice);
+  const taxConfig = await getCabinetTaxConfigById(
+    cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
+  const presented = presentInvoice(invoice, taxConfig);
   const clientName = presentClientDisplayName(presented.client);
   const cabinetName = presented.cabinet?.nom ?? "Cabinet";
   const dueDate = presented.dateEcheance

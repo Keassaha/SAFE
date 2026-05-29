@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { PDFViewer } from "@react-pdf/renderer";
 import type { PresentedInvoice } from "@/lib/services/billing/invoice-presenter";
@@ -40,6 +41,22 @@ interface InvoicePreviewProps {
 }
 
 export function InvoicePreview({ invoice, language = "fr", className = "" }: InvoicePreviewProps) {
+  // `PDFViewer` est une API strictement navigateur : elle lève une exception si
+  // elle est évaluée pendant le SSR (Next pré-rend aussi les composants client).
+  // On ne la monte donc qu'après l'hydratation côté client.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className={`w-full h-full min-h-[800px] ${className}`}>
+        <PreviewSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full h-full min-h-[800px] ${className}`}>
       <PDFViewer

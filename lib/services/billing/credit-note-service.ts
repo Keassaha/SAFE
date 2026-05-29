@@ -3,7 +3,8 @@
  */
 
 import { prisma } from "@/lib/db";
-import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import { splitInclusiveTaxes, toInvoiceTaxColumns } from "@/lib/billing/taxes";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { createAuditLog } from "@/lib/services/audit";
 import { recalculateInvoiceTotals } from "./invoice-service";
 
@@ -39,6 +40,7 @@ export async function createCreditNote(params: {
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId, cabinetId },
+    include: { client: { select: { billingProvince: true } } },
   });
   if (!invoice) throw new Error("Facture introuvable");
   if (invoice.clientId == null) throw new Error("Facture sans client");
@@ -47,9 +49,18 @@ export async function createCreditNote(params: {
   const amount = creditFull ? balanceOrTotal : (creditAmount ?? balanceOrTotal);
   if (amount <= 0) throw new Error("Le montant à créditer doit être positif");
 
-  const subtotalCredit = amount / (1 + TPS_RATE + TVQ_RATE);
-  const gstCredit = round2(subtotalCredit * TPS_RATE);
-  const qstCredit = round2(subtotalCredit * TVQ_RATE);
+  // Taxes province-aware : on défait le montant TTC selon le régime du cabinet/client
+  // (Ontario -> TVH 13 %, Québec -> TPS + TVQ). Stockage Option A : gst=colonne tps, qst=colonne tvq.
+  const taxConfig = await getCabinetTaxConfigById(
+    cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
+  const split = splitInclusiveTaxes(amount, taxConfig);
+  const cols = toInvoiceTaxColumns(split, taxConfig.mode);
+  const subtotalCredit = split.base;
+  const gstCredit = cols.tps;
+  const qstCredit = cols.tvq;
   const totalCredit = round2(subtotalCredit + gstCredit + qstCredit);
 
   const creditNoteNumber = await getNextCreditNoteNumber(cabinetId);

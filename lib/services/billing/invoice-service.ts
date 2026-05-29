@@ -7,11 +7,11 @@ import { prisma } from "@/lib/db";
 import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
 import {
   computeBillingTotals,
-  TPS_RATE,
-  TVQ_RATE,
   MIN_AMOUNT_TO_BILL,
 } from "@/lib/invoice-calculations";
 import type { BillingLineRow } from "@/lib/invoice-calculations";
+import { applyTaxes, computeLineTaxColumns } from "@/lib/billing/taxes";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { createAuditLog } from "@/lib/services/audit";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { derivePaymentStatus } from "@/lib/billing/payment-status";
@@ -77,16 +77,16 @@ export async function createDraftFromBillableItems(params: {
     }
   }
 
+  // Régime de taxes du cabinet (HST pour l'Ontario, TPS/TVQ pour le Québec, etc.).
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+
   const subtotalHonoraires = timeEntries.reduce(
     (s, te) => s + (te.feeAmount ?? te.montant),
     0
   );
   const subtotalDebours = expenses.reduce((s, e) => s + e.amount, 0);
   const subtotalTaxable = subtotalHonoraires + subtotalDebours;
-  const totalTTC =
-    subtotalTaxable +
-    Math.round(subtotalTaxable * TPS_RATE * 100) / 100 +
-    Math.round(subtotalTaxable * TVQ_RATE * 100) / 100;
+  const totalTTC = applyTaxes(subtotalTaxable, true, taxConfig).total;
   if (totalTTC < MIN_AMOUNT_TO_BILL) {
     throw new Error(
       `Le total doit être supérieur ou égal à ${MIN_AMOUNT_TO_BILL} $ pour facturer le client.`
@@ -125,8 +125,7 @@ export async function createDraftFromBillableItems(params: {
     for (const te of timeEntries) {
       const lineSubtotal = te.feeAmount ?? te.montant;
       const taxable = te.taxable ?? true;
-      const gst = Math.round(lineSubtotal * TPS_RATE * 100) / 100;
-      const qst = Math.round(lineSubtotal * TVQ_RATE * 100) / 100;
+      const { gstAmount: gst, qstAmount: qst } = computeLineTaxColumns(lineSubtotal, taxable, taxConfig);
       const lineTotal = lineSubtotal + gst + qst;
       const line = await tx.invoiceLine.create({
         data: {
@@ -162,8 +161,7 @@ export async function createDraftFromBillableItems(params: {
     for (const exp of expenses) {
       const lineSubtotal = exp.amount;
       const taxable = exp.taxable;
-      const gst = taxable ? Math.round(lineSubtotal * TPS_RATE * 100) / 100 : 0;
-      const qst = taxable ? Math.round(lineSubtotal * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount: gst, qstAmount: qst } = computeLineTaxColumns(lineSubtotal, taxable, taxConfig);
       const lineTotal = lineSubtotal + gst + qst;
       const line = await tx.invoiceLine.create({
         data: {
@@ -232,9 +230,20 @@ export async function recalculateInvoiceTotals(
       invoiceLines: true,
       invoiceItems: true,
       paymentAllocations: true,
+      client: { select: { billingProvince: true } },
     },
   });
   if (!invoice) return;
+
+  // Régime de taxes du cabinet (HST pour l'Ontario, TPS/TVQ pour le Québec, etc.).
+  // Donnée de référence en lecture seule : on la lit via le `prisma` partagé plutôt
+  // que via la transaction parente (pas besoin de l'isolation transactionnelle, et
+  // cela évite de coupler la lecture de config aux clients de transaction mockés).
+  const taxConfig = await getCabinetTaxConfigById(
+    invoice.cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
 
   const lines: BillingLineRow[] = [
     ...invoice.invoiceLines.map((l) => ({
@@ -271,8 +280,7 @@ export async function recalculateInvoiceTotals(
             lineType: "expense" as const,
             lineSubtotal: amount,
             taxable: true,
-            gstAmount: Math.round(amount * TPS_RATE * 100) / 100,
-            qstAmount: Math.round(amount * TVQ_RATE * 100) / 100,
+            ...computeLineTaxColumns(amount, true, taxConfig),
           };
         }
         if (i.type === "interets") {
@@ -280,16 +288,14 @@ export async function recalculateInvoiceTotals(
             lineType: "interest" as const,
             lineSubtotal: amount,
             taxable: true,
-            gstAmount: Math.round(amount * TPS_RATE * 100) / 100,
-            qstAmount: Math.round(amount * TVQ_RATE * 100) / 100,
+            ...computeLineTaxColumns(amount, true, taxConfig),
           };
         }
         return {
           lineType: "fee" as const,
           lineSubtotal: amount,
           taxable: true,
-          gstAmount: Math.round(amount * TPS_RATE * 100) / 100,
-          qstAmount: Math.round(amount * TVQ_RATE * 100) / 100,
+          ...computeLineTaxColumns(amount, true, taxConfig),
         };
       }),
     ...invoice.invoiceItems
@@ -314,7 +320,8 @@ export async function recalculateInvoiceTotals(
     lines,
     totalPaidAmount,
     trustApplied,
-    creditApplied
+    creditApplied,
+    taxConfig
   );
 
   const paymentStatus = derivePaymentStatus(totals.balanceDue, totalPaidAmount);

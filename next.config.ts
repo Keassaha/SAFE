@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
 
+  /* ── @react-pdf/renderer ──
+   * Sans transpilation, Next/Turbopack résout le build Node de react-pdf
+   * côté navigateur, ce qui casse `<PDFViewer>` ("su is not a function" en
+   * minifié). On force la transpilation pour que le build web soit utilisé. */
+  transpilePackages: ["@react-pdf/renderer"],
+
   /* ── Build : ne pas bloquer le déploiement sur des règles stylistiques ESLint
    * (apostrophes non échappées, etc.). Les erreurs runtime restent attrapées
    * par TypeScript, qui lui reste strict. */

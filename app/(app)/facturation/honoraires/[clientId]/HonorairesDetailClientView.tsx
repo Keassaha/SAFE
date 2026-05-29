@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
-import { TPS_RATE, TVQ_RATE, MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
+import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
+import { applyTaxes, toInvoiceTaxColumns, toDisplayTaxes, getDefaultTaxConfig } from "@/lib/billing/taxes";
+import type { CabinetTaxConfig } from "@/lib/billing/types";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 
 interface HonorairesDetailClientViewProps {
@@ -48,7 +50,14 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
     }
   }, [entries, expenses, registreTaches]);
 
-  const { totalHonoraires, totalDebours, totalForfaits, totalAjustements, totalRabais, totalHeures, tps, tvq, totalTTC } = useMemo(() => {
+  // Régime de taxes du cabinet (Ontario -> TVH 13 %, Québec -> TPS + TVQ),
+  // fourni par l'API. Fallback QC si absent. Source de vérité = serveur à la création.
+  const taxConfig: CabinetTaxConfig = useMemo(
+    () => (data?.taxConfig as CabinetTaxConfig | undefined) ?? getDefaultTaxConfig("QC"),
+    [data?.taxConfig]
+  );
+
+  const { totalHonoraires, totalDebours, totalForfaits, totalAjustements, totalRabais, totalHeures, tps, tvq, hst, isHst, totalTTC } = useMemo(() => {
     const selectedEntries = entries.filter((e) => selectedEntryIds.has(e.id));
     const selectedExpenses = expenses.filter((e) => selectedExpenseIds.has(e.id));
     const selectedTaches = registreTaches.filter((t) => selectedRegistreTacheIds.has(t.id));
@@ -63,9 +72,10 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
       selectedEntries.reduce((s, e) => s + ((e.taxable ?? true) ? e.montant : 0), 0) +
       selectedExpenses.reduce((s, e) => s + (e.taxable ? e.amount : 0), 0) +
       selectedTaches.reduce((s, t) => s + (t.taxable ? t.amount : 0), 0);
-    const tpsVal = Math.round(subtotalTaxable * TPS_RATE * 100) / 100;
-    const tvqVal = Math.round(subtotalTaxable * TVQ_RATE * 100) / 100;
-    const total = Math.round((subtotal + tpsVal + tvqVal) * 100) / 100;
+    const applied = applyTaxes(subtotalTaxable, true, taxConfig);
+    const cols = toInvoiceTaxColumns(applied, taxConfig.mode);
+    const display = toDisplayTaxes(cols.tps, cols.tvq, taxConfig.mode);
+    const total = Math.round((subtotal + applied.taxesTotal) * 100) / 100;
     return {
       totalHonoraires,
       totalDebours,
@@ -73,11 +83,13 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
       totalAjustements,
       totalRabais,
       totalHeures,
-      tps: tpsVal,
-      tvq: tvqVal,
+      tps: display.tps,
+      tvq: display.tvq,
+      hst: display.hst,
+      isHst: taxConfig.mode === "hst",
       totalTTC: total,
     };
-  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds]);
+  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds, taxConfig]);
 
   const totalSelected = selectedEntryIds.size + selectedExpenseIds.size + selectedRegistreTacheIds.size;
 
@@ -291,14 +303,23 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                     <span>-{formatCurrency(totalRabais)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">TPS (5 %)</span>
-                  <span>{formatCurrency(tps)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">TVQ (9,975 %)</span>
-                  <span>{formatCurrency(tvq)}</span>
-                </div>
+                {isHst ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-neutral-600">TVH (13 %)</span>
+                    <span>{formatCurrency(hst)}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-600">TPS (5 %)</span>
+                      <span>{formatCurrency(tps)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-600">TVQ (9,975 %)</span>
+                      <span>{formatCurrency(tvq)}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between font-semibold pt-2 mt-2 border-t border-neutral-200">
                   <span>Total à facturer</span>
                   <span>{formatCurrency(totalTTC)}</span>
@@ -569,14 +590,23 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <span className="text-neutral-600">Total heures sélectionnées</span>
                   <span>{totalHeures.toFixed(1)} h</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">TPS (5 %)</span>
-                  <span>{formatCurrency(tps)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">TVQ (9,975 %)</span>
-                  <span>{formatCurrency(tvq)}</span>
-                </div>
+                {isHst ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-neutral-600">TVH (13 %)</span>
+                    <span>{formatCurrency(hst)}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-600">TPS (5 %)</span>
+                      <span>{formatCurrency(tps)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-600">TVQ (9,975 %)</span>
+                      <span>{formatCurrency(tvq)}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between font-medium pt-2 border-t border-neutral-200">
                   <span>Total à facturer</span>
                   <span>{formatCurrency(totalTTC)}</span>

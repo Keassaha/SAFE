@@ -32,6 +32,7 @@ type FactureClientViewProps = {
   subtotalTaxable: number;
   tps: number;
   tvq: number;
+  hst: number;
   deboursNonTaxableTotal: number;
   montantTotal: number;
   montantPaye: number;
@@ -51,6 +52,7 @@ export function FactureClientView({
   subtotalTaxable,
   tps,
   tvq,
+  hst,
   deboursNonTaxableTotal,
   montantTotal,
   montantPaye,
@@ -81,6 +83,7 @@ export function FactureClientView({
       subtotalTaxable={subtotalTaxable}
       tps={tps}
       tvq={tvq}
+      hst={hst}
       deboursNonTaxableTotal={deboursNonTaxableTotal}
       montantTotal={montantTotal}
       montantPaye={montantPaye}

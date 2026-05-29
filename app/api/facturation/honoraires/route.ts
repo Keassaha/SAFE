@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { facturationHonorairesQuerySchema } from "@/lib/validations/facturation";
-import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import { applyTaxes } from "@/lib/billing/taxes";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import {
   buildUnsentBillableTimeEntryWhere,
   buildHonorairesRegistreTacheWhere,
@@ -191,9 +192,17 @@ export async function GET(request: Request) {
       expenses[0]?.client?.raisonSociale ??
       registreTaches[0]?.dossier?.client?.raisonSociale ??
       null;
+    // Régime de taxes du cabinet (Derisier ON -> TVH, cabinets QC -> TPS/TVQ),
+    // transmis au client pour calculer l'estimation côté UI sans taux codé en dur.
+    const detailTaxConfig = await getCabinetTaxConfigById(cabinetId);
     return NextResponse.json({
       clientId: filters.clientId,
       clientName,
+      taxConfig: {
+        province: detailTaxConfig.province,
+        mode: detailTaxConfig.mode,
+        rates: detailTaxConfig.rates,
+      },
       entries: entries.map((e) => ({
         id: e.id,
         kind: "time" as const,
@@ -362,11 +371,12 @@ export async function GET(request: Request) {
     }
   }
 
+  // Taxes estimées province-aware : régime du cabinet (Derisier ON -> TVH 13 %,
+  // cabinets QC -> TPS + TVQ). Source de vérité = config du cabinet (modules).
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
   const rows = Array.from(byClient.values()).map((row) => {
     const subtotal = row.totalHonoraires + row.totalDebours + row.totalForfaits;
-    const tps = Math.round(row.totalTaxable * TPS_RATE * 100) / 100;
-    const tvq = Math.round(row.totalTaxable * TVQ_RATE * 100) / 100;
-    const taxesEstimees = tps + tvq;
+    const taxesEstimees = applyTaxes(row.totalTaxable, true, taxConfig).taxesTotal;
     const totalAFacturer = subtotal + taxesEstimees;
     return {
       ...row,

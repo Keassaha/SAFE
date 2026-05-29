@@ -8,18 +8,13 @@ import { createAuditLog } from "@/lib/services/audit";
 import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
-import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import { applyTaxes, toInvoiceTaxColumns, computeLineTaxColumns } from "@/lib/billing/taxes";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
+import type { CabinetTaxConfig } from "@/lib/billing/types";
 
-function roundMoney(amount: number): number {
-  return Math.round(amount * 100) / 100;
-}
-
-function computeLineTaxes(amount: number, taxable: boolean) {
-  if (!taxable) return { gstAmount: 0, qstAmount: 0 };
-  return {
-    gstAmount: roundMoney(amount * TPS_RATE),
-    qstAmount: roundMoney(amount * TVQ_RATE),
-  };
+// Taxes d'une ligne selon le régime du cabinet (HST/TPS-TVQ/etc.).
+function computeLineTaxes(amount: number, taxable: boolean, config: CabinetTaxConfig) {
+  return computeLineTaxColumns(amount, taxable, config);
 }
 
 // ─── FORFAIT SERVICES (CATALOGUE) ───
@@ -264,6 +259,8 @@ export async function createInvoiceFromDossier(params: {
   });
   if (!dossier) throw new Error("Dossier not found");
 
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+
   const now = new Date();
   const echeance = new Date(now);
   echeance.setDate(echeance.getDate() + 60); // 60-day payment terms
@@ -331,7 +328,7 @@ export async function createInvoiceFromDossier(params: {
     // Lignes depuis les tâches forfaitaires : brut + rabais séparé pour les rapports.
     for (const t of taches) {
       const grossAmount = t.montantBase + t.ajustement;
-      const { gstAmount, qstAmount } = computeLineTaxes(grossAmount, t.taxable);
+      const { gstAmount, qstAmount } = computeLineTaxes(grossAmount, t.taxable, taxConfig);
       const line = await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
@@ -363,6 +360,7 @@ export async function createInvoiceFromDossier(params: {
         const { gstAmount: rabaisGstAmount, qstAmount: rabaisQstAmount } = computeLineTaxes(
           rabaisAmount,
           t.taxable,
+          taxConfig,
         );
         await tx.invoiceLine.create({
           data: {
@@ -388,8 +386,7 @@ export async function createInvoiceFromDossier(params: {
 
     // Lignes depuis les débours dossier
     for (const d of debours) {
-      const gstAmount = d.taxable ? Math.round(d.montant * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = d.taxable ? Math.round(d.montant * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(d.montant, d.taxable, taxConfig);
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
@@ -417,8 +414,7 @@ export async function createInvoiceFromDossier(params: {
 
     // Lignes manuelles
     for (const l of lignesManuelles) {
-      const gstAmount = l.taxable ? Math.round(l.montant * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = l.taxable ? Math.round(l.montant * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(l.montant, l.taxable, taxConfig);
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
@@ -482,6 +478,8 @@ export async function createFreeformInvoice(params: {
 
   if (lignes.length === 0) throw new Error("At least one line is required");
 
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+
   const now = new Date();
   const echeance = new Date(now);
   echeance.setDate(echeance.getDate() + 60);
@@ -509,8 +507,7 @@ export async function createFreeformInvoice(params: {
 
     let sortOrder = 0;
     for (const l of lignes) {
-      const gstAmount = l.taxable ? Math.round(l.montant * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = l.taxable ? Math.round(l.montant * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(l.montant, l.taxable, taxConfig);
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
@@ -642,9 +639,13 @@ export async function createInvoiceFromClientBillables(params: {
   for (const t of taches) addSubtotal(t.montantFinal, t.taxable);
   for (const l of lignesManuelles) addSubtotal(l.montant, l.taxable);
 
-  const tpsAmount = Math.round(subtotalTaxable * TPS_RATE * 100) / 100;
-  const tvqAmount = Math.round(subtotalTaxable * TVQ_RATE * 100) / 100;
-  const taxAmount = tpsAmount + tvqAmount;
+  // Taxes selon le régime du cabinet (HST pour l'Ontario, TPS/TVQ pour le Québec, etc.).
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+  const appliedTaxes = applyTaxes(subtotalTaxable, true, taxConfig);
+  const taxCols = toInvoiceTaxColumns(appliedTaxes, taxConfig.mode);
+  const tpsAmount = taxCols.tps;
+  const tvqAmount = taxCols.tvq;
+  const taxAmount = taxCols.taxTotal;
   const montantTotal = subtotalTaxable + taxAmount + subtotalNonTaxable;
   const now = new Date();
   const invoiceDate = dateEmission ?? now;
@@ -690,8 +691,7 @@ export async function createInvoiceFromClientBillables(params: {
     for (const te of timeEntries) {
       const lineSubtotal = te.feeAmount ?? te.montant;
       const taxable = te.taxable ?? true;
-      const gstAmount = taxable ? Math.round(lineSubtotal * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = taxable ? Math.round(lineSubtotal * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(lineSubtotal, taxable, taxConfig);
       const line = await tx.invoiceLine.create({
         data: {
           invoiceId: created.id,
@@ -720,8 +720,7 @@ export async function createInvoiceFromClientBillables(params: {
     }
 
     for (const exp of expenses) {
-      const gstAmount = exp.taxable ? Math.round(exp.amount * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = exp.taxable ? Math.round(exp.amount * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(exp.amount, exp.taxable, taxConfig);
       const line = await tx.invoiceLine.create({
         data: {
           invoiceId: created.id,
@@ -750,7 +749,7 @@ export async function createInvoiceFromClientBillables(params: {
 
     for (const t of taches) {
       const grossAmount = t.montantBase + t.ajustement;
-      const { gstAmount, qstAmount } = computeLineTaxes(grossAmount, t.taxable);
+      const { gstAmount, qstAmount } = computeLineTaxes(grossAmount, t.taxable, taxConfig);
       const line = await tx.invoiceLine.create({
         data: {
           invoiceId: created.id,
@@ -778,6 +777,7 @@ export async function createInvoiceFromClientBillables(params: {
         const { gstAmount: rabaisGstAmount, qstAmount: rabaisQstAmount } = computeLineTaxes(
           rabaisAmount,
           t.taxable,
+          taxConfig,
         );
         await tx.invoiceLine.create({
           data: {
@@ -809,8 +809,7 @@ export async function createInvoiceFromClientBillables(params: {
     }
 
     for (const l of lignesManuelles) {
-      const gstAmount = l.taxable ? Math.round(l.montant * TPS_RATE * 100) / 100 : 0;
-      const qstAmount = l.taxable ? Math.round(l.montant * TVQ_RATE * 100) / 100 : 0;
+      const { gstAmount, qstAmount } = computeLineTaxes(l.montant, l.taxable, taxConfig);
       await tx.invoiceLine.create({
         data: {
           invoiceId: created.id,

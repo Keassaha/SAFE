@@ -131,6 +131,7 @@ export default async function FacturePreviewPage({
             totalRabais={invoice.totals.totalRabais}
             tps={invoice.totals.tps}
             tvq={invoice.totals.tvq}
+            hst={invoice.totals.hst}
             montantTotal={invoice.totals.montantTotal}
             montantPaye={invoice.totals.montantPaye}
             balanceDue={invoice.totals.balanceDue}

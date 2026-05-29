@@ -71,8 +71,10 @@ export default async function NouvelleFacturePage({
       },
       orderBy: [{ raisonSociale: "asc" }, { nom: "asc" }],
     }),
-    // Only fetch the forfait catalog when the cabinet actually needs it
-    billingMode === "forfait"
+    // Only fetch the forfait catalog when the cabinet actually needs it.
+    // Mode "mixed" peut combiner forfait + horaire sur une même facture,
+    // donc on charge aussi le catalogue de forfaits dans ce cas.
+    billingMode === "forfait" || billingMode === "mixed"
       ? prisma.forfaitService.findMany({
           where: { cabinetId, actif: true },
           select: {

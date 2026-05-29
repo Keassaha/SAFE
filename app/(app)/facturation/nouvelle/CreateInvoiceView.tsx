@@ -9,7 +9,12 @@ import type {
   PresentedLine,
 } from "@/lib/services/billing/invoice-presenter";
 import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
-import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
+import {
+  applyTaxes,
+  toInvoiceTaxColumns,
+  toDisplayTaxes,
+  getDefaultTaxConfig,
+} from "@/lib/billing/taxes";
 import {
   ArrowLeft,
   Plus,
@@ -215,6 +220,13 @@ export function CreateInvoiceView({
 }: CreateInvoiceViewProps) {
   const router = useRouter();
   const isForfait = billingMode === "forfait";
+  // Mode mixte : chaque ligne porte son propre type (forfait OU honoraires).
+  // L'utilisateur bascule le type ligne par ligne via un petit toggle.
+  const isMixed = billingMode === "mixed";
+  /** Affichage forfait d'une ligne donnée : en mixte, dépend du type de la
+   *  ligne ; sinon, dépend du mode global du cabinet. */
+  const lineIsForfait = (line: LineItem) =>
+    isMixed ? line.type === "forfait" : isForfait;
 
   /* ---- form state ---- */
   const [language, setLanguage] = useState<"fr" | "en">("fr");
@@ -294,18 +306,26 @@ export function CreateInvoiceView({
       }
     }
     const subtotal = subtotalHonoraires + totalFrais - totalRabais;
-    const tps = Math.round(taxableBase * TPS_RATE * 100) / 100;
-    const tvq = Math.round(taxableBase * TVQ_RATE * 100) / 100;
+    // Taxes province-aware : Ontario -> TVH 13 %, Québec -> TPS 5 % + TVQ 9,975 %.
+    // Le régime suit la province de facturation du client (lieu de fourniture).
+    // Stockage Option A : `tps`/`tvq` portent les colonnes DB (en TVH, tps=hst, tvq=0),
+    // `hst` est la valeur d'affichage dérivée. Le serveur recalcule la source de vérité.
+    const taxConfig = getDefaultTaxConfig(selectedClient?.billingProvince ?? "QC");
+    const applied = applyTaxes(taxableBase, true, taxConfig);
+    const cols = toInvoiceTaxColumns(applied, taxConfig.mode);
+    const display = toDisplayTaxes(cols.tps, cols.tvq, taxConfig.mode);
     return {
       subtotalHonoraires,
       totalRabais,
       totalFrais,
       subtotal,
-      tps,
-      tvq,
-      total: subtotal + tps + tvq,
+      mode: taxConfig.mode,
+      tps: cols.tps,
+      tvq: cols.tvq,
+      hst: display.hst,
+      total: subtotal + applied.taxesTotal,
     };
-  }, [lines]);
+  }, [lines, selectedClient?.billingProvince]);
 
   /**
    * Construit un `PresentedInvoice` "fictif" à partir de l'état du form,
@@ -412,6 +432,7 @@ export function CreateInvoiceView({
         subtotalTaxable: totals.subtotal,
         tps: totals.tps,
         tvq: totals.tvq,
+        hst: totals.hst,
         deboursNonTaxableTotal: 0,
         montantTotal: totals.total,
         montantPaye: 0,
@@ -509,7 +530,11 @@ export function CreateInvoiceView({
         // In horaire mode, amount is derived from hours × rate.
         // In forfait mode, amount is set directly (from the service catalog
         // or via manual edit), so we leave it alone here.
-        if (!isForfait && ("hours" in patch || "rate" in patch)) {
+        // En mixte, on se base sur le type de la ligne mise à jour.
+        const updatedIsForfait = isMixed
+          ? updated.type === "forfait"
+          : isForfait;
+        if (!updatedIsForfait && ("hours" in patch || "rate" in patch)) {
           updated.amount =
             Math.round((updated.hours ?? 0) * (updated.rate ?? 0) * 100) / 100;
         }
@@ -533,6 +558,27 @@ export function CreateInvoiceView({
           description: svc.nom,
           amount: svc.montant,
           type: "forfait",
+        };
+      })
+    );
+  }
+
+  /** Mode mixte : bascule une ligne manuelle entre forfait et honoraires. */
+  function setLineMode(lineId: string, mode: "forfait" | "honoraires") {
+    setLines((prev) =>
+      prev.map((l) => {
+        if (l.id !== lineId) return l;
+        if (mode === "forfait") {
+          // Passage en forfait : on neutralise heures/taux, on garde le montant.
+          return { ...l, type: "forfait", hours: 0, rate: 0 };
+        }
+        // Passage en honoraires : on détache le pack et on repart d'un montant
+        // recalculé à partir des heures × taux (0 tant que non saisis).
+        return {
+          ...l,
+          type: "honoraires",
+          forfaitServiceId: null,
+          amount: Math.round((l.hours ?? 0) * (l.rate ?? 0) * 100) / 100,
         };
       })
     );
@@ -1138,6 +1184,42 @@ export function CreateInvoiceView({
                     </div>
                   );
 
+                  // Mode mixte : toggle Forfait / Heures pour les lignes
+                  // manuelles (pas pour les éléments importés ni les ajustements).
+                  const showForfait = lineIsForfait(line);
+                  const modeToggle =
+                    isMixed && line.sourceType === "manual" ? (
+                      <div className="col-span-12 flex items-center gap-2 mb-1">
+                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide">
+                          Type
+                        </span>
+                        <div className="inline-flex rounded-lg border border-neutral-200 p-0.5 bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setLineMode(line.id, "forfait")}
+                            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
+                              showForfait
+                                ? "bg-emerald-600 text-white"
+                                : "text-neutral-500 hover:text-neutral-700"
+                            }`}
+                          >
+                            Forfait
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setLineMode(line.id, "honoraires")}
+                            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
+                              !showForfait
+                                ? "bg-emerald-600 text-white"
+                                : "text-neutral-500 hover:text-neutral-700"
+                            }`}
+                          >
+                            Heures
+                          </button>
+                        </div>
+                      </div>
+                    ) : null;
+
                   const isAdjustment = line.type === "rabais" || line.type === "frais_administratifs";
                   if (isAdjustment) {
                     const isRabais = line.type === "rabais";
@@ -1216,12 +1298,13 @@ export function CreateInvoiceView({
                     );
                   }
 
-                  return isForfait ? (
+                  return showForfait ? (
                     /* ── Forfait mode: task picker + editable amount ── */
                     <div
                       key={line.id}
                       className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
                     >
+                      {modeToggle}
                       <div className="col-span-9">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
                           {line.sourceType === "manual" ? "Tâche préenregistrée" : "Élément à facturer"}
@@ -1323,6 +1406,7 @@ export function CreateInvoiceView({
                       key={line.id}
                       className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
                     >
+                      {modeToggle}
                       <div className="col-span-5">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
                           Description
@@ -1435,14 +1519,23 @@ export function CreateInvoiceView({
                   <span>Sous-total</span>
                   <span className="tabular-nums font-medium">{totals.subtotal.toFixed(2)} $</span>
                 </div>
-                <div className="flex justify-between text-neutral-400">
-                  <span>TPS (5%)</span>
-                  <span className="tabular-nums">{totals.tps.toFixed(2)} $</span>
-                </div>
-                <div className="flex justify-between text-neutral-400">
-                  <span>TVQ (9,975%)</span>
-                  <span className="tabular-nums">{totals.tvq.toFixed(2)} $</span>
-                </div>
+                {totals.mode === "hst" ? (
+                  <div className="flex justify-between text-neutral-400">
+                    <span>TVH (13%)</span>
+                    <span className="tabular-nums">{totals.hst.toFixed(2)} $</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-neutral-400">
+                      <span>TPS (5%)</span>
+                      <span className="tabular-nums">{totals.tps.toFixed(2)} $</span>
+                    </div>
+                    <div className="flex justify-between text-neutral-400">
+                      <span>TVQ (9,975%)</span>
+                      <span className="tabular-nums">{totals.tvq.toFixed(2)} $</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between font-bold text-neutral-800 text-base pt-3 border-t border-neutral-100">
                   <span>Total</span>
                   <span className="tabular-nums">{totals.total.toFixed(2)} $</span>

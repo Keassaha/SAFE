@@ -114,6 +114,11 @@ export function useFacturationHonorairesDetail(clientId: string | null) {
     queryFn: async (): Promise<{
       clientId: string;
       clientName: string | null;
+      taxConfig?: {
+        province: string;
+        mode: "tps_tvq" | "hst" | "tps_only" | "tps_pst" | "tps_rst" | "none";
+        rates: { tps?: number; tvq?: number; hst?: number; pst?: number; rst?: number };
+      };
       entries: HonorairesDetailEntry[];
       expenses: HonorairesDetailExpense[];
       registreTaches: HonorairesDetailRegistreTache[];

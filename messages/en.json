@@ -740,6 +740,7 @@
     "subtotalTaxable": "Taxable subtotal",
     "tpsLabel": "GST (5%)",
     "tvqLabel": "QST (9.975%)",
+    "hstLabel": "HST (13%)",
     "nonTaxableDisbursements": "Non-taxable disbursements",
     "alreadyPaid": "Already paid",
     "balanceDue": "Balance due",

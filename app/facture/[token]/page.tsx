@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { presentInvoice } from "@/lib/services/billing/invoice-presenter";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { FactureClientView } from "./FactureClientView";
 
 type Props = { params: Promise<{ token: string }> };
@@ -54,7 +55,12 @@ export default async function FactureClientPage({ params }: Props) {
 
   // Pipeline canonique : presenter → vue → template. Les rabais (legacy ou
   // nouveaux) sont systématiquement convertis en lignes négatives visibles.
-  const presented = presentInvoice(invoice);
+  const taxConfig = await getCabinetTaxConfigById(
+    invoice.cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
+  const presented = presentInvoice(invoice, taxConfig);
   const itemsForView = presented.lines.map((l) => ({
     id: l.id,
     type: l.type,
@@ -81,6 +87,7 @@ export default async function FactureClientPage({ params }: Props) {
           subtotalTaxable={presented.totals.subtotalTaxable}
           tps={presented.totals.tps}
           tvq={presented.totals.tvq}
+          hst={presented.totals.hst}
           deboursNonTaxableTotal={presented.totals.deboursNonTaxableTotal}
           montantTotal={presented.totals.montantTotal}
           montantPaye={presented.totals.montantPaye}

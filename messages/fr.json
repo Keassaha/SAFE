@@ -740,6 +740,7 @@
     "subtotalTaxable": "Sous-total taxable",
     "tpsLabel": "TPS (5 %)",
     "tvqLabel": "TVQ (9,975 %)",
+    "hstLabel": "TVH (13 %)",
     "nonTaxableDisbursements": "Débours non taxables",
     "alreadyPaid": "Déjà payé",
     "balanceDue": "Solde à payer",

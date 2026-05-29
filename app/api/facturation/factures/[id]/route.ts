@@ -147,6 +147,7 @@ export async function PATCH(
     include: {
       invoiceItems: true,
       invoiceLines: true,
+      client: { select: { billingProvince: true } },
     },
   });
   if (!existing) {
@@ -195,14 +196,26 @@ export async function PATCH(
     const lineIds = new Set(existing.invoiceLines.map((l) => l.id));
     const lineById = new Map(existing.invoiceLines.map((l) => [l.id, l]));
     const itemIds = new Set(existing.invoiceItems.map((i) => i.id));
-    const { TPS_RATE, TVQ_RATE } = await import("@/lib/invoice-calculations");
+    // Taxes par ligne province-aware (Ontario -> TVH, Québec -> TPS/TVQ).
+    // Stockage Option A : gstAmount=colonne tps, qstAmount=colonne tvq.
+    // recalculateInvoiceTotals (plus bas) refait le total faisant autorité.
+    const { computeLineTaxColumns } = await import("@/lib/billing/taxes");
+    const { getCabinetTaxConfigById } = await import("@/lib/billing/cabinet-tax-config");
+    const taxConfig = await getCabinetTaxConfigById(
+      cabinetId,
+      prisma,
+      existing.client?.billingProvince ?? null,
+    );
 
     for (const item of input.items) {
       if (item.id && lineIds.has(item.id)) {
         const amount = item.amount;
-        const gst = Math.round(amount * TPS_RATE * 100) / 100;
-        const qst = Math.round(amount * TVQ_RATE * 100) / 100;
         const line = lineById.get(item.id);
+        const { gstAmount: gst, qstAmount: qst } = computeLineTaxColumns(
+          amount,
+          line?.taxable ?? true,
+          taxConfig,
+        );
         const isFromTimeEntry =
           line?.sourceType === "time_entry" && line?.sourceId != null;
 

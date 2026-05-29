@@ -5,6 +5,9 @@ import {
   getCabinetTaxConfig,
   getDefaultTaxConfig,
   describeTaxConfig,
+  toInvoiceTaxColumns,
+  toDisplayTaxes,
+  computeLineTaxColumns,
 } from "@/lib/billing/taxes";
 import type { CabinetTaxConfig } from "@/lib/billing/types";
 
@@ -129,6 +132,48 @@ describe("getCabinetTaxConfig — lecture JSON", () => {
     expect(getDefaultTaxConfig("BC").mode).toBe("tps_pst");
     expect(getDefaultTaxConfig("NB").rates.hst).toBe(15);
     expect(getDefaultTaxConfig("XX").province).toBe("QC"); // fallback
+  });
+});
+
+describe("Option A — mapping colonnes DB (tps/tvq) sans migration", () => {
+  it("invariant : tps + tvq === taxesTotal (ON)", () => {
+    const applied = applyTaxes(1000, true, ON);
+    const cols = toInvoiceTaxColumns(applied, ON.mode);
+    // HST logé dans la colonne tps, tvq=0.
+    expect(cols.tps).toBe(130);
+    expect(cols.tvq).toBe(0);
+    expect(cols.taxGst).toBe(130);
+    expect(cols.taxQst).toBe(0);
+    expect(cols.tps + cols.tvq).toBe(cols.taxTotal);
+    expect(cols.taxTotal).toBe(applied.taxesTotal);
+  });
+
+  it("invariant : tps + tvq === taxesTotal (QC)", () => {
+    const applied = applyTaxes(1000, true, QC);
+    const cols = toInvoiceTaxColumns(applied, QC.mode);
+    expect(cols.tps).toBe(50);
+    expect(cols.tvq).toBe(99.75);
+    expect(cols.tps + cols.tvq).toBe(cols.taxTotal);
+  });
+
+  it("toDisplayTaxes : ON re-libellé en TVH (hst), QC en TPS/TVQ", () => {
+    // ON : colonnes (130, 0) → affichage HST 130, tps/tvq 0.
+    const on = toDisplayTaxes(130, 0, "hst");
+    expect(on.hst).toBe(130);
+    expect(on.tps).toBe(0);
+    expect(on.tvq).toBe(0);
+    // QC : colonnes (50, 99.75) → affichage tps/tvq, hst 0.
+    const qc = toDisplayTaxes(50, 99.75, "tps_tvq");
+    expect(qc.hst).toBe(0);
+    expect(qc.tps).toBe(50);
+    expect(qc.tvq).toBe(99.75);
+  });
+
+  it("computeLineTaxColumns : ligne non taxable → 0", () => {
+    expect(computeLineTaxColumns(1000, false, ON)).toEqual({ gstAmount: 0, qstAmount: 0 });
+    const taxed = computeLineTaxColumns(1000, true, ON);
+    expect(taxed.gstAmount).toBe(130);
+    expect(taxed.qstAmount).toBe(0);
   });
 });
 

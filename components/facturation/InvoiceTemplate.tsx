@@ -42,6 +42,8 @@ export type InvoiceTemplateProps = {
   subtotalTaxable?: number;
   tps?: number;
   tvq?: number;
+  /** TVH (Ontario/Atlantique). Si > 0, affichée à la place de TPS/TVQ. */
+  hst?: number;
   deboursNonTaxableTotal?: number;
   montantTotal: number;
   montantPaye?: number;
@@ -74,6 +76,7 @@ export function InvoiceTemplate({
   subtotalTaxable = 0,
   tps = 0,
   tvq = 0,
+  hst = 0,
   deboursNonTaxableTotal = 0,
   montantTotal,
   montantPaye = 0,
@@ -270,17 +273,26 @@ export function InvoiceTemplate({
               <span className="tabular-nums">{formatCurrency(subtotalTaxable)}</span>
             </div>
           )}
-          {tps > 0 && (
+          {hst > 0 ? (
             <div className="flex justify-between text-[var(--safe-text-secondary)]">
-              <span>{tf("tpsLabel")}</span>
-              <span className="tabular-nums">{formatCurrency(tps)}</span>
+              <span>{tf("hstLabel")}</span>
+              <span className="tabular-nums">{formatCurrency(hst)}</span>
             </div>
-          )}
-          {tvq > 0 && (
-            <div className="flex justify-between text-[var(--safe-text-secondary)]">
-              <span>{tf("tvqLabel")}</span>
-              <span className="tabular-nums">{formatCurrency(tvq)}</span>
-            </div>
+          ) : (
+            <>
+              {tps > 0 && (
+                <div className="flex justify-between text-[var(--safe-text-secondary)]">
+                  <span>{tf("tpsLabel")}</span>
+                  <span className="tabular-nums">{formatCurrency(tps)}</span>
+                </div>
+              )}
+              {tvq > 0 && (
+                <div className="flex justify-between text-[var(--safe-text-secondary)]">
+                  <span>{tf("tvqLabel")}</span>
+                  <span className="tabular-nums">{formatCurrency(tvq)}</span>
+                </div>
+              )}
+            </>
           )}
           {deboursNonTaxableTotal > 0 && (
             <div className="flex justify-between text-[var(--safe-text-secondary)]">

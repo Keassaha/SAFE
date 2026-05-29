@@ -4,6 +4,8 @@
  */
 
 import type { InvoiceLineType, InvoiceTotals as BillingInvoiceTotals } from "@/lib/types/billing";
+import { applyTaxes, toInvoiceTaxColumns, getDefaultTaxConfig } from "@/lib/billing/taxes";
+import type { CabinetTaxConfig } from "@/lib/billing/types";
 
 export const TPS_RATE = 0.05;
 export const TVQ_RATE = 0.09975;
@@ -139,7 +141,13 @@ export function computeBillingTotals(
   lines: BillingLineRow[],
   totalPaidAmount: number,
   trustAppliedAmount: number,
-  creditAppliedAmount: number
+  creditAppliedAmount: number,
+  /**
+   * Config taxes du cabinet. Si omise, on retombe sur QC (TPS/TVQ) — comportement
+   * historique, pour ne casser aucun appelant existant. Les chemins de facturation
+   * réels doivent passer la config réelle (HST pour l'Ontario, etc.).
+   */
+  taxConfig?: CabinetTaxConfig
 ): BillingInvoiceTotals {
   const fees = lines
     .filter((l) => l.lineType === "fee")
@@ -179,9 +187,14 @@ export function computeBillingTotals(
   const taxBaseRounded = round2Billing(
     subtotalFees + subtotalExpenses + subtotalAdjustments + subtotalInterest - credit
   );
-  const taxGst = round2Billing(taxBaseRounded * TPS_RATE);
-  const taxQst = round2Billing(taxBaseRounded * TVQ_RATE);
-  const taxTotal = round2Billing(taxGst + taxQst);
+  // Calcul des taxes selon le régime du cabinet (HST pour ON, TPS/TVQ pour QC, etc.).
+  // Mapping vers les colonnes nommées tps/tvq via toInvoiceTaxColumns (invariant
+  // taxGst + taxQst === taxTotal). Défaut QC si aucune config fournie.
+  const cfg = taxConfig ?? getDefaultTaxConfig("QC");
+  const taxCols = toInvoiceTaxColumns(applyTaxes(taxBaseRounded, true, cfg), cfg.mode);
+  const taxGst = taxCols.tps;
+  const taxQst = taxCols.tvq;
+  const taxTotal = taxCols.taxTotal;
   const totalInvoiceAmount = round2Billing(
     subtotalBeforeTax + taxGst + taxQst + subtotalFeeAfterTax + subtotalNonTaxable
   );

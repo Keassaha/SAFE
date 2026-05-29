@@ -32,6 +32,8 @@ import type {
   User,
 } from "@prisma/client";
 import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import { toDisplayTaxes } from "@/lib/billing/taxes";
+import type { CabinetTaxConfig } from "@/lib/billing/types";
 
 /**
  * Lit les numéros de taxes du cabinet depuis le JSON `Cabinet.config`.
@@ -139,6 +141,8 @@ export interface PresentedInvoice {
     subtotalTaxable: number;
     tps: number;
     tvq: number;
+    /** TVH (Ontario/Atlantique). > 0 → le gabarit affiche « TVH » au lieu de TPS/TVQ. */
+    hst: number;
     deboursNonTaxableTotal: number;
     montantTotal: number;
     montantPaye: number;
@@ -240,8 +244,21 @@ function buildRabaisDescription(reason: string | null | undefined, fallback: str
 /**
  * Construit le modèle de présentation canonique à partir des données Prisma brutes.
  */
-export function presentInvoice(invoice: PresenterInput): PresentedInvoice {
+export function presentInvoice(
+  invoice: PresenterInput,
+  /**
+   * Régime de taxes du cabinet. Si fourni en mode `hst`, le total stocké dans
+   * `tps`/`tvq` est ré-exposé comme `hst` pour que le gabarit affiche « TVH ».
+   * Si omis → comportement historique (TPS/TVQ tels quels).
+   */
+  taxConfig?: CabinetTaxConfig,
+): PresentedInvoice {
   const isForfait = invoice.dossier?.modeFacturation === "forfait";
+  const displayTaxes = toDisplayTaxes(
+    invoice.tps ?? 0,
+    invoice.tvq ?? 0,
+    taxConfig?.mode ?? "tps_tvq",
+  );
 
   // 1. Lignes canoniques venant de InvoiceLine.
   const linesFromInvoiceLine: PresentedLine[] = (invoice.invoiceLines ?? [])
@@ -363,8 +380,9 @@ export function presentInvoice(invoice: PresenterInput): PresentedInvoice {
     isForfait,
     totals: {
       subtotalTaxable: invoice.subtotalTaxable ?? 0,
-      tps: invoice.tps ?? 0,
-      tvq: invoice.tvq ?? 0,
+      tps: displayTaxes.tps,
+      tvq: displayTaxes.tvq,
+      hst: displayTaxes.hst,
       deboursNonTaxableTotal: invoice.deboursNonTaxableTotal ?? 0,
       montantTotal: invoice.montantTotal ?? 0,
       montantPaye: invoice.montantPaye ?? 0,

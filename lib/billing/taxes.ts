@@ -204,6 +204,65 @@ export function splitInclusiveTaxes(
   return applyTaxes(base, true, config);
 }
 
+/* ───────── Mapping vers/depuis les colonnes Invoice (Option A, sans migration) ─────────
+ *
+ * Le schéma `Invoice` (et `InvoiceLine`) n'a que deux seaux de taxes nommés :
+ * `tps`/`taxGst` et `tvq`/`taxQst`, plus `taxTotal`. Pour supporter la TVH (HST)
+ * sans migration, on conserve un INVARIANT strict :
+ *
+ *     tpsCol + tvqCol === taxesTotal === taxTotal
+ *
+ * - QC (tps_tvq)      : tpsCol = TPS,  tvqCol = TVQ
+ * - ON/Atl. (hst)     : tpsCol = TVH,  tvqCol = 0
+ * - AB/Terr. (tps_only): tpsCol = TPS, tvqCol = 0
+ * - BC/SK (tps_pst)   : tpsCol = TPS,  tvqCol = PST
+ * - MB (tps_rst)      : tpsCol = TPS,  tvqCol = RST
+ *
+ * L'AFFICHAGE est piloté par le mode du cabinet (cf. `toDisplayTaxes`), pas par
+ * le nom des colonnes — c'est le presenter qui ré-étiquette « TVH » le cas échéant.
+ */
+
+export interface InvoiceTaxColumns {
+  tps: number;
+  tvq: number;
+  taxGst: number;
+  taxQst: number;
+  taxTotal: number;
+}
+
+/** Mappe un résultat `applyTaxes` vers les colonnes Invoice/InvoiceLine. */
+export function toInvoiceTaxColumns(applied: AppliedTaxes, mode: TaxMode): InvoiceTaxColumns {
+  const tpsCol = mode === "hst" ? applied.hst : applied.tps;
+  const tvqCol = ROUND_2(applied.taxesTotal - tpsCol);
+  return { tps: tpsCol, tvq: tvqCol, taxGst: tpsCol, taxQst: tvqCol, taxTotal: applied.taxesTotal };
+}
+
+/**
+ * Reconstruit les montants d'affichage (tps/tvq/hst) à partir des colonnes stockées
+ * et du mode du cabinet. À utiliser dans le presenter pour nourrir le gabarit.
+ */
+export function toDisplayTaxes(
+  tpsCol: number,
+  tvqCol: number,
+  mode: TaxMode,
+): { tps: number; tvq: number; hst: number } {
+  if (mode === "hst") return { tps: 0, tvq: 0, hst: ROUND_2(tpsCol + tvqCol) };
+  return { tps: tpsCol, tvq: tvqCol, hst: 0 };
+}
+
+/**
+ * Taxes d'une ligne, mappées vers les colonnes `gstAmount`/`qstAmount` d'`InvoiceLine`,
+ * selon le même invariant que `toInvoiceTaxColumns` (gstAmount + qstAmount === total taxe).
+ */
+export function computeLineTaxColumns(
+  amount: number,
+  taxable: boolean,
+  config: CabinetTaxConfig,
+): { gstAmount: number; qstAmount: number } {
+  const cols = toInvoiceTaxColumns(applyTaxes(amount, taxable, config), config.mode);
+  return { gstAmount: cols.tps, qstAmount: cols.tvq };
+}
+
 /* ───────── Helpers d'affichage ───────── */
 
 /**

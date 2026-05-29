@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { presentInvoice } from "@/lib/services/billing/invoice-presenter";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 
 export async function loadPresentedInvoiceForCabinet(invoiceId: string, cabinetId: string) {
   const invoice = await prisma.invoice.findFirst({
@@ -53,5 +54,11 @@ export async function loadPresentedInvoiceForCabinet(invoiceId: string, cabinetI
     },
   });
 
-  return invoice ? presentInvoice(invoice) : null;
+  if (!invoice) return null;
+  const taxConfig = await getCabinetTaxConfigById(
+    cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
+  return presentInvoice(invoice, taxConfig);
 }
