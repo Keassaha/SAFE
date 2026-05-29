@@ -29,11 +29,27 @@ interface DossierOption {
 
 interface RegistreTachesPageProps {
   dossiers: DossierOption[];
+  /** Masque le bouton « Ajouter » interne (utilisé quand imbriqué dans TempsMixteView). */
+  hideAddButton?: boolean;
+  /** Ouverture contrôlée du modal d'ajout. Si fourni, prime sur l'état interne. */
+  addModalOpen?: boolean;
+  onAddModalOpenChange?: (open: boolean) => void;
 }
 
-export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
+export function RegistreTachesPage({
+  dossiers,
+  hideAddButton = false,
+  addModalOpen,
+  onAddModalOpenChange,
+}: RegistreTachesPageProps) {
   const t = useTranslations("temps.taskRegister");
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [internalAddOpen, setInternalAddOpen] = useState(false);
+  // Mode contrôlé si `addModalOpen` est fourni, sinon état interne.
+  const showAddModal = addModalOpen ?? internalAddOpen;
+  const setShowAddModal = (open: boolean) => {
+    onAddModalOpenChange?.(open);
+    if (addModalOpen === undefined) setInternalAddOpen(open);
+  };
   const [activeTab, setActiveTab] = useState<string>("registre");
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -67,9 +83,11 @@ export function RegistreTachesPage({ dossiers }: RegistreTachesPageProps) {
             <TabsTrigger value="registre">{t("registerTab")}</TabsTrigger>
             <TabsTrigger value="grille">{t("feeScheduleTab")}</TabsTrigger>
           </TabsList>
-          <Button variant="primary" onClick={() => setShowAddModal(true)}>
-            <Plus className="w-4 h-4" /> {t("addTask")}
-          </Button>
+          {!hideAddButton && (
+            <Button variant="primary" onClick={() => setShowAddModal(true)}>
+              <Plus className="w-4 h-4" /> {t("addTask")}
+            </Button>
+          )}
         </div>
 
         <TabsContent value="registre">

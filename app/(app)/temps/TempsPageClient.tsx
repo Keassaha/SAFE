@@ -24,13 +24,31 @@ interface TempsPageClientProps {
   cabinetId: string;
   userId: string;
   role: UserRole;
+  /** Masque le bouton « Nouvelle entrée » quand imbriqué dans TempsMixteView (le chooser gère l'ajout). */
+  hideAddButton?: boolean;
+  /** Ouverture contrôlée du modal d'ajout. Si fourni, prime sur l'état interne. */
+  addModalOpen?: boolean;
+  onAddModalOpenChange?: (open: boolean) => void;
 }
 
-export function TempsPageClient({ cabinetId, userId, role }: TempsPageClientProps) {
+export function TempsPageClient({
+  cabinetId,
+  userId,
+  role,
+  hideAddButton = false,
+  addModalOpen: controlledAddOpen,
+  onAddModalOpenChange,
+}: TempsPageClientProps) {
   const [filters, setFilters] = useState<TimeEntryFilters>({});
   const [viewMode, setViewMode] = useState<"list" | "week">("list");
   const [showAllEntries, setShowAllEntries] = useState(true);
-  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [internalAddOpen, setInternalAddOpen] = useState(false);
+  // Mode contrôlé si `controlledAddOpen` est fourni, sinon état interne.
+  const addModalOpen = controlledAddOpen ?? internalAddOpen;
+  const setAddModalOpen = (open: boolean) => {
+    onAddModalOpenChange?.(open);
+    if (controlledAddOpen === undefined) setInternalAddOpen(open);
+  };
   const [weekOffset, setWeekOffset] = useState(0);
 
   const effectiveFilters: TimeEntryFilters = useMemo(() => {
@@ -102,13 +120,15 @@ export function TempsPageClient({ cabinetId, userId, role }: TempsPageClientProp
                 Honoraires à facturer
               </Button>
             </Link>
-            <Button
-              variant="secondary"
-              className="bg-white text-green-800 hover:bg-white/90"
-              onClick={() => setAddModalOpen(true)}
-            >
-              + Nouvelle entrée
-            </Button>
+            {!hideAddButton && (
+              <Button
+                variant="secondary"
+                className="bg-white text-green-800 hover:bg-white/90"
+                onClick={() => setAddModalOpen(true)}
+              >
+                + Nouvelle entrée
+              </Button>
+            )}
           </div>
         </div>
       </header>

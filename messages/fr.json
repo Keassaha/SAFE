@@ -1782,6 +1782,37 @@
     "templates": "modèles"
   },
   "temps": {
+    "mixte": {
+      "title": "Temps & forfaits",
+      "description": "Saisissez votre temps à l'heure et vos prestations au forfait au même endroit.",
+      "addEntry": "Ajouter une entrée",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "horaire": "Horaire",
+        "forfait": "Forfait"
+      },
+      "cards": {
+        "timeUnbilled": "Temps non facturé",
+        "forfaitsToBill": "Forfaits à facturer",
+        "totalToBill": "Total à facturer",
+        "entries": "{count, plural, =0 {Aucune entrée} =1 {# entrée} other {# entrées}}",
+        "tasks": "{count, plural, =0 {Aucune tâche} =1 {# tâche} other {# tâches}}",
+        "items": "{count, plural, =0 {Aucun élément} =1 {# élément} other {# éléments}}"
+      },
+      "recent": {
+        "title": "Activité récente",
+        "empty": "Aucune activité récente.",
+        "untitledTime": "Entrée de temps"
+      },
+      "chooser": {
+        "title": "Ajouter une entrée",
+        "subtitle": "Comment souhaitez-vous facturer cette entrée ?",
+        "forfaitTitle": "Forfait",
+        "forfaitDesc": "Montant fixe (prestation du catalogue).",
+        "horaireTitle": "Horaire",
+        "horaireDesc": "Facturation au temps passé (heures × taux)."
+      }
+    },
     "taskRegister": {
       "title": "Prestations & honoraires",
       "description": "Consignez les prestations réalisées sur vos dossiers. Les honoraires sont pré-remplis depuis votre grille tarifaire. Générez les factures quand vous êtes prêt.",
