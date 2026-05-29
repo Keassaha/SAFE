@@ -18,6 +18,11 @@ import {
   FileCheck,
 } from "lucide-react";
 
+interface TaxonomyOption {
+  value: string;
+  label: string;
+}
+
 interface DossierCreationWizardProps {
   clients: { id: string; typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   avocats: { id: string; nom: string }[];
@@ -25,6 +30,10 @@ interface DossierCreationWizardProps {
   initialClientId?: string;
   initialError?: string;
   cabinetBillingMode?: CabinetBillingMode;
+  /** Sujets de la taxonomie cabinet (code → libellé localisé). Absent = legacy. */
+  subjectOptions?: TaxonomyOption[];
+  /** Sous-matières par code de Sujet (libellé localisé en value + label). */
+  submatterOptions?: Record<string, TaxonomyOption[]>;
 }
 
 export function DossierCreationWizard({
@@ -34,7 +43,10 @@ export function DossierCreationWizard({
   initialClientId,
   initialError,
   cabinetBillingMode = "horaire",
+  subjectOptions,
+  submatterOptions,
 }: DossierCreationWizardProps) {
+  const hasTaxonomy = Boolean(subjectOptions && subjectOptions.length > 0);
   const isCabinetForfait = cabinetBillingMode === "forfait";
   const t = useTranslations("matters");
   const tc = useTranslations("common");
@@ -79,6 +91,9 @@ export function DossierCreationWizard({
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedClientId, setSelectedClientId] = useState(initialClientId ?? "");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedSubmatter, setSelectedSubmatter] = useState("");
+  const availableSubmatters = (submatterOptions?.[selectedSubject] ?? []);
   const formRef = useRef<HTMLFormElement>(null);
 
   function get(name: string): string {
@@ -143,6 +158,15 @@ export function DossierCreationWizard({
     return [
       { label: t("matterNumberHeader"), value: t("matterNumberAutoSummary", { year }) },
       { label: tc("type"), value: TYPE_OPTIONS.find((o) => o.value === selectedType)?.label ?? "—" },
+      ...(hasTaxonomy
+        ? [
+            {
+              label: t("subjectLabel"),
+              value: subjectOptions!.find((o) => o.value === selectedSubject)?.label ?? "—",
+            },
+            { label: t("submatterLabel"), value: selectedSubmatter || "—" },
+          ]
+        : []),
       { label: tc("client"), value: formatClientLabel(client) || "—" },
       { label: t("summaryReference"), value: get("reference") || "—" },
       { label: t("matterTitle"), value: get("intitule") || "—" },
@@ -228,6 +252,51 @@ export function DossierCreationWizard({
                 ))}
               </select>
             </div>
+            {hasTaxonomy && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                    {t("subjectLabel")}
+                  </label>
+                  <select
+                    name="subject"
+                    value={selectedSubject}
+                    onChange={(e) => {
+                      setSelectedSubject(e.target.value);
+                      setSelectedSubmatter("");
+                    }}
+                    className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  >
+                    <option value="">{t("subjectSelect")}</option>
+                    {subjectOptions!.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedSubject && availableSubmatters.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                      {t("submatterLabel")}
+                    </label>
+                    <select
+                      name="submatter"
+                      value={selectedSubmatter}
+                      onChange={(e) => setSelectedSubmatter(e.target.value)}
+                      className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                    >
+                      <option value="">{t("submatterSelect")}</option>
+                      {availableSubmatters.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </>
+            )}
             <Input label={t("referenceOptional")} name="reference" placeholder="Ex. DOS-2024-001" />
             <Input label={`${t("matterTitle")} (${tc("optional").toLowerCase()})`} name="intitule" placeholder={t("taskTitle")} />
             <div>

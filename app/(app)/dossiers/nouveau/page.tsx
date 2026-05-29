@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierCreationWizard } from "@/components/dossiers/registry/DossierCreationWizard";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
+import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { localizedLabel } from "@/lib/dossiers/taxonomy";
+import { getLocale } from "next-intl/server";
 
 export default async function NouveauDossierPage({
   searchParams,
@@ -15,7 +18,8 @@ export default async function NouveauDossierPage({
   const params = await searchParams;
   const initialClientId = params.clientId?.trim() || undefined;
 
-  const [clients, avocats, assistants, cabinetBillingMode] = await Promise.all([
+  const locale = await getLocale();
+  const [clients, avocats, assistants, cabinetBillingMode, taxonomy] = await Promise.all([
     prisma.client.findMany({
       where: { cabinetId },
       orderBy: { raisonSociale: "asc" },
@@ -32,7 +36,21 @@ export default async function NouveauDossierPage({
       orderBy: { nom: "asc" },
     }),
     getCabinetBillingMode(cabinetId),
+    getCabinetDossierTaxonomyById(cabinetId),
   ]);
+
+  // Taxonomie cabinet → options Sujet/Sous-matière localisées (sinon undefined → legacy).
+  const subjectOptions = taxonomy
+    ? taxonomy.subjects.map((s) => ({ value: s.code, label: localizedLabel(s, locale) }))
+    : undefined;
+  const submatterOptions = taxonomy
+    ? Object.fromEntries(
+        Object.entries(taxonomy.submatters).map(([code, list]) => [
+          code,
+          list.map((m) => ({ value: localizedLabel(m, locale), label: localizedLabel(m, locale) })),
+        ]),
+      )
+    : undefined;
 
   return (
     <div className="space-y-6">
@@ -51,6 +69,8 @@ export default async function NouveauDossierPage({
             assistants={assistants}
             initialClientId={initialClientId}
             cabinetBillingMode={cabinetBillingMode}
+            subjectOptions={subjectOptions}
+            submatterOptions={submatterOptions}
             initialError={params.error === "invalid" ? "Vérifiez les champs obligatoires (client et type)." : undefined}
           />
         </CardContent>

@@ -17,6 +17,8 @@ import { DossierPreparationCard } from "@/components/dossiers/DossierPreparation
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
+import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { localizedLabel } from "@/lib/dossiers/taxonomy";
 
 function clientDisplayName(dossier: {
   client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
@@ -92,7 +94,7 @@ export default async function DossierDetailPage({
   const showEditForm = edit === "1";
 
   if (showEditForm) {
-    const [clients, avocats, assistants, cabinetBillingMode] = await Promise.all([
+    const [clients, avocats, assistants, cabinetBillingMode, taxonomy] = await Promise.all([
       prisma.client.findMany({
         where: { cabinetId },
         orderBy: { raisonSociale: "asc" },
@@ -108,7 +110,20 @@ export default async function DossierDetailPage({
         orderBy: { nom: "asc" },
       }),
       getCabinetBillingMode(cabinetId),
+      getCabinetDossierTaxonomyById(cabinetId),
     ]);
+    const localeStr = await getLocale();
+    const subjectOptions = taxonomy
+      ? taxonomy.subjects.map((s) => ({ value: s.code, label: localizedLabel(s, localeStr) }))
+      : undefined;
+    const submatterOptions = taxonomy
+      ? Object.fromEntries(
+          Object.entries(taxonomy.submatters).map(([code, list]) => [
+            code,
+            list.map((m) => ({ value: localizedLabel(m, localeStr), label: localizedLabel(m, localeStr) })),
+          ]),
+        )
+      : undefined;
     const canEditSensitive = canViewSensitiveFields(role as UserRole, {
       avocatResponsableId: dossier.avocatResponsableId,
       userId,
@@ -131,6 +146,8 @@ export default async function DossierDetailPage({
               assistants={assistants}
               canEditSensitive={canEditSensitive}
               cabinetBillingMode={cabinetBillingMode}
+              subjectOptions={subjectOptions}
+              submatterOptions={submatterOptions}
               error={
                 error === "invalid"
                   ? tc("invalidData")

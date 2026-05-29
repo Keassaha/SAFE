@@ -15,6 +15,9 @@ import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loade
 import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
+import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { getSubjectByCode } from "@/lib/dossiers/taxonomy";
+import { buildNumeroDossier, maxSequenceAnyPrefix } from "@/lib/dossiers/numero";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
@@ -61,13 +64,49 @@ export async function createDossier(formData: FormData) {
 
   const intitule = sanitizeInput(parsed.data.intitule?.trim() || "Dossier");
   const year = new Date().getFullYear();
+
+  // Taxonomie de dossiers (Sujets → préfixes), optionnelle et par cabinet.
+  // Si absente, on conserve la numérotation legacy `AAAA-NNN` (zéro régression).
+  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
+  const subjectCode = (formData.get("subject") as string) || null;
+  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
+  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
+  const usingTaxonomy = Boolean(taxonomy && subject);
+
   const maxAttempts = 10;
   let dossier: Awaited<ReturnType<typeof prisma.dossier.create>> | null = null;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const count = await prisma.dossier.count({
-      where: { cabinetId, numeroDossier: { startsWith: `${year}-` } },
-    });
-    const numeroDossier = `${year}-${String(count + 1).padStart(3, "0")}`;
+    let numeroDossier: string;
+    if (usingTaxonomy && subject && taxonomy) {
+      const seqWidth = taxonomy.numbering.seqWidth;
+      if (taxonomy.numbering.scope === "year") {
+        // Compteur unique par année, toutes matières confondues.
+        const existing = await prisma.dossier.findMany({
+          where: { cabinetId, numeroDossier: { startsWith: `${year}-` } },
+          select: { numeroDossier: true },
+        });
+        const next = maxSequenceAnyPrefix(existing.map((e) => e.numeroDossier), year) + 1;
+        numeroDossier = `${year}-${subject.prefix}-${String(next).padStart(seqWidth, "0")}`;
+      } else {
+        // Compteur par préfixe (défaut, décision Q2).
+        const existing = await prisma.dossier.findMany({
+          where: { cabinetId, numeroDossier: { startsWith: `${year}-${subject.prefix}-` } },
+          select: { numeroDossier: true },
+        });
+        numeroDossier = buildNumeroDossier({
+          year,
+          existingNumeros: existing.map((e) => e.numeroDossier),
+          prefix: subject.prefix,
+          seqWidth,
+        });
+      }
+    } else {
+      // Legacy : `AAAA-NNN` basé sur le compte de l'année.
+      const count = await prisma.dossier.count({
+        where: { cabinetId, numeroDossier: { startsWith: `${year}-` } },
+      });
+      numeroDossier = `${year}-${String(count + 1).padStart(3, "0")}`;
+    }
     try {
       dossier = await prisma.dossier.create({
         data: {
@@ -90,9 +129,12 @@ export async function createDossier(formData: FormData) {
           modeFacturation: (parsed.data.modeFacturation as ModeFacturationDossier | null) ?? null,
           tauxHoraire: parsed.data.tauxHoraire ?? null,
           retentionJusqua: parsed.data.retentionJusqua ?? null,
+          // Taxonomie cabinet : code du Sujet + sous-matière sélectionnée.
+          matterCode: subject?.code ?? null,
+          ...(usingTaxonomy ? { sousType: submatterLabel } : {}),
           // Immobilier fields (D2)
           ...(parsed.data.type === "immobilier" ? {
-            sousType: (formData.get("sousType") as string) || null,
+            sousType: usingTaxonomy ? submatterLabel : ((formData.get("sousType") as string) || null),
             closingDate: formData.get("closingDate") ? new Date(formData.get("closingDate") as string) : null,
             propertyAddress: formData.get("propertyAddress") ? sanitizeInput(formData.get("propertyAddress") as string) : null,
             fintracVerified: formData.get("fintracVerified") === "on",
@@ -104,7 +146,7 @@ export async function createDossier(formData: FormData) {
           } : {}),
           // Immigration fields (D3)
           ...(parsed.data.type === "immigration" ? {
-            sousType: (formData.get("sousType") as string) || null,
+            sousType: usingTaxonomy ? submatterLabel : ((formData.get("sousType") as string) || null),
             irccStatut: "consultation",
           } : {}),
         },
@@ -176,6 +218,14 @@ export async function updateDossier(id: string, formData: FormData) {
     parsed.data.tauxHoraire = null;
   }
 
+  // Taxonomie cabinet (édition) : si configurée et un Sujet est choisi, on
+  // met à jour matterCode + sousType. Sinon, comportement legacy inchangé.
+  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
+  const subjectCode = (formData.get("subject") as string) || null;
+  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
+  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
+  const usingTaxonomy = Boolean(taxonomy && subject);
+
   const current = await prisma.dossier.findFirst({
     where: { id, cabinetId },
     select: { descriptionConfidentielle: true, notesStrategieJuridique: true, intitule: true },
@@ -229,9 +279,11 @@ export async function updateDossier(id: string, formData: FormData) {
       tauxHoraire: parsed.data.tauxHoraire ?? null,
       dateCloture: parsed.data.dateCloture ?? undefined,
       retentionJusqua: parsed.data.retentionJusqua ?? null,
+      // Taxonomie cabinet : code du Sujet + sous-matière sélectionnée.
+      ...(usingTaxonomy ? { matterCode: subject?.code ?? null, sousType: submatterLabel } : {}),
       // Immobilier fields (D2)
       ...(parsed.data.type === "immobilier" ? {
-        sousType: (formData.get("sousType") as string) || null,
+        sousType: usingTaxonomy ? submatterLabel : ((formData.get("sousType") as string) || null),
         closingDate: formData.get("closingDate") ? new Date(formData.get("closingDate") as string) : null,
         propertyAddress: formData.get("propertyAddress") ? sanitizeInput(formData.get("propertyAddress") as string) : null,
         fintracVerified: formData.get("fintracVerified") === "on",

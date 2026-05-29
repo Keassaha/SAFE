@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   createDossier,
@@ -29,6 +30,8 @@ export function DossierForm({
   error,
   canEditSensitive,
   cabinetBillingMode = "horaire",
+  subjectOptions,
+  submatterOptions,
 }: {
   dossier?: Dossier & { client?: Pick<Client, "prenom" | "nom" | "raisonSociale"> };
   clients: Client[];
@@ -38,12 +41,22 @@ export function DossierForm({
   error?: string | null;
   canEditSensitive?: boolean;
   cabinetBillingMode?: CabinetBillingMode;
+  subjectOptions?: { value: string; label: string }[];
+  submatterOptions?: Record<string, { value: string; label: string }[]>;
 }) {
   const isCabinetForfait = cabinetBillingMode === "forfait";
   const t = useTranslations("matters");
   const tc = useTranslations("common");
 
   const isEdit = !!dossier;
+  const hasTaxonomy = Boolean(subjectOptions && subjectOptions.length > 0);
+  const [selectedSubject, setSelectedSubject] = useState(
+    (dossier as { matterCode?: string | null })?.matterCode ?? "",
+  );
+  const [selectedSubmatter, setSelectedSubmatter] = useState(
+    (dossier as { sousType?: string | null })?.sousType ?? "",
+  );
+  const availableSubmatters = submatterOptions?.[selectedSubject] ?? [];
   const createAction = async (formData: FormData) => {
     await createDossier(formData);
   };
@@ -141,6 +154,52 @@ export function DossierForm({
           <option value="autre">{t("typeOther")}</option>
         </select>
       </div>
+
+      {hasTaxonomy && (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              {t("subjectLabel")}
+            </label>
+            <select
+              name="subject"
+              value={selectedSubject}
+              onChange={(e) => {
+                setSelectedSubject(e.target.value);
+                setSelectedSubmatter("");
+              }}
+              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+            >
+              <option value="">{t("subjectSelect")}</option>
+              {subjectOptions!.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {selectedSubject && availableSubmatters.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                {t("submatterLabel")}
+              </label>
+              <select
+                name="submatter"
+                value={selectedSubmatter}
+                onChange={(e) => setSelectedSubmatter(e.target.value)}
+                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+              >
+                <option value="">{t("submatterSelect")}</option>
+                {availableSubmatters.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Immobilier-specific fields (D2) */}
       {(dossier?.type === "immobilier" || (!isEdit)) && (
