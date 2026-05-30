@@ -55,6 +55,40 @@ export function submattersForSubject(taxonomy: DossierTaxonomy, code: string | n
   return taxonomy.submatters[code] ?? [];
 }
 
+/**
+ * Valeur de l'enum métier `DossierType` (Prisma) dérivée d'un code de Sujet
+ * taxonomie. Quand un cabinet pilote la création par sa taxonomie, le Sujet
+ * EST le « type de pratique » visible ; on conserve néanmoins une valeur enum
+ * cohérente côté base pour les filtres et la génération de documents
+ * (mandat immigration, dossier immobilier FINTRAC, etc.).
+ *
+ * Codes sans équivalent direct dans l'enum (LAO, BS, MIS, WE, AS) → "autre".
+ * Type-only : aucune dépendance runtime à @prisma/client.
+ */
+export type DossierTypeValue =
+  | "droit_famille"
+  | "litige_civil"
+  | "criminel"
+  | "immigration"
+  | "immobilier"
+  | "corporate"
+  | "autre";
+
+export function subjectCodeToDossierType(code: string | null | undefined): DossierTypeValue {
+  switch ((code ?? "").trim().toUpperCase()) {
+    case "IMM":
+      return "immigration";
+    case "RE":
+      return "immobilier";
+    case "FA":
+      return "droit_famille";
+    case "BU":
+      return "corporate";
+    default:
+      return "autre";
+  }
+}
+
 /* ─────────────────────────── Parsing défensif ─────────────────────────── */
 
 function isStr(v: unknown): v is string {

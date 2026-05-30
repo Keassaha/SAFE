@@ -3,6 +3,7 @@ import {
   parseDossierTaxonomy,
   getSubjectByCode,
   submattersForSubject,
+  subjectCodeToDossierType,
   localizedLabel,
   DEFAULT_NUMBERING,
   DERISIER_DOSSIER_TAXONOMY,
@@ -79,6 +80,21 @@ describe("helpers", () => {
     expect(submattersForSubject(DERISIER_DOSSIER_TAXONOMY, "RE").length).toBeGreaterThan(0);
     expect(submattersForSubject(DERISIER_DOSSIER_TAXONOMY, "LAO")).toEqual([]);
     expect(submattersForSubject(DERISIER_DOSSIER_TAXONOMY, null)).toEqual([]);
+  });
+
+  it("subjectCodeToDossierType mappe les codes connus / défaut 'autre'", () => {
+    expect(subjectCodeToDossierType("IMM")).toBe("immigration");
+    expect(subjectCodeToDossierType("RE")).toBe("immobilier");
+    expect(subjectCodeToDossierType("FA")).toBe("droit_famille");
+    expect(subjectCodeToDossierType("BU")).toBe("corporate");
+    // Codes sans équivalent enum direct → "autre".
+    expect(subjectCodeToDossierType("LAO")).toBe("autre");
+    expect(subjectCodeToDossierType("AS")).toBe("autre");
+    expect(subjectCodeToDossierType("WE")).toBe("autre");
+    // Robustesse : casse / espaces / null.
+    expect(subjectCodeToDossierType(" imm ")).toBe("immigration");
+    expect(subjectCodeToDossierType(null)).toBe("autre");
+    expect(subjectCodeToDossierType(undefined)).toBe("autre");
   });
 
   it("localizedLabel suit la locale avec fallback FR", () => {

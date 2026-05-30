@@ -73,6 +73,33 @@ export function normalizeClientName(input: string | null | undefined): string {
 }
 
 /**
+ * Libellé d'affichage d'un client, robuste aux personnes physiques.
+ *
+ * `raisonSociale` est `null` pour les personnes physiques : on retombe alors
+ * sur `prénom + nom`. Source de vérité unique pour tous les écrans (facturation,
+ * temps, dossiers) afin qu'aucune personne physique n'apparaisse "vide".
+ *
+ * @example
+ *   clientDisplayName({ raisonSociale: "Acme Inc." })            // "Acme Inc."
+ *   clientDisplayName({ prenom: "Marie", nom: "Tremblay" })       // "Marie Tremblay"
+ *   clientDisplayName({})                                          // "—"
+ */
+export function clientDisplayName(
+  client: {
+    raisonSociale?: string | null;
+    prenom?: string | null;
+    nom?: string | null;
+  },
+  fallback = "—",
+): string {
+  if (client.raisonSociale && client.raisonSociale.trim()) {
+    return client.raisonSociale.trim();
+  }
+  const personne = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  return personne || fallback;
+}
+
+/**
  * Calcule la clé de doublon canonique pour un client.
  *
  * Pour une personne physique on combine prénom + nom (ordre alphabétique des

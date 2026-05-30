@@ -16,12 +16,25 @@ import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
-import { getSubjectByCode } from "@/lib/dossiers/taxonomy";
+import { getSubjectByCode, subjectCodeToDossierType } from "@/lib/dossiers/taxonomy";
 import { buildNumeroDossier, maxSequenceAnyPrefix } from "@/lib/dossiers/numero";
 import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
 
 export async function createDossier(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
+
+  // Taxonomie de dossiers (Sujets → préfixes), optionnelle et par cabinet.
+  // Quand elle est active, le Sujet EST le « type de pratique » choisi par
+  // l'utilisateur (le champ enum `type` n'est plus saisi à la main) ; on en
+  // dérive une valeur d'enum cohérente. Si absente, on conserve la
+  // numérotation legacy `AAAA-NNN` et le champ `type` classique (zéro régression).
+  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
+  const subjectCode = (formData.get("subject") as string) || null;
+  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
+  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
+  const usingTaxonomy = Boolean(taxonomy && subject);
+  const derivedType = usingTaxonomy ? subjectCodeToDossierType(subject!.code) : null;
+
   const raw = {
     clientId: formData.get("clientId") as string,
     avocatResponsableId: (formData.get("avocatResponsableId") as string) || undefined,
@@ -29,7 +42,7 @@ export async function createDossier(formData: FormData) {
     reference: (formData.get("reference") as string) || undefined,
     intitule: formData.get("intitule") as string,
     statut: formData.get("statut") as string,
-    type: (formData.get("type") as string) || null,
+    type: usingTaxonomy ? derivedType : ((formData.get("type") as string) || null),
     descriptionConfidentielle: (formData.get("descriptionConfidentielle") as string) || undefined,
     resumeDossier: (formData.get("resumeDossier") as string) || undefined,
     notesStrategieJuridique: (formData.get("notesStrategieJuridique") as string) || undefined,
@@ -64,14 +77,6 @@ export async function createDossier(formData: FormData) {
 
   const intitule = sanitizeInput(parsed.data.intitule?.trim() || "Dossier");
   const year = new Date().getFullYear();
-
-  // Taxonomie de dossiers (Sujets → préfixes), optionnelle et par cabinet.
-  // Si absente, on conserve la numérotation legacy `AAAA-NNN` (zéro régression).
-  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
-  const subjectCode = (formData.get("subject") as string) || null;
-  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
-  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
-  const usingTaxonomy = Boolean(taxonomy && subject);
 
   const maxAttempts = 10;
   let dossier: Awaited<ReturnType<typeof prisma.dossier.create>> | null = null;
@@ -178,6 +183,17 @@ export async function createDossier(formData: FormData) {
 
 export async function updateDossier(id: string, formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
+
+  // Taxonomie cabinet (édition) : si configurée et un Sujet est choisi, le
+  // Sujet pilote `matterCode` + le type dérivé ; la sous-matière pilote
+  // `sousType`. Sinon, comportement legacy inchangé.
+  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
+  const subjectCode = (formData.get("subject") as string) || null;
+  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
+  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
+  const usingTaxonomy = Boolean(taxonomy && subject);
+  const derivedType = usingTaxonomy ? subjectCodeToDossierType(subject!.code) : null;
+
   const raw = {
     clientId: formData.get("clientId") as string,
     avocatResponsableId: (formData.get("avocatResponsableId") as string) || undefined,
@@ -186,7 +202,7 @@ export async function updateDossier(id: string, formData: FormData) {
     numeroDossier: (formData.get("numeroDossier") as string) || undefined,
     intitule: formData.get("intitule") as string,
     statut: formData.get("statut") as string,
-    type: (formData.get("type") as string) || null,
+    type: usingTaxonomy ? derivedType : ((formData.get("type") as string) || null),
     descriptionConfidentielle: (formData.get("descriptionConfidentielle") as string) || undefined,
     resumeDossier: (formData.get("resumeDossier") as string) || undefined,
     notesStrategieJuridique: (formData.get("notesStrategieJuridique") as string) || undefined,
@@ -217,14 +233,6 @@ export async function updateDossier(id: string, formData: FormData) {
     parsed.data.modeFacturation = "forfait";
     parsed.data.tauxHoraire = null;
   }
-
-  // Taxonomie cabinet (édition) : si configurée et un Sujet est choisi, on
-  // met à jour matterCode + sousType. Sinon, comportement legacy inchangé.
-  const taxonomy = await getCabinetDossierTaxonomyById(cabinetId);
-  const subjectCode = (formData.get("subject") as string) || null;
-  const submatterLabel = ((formData.get("submatter") as string) || "").trim() || null;
-  const subject = taxonomy ? getSubjectByCode(taxonomy, subjectCode) : null;
-  const usingTaxonomy = Boolean(taxonomy && subject);
 
   const current = await prisma.dossier.findFirst({
     where: { id, cabinetId },

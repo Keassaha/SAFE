@@ -1,5 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { normalizeClientName, clientDedupeKey } from "../normalize-name";
+import { normalizeClientName, clientDedupeKey, clientDisplayName } from "../normalize-name";
+
+describe("clientDisplayName", () => {
+  it("utilise la raison sociale pour une personne morale", () => {
+    expect(clientDisplayName({ raisonSociale: "Acme Inc." })).toBe("Acme Inc.");
+  });
+
+  it("retombe sur prénom + nom quand raisonSociale est null (personne physique)", () => {
+    expect(
+      clientDisplayName({ raisonSociale: null, prenom: "Marie", nom: "Tremblay" }),
+    ).toBe("Marie Tremblay");
+  });
+
+  it("gère prénom ou nom manquant", () => {
+    expect(clientDisplayName({ prenom: "Marie", nom: null })).toBe("Marie");
+    expect(clientDisplayName({ prenom: null, nom: "Tremblay" })).toBe("Tremblay");
+  });
+
+  it("retourne le repli par défaut quand aucun nom n'est disponible", () => {
+    expect(clientDisplayName({})).toBe("—");
+    expect(clientDisplayName({ raisonSociale: "  " })).toBe("—");
+    expect(clientDisplayName({}, "Sans client")).toBe("Sans client");
+  });
+});
 
 describe("normalizeClientName", () => {
   it("retourne une chaîne vide pour une entrée vide ou nulle", () => {

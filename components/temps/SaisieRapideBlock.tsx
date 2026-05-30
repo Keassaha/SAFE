@@ -16,6 +16,12 @@ interface SaisieRapideBlockProps {
 
 const NEW_CLIENT_OPTION_VALUE = "__new_client__";
 
+// Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom.
+function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
+  if (c.raisonSociale) return c.raisonSociale;
+  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+}
+
 export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBlockProps) {
   const t = useTranslations("temps");
   const tc = useTranslations("common");
@@ -49,7 +55,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
     const dossierLabel = dossier ? `${dossier.numeroDossier ?? dossier.reference ?? ""} ${dossier.intitule}` : undefined;
     timer.start({
       clientId,
-      clientLabel: client?.raisonSociale,
+      clientLabel: client ? clientLabel(client) : undefined,
       dossierId: dossierId || undefined,
       dossierLabel,
       description,
@@ -145,7 +151,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.raisonSociale}
+                    {clientLabel(c)}
                   </option>
                 ))}
                 <option value={NEW_CLIENT_OPTION_VALUE}>{t("addNewClient")}</option>

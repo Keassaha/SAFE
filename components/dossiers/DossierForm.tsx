@@ -135,31 +135,35 @@ export function DossierForm({
         defaultValue={dossier?.intitule}
         required
       />
-      <div>
-        <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-          {tc("type")}
-        </label>
-        <select
-          name="type"
-          defaultValue={dossier?.type ?? ""}
-          className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
-        >
-          <option value="">{t("noMatterNone")}</option>
-          <option value="droit_famille">{t("typeFamily")}</option>
-          <option value="litige_civil">{t("typeCivilLitigation")}</option>
-          <option value="criminel">{t("typeCriminal")}</option>
-          <option value="immigration">{t("typeImmigration")}</option>
-          <option value="immobilier">Real Estate</option>
-          <option value="corporate">{t("typeCorporate")}</option>
-          <option value="autre">{t("typeOther")}</option>
-        </select>
-      </div>
+      {!hasTaxonomy && (
+        <div>
+          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+            {tc("type")}
+          </label>
+          <select
+            name="type"
+            defaultValue={dossier?.type ?? ""}
+            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          >
+            <option value="">{t("noMatterNone")}</option>
+            <option value="droit_famille">{t("typeFamily")}</option>
+            <option value="litige_civil">{t("typeCivilLitigation")}</option>
+            <option value="criminel">{t("typeCriminal")}</option>
+            <option value="immigration">{t("typeImmigration")}</option>
+            <option value="immobilier">Real Estate</option>
+            <option value="corporate">{t("typeCorporate")}</option>
+            <option value="autre">{t("typeOther")}</option>
+          </select>
+        </div>
+      )}
 
       {hasTaxonomy && (
         <>
+          {/* « Type » = pratique du cabinet (taxonomie) ; pilote matterCode +
+              le type métier dérivé côté serveur. */}
           <div>
             <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-              {t("subjectLabel")}
+              {tc("type")}
             </label>
             <select
               name="subject"
@@ -170,7 +174,7 @@ export function DossierForm({
               }}
               className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
             >
-              <option value="">{t("subjectSelect")}</option>
+              <option value="">{t("selectType")}</option>
               {subjectOptions!.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -178,10 +182,11 @@ export function DossierForm({
               ))}
             </select>
           </div>
+          {/* « Sujet » = point précis (sous-matière), si défini pour la pratique. */}
           {selectedSubject && availableSubmatters.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {t("submatterLabel")}
+                {t("subjectLabel")}
               </label>
               <select
                 name="submatter"
@@ -189,7 +194,7 @@ export function DossierForm({
                 onChange={(e) => setSelectedSubmatter(e.target.value)}
                 className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
               >
-                <option value="">{t("submatterSelect")}</option>
+                <option value="">{t("subjectSelect")}</option>
                 {availableSubmatters.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}

@@ -94,6 +94,9 @@ export function DossierCreationWizard({
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedSubmatter, setSelectedSubmatter] = useState("");
   const availableSubmatters = (submatterOptions?.[selectedSubject] ?? []);
+  // Quand la taxonomie pilote la création, « Type » = le Sujet taxonomie ;
+  // sinon « Type » = l'enum SAFE. Un seul de ces champs est requis.
+  const typeChosen = hasTaxonomy ? Boolean(selectedSubject.trim()) : Boolean(selectedType.trim());
   const formRef = useRef<HTMLFormElement>(null);
 
   function get(name: string): string {
@@ -105,7 +108,7 @@ export function DossierCreationWizard({
 
   function validateCurrentStep(): string | null {
     if (step === 1) {
-      if (!selectedType.trim()) return t("errorSelectType");
+      if (!typeChosen) return t("errorSelectType");
     }
     if (step === 2) {
       if (!selectedClientId.trim()) return t("errorSelectClient");
@@ -157,15 +160,14 @@ export function DossierCreationWizard({
     const year = new Date().getFullYear();
     return [
       { label: t("matterNumberHeader"), value: t("matterNumberAutoSummary", { year }) },
-      { label: tc("type"), value: TYPE_OPTIONS.find((o) => o.value === selectedType)?.label ?? "—" },
-      ...(hasTaxonomy
-        ? [
-            {
-              label: t("subjectLabel"),
-              value: subjectOptions!.find((o) => o.value === selectedSubject)?.label ?? "—",
-            },
-            { label: t("submatterLabel"), value: selectedSubmatter || "—" },
-          ]
+      {
+        label: tc("type"),
+        value: hasTaxonomy
+          ? subjectOptions!.find((o) => o.value === selectedSubject)?.label ?? "—"
+          : TYPE_OPTIONS.find((o) => o.value === selectedType)?.label ?? "—",
+      },
+      ...(hasTaxonomy && availableSubmatters.length > 0
+        ? [{ label: t("subjectLabel"), value: selectedSubmatter || "—" }]
         : []),
       { label: tc("client"), value: formatClientLabel(client) || "—" },
       { label: t("summaryReference"), value: get("reference") || "—" },
@@ -234,32 +236,17 @@ export function DossierCreationWizard({
               <span className="font-medium text-neutral-text-secondary">{t("matterNumberAuto")}</span>{" "}
               {t("matterNumberAutoDesc", { year })}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {tc("type")} <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="type"
-                required
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
-              >
-                {TYPE_OPTIONS.map((o) => (
-                  <option key={o.value || "none"} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {hasTaxonomy && (
+            {hasTaxonomy ? (
               <>
+                {/* « Type » = pratique du cabinet (taxonomie). Pilote le préfixe
+                    de numérotation + le type métier dérivé côté serveur. */}
                 <div>
                   <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                    {t("subjectLabel")}
+                    {tc("type")} <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="subject"
+                    required
                     value={selectedSubject}
                     onChange={(e) => {
                       setSelectedSubject(e.target.value);
@@ -267,7 +254,7 @@ export function DossierCreationWizard({
                     }}
                     className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
                   >
-                    <option value="">{t("subjectSelect")}</option>
+                    <option value="">{t("selectType")}</option>
                     {subjectOptions!.map((o) => (
                       <option key={o.value} value={o.value}>
                         {o.label}
@@ -275,10 +262,12 @@ export function DossierCreationWizard({
                     ))}
                   </select>
                 </div>
+                {/* « Sujet » = point précis de la pratique (sous-matière).
+                    Affiché seulement si la pratique en définit. */}
                 {selectedSubject && availableSubmatters.length > 0 && (
                   <div>
                     <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                      {t("submatterLabel")}
+                      {t("subjectLabel")}
                     </label>
                     <select
                       name="submatter"
@@ -286,7 +275,7 @@ export function DossierCreationWizard({
                       onChange={(e) => setSelectedSubmatter(e.target.value)}
                       className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
                     >
-                      <option value="">{t("submatterSelect")}</option>
+                      <option value="">{t("subjectSelect")}</option>
                       {availableSubmatters.map((o) => (
                         <option key={o.value} value={o.value}>
                           {o.label}
@@ -296,6 +285,25 @@ export function DossierCreationWizard({
                   </div>
                 )}
               </>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                  {tc("type")} <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="type"
+                  required
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                >
+                  {TYPE_OPTIONS.map((o) => (
+                    <option key={o.value || "none"} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
             <Input label={t("referenceOptional")} name="reference" placeholder="Ex. DOS-2024-001" />
             <Input label={`${t("matterTitle")} (${tc("optional").toLowerCase()})`} name="intitule" placeholder={t("taskTitle")} />
@@ -479,7 +487,7 @@ export function DossierCreationWizard({
         </div>
         <div className="flex flex-col gap-2">
           {step === 6 &&
-            (!selectedType.trim() || !selectedClientId.trim()) && (
+            (!typeChosen || !selectedClientId.trim()) && (
               <p className="text-sm text-amber-600">
                 {t("selectTypeAndClient")}
               </p>
@@ -494,7 +502,7 @@ export function DossierCreationWizard({
                 <CreateDossierSubmitButton
                   label={t("createMatter")}
                   pendingLabel={t("creatingMatter")}
-                  disabled={!selectedType.trim() || !selectedClientId.trim()}
+                  disabled={!typeChosen || !selectedClientId.trim()}
                 />
                 <Button type="button" variant="secondary" onClick={() => goToStep(5)}>
                   {tc("back")}

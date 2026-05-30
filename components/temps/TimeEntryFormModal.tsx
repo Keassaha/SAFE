@@ -11,9 +11,16 @@ import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 
-type ClientOption = { id: string; raisonSociale: string | null };
-type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null } };
+type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
+type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
 type UserOption = { id: string; nom: string };
+
+// Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom
+// pour afficher un libellé sélectionnable dans la liste déroulante.
+function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
+  if (c.raisonSociale) return c.raisonSociale;
+  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+}
 
 function formatDuree(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -203,7 +210,7 @@ export function TimeEntryFormModal({
           >
             <option value="">{t("selectClient")}</option>
             {clients.map((c) => (
-              <option key={c.id} value={c.id}>{c.raisonSociale}</option>
+              <option key={c.id} value={c.id}>{clientLabel(c)}</option>
             ))}
           </select>
         </div>
