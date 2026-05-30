@@ -1,72 +1,118 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import { PDFViewer } from "@react-pdf/renderer";
+import { useEffect, useRef, useState } from "react";
 import type { PresentedInvoice } from "@/lib/services/billing/invoice-presenter";
 import type { InvoiceLanguage } from "./InvoiceDocument";
 
 /**
- * Wrapper client pour `<InvoiceDocument>` rendu en aperçu.
+ * Wrapper client pour l'aperçu de la facture.
  *
- * Utilise `<PDFViewer>` de `@react-pdf/renderer` qui rend le document
- * dans une iframe PDF. Garantit que le rendu UI est BIT-A-BIT identique
- * au PDF téléchargé — c'est la même implémentation à la sortie binaire.
+ * IMPORTANT — pourquoi on n'utilise PAS `<PDFViewer>` / `usePDF` :
+ *   `<PDFViewer>` appelle `instance.updateContainer()` de façon SYNCHRONE
+ *   dans un `useEffect`. Le reconciler de react-pdf flush alors son rendu
+ *   IMBRIQUÉ dans le commit de react-dom. Sous React 19.2, cet imbriquement
+ *   corrompt l'état des « lanes » et fait entrer React dans la branche de
+ *   commit « suspensey » dont la fonction hôte (`startSuspendingCommit`) est
+ *   nulle → plantage « su is not a function ».
  *
- * Doctrine : le composant `InvoiceDocument` ne doit JAMAIS être importé
- * directement par un composant "use client" (PDFViewer dépend de l'env
- * navigateur). Toujours passer par ce wrapper.
+ * Correctif : on rend le document en Blob via `pdf(...).toBlob()` depuis un
+ * effet ASYNCHRONE (après un `await`), donc le travail du reconciler s'exécute
+ * dans une micro-tâche DÉTACHÉE du commit react-dom (comme le rendu serveur
+ * `toBuffer()`, qui fonctionne). On affiche le Blob dans une `<iframe>`.
+ *
+ * Doctrine préservée : c'est le MÊME composant `InvoiceDocument` et le MÊME
+ * moteur de rendu que le PDF téléchargé → l'aperçu reste identique au PDF.
  */
-
-const InvoiceDocumentLazy = dynamic(
-  async () => {
-    const mod = await import("./InvoiceDocument");
-    return mod.InvoiceDocument;
-  },
-  { ssr: false },
-);
-
-function PreviewSkeleton() {
-  return (
-    <div className="w-full h-full min-h-[800px] bg-neutral-50 flex items-center justify-center text-sm text-neutral-400">
-      Génération de l&apos;aperçu PDF…
-    </div>
-  );
-}
 
 interface InvoicePreviewProps {
   invoice: PresentedInvoice;
   language?: InvoiceLanguage;
   className?: string;
+  /** Affiche la signature reproduite (option cochée par facture). */
+  showSignature?: boolean;
 }
 
-export function InvoicePreview({ invoice, language = "fr", className = "" }: InvoicePreviewProps) {
-  // `PDFViewer` est une API strictement navigateur : elle lève une exception si
-  // elle est évaluée pendant le SSR (Next pré-rend aussi les composants client).
-  // On ne la monte donc qu'après l'hydratation côté client.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function PreviewSkeleton({ label }: { label: string }) {
+  return (
+    <div className="w-full h-full min-h-[800px] bg-neutral-50 flex items-center justify-center text-sm text-neutral-400">
+      {label}
+    </div>
+  );
+}
 
-  if (!mounted) {
-    return (
-      <div className={`w-full h-full min-h-[800px] ${className}`}>
-        <PreviewSkeleton />
-      </div>
-    );
-  }
+export function InvoicePreview({
+  invoice,
+  language = "fr",
+  className = "",
+  showSignature = false,
+}: InvoicePreviewProps) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // Conserve l'URL objet courante pour la révoquer au changement / démontage.
+  const urlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function render() {
+      try {
+        setError(null);
+        // L'`await` garantit que le rendu react-pdf s'exécute hors du commit
+        // react-dom (micro-tâche détachée) → évite le bug « su is not a function ».
+        const [{ pdf }, { InvoiceDocument }] = await Promise.all([
+          import("@react-pdf/renderer"),
+          import("./InvoiceDocument"),
+        ]);
+        if (cancelled) return;
+
+        const blob = await pdf(
+          <InvoiceDocument invoice={invoice} language={language} showSignature={showSignature} />,
+        ).toBlob();
+        if (cancelled) return;
+
+        const nextUrl = URL.createObjectURL(blob);
+        // Révoque l'ancienne URL avant de la remplacer.
+        if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+        urlRef.current = nextUrl;
+        setUrl(nextUrl);
+      } catch (e) {
+        if (cancelled) return;
+        console.error("Échec du rendu de l'aperçu de facture", e);
+        setError("Impossible de générer l'aperçu PDF.");
+      }
+    }
+
+    void render();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [invoice, language, showSignature]);
+
+  // Nettoyage final : révoque l'URL objet au démontage.
+  useEffect(() => {
+    return () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    };
+  }, []);
 
   return (
     <div className={`w-full h-full min-h-[800px] ${className}`}>
-      <PDFViewer
-        width="100%"
-        height="100%"
-        showToolbar={false}
-        style={{ border: "none", minHeight: 800 }}
-      >
-        <InvoiceDocumentLazy invoice={invoice} language={language} />
-      </PDFViewer>
+      {error ? (
+        <div className="w-full h-full min-h-[800px] bg-neutral-50 flex items-center justify-center text-sm text-red-500">
+          {error}
+        </div>
+      ) : url ? (
+        <iframe
+          title="Aperçu de la facture"
+          src={url}
+          className="w-full h-full"
+          style={{ border: "none", minHeight: 800 }}
+        />
+      ) : (
+        <PreviewSkeleton label="Génération de l'aperçu PDF…" />
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@
  *   - Aucune logique métier ici : reçoit un `PresentedInvoice` du presenter
  *     (tous les totaux et conversions de lignes sont déjà calculés).
  *   - Conforme aux exigences de facture professionnelle au Canada :
- *     en-tête identité (cabinet + n° LSO/Barreau + n° HST/GST/QST), n° facture
+ *     en-tête identité (cabinet + n° HST/GST/QST), n° facture
  *     séquentiel, dates émission/échéance, client + adresse, dossier de
  *     référence, lignes claires (date · description · responsable · montant),
  *     débours séparés, rabais explicite, taxes détaillées, total + solde dû,
@@ -24,10 +24,11 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
 } from "@react-pdf/renderer";
 import type { PresentedInvoice, PresentedLine } from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
+import { Letterhead } from "@/lib/templates/letterhead";
+import { DerisierInvoiceDocument } from "./DerisierInvoiceDocument";
 import {
   colors,
   fontSize,
@@ -51,7 +52,6 @@ const labels = {
     matter: "DOSSIER",
     matterRef: "Référence",
     matterTitle: "Intitulé",
-    barreau: "N° LSO / Barreau",
     hst: "N° HST",
     gst: "N° TPS",
     qst: "N° TVQ",
@@ -91,7 +91,6 @@ const labels = {
     matter: "MATTER",
     matterRef: "Reference",
     matterTitle: "Title",
-    barreau: "LSO / Bar No.",
     hst: "HST No.",
     gst: "GST No.",
     qst: "QST No.",
@@ -132,35 +131,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
 
-  // ── En-tête : bandeau d'identité du cabinet ─────────────────────
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: spacing.sectionGap,
-    paddingBottom: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: colors.brand,
-  },
-  headerLeft: { flexDirection: "column", flex: 1 },
-  logo: { width: 110, height: 50, objectFit: "contain", marginBottom: 6 },
-  cabinetName: {
-    fontSize: fontSize.blockTitle,
-    fontFamily: font.bold,
-    color: colors.brand,
-    marginBottom: 2,
-  },
-  cabinetMeta: {
-    fontSize: fontSize.bodySmall,
-    color: colors.textMuted,
-    lineHeight: 1.4,
-  },
-
-  headerRight: {
-    flexDirection: "column",
-    alignItems: "flex-end",
-    paddingLeft: 16,
-  },
+  // ── En-tête : identité cabinet via <Letterhead> ─────────────────
+  // (le bloc identité + bordure vit dans lib/templates/letterhead.tsx)
   invoiceKicker: {
     fontSize: fontSize.sectionHeader,
     color: colors.brand,
@@ -455,6 +427,12 @@ interface InvoiceDocumentProps {
     expensesNonTaxable: number;
     discounts: number;
   };
+  /**
+   * Affiche la signature reproduite (option par facture). Propagée aux
+   * variantes propres au cabinet (ex. Derisier). Sans effet sur le gabarit
+   * standard.
+   */
+  showSignature?: boolean;
 }
 
 /**
@@ -467,7 +445,21 @@ export function InvoiceDocument({
   invoice,
   language = "fr",
   subtotals,
+  showSignature = false,
 }: InvoiceDocumentProps) {
+  // Dispatch vers une variante propre au cabinet le cas échéant. L'aperçu et le
+  // PDF passant tous deux par ce composant, le choix du modèle reste centralisé
+  // ici → aucune divergence preview/PDF possible.
+  if (invoice.cabinet?.invoiceTemplate === "derisier") {
+    return (
+      <DerisierInvoiceDocument
+        invoice={invoice}
+        language={language}
+        showSignature={showSignature}
+      />
+    );
+  }
+
   const t = labels[language];
   const cabinet = invoice.cabinet;
   const client = invoice.client;
@@ -495,48 +487,37 @@ export function InvoiceDocument({
       producer="@react-pdf/renderer"
     >
       <Page size="A4" style={styles.page} wrap>
-        {/* En-tête : identité cabinet + n° facture + dates */}
-        <View style={styles.header} fixed>
-          <View style={styles.headerLeft}>
-            {cabinet?.logoUrl ? <Image style={styles.logo} src={cabinet.logoUrl} /> : null}
-            <Text style={styles.cabinetName}>{cabinet?.nom ?? "—"}</Text>
-            {cabinet?.adresse ? (
-              <Text style={styles.cabinetMeta}>{cabinet.adresse}</Text>
-            ) : null}
-            {cabinet?.telephone ? (
-              <Text style={styles.cabinetMeta}>{cabinet.telephone}</Text>
-            ) : null}
-            {cabinet?.email ? <Text style={styles.cabinetMeta}>{cabinet.email}</Text> : null}
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.invoiceKicker}>{t.invoice}</Text>
-            <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
-            <View style={styles.invoiceDates}>
-              <View style={styles.invoiceDateRow}>
-                <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>
-                <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEmission, language)}</Text>
+        {/* En-tête : identité cabinet (Letterhead partagé) + n° facture + dates.
+            N.B. le n° de Barreau / LSO n'apparaît JAMAIS sur une facture
+            (règle dure CEO 2026-05-12 — donnée confidentielle). */}
+        <Letterhead
+          cabinet={cabinet}
+          fixed
+          right={
+            <>
+              <Text style={styles.invoiceKicker}>{t.invoice}</Text>
+              <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
+              <View style={styles.invoiceDates}>
+                <View style={styles.invoiceDateRow}>
+                  <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>
+                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEmission, language)}</Text>
+                </View>
+                <View style={styles.invoiceDateRow}>
+                  <Text style={styles.invoiceDateLabel}>{t.dueDate} :</Text>
+                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEcheance, language)}</Text>
+                </View>
               </View>
-              <View style={styles.invoiceDateRow}>
-                <Text style={styles.invoiceDateLabel}>{t.dueDate} :</Text>
-                <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEcheance, language)}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
+            </>
+          }
+        />
 
-        {/* Bandeau de numéros d'identification — Barreau + ARC */}
-        {(cabinet?.barreauNumero ||
-          cabinet?.taxNumbers.hstNumber ||
+        {/* Bandeau de numéros d'identification fiscale — ARC uniquement
+            (HST / GST / QST / n° d'entreprise). Aucun n° de Barreau ici. */}
+        {(cabinet?.taxNumbers.hstNumber ||
           cabinet?.taxNumbers.gstNumber ||
           cabinet?.taxNumbers.qstNumber ||
           cabinet?.taxNumbers.businessNumber) && (
           <View style={styles.taxBanner}>
-            {cabinet?.barreauNumero ? (
-              <Text style={styles.taxBannerItem}>
-                <Text style={styles.taxBannerLabel}>{t.barreau} : </Text>
-                {cabinet.barreauNumero}
-              </Text>
-            ) : null}
             {cabinet?.taxNumbers.hstNumber ? (
               <Text style={styles.taxBannerItem}>
                 <Text style={styles.taxBannerLabel}>{t.hst} : </Text>

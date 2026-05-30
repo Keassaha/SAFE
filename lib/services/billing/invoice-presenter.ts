@@ -31,7 +31,12 @@ import type {
   TimeEntry,
   User,
 } from "@prisma/client";
-import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import {
+  parseCabinetConfig,
+  getCabinetTaxNumbers,
+  getCabinetInvoiceConfig,
+  type CabinetInvoiceTemplate,
+} from "@/lib/cabinet-config";
 import { toDisplayTaxes } from "@/lib/billing/taxes";
 import type { CabinetTaxConfig } from "@/lib/billing/types";
 
@@ -47,6 +52,20 @@ function extractTaxNumbers(rawConfig: string | null) {
     gstNumber: taxes.gstNumber ?? null,
     qstNumber: taxes.qstNumber ?? null,
     businessNumber: taxes.businessNumber ?? null,
+  };
+}
+
+/**
+ * Lit le modèle de facture + le bloc N.B. configurés pour le cabinet.
+ * Permet de rendre une facture propre au cabinet (ex. Derisier) sans
+ * coder de logique métier dans le composant PDF.
+ */
+function extractInvoiceTemplate(rawConfig: string | null) {
+  const inv = getCabinetInvoiceConfig(parseCabinetConfig(rawConfig));
+  return {
+    template: inv.template,
+    notice: inv.notice,
+    signature: inv.signature,
   };
 }
 
@@ -113,6 +132,16 @@ export interface PresentedCabinet {
     qstNumber: string | null;
     businessNumber: string | null;
   };
+  /** Modèle visuel de facture ("standard" ou variante propre au cabinet). */
+  invoiceTemplate: CabinetInvoiceTemplate;
+  /** Bloc N.B. (mentions + instructions de paiement) bilingue, propre au cabinet. */
+  invoiceNotice: { fr: string[]; en: string[] };
+  /**
+   * Signature reproduite (nom + titre bilingue) à afficher en bas de facture.
+   * `null` si le cabinet n'a pas configuré de signature. L'affichage reste
+   * conditionné par une option « par facture » côté éditeur.
+   */
+  invoiceSignature: { name: string; title: { fr: string; en: string } } | null;
 }
 
 export interface PresentedDossier {
@@ -351,6 +380,9 @@ export function presentInvoice(
           barreauNumero: invoice.cabinet.barreauNumero ?? null,
           logoUrl: invoice.cabinet.logoUrl ?? null,
           taxNumbers: extractTaxNumbers(invoice.cabinet.config ?? null),
+          invoiceTemplate: extractInvoiceTemplate(invoice.cabinet.config ?? null).template,
+          invoiceNotice: extractInvoiceTemplate(invoice.cabinet.config ?? null).notice,
+          invoiceSignature: extractInvoiceTemplate(invoice.cabinet.config ?? null).signature,
         }
       : null,
     client: invoice.client

@@ -8,7 +8,7 @@ import type {
   PresentedInvoice,
   PresentedLine,
 } from "@/lib/services/billing/invoice-presenter";
-import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import { parseCabinetConfig, getCabinetTaxNumbers, getCabinetInvoiceConfig } from "@/lib/cabinet-config";
 import {
   applyTaxes,
   toInvoiceTaxColumns,
@@ -230,6 +230,8 @@ export function CreateInvoiceView({
 
   /* ---- form state ---- */
   const [language, setLanguage] = useState<"fr" | "en">("fr");
+  // Signature reproduite — option cochée à la facture (rien par défaut).
+  const [showSignature, setShowSignature] = useState(false);
   // Currency is locked to CAD — Canadian cabinets only. Surfaced as a read-only badge.
   const currency = "CAD";
   const [documentType, setDocumentType] = useState("Facture");
@@ -333,7 +335,9 @@ export function CreateInvoiceView({
    * Garantit que l'aperçu est strictement le même rendu que le PDF final.
    */
   const presentedPreview: PresentedInvoice = useMemo(() => {
-    const cabinetTaxes = getCabinetTaxNumbers(parseCabinetConfig(cabinet.config ?? null));
+    const cabinetParsedConfig = parseCabinetConfig(cabinet.config ?? null);
+    const cabinetTaxes = getCabinetTaxNumbers(cabinetParsedConfig);
+    const cabinetInvoiceCfg = getCabinetInvoiceConfig(cabinetParsedConfig);
     const lineToType = (l: LineItem): PresentedLine["type"] => {
       if (l.type === "rabais") return "rabais";
       if (l.type === "frais_administratifs") return "debours_taxable";
@@ -401,6 +405,9 @@ export function CreateInvoiceView({
           qstNumber: cabinetTaxes.qstNumber ?? null,
           businessNumber: cabinetTaxes.businessNumber ?? null,
         },
+        invoiceTemplate: cabinetInvoiceCfg.template,
+        invoiceNotice: cabinetInvoiceCfg.notice,
+        invoiceSignature: cabinetInvoiceCfg.signature,
       },
       client: selectedClient
         ? {
@@ -1561,9 +1568,23 @@ export function CreateInvoiceView({
 
         {/* ======== RIGHT — Live Preview ======== */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <h2 className={sectionTitle}>Aperçu en direct</h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <h2 className={sectionTitle}>Aperçu en direct</h2>
+            </div>
+            {presentedPreview.cabinet?.invoiceTemplate === "derisier" &&
+            presentedPreview.cabinet?.invoiceSignature ? (
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-neutral-600 select-none">
+                <input
+                  type="checkbox"
+                  checked={showSignature}
+                  onChange={(e) => setShowSignature(e.target.checked)}
+                  className="h-4 w-4 rounded border-neutral-300 text-emerald-500 focus:ring-emerald-400/30"
+                />
+                Ajouter ma signature
+              </label>
+            ) : null}
           </div>
           <div className="rounded-2xl border border-white/60 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.09)]">
             {/*
@@ -1571,7 +1592,11 @@ export function CreateInvoiceView({
              * Le PDF téléchargé final utilisera EXACTEMENT le même composant
              * <InvoiceDocument>, garantissant un rendu strictement identique.
              */}
-            <InvoicePreview invoice={presentedPreview} language={language} />
+            <InvoicePreview
+              invoice={presentedPreview}
+              language={language}
+              showSignature={showSignature}
+            />
           </div>
         </div>
       </div>

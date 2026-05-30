@@ -8,7 +8,17 @@
  * Ne contient AUCUNE logique métier — uniquement des constantes visuelles.
  */
 
-/** Palette SAFE — alignée sur le PageHeader gradient et les chips registry. */
+/**
+ * Palette SAFE — facture.
+ *
+ * RÈGLE DURE CEO (2026-05-12) : maximum 2 couleurs sur une facture.
+ * On compte ici UNE seule couleur d'accent (le vert de marque + sa teinte
+ * douce, même famille chromatique) ; tout le reste est neutre (noir / gris /
+ * blanc, qui ne comptent pas comme « couleurs »). Les anciens accents
+ * distincts (vert rabais, ambre frais) sont volontairement repliés sur la
+ * marque ou le gris pour ne pas introduire de 2e/3e couleur. La distinction
+ * rabais/frais reste lisible via les badges texte (« Rabais » / « Frais »).
+ */
 export const colors = {
   /** Texte principal (presque noir, lisible papier). */
   text: "#1A1A1A",
@@ -16,20 +26,20 @@ export const colors = {
   textMuted: "#525252",
   /** Texte très discret (mentions légales, footer). */
   textFaint: "#737373",
-  /** Vert SAFE primaire pour titres et accents importants. */
+  /** Vert SAFE primaire — UNIQUE couleur d'accent autorisée sur la facture. */
   brand: "#0F2A22",
-  /** Vert SAFE sombre pour le bandeau de page d'en-tête. */
-  brandDark: "#0A1F18",
-  /** Vert clair pour les fonds doux (en-tête table, bloc destinataire). */
+  /** Vert SAFE sombre — repli sur la marque (pas une couleur distincte). */
+  brandDark: "#0F2A22",
+  /** Teinte douce de la marque (en-tête table, blocs, fonds accentués). */
   brandSoft: "#E6F2EA",
-  /** Vert pour rabais (montant négatif, remise visible). */
-  discount: "#047857",
-  /** Vert clair fond pour ligne de rabais. */
-  discountSoft: "#ECFDF5",
-  /** Ambre pour frais administratifs distincts. */
-  fees: "#B45309",
-  /** Ambre clair fond. */
-  feesSoft: "#FFFBEB",
+  /** Rabais — replié sur la marque (le badge « Rabais » assure la distinction). */
+  discount: "#0F2A22",
+  /** Fond ligne de rabais — neutre (teinte douce de marque). */
+  discountSoft: "#E6F2EA",
+  /** Frais — replié sur le gris neutre (le badge « Frais » assure la distinction). */
+  fees: "#525252",
+  /** Fond ligne de frais — neutre. */
+  feesSoft: "#F9FAFB",
   /** Bordures et séparateurs neutres. */
   border: "#E5E7EB",
   /** Bordure forte (séparation totaux, footer). */
