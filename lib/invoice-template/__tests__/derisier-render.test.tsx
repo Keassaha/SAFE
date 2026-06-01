@@ -77,4 +77,22 @@ describe("DerisierInvoiceDocument render", () => {
     );
     expect(buf.length).toBeGreaterThan(0);
   });
+
+  it("renders with a custom accent color without throwing", async () => {
+    const custom = {
+      ...invoice,
+      cabinet: { ...invoice.cabinet, invoiceAccentColor: "#1e3a5f" }, // marine
+    } as unknown as PresentedInvoice;
+    const buf = await renderToBuffer(<DerisierInvoiceDocument invoice={custom} language="fr" />);
+    expect(buf.length).toBeGreaterThan(0);
+  });
+
+  it("falls back to default accent when the configured color is too light", async () => {
+    const tooLight = {
+      ...invoice,
+      cabinet: { ...invoice.cabinet, invoiceAccentColor: "#ffd700" }, // jaune → refusé
+    } as unknown as PresentedInvoice;
+    const buf = await renderToBuffer(<DerisierInvoiceDocument invoice={tooLight} language="fr" />);
+    expect(buf.length).toBeGreaterThan(0);
+  });
 });

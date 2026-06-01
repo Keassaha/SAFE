@@ -40,6 +40,7 @@ export const routes = {
   parametresAudit: "/parametres/audit",
   parametresRetention: "/parametres/retention",
   parametresEnvoiFacture: "/parametres/envoi-facture",
+  parametresFacture: "/parametres/facture",
   /** @deprecated /parametres/equipe a été supprimée. Utiliser routes.employees. */
   parametresEquipe: "/employees",
   rejoindre: (token: string) => `/rejoindre/${token}`,

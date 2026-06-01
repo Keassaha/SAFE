@@ -66,6 +66,7 @@ function extractInvoiceTemplate(rawConfig: string | null) {
     template: inv.template,
     notice: inv.notice,
     signature: inv.signature,
+    accentColor: inv.accentColor,
   };
 }
 
@@ -142,6 +143,12 @@ export interface PresentedCabinet {
    * conditionné par une option « par facture » côté éditeur.
    */
   invoiceSignature: { name: string; title: { fr: string; en: string } } | null;
+  /**
+   * Couleur d'accent (hex « #rrggbb ») de la facture du cabinet. Sert au
+   * bandeau, à l'en-tête de tableau et à l'encadré TOTAL. Toujours défini
+   * (défaut marron Derisier) ; les teintes dérivées sont calculées au rendu.
+   */
+  invoiceAccentColor: string;
 }
 
 export interface PresentedDossier {
@@ -383,6 +390,7 @@ export function presentInvoice(
           invoiceTemplate: extractInvoiceTemplate(invoice.cabinet.config ?? null).template,
           invoiceNotice: extractInvoiceTemplate(invoice.cabinet.config ?? null).notice,
           invoiceSignature: extractInvoiceTemplate(invoice.cabinet.config ?? null).signature,
+          invoiceAccentColor: extractInvoiceTemplate(invoice.cabinet.config ?? null).accentColor,
         }
       : null,
     client: invoice.client

@@ -1,23 +1,25 @@
 /**
  * SAFE — Variante de facture « Derisier Law » (react-pdf).
  *
- * STYLE : « Minimaliste moderne » (choix cabinet 2026-05).
- *   Beaucoup de blanc, filets fins, UN seul accent sobre (marron Derisier),
- *   typographie soignée, totaux dans un encadré net. Le contenu reste fidèle
- *   à l'échantillon du cabinet :
- *     - identité cabinet (adresse, T./F., courriel, n° GST/HST)
- *     - bloc « ADRESSÉE À » + dates (émise / échéance)
- *     - OBJET (dossier ou services rendus)
- *     - tableau « Honoraires & débours » (liste + montants)
- *       → Sous-total · TVH 13 % · TOTAL
- *     - Montant requis du client
- *     - bloc N.B. (mentions + instructions fiducie) configurable par cabinet
- *     - mention « E. & O. » en pied
+ * STYLE : « Bandeau de marque » (choix cabinet 2026-05-30).
+ *   En-tête PLEINE LARGEUR sur fond marron Derisier : logo (dans une pastille
+ *   blanche pour rester lisible) + coordonnées du cabinet en blanc à gauche,
+ *   gros « FACTURE N° » à droite. Le corps (client, tableau structuré, totaux,
+ *   N.B.) reste sur fond blanc, le marron servant d'accent unique (en-tête de
+ *   tableau + encadré TOTAL).
  *
- * Doctrine (identique au gabarit standard) :
+ * Contenu fidèle à l'échantillon du cabinet :
+ *   - identité cabinet (adresse, T./F., courriel, n° de taxe selon le régime)
+ *   - bloc « ADRESSÉE À » + dates (émise / échéance) + OBJET
+ *   - tableau « Honoraires & débours » : DESCRIPTION · DATE · HEURES · TAUX · MONTANT
+ *     → Sous-total · TVH 13 % · TOTAL · Montant requis du client
+ *   - bloc N.B. configurable (mentions + instructions fiducie)
+ *   - signature reproduite optionnelle (par facture)
+ *   - mention « E. & O. » en pied
+ *
+ * Doctrine :
  *   - Aucune logique métier : reçoit un `PresentedInvoice` déjà calculé.
- *   - Sélectionnée par `cabinet.invoiceTemplate === "derisier"` dans
- *     `InvoiceDocument.tsx` → aperçu et PDF restent rendus par le même composant.
+ *   - Sélectionnée par `cabinet.invoiceTemplate === "derisier"`.
  *   - JAMAIS de n° de Barreau / LSO (règle dure CEO 2026-05-12).
  *   - Max 2 couleurs : 1 accent (marron) + neutres (noir/gris/blanc).
  */
@@ -27,22 +29,23 @@ import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/render
 import type { PresentedInvoice } from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { font, provinceToTaxRegime } from "./tokens";
+import { derivePalette } from "./color";
 import type { InvoiceLanguage } from "./InvoiceDocument";
 
-/**
- * Palette « minimaliste moderne ».
- * UNE couleur d'accent (marron Derisier) ; tout le reste est neutre.
- */
-const ink = {
-  text: "#18181B", // presque noir
-  muted: "#71717A", // gris labels / secondaire
-  faint: "#A1A1AA", // gris très discret
-  hair: "#E4E4E7", // filet fin
-  hairStrong: "#D4D4D8", // filet un peu plus marqué
-  accent: "#7A3B2E", // accent marron (unique)
-  accentSoft: "#F5EFED", // teinte douce de l'accent (fonds très légers)
+/** Neutres (fixes). L'accent et ses dérivées sont calculés par facture. */
+const NEUTRALS = {
+  text: "#18181B",
+  muted: "#71717A",
+  faint: "#A1A1AA",
+  hair: "#E4E4E7",
+  hairStrong: "#D4D4D8",
   white: "#FFFFFF",
 } as const;
+
+/** Palette complète passée à `createStyles` : neutres + accent dynamique. */
+type Ink = typeof NEUTRALS & { accent: string; accentSoft: string; onBand: string };
+
+const PAGE_PAD = 42; // marge horizontale du corps (et du bandeau)
 
 const labels = {
   fr: {
@@ -53,15 +56,12 @@ const labels = {
     due: "ÉCHÉANCE",
     object: "OBJET",
     servicesRendered: "Services rendus",
-    description: "DESCRIPTION",
     amount: "MONTANT",
     subtotal: "Sous-total",
     total: "TOTAL",
     amountRequired: "Montant requis du client",
     nb: "N.B.",
     eo: "E. & O.",
-    gstHst: "GST/HST",
-    signature: "Signature autorisée",
     detail: "HONORAIRES & DÉBOURS",
     colDesc: "DESCRIPTION",
     colDate: "DATE",
@@ -76,15 +76,12 @@ const labels = {
     due: "DUE",
     object: "RE",
     servicesRendered: "Services Rendered",
-    description: "DESCRIPTION",
     amount: "AMOUNT",
     subtotal: "Subtotal",
     total: "TOTAL",
     amountRequired: "Amount required from client",
     nb: "N.B.",
     eo: "E. & O.",
-    gstHst: "GST/HST",
-    signature: "Authorized signature",
     detail: "FEES & DISBURSEMENTS",
     colDesc: "DESCRIPTION",
     colDate: "DATE",
@@ -93,11 +90,11 @@ const labels = {
   },
 } as const;
 
-const styles = StyleSheet.create({
+const createStyles = (ink: Ink) => StyleSheet.create({
   page: {
-    paddingHorizontal: 50,
-    paddingTop: 34,
-    paddingBottom: 38,
+    paddingTop: 0,
+    paddingHorizontal: 0,
+    paddingBottom: 44,
     fontSize: 10,
     fontFamily: font.family,
     color: ink.text,
@@ -105,114 +102,61 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
   },
 
-  // ── Barre de marque ───────────────────────────────────────────────
-  topBar: { height: 4, backgroundColor: ink.accent, marginBottom: 12 },
-
-  // ── En-tête ───────────────────────────────────────────────────────
-  header: {
+  // ── Bandeau de marque pleine largeur ──────────────────────────────
+  band: {
+    backgroundColor: ink.accent,
+    paddingVertical: 18,
+    paddingHorizontal: PAGE_PAD,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
   },
-  // Identité en colonne : logo (qui porte déjà le nom du cabinet) au-dessus
-  // des coordonnées — évite le doublon logo + texte « DERISIER LAW ».
-  identity: { flexShrink: 1, paddingRight: 18 },
-  logo: { width: 56, height: 56, objectFit: "contain", marginBottom: 5 },
-  firmName: {
-    fontSize: 16,
-    fontFamily: font.bold,
-    color: ink.text,
-    letterSpacing: 0.4,
-    marginBottom: 6,
-  },
-  firmMeta: { fontSize: 8.5, color: ink.muted, lineHeight: 1.4 },
-  firmTax: { fontSize: 8.5, color: ink.muted, marginTop: 3 },
+  bandLeft: { flexDirection: "row", alignItems: "center", flexShrink: 1 },
+  logoChip: { backgroundColor: ink.white, borderRadius: 8, padding: 6, marginRight: 14 },
+  logo: { width: 46, height: 46, objectFit: "contain" },
+  bandFirmName: { fontSize: 14, fontFamily: font.bold, color: ink.white, letterSpacing: 1, marginBottom: 4 },
+  bandMeta: { fontSize: 8, color: ink.onBand, lineHeight: 1.5 },
+  bandRight: { alignItems: "flex-end", paddingLeft: 12 },
+  bandKicker: { fontSize: 9, fontFamily: font.bold, color: ink.onBand, letterSpacing: 4, marginBottom: 6 },
+  bandInvoiceNo: { fontSize: 21, fontFamily: font.bold, color: ink.white, letterSpacing: 0.4 },
 
-  headerRight: { alignItems: "flex-end" },
-  kicker: {
-    fontSize: 9,
-    fontFamily: font.bold,
-    color: ink.accent,
-    letterSpacing: 3,
-    marginBottom: 5,
-  },
-  invoiceNo: { fontSize: 16, fontFamily: font.bold, color: ink.text, letterSpacing: 0.3 },
-  invoiceNoChip: {
-    marginTop: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    backgroundColor: ink.accentSoft,
-    borderRadius: 3,
-  },
-  invoiceNoChipText: { fontSize: 8, fontFamily: font.bold, color: ink.accent, letterSpacing: 1 },
+  // ── Corps ─────────────────────────────────────────────────────────
+  // `flexGrow: 1` : le corps occupe toute la hauteur disponible, ce qui
+  // permet de pousser le bloc signature tout en bas (marginTop: "auto").
+  body: { flexGrow: 1, paddingHorizontal: PAGE_PAD, paddingTop: 22 },
 
-  ruleThin: { height: 1, backgroundColor: ink.hair, marginVertical: 12 },
-
-  // ── Panneau méta (client + dates + objet) ─────────────────────────
-  panel: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: ink.hair,
-    borderRadius: 5,
-    backgroundColor: ink.accentSoft,
-    paddingVertical: 11,
-    paddingHorizontal: 14,
-  },
-  panelDivider: { height: 1, backgroundColor: ink.hairStrong, marginVertical: 9 },
-  metaRow: { flexDirection: "row", justifyContent: "space-between" },
-  metaCol: { flexShrink: 1 },
+  // Méta : client + dates + objet (épuré, filets fins, sans fond) ──
+  metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   metaColClient: { flexBasis: "52%", flexShrink: 1, paddingRight: 16 },
   metaColDate: { flexBasis: "24%", alignItems: "flex-start" },
-  metaLabel: {
-    fontSize: 7.5,
-    fontFamily: font.bold,
-    color: ink.accent,
-    letterSpacing: 1.6,
-    marginBottom: 5,
-  },
-  clientName: { fontSize: 11, fontFamily: font.bold, color: ink.text, marginBottom: 2 },
+  metaLabel: { fontSize: 7.5, fontFamily: font.bold, color: ink.accent, letterSpacing: 1.6, marginBottom: 5 },
+  clientName: { fontSize: 11.5, fontFamily: font.bold, color: ink.text, marginBottom: 2 },
   clientLine: { fontSize: 9.5, color: ink.muted, lineHeight: 1.5 },
   dateValue: { fontSize: 10, color: ink.text },
 
-  // ── Objet ─────────────────────────────────────────────────────────
-  objectValue: { fontSize: 11, fontFamily: font.bold, color: ink.text, marginTop: 3 },
+  metaDivider: { height: 1, backgroundColor: ink.hair, marginVertical: 14 },
+  objectValue: { fontSize: 12, fontFamily: font.bold, color: ink.text, marginTop: 3 },
 
-  // ── Tableau ───────────────────────────────────────────────────────
-  tableTitle: {
-    fontSize: 7.5,
-    fontFamily: font.bold,
-    color: ink.faint,
-    letterSpacing: 1.6,
-    marginTop: 13,
-    marginBottom: 6,
-  },
-  // En-tête de tableau sombre (cohérent avec l'accent neutre).
+  // ── Tableau (en-tête marron, cohérent avec le bandeau) ────────────
+  tableTitle: { fontSize: 7.5, fontFamily: font.bold, color: ink.faint, letterSpacing: 1.6, marginTop: 18, marginBottom: 6 },
   tableHead: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: ink.text,
+    backgroundColor: ink.accent,
     paddingVertical: 7,
     paddingHorizontal: 11,
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
   th: { fontSize: 7, fontFamily: font.bold, color: ink.white, letterSpacing: 1.2 },
-  thRight: {
-    fontSize: 7,
-    fontFamily: font.bold,
-    color: ink.white,
-    letterSpacing: 1.2,
-    textAlign: "right",
-  },
+  thRight: { fontSize: 7, fontFamily: font.bold, color: ink.white, letterSpacing: 1.2, textAlign: "right" },
 
-  // Colonnes (somme = 100 %). DESCRIPTION large, chiffres alignés à droite.
   colDesc: { flexBasis: "42%", flexGrow: 1, paddingRight: 8, flexDirection: "row" },
   colDate: { flexBasis: "16%", paddingRight: 8 },
   colHours: { flexBasis: "12%", paddingRight: 8, textAlign: "right" },
   colRate: { flexBasis: "15%", paddingRight: 8, textAlign: "right" },
   colAmount: { flexBasis: "15%", textAlign: "right" },
 
-  // Lignes : filets fins + alternance zébrée (neutre très léger).
   itemRow: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -227,46 +171,34 @@ const styles = StyleSheet.create({
   itemCell: { fontSize: 9.5, color: ink.muted },
   itemCellNum: { fontSize: 9.5, color: ink.text },
   itemAmount: { fontSize: 9.5, color: ink.text, fontFamily: font.bold },
-  tableBottom: {
-    height: 2,
-    backgroundColor: ink.text,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-  },
+  tableBottom: { height: 2, backgroundColor: ink.accent, borderBottomLeftRadius: 4, borderBottomRightRadius: 4 },
 
   // ── Totaux ────────────────────────────────────────────────────────
-  totals: { alignSelf: "flex-end", width: "52%", marginTop: 10 },
-  totalLine: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 4,
-  },
+  totals: { alignSelf: "flex-end", width: "52%", marginTop: 12 },
+  totalLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingVertical: 4 },
   totalLabel: { fontSize: 10, color: ink.muted },
   totalValue: { fontSize: 10, color: ink.text },
+  taxLabelWrap: { flexShrink: 1 },
+  taxNo: { fontSize: 7.5, color: ink.faint, marginTop: 1, letterSpacing: 0.2 },
   totalBox: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 8,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: ink.accent,
-    backgroundColor: ink.accentSoft,
+    paddingVertical: 10,
+    paddingHorizontal: 13,
+    backgroundColor: ink.accent,
+    borderRadius: 4,
   },
-  totalBoxLabel: { fontSize: 10, fontFamily: font.bold, color: ink.accent, letterSpacing: 1.2 },
-  totalBoxValue: { fontSize: 13, fontFamily: font.bold, color: ink.text },
-  amountRequired: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-  },
+  totalBoxLabel: { fontSize: 10, fontFamily: font.bold, color: ink.white, letterSpacing: 1.4 },
+  totalBoxValue: { fontSize: 14, fontFamily: font.bold, color: ink.white },
+  amountRequired: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
   amountRequiredLabel: { fontSize: 8.5, color: ink.muted, letterSpacing: 0.4 },
   amountRequiredValue: { fontSize: 8.5, fontFamily: font.bold, color: ink.text },
 
   // ── N.B. ──────────────────────────────────────────────────────────
   nbWrap: {
-    marginTop: 14,
+    marginTop: 16,
     borderLeftWidth: 3,
     borderLeftColor: ink.accent,
     backgroundColor: "#FAFAFA",
@@ -275,18 +207,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
     borderBottomRightRadius: 4,
   },
-  nbLabel: {
-    fontSize: 7.5,
-    fontFamily: font.bold,
-    color: ink.accent,
-    letterSpacing: 1.6,
-    marginBottom: 5,
-  },
+  nbLabel: { fontSize: 7.5, fontFamily: font.bold, color: ink.accent, letterSpacing: 1.6, marginBottom: 5 },
   nbFirst: { fontSize: 9, fontFamily: font.bold, color: ink.text, marginBottom: 4, lineHeight: 1.4 },
   nbPara: { fontSize: 8.5, color: ink.muted, marginBottom: 3.5, lineHeight: 1.4 },
 
-  // ── Signature (option par facture) — sobre : nom + titre sur une ligne ──
-  signatureWrap: { marginTop: 10, alignSelf: "flex-end", width: "48%" },
+  // ── Signature (option par facture) — placée tout en bas ───────────
+  // `marginTop: "auto"` la pousse au pied du corps ; l'espace au-dessus de
+  // la ligne laisse la place pour une signature manuscrite.
+  signatureWrap: { marginTop: "auto", alignSelf: "flex-end", width: "50%", paddingTop: 16 },
+  signatureSpace: { height: 30 },
   signatureLine: { height: 1, backgroundColor: ink.hairStrong, marginBottom: 6 },
   signatureName: { fontSize: 10.5, fontFamily: font.bold, color: ink.text },
   signatureMeta: { fontSize: 8.5, color: ink.muted, marginTop: 2 },
@@ -295,8 +224,8 @@ const styles = StyleSheet.create({
   footer: {
     position: "absolute",
     bottom: 24,
-    left: 50,
-    right: 50,
+    left: PAGE_PAD,
+    right: PAGE_PAD,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -320,8 +249,7 @@ function fmtMoney(n: number, locale: InvoiceLanguage, currency: string): string 
 
 function fmtDate(d: Date | string, locale: InvoiceLanguage): string {
   const intl = locale === "en" ? "en-CA" : "fr-CA";
-  // `timeZone: "UTC"` : les dates de facture sont stockées à minuit UTC ;
-  // les formater en fuseau local décalerait l'affichage d'un jour (ex. 1 mai → 30 avr.).
+  // `timeZone: "UTC"` : dates stockées à minuit UTC ; éviter le décalage local.
   return new Intl.DateTimeFormat(intl, {
     day: "numeric",
     month: "short",
@@ -330,7 +258,6 @@ function fmtDate(d: Date | string, locale: InvoiceLanguage): string {
   }).format(typeof d === "string" ? new Date(d) : d);
 }
 
-/** Lignes d'adresse du client (multi-ligne tolérant). */
 function clientAddressLines(client: NonNullable<PresentedInvoice["client"]>): string[] {
   const lines: string[] = [];
   if (client.billingAddress) lines.push(client.billingAddress);
@@ -342,7 +269,6 @@ function clientAddressLines(client: NonNullable<PresentedInvoice["client"]>): st
   return lines;
 }
 
-/** Découpe l'adresse cabinet en lignes (saut de ligne explicite ou virgules). */
 function cabinetAddressLines(adresse: string | null): string[] {
   if (!adresse) return [];
   const byNewline = adresse.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -353,16 +279,12 @@ function cabinetAddressLines(adresse: string | null): string[] {
 interface DerisierInvoiceDocumentProps {
   invoice: PresentedInvoice;
   language?: InvoiceLanguage;
-  /**
-   * Affiche le bloc signature (option activée à la facture). Rien n'est
-   * affiché par défaut. Nécessite aussi une signature configurée pour le
-   * cabinet (`cabinet.invoiceSignature`).
-   */
+  /** Affiche le bloc signature (option activée à la facture). */
   showSignature?: boolean;
 }
 
 /**
- * Document facture « Derisier Law » — style minimaliste moderne.
+ * Document facture « Derisier Law » — style bandeau de marque.
  */
 export function DerisierInvoiceDocument({
   invoice,
@@ -379,6 +301,12 @@ export function DerisierInvoiceDocument({
   const clientName = client ? presentClientDisplayName(client) : "—";
   const clientLines = client ? clientAddressLines(client) : [];
   const cabAddr = cabinetAddressLines(cabinet?.adresse ?? null);
+  const numberLocale = language === "en" ? "en-CA" : "fr-CA";
+
+  // Couleur d'accent du cabinet → palette dynamique (avec garde-fou de
+  // lisibilité : une couleur trop claire retombe sur l'accent par défaut).
+  const ink: Ink = { ...NEUTRALS, ...derivePalette(cabinet?.invoiceAccentColor) };
+  const styles = createStyles(ink);
 
   // Taxe : régime selon la province du client (Derisier ON → TVH 13 %).
   const taxRegime = provinceToTaxRegime(client?.billingProvince ?? null);
@@ -392,8 +320,6 @@ export function DerisierInvoiceDocument({
         : language === "en" ? "HST 13%" : "TVH 13 %";
 
   // N° fiscal du cabinet (ARC uniquement, jamais le n° de Barreau).
-  // L'étiquette suit le régime fiscal applicable (TVH / TPS / TPS+TVQ),
-  // pour que la facture porte le bon intitulé réglementaire.
   const cabinetTaxNo =
     cabinet?.taxNumbers.hstNumber ??
     cabinet?.taxNumbers.gstNumber ??
@@ -406,14 +332,9 @@ export function DerisierInvoiceDocument({
         ? language === "en" ? "GST No." : "N° TPS"
         : language === "en" ? "HST No." : "N° TVH";
 
-  // Bloc N.B. configurable (FR/EN). La première ligne est mise en évidence.
   const noticeLines = (invoice.cabinet?.invoiceNotice?.[language] ?? []).filter((l) => l.trim());
-
-  // Soldes : à défaut de paiement, le montant requis = solde dû = total.
   const balanceDue = totals.balanceDue > 0 ? totals.balanceDue : totals.montantTotal;
 
-  // Signature reproduite (option par facture). N'apparaît que si l'option est
-  // cochée ET qu'une signature est configurée pour le cabinet.
   const signature = invoice.cabinet?.invoiceSignature ?? null;
   const signatureTitle = signature
     ? (language === "en" ? signature.title.en : signature.title.fr).trim()
@@ -428,42 +349,38 @@ export function DerisierInvoiceDocument({
       producer="@react-pdf/renderer"
     >
       <Page size="A4" style={styles.page} wrap>
-        {/* Barre de marque */}
-        <View style={styles.topBar} />
-
-        {/* En-tête : identité cabinet (gauche) + FACTURE / n° (droite).
-            Le logo porte déjà le nom du cabinet → on n'affiche le texte
-            « DERISIER LAW » qu'en l'absence de logo (anti-doublon). */}
-        <View style={styles.header}>
-          <View style={styles.identity}>
+        {/* ── Bandeau de marque pleine largeur ── */}
+        <View style={styles.band}>
+          <View style={styles.bandLeft}>
             {cabinet?.logoUrl ? (
-              <Image style={styles.logo} src={cabinet.logoUrl} />
-            ) : (
-              <Text style={styles.firmName}>{(cabinet?.nom ?? "—").toUpperCase()}</Text>
-            )}
-            {cabAddr.map((line, i) => (
-              <Text key={i} style={styles.firmMeta}>
-                {line}
-              </Text>
-            ))}
-            {cabinet?.telephone ? <Text style={styles.firmMeta}>{cabinet.telephone}</Text> : null}
-            {cabinet?.email ? <Text style={styles.firmMeta}>{cabinet.email}</Text> : null}
-            {cabinetTaxNo ? (
-              <Text style={styles.firmTax}>
-                {taxNoLabel} {cabinetTaxNo}
-              </Text>
+              <View style={styles.logoChip}>
+                <Image style={styles.logo} src={cabinet.logoUrl} />
+              </View>
             ) : null}
+            <View style={{ flexShrink: 1 }}>
+              {!cabinet?.logoUrl ? (
+                <Text style={styles.bandFirmName}>{(cabinet?.nom ?? "—").toUpperCase()}</Text>
+              ) : null}
+              {cabAddr.map((line, i) => (
+                <Text key={i} style={styles.bandMeta}>
+                  {line}
+                </Text>
+              ))}
+              {cabinet?.telephone ? <Text style={styles.bandMeta}>{cabinet.telephone}</Text> : null}
+              {cabinet?.email ? <Text style={styles.bandMeta}>{cabinet.email}</Text> : null}
+            </View>
           </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.kicker}>{t.invoice}</Text>
-            <Text style={styles.invoiceNo}>
+          <View style={styles.bandRight}>
+            <Text style={styles.bandKicker}>{t.invoice}</Text>
+            <Text style={styles.bandInvoiceNo}>
               {t.invoiceNo} {invoice.numero}
             </Text>
           </View>
         </View>
 
-        {/* Panneau méta : client + dates + objet */}
-        <View style={styles.panel}>
+        {/* ── Corps ── */}
+        <View style={styles.body}>
+          {/* Méta : client + dates */}
           <View style={styles.metaRow}>
             <View style={styles.metaColClient}>
               <Text style={styles.metaLabel}>{t.billedTo}</Text>
@@ -485,97 +402,107 @@ export function DerisierInvoiceDocument({
             </View>
           </View>
 
-          <View style={styles.panelDivider} />
+          <View style={styles.metaDivider} />
 
+          {/* Objet */}
           <View>
             <Text style={styles.metaLabel}>{t.object}</Text>
             <Text style={styles.objectValue}>{dossier?.intitule ?? t.servicesRendered}</Text>
           </View>
-        </View>
 
-        {/* Tableau Honoraires & débours — colonnes structurées */}
-        <Text style={styles.tableTitle}>{t.detail}</Text>
-        <View style={styles.tableHead}>
-          <View style={styles.colDesc}>
-            <Text style={styles.th}>{t.colDesc}</Text>
-          </View>
-          <Text style={[styles.th, styles.colDate]}>{t.colDate}</Text>
-          <Text style={[styles.thRight, styles.colHours]}>{t.colHours}</Text>
-          <Text style={[styles.thRight, styles.colRate]}>{t.colRate}</Text>
-          <Text style={[styles.thRight, styles.colAmount]}>{t.amount}</Text>
-        </View>
-
-        {invoice.lines.map((line, i) => (
-          <View
-            key={line.id}
-            style={i % 2 === 1 ? [styles.itemRow, styles.itemRowAlt] : styles.itemRow}
-            wrap={false}
-          >
+          {/* Tableau Honoraires & débours */}
+          <Text style={styles.tableTitle}>{t.detail}</Text>
+          <View style={styles.tableHead}>
             <View style={styles.colDesc}>
-              <Text style={styles.itemIndex}>{i + 1}.</Text>
-              <Text style={styles.itemDesc}>{line.description || "—"}</Text>
+              <Text style={styles.th}>{t.colDesc}</Text>
             </View>
-            <Text style={[styles.itemCell, styles.colDate]}>
-              {line.date ? fmtDate(line.date, language) : "—"}
-            </Text>
-            <Text style={[styles.itemCellNum, styles.colHours]}>
-              {line.hours != null ? line.hours.toLocaleString(language === "en" ? "en-CA" : "fr-CA") : "—"}
-            </Text>
-            <Text style={[styles.itemCellNum, styles.colRate]}>
-              {line.rate != null ? fmtMoney(line.rate, language, currency) : "—"}
-            </Text>
-            <Text style={[styles.itemAmount, styles.colAmount]}>
-              {fmtMoney(line.amount, language, currency)}
-            </Text>
+            <Text style={[styles.th, styles.colDate]}>{t.colDate}</Text>
+            <Text style={[styles.thRight, styles.colHours]}>{t.colHours}</Text>
+            <Text style={[styles.thRight, styles.colRate]}>{t.colRate}</Text>
+            <Text style={[styles.thRight, styles.colAmount]}>{t.amount}</Text>
           </View>
-        ))}
-        <View style={styles.tableBottom} />
 
-        {/* Totaux */}
-        <View style={styles.totals}>
-          <View style={styles.totalLine}>
-            <Text style={styles.totalLabel}>{t.subtotal}</Text>
-            <Text style={styles.totalValue}>{fmtMoney(subtotalPreTax, language, currency)}</Text>
-          </View>
-          {taxTotal > 0 ? (
+          {invoice.lines.map((line, i) => (
+            <View
+              key={line.id}
+              style={i % 2 === 1 ? [styles.itemRow, styles.itemRowAlt] : styles.itemRow}
+              wrap={false}
+            >
+              <View style={styles.colDesc}>
+                <Text style={styles.itemIndex}>{i + 1}.</Text>
+                <Text style={styles.itemDesc}>{line.description || "—"}</Text>
+              </View>
+              <Text style={[styles.itemCell, styles.colDate]}>
+                {line.date ? fmtDate(line.date, language) : "—"}
+              </Text>
+              <Text style={[styles.itemCellNum, styles.colHours]}>
+                {line.hours != null ? line.hours.toLocaleString(numberLocale) : "—"}
+              </Text>
+              <Text style={[styles.itemCellNum, styles.colRate]}>
+                {line.rate != null ? fmtMoney(line.rate, language, currency) : "—"}
+              </Text>
+              <Text style={[styles.itemAmount, styles.colAmount]}>
+                {fmtMoney(line.amount, language, currency)}
+              </Text>
+            </View>
+          ))}
+          <View style={styles.tableBottom} />
+
+          {/* Totaux */}
+          <View style={styles.totals}>
             <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{taxLabel}</Text>
-              <Text style={styles.totalValue}>{fmtMoney(taxTotal, language, currency)}</Text>
+              <Text style={styles.totalLabel}>{t.subtotal}</Text>
+              <Text style={styles.totalValue}>{fmtMoney(subtotalPreTax, language, currency)}</Text>
+            </View>
+            {taxTotal > 0 ? (
+              <View style={styles.totalLine}>
+                <View style={styles.taxLabelWrap}>
+                  <Text style={styles.totalLabel}>{taxLabel}</Text>
+                  {cabinetTaxNo ? (
+                    <Text style={styles.taxNo}>
+                      {taxNoLabel} {cabinetTaxNo}
+                    </Text>
+                  ) : null}
+                </View>
+                <Text style={styles.totalValue}>{fmtMoney(taxTotal, language, currency)}</Text>
+              </View>
+            ) : null}
+            <View style={styles.totalBox}>
+              <Text style={styles.totalBoxLabel}>{t.total}</Text>
+              <Text style={styles.totalBoxValue}>{fmtMoney(totals.montantTotal, language, currency)}</Text>
+            </View>
+            <View style={styles.amountRequired}>
+              <Text style={styles.amountRequiredLabel}>{t.amountRequired}</Text>
+              <Text style={styles.amountRequiredValue}>{fmtMoney(balanceDue, language, currency)}</Text>
+            </View>
+          </View>
+
+          {/* N.B. configurable */}
+          {noticeLines.length > 0 ? (
+            <View style={styles.nbWrap}>
+              <Text style={styles.nbLabel}>{t.nb}</Text>
+              {noticeLines.map((line, i) => (
+                <Text key={i} style={i === 0 ? styles.nbFirst : styles.nbPara}>
+                  {line}
+                </Text>
+              ))}
             </View>
           ) : null}
-          <View style={styles.totalBox}>
-            <Text style={styles.totalBoxLabel}>{t.total}</Text>
-            <Text style={styles.totalBoxValue}>{fmtMoney(totals.montantTotal, language, currency)}</Text>
-          </View>
-          <View style={styles.amountRequired}>
-            <Text style={styles.amountRequiredLabel}>{t.amountRequired}</Text>
-            <Text style={styles.amountRequiredValue}>{fmtMoney(balanceDue, language, currency)}</Text>
-          </View>
-        </View>
 
-        {/* N.B. configurable */}
-        {noticeLines.length > 0 ? (
-          <View style={styles.nbWrap}>
-            <Text style={styles.nbLabel}>{t.nb}</Text>
-            {noticeLines.map((line, i) => (
-              <Text key={i} style={i === 0 ? styles.nbFirst : styles.nbPara}>
-                {line}
+          {/* Signature (option par facture) — auto-placée tout en bas,
+              espace au-dessus de la ligne pour signer à la main */}
+          {showSig && signature ? (
+            <View style={styles.signatureWrap} wrap={false}>
+              <View style={styles.signatureSpace} />
+              <View style={styles.signatureLine} />
+              <Text style={styles.signatureName}>{signature.name}</Text>
+              <Text style={styles.signatureMeta}>
+                {signatureTitle ? `${signatureTitle} · ` : ""}
+                {cabinet?.nom ?? ""}
               </Text>
-            ))}
-          </View>
-        ) : null}
-
-        {/* Signature reproduite (option par facture) — sobre : ligne + nom + titre */}
-        {showSig && signature ? (
-          <View style={styles.signatureWrap} wrap={false}>
-            <View style={styles.signatureLine} />
-            <Text style={styles.signatureName}>{signature.name}</Text>
-            <Text style={styles.signatureMeta}>
-              {signatureTitle ? `${signatureTitle} · ` : ""}
-              {cabinet?.nom ?? ""}
-            </Text>
-          </View>
-        ) : null}
+            </View>
+          ) : null}
+        </View>
 
         {/* Pied fixe : cabinet + E. & O. */}
         <View style={styles.footer} fixed>

@@ -64,6 +64,13 @@ export type CabinetInvoiceConfig = {
   template?: CabinetInvoiceTemplate;
   notice?: CabinetInvoiceNotice;
   signature?: CabinetInvoiceSignature;
+  /**
+   * Couleur d'accent (hex « #rrggbb ») appliquée au bandeau, à l'en-tête de
+   * tableau et à l'encadré TOTAL. UNE seule couleur stockée → la règle dure
+   * « max 2 couleurs » reste garantie. Les teintes dérivées sont calculées au
+   * rendu (cf. lib/invoice-template/color.ts). Défaut : marron Derisier.
+   */
+  accentColor?: string;
 };
 
 export type CabinetConfig = {
@@ -104,13 +111,26 @@ export function getCabinetTaxNumbers(config: CabinetConfig): CabinetTaxNumbers {
  * tableaux vides (aucun bloc rendu) — rétro-compatible avec les cabinets
  * existants qui n'ont pas configuré de facture personnalisée.
  */
+/** Accent par défaut (marron Derisier) si aucune couleur n'est configurée. */
+export const DEFAULT_INVOICE_ACCENT = "#7A3B2E";
+
 export function getCabinetInvoiceConfig(config: CabinetConfig): {
   template: CabinetInvoiceTemplate;
   notice: { fr: string[]; en: string[] };
   signature: { name: string; title: { fr: string; en: string } } | null;
+  accentColor: string;
 } {
   const inv = config.invoice ?? {};
   const sigName = inv.signature?.name?.trim();
+  const accentRaw = inv.accentColor?.trim();
+  // Validation hex souple ici (le garde-fou de luminance vit dans color.ts) :
+  // on garde la valeur si elle ressemble à un hex, sinon défaut.
+  const accentColor =
+    accentRaw && /^#?[0-9a-fA-F]{6}$/.test(accentRaw)
+      ? accentRaw.startsWith("#")
+        ? accentRaw
+        : `#${accentRaw}`
+      : DEFAULT_INVOICE_ACCENT;
   return {
     template: inv.template ?? "standard",
     notice: {
@@ -126,6 +146,7 @@ export function getCabinetInvoiceConfig(config: CabinetConfig): {
           },
         }
       : null,
+    accentColor,
   };
 }
 

@@ -408,6 +408,7 @@ export function CreateInvoiceView({
         invoiceTemplate: cabinetInvoiceCfg.template,
         invoiceNotice: cabinetInvoiceCfg.notice,
         invoiceSignature: cabinetInvoiceCfg.signature,
+        invoiceAccentColor: cabinetInvoiceCfg.accentColor,
       },
       client: selectedClient
         ? {

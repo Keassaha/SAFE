@@ -2036,6 +2036,7 @@
     "cardBillingDescription": "Active billing settings. Currency and primary mode are fixed.",
     "cardBillingCta": "Configure delivery",
     "cardBillingShortcut": "Open the billing module",
+    "cardInvoiceAppearanceCta": "Invoice appearance",
     "cardTeamTitle": "Team & access",
     "cardTeamDescription": "Users who can sign in to SAFE and the firm's internal staff profiles.",
     "cardTeamCta": "Manage team",

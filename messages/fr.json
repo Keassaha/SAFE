@@ -2036,6 +2036,7 @@
     "cardBillingDescription": "Réglages actifs de facturation. La devise et le mode principal sont fixés.",
     "cardBillingCta": "Configurer l'envoi",
     "cardBillingShortcut": "Aller au module facturation",
+    "cardInvoiceAppearanceCta": "Apparence de la facture",
     "cardTeamTitle": "Équipe & accès",
     "cardTeamDescription": "Utilisateurs qui peuvent se connecter à SAFE et profils internes du cabinet.",
     "cardTeamCta": "Gérer l'équipe",

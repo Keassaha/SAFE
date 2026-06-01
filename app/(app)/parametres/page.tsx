@@ -229,8 +229,8 @@ export default async function ParametresPage() {
           primaryLabel={isAdmin ? t("cardBillingCta") : undefined}
           primaryDisabled={!isAdmin}
           primaryDisabledHint={adminOnly}
-          secondaryHref={canAccessBilling ? routes.facturation : undefined}
-          secondaryLabel={canAccessBilling ? t("cardBillingShortcut") : undefined}
+          secondaryHref={isAdmin ? routes.parametresFacture : undefined}
+          secondaryLabel={isAdmin ? t("cardInvoiceAppearanceCta") : undefined}
         >
           <FieldRow label={t("billingCurrency")} value="CAD" />
           <FieldRow label={t("billingTaxes")} value={t("billingTaxesHST")} />
@@ -325,6 +325,15 @@ export default async function ParametresPage() {
               <Send className="h-4 w-4 safe-text-secondary" aria-hidden />
               <span className="safe-text-title font-medium">{t("quickInvoiceSend")}</span>
             </Link>
+            {isAdmin && (
+              <Link
+                href={routes.parametresFacture}
+                className="flex items-center gap-3 rounded-safe-sm border border-neutral-border/60 px-3 py-2.5 text-sm hover:bg-neutral-50 transition-colors"
+              >
+                <Receipt className="h-4 w-4 safe-text-secondary" aria-hidden />
+                <span className="safe-text-title font-medium">{t("cardInvoiceAppearanceCta")}</span>
+              </Link>
+            )}
             {canAccessAudit && (
               <Link
                 href={routes.parametresAudit}
