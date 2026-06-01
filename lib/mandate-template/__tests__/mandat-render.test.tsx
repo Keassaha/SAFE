@@ -38,4 +38,14 @@ describe("MandatRepresentationDocument render", () => {
     const buf = await renderToBuffer(<MandatRepresentationDocument data={minimal} language="fr" />);
     expect(buf.length).toBeGreaterThan(0);
   });
+
+  it("renders the English mandate without throwing", async () => {
+    const buf = await renderToBuffer(
+      <MandatRepresentationDocument
+        data={{ ...fullData, objet: "Study Permit Application" }}
+        language="en"
+      />,
+    );
+    expect(buf.length).toBeGreaterThan(0);
+  });
 });
