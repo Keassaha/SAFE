@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
@@ -8,6 +9,7 @@ const inputClass =
   "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-forest-600 focus:ring-1 focus:ring-forest-600 font-sans";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("authUi");
   const [cabinetName, setCabinetName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,10 +32,10 @@ export default function ForgotPasswordPage() {
         setSent(true);
       } else {
         const data = await res.json();
-        setError(data.error || "Erreur");
+        setError(data.error || t("errorGeneric"));
       }
     } catch {
-      setError("Erreur de connexion");
+      setError(t("errorConnection"));
     } finally {
       setLoading(false);
     }
@@ -44,14 +46,14 @@ export default function ForgotPasswordPage() {
       {sent ? (
         <div className="text-center space-y-4">
           <h2 className="text-[24px] font-serif tracking-[-0.02em] text-text-primary">
-            Lien envoyé
+            {t("linkSentTitle")}
           </h2>
           <p className="text-[14px] font-sans text-text-body">
-            Si un compte existe, vous recevrez un lien de réinitialisation sous peu.
+            {t("linkSentBody")}
           </p>
           <Link href="/connexion" className="block mt-4">
             <Button className="w-full h-11 bg-text-primary text-canvas hover:bg-black border-none">
-              Retour à la connexion
+              {t("backToSignIn")}
             </Button>
           </Link>
         </div>
@@ -59,22 +61,22 @@ export default function ForgotPasswordPage() {
         <>
           <div className="mb-8 text-center sm:text-left">
             <h2 className="text-[24px] font-serif tracking-[-0.02em] text-text-primary mb-2">
-              Mot de passe oublié
+              {t("forgotTitle")}
             </h2>
             <p className="text-[14px] font-sans text-text-body">
-              Entrez vos informations pour recevoir un lien par courriel.
+              {t("forgotSubtitle")}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-                Nom du cabinet
+                {t("firmNameLabel")}
               </label>
               <input
                 type="text"
                 className={inputClass}
-                placeholder="Cabinet Tremblay"
+                placeholder={t("firmNamePlaceholderTremblay")}
                 value={cabinetName}
                 onChange={(e) => setCabinetName(e.target.value)}
                 required
@@ -82,12 +84,12 @@ export default function ForgotPasswordPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-                Courriel
+                {t("emailLabel")}
               </label>
               <input
                 type="email"
                 className={inputClass}
-                placeholder="vous@exemple.com"
+                placeholder={t("emailPlaceholderGeneric")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -103,7 +105,7 @@ export default function ForgotPasswordPage() {
               className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none"
               disabled={loading}
             >
-              {loading ? "Envoi..." : "Envoyer le lien"}
+              {loading ? t("sending") : t("sendLinkButton")}
             </Button>
           </form>
 
@@ -112,7 +114,7 @@ export default function ForgotPasswordPage() {
               href="/connexion"
               className="text-[13px] font-medium font-sans text-text-muted hover:text-text-primary transition-colors"
             >
-              Retour à la connexion
+              {t("backToSignIn")}
             </Link>
           </div>
         </>

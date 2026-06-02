@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 function ResetPasswordContent() {
+  const t = useTranslations("authUi");
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [password, setPassword] = useState("");
@@ -24,12 +26,12 @@ function ResetPasswordContent() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
+      setError(t("errorPasswordsMismatch"));
       return;
     }
 
     if (password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères");
+      setError(t("errorPasswordTooShort"));
       return;
     }
 
@@ -46,10 +48,10 @@ function ResetPasswordContent() {
       if (res.ok) {
         setSuccess(true);
       } else {
-        setError(data.error || "Erreur");
+        setError(data.error || t("errorGeneric"));
       }
     } catch {
-      setError("Erreur de connexion");
+      setError(t("errorConnection"));
     } finally {
       setLoading(false);
     }
@@ -59,13 +61,13 @@ function ResetPasswordContent() {
     return (
       <div className="text-center space-y-4">
         <h2 className="text-xl font-semibold text-neutral-text-primary">
-          Lien invalide
+          {t("invalidLinkTitle")}
         </h2>
         <p className="text-sm text-neutral-muted">
-          Ce lien de réinitialisation est invalide ou a expiré.
+          {t("invalidLinkBody")}
         </p>
         <Link href="/forgot-password">
-          <Button variant="secondary">Refaire une demande</Button>
+          <Button variant="secondary">{t("requestAgainButton")}</Button>
         </Link>
       </div>
     );
@@ -74,33 +76,33 @@ function ResetPasswordContent() {
   return success ? (
     <div className="text-center space-y-4">
       <h2 className="text-xl font-semibold text-neutral-text-primary">
-        Mot de passe modifié
+        {t("passwordChangedTitle")}
       </h2>
       <p className="text-sm text-neutral-muted">
-        Votre mot de passe a été réinitialisé avec succès.
+        {t("passwordChangedBody")}
       </p>
       <Link href="/connexion">
-        <Button className="mt-4">Se connecter</Button>
+        <Button className="mt-4">{t("signInButton")}</Button>
       </Link>
     </div>
   ) : (
     <>
       <h2 className="text-xl font-semibold text-neutral-text-primary mb-2">
-        Nouveau mot de passe
+        {t("newPasswordTitle")}
       </h2>
       <p className="text-sm text-neutral-muted mb-6">
-        Choisissez un nouveau mot de passe pour votre compte.
+        {t("newPasswordSubtitle")}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-neutral-text-primary mb-1">
-            Nouveau mot de passe
+            {t("newPasswordLabel")}
           </label>
           <input
             type="password"
             className={inputClass}
-            placeholder="Min. 8 caractères"
+            placeholder={t("minCharsPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -109,12 +111,12 @@ function ResetPasswordContent() {
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-text-primary mb-1">
-            Confirmer le mot de passe
+            {t("confirmPasswordLabel")}
           </label>
           <input
             type="password"
             className={inputClass}
-            placeholder="Répétez le mot de passe"
+            placeholder={t("repeatPasswordPlaceholder")}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
@@ -124,7 +126,7 @@ function ResetPasswordContent() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Modification..." : "Modifier le mot de passe"}
+          {loading ? t("saving") : t("changePasswordButton")}
         </Button>
       </form>
     </>
@@ -132,6 +134,7 @@ function ResetPasswordContent() {
 }
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("authUi");
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="w-full max-w-md">
@@ -139,7 +142,7 @@ export default function ResetPasswordPage() {
           <SafeLogo className="mx-auto mb-4" />
         </div>
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8">
-          <Suspense fallback={<p>Chargement...</p>}>
+          <Suspense fallback={<p>{t("loading")}</p>}>
             <ResetPasswordContent />
           </Suspense>
         </div>

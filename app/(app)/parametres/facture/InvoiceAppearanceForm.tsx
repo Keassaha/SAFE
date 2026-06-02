@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,15 +12,15 @@ import { isAccentDarkEnough, normalizeHex, DEFAULT_ACCENT } from "@/lib/invoice-
 import { updateInvoiceAppearance } from "./actions";
 
 /** Présélections sobres et foncées (texte blanc lisible garanti). */
-const PRESETS: { hex: string; label: string }[] = [
-  { hex: "#7A3B2E", label: "Marron" },
-  { hex: "#1E3A5F", label: "Marine" },
-  { hex: "#14532D", label: "Sapin" },
-  { hex: "#6B1F2A", label: "Bordeaux" },
-  { hex: "#334155", label: "Ardoise" },
-  { hex: "#4A2545", label: "Prune" },
-  { hex: "#0F2A22", label: "Vert SAFE" },
-  { hex: "#1F2937", label: "Carbone" },
+const PRESETS: { hex: string; labelKey: string }[] = [
+  { hex: "#7A3B2E", labelKey: "presetBrown" },
+  { hex: "#1E3A5F", labelKey: "presetNavy" },
+  { hex: "#14532D", labelKey: "presetSpruce" },
+  { hex: "#6B1F2A", labelKey: "presetBordeaux" },
+  { hex: "#334155", labelKey: "presetSlate" },
+  { hex: "#4A2545", labelKey: "presetPlum" },
+  { hex: "#0F2A22", labelKey: "presetSafeGreen" },
+  { hex: "#1F2937", labelKey: "presetCarbon" },
 ];
 
 const MAX_LOGO_CHARS = 400_000;
@@ -51,6 +52,7 @@ interface Props {
 }
 
 export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
+  const t = useTranslations("settingsUi");
   const [accent, setAccent] = useState(initial.accentColor || DEFAULT_ACCENT);
   const [logoUrl, setLogoUrl] = useState<string | null>(initial.logoUrl);
   const [noticeFr, setNoticeFr] = useState(initial.noticeFr);
@@ -138,14 +140,14 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
     setLogoError(null);
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setLogoError("Veuillez choisir une image (PNG ou JPG).");
+      setLogoError(t("logoErrorNotImage"));
       return;
     }
     const reader = new FileReader();
     reader.onload = () => {
       const dataUri = String(reader.result);
       if (dataUri.length > MAX_LOGO_CHARS) {
-        setLogoError("Image trop volumineuse (max ~300 Ko). Réduisez-la puis réessayez.");
+        setLogoError(t("logoErrorTooLarge"));
         return;
       }
       setLogoUrl(dataUri);
@@ -157,7 +159,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
     setError(null);
     setSavedOk(false);
     if (!accentValid) {
-      setError("Choisissez une couleur d'accent assez foncée (texte blanc lisible).");
+      setError(t("accentErrorTooLight"));
       return;
     }
     setSaving(true);
@@ -177,7 +179,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
         setSavedOk(true);
       }
     } catch {
-      setError("Une erreur est survenue lors de l'enregistrement.");
+      setError(t("saveError"));
     } finally {
       setSaving(false);
     }
@@ -189,10 +191,10 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
       <div className="space-y-6">
         {/* Couleur d'accent */}
         <Card>
-          <CardHeader title="Couleur d'accent" />
+          <CardHeader title={t("accentColorTitle")} />
           <CardContent className="space-y-4">
             <p className="text-sm safe-text-secondary">
-              {"Une seule couleur d'accent (bandeau, en-tête de tableau, total). Le reste reste neutre."}
+              {t("accentColorHelp")}
             </p>
             <div className="flex flex-wrap gap-2">
               {PRESETS.map((p) => {
@@ -202,19 +204,19 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                     key={p.hex}
                     type="button"
                     onClick={() => setAccent(p.hex)}
-                    title={p.label}
+                    title={t(p.labelKey)}
                     className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
                       isActive ? "border-neutral-900 ring-2 ring-neutral-300" : "border-white shadow"
                     }`}
                     style={{ backgroundColor: p.hex }}
-                    aria-label={p.label}
+                    aria-label={t(p.labelKey)}
                   />
                 );
               })}
             </div>
             <div className="flex items-end gap-3">
               <Input
-                label="Code couleur (hex)"
+                label={t("accentColorHexLabel")}
                 name="accentColor"
                 value={accent}
                 onChange={(e) => setAccent(e.target.value)}
@@ -229,7 +231,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
             {!accentValid && (
               <p className="flex items-center gap-1.5 text-xs text-status-warning">
                 <AlertTriangle className="h-3.5 w-3.5" />
-                Couleur invalide ou trop claire : le texte blanc ne serait pas lisible. Choisissez une teinte plus foncée.
+                {t("accentInvalidWarning")}
               </p>
             )}
           </CardContent>
@@ -237,15 +239,15 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
 
         {/* Logo */}
         <Card>
-          <CardHeader title="Logo" />
+          <CardHeader title={t("logoTitle")} />
           <CardContent className="space-y-3">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-safe-sm border border-neutral-border bg-neutral-50 overflow-hidden">
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                  <img src={logoUrl} alt={t("logoAlt")} className="max-h-full max-w-full object-contain" />
                 ) : (
-                  <span className="text-xs safe-text-secondary">Aucun</span>
+                  <span className="text-xs safe-text-secondary">{t("logoNone")}</span>
                 )}
               </div>
               <div className="flex gap-2">
@@ -257,43 +259,43 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                   onChange={(e) => onPickLogo(e.target.files?.[0] ?? null)}
                 />
                 <Button type="button" variant="secondary" className="gap-2" onClick={() => fileRef.current?.click()}>
-                  <Upload className="h-4 w-4" /> Choisir une image
+                  <Upload className="h-4 w-4" /> {t("logoChoose")}
                 </Button>
                 {logoUrl && (
                   <Button type="button" variant="ghost" className="gap-2" onClick={() => setLogoUrl(null)}>
-                    <Trash2 className="h-4 w-4" /> Retirer
+                    <Trash2 className="h-4 w-4" /> {t("logoRemove")}
                   </Button>
                 )}
               </div>
             </div>
-            <p className="text-xs safe-text-secondary">PNG ou JPG, max ~300 Ko. Le logo apparaît dans le bandeau.</p>
+            <p className="text-xs safe-text-secondary">{t("logoHint")}</p>
             {logoError && <p className="text-xs text-status-error">{logoError}</p>}
           </CardContent>
         </Card>
 
         {/* Mentions N.B. */}
         <Card>
-          <CardHeader title="Mentions N.B." />
+          <CardHeader title={t("noticeTitle")} />
           <CardContent className="space-y-3">
-            <p className="text-xs safe-text-secondary">Une ligne par paragraphe. La 1ʳᵉ ligne est mise en évidence.</p>
+            <p className="text-xs safe-text-secondary">{t("noticeHint")}</p>
             <div>
-              <label className="block text-sm font-medium safe-text-title mb-1">Français</label>
+              <label className="block text-sm font-medium safe-text-title mb-1">{t("noticeLangFr")}</label>
               <textarea
                 value={noticeFr}
                 onChange={(e) => setNoticeFr(e.target.value)}
                 rows={4}
                 className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm"
-                placeholder={"TOUS LES SERVICES SONT ASSUJETTIS À LA TVH\nPaiements en fiducie uniquement."}
+                placeholder={t("noticePlaceholderFr")}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium safe-text-title mb-1">Anglais</label>
+              <label className="block text-sm font-medium safe-text-title mb-1">{t("noticeLangEn")}</label>
               <textarea
                 value={noticeEn}
                 onChange={(e) => setNoticeEn(e.target.value)}
                 rows={4}
                 className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm"
-                placeholder={"ALL SERVICES ARE SUBJECT TO HST\nTrust payments only."}
+                placeholder={t("noticePlaceholderEn")}
               />
             </div>
           </CardContent>
@@ -301,25 +303,25 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
 
         {/* Signature */}
         <Card>
-          <CardHeader title="Signature" />
+          <CardHeader title={t("signatureTitle")} />
           <CardContent className="space-y-3">
-            <Input label="Nom" name="signatureName" value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Marjorie-Alexandra Derisier" />
+            <Input label={t("signatureNameLabel")} name="signatureName" value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Marjorie-Alexandra Derisier" />
             <div className="grid gap-3 sm:grid-cols-2">
-              <Input label="Titre (FR)" name="signatureTitleFr" value={sigTitleFr} onChange={(e) => setSigTitleFr(e.target.value)} placeholder="Avocate" />
-              <Input label="Titre (EN)" name="signatureTitleEn" value={sigTitleEn} onChange={(e) => setSigTitleEn(e.target.value)} placeholder="Lawyer" />
+              <Input label={t("signatureTitleFrLabel")} name="signatureTitleFr" value={sigTitleFr} onChange={(e) => setSigTitleFr(e.target.value)} placeholder={t("signatureTitleFrPlaceholder")} />
+              <Input label={t("signatureTitleEnLabel")} name="signatureTitleEn" value={sigTitleEn} onChange={(e) => setSigTitleEn(e.target.value)} placeholder={t("signatureTitleEnPlaceholder")} />
             </div>
-            <p className="text-xs safe-text-secondary">Le nom apparaît au-dessus de la ligne de signature, en bas de la facture (option activée par facture).</p>
+            <p className="text-xs safe-text-secondary">{t("signatureHint")}</p>
           </CardContent>
         </Card>
 
         <div className="flex items-center gap-3">
           <Button type="button" onClick={onSubmit} disabled={saving || !accentValid} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Enregistrer
+            {t("save")}
           </Button>
           {savedOk && (
             <span className="flex items-center gap-1.5 text-sm text-status-success">
-              <Check className="h-4 w-4" /> Enregistré
+              <Check className="h-4 w-4" /> {t("saved")}
             </span>
           )}
           {error && <span className="text-sm text-status-error">{error}</span>}
@@ -329,7 +331,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
       {/* Colonne aperçu */}
       <div className="lg:sticky lg:top-6">
         <Card>
-          <CardHeader title="Aperçu en direct" />
+          <CardHeader title={t("livePreviewTitle")} />
           <CardContent>
             <div className="border border-neutral-border rounded-safe-sm overflow-hidden bg-neutral-50">
               <InvoicePreview invoice={sample} language="fr" showSignature className="min-h-[640px]" />

@@ -98,6 +98,7 @@ export default async function ClientDetailPage({
 
   const t = await getTranslations("clients");
   const tc = await getTranslations("common");
+  const tu = await getTranslations("clientsUi");
 
   const canEditSensitive = canViewSensitiveFields(role as UserRole, {
     userId,
@@ -342,17 +343,17 @@ export default async function ClientDetailPage({
       {!showForm && (
         <Card className="mt-4">
           <CardHeader
-            title="Documents rédigés"
+            title={tu("draftedDocuments")}
             action={
               <span className="text-xs text-slate-500">
-                Tous dossiers · {richDocs.length} document{richDocs.length > 1 ? "s" : ""}
+                {tu("allMattersDocCount", { count: richDocs.length })}
               </span>
             }
           />
           <CardContent>
             {richDocs.length === 0 ? (
               <p className="text-sm text-slate-500 italic">
-                Aucun document rédigé via l'éditeur pour ce client.
+                {tu("noDraftedDocuments")}
               </p>
             ) : (
               <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
@@ -365,10 +366,10 @@ export default async function ClientDetailPage({
                       : "text-slate-600 bg-slate-50 border-slate-200";
                   const statutLabel =
                     d.statut === "final"
-                      ? "Final"
+                      ? tu("docStatusFinal")
                       : d.statut === "brouillon"
-                      ? "Brouillon"
-                      : "Archivé";
+                      ? tu("docStatusDraft")
+                      : tu("docStatusArchived");
                   return (
                     <Link
                       key={d.id}
@@ -382,7 +383,7 @@ export default async function ClientDetailPage({
                           {d.titre}
                         </div>
                         <div className="text-xs text-slate-500 mt-0.5">
-                          {d.type} · Dossier{" "}
+                          {d.type} · {tu("matterLabel")}{" "}
                           {d.dossier?.numeroDossier ?? d.dossier?.intitule ?? "—"}
                           {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
                           {" · "}

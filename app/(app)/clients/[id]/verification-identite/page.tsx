@@ -10,6 +10,7 @@ import { IdentityVerificationForm } from "@/components/clients/IdentityVerificat
 import { IdentityVerificationSection } from "@/components/clients/IdentityVerificationSection";
 import { canManageIdentityVerification } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
+import { getTranslations } from "next-intl/server";
 
 export default async function ClientVerificationIdentitePage({
   params,
@@ -17,6 +18,7 @@ export default async function ClientVerificationIdentitePage({
   params: Promise<{ id: string }>;
 }) {
   const { id: clientId } = await params;
+  const t = await getTranslations("clientsUi");
   const { cabinetId, role } = await requireCabinetAndUser();
   const [client, verifications] = await Promise.all([
     prisma.client.findFirst({
@@ -34,20 +36,22 @@ export default async function ClientVerificationIdentitePage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Vérification d&apos;identité — ${client.raisonSociale}`}
+        title={t("identityVerificationTitle", {
+          name: client.raisonSociale ?? [client.prenom, client.nom].filter(Boolean).join(" "),
+        })}
         backHref={routes.client(clientId)}
-        backLabel="Retour au client"
+        backLabel={t("backToClient")}
       />
       {canManage && (
         <Card>
-          <CardHeader title="Nouvelle vérification" />
+          <CardHeader title={t("newVerification")} />
           <CardContent>
             <IdentityVerificationForm clientId={clientId} />
           </CardContent>
         </Card>
       )}
       <Card>
-        <CardHeader title="Historique" />
+        <CardHeader title={t("history")} />
         <CardContent>
           <IdentityVerificationSection
             clientId={clientId}

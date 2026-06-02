@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { EmployeeForm } from "@/components/employees/EmployeeForm";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export default async function NouveauEmployePage() {
   const { cabinetId, role } = await requireCabinetAndUser();
@@ -22,16 +23,18 @@ export default async function NouveauEmployePage() {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  const t = await getTranslations("settingsUi");
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Nouvel employé"
-        description="Ajoutez un employé au cabinet."
+        title={t("newEmployeeTitle")}
+        description={t("newEmployeeDescription")}
         backHref={routes.employees}
-        backLabel="Retour à la liste"
+        backLabel={t("backToList")}
       />
       <Card>
-        <CardHeader title="Informations de l'employé" />
+        <CardHeader title={t("employeeInfoSection")} />
         <CardContent>
           <EmployeeForm
             mode="create"

@@ -1,6 +1,7 @@
 "use client";
 
 import { signInWithCredentialsClient } from "@/lib/auth/credentials-sign-in-client";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +17,7 @@ const passwordInputClass = `${inputBaseClass} pl-4 pr-12`;
 type AuthTab = "signin" | "signup";
 
 function AuthPageContent() {
+  const t = useTranslations("authUi");
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/tableau-de-bord";
@@ -39,7 +41,7 @@ function AuthPageContent() {
   const [dbConfigError, setDbConfigError] = useState("");
   const [success, setSuccess] = useState(
     searchParams.get("registered") === "1"
-      ? "Cabinet créé. Vous pouvez maintenant vous connecter."
+      ? t("firmCreatedCanSignIn")
       : ""
   );
   const [loading, setLoading] = useState(false);
@@ -57,9 +59,9 @@ function AuthPageContent() {
 
   useEffect(() => {
     if (searchParams.get("registered") === "1") {
-      setSuccess("Cabinet créé. Vous pouvez maintenant vous connecter.");
+      setSuccess(t("firmCreatedCanSignIn"));
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   function switchTab(tab: AuthTab) {
     if (tab === "signup") {
@@ -89,10 +91,10 @@ function AuthPageContent() {
     setLoading(false);
     if (!res.ok) {
       if (res.error === "network") {
-        setError("Impossible de joindre le serveur. Vérifiez que l’app tourne (ex. npm run dev).");
+        setError(t("errorServerUnreachableDev"));
         return;
       }
-      setError("Nom du cabinet, courriel ou mot de passe incorrect.");
+      setError(t("errorInvalidCredentials"));
       return;
     }
     window.location.assign(callbackUrl);
@@ -124,8 +126,8 @@ function AuthPageContent() {
               ? Object.values(data.error)
                   .flat()
                   .filter(Boolean)
-                  .join(". ") || "Erreur lors de l'inscription."
-              : "Erreur lors de l'inscription.";
+                  .join(". ") || t("errorSignUpFailed")
+              : t("errorSignUpFailed");
         setError(errMsg);
         return;
       }
@@ -133,10 +135,10 @@ function AuthPageContent() {
       setEmail(signupEmail);
       setPassword("");
       setSignupPassword("");
-      setSuccess("Cabinet créé. Connectez-vous avec le nom du cabinet, votre courriel et votre mot de passe.");
+      setSuccess(t("firmCreatedSignInPrompt"));
       switchTab("signin");
     } catch {
-      setError("Impossible de contacter le serveur. Vérifiez votre connexion.");
+      setError(t("errorServerUnreachable"));
     } finally {
       setLoading(false);
     }
@@ -145,9 +147,9 @@ function AuthPageContent() {
   return (
     <div className="mx-auto w-full max-w-[480px] bg-surface rounded-[12px] border border-[0.5px] border-border p-6 shadow-sm sm:p-8">
       <div className="mb-8 text-center sm:text-left">
-        <h2 className="text-[24px] font-serif tracking-[-0.02em] text-text-primary mb-2">Bienvenue</h2>
+        <h2 className="text-[24px] font-serif tracking-[-0.02em] text-text-primary mb-2">{t("welcomeTitle")}</h2>
         <p className="text-[14px] font-sans text-text-body">
-          Accédez à votre espace de travail sécurisé
+          {t("welcomeSubtitle")}
         </p>
       </div>
 
@@ -161,7 +163,7 @@ function AuthPageContent() {
               : "text-text-muted hover:text-text-primary border border-transparent"
           }`}
         >
-          Connexion
+          {t("tabSignIn")}
         </button>
         <button
           type="button"
@@ -172,7 +174,7 @@ function AuthPageContent() {
                : "text-text-muted hover:text-text-primary border border-transparent"
           }`}
         >
-          Inscription
+          {t("tabSignUp")}
         </button>
       </div>
 
@@ -196,7 +198,7 @@ function AuthPageContent() {
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
             <label htmlFor="cabinetName" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Nom du cabinet
+              {t("firmNameLabel")}
             </label>
             <input
               id="cabinetName"
@@ -204,13 +206,13 @@ function AuthPageContent() {
               value={cabinetName}
               onChange={(e) => setCabinetName(e.target.value)}
               required
-              placeholder="Ex. Cabinet SAFE"
+              placeholder={t("firmNamePlaceholder")}
               className={inputClass}
             />
           </div>
           <div>
             <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Courriel
+              {t("emailLabel")}
             </label>
             <input
               id="email"
@@ -218,13 +220,13 @@ function AuthPageContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="nom@cabinet.ca"
+              placeholder={t("emailPlaceholderSignIn")}
               className={inputClass}
             />
           </div>
           <div>
             <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Mot de passe
+              {t("passwordLabel")}
             </label>
             <div className="relative">
               <input
@@ -239,8 +241,8 @@ function AuthPageContent() {
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-                title={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+                title={showPassword ? t("hidePassword") : t("showPassword")}
                 className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showPassword ? (
@@ -253,21 +255,21 @@ function AuthPageContent() {
           </div>
           <div className="flex items-center justify-between pt-1">
             <p className="text-[12px] text-text-subtle font-sans leading-[1.5] max-w-[240px]">
-              Les employées se connectent avec le nom exact du cabinet, courriel et mot de passe.
+              {t("employeeSignInHint")}
             </p>
             <Link href="/forgot-password" className="text-[12px] text-forest-600 hover:text-forest-700 underline underline-offset-4 whitespace-nowrap ml-2">
-              Oublié ?
+              {t("forgotLink")}
             </Link>
           </div>
           <Button type="submit" className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none">
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading ? t("signingIn") : t("signInButton")}
           </Button>
         </form>
       ) : (
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <label htmlFor="signupCabinetName" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Nom du cabinet
+              {t("firmNameLabel")}
             </label>
             <input
               id="signupCabinetName"
@@ -280,20 +282,20 @@ function AuthPageContent() {
           </div>
           <div>
             <label htmlFor="signupAddress" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Adresse du cabinet
+              {t("firmAddressLabel")}
             </label>
             <input
               id="signupAddress"
               type="text"
               value={signupAddress}
               onChange={(e) => setSignupAddress(e.target.value)}
-              placeholder="Optionnel"
+              placeholder={t("optionalPlaceholder")}
               className={inputClass}
             />
           </div>
           <div>
             <label htmlFor="signupNom" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Nom de l'avocat responsable
+              {t("responsibleLawyerLabel")}
             </label>
             <input
               id="signupNom"
@@ -306,7 +308,7 @@ function AuthPageContent() {
           </div>
           <div>
             <label htmlFor="signupEmail" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Courriel
+              {t("emailLabel")}
             </label>
             <input
               id="signupEmail"
@@ -319,7 +321,7 @@ function AuthPageContent() {
           </div>
           <div>
             <label htmlFor="signupPassword" className="mb-1.5 block text-[13px] font-medium text-text-primary font-sans">
-              Mot de passe
+              {t("passwordLabel")}
             </label>
             <div className="relative">
               <input
@@ -335,8 +337,8 @@ function AuthPageContent() {
               <button
                 type="button"
                 onClick={() => setShowSignupPassword((value) => !value)}
-                aria-label={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-                title={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                aria-label={showSignupPassword ? t("hidePassword") : t("showPassword")}
+                title={showSignupPassword ? t("hidePassword") : t("showPassword")}
                 className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showSignupPassword ? (
@@ -348,7 +350,7 @@ function AuthPageContent() {
             </div>
           </div>
           <Button type="submit" className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none">
-            {loading ? "Création..." : "Créer le cabinet"}
+            {loading ? t("creating") : t("createFirmButton")}
           </Button>
         </form>
       )}

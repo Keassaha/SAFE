@@ -6,12 +6,14 @@ import { ClientCreationWizard } from "@/components/clients/registry/ClientCreati
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatClientDisplayName } from "@/lib/clients/detect-duplicate";
+import { getTranslations } from "next-intl/server";
 
 export default async function NouveauClientPage({
   searchParams,
 }: {
   searchParams: Promise<{ duplicate?: string; error?: string; existingId?: string }>;
 }) {
+  const t = await getTranslations("clientsUi");
   const cabinetId = await requireCabinetId();
   const params = await searchParams;
   const duplicateId = params.duplicate;
@@ -61,33 +63,33 @@ export default async function NouveauClientPage({
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title={duplicateClient ? "Dupliquer le client" : "Nouveau client"}
+        title={duplicateClient ? t("duplicateClientTitle") : t("newClientTitle")}
         description={
           duplicateClient
-            ? "Créez un nouveau client à partir des informations existantes."
-            : "Créez un client en 6 étapes : identification, coordonnées, représentation, facturation, conformité, récapitulatif."
+            ? t("duplicateClientDesc")
+            : t("newClientDesc")
         }
         backHref={routes.clients}
-        backLabel="Retour au registre"
+        backLabel={t("backToRegistry")}
       />
       {blockedDuplicate && (
         <div className="rounded-safe border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p className="font-semibold">
-            Un client similaire existe déjà : {formatClientDisplayName(blockedDuplicate)}.
+            {t("similarClientExists", { name: formatClientDisplayName(blockedDuplicate) })}
           </p>
           <p className="mt-1">
-            Pour éviter les doublons, ouvrez la fiche existante avant de créer un nouveau client.
+            {t("avoidDuplicatesHint")}
           </p>
           <Link
             href={`/clients/${blockedDuplicate.id}`}
             className="mt-2 inline-flex items-center font-semibold text-amber-900 underline underline-offset-2"
           >
-            Ouvrir la fiche existante →
+            {t("openExistingRecord")}
           </Link>
         </div>
       )}
       <Card>
-        <CardHeader title={duplicateClient ? "Dupliquer le client" : "Création du client"} />
+        <CardHeader title={duplicateClient ? t("duplicateClientTitle") : t("createClientTitle")} />
         <CardContent>
           <ClientCreationWizard lawyers={lawyers} initialData={initialData} initialError={initialError} />
         </CardContent>

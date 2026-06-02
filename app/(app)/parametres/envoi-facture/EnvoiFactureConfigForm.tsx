@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
@@ -11,6 +12,7 @@ type Config = {
 };
 
 export function EnvoiFactureConfigForm() {
+  const t = useTranslations("settingsUi");
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,7 +22,7 @@ export function EnvoiFactureConfigForm() {
     let cancelled = false;
     fetch("/api/cabinet/config")
       .then((res) => {
-        if (!res.ok) throw new Error("Erreur chargement");
+        if (!res.ok) throw new Error(t("loadError"));
         return res.json();
       })
       .then((data) => {
@@ -33,7 +35,7 @@ export function EnvoiFactureConfigForm() {
         }
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Erreur");
+        if (!cancelled) setError(e instanceof Error ? e.message : t("genericError"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -41,7 +43,7 @@ export function EnvoiFactureConfigForm() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,9 +62,9 @@ export function EnvoiFactureConfigForm() {
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? "Erreur enregistrement");
+      if (!res.ok) throw new Error(data.error ?? t("saveError"));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
+      setError(e instanceof Error ? e.message : t("genericError"));
     } finally {
       setSaving(false);
     }
@@ -87,7 +89,7 @@ export function EnvoiFactureConfigForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
-        <CardHeader title="Envoi de facture au client" />
+        <CardHeader title={t("invoiceSendCardTitle")} />
         <CardContent className="space-y-4">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
@@ -99,13 +101,11 @@ export function EnvoiFactureConfigForm() {
               className="rounded border-neutral-300"
             />
             <span className="text-sm font-medium text-[var(--safe-text-title)]">
-              Activer les liens uniques pour envoyer les factures aux clients
+              {t("enableUniqueLinks")}
             </span>
           </label>
           <p className="text-sm text-[var(--safe-text-secondary)]">
-            Lorsque cette option est activée, vous pouvez générer un lien
-            sécurisé pour chaque facture envoyée. Le client pourra consulter la
-            facture sans se connecter.
+            {t("uniqueLinksHelp")}
           </p>
 
           <div>
@@ -113,7 +113,7 @@ export function EnvoiFactureConfigForm() {
               htmlFor="lienExpirationJours"
               className="block text-sm font-medium text-[var(--safe-text-title)] mb-1"
             >
-              Expiration du lien (jours)
+              {t("linkExpirationLabel")}
             </label>
             <input
               id="lienExpirationJours"
@@ -137,8 +137,7 @@ export function EnvoiFactureConfigForm() {
               className="w-24 rounded border border-neutral-300 px-3 py-2 text-sm"
             />
             <p className="mt-1 text-xs text-[var(--safe-text-secondary)]">
-              Entre 1 et 365 jours. Après cette date, le lien ne fonctionnera
-              plus.
+              {t("linkExpirationHint")}
             </p>
           </div>
 
@@ -156,7 +155,7 @@ export function EnvoiFactureConfigForm() {
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : null}
-              Enregistrer
+              {t("save")}
             </Button>
           </div>
         </CardContent>

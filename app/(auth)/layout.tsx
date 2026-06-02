@@ -1,11 +1,13 @@
 import { Logo } from "@/components/brand/Logo";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const t = await getTranslations("authUi");
   return (
     <div className="min-h-screen bg-canvas font-sans selection:bg-forest-100 selection:text-forest-600 px-4 py-8">
       {/* En-tête simple pour l'authentification */}
@@ -21,14 +23,13 @@ export default function AuthLayout({
           <div className="hidden text-text-primary lg:block px-4">
             <div className="max-w-md">
               <p className="mb-4 text-[12px] font-sans font-medium uppercase tracking-[0.15em] text-forest-600">
-                Espace sécurisé
+                {t("layoutEyebrow")}
               </p>
               <h1 className="mb-6 font-serif text-[42px] leading-[1.05] tracking-[-0.02em] text-text-primary">
-                La plateforme financière pour les cabinets d'avocats.
+                {t("layoutHeadline")}
               </h1>
               <p className="text-[15px] font-sans leading-[1.6] text-text-body">
-                Connectez-vous pour accéder à vos dossiers, réconcilier vos fidéicommis et gérer 
-                votre facturation en toute conformité.
+                {t("layoutSubtext")}
               </p>
             </div>
           </div>

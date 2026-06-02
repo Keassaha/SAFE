@@ -14,12 +14,13 @@ export default async function ParametresEnvoiFacturePage() {
   }
 
   const t = await getTranslations("parametres");
+  const tu = await getTranslations("settingsUi");
 
   return (
     <div className="space-y-6 max-w-2xl">
       <PageHeader
-        title="Envoi de facture au client"
-        description="Configurez la génération de liens uniques pour que vos clients puissent consulter leurs factures sans se connecter."
+        title={tu("invoiceSendTitle")}
+        description={tu("invoiceSendDescription")}
         backHref={routes.parametres}
         backLabel={t("backToSettings")}
       />

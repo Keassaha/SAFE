@@ -11,6 +11,7 @@ import {
   getCabinetTaxNumbers,
 } from "@/lib/cabinet-config";
 import { InvoiceAppearanceForm } from "./InvoiceAppearanceForm";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Réglages — Apparence de la facture.
@@ -35,13 +36,15 @@ export default async function InvoiceAppearancePage() {
   const inv = getCabinetInvoiceConfig(config);
   const taxes = getCabinetTaxNumbers(config);
 
+  const t = await getTranslations("settingsUi");
+
   return (
     <div className="max-w-6xl space-y-6 animate-fade-in">
       <PageHeader
-        title="Apparence de la facture"
-        description="Personnalisez la couleur, le logo, les mentions et la signature de vos factures."
+        title={t("invoiceAppearanceTitle")}
+        description={t("invoiceAppearanceDescription")}
         backHref={routes.parametres}
-        backLabel="Retour aux paramètres"
+        backLabel={t("backToSettings")}
       />
 
       <InvoiceAppearanceForm
