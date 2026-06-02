@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { X, FolderOpen, ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -28,6 +29,7 @@ export function MoveDocumentDialog({
   onClose,
   onSuccess,
 }: Props) {
+  const t = useTranslations("editorUi");
   const [selectedId, setSelectedId] = useState<string>("");
   const [search, setSearch] = useState("");
   const [isMoving, setIsMoving] = useState(false);
@@ -55,10 +57,10 @@ export function MoveDocumentDialog({
         onSuccess(selectedId, data.targetDossier.intitule);
       } else {
         const err = await res.json();
-        setError(err.error ?? "Erreur lors du déplacement");
+        setError(err.error ?? t("moveError"));
       }
     } catch {
-      setError("Erreur réseau");
+      setError(t("networkError"));
     } finally {
       setIsMoving(false);
     }
@@ -76,7 +78,7 @@ export function MoveDocumentDialog({
               <FolderOpen className="w-4 h-4 text-[var(--safe-primary)]" />
             </div>
             <div>
-              <p className="font-semibold text-[var(--safe-text-title)] text-sm">Déplacer le document</p>
+              <p className="font-semibold text-[var(--safe-text-title)] text-sm">{t("moveDocumentTitle")}</p>
               <p className="text-xs text-[var(--safe-text-secondary)] truncate max-w-[240px]">{documentTitre}</p>
             </div>
           </div>
@@ -92,7 +94,7 @@ export function MoveDocumentDialog({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un dossier..."
+            placeholder={t("searchMatterPlaceholder")}
             className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             autoFocus
           />
@@ -101,7 +103,7 @@ export function MoveDocumentDialog({
           <div className="max-h-64 overflow-y-auto space-y-1 -mx-1 px-1">
             {filtered.length === 0 ? (
               <p className="text-sm text-[var(--safe-text-secondary)] text-center py-6">
-                Aucun autre dossier disponible
+                {t("noOtherMatter")}
               </p>
             ) : (
               filtered.map((d) => (
@@ -137,7 +139,7 @@ export function MoveDocumentDialog({
           {/* Aperçu du déplacement */}
           {target && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--safe-neutral-bg)] text-sm">
-              <span className="text-[var(--safe-text-secondary)] truncate flex-1">Dossier actuel</span>
+              <span className="text-[var(--safe-text-secondary)] truncate flex-1">{t("currentMatter")}</span>
               <ArrowRight className="w-4 h-4 text-[var(--safe-primary)] shrink-0" />
               <span className="font-medium text-[var(--safe-primary)] truncate flex-1 text-right">
                 {target.intitule}
@@ -156,7 +158,7 @@ export function MoveDocumentDialog({
             onClick={onClose}
             className="flex-1 py-2.5 text-sm border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors text-[var(--safe-text-secondary)]"
           >
-            Annuler
+            {t("cancel")}
           </button>
           <Button
             onClick={handleMove}
@@ -164,9 +166,9 @@ export function MoveDocumentDialog({
             className="flex-1 flex items-center justify-center gap-2"
           >
             {isMoving ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Déplacement...</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> {t("moving")}</>
             ) : (
-              <><FolderOpen className="w-4 h-4" /> Déplacer</>
+              <><FolderOpen className="w-4 h-4" /> {t("move")}</>
             )}
           </Button>
         </div>

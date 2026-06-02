@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FileText, Grid as GridIcon, List as ListIcon, Search } from "lucide-react";
 import { routes } from "@/lib/routes";
 
@@ -29,19 +30,19 @@ interface Doc {
   dossierIntitule: string | null;
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  note: "Note",
-  lettre: "Lettre",
-  contrat: "Contrat",
-  procedure: "Procédure",
-  requete: "Requête",
-  autre: "Document",
+const TYPE_LABEL_KEY: Record<string, string> = {
+  note: "biblioTypeNote",
+  lettre: "biblioTypeLettre",
+  contrat: "biblioTypeContrat",
+  procedure: "biblioTypeProcedure",
+  requete: "biblioTypeRequete",
+  autre: "biblioTypeAutre",
 };
 
-const STATUT_LABEL: Record<string, string> = {
-  brouillon: "Brouillon",
-  final: "Final",
-  archive: "Archivé",
+const STATUT_LABEL_KEY: Record<string, string> = {
+  brouillon: "statutBrouillon",
+  final: "statutFinal",
+  archive: "statutArchive",
 };
 
 const TYPE_COLOR: Record<string, string> = {
@@ -59,6 +60,7 @@ function formatDate(iso: string): string {
 }
 
 export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
+  const t = useTranslations("editorUi");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [filter, setFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -80,13 +82,13 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
   }, [docs, filter, query]);
 
   const tabs = [
-    { id: "all", label: `Tous · ${counts.all ?? 0}` },
-    { id: "contrat", label: `Contrats · ${counts.contrat ?? 0}` },
-    { id: "lettre", label: `Lettres · ${counts.lettre ?? 0}` },
-    { id: "procedure", label: `Procédures · ${counts.procedure ?? 0}` },
-    { id: "requete", label: `Requêtes · ${counts.requete ?? 0}` },
-    { id: "note", label: `Notes · ${counts.note ?? 0}` },
-    { id: "autre", label: `Autre · ${counts.autre ?? 0}` },
+    { id: "all", label: `${t("tabAll")} · ${counts.all ?? 0}` },
+    { id: "contrat", label: `${t("tabContrats")} · ${counts.contrat ?? 0}` },
+    { id: "lettre", label: `${t("tabLettres")} · ${counts.lettre ?? 0}` },
+    { id: "procedure", label: `${t("tabProcedures")} · ${counts.procedure ?? 0}` },
+    { id: "requete", label: `${t("tabRequetes")} · ${counts.requete ?? 0}` },
+    { id: "note", label: `${t("tabNotes")} · ${counts.note ?? 0}` },
+    { id: "autre", label: `${t("tabAutre")} · ${counts.autre ?? 0}` },
   ];
 
   return (
@@ -113,7 +115,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                 marginBottom: 4,
               }}
             >
-              Édition
+              {t("editionLabel")}
             </div>
             <h1
               style={{
@@ -123,7 +125,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                 margin: 0,
               }}
             >
-              Bibliothèque
+              {t("library")}
             </h1>
           </div>
 
@@ -144,7 +146,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher…"
+                placeholder={t("searchPlaceholder")}
                 style={{
                   border: "none",
                   outline: "none",
@@ -175,7 +177,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                   placeItems: "center",
                   cursor: "pointer",
                 }}
-                aria-label="Vue grille"
+                aria-label={t("gridView")}
               >
                 <GridIcon style={{ width: 14, height: 14 }} strokeWidth={1.8} />
               </button>
@@ -191,7 +193,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                   cursor: "pointer",
                   borderLeft: `1px solid ${V1.border}`,
                 }}
-                aria-label="Vue liste"
+                aria-label={t("listView")}
               >
                 <ListIcon style={{ width: 14, height: 14 }} strokeWidth={1.8} />
               </button>
@@ -239,7 +241,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
               fontSize: 13,
             }}
           >
-            Aucun document ne correspond à cette recherche.
+            {t("noDocumentMatch")}
           </div>
         ) : view === "grid" ? (
           <div
@@ -344,7 +346,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {TYPE_LABEL[d.type] ?? d.type}
+                        {TYPE_LABEL_KEY[d.type] ? t(TYPE_LABEL_KEY[d.type]) : d.type}
                         {d.clientNom ? ` · ${d.clientNom}` : ""}
                       </span>
                       <span style={{ flexShrink: 0 }}>{formatDate(d.updatedAt)}</span>
@@ -376,10 +378,10 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                 borderBottom: `1px solid ${V1.border}`,
               }}
             >
-              <div>Nom</div>
-              <div>Type</div>
-              <div>Modifié</div>
-              <div>Statut</div>
+              <div>{t("columnName")}</div>
+              <div>{t("columnType")}</div>
+              <div>{t("columnModified")}</div>
+              <div>{t("columnStatus")}</div>
               <div />
             </div>
             {filtered.map((d, i) => {
@@ -419,7 +421,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                       {d.titre}
                     </span>
                   </div>
-                  <div style={{ color: V1.textMid }}>{TYPE_LABEL[d.type] ?? d.type}</div>
+                  <div style={{ color: V1.textMid }}>{TYPE_LABEL_KEY[d.type] ? t(TYPE_LABEL_KEY[d.type]) : d.type}</div>
                   <div style={{ color: V1.textMid }}>{formatDate(d.updatedAt)}</div>
                   <div>
                     <span
@@ -431,7 +433,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                         color: statusColor,
                       }}
                     >
-                      {STATUT_LABEL[d.statut] ?? d.statut}
+                      {STATUT_LABEL_KEY[d.statut] ? t(STATUT_LABEL_KEY[d.statut]) : d.statut}
                     </span>
                   </div>
                   <div style={{ textAlign: "right", color: V1.textDim }}>⋯</div>

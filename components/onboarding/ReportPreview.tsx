@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { ReportSection } from '@/lib/audit-types';
 
 interface ReportPreviewProps {
@@ -11,10 +12,11 @@ export function ReportPreview({
   sections,
   currentQuestionContext,
 }: ReportPreviewProps) {
+  const t = useTranslations('onboardingUi');
   return (
     <aside className="bg-slate-100 border-l border-slate-200/60 px-5 py-6">
       <p className="text-[11px] font-medium text-slate-600 tracking-widest uppercase mb-3">
-        Votre rapport
+        {t('yourReport')}
       </p>
 
       <ReportCard sections={sections} />
@@ -27,12 +29,13 @@ export function ReportPreview({
 }
 
 function ReportCard({ sections }: { sections: ReportSection[] }) {
+  const t = useTranslations('onboardingUi');
   return (
     <div className="bg-white rounded-[10px] border border-slate-200 overflow-hidden mb-5">
       <div className="px-3.5 py-3.5 bg-forest-900 text-forest-50">
-        <p className="font-serif italic text-base mb-0.5">Audit SAFE</p>
+        <p className="font-serif italic text-base mb-0.5">{t('auditSafe')}</p>
         <p className="text-[10px] text-forest-200">
-          Rapport personnalisé · PDF
+          {t('personalizedReportPdf')}
         </p>
       </div>
       <div className="p-3.5">
@@ -103,6 +106,7 @@ function StatusIcon({
 }
 
 function ContextExplainer({ content }: { content: string }) {
+  const t = useTranslations('onboardingUi');
   return (
     <div className="bg-white rounded-[10px] border border-slate-200 p-3.5 mb-5">
       <div className="flex items-center gap-2 mb-2">
@@ -114,7 +118,7 @@ function ContextExplainer({ content }: { content: string }) {
           </svg>
         </div>
         <p className="text-xs font-medium text-forest-900">
-          Pourquoi ces questions&nbsp;?
+          {t('whyTheseQuestions')}
         </p>
       </div>
       <p className="text-[11px] text-slate-600 leading-relaxed">{content}</p>
@@ -123,6 +127,7 @@ function ContextExplainer({ content }: { content: string }) {
 }
 
 function SecurityNote() {
+  const t = useTranslations('onboardingUi');
   return (
     <div className="p-3 bg-forest-900 rounded-[10px]">
       <div className="flex items-center gap-2 mb-1.5">
@@ -130,12 +135,11 @@ function SecurityNote() {
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
         <p className="text-[11px] font-medium text-forest-50">
-          Réponses chiffrées
+          {t('encryptedAnswers')}
         </p>
       </div>
       <p className="text-[10px] text-forest-200 leading-relaxed">
-        Stockées au Québec. Supprimées après 30 jours si vous ne créez pas de
-        compte SAFE.
+        {t('encryptedAnswersNote')}
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Upload, FileText, FileImage, File,
   Sparkles, CheckCircle, XCircle, Loader2, X
@@ -59,13 +60,13 @@ const ACCEPTED_TYPES = ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp";
 const MAX_SIZE_MB = 25;
 
 const DOC_TYPES = [
-  { value: "note", label: "Note interne" },
-  { value: "lettre", label: "Lettre" },
-  { value: "contrat", label: "Contrat" },
-  { value: "procedure", label: "Procédure" },
-  { value: "requete", label: "Requête" },
-  { value: "autre", label: "Autre" },
-];
+  { value: "note", labelKey: "docTypeNote" },
+  { value: "lettre", labelKey: "docTypeLettre" },
+  { value: "contrat", labelKey: "docTypeContrat" },
+  { value: "procedure", labelKey: "docTypeProcedure" },
+  { value: "requete", labelKey: "docTypeRequete" },
+  { value: "autre", labelKey: "docTypeAutre" },
+] as const;
 
 function fileIcon(mime: string) {
   if (mime.startsWith("image/")) return <FileImage className="w-5 h-5 text-blue-500" />;
@@ -73,25 +74,27 @@ function fileIcon(mime: string) {
   return <File className="w-5 h-5 text-gray-500" />;
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+function formatBytes(bytes: number, t: ReturnType<typeof useTranslations<"editorUi">>) {
+  if (bytes < 1024) return t("bytes", { size: bytes });
+  if (bytes < 1024 * 1024) return t("sizeKb", { size: (bytes / 1024).toFixed(1) });
+  return t("sizeMb", { size: (bytes / (1024 * 1024)).toFixed(1) });
 }
 
 function ConfidenceBadge({ score }: { score: number }) {
+  const t = useTranslations("editorUi");
   const color =
     score >= 80 ? "bg-green-100 text-green-700" :
     score >= 60 ? "bg-yellow-100 text-yellow-700" :
     "bg-red-100 text-red-700";
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${color}`}>
-      {score}% confiance
+      {t("confidence", { score })}
     </span>
   );
 }
 
 export function UploadZone({ dossiers, currentDossierId, currentClientId, onSuccess }: Props) {
+  const t = useTranslations("editorUi");
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploads, setUploads] = useState<PendingUpload[]>([]);
@@ -103,7 +106,7 @@ export function UploadZone({ dossiers, currentDossierId, currentClientId, onSucc
     async (file: File, idx: number) => {
       // Vérifier taille
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        updateUpload(idx, { status: "error", error: `Fichier trop volumineux (max ${MAX_SIZE_MB} Mo)` });
+        updateUpload(idx, { status: "error", error: t("fileTooLarge", { max: MAX_SIZE_MB }) });
         return;
       }
 
@@ -117,7 +120,7 @@ export function UploadZone({ dossiers, currentDossierId, currentClientId, onSucc
         const res = await fetch("/api/edition/upload", { method: "POST", body: formData });
         if (!res.ok) {
           const err = await res.json();
-          updateUpload(idx, { status: "error", error: err.error ?? "Erreur upload" });
+          updateUpload(idx, { status: "error", error: err.error ?? t("uploadGenericError") });
           return;
         }
 
@@ -134,10 +137,10 @@ export function UploadZone({ dossiers, currentDossierId, currentClientId, onSucc
           customTitre: classification?.suggestedTitre ?? file.name,
         });
       } catch {
-        updateUpload(idx, { status: "error", error: "Erreur réseau" });
+        updateUpload(idx, { status: "error", error: t("networkError") });
       }
     },
-    [currentDossierId]
+    [currentDossierId, t]
   );
 
   const handleFiles = (files: FileList | File[]) => {
@@ -184,10 +187,10 @@ export function UploadZone({ dossiers, currentDossierId, currentClientId, onSucc
         updateUpload(idx, { status: "confirmed" });
         onSuccess?.(u.uploadedDoc.id, u.selectedDossierId);
       } else {
-        updateUpload(idx, { status: "error", error: "Erreur confirmation" });
+        updateUpload(idx, { status: "error", error: t("confirmError") });
       }
     } catch {
-      updateUpload(idx, { status: "error", error: "Erreur réseau" });
+      updateUpload(idx, { status: "error", error: t("networkError") });
     }
   };
 
@@ -218,14 +221,14 @@ export function UploadZone({ dossiers, currentDossierId, currentClientId, onSucc
         />
         <Upload className="w-8 h-8 text-[var(--safe-text-secondary)] mx-auto mb-3" />
         <p className="font-medium text-[var(--safe-text-title)] text-sm">
-          Glissez vos documents ici ou cliquez pour choisir
+          {t("dropZoneTitle")}
         </p>
         <p className="text-xs text-[var(--safe-text-secondary)] mt-1">
-          PDF, Word, TXT, Images — max {MAX_SIZE_MB} Mo
+          {t("dropZoneFormats", { max: MAX_SIZE_MB })}
         </p>
         <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--safe-primary)]">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Classification automatique par IA</span>
+          <span>{t("autoClassification")}</span>
         </div>
       </div>
 
@@ -261,6 +264,7 @@ function UploadCard({
   onRemove: () => void;
   onUpdate: (patch: Partial<PendingUpload>) => void;
 }) {
+  const t = useTranslations("editorUi");
   const { file, status, classification, uploadedDoc } = upload;
 
   return (
@@ -275,7 +279,7 @@ function UploadCard({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--safe-text-title)] truncate">{file.name}</p>
           <p className="text-xs text-[var(--safe-text-secondary)]">
-            {formatBytes(file.size)}
+            {formatBytes(file.size, t)}
           </p>
         </div>
         {(status === "confirmed" || status === "error") && (
@@ -289,14 +293,17 @@ function UploadCard({
       {(status === "uploading" || status === "classifying") && (
         <div className="flex items-center gap-2 text-sm text-[var(--safe-text-secondary)]">
           <Loader2 className="w-4 h-4 animate-spin" />
-          {status === "uploading" ? "Upload en cours..." : "Analyse IA en cours..."}
+          {status === "uploading" ? t("uploading") : t("aiAnalyzing")}
         </div>
       )}
 
       {status === "confirmed" && (
         <div className="flex items-center gap-2 text-sm text-green-700">
           <CheckCircle className="w-4 h-4" />
-          Classé dans <strong>{dossiers.find(d => d.id === upload.selectedDossierId)?.intitule ?? "le dossier"}</strong>
+          {t.rich("classifiedIn", {
+            matter: dossiers.find(d => d.id === upload.selectedDossierId)?.intitule ?? t("theMatter"),
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </div>
       )}
 
@@ -317,16 +324,16 @@ function UploadCard({
               <div className="flex-1 text-sm space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-[var(--safe-text-title)]">
-                    IA suggère : {classification.dossierIntitule}
+                    {t("aiSuggests", { matter: classification.dossierIntitule })}
                   </span>
                   <ConfidenceBadge score={classification.confidence} />
                 </div>
                 <p className="text-xs text-[var(--safe-text-secondary)]">{classification.reasoning}</p>
                 {classification.suggestedSectionKey ? (
                   <p className="text-xs text-[var(--safe-text-secondary)]">
-                    Section suggérée : <span className="font-medium">{classification.suggestedSectionKey}</span>
+                    {t("suggestedSection")} <span className="font-medium">{classification.suggestedSectionKey}</span>
                     {classification.suggestedSubtype ? ` · ${classification.suggestedSubtype}` : ""}
-                    {classification.needsReview ? " · revue recommandée" : ""}
+                    {classification.needsReview ? t("reviewRecommendedSuffix") : ""}
                   </p>
                 ) : null}
               </div>
@@ -334,13 +341,13 @@ function UploadCard({
           ) : (
             <div className="flex items-center gap-2 text-xs text-[var(--safe-text-secondary)] p-2 bg-[var(--safe-neutral-bg)] rounded-lg">
               <Sparkles className="w-3.5 h-3.5" />
-              Classification IA non disponible — sélectionnez manuellement
+              {t("aiUnavailable")}
             </div>
           )}
 
           {/* Titre */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">Titre du document</label>
+            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">{t("documentTitle")}</label>
             <input
               type="text"
               value={upload.customTitre ?? file.name}
@@ -351,13 +358,13 @@ function UploadCard({
 
           {/* Dossier */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">Classer dans le dossier</label>
+            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">{t("classifyInMatter")}</label>
             <select
               value={upload.selectedDossierId ?? ""}
               onChange={(e) => onUpdate({ selectedDossierId: e.target.value })}
               className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             >
-              <option value="">— Choisir un dossier —</option>
+              <option value="">{t("chooseMatter")}</option>
               {dossiers.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.clientNom} · {d.intitule}
@@ -369,19 +376,19 @@ function UploadCard({
 
           {/* Type */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">Type de document</label>
+            <label className="text-xs font-medium text-[var(--safe-text-secondary)]">{t("documentType")}</label>
             <div className="flex flex-wrap gap-1.5">
-              {DOC_TYPES.map((t) => (
+              {DOC_TYPES.map((dt) => (
                 <button
-                  key={t.value}
-                  onClick={() => onUpdate({ selectedType: t.value })}
+                  key={dt.value}
+                  onClick={() => onUpdate({ selectedType: dt.value })}
                   className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
-                    upload.selectedType === t.value
+                    upload.selectedType === dt.value
                       ? "bg-[var(--safe-primary)] text-white"
                       : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
                   }`}
                 >
-                  {t.label}
+                  {t(dt.labelKey)}
                 </button>
               ))}
             </div>
@@ -395,13 +402,13 @@ function UploadCard({
               className="flex-1 flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-4 h-4" />
-              Confirmer et classer
+              {t("confirmAndClassify")}
             </Button>
             <button
               onClick={onRemove}
               className="px-3 py-2 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)]"
             >
-              Annuler
+              {t("cancel")}
             </button>
           </div>
         </div>

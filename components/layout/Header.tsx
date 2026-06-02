@@ -52,22 +52,22 @@ interface HeaderProps {
  *  ─────────────────────────────────────────────────────────── */
 
 type NavChild = {
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  description?: string;
+  descriptionKey?: string;
 };
 
 type NavGroup =
   | {
       id: string;
-      label: string;
+      labelKey: string;
       href: string;
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
     }
   | {
       id: string;
-      label: string;
+      labelKey: string;
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
       children: NavChild[];
       matchPrefixes: string[];
@@ -76,71 +76,71 @@ type NavGroup =
 const NAV: NavGroup[] = [
   {
     id: "dashboard",
-    label: "Tableau de bord",
+    labelKey: "navDashboard",
     href: routes.tableauDeBord,
     icon: LayoutDashboard,
   },
   {
     id: "pratique",
-    label: "Pratique",
+    labelKey: "navPractice",
     icon: Briefcase,
     matchPrefixes: [routes.clients, routes.dossiers, routes.employees],
     children: [
       {
-        label: "Clients",
+        labelKey: "navClients",
         href: routes.clients,
         icon: Users,
-        description: "Carnet et fiches clients",
+        descriptionKey: "navClientsDesc",
       },
       {
-        label: "Dossiers",
+        labelKey: "navMatters",
         href: routes.dossiers,
         icon: FolderOpen,
-        description: "Mandats ouverts et en cours",
+        descriptionKey: "navMattersDesc",
       },
       {
-        label: "Employés",
+        labelKey: "navEmployees",
         href: routes.employees,
         icon: Users,
-        description: "Équipe du cabinet",
+        descriptionKey: "navEmployeesDesc",
       },
     ],
   },
   {
     id: "finances",
-    label: "Finances",
+    labelKey: "navFinances",
     icon: Wallet,
     matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes],
     children: [
       {
-        label: "Facturation",
+        labelKey: "navBilling",
         href: routes.facturation,
         icon: Receipt,
-        description: "Factures, suivi et paiements",
+        descriptionKey: "navBillingDesc",
       },
       {
-        label: "Comptabilité",
+        labelKey: "navAccounting",
         href: routes.comptabilite,
         icon: BookOpen,
-        description: "Journal général et dépenses",
+        descriptionKey: "navAccountingDesc",
       },
       {
-        label: "Fidéicommis",
+        labelKey: "navTrust",
         href: routes.comptes,
         icon: Wallet,
-        description: "Comptes en fiducie · B-1 r.5",
+        descriptionKey: "navTrustDesc",
       },
       {
-        label: "Prestation & honoraires",
+        labelKey: "navTimeFees",
         href: routes.temps,
         icon: Clock,
-        description: "Feuilles de temps à facturer",
+        descriptionKey: "navTimeFeesDesc",
       },
     ],
   },
   {
     id: "outils",
-    label: "Outils",
+    labelKey: "navTools",
     icon: Wrench,
     matchPrefixes: [
       routes.edition,
@@ -149,28 +149,28 @@ const NAV: NavGroup[] = [
     ],
     children: [
       {
-        label: "Édition",
+        labelKey: "navEdition",
         href: routes.edition,
         icon: FileText,
-        description: "Documents · bibliothèque · éditeur IA",
+        descriptionKey: "navEditionDesc",
       },
       {
-        label: "Rapports",
+        labelKey: "navReports",
         href: routes.rapports,
         icon: BarChart3,
-        description: "Analyses et performance",
+        descriptionKey: "navReportsDesc",
       },
       {
-        label: "Safe Import",
+        labelKey: "navSafeImport",
         href: routes.safeImport,
         icon: Upload,
-        description: "Importer données / relevés",
+        descriptionKey: "navSafeImportDesc",
       },
     ],
   },
   {
     id: "parametres",
-    label: "Paramètres",
+    labelKey: "navSettings",
     href: routes.parametres,
     icon: Settings,
   },
@@ -200,11 +200,12 @@ export function Header({
   billingMode,
 }: HeaderProps) {
   const t = useTranslations("shell.header");
+  const tMisc = useTranslations("miscUi");
   const pathname = usePathname();
   const currentUserId = (user as { id?: string })?.id ?? "";
   const initial = (user?.name ?? user?.email ?? "?")[0].toUpperCase();
   const displayName =
-    user?.name ?? user?.email?.split("@")[0] ?? "Utilisateur";
+    user?.name ?? user?.email?.split("@")[0] ?? tMisc("defaultUserName");
 
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -276,7 +277,7 @@ export function Header({
         <Link
           href={routes.tableauDeBord}
           className="flex items-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600/40"
-          aria-label="SAFE — Tableau de bord"
+          aria-label={tMisc("logoHomeAria")}
         >
           <LogoMark size={26} />
         </Link>
@@ -287,7 +288,7 @@ export function Header({
         />
 
         <span className="hidden xl:block text-[13px] font-sans font-medium text-text-body truncate max-w-[200px]">
-          {user?.name ?? "Mon cabinet"}
+          {user?.name ?? tMisc("myFirm")}
         </span>
       </div>
 
@@ -295,7 +296,7 @@ export function Header({
       <nav
         ref={navRef}
         className="flex-1 hidden lg:flex items-center justify-center gap-1"
-        aria-label="Navigation principale"
+        aria-label={tMisc("mainNavigationAria")}
       >
         {NAV.map((group) => {
           const active = isGroupActive(group, pathname);
@@ -315,7 +316,7 @@ export function Header({
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {group.label}
+                {tMisc(group.labelKey)}
               </Link>
             );
           }
@@ -337,7 +338,7 @@ export function Header({
                 aria-expanded={isOpen}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {group.label}
+                {tMisc(group.labelKey)}
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -367,7 +368,7 @@ export function Header({
                     />
                     <div className="px-4 pt-4 pb-2">
                       <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium">
-                        {group.label}
+                        {tMisc(group.labelKey)}
                       </span>
                     </div>
                     <ul role="list" className="pb-2">
@@ -409,11 +410,11 @@ export function Header({
                                       : "text-text-primary"
                                   }`}
                                 >
-                                  {child.label}
+                                  {tMisc(child.labelKey)}
                                 </span>
-                                {child.description && (
+                                {child.descriptionKey && (
                                   <span className="block text-[11.5px] font-sans text-text-muted mt-0.5 leading-[1.4]">
-                                    {child.description}
+                                    {tMisc(child.descriptionKey)}
                                   </span>
                                 )}
                               </span>
@@ -487,7 +488,7 @@ export function Header({
               >
                 <div className="px-4 py-3 border-b border-[0.5px] border-border/70 bg-[var(--sand-50)]/60">
                   <p className="text-[11px] font-sans uppercase tracking-[0.12em] text-forest-600 font-medium">
-                    Compte
+                    {tMisc("account")}
                   </p>
                   <p className="font-serif text-[15px] text-text-primary mt-1 truncate">
                     {displayName}
@@ -516,7 +517,7 @@ export function Header({
                     className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--sand-50)] hover:text-text-primary transition-colors"
                   >
                     <UserIcon className="w-4 h-4" strokeWidth={1.75} />
-                    Mon profil
+                    {tMisc("myProfile")}
                   </Link>
                 </div>
 

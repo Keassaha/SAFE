@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { SECTIONS } from '@/lib/audit-questions';
 import type { AuditSection, SectionStatus } from '@/lib/audit-types';
 
@@ -20,10 +21,11 @@ export function StepperSidebar({
   minutesRemaining,
   onSaveAndExit,
 }: StepperSidebarProps) {
+  const t = useTranslations('onboardingUi');
   return (
     <aside className="bg-white border-r border-slate-200/60 px-5 py-6 flex flex-col">
       <p className="text-[11px] font-medium text-slate-600 tracking-widest uppercase mb-3.5">
-        Progression
+        {t('progress')}
       </p>
 
       <div className="flex items-center gap-2.5 mb-4">
@@ -43,7 +45,7 @@ export function StepperSidebar({
           <circle cx="12" cy="12" r="10" />
           <polyline points="12 6 12 12 16 14" />
         </svg>
-        ~{minutesRemaining} min restantes
+        {t('minutesRemaining', { n: minutesRemaining })}
       </p>
 
       <nav className="flex flex-col gap-0.5">
@@ -59,6 +61,11 @@ export function StepperSidebar({
               isCurrent={isCurrent}
               currentStep={isCurrent ? currentStepInSection : undefined}
               totalSteps={section.steps}
+              stepLabel={t('stepXofY', {
+                current: isCurrent ? currentStepInSection : 0,
+                total: section.steps,
+              })}
+              completedLabel={t('completed')}
             />
           );
         })}
@@ -74,7 +81,7 @@ export function StepperSidebar({
             <polyline points="17 21 17 13 7 13 7 21" />
             <polyline points="7 3 7 8 15 8" />
           </svg>
-          Sauvegarder et quitter
+          {t('saveAndExit')}
         </button>
       </div>
     </aside>
@@ -85,14 +92,16 @@ function StepItem({
   label,
   status,
   isCurrent,
-  currentStep,
-  totalSteps,
+  stepLabel,
+  completedLabel,
 }: {
   label: string;
   status: SectionStatus;
   isCurrent: boolean;
   currentStep?: number;
   totalSteps: number;
+  stepLabel: string;
+  completedLabel: string;
 }) {
   const containerClass = isCurrent
     ? 'bg-forest-50'
@@ -113,11 +122,11 @@ function StepItem({
         </p>
         {isCurrent && (
           <p className="text-[11px] text-forest-700 mt-0.5">
-            Étape {currentStep} sur {totalSteps}
+            {stepLabel}
           </p>
         )}
         {status === 'completed' && !isCurrent && (
-          <p className="text-[11px] text-slate-500 mt-0.5">Complété</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{completedLabel}</p>
         )}
       </div>
     </div>

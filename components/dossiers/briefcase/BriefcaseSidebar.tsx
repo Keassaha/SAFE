@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   FileSignature,
   FileText,
@@ -86,6 +87,7 @@ export function BriefcaseSidebar({
   selectedItemId,
   onSelectItem,
 }: BriefcaseSidebarProps) {
+  const t = useTranslations("miscUi");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set([sections[0]?.sectionKey ?? "mandat"])
   );
@@ -127,7 +129,7 @@ export function BriefcaseSidebar({
 
   return (
     <div className="flex h-full w-full flex-col border-b border-slate-200/70 bg-slate-50/50 p-4 lg:w-64 lg:border-b-0 lg:border-r lg:overflow-y-auto">
-      <h2 className="mb-4 text-sm font-semibold text-slate-900">Cartables</h2>
+      <h2 className="mb-4 text-sm font-semibold text-slate-900">{t("briefcaseTitle")}</h2>
 
       <nav className="space-y-1">
         {runtimeSections.map((section) => {
@@ -159,7 +161,7 @@ export function BriefcaseSidebar({
                 <div className="ml-6 space-y-0.5 py-1">
                   {section.items.length === 0 ? (
                     <div className="px-3 py-2 text-xs text-slate-400 italic">
-                      Aucun document
+                      {t("noDocument")}
                     </div>
                   ) : (
                     section.items.map((item) => (

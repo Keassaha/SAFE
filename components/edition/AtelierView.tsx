@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FolderOpen, Clock, FileText, ChevronRight, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -62,6 +63,7 @@ interface AtelierViewProps {
 }
 
 export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
+  const t = useTranslations("editorUi");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(
     clients[0]?.id ?? null
   );
@@ -73,7 +75,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
       {/* Sidebar — liste des clients */}
       <aside className="w-64 shrink-0 space-y-1">
         <p className="text-xs font-semibold text-[var(--safe-text-secondary)] uppercase tracking-wide px-2 mb-3">
-          Clients ({clients.length})
+          {t("clientsCount", { count: clients.length })}
         </p>
         {clients.map((client) => (
           <button
@@ -96,7 +98,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
-                {client.raisonSociale ?? "Sans nom"}
+                {client.raisonSociale ?? t("noName")}
               </p>
               <p
                 className={`text-xs ${
@@ -105,8 +107,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
                     : "text-[var(--safe-text-secondary)]"
                 }`}
               >
-                {client.dossiers.length} dossier
-                {client.dossiers.length !== 1 ? "s" : ""}
+                {t("matterCount", { count: client.dossiers.length })}
               </p>
             </div>
             <ChevronRight
@@ -119,7 +120,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
 
         {clients.length === 0 && (
           <p className="text-sm text-[var(--safe-text-secondary)] px-2">
-            Aucun client actif.
+            {t("noActiveClient")}
           </p>
         )}
       </aside>
@@ -131,10 +132,10 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
           <div className="mb-4 p-3 rounded-lg bg-orange-50 border border-orange-200 flex items-center gap-3">
             <Clock className="w-4 h-4 text-orange-500 shrink-0" />
             <div className="flex-1 text-sm">
-              <span className="font-medium text-orange-700">Chrono actif</span>
+              <span className="font-medium text-orange-700">{t("activeTimer")}</span>
               {activeSessions.map((s) => (
                 <span key={s.id} className="ml-2 text-orange-600">
-                  {s.richDocument?.titre ?? "Document"} —{" "}
+                  {s.richDocument?.titre ?? t("document")} —{" "}
                   {s.dossier?.intitule}
                 </span>
               ))}
@@ -150,9 +151,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
                   {selectedClient.raisonSociale}
                 </h2>
                 <p className="text-sm text-[var(--safe-text-secondary)]">
-                  {selectedClient.dossiers.length} dossier
-                  {selectedClient.dossiers.length !== 1 ? "s" : ""} actif
-                  {selectedClient.dossiers.length !== 1 ? "s" : ""}
+                  {t("activeMatterCount", { count: selectedClient.dossiers.length })}
                 </p>
               </div>
             </div>
@@ -174,7 +173,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
                 <div className="col-span-3 py-12 text-center">
                   <FolderOpen className="w-10 h-10 text-[var(--safe-neutral-border)] mx-auto mb-3" />
                   <p className="text-sm text-[var(--safe-text-secondary)]">
-                    Aucun dossier actif pour ce client.
+                    {t("noActiveMatterForClient")}
                   </p>
                 </div>
               )}
@@ -184,7 +183,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
           <div className="flex flex-col items-center justify-center h-full text-center py-16">
             <FolderOpen className="w-12 h-12 text-[var(--safe-neutral-border)] mb-4" />
             <p className="text-[var(--safe-text-secondary)]">
-              Sélectionnez un client pour voir ses dossiers.
+              {t("selectClientToSeeMatters")}
             </p>
           </div>
         )}
@@ -201,6 +200,7 @@ function FolderCard({
   dossier: DossierWithDocs;
   colors: ReturnType<typeof getDossierColor>;
 }) {
+  const t = useTranslations("editorUi");
   const docCount = dossier._count.richDocuments;
   const recentDocs = dossier.richDocuments.slice(0, 3);
 
@@ -250,7 +250,7 @@ function FolderCard({
         ) : (
           <div className="border-t border-current border-opacity-10 pt-3">
             <p className="text-xs text-[var(--safe-text-secondary)] italic">
-              Dossier vide — cliquez pour commencer
+              {t("emptyMatterClickToStart")}
             </p>
           </div>
         )}
@@ -258,10 +258,10 @@ function FolderCard({
         {/* Compteur */}
         <div className="flex items-center justify-between pt-1">
           <span className="text-xs text-[var(--safe-text-secondary)]">
-            {docCount} document{docCount !== 1 ? "s" : ""}
+            {t("documentCount", { count: docCount })}
           </span>
           <span className={`text-xs font-medium ${colors.icon} opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1`}>
-            Ouvrir <ChevronRight className="w-3 h-3" />
+            {t("open")} <ChevronRight className="w-3 h-3" />
           </span>
         </div>
       </div>

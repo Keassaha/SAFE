@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Question } from '@/lib/audit-types';
 
 interface ChatColumnProps {
@@ -46,6 +47,7 @@ export function ChatColumn({
 }
 
 function ChatHeader() {
+  const t = useTranslations('onboardingUi');
   return (
     <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-slate-200/60">
       <div className="w-9 h-9 rounded-full bg-forest-700 flex items-center justify-center text-forest-50 text-[13px] font-medium">
@@ -55,7 +57,7 @@ function ChatHeader() {
         <p className="text-[13px] font-medium text-forest-900">Jérémie Tiahou</p>
         <p className="text-[11px] text-forest-700 mt-0.5 flex items-center gap-1.5">
           <span className="w-[5px] h-[5px] rounded-full bg-forest-700" />
-          En ligne · fondateur SAFE
+          {t('onlineFounder')}
         </p>
       </div>
     </div>
@@ -110,6 +112,7 @@ function TextInput({
   question: Extract<Question, { type: 'text' | 'email' | 'tel' }>;
   onAnswer: (value: string) => void;
 }) {
+  const t = useTranslations('onboardingUi');
   const [value, setValue] = useState('');
   return (
     <div className="flex flex-col gap-2">
@@ -128,7 +131,7 @@ function TextInput({
         disabled={!value.trim()}
         className="self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
       >
-        Valider
+        {t('validate')}
       </button>
     </div>
   );
@@ -141,6 +144,7 @@ function ChipsInput({
   question: Extract<Question, { type: 'multi_select' }>;
   onAnswer: (value: string[]) => void;
 }) {
+  const t = useTranslations('onboardingUi');
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggle = (id: string) => {
@@ -175,7 +179,7 @@ function ChipsInput({
         disabled={selected.length === 0}
         className="self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
       >
-        Valider ({selected.length})
+        {t('validateCount', { count: selected.length })}
       </button>
     </div>
   );
@@ -219,6 +223,7 @@ function NavigationFooter({
   onBack: () => void;
   onNext: () => void;
 }) {
+  const t = useTranslations('onboardingUi');
   return (
     <div className="mt-5 pt-4 border-t border-slate-200/60 flex gap-2.5">
       <button
@@ -230,13 +235,13 @@ function NavigationFooter({
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Retour
+        {t('back')}
       </button>
       <button
         onClick={onNext}
         className="flex-1 px-4 py-2.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg hover:bg-forest-700 transition flex items-center justify-center gap-1.5"
       >
-        Suivant
+        {t('next')}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="5" y1="12" x2="19" y2="12" />
           <polyline points="12 5 19 12 12 19" />

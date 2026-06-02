@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import { toast } from "sonner";
 import StarterKit from "@tiptap/starter-kit";
@@ -133,6 +134,7 @@ function useChrono(session: WorkSessionData | null) {
 }
 
 export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) {
+  const t = useTranslations("editorUi");
   const router = useRouter();
   const [sessionId, setSessionId] = useState<string | null>(activeSession?.id ?? null);
   const [isSaving, setIsSaving] = useState(false);
@@ -164,15 +166,15 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
       TableCell,
       Placeholder.configure({
         placeholder: ({ node }) => {
-          if (node.type.name === "heading") return "Titre…";
-          return "Commencez à écrire…";
+          if (node.type.name === "heading") return t("placeholderHeading");
+          return t("placeholderBody");
         },
         showOnlyWhenEditable: true,
         showOnlyCurrent: true,
       }),
       CharacterCount,
     ],
-    [],
+    [t],
   );
 
   const initialContent = useMemo(() => {
@@ -248,8 +250,8 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
       chrono.setStatut("en_cours");
     } catch (e) {
       console.error("Erreur démarrage session:", e);
-      toast.error("Le suivi du temps n'a pas pu démarrer.", {
-        description: "Vos modifications restent enregistrées, mais le chrono ne tourne pas.",
+      toast.error(t("timerStartError"), {
+        description: t("timerStartErrorDesc"),
       });
     }
   }
@@ -278,9 +280,9 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
       setIsDirty(false);
     } catch (err) {
       console.error("Save failed:", err);
-      toast.error("Impossible d'enregistrer le document.", {
-        description: "Vos modifications restent dans l'éditeur. Réessayez dans quelques secondes.",
-        action: { label: "Réessayer", onClick: () => save() },
+      toast.error(t("saveError"), {
+        description: t("saveErrorDesc"),
+        action: { label: t("retry"), onClick: () => save() },
       });
     } finally {
       setIsSaving(false);
@@ -305,7 +307,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
     } catch (err) {
       console.error("Toggle pause failed, rolling back:", err);
       chrono.setStatut(previousStatut);
-      toast.error("Le chrono n'a pas pu être mis à jour côté serveur.");
+      toast.error(t("timerUpdateError"));
     }
   }
 
@@ -353,7 +355,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           <button
             onClick={togglePause}
             className="p-2 rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
-            title={chrono.statut === "en_cours" ? "Pauser" : "Reprendre"}
+            title={chrono.statut === "en_cours" ? t("pause") : t("resume")}
           >
             {chrono.statut === "en_cours" ? (
               <Pause className="w-4 h-4" />
@@ -367,7 +369,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             onClick={save}
             disabled={isSaving}
             className="p-2 rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
-            title="Sauvegarder"
+            title={t("save")}
           >
             <Save className={`w-4 h-4 ${isSaving ? "animate-spin" : ""}`} />
           </button>
@@ -376,17 +378,17 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             {isSaving ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin" />
-                Enregistrement…
+                {t("saving")}
               </>
             ) : isDirty ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Modifications non enregistrées
+                {t("unsavedChanges")}
               </>
             ) : savedAt ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Enregistré à {savedAt.toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" })}
+                {t("savedAt", { time: savedAt.toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" }) })}
               </>
             ) : null}
           </span>
@@ -398,7 +400,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             disabled={chrono.statut === "inactif"}
           >
             <CheckCircle className="w-4 h-4" />
-            Terminé
+            {t("done")}
           </Button>
         </div>
       </div>
@@ -407,10 +409,10 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
       {editor && (
         <div className="flex items-center gap-0.5 px-3 py-2 border-b border-zinc-200 bg-white">
           {/* Undo / Redo */}
-          <FormatButton onClick={() => editor.chain().focus().undo().run()} active={false} title="Annuler (⌘Z)" disabled={!editor.can().undo()}>
+          <FormatButton onClick={() => editor.chain().focus().undo().run()} active={false} title={t("undo")} disabled={!editor.can().undo()}>
             <Undo className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().redo().run()} active={false} title="Rétablir (⌘⇧Z)" disabled={!editor.can().redo()}>
+          <FormatButton onClick={() => editor.chain().focus().redo().run()} active={false} title={t("redo")} disabled={!editor.can().redo()}>
             <Redo className="w-4 h-4" />
           </FormatButton>
           <Sep />
@@ -420,52 +422,52 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           <Sep />
 
           {/* Bold / Italic / Underline / Strike */}
-          <FormatButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Gras (⌘B)">
+          <FormatButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("bold")}>
             <Bold className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italique (⌘I)">
+          <FormatButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("italic")}>
             <Italic className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title="Souligné (⌘U)">
+          <FormatButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title={t("underline")}>
             <UnderlineIcon className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="Barré">
+          <FormatButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("strikethrough")}>
             <Strikethrough className="w-4 h-4" />
           </FormatButton>
           <Sep />
 
           {/* Alignement */}
-          <FormatButton onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })} title="Aligner à gauche">
+          <FormatButton onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })} title={t("alignLeft")}>
             <AlignLeft className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().setTextAlign("center").run()} active={editor.isActive({ textAlign: "center" })} title="Centrer">
+          <FormatButton onClick={() => editor.chain().focus().setTextAlign("center").run()} active={editor.isActive({ textAlign: "center" })} title={t("alignCenter")}>
             <AlignCenter className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().setTextAlign("right").run()} active={editor.isActive({ textAlign: "right" })} title="Aligner à droite">
+          <FormatButton onClick={() => editor.chain().focus().setTextAlign("right").run()} active={editor.isActive({ textAlign: "right" })} title={t("alignRight")}>
             <AlignRight className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().setTextAlign("justify").run()} active={editor.isActive({ textAlign: "justify" })} title="Justifier">
+          <FormatButton onClick={() => editor.chain().focus().setTextAlign("justify").run()} active={editor.isActive({ textAlign: "justify" })} title={t("alignJustify")}>
             <AlignJustify className="w-4 h-4" />
           </FormatButton>
           <Sep />
 
           {/* Listes */}
-          <FormatButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Liste à puces">
+          <FormatButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title={t("bulletList")}>
             <List className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Liste numérotée">
+          <FormatButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title={t("orderedList")}>
             <ListOrdered className="w-4 h-4" />
           </FormatButton>
           <Sep />
 
           {/* Bloc */}
-          <FormatButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title="Citation">
+          <FormatButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title={t("blockquote")}>
             <Quote className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")} title="Bloc de code">
+          <FormatButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")} title={t("codeBlock")}>
             <Code className="w-4 h-4" />
           </FormatButton>
-          <FormatButton onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Ligne horizontale">
+          <FormatButton onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title={t("horizontalRule")}>
             <Minus className="w-4 h-4" />
           </FormatButton>
           <Sep />
@@ -474,7 +476,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           <FormatButton
             onClick={() => {
               const previousUrl = editor.getAttributes("link").href ?? "";
-              const url = window.prompt("URL du lien :", previousUrl);
+              const url = window.prompt(t("linkUrlPrompt"), previousUrl);
               if (url === null) return;
               if (url === "") {
                 editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -483,7 +485,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
             }}
             active={editor.isActive("link")}
-            title="Lien (⌘K)"
+            title={t("link")}
           >
             <Link2 className="w-4 h-4" />
           </FormatButton>
@@ -492,7 +494,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
             }
             active={editor.isActive("table")}
-            title="Insérer un tableau"
+            title={t("insertTable")}
           >
             <TableIcon className="w-4 h-4" />
           </FormatButton>
@@ -505,7 +507,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
             >
               <FolderOpen className="w-3.5 h-3.5" />
-              Déplacer
+              {t("move")}
             </button>
           )}
           <button
@@ -513,7 +515,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
           >
             <History className="w-3.5 h-3.5" />
-            Versions
+            {t("versions")}
           </button>
           <button
             onClick={async () => {
@@ -529,10 +531,10 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
                 a.download = `${titre.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
                 a.click();
                 URL.revokeObjectURL(url);
-                toast.success("PDF exporté.");
+                toast.success(t("pdfExported"));
               } catch (err) {
                 console.error("PDF export failed:", err);
-                toast.error("Impossible d'exporter le PDF.");
+                toast.error(t("pdfExportError"));
               } finally {
                 setIsExportingPdf(false);
               }
@@ -541,7 +543,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
           >
             {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />}
-            Export PDF
+            {t("exportPdf")}
           </button>
         </div>
       )}
@@ -836,6 +838,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
 }
 
 function EditorFooter({ editor }: { editor: Editor }) {
+  const t = useTranslations("editorUi");
   // Re-render seulement sur update du contenu (pas selectionUpdate — pas
   // besoin de recompter mots/caractères quand seule la sélection bouge).
   const [, forceUpdate] = useState(0);
@@ -854,17 +857,23 @@ function EditorFooter({ editor }: { editor: Editor }) {
   return (
     <div className="flex items-center gap-4 px-5 py-2 border-t border-zinc-200 bg-white text-xs text-zinc-500">
       <span className="tabular-nums">
-        <strong className="text-zinc-700 font-medium">{words}</strong> mot{words !== 1 ? "s" : ""}
+        {t.rich("wordCount", {
+          count: words,
+          strong: (chunks) => <strong className="text-zinc-700 font-medium">{chunks}</strong>,
+        })}
       </span>
       <span className="w-px h-3 bg-zinc-200" />
       <span className="tabular-nums">
-        <strong className="text-zinc-700 font-medium">{chars}</strong> caractère{chars !== 1 ? "s" : ""}
+        {t.rich("charCount", {
+          count: chars,
+          strong: (chunks) => <strong className="text-zinc-700 font-medium">{chunks}</strong>,
+        })}
       </span>
       <span className="w-px h-3 bg-zinc-200" />
-      <span className="tabular-nums">~{readingMinutes} min de lecture</span>
+      <span className="tabular-nums">{t("readingTime", { minutes: readingMinutes })}</span>
       <div className="flex-1" />
       <span className="text-zinc-400">
-        Astuce : Ctrl+B gras · Ctrl+I italique · Ctrl+U souligné · Ctrl+K lien
+        {t("shortcutTip")}
       </span>
     </div>
   );
@@ -915,6 +924,7 @@ function ChronoBadge({
   getElapsed: () => number;
   badgeClass: string;
 }) {
+  const t = useTranslations("editorUi");
   const [, setTick] = useState(0);
   useEffect(() => {
     if (statut !== "en_cours") return;
@@ -938,21 +948,22 @@ function ChronoBadge({
       <Clock className="w-3.5 h-3.5" />
       {formatted}
       <span className="font-sans capitalize ml-0.5">
-        {statut === "en_cours" ? "• En cours" : statut === "pause" ? "• Pausé" : ""}
+        {statut === "en_cours" ? t("statusInProgress") : statut === "pause" ? t("statusPaused") : ""}
       </span>
     </div>
   );
 }
 
 const HEADING_OPTIONS = [
-  { label: "Texte normal", level: 0 as const },
-  { label: "Titre 1", level: 1 as const },
-  { label: "Titre 2", level: 2 as const },
-  { label: "Titre 3", level: 3 as const },
-  { label: "Titre 4", level: 4 as const },
+  { labelKey: "headingNormal", level: 0 as const },
+  { labelKey: "heading1", level: 1 as const },
+  { labelKey: "heading2", level: 2 as const },
+  { labelKey: "heading3", level: 3 as const },
+  { labelKey: "heading4", level: 4 as const },
 ];
 
 function HeadingDropdown({ editor }: { editor: Editor }) {
+  const t = useTranslations("editorUi");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -965,9 +976,9 @@ function HeadingDropdown({ editor }: { editor: Editor }) {
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
-  const current =
-    HEADING_OPTIONS.find((o) => o.level !== 0 && editor.isActive("heading", { level: o.level }))
-      ?.label ?? "Texte normal";
+  const currentOption =
+    HEADING_OPTIONS.find((o) => o.level !== 0 && editor.isActive("heading", { level: o.level }));
+  const current = currentOption ? t(currentOption.labelKey) : t("headingNormal");
 
   return (
     <div className="relative" ref={ref}>
@@ -999,7 +1010,7 @@ function HeadingDropdown({ editor }: { editor: Editor }) {
                 fontWeight: opt.level === 0 ? 400 : 600,
               }}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>

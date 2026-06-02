@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface HeaderProps {
   variant?: 'marketing' | 'audit';
@@ -9,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ variant = 'marketing', subtitle }: HeaderProps) {
+  const t = useTranslations('onboardingUi');
   const [locale, setLocale] = useState<'fr' | 'en'>('fr');
 
   return (
@@ -32,20 +34,20 @@ export function Header({ variant = 'marketing', subtitle }: HeaderProps) {
           <div className="flex items-center gap-5">
             <LocaleToggle locale={locale} onChange={setLocale} />
             <span className="text-[13px] text-slate-600 hidden sm:inline">
-              Déjà client&nbsp;?
+              {t('alreadyClient')}
             </span>
             <Link
               href="/login"
               className="px-3.5 py-1.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-md hover:bg-forest-700 transition"
             >
-              Se connecter
+              {t('login')}
             </Link>
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <ConfidentialBadge />
+            <ConfidentialBadge label={t('confidentialTls')} />
             <span className="text-xs text-slate-600">
-              Sauvegardé · il y a 30s
+              {t('savedAgo')}
             </span>
           </div>
         )}
@@ -87,7 +89,7 @@ function LocaleToggle({
   );
 }
 
-function ConfidentialBadge() {
+function ConfidentialBadge({ label }: { label: string }) {
   return (
     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-forest-50 border border-forest-200 rounded-full">
       <svg
@@ -102,7 +104,7 @@ function ConfidentialBadge() {
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
       <span className="text-[11px] font-medium text-forest-900">
-        Confidentiel · TLS 1.3
+        {label}
       </span>
     </div>
   );

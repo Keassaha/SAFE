@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle, Clock, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const TYPES_ACTIVITE = [
-  { value: "redaction", label: "Rédaction" },
-  { value: "revision", label: "Révision" },
-  { value: "consultation", label: "Consultation" },
-  { value: "recherche", label: "Recherche" },
-  { value: "autre", label: "Autre" },
-];
+  { value: "redaction", labelKey: "activityRedaction" },
+  { value: "revision", labelKey: "activityRevision" },
+  { value: "consultation", labelKey: "activityConsultation" },
+  { value: "recherche", labelKey: "activityRecherche" },
+  { value: "autre", labelKey: "activityAutre" },
+] as const;
 
 interface Props {
   doc: {
@@ -26,8 +27,9 @@ interface Props {
 }
 
 export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSuccess }: Props) {
+  const t = useTranslations("editorUi");
   const [typeActivite, setTypeActivite] = useState("redaction");
-  const [description, setDescription] = useState(`Rédaction — ${doc.titre}`);
+  const [description, setDescription] = useState(t("defaultDescription", { titre: doc.titre }));
   const [taux, setTaux] = useState(doc.dossier.tauxHoraire ?? 150);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -78,7 +80,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="font-semibold text-[var(--safe-text-title)]">Travail terminé</p>
+              <p className="font-semibold text-[var(--safe-text-title)]">{t("workDone")}</p>
               <p className="text-sm text-[var(--safe-text-secondary)]">{doc.titre}</p>
             </div>
           </div>
@@ -94,12 +96,12 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
             <div className="bg-[var(--safe-neutral-bg)] rounded-xl p-4 text-center">
               <Clock className="w-5 h-5 text-[var(--safe-primary)] mx-auto mb-1" />
               <p className="text-xl font-bold text-[var(--safe-text-title)]">{dureeLabel}</p>
-              <p className="text-xs text-[var(--safe-text-secondary)]">Durée de travail</p>
+              <p className="text-xs text-[var(--safe-text-secondary)]">{t("workDuration")}</p>
             </div>
             <div className="bg-green-50 rounded-xl p-4 text-center">
               <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
               <p className="text-xl font-bold text-green-700">{montant} $</p>
-              <p className="text-xs text-green-600">Montant facturable</p>
+              <p className="text-xs text-green-600">{t("billableAmount")}</p>
             </div>
           </div>
 
@@ -113,20 +115,20 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
           {/* Type d'activité */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide">
-              Type d&apos;activité
+              {t("activityType")}
             </label>
             <div className="flex flex-wrap gap-2">
-              {TYPES_ACTIVITE.map((t) => (
+              {TYPES_ACTIVITE.map((ta) => (
                 <button
-                  key={t.value}
-                  onClick={() => setTypeActivite(t.value)}
+                  key={ta.value}
+                  onClick={() => setTypeActivite(ta.value)}
                   className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                    typeActivite === t.value
+                    typeActivite === ta.value
                       ? "bg-[var(--safe-primary)] text-white"
                       : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
                   }`}
                 >
-                  {t.label}
+                  {t(ta.labelKey)}
                 </button>
               ))}
             </div>
@@ -135,7 +137,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
           {/* Description */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide">
-              Description (pour la facture)
+              {t("descriptionForInvoice")}
             </label>
             <textarea
               value={description}
@@ -148,7 +150,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
           {/* Taux horaire */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide">
-              Taux horaire ($ CAD)
+              {t("hourlyRate")}
             </label>
             <input
               type="number"
@@ -166,7 +168,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
             onClick={onClose}
             className="flex-1 py-2.5 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors"
           >
-            Continuer à travailler
+            {t("continueWorking")}
           </button>
           <Button
             onClick={handleConfirm}
@@ -174,7 +176,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
             className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
-            {isSubmitting ? "Création..." : "Créer la fiche de temps"}
+            {isSubmitting ? t("creating") : t("createTimeEntry")}
           </Button>
         </div>
       </div>

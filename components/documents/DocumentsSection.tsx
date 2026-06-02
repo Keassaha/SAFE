@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { formatDate } from "@/lib/utils/format";
 
@@ -25,6 +26,7 @@ export function DocumentsSection({
   documents: DocumentWithUploader[];
   canManage: boolean;
 }) {
+  const t = useTranslations("editorUi");
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
@@ -44,7 +46,7 @@ export function DocumentsSection({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(err.error ?? "Erreur lors de l'upload");
+        alert(err.error ?? t("uploadError"));
         return;
       }
       window.location.reload();
@@ -64,12 +66,12 @@ export function DocumentsSection({
             className="text-sm text-neutral-muted file:mr-2 file:py-2 file:px-3 file:rounded-safe file:border-0 file:bg-primary-100 file:text-primary-800"
           />
           <Button type="submit" disabled={!file || uploading}>
-            {uploading ? "Envoi…" : "Téléverser"}
+            {uploading ? t("sending") : t("upload")}
           </Button>
         </form>
       )}
       {documents.length === 0 ? (
-        <p className="text-sm text-neutral-muted">Aucun document.</p>
+        <p className="text-sm text-neutral-muted">{t("noDocuments")}</p>
       ) : (
         <ul className="space-y-2">
           {documents.map((doc) => (
@@ -79,7 +81,7 @@ export function DocumentsSection({
             >
               <span className="text-sm font-medium truncate">{doc.nom}</span>
               <span className="text-xs text-neutral-muted shrink-0">
-                {formatDate(doc.createdAt)} — {(doc.sizeBytes / 1024).toFixed(1)} Ko
+                {formatDate(doc.createdAt)} — {t("sizeKb", { size: (doc.sizeBytes / 1024).toFixed(1) })}
               </span>
               <Link
                 href={`/api/documents/${doc.id}/download`}
@@ -87,7 +89,7 @@ export function DocumentsSection({
                 rel="noopener noreferrer"
                 className="text-sm text-primary-600 hover:underline shrink-0"
               >
-                Télécharger
+                {t("download")}
               </Link>
               {canManage && (
                 <DeleteDocumentButton documentId={doc.id} />
@@ -101,21 +103,22 @@ export function DocumentsSection({
 }
 
 function DeleteDocumentButton({ documentId }: { documentId: string }) {
+  const t = useTranslations("editorUi");
   const [deleting, setDeleting] = useState(false);
   const handleDelete = async () => {
-    if (!confirm("Supprimer ce document ?")) return;
+    if (!confirm(t("confirmDeleteDocument"))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/documents/${documentId}`, { method: "DELETE" });
       if (res.ok) window.location.reload();
-      else alert("Erreur lors de la suppression");
+      else alert(t("deleteError"));
     } finally {
       setDeleting(false);
     }
   };
   return (
     <Button type="button" variant="danger" onClick={handleDelete} disabled={deleting}>
-      {deleting ? "…" : "Supprimer"}
+      {deleting ? "…" : t("delete")}
     </Button>
   );
 }

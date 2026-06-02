@@ -7,20 +7,23 @@ import {
   FileText, Plus, ArrowLeft, FolderOpen,
   FileEdit, CheckCircle, Archive, ChevronDown, Upload
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { UploadZone } from "./UploadZone";
 import { MoveDocumentDialog } from "./MoveDocumentDialog";
 
-const DOC_TYPE_LABELS: Record<string, string> = {
-  note: "Note interne",
-  lettre: "Lettre",
-  contrat: "Contrat",
-  procedure: "Procédure",
-  requete: "Requête",
-  autre: "Autre",
+const DOC_TYPE_KEYS: Record<string, string> = {
+  note: "docTypeNote",
+  lettre: "docTypeLettre",
+  contrat: "docTypeContrat",
+  procedure: "docTypeProcedure",
+  requete: "docTypeRequete",
+  autre: "docTypeAutre",
 };
+
+const DOC_TYPE_VALUES = ["note", "lettre", "contrat", "procedure", "requete", "autre"];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   note: "bg-yellow-100 text-yellow-700",
@@ -66,6 +69,7 @@ interface Props {
 }
 
 export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
+  const t = useTranslations("editorUi");
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [newDocTitle, setNewDocTitle] = useState("");
@@ -106,7 +110,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
       <div className="flex items-center gap-2 text-sm text-[var(--safe-text-secondary)]">
         <Link href="/edition" className="hover:text-[var(--safe-primary)] flex items-center gap-1">
           <ArrowLeft className="w-3.5 h-3.5" />
-          Atelier
+          {t("workshop")}
         </Link>
         <span>/</span>
         <span className="text-[var(--safe-text-secondary)]">{dossier.client.raisonSociale}</span>
@@ -159,7 +163,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
           }`}
         >
           <FileText className="w-4 h-4" />
-          Rédaction
+          {t("drafting")}
           <span className="ml-1 text-xs bg-[var(--safe-neutral-bg)] px-1.5 py-0.5 rounded-full">
             {dossier.richDocuments.length}
           </span>
@@ -173,7 +177,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
           }`}
         >
           <Upload className="w-4 h-4" />
-          Fichiers uploadés
+          {t("uploadedFiles")}
         </button>
       </div>
 
@@ -182,17 +186,17 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
         <>
           {/* Filtres par type */}
           <div className="flex items-center gap-2 flex-wrap">
-            {["tous", "note", "lettre", "contrat", "procedure", "requete", "autre"].map((t) => (
+            {["tous", ...DOC_TYPE_VALUES].map((f) => (
               <button
-                key={t}
-                onClick={() => setFilter(t)}
+                key={f}
+                onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filter === t
+                  filter === f
                     ? "bg-[var(--safe-primary)] text-white"
                     : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
                 }`}
               >
-                {t === "tous" ? `Tous (${dossier.richDocuments.length})` : DOC_TYPE_LABELS[t]}
+                {f === "tous" ? t("allCount", { count: dossier.richDocuments.length }) : t(DOC_TYPE_KEYS[f])}
               </button>
             ))}
           </div>
@@ -201,10 +205,10 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
             <div className="py-16 text-center border-2 border-dashed border-[var(--safe-neutral-border)] rounded-xl">
               <FileText className="w-10 h-10 text-[var(--safe-neutral-border)] mx-auto mb-3" />
               <p className="text-[var(--safe-text-secondary)] text-sm">
-                Aucun document dans ce dossier.
+                {t("noDocumentInMatter")}
               </p>
               <p className="text-xs text-[var(--safe-text-secondary)] mt-1">
-                Créez votre premier document avec le bouton ci-dessus.
+                {t("createFirstDocumentHint")}
               </p>
             </div>
           ) : (
@@ -225,7 +229,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
       {tab === "fichiers" && (
         <div className="space-y-4">
           <p className="text-sm text-[var(--safe-text-secondary)]">
-            Uploadez des fichiers (PDF, Word, images). L&apos;IA suggère automatiquement le bon dossier — vous validez avant de classer.
+            {t("uploadFilesHint")}
           </p>
           <UploadZone
             dossiers={allDossiers}
@@ -248,10 +252,11 @@ function DocumentRow({
   dossierId: string;
   allDossiers?: DossierSimple[];
 }) {
+  const t = useTranslations("editorUi");
   const [showMove, setShowMove] = useState(false);
   const router = useRouter();
   const typeColor = DOC_TYPE_COLORS[doc.type] ?? DOC_TYPE_COLORS.autre;
-  const typeLabel = DOC_TYPE_LABELS[doc.type] ?? "Autre";
+  const typeLabel = t(DOC_TYPE_KEYS[doc.type] ?? "docTypeAutre");
 
   return (
     <>
@@ -275,14 +280,15 @@ function DocumentRow({
             )}
           </div>
           <p className="text-xs text-[var(--safe-text-secondary)]">
-            Modifié{" "}
-            {formatDistanceToNow(new Date(doc.lastEditedAt ?? doc.updatedAt), {
-              locale: fr,
-              addSuffix: true,
+            {t("modifiedRelative", {
+              relative: formatDistanceToNow(new Date(doc.lastEditedAt ?? doc.updatedAt), {
+                locale: fr,
+                addSuffix: true,
+              }),
             })}
-            {doc.lastEditedBy && ` par ${doc.lastEditedBy.nom}`}
+            {doc.lastEditedBy && t("byAuthor", { author: doc.lastEditedBy.nom })}
             {" · "}
-            {doc._count.versions} version{doc._count.versions !== 1 ? "s" : ""}
+            {t("versionCount", { count: doc._count.versions })}
           </p>
         </Link>
 
@@ -296,7 +302,7 @@ function DocumentRow({
           <button
             onClick={(e) => { e.preventDefault(); setShowMove(true); }}
             className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] shrink-0"
-            title="Déplacer vers un autre dossier"
+            title={t("moveToAnotherMatter")}
           >
             <FolderOpen className="w-4 h-4" />
           </button>
@@ -336,44 +342,45 @@ function NewDocPopover({
   type: string;
   setType: (v: string) => void;
 }) {
+  const t = useTranslations("editorUi");
   const [open, setOpen] = useState(false);
 
   return (
     <div className="relative">
       <Button onClick={() => setOpen(!open)} className="flex items-center gap-2">
         <Plus className="w-4 h-4" />
-        Nouveau document
+        {t("newDocument")}
         <ChevronDown className="w-3.5 h-3.5" />
       </Button>
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-[var(--safe-neutral-border)] p-4 z-50 space-y-3">
           <p className="text-sm font-semibold text-[var(--safe-text-title)]">
-            Nouveau document
+            {t("newDocument")}
           </p>
 
           <div className="space-y-1">
-            <label className="text-xs text-[var(--safe-text-secondary)]">Titre</label>
+            <label className="text-xs text-[var(--safe-text-secondary)]">{t("title")}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && onConfirm()}
-              placeholder="Ex: Lettre de mise en demeure"
+              placeholder={t("newDocumentPlaceholder")}
               className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent"
               autoFocus
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs text-[var(--safe-text-secondary)]">Type</label>
+            <label className="text-xs text-[var(--safe-text-secondary)]">{t("type")}</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             >
-              {Object.entries(DOC_TYPE_LABELS).map(([v, l]) => (
-                <option key={v} value={v}>{l}</option>
+              {DOC_TYPE_VALUES.map((v) => (
+                <option key={v} value={v}>{t(DOC_TYPE_KEYS[v])}</option>
               ))}
             </select>
           </div>
@@ -384,13 +391,13 @@ function NewDocPopover({
               disabled={!title.trim() || isLoading}
               className="flex-1"
             >
-              {isLoading ? "Création..." : "Créer"}
+              {isLoading ? t("creating") : t("create")}
             </Button>
             <button
               onClick={() => setOpen(false)}
               className="px-3 py-2 text-sm text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-bg)] rounded-lg"
             >
-              Annuler
+              {t("cancel")}
             </button>
           </div>
         </div>

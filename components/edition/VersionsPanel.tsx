@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { X, RotateCcw, Eye, EyeOff, Clock, User, Tag, Plus, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
+  const t = useTranslations("editorUi");
   const [versions, setVersions] = useState<Version[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [restoringId, setRestoringId] = useState<string | null>(null);
@@ -37,14 +39,14 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         const data = await res.json();
         setVersions(data);
       } else {
-        setError("Impossible de charger les versions.");
+        setError(t("loadVersionsError"));
       }
     } catch {
-      setError("Erreur réseau.");
+      setError(t("networkError"));
     } finally {
       setIsLoading(false);
     }
-  }, [documentId]);
+  }, [documentId, t]);
 
   useEffect(() => {
     fetchVersions();
@@ -53,7 +55,10 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
   async function handleRestore(version: Version) {
     if (restoringId) return;
     const confirmed = window.confirm(
-      `Restaurer la version ${version.versionNumber}${version.label ? ` — ${version.label}` : ""} ?\n\nL'état actuel sera sauvegardé automatiquement avant la restauration.`
+      t("confirmRestore", {
+        version: version.versionNumber,
+        label: version.label ? ` — ${version.label}` : "",
+      })
     );
     if (!confirmed) return;
 
@@ -68,10 +73,10 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         onRestore(data.restoredContent);
         await fetchVersions(); // Refresh the list
       } else {
-        setError("Erreur lors de la restauration.");
+        setError(t("restoreError"));
       }
     } catch {
-      setError("Erreur réseau lors de la restauration.");
+      setError(t("restoreNetworkError"));
     } finally {
       setRestoringId(null);
     }
@@ -90,10 +95,10 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         setShowSnapshotInput(false);
         await fetchVersions();
       } else {
-        setError("Erreur lors du snapshot.");
+        setError(t("snapshotError"));
       }
     } catch {
-      setError("Erreur réseau.");
+      setError(t("networkError"));
     } finally {
       setIsSnapshotting(false);
     }
@@ -123,10 +128,10 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--safe-neutral-border)]">
           <div>
             <h2 className="font-semibold text-[var(--safe-text-title)] text-sm">
-              Historique des versions
+              {t("versionHistory")}
             </h2>
             <p className="text-xs text-[var(--safe-text-secondary)] mt-0.5">
-              {versions.length} version{versions.length !== 1 ? "s" : ""} sauvegardée{versions.length !== 1 ? "s" : ""}
+              {t("versionsSavedCount", { count: versions.length })}
             </p>
           </div>
           <button
@@ -146,7 +151,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                 value={snapshotLabel}
                 onChange={(e) => setSnapshotLabel(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSnapshot()}
-                placeholder="Ex: Avant envoi au client"
+                placeholder={t("snapshotPlaceholder")}
                 className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent bg-white"
                 autoFocus
               />
@@ -161,13 +166,13 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                   ) : (
                     <Plus className="w-3.5 h-3.5" />
                   )}
-                  Créer le snapshot
+                  {t("createSnapshot")}
                 </button>
                 <button
                   onClick={() => { setShowSnapshotInput(false); setSnapshotLabel(""); }}
                   className="text-xs text-[var(--safe-text-secondary)] hover:bg-white rounded-lg px-3 py-1.5 transition-colors"
                 >
-                  Annuler
+                  {t("cancel")}
                 </button>
               </div>
             </div>
@@ -177,7 +182,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
               className="w-full flex items-center justify-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] border border-dashed border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 hover:border-[var(--safe-primary)] transition-colors bg-white"
             >
               <Plus className="w-3.5 h-3.5" />
-              Créer un snapshot manuel
+              {t("createManualSnapshot")}
             </button>
           )}
         </div>
@@ -187,7 +192,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
           <div className="mx-4 mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
             {error}
             <button onClick={() => setError(null)} className="ml-2 underline">
-              Fermer
+              {t("close")}
             </button>
           </div>
         )}
@@ -202,10 +207,10 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
             <div className="py-16 text-center px-6">
               <Clock className="w-8 h-8 text-[var(--safe-neutral-border)] mx-auto mb-2" />
               <p className="text-sm text-[var(--safe-text-secondary)]">
-                Aucune version sauvegardée.
+                {t("noVersionSaved")}
               </p>
               <p className="text-xs text-[var(--safe-text-secondary)] mt-1">
-                Les versions se créent automatiquement lors des actions importantes.
+                {t("versionsAutoCreated")}
               </p>
             </div>
           ) : (
@@ -226,7 +231,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                         </span>
                         {index === 0 && (
                           <span className="text-xs bg-[var(--safe-primary)] text-white px-1.5 py-0.5 rounded-full">
-                            Actuelle
+                            {t("currentVersion")}
                           </span>
                         )}
                       </div>
@@ -265,7 +270,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                           setPreviewId(previewId === version.id ? null : version.id)
                         }
                         className="p-1.5 rounded hover:bg-[var(--safe-neutral-border)] text-[var(--safe-text-secondary)] transition-colors"
-                        title="Aperçu"
+                        title={t("preview")}
                       >
                         {previewId === version.id ? (
                           <EyeOff className="w-3.5 h-3.5" />
@@ -280,7 +285,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                           onClick={() => handleRestore(version)}
                           disabled={!!restoringId}
                           className="p-1.5 rounded hover:bg-purple-100 text-[var(--safe-text-secondary)] hover:text-purple-700 transition-colors disabled:opacity-50"
-                          title="Restaurer cette version"
+                          title={t("restoreThisVersion")}
                         >
                           {restoringId === version.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -305,7 +310,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         {/* Footer */}
         <div className="px-4 py-3 border-t border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-bg)]">
           <p className="text-xs text-[var(--safe-text-secondary)] text-center">
-            Les versions sont conservées indéfiniment — obligation Barreau du Québec
+            {t("versionsRetained")}
           </p>
         </div>
       </div>
@@ -321,6 +326,7 @@ function VersionPreview({
   documentId: string;
   versionId: string;
 }) {
+  const t = useTranslations("editorUi");
   const [content, setContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -371,7 +377,7 @@ function VersionPreview({
   return (
     <div className="mt-2 p-3 bg-white border border-[var(--safe-neutral-border)] rounded-lg">
       <p className="text-xs text-[var(--safe-text-secondary)] leading-relaxed line-clamp-4">
-        {preview || <em>Document vide</em>}
+        {preview || <em>{t("emptyDocument")}</em>}
       </p>
     </div>
   );
