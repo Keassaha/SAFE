@@ -7,7 +7,7 @@ import { DossierCreationWizard } from "@/components/dossiers/registry/DossierCre
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
 import { localizedLabel } from "@/lib/dossiers/taxonomy";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function NouveauDossierPage({
   searchParams,
@@ -19,6 +19,7 @@ export default async function NouveauDossierPage({
   const initialClientId = params.clientId?.trim() || undefined;
 
   const locale = await getLocale();
+  const tx = await getTranslations("appExtraUi");
   const [clients, avocats, assistants, cabinetBillingMode, taxonomy] = await Promise.all([
     prisma.client.findMany({
       where: { cabinetId },
@@ -55,13 +56,13 @@ export default async function NouveauDossierPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Nouveau dossier"
-        description="Créez un dossier en quelques étapes."
+        title={tx("newMatterTitle")}
+        description={tx("newMatterDescription")}
         backHref={routes.dossiers}
-        backLabel="Retour à la liste"
+        backLabel={tx("newMatterBackLabel")}
       />
       <Card>
-        <CardHeader title="Création du dossier" />
+        <CardHeader title={tx("newMatterCardTitle")} />
         <CardContent>
           <DossierCreationWizard
             clients={clients}
@@ -71,7 +72,7 @@ export default async function NouveauDossierPage({
             cabinetBillingMode={cabinetBillingMode}
             subjectOptions={subjectOptions}
             submatterOptions={submatterOptions}
-            initialError={params.error === "invalid" ? "Vérifiez les champs obligatoires (client et type)." : undefined}
+            initialError={params.error === "invalid" ? tx("newMatterErrorRequired") : undefined}
           />
         </CardContent>
       </Card>

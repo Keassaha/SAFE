@@ -3,14 +3,16 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function EditorTestPage() {
+  const tx = useTranslations("appExtraUi");
   const [keyLog, setKeyLog] = useState<string[]>([]);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit],
-    content: "<p>Tape ici. Appuie sur Entrée pour aller à la ligne.</p>",
+    content: `<p>${tx("editorTestContent")}</p>`,
     editorProps: {
       attributes: {
         class:
@@ -28,24 +30,20 @@ export default function EditorTestPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">Test Tiptap minimal</h1>
-      <p className="text-sm text-zinc-600 mb-4">
-        Aucune extension, aucun wrapper SAFE. Si Entrée marche ici → le bug est
-        dans le DocumentEditor. Si Entrée ne marche pas ici → le bug est
-        environnemental (React 19 / browser / parent layout).
-      </p>
+      <h1 className="text-2xl font-bold mb-2">{tx("editorTestHeading")}</h1>
+      <p className="text-sm text-zinc-600 mb-4">{tx("editorTestIntro")}</p>
 
       <div className="bg-white border border-zinc-300 rounded-lg shadow-sm">
         <EditorContent editor={editor} />
       </div>
 
-      <h2 className="text-sm font-semibold mt-6 mb-2">Journal des touches :</h2>
+      <h2 className="text-sm font-semibold mt-6 mb-2">{tx("editorTestKeyLogTitle")}</h2>
       <pre className="text-xs bg-zinc-900 text-zinc-100 p-3 rounded-lg overflow-auto max-h-48">
-        {keyLog.length === 0 ? "Tape une touche…" : keyLog.join("\n")}
+        {keyLog.length === 0 ? tx("editorTestKeyLogEmpty") : keyLog.join("\n")}
       </pre>
 
       <div className="mt-4 text-xs text-zinc-500">
-        Versions : Tiptap v3 · React 19 · Next 15
+        {tx("editorTestVersions")}
       </div>
     </div>
   );

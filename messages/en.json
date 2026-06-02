@@ -3105,5 +3105,18 @@
     "navSafeImport": "Safe Import",
     "navSafeImportDesc": "Import data / statements",
     "navSettings": "Settings"
+  },
+  "appExtraUi": {
+    "newMatterTitle": "New matter",
+    "newMatterDescription": "Create a matter in a few steps.",
+    "newMatterBackLabel": "Back to list",
+    "newMatterCardTitle": "Matter creation",
+    "newMatterErrorRequired": "Check the required fields (client and type).",
+    "editorTestContent": "Type here. Press Enter for a new line.",
+    "editorTestHeading": "Minimal Tiptap test",
+    "editorTestIntro": "No extension, no SAFE wrapper. If Enter works here, the bug is in the DocumentEditor. If Enter does not work here, the bug is environmental (React 19 / browser / parent layout).",
+    "editorTestKeyLogTitle": "Key log:",
+    "editorTestKeyLogEmpty": "Press a key…",
+    "editorTestVersions": "Versions: Tiptap v3 · React 19 · Next 15"
   }
 }

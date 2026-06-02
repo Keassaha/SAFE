@@ -3105,5 +3105,18 @@
     "navSafeImport": "Safe Import",
     "navSafeImportDesc": "Importer données / relevés",
     "navSettings": "Paramètres"
+  },
+  "appExtraUi": {
+    "newMatterTitle": "Nouveau dossier",
+    "newMatterDescription": "Créez un dossier en quelques étapes.",
+    "newMatterBackLabel": "Retour à la liste",
+    "newMatterCardTitle": "Création du dossier",
+    "newMatterErrorRequired": "Vérifiez les champs obligatoires (client et type).",
+    "editorTestContent": "Tapez ici. Appuyez sur Entrée pour aller à la ligne.",
+    "editorTestHeading": "Test Tiptap minimal",
+    "editorTestIntro": "Aucune extension, aucun wrapper SAFE. Si Entrée marche ici, le bug est dans le DocumentEditor. Si Entrée ne marche pas ici, le bug est environnemental (React 19 / browser / parent layout).",
+    "editorTestKeyLogTitle": "Journal des touches :",
+    "editorTestKeyLogEmpty": "Tapez une touche…",
+    "editorTestVersions": "Versions : Tiptap v3 · React 19 · Next 15"
   }
 }
