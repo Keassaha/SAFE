@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 /**
  * Onglet 10 — Fermeture
  * Checklist 12 étapes, bouton "Fermer officiellement" → statut FERMÉ, rappel 7 ans, email avocat
@@ -11,16 +13,15 @@ export function DossierDetailFermeture({
   dossierId: string;
   statutDossier?: string;
 }) {
+  const t = useTranslations("matterDetailUi");
   const isFerme = statutDossier === "cloture" || statutDossier === "FERMÉ";
   return (
     <div className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-bg)] p-6">
       <p className="text-sm text-[var(--safe-text-secondary)]">
-        Fermeture — Dossier {dossierId}
+        {t("closureTitle", { id: dossierId })}
       </p>
       <p className="mt-2 text-xs text-[var(--safe-text-secondary)] opacity-80">
-        {isFerme
-          ? "Dossier déjà fermé."
-          : "Checklist 12 étapes, Fermer officiellement → rappel destruction 7 ans"}
+        {isFerme ? t("closureAlreadyClosed") : t("closureHint")}
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import {
   DossierDetailMandat,
@@ -97,6 +98,7 @@ export interface DossierDetailTabsProps {
 }
 
 export function DossierDetailTabs({ dossierId, statutDossier, sections }: DossierDetailTabsProps) {
+  const t = useTranslations("matterDetailUi");
   const [activeTab, setActiveTab] = useState<string>(sections[0]?.sectionKey ?? "mandat");
 
   return (
@@ -118,7 +120,7 @@ export function DossierDetailTabs({ dossierId, statutDossier, sections }: Dossie
                 </span>
                 <span className="truncate">{section.label}</span>
                 {section.origine === "user" && (
-                  <span className="ml-auto shrink-0 h-1.5 w-1.5 rounded-full bg-emerald-400" title="Section personnalisée" />
+                  <span className="ml-auto shrink-0 h-1.5 w-1.5 rounded-full bg-emerald-400" title={t("customSection")} />
                 )}
               </TabsTrigger>
             );

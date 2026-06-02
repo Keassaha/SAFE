@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface DossierDetailSectionProps {
   dossierId: string;
   label: string;
@@ -15,6 +17,7 @@ export function DossierDetailSection({
   sourceReglementaire,
   sectionKey: _sectionKey,
 }: DossierDetailSectionProps) {
+  const t = useTranslations("matterDetailUi");
   return (
     <div className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-bg)] p-6 space-y-3">
       <div className="flex items-start justify-between gap-4">
@@ -33,7 +36,7 @@ export function DossierDetailSection({
 
       <div className="rounded-safe-sm border border-dashed border-slate-200 bg-slate-50/50 p-4 text-center">
         <p className="text-xs text-slate-400">
-          Aucun document dans cette section — utilisez le bouton ci-dessous pour en ajouter.
+          {t("sectionEmptyState")}
         </p>
       </div>
 
@@ -42,7 +45,7 @@ export function DossierDetailSection({
           type="button"
           className="inline-flex items-center gap-1.5 rounded-safe-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
         >
-          + Ajouter un document
+          {t("addDocument")}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import type { Client, User } from "@prisma/client";
+import { useTranslations } from "next-intl";
 
 export function ReportFilters({
   clients,
@@ -17,6 +18,7 @@ export function ReportFilters({
   currentClientId: string;
   currentUserId: string;
 }) {
+  const t = useTranslations("reportsUi");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,7 +39,7 @@ export function ReportFilters({
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-end">
       <div>
         <label className="block text-sm font-medium text-neutral-muted mb-1">
-          Année
+          {t("year")}
         </label>
         <input
           name="annee"
@@ -50,14 +52,14 @@ export function ReportFilters({
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-muted mb-1">
-          Client
+          {t("client")}
         </label>
         <select
           name="clientId"
           className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
           defaultValue={currentClientId}
         >
-          <option value="">Tous</option>
+          <option value="">{t("all")}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
               {c.raisonSociale}
@@ -67,14 +69,14 @@ export function ReportFilters({
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-muted mb-1">
-          Avocat
+          {t("lawyer")}
         </label>
         <select
           name="userId"
           className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
           defaultValue={currentUserId}
         >
-          <option value="">Tous</option>
+          <option value="">{t("all")}</option>
           {users.map((u) => (
             <option key={u.id} value={u.id}>
               {u.nom}
@@ -82,7 +84,7 @@ export function ReportFilters({
           ))}
         </select>
       </div>
-      <Button type="submit">Appliquer</Button>
+      <Button type="submit">{t("apply")}</Button>
     </form>
   );
 }

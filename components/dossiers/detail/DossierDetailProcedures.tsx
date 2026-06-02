@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, FileText, FolderOpen, RefreshCw } from "lucide-react";
 
 interface DocketEntry {
@@ -54,6 +55,7 @@ function formatDate(value: string | null): string {
 }
 
 export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
+  const t = useTranslations("matterDetailUi");
   const [entries, setEntries] = useState<DocketEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,18 +93,18 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
             {modeLabel(mode)}
           </p>
           <h3 className="mt-1 text-base font-semibold text-[var(--safe-text-primary)]">
-            Entrées structurées du dossier
+            {t("proceduresStructuredEntries")}
           </h3>
           <p className="mt-1 text-sm text-[var(--safe-text-secondary)]">
-            Les documents importés importants alimentent automatiquement ce cahier après validation.
+            {t("proceduresAutoFeed")}
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-[var(--safe-text-secondary)]">
           {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <FolderOpen className="h-3.5 w-3.5" />}
-          <span>{entries.length} entrée{entries.length > 1 ? "s" : ""}</span>
+          <span>{t("entriesCount", { count: entries.length })}</span>
           {reviewCount > 0 ? (
             <span className="rounded-safe-sm bg-amber-50 px-2 py-0.5 font-medium text-amber-700">
-              {reviewCount} à réviser
+              {t("reviewCount", { count: reviewCount })}
             </span>
           ) : null}
         </div>
@@ -117,9 +119,9 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
       {!loading && entries.length === 0 ? (
         <div className="mt-4 rounded-safe-sm border border-dashed border-slate-200 bg-slate-50/70 p-5 text-center">
           <FileText className="mx-auto h-5 w-5 text-slate-400" />
-          <p className="mt-2 text-sm font-medium text-slate-700">Aucune entrée de cahier pour le moment</p>
+          <p className="mt-2 text-sm font-medium text-slate-700">{t("proceduresEmptyTitle")}</p>
           <p className="mt-1 text-xs text-slate-500">
-            Les prochaines procédures, décisions, soumissions ou documents de transaction confirmés apparaîtront ici.
+            {t("proceduresEmptyHint")}
           </p>
         </div>
       ) : null}
@@ -127,9 +129,9 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
       {entries.length > 0 ? (
         <div className="mt-4 overflow-hidden rounded-safe-sm border border-[var(--safe-neutral-border)]">
           <div className="grid grid-cols-[minmax(0,1fr)_8rem_7rem] gap-3 border-b border-[var(--safe-neutral-border)] bg-slate-50 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-            <span>Document / événement</span>
-            <span>Section</span>
-            <span>Statut</span>
+            <span>{t("columnDocumentEvent")}</span>
+            <span>{t("columnSection")}</span>
+            <span>{t("columnStatus")}</span>
           </div>
           <div className="divide-y divide-[var(--safe-neutral-border)]">
             {entries.map((entry) => (
@@ -145,7 +147,7 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
                   </div>
                   <p className="mt-1 text-xs text-[var(--safe-text-secondary)]">
                     {entry.entryType.replace(/_/g, " ")} · {formatDate(entry.eventDate)}
-                    {entry.confidence != null ? ` · confiance ${entry.confidence}%` : ""}
+                    {entry.confidence != null ? ` · ${t("confidence", { value: entry.confidence })}` : ""}
                   </p>
                   {entry.notes ? (
                     <p className="mt-1 line-clamp-2 text-xs text-slate-500">{entry.notes}</p>

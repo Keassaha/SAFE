@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { importBankStatement } from "@/app/(app)/journal/depenses/actions";
@@ -9,6 +10,7 @@ import { Upload, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ImportStatementBlock({ onSuccess }: { onSuccess?: () => void }) {
+  const t = useTranslations("billingCompUi");
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export function ImportStatementBlock({ onSuccess }: { onSuccess?: () => void }) 
     if (!file) return;
     const name = file.name.toLowerCase();
     if (!name.endsWith(".csv") && !name.endsWith(".txt")) {
-      toast.error("Format accepté : CSV ou TXT.");
+      toast.error(t("acceptedFormat"));
       return;
     }
     setUploading(true);
@@ -28,12 +30,15 @@ export function ImportStatementBlock({ onSuccess }: { onSuccess?: () => void }) 
       const text = await file.text();
       const result = await importBankStatement(file.name, text);
       toast.success(
-        `${result.expensesDetected} dépense(s) détectée(s), ${result.toValidate} à valider.`
+        t("importResult", {
+          detected: result.expensesDetected,
+          toValidate: result.toValidate,
+        })
       );
       router.refresh();
       onSuccess?.();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erreur lors de l'import.";
+      const message = err instanceof Error ? err.message : t("importError");
       toast.error(message);
     } finally {
       setUploading(false);
@@ -45,12 +50,12 @@ export function ImportStatementBlock({ onSuccess }: { onSuccess?: () => void }) 
   return (
     <Card>
       <CardHeader
-        title="Import de relevé bancaire"
+        title={t("importBankStatement")}
         className="pb-2"
       />
       <CardContent className="pt-0">
         <p className="text-sm text-[var(--safe-text-muted)] mb-4">
-          CSV ou TXT. Les colonnes date, description et montant (ou débit/crédit) sont détectées automatiquement.
+          {t("importBankStatementDescription")}
         </p>
         <div className="flex flex-wrap items-center gap-4">
           <input
@@ -69,18 +74,18 @@ export function ImportStatementBlock({ onSuccess }: { onSuccess?: () => void }) 
             {uploading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Import en cours…
+                {t("importing")}
               </>
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Importer un relevé
+                {t("importStatement")}
               </>
             )}
           </Button>
           {fileName && !uploading && (
             <span className="text-sm text-[var(--safe-text-muted)]">
-              Dernier fichier : {fileName}
+              {t("lastFile", { name: fileName })}
             </span>
           )}
         </div>

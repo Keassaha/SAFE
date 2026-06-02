@@ -1,17 +1,20 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 /**
  * Onglet — Formulaires
  * Formulaires administratifs et documents types liés au dossier
  */
 export function DossierDetailFormulaires({ dossierId }: { dossierId: string }) {
+  const t = useTranslations("matterDetailUi");
   return (
     <div className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-bg)] p-6">
       <p className="text-sm text-[var(--safe-text-secondary)]">
-        Formulaires — Dossier {dossierId}
+        {t("formsTitle", { id: dossierId })}
       </p>
       <p className="mt-2 text-xs text-[var(--safe-text-secondary)] opacity-80">
-        Formulaires administratifs, modèles et documents types rattachés au dossier
+        {t("formsHint")}
       </p>
     </div>
   );

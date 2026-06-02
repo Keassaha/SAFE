@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -24,6 +25,7 @@ export function ValidationPanel({
   onClose: () => void;
   onValidated: () => void;
 }) {
+  const t = useTranslations("billingCompUi");
   const [categoryId, setCategoryId] = useState<string>("");
   const [categoryName, setCategoryName] = useState<string>("");
   const [refacturable, setRefacturable] = useState(false);
@@ -55,36 +57,36 @@ export function ValidationPanel({
   if (!transaction) {
     return (
       <Card>
-        <CardHeader title="Validation / correction" className="pb-2" />
+        <CardHeader title={t("validationCorrection")} className="pb-2" />
         <CardContent>
           <p className="text-sm text-[var(--safe-text-muted)]">
-            Sélectionnez une transaction dans le tableau pour la valider ou la corriger.
+            {t("selectTransactionHint")}
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  const t = transaction;
+  const tx = transaction;
   async function handleValidate() {
     setSaving(true);
     try {
       const result = await validateImportedTransaction({
-        transactionId: t.id,
+        transactionId: tx.id,
         categoryId: currentCategoryId || undefined,
         categoryName: currentCategoryName || "Autres",
         refacturable,
         learnRule,
       });
       if (result.success) {
-        toast.success("Transaction validée.");
+        toast.success(t("transactionValidated"));
         router.refresh();
         onValidated();
       } else {
-        toast.error(result.error ?? "Erreur");
+        toast.error(result.error ?? t("error"));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur");
+      toast.error(err instanceof Error ? err.message : t("error"));
     } finally {
       setSaving(false);
     }
@@ -93,30 +95,30 @@ export function ValidationPanel({
   async function handleIgnore() {
     setIgnoring(true);
     try {
-      await ignoreTransactions([t.id]);
-      toast.success("Transaction ignorée.");
+      await ignoreTransactions([tx.id]);
+      toast.success(t("transactionIgnored"));
       router.refresh();
       onValidated();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur");
+      toast.error(err instanceof Error ? err.message : t("error"));
     } finally {
       setIgnoring(false);
     }
   }
 
-  const isAlreadyValidated = t.status === "validated" || t.status === "ignored";
+  const isAlreadyValidated = tx.status === "validated" || tx.status === "ignored";
 
   return (
     <Card>
       <CardHeader
-        title="Validation / correction"
+        title={t("validationCorrection")}
         className="pb-2 flex flex-row items-center justify-between gap-2"
         action={
           <button
             type="button"
             onClick={onClose}
             className="p-1 rounded-safe-sm text-[var(--safe-text-muted)] hover:bg-white/10 hover:text-[var(--safe-text-title)]"
-            aria-label="Fermer"
+            aria-label={t("close")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -125,27 +127,27 @@ export function ValidationPanel({
       <CardContent className="space-y-4">
         <div>
           <p className="text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider mb-1">
-            Description
+            {t("description")}
           </p>
           <p className="text-sm font-medium text-[var(--safe-text-title)] break-words">
-            {t.rawDescription}
+            {tx.rawDescription}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span className="text-[var(--safe-text-muted)]">Date</span>
-            <p className="font-medium text-[var(--safe-text-title)]">{formatDate(t.date)}</p>
+            <span className="text-[var(--safe-text-muted)]">{t("date")}</span>
+            <p className="font-medium text-[var(--safe-text-title)]">{formatDate(tx.date)}</p>
           </div>
           <div>
-            <span className="text-[var(--safe-text-muted)]">Montant</span>
+            <span className="text-[var(--safe-text-muted)]">{t("amount")}</span>
             <p className="font-medium text-[var(--safe-text-title)]">
-              {formatCurrency(t.rawAmount)}
+              {formatCurrency(tx.rawAmount)}
             </p>
           </div>
           <div>
-            <span className="text-[var(--safe-text-muted)]">Fournisseur</span>
-            <p className="font-medium text-[var(--safe-text-title)] truncate" title={t.normalizedSupplier ?? undefined}>
-              {t.normalizedSupplier ?? "—"}
+            <span className="text-[var(--safe-text-muted)]">{t("supplier")}</span>
+            <p className="font-medium text-[var(--safe-text-title)] truncate" title={tx.normalizedSupplier ?? undefined}>
+              {tx.normalizedSupplier ?? "—"}
             </p>
           </div>
         </div>
@@ -154,7 +156,7 @@ export function ValidationPanel({
           <>
             <div>
               <label className="block text-xs font-medium text-[var(--safe-text-muted)] uppercase tracking-wider mb-1">
-                Catégorie
+                {t("category")}
               </label>
               <select
                 className="w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-2"
@@ -165,7 +167,7 @@ export function ValidationPanel({
                   setCategoryName(c?.name ?? "");
                 }}
               >
-                <option value="">— Choisir —</option>
+                <option value="">{t("chooseOption")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -180,7 +182,7 @@ export function ValidationPanel({
                 onChange={(e) => setRefacturable(e.target.checked)}
                 className="rounded border-[var(--safe-neutral-border)]"
               />
-              Refacturable au client
+              {t("rebillableToClient")}
             </label>
             <label className="flex items-center gap-2 text-sm text-[var(--safe-text-title)] cursor-pointer">
               <input
@@ -189,7 +191,7 @@ export function ValidationPanel({
                 onChange={(e) => setLearnRule(e.target.checked)}
                 className="rounded border-[var(--safe-neutral-border)]"
               />
-              Mémoriser pour les prochaines fois (règle apprenante)
+              {t("rememberForNextTime")}
             </label>
             <div className="flex flex-col gap-2 pt-2">
               <Button
@@ -200,17 +202,17 @@ export function ValidationPanel({
                 {saving ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Enregistrement…
+                    {t("saving")}
                   </>
                 ) : (
                   <>
                     <Check className="h-4 w-4 mr-2" />
-                    Valider
+                    {t("validate")}
                   </>
                 )}
               </Button>
               <Button variant="tertiary" onClick={handleIgnore} disabled={ignoring}>
-                {ignoring ? "…" : "Ignorer cette ligne"}
+                {ignoring ? "…" : t("ignoreThisLine")}
               </Button>
             </div>
           </>
@@ -218,7 +220,7 @@ export function ValidationPanel({
 
         {isAlreadyValidated && (
           <p className="text-sm text-[var(--safe-text-muted)]">
-            Cette transaction a déjà été traitée ({t.status}).
+            {t("alreadyProcessed", { status: tx.status })}
           </p>
         )}
       </CardContent>

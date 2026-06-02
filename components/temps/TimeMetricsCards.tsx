@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, Calendar, DollarSign, Percent } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils/format";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 
@@ -19,29 +20,30 @@ export function TimeMetricsCards({
   tauxFacturablePercent,
   loading,
 }: TimeMetricsCardsProps) {
+  const t = useTranslations("gestionCompUi");
   const cards = [
     {
-      title: "Cette semaine",
+      title: t("metricThisWeek"),
       value: `${semaineHeures.toFixed(1)} h`,
-      sub: "Heures",
+      sub: t("metricHours"),
       icon: Clock,
     },
     {
-      title: "Ce mois",
+      title: t("metricThisMonth"),
       value: `${moisHeures.toFixed(1)} h`,
-      sub: "Heures",
+      sub: t("metricHours"),
       icon: Calendar,
     },
     {
-      title: "Non facturé",
+      title: t("metricUnbilled"),
       value: formatCurrency(nonFactureMontant),
-      sub: "Montant à facturer",
+      sub: t("metricAmountToBill"),
       icon: DollarSign,
     },
     {
-      title: "Taux facturable",
+      title: t("metricBillableRate"),
       value: `${tauxFacturablePercent} %`,
-      sub: "Entrées facturables",
+      sub: t("metricBillableEntries"),
       icon: Percent,
     },
   ];

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/format";
@@ -28,6 +29,7 @@ interface NewInvoiceChoiceModalProps {
  *  - From scratch: redirect to the blank invoice creation page
  */
 export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false }: NewInvoiceChoiceModalProps) {
+  const t = useTranslations("billingCompUi");
   const router = useRouter();
   const [mode, setMode] = useState<"choose" | "registre">("choose");
   const [dossiers, setDossiers] = useState<DossierWithTasks[]>([]);
@@ -113,7 +115,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose} title="Nouvelle facture" maxWidth="max-w-xl">
+    <Modal open={isOpen} onClose={onClose} title={t("newInvoice")} maxWidth="max-w-xl">
       {mode === "choose" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <button
@@ -126,15 +128,15 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                 <BookOpen className="w-5 h-5" />
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-700 text-white text-[10px] font-semibold tracking-wide uppercase">
-                Recommandé
+                {t("recommended")}
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-1">Depuis le registre</h3>
+            <h3 className="text-sm font-semibold text-neutral-900 mb-1">{t("fromRegister")}</h3>
             <p className="text-xs text-neutral-600 leading-snug">
-              Sélectionne un dossier — la facture se remplit automatiquement avec les tâches non facturées.
+              {t("fromRegisterDescription")}
             </p>
             <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-green-700 group-hover:gap-2 transition-all">
-              Continuer <ArrowRight className="w-3 h-3" />
+              {t("continue")} <ArrowRight className="w-3 h-3" />
             </span>
           </button>
 
@@ -148,12 +150,12 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                 <Pencil className="w-5 h-5" />
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-1">From scratch</h3>
+            <h3 className="text-sm font-semibold text-neutral-900 mb-1">{t("fromScratch")}</h3>
             <p className="text-xs text-neutral-600 leading-snug">
-              Facture vierge — ajoute les lignes manuellement. Pour cas ponctuels hors forfait.
+              {t("fromScratchDescription")}
             </p>
             <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-neutral-700 group-hover:gap-2 transition-all">
-              Créer une facture vierge <ArrowRight className="w-3 h-3" />
+              {t("createBlankInvoice")} <ArrowRight className="w-3 h-3" />
             </span>
           </button>
         </div>
@@ -167,27 +169,27 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
               onClick={() => setMode("choose")}
               className="text-neutral-500 hover:text-neutral-800 underline"
             >
-              ← Retour
+              ← {t("back")}
             </button>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-neutral-text-secondary mb-2">
-              Dossier à facturer
+              {t("matterToInvoice")}
             </label>
 
             {loading && dossiers.length === 0 ? (
               <div className="flex items-center justify-center p-8 text-neutral-500 text-sm">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" /> Chargement des dossiers…
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("loadingMatters")}
               </div>
             ) : dossiers.length === 0 ? (
               <div className="p-6 text-center rounded-safe bg-neutral-50 border border-neutral-border">
-                <p className="text-sm text-neutral-600 mb-2">Aucune tâche non facturée.</p>
+                <p className="text-sm text-neutral-600 mb-2">{t("noUnbilledTasks")}</p>
                 <p className="text-xs text-neutral-500">
-                  Ajoute des tâches au registre avant de générer une facture depuis le registre.
+                  {t("addTasksBeforeInvoicing")}
                 </p>
                 <Button variant="secondary" onClick={handleFromScratch} className="mt-3">
-                  Créer une facture vierge à la place
+                  {t("createBlankInvoiceInstead")}
                 </Button>
               </div>
             ) : (
@@ -215,7 +217,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                         {d.intitule}
                       </p>
                       <p className="text-xs text-neutral-500">
-                        {d.taskCount} tâche{d.taskCount > 1 ? "s" : ""} non facturée{d.taskCount > 1 ? "s" : ""}
+                        {t("unbilledTaskCount", { count: d.taskCount })}
                       </p>
                     </div>
                     <span className="text-sm font-semibold tabular-nums">{formatCurrency(d.totalUnbilled)}</span>
@@ -234,16 +236,16 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Génération…
+                  <Loader2 className="w-4 h-4 animate-spin" /> {t("generating")}
                 </>
               ) : (
                 <>
-                  <Receipt className="w-4 h-4" /> Générer la facture
+                  <Receipt className="w-4 h-4" /> {t("generateInvoice")}
                 </>
               )}
             </Button>
             <Button variant="secondary" onClick={onClose}>
-              Annuler
+              {t("cancel")}
             </Button>
           </div>
         </div>

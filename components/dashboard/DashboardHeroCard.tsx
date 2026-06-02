@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { DollarSign, BarChart3, Clock } from "lucide-react";
 
 interface DashboardHeroCardProps {
@@ -15,8 +16,10 @@ interface DashboardHeroCardProps {
  */
 export function DashboardHeroCard({
   soldeFiduciaire,
-  libelle = "Solde fiduciaire",
+  libelle,
 }: DashboardHeroCardProps) {
+  const tUi = useTranslations("dashboardUi");
+  const resolvedLibelle = libelle ?? tUi("trustBalance");
   return (
     <div
       className="overflow-hidden p-5 md:p-6"
@@ -39,7 +42,7 @@ export function DashboardHeroCard({
               margin: 0,
             }}
           >
-            {libelle}
+            {resolvedLibelle}
           </h3>
           <p
             className="mt-0.5"
@@ -86,7 +89,7 @@ export function DashboardHeroCard({
           style={{ background: "var(--brand-800)" }}
           aria-hidden
         />
-        Actif
+        {tUi("active")}
       </p>
 
       <div className="flex items-center gap-2 mt-6">
@@ -101,7 +104,7 @@ export function DashboardHeroCard({
           }}
         >
           <BarChart3 className="w-4 h-4" strokeWidth={1.5} aria-hidden />
-          Rapports
+          {tUi("reports")}
         </Link>
         <Link
           href="/temps"
@@ -114,7 +117,7 @@ export function DashboardHeroCard({
           }}
         >
           <Clock className="w-4 h-4" strokeWidth={1.5} aria-hidden />
-          Fiche de temps
+          {tUi("timesheet")}
         </Link>
       </div>
     </div>

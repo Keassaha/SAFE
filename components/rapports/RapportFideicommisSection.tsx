@@ -3,27 +3,29 @@
 import { Landmark, ArrowDownCircle, ArrowUpCircle, Wallet } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import type { RapportFideicommisSummary } from "@/lib/rapports/types";
+import { useTranslations } from "next-intl";
 
 interface RapportFideicommisSectionProps {
   data: RapportFideicommisSummary;
 }
 
 export function RapportFideicommisSection({ data }: RapportFideicommisSectionProps) {
+  const t = useTranslations("reportsUi");
   const cards = [
     {
-      title: "Dépôts (période)",
+      title: t("depositsPeriod"),
       value: formatCurrency(data.depots),
       icon: ArrowDownCircle,
       className: "border-l-emerald-500",
     },
     {
-      title: "Utilisations (période)",
+      title: t("withdrawalsPeriod"),
       value: formatCurrency(data.utilisations),
       icon: ArrowUpCircle,
       className: "border-l-amber-500",
     },
     {
-      title: "Solde fidéicommis",
+      title: t("trustBalance"),
       value: formatCurrency(data.solde),
       icon: Wallet,
       className: "border-l-blue-500",
@@ -34,7 +36,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
     <div className="space-y-4">
       <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <Landmark className="w-4 h-4" aria-hidden />
-        Rapport fidéicommis
+        {t("trustReportTitle")}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {cards.map((c) => {
@@ -56,7 +58,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
         })}
       </div>
       <p className="text-xs safe-text-secondary">
-        {data.transactionsCount} transaction(s) sur la période.
+        {t("transactionsOverPeriod", { count: data.transactionsCount })}
       </p>
     </div>
   );

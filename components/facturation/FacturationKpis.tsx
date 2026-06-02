@@ -79,6 +79,7 @@ function KpiCard({
 export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisProps) {
   const pathname = usePathname();
   const tf = useTranslations("facturation");
+  const t = useTranslations("billingCompUi");
 
   const CE_MOIS_CARDS: {
     key: keyof FacturationKpisData;
@@ -136,7 +137,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       valueColor: "text-status-error",
       href: "/facturation?statut=en_retard",
       getValue: (k) =>
-        `${k.enRetardCount} facture${k.enRetardCount !== 1 ? "s" : ""} — ${formatCurrency(k.enRetardSum)}`,
+        `${t("invoiceCount", { count: k.enRetardCount })} — ${formatCurrency(k.enRetardSum)}`,
     },
     {
       key: "brouillonsCount",
@@ -145,8 +146,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       icon: FileText,
       valueColor: "text-[var(--safe-text-secondary)]",
       href: "/facturation?statut=brouillon",
-      getValue: (k) =>
-        `${k.brouillonsCount} facture${k.brouillonsCount !== 1 ? "s" : ""}`,
+      getValue: (k) => t("invoiceCount", { count: k.brouillonsCount }),
     },
   ];
 

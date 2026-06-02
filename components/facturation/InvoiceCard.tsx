@@ -1,6 +1,7 @@
 "use client";
 
 import type { Invoice } from "@prisma/client";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 
@@ -14,6 +15,7 @@ interface InvoiceCardProps {
 }
 
 export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
+  const t = useTranslations("billingCompUi");
   const getStatusColor = () => {
     switch (status) {
       case "brouillon":
@@ -47,7 +49,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--safe-text-title)] truncate">
-            {invoice.client.raisonSociale || "Sans client"}
+            {invoice.client.raisonSociale || t("noClient")}
           </p>
           {invoice.dossier && (
             <p className="text-xs text-[var(--safe-text-secondary)] truncate">
@@ -61,14 +63,14 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
           </span>
           {showRetardBadge && (
             <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-red-600 text-white whitespace-nowrap">
-              En retard
+              {t("overdue")}
             </span>
           )}
         </div>
       </div>
 
       <div className="flex justify-between items-baseline pt-1 border-t border-current border-opacity-10">
-        <span className="text-xs text-[var(--safe-text-secondary)]">Total:</span>
+        <span className="text-xs text-[var(--safe-text-secondary)]">{t("totalLabel")}</span>
         <span className="text-sm font-semibold text-[var(--safe-text-title)]">
           {formatCurrency(invoice.montantTotal)}
         </span>
@@ -76,7 +78,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
 
       {invoice.balanceDue > 0 && (status === "envoyee" || status === "en_retard") && (
         <div className="flex justify-between items-baseline text-xs">
-          <span className="text-[var(--safe-text-secondary)]">Reste dû:</span>
+          <span className="text-[var(--safe-text-secondary)]">{t("balanceDueLabel")}</span>
           <span className={`font-semibold ${status === "en_retard" ? "text-red-700" : "text-[var(--safe-text-title)]"}`}>
             {formatCurrency(invoice.balanceDue)}
           </span>
@@ -85,7 +87,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
 
       {invoice.dateEcheance && (
         <p className="text-xs text-[var(--safe-text-secondary)]">
-          Échéance: {formatDate(invoice.dateEcheance)}
+          {t("dueDateLabel")} {formatDate(invoice.dateEcheance)}
         </p>
       )}
 
@@ -94,7 +96,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
         onClick={onPreview}
         className="w-full mt-2 h-8 text-xs"
       >
-        Aperçu
+        {t("preview")}
       </Button>
     </div>
   );

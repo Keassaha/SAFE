@@ -26,6 +26,7 @@ interface PipelineStage {
  */
 export function BillingPipeline({ rows }: BillingPipelineProps) {
   const t = useTranslations("dashboard");
+  const tUi = useTranslations("dashboardUi");
   const locale = useLocale();
 
   const draft = rows.filter((r) => r.status === "Brouillon" || r.status === "Draft");
@@ -62,7 +63,7 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
     },
     {
       key: "paid",
-      label: "Payées",
+      label: tUi("paidPlural"),
       icon: CheckCircle,
       count: paid.length,
       total: sum(paid),
@@ -132,7 +133,7 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
             className="mt-0.5"
             style={{ fontSize: 12, color: "var(--sand-600)", margin: 0 }}
           >
-            Pipeline de facturation
+            {tUi("billingPipeline")}
           </p>
         </div>
         <Link

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Accordion,
   AccordionItem,
@@ -13,14 +14,15 @@ import { User, Users, Briefcase } from "lucide-react";
  * Formulaire en 3 sections accordéon : Identité, Situation familiale, Situation professionnelle & financière
  */
 export function DossierDetailCarteClient({ dossierId }: { dossierId: string }) {
+  const t = useTranslations("matterDetailUi");
   return (
     <div className="rounded-safe-md border border-white/10 bg-white/95 p-6 shadow-xl backdrop-blur sm:p-8">
       <div className="mb-6 border-b border-[var(--safe-neutral-border)] pb-5">
         <h2 className="text-lg font-bold tracking-tight text-[var(--safe-text-title)]">
-          Carte client
+          {t("clientCardTitle")}
         </h2>
         <p className="mt-1 text-sm text-[var(--safe-text-secondary)]">
-          Identité, situation familiale et informations professionnelles ou financières liées au dossier.
+          {t("clientCardSubtitle")}
         </p>
       </div>
 
@@ -31,12 +33,12 @@ export function DossierDetailCarteClient({ dossierId }: { dossierId: string }) {
               <span className="flex h-9 w-9 items-center justify-center rounded-safe-sm bg-[var(--safe-green-50)] text-[var(--safe-green-700)]">
                 <User className="h-4 w-4" />
               </span>
-              Identité et coordonnées
+              {t("identityAndContact")}
             </span>
           </AccordionTrigger>
           <AccordionContent value="identite" className="pb-4 pl-12 text-sm text-[var(--safe-text-secondary)]">
             <p className="rounded-safe-sm bg-[var(--safe-neutral-100)] p-4 text-[var(--safe-text-secondary)]">
-              Aucune donnée renseignée pour le moment. Les informations d’identité et de contact du client pourront être complétées ici.
+              {t("identityEmptyState")}
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -47,12 +49,12 @@ export function DossierDetailCarteClient({ dossierId }: { dossierId: string }) {
               <span className="flex h-9 w-9 items-center justify-center rounded-safe-sm bg-[var(--safe-green-50)] text-[var(--safe-green-700)]">
                 <Users className="h-4 w-4" />
               </span>
-              Situation familiale
+              {t("familySituation")}
             </span>
           </AccordionTrigger>
           <AccordionContent value="familiale" className="pb-4 pl-12 text-sm text-[var(--safe-text-secondary)]">
             <p className="rounded-safe-sm bg-[var(--safe-neutral-100)] p-4 text-[var(--safe-text-secondary)]">
-              Aucune donnée renseignée. Régime matrimonial, enfants et situation familiale pourront être détaillés dans cette section.
+              {t("familyEmptyState")}
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -63,19 +65,19 @@ export function DossierDetailCarteClient({ dossierId }: { dossierId: string }) {
               <span className="flex h-9 w-9 items-center justify-center rounded-safe-sm bg-[var(--safe-green-50)] text-[var(--safe-green-700)]">
                 <Briefcase className="h-4 w-4" />
               </span>
-              Situation professionnelle & financière
+              {t("professionalFinancialSituation")}
             </span>
           </AccordionTrigger>
           <AccordionContent value="pro-financiere" className="pb-4 pl-12 text-sm text-[var(--safe-text-secondary)]">
             <p className="rounded-safe-sm bg-[var(--safe-neutral-100)] p-4 text-[var(--safe-text-secondary)]">
-              Aucune donnée renseignée. Revenus, emploi et situation financière pourront être renseignés ici.
+              {t("professionalFinancialEmptyState")}
             </p>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
 
       <p className="mt-4 text-xs text-[var(--safe-text-secondary)]">
-        Dossier {dossierId}
+        {t("matterLabel", { id: dossierId })}
       </p>
     </div>
   );

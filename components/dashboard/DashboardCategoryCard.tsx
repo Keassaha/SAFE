@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChartBillableHours } from "./ChartBillableHours";
 import { Maximize2, Briefcase, FileText, Users } from "lucide-react";
 import { routes } from "@/lib/routes";
@@ -26,20 +27,23 @@ const defaultIcon = FileText;
 export function DashboardCategoryCard({
   billedPercent,
   items,
-  title = "Répartition",
-  subtitle = "Heures facturables",
+  title,
+  subtitle,
 }: DashboardCategoryCardProps) {
+  const tUi = useTranslations("dashboardUi");
+  const resolvedTitle = title ?? tUi("breakdown");
+  const resolvedSubtitle = subtitle ?? tUi("billableHours");
   return (
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title tracking-tight">{title}</h3>
-          <p className="text-xs safe-text-secondary mt-0.5">{subtitle}</p>
+          <h3 className="text-sm font-semibold safe-text-title tracking-tight">{resolvedTitle}</h3>
+          <p className="text-xs safe-text-secondary mt-0.5">{resolvedSubtitle}</p>
         </div>
         <Link
           href={routes.temps}
           className="w-8 h-8 rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
-          aria-label="Voir fiches de temps"
+          aria-label={tUi("viewTimesheets")}
         >
           <Maximize2 className="w-4 h-4" />
         </Link>

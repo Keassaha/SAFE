@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ImmigrationWorkflow } from "@/components/dossiers/ImmigrationWorkflow";
 import { DocumentExpiryTracker } from "@/components/dossiers/DocumentExpiryTracker";
 import { BackgroundDeclarationForm } from "@/components/dossiers/BackgroundDeclarationForm";
@@ -44,6 +45,7 @@ interface DossierDetailImmigrationProps {
 }
 
 export function DossierDetailImmigration({ dossierId }: DossierDetailImmigrationProps) {
+  const t = useTranslations("matterDetailUi");
   const [sendState, setSendState] = useState<Record<DocId, SendState>>({
     "imm-5476": { status: "idle" },
     "antecedents-declaration": { status: "idle" },
@@ -60,12 +62,12 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
       });
       if (!res.ok) {
         const err = await res.text();
-        throw new Error(err || "Erreur lors de l'envoi");
+        throw new Error(err || t("immigrationSendError"));
       }
       const result = await res.json();
       setSendState((prev) => ({
         ...prev,
-        [docId]: { status: "success", message: `Envoyé à ${result.sentTo}` },
+        [docId]: { status: "success", message: t("immigrationSentTo", { recipient: result.sentTo }) },
       }));
       // Reset to idle after 4 s
       setTimeout(() => {
@@ -76,7 +78,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
         ...prev,
         [docId]: {
           status: "error",
-          message: err instanceof Error ? err.message : "Erreur inconnue",
+          message: err instanceof Error ? err.message : t("immigrationUnknownError"),
         },
       }));
     }
@@ -93,10 +95,10 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
           <div className="flex items-center gap-2 mb-1">
             <FileText className="w-4 h-4 text-blue-600" />
             <h4 className="text-sm font-semibold text-[var(--safe-text-title)]">
-              Documents IRCC
+              {t("irccDocuments")}
             </h4>
             <span className="ml-auto text-xs text-[var(--safe-text-secondary)]">
-              Envoi par courriel au client
+              {t("emailToClient")}
             </span>
           </div>
 
@@ -132,7 +134,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
                       rel="noopener noreferrer"
                       className="inline-flex items-center rounded-safe-sm border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/10 transition-colors"
                     >
-                      Voir PDF
+                      {t("viewPdf")}
                     </a>
                     <Button
                       variant="secondary"
@@ -141,7 +143,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
                       className="!px-3 !py-1.5 !text-xs !h-auto gap-1"
                     >
                       <Send className="w-3 h-3" />
-                      {state.status === "loading" ? "Envoi…" : "Envoyer"}
+                      {state.status === "loading" ? t("sending") : t("send")}
                     </Button>
                   </div>
                 </div>

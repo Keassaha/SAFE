@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { NewInvoiceChoiceModal } from "./NewInvoiceChoiceModal";
 import {
@@ -22,6 +23,7 @@ interface FacturationActionsProps {
 }
 
 export function FacturationActions({ billingMode = "horaire" }: FacturationActionsProps) {
+  const t = useTranslations("billingCompUi");
   const [showModal, setShowModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -62,7 +64,7 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
           aria-expanded={menuOpen}
         >
           <Wrench className="h-4 w-4" aria-hidden />
-          Outils
+          {t("tools")}
           <ChevronDown className={`h-3 w-3 transition-transform ${menuOpen ? "rotate-180" : ""}`} aria-hidden />
         </Button>
 
@@ -73,15 +75,15 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
           >
             <Link href={routes.facturationNotesCredit} className={menuItemClass} onClick={closeMenu} role="menuitem">
               <FileMinus className="h-4 w-4 text-neutral-400" aria-hidden />
-              <span className="flex-1">Notes de crédit</span>
+              <span className="flex-1">{t("creditNotes")}</span>
             </Link>
             <Link href={routes.facturationFrais} className={menuItemClass} onClick={closeMenu} role="menuitem">
               <Receipt className="h-4 w-4 text-neutral-400" aria-hidden />
-              <span className="flex-1">Registre des débours</span>
+              <span className="flex-1">{t("disbursementsRegister")}</span>
             </Link>
             <Link href={`${routes.facturationSuivi}?retard=1`} className={menuItemClass} onClick={closeMenu} role="menuitem">
               <Bell className="h-4 w-4 text-neutral-400" aria-hidden />
-              <span className="flex-1">Rappels & retards</span>
+              <span className="flex-1">{t("remindersAndOverdue")}</span>
             </Link>
 
             <div className="my-1 h-px bg-neutral-100" />
@@ -90,23 +92,23 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
               type="button"
               className={`${menuItemClass} opacity-50 cursor-not-allowed`}
               disabled
-              title="Bientôt disponible"
+              title={t("comingSoon")}
               role="menuitem"
             >
               <Download className="h-4 w-4 text-neutral-400" aria-hidden />
-              <span className="flex-1">Export CSV / PDF</span>
-              <span className="text-[10px] uppercase tracking-wide text-neutral-400">soon</span>
+              <span className="flex-1">{t("exportCsvPdf")}</span>
+              <span className="text-[10px] uppercase tracking-wide text-neutral-400">{t("soonBadge")}</span>
             </button>
             <button
               type="button"
               className={`${menuItemClass} opacity-50 cursor-not-allowed`}
               disabled
-              title="Bientôt disponible"
+              title={t("comingSoon")}
               role="menuitem"
             >
               <Settings className="h-4 w-4 text-neutral-400" aria-hidden />
-              <span className="flex-1">Paramètres facturation</span>
-              <span className="text-[10px] uppercase tracking-wide text-neutral-400">soon</span>
+              <span className="flex-1">{t("billingSettings")}</span>
+              <span className="text-[10px] uppercase tracking-wide text-neutral-400">{t("soonBadge")}</span>
             </button>
           </div>
         )}
@@ -115,7 +117,7 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
       {/* Primary action */}
       <Button variant="primary" onClick={() => setShowModal(true)} className="gap-2">
         <Plus className="h-4 w-4" aria-hidden />
-        Facturer
+        {t("createInvoice")}
       </Button>
 
       <NewInvoiceChoiceModal

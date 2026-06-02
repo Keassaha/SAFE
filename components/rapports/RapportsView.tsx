@@ -49,6 +49,7 @@ type TabId =
 export function RapportsView({ payload }: { payload: RapportsPayload }) {
   const t = useTranslations("rapports");
   const tc = useTranslations("common");
+  const tr = useTranslations("reportsUi");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { filters } = payload;
@@ -161,7 +162,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
                     { key: "avocat", header: t("lawyer") },
                     { key: "date", header: tc("date") },
                     { key: "montantHT", header: t("amountHT") },
-                    { key: "rabais", header: "Rabais" },
+                    { key: "rabais", header: tr("discount") },
                     { key: "taxes", header: t("taxes") },
                     { key: "total", header: tc("total") },
                     { key: "paiementRecu", header: t("paymentReceived") },

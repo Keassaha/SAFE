@@ -30,6 +30,7 @@ function formatDate(d: Date | string, locale: string): string {
 
 export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps) {
   const t = useTranslations("dashboard");
+  const tUi = useTranslations("dashboardUi");
   const locale = useLocale();
 
   return (
@@ -63,7 +64,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
             <thead>
               <tr className="border-b-2 border-[var(--safe-neutral-border)]">
                 <th className="text-left py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
-                  Client
+                  {tUi("client")}
                 </th>
                 <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.balance")}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 
@@ -23,9 +24,10 @@ export function AuditLogList({
   nextCursor: string | null;
   entityTypeFilter?: string;
 }) {
+  const t = useTranslations("gestionCompUi");
   if (items.length === 0) {
     return (
-      <p className="p-6 text-sm text-neutral-muted">Aucun log.</p>
+      <p className="p-6 text-sm text-neutral-muted">{t("noLog")}</p>
     );
   }
   return (
@@ -33,11 +35,11 @@ export function AuditLogList({
       <table className="w-full text-left text-sm">
         <thead className="bg-neutral-surface border-b border-neutral-border sticky top-0">
           <tr>
-            <th className="px-4 py-3 font-medium">Date</th>
-            <th className="px-4 py-3 font-medium">Entité</th>
-            <th className="px-4 py-3 font-medium">Action</th>
-            <th className="px-4 py-3 font-medium">Utilisateur</th>
-            <th className="px-4 py-3 font-medium">Détails</th>
+            <th className="px-4 py-3 font-medium">{t("logDate")}</th>
+            <th className="px-4 py-3 font-medium">{t("logEntity")}</th>
+            <th className="px-4 py-3 font-medium">{t("logAction")}</th>
+            <th className="px-4 py-3 font-medium">{t("logUser")}</th>
+            <th className="px-4 py-3 font-medium">{t("logDetails")}</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +63,7 @@ export function AuditLogList({
           <Link
             href={`${routes.parametresAudit}?cursor=${nextCursor}${entityTypeFilter ? `&entityType=${entityTypeFilter}` : ""}`}
           >
-            <span className="text-sm text-primary-600 hover:underline">Voir la suite</span>
+            <span className="text-sm text-primary-600 hover:underline">{t("seeMore")}</span>
           </Link>
         </div>
       )}

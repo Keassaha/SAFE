@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Search,
   ChevronDown,
@@ -29,18 +30,18 @@ interface SafetrackDossierGridProps {
   dossiers: DossierItem[];
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  droit_famille: "Famille",
-  litige_civil: "Litige civil",
-  criminel: "Criminel",
-  immigration: "Immigration",
-  corporate: "Corporate",
-  autre: "Autre",
-};
-
 const ITEMS_PER_PAGE = 12;
 
 export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
+  const t = useTranslations("gestionCompUi");
+  const TYPE_LABELS: Record<string, string> = {
+    droit_famille: t("dossierTypeFamily"),
+    litige_civil: t("dossierTypeCivilLitigation"),
+    criminel: t("dossierTypeCriminal"),
+    immigration: t("dossierTypeImmigration"),
+    corporate: t("dossierTypeCorporate"),
+    autre: t("dossierTypeOther"),
+  };
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(false);
 
@@ -63,7 +64,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
-          Dossiers ({filtered.length})
+          {t("dossiersCount", { count: filtered.length })}
         </h2>
         {dossiers.length > 6 && (
           <div className="relative">
@@ -72,7 +73,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
-              placeholder="Filtrer…"
+              placeholder={t("filterPlaceholder")}
               className="pl-8 pr-3 py-1.5 text-xs rounded-safe-sm border border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-600)]/50 w-48"
             />
           </div>
@@ -121,13 +122,13 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
 
               <div className="flex gap-3 mt-1.5 text-xs tabular-nums">
                 <span className="text-neutral-400">
-                  {d.total} acte{d.total !== 1 ? "s" : ""}
+                  {t("actsCount", { count: d.total })}
                 </span>
                 {d.enCours > 0 && (
-                  <span className="text-amber-600 font-medium">{d.enCours} en cours</span>
+                  <span className="text-amber-600 font-medium">{t("inProgressCount", { count: d.enCours })}</span>
                 )}
                 {d.enRetard > 0 && (
-                  <span className="text-red-600 font-medium">{d.enRetard} en retard</span>
+                  <span className="text-red-600 font-medium">{t("overdueCount", { count: d.enRetard })}</span>
                 )}
               </div>
             </div>
@@ -140,7 +141,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
       {filtered.length === 0 && (
         <div className="rounded-safe border border-neutral-200 bg-white p-8 text-center">
           <FolderOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-          <p className="text-sm text-neutral-500">Aucun dossier trouvé</p>
+          <p className="text-sm text-neutral-500">{t("noMatterFound")}</p>
         </div>
       )}
 
@@ -152,9 +153,9 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white transition-colors px-4 py-2 rounded-safe-sm hover:bg-white/5"
           >
             {expanded ? (
-              <>Voir moins <ChevronUp className="w-3.5 h-3.5" /></>
+              <>{t("showLess")} <ChevronUp className="w-3.5 h-3.5" /></>
             ) : (
-              <>Voir les {filtered.length - ITEMS_PER_PAGE} autres <ChevronDown className="w-3.5 h-3.5" /></>
+              <>{t("showMore", { count: filtered.length - ITEMS_PER_PAGE })} <ChevronDown className="w-3.5 h-3.5" /></>
             )}
           </button>
         </div>

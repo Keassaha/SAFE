@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Invoice, InvoiceLine } from "@prisma/client";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ interface InvoicePreviewModalProps {
 }
 
 export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePreviewModalProps) {
+  const t = useTranslations("billingCompUi");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,13 +32,13 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
   const getStatus = () => {
     const category = getInvoiceLifecycleCategory(invoice);
     switch (category) {
-      case "draft": return "Brouillon";
-      case "cancelled": return "Annulée";
-      case "credited": return "Avoir émis";
-      case "paid": return "Payée";
-      case "overdue": return "En retard";
-      case "partially_paid": return "Partiellement payée";
-      case "issued_active": return "Envoyée";
+      case "draft": return t("statusDraft");
+      case "cancelled": return t("statusCancelled");
+      case "credited": return t("statusCredited");
+      case "paid": return t("statusPaid");
+      case "overdue": return t("statusOverdue");
+      case "partially_paid": return t("statusPartiallyPaid");
+      case "issued_active": return t("statusSent");
     }
   };
 
@@ -100,32 +102,32 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
     <Modal
       open
       onClose={onClose}
-      title={`Facture ${invoice.numero} - ${getStatus()}`}
+      title={t("invoiceTitle", { numero: invoice.numero, status: getStatus() ?? "" })}
       maxWidth="max-w-2xl"
     >
       <div className="space-y-6">
         {/* Invoice Summary */}
         <div className="grid grid-cols-2 gap-4 pb-4 border-b">
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">Client</p>
+            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("client")}</p>
             <p className="font-semibold text-[var(--safe-text-title)]">
-              {invoice.client.raisonSociale || "Sans client"}
+              {invoice.client.raisonSociale || t("noClient")}
             </p>
           </div>
           {invoice.dossier && (
             <div>
-              <p className="text-xs text-[var(--safe-text-secondary)] mb-1">Dossier</p>
+              <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("matter")}</p>
               <p className="font-semibold text-[var(--safe-text-title)]">{invoice.dossier.intitule}</p>
             </div>
           )}
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">Date émission</p>
+            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("issueDate")}</p>
             <p className="font-semibold text-[var(--safe-text-title)]">
               {formatDate(invoice.dateEmission)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">Date échéance</p>
+            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("dueDate")}</p>
             <p className="font-semibold text-[var(--safe-text-title)]">
               {formatDate(invoice.dateEcheance)}
             </p>
@@ -135,14 +137,14 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
         {/* Totals */}
         <div className="space-y-2 py-4 border-b">
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--safe-text-secondary)]">Montant total:</span>
+            <span className="text-[var(--safe-text-secondary)]">{t("totalAmountLabel")}</span>
             <span className="font-semibold text-[var(--safe-text-title)]">
               {formatCurrency(invoice.montantTotal)}
             </span>
           </div>
           {invoice.balanceDue > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--safe-text-secondary)]">Reste à payer:</span>
+              <span className="text-[var(--safe-text-secondary)]">{t("remainingToPay")}</span>
               <span className="font-semibold text-orange-600">
                 {formatCurrency(invoice.balanceDue)}
               </span>
@@ -152,32 +154,32 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
 
         {/* Line Items Summary */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-[var(--safe-text-title)]">Lignes de facture</h4>
+          <h4 className="text-sm font-semibold text-[var(--safe-text-title)]">{t("invoiceLines")}</h4>
           <div className="text-xs text-[var(--safe-text-secondary)] space-y-1">
-            <p>{invoice.invoiceLines.length} ligne(s) de facture</p>
+            <p>{t("invoiceLineCount", { count: invoice.invoiceLines.length })}</p>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex gap-2 justify-end pt-4 border-t">
           <Button variant="secondary" onClick={onClose} disabled={isLoading}>
-            Fermer
+            {t("close")}
           </Button>
 
           {isDraft && (
             <>
               <Button variant="secondary" onClick={handleValidate} disabled={isLoading}>
-                Valider
+                {t("validate")}
               </Button>
               <Button onClick={handleValidateAndSend} disabled={isLoading}>
-                Valider & Envoyer
+                {t("validateAndSend")}
               </Button>
             </>
           )}
 
           {isIssued && (
             <Button variant="secondary" disabled={isLoading}>
-              Voir détails
+              {t("viewDetails")}
             </Button>
           )}
         </div>

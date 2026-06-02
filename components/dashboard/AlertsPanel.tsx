@@ -11,6 +11,7 @@ export interface AlertsPanelProps {
 
 export function AlertsPanel({ alerts }: AlertsPanelProps) {
   const t = useTranslations("dashboard");
+  const tUi = useTranslations("dashboardUi");
 
   if (alerts.length === 0) {
     return (
@@ -26,7 +27,7 @@ export function AlertsPanel({ alerts }: AlertsPanelProps) {
             <CheckCircle className="w-7 h-7 text-emerald-500" aria-hidden />
           </div>
           <p className="text-sm font-semibold text-neutral-700">{t("noAlerts")}</p>
-          <p className="text-[12px] text-neutral-400 mt-0.5">Tout est en ordre</p>
+          <p className="text-[12px] text-neutral-400 mt-0.5">{tUi("allInOrder")}</p>
         </div>
       </div>
     );

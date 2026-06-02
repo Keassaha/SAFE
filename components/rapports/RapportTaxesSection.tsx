@@ -3,22 +3,24 @@
 import { Receipt } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import type { RapportTaxesSummary } from "@/lib/rapports/types";
+import { useTranslations } from "next-intl";
 
 interface RapportTaxesSectionProps {
   data: RapportTaxesSummary;
 }
 
 export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
+  const t = useTranslations("reportsUi");
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
         <Receipt className="w-4 h-4" aria-hidden />
-        Taxes collectées
+        {t("taxesCollected")}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card-glass overflow-hidden p-5 border-l-4 border-l-blue-500">
           <p className="text-xs font-medium safe-text-secondary uppercase tracking-wider mb-1">
-            TPS collectée
+            {t("tpsCollected")}
           </p>
           <p className="text-xl font-bold safe-text-title tabular-nums">
             {formatCurrency(data.tpsCollectee)}
@@ -26,7 +28,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
         </div>
         <div className="card-glass overflow-hidden p-5 border-l-4 border-l-violet-500">
           <p className="text-xs font-medium safe-text-secondary uppercase tracking-wider mb-1">
-            TVQ collectée
+            {t("tvqCollected")}
           </p>
           <p className="text-xl font-bold safe-text-title tabular-nums">
             {formatCurrency(data.tvqCollectee)}
@@ -34,7 +36,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
         </div>
         <div className="card-glass overflow-hidden p-5 border-l-4 border-l-emerald-500">
           <p className="text-xs font-medium safe-text-secondary uppercase tracking-wider mb-1">
-            Total taxes
+            {t("totalTaxes")}
           </p>
           <p className="text-xl font-bold safe-text-title tabular-nums">
             {formatCurrency(data.total)}

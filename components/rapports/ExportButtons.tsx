@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FileDown, FileSpreadsheet, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type ExportFormat = "csv" | "xlsx" | "pdf";
 
@@ -47,6 +48,7 @@ export function ExportButtons({
   columns,
   filenamePrefix,
 }: ExportButtonsProps) {
+  const t = useTranslations("reportsUi");
   const [exporting, setExporting] = useState<ExportFormat | null>(null);
 
   const handleCsv = () => {
@@ -94,7 +96,7 @@ export function ExportButtons({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Exporter le rapport">
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("exportReport")}>
       <button
         type="button"
         onClick={handleCsv}

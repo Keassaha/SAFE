@@ -20,6 +20,7 @@ export function DeboursAddForm({
 }: DeboursAddFormProps) {
   const td = useTranslations("debours");
   const tc = useTranslations("common");
+  const t = useTranslations("billingCompUi");
   const [clientId, setClientId] = useState<string>("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -118,7 +119,7 @@ export function DeboursAddForm({
             label={td("description")}
             name="description"
             required
-            placeholder="Ex. Frais de signification"
+            placeholder={t("descriptionPlaceholderService")}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

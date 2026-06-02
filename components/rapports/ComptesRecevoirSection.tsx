@@ -3,6 +3,7 @@
 import { formatCurrency } from "@/lib/utils/format";
 import type { ComptesRecevoirAging } from "@/lib/rapports/types";
 import { BarChart2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ComptesRecevoirSectionProps {
   data: ComptesRecevoirAging[];
@@ -11,6 +12,7 @@ interface ComptesRecevoirSectionProps {
 const BUCKET_COLORS = ["bg-emerald-500", "bg-amber-500", "bg-orange-500", "bg-red-500"];
 
 export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
+  const t = useTranslations("reportsUi");
   const total = data.reduce((s, b) => s + b.montant, 0);
   const maxMontant = Math.max(...data.map((b) => b.montant), 1);
 
@@ -19,10 +21,10 @@ export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h3 className="text-sm font-semibold safe-text-title flex items-center gap-2 tracking-tight">
           <BarChart2 className="w-4 h-4" aria-hidden />
-          Âge des factures (comptes à recevoir)
+          {t("invoiceAgingTitle")}
         </h3>
         <p className="text-sm safe-text-secondary">
-          Total à recevoir : <span className="font-semibold safe-text-title">{formatCurrency(total)}</span>
+          {t("totalReceivable")} <span className="font-semibold safe-text-title">{formatCurrency(total)}</span>
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -38,7 +40,7 @@ export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
               {bucket.count > 0 && bucket.montant > 0 && (
                 <span className="text-xs text-amber-600 flex items-center gap-1" role="status">
                   <AlertCircle className="w-3.5 h-3.5" aria-hidden />
-                  {bucket.count} facture{bucket.count > 1 ? "s" : ""}
+                  {t("invoiceCount", { count: bucket.count })}
                 </span>
               )}
             </div>

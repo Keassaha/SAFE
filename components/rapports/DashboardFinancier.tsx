@@ -28,6 +28,7 @@ interface DashboardFinancierProps {
 
 export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierProps) {
   const t = useTranslations("rapports");
+  const tr = useTranslations("reportsUi");
 
   const cards = [
     {
@@ -43,7 +44,7 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
       accent: "blue" as const,
     },
     {
-      title: "Rabais accordés",
+      title: tr("discountsGranted"),
       value: formatCurrency(kpis.rabaisAccordes),
       icon: <Percent className="w-5 h-5" aria-hidden />,
       accent: "red" as const,

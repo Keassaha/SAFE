@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { ArrowDownCircle, CalendarRange, Tag, CheckCircle2, FolderOpen, Upload } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
 
 export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
+  const t = useTranslations("billingCompUi");
   const { reduceMotion } = useSafeMotion();
 
   return (
@@ -17,20 +19,20 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
       animate="visible"
     >
       <ComptaKpiCard
-        label="Dépenses du mois"
+        label={t("expensesThisMonth")}
         value={data.totalMonth}
         format="currency"
         icon={ArrowDownCircle}
         semantic="debit"
         trend={
           data.variation != null
-            ? { value: -(data.variation), label: "vs mois préc." }
+            ? { value: -(data.variation), label: t("vsPreviousMonth") }
             : undefined
         }
       />
 
       <ComptaKpiCard
-        label="Dépenses année"
+        label={t("expensesThisYear")}
         value={data.totalYear}
         format="currency"
         icon={CalendarRange}
@@ -38,7 +40,7 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
       />
 
       <ComptaKpiCard
-        label="Non catégorisées"
+        label={t("uncategorized")}
         value={data.uncategorizedCount}
         format="integer"
         icon={Tag}
@@ -46,7 +48,7 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
       />
 
       <ComptaKpiCard
-        label="À valider"
+        label={t("toValidate")}
         value={data.toValidateCount}
         format="integer"
         icon={CheckCircle2}
@@ -54,7 +56,7 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
       />
 
       <ComptaKpiCard
-        label="Catégorie coûteuse"
+        label={t("topCategory")}
         value={data.topCategoryAmount}
         format="currency"
         icon={FolderOpen}
@@ -63,12 +65,12 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
       />
 
       <ComptaKpiCard
-        label="Importées ce mois"
+        label={t("importedThisMonth")}
         value={data.importedThisMonth}
         format="integer"
         icon={Upload}
         semantic="neutral"
-        subText="transactions"
+        subText={t("transactions")}
       />
     </motion.div>
   );

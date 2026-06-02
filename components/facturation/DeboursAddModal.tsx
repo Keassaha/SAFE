@@ -26,6 +26,7 @@ export function DeboursAddModal({
 }: DeboursAddModalProps) {
   const td = useTranslations("debours");
   const tc = useTranslations("common");
+  const t = useTranslations("billingCompUi");
   const router = useRouter();
   const [clientId, setClientId] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +111,7 @@ export function DeboursAddModal({
           label={`${td("description")} *`}
           name="description"
           required
-          placeholder="Ex: Dépôt requête introductive d'instance"
+          placeholder={t("descriptionPlaceholderFiling")}
         />
 
         <div className="grid grid-cols-2 gap-4">

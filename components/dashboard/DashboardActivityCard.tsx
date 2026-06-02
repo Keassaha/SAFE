@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Maximize2 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
@@ -24,6 +25,7 @@ export function DashboardActivityCard({
   timeFilter,
   growthLabel,
 }: DashboardActivityCardProps) {
+  const tUi = useTranslations("dashboardUi");
   const hasData = data.length > 0;
 
   return (
@@ -31,7 +33,7 @@ export function DashboardActivityCard({
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-sm font-semibold safe-text-title tracking-tight">
-            Activité des encaissements
+            {tUi("encashmentActivity")}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xl md:text-2xl font-bold safe-text-metric">
@@ -43,7 +45,7 @@ export function DashboardActivityCard({
         <Link
           href={routes.rapports}
           className="w-8 h-8 rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
-          aria-label="Voir rapports"
+          aria-label={tUi("viewReports")}
         >
           <Maximize2 className="w-4 h-4" />
         </Link>
@@ -66,7 +68,7 @@ export function DashboardActivityCard({
               />
               <YAxis axisLine={false} tickLine={false} hide />
               <Tooltip
-                formatter={(value: number) => [value, "Encaissements"]}
+                formatter={(value: number) => [value, tUi("encashments")]}
                 contentStyle={{
                   backgroundColor: "rgba(255,255,255,0.98)",
                   border: "1px solid var(--safe-neutral-border)",
@@ -89,13 +91,13 @@ export function DashboardActivityCard({
         </div>
       ) : (
         <div className="h-36 md:h-44 flex items-center justify-center safe-text-secondary text-sm">
-          Aucune donnée sur la période
+          {tUi("noDataForPeriod")}
         </div>
       )}
       {(growthLabel || totalLabel) && (
         <div className="flex items-center justify-between pt-3 border-t border-[var(--safe-neutral-border)] mt-2">
           <span className="text-sm safe-text-secondary">
-            {timeFilter === "month" ? "Ce mois" : timeFilter === "week" ? "Cette semaine" : "Aujourd'hui"}
+            {timeFilter === "month" ? tUi("thisMonth") : timeFilter === "week" ? tUi("thisWeek") : tUi("today")}
           </span>
           {growthLabel && (
             <span className="text-sm font-medium text-green-700 flex items-center gap-1">

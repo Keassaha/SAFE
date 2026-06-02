@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils/format";
 
 interface TimeEntryRow {
@@ -33,6 +34,7 @@ export function WeekGrid({
   onPrevWeek: () => void;
   onNextWeek: () => void;
 }) {
+  const t = useTranslations("gestionCompUi");
   const startOfWeek = new Date(weekStart);
   startOfWeek.setHours(0, 0, 0, 0);
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -59,7 +61,7 @@ export function WeekGrid({
             type="button"
             onClick={onPrevWeek}
             className="p-2 rounded-safe-sm border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
-            aria-label="Semaine précédente"
+            aria-label={t("previousWeek")}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -70,13 +72,13 @@ export function WeekGrid({
             type="button"
             onClick={onNextWeek}
             className="p-2 rounded-safe-sm border border-[var(--safe-neutral-border)] hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900"
-            aria-label="Semaine suivante"
+            aria-label={t("nextWeek")}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         <p className="text-sm safe-text-secondary">
-          Total semaine : <span className="font-semibold safe-text-metric tabular-nums">{formatDuree(weekTotalMinutes)}</span>
+          {t("weekTotalLabel")} <span className="font-semibold safe-text-metric tabular-nums">{formatDuree(weekTotalMinutes)}</span>
         </p>
       </div>
       <div className="grid grid-cols-7 gap-2">
@@ -98,7 +100,7 @@ export function WeekGrid({
                 </li>
               ))}
               {dayEntries.length > 3 && (
-                <li className="text-neutral-500">+{dayEntries.length - 3} autres</li>
+                <li className="text-neutral-500">{t("moreEntries", { count: dayEntries.length - 3 })}</li>
               )}
             </ul>
           </div>
