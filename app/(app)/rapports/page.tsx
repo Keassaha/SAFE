@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { requireCabinetId } from "@/lib/auth/session";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { loadRapportsPayload } from "@/lib/rapports/load";
@@ -23,6 +24,7 @@ export default async function RapportsPage({
   }>;
 }) {
   const cabinetId = await requireCabinetId();
+  const t = await getTranslations("mattersUi");
   const params = await searchParams;
   const defaults = getDefaultDates();
 
@@ -50,10 +52,10 @@ export default async function RapportsPage({
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Rapports"
-        description="Dashboard financier, facturation, comptes à recevoir, performance et rapports fiscaux."
+        title={t("reportsTitle")}
+        description={t("reportsDescription")}
       />
-      <Suspense fallback={<p className="safe-text-secondary">Chargement des rapports…</p>}>
+      <Suspense fallback={<p className="safe-text-secondary">{t("reportsLoading")}</p>}>
         <RapportsView payload={payload} />
       </Suspense>
     </div>

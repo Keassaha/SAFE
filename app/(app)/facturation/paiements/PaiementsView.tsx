@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -16,11 +17,11 @@ import { PaiementAllocationModal } from "@/components/facturation/PaiementAlloca
 
 type AllocationStatusKey = "UNALLOCATED" | "PARTIALLY_ALLOCATED" | "ALLOCATED" | "REVERSED";
 
-const ALLOCATION_STATUS_LABELS: Record<AllocationStatusKey, string> = {
-  UNALLOCATED: "Non alloué",
-  PARTIALLY_ALLOCATED: "Part. alloué",
-  ALLOCATED: "Alloué",
-  REVERSED: "Annulé",
+const ALLOCATION_STATUS_LABEL_KEYS: Record<AllocationStatusKey, string> = {
+  UNALLOCATED: "allocUnallocated",
+  PARTIALLY_ALLOCATED: "allocPartiallyAllocated",
+  ALLOCATED: "allocAllocated",
+  REVERSED: "allocReversed",
 };
 
 const ALLOCATION_STATUS_VARIANTS: Record<AllocationStatusKey, "success" | "warning" | "neutral" | "error"> = {
@@ -49,6 +50,7 @@ type PaymentRow = {
 };
 
 export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
+  const t = useTranslations("billingUi");
   const { reduceMotion } = useSafeMotion();
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -120,7 +122,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           className="inline-flex items-center gap-2 text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] text-sm"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-          Retour à la vue d&apos;ensemble
+          {t("backToOverview")}
         </Link>
       )}
       <div className="flex justify-end">
@@ -131,19 +133,19 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           className="shrink-0"
         >
           <Plus className="w-4 h-4 mr-2" aria-hidden />
-          Nouveau paiement
+          {t("newPayment")}
         </Button>
       </div>
 
       <Card>
-        <CardHeader title="Paiements récents" />
+        <CardHeader title={t("recentPayments")} />
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
             </div>
           ) : payments.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">Aucun paiement.</p>
+            <p className="text-neutral-500 py-8 text-center">{t("noPayments")}</p>
           ) : (
             <motion.div
               className="overflow-x-auto"
@@ -155,14 +157,14 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Date</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Client</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Facture</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Montant</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Alloué</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Non alloué</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">Statut</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500 w-32">Actions</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("date")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("client")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("invoice")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("amount")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("allocated")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("unallocated")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("status")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500 w-32">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,7 +178,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                       <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.unallocatedAmount)}</td>
                       <td className="py-2.5 px-3">
                         <StatusBadge
-                          label={ALLOCATION_STATUS_LABELS[p.allocationStatus as AllocationStatusKey]}
+                          label={t(ALLOCATION_STATUS_LABEL_KEYS[p.allocationStatus as AllocationStatusKey])}
                           variant={ALLOCATION_STATUS_VARIANTS[p.allocationStatus as AllocationStatusKey]}
                         />
                       </td>
@@ -187,7 +189,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                             variant="tertiary"
                             className="!px-2 !py-1.5 min-w-0"
                             onClick={() => openEdit(p.id)}
-                            aria-label="Modifier le paiement"
+                            aria-label={t("editPayment")}
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -197,7 +199,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                               variant="tertiary"
                               className="!px-2 !py-1.5 min-w-0"
                               onClick={() => openAllocation(p)}
-                            aria-label="Allouer le paiement à une facture"
+                            aria-label={t("allocatePaymentToInvoice")}
                           >
                             <Link2 className="w-4 h-4" />
                           </Button>

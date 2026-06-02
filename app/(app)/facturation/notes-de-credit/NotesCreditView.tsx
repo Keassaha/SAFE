@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
@@ -12,6 +13,7 @@ interface FacturationNotesCreditViewProps {
 }
 
 export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCreditViewProps) {
+  const t = useTranslations("billingUi");
   const { data, isLoading } = useQuery({
     queryKey: ["facturation", "notes-credit"],
     queryFn: async () => {
@@ -31,35 +33,35 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-          Retour à la vue d&apos;ensemble
+          {t("backToOverview")}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Notes de crédit</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("creditNotes")}</h1>
         <p className="mt-1 text-white/80 text-sm">
-          Liste des notes de crédit et leur application aux factures.
+          {t("creditNotesSubtitle")}
         </p>
       </header>
 
       <Card>
-        <CardHeader title="Notes de crédit" />
+        <CardHeader title={t("creditNotes")} />
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
             </div>
           ) : notes.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">Aucune note de crédit.</p>
+            <p className="text-neutral-500 py-8 text-center">{t("noCreditNotes")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50">
-                    <th className="text-left py-3 px-3 font-medium">N°</th>
-                    <th className="text-left py-3 px-3 font-medium">Date</th>
-                    <th className="text-left py-3 px-3 font-medium">Facture d&apos;origine</th>
-                    <th className="text-right py-3 px-3 font-medium">Montant</th>
-                    <th className="text-right py-3 px-3 font-medium">Appliqué</th>
-                    <th className="text-right py-3 px-3 font-medium">Restant</th>
-                    <th className="text-left py-3 px-3 font-medium">Statut</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("number")}</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("date")}</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("originalInvoice")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("amount")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("applied")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("remaining")}</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("status")}</th>
                   </tr>
                 </thead>
                 <tbody>

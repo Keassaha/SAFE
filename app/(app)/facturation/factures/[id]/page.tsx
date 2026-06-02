@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArrowLeft, FileText } from "lucide-react";
 import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
@@ -26,22 +27,26 @@ function initialsOf(name?: string | null) {
     .join("");
 }
 
-function statusLabel(invoiceStatus: string | null, statut: string) {
+function statusLabel(
+  invoiceStatus: string | null,
+  statut: string,
+  t: (key: string) => string
+) {
   switch (invoiceStatus) {
     case "DRAFT":
-      return "Brouillon";
+      return t("statusDraft");
     case "READY_TO_ISSUE":
-      return "Approuvée";
+      return t("statusApproved");
     case "ISSUED":
-      return "Envoyée";
+      return t("statusSent");
     case "PAID":
-      return "Payée";
+      return t("statusPaid");
     case "PARTIALLY_PAID":
-      return "Partiellement payée";
+      return t("statusPartiallyPaid");
     case "OVERDUE":
-      return "En retard";
+      return t("statusOverdue");
     case "CANCELLED":
-      return "Annulée";
+      return t("statusCancelled");
     default:
       return statut;
   }
@@ -52,6 +57,7 @@ export default async function FacturePreviewPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getTranslations("billingUi");
   const { cabinetId } = await requireCabinetAndUser();
   const { id } = await params;
   const invoice = await loadPresentedInvoiceForCabinet(id, cabinetId);
@@ -83,7 +89,7 @@ export default async function FacturePreviewPage({
             className="inline-flex items-center gap-2 text-sm font-medium text-neutral-500 transition-colors hover:text-forest-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            Retour aux factures
+            {t("backToInvoices")}
           </Link>
           <div className="mt-4 flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-forest-50 text-forest-700">
@@ -91,10 +97,10 @@ export default async function FacturePreviewPage({
             </span>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Aperçu de la facture {invoice.numero}
+                {t("invoicePreviewTitle", { numero: invoice.numero })}
               </h1>
               <p className="mt-1 text-sm text-neutral-500">
-                {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut)}
+                {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut, t)}
               </p>
             </div>
           </div>

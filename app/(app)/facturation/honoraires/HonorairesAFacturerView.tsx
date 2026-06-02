@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -30,6 +31,7 @@ interface HonorairesAFacturerViewProps {
 
 export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: HonorairesAFacturerViewProps) {
   const router = useRouter();
+  const t = useTranslations("billingUi");
   const [filters, setFilters] = useState<FacturationHonorairesQueryInput>({});
   const [searchQ, setSearchQ] = useState("");
 
@@ -59,16 +61,16 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
             className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
           >
             <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-            Retour à la vue d&apos;ensemble
+            {t("backToOverview")}
           </Link>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Honoraires à facturer</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">{t("feesToBill")}</h1>
               <p className="mt-1 text-white/80 text-sm">
-                Regroupez les fiches de temps non facturées par client et générez des factures.
+                {t("feesToBillSubtitle")}
               </p>
               <p className="mt-1 text-white/70 text-xs">
-                Le client peut être facturé lorsque le total est supérieur ou égal à {MIN_AMOUNT_TO_BILL}&nbsp;$.
+                {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -77,7 +79,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   variant="secondary"
                   className="bg-white/20 text-white border-white/30 hover:bg-white/30"
                 >
-                  Fiche de temps
+                  {t("timesheet")}
                 </Button>
               </Link>
             </div>
@@ -86,21 +88,21 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
       )}
 
       <Card>
-        <CardHeader title="Filtres" />
+        <CardHeader title={t("filters")} />
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2 min-w-[200px]">
               <Search className="w-4 h-4 text-neutral-500" />
               <input
                 type="search"
-                placeholder="Rechercher un client..."
+                placeholder={t("searchClientPlaceholder")}
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
                 className="flex-1 rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">Avocat</label>
+              <label className="text-sm text-neutral-600">{t("lawyer")}</label>
               <select
                 value={filters.userId ?? ""}
                 onChange={(e) =>
@@ -108,7 +110,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                 }
                 className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[160px]"
               >
-                <option value="">Tous</option>
+                <option value="">{t("all")}</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.nom}
@@ -117,7 +119,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">Dossier</label>
+              <label className="text-sm text-neutral-600">{t("matter")}</label>
               <select
                 value={filters.dossierId ?? ""}
                 onChange={(e) =>
@@ -125,7 +127,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                 }
                 className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[200px]"
               >
-                <option value="">Tous</option>
+                <option value="">{t("all")}</option>
                 {dossiers.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.numeroDossier ?? d.reference ?? "—"} — {d.intitule}
@@ -134,7 +136,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">Du</label>
+              <label className="text-sm text-neutral-600">{t("from")}</label>
               <input
                 type="date"
                 value={filters.dateFrom ? String(filters.dateFrom).slice(0, 10) : ""}
@@ -148,7 +150,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">Au</label>
+              <label className="text-sm text-neutral-600">{t("to")}</label>
               <input
                 type="date"
                 value={filters.dateTo ? String(filters.dateTo).slice(0, 10) : ""}
@@ -166,7 +168,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
       </Card>
 
       <Card>
-        <CardHeader title="Par client" />
+        <CardHeader title={t("byClient")} />
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -174,23 +176,23 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
             </div>
           ) : rows.length === 0 ? (
             <p className="text-neutral-500 py-8 text-center">
-              Aucun honoraire à facturer pour les critères sélectionnés.
+              {t("noFeesForCriteria")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50">
-                    <th className="text-left py-3 px-3 font-medium">Client</th>
-                    <th className="text-right py-3 px-3 font-medium">Entrées</th>
-                    <th className="text-right py-3 px-3 font-medium">Total heures</th>
-                    <th className="text-right py-3 px-3 font-medium">Total honoraires</th>
-                    <th className="text-right py-3 px-3 font-medium">Total débours</th>
-                    <th className="text-right py-3 px-3 font-medium">Total forfaits</th>
-                    <th className="text-right py-3 px-3 font-medium">Taxes estimées</th>
-                    <th className="text-right py-3 px-3 font-medium">Total à facturer</th>
-                    <th className="text-left py-3 px-3 font-medium">Dernière date</th>
-                    <th className="text-right py-3 px-3 font-medium">Actions</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("client")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("entries")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("totalHours")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("totalFees")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("totalDisbursements")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("totalFlatFees")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("estimatedTaxes")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("totalToBill")}</th>
+                    <th className="text-left py-3 px-3 font-medium">{t("lastDate")}</th>
+                    <th className="text-right py-3 px-3 font-medium">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -231,8 +233,8 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                           {firstDraftInvoiceId && (
                             <Link
                               href={routes.facturationFactureApercu(firstDraftInvoiceId)}
-                              aria-label="Voir la facture"
-                              title="Voir la facture"
+                              aria-label={t("viewInvoice")}
+                              title={t("viewInvoice")}
                               className={`${ICON_BTN_BASE} ${ICON_BTN_OUTLINE}`}
                             >
                               <FileText className="h-4 w-4" aria-hidden />
@@ -240,8 +242,8 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                           )}
                           <Link
                             href={routes.facturationHonorairesClient(row.clientId)}
-                            aria-label="Voir le détail"
-                            title="Voir le détail"
+                            aria-label={t("viewDetail")}
+                            title={t("viewDetail")}
                             className={`${ICON_BTN_BASE} ${ICON_BTN_GHOST}`}
                           >
                             <Eye className="h-4 w-4" aria-hidden />
@@ -249,13 +251,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                           <button
                             type="button"
                             disabled={selectableCount === 0 || row.totalAFacturer < MIN_AMOUNT_TO_BILL}
-                            aria-label="Préparer la facture"
+                            aria-label={t("prepareInvoice")}
                             title={
                               selectableCount === 0
-                                ? "Toutes les prestations non envoyées sont déjà dans une facture brouillon."
+                                ? t("allItemsAlreadyDrafted")
                                 : row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                                ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
-                                : "Préparer la facture"
+                                ? t("minToBillTitle", { amount: MIN_AMOUNT_TO_BILL })
+                                : t("prepareInvoice")
                             }
                             onClick={() => handlePreparerFacture(row.clientId)}
                             className={`${ICON_BTN_BASE} ${ICON_BTN_PRIMARY}`}

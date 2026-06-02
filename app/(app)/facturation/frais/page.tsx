@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
 
 export default async function FacturationFraisPage() {
+  const t = await getTranslations("billingUi");
   const cabinetId = await requireCabinetId();
 
   const [debours, deboursARefacturer, deboursNonRembourses, clients, dossiers] = await Promise.all([
@@ -51,10 +53,10 @@ export default async function FacturationFraisPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Débours - Vue globale"
-        description="Gérez tous les débours du cabinet."
+        title={t("disbursementsOverview")}
+        description={t("disbursementsOverviewDescription")}
         backHref={routes.facturation}
-        backLabel="Retour à la facturation"
+        backLabel={t("backToBilling")}
         action={
           <FacturationFraisActions
             clients={clients}
@@ -65,46 +67,46 @@ export default async function FacturationFraisPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <CardHeader title="Débours à refacturer" />
+          <CardHeader title={t("disbursementsToRebill")} />
           <CardContent>
             <p className="text-2xl font-semibold text-primary-700">
               {formatCurrency(totalARefacturer)}
             </p>
             <p className="text-sm text-neutral-muted mt-1">
-              Montants refacturables non encore inclus dans une facture
+              {t("disbursementsToRebillHint")}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader title="Débours non remboursés" />
+          <CardHeader title={t("disbursementsUnreimbursed")} />
           <CardContent>
             <p className="text-2xl font-semibold text-primary-700">
               {formatCurrency(totalNonRembourses)}
             </p>
             <p className="text-sm text-neutral-muted mt-1">
-              Payés par le cabinet, pas encore remboursés par le client
+              {t("disbursementsUnreimbursedHint")}
             </p>
           </CardContent>
         </Card>
       </div>
       <Card>
-        <CardHeader title="Liste des frais" />
+        <CardHeader title={t("chargesList")} />
         <CardContent>
           {debours.length === 0 ? (
             <p className="text-sm text-neutral-muted py-4">
-              Aucun débours. Cliquez sur &quot;Nouveau débours&quot; pour en ajouter un, ou gérez les débours depuis chaque dossier (onglet &quot;Débours&quot;).
+              {t("noDisbursements")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-border text-left text-neutral-muted">
-                    <th className="py-2 pr-2">Date</th>
-                    <th className="py-2 pr-2">Client / Dossier</th>
-                    <th className="py-2 pr-2">Description</th>
-                    <th className="py-2 pr-2 text-right">Quantité</th>
-                    <th className="py-2 pr-2 text-right">Montant</th>
-                    <th className="py-2 pr-2">Statut</th>
+                    <th className="py-2 pr-2">{t("date")}</th>
+                    <th className="py-2 pr-2">{t("clientMatter")}</th>
+                    <th className="py-2 pr-2">{t("description")}</th>
+                    <th className="py-2 pr-2 text-right">{t("quantity")}</th>
+                    <th className="py-2 pr-2 text-right">{t("amount")}</th>
+                    <th className="py-2 pr-2">{t("status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -136,7 +138,7 @@ export default async function FacturationFraisPage() {
                             {d.facture.numero}
                           </Link>
                         ) : (
-                          <span className="text-neutral-muted">Non facturé</span>
+                          <span className="text-neutral-muted">{t("notBilled")}</span>
                         )}
                       </td>
                     </tr>

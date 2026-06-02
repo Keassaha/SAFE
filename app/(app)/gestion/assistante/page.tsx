@@ -10,6 +10,7 @@
  */
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewAssistantQueue, canAssignSelfAsAssistant } from "@/lib/auth/permissions";
 import { getAssistantQueue } from "@/lib/dossiers/assistant-queue";
@@ -37,12 +38,13 @@ export default async function AssistanteFilePage({ searchParams }: PageProps) {
   });
 
   const canSelfAssign = canAssignSelfAsAssistant(role as UserRole);
+  const t = await getTranslations("mattersUi");
 
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="File assistante"
-        description="Tout ce qui demande votre attention aujourd'hui — incomplets, attente client, prêts pour revue."
+        title={t("assistantQueueTitle")}
+        description={t("assistantQueueDescription")}
       />
       <AssistantQueueView
         queue={queue}

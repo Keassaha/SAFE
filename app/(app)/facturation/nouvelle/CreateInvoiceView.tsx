@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
 import { InvoicePreview } from "@/lib/invoice-template/InvoicePreview";
 import type {
@@ -219,6 +220,7 @@ export function CreateInvoiceView({
   clientBillables,
 }: CreateInvoiceViewProps) {
   const router = useRouter();
+  const t = useTranslations("billingUi");
   const isForfait = billingMode === "forfait";
   // Mode mixte : chaque ligne porte son propre type (forfait OU honoraires).
   // L'utilisateur bascule le type ligne par ligne via un petit toggle.
@@ -682,16 +684,14 @@ export function CreateInvoiceView({
 
     // --- Validation ---
     if (!selectedClientId) {
-      setSubmitError("Veuillez sélectionner un client.");
+      setSubmitError(t("errorSelectClient"));
       return;
     }
     const manualLines = lines.filter(
       (l) => (l.sourceType ?? "manual") === "manual" && l.description.trim().length > 0 && l.amount > 0
     );
     if (manualLines.length === 0 && selectedSourceLines.length === 0) {
-      setSubmitError(
-        "Ajoutez au moins une ligne ou sélectionnez un client avec des éléments à facturer."
-      );
+      setSubmitError(t("errorNoLines"));
       return;
     }
 
@@ -736,7 +736,7 @@ export function CreateInvoiceView({
       };
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Erreur lors de la création de la facture.");
+        throw new Error(data.error || t("errorCreateInvoice"));
       }
 
       const invoiceId = data.invoice?.id;
@@ -748,7 +748,7 @@ export function CreateInvoiceView({
       router.refresh();
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Erreur inattendue."
+        err instanceof Error ? err.message : t("errorUnexpected")
       );
       setIsSubmitting(false);
     }
@@ -767,7 +767,7 @@ export function CreateInvoiceView({
           className="flex items-center gap-2.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors duration-200"
         >
           <ArrowLeft size={16} />
-          <span className="font-medium">Factures</span>
+          <span className="font-medium">{t("invoices")}</span>
         </button>
 
         <div className="flex items-center gap-2.5">
@@ -775,7 +775,7 @@ export function CreateInvoiceView({
             <FileText size={16} className="text-white" />
           </div>
           <h1 className="text-lg font-bold text-neutral-800 tracking-tight">
-            Nouvelle facture
+            {t("newInvoice")}
           </h1>
         </div>
 
@@ -785,7 +785,7 @@ export function CreateInvoiceView({
             disabled={isSubmitting}
             className="px-5 py-2.5 rounded-xl text-sm font-medium text-neutral-600 bg-white/80 border border-neutral-200/60 hover:bg-white hover:border-neutral-300 transition-all duration-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Annuler
+            {t("cancel")}
           </button>
           <button
             onClick={handleCreate}
@@ -798,7 +798,7 @@ export function CreateInvoiceView({
               ) : (
                 <Sparkles size={14} />
               )}
-              {isSubmitting ? "Création…" : "Créer la facture"}
+              {isSubmitting ? t("creating") : t("createInvoice")}
             </span>
           </button>
         </div>
@@ -813,7 +813,7 @@ export function CreateInvoiceView({
               onClick={() => setSubmitError(null)}
               className="text-red-400 hover:text-red-600 text-xs font-medium"
             >
-              Fermer
+              {t("close")}
             </button>
           </div>
         </div>
@@ -828,7 +828,7 @@ export function CreateInvoiceView({
             <div className="p-6">
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className={`block mb-2 ${sectionTitle}`}>Langue</label>
+                  <label className={`block mb-2 ${sectionTitle}`}>{t("language")}</label>
                   <div className="relative">
                     <select
                       value={language}
@@ -845,14 +845,14 @@ export function CreateInvoiceView({
                   </div>
                 </div>
                 <div>
-                  <label className={`block mb-2 ${sectionTitle}`}>Devise</label>
+                  <label className={`block mb-2 ${sectionTitle}`}>{t("currency")}</label>
                   <div
                     className={`${inputBase} flex items-center justify-between bg-neutral-50 text-neutral-700 cursor-not-allowed select-none`}
                     aria-readonly="true"
-                    title="La devise est fixée à CAD pour les cabinets canadiens."
+                    title={t("currencyLockedTitle")}
                   >
                     <span className="font-semibold">CAD</span>
-                    <span className="text-xs text-neutral-400">Dollar canadien</span>
+                    <span className="text-xs text-neutral-400">{t("canadianDollar")}</span>
                   </div>
                 </div>
               </div>
@@ -863,34 +863,34 @@ export function CreateInvoiceView({
           <div className={card}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className={sectionTitle}>Mes coordonnées</h3>
+                <h3 className={sectionTitle}>{t("myContactInfo")}</h3>
                 <button className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-emerald-50">
                   <Pencil size={12} />
-                  Modifier
+                  {t("edit")}
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
                 <div className="col-span-2">
-                  <span className="text-neutral-400 text-xs">Cabinet</span>
+                  <span className="text-neutral-400 text-xs">{t("firm")}</span>
                   <p className="font-semibold text-neutral-800 mt-0.5">
                     {cabinet.nom}
                   </p>
                 </div>
                 {cabinet.adresse && (
                   <div>
-                    <span className="text-neutral-400 text-xs">Adresse</span>
+                    <span className="text-neutral-400 text-xs">{t("address")}</span>
                     <p className="text-neutral-700 mt-0.5">{cabinet.adresse}</p>
                   </div>
                 )}
                 {cabinet.telephone && (
                   <div>
-                    <span className="text-neutral-400 text-xs">Téléphone</span>
+                    <span className="text-neutral-400 text-xs">{t("phone")}</span>
                     <p className="text-neutral-700 mt-0.5">{cabinet.telephone}</p>
                   </div>
                 )}
                 {cabinet.email && (
                   <div>
-                    <span className="text-neutral-400 text-xs">Courriel</span>
+                    <span className="text-neutral-400 text-xs">{t("email")}</span>
                     <p className="text-neutral-700 mt-0.5">{cabinet.email}</p>
                   </div>
                 )}
@@ -902,11 +902,11 @@ export function CreateInvoiceView({
           {/* Invoice details */}
           <div className={card}>
             <div className="p-6">
-              <h3 className={`mb-5 ${sectionTitle}`}>Détails de la facture</h3>
+              <h3 className={`mb-5 ${sectionTitle}`}>{t("invoiceDetails")}</h3>
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>
-                    Type de document
+                    {t("documentType")}
                   </label>
                   <div className="relative">
                     <select
@@ -914,9 +914,9 @@ export function CreateInvoiceView({
                       onChange={(e) => setDocumentType(e.target.value)}
                       className={selectBase}
                     >
-                      <option value="Facture">Facture</option>
-                      <option value="Facture pro forma">Facture pro forma</option>
-                      <option value="Note d'honoraires">Note d&apos;honoraires</option>
+                      <option value="Facture">{t("docTypeInvoice")}</option>
+                      <option value="Facture pro forma">{t("docTypeProForma")}</option>
+                      <option value="Note d'honoraires">{t("docTypeFeeNote")}</option>
                     </select>
                     <ChevronDown
                       size={14}
@@ -926,7 +926,7 @@ export function CreateInvoiceView({
                 </div>
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>
-                    Numéro de document
+                    {t("documentNumber")}
                   </label>
                   <input
                     value={documentNumber}
@@ -935,7 +935,7 @@ export function CreateInvoiceView({
                     className={`${inputBase} bg-neutral-50 text-neutral-500 cursor-not-allowed`}
                   />
                   <p className="mt-1.5 text-[11px] text-neutral-400">
-                    Attribué automatiquement à la création.
+                    {t("autoAssignedOnCreation")}
                   </p>
                 </div>
               </div>
@@ -945,11 +945,11 @@ export function CreateInvoiceView({
           {/* Dates */}
           <div className={card}>
             <div className="p-6">
-              <h3 className={`mb-5 ${sectionTitle}`}>Dates</h3>
+              <h3 className={`mb-5 ${sectionTitle}`}>{t("dates")}</h3>
               <div className="grid grid-cols-2 gap-5 mb-5">
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>
-                    Date d&apos;émission
+                    {t("issueDate")}
                   </label>
                   <input
                     type="date"
@@ -960,7 +960,7 @@ export function CreateInvoiceView({
                 </div>
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>
-                    Date d&apos;échéance
+                    {t("dueDate")}
                   </label>
                   <input
                     type="date"
@@ -986,7 +986,7 @@ export function CreateInvoiceView({
                         : "bg-white/80 text-neutral-500 border border-neutral-200/60 hover:bg-white hover:text-neutral-700 hover:border-neutral-300"
                     }`}
                   >
-                    {p} jours
+                    {t("daysCount", { count: p })}
                   </button>
                 ))}
               </div>
@@ -996,14 +996,14 @@ export function CreateInvoiceView({
           {/* Client selection — Name first, then dossier, then contact info */}
           <div className={card}>
             <div className="p-6">
-              <h3 className={`mb-5 ${sectionTitle}`}>Client</h3>
+              <h3 className={`mb-5 ${sectionTitle}`}>{t("client")}</h3>
               <div className="relative">
                 <select
                   value={selectedClientId}
                   onChange={(e) => setSelectedClientId(e.target.value)}
                   className={selectBase}
                 >
-                  <option value="">Sélectionner un client…</option>
+                  <option value="">{t("selectClient")}</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {clientDisplayName(c)}
@@ -1029,8 +1029,7 @@ export function CreateInvoiceView({
                   {selectedClient.dossiers && selectedClient.dossiers.length > 0 && (
                     <div className="px-4 mt-2.5 pb-2.5 border-b border-emerald-100/50">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-700/70 mb-1.5">
-                        Dossier{selectedClient.dossiers.length > 1 ? "s" : ""} ouvert
-                        {selectedClient.dossiers.length > 1 ? "s" : ""}
+                        {t("openMatters", { count: selectedClient.dossiers.length })}
                       </p>
                       <div className="space-y-0.5">
                         {selectedClient.dossiers.slice(0, 4).map((d) => (
@@ -1079,19 +1078,19 @@ export function CreateInvoiceView({
                 <div className="mt-4 rounded-xl border border-neutral-100 bg-white/70 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-xs font-semibold text-neutral-500 uppercase tracking-[0.08em]">
-                      Éléments détectés
+                      {t("detectedItems")}
                     </p>
                     <span className="text-xs font-semibold text-emerald-700">
-                      {billablesForSelectedClient.length} ligne{billablesForSelectedClient.length > 1 ? "s" : ""}
+                      {t("linesCount", { count: billablesForSelectedClient.length })}
                     </span>
                   </div>
                   {billablesForSelectedClient.length > 0 ? (
                     <p className="mt-2 text-sm text-neutral-500">
-                      Les tâches, honoraires, débours et rabais non facturés sont chargés automatiquement.
+                      {t("autoLoadedItems")}
                     </p>
                   ) : (
                     <p className="mt-2 text-sm text-neutral-500">
-                      Aucun élément existant à facturer. Vous pouvez créer la facture from scratch.
+                      {t("noExistingItems")}
                     </p>
                   )}
                 </div>
@@ -1105,12 +1104,11 @@ export function CreateInvoiceView({
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h3 className={sectionTitle}>
-                    {isForfait ? "Tâches facturées" : "Lignes de facturation"}
+                    {isForfait ? t("billedTasks") : t("invoiceLines")}
                   </h3>
                   {isForfait && (
                     <p className="text-[11px] text-neutral-400 mt-1">
-                      Sélectionnez une tâche préenregistrée — le montant se
-                      remplit automatiquement.
+                      {t("selectPresetTaskHint")}
                     </p>
                   )}
                 </div>
@@ -1120,23 +1118,23 @@ export function CreateInvoiceView({
                     className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
                   >
                     <Plus size={14} />
-                    Ligne
+                    {t("line")}
                   </button>
                   <button
                     onClick={addRabais}
                     className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all duration-200"
-                    title="Ajouter un rabais — réduit le sous-total"
+                    title={t("addDiscountTitle")}
                   >
                     <Percent size={14} />
-                    Rabais
+                    {t("discount")}
                   </button>
                   <button
                     onClick={addFrais}
                     className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-all duration-200"
-                    title="Ajouter des frais administratifs"
+                    title={t("addAdminChargesTitle")}
                   >
                     <Receipt size={14} />
-                    Frais
+                    {t("charges")}
                   </button>
                 </div>
               </div>
@@ -1148,7 +1146,7 @@ export function CreateInvoiceView({
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
                         <CalendarDays size={12} className="text-neutral-400 shrink-0" />
                         <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
-                          Date
+                          {t("date")}
                         </span>
                         <input
                           type="date"
@@ -1160,7 +1158,7 @@ export function CreateInvoiceView({
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
                         <UserIcon size={12} className="text-neutral-400 shrink-0" />
                         <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
-                          Responsable
+                          {t("responsible")}
                         </span>
                         <div className="relative flex-1">
                           <select
@@ -1199,7 +1197,7 @@ export function CreateInvoiceView({
                     isMixed && line.sourceType === "manual" ? (
                       <div className="col-span-12 flex items-center gap-2 mb-1">
                         <span className="text-[10px] text-neutral-400 uppercase tracking-wide">
-                          Type
+                          {t("type")}
                         </span>
                         <div className="inline-flex rounded-lg border border-neutral-200 p-0.5 bg-white">
                           <button
@@ -1211,7 +1209,7 @@ export function CreateInvoiceView({
                                 : "text-neutral-500 hover:text-neutral-700"
                             }`}
                           >
-                            Forfait
+                            {t("flatFee")}
                           </button>
                           <button
                             type="button"
@@ -1222,7 +1220,7 @@ export function CreateInvoiceView({
                                 : "text-neutral-500 hover:text-neutral-700"
                             }`}
                           >
-                            Heures
+                            {t("hours")}
                           </button>
                         </div>
                       </div>
@@ -1245,7 +1243,7 @@ export function CreateInvoiceView({
                             style={{ color: isRabais ? "#047857" : "#92400e" }}
                           >
                             {isRabais ? <Percent size={11} /> : <Receipt size={11} />}
-                            {isRabais ? "Rabais" : "Frais administratifs"}
+                            {isRabais ? t("discount") : t("adminCharges")}
                           </label>
                           <input
                             value={line.description}
@@ -1254,15 +1252,15 @@ export function CreateInvoiceView({
                             }
                             placeholder={
                               isRabais
-                                ? "Motif du rabais (ex. fidélité, geste commercial)…"
-                                : "Description des frais (ex. frais de greffe, copies)…"
+                                ? t("discountReasonPlaceholder")
+                                : t("chargesDescriptionPlaceholder")
                             }
                             className={lineInput}
                           />
                         </div>
                         <div className="col-span-2">
                           <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                            Montant
+                            {t("amount")}
                           </label>
                           <div className="relative">
                             {isRabais && (
@@ -1290,14 +1288,14 @@ export function CreateInvoiceView({
                               onChange={(e) => updateLine(line.id, { taxable: e.target.checked })}
                               className="rounded border-neutral-300"
                             />
-                            Taxable (TPS/TVQ)
+                            {t("taxableGstQst")}
                           </label>
                         </div>
                         <div className="col-span-1 flex justify-end">
                           <button
                             onClick={() => removeLine(line.id)}
                             className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-                            title="Supprimer"
+                            title={t("delete")}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -1315,7 +1313,7 @@ export function CreateInvoiceView({
                       {modeToggle}
                       <div className="col-span-9">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          {line.sourceType === "manual" ? "Tâche préenregistrée" : "Élément à facturer"}
+                          {line.sourceType === "manual" ? t("presetTask") : t("billableItem")}
                         </label>
                         {line.sourceType === "manual" ? (
                           <div className="space-y-2">
@@ -1329,8 +1327,8 @@ export function CreateInvoiceView({
                               >
                                 <option value="">
                                   {forfaitServices.length === 0
-                                    ? "Saisie libre"
-                                    : "Sélectionner une tâche ou saisir librement…"}
+                                    ? t("freeEntry")
+                                    : t("selectTaskOrFree")}
                                 </option>
                                 {forfaitServices.map((svc) => (
                                   <option key={svc.id} value={svc.id}>
@@ -1348,7 +1346,7 @@ export function CreateInvoiceView({
                               onChange={(e) =>
                                 updateLine(line.id, { description: e.target.value })
                               }
-                              placeholder="Description libre…"
+                              placeholder={t("freeDescriptionPlaceholder")}
                               className={lineInput}
                             />
                           </div>
@@ -1368,12 +1366,12 @@ export function CreateInvoiceView({
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             {(line.ajustement ?? 0) !== 0 && (
                               <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
-                                Ajustement {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
+                                {t("adjustment")} {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
                               </span>
                             )}
                             {(line.rabais ?? 0) > 0 && (
                               <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">
-                                Rabais -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
+                                {t("discount")} -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
                               </span>
                             )}
                           </div>
@@ -1381,7 +1379,7 @@ export function CreateInvoiceView({
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Montant
+                          {t("amount")}
                         </label>
                         <input
                           type="number"
@@ -1401,7 +1399,7 @@ export function CreateInvoiceView({
                         <button
                           onClick={() => removeLine(line.id)}
                           className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-                          title="Supprimer"
+                          title={t("delete")}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -1417,7 +1415,7 @@ export function CreateInvoiceView({
                       {modeToggle}
                       <div className="col-span-5">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Description
+                          {t("description")}
                         </label>
                         <input
                           value={line.description}
@@ -1425,7 +1423,7 @@ export function CreateInvoiceView({
                           onChange={(e) =>
                             updateLine(line.id, { description: e.target.value })
                           }
-                          placeholder="Description du service…"
+                          placeholder={t("serviceDescriptionPlaceholder")}
                           className={`${lineInput} ${line.sourceType !== "manual" ? "bg-neutral-50 text-neutral-500" : ""}`}
                         />
                         {line.dossierLabel && (
@@ -1437,12 +1435,12 @@ export function CreateInvoiceView({
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             {(line.ajustement ?? 0) !== 0 && (
                               <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
-                                Ajustement {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
+                                {t("adjustment")} {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
                               </span>
                             )}
                             {(line.rabais ?? 0) > 0 && (
                               <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">
-                                Rabais -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
+                                {t("discount")} -{line.rabais?.toFixed(2)} ${line.rabaisRaison ? ` · ${line.rabaisRaison}` : ""}
                               </span>
                             )}
                           </div>
@@ -1450,7 +1448,7 @@ export function CreateInvoiceView({
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Heures
+                          {t("hours")}
                         </label>
                         <input
                           type="number"
@@ -1467,7 +1465,7 @@ export function CreateInvoiceView({
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Taux
+                          {t("rate")}
                         </label>
                         <input
                           type="number"
@@ -1484,7 +1482,7 @@ export function CreateInvoiceView({
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] text-neutral-400 font-medium mb-1">
-                          Montant
+                          {t("amount")}
                         </label>
                         <p className="h-10 flex items-center justify-end text-sm font-bold text-neutral-800 tabular-nums">
                           {line.amount.toFixed(2)} $
@@ -1494,7 +1492,7 @@ export function CreateInvoiceView({
                         <button
                           onClick={() => removeLine(line.id)}
                           className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-                          title="Supprimer"
+                          title={t("delete")}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -1508,23 +1506,23 @@ export function CreateInvoiceView({
               {/* Totals summary */}
               <div className="mt-5 pt-5 border-t border-neutral-100 space-y-2.5 text-sm">
                 <div className="flex justify-between text-neutral-500">
-                  <span>Sous-total honoraires</span>
+                  <span>{t("subtotalFees")}</span>
                   <span className="tabular-nums">{totals.subtotalHonoraires.toFixed(2)} $</span>
                 </div>
                 {totals.totalFrais > 0 && (
                   <div className="flex justify-between text-amber-700">
-                    <span>Frais administratifs</span>
+                    <span>{t("adminCharges")}</span>
                     <span className="tabular-nums">+{totals.totalFrais.toFixed(2)} $</span>
                   </div>
                 )}
                 {totals.totalRabais > 0 && (
                   <div className="flex justify-between text-emerald-700">
-                    <span>Rabais accordé</span>
+                    <span>{t("discountGranted")}</span>
                     <span className="tabular-nums">−{totals.totalRabais.toFixed(2)} $</span>
                   </div>
                 )}
                 <div className="flex justify-between text-neutral-500 pt-1.5 border-t border-neutral-100/60">
-                  <span>Sous-total</span>
+                  <span>{t("subtotal")}</span>
                   <span className="tabular-nums font-medium">{totals.subtotal.toFixed(2)} $</span>
                 </div>
                 {totals.mode === "hst" ? (
@@ -1545,7 +1543,7 @@ export function CreateInvoiceView({
                   </>
                 )}
                 <div className="flex justify-between font-bold text-neutral-800 text-base pt-3 border-t border-neutral-100">
-                  <span>Total</span>
+                  <span>{t("total")}</span>
                   <span className="tabular-nums">{totals.total.toFixed(2)} $</span>
                 </div>
               </div>
@@ -1555,11 +1553,11 @@ export function CreateInvoiceView({
           {/* Note to client */}
           <div className={card}>
             <div className="p-6">
-              <h3 className={`mb-4 ${sectionTitle}`}>Note au client</h3>
+              <h3 className={`mb-4 ${sectionTitle}`}>{t("noteToClient")}</h3>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
-                placeholder="Message optionnel visible sur la facture…"
+                placeholder={t("optionalMessagePlaceholder")}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border border-neutral-200/80 bg-white/80 text-sm text-neutral-800 placeholder:text-neutral-300 focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 resize-none"
               />
@@ -1572,7 +1570,7 @@ export function CreateInvoiceView({
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <h2 className={sectionTitle}>Aperçu en direct</h2>
+              <h2 className={sectionTitle}>{t("livePreview")}</h2>
             </div>
             {presentedPreview.cabinet?.invoiceTemplate === "derisier" &&
             presentedPreview.cabinet?.invoiceSignature ? (
@@ -1583,7 +1581,7 @@ export function CreateInvoiceView({
                   onChange={(e) => setShowSignature(e.target.checked)}
                   className="h-4 w-4 rounded border-neutral-300 text-emerald-500 focus:ring-emerald-400/30"
                 />
-                Ajouter ma signature
+                {t("addMySignature")}
               </label>
             ) : null}
           </div>

@@ -40,6 +40,7 @@ export function HonorairesView({
 }: HonorairesViewProps) {
   const router = useRouter();
   const t = useTranslations("facturation");
+  const tb = useTranslations("billingUi");
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [clientThresholds, setClientThresholds] = useState<Record<string, number>>({});
 
@@ -105,7 +106,7 @@ export function HonorairesView({
       <Card>
         <CardHeader
           title={t("honorairesLabel")}
-          action={<span className="text-sm text-[var(--safe-text-secondary)]">{clients.length} client{clients.length !== 1 ? "s" : ""} avec honoraires à facturer</span>}
+          action={<span className="text-sm text-[var(--safe-text-secondary)]">{tb("clientsWithFeesToBill", { count: clients.length })}</span>}
         />
         <CardContent>
           {clients.length === 0 ? (
@@ -133,25 +134,25 @@ export function HonorairesView({
                           {client.clientName}
                         </h4>
                         <p className="text-xs text-[var(--safe-text-secondary)]">
-                          {client.hourCount} fiche(s) de temps · {client.expenseCount} débours
+                          {tb("timesheetsAndDisbursements", { hours: client.hourCount, disbursements: client.expenseCount })}
                         </p>
                       </div>
                       {aboveThreshold && (
                         <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700 font-medium whitespace-nowrap">
-                          Seuil dépassé
+                          {tb("thresholdExceeded")}
                         </span>
                       )}
                     </div>
 
                     <div className="space-y-2 py-2 border-t border-b border-current border-opacity-10">
                       <div className="flex justify-between items-baseline text-sm">
-                        <span className="text-[var(--safe-text-secondary)]">Montant accumulé:</span>
+                        <span className="text-[var(--safe-text-secondary)]">{tb("accumulatedAmount")}</span>
                         <span className="font-semibold text-[var(--safe-text-title)]">
                           {formatCurrency(client.totalAmount)}
                         </span>
                       </div>
                       <div className="flex justify-between items-baseline text-xs text-[var(--safe-text-secondary)]">
-                        <span>Seuil:</span>
+                        <span>{tb("threshold")}</span>
                         <span>{formatCurrency(threshold)}</span>
                       </div>
                     </div>
@@ -161,7 +162,7 @@ export function HonorairesView({
                       disabled={isLoading === client.clientId || !aboveThreshold}
                       className="w-full"
                     >
-                      {isLoading === client.clientId ? "Création..." : "Facturer"}
+                      {isLoading === client.clientId ? tb("creatingShort") : tb("bill")}
                     </Button>
                   </div>
                 );
@@ -173,10 +174,10 @@ export function HonorairesView({
 
       <div className="text-xs text-[var(--safe-text-secondary)]">
         <p>
-          Seuil par défaut: <strong>{formatCurrency(DEFAULT_THRESHOLD)}</strong>
+          {tb("defaultThreshold")} <strong>{formatCurrency(DEFAULT_THRESHOLD)}</strong>
         </p>
         <p className="mt-1">
-          Les boutons &quot;Facturer&quot; s&apos;activent lorsque le montant accumulé dépasse le seuil.
+          {tb("billButtonsHint")}
         </p>
       </div>
     </div>

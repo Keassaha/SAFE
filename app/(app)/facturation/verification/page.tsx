@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { requireCabinetId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
@@ -8,6 +9,7 @@ import { routes } from "@/lib/routes";
 import { FileText, ChevronRight } from "lucide-react";
 
 export default async function FacturationVerificationPage() {
+  const t = await getTranslations("billingUi");
   const cabinetId = await requireCabinetId();
 
   const invoices = await prisma.invoice.findMany({
@@ -25,16 +27,16 @@ export default async function FacturationVerificationPage() {
 
   return (
     <div className="space-y-6">
-      <FacturationPageHero backHref={routes.facturation} backLabel="la vue d'ensemble" />
+      <FacturationPageHero backHref={routes.facturation} backLabel={t("overview")} />
       <Card>
-        <CardHeader title="Factures en vérification" />
+        <CardHeader title={t("invoicesInReview")} />
         <CardContent>
           <p className="text-sm text-[var(--safe-text-secondary)] mb-4">
-            Modifiez les factures à la source et ajoutez des commentaires ligne par ligne. Une fois approuvées, vous pourrez les envoyer ou les marquer comme envoyées.
+            {t("reviewIntro")}
           </p>
           {invoices.length === 0 ? (
             <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
-              Aucune facture en attente de vérification.
+              {t("noInvoicesPendingReview")}
             </p>
           ) : (
             <ul className="divide-y divide-[var(--safe-neutral-border)]">
@@ -52,7 +54,7 @@ export default async function FacturationVerificationPage() {
                         {inv.numero} — {inv.client.raisonSociale}
                       </p>
                       <p className="text-sm text-[var(--safe-text-secondary)]">
-                        {inv.dossier?.intitule ?? "Sans dossier"} · Émission :{" "}
+                        {inv.dossier?.intitule ?? t("noMatter")} · {t("issuedColon")}{" "}
                         {formatDate(inv.dateEmission)}
                       </p>
                     </div>
@@ -62,8 +64,8 @@ export default async function FacturationVerificationPage() {
                       </p>
                       <p className="text-xs text-[var(--safe-text-secondary)]">
                         {inv.invoiceStatus === "READY_TO_ISSUE"
-                          ? "Approuvée — prête à envoyer"
-                          : "En attente d'approbation"}
+                          ? t("approvedReadyToSend")
+                          : t("awaitingApproval")}
                       </p>
                     </div>
                     <ChevronRight className="h-5 w-5 text-[var(--safe-text-secondary)] shrink-0" aria-hidden />

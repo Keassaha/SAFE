@@ -120,6 +120,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
 
     const tg = await getTranslations("gestion");
     const tm = await getTranslations("matters");
+    const t = await getTranslations("mattersUi");
 
     const summaryCards = [
       { title: tg("events"), value: calendarEvents.length, icon: CalendarDays, accent: "text-blue-600" },
@@ -157,9 +158,9 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-semibold text-white tracking-tight">Planification</h1>
+          <h1 className="text-xl font-semibold text-white tracking-tight">{t("planningTitle")}</h1>
           <p className="mt-1 text-sm text-white/70">
-            Agenda, suivi des dossiers et échéances. Cliquez sur un dossier pour ouvrir le tableau de production.
+            {t("planningDescription")}
           </p>
         </div>
 
@@ -194,8 +195,8 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
         {dossiers.length === 0 ? (
           <div className="rounded-safe border border-neutral-border bg-white p-6 text-center">
             <p className="text-sm text-neutral-500">
-              Aucun dossier.{" "}
-              <Link href={routes.dossierNouveau()} className="text-primary-700 hover:underline font-medium">Créer un dossier</Link>
+              {t("noMatters")}{" "}
+              <Link href={routes.dossierNouveau()} className="text-primary-700 hover:underline font-medium">{t("createMatter")}</Link>
             </p>
           </div>
         ) : (
@@ -222,10 +223,11 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
   ]);
 
   if (!dossier) {
+    const t = await getTranslations("mattersUi");
     return (
       <div className="rounded-safe border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
-        Dossier introuvable.{" "}
-        <Link href={routes.gestionLexTrack} className="underline">Retour</Link>
+        {t("matterNotFound")}{" "}
+        <Link href={routes.gestionLexTrack} className="underline">{t("back")}</Link>
       </div>
     );
   }

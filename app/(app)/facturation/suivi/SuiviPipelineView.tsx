@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Invoice, InvoiceLine } from "@prisma/client";
 import { InvoicePreviewModal } from "@/components/facturation/InvoicePreviewModal";
 import { InvoiceCard } from "@/components/facturation/InvoiceCard";
@@ -22,6 +23,7 @@ export function SuiviPipelineView({
   enRetard,
   cabinetId,
 }: SuiviPipelineViewProps) {
+  const t = useTranslations("billingUi");
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithRelations | null>(null);
 
   return (
@@ -30,7 +32,7 @@ export function SuiviPipelineView({
         {/* Envoyées : factures émises actives + payées (historique du pipeline) */}
         <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
           <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
-            Envoyées
+            {t("statusSent")}
             <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
               ({envoyees.length})
             </span>
@@ -38,7 +40,7 @@ export function SuiviPipelineView({
           <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
             {envoyees.length === 0 ? (
               <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
-                Aucune facture envoyée
+                {t("noSentInvoicesShort")}
               </p>
             ) : (
               envoyees.map((invoice) => (
@@ -56,7 +58,7 @@ export function SuiviPipelineView({
         {/* En retard : dérivé de dateEcheance < now sur factures émises non payées */}
         <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
           <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
-            En retard
+            {t("statusOverdue")}
             <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
               ({enRetard.length})
             </span>
@@ -64,7 +66,7 @@ export function SuiviPipelineView({
           <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
             {enRetard.length === 0 ? (
               <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
-                Aucune facture en retard
+                {t("noOverdueInvoices")}
               </p>
             ) : (
               enRetard.map((invoice) => (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -22,12 +23,9 @@ import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ManualJournalContext } from "./actions";
 
 const PAGE_SIZE = 50;
-const TRANSACTION_TYPES: { value: "" | JournalTransactionType; label: string }[] = [
-  { value: "", label: "Tous les types" },
-  ...(Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS) as [JournalTransactionType, string][]).map(
-    ([value, label]) => ({ value, label })
-  ),
-];
+const TRANSACTION_TYPE_OPTIONS: { value: JournalTransactionType; label: string }[] = (
+  Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS) as [JournalTransactionType, string][]
+).map(([value, label]) => ({ value, label }));
 
 function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -46,6 +44,7 @@ export function GeneralJournalPageView({
 }: {
   initialKpis: JournalKpiData;
 }) {
+  const t = useTranslations("accountingUi");
   const { reduceMotion } = useSafeMotion();
   const now = new Date();
   const [kpis, setKpis] = useState<JournalKpiData>(initialKpis);
@@ -137,7 +136,7 @@ export function GeneralJournalPageView({
       try {
         setManualContext(await getManualJournalContextAction());
       } catch (err) {
-        setManualError(err instanceof Error ? err.message : "Erreur de chargement");
+        setManualError(err instanceof Error ? err.message : t("loadingError"));
       }
     }
   }
@@ -163,7 +162,7 @@ export function GeneralJournalPageView({
       setPage(1);
       await Promise.all([loadEntries(), refreshKpis()]);
     } catch (err) {
-      setManualError(err instanceof Error ? err.message : "Écriture impossible");
+      setManualError(err instanceof Error ? err.message : t("entrySaveError"));
     } finally {
       setManualSubmitting(false);
     }
@@ -182,7 +181,7 @@ export function GeneralJournalPageView({
           onClick={openManualEntry}
         >
           <Plus className="w-4 h-4" aria-hidden />
-          <span className="ml-2">Nouvelle écriture</span>
+          <span className="ml-2">{t("newEntry")}</span>
         </Button>
         <Button
           type="button"
@@ -195,7 +194,7 @@ export function GeneralJournalPageView({
           ) : (
             <Download className="w-4 h-4" aria-hidden />
           )}
-          <span className="ml-2">Exporter CSV</span>
+          <span className="ml-2">{t("exportCsv")}</span>
         </Button>
       </div>
 
@@ -204,7 +203,7 @@ export function GeneralJournalPageView({
         onClose={() => {
           if (!manualSubmitting) setManualModalOpen(false);
         }}
-        title="Nouvelle écriture"
+        title={t("newEntry")}
         maxWidth="max-w-2xl"
       >
         <form key={manualType} onSubmit={handleManualSubmit} className="space-y-5">
@@ -218,7 +217,7 @@ export function GeneralJournalPageView({
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              Facture envoyée
+              {t("invoiceSent")}
             </button>
             <button
               type="button"
@@ -229,7 +228,7 @@ export function GeneralJournalPageView({
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              Paiement reçu
+              {t("paymentReceived")}
             </button>
             <button
               type="button"
@@ -240,13 +239,13 @@ export function GeneralJournalPageView({
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              Dépense
+              {t("expense")}
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Date</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("date")}</label>
               <input
                 name="dateTransaction"
                 type="date"
@@ -256,7 +255,7 @@ export function GeneralJournalPageView({
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Type</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("type")}</label>
               <select
                 name="typeTransaction"
                 value={manualType}
@@ -274,14 +273,14 @@ export function GeneralJournalPageView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Client</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("client")}</label>
               <select
                 name="clientId"
                 value={manualClientId}
                 onChange={(e) => setManualClientId(e.target.value)}
                 className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               >
-                <option value="">Aucun client</option>
+                <option value="">{t("noClient")}</option>
                 {manualContext?.clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.label}
@@ -290,12 +289,12 @@ export function GeneralJournalPageView({
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Dossier</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("matter")}</label>
               <select
                 name="dossierId"
                 className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               >
-                <option value="">Aucun dossier</option>
+                <option value="">{t("noMatter")}</option>
                 {manualDossiers.map((dossier) => (
                   <option key={dossier.id} value={dossier.id}>
                     {dossier.label}
@@ -307,15 +306,15 @@ export function GeneralJournalPageView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Référence</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("reference")}</label>
               <input
                 name="reference"
-                placeholder={manualType === "FACTURE" ? "No facture" : "Référence"}
+                placeholder={manualType === "FACTURE" ? t("invoiceNumberPlaceholder") : t("referencePlaceholder")}
                 className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Catégorie</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("category")}</label>
               <input
                 name="categorie"
                 defaultValue={defaultCategoryFor(manualType)}
@@ -325,7 +324,7 @@ export function GeneralJournalPageView({
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Description</label>
+            <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("description")}</label>
             <input
               name="description"
               required
@@ -336,7 +335,7 @@ export function GeneralJournalPageView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Entrée</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("moneyIn")}</label>
               <input
                 name="montantEntree"
                 type="number"
@@ -349,7 +348,7 @@ export function GeneralJournalPageView({
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">Sortie</label>
+              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("moneyOut")}</label>
               <input
                 name="montantSortie"
                 type="number"
@@ -367,11 +366,11 @@ export function GeneralJournalPageView({
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" disabled={manualSubmitting} onClick={() => setManualModalOpen(false)}>
-              Annuler
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={manualSubmitting}>
               {manualSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : null}
-              Enregistrer
+              {t("save")}
             </Button>
           </div>
         </form>
@@ -384,28 +383,28 @@ export function GeneralJournalPageView({
         animate="visible"
       >
         <ComptaKpiCard
-          label="Solde global"
+          label={t("kpiGlobalBalance")}
           value={soldeGlobal}
           format="currency"
           icon={Scale}
           semantic={soldeGlobal >= 0 ? "credit" : "debit"}
         />
         <ComptaKpiCard
-          label="Revenus (ce mois)"
+          label={t("kpiRevenueThisMonth")}
           value={kpis.totalRevenus}
           format="currency"
           icon={TrendingUp}
           semantic="credit"
         />
         <ComptaKpiCard
-          label="Dépenses (ce mois)"
+          label={t("kpiExpensesThisMonth")}
           value={kpis.totalDepenses}
           format="currency"
           icon={TrendingDown}
           semantic="debit"
         />
         <ComptaKpiCard
-          label="Transactions ce mois"
+          label={t("kpiTransactionsThisMonth")}
           value={kpis.nbTransactionsCeMois}
           format="integer"
           icon={Activity}
@@ -414,7 +413,7 @@ export function GeneralJournalPageView({
       </motion.div>
 
       <Card>
-        <CardHeader title="Filtres" />
+        <CardHeader title={t("filters")} />
         <CardContent>
           <form
             className="flex flex-wrap gap-4 items-end"
@@ -425,7 +424,7 @@ export function GeneralJournalPageView({
           >
             <div>
               <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
-                Du
+                {t("from")}
               </label>
               <input
                 type="date"
@@ -436,7 +435,7 @@ export function GeneralJournalPageView({
             </div>
             <div>
               <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
-                Au
+                {t("to")}
               </label>
               <input
                 type="date"
@@ -447,34 +446,35 @@ export function GeneralJournalPageView({
             </div>
             <div>
               <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
-                Type
+                {t("type")}
               </label>
               <select
                 value={typeTransaction}
                 onChange={(e) => setTypeTransaction(e.target.value)}
                 className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               >
-                {TRANSACTION_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                <option value="">{t("allTypes")}</option>
+                {TRANSACTION_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
-                Recherche
+                {t("search")}
               </label>
               <input
                 type="search"
-                placeholder="Référence, description, client…"
+                placeholder={t("searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
               />
             </div>
             <Button type="submit" variant="primary">
-              Appliquer
+              {t("apply")}
             </Button>
           </form>
         </CardContent>
@@ -482,10 +482,10 @@ export function GeneralJournalPageView({
 
       <Card>
         <CardHeader
-          title="Écritures"
+          title={t("entries")}
           action={
             <span className="text-sm font-normal text-neutral-500">
-              {totalCount} écriture{totalCount !== 1 ? "s" : ""}
+              {t("entryCount", { count: totalCount })}
             </span>
           }
         />
@@ -506,31 +506,31 @@ export function GeneralJournalPageView({
                 <thead>
                   <tr className="border-b-[0.5px] border-slate-200 bg-slate-50">
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Date
+                      {t("date")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Type
+                      {t("type")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Référence
+                      {t("reference")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Client
+                      {t("client")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Dossier
+                      {t("matter")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Description
+                      {t("description")}
                     </th>
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Entrée
+                      {t("moneyIn")}
                     </th>
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Sortie
+                      {t("moneyOut")}
                     </th>
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      Solde
+                      {t("balance")}
                     </th>
                   </tr>
                 </thead>
@@ -542,8 +542,8 @@ export function GeneralJournalPageView({
                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
                             <BookOpen className="w-8 h-8 text-slate-500" />
                           </div>
-                          <p className="text-[16px] font-medium text-slate-800">Aucune écriture pour ces critères.</p>
-                          <p className="text-[14px] text-slate-600 mt-2 max-w-[400px] mx-auto">Veuillez modifier vos filtres pour trouver ce que vous cherchez.</p>
+                          <p className="text-[16px] font-medium text-slate-800">{t("emptyTitle")}</p>
+                          <p className="text-[14px] text-slate-600 mt-2 max-w-[400px] mx-auto">{t("emptyHint")}</p>
                         </div>
                       </td>
                     </tr>
@@ -589,7 +589,7 @@ export function GeneralJournalPageView({
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200">
                   <p className="text-sm text-neutral-500">
-                    Page {page} sur {totalPages}
+                    {t("pageOf", { page, totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -598,7 +598,7 @@ export function GeneralJournalPageView({
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page <= 1}
                     >
-                      Précédent
+                      {t("previous")}
                     </Button>
                     <Button
                       type="button"
@@ -606,7 +606,7 @@ export function GeneralJournalPageView({
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                       disabled={page >= totalPages}
                     >
-                      Suivant
+                      {t("next")}
                     </Button>
                   </div>
                 </div>

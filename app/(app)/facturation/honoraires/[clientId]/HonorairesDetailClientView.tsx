@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -20,6 +21,7 @@ interface HonorairesDetailClientViewProps {
 
 export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailClientViewProps) {
   const router = useRouter();
+  const t = useTranslations("billingUi");
   const { data, isLoading } = useFacturationHonorairesDetail(clientId);
   void role;
 
@@ -201,7 +203,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
   const handlePreparerFacture = () => {
     if (totalSelected === 0) {
-      alert("Sélectionnez au moins une fiche de temps, un débours ou une tâche.");
+      alert(t("selectAtLeastOneItem"));
       return;
     }
     const params = new URLSearchParams({ clientId });
@@ -222,35 +224,35 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour aux honoraires à facturer
+          {t("backToFeesToBill")}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Détail — {clientName}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("detailFor", { client: clientName })}</h1>
         <p className="mt-1 text-white/80 text-sm">
-          Cochez les lignes à inclure dans la facture, puis créez la facture.
+          {t("checkLinesToInclude")}
         </p>
         <p className="mt-1 text-white/70 text-xs">
-          Le client peut être facturé lorsque le total est supérieur ou égal à {MIN_AMOUNT_TO_BILL}&nbsp;$.
+          {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
         </p>
       </header>
 
       {/* Ébauche de la facture — prévisualisation sans générer */}
       <Card>
-        <CardHeader title="Ébauche de la facture" />
+        <CardHeader title={t("invoiceDraft")} />
         <CardContent>
           {draftLines.length === 0 ? (
             <p className="text-neutral-500 py-6 text-center text-sm">
-              Cochez des fiches de temps ou des débours ci-dessous pour voir l’ébauche.
+              {t("checkItemsToSeeDraft")}
             </p>
           ) : (
             <div className="rounded-safe-sm border border-neutral-200 bg-white shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-200 flex justify-between items-start">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-neutral-500 font-medium">
-                    Ébauche — non émise
+                    {t("draftNotIssued")}
                   </p>
                   <p className="text-lg font-semibold text-neutral-900 mt-0.5">{clientName}</p>
                   <p className="text-sm text-neutral-500 mt-1">
-                    Date d’émission prévue : {formatDate(new Date())}
+                    {t("plannedIssueDate")} {formatDate(new Date())}
                   </p>
                 </div>
               </div>
@@ -258,9 +260,9 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-200 bg-neutral-50">
-                      <th className="text-left py-3 px-4 font-medium text-neutral-700">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-700">Description</th>
-                      <th className="text-right py-3 px-4 font-medium text-neutral-700">Montant</th>
+                      <th className="text-left py-3 px-4 font-medium text-neutral-700">{t("date")}</th>
+                      <th className="text-left py-3 px-4 font-medium text-neutral-700">{t("description")}</th>
+                      <th className="text-right py-3 px-4 font-medium text-neutral-700">{t("amount")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -280,26 +282,26 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               </div>
               <div className="px-6 py-4 border-t border-neutral-200 bg-neutral-50/80 space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total honoraires</span>
+                  <span className="text-neutral-600">{t("subtotalFees")}</span>
                   <span>{formatCurrency(totalHonoraires)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total débours</span>
+                  <span className="text-neutral-600">{t("subtotalDisbursements")}</span>
                   <span>{formatCurrency(totalDebours)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total forfaits</span>
+                  <span className="text-neutral-600">{t("subtotalFlatFees")}</span>
                   <span>{formatCurrency(totalForfaits)}</span>
                 </div>
                 {totalAjustements !== 0 && (
                   <div className="flex justify-between text-sm text-amber-700">
-                    <span>Ajustements inclus</span>
+                    <span>{t("adjustmentsIncluded")}</span>
                     <span>{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
                   </div>
                 )}
                 {totalRabais > 0 && (
                   <div className="flex justify-between text-sm text-emerald-700">
-                    <span>Rabais accordés</span>
+                    <span>{t("discountsGranted")}</span>
                     <span>-{formatCurrency(totalRabais)}</span>
                   </div>
                 )}
@@ -321,7 +323,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   </>
                 )}
                 <div className="flex justify-between font-semibold pt-2 mt-2 border-t border-neutral-200">
-                  <span>Total à facturer</span>
+                  <span>{t("totalToBill")}</span>
                   <span>{formatCurrency(totalTTC)}</span>
                 </div>
               </div>
@@ -332,7 +334,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
       <Card>
         <CardHeader
-          title="Fiches de temps"
+          title={t("timesheets")}
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -341,19 +343,19 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 disabled={totalSelected === 0 || totalTTC < MIN_AMOUNT_TO_BILL}
                 title={
                   totalTTC < MIN_AMOUNT_TO_BILL && totalSelected > 0
-                    ? `Le total doit être ≥ ${MIN_AMOUNT_TO_BILL} $ pour facturer.`
+                    ? t("minToBillTitle", { amount: MIN_AMOUNT_TO_BILL })
                     : undefined
                 }
                 className="gap-2"
               >
                 <FileText className="w-4 h-4" />
-                Préparer la facture
+                {t("prepareInvoice")}
               </Button>
               {draftInvoiceId && (
                 <Link href={routes.facturationFactureApercu(draftInvoiceId)}>
                   <Button variant="secondary" className="gap-2">
                     <FileText className="w-4 h-4" />
-                    Voir facture en cours
+                    {t("viewCurrentInvoice")}
                   </Button>
                 </Link>
               )}
@@ -367,13 +369,13 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
             </div>
           ) : entries.length === 0 && expenses.length === 0 && registreTaches.length === 0 ? (
             <p className="text-neutral-500 py-8 text-center">
-              Aucune fiche de temps, débours ni tâche à facturer pour ce client.
+              {t("noItemsToBillForClient")}
             </p>
           ) : (
             <>
               {entries.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Fiches de temps</h3>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("timesheets")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
@@ -383,15 +385,15 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               type="checkbox"
                               checked={entries.length > 0 && selectedEntryIds.size === entries.length}
                               onChange={toggleAllEntries}
-                              aria-label="Tout sélectionner (temps)"
+                              aria-label={t("selectAllTime")}
                             />
                           </th>
-                          <th className="text-left py-3 px-3 font-medium">Date</th>
-                          <th className="text-left py-3 px-3 font-medium">Professionnel</th>
-                          <th className="text-left py-3 px-3 font-medium">Description</th>
-                          <th className="text-right py-3 px-3 font-medium">Durée</th>
-                          <th className="text-right py-3 px-3 font-medium">Taux</th>
-                          <th className="text-right py-3 px-3 font-medium">Montant</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("date")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("professional")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("description")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("duration")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("rate")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("amount")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -406,7 +408,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 checked={selectedEntryIds.has(e.id)}
                                 disabled={e.isDrafted}
                                 onChange={() => toggleEntry(e.id)}
-                                aria-label={`Inclure ${e.description ?? "ligne"}`}
+                                aria-label={t("includeItem", { item: e.description ?? t("lineFallback") })}
                               />
                             </td>
                             <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
@@ -415,7 +417,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               {e.description ?? "—"}
                               {e.isDrafted && (
                                 <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
-                                  Facture {e.invoiceNumero ?? "en cours"}
+                                  {t("invoiceBadge", { numero: e.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
                             </td>
@@ -437,7 +439,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               )}
               {expenses.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Débours</h3>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("disbursements")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
@@ -447,14 +449,14 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               type="checkbox"
                               checked={expenses.length > 0 && selectedExpenseIds.size === expenses.length}
                               onChange={toggleAllExpenses}
-                              aria-label="Tout sélectionner (débours)"
+                              aria-label={t("selectAllDisbursements")}
                             />
                           </th>
-                          <th className="text-left py-3 px-3 font-medium">Date</th>
-                          <th className="text-left py-3 px-3 font-medium">Description</th>
-                          <th className="text-left py-3 px-3 font-medium">Fournisseur</th>
-                          <th className="text-right py-3 px-3 font-medium">Montant</th>
-                          <th className="text-right py-3 px-3 font-medium">Taxable</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("date")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("description")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("vendor")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("amount")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("taxable")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -469,7 +471,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 checked={selectedExpenseIds.has(e.id)}
                                 disabled={e.isDrafted}
                                 onChange={() => toggleExpense(e.id)}
-                                aria-label={`Inclure ${e.description}`}
+                                aria-label={t("includeItem", { item: e.description })}
                               />
                             </td>
                             <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
@@ -477,13 +479,13 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               {e.description}
                               {e.isDrafted && (
                                 <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
-                                  Facture {e.invoiceNumero ?? "en cours"}
+                                  {t("invoiceBadge", { numero: e.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
                             </td>
                             <td className="py-2 px-3">{e.vendorName ?? "—"}</td>
                             <td className="py-2 px-3 text-right">{formatCurrency(e.amount)}</td>
-                            <td className="py-2 px-3 text-right">{e.taxable ? "Oui" : "Non"}</td>
+                            <td className="py-2 px-3 text-right">{e.taxable ? t("yes") : t("no")}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -493,7 +495,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               )}
               {registreTaches.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">Tâches forfaitaires</h3>
+                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("flatFeeTasks")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
@@ -503,56 +505,56 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                               type="checkbox"
                               checked={registreTaches.length > 0 && selectedRegistreTacheIds.size === registreTaches.length}
                               onChange={toggleAllRegistreTaches}
-                              aria-label="Tout sélectionner (tâches)"
+                              aria-label={t("selectAllTasks")}
                             />
                           </th>
-                          <th className="text-left py-3 px-3 font-medium">Date</th>
-                          <th className="text-left py-3 px-3 font-medium">Dossier</th>
-                          <th className="text-left py-3 px-3 font-medium">Description</th>
-                          <th className="text-right py-3 px-3 font-medium">Base</th>
-                          <th className="text-right py-3 px-3 font-medium">Ajust.</th>
-                          <th className="text-right py-3 px-3 font-medium">Rabais</th>
-                          <th className="text-right py-3 px-3 font-medium">Total</th>
-                          <th className="text-right py-3 px-3 font-medium">Taxable</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("date")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("matter")}</th>
+                          <th className="text-left py-3 px-3 font-medium">{t("description")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("base")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("adjustmentShort")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("discount")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("total")}</th>
+                          <th className="text-right py-3 px-3 font-medium">{t("taxable")}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {registreTaches.map((t) => (
+                        {registreTaches.map((tache) => (
                           <tr
-                            key={t.id}
+                            key={tache.id}
                             className="border-b border-neutral-100 hover:bg-neutral-50/80"
                           >
                             <td className="py-2 px-3">
                               <input
                                 type="checkbox"
-                                checked={selectedRegistreTacheIds.has(t.id)}
-                                disabled={t.isDrafted}
-                                onChange={() => toggleRegistreTache(t.id)}
-                                aria-label={`Inclure ${t.description}`}
+                                checked={selectedRegistreTacheIds.has(tache.id)}
+                                disabled={tache.isDrafted}
+                                onChange={() => toggleRegistreTache(tache.id)}
+                                aria-label={t("includeItem", { item: tache.description })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-neutral-600">{formatDate(t.date)}</td>
-                            <td className="py-2 px-3">{t.dossierIntitule ?? "—"}</td>
+                            <td className="py-2 px-3 text-neutral-600">{formatDate(tache.date)}</td>
+                            <td className="py-2 px-3">{tache.dossierIntitule ?? "—"}</td>
                             <td className="py-2 px-3">
-                              {t.description}
-                              {t.isDrafted && (
+                              {tache.description}
+                              {tache.isDrafted && (
                                 <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
-                                  Facture {t.invoiceNumero ?? "en cours"}
+                                  {t("invoiceBadge", { numero: tache.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
                             </td>
-                            <td className="py-2 px-3 text-right">{formatCurrency(t.montantBase)}</td>
-                            <td className={`py-2 px-3 text-right ${t.ajustement !== 0 ? "text-amber-700 font-medium" : "text-neutral-400"}`}>
-                              {t.ajustement !== 0 ? `${t.ajustement > 0 ? "+" : ""}${formatCurrency(t.ajustement)}` : "—"}
+                            <td className="py-2 px-3 text-right">{formatCurrency(tache.montantBase)}</td>
+                            <td className={`py-2 px-3 text-right ${tache.ajustement !== 0 ? "text-amber-700 font-medium" : "text-neutral-400"}`}>
+                              {tache.ajustement !== 0 ? `${tache.ajustement > 0 ? "+" : ""}${formatCurrency(tache.ajustement)}` : "—"}
                             </td>
-                            <td className={`py-2 px-3 text-right ${t.rabais > 0 ? "text-emerald-700 font-medium" : "text-neutral-400"}`}>
-                              {t.rabais > 0 ? `-${formatCurrency(t.rabais)}` : "—"}
-                              {t.rabaisRaison && (
-                                <p className="text-[10px] font-normal text-neutral-400">{t.rabaisRaison}</p>
+                            <td className={`py-2 px-3 text-right ${tache.rabais > 0 ? "text-emerald-700 font-medium" : "text-neutral-400"}`}>
+                              {tache.rabais > 0 ? `-${formatCurrency(tache.rabais)}` : "—"}
+                              {tache.rabaisRaison && (
+                                <p className="text-[10px] font-normal text-neutral-400">{tache.rabaisRaison}</p>
                               )}
                             </td>
-                            <td className="py-2 px-3 text-right font-medium">{formatCurrency(t.amount)}</td>
-                            <td className="py-2 px-3 text-right">{t.taxable ? "Oui" : "Non"}</td>
+                            <td className="py-2 px-3 text-right font-medium">{formatCurrency(tache.amount)}</td>
+                            <td className="py-2 px-3 text-right">{tache.taxable ? t("yes") : t("no")}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -563,31 +565,31 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
               <div className="mt-6 p-4 rounded-safe-sm bg-neutral-50 border border-neutral-200 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total honoraires</span>
+                  <span className="text-neutral-600">{t("subtotalFees")}</span>
                   <span className="font-medium">{formatCurrency(totalHonoraires)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total débours</span>
+                  <span className="text-neutral-600">{t("subtotalDisbursements")}</span>
                   <span className="font-medium">{formatCurrency(totalDebours)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Sous-total forfaits</span>
+                  <span className="text-neutral-600">{t("subtotalFlatFees")}</span>
                   <span className="font-medium">{formatCurrency(totalForfaits)}</span>
                 </div>
                 {totalAjustements !== 0 && (
                   <div className="flex justify-between text-sm text-amber-700">
-                    <span>Ajustements inclus</span>
+                    <span>{t("adjustmentsIncluded")}</span>
                     <span className="font-medium">{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
                   </div>
                 )}
                 {totalRabais > 0 && (
                   <div className="flex justify-between text-sm text-emerald-700">
-                    <span>Rabais accordés</span>
+                    <span>{t("discountsGranted")}</span>
                     <span className="font-medium">-{formatCurrency(totalRabais)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">Total heures sélectionnées</span>
+                  <span className="text-neutral-600">{t("selectedTotalHours")}</span>
                   <span>{totalHeures.toFixed(1)} h</span>
                 </div>
                 {isHst ? (
@@ -608,7 +610,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   </>
                 )}
                 <div className="flex justify-between font-medium pt-2 border-t border-neutral-200">
-                  <span>Total à facturer</span>
+                  <span>{t("totalToBill")}</span>
                   <span>{formatCurrency(totalTTC)}</span>
                 </div>
               </div>

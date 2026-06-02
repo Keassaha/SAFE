@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -39,6 +40,7 @@ export function TempsPageClient({
   addModalOpen: controlledAddOpen,
   onAddModalOpenChange,
 }: TempsPageClientProps) {
+  const t = useTranslations("mattersUi");
   const [filters, setFilters] = useState<TimeEntryFilters>({});
   const [viewMode, setViewMode] = useState<"list" | "week">("list");
   const [showAllEntries, setShowAllEntries] = useState(true);
@@ -108,8 +110,8 @@ export function TempsPageClient({
       <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Fiche de temps</h1>
-            <p className="mt-1 text-white/80 text-sm">Suivez et gérez votre temps facturable.</p>
+            <h1 className="text-2xl font-semibold tracking-tight">{t("timesheetTitle")}</h1>
+            <p className="mt-1 text-white/80 text-sm">{t("timesheetSubtitle")}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link href={routes.facturationHonoraires}>
@@ -117,7 +119,7 @@ export function TempsPageClient({
                 variant="secondary"
                 className="bg-white/20 text-white border-white/30 hover:bg-white/30"
               >
-                Honoraires à facturer
+                {t("feesToBill")}
               </Button>
             </Link>
             {!hideAddButton && (
@@ -126,7 +128,7 @@ export function TempsPageClient({
                 className="bg-white text-green-800 hover:bg-white/90"
                 onClick={() => setAddModalOpen(true)}
               >
-                + Nouvelle entrée
+                {t("newEntry")}
               </Button>
             )}
           </div>
@@ -145,10 +147,10 @@ export function TempsPageClient({
 
       <Card>
         <CardHeader
-          title="Historique des entrées"
+          title={t("entriesHistory")}
           action={
             <div className="flex items-center gap-2 text-sm safe-text-secondary">
-              <span>{entries.length} entrée(s)</span>
+              <span>{t("entriesCount", { count: entries.length })}</span>
             </div>
           }
         />
@@ -163,7 +165,7 @@ export function TempsPageClient({
                   : "border-transparent safe-text-secondary hover:safe-text-title"
               }`}
             >
-              Actives ({activeCount})
+              {t("activeTab", { count: activeCount })}
             </button>
             <button
               type="button"
@@ -174,7 +176,7 @@ export function TempsPageClient({
                   : "border-transparent safe-text-secondary hover:safe-text-title"
               }`}
             >
-              Archives (facturées) ({archivedCount})
+              {t("archivedTab", { count: archivedCount })}
             </button>
           </div>
           <TimeFiltersBar
@@ -196,10 +198,10 @@ export function TempsPageClient({
             </div>
           ) : entries.length === 0 ? (
             <EmptyState
-              title="Aucune entrée de temps"
-              description="Démarrez le chronomètre ou ajoutez une entrée manuellement."
+              title={t("emptyTitle")}
+              description={t("emptyDescription")}
               action={
-                <Button onClick={() => setAddModalOpen(true)}>+ Nouvelle entrée</Button>
+                <Button onClick={() => setAddModalOpen(true)}>{t("newEntry")}</Button>
               }
             />
           ) : viewMode === "week" ? (

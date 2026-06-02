@@ -5,13 +5,15 @@ import { FideicommisDashboard } from "@/components/fideicommis/FideicommisDashbo
 import { AddTransactionButton } from "@/components/fideicommis/AddTransactionButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
+import { getTranslations } from "next-intl/server";
 
 export default async function ComptesPage() {
+  const t = await getTranslations("accountingUi");
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as "admin_cabinet" | "avocat" | "assistante" | "comptabilite")) {
     return (
       <div className="p-6">
-        <p className="text-status-error">Vous n&apos;avez pas accès à cette section.</p>
+        <p className="text-status-error">{t("noAccess")}</p>
       </div>
     );
   }
@@ -34,10 +36,10 @@ export default async function ComptesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Comptes en fidéicommis"
-        description="Dépôts, retraits et relevés du compte en fidéicommis par client et dossier."
+        title={t("trustAccountsTitle")}
+        description={t("trustAccountsDescription")}
         backHref={routes.facturation}
-        backLabel="Retour à la facturation"
+        backLabel={t("backToBilling")}
         action={
           <AddTransactionButton
             canEdit={canEdit}

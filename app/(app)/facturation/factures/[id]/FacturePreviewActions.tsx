@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CheckCircle2, ExternalLink, Mail, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
@@ -34,6 +35,7 @@ export function FacturePreviewActions({
   invoiceStatus,
 }: FacturePreviewActionsProps) {
   const router = useRouter();
+  const t = useTranslations("billingUi");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const isDraft = invoiceStatus === "DRAFT" || invoiceStatus == null;
   const canIssue = invoiceStatus === "DRAFT" || invoiceStatus === "READY_TO_ISSUE";
@@ -52,7 +54,7 @@ export function FacturePreviewActions({
         router.refresh();
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Action impossible pour cette facture");
+      toast.error(error instanceof Error ? error.message : t("actionNotPossible"));
     } finally {
       setPendingAction(null);
     }
@@ -66,17 +68,17 @@ export function FacturePreviewActions({
         className="inline-flex h-[38px] items-center justify-center gap-1.5 rounded-md border border-forest-700/50 px-4 text-[14px] font-medium text-forest-700 transition-base hover:bg-forest-50"
       >
         <ExternalLink className="h-4 w-4" />
-        Voir le PDF
+        {t("viewPdf")}
       </Link>
       {isDraft ? (
         <Button
           variant="secondary"
           className="gap-2"
           disabled={pendingAction != null}
-          onClick={() => runAction("valider", "Facture approuvée.")}
+          onClick={() => runAction("valider", t("toastInvoiceApproved"))}
         >
           <CheckCircle2 className="h-4 w-4" />
-          Approuver la facture
+          {t("approveInvoice")}
         </Button>
       ) : null}
       {canIssue ? (
@@ -84,10 +86,10 @@ export function FacturePreviewActions({
           variant="primary"
           className="gap-2"
           disabled={pendingAction != null}
-          onClick={() => runAction("envoyer-email", "Facture envoyée par courriel.")}
+          onClick={() => runAction("envoyer-email", t("toastInvoiceSent"))}
         >
           <Mail className="h-4 w-4" />
-          Envoyer par courriel
+          {t("sendByEmail")}
         </Button>
       ) : null}
       {isDraft ? (
@@ -95,10 +97,10 @@ export function FacturePreviewActions({
           variant="ghost"
           className="gap-2 text-[#A32D2D] hover:bg-[#FCEBEB]"
           disabled={pendingAction != null}
-          onClick={() => runAction("annuler", "Brouillon annulé.")}
+          onClick={() => runAction("annuler", t("toastDraftCancelled"))}
         >
           <Trash2 className="h-4 w-4" />
-          Annuler le brouillon
+          {t("cancelDraft")}
         </Button>
       ) : null}
     </div>
