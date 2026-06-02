@@ -21,6 +21,7 @@ import type {
   CabinetConfigurationPackage,
   ConsultationDecision,
 } from "./types";
+import { getCapabilityById } from "./capability-library";
 
 const DEFAULT_CABINET_CONFIG = {
   devise: "CAD",
@@ -177,6 +178,52 @@ function applyOverrides(
   return out;
 }
 
+function mergeConfig(
+  target: BundleDefinition["defaultConfig"],
+  source: BundleDefinition["defaultConfig"],
+) {
+  target.ongletsActifs = addUnique(target.ongletsActifs ?? [], source.ongletsActifs ?? []);
+  target.ongletsMasques = removeItems(target.ongletsMasques ?? [], source.ongletsActifs ?? []);
+  target.ongletsMasques = addUnique(target.ongletsMasques ?? [], source.ongletsMasques ?? []);
+  target.disciplines = addUnique(target.disciplines ?? [], source.disciplines ?? []);
+  target.widgets = addUnique(target.widgets ?? [], source.widgets ?? []);
+
+  for (const [key, value] of Object.entries(source.modules ?? {})) {
+    const modules = target.modules ?? {};
+    const existing = modules[key];
+    modules[key] = isRecord(existing) && isRecord(value)
+      ? { ...existing, ...value }
+      : deepClone(value);
+    target.modules = modules;
+  }
+
+  target.modeFacturation = {
+    ...(target.modeFacturation ?? {}),
+    ...(source.modeFacturation ?? {}),
+  };
+  target.conformite = {
+    ...(target.conformite ?? {}),
+    ...(source.conformite ?? {}),
+  };
+  target.cabinetConfig = {
+    ...(target.cabinetConfig ?? {}),
+    ...(source.cabinetConfig ?? {}),
+  };
+}
+
+function applyCapabilities(
+  baseConfig: BundleDefinition["defaultConfig"],
+  recommendation: BundleRecommendation,
+): BundleDefinition["defaultConfig"] {
+  const out = deepClone(baseConfig);
+  for (const selected of recommendation.selectedCapabilities) {
+    const capability = getCapabilityById(selected.capabilityId);
+    if (!capability) continue;
+    mergeConfig(out, capability.config);
+  }
+  return out;
+}
+
 function buildSeedPlan(bundle: BundleDefinition): CabinetConfigurationPackage["seedPlan"] {
   return bundle.activationPack.seeds.map((seedId, idx) => ({
     seedId,
@@ -185,9 +232,25 @@ function buildSeedPlan(bundle: BundleDefinition): CabinetConfigurationPackage["s
   }));
 }
 
+function buildCapabilitySeedPlan(
+  recommendation: BundleRecommendation,
+  startOrder: number,
+): CabinetConfigurationPackage["seedPlan"] {
+  const seedIds = recommendation.selectedCapabilities.flatMap((selected) => {
+    const capability = getCapabilityById(selected.capabilityId);
+    return capability?.seeds ?? [];
+  });
+  return Array.from(new Set(seedIds)).map((seedId, idx) => ({
+    seedId,
+    order: startOrder + idx,
+    args: SEED_EXECUTION_CATALOG[seedId]?.args,
+  }));
+}
+
 function buildActivationChecklist(
   bundle: BundleDefinition,
   decision: ConsultationDecision,
+  recommendation: BundleRecommendation,
 ): CabinetConfigurationPackage["activationChecklist"] {
   const fromBundle = bundle.activationPack.criticalUserJourneys.map((id) => ({
     id: `journey-${id}`,
@@ -204,7 +267,15 @@ function buildActivationChecklist(
     label: `Priorité d'activation: ${p}`,
     priority: "critical" as ActivationPriority,
   }));
-  return [...fromDecision, ...fromBundle, ...fromDocs];
+  const fromCapabilities = recommendation.selectedCapabilities.flatMap((selected) => {
+    const capability = getCapabilityById(selected.capabilityId);
+    return (capability?.activationItems ?? []).map((item) => ({
+      ...item,
+      id: `capability-${selected.capabilityId}-${item.id}`,
+      priority: selected.priority === "critical" ? "critical" as ActivationPriority : item.priority,
+    }));
+  });
+  return [...fromDecision, ...fromCapabilities, ...fromBundle, ...fromDocs];
 }
 
 function buildIntegrationRequirements(
@@ -253,7 +324,13 @@ interface GenerateInput {
 export function generateConfigurationPackage(input: GenerateInput): CabinetConfigurationPackage {
   const { snapshot, bundle, recommendation, decision } = input;
 
-  const cabinetInterfaceConfig = applyOverrides(bundle.defaultConfig, decision);
+  const cabinetInterfaceConfig = applyOverrides(
+    applyCapabilities(bundle.defaultConfig, recommendation),
+    decision,
+  );
+  const bundleSeedPlan = buildSeedPlan(bundle);
+  const capabilitySeedPlan = buildCapabilitySeedPlan(recommendation, bundleSeedPlan.length + 1)
+    .filter((seed) => !bundleSeedPlan.some((existing) => existing.seedId === seed.seedId));
 
   return {
     bundleId: bundle.bundleId,
@@ -263,8 +340,9 @@ export function generateConfigurationPackage(input: GenerateInput): CabinetConfi
     generatedFromAuditId: snapshot.auditId,
     cabinetInterfaceConfig,
     cabinetConfig: { ...DEFAULT_CABINET_CONFIG, ...(bundle.defaultConfig.cabinetConfig ?? {}) },
-    seedPlan: buildSeedPlan(bundle),
-    activationChecklist: buildActivationChecklist(bundle, decision),
+    seedPlan: [...bundleSeedPlan, ...capabilitySeedPlan],
+    activationChecklist: buildActivationChecklist(bundle, decision, recommendation),
+    capabilityPlan: recommendation.selectedCapabilities,
     integrationRequirements: buildIntegrationRequirements(bundle, decision),
     customBacklog: buildCustomBacklog(recommendation, decision),
   };

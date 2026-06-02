@@ -96,22 +96,22 @@ export default async function FacturationFraisPage() {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm [&_th]:px-3 [&_td]:px-3 [&_th:first-child]:pl-0 [&_td:first-child]:pl-0 [&_th:last-child]:pr-0 [&_td:last-child]:pr-0">
                 <thead>
                   <tr className="border-b border-neutral-border text-left text-neutral-muted">
-                    <th className="py-2 pr-2">Date</th>
-                    <th className="py-2 pr-2">Client / Dossier</th>
-                    <th className="py-2 pr-2">Description</th>
-                    <th className="py-2 pr-2 text-right">Quantité</th>
-                    <th className="py-2 pr-2 text-right">Montant</th>
-                    <th className="py-2 pr-2">Statut</th>
+                    <th className="py-2">Date</th>
+                    <th className="py-2">Client / Dossier</th>
+                    <th className="py-2">Description</th>
+                    <th className="py-2 text-right">Quantité</th>
+                    <th className="py-2 text-right">Montant</th>
+                    <th className="py-2">Statut</th>
                   </tr>
                 </thead>
                 <tbody>
                   {debours.map((d) => (
                     <tr key={d.id} className="border-b border-neutral-border/70">
-                      <td className="py-2 pr-2">{formatDate(d.date)}</td>
-                      <td className="py-2 pr-2">
+                      <td className="py-2">{formatDate(d.date)}</td>
+                      <td className="py-2">
                         <span className="text-neutral-800 block">{d.client.raisonSociale}</span>
                         <Link
                           href={routes.dossier(d.dossierId)}
@@ -120,14 +120,14 @@ export default async function FacturationFraisPage() {
                           {d.dossier.numeroDossier ?? d.dossier.intitule}
                         </Link>
                       </td>
-                      <td className="py-2 pr-2">{d.description}</td>
-                      <td className="py-2 pr-2 text-right">
+                      <td className="py-2">{d.description}</td>
+                      <td className="py-2 text-right">
                         {Number(d.quantite) === 1 ? "1" : d.quantite}
                       </td>
-                      <td className="py-2 pr-2 text-right font-medium">
+                      <td className="py-2 text-right font-medium">
                         {formatCurrency(d.montant)}
                       </td>
-                      <td className="py-2 pr-2">
+                      <td className="py-2">
                         {d.facture ? (
                           <Link
                             href={routes.facturationFactureEdit(d.facture.id)}

@@ -2,6 +2,14 @@ import { Navbar } from "@/components/marketing/Navbar";
 import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Fonctionnalités",
+  description:
+    "Facturation, suivi du temps, forfaits et comptabilité en fiducie : tout ce qu'un petit cabinet d'avocats québécois gère au quotidien, au même endroit.",
+  path: "/fonctionnalites",
+});
 
 export default function FonctionnalitesPage() {
   return (

@@ -1,30 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, FileText } from "lucide-react";
-import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
-import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
+import { InvoicePreview } from "@/lib/invoice-template/InvoicePreview";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-presented-invoice";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { FacturePreviewActions } from "./FacturePreviewActions";
-
-function toIsoDate(value: string | Date) {
-  return new Date(value).toISOString();
-}
-
-function initialsOf(name?: string | null) {
-  if (!name) return null;
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter((part) => part.length > 0);
-  if (parts.length === 0) return null;
-  return parts
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
 
 function statusLabel(invoiceStatus: string | null, statut: string) {
   switch (invoiceStatus) {
@@ -60,18 +42,6 @@ export default async function FacturePreviewPage({
     notFound();
   }
 
-  const items: InvoiceCleanItem[] = invoice.lines.map((line) => ({
-    id: line.id,
-    type: line.type,
-    description: line.description,
-    date: toIsoDate(line.date),
-    hours: line.hours,
-    rate: line.rate,
-    amount: line.amount,
-    responsable: line.userNom,
-    responsableInitiales: initialsOf(line.userNom),
-  }));
-
   const clientName = presentClientDisplayName(invoice.client);
 
   return (
@@ -105,38 +75,15 @@ export default async function FacturePreviewPage({
         />
       </header>
 
+      {/*
+        Aperçu rendu via le composant CANONIQUE `InvoicePreview` (qui rend
+        `InvoiceDocument` via `<PDFViewer>`). Garantie : ce que voit ici
+        l'utilisateur est strictement le même PDF que celui généré côté
+        serveur par `generateInvoicePdf` et envoyé au client par email.
+      */}
       <section className="rounded-safe border border-neutral-200 bg-neutral-50 p-4 shadow-sm md:p-8">
-        <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
-          <InvoiceTemplateClean
-            numero={invoice.numero}
-            dateEmission={invoice.dateEmission.toISOString()}
-            dateEcheance={invoice.dateEcheance.toISOString()}
-            cabinet={invoice.cabinet}
-            client={
-              invoice.client
-                ? {
-                    raisonSociale: clientName,
-                    billingAddress: invoice.client.billingAddress,
-                    billingCity: invoice.client.billingCity,
-                    billingProvince: invoice.client.billingProvince,
-                    billingPostalCode: invoice.client.billingPostalCode,
-                    billingCountry: invoice.client.billingCountry,
-                    email: invoice.client.email,
-                  }
-                : null
-            }
-            dossier={invoice.dossier}
-            items={items}
-            subtotalTaxable={invoice.totals.subtotalTaxable}
-            totalRabais={invoice.totals.totalRabais}
-            tps={invoice.totals.tps}
-            tvq={invoice.totals.tvq}
-            hst={invoice.totals.hst}
-            montantTotal={invoice.totals.montantTotal}
-            montantPaye={invoice.totals.montantPaye}
-            balanceDue={invoice.totals.balanceDue}
-            clientNote={invoice.clientNote}
-          />
+        <div className="mx-auto max-w-[860px] h-[1100px] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+          <InvoicePreview invoice={invoice} language="fr" />
         </div>
       </section>
     </div>

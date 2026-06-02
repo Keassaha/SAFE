@@ -39,25 +39,27 @@ export function getStripe(): Stripe {
   return stripeSingleton;
 }
 
-// Plans SAFE — correspondance avec Stripe Price IDs
+// Plans SAFE — correspondance avec Stripe Price IDs.
+// Les prix doivent rester alignés avec l'offre publique dans lib/tarification.ts.
 // Ces IDs seront créés automatiquement au premier démarrage via /api/stripe/setup
 export const PLANS = {
   essentiel: {
-    name: "Essentiel",
-    price: 8900, // en cents
+    name: "Solo",
+    price: 9900, // en cents
     currency: "cad",
     interval: "month" as const,
     features: {
       maxUsers: 1,
-      trustAccounts: false,
+      trustAccounts: true,
       virtualEmployees: false,
       clientPortal: false,
       advancedReports: false,
       api: false,
     },
   },
+  // Alias historique garde pour les abonnements Stripe et tenants existants.
   professionnel: {
-    name: "Professionnel",
+    name: "Cabinet",
     price: 14900,
     currency: "cad",
     interval: "month" as const,
@@ -72,21 +74,28 @@ export const PLANS = {
   },
   cabinet: {
     name: "Cabinet",
-    price: 29900,
+    price: 14900,
     currency: "cad",
     interval: "month" as const,
     features: {
-      maxUsers: -1, // illimité
+      maxUsers: 5,
       trustAccounts: true,
       virtualEmployees: true,
       clientPortal: true,
-      advancedReports: true,
-      api: true,
+      advancedReports: false,
+      api: false,
     },
   },
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+export const PUBLIC_CHECKOUT_PLAN_KEYS = ["essentiel", "cabinet"] as const satisfies readonly PlanKey[];
+
+export function canonicalPlanKey(plan: string | null | undefined): PlanKey {
+  if (plan === "cabinet" || plan === "professionnel") return "cabinet";
+  if (plan === "essentiel") return "essentiel";
+  return "essentiel";
+}
 
 const PLAN_PRICE_ENV: Record<PlanKey, string> = {
   essentiel: "STRIPE_PRICE_ID_ESSENTIEL",

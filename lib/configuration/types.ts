@@ -53,11 +53,45 @@ export interface BundleDefinition {
   customTriggers: string[];
 }
 
+export type CapabilityCategory =
+  | "dossiers"
+  | "facturation"
+  | "fideicommis"
+  | "conformite"
+  | "operations"
+  | "migration";
+
+export interface CapabilityBlockDefinition {
+  capabilityId: string;
+  label: string;
+  category: CapabilityCategory;
+  description: string;
+  when: {
+    required?: string[];
+    preferred?: string[];
+  };
+  config: BundleConfigDefaults;
+  activationItems: Array<{
+    id: string;
+    label: string;
+    priority: ActivationPriority;
+  }>;
+  seeds: string[];
+  dependencies?: string[];
+}
+
+export interface CapabilitySelection {
+  capabilityId: string;
+  reason: string;
+  priority: ActivationPriority;
+}
+
 export interface BundleRecommendation {
   bundleId: string;
   confidence: BundleConfidence;
   why: string[];
   alternativeBundleIds: string[];
+  selectedCapabilities: CapabilitySelection[];
   recommendedOverrides: string[];
   customTriggers: string[];
   consultationTopics: string[];
@@ -100,6 +134,11 @@ export interface CabinetConfigurationPackage {
   activationChecklist: Array<{
     id: string;
     label: string;
+    priority: ActivationPriority;
+  }>;
+  capabilityPlan: Array<{
+    capabilityId: string;
+    reason: string;
     priority: ActivationPriority;
   }>;
   integrationRequirements: Array<{

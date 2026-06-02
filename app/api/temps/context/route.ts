@@ -21,10 +21,8 @@ export async function GET() {
     }),
     prisma.client.findMany({
       where: { cabinetId },
-      // Personnes physiques : `raisonSociale` est null → on renvoie aussi
-      // prenom/nom pour afficher un libellé exploitable côté UI.
-      select: { id: true, typeClient: true, raisonSociale: true, prenom: true, nom: true },
-      orderBy: [{ raisonSociale: "asc" }, { nom: "asc" }, { prenom: "asc" }],
+      select: { id: true, raisonSociale: true, prenom: true, nom: true, typeClient: true },
+      orderBy: [{ raisonSociale: "asc" }, { nom: "asc" }],
     }),
     prisma.dossier.findMany({
       where: { cabinetId, statut: "actif" },
@@ -34,7 +32,7 @@ export async function GET() {
         numeroDossier: true,
         reference: true,
         clientId: true,
-        client: { select: { typeClient: true, raisonSociale: true, prenom: true, nom: true } },
+        client: { select: { raisonSociale: true, prenom: true, nom: true, typeClient: true } },
       },
       orderBy: { intitule: "asc" },
     }),

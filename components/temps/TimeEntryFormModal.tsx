@@ -11,15 +11,16 @@ import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 
-type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
-type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
+type ClientLike = { raisonSociale: string | null; prenom?: string | null; nom?: string | null };
+type ClientOption = { id: string } & ClientLike;
+type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: ClientLike };
 type UserOption = { id: string; nom: string };
 
-// Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom
-// pour afficher un libellé sélectionnable dans la liste déroulante.
-function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
-  if (c.raisonSociale) return c.raisonSociale;
-  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+function clientLabel(c: ClientLike): string {
+  const company = c.raisonSociale?.trim();
+  if (company) return company;
+  const full = `${c.prenom ?? ""} ${c.nom ?? ""}`.trim();
+  return full || "Client sans nom";
 }
 
 function formatDuree(minutes: number): string {
@@ -130,13 +131,18 @@ export function TimeEntryFormModal({
       setError(t("errors.selectMatter"));
       return;
     }
+    const trimmedDescription = description.trim();
+    if (!trimmedDescription) {
+      setError(t("errors.descriptionRequired"));
+      return;
+    }
     const raw = {
       dossierId: dossierId || undefined,
       clientId: clientId || undefined,
       userId,
       date: new Date(date),
       dureeMinutes,
-      description: description || undefined,
+      description: trimmedDescription,
       typeActivite: typeActivite || undefined,
       facturable,
       statut,
@@ -266,7 +272,7 @@ export function TimeEntryFormModal({
             {formatDuree(roundingHint.raw)} → {formatDuree(roundingHint.rounded)} ({t("roundedTo", { minutes: roundingHint.roundingMinutes })})
           </p>
         )}
-        <Input label={t("description")} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Input label={`${t("description")} ${t("requiredSuffix")}`} value={description} onChange={(e) => setDescription(e.target.value)} required />
         <div>
           <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("activityType")}</label>
           <select

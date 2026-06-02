@@ -8,7 +8,7 @@ const timeEntrySchemaBase = z.object({
   userId: z.string().min(1, "Utilisateur requis"),
   date: z.coerce.date(),
   dureeMinutes: z.number().int().positive("Durée positive requise"),
-  description: z.string().optional(),
+  description: z.string().trim().min(1, "Description requise"),
   typeActivite: z.string().optional(),
   facturable: z.boolean().optional().default(true),
   statut: timeEntryStatutEnum.optional().default("brouillon"),

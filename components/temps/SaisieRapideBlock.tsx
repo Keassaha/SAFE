@@ -16,12 +16,6 @@ interface SaisieRapideBlockProps {
 
 const NEW_CLIENT_OPTION_VALUE = "__new_client__";
 
-// Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom.
-function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
-  if (c.raisonSociale) return c.raisonSociale;
-  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
-}
-
 export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBlockProps) {
   const t = useTranslations("temps");
   const tc = useTranslations("common");
@@ -36,6 +30,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
 
   const dossiersForClient = context?.dossiers.filter((d) => d.clientId === clientId) ?? [];
   const clients = context?.clients ?? [];
+  const descriptionReady = description.trim().length > 0;
 
   useEffect(() => {
     if (!clientId) {
@@ -47,7 +42,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
     else setDossierId("");
   }, [clientId, context?.dossiers]);
 
-  const canStart = !!clientId && !timer.running;
+  const canStart = !!clientId && descriptionReady && !timer.running;
   const handleStart = () => {
     if (!canStart) return;
     const client = clients.find((c) => c.id === clientId);
@@ -55,10 +50,10 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
     const dossierLabel = dossier ? `${dossier.numeroDossier ?? dossier.reference ?? ""} ${dossier.intitule}` : undefined;
     timer.start({
       clientId,
-      clientLabel: client ? clientLabel(client) : undefined,
+      clientLabel: client?.raisonSociale ?? undefined,
       dossierId: dossierId || undefined,
       dossierLabel,
-      description,
+      description: description.trim(),
     });
   };
 
@@ -151,7 +146,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {clientLabel(c)}
+                    {c.raisonSociale}
                   </option>
                 ))}
                 <option value={NEW_CLIENT_OPTION_VALUE}>{t("addNewClient")}</option>
@@ -177,13 +172,14 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
             </div>
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs font-medium safe-text-secondary mb-1">
-                {t("workingOn")}
+                {t("workingOn")} <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
-                placeholder={t("descriptionOptional")}
+                placeholder={t("descriptionRequired")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                required
                 className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
               />
             </div>

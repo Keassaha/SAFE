@@ -92,6 +92,13 @@ function toneBorder(tone: Tone) {
   return "bg-[#F3F6F4] text-[#3B4A43] border-[#DCE5E0]";
 }
 
+function toneAccent(tone: Tone) {
+  if (tone === "danger") return "border-l-[#C9655A]";
+  if (tone === "warn") return "border-l-[#D2A53F]";
+  if (tone === "ok") return "border-l-[#6FA383]";
+  return "border-l-[#A9B6AF]";
+}
+
 function LinkLabel({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
@@ -114,7 +121,7 @@ function SectionTitle({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-3 flex items-end justify-between gap-3">
+    <div className="mb-4 flex items-end justify-between gap-3">
       <div className="min-w-0">
         <h2 className="text-base font-semibold tracking-tight safe-text-title">{title}</h2>
         {subtitle && <p className="mt-0.5 text-xs leading-5 safe-text-secondary">{subtitle}</p>}
@@ -519,7 +526,7 @@ function HealthCardsGrid({ cards }: { cards: HealthCard[] }) {
 
   return (
     <motion.div
-      className={`grid grid-cols-1 sm:grid-cols-2 ${cols} gap-4`}
+      className={`grid grid-cols-1 sm:grid-cols-2 ${cols} gap-5`}
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -556,6 +563,43 @@ function HealthCardsGrid({ cards }: { cards: HealthCard[] }) {
   );
 }
 
+function HeroAction({
+  item,
+  t,
+}: {
+  item: ActionItem;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      className={`group flex items-center gap-4 rounded-safe-lg border border-[#E5ECE8] border-l-4 ${toneAccent(item.tone)} bg-white p-4 shadow-[0_1px_2px_rgba(23,37,31,0.04)] transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5`}
+    >
+      <span
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-safe border ${toneBorder(item.tone)}`}
+      >
+        <Icon className="h-5 w-5" aria-hidden />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-semibold uppercase tracking-widest safe-text-secondary">
+          {t("priorityNow")}
+        </p>
+        <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
+          <p className="truncate text-base font-semibold safe-text-title">{item.title}</p>
+          <span className="truncate text-xs safe-text-secondary">{item.context}</span>
+        </div>
+        <p className="mt-0.5 text-sm safe-text-secondary">{item.reason}</p>
+      </div>
+      {item.extra}
+      <ChevronRight
+        className="h-5 w-5 shrink-0 text-[#8E9A94] transition-transform group-hover:translate-x-0.5"
+        aria-hidden
+      />
+    </Link>
+  );
+}
+
 function ActionList({
   items,
   t,
@@ -563,50 +607,61 @@ function ActionList({
   items: ActionItem[];
   t: ReturnType<typeof useTranslations>;
 }) {
-  return (
-    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
-      <div className="divide-y divide-[#E5ECE8]">
-        {items.length === 0 ? (
-          <div className="flex items-center gap-3 px-4 py-8">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BED6C6] bg-[#E7F2EA] text-[#1F3A2E]">
-              <CheckCircle2 className="h-5 w-5" aria-hidden />
-            </span>
-            <div>
-              <p className="text-sm font-semibold safe-text-title">{t("allClear")}</p>
-              <p className="text-xs safe-text-secondary">{t("allClearSub")}</p>
-            </div>
+  if (items.length === 0) {
+    return (
+      <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-8">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BED6C6] bg-[#E7F2EA] text-[#1F3A2E]">
+            <CheckCircle2 className="h-5 w-5" aria-hidden />
+          </span>
+          <div>
+            <p className="text-sm font-semibold safe-text-title">{t("allClear")}</p>
+            <p className="text-xs safe-text-secondary">{t("allClearSub")}</p>
           </div>
-        ) : (
-          items.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#F6F8F7]"
-              >
-                <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border ${toneBorder(item.tone)}`}
-                >
-                  <Icon className="h-4 w-4" aria-hidden />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="truncate text-sm font-semibold safe-text-title">{item.title}</p>
-                    <span className="truncate text-xs safe-text-secondary">{item.context}</span>
-                  </div>
-                  <p className="mt-0.5 line-clamp-1 text-xs safe-text-secondary">{item.reason}</p>
-                </div>
-                {item.extra}
-                <ChevronRight
-                  className="h-4 w-4 shrink-0 text-[#8E9A94] transition-transform group-hover:translate-x-0.5"
-                  aria-hidden
-                />
-              </Link>
-            );
-          })
-        )}
+        </div>
       </div>
+    );
+  }
+
+  const [first, ...rest] = items;
+
+  return (
+    <div className="space-y-3">
+      <HeroAction item={first} t={t} />
+      {rest.length > 0 && (
+        <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
+          <div className="divide-y divide-[#E5ECE8]">
+            {rest.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#F6F8F7]"
+                >
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border ${toneBorder(item.tone)}`}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="truncate text-sm font-semibold safe-text-title">{item.title}</p>
+                      <span className="truncate text-xs safe-text-secondary">{item.context}</span>
+                    </div>
+                    <p className="mt-0.5 line-clamp-1 text-xs safe-text-secondary">{item.reason}</p>
+                  </div>
+                  {item.extra}
+                  <ChevronRight
+                    className="h-4 w-4 shrink-0 text-[#8E9A94] transition-transform group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -619,11 +674,11 @@ function PipelineBoard({
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
       {columns.map((column) => (
         <div
           key={column.key}
-          className="flex min-h-[190px] flex-col rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-3"
+          className="flex min-h-[190px] flex-col rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-4"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="truncate text-sm font-semibold safe-text-title">{column.title}</h3>
@@ -793,7 +848,7 @@ export function DashboardView({ payload }: DashboardViewProps) {
   const healthCards = buildHealthCards(payload, trustRisk, totalOutstanding, totalClients, t);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -825,7 +880,7 @@ export function DashboardView({ payload }: DashboardViewProps) {
         <PipelineBoard columns={pipelineColumns} t={t} />
       </section>
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div>
           <SectionTitle title={t("zoneActivity")} subtitle={t("zoneActivitySub")} />
           {payload.visibility.showActivityFeed ? (

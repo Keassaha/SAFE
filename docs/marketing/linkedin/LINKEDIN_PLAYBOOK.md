@@ -8,6 +8,7 @@
 
 ## 0. Principes directeurs (à mémoriser)
 
+0. **Pour le lancement SAFE du 18 mai au 13 juin 2026, charger aussi `SAFE_LINKEDIN_LAUNCH_GUARDRAILS.md`, `SAFE_LINKEDIN_SOURCE_LEDGER.md`, et `SAFE_LINKEDIN_PRE_PUBLICATION_CHECKLIST.md`.** Ces fichiers priment sur les exemples génériques ci-dessous quand il y a conflit.
 1. **Le profil est un signal algorithmique, pas une vitrine.** L'IA 360 Brew de LinkedIn croise ton profil avec ton contenu pour évaluer ta crédibilité. Profil bâclé = portée plafonnée, peu importe la qualité du post.
 2. **Le compte personnel > la page entreprise** (8× plus d'engagement). SAFE Inc. doit avoir une page, mais la croissance vient de Jérémie Tiahou.
 3. **1 post excellent / semaine > 5 posts moyens.** L'algo 2026 pénalise activement le low-quality.
@@ -132,6 +133,7 @@ Allouer ~25% à chaque pilier sur le mois :
 ### 3.2 Cadence
 - **Cible : 3 posts / semaine** (mardi, mercredi, jeudi idéalement)
 - **Démarrage : 2 / semaine pendant 4 semaines**, puis monter à 3
+- **Exception lancement SAFE mai/juin 2026** : 5 posts/semaine + 1 newsletter est autorisé comme sprint time-boxé seulement si chaque post passe la checklist de publication. Si les 5 posts de la semaine 1 ne sont pas prêts le dimanche 17 mai, publier lundi/mercredi/vendredi + newsletter.
 - Ne **jamais poster 2 fois dans la même journée**
 - Espacer les posts de 36-48h pour laisser un post scaler
 

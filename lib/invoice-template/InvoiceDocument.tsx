@@ -7,14 +7,13 @@
  *
  * Doctrine :
  *   - Rendu pixel-perfect entre preview et PDF garanti (même composant).
- *   - Aucune logique métier ici : reçoit un `PresentedInvoice` du presenter
- *     (tous les totaux et conversions de lignes sont déjà calculés).
- *   - Conforme aux exigences de facture professionnelle au Canada :
- *     en-tête identité (cabinet + n° HST/GST/QST), n° facture
- *     séquentiel, dates émission/échéance, client + adresse, dossier de
- *     référence, lignes claires (date · description · responsable · montant),
- *     débours séparés, rabais explicite, taxes détaillées, total + solde dû,
- *     modalités de paiement, mention de conservation des documents.
+ *   - Aucune logique métier ici : reçoit un `PresentedInvoice` du presenter.
+ *   - Palette stricte : 2 couleurs (brand + accent) + neutres. Voir tokens.ts.
+ *   - **Le numéro du Barreau N'APPARAÎT JAMAIS sur la facture** (règle CEO).
+ *   - Conforme exigences facture pro CA : identité cabinet, n° HST/GST/QST,
+ *     n° facture séquentiel, dates émission/échéance, client + adresse, dossier
+ *     de référence, lignes (date · description · responsable · montant), débours
+ *     séparés, rabais explicite, taxes détaillées, total + solde dû, modalités.
  */
 
 import * as React from "react";
@@ -24,11 +23,10 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
 import type { PresentedInvoice, PresentedLine } from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
-import { Letterhead } from "@/lib/templates/letterhead";
-import { DerisierInvoiceDocument } from "./DerisierInvoiceDocument";
 import {
   colors,
   fontSize,
@@ -131,32 +129,77 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
 
-  // ── En-tête : identité cabinet via <Letterhead> ─────────────────
-  // (le bloc identité + bordure vit dans lib/templates/letterhead.tsx)
+  // ── En-tête : bande sombre brand pleine largeur ─────────────────
+  // Inspirée du template HTML fourni — identité cabinet + intitulé FACTURE
+  // sur fond brand, texte blanc. Les marges négatives la font déborder
+  // la `page.padding` pour atteindre les bords du document.
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginTop: -spacing.pagePadding,
+    marginLeft: -spacing.pagePadding,
+    marginRight: -spacing.pagePadding,
+    paddingTop: spacing.pagePadding,
+    paddingLeft: spacing.pagePadding,
+    paddingRight: spacing.pagePadding,
+    paddingBottom: 22,
+    backgroundColor: colors.brand,
+    marginBottom: spacing.sectionGap + 4,
+  },
+  headerLeft: { flexDirection: "column", flex: 1 },
+  logo: { width: 110, height: 50, objectFit: "contain", marginBottom: 8 },
+  cabinetName: {
+    fontSize: fontSize.blockTitle + 2,
+    fontFamily: font.bold,
+    color: colors.white,
+    marginBottom: 4,
+    letterSpacing: 0.4,
+  },
+  cabinetMeta: {
+    fontSize: fontSize.bodySmall,
+    color: colors.brandSoft,
+    lineHeight: 1.5,
+  },
+
+  headerRight: {
+    flexDirection: "column",
+    alignItems: "flex-end",
+    paddingLeft: 16,
+  },
   invoiceKicker: {
     fontSize: fontSize.sectionHeader,
-    color: colors.brand,
+    color: colors.accent,
     fontFamily: font.bold,
-    letterSpacing: 1.6,
+    letterSpacing: 2.2,
     marginBottom: 4,
+  },
+  // Filet doré sous « FACTURE » — touche premium, seul usage visible de l'accent.
+  invoiceKickerRule: {
+    width: 36,
+    height: 1.5,
+    backgroundColor: colors.accent,
+    marginBottom: 8,
+    alignSelf: "flex-end",
   },
   invoiceNumber: {
     fontSize: fontSize.hero,
     fontFamily: font.bold,
-    color: colors.text,
-    marginBottom: 6,
+    color: colors.white,
+    marginBottom: 8,
+    letterSpacing: 0.4,
   },
   invoiceDates: { alignItems: "flex-end" },
   invoiceDateRow: { flexDirection: "row", marginTop: 2 },
   invoiceDateLabel: {
     fontSize: fontSize.bodySmall,
-    color: colors.textMuted,
+    color: colors.brandSoft,
     marginRight: 6,
   },
   invoiceDateValue: {
     fontSize: fontSize.bodySmall,
     fontFamily: font.bold,
-    color: colors.text,
+    color: colors.white,
   },
 
   // ── Tax registration banner ─────────────────────────────────────
@@ -212,30 +255,6 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
   },
 
-  // ── Référence dossier ───────────────────────────────────────────
-  matterRef: {
-    flexDirection: "row",
-    paddingVertical: 6,
-    paddingHorizontal: spacing.blockPadding,
-    backgroundColor: colors.brandSoft,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.brand,
-    marginBottom: spacing.sectionGap,
-  },
-  matterRefLabel: {
-    fontSize: fontSize.sectionHeader,
-    fontFamily: font.bold,
-    color: colors.brand,
-    letterSpacing: 1,
-    marginRight: 8,
-  },
-  matterRefValue: {
-    fontSize: fontSize.body,
-    fontFamily: font.bold,
-    color: colors.text,
-    flex: 1,
-  },
-
   // ── Tableau des lignes ──────────────────────────────────────────
   table: { marginBottom: spacing.sectionGap },
   tableHead: {
@@ -262,12 +281,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   tableRowAlt: { backgroundColor: colors.rowAlt },
-  tableRowDiscount: { backgroundColor: colors.discountSoft },
-  tableRowFees: { backgroundColor: colors.feesSoft },
+  // Rabais et frais sont différenciés par graisse + préfixe « − », pas par
+  // une couleur dédiée (palette 2-couleurs imposée — voir tokens.ts).
+  tableRowDiscount: { backgroundColor: colors.brandSoft },
+  tableRowFees: { backgroundColor: colors.rowAlt },
   cellText: { fontSize: fontSize.body, color: colors.text },
   cellMuted: { fontSize: fontSize.bodySmall, color: colors.textMuted, marginTop: 2 },
   cellAmount: { fontSize: fontSize.body, fontFamily: font.bold, color: colors.text, textAlign: "right" },
-  cellAmountDiscount: { color: colors.discount },
+  cellAmountDiscount: { color: colors.brand, fontFamily: font.bold },
   badgeKind: {
     fontSize: 7,
     fontFamily: font.bold,
@@ -279,8 +300,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     letterSpacing: 0.6,
   },
-  badgeDiscount: { color: colors.discount, backgroundColor: colors.white },
-  badgeFees: { color: colors.fees, backgroundColor: colors.white },
+  badgeDiscount: { color: colors.brand, backgroundColor: colors.accentSoft },
+  badgeFees: { color: colors.brand, backgroundColor: colors.rowAlt },
 
   // ── Totaux ──────────────────────────────────────────────────────
   totalsBlock: {
@@ -298,7 +319,7 @@ const styles = StyleSheet.create({
   },
   totalLabel: { fontSize: fontSize.body, color: colors.textMuted },
   totalValue: { fontSize: fontSize.body, color: colors.text, fontFamily: font.bold },
-  totalLineDiscount: { color: colors.discount },
+  totalLineDiscount: { color: colors.brand, fontFamily: font.bold },
   totalLineHero: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -307,6 +328,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginTop: 4,
     borderRadius: 3,
+    // Filet doré sur le bord supérieur — touche premium discrète.
+    borderTopWidth: 2,
+    borderTopColor: colors.accent,
   },
   totalLabelHero: {
     fontSize: fontSize.body,
@@ -427,12 +451,6 @@ interface InvoiceDocumentProps {
     expensesNonTaxable: number;
     discounts: number;
   };
-  /**
-   * Affiche la signature reproduite (option par facture). Propagée aux
-   * variantes propres au cabinet (ex. Derisier). Sans effet sur le gabarit
-   * standard.
-   */
-  showSignature?: boolean;
 }
 
 /**
@@ -445,21 +463,7 @@ export function InvoiceDocument({
   invoice,
   language = "fr",
   subtotals,
-  showSignature = false,
 }: InvoiceDocumentProps) {
-  // Dispatch vers une variante propre au cabinet le cas échéant. L'aperçu et le
-  // PDF passant tous deux par ce composant, le choix du modèle reste centralisé
-  // ici → aucune divergence preview/PDF possible.
-  if (invoice.cabinet?.invoiceTemplate === "derisier") {
-    return (
-      <DerisierInvoiceDocument
-        invoice={invoice}
-        language={language}
-        showSignature={showSignature}
-      />
-    );
-  }
-
   const t = labels[language];
   const cabinet = invoice.cabinet;
   const client = invoice.client;
@@ -487,32 +491,41 @@ export function InvoiceDocument({
       producer="@react-pdf/renderer"
     >
       <Page size="A4" style={styles.page} wrap>
-        {/* En-tête : identité cabinet (Letterhead partagé) + n° facture + dates.
-            N.B. le n° de Barreau / LSO n'apparaît JAMAIS sur une facture
-            (règle dure CEO 2026-05-12 — donnée confidentielle). */}
-        <Letterhead
-          cabinet={cabinet}
-          fixed
-          right={
-            <>
-              <Text style={styles.invoiceKicker}>{t.invoice}</Text>
-              <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
-              <View style={styles.invoiceDates}>
-                <View style={styles.invoiceDateRow}>
-                  <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>
-                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEmission, language)}</Text>
-                </View>
-                <View style={styles.invoiceDateRow}>
-                  <Text style={styles.invoiceDateLabel}>{t.dueDate} :</Text>
-                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEcheance, language)}</Text>
-                </View>
+        {/* En-tête : identité cabinet + n° facture + dates */}
+        <View style={styles.header} fixed>
+          <View style={styles.headerLeft}>
+            {cabinet?.logoUrl ? <Image style={styles.logo} src={cabinet.logoUrl} /> : null}
+            <Text style={styles.cabinetName}>{cabinet?.nom ?? "—"}</Text>
+            {cabinet?.adresse ? (
+              <Text style={styles.cabinetMeta}>{cabinet.adresse}</Text>
+            ) : null}
+            {cabinet?.telephone ? (
+              <Text style={styles.cabinetMeta}>{cabinet.telephone}</Text>
+            ) : null}
+            {cabinet?.email ? <Text style={styles.cabinetMeta}>{cabinet.email}</Text> : null}
+          </View>
+          <View style={styles.headerRight}>
+            <Text style={styles.invoiceKicker}>{t.invoice}</Text>
+            <View style={styles.invoiceKickerRule} />
+            <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
+            <View style={styles.invoiceDates}>
+              <View style={styles.invoiceDateRow}>
+                <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>
+                <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEmission, language)}</Text>
               </View>
-            </>
-          }
-        />
+              <View style={styles.invoiceDateRow}>
+                <Text style={styles.invoiceDateLabel}>{t.dueDate} :</Text>
+                <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEcheance, language)}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-        {/* Bandeau de numéros d'identification fiscale — ARC uniquement
-            (HST / GST / QST / n° d'entreprise). Aucun n° de Barreau ici. */}
+        {/*
+          Bandeau de numéros d'identification fiscale (ARC / Revenu Québec).
+          Règle dure : le numéro du Barreau N'APPARAÎT JAMAIS ici, même si
+          `cabinet.barreauNumero` est rempli côté DB. Ne pas le réintroduire.
+        */}
         {(cabinet?.taxNumbers.hstNumber ||
           cabinet?.taxNumbers.gstNumber ||
           cabinet?.taxNumbers.qstNumber ||
@@ -547,17 +560,12 @@ export function InvoiceDocument({
           </View>
         )}
 
-        {/* Émetteur / Destinataire */}
+        {/*
+          Cartes Adressée À / Dossier. L'identité émetteur est déjà rendue
+          dans la bande sombre en en-tête — pas de duplicata ici, on suit le
+          template HTML de référence (FACTURÉ À + INFORMATIONS DU MANDAT).
+        */}
         <View style={styles.twoCol}>
-          <View style={styles.block}>
-            <Text style={styles.blockHeader}>{t.issuedBy}</Text>
-            <Text style={styles.blockName}>{cabinet?.nom ?? "—"}</Text>
-            {cabinet?.adresse ? (
-              <Text style={styles.blockLine}>{cabinet.adresse}</Text>
-            ) : null}
-            {cabinet?.telephone ? <Text style={styles.blockLine}>{cabinet.telephone}</Text> : null}
-            {cabinet?.email ? <Text style={styles.blockLine}>{cabinet.email}</Text> : null}
-          </View>
           <View style={styles.block}>
             <Text style={styles.blockHeader}>{t.billedTo}</Text>
             <Text style={styles.blockName}>{clientName}</Text>
@@ -568,18 +576,16 @@ export function InvoiceDocument({
             ))}
             {client?.email ? <Text style={styles.blockLine}>{client.email}</Text> : null}
           </View>
+          {dossier ? (
+            <View style={styles.block}>
+              <Text style={styles.blockHeader}>{t.matter}</Text>
+              <Text style={styles.blockName}>
+                {dossier.numeroDossier ? `${dossier.numeroDossier} — ` : ""}
+                {dossier.intitule}
+              </Text>
+            </View>
+          ) : null}
         </View>
-
-        {/* Référence dossier */}
-        {dossier ? (
-          <View style={styles.matterRef}>
-            <Text style={styles.matterRefLabel}>{t.matter}</Text>
-            <Text style={styles.matterRefValue}>
-              {dossier.numeroDossier ? `${dossier.numeroDossier} — ` : ""}
-              {dossier.intitule}
-            </Text>
-          </View>
-        ) : null}
 
         {/* Tableau des lignes */}
         <View style={styles.table}>
@@ -597,6 +603,13 @@ export function InvoiceDocument({
               ...styles.tableRow,
               ...(isDiscount ? styles.tableRowDiscount : i % 2 === 1 ? styles.tableRowAlt : {}),
             };
+            // Quand le badge "Rabais" est rendu, on enlève le préfixe redondant
+            // "Rabais —" / "Rabais -" / "Rabais :" / "Discount —" laissé par le
+            // presenter dans la description — sinon "Rabais" apparaît deux fois
+            // (badge + texte).
+            const cleanDescription = isDiscount
+              ? (line.description ?? "").replace(/^\s*(rabais|discount)\s*[—\-:]\s*/i, "")
+              : line.description;
 
             return (
               <View key={line.id} style={rowStyle} wrap={false}>
@@ -610,7 +623,7 @@ export function InvoiceDocument({
                     ) : isExpense ? (
                       <Text style={[styles.badgeKind, styles.badgeFees]}>{t.feesLabel}</Text>
                     ) : null}
-                    <Text style={styles.cellText}>{line.description || "—"}</Text>
+                    <Text style={styles.cellText}>{cleanDescription || "—"}</Text>
                   </View>
                   {(line.userNom || (line.hours != null && line.hours > 0)) && (
                     <Text style={styles.cellMuted}>

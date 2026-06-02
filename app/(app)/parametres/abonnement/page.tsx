@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
 import { getTranslations } from "next-intl/server";
 import { SubscriptionManager } from "@/components/settings/SubscriptionManager";
+import { getPendingOffer, parseCabinetConfig } from "@/lib/cabinet-config";
 
 export default async function AbonnementPage() {
   const { cabinetId, role } = await requireCabinetAndUser();
@@ -20,6 +21,7 @@ export default async function AbonnementPage() {
     where: { id: cabinetId },
     select: {
       plan: true,
+      config: true,
       stripeCustomerId: true,
       stripeSubscriptionStatus: true,
       stripeCurrentPeriodEnd: true,
@@ -27,6 +29,8 @@ export default async function AbonnementPage() {
       stripeTrialEnd: true,
     },
   });
+
+  const pendingOffer = getPendingOffer(parseCabinetConfig(cabinet?.config ?? null));
 
   return (
     <div className="max-w-4xl space-y-6 animate-fade-in">
@@ -53,6 +57,7 @@ export default async function AbonnementPage() {
                 : null
             }
             cancelAtPeriodEnd={cabinet?.stripeCancelAtPeriodEnd ?? false}
+            pendingOffer={pendingOffer}
           />
         </CardContent>
       </Card>

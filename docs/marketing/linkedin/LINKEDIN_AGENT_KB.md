@@ -6,6 +6,8 @@
 > **Méthode** : compilation rigoureuse des frameworks publics des founders/créateurs ayant prouvé leur méthode par leurs revenus (Justin Welsh, Lara Acosta, Jasmin Alić, Chris Donnelly, Matt Gray, Sahil Bloom), croisée avec les données algorithmiques 2025-2026 (Richard van der Blom, Sprout Social, Dataslayer).
 > **Mise à jour** : trimestrielle. Dernière révision : 2026-04-29.
 
+> **Addendum lancement SAFE 2026-05-18** : avant toute rédaction ou programmation de posts liés au lancement public SAFE, charger `SAFE_LINKEDIN_LAUNCH_GUARDRAILS.md`, `SAFE_LINKEDIN_SOURCE_LEDGER.md`, et `SAFE_LINKEDIN_PRE_PUBLICATION_CHECKLIST.md`. Ces garde-fous priment sur les hooks, exemples de claims et cadences génériques de ce manuel.
+
 ---
 
 ## PRÉFACE — Pourquoi ce document existe
@@ -29,6 +31,8 @@ Ce document fournit les sept couches.
 
 ### Méthode et fraîcheur
 Toutes les citations sont sourcées. Les frameworks portent le nom donné par leurs auteurs. Les chiffres sont datés. Quand une donnée est incertaine, le document le signale `[À VÉRIFIER]`.
+
+Pour les posts SAFE, toute donnée chiffrée doit aussi exister dans `SAFE_LINKEDIN_SOURCE_LEDGER.md` avec un niveau de confiance suffisant. Les claims en statut `hold` ne doivent pas être publiés sous forme chiffrée.
 
 Les **chiffres précis** (engagement médian par format, longueur optimale) seront partiellement périmés dans 6-12 mois. Les **frameworks et principes** tiennent sur des cycles plus longs. Mise à jour recommandée : **chaque trimestre**.
 
@@ -99,8 +103,8 @@ Chris Donnelly a documenté publiquement (Nathan Barry, ép. 088) un business à
 ### Que mettre dedans (template founder)
 La bannière doit fonctionner comme un **panneau publicitaire 4×1** :
 - **Nom du projet** : "SAFE Inc." (logo discret).
-- **Promesse en 1 ligne** : "Le SaaS qui rend la conformité Barreau invisible pour les cabinets d'avocats du Québec."
-- **Sous-promesse / résultat chiffré (optionnel)** : "−70 % de temps administratif. 100 % conforme RCNEPA."
+- **Promesse en 1 ligne** : "Le SaaS qui structure l'admin et la conformité des cabinets d'avocats du Québec."
+- **Sous-promesse / résultat chiffré (optionnel)** : utiliser seulement un chiffre validé dans le source ledger; ne jamais promettre une conformité garantie.
 - **CTA discret (optionnel)** : URL site ou "DM ouvert" + flèche pointant vers la photo.
 - **Palette** : cohérente avec la photo de profil et le site SAFE.
 
@@ -119,7 +123,7 @@ La bannière doit fonctionner comme un **panneau publicitaire 4×1** :
 
 ### Exemple SAFE
 ```
-Je construis SAFE — le SaaS de conformité Barreau pour cabinets d'avocats du Québec | -70 % de temps admin, 100 % conforme RCNEPA | Fondateur
+Je construis SAFE — l'OS administratif des cabinets d'avocats solo | Facturation, dossiers, conformité opérationnelle | Fondateur
 ```
 
 ### Règles

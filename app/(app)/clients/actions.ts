@@ -209,7 +209,7 @@ export async function createClient(formData: FormData) {
     metadata: { raisonSociale: client.raisonSociale },
   });
   revalidatePath("/clients");
-  redirect("/clients?success=created");
+  redirect(`/clients/${client.id}?created=1`);
 }
 
 /**

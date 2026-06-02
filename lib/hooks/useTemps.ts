@@ -132,8 +132,8 @@ export function useTempsContext(cabinetId: string | null) {
       const res = await fetch("/api/temps/context");
       if (!res.ok) throw new Error("Erreur chargement contexte");
       return res.json() as Promise<{
-        clients: Array<{ id: string; typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null }>;
-        dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null } }>;
+        clients: Array<{ id: string; raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string | null }>;
+        dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string | null } }>;
         users: Array<{ id: string; nom: string }>;
         roundingMinutes: number;
       }>;

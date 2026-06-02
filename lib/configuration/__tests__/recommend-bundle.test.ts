@@ -95,6 +95,77 @@ describe("recommend-bundle: cas QC famille forfait", () => {
     expect(out.bundleRecommendation.bundleId).toBe("qc-solo-family-flat-fee");
     expect(out.configurationPackage.cabinetInterfaceConfig.locale).toBe("fr");
     expect(out.configurationPackage.cabinetInterfaceConfig.disciplines).toContain("famille");
+    expect(out.configurationPackage.capabilityPlan.map((c) => c.capabilityId)).toEqual(
+      expect.arrayContaining([
+        "matter-opening-control",
+        "trust-3way-reconciliation",
+        "loi25-privacy-controls",
+        "billing-ar-followup",
+      ]),
+    );
+  });
+});
+
+describe("capability-library: cas Me Ruth (QC solo multi-pratique avec fidéicommis)", () => {
+  it("assemble les blocs pertinents au-delà du bundle de départ", () => {
+    const answers = baseAnswers({
+      raison_sociale: "Kouame Avocat",
+      localisation: { ville: "Montréal", province: "QC" },
+      nb_utilisateurs: "1",
+      domaines_pratique: "Droit civil, droit de la famille et affaires",
+      mode_facturation: "mixte",
+      fideicommis_usage: "actif",
+      heures_admin: "6_10",
+      delai_paiement: "31_60",
+      automatisation_reve: "dashboard assistant agenda",
+      objectif: "Interface de grand cabinet bien structuré avec un vrai assistant et un bon event planner",
+    });
+
+    const out = runConfigurationEngine(answers);
+    const capabilityIds = out.configurationPackage.capabilityPlan.map((c) => c.capabilityId);
+
+    expect(capabilityIds).toEqual(expect.arrayContaining([
+      "matter-opening-control",
+      "trust-3way-reconciliation",
+      "loi25-privacy-controls",
+      "billing-ar-followup",
+      "admin-automation-dashboard",
+      "executive-firm-command-center",
+      "legal-calendar-event-planner",
+      "document-retention-library",
+    ]));
+    expect(out.configurationPackage.cabinetInterfaceConfig.modules).toMatchObject({
+      fideicommis: {
+        actif: true,
+        reconciliation: "mensuelle",
+        segregationParClient: true,
+      },
+      loi25: {
+        actif: true,
+      },
+      facturation: {
+        actif: true,
+        relances: true,
+        suiviCreances: true,
+      },
+      commandCenter: {
+        actif: true,
+        executiveDashboard: true,
+        riskRadar: true,
+        dailyBrief: true,
+      },
+      calendar: {
+        actif: true,
+        legalDeadlines: true,
+        weeklyPlanning: true,
+      },
+    });
+    expect(out.configurationPackage.activationChecklist.map((item) => item.id)).toEqual(
+      expect.arrayContaining([
+        "capability-trust-3way-reconciliation-trust-opening-balances",
+        "capability-loi25-privacy-controls-loi25-owner",
+      ]),
+    );
   });
 });
 

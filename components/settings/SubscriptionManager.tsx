@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertCircle, Check, CreditCard, ExternalLink } from "lucide-react";
-import { PLANS, type PlanKey } from "@/lib/stripe";
+import { AlertCircle, Check, CreditCard, ExternalLink, Sparkles } from "lucide-react";
+import {
+  PLANS,
+  PUBLIC_CHECKOUT_PLAN_KEYS,
+  canonicalPlanKey,
+  type PlanKey,
+} from "@/lib/stripe";
 import { toIntlLocale } from "@/lib/i18n/locale";
+import type { PendingOfferConfig } from "@/lib/cabinet-config";
 import { Button } from "@/components/ui/Button";
 
 interface SubscriptionManagerProps {
@@ -14,6 +20,7 @@ interface SubscriptionManagerProps {
   periodEnd: string | null;
   trialEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
+  pendingOffer?: PendingOfferConfig | null;
 }
 
 export function SubscriptionManager({
@@ -23,6 +30,7 @@ export function SubscriptionManager({
   periodEnd,
   trialEnd,
   cancelAtPeriodEnd = false,
+  pendingOffer = null,
 }: SubscriptionManagerProps) {
   const t = useTranslations("parametres");
   const tc = useTranslations("common");
@@ -30,8 +38,8 @@ export function SubscriptionManager({
   const [busy, setBusy] = useState<PlanKey | "portal" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const planEntries = Object.entries(PLANS) as [PlanKey, (typeof PLANS)[PlanKey]][];
-  const currentKey = (currentPlan in PLANS ? currentPlan : "essentiel") as PlanKey;
+  const planEntries = PUBLIC_CHECKOUT_PLAN_KEYS.map((key) => [key, PLANS[key]] as const);
+  const currentKey = canonicalPlanKey(currentPlan);
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
   const formattedRenewal = formatDate(periodEnd, intlLocale);
   const formattedTrialEnd = formatDate(trialEnd ?? null, intlLocale);
@@ -75,7 +83,7 @@ export function SubscriptionManager({
           <h2 className="text-lg font-semibold safe-text-title">{t("subscriptionHeader")}</h2>
           <p className="text-sm safe-text-secondary mt-1">
             {t("subscriptionCurrentPlan")} :{" "}
-            <strong className="capitalize safe-text-title">{PLANS[currentKey].name}</strong>
+            <strong className="safe-text-title">{PLANS[currentKey].name}</strong>
             {subscriptionStatus && (
               <span> · {t("subscriptionStripeStatus", { status: subscriptionStatus })}</span>
             )}
@@ -95,6 +103,33 @@ export function SubscriptionManager({
           </Button>
         )}
       </div>
+
+      {pendingOffer && (
+        <div className="rounded-safe-lg border border-status-success/40 bg-status-success/5 px-5 py-5 space-y-3">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-status-success">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            {t("subscriptionOfferBadge")}
+          </div>
+          <h3 className="text-lg font-semibold safe-text-title">{pendingOffer.label}</h3>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="text-2xl font-bold safe-text-metric tabular-nums">
+              {t("subscriptionOfferTrial", { months: pendingOffer.trialMonths })}
+            </span>
+            <span className="text-sm safe-text-secondary">
+              {t("subscriptionOfferThenPrice", {
+                price: new Intl.NumberFormat(intlLocale, {
+                  style: "currency",
+                  currency: pendingOffer.currency.toUpperCase(),
+                  maximumFractionDigits: 0,
+                }).format(pendingOffer.monthlyPriceCents / 100),
+              })}
+            </span>
+          </div>
+          {pendingOffer.note && (
+            <p className="text-sm safe-text-secondary leading-relaxed">{pendingOffer.note}</p>
+          )}
+        </div>
+      )}
 
       {!isActive && (
         <div className="flex items-start gap-3 rounded-safe-sm border border-status-warning/30 bg-status-warning/5 px-4 py-3 text-sm">
@@ -143,9 +178,7 @@ export function SubscriptionManager({
               <ul className="mt-4 space-y-2 text-sm safe-text-secondary">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                  {plan.features.maxUsers === -1
-                    ? t("subscriptionFeatureUnlimitedUsers")
-                    : t("subscriptionFeatureUsers", { count: plan.features.maxUsers })}
+                  {t("subscriptionFeatureUsers", { count: plan.features.maxUsers })}
                 </li>
                 {plan.features.trustAccounts && (
                   <li className="flex items-center gap-2">
@@ -163,12 +196,6 @@ export function SubscriptionManager({
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
                     {t("subscriptionFeatureReports")}
-                  </li>
-                )}
-                {plan.features.api && (
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                    {t("subscriptionFeatureApi")}
                   </li>
                 )}
               </ul>
@@ -189,6 +216,42 @@ export function SubscriptionManager({
             </div>
           );
         })}
+        <div className="rounded-safe-lg border border-neutral-border/60 p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-semibold safe-text-title">Cabinet+</h3>
+          </div>
+          <p className="text-2xl font-bold safe-text-metric tabular-nums mt-2">
+            Sur devis
+          </p>
+          <p className="mt-2 text-sm safe-text-secondary">
+            6 avocats et plus, multi-bureaux, workflows hors cadre.
+          </p>
+          <ul className="mt-4 space-y-2 text-sm safe-text-secondary">
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
+              Tout le palier Cabinet
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
+              Pipeline d&apos;onboarding 3 phases
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
+              SSO et intégrations spécialisées
+            </li>
+          </ul>
+          <Button
+            type="button"
+            className="mt-5 w-full"
+            variant="secondary"
+            onClick={() => {
+              window.location.href = "/contact";
+            }}
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden />
+            Demander un devis
+          </Button>
+        </div>
       </div>
     </div>
   );

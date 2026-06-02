@@ -1,94 +1,23 @@
 "use client";
 
-import { InvoiceTemplate } from "@/components/facturation/InvoiceTemplate";
-import type { InvoiceTemplateItem } from "@/components/facturation/InvoiceTemplate";
+import { InvoicePreview } from "@/lib/invoice-template/InvoicePreview";
+import type { PresentedInvoice } from "@/lib/services/billing/invoice-presenter";
 
-type FactureClientViewProps = {
-  numero: string;
-  dateEmission: string;
-  dateEcheance: string;
-  statut: string;
-  cabinet: { id: string; nom: string; adresse: string | null } | null;
-  client: {
-    id: string;
-    raisonSociale: string | null;
-    billingAddress: string | null;
-    billingCity: string | null;
-    billingProvince: string | null;
-    billingPostalCode: string | null;
-    billingCountry: string | null;
-  } | null;
-  dossier: { id: string; intitule: string; numeroDossier: string | null } | null;
-  items: Array<{
-    id: string;
-    type: string;
-    description: string;
-    date: string;
-    hours: number | null;
-    rate: number | null;
-    amount: number;
-    userNom?: string | null;
-  }>;
-  subtotalTaxable: number;
-  tps: number;
-  tvq: number;
-  hst: number;
-  deboursNonTaxableTotal: number;
-  montantTotal: number;
-  montantPaye: number;
-  balanceDue: number;
-  clientNote: string | null;
-};
+interface FactureClientViewProps {
+  invoice: PresentedInvoice;
+}
 
-export function FactureClientView({
-  numero,
-  dateEmission,
-  dateEcheance,
-  statut,
-  cabinet,
-  client,
-  dossier,
-  items,
-  subtotalTaxable,
-  tps,
-  tvq,
-  hst,
-  deboursNonTaxableTotal,
-  montantTotal,
-  montantPaye,
-  balanceDue,
-  clientNote,
-}: FactureClientViewProps) {
-  const templateItems: InvoiceTemplateItem[] = items.map((i) => ({
-    id: i.id,
-    type: i.type,
-    description: i.description,
-    date: i.date,
-    hours: i.hours,
-    rate: i.rate,
-    amount: i.amount,
-    userNom: i.userNom ?? null,
-  }));
-
+/**
+ * Vue publique de la facture (lien partagé envoyé au client par email).
+ *
+ * Rend strictement le même aperçu que l'écran cabinet et que le PDF
+ * téléchargé : `InvoicePreview` → `InvoiceDocument`. Aucune divergence
+ * possible — source unique de rendu.
+ */
+export function FactureClientView({ invoice }: FactureClientViewProps) {
   return (
-    <InvoiceTemplate
-      numero={numero}
-      dateEmission={dateEmission}
-      dateEcheance={dateEcheance}
-      statut={statut}
-      cabinet={cabinet ?? undefined}
-      client={client ?? undefined}
-      dossier={dossier ?? undefined}
-      items={templateItems}
-      subtotalTaxable={subtotalTaxable}
-      tps={tps}
-      tvq={tvq}
-      hst={hst}
-      deboursNonTaxableTotal={deboursNonTaxableTotal}
-      montantTotal={montantTotal}
-      montantPaye={montantPaye}
-      balanceDue={balanceDue}
-      clientNote={clientNote}
-    />
+    <div className="w-full h-[1100px]">
+      <InvoicePreview invoice={invoice} language="fr" />
+    </div>
   );
 }

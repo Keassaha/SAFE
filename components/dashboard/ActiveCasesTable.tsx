@@ -55,7 +55,7 @@ export function ActiveCasesTable({
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="table">
+          <table className="w-full text-sm [&_th]:px-3 [&_td]:px-3 [&_th:first-child]:pl-0 [&_td:first-child]:pl-0 [&_th:last-child]:pr-0 [&_td:last-child]:pr-0" role="table">
             <thead>
               <tr className="border-b border-[var(--safe-neutral-border)]">
                 <th className="text-left py-2 font-medium safe-text-title">{t("matter")}</th>

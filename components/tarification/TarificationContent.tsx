@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Clock3, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { TARIFICATION, AUTOMATIONS, FAQ_TARIFICATION } from "@/lib/tarification";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -217,14 +217,33 @@ function PourquoiMaintenant() {
 
 function PaliersGrid() {
   const { solo, cabinet } = TARIFICATION.paliers;
+  const valueProofs = [
+    {
+      icon: Clock3,
+      value: "5 h",
+      label: "récupérées par semaine visées en 60 jours",
+    },
+    {
+      icon: ShieldCheck,
+      value: "Canada",
+      label: "hébergement, conformité et données sensibles",
+    },
+    {
+      icon: TrendingUp,
+      value: "6x à 12x",
+      label: "ROI typique quand le Pack est activé",
+    },
+  ];
   const paliers = [
     {
       key: "solo",
       nom: "Solo",
+      label: "Cabinet indépendant",
       prix: `${solo.prix} $`,
       prixSuffix: "/mois",
       annuel: `${solo.prixAnnuel} $/mois en annuel · économie ${solo.eco} $`,
       pourQui: "1 avocat (avec ou sans adjointe), toute discipline.",
+      proof: "Moins qu'une demi-heure facturable.",
       features: [
         "Configuration adaptée à votre pratique",
         "Clients et dossiers illimités",
@@ -241,10 +260,12 @@ function PaliersGrid() {
     {
       key: "cabinet",
       nom: "Cabinet",
+      label: "Équipe en croissance",
       prix: `${cabinet.prix} $`,
       prixSuffix: "/mois",
       annuel: `${cabinet.prixAnnuel} $/mois en annuel`,
       pourQui: "2 à 5 avocats, équipes mixtes, multi-disciplines.",
+      proof: "Le meilleur ratio valeur / contrôle pour une équipe.",
       features: [
         "Tout le palier Solo",
         "Multi-utilisateurs avec rôles",
@@ -261,10 +282,12 @@ function PaliersGrid() {
     {
       key: "cabinet-plus",
       nom: "Cabinet+",
+      label: "Structure avancée",
       prix: "Sur devis",
       prixSuffix: "",
       annuel: "Quand le standard ne suffit plus.",
       pourQui: "6 avocats et plus, multi-bureaux, workflows hors cadre.",
+      proof: "Architecture et accompagnement calibrés au cabinet.",
       features: [
         "Tout le palier Cabinet",
         "Pipeline d'onboarding 3 phases",
@@ -281,97 +304,149 @@ function PaliersGrid() {
   return (
     <section id="paliers" className="relative py-24 px-6 max-w-6xl mx-auto">
       <SectionHeader
-        eyebrow="Les paliers"
+        eyebrow="Prix et valeur"
         title={
           <>
-            Trois paliers, une même{" "}
-            <span className="italic text-emerald-700">configuration sur mesure</span>.
+            Une tarification simple. Une impression de{" "}
+            <span className="italic text-emerald-700">cabinet haut de gamme</span>.
           </>
         }
-        subtitle="Choisissez votre point d'entrée. Tout le reste s'adapte à votre pratique."
+        subtitle="Vous ne payez pas seulement un accès logiciel. Vous obtenez une configuration, une mise en service, et un système qui réduit le travail administratif visible dans votre cabinet."
       />
+
       <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
         variants={stagger}
-        className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch"
+        className="mb-6 grid grid-cols-1 md:grid-cols-3 overflow-hidden rounded-2xl border border-emerald-900/10 bg-white/75 shadow-[0_18px_60px_-42px_rgba(31,58,46,0.55)] backdrop-blur-sm"
+      >
+        {valueProofs.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.value}
+              variants={fadeUp}
+              className={`flex min-h-[112px] items-center gap-4 p-6 ${
+                index > 0 ? "border-t border-emerald-900/10 md:border-l md:border-t-0" : ""
+              }`}
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-900/10 bg-emerald-50 text-emerald-800">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block font-serif text-[28px] leading-none text-zinc-950">
+                  {item.value}
+                </span>
+                <span className="mt-2 block text-[13px] leading-[1.45] text-zinc-600">
+                  {item.label}
+                </span>
+              </span>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch"
       >
         {paliers.map((p) => (
           <motion.div
             key={p.key}
             variants={fadeUp}
-            className={`relative overflow-hidden rounded-2xl p-8 flex flex-col h-full transition-all hover:scale-[1.005] ${
+            className={`relative overflow-hidden rounded-2xl p-7 sm:p-8 flex flex-col h-full transition-all ${
               p.highlight
-                ? "bg-gradient-to-br from-emerald-700 to-emerald-900 text-white shadow-xl shadow-emerald-800/25"
-                : "bg-white/70 backdrop-blur-sm border border-white/80 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)]"
+                ? "border border-emerald-950 bg-[linear-gradient(145deg,#163327_0%,#0f241b_48%,#07130f_100%)] text-white shadow-[0_30px_90px_-52px_rgba(7,19,15,0.85)] md:-translate-y-3"
+                : "border border-emerald-900/10 bg-white/80 shadow-[0_18px_60px_-48px_rgba(31,58,46,0.48)] hover:border-emerald-900/20 hover:bg-white"
             }`}
           >
-            {!p.highlight && <GradientOrb className="-top-16 -right-16 w-40 h-40 opacity-50" />}
-            {p.highlight && (
-              <>
-                <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -left-20 w-56 h-56 rounded-full bg-emerald-300/15 blur-3xl pointer-events-none" />
-              </>
-            )}
+            {p.highlight && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-200 via-white to-emerald-300" />}
             {p.badge && (
-              <span className="relative inline-flex self-start mb-5 items-center text-[10.5px] uppercase tracking-[0.18em] font-semibold px-3 py-1 rounded-full bg-white/15 text-white border border-white/20 backdrop-blur-sm">
+              <span className="relative inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-semibold px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
                 {p.badge}
               </span>
             )}
+            <p
+              className={`relative mb-3 text-[11px] uppercase tracking-[0.14em] font-semibold ${
+                p.highlight ? "text-emerald-100/75" : "text-emerald-800"
+              }`}
+            >
+              {p.label}
+            </p>
             <h3
-              className={`relative font-serif text-[24px] mb-2 ${
+              className={`relative font-serif text-[28px] mb-5 ${
                 p.highlight ? "text-white" : "text-zinc-900"
               }`}
             >
               {p.nom}
             </h3>
-            <div className="relative flex items-baseline gap-1 mb-2">
-              <span
-                className={`font-serif text-[42px] leading-none tracking-[-0.02em] ${
-                  p.highlight ? "text-white" : "text-zinc-900"
+            <div className="relative mb-5 rounded-xl border border-current/10 bg-white/[0.055] p-5">
+              <p
+                className={`mb-2 text-[11px] uppercase tracking-[0.14em] font-semibold ${
+                  p.highlight ? "text-white/55" : "text-zinc-500"
                 }`}
               >
-                {p.prix}
-              </span>
-              {p.prixSuffix && (
+                Investissement
+              </p>
+              <div className="flex items-end gap-2">
                 <span
-                  className={`text-[14px] ${
-                    p.highlight ? "text-white/70" : "text-zinc-500"
+                  className={`font-serif text-[48px] leading-none ${
+                    p.highlight ? "text-white" : "text-zinc-900"
                   }`}
                 >
-                  {p.prixSuffix}
+                  {p.prix}
                 </span>
-              )}
+                {p.prixSuffix && (
+                  <span
+                    className={`pb-1 text-[14px] ${
+                      p.highlight ? "text-white/70" : "text-zinc-500"
+                    }`}
+                  >
+                    {p.prixSuffix}
+                  </span>
+                )}
+              </div>
+              <p
+                className={`relative mt-3 text-[12.5px] ${
+                  p.highlight ? "text-white/62" : "text-zinc-500"
+                }`}
+              >
+                {p.annuel}
+              </p>
             </div>
             <p
-              className={`relative text-[12.5px] mb-5 ${
-                p.highlight ? "text-white/65" : "text-zinc-500"
-              }`}
-            >
-              {p.annuel}
-            </p>
-            <p
-              className={`relative text-[13.5px] font-sans leading-[1.65] mb-6 ${
-                p.highlight ? "text-white/85" : "text-zinc-700"
+              className={`relative mb-5 border-b pb-5 text-[13.5px] leading-[1.6] ${
+                p.highlight ? "border-white/10 text-white/85" : "border-emerald-900/10 text-zinc-700"
               }`}
             >
               {p.pourQui}
+            </p>
+            <p
+              className={`relative mb-6 text-[13px] font-medium leading-[1.5] ${
+                p.highlight ? "text-emerald-100" : "text-emerald-900"
+              }`}
+            >
+              {p.proof}
             </p>
             <ul className="relative space-y-2.5 mb-8 flex-1">
               {p.features.map((f) => (
                 <li
                   key={f}
-                  className={`text-[13px] font-sans leading-[1.55] flex gap-2 ${
+                  className={`text-[13px] font-sans leading-[1.55] flex gap-2.5 ${
                     p.highlight ? "text-white/85" : "text-zinc-700"
                   }`}
                 >
                   <span
-                    className={`shrink-0 mt-[2px] ${
-                      p.highlight ? "text-emerald-300" : "text-emerald-600"
+                    className={`shrink-0 mt-[1px] flex h-4 w-4 items-center justify-center rounded-full ${
+                      p.highlight ? "bg-emerald-200 text-emerald-950" : "bg-emerald-50 text-emerald-800"
                     }`}
                   >
-                    ✓
+                    <Check className="h-3 w-3" aria-hidden="true" />
                   </span>
                   <span>{f}</span>
                 </li>

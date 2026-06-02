@@ -5,6 +5,7 @@
  *   answers brutes
  *     -> AuditSnapshot (profils dérivés)
  *     -> BundleRecommendation
+ *     -> CapabilitySelection[] (blocs métier composables)
  *     -> ConsultationDecision (mock par défaut tant que l'UI n'existe pas)
  *     -> CabinetConfigurationPackage
  *
@@ -51,6 +52,11 @@ export function runConfigurationEngine(
 }
 
 export { BUNDLES, getBundleById } from "./bundles";
+export {
+  CAPABILITY_LIBRARY,
+  getCapabilityById,
+  selectCapabilities,
+} from "./capability-library";
 export { buildAuditSnapshot, deriveAuditProfiles } from "./derive-audit-profiles";
 export { recommendBundle } from "./recommend-bundle";
 export {

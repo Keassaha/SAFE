@@ -30,7 +30,7 @@ import {
   canManageUsers,
   canViewAuditLog,
 } from "@/lib/auth/permissions";
-import { PLANS, type PlanKey } from "@/lib/stripe";
+import { PLANS, canonicalPlanKey } from "@/lib/stripe";
 import { getTranslations, getLocale } from "next-intl/server";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
@@ -46,7 +46,7 @@ function formatDate(value: Date | null | undefined, fallback: string, locale: st
 }
 
 function formatPlanPrice(plan: string, locale: string) {
-  const key = (plan in PLANS ? plan : "essentiel") as PlanKey;
+  const key = canonicalPlanKey(plan);
   const planDef = PLANS[key];
   return new Intl.NumberFormat(toIntlLocale(locale), {
     style: "currency",
@@ -189,6 +189,7 @@ export default async function ParametresPage() {
   );
   const hasLogo = Boolean(cabinet?.logoUrl);
 
+  const planKey = canonicalPlanKey(cabinet?.plan ?? "essentiel");
   const planPrice = formatPlanPrice(cabinet?.plan ?? "essentiel", locale);
   const renewalDate = formatDate(cabinet?.stripeCurrentPeriodEnd ?? null, t("subscriptionNoRenewal"), locale);
   const subscriptionConfigured = cabinet?.stripeSubscriptionStatus === "active" || cabinet?.stripeSubscriptionStatus === "trialing";
@@ -305,7 +306,7 @@ export default async function ParametresPage() {
         >
           <FieldRow
             label={t("subscriptionPlan")}
-            value={(cabinet?.plan ?? "essentiel").charAt(0).toUpperCase() + (cabinet?.plan ?? "essentiel").slice(1)}
+            value={PLANS[planKey].name}
           />
           <FieldRow label={t("subscriptionMonthlyPrice")} value={`${planPrice}/${tc("perMonthShort")}`} mono />
           <FieldRow

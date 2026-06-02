@@ -41,6 +41,13 @@ describe("Sortie de Facturables — invariants de query", () => {
     expect(where.isWrittenOff).toBe(false);
   });
 
+  it("buildBillableTimeEntryWhere — exige une description avant le panier facturable", () => {
+    const where = buildBillableTimeEntryWhere("cab1");
+    const json = JSON.stringify(where);
+    expect(json).toContain('"description":{"not":null}');
+    expect(json).toContain('"description":{"not":""}');
+  });
+
   it("buildUnsentBillableTimeEntryWhere — autorise IN_DRAFT_INVOICE uniquement si invoice est DRAFT/READY_TO_ISSUE", () => {
     const where = buildUnsentBillableTimeEntryWhere("cab1");
     const json = JSON.stringify(where);

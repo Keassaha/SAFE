@@ -215,8 +215,8 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
       name: "SAFE Solo",
       tagline: "Pour l'avocat·e indépendant·e qui veut professionnaliser son cabinet sans embaucher.",
       seats: "1 utilisateur",
-      monthly: 129,
-      annual: 129 * 12,
+      monthly: 99,
+      annual: 99 * 12,
       setupFee: 0,
       included: [
         "Facturation intelligente (horaire, forfait, mixte)",
@@ -233,11 +233,11 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
 
   if (seats === "2") {
     return {
-      name: "SAFE Duo",
+      name: "SAFE Cabinet",
       tagline: "Pour le praticien accompagné d'un(e) adjoint(e) ou d'un(e) parajuriste.",
-      seats: "2 utilisateurs",
-      monthly: 229,
-      annual: 229 * 12,
+      seats: "2 à 5 avocats, équipes mixtes, multi-disciplines",
+      monthly: 149,
+      annual: 149 * 12,
       setupFee: 0,
       included: [
         "Tout ce qui est inclus dans SAFE Solo",
@@ -254,15 +254,15 @@ export function buildSafeOffer(a: AuditAnswers): SafeOffer {
 
   // 3+
   return {
-    name: "SAFE Équipe",
+    name: "SAFE Cabinet",
     tagline: "Pour le cabinet établi avec une équipe et une structure à consolider.",
-    seats: "3 utilisateurs et plus",
-    monthly: 389,
-    annual: 389 * 12,
+    seats: "2 à 5 avocats, équipes mixtes, multi-disciplines",
+    monthly: 149,
+    annual: 149 * 12,
     setupFee: 0,
     included: [
-      "Tout ce qui est inclus dans SAFE Duo",
-      "Utilisateurs supplémentaires à 45 $ / mois / siège",
+      "Tout ce qui est inclus dans SAFE Solo",
+      "Multi-utilisateurs avec rôles",
       "Tableaux de bord par praticien, par domaine, par équipe",
       "Intégration QuickBooks / Sage / Acomba bidirectionnelle",
       "Rapports de performance automatiques pour la direction",

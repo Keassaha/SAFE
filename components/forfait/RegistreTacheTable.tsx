@@ -99,7 +99,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
           <p className="text-sm text-neutral-400 py-8 text-center">{t("noTasks")}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm [&_th]:px-3 [&_td]:px-3 [&_th:first-child]:pl-0 [&_td:first-child]:pl-0 [&_th:last-child]:pr-0 [&_td:last-child]:pr-0">
               <thead>
                 <tr className="border-b text-left">
                   <th className="pb-2 font-medium">{t("columnDate")}</th>

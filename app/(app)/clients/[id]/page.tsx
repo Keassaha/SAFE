@@ -22,7 +22,7 @@ import { ClientQuickActions } from "@/components/clients/registry/ClientQuickAct
 import type { ClientProfileData } from "@/components/clients/registry/ClientProfile";
 import type { ActivityItem } from "@/components/clients/registry/ClientHistoryTab";
 import type { UserRole } from "@prisma/client";
-import { ExternalLink, Pencil } from "lucide-react";
+import { CheckCircle2, ExternalLink, FilePlus2, Pencil, X } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function ClientDetailPage({
@@ -30,10 +30,10 @@ export default async function ClientDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string; edit?: string }>;
+  searchParams: Promise<{ error?: string; edit?: string; created?: string }>;
 }) {
   const { id } = await params;
-  const { error, edit } = await searchParams;
+  const { error, edit, created } = await searchParams;
   const { cabinetId, userId, role } = await requireCabinetAndUser();
   const intlLocale = toIntlLocale(await getLocale());
 
@@ -257,6 +257,7 @@ export default async function ClientDetailPage({
   const showForm = edit === "1";
   const canEditBilling = canEditBillingTrust(role as UserRole);
   const canEditClient = canEditClients(role as UserRole);
+  const showCreateMatterPrompt = created === "1" && dossiers.length === 0 && !showForm;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -315,6 +316,38 @@ export default async function ClientDetailPage({
           </div>
         }
       />
+
+      {showCreateMatterPrompt && (
+        <div className="rounded-safe border border-status-success/40 bg-status-success-bg px-4 py-4 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-status-success" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-neutral-text-primary">
+                  Client créé. Voulez-vous ouvrir un dossier maintenant ?
+                </p>
+                <p className="mt-1 text-sm text-neutral-text-secondary">
+                  Ce client n&apos;a encore aucun dossier. Vous pouvez créer le dossier tout de suite, ou revenir plus tard depuis sa fiche.
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-2 md:justify-end">
+              <Link href={`/dossiers/nouveau?clientId=${id}`}>
+                <Button type="button">
+                  <FilePlus2 className="h-4 w-4" aria-hidden />
+                  Créer un dossier
+                </Button>
+              </Link>
+              <Link href={routes.client(id)}>
+                <Button type="button" variant="secondary">
+                  <X className="h-4 w-4" aria-hidden />
+                  Attendre
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm ? (
         <Card>

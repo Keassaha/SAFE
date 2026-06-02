@@ -13,6 +13,7 @@
  */
 
 import { BUNDLES } from "./bundles";
+import { selectCapabilities } from "./capability-library";
 import type {
   BundleConfidence,
   BundleDefinition,
@@ -280,6 +281,7 @@ export function recommendBundle(
     confidence,
     why: best.matched,
     alternativeBundleIds: alternatives,
+    selectedCapabilities: selectCapabilities(snapshot),
     recommendedOverrides,
     customTriggers,
     consultationTopics: consultationTopicsFor(best.bundle, snapshot),

@@ -9,6 +9,7 @@ import { SessionProvider } from "@/components/providers/SessionProvider";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 
 import { authOptions } from "@/lib/auth";
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -35,16 +36,31 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
 
+  // metadataBase rend tous les liens (canonical, Open Graph) absolus.
+  // Open Graph par défaut hérité par toutes les pages qui ne le redéfinissent pas.
+  const base: Metadata = {
+    metadataBase: new URL(SITE_URL),
+    openGraph: {
+      siteName: SITE_NAME,
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
+    },
+    twitter: { card: "summary_large_image" },
+  };
+
   if (locale === "en") {
     return {
+      ...base,
       title: "SAFE — Automated Billing and Operations System",
       description: "Matter and time management for law firms",
+      openGraph: { ...base.openGraph, locale: "en_CA" },
     };
   }
 
   return {
+    ...base,
     title: "SAFE — Système Automatisé de Facturation et d'Exploitation",
     description: "Gestion des dossiers et des heures pour cabinets d'avocats",
+    openGraph: { ...base.openGraph, locale: "fr_CA" },
   };
 }
 

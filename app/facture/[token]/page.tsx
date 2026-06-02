@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { presentInvoice } from "@/lib/services/billing/invoice-presenter";
-import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { FactureClientView } from "./FactureClientView";
 
 type Props = { params: Promise<{ token: string }> };
@@ -53,47 +51,14 @@ export default async function FactureClientPage({ params }: Props) {
     notFound();
   }
 
-  // Pipeline canonique : presenter → vue → template. Les rabais (legacy ou
-  // nouveaux) sont systématiquement convertis en lignes négatives visibles.
-  const taxConfig = await getCabinetTaxConfigById(
-    invoice.cabinetId,
-    prisma,
-    invoice.client?.billingProvince ?? null,
-  );
-  const presented = presentInvoice(invoice, taxConfig);
-  const itemsForView = presented.lines.map((l) => ({
-    id: l.id,
-    type: l.type,
-    description: l.description,
-    date: l.date instanceof Date ? l.date.toISOString().slice(0, 10) : String(l.date),
-    hours: l.hours,
-    rate: l.rate,
-    amount: l.amount,
-    userNom: l.userNom,
-  }));
+  // Pipeline canonique : presenter → aperçu unique (InvoicePreview → InvoiceDocument).
+  // Strictement le même rendu que le PDF généré pour téléchargement / email.
+  const presented = presentInvoice(invoice);
 
   return (
     <div className="min-h-screen bg-neutral-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <FactureClientView
-          numero={presented.numero}
-          dateEmission={presented.dateEmission.toISOString()}
-          dateEcheance={presented.dateEcheance.toISOString()}
-          statut={deriveLegacyStatut(invoice)}
-          cabinet={presented.cabinet}
-          client={presented.client}
-          dossier={presented.dossier}
-          items={itemsForView}
-          subtotalTaxable={presented.totals.subtotalTaxable}
-          tps={presented.totals.tps}
-          tvq={presented.totals.tvq}
-          hst={presented.totals.hst}
-          deboursNonTaxableTotal={presented.totals.deboursNonTaxableTotal}
-          montantTotal={presented.totals.montantTotal}
-          montantPaye={presented.totals.montantPaye}
-          balanceDue={presented.totals.balanceDue}
-          clientNote={presented.clientNote}
-        />
+        <FactureClientView invoice={presented} />
       </div>
     </div>
   );

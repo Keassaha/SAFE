@@ -1272,14 +1272,14 @@
   gap: 8px;
   min-height: 44px;
   border-radius: 10px;
-  background: var(--safe-green-800);
+  background: #3A8158; /* CTA public — vert plus clair, contraste texte conserve */
   color: var(--safe-text-inverse);
-  border: 1px solid var(--safe-green-800);
+  border: 1px solid #3A8158;
   padding: 12px 22px;
   font-size: 14px;
   font-weight: 600;
   line-height: 1;
-  box-shadow: 0 10px 24px -16px rgba(31, 58, 46, 0.65);
+  box-shadow: 0 10px 24px -16px rgba(58, 129, 88, 0.55);
   transition:
     background-color 0.18s ease,
     border-color 0.18s ease,
@@ -1288,9 +1288,9 @@
 }
 
 .safe-site-cta-primary:hover {
-  background: var(--safe-green-900);
-  border-color: var(--safe-green-900);
-  box-shadow: 0 14px 30px -16px rgba(14, 36, 25, 0.75);
+  background: #2F704C;
+  border-color: #2F704C;
+  box-shadow: 0 14px 30px -16px rgba(47, 112, 76, 0.7);
   transform: translateY(-1px);
 }
 

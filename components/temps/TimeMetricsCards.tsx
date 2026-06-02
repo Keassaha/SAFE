@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Calendar, DollarSign, Percent } from "lucide-react";
+import { AlertTriangle, Clock, Calendar, DollarSign } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 
@@ -8,7 +8,8 @@ interface TimeMetricsCardsProps {
   semaineHeures: number;
   moisHeures: number;
   nonFactureMontant: number;
-  tauxFacturablePercent: number;
+  incompleteBillableCount: number;
+  incompleteBillableAmount: number;
   loading?: boolean;
 }
 
@@ -16,7 +17,8 @@ export function TimeMetricsCards({
   semaineHeures,
   moisHeures,
   nonFactureMontant,
-  tauxFacturablePercent,
+  incompleteBillableCount,
+  incompleteBillableAmount,
   loading,
 }: TimeMetricsCardsProps) {
   const cards = [
@@ -33,16 +35,18 @@ export function TimeMetricsCards({
       icon: Calendar,
     },
     {
-      title: "Non facturé",
+      title: "Prêt à facturer",
       value: formatCurrency(nonFactureMontant),
-      sub: "Montant à facturer",
+      sub: "Description complète",
       icon: DollarSign,
     },
     {
-      title: "Taux facturable",
-      value: `${tauxFacturablePercent} %`,
-      sub: "Entrées facturables",
-      icon: Percent,
+      title: "À compléter",
+      value: `${incompleteBillableCount}`,
+      sub: incompleteBillableCount > 0
+        ? `${formatCurrency(incompleteBillableAmount)} bloqué(s)`
+        : "Aucune entrée bloquée",
+      icon: AlertTriangle,
     },
   ];
 

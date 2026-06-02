@@ -9,15 +9,18 @@
  */
 
 /**
- * Palette SAFE — facture.
+ * Palette facture SAFE — règle dure : maximum DEUX couleurs.
  *
- * RÈGLE DURE CEO (2026-05-12) : maximum 2 couleurs sur une facture.
- * On compte ici UNE seule couleur d'accent (le vert de marque + sa teinte
- * douce, même famille chromatique) ; tout le reste est neutre (noir / gris /
- * blanc, qui ne comptent pas comme « couleurs »). Les anciens accents
- * distincts (vert rabais, ambre frais) sont volontairement repliés sur la
- * marque ou le gris pour ne pas introduire de 2e/3e couleur. La distinction
- * rabais/frais reste lisible via les badges texte (« Rabais » / « Frais »).
+ *   1. brand   — couleur principale du cabinet (forest green)
+ *   2. accent  — couleur secondaire (champagne / or sourd)
+ *
+ * Tout le reste est neutre (noir, gris, blanc) — ne compte pas comme une
+ * "couleur" au sens du brief. Les variantes `brandSoft` / `accentSoft` sont
+ * des tintes claires de la même teinte, pas une 3ᵉ couleur.
+ *
+ * Les anciens jetons `discount` (vert différent) et `fees` (ambre) ont été
+ * retirés ; les lignes de rabais et frais sont désormais différenciées par
+ * la graisse de police et le signe, pas par la teinte.
  */
 export const colors = {
   /** Texte principal (presque noir, lisible papier). */
@@ -26,25 +29,22 @@ export const colors = {
   textMuted: "#525252",
   /** Texte très discret (mentions légales, footer). */
   textFaint: "#737373",
-  /** Vert SAFE primaire — UNIQUE couleur d'accent autorisée sur la facture. */
+
+  /** Couleur 1 — forest brand (titres, totaux hero, accents forts). */
   brand: "#0F2A22",
-  /** Vert SAFE sombre — repli sur la marque (pas une couleur distincte). */
-  brandDark: "#0F2A22",
-  /** Teinte douce de la marque (en-tête table, blocs, fonds accentués). */
+  /** Tint clair de brand (fonds de bloc, bandeau dossier). */
   brandSoft: "#E6F2EA",
-  /** Rabais — replié sur la marque (le badge « Rabais » assure la distinction). */
-  discount: "#0F2A22",
-  /** Fond ligne de rabais — neutre (teinte douce de marque). */
-  discountSoft: "#E6F2EA",
-  /** Frais — replié sur le gris neutre (le badge « Frais » assure la distinction). */
-  fees: "#525252",
-  /** Fond ligne de frais — neutre. */
-  feesSoft: "#F9FAFB",
+
+  /** Couleur 2 — accent champagne (séparateurs élégants, mention premium). */
+  accent: "#C9A961",
+  /** Tint clair de l'accent (rangée alternée premium, surlignages discrets). */
+  accentSoft: "#F8F1DE",
+
   /** Bordures et séparateurs neutres. */
   border: "#E5E7EB",
   /** Bordure forte (séparation totaux, footer). */
   borderStrong: "#D1D5DB",
-  /** Fond rangées paires de la table (zébrage). */
+  /** Fond rangées paires de la table (zébrage neutre). */
   rowAlt: "#F9FAFB",
   /** Blanc pur. */
   white: "#FFFFFF",

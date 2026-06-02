@@ -66,7 +66,12 @@ export function buildBillableTimeEntryWhere(
     invoiceId: null,
     invoiceLineId: null,
     isWrittenOff: false,
-    AND: [billableTimeEntryStatusWhere(), ...extraAnd],
+    AND: [
+      { description: { not: null } },
+      { description: { not: "" } },
+      billableTimeEntryStatusWhere(),
+      ...extraAnd,
+    ],
   };
 }
 

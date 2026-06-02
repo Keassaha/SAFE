@@ -88,11 +88,15 @@ export function TempsPageClient({
     const d = e.date.slice(0, 10);
     return d >= startOfMonth.toISOString().slice(0, 10) && d <= endOfMonth.toISOString().slice(0, 10);
   });
-  // Non facturé = facturable et pas encore sur une facture émise (billingStatus !== "BILLED")
-  const nonFactureEntries = entriesWithDate.filter((e) => e.facturable && e.billingStatus !== "BILLED");
+  const isReadyForBilling = (entry: (typeof entriesWithDate)[number]) =>
+    entry.facturable && entry.billingStatus !== "BILLED" && !!entry.description?.trim();
+  const isIncompleteBillable = (entry: (typeof entriesWithDate)[number]) =>
+    entry.facturable && entry.billingStatus !== "BILLED" && !entry.description?.trim();
+  // Prêt à facturer = temps facturable, non facturé, avec description complète.
+  const nonFactureEntries = entriesWithDate.filter(isReadyForBilling);
   const nonFactureMontant = nonFactureEntries.reduce((s, e) => s + e.montant, 0);
-  const facturableCount = entriesWithDate.filter((e) => e.facturable).length;
-  const tauxFacturablePercent = entries.length > 0 ? Math.round((facturableCount / entries.length) * 100) : 0;
+  const incompleteBillableEntries = entriesWithDate.filter(isIncompleteBillable);
+  const incompleteBillableAmount = incompleteBillableEntries.reduce((s, e) => s + e.montant, 0);
 
   const semaineHeures = semaineEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
   const moisHeures = moisEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
@@ -139,7 +143,8 @@ export function TempsPageClient({
         semaineHeures={semaineHeures}
         moisHeures={moisHeures}
         nonFactureMontant={nonFactureMontant}
-        tauxFacturablePercent={tauxFacturablePercent}
+        incompleteBillableCount={incompleteBillableEntries.length}
+        incompleteBillableAmount={incompleteBillableAmount}
         loading={isLoading}
       />
 

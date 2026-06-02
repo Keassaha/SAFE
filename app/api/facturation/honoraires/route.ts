@@ -4,13 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { facturationHonorairesQuerySchema } from "@/lib/validations/facturation";
-import { applyTaxes } from "@/lib/billing/taxes";
-import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
+import { TPS_RATE, TVQ_RATE } from "@/lib/invoice-calculations";
 import {
   buildUnsentBillableTimeEntryWhere,
   buildHonorairesRegistreTacheWhere,
 } from "@/lib/billing/queries";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { displayClientName } from "@/lib/clients/display-name";
 import type { UserRole } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 
@@ -187,26 +186,15 @@ export async function GET(request: Request) {
 
   // Détail par client : entrées + débours
   if (filters.clientId) {
-    // Personnes physiques : `raisonSociale` est null → on retombe sur prénom+nom
-    // via `clientDisplayName`, sinon le détail s'afficherait sans nom de client.
-    const clientSource =
-      entries[0]?.client ??
-      entries[0]?.dossier?.client ??
-      expenses[0]?.client ??
-      registreTaches[0]?.dossier?.client ??
+    const clientName =
+      displayClientName(entries[0]?.client) ??
+      displayClientName(entries[0]?.dossier?.client) ??
+      displayClientName(expenses[0]?.client) ??
+      displayClientName(registreTaches[0]?.dossier?.client) ??
       null;
-    const clientName = clientSource ? clientDisplayName(clientSource) : null;
-    // Régime de taxes du cabinet (Derisier ON -> TVH, cabinets QC -> TPS/TVQ),
-    // transmis au client pour calculer l'estimation côté UI sans taux codé en dur.
-    const detailTaxConfig = await getCabinetTaxConfigById(cabinetId);
     return NextResponse.json({
       clientId: filters.clientId,
       clientName,
-      taxConfig: {
-        province: detailTaxConfig.province,
-        mode: detailTaxConfig.mode,
-        rates: detailTaxConfig.rates,
-      },
       entries: entries.map((e) => ({
         id: e.id,
         kind: "time" as const,
@@ -282,12 +270,9 @@ export async function GET(request: Request) {
   for (const e of entries) {
     // Client dérivé de la fiche ou du dossier pour que toutes les heures soient dans "honoraires à facturer"
     const effectiveClientId = e.clientId ?? e.dossier?.clientId ?? undefined;
-    // Personnes physiques : `raisonSociale` est null. On compose le libellé via
-    // `clientDisplayName` (prénom+nom en repli) — sans quoi l'entrée serait sautée
-    // et n'apparaîtrait jamais dans "Honoraires à facturer".
-    const clientSource = e.client ?? e.dossier?.client ?? null;
-    const effectiveClientName = clientSource ? clientDisplayName(clientSource) : undefined;
-    if (!effectiveClientId || !effectiveClientName) continue;
+    const effectiveClientName =
+      displayClientName(e.client) ?? displayClientName(e.dossier?.client) ?? "Client sans nom";
+    if (!effectiveClientId) continue;
     const existing = byClient.get(effectiveClientId);
     const totalHeures = e.dureeMinutes / 60;
     const totalHonoraires = e.feeAmount ?? e.montant;
@@ -321,10 +306,11 @@ export async function GET(request: Request) {
 
   for (const exp of expenses) {
     const existing = byClient.get(exp.clientId);
+    const clientName = displayClientName(exp.client) ?? "Client sans nom";
     if (!existing) {
       byClient.set(exp.clientId, {
         clientId: exp.clientId,
-        clientName: clientDisplayName(exp.client),
+        clientName,
         count: 1,
         totalHeures: 0,
         totalHonoraires: 0,
@@ -349,10 +335,8 @@ export async function GET(request: Request) {
 
   for (const tache of registreTaches) {
     const effectiveClientId = tache.clientId ?? tache.dossier.client?.id ?? undefined;
-    const effectiveClientName = tache.dossier.client
-      ? clientDisplayName(tache.dossier.client)
-      : undefined;
-    if (!effectiveClientId || !effectiveClientName) continue;
+    const effectiveClientName = displayClientName(tache.dossier.client) ?? "Client sans nom";
+    if (!effectiveClientId) continue;
     const existing = byClient.get(effectiveClientId);
     if (!existing) {
       byClient.set(effectiveClientId, {
@@ -380,12 +364,11 @@ export async function GET(request: Request) {
     }
   }
 
-  // Taxes estimées province-aware : régime du cabinet (Derisier ON -> TVH 13 %,
-  // cabinets QC -> TPS + TVQ). Source de vérité = config du cabinet (modules).
-  const taxConfig = await getCabinetTaxConfigById(cabinetId);
   const rows = Array.from(byClient.values()).map((row) => {
     const subtotal = row.totalHonoraires + row.totalDebours + row.totalForfaits;
-    const taxesEstimees = applyTaxes(row.totalTaxable, true, taxConfig).taxesTotal;
+    const tps = Math.round(row.totalTaxable * TPS_RATE * 100) / 100;
+    const tvq = Math.round(row.totalTaxable * TVQ_RATE * 100) / 100;
+    const taxesEstimees = tps + tvq;
     const totalAFacturer = subtotal + taxesEstimees;
     return {
       ...row,
