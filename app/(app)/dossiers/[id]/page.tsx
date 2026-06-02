@@ -4,7 +4,7 @@ import { getLocale } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
-import { toIntlLocale } from "@/lib/i18n/locale";
+import { toIntlLocale, normalizeAppLocale } from "@/lib/i18n/locale";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
@@ -14,6 +14,8 @@ import { getDossierSections, generateCartable } from "@/lib/dossiers/cartable-se
 import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
 import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { DossierPreparationCard } from "@/components/dossiers/DossierPreparationCard";
+import { getDossierResume } from "@/lib/dossiers/dossier-resume";
+import { DossierResumeCard } from "@/components/dossiers/DossierResumeCard";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
@@ -40,7 +42,10 @@ export default async function DossierDetailPage({
   const { id } = await params;
   const { error, edit } = await searchParams;
   const { cabinetId, userId, role } = await requireCabinetAndUser();
-  const intlLocale = toIntlLocale(await getLocale());
+  const rawLocale = await getLocale();
+  const intlLocale = toIntlLocale(rawLocale);
+  // Locale du bloc de reprise = locale de l'app (FR si app FR, EN si app EN).
+  const resumeLocale = normalizeAppLocale(rawLocale);
 
   const dossier = await prisma.dossier.findFirst({
     where: { id, cabinetId },
@@ -177,6 +182,9 @@ export default async function DossierDetailPage({
     ? getDossierPreparationStatus(preparationSnapshot)
     : null;
 
+  // T1 — Bloc « Où j'en étais ? » (context-resume, dérivé, zéro migration).
+  const resume = await getDossierResume(cabinetId, id, resumeLocale);
+
   return (
     <div className="space-y-0">
       {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
@@ -235,9 +243,20 @@ export default async function DossierDetailPage({
         </div>
       </header>
 
+      {/* T1 — Bloc « Où j'en étais ? » (context-resume, différenciateur + TDAH). */}
+      {resume && (
+        <section className="px-6 pt-5 bg-white">
+          <DossierResumeCard
+            resume={resume}
+            locale={resumeLocale}
+            nextActionHref={resume.nextAction ? "#preparation" : undefined}
+          />
+        </section>
+      )}
+
       {/* Carte État de préparation — V2 couche assistante active (deep links + bouton). */}
       {preparationStatus && (
-        <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+        <section id="preparation" className="px-6 py-5 border-b border-slate-200/70 bg-white scroll-mt-24">
           <DossierPreparationCard
             status={preparationStatus}
             dossierId={dossier.id}
@@ -253,7 +272,7 @@ export default async function DossierDetailPage({
           <div>
             <h2 className="text-sm font-semibold text-slate-900">Documents rédigés</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Documents créés depuis l'éditeur · liés à ce dossier
+              Documents créés depuis l&apos;éditeur · liés à ce dossier
             </p>
           </div>
           <Link
