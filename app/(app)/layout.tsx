@@ -46,7 +46,8 @@ export default async function AppLayout({
   const trustStatus = cabinetId ? await getTrustReconciliationStatus(cabinetId) : null;
 
   // Sidebar live counts (clients actifs, dossiers ouverts, factures à traiter)
-  const sidebarCounts = cabinetId ? await getSidebarCounts(cabinetId) : null;
+  const userId = (session.user as { id?: string }).id ?? undefined;
+  const sidebarCounts = cabinetId ? await getSidebarCounts(cabinetId, userId) : null;
 
   return (
     <QueryProvider>

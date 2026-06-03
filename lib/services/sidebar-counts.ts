@@ -21,11 +21,13 @@ export interface SidebarCounts {
   clients: number;
   dossiers: number;
   facturation: number;
+  /** Messages de Navette qui attendent l'utilisateur courant (non résolus). */
+  navetteNeedsMe: number;
 }
 
 export const getSidebarCounts = cache(
-  async (cabinetId: string): Promise<SidebarCounts> => {
-    const [clients, dossiers, facturation] = await Promise.all([
+  async (cabinetId: string, userId?: string): Promise<SidebarCounts> => {
+    const [clients, dossiers, facturation, navetteNeedsMe] = await Promise.all([
       prisma.client.count({
         where: {
           cabinetId,
@@ -46,8 +48,13 @@ export const getSidebarCounts = cache(
           },
         },
       }),
+      userId
+        ? prisma.dossierNavetteMessage.count({
+            where: { cabinetId, recipientId: userId, resolvedAt: null },
+          })
+        : Promise.resolve(0),
     ]);
 
-    return { clients, dossiers, facturation };
+    return { clients, dossiers, facturation, navetteNeedsMe };
   }
 );

@@ -357,6 +357,10 @@ function countFor(id: string, counts?: SidebarCounts | null): number | undefined
       return counts.dossiers;
     case "facturation":
       return counts.facturation;
+    // Badge « Navette · vous attend » — sur Today (assistante) et le tableau de bord (avocate).
+    case "aujourdhui":
+    case "dashboard":
+      return counts.navetteNeedsMe || undefined;
     default:
       return undefined;
   }
