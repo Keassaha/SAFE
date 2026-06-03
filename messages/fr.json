@@ -3169,6 +3169,17 @@
     "mattersReady": "dossiers prêts",
     "omissionsLabel": "oublis",
     "inDays": "dans {n}j",
-    "today": "aujourd’hui"
+    "today": "aujourd’hui",
+    "focusMode": "Mode focus",
+    "exitFocus": "Quitter le focus"
+  },
+  "captureUi": {
+    "title": "Capture rapide",
+    "searchMatter": "Rechercher un dossier…",
+    "noMatters": "Aucun dossier actif.",
+    "taskPlaceholder": "Qu’y a-t-il à faire ?",
+    "addTask": "Ajouter la tâche",
+    "change": "Changer",
+    "added": "Ajouté"
   }
 }

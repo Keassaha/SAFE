@@ -3169,6 +3169,17 @@
     "mattersReady": "matters ready",
     "omissionsLabel": "omissions",
     "inDays": "in {n}d",
-    "today": "today"
+    "today": "today",
+    "focusMode": "Focus mode",
+    "exitFocus": "Exit focus"
+  },
+  "captureUi": {
+    "title": "Quick capture",
+    "searchMatter": "Search a matter…",
+    "noMatters": "No active matters.",
+    "taskPlaceholder": "What needs doing?",
+    "addTask": "Add task",
+    "change": "Change",
+    "added": "Added"
   }
 }

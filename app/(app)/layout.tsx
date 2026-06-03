@@ -8,6 +8,7 @@ import { TimerProvider } from "@/lib/contexts/TimerContext";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
+import { QuickCapture } from "@/components/capture/QuickCapture";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import {
   isSubscriptionExemptPath,
@@ -64,6 +65,7 @@ export default async function AppLayout({
         >
           {children}
         </AppChrome>
+        <QuickCapture />
       </TimerProvider>
     </QueryProvider>
   );

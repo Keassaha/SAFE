@@ -10,6 +10,7 @@ import {
   type AaliyahTodayData,
   type TodayFocusRow,
 } from "@/components/today/AaliyahTodayView";
+import { FocusShell } from "@/components/today/FocusShell";
 
 /**
  * Dashboard « Today » de l'assistante (Aaliyah). Compose la file existante
@@ -128,5 +129,9 @@ export default async function AujourdhuiPage() {
     weekReady: queue.readyForReview.length,
   };
 
-  return <AaliyahTodayView data={data} />;
+  return (
+    <FocusShell>
+      <AaliyahTodayView data={data} />
+    </FocusShell>
+  );
 }

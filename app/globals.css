@@ -1822,3 +1822,6 @@
   .audit-v2-mark-shell,
   .audit-v2-progress-shine::after { animation: none; }
 }
+
+/* Dashboard Today — mode focus : masque les sections secondaires (.today-dimmable). */
+[data-today-focus="on"] .today-dimmable { display: none; }

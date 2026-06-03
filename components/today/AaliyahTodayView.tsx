@@ -153,7 +153,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
           )}
 
           {/* Navette — needs you */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="today-dimmable rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center gap-2">
               <h2 className="text-[15px] font-semibold text-neutral-900">{t("navetteTitle")}</h2>
               <span className="text-xs text-neutral-500">· {t("needsYou")}</span>
@@ -185,7 +185,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
           </div>
 
           {/* Today's focus */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="today-dimmable rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center justify-between">
               <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{t("todaysFocus")}</div>
               <Link href="/dossiers" className="text-[13px] font-semibold" style={{ color: ACCENT }}>{t("openMyMatters")}</Link>
@@ -213,7 +213,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
         </div>
 
         {/* RAIL */}
-        <div className="space-y-5">
+        <div className="today-dimmable space-y-5">
           {/* Deadlines */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <h3 className="mb-3 flex items-center gap-2 text-[13px] font-bold text-neutral-900"><Clock className="h-4 w-4 text-neutral-500" aria-hidden /> {t("deadlines")}</h3>
