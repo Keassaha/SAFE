@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aaliyah — Today · SAFE</title>
+<style>
+  :root{
+    --bg:#F6F7F5; --card:#FFFFFF; --ink:#161A17; --muted:#5C6660; --faint:#9AA39C;
+    --hair:#E8EAE6; --hairS:#DCDFD9; --green:#0F2A22; --greenSoft:#E7F0EA; --greenLine:#CFE0D5;
+    --amber:#B45309; --amberSoft:#FBF1E2; --red:#9B2C2C; --redSoft:#FBECEC; --blue:#1E3A5F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;line-height:1.5}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px 28px;background:#fff;border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;color:var(--green)}
+  .brand .logo{width:26px;height:26px;border-radius:7px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .capture{flex:1;max-width:520px;margin:0 18px;display:flex;align-items:center;gap:10px;background:var(--bg);
+    border:1px solid var(--hairS);border-radius:12px;padding:9px 14px;color:var(--faint);font-size:14px;cursor:text}
+  .kbd{margin-left:auto;font-size:11px;color:var(--muted);border:1px solid var(--hairS);border-radius:5px;padding:1px 6px;background:#fff}
+  .lang{font-size:12px;color:var(--muted);border:1px solid var(--hairS);border-radius:8px;padding:5px 9px}
+  .ava{width:30px;height:30px;border-radius:50%;background:var(--greenSoft);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 28px 60px}
+  .hello{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:4px}
+  .hello h1{font-size:24px;margin:0;font-weight:800;letter-spacing:-.3px}
+  .hello .date{color:var(--muted);font-size:13.5px}
+  .calm{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:var(--greenSoft);color:var(--green);
+    border:1px solid var(--greenLine);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(15,42,34,.12)}
+
+  .grid{display:grid;grid-template-columns:1.55fr .9fr;gap:18px;margin-top:20px;align-items:start}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--hair);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .pad{padding:18px 20px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+  /* sent back banner */
+  .sentback{display:flex;align-items:center;gap:14px;border:1px solid #E6C9C9;background:var(--redSoft);
+    border-radius:14px;padding:14px 16px;margin-bottom:16px}
+  .sentback .ic{width:34px;height:34px;border-radius:9px;background:#fff;border:1px solid #EAD3D3;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .sentback .t{font-weight:700;color:var(--red);font-size:14px}
+  .sentback .s{font-size:13px;color:#7a4b4b}
+  .sentback .btn{margin-left:auto;background:var(--red);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+
+  /* the one next action */
+  .next{border:1px solid var(--greenLine);background:linear-gradient(180deg,#FCFEFD,#F3F9F5);border-radius:16px;padding:20px;margin-bottom:18px}
+  .next .lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+  .next h2{margin:6px 0 4px;font-size:20px;font-weight:800;letter-spacing:-.2px}
+  .next .why{color:var(--muted);font-size:14px}
+  .next .row{display:flex;align-items:center;gap:10px;margin-top:16px}
+  .btn-primary{background:var(--green);color:#fff;border:none;border-radius:11px;padding:12px 20px;font-weight:800;font-size:15px;cursor:pointer}
+  .btn-ghost{background:#fff;border:1px solid var(--hairS);border-radius:11px;padding:12px 16px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;border-radius:9px;padding:5px 10px}
+  .chip.red{background:var(--redSoft);color:var(--red)} .chip.amber{background:var(--amberSoft);color:var(--amber)}
+
+  /* focus list */
+  .sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--hair)}
+  .item:last-child{border-bottom:none}
+  .check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--hairS);flex:0 0 20px}
+  .item .body{flex:1;min-width:0}
+  .item .ttl{font-size:14.5px;font-weight:600}
+  .item .meta{font-size:12.5px;color:var(--faint)}
+  .item .cd{font-size:12px;font-weight:700;border-radius:8px;padding:4px 9px;white-space:nowrap}
+  .cd.red{background:var(--redSoft);color:var(--red)} .cd.amber{background:var(--amberSoft);color:var(--amber)} .cd.grey{background:#EEF1EE;color:var(--muted)}
+  .more{margin-top:8px;font-size:13px;color:var(--green);font-weight:600;cursor:pointer}
+
+  /* rail */
+  .rail .card{margin-bottom:16px}
+  .rail h3{margin:0 0 12px;font-size:13px;font-weight:800;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+  .dl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
+  .dl:last-child{border-bottom:none}
+  .dl .ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--bg)}
+  .dl .body{flex:1;min-width:0}
+  .dl .ttl{font-size:13.5px;font-weight:600}
+  .dl .sub{font-size:12px;color:var(--faint)}
+  .dl .cd{font-size:11.5px;font-weight:800;white-space:nowrap}
+  .cdr{color:var(--red)} .cda{color:var(--amber)} .cdg{color:var(--muted)}
+  .mini{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hair);font-size:13.5px}
+  .mini:last-child{border-bottom:none}
+  .mini .s{font-size:12px;color:var(--faint)}
+  .lnk{font-size:12.5px;font-weight:600;color:var(--green);cursor:pointer}
+  .review{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--hair);font-size:13.5px}
+  .review:last-child{border-bottom:none}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;margin-left:auto}
+  .pill.wait{background:#EEF1F4;color:var(--muted)} .pill.ok{background:var(--greenSoft);color:var(--green)}
+  .recog{background:linear-gradient(180deg,#F4FAF6,#FFFFFF)}
+  .recog .big{font-size:30px;font-weight:800;color:var(--green);letter-spacing:-1px}
+  .recog .stats{display:flex;gap:18px;margin-top:6px}
+  .recog .stats div{font-size:12.5px;color:var(--muted)}
+  .recog .stats b{display:block;font-size:18px;color:var(--ink)}
+</style>
+</head>
+<body>
+  <!-- Top bar -->
+  <div class="top">
+    <div class="brand"><span class="logo">S</span> SAFE</div>
+    <div class="capture">＋ Capture a task or note… <span class="kbd">⌘K</span></div>
+    <span class="lang">EN ⌄</span>
+    <div class="ava" title="Aaliyah">AA</div>
+  </div>
+
+  <div class="wrap">
+    <!-- Greeting + calm state -->
+    <div class="hello">
+      <div>
+        <h1>Good morning, Aaliyah</h1>
+        <div class="calm"><span class="dot"></span> Nothing slips · 0 omissions today</div>
+      </div>
+      <div class="date">Tuesday, June 2 · 9 active matters</div>
+    </div>
+
+    <div class="grid">
+      <!-- MAIN focus column -->
+      <div>
+        <!-- Lawyer sent something back (navette retour) -->
+        <div class="sentback">
+          <div class="ic">↩</div>
+          <div>
+            <div class="t">Me Derisier sent 1 matter back for revision</div>
+            <div class="s">Singh — Spousal sponsorship · “Need updated proof of funds before I review.”</div>
+          </div>
+          <button class="btn">Open</button>
+        </div>
+
+        <!-- THE one next action -->
+        <div class="next">
+          <div class="lbl">Your next action</div>
+          <h2>Follow up with Mr. Tremblay for his medical report</h2>
+          <div class="why">Tremblay — Permanent Residence (Express Entry) · the IRCC portal closes soon, and the medical is the only thing missing.</div>
+          <div class="row">
+            <span class="chip red">⏰ IRCC portal · 3 days left</span>
+          </div>
+          <div class="row">
+            <button class="btn-primary">Do it now</button>
+            <button class="btn-ghost">Skip for now</button>
+            <span style="font-size:12.5px;color:var(--faint);margin-left:6px">If the portal expires from a client delay, a $375 reset fee applies.</span>
+          </div>
+        </div>
+
+        <!-- Today's focus -->
+        <div class="card pad">
+          <div class="sec-h">
+            <div class="eyebrow">Today’s focus</div>
+            <div class="eyebrow" style="color:var(--green)">3 of 12 done</div>
+          </div>
+
+          <div class="item">
+            <div class="check"></div>
+            <div class="body">
+              <div class="ttl">Verify Nguyen’s biometrics appointment letter</div>
+              <div class="meta">Nguyen — Work Permit · IRCC</div>
+            </div>
+            <span class="cd amber">in 6 days</span>
+          </div>
+
+          <div class="item">
+            <div class="check"></div>
+            <div class="body">
+              <div class="ttl">Prepare Statement of Adjustments</div>
+              <div class="meta">45 Maple St — Real estate closing</div>
+            </div>
+            <span class="cd amber">closing in 9 days</span>
+          </div>
+
+          <div class="item">
+            <div class="check"></div>
+            <div class="body">
+              <div class="ttl">Send draft invoice for review</div>
+              <div class="meta">Okonkwo — Study Permit · ready to bill</div>
+            </div>
+            <span class="cd grey">no deadline</span>
+          </div>
+
+          <div class="more">Show full queue (12) ⌄</div>
+        </div>
+      </div>
+
+      <!-- RIGHT rail -->
+      <div class="rail">
+        <!-- Deadlines / time visible -->
+        <div class="card pad">
+          <h3>⏳ Deadlines</h3>
+          <div class="dl">
+            <div class="ic">🛂</div>
+            <div class="body"><div class="ttl">IRCC portal — Tremblay</div><div class="sub">Permanent Residence</div></div>
+            <div class="cd cdr">3 days</div>
+          </div>
+          <div class="dl">
+            <div class="ic">🧬</div>
+            <div class="body"><div class="ttl">Biometrics — Nguyen</div><div class="sub">Work Permit</div></div>
+            <div class="cd cda">6 days</div>
+          </div>
+          <div class="dl">
+            <div class="ic">🏠</div>
+            <div class="body"><div class="ttl">Closing — 45 Maple St</div><div class="sub">Real estate</div></div>
+            <div class="cd cda">9 days</div>
+          </div>
+          <div class="dl">
+            <div class="ic">📅</div>
+            <div class="body"><div class="ttl">Month-end trust reconciliation</div><div class="sub">Prepared ahead — ready the 27th</div></div>
+            <div class="cd cdg">25 days</div>
+          </div>
+        </div>
+
+        <!-- Awaiting client -->
+        <div class="card pad">
+          <h3>⌛ Awaiting client</h3>
+          <div class="mini"><div>Tremblay — medical report<div class="s">no reply · 4 days</div></div><span class="lnk">Remind</span></div>
+          <div class="mini"><div>Okonkwo — signed retainer<div class="s">no reply · 2 days</div></div><span class="lnk">Remind</span></div>
+        </div>
+
+        <!-- Sent for review -->
+        <div class="card pad">
+          <h3>📤 Sent to Me Derisier</h3>
+          <div class="review">Nguyen — Work Permit packet <span class="pill ok">Reviewed ✓</span></div>
+          <div class="review">45 Maple St — title search <span class="pill wait">Awaiting</span></div>
+        </div>
+
+        <!-- Recognition -->
+        <div class="card pad recog">
+          <h3>🌿 Your week</h3>
+          <div class="stats">
+            <div><b>4</b> matters ready</div>
+            <div><b>0</b> omissions</div>
+            <div><b>2</b> inspection-ready</div>
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:10px">You kept 9 matters moving with nothing slipping through. 👏</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

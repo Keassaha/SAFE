@@ -9,24 +9,24 @@ datasource db {
 }
 
 model Cabinet {
-  id                     String    @id @default(cuid())
-  nom                    String
-  adresse                String?
-  telephone              String?
-  email                  String?
-  logoUrl                String?
-  barreauNumero          String? // LSO#, Barreau# for invoice header
-  config                 String? // JSON: tauxInteret, devise, formatFacture
-  plan                   String    @default("essentiel")
-  stripeCustomerId       String?   @unique
-  stripeSubscriptionId   String?   @unique
-  stripePriceId          String?
+  id                       String    @id @default(cuid())
+  nom                      String
+  adresse                  String?
+  telephone                String?
+  email                    String?
+  logoUrl                  String?
+  barreauNumero            String? // LSO#, Barreau# for invoice header
+  config                   String? // JSON: tauxInteret, devise, formatFacture
+  plan                     String    @default("essentiel")
+  stripeCustomerId         String?   @unique
+  stripeSubscriptionId     String?   @unique
+  stripePriceId            String?
   stripeSubscriptionStatus String?
-  stripeCurrentPeriodEnd DateTime?
-  stripeCancelAtPeriodEnd Boolean   @default(false)
-  stripeTrialEnd         DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  stripeCurrentPeriodEnd   DateTime?
+  stripeCancelAtPeriodEnd  Boolean   @default(false)
+  stripeTrialEnd           DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   users                      User[]
   clients                    Client[]
@@ -69,6 +69,7 @@ model Cabinet {
   dossierSections            DossierSection[]
   invitations                Invitation[]
   readyForReviewSignals      DossierReadyForReviewSignal[]
+  navetteMessages            DossierNavetteMessage[]
   stripeWebhookEvents        StripeWebhookEvent[]
   dossierDocketEntries       DossierDocketEntry[]
 }
@@ -129,6 +130,7 @@ model User {
   readyForReviewSignalsAsAvocat     DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAvocat")
   readyForReviewSignalsCreated      DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalCreatedBy")
   readyForReviewSignalsAcknowledged DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAcknowledgedBy")
+  navetteAuthored                   DossierNavetteMessage[]       @relation("NavetteAuthor")
 
   resetToken       String?
   resetTokenExpiry DateTime?
@@ -513,6 +515,7 @@ model Dossier {
   sections              DossierSection[]
   readyForReviewSignals DossierReadyForReviewSignal[]
   docketEntries         DossierDocketEntry[]
+  navetteMessages       DossierNavetteMessage[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -1303,7 +1306,7 @@ model InvoiceReminder {
 // Une entrée par tentative d'envoi : succès comme échec. Source de vérité de l'historique d'envoi
 // affiché dans la fiche client et l'éditeur de facture.
 model InvoiceSendLog {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   invoiceId      String
   cabinetId      String
   clientId       String
@@ -1312,13 +1315,13 @@ model InvoiceSendLog {
   recipientEmail String
   subject        String
   body           String?
-  status         String   @default("sent") // "sent" | "failed" | "queued"
+  status         String    @default("sent") // "sent" | "failed" | "queued"
   errorMessage   String?
   pdfUrl         String?
   attachmentName String?
   attachmentSize Int?
   sentAt         DateTime?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
   invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
@@ -2332,6 +2335,49 @@ model DossierReadyForReviewSignal {
   @@index([cabinetId, readAt])
   @@index([cabinetId, avocatResponsableId, readAt])
   @@index([dossierId])
+}
+
+/// Type d'un message de Navette (communication interne assistante↔avocate).
+/// Doctrine: docs/product/SPEC_aaliyah_home_navette.md
+enum NavetteMessageType {
+  question // question (tous rôles internes)
+  info // information simple
+  sent_back // avocate → assistante : à revoir (raison + échéance)
+  ready_for_review // assistante → avocate : prêt à valider
+  approved // avocate → assistante : validé
+  reply // réponse à un message parent
+}
+
+/// Navette — fil de communication interne CENTRÉ DOSSIER (assistante↔avocate).
+/// Append-only / audit-grade : `body` immuable après envoi ; seuls les champs de
+/// cycle de vie (readAt/resolvedAt) évoluent. Frontière doctrinale appliquée
+/// côté service : l'assistante prépare (ready_for_review), l'avocate décide
+/// (sent_back/approved). Confidentialité cloisonnée via `confidentiel`.
+model DossierNavetteMessage {
+  id           String             @id @default(cuid())
+  cabinetId    String
+  dossierId    String
+  authorId     String
+  authorRole   String // snapshot du rôle au moment de l'envoi
+  recipientId  String? // destinataire principal (avocate ou assistante) — pas une relation
+  type         NavetteMessageType
+  body         String? // texte ; null pour un pur évènement d'état
+  dueDate      DateTime? // échéance optionnelle (sent_back / question)
+  parentId     String? // threading (reply) — pas une relation FK
+  confidentiel Boolean            @default(false)
+  readAt       DateTime?
+  readById     String?
+  resolvedAt   DateTime? // « addressed / fixed »
+  resolvedById String?
+  createdAt    DateTime           @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  author  User    @relation("NavetteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId, dossierId, createdAt])
+  @@index([cabinetId, recipientId, resolvedAt])
+  @@index([cabinetId, type, resolvedAt])
 }
 
 /// Cahier structuré du dossier.

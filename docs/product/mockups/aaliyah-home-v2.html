@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aaliyah — Today (v2 · with navette) · SAFE</title>
+<style>
+  :root{
+    --bg:#F6F7F5; --card:#FFFFFF; --ink:#161A17; --muted:#5C6660; --faint:#9AA39C;
+    --hair:#E8EAE6; --hairS:#DCDFD9; --green:#0F2A22; --greenSoft:#E7F0EA; --greenLine:#CFE0D5;
+    --amber:#B45309; --amberSoft:#FBF1E2; --red:#9B2C2C; --redSoft:#FBECEC; --blue:#1E3A5F; --blueSoft:#E9EFF5; --plum:#5B3B7A; --plumSoft:#EEE7F2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;line-height:1.5}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 28px;background:#fff;border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;color:var(--green)}
+  .brand .logo{width:26px;height:26px;border-radius:7px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .capture{flex:1;max-width:480px;margin:0 14px;display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--hairS);border-radius:12px;padding:9px 14px;color:var(--faint);font-size:14px;cursor:text}
+  .kbd{margin-left:auto;font-size:11px;color:var(--muted);border:1px solid var(--hairS);border-radius:5px;padding:1px 6px;background:#fff}
+  /* running timer */
+  .timer{display:flex;align-items:center;gap:8px;background:var(--greenSoft);border:1px solid var(--greenLine);color:var(--green);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700}
+  .timer .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:none}
+  .lang{font-size:12px;color:var(--muted);border:1px solid var(--hairS);border-radius:8px;padding:5px 9px}
+  .ava{width:30px;height:30px;border-radius:50%;background:var(--greenSoft);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 64px}
+  /* morning brief */
+  .brief{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--hair);border-left:4px solid var(--green);border-radius:12px;padding:12px 16px;margin-bottom:18px}
+  .brief .ic{font-size:18px}
+  .brief b{font-weight:700}
+  .brief .focusbtn{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green);border:1px solid var(--greenLine);background:var(--greenSoft);border-radius:9px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+
+  .hello{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:6px}
+  .hello h1{font-size:23px;margin:0;font-weight:800;letter-spacing:-.3px}
+  .calm{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:var(--greenSoft);color:var(--green);border:1px solid var(--greenLine);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(15,42,34,.12)}
+  .hello .date{color:var(--muted);font-size:13.5px}
+
+  .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px;align-items:start}
+  @media(max-width:960px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--hair);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .pad{padding:18px 20px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+  .next{border:1px solid var(--greenLine);background:linear-gradient(180deg,#FCFEFD,#F3F9F5);border-radius:16px;padding:20px;margin-bottom:18px}
+  .next .lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+  .next h2{margin:6px 0 4px;font-size:20px;font-weight:800;letter-spacing:-.2px}
+  .next .why{color:var(--muted);font-size:14px}
+  .next .row{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .btn-primary{background:var(--green);color:#fff;border:none;border-radius:11px;padding:11px 18px;font-weight:800;font-size:15px;cursor:pointer}
+  .btn-ghost{background:#fff;border:1px solid var(--hairS);border-radius:11px;padding:11px 15px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer}
+  .btn-soft{background:var(--greenSoft);border:1px solid var(--greenLine);border-radius:11px;padding:11px 15px;font-weight:700;font-size:14px;color:var(--green);cursor:pointer}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;border-radius:9px;padding:5px 10px}
+  .chip.red{background:var(--redSoft);color:var(--red)}
+
+  .sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--hair)}
+  .item:last-child{border-bottom:none}
+  .check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--hairS);flex:0 0 20px}
+  .item .body{flex:1;min-width:0}.item .ttl{font-size:14.5px;font-weight:600}.item .meta{font-size:12.5px;color:var(--faint)}
+  .item .cd{font-size:12px;font-weight:700;border-radius:8px;padding:4px 9px;white-space:nowrap}
+  .cd.amber{background:var(--amberSoft);color:var(--amber)}.cd.grey{background:#EEF1EE;color:var(--muted)}
+  .more{margin-top:8px;font-size:13px;color:var(--green);font-weight:600;cursor:pointer}
+
+  /* ===== NAVETTE (communication tool) ===== */
+  .navette{margin-top:18px}
+  .nav-head{display:flex;align-items:center;gap:10px;padding:16px 20px 6px}
+  .nav-head h2{font-size:15px;margin:0;font-weight:800}
+  .nav-head .who{font-size:12.5px;color:var(--muted)}
+  .nav-head .glance{margin-left:auto;font-size:12px;font-weight:700;color:var(--blue);background:var(--blueSoft);border:1px solid #D4E0EC;border-radius:9px;padding:6px 11px;cursor:pointer}
+  .thread{padding:4px 20px 10px}
+  .msg{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}
+  .msg:first-child{border-top:none}
+  .tag{flex:0 0 30px;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .tag.back{background:var(--redSoft);color:var(--red)} .tag.q{background:var(--amberSoft);color:var(--amber)} .tag.ok{background:var(--greenSoft);color:var(--green)} .tag.up{background:var(--blueSoft);color:var(--blue)}
+  .msg .body{flex:1;min-width:0}
+  .msg .line1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .msg .type{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .type.back{color:var(--red)} .type.q{color:var(--amber)} .type.ok{color:var(--green)} .type.up{color:var(--blue)}
+  .msg .matter{font-size:12.5px;color:var(--muted);background:var(--bg);border:1px solid var(--hair);border-radius:7px;padding:2px 8px;font-weight:600}
+  .msg .when{font-size:11.5px;color:var(--faint);margin-left:auto}
+  .msg .text{font-size:14px;margin-top:4px;color:#27302b}
+  .msg .by{font-size:12px;color:var(--faint);margin-top:2px}
+  .msg .acts{display:flex;gap:8px;margin-top:9px}
+  .mini-btn{font-size:12.5px;font-weight:700;border-radius:8px;padding:6px 11px;cursor:pointer;border:1px solid var(--hairS);background:#fff;color:var(--muted)}
+  .mini-btn.go{background:var(--green);color:#fff;border-color:var(--green)}
+  .compose{display:flex;align-items:center;gap:10px;border-top:1px solid var(--hair);padding:12px 20px;background:#FCFDFC;border-radius:0 0 16px 16px}
+  .compose .field{flex:1;background:var(--bg);border:1px solid var(--hairS);border-radius:11px;padding:10px 13px;color:var(--faint);font-size:13.5px}
+  .compose .matterpick{font-size:12.5px;font-weight:700;color:var(--green);background:var(--greenSoft);border:1px solid var(--greenLine);border-radius:9px;padding:8px 11px;white-space:nowrap}
+  .compose .send{background:var(--green);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer}
+  .types{display:flex;gap:7px;padding:0 20px 14px}
+  .tpill{font-size:12px;font-weight:700;border-radius:999px;padding:5px 11px;border:1px solid var(--hairS);background:#fff;color:var(--muted);cursor:pointer}
+  .tpill.on{background:var(--greenSoft);border-color:var(--greenLine);color:var(--green)}
+
+  /* rail */
+  .rail .card{margin-bottom:16px}
+  .rail h3{margin:0 0 12px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .dl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}.dl:last-child{border-bottom:none}
+  .dl .ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--bg)}
+  .dl .body{flex:1;min-width:0}.dl .ttl{font-size:13.5px;font-weight:600}.dl .sub{font-size:12px;color:var(--faint)}
+  .dl .cd{font-size:11.5px;font-weight:800;white-space:nowrap}.cdr{color:var(--red)}.cda{color:var(--amber)}.cdg{color:var(--muted)}
+  .mini{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hair);font-size:13.5px}.mini:last-child{border-bottom:none}
+  .mini .s{font-size:12px;color:var(--faint)}.lnk{font-size:12.5px;font-weight:700;color:var(--green);cursor:pointer}
+  .recog{background:linear-gradient(180deg,#F4FAF6,#FFFFFF)}.recog .stats{display:flex;gap:18px;margin-top:4px}.recog .stats b{display:block;font-size:18px}.recog .stats div{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand"><span class="logo">S</span> SAFE</div>
+    <div class="capture">＋ Capture a task or note… <span class="kbd">⌘K</span></div>
+    <div class="timer"><span class="pulse"></span> 0:42:18 · Tremblay PR</div>
+    <span class="lang">EN ⌄</span>
+    <div class="ava" title="Aaliyah">AA</div>
+  </div>
+
+  <div class="wrap">
+    <!-- Morning brief -->
+    <div class="brief">
+      <span class="ic">☀️</span>
+      <div><b>3 things matter today:</b> Tremblay portal (3 days) · Singh sent back by Me Derisier · month-end trust prep starts.</div>
+      <button class="focusbtn">▸ Focus mode</button>
+    </div>
+
+    <div class="hello">
+      <div>
+        <h1>Good morning, Aaliyah</h1>
+        <div class="calm"><span class="dot"></span> Nothing slips · 0 omissions today</div>
+      </div>
+      <div class="date">Tuesday, June 2 · 9 active matters</div>
+    </div>
+
+    <div class="grid">
+      <!-- MAIN -->
+      <div>
+        <!-- One next action -->
+        <div class="next">
+          <div class="lbl">Your next action</div>
+          <h2>Follow up with Mr. Tremblay for his medical report</h2>
+          <div class="why">Tremblay — Permanent Residence (Express Entry) · the medical is the only thing missing before submission.</div>
+          <div class="row">
+            <span class="chip red">⏰ IRCC portal · 3 days left</span>
+            <span style="font-size:12.5px;color:var(--faint)">$375 reset fee if it expires from a client delay</span>
+          </div>
+          <div class="row">
+            <button class="btn-primary">Do it now</button>
+            <button class="btn-soft">▶ Start timer</button>
+            <button class="btn-ghost">Snooze… until</button>
+          </div>
+        </div>
+
+        <!-- ===== NAVETTE: the communication tool ===== -->
+        <div class="card navette">
+          <div class="nav-head">
+            <h2>Navette</h2>
+            <span class="who">· with Me Derisier</span>
+            <button class="glance">👁 See her 15-sec view</button>
+          </div>
+          <div class="types">
+            <span class="tpill on">All</span>
+            <span class="tpill">Needs me (2)</span>
+            <span class="tpill">Sent for review</span>
+            <span class="tpill">Approved</span>
+          </div>
+
+          <div class="thread">
+            <!-- sent back -->
+            <div class="msg">
+              <div class="tag back">↩</div>
+              <div class="body">
+                <div class="line1"><span class="type back">Sent back</span><span class="matter">Singh — Spousal sponsorship</span><span class="when">25 min ago</span></div>
+                <div class="text">“Need updated proof of funds before I review. The bank letter is older than 3 months.”</div>
+                <div class="by">Me Derisier · she set a due date: tomorrow</div>
+                <div class="acts"><button class="mini-btn go">Open &amp; fix</button><button class="mini-btn">Reply</button><button class="mini-btn">Ask client</button></div>
+              </div>
+            </div>
+            <!-- question -->
+            <div class="msg">
+              <div class="tag q">?</div>
+              <div class="body">
+                <div class="line1"><span class="type q">Question</span><span class="matter">Tremblay — PR</span><span class="when">1 h ago</span></div>
+                <div class="text">“Did Mr. Tremblay confirm he has no prior refusals? I need it before we submit.”</div>
+                <div class="by">Me Derisier</div>
+                <div class="acts"><button class="mini-btn go">Reply</button></div>
+              </div>
+            </div>
+            <!-- approved -->
+            <div class="msg">
+              <div class="tag ok">✓</div>
+              <div class="body">
+                <div class="line1"><span class="type ok">Approved</span><span class="matter">Nguyen — Work Permit</span><span class="when">2 h ago</span></div>
+                <div class="text">Me Derisier reviewed your packet and approved it. Ready to submit. 👏</div>
+                <div class="by">Reviewed by Me Derisier</div>
+              </div>
+            </div>
+            <!-- sent for review (Aaliyah → lawyer) -->
+            <div class="msg">
+              <div class="tag up">📤</div>
+              <div class="body">
+                <div class="line1"><span class="type up">You sent for review</span><span class="matter">45 Maple St — closing</span><span class="when">Yesterday</span></div>
+                <div class="text">Title search + off-title results ready. Statement of Adjustments draft attached.</div>
+                <div class="by">Awaiting Me Derisier</div>
+                <div class="acts"><button class="mini-btn">Nudge politely</button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="compose">
+            <span class="matterpick">📂 Tremblay — PR ⌄</span>
+            <div class="field">Message Me Derisier about this matter…</div>
+            <button class="send">Send</button>
+          </div>
+        </div>
+
+        <!-- Today's focus -->
+        <div class="card pad" style="margin-top:18px">
+          <div class="sec-h"><div class="eyebrow">Today’s focus</div><div class="eyebrow" style="color:var(--green)">3 of 12 done</div></div>
+          <div class="item"><div class="check"></div><div class="body"><div class="ttl">Verify Nguyen’s biometrics appointment letter</div><div class="meta">Nguyen — Work Permit · IRCC</div></div><span class="cd amber">in 6 days</span></div>
+          <div class="item"><div class="check"></div><div class="body"><div class="ttl">Prepare Statement of Adjustments</div><div class="meta">45 Maple St — Real estate closing</div></div><span class="cd amber">closing in 9 days</span></div>
+          <div class="item"><div class="check"></div><div class="body"><div class="ttl">New matter — start from a template</div><div class="meta">Okonkwo → Study Permit checklist (auto-generates 8 tasks)</div></div><span class="cd grey">setup</span></div>
+          <div class="more">Show full queue (12) ⌄</div>
+        </div>
+      </div>
+
+      <!-- RAIL -->
+      <div class="rail">
+        <div class="card pad">
+          <h3>⏳ Deadlines</h3>
+          <div class="dl"><div class="ic">🛂</div><div class="body"><div class="ttl">IRCC portal — Tremblay</div><div class="sub">Permanent Residence</div></div><div class="cd cdr">3 days</div></div>
+          <div class="dl"><div class="ic">🧬</div><div class="body"><div class="ttl">Biometrics — Nguyen</div><div class="sub">Work Permit</div></div><div class="cd cda">6 days</div></div>
+          <div class="dl"><div class="ic">🏠</div><div class="body"><div class="ttl">Closing — 45 Maple St</div><div class="sub">Real estate</div></div><div class="cd cda">9 days</div></div>
+          <div class="dl"><div class="ic">📅</div><div class="body"><div class="ttl">Month-end trust reconciliation</div><div class="sub">Prepared ahead — ready the 27th</div></div><div class="cd cdg">25 days</div></div>
+        </div>
+
+        <div class="card pad">
+          <h3>⌛ Awaiting client</h3>
+          <div class="mini"><div>Tremblay — medical report<div class="s">no reply · 4 days</div></div><span class="lnk">Remind</span></div>
+          <div class="mini"><div>Okonkwo — signed retainer<div class="s">no reply · 2 days</div></div><span class="lnk">Remind</span></div>
+        </div>
+
+        <div class="card pad recog">
+          <h3>🌿 Your week</h3>
+          <div class="recog stats">
+            <div><b>4</b> matters ready</div><div><b>0</b> omissions</div><div><b>2</b> inspection-ready</div>
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:10px">You kept 9 matters moving with nothing slipping through. 👏</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
