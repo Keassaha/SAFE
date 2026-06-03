@@ -3139,7 +3139,10 @@
     "typeApproved": "Approved",
     "typeReadyForReview": "Ready for review",
     "typeInfo": "Info",
-    "typeReply": "Reply"
+    "typeReply": "Reply",
+    "glanceTitle": "needs you",
+    "open": "Open",
+    "cancel": "Cancel"
   },
   "todayUi": {
     "greeting": "Good morning, {name}",

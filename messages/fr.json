@@ -3139,7 +3139,10 @@
     "typeApproved": "Approuvé",
     "typeReadyForReview": "Prêt pour revue",
     "typeInfo": "Info",
-    "typeReply": "Réponse"
+    "typeReply": "Réponse",
+    "glanceTitle": "vous attend",
+    "open": "Ouvrir",
+    "cancel": "Annuler"
   },
   "todayUi": {
     "greeting": "Bonjour, {name}",

@@ -117,15 +117,33 @@ export async function createNavetteMessage(
 
 /* ───────── Handoffs structurés ───────── */
 
+/**
+ * Résout les « prêt pour revue » en attente d'un dossier : appelé quand
+ * l'avocate tranche (approuve ou renvoie) → le signal sort de sa file « needs me ».
+ */
+async function resolvePendingReadyForReview(
+  cabinetId: string,
+  dossierId: string,
+  userId: string,
+  client: DBClient,
+): Promise<void> {
+  await client.dossierNavetteMessage.updateMany({
+    where: { cabinetId, dossierId, type: "ready_for_review", resolvedAt: null },
+    data: { resolvedAt: new Date(), resolvedById: userId },
+  });
+}
+
 /** Avocate → assistante : renvoi avec raison + échéance optionnelle. */
-export function sendBackToAssistant(
+export async function sendBackToAssistant(
   args: { cabinetId: string; dossierId: string; authorId: string; authorRole: string; reason: string; dueDate?: Date | null },
   client: DBClient = prisma,
-) {
-  return createNavetteMessage(
+): Promise<CreateNavetteResult> {
+  const res = await createNavetteMessage(
     { ...args, type: "sent_back", body: args.reason, dueDate: args.dueDate ?? null },
     client,
   );
+  if (res.ok) await resolvePendingReadyForReview(args.cabinetId, args.dossierId, args.authorId, client);
+  return res;
 }
 
 /** Avocate → assistante : approbation. Acquitte aussi le signal legacy. */
@@ -137,8 +155,11 @@ export async function approveMatter(
     { cabinetId: args.cabinetId, dossierId: args.dossierId, authorId: args.authorId, authorRole: args.authorRole, type: "approved", body: args.note ?? null },
     client,
   );
-  if (res.ok && args.signalId) {
-    await markSignalRead(args.signalId, args.cabinetId, args.authorId, args.isAdmin, client);
+  if (res.ok) {
+    await resolvePendingReadyForReview(args.cabinetId, args.dossierId, args.authorId, client);
+    if (args.signalId) {
+      await markSignalRead(args.signalId, args.cabinetId, args.authorId, args.isAdmin, client);
+    }
   }
   return res;
 }

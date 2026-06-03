@@ -37,6 +37,8 @@ import {
   getInvoiceLifecycleCategory,
 } from "@/lib/billing/invoice-status";
 import { listUnreadSignalsForUser } from "@/lib/services/ready-for-review-service";
+import { getNavetteInbox } from "@/lib/navette/navette-service";
+import { LawyerGlance } from "@/components/navette/LawyerGlance";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -904,8 +906,24 @@ export default async function TableauDeBordPage() {
     dossiersParStatut,
   };
 
+  // N3 — Vue avocate « 15 secondes » : ce qui l'attend dans la Navette.
+  const isLawyerRole = userRole === "avocat" || userRole === "admin_cabinet";
+  const glanceRows = isLawyerRole
+    ? (await getNavetteInbox(cabinetId, userId, userRole, "needs_me", 10))
+        .filter((m) => m.type === "ready_for_review" || m.type === "question")
+        .map((m) => ({
+          id: m.id,
+          dossierId: m.dossierId,
+          type: m.type as "ready_for_review" | "question",
+          body: m.body,
+          matterLabel: m.numeroDossier?.trim() || m.dossierIntitule,
+          authorName: m.authorName,
+        }))
+    : [];
+
   return (
     <div className="space-y-5">
+      {glanceRows.length > 0 ? <LawyerGlance rows={glanceRows} /> : null}
       <DashboardView payload={payload} />
     </div>
   );
