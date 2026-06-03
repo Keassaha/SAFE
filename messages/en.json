@@ -3118,5 +3118,26 @@
     "editorTestKeyLogTitle": "Key log:",
     "editorTestKeyLogEmpty": "Press a key…",
     "editorTestVersions": "Versions: Tiptap v3 · React 19 · Next 15"
+  },
+  "navetteUi": {
+    "title": "Navette",
+    "subtitle": "internal thread",
+    "empty": "No messages yet on this matter.",
+    "composePlaceholder": "Message about this matter…",
+    "sendBackPlaceholder": "Reason for sending back…",
+    "send": "Send",
+    "sendBack": "Send back",
+    "approve": "Approve",
+    "markReady": "Mark ready for review",
+    "markAddressed": "Mark addressed",
+    "due": "due",
+    "confidential": "Confidential",
+    "genericError": "Something went wrong.",
+    "typeSentBack": "Sent back",
+    "typeQuestion": "Question",
+    "typeApproved": "Approved",
+    "typeReadyForReview": "Ready for review",
+    "typeInfo": "Info",
+    "typeReply": "Reply"
   }
 }

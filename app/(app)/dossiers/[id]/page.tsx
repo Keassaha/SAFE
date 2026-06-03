@@ -16,6 +16,8 @@ import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { DossierPreparationCard } from "@/components/dossiers/DossierPreparationCard";
 import { getDossierResume } from "@/lib/dossiers/dossier-resume";
 import { DossierResumeCard } from "@/components/dossiers/DossierResumeCard";
+import { getDossierNavette } from "@/lib/navette/navette-service";
+import { NavetteThread } from "@/components/navette/NavetteThread";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
@@ -185,6 +187,21 @@ export default async function DossierDetailPage({
   // T1 — Bloc « Où j'en étais ? » (context-resume, dérivé, zéro migration).
   const resume = await getDossierResume(cabinetId, id, resumeLocale);
 
+  // N2 — Navette : fil de communication interne du dossier (sérialisé pour le client).
+  const navetteRows = await getDossierNavette(cabinetId, id, role);
+  const navetteSerialized = navetteRows.map((r) => ({
+    id: r.id,
+    type: r.type,
+    body: r.body,
+    authorName: r.authorName,
+    authorRole: r.authorRole,
+    recipientId: r.recipientId,
+    dueDate: r.dueDate ? r.dueDate.toISOString() : null,
+    confidentiel: r.confidentiel,
+    resolvedAt: r.resolvedAt ? r.resolvedAt.toISOString() : null,
+    createdAt: r.createdAt.toISOString(),
+  }));
+
   return (
     <div className="space-y-0">
       {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
@@ -265,6 +282,17 @@ export default async function DossierDetailPage({
           />
         </section>
       )}
+
+      {/* N2 — Navette : communication interne assistante↔avocate sur ce dossier */}
+      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+        <NavetteThread
+          dossierId={id}
+          rows={navetteSerialized}
+          currentUserId={userId}
+          currentUserRole={role}
+          locale={resumeLocale}
+        />
+      </section>
 
       {/* Documents rédigés via l'éditeur SAFE */}
       <section className="px-6 py-5 border-b border-slate-200/70 bg-white">

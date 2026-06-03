@@ -3118,5 +3118,26 @@
     "editorTestKeyLogTitle": "Journal des touches :",
     "editorTestKeyLogEmpty": "Tapez une touche…",
     "editorTestVersions": "Versions : Tiptap v3 · React 19 · Next 15"
+  },
+  "navetteUi": {
+    "title": "Navette",
+    "subtitle": "fil interne",
+    "empty": "Aucun message sur ce dossier.",
+    "composePlaceholder": "Message sur ce dossier…",
+    "sendBackPlaceholder": "Raison du renvoi…",
+    "send": "Envoyer",
+    "sendBack": "Renvoyer",
+    "approve": "Approuver",
+    "markReady": "Marquer prêt pour revue",
+    "markAddressed": "Marquer traité",
+    "due": "échéance",
+    "confidential": "Confidentiel",
+    "genericError": "Une erreur est survenue.",
+    "typeSentBack": "Renvoyé",
+    "typeQuestion": "Question",
+    "typeApproved": "Approuvé",
+    "typeReadyForReview": "Prêt pour revue",
+    "typeInfo": "Info",
+    "typeReply": "Réponse"
   }
 }
