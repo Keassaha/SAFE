@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Award,
 } from "lucide-react";
+import { StartTimerButton } from "@/components/temps/StartTimerButton";
 
 /* ── Types (déjà calculés par la page) ── */
 export interface TodayNextAction {
@@ -21,6 +22,8 @@ export interface TodayNextAction {
   matterLabel: string;
   countdownDays: number | null;
   countdownLabel: string | null; // ex. "IRCC portal"
+  clientId?: string | null; // pour démarrer le chrono (si connu)
+  clientLabel?: string | null;
 }
 export interface TodayInboxRow {
   id: string;
@@ -144,6 +147,15 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
                   style={{ backgroundColor: ACCENT }}>
                   {t("doItNow")} <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
+                {data.nextAction.clientId ? (
+                  <StartTimerButton
+                    clientId={data.nextAction.clientId}
+                    clientLabel={data.nextAction.clientLabel ?? undefined}
+                    dossierId={data.nextAction.dossierId}
+                    dossierLabel={data.nextAction.matterLabel}
+                    variant="soft"
+                  />
+                ) : null}
               </div>
             </div>
           ) : (

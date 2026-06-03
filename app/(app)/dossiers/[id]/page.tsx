@@ -18,6 +18,7 @@ import { getDossierResume } from "@/lib/dossiers/dossier-resume";
 import { DossierResumeCard } from "@/components/dossiers/DossierResumeCard";
 import { getDossierNavette } from "@/lib/navette/navette-service";
 import { NavetteThread } from "@/components/navette/NavetteThread";
+import { StartTimerButton } from "@/components/temps/StartTimerButton";
 import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
@@ -244,6 +245,13 @@ export default async function DossierDetailPage({
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <StartTimerButton
+              clientId={dossier.clientId}
+              clientLabel={clientName}
+              dossierId={id}
+              dossierLabel={numeroDossier}
+              variant="soft"
+            />
             <Link
               href={routes.client(dossier.clientId)}
               className="inline-flex items-center rounded-safe-sm border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white hover:border-slate-300 transition-colors"

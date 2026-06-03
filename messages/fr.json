@@ -3181,5 +3181,9 @@
     "addTask": "Ajouter la tâche",
     "change": "Changer",
     "added": "Ajouté"
+  },
+  "timerUi": {
+    "start": "Démarrer le chrono",
+    "running": "Chrono en cours"
   }
 }

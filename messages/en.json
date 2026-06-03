@@ -3181,5 +3181,9 @@
     "addTask": "Add task",
     "change": "Change",
     "added": "Added"
+  },
+  "timerUi": {
+    "start": "Start timer",
+    "running": "Timer running"
   }
 }

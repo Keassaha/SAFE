@@ -67,6 +67,8 @@ export default async function AujourdhuiPage() {
         matterLabel: matterLabel(top.dossierIntitule, top.numeroDossier),
         countdownDays: soonestByDossier.get(top.dossierId) ?? null,
         countdownLabel: null,
+        clientId: top.clientId,
+        clientLabel: top.clientName,
       };
     }
   }
