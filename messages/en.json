@@ -313,7 +313,8 @@
         "safeImport": "SAFE Import",
         "reports": "Reports",
         "compliance": "Compliance",
-        "settings": "Settings"
+        "settings": "Settings",
+        "today": "Today"
       },
       "profile": {
         "title": "Profile",
@@ -3139,5 +3140,32 @@
     "typeReadyForReview": "Ready for review",
     "typeInfo": "Info",
     "typeReply": "Reply"
+  },
+  "todayUi": {
+    "greeting": "Good morning, {name}",
+    "nothingSlips": "Nothing slips today",
+    "itemsOverdue": "{n} overdue",
+    "activeMatters": "{n} active matters",
+    "yourNextAction": "Your next action",
+    "doItNow": "Do it now",
+    "noNextAction": "All caught up — nothing urgent.",
+    "nextActionFixSentBack": "Fix the matter the lawyer sent back",
+    "focusCompleteMatter": "Complete the matter",
+    "navetteTitle": "Navette",
+    "needsYou": "needs you",
+    "navetteEmpty": "Nothing needs you right now.",
+    "todaysFocus": "Today’s focus",
+    "openMyMatters": "Open my matters",
+    "focusEmpty": "Nothing to prepare today.",
+    "overdue": "overdue",
+    "deadlines": "Deadlines",
+    "deadlinesEmpty": "No upcoming deadlines.",
+    "awaitingClient": "Awaiting client",
+    "awaitingEmpty": "Nothing awaiting a client.",
+    "yourWeek": "Your week",
+    "mattersReady": "matters ready",
+    "omissionsLabel": "omissions",
+    "inDays": "in {n}d",
+    "today": "today"
   }
 }

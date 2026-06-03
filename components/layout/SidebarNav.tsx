@@ -24,6 +24,7 @@ import {
   ListChecks,
   ShieldCheck,
   ClipboardCheck,
+  Sunrise,
 } from "lucide-react";
 import {
   canViewClients,
@@ -66,6 +67,14 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
+  // ── Today (accueil assistante) ────────────────────────────
+  {
+    id: "aujourdhui",
+    href: routes.aujourdhui,
+    labelKey: "nav.today",
+    icon: Sunrise,
+    show: () => true,
+  },
   // ── Tableau de bord (Toujours visible) ────────────────────
   {
     id: "dashboard",

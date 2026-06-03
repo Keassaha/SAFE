@@ -5,6 +5,7 @@
 
 export const routes = {
   tableauDeBord: "/tableau-de-bord",
+  aujourdhui: "/aujourdhui",
   clients: "/clients",
   client: (id: string) => `/clients/${id}`,
   clientNouveau: "/clients/nouveau",

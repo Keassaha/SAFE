@@ -313,7 +313,8 @@
         "safeImport": "SAFE Import",
         "reports": "Rapports",
         "compliance": "Conformité",
-        "settings": "Paramètres"
+        "settings": "Paramètres",
+        "today": "Aujourd’hui"
       },
       "profile": {
         "title": "Profil",
@@ -3139,5 +3140,32 @@
     "typeReadyForReview": "Prêt pour revue",
     "typeInfo": "Info",
     "typeReply": "Réponse"
+  },
+  "todayUi": {
+    "greeting": "Bonjour, {name}",
+    "nothingSlips": "Rien n’est oublié aujourd’hui",
+    "itemsOverdue": "{n} en retard",
+    "activeMatters": "{n} dossiers actifs",
+    "yourNextAction": "Prochaine action",
+    "doItNow": "Faire maintenant",
+    "noNextAction": "Tout est à jour — rien d’urgent.",
+    "nextActionFixSentBack": "Corriger le dossier renvoyé par l’avocate",
+    "focusCompleteMatter": "Compléter le dossier",
+    "navetteTitle": "Navette",
+    "needsYou": "vous attend",
+    "navetteEmpty": "Rien ne vous attend pour l’instant.",
+    "todaysFocus": "Aujourd’hui",
+    "openMyMatters": "Ouvrir mes dossiers",
+    "focusEmpty": "Rien à préparer aujourd’hui.",
+    "overdue": "en retard",
+    "deadlines": "Échéances",
+    "deadlinesEmpty": "Aucune échéance proche.",
+    "awaitingClient": "En attente du client",
+    "awaitingEmpty": "Rien en attente du client.",
+    "yourWeek": "Votre semaine",
+    "mattersReady": "dossiers prêts",
+    "omissionsLabel": "oublis",
+    "inDays": "dans {n}j",
+    "today": "aujourd’hui"
   }
 }
