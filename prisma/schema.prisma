@@ -91,6 +91,7 @@ model User {
   role              UserRole
   defaultHourlyRate Float?
   isBillable        Boolean  @default(true)
+  digestOptOut      Boolean  @default(false) // N7b — désactive le digest courriel quotidien
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

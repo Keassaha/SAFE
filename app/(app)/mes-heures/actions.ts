@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canManagePayroll } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
@@ -78,6 +79,18 @@ export async function withdrawMyHoursAction(entryId: string) {
     metadata: { reason: "withdrawn_by_employee" },
   });
 
+  revalidatePath(routes.mesHeures);
+}
+
+// ——— Préférence digest quotidien (N7b) ———
+
+/** Active/désactive le digest courriel quotidien pour l'utilisateur courant. */
+export async function setDigestPreferenceAction(enabled: boolean) {
+  const { userId } = await requireCabinetAndUser();
+  await prisma.user.update({
+    where: { id: userId },
+    data: { digestOptOut: !enabled },
+  });
   revalidatePath(routes.mesHeures);
 }
 

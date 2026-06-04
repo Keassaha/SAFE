@@ -3230,5 +3230,10 @@
     "approvedReady": "{count} entrée(s) approuvée(s) · {hours} h · {amount} prêtes à passer en paie.",
     "generateFromApproved": "Générer la paie",
     "genericError": "Une erreur est survenue. Réessayez."
+  },
+  "digestUi": {
+    "title": "Résumé courriel quotidien",
+    "onHint": "Vous recevez un résumé une fois par jour (en semaine).",
+    "offHint": "Désactivé. Vous ne recevrez pas de résumé courriel."
   }
 }

@@ -3230,5 +3230,10 @@
     "approvedReady": "{count} approved entr(ies) · {hours} h · {amount} ready for payroll.",
     "generateFromApproved": "Generate payslip",
     "genericError": "Something went wrong. Please try again."
+  },
+  "digestUi": {
+    "title": "Daily email summary",
+    "onHint": "You get one summary per day (weekdays).",
+    "offHint": "Off. You will not receive an email summary."
   }
 }

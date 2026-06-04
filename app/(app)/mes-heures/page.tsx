@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getCurrentEmployee, getMyHours } from "@/lib/payroll/employee-hours-service";
 import { MyHoursPanel } from "@/components/temps/MyHoursPanel";
+import { DigestPreferenceToggle } from "@/components/temps/DigestPreferenceToggle";
 
 /**
  * « Mon temps & ma paye » (N8) — l'employée (Aaliyah) soumet ses heures
@@ -17,13 +18,18 @@ export default async function MesHeuresPage() {
   const locale = normalizeAppLocale(await getLocale());
   const t = await getTranslations("hoursUi");
 
-  const employee = await getCurrentEmployee(cabinetId, userId);
+  const [employee, currentUser] = await Promise.all([
+    getCurrentEmployee(cabinetId, userId),
+    prisma.user.findUnique({ where: { id: userId }, select: { digestOptOut: true } }),
+  ]);
+  const digestEnabled = !(currentUser?.digestOptOut ?? false);
 
   // Aucune fiche employé liée (ex. compte avocate/admin sans fiche) → message clair.
   if (!employee) {
     return (
       <div className="space-y-6 animate-fade-in">
         <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
+        <DigestPreferenceToggle enabled={digestEnabled} />
         <EmptyState title={t("noEmployeeTitle")} description={t("noEmployeeBody")} />
       </div>
     );
@@ -64,6 +70,7 @@ export default async function MesHeuresPage() {
     <div className="space-y-6 animate-fade-in">
       <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
       <MyHoursPanel data={data} matters={matters} locale={locale} today={today} />
+      <DigestPreferenceToggle enabled={digestEnabled} />
     </div>
   );
 }
