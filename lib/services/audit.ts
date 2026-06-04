@@ -17,7 +17,8 @@ export type AuditEntityType =
   | "CreditNote"
   | "TrustAccount"
   | "TrustTransaction"
-  | "DossierNavetteMessage";
+  | "DossierNavetteMessage"
+  | "EmployeeHoursEntry";
 
 export type AuditAction = "create" | "update" | "delete" | "view" | "view_sensitive" | "download";
 

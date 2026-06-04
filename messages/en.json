@@ -314,7 +314,8 @@
         "reports": "Reports",
         "compliance": "Compliance",
         "settings": "Settings",
-        "today": "Today"
+        "today": "Today",
+        "myHours": "My time & pay"
       },
       "profile": {
         "title": "Profile",
@@ -3185,5 +3186,49 @@
   "timerUi": {
     "start": "Start timer",
     "running": "Timer running"
+  },
+  "hoursUi": {
+    "pageTitle": "My time & pay",
+    "pageDescription": "Submit the hours you worked to get paid. Your supervisor approves them, then they flow into payroll.",
+    "noEmployeeTitle": "No employee record linked to your account",
+    "noEmployeeBody": "Ask your administrator to link your account to an employee record so you can submit your hours.",
+    "expectedPay": "Expected pay",
+    "expectedPayHint": "On {hours} approved h",
+    "pendingHours": "Pending",
+    "pendingHoursHint": "Awaiting approval",
+    "approvedHours": "Approved",
+    "approvedHoursHint": "Ready for payroll",
+    "paidPay": "Already paid",
+    "paidPayHint": "On {hours} paid h",
+    "submitTitle": "Submit hours",
+    "fieldDate": "Date",
+    "fieldHours": "Hours",
+    "fieldMatter": "Matter (optional)",
+    "fieldNote": "Note (optional)",
+    "matterNone": "No matter",
+    "notePlaceholder": "e.g. file preparation",
+    "submit": "Submit",
+    "invalidHours": "Enter a valid number of hours (between 0 and 24).",
+    "genericError": "Something went wrong. Please try again.",
+    "historyTitle": "My submissions",
+    "historyEmpty": "No hours submitted yet.",
+    "statusSubmitted": "Pending",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "statusPaid": "Paid",
+    "rejectedReason": "Reason",
+    "withdraw": "Withdraw"
+  },
+  "hoursAdmin": {
+    "title": "Submitted hours",
+    "toApprove": "{count} to approve",
+    "approve": "Approve",
+    "reject": "Reject",
+    "confirmReject": "Confirm rejection",
+    "reasonPlaceholder": "Rejection reason (visible to the employee)",
+    "reasonRequired": "Please provide a rejection reason.",
+    "approvedReady": "{count} approved entr(ies) · {hours} h · {amount} ready for payroll.",
+    "generateFromApproved": "Generate payslip",
+    "genericError": "Something went wrong. Please try again."
   }
 }

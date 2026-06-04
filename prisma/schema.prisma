@@ -72,6 +72,7 @@ model Cabinet {
   navetteMessages            DossierNavetteMessage[]
   stripeWebhookEvents        StripeWebhookEvent[]
   dossierDocketEntries       DossierDocketEntry[]
+  employeeHoursEntries       EmployeeHoursEntry[]
 }
 
 enum UserRole {
@@ -131,6 +132,7 @@ model User {
   readyForReviewSignalsCreated      DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalCreatedBy")
   readyForReviewSignalsAcknowledged DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAcknowledgedBy")
   navetteAuthored                   DossierNavetteMessage[]       @relation("NavetteAuthor")
+  hoursReviewed                     EmployeeHoursEntry[]          @relation("EmployeeHoursReviewer")
 
   resetToken       String?
   resetTokenExpiry DateTime?
@@ -199,11 +201,12 @@ model Employee {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  cabinet      Cabinet    @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  supervisor   Employee?  @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
-  subordinates Employee[] @relation("EmployeeSupervisor")
+  cabinet      Cabinet              @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user         User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  supervisor   Employee?            @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  subordinates Employee[]           @relation("EmployeeSupervisor")
   payslips     Payslip[]
+  hoursEntries EmployeeHoursEntry[]
 
   @@index([cabinetId])
   @@index([cabinetId, status])
@@ -242,9 +245,10 @@ model Payslip {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  employee    Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  period      PayrollPeriod       @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
-  adjustments PayslipAdjustment[]
+  employee     Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period       PayrollPeriod        @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
+  adjustments  PayslipAdjustment[]
+  hoursEntries EmployeeHoursEntry[]
 
   @@index([employeeId])
   @@index([payrollPeriodId])
@@ -516,6 +520,7 @@ model Dossier {
   readyForReviewSignals DossierReadyForReviewSignal[]
   docketEntries         DossierDocketEntry[]
   navetteMessages       DossierNavetteMessage[]
+  employeeHoursEntries  EmployeeHoursEntry[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -2378,6 +2383,44 @@ model DossierNavetteMessage {
   @@index([cabinetId, dossierId, createdAt])
   @@index([cabinetId, recipientId, resolvedAt])
   @@index([cabinetId, type, resolvedAt])
+}
+
+enum EmployeeHoursStatus {
+  submitted
+  approved
+  rejected
+  paid
+}
+
+/// Soumission d'heures travaillées par une employée (ex. Aaliyah) pour être payée.
+/// DISTINCT du temps facturable client (`TimeEntry`). Alimente la paie existante :
+/// les entrées `approved` d'une période s'agrègent dans un `Payslip`.
+model EmployeeHoursEntry {
+  id              String              @id @default(cuid())
+  cabinetId       String
+  employeeId      String // l'employée qui soumet
+  date            DateTime
+  hours           Float
+  dossierId       String? // optionnel : traçabilité (PAS facturation)
+  note            String?
+  status          EmployeeHoursStatus @default(submitted)
+  submittedAt     DateTime            @default(now())
+  reviewedById    String? // avocate / admin ayant approuvé/rejeté
+  reviewedAt      DateTime?
+  rejectionReason String?
+  payslipId       String? // une fois inclus dans une paie
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  cabinet  Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dossier  Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  reviewer User?    @relation("EmployeeHoursReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  payslip  Payslip? @relation(fields: [payslipId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId, employeeId, status])
+  @@index([cabinetId, status])
+  @@index([payslipId])
 }
 
 /// Cahier structuré du dossier.

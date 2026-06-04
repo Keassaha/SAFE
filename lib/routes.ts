@@ -15,6 +15,7 @@ export const routes = {
   dossierNouveau: (clientId?: string) =>
     clientId ? `/dossiers/nouveau?clientId=${encodeURIComponent(clientId)}` : "/dossiers/nouveau",
   temps: "/temps",
+  mesHeures: "/mes-heures",
   facturation: "/facturation",
   /** Section "Facturables" intégrée à /facturation. La route /facturation/honoraires redirige ici. */
   facturationHonoraires: "/facturation#facturables",

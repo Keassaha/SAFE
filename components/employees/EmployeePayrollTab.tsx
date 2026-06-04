@@ -5,6 +5,11 @@ import type { PayslipStatus } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Plus } from "lucide-react";
+import {
+  PendingHoursApproval,
+  type SerializedPendingHour,
+  type ApprovedSummary,
+} from "./PendingHoursApproval";
 
 export type PayslipRow = {
   id: string;
@@ -23,6 +28,12 @@ interface EmployeePayrollTabProps {
   payslips: PayslipRow[];
   canGenerate: boolean;
   onGenerate?: () => void;
+  /** Soumissions d'heures employé (N8) — bloc d'approbation au-dessus de l'historique. */
+  employeeId?: string;
+  hourlyRate?: number;
+  pendingHours?: SerializedPendingHour[];
+  approvedSummary?: ApprovedSummary | null;
+  locale?: "fr" | "en";
 }
 
 function formatDate(d: Date): string {
@@ -52,11 +63,26 @@ export function EmployeePayrollTab({
   payslips,
   canGenerate,
   onGenerate,
+  employeeId,
+  hourlyRate = 0,
+  pendingHours = [],
+  approvedSummary = null,
+  locale = "en",
 }: EmployeePayrollTabProps) {
   const t = useTranslations("employees");
 
   return (
-    <Card>
+    <>
+      {canGenerate && employeeId ? (
+        <PendingHoursApproval
+          employeeId={employeeId}
+          pending={pendingHours}
+          approved={approvedSummary}
+          hourlyRate={hourlyRate}
+          locale={locale}
+        />
+      ) : null}
+      <Card>
       <CardHeader
         title={t("payrollHistory")}
         action={
@@ -142,5 +168,6 @@ export function EmployeePayrollTab({
         )}
       </CardContent>
     </Card>
+    </>
   );
 }

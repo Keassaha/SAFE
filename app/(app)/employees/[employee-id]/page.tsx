@@ -11,7 +11,12 @@ import { EmployeeProfile } from "@/components/employees/EmployeeProfile";
 import type { EmployeeProfileData } from "@/components/employees/EmployeeProfile";
 import type { PayslipRow } from "@/components/employees/EmployeePayrollTab";
 import type { ActivityRow } from "@/components/employees/EmployeeActivityTab";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { normalizeAppLocale } from "@/lib/i18n/locale";
+import {
+  getPendingHoursForEmployee,
+  getApprovedUnbilledHours,
+} from "@/lib/payroll/employee-hours-service";
 
 export default async function EmployeeDetailPage({
   params,
@@ -35,7 +40,8 @@ export default async function EmployeeDetailPage({
 
   if (!employee) notFound();
 
-  const [payslips, activities, supervisors] = await Promise.all([
+  const canPayrollEarly = canManagePayroll(userRole);
+  const [payslips, activities, supervisors, pendingHours, approvedUnbilled] = await Promise.all([
     prisma.payslip.findMany({
       where: { employeeId },
       include: { period: true },
@@ -52,6 +58,8 @@ export default async function EmployeeDetailPage({
       select: { id: true, fullName: true },
       orderBy: { fullName: "asc" },
     }),
+    canPayrollEarly ? getPendingHoursForEmployee(cabinetId, employeeId) : Promise.resolve([]),
+    canPayrollEarly ? getApprovedUnbilledHours(cabinetId, employeeId) : Promise.resolve([]),
   ]);
 
   const profileData: EmployeeProfileData = {
@@ -96,8 +104,31 @@ export default async function EmployeeDetailPage({
   }));
 
   const canEdit = canEditEmployees(userRole);
-  const canPayroll = canManagePayroll(userRole);
+  const canPayroll = canPayrollEarly;
+  const locale = normalizeAppLocale(await getLocale());
   const t = await getTranslations("employees");
+
+  const serializedPending = pendingHours.map((p) => ({
+    id: p.id,
+    date: p.date.toISOString(),
+    hours: p.hours,
+    note: p.note,
+    dossierLabel: p.dossierLabel,
+  }));
+
+  const approvedSummary =
+    approvedUnbilled.length > 0
+      ? {
+          count: approvedUnbilled.length,
+          totalHours: Math.round(approvedUnbilled.reduce((s, e) => s + e.hours, 0) * 100) / 100,
+          minDate: approvedUnbilled
+            .reduce((min, e) => (e.date < min ? e.date : min), approvedUnbilled[0].date)
+            .toISOString(),
+          maxDate: approvedUnbilled
+            .reduce((max, e) => (e.date > max ? e.date : max), approvedUnbilled[0].date)
+            .toISOString(),
+        }
+      : null;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -133,6 +164,9 @@ export default async function EmployeeDetailPage({
         supervisorOptions={supervisors}
         payslips={payslipRows}
         activities={activityRows}
+        pendingHours={serializedPending}
+        approvedSummary={approvedSummary}
+        locale={locale}
       />
     </div>
   );

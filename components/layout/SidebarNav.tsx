@@ -106,6 +106,9 @@ const NAV_ITEMS: NavItem[] = [
         show: (role) => role === "assistante" || role === "admin_cabinet" || role === "avocat",
       },
       { id: "employees", href: routes.employees, labelKey: "nav.employees", icon: Users, show: (role) => canViewEmployees(role as UserRole) },
+      // Mon temps & ma paye — soumission d'heures employé (N8). Visible pour tous
+      // (la page affiche un message si aucune fiche employé n'est liée au compte).
+      { id: "mes-heures", href: routes.mesHeures, labelKey: "nav.myHours", icon: Clock, show: () => true },
     ],
   },
 

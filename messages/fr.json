@@ -314,7 +314,8 @@
         "reports": "Rapports",
         "compliance": "Conformité",
         "settings": "Paramètres",
-        "today": "Aujourd’hui"
+        "today": "Aujourd’hui",
+        "myHours": "Mon temps & ma paye"
       },
       "profile": {
         "title": "Profil",
@@ -3185,5 +3186,49 @@
   "timerUi": {
     "start": "Démarrer le chrono",
     "running": "Chrono en cours"
+  },
+  "hoursUi": {
+    "pageTitle": "Mon temps & ma paye",
+    "pageDescription": "Soumettez les heures que vous avez travaillées pour être payée. Votre superviseure les approuve, puis elles passent à la paie.",
+    "noEmployeeTitle": "Aucune fiche employé liée à votre compte",
+    "noEmployeeBody": "Demandez à votre administrateur de relier votre compte à une fiche employé pour soumettre vos heures.",
+    "expectedPay": "Paye attendue",
+    "expectedPayHint": "Sur {hours} h approuvées",
+    "pendingHours": "En attente",
+    "pendingHoursHint": "À approuver",
+    "approvedHours": "Approuvées",
+    "approvedHoursHint": "Prêtes pour la paie",
+    "paidPay": "Déjà versé",
+    "paidPayHint": "Sur {hours} h payées",
+    "submitTitle": "Soumettre des heures",
+    "fieldDate": "Date",
+    "fieldHours": "Heures",
+    "fieldMatter": "Dossier (facultatif)",
+    "fieldNote": "Note (facultatif)",
+    "matterNone": "Aucun dossier",
+    "notePlaceholder": "Ex. préparation du dossier",
+    "submit": "Soumettre",
+    "invalidHours": "Entrez un nombre d’heures valide (entre 0 et 24).",
+    "genericError": "Une erreur est survenue. Réessayez.",
+    "historyTitle": "Mes soumissions",
+    "historyEmpty": "Aucune heure soumise pour le moment.",
+    "statusSubmitted": "En attente",
+    "statusApproved": "Approuvée",
+    "statusRejected": "Rejetée",
+    "statusPaid": "Payée",
+    "rejectedReason": "Motif",
+    "withdraw": "Retirer"
+  },
+  "hoursAdmin": {
+    "title": "Heures soumises",
+    "toApprove": "{count} à approuver",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "confirmReject": "Confirmer le rejet",
+    "reasonPlaceholder": "Motif du rejet (visible par l’employée)",
+    "reasonRequired": "Indiquez un motif de rejet.",
+    "approvedReady": "{count} entrée(s) approuvée(s) · {hours} h · {amount} prêtes à passer en paie.",
+    "generateFromApproved": "Générer la paie",
+    "genericError": "Une erreur est survenue. Réessayez."
   }
 }

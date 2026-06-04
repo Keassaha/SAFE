@@ -9,6 +9,7 @@ import { EmployeeAccessTab } from "./EmployeeAccessTab";
 import { EmployeePayrollTab } from "./EmployeePayrollTab";
 import { EmployeeActivityTab } from "./EmployeeActivityTab";
 import type { PayslipRow } from "./EmployeePayrollTab";
+import type { SerializedPendingHour, ApprovedSummary } from "./PendingHoursApproval";
 import type { ActivityRow } from "./EmployeeActivityTab";
 import { updateEmployee, generatePayslipForCurrentWeek } from "@/app/(app)/employees/actions";
 
@@ -38,6 +39,9 @@ interface EmployeeProfileProps {
   supervisorOptions: { id: string; fullName: string }[];
   payslips: PayslipRow[];
   activities: ActivityRow[];
+  pendingHours?: SerializedPendingHour[];
+  approvedSummary?: ApprovedSummary | null;
+  locale?: "fr" | "en";
 }
 
 export function EmployeeProfile({
@@ -47,6 +51,9 @@ export function EmployeeProfile({
   supervisorOptions,
   payslips,
   activities,
+  pendingHours = [],
+  approvedSummary = null,
+  locale = "en",
 }: EmployeeProfileProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<EmployeeProfileTabId>("info");
@@ -81,6 +88,11 @@ export function EmployeeProfile({
         <EmployeePayrollTab
           payslips={payslips}
           canGenerate={canManagePayroll}
+          employeeId={employee.id}
+          hourlyRate={employee.hourlyRate}
+          pendingHours={pendingHours}
+          approvedSummary={approvedSummary}
+          locale={locale}
           onGenerate={async () => {
             await generatePayslipForCurrentWeek(employee.id);
             router.refresh();
