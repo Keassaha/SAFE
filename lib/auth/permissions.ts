@@ -55,6 +55,15 @@ export function canEditBillingTrust(role: UserRole): boolean {
   return ["admin_cabinet", "comptabilite"].includes(role);
 }
 
+/**
+ * Certifier (signer) la déclaration de conformité d'un rapport fidéicommis.
+ * Réservé à l'avocat responsable et à l'admin du cabinet (B-1 r.5) — la
+ * comptabilité prépare le rapport mais ne le signe pas.
+ */
+export function canCertifyComplianceReport(role: UserRole): boolean {
+  return ["admin_cabinet", "avocat"].includes(role);
+}
+
 export function canManageDossiers(role: UserRole): boolean {
   return ["admin_cabinet", "assistante"].includes(role);
 }

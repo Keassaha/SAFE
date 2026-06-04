@@ -27,6 +27,7 @@ import {
 } from "@react-pdf/renderer";
 import type { PresentedInvoice, PresentedLine } from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import {
   colors,
   fontSize,
@@ -486,7 +487,7 @@ export function InvoiceDocument({
   return (
     <Document
       author={cabinet?.nom ?? "SAFE"}
-      title={`${t.invoice} ${invoice.numero}`}
+      title={`${t.invoice} ${displayInvoiceNumero(invoice.numero)}`}
       creator="SAFE — Cabinet juridique"
       producer="@react-pdf/renderer"
     >
@@ -507,7 +508,7 @@ export function InvoiceDocument({
           <View style={styles.headerRight}>
             <Text style={styles.invoiceKicker}>{t.invoice}</Text>
             <View style={styles.invoiceKickerRule} />
-            <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
+            <Text style={styles.invoiceNumber}>{displayInvoiceNumero(invoice.numero)}</Text>
             <View style={styles.invoiceDates}>
               <View style={styles.invoiceDateRow}>
                 <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>

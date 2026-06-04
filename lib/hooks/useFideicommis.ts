@@ -164,6 +164,39 @@ export function useCreateTrustWithdrawal() {
   });
 }
 
+export function useCreateTrustCorrection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: {
+      clientId: string;
+      dossierId: string;
+      montant: number;
+      dateTransaction: Date | string;
+      correctionOfId: string;
+      description: string;
+      reference?: string | null;
+    }) => {
+      const res = await fetch("/api/fideicommis/correction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...body,
+          dateTransaction:
+            typeof body.dateTransaction === "string"
+              ? body.dateTransaction
+              : body.dateTransaction.toISOString().slice(0, 10),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Erreur enregistrement correction");
+      return data as { success: boolean; transactionId: string };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fideicommis"] });
+    },
+  });
+}
+
 export function useGenerateTrustStatement() {
   const queryClient = useQueryClient();
   return useMutation({

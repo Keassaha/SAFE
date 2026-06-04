@@ -29,11 +29,55 @@ export type CabinetTaxNumbers = {
 };
 
 /**
+ * Modèle visuel de facture appliqué pour le cabinet.
+ * - `standard` : gabarit SAFE générique (multi-cabinets).
+ * - `derisier` : gabarit imitant l'échantillon Derisier Law (en-tête centré,
+ *   table « Honoraires & Débours », bloc N.B. fiducie, mention E. & O.).
+ */
+export type CabinetInvoiceTemplate = "standard" | "derisier";
+
+/**
+ * Bloc N.B. propre au cabinet (mentions légales + instructions de paiement),
+ * rendu en bas de la facture. Chaque entrée est un paragraphe ; la première
+ * ligne est mise en évidence (ex. « TOUS LES SERVICES SONT ASSUJETTIS À LA TVH »).
+ * Bilingue : on choisit `fr`/`en` selon la langue de la facture.
+ */
+export type CabinetInvoiceNotice = {
+  fr?: string[];
+  en?: string[];
+};
+
+/**
+ * Signature reproduite en bas de facture (option activée par facture).
+ * Aucun fichier image n'est requis : le nom est rendu dans une police
+ * manuscrite/italique pour imiter une signature. Le `title` (bilingue) est
+ * la mention sous la ligne (ex. « Avocate »). JAMAIS de n° de Barreau / LSO.
+ */
+export type CabinetInvoiceSignature = {
+  /** Nom reproduit en signature (ex. « Marjorie-Alexandra Derisier »). */
+  name?: string;
+  /** Titre/fonction affiché sous la ligne de signature (bilingue). */
+  title?: { fr?: string; en?: string };
+};
+
+export type CabinetInvoiceConfig = {
+  template?: CabinetInvoiceTemplate;
+  notice?: CabinetInvoiceNotice;
+  signature?: CabinetInvoiceSignature;
+  /**
+   * Couleur d'accent (hex « #rrggbb ») appliquée au bandeau, à l'en-tête de
+   * tableau et à l'encadré TOTAL. UNE seule couleur stockée → la règle dure
+   * « max 2 couleurs » reste garantie. Les teintes dérivées sont calculées au
+   * rendu (cf. lib/invoice-template/color.ts). Défaut : marron Derisier.
+   */
+  accentColor?: string;
+};
+
+/**
  * Offre commerciale personnalisée à afficher sur la page Abonnement.
  *
  * Permet à SAFE de présenter à un cabinet précis une offre négociée
- * (prix mensuel, essai gratuit) sans toucher aux PLANS standards. Affichée
- * comme bannière au-dessus de la grille de plans.
+ * (prix mensuel, essai gratuit) sans toucher aux PLANS standards.
  */
 export type PendingOfferConfig = {
   /** Libellé court (ex. "Offre d'activation Kouame Avocat"). */
@@ -54,6 +98,7 @@ export type CabinetConfig = {
   formatFacture?: string;
   envoiFactureClient?: EnvoiFactureClientConfig;
   taxNumbers?: CabinetTaxNumbers;
+  invoice?: CabinetInvoiceConfig;
   pendingOffer?: PendingOfferConfig;
 };
 
@@ -84,6 +129,51 @@ export function getPendingOffer(config: CabinetConfig): PendingOfferConfig | nul
   return config.pendingOffer ?? null;
 }
 
+/**
+ * Modèle de facture + bloc N.B. du cabinet, avec valeurs par défaut sûres.
+ * `template` retombe sur "standard" si non défini, et `notice` sur des
+ * tableaux vides (aucun bloc rendu) — rétro-compatible avec les cabinets
+ * existants qui n'ont pas configuré de facture personnalisée.
+ */
+/** Accent par défaut (marron Derisier) si aucune couleur n'est configurée. */
+export const DEFAULT_INVOICE_ACCENT = "#7A3B2E";
+
+export function getCabinetInvoiceConfig(config: CabinetConfig): {
+  template: CabinetInvoiceTemplate;
+  notice: { fr: string[]; en: string[] };
+  signature: { name: string; title: { fr: string; en: string } } | null;
+  accentColor: string;
+} {
+  const inv = config.invoice ?? {};
+  const sigName = inv.signature?.name?.trim();
+  const accentRaw = inv.accentColor?.trim();
+  // Validation hex souple ici (le garde-fou de luminance vit dans color.ts) :
+  // on garde la valeur si elle ressemble à un hex, sinon défaut.
+  const accentColor =
+    accentRaw && /^#?[0-9a-fA-F]{6}$/.test(accentRaw)
+      ? accentRaw.startsWith("#")
+        ? accentRaw
+        : `#${accentRaw}`
+      : DEFAULT_INVOICE_ACCENT;
+  return {
+    template: inv.template ?? "standard",
+    notice: {
+      fr: inv.notice?.fr ?? [],
+      en: inv.notice?.en ?? [],
+    },
+    signature: sigName
+      ? {
+          name: sigName,
+          title: {
+            fr: inv.signature?.title?.fr?.trim() ?? "",
+            en: inv.signature?.title?.en?.trim() ?? "",
+          },
+        }
+      : null,
+    accentColor,
+  };
+}
+
 export function mergeCabinetConfig(
   rawConfig: string | null,
   patch: Partial<CabinetConfig>
@@ -100,6 +190,17 @@ export function mergeCabinetConfig(
       patch.taxNumbers !== undefined
         ? { ...current.taxNumbers, ...patch.taxNumbers }
         : current.taxNumbers,
+    invoice:
+      patch.invoice !== undefined
+        ? {
+            ...current.invoice,
+            ...patch.invoice,
+            notice:
+              patch.invoice.notice !== undefined
+                ? { ...current.invoice?.notice, ...patch.invoice.notice }
+                : current.invoice?.notice,
+          }
+        : current.invoice,
   };
   return JSON.stringify(merged);
 }

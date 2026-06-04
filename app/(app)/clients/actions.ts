@@ -367,18 +367,31 @@ export async function updateClientForm(formData: FormData) {
   await updateClient(id, formData);
 }
 
+/**
+ * Conformité Barreau (B-1 r.5) : un client et ses dossiers/factures/registres
+ * fiduciaires doivent être conservés (10 ans). La suppression définitive est
+ * INTERDITE — `deleteClient` archive donc le client (soft delete) au lieu de le
+ * supprimer. Un hard delete déclencherait par ailleurs les cascades Prisma
+ * (Invoice, TrustAccount, TrustTransaction, CreditNote, Document...) et
+ * détruirait des registres fiduciaires immuables.
+ */
 export async function deleteClient(id: string) {
   const { cabinetId, userId } = await requireCabinetAndUser();
-  await prisma.client.deleteMany({ where: { id, cabinetId } });
+  await prisma.client.updateMany({
+    where: { id, cabinetId },
+    data: { status: "archive" },
+  });
   await createAuditLog({
     cabinetId,
     userId,
     entityType: "Client",
     entityId: id,
-    action: "delete",
+    action: "update",
+    metadata: { status: "archive", reason: "delete_request_redirected_to_archive" },
   });
   revalidatePath("/clients");
-  redirect("/clients");
+  revalidatePath(`/clients/${id}`);
+  redirect("/clients?success=archived");
 }
 
 export async function archiveClient(id: string) {

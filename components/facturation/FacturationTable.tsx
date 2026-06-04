@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { formatDate, formatCurrency } from "@/lib/utils/format";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { routes } from "@/lib/routes";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import type { InvoiceStatut } from "@prisma/client";
 import { ChevronRight, FileText, Building2, Bell } from "lucide-react";
 
@@ -99,7 +100,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                     <span className="flex h-8 w-8 items-center justify-center rounded-safe-sm bg-primary-50 text-primary-600">
                       <FileText className="h-4 w-4" aria-hidden />
                     </span>
-                    <span className="font-mono">{inv.numero}</span>
+                    <span className="font-mono">{displayInvoiceNumero(inv.numero)}</span>
                   </Link>
                 </td>
                 <td className="px-4 py-3">

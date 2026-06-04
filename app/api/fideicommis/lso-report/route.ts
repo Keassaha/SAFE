@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { canEditBillingTrust } from "@/lib/auth/permissions";
+import { canEditBillingTrust, canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import {
   createComplianceReport,
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   if (!cabinetId || !userId) {
     return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
   }
-  if (!canEditBillingTrust(role)) {
+  if (!canViewBillingTrust(role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 

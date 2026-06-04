@@ -24,6 +24,7 @@ export {
 export {
   generateReportData,
   createComplianceReport,
+  certifyComplianceReport,
   getComplianceReports,
   type GenerateReportParams,
 } from "./lso-report-service";

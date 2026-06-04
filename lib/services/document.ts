@@ -175,14 +175,31 @@ async function deleteDocumentObject(storageKey: string): Promise<void> {
   await fs.unlink(path.join(UPLOAD_BASE, storageKey));
 }
 
+/** Levée quand un document rattaché à un client/dossier ne peut être supprimé (rétention Barreau). */
+export class DocumentRetentionError extends Error {
+  constructor() {
+    super("DOCUMENT_RETENTION");
+    this.name = "DocumentRetentionError";
+  }
+}
+
 /**
  * Supprime le document (fichier + enregistrement) et enregistre l'audit.
+ *
+ * Conformité Barreau (B-1 r.5) : les pièces rattachées à un client ou à un
+ * dossier doivent être conservées (10 ans). La suppression définitive est donc
+ * refusée pour ces documents (lève `DocumentRetentionError`). Seuls les fichiers
+ * orphelins (ni client ni dossier — uploads temporaires/mal classés) peuvent
+ * être supprimés.
  */
 export async function deleteDocument(documentId: string, cabinetId: string, userId: string): Promise<boolean> {
   const doc = await prisma.document.findFirst({
     where: { id: documentId, cabinetId },
   });
   if (!doc) return false;
+  if (doc.clientId || doc.dossierId) {
+    throw new DocumentRetentionError();
+  }
   try {
     await deleteDocumentObject(doc.storageKey);
   } catch {

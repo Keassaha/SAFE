@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -167,6 +169,24 @@ export default async function FacturationPage({
     <div className="space-y-6">
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { href: routes.facturationTempsNonFacture, titre: "Temps non facturé", sous: "Revenus dormants" },
+          { href: routes.facturationCreancesAging, titre: "Aging des créances", sous: "Impayés par ancienneté" },
+          { href: routes.facturationTaxes, titre: "TPS / TVQ", sous: "À remettre (estimation)" },
+          { href: routes.facturationRentabilite, titre: "Rentabilité", sous: "Marge par dossier" },
+        ].map((c) => (
+          <Link
+            key={c.href}
+            href={c.href}
+            className="rounded-safe border border-emerald-200 bg-emerald-50/50 px-4 py-3 hover:bg-emerald-50 transition-colors"
+          >
+            <p className="text-sm font-semibold text-emerald-900">{c.titre}</p>
+            <p className="text-xs text-emerald-700/80 mt-0.5">{c.sous} →</p>
+          </Link>
+        ))}
+      </div>
 
       <section id="facturables" className="scroll-mt-24">
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />

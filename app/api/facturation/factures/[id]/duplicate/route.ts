@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
-import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
+import { makeProvisionalInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
 import { invoiceItemUpdateSchema } from "@/lib/validations/facturation";
 import { z } from "zod";
@@ -72,13 +72,12 @@ export async function POST(
 
   const now = new Date();
 
-  // Atomicité : numéro (sous advisory lock) + invoice + items + recalcul des
-  // totaux dans une seule transaction. Le numéro est généré via
-  // `getNextInvoiceNumero(cabinetId, tx)` pour propager le verrou advisory
-  // sur (cabinetId, year) jusqu'au commit. Combiné avec
-  // `@@unique([cabinetId, numero])`, cela élimine la collision concurrente.
+  // Atomicité : invoice + items + recalcul des totaux dans une seule
+  // transaction. La copie est un BROUILLON : numéro PROVISOIRE (le numéro
+  // officiel YYYY-NNN sera attribué à l'émission). `@@unique([cabinetId, numero])`
+  // reste le filet contre toute collision.
   const newInvoiceId = await prisma.$transaction(async (tx) => {
-    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    const numero = makeProvisionalInvoiceNumero();
 
     const newInvoice = await tx.invoice.create({
       data: {

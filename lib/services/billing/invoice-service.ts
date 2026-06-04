@@ -4,7 +4,11 @@
  */
 
 import { prisma } from "@/lib/db";
-import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
+import {
+  makeProvisionalInvoiceNumero,
+  getNextIssuedInvoiceNumero,
+  isProvisionalInvoiceNumero,
+} from "@/lib/facturation/numero-facture";
 import {
   computeBillingTotals,
   MIN_AMOUNT_TO_BILL,
@@ -104,7 +108,9 @@ export async function createDraftFromBillableItems(params: {
   // facture associée. Le lock advisory dans getNextInvoiceNumero(tx)
   // sérialise les générations concurrentes de numéro pour le même cabinet.
   const { invoiceId, numero } = await prisma.$transaction(async (tx) => {
-    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    // Brouillon : numéro PROVISOIRE (ne consomme pas la séquence officielle).
+    // Le numéro officiel YYYY-NNN est attribué à l'émission (issueInvoice).
+    const numero = makeProvisionalInvoiceNumero();
     const invoice = await tx.invoice.create({
       data: {
         cabinetId,
@@ -428,9 +434,18 @@ export async function issueInvoice(params: {
         data: { statut: "facture" },
       });
     }
+    // Conformité Barreau : le numéro officiel séquentiel YYYY-NNN est attribué
+    // ICI, à l'émission (et non à la création du brouillon), pour garantir une
+    // séquence de factures émises sans trou. Si la facture porte encore un
+    // numéro provisoire, on lui assigne le prochain numéro officiel sous lock.
+    const officialNumero = isProvisionalInvoiceNumero(invoice.numero)
+      ? await getNextIssuedInvoiceNumero(invoice.cabinetId, tx)
+      : invoice.numero;
+
     const issuedInvoice = await tx.invoice.update({
       where: { id: invoiceId },
       data: {
+        numero: officialNumero,
         invoiceStatus: "ISSUED",
         statut: "envoyee",
         sentAt: now,

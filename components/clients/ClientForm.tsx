@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { createClient, updateClientForm, deleteClient } from "@/app/(app)/clients/actions";
+import { createClient, updateClientForm, archiveClient } from "@/app/(app)/clients/actions";
 import { routes } from "@/lib/routes";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -167,10 +167,14 @@ function DeleteClientButton({ clientId }: { clientId: string }) {
   return (
     <Button
       type="button"
-      variant="danger"
-      onClick={() => deleteClient(clientId)}
+      variant="secondary"
+      onClick={() => {
+        if (window.confirm(tc("archiveClientConfirm"))) {
+          archiveClient(clientId);
+        }
+      }}
     >
-      {tc("delete")}
+      {tc("archive")}
     </Button>
   );
 }

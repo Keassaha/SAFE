@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { isInvoiceDraft, isInvoiceIssued, getInvoiceLifecycleCategory } from "@/lib/billing/invoice-status";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 
 interface InvoicePreviewModalProps {
   invoice: Invoice & {
@@ -100,7 +101,7 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
     <Modal
       open
       onClose={onClose}
-      title={`Facture ${invoice.numero} - ${getStatus()}`}
+      title={`Facture ${displayInvoiceNumero(invoice.numero)} - ${getStatus()}`}
       maxWidth="max-w-2xl"
     >
       <div className="space-y-6">

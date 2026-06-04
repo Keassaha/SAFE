@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierForm } from "@/components/dossiers/DossierForm";
 import { DossierBriefcase } from "@/components/dossiers/briefcase";
+import { DossierResumeIA } from "@/components/dossiers/DossierResumeIA";
 import { canViewSensitiveFields, canAssignSelfAsAssistant } from "@/lib/auth/permissions";
 import { getDossierSections, generateCartable } from "@/lib/dossiers/cartable-service";
 import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
@@ -247,13 +248,20 @@ export default async function DossierDetailPage({
         </section>
       )}
 
+      {/* Résumé IA du dossier — synthèse factuelle des pièces (Agent Assistant) */}
+      <DossierResumeIA
+        dossierId={dossier.id}
+        initialResume={dossier.resumeDossier}
+        canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
+      />
+
       {/* Documents rédigés via l'éditeur SAFE */}
       <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-900">Documents rédigés</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Documents créés depuis l'éditeur · liés à ce dossier
+              Documents créés depuis l&apos;éditeur · liés à ce dossier
             </p>
           </div>
           <Link

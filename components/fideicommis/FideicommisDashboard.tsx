@@ -6,6 +6,7 @@ import { SoldeCards } from "./SoldeCards";
 import { TransactionsTable } from "./TransactionsTable";
 import { ReleveGenerator } from "./ReleveGenerator";
 import { ReconciliationAlert } from "./ReconciliationAlert";
+import { TrustAlertsPanel } from "./TrustAlertsPanel";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
@@ -43,6 +44,7 @@ export function FideicommisDashboard({
   return (
     <div className="space-y-6">
       <ReconciliationAlert />
+      <TrustAlertsPanel />
       <SoldeCards cabinetId={cabinetId} seuilBas={seuilBas} />
 
       <div className="flex flex-wrap gap-3">
@@ -76,7 +78,7 @@ export function FideicommisDashboard({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <TransactionsTable cabinetId={cabinetId} clients={clients} dossiers={dossiers} />
+          <TransactionsTable cabinetId={cabinetId} clients={clients} dossiers={dossiers} canEdit={canEdit} />
         </div>
         <div>
           <ReleveGenerator clients={clients} dossiers={dossiers} disabled={!cabinetId} />

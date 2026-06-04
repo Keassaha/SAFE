@@ -3,25 +3,32 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { useTrustTransactions, type TrustTransactionsFilters } from "@/lib/hooks/useFideicommis";
+import {
+  useTrustTransactions,
+  type TrustTransactionsFilters,
+  type TrustTransactionRow,
+} from "@/lib/hooks/useFideicommis";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
+import { CorrectionModal } from "./CorrectionModal";
 
 interface TransactionsTableProps {
   cabinetId: string | null;
   clients: { id: string; raisonSociale: string | null }[];
   dossiers: { id: string; clientId: string; intitule: string; numeroDossier: string | null }[];
+  canEdit?: boolean;
 }
 
-export function TransactionsTable({ cabinetId, clients, dossiers }: TransactionsTableProps) {
+export function TransactionsTable({ cabinetId, clients, dossiers, canEdit = false }: TransactionsTableProps) {
   const tf = useTranslations("fideicommis");
   const tc = useTranslations("common");
   const [clientId, setClientId] = useState("");
   const [dossierId, setDossierId] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [correctionTarget, setCorrectionTarget] = useState<TrustTransactionRow | null>(null);
 
   const TYPE_LABELS: Record<string, string> = {
     deposit: tf("typeDeposit"),
@@ -106,6 +113,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
                   <th className="text-right py-3 px-3 font-medium">{tf("typeDeposit")}</th>
                   <th className="text-right py-3 px-3 font-medium">{tf("typeWithdrawal")}</th>
                   <th className="text-right py-3 px-3 font-medium">{tc("balance")}</th>
+                  {canEdit && <th className="text-right py-3 px-3 font-medium">{tc("actions")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -130,6 +138,20 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
                     <td className="py-2 px-3 text-right tabular-nums font-medium">
                       {t.balanceAfter != null ? formatCurrency(t.balanceAfter) : "—"}
                     </td>
+                    {canEdit && (
+                      <td className="py-2 px-3 text-right">
+                        {t.type !== "correction" && (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setCorrectionTarget(t)}
+                          >
+                            {tf("correctAction")}
+                          </Button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -137,6 +159,12 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
           </div>
         )}
       </CardContent>
+      <CorrectionModal
+        open={correctionTarget != null}
+        onClose={() => setCorrectionTarget(null)}
+        cabinetId={cabinetId}
+        target={correctionTarget}
+      />
     </Card>
   );
 }

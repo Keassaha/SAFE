@@ -60,6 +60,54 @@ Documents opérationnels, légaux, financiers et marketing de SAFE Inc.
 
 ---
 
+## Documentation des builds (obligatoire)
+
+Tout travail de build, dev, spec ou décision produit DOIT être tracé dans
+`docs/journal/`. C'est la matière première du case study cliente, du contenu
+LinkedIn et de la mémoire produit de SAFE.
+
+### Règles dures (à appliquer sans demander la permission)
+
+1. **Début de session** — Lire `docs/journal/{AAAA}/{MM-mois}/{AAAA-MM-JJ}-build-log.md`.
+   S'il n'existe pas, le créer à partir de `docs/journal/TEMPLATE.md`.
+
+2. **Pendant la session** — Tenir le fichier à jour au fil des actions
+   significatives : feature buildée, décision prise, friction rencontrée,
+   citation cliente, idée de post.
+
+3. **Fin de session** — Vérifier que le journal du jour reflète fidèlement
+   ce qui a été fait. Si trou détecté, demander au CEO de compléter avant
+   de clôturer.
+
+4. **Idées de contenu** — Toute observation qui peut nourrir un post LinkedIn,
+   un article ou un asset marketing va dans la section "Idées de contenu"
+   du journal du jour ET dans `docs/journal/content-bank/idees-posts.md`.
+
+5. **Décisions produit majeures** — Si une décision change la direction d'un
+   module, créer un ADR dans `docs/journal/decisions/ADR-NNN-titre-court.md`.
+
+6. **Citations cliente** — Toute phrase exacte rapportée par la cliente
+   actuelle est loggée dans `docs/journal/citations-cliente/{AAAA-MM}.md`
+   (anonymisée si nécessaire, datée, avec contexte).
+
+7. **Baselines et métriques** — Toute mesure chiffrée (temps gagné, # erreurs,
+   heures admin, dossiers traités) est loggée dans
+   `docs/journal/metriques/{AAAA-MM}-baseline.md` avec date, source, méthode.
+
+### Confidentialité (règle dure)
+
+- Jamais de nom de client final du cabinet (secret professionnel de l'avocat).
+- Jamais de détail de dossier juridique identifiable.
+- Aucune clé API, mot de passe, ou donnée perso dans le journal.
+- Anonymiser les citations cliente si publication envisagée.
+
+### Principe
+
+En cas de doute entre "trop documenter" et "pas assez", choisir trop.
+Le journal n'est pas un livrable, c'est une trace brute. Format > style.
+
+---
+
 ## Pack recherche interne
 
 Pour toute recherche longue, sensible ou destinée à devenir une référence réutilisable, consulter aussi:
@@ -109,4 +157,4 @@ Ces fichiers definissent les artefacts de sortie, les entites du modele et la st
 
 ---
 
-**Dernière mise à jour** : 2026-04-15
+**Dernière mise à jour** : 2026-06-04 (ajout règle "Documentation des builds")

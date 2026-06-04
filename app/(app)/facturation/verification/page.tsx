@@ -5,6 +5,7 @@ import { FacturationPageHero } from "@/components/facturation/FacturationPageHer
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { FileText, ChevronRight } from "lucide-react";
 
 export default async function FacturationVerificationPage() {
@@ -49,7 +50,7 @@ export default async function FacturationVerificationPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-[var(--safe-text-title)]">
-                        {inv.numero} — {inv.client.raisonSociale}
+                        {displayInvoiceNumero(inv.numero)} — {inv.client.raisonSociale}
                       </p>
                       <p className="text-sm text-[var(--safe-text-secondary)]">
                         {inv.dossier?.intitule ?? "Sans dossier"} · Émission :{" "}

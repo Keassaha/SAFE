@@ -23,6 +23,14 @@ interface TransactionRow {
   balance: number;
 }
 
+interface MonthlyReconciliationRow {
+  periode: string; // "YYYY-MM"
+  status: string;
+  certified: boolean;
+  certifiedAt: string | null;
+  ecart: number;
+}
+
 interface ReportData {
   cabinetName: string;
   periode: string;
@@ -44,6 +52,19 @@ interface ReportData {
   } | null;
   interetsLFO: number;
   nbTransactions: number;
+  /** Nombre de comptes fidéicommis avec un solde non nul (exigence rapport annuel Barreau). */
+  nbActiveTrustAccounts: number;
+  /**
+   * Rapport annuel uniquement : état des 12 rapprochements mensuels de l'exercice.
+   * `null` pour les rapports mensuels/trimestriels.
+   */
+  annualReconciliations: {
+    months: MonthlyReconciliationRow[];
+    allCertified: boolean;
+    /** Mois (YYYY-MM) sans rapprochement certifié — bloquants pour le dépôt au Barreau. */
+    missingOrUncertifiedMonths: string[];
+    totalEcart: number;
+  } | null;
 }
 
 /** Generate compliance report data for a given period. */
@@ -132,6 +153,43 @@ export async function generateReportData(params: GenerateReportParams): Promise<
     include: { certifiedBy: { select: { nom: true } } },
   });
 
+  // Nombre de comptes fidéicommis actifs (solde non nul) — exigence rapport annuel Barreau.
+  const nbActiveTrustAccounts = await prisma.trustAccount.count({
+    where: { cabinetId, currentBalance: { not: 0 } },
+  });
+
+  // Rapport annuel : vérifier les 12 rapprochements mensuels de l'exercice.
+  let annualReconciliations: ReportData["annualReconciliations"] = null;
+  if (type === "annual") {
+    const yearReconciliations = await prisma.trustReconciliation.findMany({
+      where: { cabinetId, periode: { startsWith: `${year}-` } },
+    });
+    const byPeriode = new Map(yearReconciliations.map((r) => [r.periode, r]));
+    const months: MonthlyReconciliationRow[] = [];
+    const missingOrUncertifiedMonths: string[] = [];
+    let totalEcart = 0;
+    for (let m = 1; m <= 12; m++) {
+      const mPeriode = `${year}-${String(m).padStart(2, "0")}`;
+      const rec = byPeriode.get(mPeriode);
+      const certified = rec?.status === "certified" && rec?.certifiedAt != null;
+      months.push({
+        periode: mPeriode,
+        status: rec?.status ?? "missing",
+        certified,
+        certifiedAt: rec?.certifiedAt?.toISOString() ?? null,
+        ecart: rec?.ecart ?? 0,
+      });
+      if (!certified) missingOrUncertifiedMonths.push(mPeriode);
+      totalEcart += rec?.ecart ?? 0;
+    }
+    annualReconciliations = {
+      months,
+      allCertified: missingOrUncertifiedMonths.length === 0,
+      missingOrUncertifiedMonths,
+      totalEcart,
+    };
+  }
+
   return {
     cabinetName: cabinet?.nom ?? "Unknown",
     periode,
@@ -155,6 +213,8 @@ export async function generateReportData(params: GenerateReportParams): Promise<
       : null,
     interetsLFO: reconciliation?.interetsLFO ?? 0,
     nbTransactions: transactions.length,
+    nbActiveTrustAccounts,
+    annualReconciliations,
   };
 }
 
@@ -178,6 +238,9 @@ export async function createComplianceReport(params: GenerateReportParams) {
       data: JSON.stringify(reportData),
       reconciliationId: reconciliation?.id ?? null,
     },
+    // select explicite (sans les colonnes de certification) pour rester
+    // compatible avant l'application de la migration de certification.
+    select: { id: true, periode: true, type: true, status: true, generatedAt: true },
   });
 
   await createAuditLog({
@@ -199,12 +262,92 @@ export async function createComplianceReport(params: GenerateReportParams) {
   return { report, data: reportData };
 }
 
+/**
+ * Certifie (signe) la déclaration de conformité d'un rapport fidéicommis.
+ *
+ * Conformité Barreau (B-1 r.5) : pour un rapport ANNUEL, la certification est
+ * refusée tant que les 12 rapprochements mensuels de l'exercice ne sont pas tous
+ * certifiés (règle bloquante). La signature est posée par l'avocat responsable.
+ */
+export async function certifyComplianceReport(params: {
+  cabinetId: string;
+  reportId: string;
+  certifiedById: string;
+  declarationText?: string;
+}): Promise<{ id: string }> {
+  const { cabinetId, reportId, certifiedById, declarationText } = params;
+
+  const report = await prisma.trustComplianceReport.findFirst({
+    where: { id: reportId, cabinetId },
+    select: { id: true, status: true, type: true, data: true, periode: true },
+  });
+  if (!report) throw new Error("Rapport introuvable");
+  if (report.status === "final") throw new Error("Ce rapport est déjà certifié");
+
+  // Règle bloquante pour le rapport annuel : tous les rapprochements certifiés.
+  if (report.type === "annual") {
+    let parsed: ReportData | null = null;
+    try {
+      parsed = report.data ? (JSON.parse(report.data) as ReportData) : null;
+    } catch {
+      parsed = null;
+    }
+    const annual = parsed?.annualReconciliations;
+    if (!annual || !annual.allCertified) {
+      const missing = annual?.missingOrUncertifiedMonths ?? [];
+      throw new Error(
+        `Certification refusée : les 12 rapprochements mensuels doivent être certifiés avant de signer le rapport annuel.${
+          missing.length ? ` Mois manquants ou non certifiés : ${missing.join(", ")}.` : ""
+        }`
+      );
+    }
+  }
+
+  const now = new Date();
+  const updated = await prisma.trustComplianceReport.update({
+    where: { id: reportId },
+    data: {
+      status: "final",
+      certifiedById,
+      certifiedAt: now,
+      declarationText:
+        declarationText ??
+        "J'atteste, à titre d'avocat responsable, que les registres et rapprochements fidéicommis de la période sont exacts et conformes au règlement sur la comptabilité (B-1 r.5).",
+    },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId: certifiedById,
+    entityType: "TrustAccount",
+    entityId: reportId,
+    action: "update",
+    newValues: {
+      type: "compliance_report_certified",
+      periode: report.periode,
+      reportType: report.type,
+      certifiedAt: now.toISOString(),
+    },
+    performedBy: certifiedById,
+    performedAt: now,
+  });
+
+  return { id: updated.id };
+}
+
 /** List compliance reports for a cabinet. */
 export async function getComplianceReports(cabinetId: string) {
+  // select explicite (sans les colonnes de certification) pour rester compatible
+  // avant l'application de la migration de certification.
   return prisma.trustComplianceReport.findMany({
     where: { cabinetId },
     orderBy: { generatedAt: "desc" },
-    include: {
+    select: {
+      id: true,
+      periode: true,
+      type: true,
+      status: true,
+      generatedAt: true,
       generatedBy: { select: { nom: true } },
       reconciliation: { select: { status: true, certifiedAt: true } },
     },

@@ -6,6 +6,7 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-presented-invoice";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { FacturePreviewActions } from "./FacturePreviewActions";
 
 function statusLabel(invoiceStatus: string | null, statut: string) {
@@ -61,7 +62,7 @@ export default async function FacturePreviewPage({
             </span>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Aperçu de la facture {invoice.numero}
+                Aperçu de la facture {displayInvoiceNumero(invoice.numero)}
               </h1>
               <p className="mt-1 text-sm text-neutral-500">
                 {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut)}

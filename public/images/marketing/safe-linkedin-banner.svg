@@ -1,0 +1,47 @@
+
+<svg width="1584" height="396" viewBox="0 0 1584 396" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1584" y2="396" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#071713"/>
+      <stop offset="0.54" stop-color="#0B231D"/>
+      <stop offset="1" stop-color="#123C31"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1120 190) rotate(18) scale(560 240)">
+      <stop stop-color="#51D89B" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#51D89B" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#BDEBD8" stroke-opacity="0.055" stroke-width="1"/>
+    </pattern>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020A07" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+
+  <rect width="1584" height="396" fill="url(#bg)"/>
+  <rect width="1584" height="396" fill="url(#grid)"/>
+  <rect width="1584" height="396" fill="url(#glow)"/>
+
+  <path d="M0 316 C202 266 328 365 522 306 C704 251 776 100 1018 110 C1218 118 1368 208 1584 144 L1584 396 L0 396 Z" fill="#DDF8EB" fill-opacity="0.045"/>
+  <path d="M0 70 C210 22 376 108 560 72 C728 39 838 -4 1068 38 C1274 75 1416 79 1584 34" stroke="#9EF0C2" stroke-opacity="0.16" stroke-width="2"/>
+
+  <!-- LinkedIn profile-photo protection zone hint: kept intentionally quiet. -->
+  <rect x="0" y="132" width="575" height="264" fill="#071713" fill-opacity="0.18"/>
+
+  <g transform="translate(626 65)">
+    <text x="0" y="24" fill="#9EF0C2" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="25" font-weight="700" letter-spacing="0">SAFE</text>
+    <text x="0" y="96" fill="#F4FBF6" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="54" font-weight="800" letter-spacing="0">L'OS du cabinet</text>
+    <text x="0" y="156" fill="#F4FBF6" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="54" font-weight="800" letter-spacing="0">d'avocats solo</text>
+    <text x="0" y="214" fill="#C9E6D9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="29" font-weight="500" letter-spacing="0">J'ai tenu leurs livres. Je construis leur logiciel.</text>
+  </g>
+
+  <g transform="translate(1138 47)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="350" height="246" rx="18" fill="#F7FBF8" fill-opacity="0.12" stroke="#DDF8EB" stroke-opacity="0.18"/>
+    <rect x="20" y="24" width="310" height="18" rx="9" fill="#9EF0C2" fill-opacity="0.45"/>
+    <rect x="20" y="64" width="132" height="72" rx="14" fill="#F4FBF6" fill-opacity="0.16"/>
+    <rect x="172" y="64" width="158" height="72" rx="14" fill="#F4FBF6" fill-opacity="0.10"/>
+    <rect x="20" y="158" width="310" height="12" rx="6" fill="#F4FBF6" fill-opacity="0.22"/>
+    <rect x="20" y="188" width="238" height="12" rx="6" fill="#F4FBF6" fill-opacity="0.16"/>
+    <rect x="20" y="218" width="275" height="12" rx="6" fill="#F4FBF6" fill-opacity="0.13"/>
+  </g>
+</svg>

@@ -1,11 +1,17 @@
 import { requireCabinetAndUser } from "@/lib/auth/session";
-import { canEditBillingTrust } from "@/lib/auth/permissions";
+import {
+  canViewBillingTrust,
+  canEditBillingTrust,
+  canCertifyComplianceReport,
+} from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { LSOReportGenerator } from "@/components/fideicommis/LSOReportGenerator";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function TrustReportsPage() {
   const { role } = await requireCabinetAndUser();
-  if (!canEditBillingTrust(role as "admin_cabinet" | "avocat" | "assistante" | "comptabilite")) {
+  const userRole = role as UserRole;
+  if (!canViewBillingTrust(userRole)) {
     return (
       <div className="p-6">
         <p className="text-status-error">You do not have access to this section.</p>
@@ -21,7 +27,10 @@ export default async function TrustReportsPage() {
         backHref="/comptes"
         backLabel="Back to Trust Accounts"
       />
-      <LSOReportGenerator />
+      <LSOReportGenerator
+        canGenerate={canEditBillingTrust(userRole)}
+        canCertify={canCertifyComplianceReport(userRole)}
+      />
     </div>
   );
 }

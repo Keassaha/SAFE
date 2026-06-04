@@ -1,0 +1,26 @@
+<svg width="1584" height="396" viewBox="0 0 1584 396" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1584" y2="396"><stop stop-color="#0E2419"/><stop offset=".62" stop-color="#1F3A2E"/><stop offset="1" stop-color="#2B4A3E"/></linearGradient>
+      <pattern id="lines" width="52" height="52" patternUnits="userSpaceOnUse"><path d="M0 52L52 0" stroke="#D4E8D9" stroke-opacity=".06"/></pattern>
+      <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#06110D" flood-opacity=".36"/></filter>
+    </defs>
+    <rect width="1584" height="396" fill="url(#bg)"/>
+    <rect width="1584" height="396" fill="url(#lines)"/>
+    <rect x="0" y="132" width="568" height="264" fill="#0E2419" opacity=".35"/>
+    <g transform="translate(604 84)"><g transform="translate(0 -31) scale(1.1)">
+    <path d="M 19 20 L 33 20 L 26 33 Z" fill="#D4E8D9" stroke="#D4E8D9" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M 13 9 L 23 9 L 18 20 Z" fill="#8FB49F" stroke="#8FB49F" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+  </g><text x="58" y="0" fill="#F8FDF9" font-family="Instrument Serif, Georgia, serif" font-size="42" font-weight="500" letter-spacing="0">Safe</text></g>
+    <g transform="translate(604 128)">
+      <text x="0" y="52" fill="#F8FDF9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="58" font-weight="870">Une heure d'avocat</text>
+      <text x="0" y="120" fill="#F8FDF9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="58" font-weight="870">coûte trop cher</text>
+      <text x="0" y="182" fill="#D4E8D9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="32" font-weight="650">pour être perdue dans l'admin.</text>
+    </g>
+    <g transform="translate(1266 62)" filter="url(#shadow)">
+      <rect x="0" y="0" width="160" height="160" rx="38" fill="#F7F2E8" opacity=".10"/>
+      <g transform="translate(42 38) scale(1.95)">
+    <path d="M 19 20 L 33 20 L 26 33 Z" fill="#D4E8D9" stroke="#D4E8D9" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M 13 9 L 23 9 L 18 20 Z" fill="#8FB49F" stroke="#8FB49F" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+    </g>
+  </svg>

@@ -1,0 +1,21 @@
+<svg width="1584" height="396" viewBox="0 0 1584 396" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1584" y2="396"><stop stop-color="#08110F"/><stop offset="1" stop-color="#101E1A"/></linearGradient>
+        <pattern id="lines" width="54" height="54" patternUnits="userSpaceOnUse"><path d="M0 54L54 0" stroke="#C9F6DE" stroke-opacity=".055"/></pattern>
+      </defs>
+      <rect width="1584" height="396" fill="url(#bg)"/>
+      <rect width="1584" height="396" fill="url(#lines)"/>
+      <rect x="0" y="132" width="570" height="264" fill="#08110F" opacity=".25"/>
+      <g transform="translate(600 58)">
+        <text x="0" y="26" fill="#9EF0C2" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="850">SAFE</text>
+        <text x="0" y="102" fill="#F8FFF9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="62" font-weight="900">Une heure d'avocat</text>
+        <text x="0" y="174" fill="#F8FFF9" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="62" font-weight="900">coûte trop cher</text>
+        <text x="0" y="236" fill="#BEEBD5" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="33" font-weight="620">pour être perdue dans l'admin.</text>
+        <text x="0" y="292" fill="#8EDDB7" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="760">L'OS du cabinet d'avocats solo</text>
+      </g>
+      <g transform="translate(1300 72)">
+        <circle cx="80" cy="80" r="80" fill="#9EF0C2" opacity=".11"/>
+        <circle cx="80" cy="80" r="54" fill="#9EF0C2" opacity=".12"/>
+        <text x="80" y="104" text-anchor="middle" fill="#9EF0C2" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="72" font-weight="900">S</text>
+      </g>
+    </svg>

@@ -1,0 +1,23 @@
+<svg width="1584" height="396" viewBox="0 0 1584 396" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1584" y2="396"><stop stop-color="#F5FBF7"/><stop offset=".55" stop-color="#E8F5EE"/><stop offset="1" stop-color="#D6EBE0"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B241B" flood-opacity=".18"/></filter>
+  </defs>
+  <rect width="1584" height="396" fill="url(#bg)"/>
+  <rect x="0" y="132" width="570" height="264" fill="#D6EBE0" opacity=".35"/>
+  <g transform="translate(600 52)">
+    <text x="0" y="28" fill="#0F513B" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="850">SAFE</text>
+    <text x="0" y="98" fill="#071713" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="55" font-weight="880">L'OS du cabinet</text>
+    <text x="0" y="162" fill="#071713" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="55" font-weight="880">d'avocats solo</text>
+    <text x="0" y="222" fill="#285F4A" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="27" font-weight="520">Facturation. Comptabilité. Dossiers.</text>
+    <text x="0" y="272" fill="#0F513B" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="760">Depuis la chaise du teneur de livres.</text>
+  </g>
+  <g transform="translate(1175 54)" filter="url(#shadow)">
+    <rect width="300" height="220" rx="22" fill="#0B241B"/>
+    <rect x="24" y="26" width="190" height="14" rx="7" fill="#9EF0C2"/>
+    <rect x="24" y="68" width="110" height="64" rx="14" fill="#F6FFF9" opacity=".18"/>
+    <rect x="154" y="68" width="122" height="64" rx="14" fill="#F6FFF9" opacity=".12"/>
+    <rect x="24" y="156" width="252" height="12" rx="6" fill="#F6FFF9" opacity=".35"/>
+    <rect x="24" y="184" width="208" height="12" rx="6" fill="#F6FFF9" opacity=".23"/>
+  </g>
+</svg>
