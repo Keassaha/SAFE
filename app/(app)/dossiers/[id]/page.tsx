@@ -16,6 +16,7 @@ import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { DossierPreparationCard } from "@/components/dossiers/DossierPreparationCard";
 import { getDossierResume } from "@/lib/dossiers/dossier-resume";
 import { DossierResumeCard } from "@/components/dossiers/DossierResumeCard";
+import { DossierResumeIA } from "@/components/dossiers/DossierResumeIA";
 import { getDossierNavette } from "@/lib/navette/navette-service";
 import { NavetteThread } from "@/components/navette/NavetteThread";
 import { StartTimerButton } from "@/components/temps/StartTimerButton";
@@ -278,6 +279,16 @@ export default async function DossierDetailPage({
           />
         </section>
       )}
+
+      {/* Résumé IA du dossier — factuel, garde-fous Barreau, validation humaine.
+          Inactif (message) tant que ANTHROPIC_API_KEY n'est pas configurée. */}
+      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+        <DossierResumeIA
+          dossierId={dossier.id}
+          initialResume={dossier.resumeDossier}
+          canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
+        />
+      </section>
 
       {/* Carte État de préparation — V2 couche assistante active (deep links + bouton). */}
       {preparationStatus && (
