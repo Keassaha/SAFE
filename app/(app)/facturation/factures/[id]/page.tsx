@@ -5,6 +5,7 @@ import { ArrowLeft, FileText } from "lucide-react";
 import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
 import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-presented-invoice";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
@@ -97,7 +98,7 @@ export default async function FacturePreviewPage({
             </span>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                {t("invoicePreviewTitle", { numero: invoice.numero })}
+                {t("invoicePreviewTitle", { numero: displayInvoiceNumero(invoice.numero) })}
               </h1>
               <p className="mt-1 text-sm text-neutral-500">
                 {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut, t)}
@@ -114,7 +115,7 @@ export default async function FacturePreviewPage({
       <section className="rounded-safe border border-neutral-200 bg-neutral-50 p-4 shadow-sm md:p-8">
         <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
           <InvoiceTemplateClean
-            numero={invoice.numero}
+            numero={displayInvoiceNumero(invoice.numero)}
             dateEmission={invoice.dateEmission.toISOString()}
             dateEcheance={invoice.dateEcheance.toISOString()}
             cabinet={invoice.cabinet}

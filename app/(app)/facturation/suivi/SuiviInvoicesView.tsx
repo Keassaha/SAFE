@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import { AlertCircle, DollarSign, FileText, Link2 } from "lucide-react";
 
@@ -65,7 +66,7 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                     className="text-primary-600 hover:text-primary-700 inline-flex items-center gap-1"
                   >
                     <FileText className="h-4 w-4 shrink-0" aria-hidden />
-                    {inv.numero}
+                    {displayInvoiceNumero(inv.numero)}
                   </Link>
                 </td>
                 <td className="py-2 px-3">

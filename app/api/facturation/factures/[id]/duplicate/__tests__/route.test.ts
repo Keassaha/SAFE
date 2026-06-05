@@ -10,13 +10,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  *   - renvoie `{ id }` quand la duplication réussit.
  */
 
-const { log, txClient, prismaMock, getNextInvoiceNumeroMock, recalculateInvoiceTotalsMock } =
+const { log, txClient, prismaMock, makeProvisionalMock, recalculateInvoiceTotalsMock } =
   vi.hoisted(() => {
     const logRef = {
       txOpened: 0,
       inTx: [] as string[],
       outsideTx: [] as string[],
-      numeroCalls: [] as { cabinetId: string; clientType: "tx" | "prisma" | "unknown" }[],
       recalcCalls: [] as { invoiceId: string; clientType: "tx" | "prisma" | "unknown" }[],
     };
 
@@ -68,12 +67,7 @@ const { log, txClient, prismaMock, getNextInvoiceNumeroMock, recalculateInvoiceT
           return cb(txClientObj);
         }),
       },
-      getNextInvoiceNumeroMock: vi.fn(async (cabinetId: string, client?: unknown) => {
-        const clientType: "tx" | "prisma" | "unknown" =
-          client === txClientObj ? "tx" : client == null ? "prisma" : "unknown";
-        logRef.numeroCalls.push({ cabinetId, clientType });
-        return "F-2026-007";
-      }),
+      makeProvisionalMock: vi.fn(() => "BROUILLON-test"),
       recalculateInvoiceTotalsMock: vi.fn(async (invoiceId: string, client?: unknown) => {
         const clientType: "tx" | "prisma" | "unknown" =
           client === txClientObj ? "tx" : client == null ? "prisma" : "unknown";
@@ -93,7 +87,7 @@ vi.mock("@/lib/auth/permissions", () => ({
   canManageInvoices: () => true,
 }));
 vi.mock("@/lib/facturation/numero-facture", () => ({
-  getNextInvoiceNumero: getNextInvoiceNumeroMock,
+  makeProvisionalInvoiceNumero: makeProvisionalMock,
 }));
 vi.mock("@/lib/services/billing/invoice-service", () => ({
   recalculateInvoiceTotals: recalculateInvoiceTotalsMock,
@@ -111,7 +105,6 @@ beforeEach(() => {
   log.txOpened = 0;
   log.inTx.length = 0;
   log.outsideTx.length = 0;
-  log.numeroCalls.length = 0;
   log.recalcCalls.length = 0;
   prismaMock.$transaction.mockClear();
   prismaMock.invoice.findFirst.mockClear();
@@ -119,7 +112,7 @@ beforeEach(() => {
   prismaMock.invoiceItem.create.mockClear();
   txClient.invoice.create.mockClear();
   txClient.invoiceItem.create.mockClear();
-  getNextInvoiceNumeroMock.mockClear();
+  makeProvisionalMock.mockClear();
   recalculateInvoiceTotalsMock.mockClear();
 });
 
@@ -163,7 +156,7 @@ describe("POST /api/facturation/factures/[id]/duplicate — transactionnalité",
     expect(log.outsideTx).not.toContain("invoiceItem.create");
   });
 
-  it("appelle getNextInvoiceNumero avec le tx (advisory lock dans la même transaction)", async () => {
+  it("génère un numéro provisoire pour le brouillon dupliqué", async () => {
     const { POST } = await import("@/app/api/facturation/factures/[id]/duplicate/route");
 
     await POST(
@@ -175,9 +168,7 @@ describe("POST /api/facturation/factures/[id]/duplicate — transactionnalité",
       { params: Promise.resolve({ id: "inv-source-1" }) },
     );
 
-    expect(getNextInvoiceNumeroMock).toHaveBeenCalledTimes(1);
-    expect(log.numeroCalls).toHaveLength(1);
-    expect(log.numeroCalls[0]).toEqual({ cabinetId: "cab1", clientType: "tx" });
+    expect(makeProvisionalMock).toHaveBeenCalledTimes(1);
   });
 
   it("appelle recalculateInvoiceTotals avec le tx (recalcul dans la même transaction)", async () => {
@@ -207,7 +198,7 @@ describe("POST /api/facturation/factures/[id]/duplicate — transactionnalité",
 
     expect(res.status).toBe(400);
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
-    expect(getNextInvoiceNumeroMock).not.toHaveBeenCalled();
+    expect(makeProvisionalMock).not.toHaveBeenCalled();
   });
 
   it("rejette 404 si la facture source est introuvable", async () => {

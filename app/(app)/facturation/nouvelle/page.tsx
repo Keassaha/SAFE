@@ -1,6 +1,6 @@
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
+import { getNextIssuedInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { CreateInvoiceView } from "./CreateInvoiceView";
@@ -100,7 +100,7 @@ export default async function NouvelleFacturePage({
       select: { id: true, nom: true },
       orderBy: { nom: "asc" },
     }),
-    getNextInvoiceNumero(cabinetId),
+    getNextIssuedInvoiceNumero(cabinetId),
     prisma.timeEntry.findMany({
       where: buildBillableTimeEntryWhere(cabinetId),
       select: {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import {
   DollarSign,
@@ -264,7 +265,7 @@ export function ClientDossierFinancier({
                       className="border-b border-neutral-border last:border-0 hover:bg-neutral-50/50"
                     >
                       <td className="py-2 px-3 font-medium text-neutral-800">
-                        {inv.numero}
+                        {displayInvoiceNumero(inv.numero)}
                       </td>
                       <td className="py-2 px-3 text-neutral-muted">
                         {inv.dossierIntitule ?? "—"}

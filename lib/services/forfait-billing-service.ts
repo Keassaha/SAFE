@@ -5,7 +5,7 @@
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
-import { getNextInvoiceNumero } from "@/lib/facturation/numero-facture";
+import { makeProvisionalInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
 import { applyTaxes, toInvoiceTaxColumns, computeLineTaxColumns } from "@/lib/billing/taxes";
@@ -303,7 +303,8 @@ export async function createInvoiceFromDossier(params: {
 
     // Numéro de facture canonique sous advisory lock — évite la collision
     // avec une autre transaction concurrente qui crée pour le même cabinet.
-    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    // Brouillon : numéro provisoire (numéro officiel attribué à l'émission).
+    const numero = makeProvisionalInvoiceNumero();
 
     const invoice = await tx.invoice.create({
       data: {
@@ -487,7 +488,8 @@ export async function createFreeformInvoice(params: {
   // Atomicité : génération du numéro (sous advisory lock) + invoice + lignes
   // + recalcul des totaux dans une transaction.
   const result = await prisma.$transaction(async (tx) => {
-    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    // Brouillon : numéro provisoire (numéro officiel attribué à l'émission).
+    const numero = makeProvisionalInvoiceNumero();
     const invoice = await tx.invoice.create({
       data: {
         cabinetId,
@@ -654,7 +656,8 @@ export async function createInvoiceFromClientBillables(params: {
   const invoice = await prisma.$transaction(async (tx) => {
     // Génération du numéro sous advisory lock dans la même transaction —
     // sérialise les concurrents et garantit l'unicité avec @@unique en filet.
-    const numero = await getNextInvoiceNumero(cabinetId, tx);
+    // Brouillon : numéro provisoire (numéro officiel attribué à l'émission).
+    const numero = makeProvisionalInvoiceNumero();
     const created = await tx.invoice.create({
       data: {
         cabinetId,

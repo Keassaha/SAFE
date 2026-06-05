@@ -15,11 +15,11 @@ describe("formatInvoiceNumero — format inchangé", () => {
 });
 
 /**
- * Quand `getNextInvoiceNumero` est appelé avec un client de transaction,
- * il doit acquérir un advisory lock Postgres pour sérialiser les générations
- * de numéro concurrentes sur le même cabinet/année. Combiné avec la
- * contrainte unique `@@unique([cabinetId, numero])`, cela élimine la
- * possibilité d'avoir deux factures avec le même numéro.
+ * `getNextIssuedInvoiceNumero` attribue le numéro OFFICIEL à l'émission, basé
+ * sur `max(séquence) + 1` parmi les factures déjà numérotées du cabinet/année.
+ * Appelé avec un client de transaction, il acquiert un advisory lock Postgres
+ * pour sérialiser les émissions concurrentes. Combiné à `@@unique([cabinetId,
+ * numero])`, cela élimine collisions ET trous dans la séquence émise.
  */
 
 // Hoisted pour que le mock vi.mock puisse les référencer (vi.mock est hoisté
@@ -27,8 +27,13 @@ describe("formatInvoiceNumero — format inchangé", () => {
 const { log, txClient, prismaMock } = vi.hoisted(() => {
   const logRef = {
     executeRawCalls: [] as Array<{ raw: string; args: unknown[] }>,
-    countCalls: 0,
+    findManyCalls: 0,
   };
+  const makeFindMany = () =>
+    vi.fn(async () => {
+      logRef.findManyCalls += 1;
+      return [] as Array<{ numero: string }>;
+    });
   return {
     log: logRef,
     txClient: {
@@ -40,20 +45,10 @@ const { log, txClient, prismaMock } = vi.hoisted(() => {
         logRef.executeRawCalls.push({ raw: strings.join("?"), args: args.slice(1) });
         return 1;
       }),
-      invoice: {
-        count: vi.fn(async () => {
-          logRef.countCalls += 1;
-          return 0;
-        }),
-      },
+      invoice: { findMany: makeFindMany() },
     },
     prismaMock: {
-      invoice: {
-        count: vi.fn(async () => {
-          logRef.countCalls += 1;
-          return 0;
-        }),
-      },
+      invoice: { findMany: makeFindMany() },
     },
   };
 });
@@ -62,17 +57,17 @@ vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 
 beforeEach(() => {
   log.executeRawCalls.length = 0;
-  log.countCalls = 0;
+  log.findManyCalls = 0;
   txClient.$executeRaw.mockClear();
-  txClient.invoice.count.mockClear();
-  prismaMock.invoice.count.mockClear();
+  txClient.invoice.findMany.mockClear();
+  prismaMock.invoice.findMany.mockClear();
 });
 
-describe("getNextInvoiceNumero — anti-collision", () => {
+describe("getNextIssuedInvoiceNumero — séquence émise sans trou", () => {
   it("acquiert un advisory lock quand un client de transaction est fourni", async () => {
-    const { getNextInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
 
-    const numero = await getNextInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextInvoiceNumero>[1]);
+    const numero = await getNextIssuedInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextIssuedInvoiceNumero>[1]);
 
     expect(numero).toMatch(/^\d{4}-\d{3}$/);
     expect(txClient.$executeRaw).toHaveBeenCalledTimes(1);
@@ -80,58 +75,71 @@ describe("getNextInvoiceNumero — anti-collision", () => {
     const sqlText = log.executeRawCalls[0]!.raw;
     expect(sqlText).toContain("pg_advisory_xact_lock");
 
-    // Argument interpolé : la clé contient "invoice-numero", le cabinetId et l'année
     const interpolated = log.executeRawCalls[0]!.args.map(String).join(" ");
     expect(interpolated).toContain("invoice-numero:cab1:");
     expect(interpolated).toMatch(/cab1:\d{4}/);
   });
 
-  it("le compte est fait via le client de transaction (sous le verrou)", async () => {
-    const { getNextInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+  it("la lecture des numéros existants se fait via le client de transaction (sous le verrou)", async () => {
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
 
-    await getNextInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextInvoiceNumero>[1]);
+    await getNextIssuedInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextIssuedInvoiceNumero>[1]);
 
-    expect(txClient.invoice.count).toHaveBeenCalledTimes(1);
-    expect(prismaMock.invoice.count).not.toHaveBeenCalled();
+    expect(txClient.invoice.findMany).toHaveBeenCalledTimes(1);
+    expect(prismaMock.invoice.findMany).not.toHaveBeenCalled();
   });
 
-  it("le lock est acquis AVANT le count", async () => {
+  it("le lock est acquis AVANT la lecture", async () => {
     let lockOrder = 0;
-    let countOrder = 0;
+    let readOrder = 0;
     let counter = 0;
     txClient.$executeRaw.mockImplementationOnce(async () => {
       lockOrder = ++counter;
       return 1;
     });
-    txClient.invoice.count.mockImplementationOnce(async () => {
-      countOrder = ++counter;
-      return 0;
+    txClient.invoice.findMany.mockImplementationOnce(async () => {
+      readOrder = ++counter;
+      return [];
     });
 
-    const { getNextInvoiceNumero } = await import("@/lib/facturation/numero-facture");
-    await getNextInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextInvoiceNumero>[1]);
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+    await getNextIssuedInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextIssuedInvoiceNumero>[1]);
 
     expect(lockOrder).toBeGreaterThan(0);
-    expect(countOrder).toBeGreaterThan(0);
-    expect(lockOrder).toBeLessThan(countOrder);
+    expect(readOrder).toBeGreaterThan(0);
+    expect(lockOrder).toBeLessThan(readOrder);
   });
 
-  it("sans client de transaction (mode legacy), n'acquiert pas de lock", async () => {
-    const { getNextInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+  it("sans client de transaction (aperçu), n'acquiert pas de lock", async () => {
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
 
-    await getNextInvoiceNumero("cab1");
+    await getNextIssuedInvoiceNumero("cab1");
 
     expect(txClient.$executeRaw).not.toHaveBeenCalled();
-    expect(prismaMock.invoice.count).toHaveBeenCalledTimes(1);
+    expect(prismaMock.invoice.findMany).toHaveBeenCalledTimes(1);
   });
 
-  it("retourne un numéro au format ANNEE-XXX cohérent avec count + 1", async () => {
-    txClient.invoice.count.mockResolvedValueOnce(7);
+  it("retourne max(séquence) + 1 (sans trou, tolère les trous existants)", async () => {
+    const yr = new Date().getFullYear();
+    txClient.invoice.findMany.mockResolvedValueOnce([
+      { numero: `${yr}-007` },
+      { numero: `${yr}-003` },
+    ]);
 
-    const { getNextInvoiceNumero } = await import("@/lib/facturation/numero-facture");
-    const numero = await getNextInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextInvoiceNumero>[1]);
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+    const numero = await getNextIssuedInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextIssuedInvoiceNumero>[1]);
 
-    expect(numero).toMatch(/^\d{4}-008$/); // count=7 → sequence=8
+    expect(numero).toBe(`${yr}-008`); // max=7 → 8
+  });
+
+  it("première facture de l'année → séquence 1", async () => {
+    const yr = new Date().getFullYear();
+    txClient.invoice.findMany.mockResolvedValueOnce([]);
+
+    const { getNextIssuedInvoiceNumero } = await import("@/lib/facturation/numero-facture");
+    const numero = await getNextIssuedInvoiceNumero("cab1", txClient as unknown as Parameters<typeof getNextIssuedInvoiceNumero>[1]);
+
+    expect(numero).toBe(`${yr}-001`);
   });
 });
 

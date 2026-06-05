@@ -18,6 +18,7 @@
  */
 
 import * as React from "react";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import {
   Document,
   Page,
@@ -482,7 +483,7 @@ export function InvoiceDocument({
   return (
     <Document
       author={cabinet?.nom ?? "SAFE"}
-      title={`${t.invoice} ${invoice.numero}`}
+      title={`${t.invoice} ${displayInvoiceNumero(invoice.numero)}`}
       creator="SAFE — Cabinet juridique"
       producer="@react-pdf/renderer"
     >
@@ -496,7 +497,7 @@ export function InvoiceDocument({
           right={
             <>
               <Text style={styles.invoiceKicker}>{t.invoice}</Text>
-              <Text style={styles.invoiceNumber}>{invoice.numero}</Text>
+              <Text style={styles.invoiceNumber}>{displayInvoiceNumero(invoice.numero)}</Text>
               <View style={styles.invoiceDates}>
                 <View style={styles.invoiceDateRow}>
                   <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>

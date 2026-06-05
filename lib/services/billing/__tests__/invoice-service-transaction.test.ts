@@ -110,7 +110,9 @@ const prismaMock = {
 
 vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/facturation/numero-facture", () => ({
-  getNextInvoiceNumero: vi.fn().mockResolvedValue("F-2026-001"),
+  makeProvisionalInvoiceNumero: vi.fn(() => "BROUILLON-test"),
+  getNextIssuedInvoiceNumero: vi.fn().mockResolvedValue("2026-001"),
+  isProvisionalInvoiceNumero: vi.fn((n: unknown) => typeof n === "string" && n.startsWith("BROUILLON-")),
 }));
 vi.mock("@/lib/services/audit", () => ({
   createAuditLog: vi.fn().mockResolvedValue(undefined),

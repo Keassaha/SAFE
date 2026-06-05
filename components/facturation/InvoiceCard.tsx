@@ -4,6 +4,7 @@ import type { Invoice } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 
 interface InvoiceCardProps {
   invoice: Invoice & {
@@ -59,7 +60,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${getStatusBadgeColor()}`}>
-            {invoice.numero}
+            {displayInvoiceNumero(invoice.numero)}
           </span>
           {showRetardBadge && (
             <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-red-600 text-white whitespace-nowrap">
