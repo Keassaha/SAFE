@@ -30,7 +30,7 @@ export function FinalCta() {
         transition={{ duration: 0.8, delay: 0.1, ease }}
         className="font-serif text-[48px] leading-[1.05] tracking-[-0.02em] text-surface max-w-2xl mb-6"
       >
-        Votre cabinet ne manque peut-être pas d&apos;effort. <span className="italic text-forest-600">Il manque peut-être d&apos;ordre.</span>
+        Sachez où vous en êtes, <span className="italic text-forest-600">avant que votre Barreau ne le découvre.</span>
       </motion.h2>
 
       <motion.p
@@ -40,7 +40,7 @@ export function FinalCta() {
         transition={{ duration: 0.8, delay: 0.2, ease }}
         className="text-[16px] text-[#C8C8C8] max-w-[620px] font-sans leading-[1.65] mb-6 italic"
       >
-        Imaginez un vendredi où vous fermez votre cabinet à 17 h en sachant que la facturation de la semaine est partie, que le fidéicommis est concilié, et qu&apos;aucun délai ne traîne dans une boîte mail. C&apos;est ce que SAFE rend ordinaire.
+        Vous recevez un diagnostic complet : votre conformité fiduciaire vérifiée point par point, et le portrait clair de la trésorerie immobilisée entre le travail livré et le paiement. Vous y trouvez votre situation actuelle et les corrections à prioriser pour être en règle d&apos;ici 30 jours.
       </motion.p>
 
       <motion.p
@@ -50,7 +50,7 @@ export function FinalCta() {
         transition={{ duration: 0.8, delay: 0.25, ease }}
         className="text-[15px] text-[#A1A1A1] max-w-[540px] font-sans leading-[1.6] mb-10"
       >
-        Commencez par l&apos;audit gratuit. Rapport clair sous un jour ouvrable. Aucun engagement.
+        Évaluez gratuitement la situation de votre cabinet. Vous recevez un rapport confidentiel dans les 24 heures, sans aucun engagement.
       </motion.p>
 
       <motion.div

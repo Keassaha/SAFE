@@ -2,8 +2,10 @@ import React from 'react';
 import { Navbar } from '@/components/marketing/Navbar';
 import { Hero } from '@/components/landing/Hero';
 import { ProblemSection } from '@/components/landing/ProblemSection';
-import { FeaturesGrid } from '@/components/landing/FeaturesGrid';
+import { NotYourFault } from '@/components/landing/NotYourFault';
 import { VirtualEmployees } from '@/components/landing/VirtualEmployees';
+import { FeaturesGrid } from '@/components/landing/FeaturesGrid';
+import { Objections } from '@/components/landing/Objections';
 import { ProcessTimeline } from '@/components/landing/ProcessTimeline';
 import { PricingGrid } from '@/components/landing/PricingGrid';
 import { FinalCta } from '@/components/landing/FinalCta';
@@ -24,10 +26,13 @@ export default function LandingPage() {
       <JsonLd schema={[organizationSchema(), softwareApplicationSchema()]} />
       <Navbar />
       <main className="pt-20">
+        {/* Entonnoir fermé : enjeu → pourquoi → coéquipier → système → objections → action */}
         <Hero />
         <ProblemSection />
-        <FeaturesGrid />
+        <NotYourFault />
         <VirtualEmployees />
+        <FeaturesGrid />
+        <Objections />
         <ProcessTimeline />
         <PricingGrid />
         <FinalCta />
