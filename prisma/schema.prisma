@@ -126,6 +126,7 @@ model User {
   dossierClosuresClosed      DossierClosure[]        @relation("DossierClosureClosedBy")
   reconciliationsCertified   TrustReconciliation[]   @relation("ReconciliationCertifiedBy")
   complianceReportsGenerated TrustComplianceReport[] @relation("ComplianceReportGeneratedBy")
+  complianceReportsCertified TrustComplianceReport[] @relation("ComplianceReportCertifiedBy")
   conflictChecksPerformed    ConflictCheck[]         @relation("ConflictCheckPerformedBy")
 
   // Signaux "dossier prêt pour revue" — voir docs/product/READY_FOR_REVIEW_SIGNAL.md
@@ -481,7 +482,7 @@ model Dossier {
   updatedAt DateTime @updatedAt
 
   cabinet               Cabinet                       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client                Client                        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client                Client                        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   avocatResponsable     User?                         @relation("AvocatResponsable", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
   assistantJuridique    User?                         @relation("AssistantJuridiqueDossier", fields: [assistantJuridiqueId], references: [id], onDelete: SetNull)
   timeEntries           TimeEntry[]
@@ -1130,7 +1131,7 @@ model Invoice {
   updatedAt              DateTime              @updatedAt
 
   cabinet                Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client                 Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client                 Client                  @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier                Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   validatedBy            User?                   @relation(fields: [validatedById], references: [id], onDelete: SetNull)
   invoiceItems           InvoiceItem[]
@@ -1331,7 +1332,7 @@ model InvoiceSendLog {
 
   invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   sentBy  User?    @relation(fields: [sentById], references: [id], onDelete: SetNull)
 
@@ -1353,7 +1354,7 @@ model TrustAccount {
   updatedAt      DateTime @updatedAt
 
   cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   matter       Dossier?           @relation(fields: [matterId], references: [id], onDelete: SetNull)
   transactions TrustTransaction[]
 
@@ -1385,7 +1386,7 @@ model TrustTransaction {
 
   cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   trustAccount TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
-  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier      Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   invoice      Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   correctionOf TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
@@ -1419,7 +1420,7 @@ model CreditNote {
   updatedAt        DateTime         @updatedAt
 
   cabinet      Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client       Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client                  @relation(fields: [clientId], references: [id], onDelete: Restrict)
   invoice      Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   applications CreditNoteApplication[]
 
@@ -1474,7 +1475,7 @@ model BillingRun {
   createdAt          DateTime         @default(now())
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
 
   @@index([cabinetId])
   @@index([clientId])
@@ -1499,7 +1500,7 @@ model ClientIdentityVerification {
   createdAt  DateTime                   @default(now())
   updatedAt  DateTime                   @updatedAt
 
-  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
   @@index([clientId])
@@ -1532,7 +1533,7 @@ model Document {
   updatedAt                 DateTime  @updatedAt
 
   cabinet               Cabinet                      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client                Client?                      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client                Client?                      @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier               Dossier?                     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   uploadedBy            User                         @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
   reviewedBy            User?                        @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
@@ -1594,7 +1595,7 @@ model Expense {
   updatedAt     DateTime      @updatedAt
 
   cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
   matter      Dossier?     @relation(fields: [matterId], references: [id], onDelete: SetNull)
   invoice     Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   invoiceLine InvoiceLine? @relation(fields: [invoiceLineId], references: [id], onDelete: SetNull)
@@ -1650,7 +1651,7 @@ model DeboursDossier {
 
   cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier     Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
   deboursType DeboursType? @relation(fields: [deboursTypeId], references: [id], onDelete: SetNull)
   facture     Invoice?     @relation(fields: [factureId], references: [id], onDelete: SetNull)
   invoiceLine InvoiceLine? @relation("DeboursDossierInvoiceLine", fields: [invoiceLineId], references: [id], onDelete: SetNull)
@@ -1671,7 +1672,7 @@ model ConsentLog {
   versionPolitique String?
   revokedAt        DateTime?
 
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
   user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([clientId])
@@ -2141,6 +2142,12 @@ model TrustComplianceReport {
   status String  @default("draft") // "draft" | "final"
   data   String? // JSON: snapshot transactions
 
+  // Déclaration de conformité signée par l'avocat responsable (rapport annuel Barreau).
+  certifiedById   String?
+  certifiedBy     User?     @relation("ComplianceReportCertifiedBy", fields: [certifiedById], references: [id], onDelete: SetNull)
+  certifiedAt     DateTime?
+  declarationText String? // texte de l'attestation signée (snapshot)
+
   reconciliationId String?
   reconciliation   TrustReconciliation? @relation(fields: [reconciliationId], references: [id], onDelete: SetNull)
 
@@ -2333,7 +2340,7 @@ model DossierReadyForReviewSignal {
 
   cabinet           Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier           Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client            Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client            Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
   avocatResponsable User?   @relation("ReadyForReviewSignalAvocat", fields: [avocatResponsableId], references: [id], onDelete: SetNull)
   createdBy         User?   @relation("ReadyForReviewSignalCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   acknowledgedBy    User?   @relation("ReadyForReviewSignalAcknowledgedBy", fields: [acknowledgedById], references: [id], onDelete: SetNull)
@@ -2460,7 +2467,7 @@ model DossierDocketEntry {
   updatedAt            DateTime  @updatedAt
 
   cabinet            Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client             Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client             Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier            Dossier       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   linkedDocument     Document?     @relation(fields: [linkedDocumentId], references: [id], onDelete: SetNull)
   linkedRichDocument RichDocument? @relation(fields: [linkedRichDocumentId], references: [id], onDelete: SetNull)
@@ -2541,7 +2548,7 @@ model RichDocument {
 
   cabinet      Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier      Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client       Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
   createdBy    User    @relation("RichDocCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
   lastEditedBy User?   @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
   archivedBy   User?   @relation("RichDocArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
@@ -2605,7 +2612,7 @@ model WorkSession {
   cabinet      Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   dossier      Dossier       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   richDocument RichDocument? @relation(fields: [richDocumentId], references: [id], onDelete: SetNull)
   timeEntry    TimeEntry?    @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
 
