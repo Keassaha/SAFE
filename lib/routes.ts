@@ -27,6 +27,12 @@ export const routes = {
   /** Lien public pour que le client consulte sa facture (sans auth) */
   factureClient: (token: string) => `/facture/${token}`,
   facturationVerification: "/facturation/verification",
+  facturationTempsNonFacture: "/facturation/temps-non-facture",
+  facturationCreancesAging: "/facturation/creances-aging",
+  facturationTaxes: "/facturation/taxes",
+  facturationRentabilite: "/facturation/rentabilite",
+  securite: "/securite",
+  briefing: "/briefing",
   facturationSuivi: "/facturation/suivi",
   facturationPaiements: "/facturation/paiements",
   facturationNotesCredit: "/facturation/notes-de-credit",

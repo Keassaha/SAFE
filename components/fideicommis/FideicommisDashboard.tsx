@@ -6,10 +6,11 @@ import { SoldeCards } from "./SoldeCards";
 import { TransactionsTable } from "./TransactionsTable";
 import { ReleveGenerator } from "./ReleveGenerator";
 import { ReconciliationAlert } from "./ReconciliationAlert";
+import { TrustAlertsPanel } from "./TrustAlertsPanel";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
-import { Scale, FileText } from "lucide-react";
+import { Scale, FileText, ShieldAlert, Sparkles } from "lucide-react";
 
 interface ClientOption {
   id: string;
@@ -43,9 +44,16 @@ export function FideicommisDashboard({
   return (
     <div className="space-y-6">
       <ReconciliationAlert />
+      <TrustAlertsPanel />
       <SoldeCards cabinetId={cabinetId} seuilBas={seuilBas} />
 
       <div className="flex flex-wrap gap-3">
+        <Link href={routes.briefing}>
+          <Button variant="secondary">
+            <Sparkles className="w-4 h-4" />
+            Briefing du jour
+          </Button>
+        </Link>
         <Link href="/comptes/rapprochement">
           <Button variant="secondary">
             <Scale className="w-4 h-4" />
@@ -56,6 +64,12 @@ export function FideicommisDashboard({
           <Button variant="secondary">
             <FileText className="w-4 h-4" />
             Compliance Reports
+          </Button>
+        </Link>
+        <Link href={routes.securite}>
+          <Button variant="secondary">
+            <ShieldAlert className="w-4 h-4" />
+            Tableau de sécurité
           </Button>
         </Link>
       </div>
