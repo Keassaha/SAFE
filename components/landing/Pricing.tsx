@@ -12,42 +12,42 @@ const fadeUp = {
 
 const plans = [
   {
-    name: "Essentiel",
-    price: "89",
-    description: "Pour les praticiens solo",
+    name: "Solo",
+    price: "99",
+    description: "1 avocat avec ou sans adjointe, toute discipline.",
     features: [
-      "1 utilisateur",
-      "Gestion des clients et dossiers",
-      "Facturation et paiements",
-      "Suivi du temps",
-      "Support par courriel",
-    ],
-  },
-  {
-    name: "Professionnel",
-    price: "149",
-    description: "Pour les petits cabinets",
-    popular: true,
-    features: [
-      "Jusqu'à 5 utilisateurs",
-      "Tout de Essentiel",
-      "Comptes fidéicommis",
-      "Employés virtuels inclus",
-      "Portail client",
-      "Support prioritaire",
+      "Configuration adaptée à votre pratique",
+      "Clients et dossiers illimités",
+      "Facturation forfait, horaire ou mixte",
+      "Comptabilité fidéicommis intégrée",
+      "Support standard",
     ],
   },
   {
     name: "Cabinet",
-    price: "299",
-    description: "Pour les cabinets en croissance",
+    price: "149",
+    description: "2 à 5 avocats, équipes mixtes, multi-disciplines.",
+    popular: true,
     features: [
-      "Utilisateurs illimités",
-      "Tout de Professionnel",
+      "Tout le palier Solo",
+      "Multi-utilisateurs avec rôles",
+      "Portail client",
+      "Time tracking complet",
       "Rapports avancés",
-      "API et intégrations",
-      "Gestionnaire de compte dédié",
-      "Formation personnalisée",
+      "Support email et chat",
+    ],
+  },
+  {
+    name: "Cabinet+",
+    price: "Sur devis",
+    description: "6 avocats et plus, multi-bureaux, workflows hors cadre.",
+    features: [
+      "Tout le palier Cabinet",
+      "Pipeline d'onboarding 3 phases",
+      "Configuration sur mesure",
+      "Formation équipe",
+      "SSO et intégrations spécialisées",
+      "Support prioritaire avec SLA",
     ],
   },
 ];
@@ -97,8 +97,12 @@ export function Pricing() {
               <p className="text-sm text-white/50 mb-6">{plan.description}</p>
 
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">{plan.price} $</span>
-                <span className="text-white/50 text-sm"> / mois</span>
+                <span className="text-4xl font-bold text-white">
+                  {plan.price === "Sur devis" ? plan.price : `${plan.price} $`}
+                </span>
+                {plan.price === "Sur devis" ? null : (
+                  <span className="text-white/50 text-sm"> / mois</span>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8">

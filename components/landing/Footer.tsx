@@ -13,7 +13,7 @@ export function Footer() {
               <span className="font-serif text-[17px] tracking-[-0.02em] text-surface">Safe</span>
             </div>
             <p className="text-[13px] text-[#A1A1A1] font-sans leading-[1.6]">
-              Le système qui met votre cabinet en ordre. Facturation, fidéicommis, conformité, migration, organisation — pensé pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario.
+              Votre conformité, votre tranquillité. SAFE vérifie vos registres, vos journaux et vos rapprochements fiduciaires en continu. Pensé pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario.
             </p>
           </div>
           

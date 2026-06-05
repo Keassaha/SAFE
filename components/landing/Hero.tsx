@@ -28,7 +28,7 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 0.1, ease }}
         className="font-serif text-[56px] leading-[1.02] tracking-[-0.035em] text-text-primary max-w-3xl mb-4 z-10 relative"
       >
-        Le système qui met votre cabinet <span className="italic text-forest-600">en ordre.</span>
+        Gardez le contrôle de votre cabinet, <span className="italic text-forest-600">même quand tout s&apos;accélère.</span>
       </motion.h1>
 
       <motion.p
@@ -37,7 +37,7 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 0.2, ease }}
         className="text-[17px] text-text-body max-w-[620px] font-sans leading-[1.6] mb-10 z-10 relative"
       >
-        Facturation, fidéicommis, conformité, migration, organisation. SAFE remplace Excel, les oublis et les processus bricolés par un système plus clair, plus calme et plus fiable.
+        Vous connaissez les risques liés au fidéicommis et les conséquences d&apos;une facturation qui prend du retard. Pourtant, entre les dossiers, les audiences et l&apos;administration, il devient difficile de tout surveiller en même temps. SAFE vous aide à garder le contrôle.
       </motion.p>
 
       <motion.div 
@@ -66,8 +66,8 @@ export function Hero() {
           <span className="text-[13px] text-text-subtle font-sans mt-1">Données hébergées</span>
         </div>
         <div className="flex flex-col items-center flex-1">
-          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">Guidée</span>
-          <span className="text-[13px] text-text-subtle font-sans mt-1">Migration accompagnée</span>
+          <span className="font-serif text-3xl tabular-nums tracking-[-0.02em] text-text-primary">En continu</span>
+          <span className="text-[13px] text-text-subtle font-sans mt-1">Conformité vérifiée</span>
         </div>
       </motion.div>
     </section>

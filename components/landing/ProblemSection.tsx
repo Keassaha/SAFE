@@ -17,26 +17,26 @@ export function ProblemSection() {
 
   const cards: Card[] = [
     {
-      stat: "Excel",
-      eyebrow: "Outils bricol\u00E9s",
-      title: "Des heures travaill\u00E9es qui ne sont jamais factur\u00E9es.",
-      body: "Facturation faite trop tard. Temps non captur\u00E9. Sur 8 heures pratiqu\u00E9es, une partie ne devient jamais une facture envoy\u00E9e.",
-      source: "Observation cabinets canadiens",
+      stat: "1 sur 3",
+      eyebrow: "Le fidéicommis",
+      title: "Le fidéicommis laisse peu de place à l'erreur.",
+      body: "Un cabinet solo sur trois ne pourrait pas fournir ses registres fiduciaires à temps si une inspection était demandée. Or, un seul écart entre le journal, le grand livre et la banque peut suffire à déclencher une mesure du Barreau.",
+      source: "Conformité fiduciaire",
     },
     {
-      stat: "Manuel",
-      eyebrow: "Op\u00E9rations sensibles",
+      stat: "30 j",
+      eyebrow: "La facturation",
       eyebrowColor: "text-forest-600",
-      title: "Le fid\u00E9icommis tenu \u00E0 la main.",
-      body: "Registre suivi de m\u00E9moire, conciliation report\u00E9e, piste d\u2019audit reconstitu\u00E9e. Quand l\u2019inspection arrive, c\u2019est trop tard pour ranger.",
-      source: "R\u00E8glement B-1, r.5",
+      title: "Une facturation en retard pèse sur votre trésorerie.",
+      body: "Entre le travail livré et le paiement reçu, des semaines s'écoulent. Des heures restent non facturées, des comptes traînent, et votre trésorerie attend pendant que vos charges, elles, arrivent à l'heure.",
+      source: "Cycle de facturation",
     },
     {
-      stat: "Vous",
-      eyebrow: "Vigilance personnelle",
-      title: "Un cabinet qui repose sur vos week-ends.",
-      body: "D\u00E9lais suivis de m\u00E9moire, conformit\u00E9 d\u00E9pendant de votre attention, dossiers dispers\u00E9s. La sensation que tout repose sur votre vigilance personnelle.",
-      source: "Le co\u00FBt invisible du bricolage",
+      stat: "24h",
+      eyebrow: "Le préavis",
+      title: "Une inspection arrive rarement à l'avance.",
+      body: "Les Sociétés du Barreau inspectent de façon aléatoire, sans préavis obligatoire ni motif à fournir. Lorsque l'avis arrive, il est souvent trop tard pour tout remettre en ordre.",
+      source: "Inspection professionnelle",
     },
   ];
 
@@ -50,10 +50,10 @@ export function ProblemSection() {
         className="mb-16 text-center flex flex-col items-center"
       >
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
-          Le problème
+          L&apos;enjeu
         </span>
         <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl">
-          Ce n&apos;est pas le droit qui vous ralentit. <span className="italic text-forest-600">C&apos;est l&apos;opérationnel.</span>
+          Vous savez ce qui est en jeu. <span className="italic text-forest-600">Le plus dur, c&apos;est de tout suivre en même temps.</span>
         </h2>
       </motion.div>
 

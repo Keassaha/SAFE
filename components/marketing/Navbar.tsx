@@ -6,9 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
-// Le CTA "Réserver un appel" pointe désormais vers la page de contact —
-// le formulaire envoie directement à jeremie@safecabinet.ca.
-const BOOK_CALL_HREF = "/contact";
+// CTA unique du site : tout pointe vers l'audit gratuit (entonnoir fermé).
+const BOOK_CALL_HREF = "/audit-gratuit";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
@@ -70,7 +69,7 @@ export function Navbar() {
               href={BOOK_CALL_HREF}
               className="safe-site-cta-primary whitespace-nowrap min-h-[38px] px-5 py-2 text-sm font-sans"
             >
-              Réserver un appel
+              Faire mon audit gratuit
             </Link>
           </div>
 
@@ -125,7 +124,7 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="safe-site-cta-primary text-center py-3 text-sm font-sans"
                 >
-                  Réserver un appel
+                  Faire mon audit gratuit
                 </Link>
               </div>
             </div>

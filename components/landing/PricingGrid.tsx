@@ -9,17 +9,17 @@ const steps = [
   {
     num: "01",
     title: "Audit gratuit",
-    text: "On commence par comprendre votre cabinet, vos outils actuels et les irritants qui ralentissent vos opérations.",
+    text: "Nous commençons par comprendre votre cabinet, vos outils actuels et les irritants qui ralentissent votre quotidien.",
   },
   {
     num: "02",
     title: "Diagnostic clair",
-    text: "Vous recevez les problèmes détectés, les gains possibles et les priorités à corriger selon votre réalité.",
+    text: "Vous recevez les problèmes relevés, les gains possibles et les priorités à corriger, selon votre réalité.",
   },
   {
     num: "03",
     title: "Proposition adaptée",
-    text: "Le plan d'action et le tarif sont présentés seulement après l'analyse, selon le travail réellement nécessaire.",
+    text: "Le plan d'action et le tarif vous sont présentés seulement après l'analyse, en fonction du travail réellement nécessaire.",
   },
 ];
 
@@ -39,11 +39,11 @@ export function PricingGrid() {
           Prix après audit
         </span>
         <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary mb-4 max-w-2xl">
-          D&apos;abord le diagnostic.{" "}
-          <span className="italic text-forest-600">Ensuite seulement, le tarif.</span>
+          D&apos;abord le diagnostic,{" "}
+          <span className="italic text-forest-600">ensuite seulement le tarif.</span>
         </h2>
         <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
-          SAFE ne vous affiche pas un forfait générique sans contexte. L&apos;audit gratuit clarifie votre situation, puis une proposition personnalisée est préparée si des optimisations sont réellement pertinentes.
+          Pour la plupart des cabinets, ce que SAFE permet de récupérer dépasse largement son coût&nbsp;: des heures d&apos;administration, des factures envoyées à temps et une trésorerie qui ne reste plus immobilisée entre le travail livré et le paiement. L&apos;audit gratuit chiffre précisément ce que cela représente chez vous, avant même qu&apos;un tarif ne soit nommé.
         </p>
       </motion.div>
 
@@ -87,7 +87,7 @@ export function PricingGrid() {
             Aucun engagement avant validation.
           </p>
           <p className="text-[13px] text-text-body leading-[1.6] max-w-2xl">
-            Vous recevez d&apos;abord votre diagnostic. Le prix vient ensuite, avec un plan clair que vous pouvez accepter ou refuser librement.
+            Vous recevez d&apos;abord votre diagnostic. Le tarif vient ensuite, accompagné d&apos;un plan clair que vous restez libre d&apos;accepter ou de refuser.
           </p>
         </div>
         <Link href="/audit-gratuit" className="shrink-0">

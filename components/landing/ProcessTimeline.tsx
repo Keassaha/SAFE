@@ -17,7 +17,7 @@ const STEPS: Step[] = [
     title: "Audit",
     desc: "On identifie les zones de friction, les risques et les priorités du cabinet.",
     time: "10 min",
-    detail: "Rapport personnalisé. Aucun engagement, aucune démonstration commerciale.",
+    detail: "Rapport personnalisé : votre conformité fiduciaire, votre argent immobilisé en chiffres réels, et 3 priorités concrètes pour votre cabinet. Aucun engagement, aucune démonstration commerciale.",
   },
   {
     num: '02',
