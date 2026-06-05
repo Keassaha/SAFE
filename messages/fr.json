@@ -1215,7 +1215,8 @@
     "deletion": "Suppression",
     "by": "par {name}",
     "invoiceLabel": "Facture {number}",
-    "paymentLabel": "Paiement — Facture {number}"
+    "paymentLabel": "Paiement — Facture {number}",
+    "archiveClientConfirm": "Archiver ce client ? Ses dossiers, factures et registres sont conservés (conformité Barreau). Le client n’apparaîtra plus dans la liste active."
   },
   "matters": {
     "title": "Dossiers",

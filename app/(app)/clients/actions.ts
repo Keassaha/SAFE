@@ -367,18 +367,29 @@ export async function updateClientForm(formData: FormData) {
   await updateClient(id, formData);
 }
 
+/**
+ * Conformité Barreau (B-1 r.5) : un client n'est JAMAIS détruit (ses registres
+ * factures/fidéicommis/documents doivent être conservés). Toute demande de
+ * suppression est redirigée vers l'archivage (soft delete). Filet de sécurité
+ * supplémentaire au niveau base : FK clientId en ON DELETE RESTRICT.
+ */
 export async function deleteClient(id: string) {
   const { cabinetId, userId } = await requireCabinetAndUser();
-  await prisma.client.deleteMany({ where: { id, cabinetId } });
+  await prisma.client.updateMany({
+    where: { id, cabinetId },
+    data: { status: "archive" },
+  });
   await createAuditLog({
     cabinetId,
     userId,
     entityType: "Client",
     entityId: id,
-    action: "delete",
+    action: "update",
+    metadata: { status: "archive", reason: "delete_request_redirected_to_archive" },
   });
   revalidatePath("/clients");
-  redirect("/clients");
+  revalidatePath(`/clients/${id}`);
+  redirect("/clients?success=archived");
 }
 
 export async function archiveClient(id: string) {

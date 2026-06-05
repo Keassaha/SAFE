@@ -12,6 +12,9 @@ import { getOrCreateTrustAccount } from "@/lib/services/billing/trust-service";
 import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
 import { createJournalEntry } from "@/lib/services/journal/journal-service";
 
+/** Règle « No Cash » du Barreau : seuil (CAD) au-delà duquel les espèces sont refusées pour un mandat. */
+export const CASH_DEPOSIT_LIMIT = 7500;
+
 export interface CreateTrustDepositParams {
   cabinetId: string;
   clientId: string;
@@ -64,6 +67,13 @@ export async function createTrustDeposit(params: CreateTrustDepositParams): Prom
   } = params;
 
   if (montant <= 0) throw new Error("Le montant du dépôt doit être strictement positif");
+  // Règle « No Cash » (Barreau / Fédération des ordres professionnels de juristes) :
+  // un cabinet ne peut accepter 7 500 $ ou plus en espèces pour un mandat.
+  if (modePaiement === "ESPECES" && montant >= CASH_DEPOSIT_LIMIT) {
+    throw new Error(
+      `Dépôt en espèces refusé : la règle du Barreau interdit d'accepter ${CASH_DEPOSIT_LIMIT.toLocaleString("fr-CA")} $ ou plus en espèces pour un mandat. Demandez un autre mode de paiement (chèque, virement).`
+    );
+  }
   if (!clientId || !dossierId) throw new Error("Client et dossier sont obligatoires");
 
   const { id: trustAccountId } = await getOrCreateTrustAccount({

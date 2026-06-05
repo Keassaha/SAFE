@@ -1215,7 +1215,8 @@
     "deletion": "Deletion",
     "by": "by {name}",
     "invoiceLabel": "Invoice {number}",
-    "paymentLabel": "Payment — Invoice {number}"
+    "paymentLabel": "Payment — Invoice {number}",
+    "archiveClientConfirm": "Archive this client? Their matters, invoices and records are preserved (Law Society compliance). The client will no longer appear in the active list."
   },
   "matters": {
     "title": "Matters",
