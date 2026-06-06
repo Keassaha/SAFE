@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAFE — Tour de Contrôle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --text-xs: 11px; --text-sm: 13px; --text-md: 14px; --text-lg: 18px; --text-xl: 24px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+  --accent: #00b4b4; --accent-dim: rgba(0,180,180,0.12); --accent-border: rgba(0,180,180,0.35);
+  --success: #22c55e; --warning: #f59e0b; --error: #ef4444;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+[data-theme="dark"] { --bg:#0d0d0d; --surface-1:#141414; --surface-2:#1a1a1a; --surface-3:#202020; --border:#272727; --border-strong:#333; --text-1:#f2f2f2; --text-2:#a0a0a0; --text-3:#6b6b6b; --hover:rgba(255,255,255,0.03); }
+[data-theme="light"] { --bg:#fafafa; --surface-1:#fff; --surface-2:#f4f4f4; --surface-3:#ececec; --border:#e4e4e4; --border-strong:#d4d4d4; --text-1:#18181b; --text-2:#52525b; --text-3:#a1a1aa; --hover:rgba(0,0,0,0.025); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { font-family:var(--font); background:var(--bg); color:var(--text-1); font-size:var(--text-md); line-height:1.5; -webkit-font-smoothing:antialiased; transition:background .2s,color .2s; }
+.tnum { font-variant-numeric:tabular-nums; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input,select,textarea { font-family:inherit; font-size:var(--text-sm); }
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:2px; }
+.app { display:grid; grid-template-columns:220px 1fr; grid-template-rows:52px 1fr; grid-template-areas:"header header" "sidebar main"; height:100vh; }
+.header { grid-area:header; } .sidebar { grid-area:sidebar; } .main { grid-area:main; overflow-y:auto; }
+.header { display:flex; align-items:center; justify-content:space-between; padding:0 var(--space-5); border-bottom:1px solid var(--border); background:var(--surface-1); }
+.header-brand { display:flex; align-items:center; gap:var(--space-3); }
+.logo { width:26px; height:26px; border-radius:var(--radius-md); background:var(--accent); display:grid; place-items:center; color:#04201f; font-weight:700; font-size:var(--text-sm); }
+.header-title { font-weight:600; font-size:var(--text-md); letter-spacing:-0.01em; }
+.header-title span { color:var(--text-3); font-weight:400; }
+.header-actions { display:flex; align-items:center; gap:var(--space-2); }
+.icon-btn { width:32px; height:32px; border-radius:var(--radius-md); display:grid; place-items:center; color:var(--text-2); transition:background .15s,color .15s; }
+.icon-btn:hover { background:var(--hover); color:var(--text-1); }
+.icon-btn svg { width:16px; height:16px; }
+.header-avatar { width:30px; height:30px; border-radius:50%; background:var(--surface-3); border:1px solid var(--border); display:grid; place-items:center; font-size:var(--text-xs); font-weight:600; }
+.sidebar { background:var(--surface-1); border-right:1px solid var(--border); overflow-y:auto; padding:var(--space-4) var(--space-3); }
+.nav-section { margin-bottom:var(--space-5); }
+.nav-label { font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.06em; color:var(--text-3); font-weight:600; padding:0 var(--space-3); margin-bottom:var(--space-2); }
+.nav-item { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) var(--space-3); border-radius:var(--radius-md); color:var(--text-2); font-size:var(--text-sm); font-weight:500; width:100%; text-align:left; margin-bottom:1px; transition:background .12s,color .12s; }
+.nav-item:hover { background:var(--hover); color:var(--text-1); }
+.nav-item.active { background:var(--accent-dim); color:var(--accent); }
+.nav-item svg { width:16px; height:16px; flex-shrink:0; }
+.nav-item .count { margin-left:auto; font-size:var(--text-xs); color:var(--text-3); background:var(--surface-3); padding:1px 6px; border-radius:10px; }
+.nav-item.active .count { background:var(--accent-border); color:var(--accent); }
+.page { display:none; padding:var(--space-6) var(--space-8); max-width:1280px; } .page.active { display:block; }
+.page-head { margin-bottom:var(--space-6); }
+.page-title { font-size:var(--text-xl); font-weight:600; letter-spacing:-0.02em; }
+.page-sub { color:var(--text-2); font-size:var(--text-sm); margin-top:2px; }
+.page-head-row { display:flex; align-items:flex-start; justify-content:space-between; }
+.btn { display:inline-flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-4); border-radius:var(--radius-md); font-size:var(--text-sm); font-weight:500; transition:all .15s; border:1px solid var(--border-strong); color:var(--text-1); background:var(--surface-2); }
+.btn:hover { background:var(--surface-3); } .btn svg { width:15px; height:15px; }
+.btn-primary { background:var(--accent); color:#04201f; border-color:var(--accent); font-weight:600; }
+.btn-primary:hover { background:#00cccc; }
+.btn-ghost { background:transparent; border-color:transparent; color:var(--text-2); }
+.btn-ghost:hover { background:var(--hover); color:var(--text-1); }
+.btn-sm { padding:var(--space-1) var(--space-3); font-size:var(--text-xs); }
+.btn-danger { color:var(--error); border-color:transparent; background:transparent; }
+.btn-danger:hover { background:rgba(239,68,68,0.1); }
+.card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-5); }
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--space-3); margin-bottom:var(--space-6); }
+.kpi { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4) var(--space-5); }
+.kpi-label { font-size:var(--text-xs); color:var(--text-2); text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:var(--space-2); }
+.kpi-label svg { width:13px; height:13px; color:var(--text-3); }
+.kpi-value { font-size:var(--text-xl); font-weight:600; margin-top:var(--space-2); letter-spacing:-0.02em; }
+.kpi-delta { font-size:var(--text-xs); margin-top:2px; display:flex; align-items:center; gap:3px; }
+.kpi-delta.up { color:var(--success); } .kpi-delta.down { color:var(--error); } .kpi-delta svg { width:12px; height:12px; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:var(--radius-sm); font-size:var(--text-xs); font-weight:500; border:1px solid transparent; }
+.badge-dot { width:5px; height:5px; border-radius:50%; }
+.badge-success { background:rgba(34,197,94,0.12); color:var(--success); } .badge-success .badge-dot { background:var(--success); }
+.badge-warning { background:rgba(245,158,11,0.12); color:var(--warning); } .badge-warning .badge-dot { background:var(--warning); }
+.badge-error { background:rgba(239,68,68,0.12); color:var(--error); } .badge-error .badge-dot { background:var(--error); }
+.badge-neutral { background:var(--surface-3); color:var(--text-2); } .badge-neutral .badge-dot { background:var(--text-3); }
+.badge-accent { background:var(--accent-dim); color:var(--accent); } .badge-accent .badge-dot { background:var(--accent); }
+.table-wrap { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+table { width:100%; border-collapse:collapse; }
+thead th { text-align:left; font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.04em; color:var(--text-3); font-weight:600; padding:var(--space-3) var(--space-4); border-bottom:1px solid var(--border); background:var(--surface-2); }
+thead th.right, tbody td.right { text-align:right; }
+tbody td { padding:var(--space-3) var(--space-4); border-bottom:1px solid var(--border); font-size:var(--text-sm); }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr.clickable { cursor:pointer; transition:background .1s; }
+tbody tr.clickable:hover { background:var(--hover); }
+.avatar { width:28px; height:28px; border-radius:var(--radius-md); background:var(--surface-3); border:1px solid var(--border); display:inline-grid; place-items:center; font-size:var(--text-xs); font-weight:600; flex-shrink:0; }
+.cell-firm { display:flex; align-items:center; gap:var(--space-3); }
+.cell-firm-name { font-weight:500; } .cell-firm-sub { font-size:var(--text-xs); color:var(--text-3); }
+.score { font-weight:600; font-size:var(--text-sm); }
+.score-hi { color:var(--success); } .score-mid { color:var(--warning); } .score-lo { color:var(--error); }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+.grid-dash { display:grid; grid-template-columns:2fr 1fr; gap:var(--space-4); margin-top:var(--space-4); }
+.section-title { font-size:var(--text-md); font-weight:600; margin-bottom:var(--space-3); display:flex; align-items:center; justify-content:space-between; }
+.feed-item { display:flex; gap:var(--space-3); padding:var(--space-3) 0; border-bottom:1px solid var(--border); }
+.feed-item:last-child { border-bottom:none; }
+.feed-icon { width:30px; height:30px; border-radius:var(--radius-md); display:grid; place-items:center; flex-shrink:0; background:var(--surface-3); }
+.feed-icon svg { width:15px; height:15px; }
+.feed-icon.teal { color:var(--accent); } .feed-icon.green { color:var(--success); } .feed-icon.amber { color:var(--warning); } .feed-icon.red { color:var(--error); }
+.feed-body { flex:1; min-width:0; } .feed-text { font-size:var(--text-sm); } .feed-text b { font-weight:600; }
+.feed-time { font-size:var(--text-xs); color:var(--text-3); margin-top:1px; }
+.task-item { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) 0; }
+.task-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.task-dot.hi { background:var(--error); } .task-dot.mid { background:var(--warning); }
+.task-text { font-size:var(--text-sm); }
+.pipeline-stages { display:flex; gap:var(--space-2); margin-bottom:var(--space-6); overflow-x:auto; padding-bottom:var(--space-2); }
+.stage { flex:1; min-width:120px; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); cursor:pointer; transition:all .15s; }
+.stage:hover { border-color:var(--border-strong); }
+.stage.active { border-color:var(--accent-border); background:var(--accent-dim); }
+.stage-head { display:flex; align-items:center; gap:var(--space-2); }
+.stage-dot { width:6px; height:6px; border-radius:50%; }
+.stage-name { font-size:var(--text-xs); color:var(--text-2); font-weight:500; }
+.stage-count { font-size:var(--text-lg); font-weight:600; margin-top:var(--space-1); }
+.tabs { display:flex; gap:var(--space-1); margin-bottom:var(--space-4); border-bottom:1px solid var(--border); }
+.tab { padding:var(--space-2) var(--space-4); font-size:var(--text-sm); color:var(--text-2); font-weight:500; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .15s; }
+.tab:hover { color:var(--text-1); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.tab .count { color:var(--text-3); margin-left:4px; }
+.detail-panel { position:fixed; top:0; right:0; bottom:0; width:440px; background:var(--surface-1); border-left:1px solid var(--border); transform:translateX(100%); transition:transform .25s cubic-bezier(0.16,1,0.3,1); z-index:50; overflow-y:auto; box-shadow:-8px 0 32px rgba(0,0,0,0.3); }
+.detail-panel.open { transform:translateX(0); }
+.detail-head { padding:var(--space-5); border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface-1); z-index:2; }
+.detail-head-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:var(--space-3); }
+.detail-firm { display:flex; align-items:center; gap:var(--space-3); }
+.detail-avatar { width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-3); border:1px solid var(--border); display:grid; place-items:center; font-weight:600; }
+.detail-name { font-weight:600; font-size:var(--text-md); }
+.detail-meta-row { display:flex; gap:var(--space-2); margin-top:3px; }
+.detail-body { padding:var(--space-5); }
+.detail-section { margin-bottom:var(--space-6); }
+.detail-section-title { font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); font-weight:600; margin-bottom:var(--space-3); }
+.detail-kv { display:flex; justify-content:space-between; padding:var(--space-2) 0; font-size:var(--text-sm); border-bottom:1px solid var(--border); }
+.detail-kv:last-child { border-bottom:none; }
+.detail-kv .k { color:var(--text-2); } .detail-kv .v { font-weight:500; }
+.detail-actions { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); }
+.timeline-item { display:flex; gap:var(--space-3); padding-bottom:var(--space-4); position:relative; }
+.timeline-item:not(:last-child)::before { content:''; position:absolute; left:4px; top:14px; bottom:0; width:1px; background:var(--border); }
+.timeline-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-top:4px; z-index:1; }
+.timeline-text { font-size:var(--text-sm); } .timeline-time { font-size:var(--text-xs); color:var(--text-3); }
+.check-item { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3); border-bottom:1px solid var(--border); }
+.check-item:last-child { border-bottom:none; }
+.check-icon { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; flex-shrink:0; }
+.check-icon svg { width:13px; height:13px; }
+.check-pass { background:rgba(34,197,94,0.15); color:var(--success); }
+.check-warn { background:rgba(245,158,11,0.15); color:var(--warning); }
+.check-fail { background:rgba(239,68,68,0.15); color:var(--error); }
+.check-text { font-size:var(--text-sm); } .check-sub { font-size:var(--text-xs); color:var(--text-3); }
+.alert-item { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); border:1px solid rgba(239,68,68,0.25); background:rgba(239,68,68,0.06); border-radius:var(--radius-md); margin-bottom:var(--space-2); }
+.alert-item .alert-icon { color:var(--error); } .alert-item .alert-icon svg { width:16px; height:16px; }
+.alert-grow { flex:1; } .alert-firm { font-weight:500; font-size:var(--text-sm); } .alert-reason { font-size:var(--text-xs); color:var(--text-2); }
+.switch { width:36px; height:20px; border-radius:10px; background:var(--surface-3); border:1px solid var(--border-strong); position:relative; cursor:pointer; transition:background .15s; flex-shrink:0; }
+.switch.on { background:var(--accent); border-color:var(--accent); }
+.switch-knob { width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:transform .15s; }
+.switch.on .switch-knob { transform:translateX(16px); }
+.list-row { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); border-bottom:1px solid var(--border); }
+.list-row:last-child { border-bottom:none; } .list-grow { flex:1; }
+.list-title { font-size:var(--text-sm); font-weight:500; } .list-sub { font-size:var(--text-xs); color:var(--text-3); }
+.mono { font-family:var(--mono); font-size:var(--text-xs); }
+.contract-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:var(--space-3); }
+.contract-card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4); cursor:pointer; transition:border-color .15s; }
+.contract-card:hover { border-color:var(--border-strong); }
+.contract-icon { width:32px; height:32px; border-radius:var(--radius-md); background:var(--surface-3); display:grid; place-items:center; margin-bottom:var(--space-3); color:var(--text-2); }
+.contract-icon svg { width:16px; height:16px; }
+.contract-name { font-weight:500; font-size:var(--text-sm); margin-bottom:2px; }
+.contract-meta { font-size:var(--text-xs); color:var(--text-3); margin-bottom:var(--space-3); }
+.timer-card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-6); margin-bottom:var(--space-5); }
+.timer-display { font-size:44px; font-weight:600; letter-spacing:-0.02em; text-align:center; margin-bottom:var(--space-4); }
+.timer-display.running { color:var(--accent); }
+.timer-controls { display:flex; gap:var(--space-2); justify-content:center; margin-bottom:var(--space-4); }
+.timer-selects { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); }
+.field { margin-bottom:var(--space-4); }
+.field label { display:block; font-size:var(--text-xs); color:var(--text-2); margin-bottom:var(--space-2); font-weight:500; }
+.input,.select,.textarea { width:100%; padding:var(--space-2) var(--space-3); border-radius:var(--radius-md); background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-1); font-size:var(--text-sm); transition:border-color .15s; }
+.input:focus,.select:focus,.textarea:focus { outline:none; border-color:var(--accent-border); }
+.textarea { resize:vertical; min-height:70px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); }
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:100; display:none; align-items:center; justify-content:center; padding:var(--space-4); }
+.modal-backdrop.open { display:flex; }
+.modal { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:480px; max-height:88vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.5); }
+.modal.wide { max-width:600px; }
+.modal-head { display:flex; align-items:center; justify-content:space-between; padding:var(--space-5); border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface-1); }
+.modal-title { font-weight:600; font-size:var(--text-md); }
+.modal-body { padding:var(--space-5); }
+.modal-foot { display:flex; justify-content:flex-end; gap:var(--space-2); padding:var(--space-4) var(--space-5); border-top:1px solid var(--border); position:sticky; bottom:0; background:var(--surface-1); }
+.inv-line { display:grid; grid-template-columns:1fr 60px 90px 28px; gap:var(--space-2); margin-bottom:var(--space-2); align-items:center; }
+.inv-totals { margin-top:var(--space-4); border-top:1px solid var(--border); padding-top:var(--space-3); }
+.inv-total-row { display:flex; justify-content:space-between; font-size:var(--text-sm); padding:2px 0; }
+.inv-total-row.grand { font-weight:600; font-size:var(--text-md); border-top:1px solid var(--border); margin-top:var(--space-2); padding-top:var(--space-2); }
+.toast-wrap { position:fixed; bottom:var(--space-5); right:var(--space-5); z-index:200; display:flex; flex-direction:column; gap:var(--space-2); pointer-events:none; }
+.toast { display:flex; align-items:center; gap:var(--space-3); background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); min-width:260px; box-shadow:0 8px 24px rgba(0,0,0,0.3); animation:toastIn .25s cubic-bezier(0.16,1,0.3,1); }
+@keyframes toastIn { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+.toast svg { width:16px; height:16px; flex-shrink:0; }
+.toast.success svg { color:var(--success); } .toast.error svg { color:var(--error); } .toast.warning svg { color:var(--warning); } .toast.info svg { color:var(--accent); }
+.toast-msg { font-size:var(--text-sm); }
+.chart-box { position:relative; height:240px; }
+@media (max-width:768px) {
+  .app { grid-template-columns:1fr; grid-template-areas:"header" "main"; }
+  .sidebar { display:none; } .grid-dash,.grid-2 { grid-template-columns:1fr; }
+  .detail-panel { width:100%; } .page { padding:var(--space-4); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="header-brand"><div class="logo">S</div><div class="header-title">Tour de Contrôle <span>· SAFE</span></div></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" title="Thème"><i data-lucide="moon"></i></button>
+      <button class="icon-btn" title="Notifications"><i data-lucide="bell"></i></button>
+      <div class="header-avatar">JT</div>
+    </div>
+  </header>
+  <aside class="sidebar">
+    <div class="nav-section"><div class="nav-label">Pilotage</div>
+      <button class="nav-item active" data-page="dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+      <button class="nav-item" data-page="cabinets"><i data-lucide="building-2"></i> Cabinets <span class="count">7</span></button>
+      <button class="nav-item" data-page="pipeline"><i data-lucide="git-branch"></i> Pipeline <span class="count">4</span></button>
+      <button class="nav-item" data-page="activites"><i data-lucide="activity"></i> Activités</button>
+    </div>
+    <div class="nav-section"><div class="nav-label">Conformité</div>
+      <button class="nav-item" data-page="audits"><i data-lucide="shield-check"></i> Audits <span class="count">3</span></button>
+    </div>
+    <div class="nav-section"><div class="nav-label">Revenus</div>
+      <button class="nav-item" data-page="abonnements"><i data-lucide="repeat"></i> Abonnements</button>
+      <button class="nav-item" data-page="contrats"><i data-lucide="file-signature"></i> Contrats</button>
+      <button class="nav-item" data-page="facturation"><i data-lucide="receipt"></i> Facturation</button>
+      <button class="nav-item" data-page="heures"><i data-lucide="clock"></i> Suivi des heures</button>
+    </div>
+    <div class="nav-section"><div class="nav-label">Système</div>
+      <button class="nav-item" data-page="parametres"><i data-lucide="settings"></i> Paramètres</button>
+    </div>
+  </aside>
+  <main class="main"><div id="pages"></div></main>
+</div>
+<div class="detail-panel" id="detailPanel"></div>
+<div class="modal-backdrop" id="modalRoot"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const PLANS = { essentiel:{label:'Essentiel',price:99}, pro:{label:'Pro',price:149}, proplus:{label:'Pro+',price:450} };
+const cabinets = [
+  { id:'c1', nom:'Cabinet Tremblay-Lapointe', avocat:'Me Sophie Tremblay', email:'s.tremblay@tl-avocats.ca', tel:'514-555-0142', plan:'pro', statut:'actif', score:88, province:'QC — Montréal', domaine:'Droit familial', logiciel:'Juris Concept', mrr:149, dernierAudit:'12 mai 2026', trustSolde:42500, trustReconcil:'31 mai 2026', trustTx:18, source:'LinkedIn', timeline:[{t:'Audit conforme',d:'12 mai',c:'green'},{t:'Paiement reçu 149$',d:'1 mai',c:'teal'},{t:'Réconciliation fidéicommis',d:'30 avr',c:'green'}] },
+  { id:'c2', nom:'Étude juridique Bergeron', avocat:'Me Louis Bergeron', email:'lbergeron@etudejb.ca', tel:'418-555-0198', plan:'essentiel', statut:'actif', score:72, province:'QC — Québec', domaine:'Droit civil', logiciel:'Excel', mrr:99, dernierAudit:'8 mai 2026', trustSolde:18750, trustReconcil:'30 avr 2026', trustTx:9, source:'Audit gratuit', timeline:[{t:'Avertissement: délai dépôt',d:'8 mai',c:'amber'},{t:'Paiement reçu 99$',d:'1 mai',c:'teal'}] },
+  { id:'c3', nom:'Cabinet Gagnon Avocats', avocat:'Me Catherine Gagnon', email:'cgagnon@gagnon-av.ca', tel:'819-555-0167', plan:'pro', statut:'actif', score:91, province:'QC — Sherbrooke', domaine:'Droit des affaires', logiciel:'Clio', mrr:149, dernierAudit:'15 mai 2026', trustSolde:67200, trustReconcil:'31 mai 2026', trustTx:24, source:'Référence', timeline:[{t:'Audit conforme',d:'15 mai',c:'green'},{t:'Activation module compta',d:'10 mai',c:'teal'},{t:'Paiement reçu 149$',d:'1 mai',c:'teal'}] },
+  { id:'c4', nom:'Boutique Immigration Dubé', avocat:'Me Amélie Dubé', email:'adube@immigration-dube.ca', tel:'613-555-0123', plan:'essentiel', statut:'essai', score:58, province:'ON — Ottawa', domaine:'Immobilier / Immigration', logiciel:'Excel', mrr:0, dernierAudit:'2 mai 2026', trustSolde:12300, trustReconcil:'28 avr 2026', trustTx:6, source:'Cold email', timeline:[{t:'Essai démarré',d:'2 mai',c:'teal'},{t:'Avertissement: registre clients',d:'2 mai',c:'amber'}] },
+  { id:'c5', nom:'Cabinet Roy & Filles', avocat:'Me Jean-Pierre Roy', email:'jproy@royfilles.ca', tel:'819-555-0211', plan:'proplus', statut:'actif', score:96, province:'QC — Trois-Rivières', domaine:'Droit des affaires', logiciel:'ProLaw', mrr:450, dernierAudit:'18 mai 2026', trustSolde:184000, trustReconcil:'31 mai 2026', trustTx:41, source:'Référence', timeline:[{t:'Audit conforme',d:'18 mai',c:'green'},{t:'Upgrade Pro+',d:'5 mai',c:'teal'},{t:'Paiement reçu 450$',d:'1 mai',c:'teal'}] },
+  { id:'c6', nom:'Derisier Law', avocat:'Me Marjorie Derisier', email:'info@derisierlaw.com', tel:'613-555-0177', plan:'pro', statut:'actif', score:84, province:'ON — Ottawa', domaine:'Immobilier', logiciel:'Excel', mrr:149, dernierAudit:'14 mai 2026', trustSolde:31400, trustReconcil:'31 mai 2026', trustTx:14, source:'Référence', timeline:[{t:'Audit conforme',d:'14 mai',c:'green'},{t:'Go-live',d:'20 avr',c:'teal'},{t:'Contrat signé',d:'15 avr',c:'green'}] },
+  { id:'c7', nom:'Cabinet Moreau Criminel', avocat:'Me David Moreau', email:'dmoreau@moreau-crim.ca', tel:'450-555-0144', plan:'essentiel', statut:'essai', score:41, province:'QC — Laval', domaine:'Droit criminel', logiciel:'Aucun', mrr:0, dernierAudit:'3 mai 2026', trustSolde:-2400, trustReconcil:'15 avr 2026', trustTx:11, source:'Cold email', timeline:[{t:'CRITIQUE: solde fidéicommis négatif',d:'3 mai',c:'red'},{t:'Réconciliation en retard',d:'15 avr',c:'amber'},{t:'Essai démarré',d:'10 avr',c:'teal'}] },
+];
+const deals = [
+  { cabinet:'Cabinet Lavoie & Associés', etape:'Call qualifié', contact:'Me Marc Lavoie', source:'LinkedIn', arr:1788, jours:6, action:'Planifier démo' },
+  { cabinet:'Étude Fontaine', etape:'Démo', contact:'Me Julie Fontaine', source:'Audit gratuit', arr:1188, jours:13, action:'Relance post-démo' },
+  { cabinet:'Cabinet Bélanger Droit', etape:'Essai/Pilote', contact:'Me Éric Bélanger', source:'Référence', arr:5400, jours:4, action:'Suivi pilote J+7' },
+  { cabinet:'Avocats Côté & Frères', etape:'Réponse reçue', contact:'Me Nathalie Côté', source:'Cold email', arr:1788, jours:11, action:'Proposer call qualif' },
+];
+const pipelineStages = [
+  {name:'Prospect identifié',count:24,color:'#6b6b6b'},{name:'Contacté',count:18,color:'#a0a0a0'},{name:'Réponse reçue',count:12,color:'#00b4b4'},{name:'Call qualifié',count:8,color:'#00b4b4'},{name:'Démo',count:5,color:'#f59e0b'},{name:'Essai/Pilote',count:4,color:'#f59e0b'},{name:'Client',count:3,color:'#22c55e'},{name:'Live',count:47,color:'#22c55e'},
+];
+const activities = [
+  {icon:'mail',color:'teal',text:'Email envoyé à <b>Cabinet Lavoie & Associés</b> — proposition de démo',time:'il y a 18 min'},
+  {icon:'phone',color:'green',text:'Appel qualif avec <b>Étude Fontaine</b> — 22 min',time:'il y a 1 h'},
+  {icon:'monitor',color:'teal',text:'Démo réalisée pour <b>Cabinet Bélanger Droit</b>',time:'il y a 3 h'},
+  {icon:'shield-check',color:'green',text:'Audit conforme — <b>Cabinet Roy & Filles</b> (score 96)',time:'il y a 5 h'},
+  {icon:'alert-triangle',color:'red',text:'Solde fidéicommis négatif détecté — <b>Cabinet Moreau Criminel</b>',time:'il y a 6 h'},
+  {icon:'credit-card',color:'green',text:'Paiement reçu 450$ — <b>Cabinet Roy & Filles</b>',time:'hier'},
+  {icon:'file-text',color:'amber',text:'Note interne ajoutée — <b>Boutique Immigration Dubé</b>',time:'hier'},
+];
+const tasks = [
+  {p:'hi',t:'Mettre en demeure facture #2026-014 (Moreau)'},{p:'hi',t:'Rappeler Me Lavoie pour planifier la démo'},{p:'mid',t:'Préparer contrat Pro+ pour Cabinet Roy & Filles'},{p:'mid',t:'Relancer Étude Fontaine post-démo'},{p:'mid',t:'Réconciliation fidéicommis mensuelle — vérif 7 cabinets'},
+];
+const audits = [
+  {cabinet:'Cabinet Moreau Criminel',raison:'Solde fidéicommis négatif (-2 400$)',cid:'c7'},
+  {cabinet:'Boutique Immigration Dubé',raison:'Registre clients en fidéicommis incomplet',cid:'c4'},
+  {cabinet:'Étude juridique Bergeron',raison:'Délai de dépôt dépassé (>5 jours ouvrables)',cid:'c2'},
+];
+const auditChecks = [
+  {s:'pass',t:'Réconciliation fidéicommis',sub:'3-way match conforme au 31 mai 2026'},
+  {s:'pass',t:'Registre chronologique des opérations',sub:'Toutes les écritures datées et séquencées'},
+  {s:'warn',t:'Rapprochement bancaire',sub:'Écart de 0,02$ non justifié'},
+  {s:'pass',t:'Registre des clients en fidéicommis',sub:'Cartes-client à jour pour 14 dossiers'},
+  {s:'fail',t:'Délais de dépôt',sub:'2 dépôts inscrits >5 jours après réception'},
+];
+const subscriptions = cabinets.filter(c=>c.statut==='actif').map(c=>({...c,renouvellement:'1 juil 2026'}));
+const promoCodes = [
+  {code:'FONDATEUR50',rabais:'50$/mois à vie',used:7,max:10,expiry:'—',statut:'actif'},
+  {code:'AUDIT2026',rabais:'15% — 3 mois',used:12,max:12,expiry:'31 mai 2026',statut:'épuisé'},
+  {code:'BARREAU10',rabais:'10% — 6 mois',used:3,max:25,expiry:'15 juin 2026',statut:'expire bientôt'},
+];
+const contracts = [
+  {nom:'Entente de service — Derisier Law',plan:'Pro',date:'15 avr 2026',statut:'signé'},
+  {nom:'Entente Pro+ — Cabinet Roy & Filles',plan:'Pro+',date:'5 mai 2026',statut:'attente'},
+  {nom:'Entente fondateur — Tremblay-Lapointe',plan:'Pro',date:'2 mai 2026',statut:'signé'},
+  {nom:'Entente de service — Étude Fontaine',plan:'Essentiel',date:'—',statut:'brouillon'},
+];
+const invoices = [
+  {num:'2026-018',cabinet:'Cabinet Roy & Filles',date:'1 juin 2026',montant:450,statut:'payée'},
+  {num:'2026-017',cabinet:'Cabinet Gagnon Avocats',date:'1 juin 2026',montant:149,statut:'payée'},
+  {num:'2026-016',cabinet:'Cabinet Tremblay-Lapointe',date:'1 juin 2026',montant:149,statut:'envoyée'},
+  {num:'2026-015',cabinet:'Derisier Law',date:'1 juin 2026',montant:149,statut:'envoyée'},
+  {num:'2026-014',cabinet:'Cabinet Moreau Criminel',date:'15 mai 2026',montant:99,statut:'retard'},
+];
+let timeEntries = [
+  {date:'3 juin',cabinet:'Cabinet Roy & Filles',tache:'Audit complet',duree:'2:45',facturable:true},
+  {date:'3 juin',cabinet:'Étude Fontaine',tache:'Appel commercial',duree:'0:22',facturable:false},
+  {date:'2 juin',cabinet:'Derisier Law',tache:'Support',duree:'1:10',facturable:true},
+  {date:'2 juin',cabinet:'Cabinet Gagnon Avocats',tache:'Activation module',duree:'3:30',facturable:true},
+  {date:'1 juin',cabinet:'Interne SAFE',tache:'Développement',duree:'6:15',facturable:false},
+];
+const mrrHistory = { labels:['Jan','Fév','Mar','Avr','Mai','Juin'], data:[298,447,596,745,846,996] };
+const totalMRR = cabinets.reduce((s,c)=>s+c.mrr,0);
+const activeCount = cabinets.filter(c=>c.statut==='actif').length;
+const trialCount = cabinets.filter(c=>c.statut==='essai').length;
+const tauxConformite = Math.round((cabinets.filter(c=>c.score>=65).length/cabinets.length)*100);
+function initials(name){ const w=name.replace(/^(Cabinet|Étude juridique|Étude|Boutique|Avocats)\s+/i,'').split(/\s|-/).filter(Boolean); return (w[0][0]+(w[1]?w[1][0]:'')).toUpperCase(); }
+function planBadge(p){ return `<span class="badge badge-neutral">${PLANS[p].label}</span>`; }
+function statutBadge(s){ if(s==='actif')return '<span class="badge badge-success"><span class="badge-dot"></span>Actif</span>'; if(s==='essai')return '<span class="badge badge-warning"><span class="badge-dot"></span>Essai</span>'; return '<span class="badge badge-neutral"><span class="badge-dot"></span>Inactif</span>'; }
+function scoreClass(s){ return s>=85?'score-hi':s>=65?'score-mid':'score-lo'; }
+function money(n){ return n.toLocaleString('fr-CA'); }
+function icon(name){ return `<i data-lucide="${name}"></i>`; }
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+function kpi(ic,label,val,delta,dir){ return `<div class="kpi"><div class="kpi-label">${icon(ic)} ${label}</div><div class="kpi-value tnum">${val}</div>${delta?`<div class="kpi-delta ${dir}">${dir==='up'?icon('trending-up'):dir==='down'?icon('trending-down'):''}${delta}</div>`:''}</div>`; }
+function feedItem(a){ return `<div class="feed-item"><div class="feed-icon ${a.color}">${icon(a.icon)}</div><div class="feed-body"><div class="feed-text">${a.text}</div><div class="feed-time">${a.time}</div></div></div>`; }
+function pageDashboard(){
+  return `<div class="page-head"><div class="page-title">Dashboard</div><div class="page-sub">Vue d'ensemble de l'opération SAFE Inc.</div></div>
+  <div class="kpi-grid">${kpi('building-2','Cabinets actifs',activeCount,'+1 ce mois','up')}${kpi('dollar-sign','MRR',money(totalMRR)+' $','+18% vs avr','up')}${kpi('git-branch','Deals actifs',deals.length,'4 en cours','')}${kpi('shield-check','Taux conformité',tauxConformite+' %','5/7 conformes','')}${kpi('clock','Heures fact. (sem.)','38,5 h','+4,5h','up')}${kpi('search-check','Audits effectués','7','3 alertes','down')}</div>
+  <div class="grid-dash"><div class="card"><div class="section-title">Évolution du MRR <span class="badge badge-accent"><span class="badge-dot"></span>6 mois</span></div><div class="chart-box"><canvas id="mrrChart"></canvas></div></div>
+  <div class="card"><div class="section-title">Tâches du jour</div>${tasks.map(t=>`<div class="task-item"><span class="task-dot ${t.p}"></span><span class="task-text">${t.t}</span></div>`).join('')}</div></div>
+  <div class="grid-dash" style="margin-top:var(--space-4)"><div><div class="section-title">Derniers cabinets</div><div class="table-wrap"><table><thead><tr><th>Cabinet</th><th>Plan</th><th>Statut</th><th class="right">MRR</th><th class="right">Santé</th></tr></thead><tbody>${cabinets.slice(0,5).map(c=>`<tr class="clickable" onclick="openDetail('${c.id}')"><td><div class="cell-firm"><div class="avatar">${initials(c.nom)}</div><div><div class="cell-firm-name">${c.nom}</div><div class="cell-firm-sub">${c.avocat}</div></div></div></td><td>${planBadge(c.plan)}</td><td>${statutBadge(c.statut)}</td><td class="right tnum">${c.mrr?money(c.mrr)+' $':'—'}</td><td class="right"><span class="score ${scoreClass(c.score)} tnum">${c.score}</span></td></tr>`).join('')}</tbody></table></div></div>
+  <div><div class="section-title">Activité récente</div><div class="card" style="padding:var(--space-3) var(--space-4)">${activities.slice(0,5).map(a=>feedItem(a)).join('')}</div></div></div>`;
+}
+function pageCabinets(){
+  return `<div class="page-head page-head-row"><div><div class="page-title">Cabinets</div><div class="page-sub">${cabinets.length} cabinets clients · CRM</div></div><button class="btn btn-primary" onclick="openModal('cabinet')">${icon('plus')} Nouveau cabinet</button></div>
+  <div class="tabs" id="cabinetTabs"><button class="tab active" data-f="tous">Tous <span class="count">${cabinets.length}</span></button><button class="tab" data-f="actif">Actifs <span class="count">${activeCount}</span></button><button class="tab" data-f="essai">Essai <span class="count">${trialCount}</span></button><button class="tab" data-f="inactif">Inactifs <span class="count">0</span></button></div>
+  <div class="table-wrap"><table><thead><tr><th>Cabinet</th><th>Avocat principal</th><th>Plan</th><th>Statut</th><th class="right">MRR</th><th>Dernier audit</th><th class="right">Santé</th></tr></thead><tbody id="cabinetRows">${cabinetRows('tous')}</tbody></table></div>`;
+}
+function cabinetRows(f){
+  const list = f==='tous'?cabinets:cabinets.filter(c=>c.statut===f);
+  if(!list.length) return `<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:var(--space-8)">Aucun cabinet</td></tr>`;
+  return list.map(c=>`<tr class="clickable" onclick="openDetail('${c.id}')"><td><div class="cell-firm"><div class="avatar">${initials(c.nom)}</div><div class="cell-firm-name">${c.nom}</div></div></td><td>${c.avocat}</td><td>${planBadge(c.plan)}</td><td>${statutBadge(c.statut)}</td><td class="right tnum">${c.mrr?money(c.mrr)+' $':'—'}</td><td style="color:var(--text-2)">${c.dernierAudit}</td><td class="right"><span class="score ${scoreClass(c.score)} tnum">${c.score}</span></td></tr>`).join('');
+}
+function pagePipeline(){
+  return `<div class="page-head page-head-row"><div><div class="page-title">Pipeline</div><div class="page-sub">Acquisition · ${deals.length} deals actifs</div></div><button class="btn btn-primary" onclick="openModal('deal')">${icon('plus')} Nouveau deal</button></div>
+  <div class="pipeline-stages">${pipelineStages.map((s,i)=>`<div class="stage ${i===2?'active':''}"><div class="stage-head"><span class="stage-dot" style="background:${s.color}"></span><span class="stage-name">${s.name}</span></div><div class="stage-count tnum">${s.count}</div></div>`).join('')}</div>
+  <div class="table-wrap"><table><thead><tr><th>Cabinet</th><th>Étape</th><th>Contact</th><th>Source</th><th class="right">Valeur ARR</th><th class="right">Jours</th><th>Prochaine action</th></tr></thead><tbody>${deals.map(d=>`<tr class="clickable"><td class="cell-firm-name">${d.cabinet}</td><td><span class="badge badge-accent"><span class="badge-dot"></span>${d.etape}</span></td><td>${d.contact}</td><td style="color:var(--text-2)">${d.source}</td><td class="right tnum">${money(d.arr)} $</td><td class="right tnum" style="${d.jours>10?'color:var(--warning);font-weight:600':''}">${d.jours}j</td><td style="color:var(--text-2)">${d.action}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function pageActivites(){
+  return `<div class="page-head page-head-row"><div><div class="page-title">Activités</div><div class="page-sub">Journal chronologique complet</div></div><button class="btn btn-primary" onclick="openModal('activite')">${icon('plus')} Enregistrer</button></div><div class="card" style="padding:var(--space-3) var(--space-5)">${activities.map(a=>feedItem(a)).join('')}</div>`;
+}
+function pageAudits(){
+  return `<div class="page-head page-head-row"><div><div class="page-title">Audits de conformité</div><div class="page-sub">Comptabilité en fidéicommis — Barreau du Québec</div></div><button class="btn btn-primary" onclick="openModal('audit')">${icon('plus')} Nouvel audit</button></div>
+  <div class="kpi-grid">${kpi('search-check','Total effectués','7','','')}${kpi('check-circle','Conformes','4','','')}${kpi('alert-triangle','Avertissements','2','','')}${kpi('octagon-alert','Critiques','3','','')}</div>
+  <div class="section-title">Alertes critiques</div><div style="margin-bottom:var(--space-6)">${audits.map(a=>`<div class="alert-item"><div class="alert-icon">${icon('octagon-alert')}</div><div class="alert-grow"><div class="alert-firm">${a.cabinet}</div><div class="alert-reason">${a.raison}</div></div><button class="btn btn-sm" onclick="openDetail('${a.cid}')">Voir</button></div>`).join('')}</div>
+  <div class="section-title">Dernier audit — Cabinet Roy & Filles <span class="badge badge-success"><span class="badge-dot"></span>Conforme</span></div>
+  <div class="table-wrap">${auditChecks.map(c=>`<div class="check-item"><div class="check-icon check-${c.s}">${icon(c.s==='pass'?'check':c.s==='warn'?'triangle-alert':'x')}</div><div><div class="check-text">${c.t}</div><div class="check-sub">${c.sub}</div></div></div>`).join('')}</div>`;
+}
+function pageAbonnements(){
+  return `<div class="page-head"><div class="page-title">Abonnements</div><div class="page-sub">Gestion des plans et rabais clients</div></div>
+  <div class="section-title">Abonnements actifs</div><div class="table-wrap" style="margin-bottom:var(--space-6)"><table><thead><tr><th>Cabinet</th><th>Plan</th><th class="right">Prix/mois</th><th>Renouvellement</th><th>Rabais</th><th class="right">Actif</th></tr></thead><tbody>${subscriptions.map(s=>`<tr><td class="cell-firm-name">${s.nom}</td><td>${planBadge(s.plan)}</td><td class="right tnum">${money(PLANS[s.plan].price)} $</td><td style="color:var(--text-2)">${s.renouvellement}</td><td><button class="btn btn-sm" onclick="openModal('rabais')">${icon('percent')} Rabais</button></td><td class="right"><div class="switch on" onclick="toggleSwitch(this)" style="margin-left:auto"><div class="switch-knob"></div></div></td></tr>`).join('')}</tbody></table></div>
+  <div class="section-title">Codes promotionnels</div><div class="table-wrap"><table><thead><tr><th>Code</th><th>Rabais</th><th class="right">Utilisations</th><th>Expiration</th><th>Statut</th></tr></thead><tbody>${promoCodes.map(p=>`<tr><td class="mono">${p.code}</td><td>${p.rabais}</td><td class="right tnum">${p.used}/${p.max}</td><td style="color:var(--text-2)">${p.expiry}</td><td>${p.statut==='actif'?'<span class="badge badge-success"><span class="badge-dot"></span>Actif</span>':p.statut==='épuisé'?'<span class="badge badge-neutral"><span class="badge-dot"></span>Épuisé</span>':'<span class="badge badge-warning"><span class="badge-dot"></span>Expire bientôt</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function pageContrats(){
+  const signe=contracts.filter(c=>c.statut==='signé').length, att=contracts.filter(c=>c.statut==='attente').length, br=contracts.filter(c=>c.statut==='brouillon').length;
+  return `<div class="page-head page-head-row"><div><div class="page-title">Contrats</div><div class="page-sub">Ententes de service et signatures</div></div><button class="btn btn-primary" onclick="openModal('contrat')">${icon('plus')} Nouveau contrat</button></div>
+  <div class="kpi-grid">${kpi('file-check','Signés',signe,'','')}${kpi('file-clock','En attente',att,'','')}${kpi('file-text','Brouillons',br,'','')}</div>
+  <div class="contract-grid">${contracts.map(c=>`<div class="contract-card"><div class="contract-icon">${icon('file-signature')}</div><div class="contract-name">${c.nom}</div><div class="contract-meta">${c.plan} · ${c.date}</div>${c.statut==='signé'?'<span class="badge badge-success"><span class="badge-dot"></span>Signé</span>':c.statut==='attente'?'<span class="badge badge-warning"><span class="badge-dot"></span>En attente</span>':'<span class="badge badge-neutral"><span class="badge-dot"></span>Brouillon</span>'}</div>`).join('')}</div>`;
+}
+function pageFacturation(){
+  return `<div class="page-head page-head-row"><div><div class="page-title">Facturation</div><div class="page-sub">Factures émises aux cabinets clients</div></div><button class="btn btn-primary" onclick="openModal('facture')">${icon('plus')} Nouvelle facture</button></div>
+  <div class="kpi-grid">${kpi('receipt','Facturé ce mois','897 $','','')}${kpi('hourglass','En attente','298 $','','')}${kpi('alert-circle','En retard','99 $','','down')}${kpi('calendar-clock','Délai moyen','8 jours','','')}</div>
+  <div class="table-wrap"><table><thead><tr><th>Numéro</th><th>Cabinet</th><th>Date</th><th class="right">Montant</th><th>Statut</th><th class="right">Action</th></tr></thead><tbody>${invoices.map(i=>`<tr><td class="mono">${i.num}</td><td class="cell-firm-name">${i.cabinet}</td><td style="color:var(--text-2)">${i.date}</td><td class="right tnum">${money(i.montant)} $</td><td>${i.statut==='payée'?'<span class="badge badge-success"><span class="badge-dot"></span>Payée</span>':i.statut==='envoyée'?'<span class="badge badge-accent"><span class="badge-dot"></span>Envoyée</span>':'<span class="badge badge-error"><span class="badge-dot"></span>En retard</span>'}</td><td class="right">${i.statut==='retard'?`<button class="btn btn-sm btn-danger" onclick="toast('warning','Mise en demeure générée')">Mise en demeure</button>`:i.statut==='envoyée'?`<button class="btn btn-sm" onclick="toast('info','Relance envoyée')">Relancer</button>`:`<button class="btn btn-sm" onclick="toast('success','PDF téléchargé')">PDF</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function pageHeures(){
+  return `<div class="page-head"><div class="page-title">Suivi des heures</div><div class="page-sub">Chronomètre et saisie du temps</div></div>
+  <div class="timer-card"><div class="timer-display tnum" id="timerDisplay">00:00:00</div><div class="timer-controls"><button class="btn btn-primary" onclick="timerStart()">${icon('play')} Démarrer</button><button class="btn" onclick="timerPause()">${icon('pause')} Pause</button><button class="btn" onclick="timerStop()">${icon('square')} Enregistrer</button></div>
+  <div class="timer-selects"><select class="select"><option>Cabinet Roy & Filles</option><option>Derisier Law</option><option>Cabinet Gagnon Avocats</option><option>Interne SAFE</option></select><select class="select"><option>Audit</option><option>Support</option><option>Appel commercial</option><option>Activation module</option><option>Développement</option></select></div></div>
+  <div class="section-title">Entrées de la semaine <span class="badge badge-accent tnum"><span class="badge-dot"></span>38,5 h</span></div>
+  <div class="table-wrap"><table><thead><tr><th>Date</th><th>Cabinet</th><th>Tâche</th><th class="right">Durée</th><th>Facturable</th><th class="right"></th></tr></thead><tbody id="timeRows">${timeRows()}</tbody></table></div>`;
+}
+function timeRows(){ return timeEntries.map((e,i)=>`<tr><td style="color:var(--text-2)">${e.date}</td><td class="cell-firm-name">${e.cabinet}</td><td>${e.tache}</td><td class="right tnum">${e.duree}</td><td>${e.facturable?'<span class="badge badge-success"><span class="badge-dot"></span>Oui</span>':'<span class="badge badge-neutral"><span class="badge-dot"></span>Non</span>'}</td><td class="right"><button class="icon-btn" onclick="delTime(${i})">${icon('trash-2')}</button></td></tr>`).join(''); }
+function pageParametres(){
+  return `<div class="page-head"><div class="page-title">Paramètres</div><div class="page-sub">Profil opérateur et notifications</div></div>
+  <div class="grid-2"><div class="card"><div class="section-title">Profil opérateur</div><div class="field"><label>Nom</label><input class="input" value="Jérémie Tiahou" /></div><div class="field"><label>Courriel</label><input class="input" value="jeremie@safecabinet.ca" /></div><button class="btn btn-primary" onclick="toast('success','Profil sauvegardé')">${icon('check')} Sauvegarder</button></div>
+  <div class="card"><div class="section-title">Notifications</div><div class="list-row"><div class="list-grow"><div class="list-title">Alertes audit critiques</div><div class="list-sub">Solde négatif, délais dépassés</div></div><div class="switch on" onclick="toggleSwitch(this)"><div class="switch-knob"></div></div></div><div class="list-row"><div class="list-grow"><div class="list-title">Nouveaux deals</div><div class="list-sub">Lead entrant dans le pipeline</div></div><div class="switch on" onclick="toggleSwitch(this)"><div class="switch-knob"></div></div></div><div class="list-row"><div class="list-grow"><div class="list-title">Factures en retard</div><div class="list-sub">Paiement non reçu après échéance</div></div><div class="switch" onclick="toggleSwitch(this)"><div class="switch-knob"></div></div></div></div></div>`;
+}
+const PAGES = { dashboard:pageDashboard, cabinets:pageCabinets, pipeline:pagePipeline, activites:pageActivites, audits:pageAudits, abonnements:pageAbonnements, contrats:pageContrats, facturation:pageFacturation, heures:pageHeures, parametres:pageParametres };
+let currentPage='dashboard';
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  document.getElementById('pages').innerHTML=`<div class="page active">${PAGES[page]()}</div>`;
+  refreshIcons();
+  if(page==='dashboard') setTimeout(renderChart,30);
+  if(page==='cabinets') bindCabinetTabs();
+  if(page==='heures') updateTimerDisplay();
+}
+document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>navigate(n.dataset.page)));
+function bindCabinetTabs(){ document.querySelectorAll('#cabinetTabs .tab').forEach(t=>t.addEventListener('click',()=>{ document.querySelectorAll('#cabinetTabs .tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); document.getElementById('cabinetRows').innerHTML=cabinetRows(t.dataset.f); refreshIcons(); })); }
+function openDetail(id){
+  const c=cabinets.find(x=>x.id===id); if(!c) return;
+  const neg=c.trustSolde<0;
+  document.getElementById('detailPanel').innerHTML=`<div class="detail-head"><div class="detail-head-top"><div class="detail-firm"><div class="detail-avatar">${initials(c.nom)}</div><div><div class="detail-name">${c.nom}</div><div class="detail-meta-row">${planBadge(c.plan)}${statutBadge(c.statut)}</div></div></div><button class="icon-btn" onclick="closeDetail()">${icon('x')}</button></div><div style="display:flex;align-items:center;gap:var(--space-2)"><span class="kpi-label">Score de santé</span><span class="score ${scoreClass(c.score)} tnum" style="font-size:var(--text-lg)">${c.score}</span></div></div>
+  <div class="detail-body"><div class="detail-section"><div class="detail-section-title">Informations</div><div class="detail-kv"><span class="k">Avocat principal</span><span class="v">${c.avocat}</span></div><div class="detail-kv"><span class="k">Province</span><span class="v">${c.province}</span></div><div class="detail-kv"><span class="k">Domaine</span><span class="v">${c.domaine}</span></div><div class="detail-kv"><span class="k">Logiciel actuel</span><span class="v">${c.logiciel}</span></div><div class="detail-kv"><span class="k">Source du lead</span><span class="v">${c.source}</span></div><div class="detail-kv"><span class="k">MRR</span><span class="v tnum">${c.mrr?money(c.mrr)+' $':'Essai'}</span></div><div class="detail-kv"><span class="k">Dernier audit</span><span class="v">${c.dernierAudit}</span></div></div>
+  <div class="detail-section"><div class="detail-section-title">Comptabilité fidéicommis</div><div class="detail-kv"><span class="k">Solde</span><span class="v tnum" style="${neg?'color:var(--error)':''}">${money(c.trustSolde)} $</span></div><div class="detail-kv"><span class="k">Dernière réconciliation</span><span class="v">${c.trustReconcil}</span></div><div class="detail-kv"><span class="k">Transactions ce mois</span><span class="v tnum">${c.trustTx}</span></div>${neg?'<div class="alert-item" style="margin-top:var(--space-3)"><div class="alert-icon">'+icon('octagon-alert')+'</div><div class="alert-grow"><div class="alert-reason">Solde négatif — intervention requise (Barreau)</div></div></div>':''}</div>
+  <div class="detail-section"><div class="detail-section-title">Historique</div>${c.timeline.map(t=>`<div class="timeline-item"><span class="timeline-dot" style="background:${t.c==='green'?'var(--success)':t.c==='amber'?'var(--warning)':t.c==='red'?'var(--error)':'var(--accent)'}"></span><div><div class="timeline-text">${t.t}</div><div class="timeline-time">${t.d}</div></div></div>`).join('')}</div>
+  <div class="detail-section"><div class="detail-section-title">Actions</div><div class="detail-actions"><button class="btn btn-primary" onclick="toast('info','Ouverture compta — ${c.nom}')">${icon('calculator')} Accéder compta</button><button class="btn" onclick="toast('info','Contrat ouvert')">${icon('file-signature')} Contrat</button><button class="btn" onclick="openModal('facture')">${icon('receipt')} Facture</button><button class="btn" onclick="toast('success','Email ouvert')">${icon('mail')} Email</button><button class="btn" style="grid-column:span 2" onclick="openModal('audit')">${icon('shield-check')} Lancer un audit</button></div></div></div>`;
+  document.getElementById('detailPanel').classList.add('open'); refreshIcons();
+}
+function closeDetail(){ document.getElementById('detailPanel').classList.remove('open'); }
+const MODALS = {
+  cabinet:{title:'Nouveau cabinet',wide:false,body:`<div class="field"><label>Nom du cabinet</label><input class="input" placeholder="Cabinet Exemple Avocats" /></div><div class="field-row"><div class="field"><label>Avocat principal</label><input class="input" placeholder="Me Prénom Nom" /></div><div class="field"><label>Téléphone</label><input class="input" placeholder="514-555-0000" /></div></div><div class="field"><label>Courriel</label><input class="input" placeholder="contact@cabinet.ca" /></div><div class="field"><label>Plan</label><select class="select"><option>Essentiel — 99 $/mois</option><option>Pro — 149 $/mois</option><option>Pro+ — À partir de 300 $/mois</option></select></div><div class="field-row"><div class="field"><label>Province</label><select class="select"><option>Québec</option><option>Ontario</option></select></div><div class="field"><label>Domaine</label><select class="select"><option>Droit civil</option><option>Droit familial</option><option>Droit criminel</option><option>Droit des affaires</option><option>Immobilier</option></select></div></div><div class="field-row"><div class="field"><label>Logiciel actuel</label><input class="input" placeholder="Excel, Clio…" /></div><div class="field"><label>Source du lead</label><select class="select"><option>Cold email</option><option>LinkedIn</option><option>Référence</option><option>Audit gratuit</option></select></div></div>`,cta:'Créer le cabinet'},
+  deal:{title:'Nouveau deal',wide:false,body:`<div class="field"><label>Cabinet</label><input class="input" placeholder="Nom du cabinet prospect" /></div><div class="field"><label>Contact</label><input class="input" placeholder="Me Prénom Nom" /></div><div class="field-row"><div class="field"><label>Étape</label><select class="select">${pipelineStages.map(s=>`<option>${s.name}</option>`).join('')}</select></div><div class="field"><label>Plan visé</label><select class="select"><option>Essentiel</option><option>Pro</option><option>Pro+</option></select></div></div><div class="field-row"><div class="field"><label>Source</label><select class="select"><option>Cold email</option><option>LinkedIn</option><option>Référence</option><option>Audit gratuit</option></select></div><div class="field"><label>Valeur ARR estimée</label><input class="input" placeholder="1788" /></div></div>`,cta:'Créer le deal'},
+  activite:{title:'Nouvelle activité',wide:false,body:`<div class="field"><label>Type</label><select class="select"><option>Email</option><option>Appel</option><option>Démo</option><option>Note interne</option></select></div><div class="field"><label>Cabinet</label><select class="select">${cabinets.map(c=>`<option>${c.nom}</option>`).join('')}</select></div><div class="field"><label>Notes</label><textarea class="textarea" placeholder="Détails de l'interaction…"></textarea></div><div class="field"><label>Tâche de suivi (optionnel)</label><input class="input" placeholder="Ex: Relancer dans 3 jours" /></div>`,cta:'Enregistrer'},
+  audit:{title:'Nouvel audit',wide:false,body:`<div class="field"><label>Cabinet</label><select class="select">${cabinets.map(c=>`<option>${c.nom}</option>`).join('')}</select></div><div class="field"><label>Type d'audit</label><select class="select"><option>Réconciliation fidéicommis</option><option>Registre chronologique</option><option>Audit complet</option></select></div>`,cta:'Lancer l\'audit'},
+  rabais:{title:'Appliquer un rabais',wide:false,body:`<div class="field-row"><div class="field"><label>Type</label><select class="select"><option>Pourcentage (%)</option><option>Montant ($)</option></select></div><div class="field"><label>Valeur</label><input class="input" placeholder="15" /></div></div><div class="field"><label>Durée</label><select class="select"><option>1 mois</option><option>3 mois</option><option>6 mois</option><option>Permanent</option></select></div><div class="field"><label>Raison</label><textarea class="textarea" placeholder="Ex: Cabinet fondateur…"></textarea></div>`,cta:'Appliquer'},
+  contrat:{title:'Nouveau contrat',wide:false,body:`<div class="field"><label>Cabinet</label><select class="select">${cabinets.map(c=>`<option>${c.nom}</option>`).join('')}</select></div><div class="field"><label>Type de contrat</label><select class="select"><option>Entente de service</option><option>Entente fondateur</option><option>Avenant</option></select></div><div class="field-row"><div class="field"><label>Plan</label><select class="select"><option>Essentiel</option><option>Pro</option><option>Pro+</option></select></div><div class="field"><label>Signature</label><select class="select"><option>DocuSign</option><option>PDF manuel</option></select></div></div>`,cta:'Créer le contrat'},
+  facture:{title:'Nouvelle facture',wide:true,body:`<div class="field"><label>Cabinet</label><select class="select">${cabinets.map(c=>`<option>${c.nom}</option>`).join('')}</select></div><label style="font-size:var(--text-xs);color:var(--text-2);font-weight:500;display:block;margin-bottom:var(--space-2)">Lignes</label><div id="invLines"><div class="inv-line"><input class="input" placeholder="Description" value="Abonnement SAFE — Pro" /><input class="input tnum" value="1" /><input class="input tnum inv-amt" value="149" oninput="calcInvoice()" /><button class="icon-btn" onclick="this.parentElement.remove();calcInvoice()">${icon('x')}</button></div></div><button class="btn btn-sm" style="margin-top:var(--space-2)" onclick="addInvLine()">${icon('plus')} Ajouter une ligne</button><div class="inv-totals" id="invTotals"></div>`,cta:'Envoyer',cta2:'Brouillon'},
+};
+function openModal(key){
+  const m=MODALS[key]; if(!m) return;
+  document.getElementById('modalRoot').innerHTML=`<div class="modal ${m.wide?'wide':''}"><div class="modal-head"><div class="modal-title">${m.title}</div><button class="icon-btn" onclick="closeModal()">${icon('x')}</button></div><div class="modal-body">${m.body}</div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Annuler</button>${m.cta2?`<button class="btn" onclick="submitModal('${key}','draft')">${m.cta2}</button>`:''}<button class="btn btn-primary" onclick="submitModal('${key}')">${m.cta}</button></div></div>`;
+  document.getElementById('modalRoot').classList.add('open'); refreshIcons();
+  if(key==='facture') calcInvoice();
+}
+function closeModal(){ document.getElementById('modalRoot').classList.remove('open'); document.getElementById('modalRoot').innerHTML=''; }
+function submitModal(key,mode){ const msgs={cabinet:'Cabinet créé',deal:'Deal ajouté au pipeline',activite:'Activité enregistrée',audit:'Audit lancé',rabais:'Rabais appliqué',contrat:'Contrat créé',facture:mode==='draft'?'Brouillon sauvegardé':'Facture envoyée'}; closeModal(); toast('success',msgs[key]||'Enregistré'); }
+document.getElementById('modalRoot').addEventListener('click',e=>{ if(e.target.id==='modalRoot') closeModal(); });
+function addInvLine(){ const div=document.createElement('div'); div.className='inv-line'; div.innerHTML=`<input class="input" placeholder="Description" /><input class="input tnum" value="1" /><input class="input tnum inv-amt" value="0" oninput="calcInvoice()" /><button class="icon-btn" onclick="this.parentElement.remove();calcInvoice()">${icon('x')}</button>`; document.getElementById('invLines').appendChild(div); refreshIcons(); calcInvoice(); }
+function calcInvoice(){ let sub=0; document.querySelectorAll('.inv-amt').forEach(a=>sub+=parseFloat(a.value)||0); const tps=sub*0.05,tvq=sub*0.09975,tot=sub+tps+tvq; const el=document.getElementById('invTotals'); if(!el) return; el.innerHTML=`<div class="inv-total-row"><span>Sous-total</span><span class="tnum">${sub.toFixed(2)} $</span></div><div class="inv-total-row"><span>TPS (5%)</span><span class="tnum">${tps.toFixed(2)} $</span></div><div class="inv-total-row"><span>TVQ (9,975%)</span><span class="tnum">${tvq.toFixed(2)} $</span></div><div class="inv-total-row grand"><span>Total TTC</span><span class="tnum">${tot.toFixed(2)} $</span></div>`; }
+function toast(type,msg){ const icons={success:'check-circle',error:'x-circle',warning:'alert-triangle',info:'info'}; const el=document.createElement('div'); el.className=`toast ${type}`; el.innerHTML=`${icon(icons[type])}<span class="toast-msg">${msg}</span>`; document.getElementById('toastWrap').appendChild(el); refreshIcons(); setTimeout(()=>{ el.style.transition='opacity .3s,transform .3s'; el.style.opacity='0'; el.style.transform='translateX(120%)'; setTimeout(()=>el.remove(),300); },3000); }
+function toggleTheme(){ const html=document.documentElement; const dark=html.dataset.theme==='dark'; html.dataset.theme=dark?'light':'dark'; document.querySelector('#themeToggle i').dataset.lucide=dark?'sun':'moon'; refreshIcons(); if(currentPage==='dashboard') setTimeout(renderChart,30); }
+document.getElementById('themeToggle').addEventListener('click',toggleTheme);
+function renderChart(){ const cv=document.getElementById('mrrChart'); if(!cv) return; if(window._mrrChart) window._mrrChart.destroy(); const dark=document.documentElement.dataset.theme==='dark'; const ctx=cv.getContext('2d'); const grad=ctx.createLinearGradient(0,0,0,240); grad.addColorStop(0,'rgba(0,180,180,0.25)'); grad.addColorStop(1,'rgba(0,180,180,0)'); window._mrrChart=new Chart(ctx,{ type:'line', data:{ labels:mrrHistory.labels, datasets:[{ data:mrrHistory.data, borderColor:'#00b4b4', backgroundColor:grad, fill:true, tension:0.35, borderWidth:2, pointRadius:3, pointBackgroundColor:'#00b4b4', pointBorderColor:dark?'#141414':'#fff', pointBorderWidth:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>c.parsed.y+' $' } } }, scales:{ y:{ grid:{color:dark?'#222':'#eee'}, ticks:{color:dark?'#6b6b6b':'#a1a1aa',callback:v=>v+' $'} }, x:{ grid:{display:false}, ticks:{color:dark?'#6b6b6b':'#a1a1aa'} } } } }); }
+let timerSec=0,timerInt=null,timerRunning=false;
+function fmtTime(s){ const h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s%3600/60)).padStart(2,'0'),x=String(s%60).padStart(2,'0'); return `${h}:${m}:${x}`; }
+function updateTimerDisplay(){ const d=document.getElementById('timerDisplay'); if(d){ d.textContent=fmtTime(timerSec); d.classList.toggle('running',timerRunning); } }
+function timerStart(){ if(timerRunning) return; timerRunning=true; updateTimerDisplay(); timerInt=setInterval(()=>{ timerSec++; updateTimerDisplay(); },1000); toast('info','Chronomètre démarré'); }
+function timerPause(){ timerRunning=false; clearInterval(timerInt); updateTimerDisplay(); }
+function timerStop(){ if(timerSec===0){ toast('warning','Aucun temps à enregistrer'); return; } timerRunning=false; clearInterval(timerInt); timeEntries.unshift({date:'Auj.',cabinet:'Cabinet Roy & Filles',tache:'Audit',duree:fmtTime(timerSec).slice(0,5),facturable:true}); timerSec=0; updateTimerDisplay(); const rows=document.getElementById('timeRows'); if(rows){ rows.innerHTML=timeRows(); refreshIcons(); } toast('success','Temps enregistré'); }
+function delTime(i){ timeEntries.splice(i,1); document.getElementById('timeRows').innerHTML=timeRows(); refreshIcons(); toast('success','Entrée supprimée'); }
+function toggleSwitch(el){ el.classList.toggle('on'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeDetail(); } });
+navigate('dashboard'); refreshIcons();
+</script>
+</body>
+</html>
