@@ -2343,7 +2343,14 @@
     "base": "Base",
     "adjustmentShort": "Ajust.",
     "selectedTotalHours": "Total heures sélectionnées",
-    "selectAtLeastOneItem": "Sélectionnez au moins une fiche de temps, un débours ou une tâche."
+    "selectAtLeastOneItem": "Sélectionnez au moins une fiche de temps, un débours ou une tâche.",
+    "sendInvoiceTitle": "Envoyer la facture",
+    "sendInvoiceBody": "La facture sera envoyée au client par courriel, en pièce jointe PDF.",
+    "attachOtherDocs": "Joindre d’autres documents du dossier ?",
+    "noAttachableDocs": "Aucun document du dossier à joindre.",
+    "draftBadge": "Brouillon",
+    "loading": "Chargement…",
+    "sendWithCount": "Envoyer (+{n})"
   },
   "accountingUi": {
     "pageTitle": "Comptabilité",
@@ -3033,7 +3040,9 @@
     "colorSchemeTitle": "Aperçu des palettes de couleurs",
     "colorSchemeSubtitle": "Comparez les 3 propositions pour l'interface d'atelier",
     "recommendation": "Recommandation",
-    "recommendationText": "La <strong>Proposition 1 (Neutre Professionnel)</strong> offre le meilleur équilibre : elle est épurée et professionnelle sans perdre la distinction entre les types de dossiers (via les onglets). Elle inspire la confiance tout en restant visuellement cohérente."
+    "recommendationText": "La <strong>Proposition 1 (Neutre Professionnel)</strong> offre le meilleur équilibre : elle est épurée et professionnelle sans perdre la distinction entre les types de dossiers (via les onglets). Elle inspire la confiance tout en restant visuellement cohérente.",
+    "sendToClient": "Envoyer au client",
+    "sendToClientSuccess": "Document envoyé au client."
   },
   "onboardingUi": {
     "alreadyClient": "Déjà client ?",

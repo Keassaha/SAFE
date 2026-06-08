@@ -2343,7 +2343,14 @@
     "base": "Base",
     "adjustmentShort": "Adj.",
     "selectedTotalHours": "Selected total hours",
-    "selectAtLeastOneItem": "Select at least one time entry, disbursement or task."
+    "selectAtLeastOneItem": "Select at least one time entry, disbursement or task.",
+    "sendInvoiceTitle": "Send invoice",
+    "sendInvoiceBody": "The invoice will be emailed to the client as a PDF attachment.",
+    "attachOtherDocs": "Attach other documents from the file?",
+    "noAttachableDocs": "No file documents to attach.",
+    "draftBadge": "Draft",
+    "loading": "Loading…",
+    "sendWithCount": "Send (+{n})"
   },
   "accountingUi": {
     "pageTitle": "Accounting",
@@ -3033,7 +3040,9 @@
     "colorSchemeTitle": "Color palette preview",
     "colorSchemeSubtitle": "Compare the 3 options for the workshop interface",
     "recommendation": "Recommendation",
-    "recommendationText": "<strong>Option 1 (Professional Neutral)</strong> offers the best balance: it is clean and professional without losing the distinction between matter types (via the tabs). It inspires confidence while staying visually consistent."
+    "recommendationText": "<strong>Option 1 (Professional Neutral)</strong> offers the best balance: it is clean and professional without losing the distinction between matter types (via the tabs). It inspires confidence while staying visually consistent.",
+    "sendToClient": "Send to client",
+    "sendToClientSuccess": "Document sent to the client."
   },
   "onboardingUi": {
     "alreadyClient": "Already a client?",

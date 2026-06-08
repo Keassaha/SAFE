@@ -13,6 +13,7 @@ import {
   invoicePdfFilename,
 } from "@/lib/services/billing/invoice-pdf";
 import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
+import { renderRichDocumentsToPdf } from "@/lib/services/client-send/send-to-client";
 import type { UserRole } from "@prisma/client";
 
 /**
@@ -34,13 +35,58 @@ import type { UserRole } from "@prisma/client";
  *   - Échec d'envoi → InvoiceSendLog.status = "failed" + facture NON marquée
  *     comme envoyée. L'utilisateur peut relancer.
  */
-export async function POST(
+/** GET — liste les RichDocuments du dossier de la facture, joignables à l'envoi. */
+export async function GET(
   _request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const role = (session.user as { role?: string }).role as UserRole;
+  if (!role || !canManageInvoices(role)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
+  const { id } = await context.params;
+  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
+  if (!cabinetId) return NextResponse.json({ error: "Cabinet manquant" }, { status: 401 });
+
+  const invoice = await prisma.invoice.findFirst({
+    where: { id, cabinetId },
+    select: { dossierId: true },
+  });
+  if (!invoice) return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
+
+  const documents = invoice.dossierId
+    ? await prisma.richDocument.findMany({
+        where: { cabinetId, dossierId: invoice.dossierId, isArchived: false },
+        select: { id: true, titre: true, type: true, statut: true },
+        orderBy: { updatedAt: "desc" },
+        take: 50,
+      })
+    : [];
+
+  return NextResponse.json({ documents });
+}
+
+export async function POST(
+  request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
+  // Pièces additionnelles optionnelles : RichDocuments du dossier à joindre
+  // (ex. lettre explicative). Best-effort : un body absent/invalide = aucune pièce.
+  let attachRichDocumentIds: string[] = [];
+  try {
+    const body = (await request.json()) as { attachRichDocumentIds?: unknown };
+    if (Array.isArray(body?.attachRichDocumentIds)) {
+      attachRichDocumentIds = body.attachRichDocumentIds.filter((x): x is string => typeof x === "string");
+    }
+  } catch {
+    attachRichDocumentIds = [];
   }
 
   const role = (session.user as { role?: string }).role as UserRole;
@@ -138,9 +184,26 @@ export async function POST(
     hasAttachment,
   });
 
-  const attachments = hasAttachment
+  const attachmentList: { filename: string; content: Buffer }[] = hasAttachment
     ? [{ filename: invoicePdfFilename(presented), content: pdfBuffer as Buffer }]
-    : undefined;
+    : [];
+
+  // Pièces additionnelles (RichDocuments du dossier) — best-effort, n'empêchent
+  // jamais l'envoi de la facture.
+  if (attachRichDocumentIds.length > 0 && invoice.dossier?.id) {
+    try {
+      const { attachments: extra } = await renderRichDocumentsToPdf(
+        cabinetId,
+        invoice.dossier.id,
+        attachRichDocumentIds,
+      );
+      attachmentList.push(...extra);
+    } catch (err) {
+      console.error("[invoice-send] pièces additionnelles:", err);
+    }
+  }
+
+  const attachments = attachmentList.length > 0 ? attachmentList : undefined;
 
   // 4. Envoyer + tracer (succès ou échec).
   let sendError: string | null = null;

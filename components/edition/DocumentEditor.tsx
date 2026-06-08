@@ -22,12 +22,13 @@ import {
   Link2, Quote, Code, Minus, Undo, Redo,
   ChevronDown,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Table as TableIcon,
+  Table as TableIcon, SendHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { TerminerDialog } from "./TerminerDialog";
 import { MoveDocumentDialog } from "./MoveDocumentDialog";
 import { VersionsPanel } from "./VersionsPanel";
+import { SendToClientDialog } from "./SendToClientDialog";
 
 interface DocData {
   id: string;
@@ -144,6 +145,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
   const [showMove, setShowMove] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
+  const [showSendDialog, setShowSendDialog] = useState(false);
   const [titre, setTitre] = useState(doc.titre);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -545,7 +547,26 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />}
             {t("exportPdf")}
           </button>
+          <button
+            onClick={async () => {
+              await save();
+              setShowSendDialog(true);
+            }}
+            className="flex items-center gap-1.5 text-xs font-semibold text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
+            style={{ backgroundColor: "#1F3A2E" }}
+          >
+            <SendHorizontal className="w-3.5 h-3.5" />
+            {t("sendToClient")}
+          </button>
         </div>
+      )}
+
+      {showSendDialog && (
+        <SendToClientDialog
+          documentId={doc.id}
+          onClose={() => setShowSendDialog(false)}
+          onSent={() => toast.success(t("sendToClientSuccess"))}
+        />
       )}
 
       {/* ─── Zone éditeur */}
