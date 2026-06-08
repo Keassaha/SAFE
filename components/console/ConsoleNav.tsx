@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/console/activites", label: "Activités", icon: Activity, section: "pilotage", disabled: true },
   { href: "/console/audits", label: "Audits", icon: ShieldCheck, section: "conformite" },
   { href: "/console/clients", label: "Clients", icon: Repeat, section: "revenus" },
-  { href: "/console/support", label: "Support", icon: LifeBuoy, section: "revenus", disabled: true },
+  { href: "/console/support", label: "Support", icon: LifeBuoy, section: "revenus" },
 ];
 
 function isActive(pathname: string, href: string): boolean {

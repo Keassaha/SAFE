@@ -118,10 +118,13 @@ export default async function ConsolePage() {
           <p className="mt-1 text-sm text-zinc-500">Abonnements & MRR</p>
         </Link>
 
-        <div className="rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 opacity-60">
+        <Link
+          href="/console/support"
+          className="rounded-md border border-zinc-200 bg-white px-4 py-3 transition hover:border-emerald-400 hover:bg-emerald-50/40"
+        >
           <p className="font-medium text-zinc-900">Support</p>
-          <p className="mt-1 text-sm text-zinc-500">Tickets — à venir</p>
-        </div>
+          <p className="mt-1 text-sm text-zinc-500">Tickets clients</p>
+        </Link>
       </div>
     </div>
   );
