@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { LogActivityForm } from "@/components/console/LogActivityForm";
+import { AddContactForm } from "@/components/console/AddContactForm";
 
 const STAGE_LABELS: Record<string, string> = {
   AWARENESS: "Awareness", ENGAGED: "Engagé", CONTACTED: "Contacté",
@@ -220,6 +221,9 @@ export default async function ConsoleLeadDetailPage({
                   ))}
                 </div>
               )}
+              <div className="mt-3">
+                <AddContactForm leadId={lead.id} />
+              </div>
             </CardContent>
           </Card>
 
