@@ -73,6 +73,11 @@ model Cabinet {
   stripeWebhookEvents        StripeWebhookEvent[]
   dossierDocketEntries       DossierDocketEntry[]
   employeeHoursEntries       EmployeeHoursEntry[]
+
+  // --- CRM / Console SAFE Inc. (Spec v1.1) ---
+  lead                       Lead?                   @relation("CabinetLead")
+  tickets                    SupportTicket[]         @relation("CabinetTickets")
+  impersonationsOnMe         ImpersonationSession[]  @relation("CabinetImpersonations")
 }
 
 enum UserRole {
@@ -145,6 +150,12 @@ model User {
   richDocsArchived RichDocument[]        @relation("RichDocArchivedBy")
   richDocVersions  RichDocumentVersion[]
   workSessions     WorkSession[]
+
+  // --- CRM / Console SAFE Inc. (Spec v1.1) ---
+  leadContact            LeadContact?           @relation("UserLeadContact")
+  ticketsCreated         SupportTicket[]        @relation("TicketCreator")
+  ticketRepliesAuthored  TicketReply[]          @relation("TicketReplyAuthor")
+  impersonationsByMe     ImpersonationSession[] @relation("Impersonator")
 }
 
 enum EmployeeRole {
@@ -2041,6 +2052,9 @@ model AuditSubmission {
   @@index([prospectEmail])
   @@index([cabinetId])
   @@index([status])
+
+  // --- CRM / Console SAFE Inc. (Spec v1.1) ---
+  lead Lead? @relation("AuditLead")
 }
 
 model StripeWebhookEvent {
@@ -2640,4 +2654,743 @@ model Invitation {
 
   @@index([cabinetId])
   @@index([token])
+}
+
+// ============================================================================
+// CRM / CONSOLE SAFE Inc. (Spec v1.1 — 2026-06-05)
+// Ref : docs/product/CRM_SPEC_v1.md + ADR-001 à ADR-008
+// ============================================================================
+
+// --- Enums CRM ---
+
+enum SourceLead {
+  LINKEDIN_DM_WARM
+  LINKEDIN_DM_COLD
+  LINKEDIN_POST
+  SEO_ORGANIC
+  SEO_LOCAL_BUSINESS
+  REFERRAL
+  AUDIT_GRATUIT
+  EMAIL
+  FACEBOOK_GROUP
+  RECRUITMENT_AGENCY
+  OFFLINE
+}
+
+enum StageLead {
+  AWARENESS
+  ENGAGED
+  CONTACTED
+  CONVERSING
+  LEAD_MAGNET_SENT
+  AUDIT_PROPOSED
+  AUDIT_SCHEDULED
+  AUDIT_COMPLETED
+  CONSULTATION_PHASE2
+  READY_TO_SIGN
+  SIGNED
+  ACTIVATION_IN_PROGRESS
+  LIVE
+  AMBASSADOR
+}
+
+enum StatutLead {
+  NURTURE_ONLY
+  QUALIFIED_AUDIT
+  ACTIVE_CUSTOMER
+  CHURNED
+  PAUSED
+}
+
+enum RoleCrm {
+  AVOCAT_PROPRIETAIRE
+  AVOCAT_ASSOCIE
+  ADJOINT_JURIDIQUE
+  COMPTABLE_INTERNE
+  MANAGER_CABINET
+  PARTENAIRE_STRATEGIQUE
+}
+
+enum WorkMode {
+  PRECHAUFFAGE
+  CONVERSION
+  MATURATION
+}
+
+enum ModeleAdoption {
+  TOP_DOWN
+  BOTTOM_UP
+  DUAL
+}
+
+enum NiveauAdkar {
+  NON_INITIE
+  SENSIBILISE
+  CONVAINCU
+  MAITRISE
+  AMBASSADEUR
+}
+
+enum TypeActivity {
+  LINKEDIN_LIKE
+  LINKEDIN_COMMENT
+  LINKEDIN_SHARE
+  LINKEDIN_DM
+  EMAIL_ENVOYE
+  EMAIL_RECU
+  EMAIL_OUVERT
+  EMAIL_CLIQUE
+  EMAIL_BOUNCE
+  CALL
+  MEETING
+  DEMO
+  NOTE
+  AUDIT_SOUMIS
+  BUNDLE_PROPOSE
+  CONTRAT_SIGNE
+  GO_LIVE
+  CHURN_SIGNAL
+}
+
+enum PrioriteNurturing {
+  OBSERVATION
+  ENGAGEMENT_LEGER
+  CONVERSATION_PROFONDE
+  AMBASSADEUR_POTENTIEL
+}
+
+enum BundleId {
+  ON_SOLO_REAL_ESTATE_IMMIGRATION_FLAT_FEE
+  QC_SOLO_FAMILY_FLAT_FEE
+  QC_SMALL_BUSINESS_HOURLY
+  QC_HYBRID_MULTI_PRACTICE_SMALL_FIRM
+  ON_IMMIGRATION_BOUTIQUE_STAGE_BILLING
+  QC_GENERALIST_FOUNDATION_HOURLY
+  CUSTOM
+}
+
+enum TypeTicket {
+  BUG
+  DEMANDE_FEATURE
+  QUESTION
+  REMARQUE
+  URGENCE
+}
+
+// Enums secondaires CRM
+
+enum CrmProvince {
+  QC
+  ON
+  NB
+  MB
+  BC
+  AB
+  AUTRE
+}
+
+enum CrmLangue {
+  FR
+  EN
+  BILINGUE
+}
+
+enum TailleCabinet {
+  SOLO
+  DEUX_CINQ
+  SIX_DIX
+  ONZE_VINGT
+  VINGT_UN_CINQUANTE
+  PLUS_CINQUANTE
+}
+
+enum ModeFacturationCabinet {
+  HORAIRE
+  FORFAIT
+  MIXTE
+}
+
+enum VolumeFacturation {
+  MOINS_100K
+  CENT_500K
+  CINQ_CENT_1M
+  PLUS_1M
+}
+
+enum EmailStatut {
+  NON_VERIFIE
+  VALIDE
+  INVALIDE
+  BOUNCE
+}
+
+enum SourceEmail {
+  APOLLO
+  HUNTER
+  SNOV
+  MANUEL
+  SITE_CABINET
+}
+
+enum CrmDirection {
+  INBOUND
+  OUTBOUND
+  INTERNAL
+}
+
+enum StatutEmail {
+  ENVOYE
+  OUVERT
+  CLIQUE
+  REPONDU
+  BOUNCED
+  NON_OUVERT
+}
+
+enum TypeTaskCrm {
+  FOLLOW_UP_EMAIL
+  APPEL
+  LINKEDIN_DM
+  ENVOYER_RESSOURCE
+  RELANCER
+  MEETING
+  PREPARER_AUDIT
+  REVISION_BUNDLE
+  ACTIVATION_STEP
+}
+
+enum TriggerTaskCrm {
+  MANUAL
+  EMAIL_BOUNCE
+  STAGE_CHANGE
+  INACTIVITE
+  AUDIT_COMPLETE
+}
+
+enum CrmPriorite {
+  HAUTE
+  NORMALE
+  BASSE
+}
+
+enum StatutTaskCrm {
+  A_FAIRE
+  EN_COURS
+  TERMINEE
+  ANNULEE
+}
+
+enum CanalCampaign {
+  LINKEDIN_POST
+  LINKEDIN_DM
+  SEO
+  EMAIL
+  EVENT
+  PARTENARIAT
+}
+
+enum TypeLeadMagnet {
+  CHECKLIST_INSPECTION
+  PLAYBOOK_30J
+  GUIDE_FIDUCIE
+  TEMPLATE_FORFAIT
+  ETUDE_DE_CAS
+}
+
+enum TypeContent {
+  LINKEDIN_POST
+  BLOG_SEO
+  LEAD_MAGNET
+  PAGE_COMPARATIVE
+  NEWSLETTER
+  VIDEO
+  PODCAST
+}
+
+enum TypeEngagement {
+  LIKE
+  COMMENT
+  SHARE
+  DM_INITIE
+  PROFIL_VISITE
+}
+
+enum RaisonPerdu {
+  PRIX
+  CONCURRENT
+  PAS_DE_BUDGET
+  PAS_DE_FIT
+  NON_REPONDU
+  TROP_TOT
+  TIMING_MAUVAIS
+}
+
+enum StatutConsultation {
+  A_PLANIFIER
+  PLANIFIEE
+  REALISEE
+  A_REPLANIFIER
+  ANNULEE
+}
+
+enum StatutTicket {
+  NOUVEAU
+  EN_COURS
+  EN_ATTENTE_CLIENT
+  RESOLU
+  FERME
+  REOUVERT
+}
+
+// --- Models CRM ---
+
+// Workspace : singleton SAFE Inc. en v1, multi-tenant préparé pour v2 (ADR-002)
+model Workspace {
+  id                            String    @id @default(cuid())
+  nom                           String    @default("SAFE Inc.")
+
+  // Mode global (garde-fou phase préchauffage — ADR-005)
+  workMode                      WorkMode  @default(PRECHAUFFAGE)
+  phaseDateDebut                DateTime
+  phaseDateFin                  DateTime?
+
+  // Objectifs phase préchauffage
+  cibleTemoignageChiffre        Boolean   @default(false)
+  cibleCaseStudyPublie          Boolean   @default(false)
+  cibleAudienceLinkedIn         Int?      @default(1000)
+  cibleConversationsQualifiees  Int?      @default(20)
+
+  // Métriques actuelles (mises à jour par jobs)
+  audienceActuelle              Int       @default(0)
+  conversationsActuelles        Int       @default(0)
+
+  leads                         Lead[]
+  campaigns                     Campaign[]
+  contentPieces                 ContentPiece[]
+
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @updatedAt
+}
+
+// Lead : cabinet prospect SAFE (distinct de Cabinet client — ADR-003)
+model Lead {
+  id                    String    @id @default(cuid())
+
+  // Identification cabinet
+  raisonSociale         String
+  slug                  String    @unique
+  province              CrmProvince
+  ville                 String?
+  regionBarreau         String?
+  langue                CrmLangue
+  siteWeb               String?
+  linkedinUrl           String?
+
+  // Caractéristiques cabinet
+  tailleCabinet         TailleCabinet
+  domainesPratique      String[]
+  modeFacturation       ModeFacturationCabinet?
+  aTrustAccounting      Boolean   @default(false)
+  logicielActuel        String?
+  volumeFacturation     VolumeFacturation?
+  nbAvocatsEstime       Int?
+  nbAdjointsEstime      Int?
+
+  // Pipeline
+  sourceLead            SourceLead
+  stageLead             StageLead          @default(AWARENESS)
+  statutLead            StatutLead         @default(NURTURE_ONLY)
+  modeleAdoption        ModeleAdoption?
+  prioriteNurturing     PrioriteNurturing  @default(OBSERVATION)
+
+  // Scoring 3 dimensions (0-100 total)
+  score                 Int       @default(0)
+  scoreFirmographique   Int       @default(0)
+  scoreEngagement       Int       @default(0)
+  scoreEnrichissement   Int       @default(0)
+
+  // Champion interne (adoption bottom-up)
+  championInterneId     String?
+  championInterne       LeadContact? @relation("ChampionLead", fields: [championInterneId], references: [id])
+
+  // Workspace
+  workspaceId           String
+  workspace             Workspace @relation(fields: [workspaceId], references: [id])
+
+  // Tags et notes
+  tags                  String[]
+  notesPrivees          String?
+
+  // Conversion vers Cabinet (existant)
+  convertedAt           DateTime?
+  cabinetId             String?   @unique
+  cabinet               Cabinet?  @relation("CabinetLead", fields: [cabinetId], references: [id])
+  raisonPerdu           RaisonPerdu?
+
+  // Lien pipeline Delivery (AuditSubmission existant)
+  auditSubmissionId     String?   @unique
+  auditSubmission       AuditSubmission? @relation("AuditLead", fields: [auditSubmissionId], references: [id])
+
+  // Relations CRM (1-to-1 vers entités delivery)
+  bundleRecommendation  BundleRecommendation?
+  consultationPhase2    ConsultationPhase2?
+  consultationDecision  ConsultationDecision?
+  activationChecklist   ActivationChecklist?
+
+  // Relations 1-to-many
+  contacts              LeadContact[] @relation("LeadToContacts")
+  activities            Activity[]
+  tasks                 Task[]
+  leadMagnetConsumptions LeadMagnetConsumption[]
+  linkedInEngagements   LinkedInEngagement[]
+  campaigns             Campaign[]    @relation("LeadCampaigns")
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  dateDerniereActivite  DateTime?
+
+  @@index([stageLead])
+  @@index([sourceLead])
+  @@index([score])
+  @@index([workspaceId])
+}
+
+// LeadContact : personne dans un cabinet prospect
+model LeadContact {
+  id                       String    @id @default(cuid())
+  leadId                   String
+  lead                     Lead      @relation("LeadToContacts", fields: [leadId], references: [id], onDelete: Cascade)
+
+  // Identité
+  prenom                   String
+  nom                      String
+  titre                    String?
+  email                    String?
+  emailSecondaire          String?
+  emailStatut              EmailStatut @default(NON_VERIFIE)
+  sourceEmail              SourceEmail?
+  linkedinUrl              String?
+  telephone                String?
+  languePref               CrmLangue  @default(FR)
+
+  // Rôle CRM
+  roleCrm                  RoleCrm
+  estDecideur              Boolean   @default(false)
+  estChampionInterne       Boolean   @default(false)
+  estApprouveOperationnel  Boolean   @default(false)
+  doNotContact             Boolean   @default(false)
+
+  // ADKAR tracking (intégré au contact, pas modèle séparé)
+  awareness                NiveauAdkar @default(NON_INITIE)
+  desire                   NiveauAdkar?
+  knowledge                Int?
+  ability                  Int?
+  reinforcement            Boolean   @default(false)
+
+  notes                    String?
+
+  // Champion réciproque
+  championOfLeads          Lead[]    @relation("ChampionLead")
+
+  // Conversion vers User SAFE (à la signature)
+  convertedAt              DateTime?
+  userId                   String?   @unique
+  user                     User?     @relation("UserLeadContact", fields: [userId], references: [id])
+
+  // Relations
+  activities               Activity[]
+  tasks                    Task[]
+  leadMagnetConsumptions   LeadMagnetConsumption[]
+  linkedInEngagements      LinkedInEngagement[]
+
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@index([leadId])
+  @@index([email])
+}
+
+// Activity : timeline unifiée (email, DM, call, meeting, note)
+model Activity {
+  id                String    @id @default(cuid())
+
+  leadId            String?
+  lead              Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId         String?
+  contact           LeadContact? @relation(fields: [contactId], references: [id])
+  campaignId        String?
+  campaign          Campaign? @relation(fields: [campaignId], references: [id])
+
+  type              TypeActivity
+  direction         CrmDirection
+  sujet             String?
+  contenu           String?
+
+  statutEmail       StatutEmail?
+  urlSource         String?
+  attachements      String[]
+
+  dureeSecondes     Int?
+  scoreImpact       Int?
+
+  date              DateTime  @default(now())
+  createdBy         String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([leadId, date])
+  @@index([contactId, date])
+  @@index([type])
+}
+
+// Task : tâche de prospection (distinct de DossierTache)
+model Task {
+  id            String    @id @default(cuid())
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId     String?
+  contact       LeadContact? @relation(fields: [contactId], references: [id])
+
+  type          TypeTaskCrm
+  titre         String
+  description   String?
+  priorite      CrmPriorite     @default(NORMALE)
+  statut        StatutTaskCrm   @default(A_FAIRE)
+  dateEcheance  DateTime?
+  dateClosed    DateTime?
+
+  trigger       TriggerTaskCrm?
+
+  assigneeId    String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([statut, dateEcheance])
+  @@index([leadId])
+}
+
+// Campaign : campagne marketing (LinkedIn, SEO, email, event)
+model Campaign {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace @relation(fields: [workspaceId], references: [id])
+
+  nom              String
+  canal            CanalCampaign
+  description      String?
+  dateDebut        DateTime
+  dateFin          DateTime?
+  budget           Float?
+  cibleLeads       Int?
+  cibleConversions Int?
+
+  nbLeadsAttribues Int       @default(0)
+  nbConversions    Int       @default(0)
+
+  activities       Activity[]
+  leads            Lead[]    @relation("LeadCampaigns")
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// LeadMagnet : checklist 8 points, playbook 30j, etc.
+model LeadMagnet {
+  id            String    @id @default(cuid())
+  type          TypeLeadMagnet
+  titre         String
+  description   String?
+  contenuUrl    String?
+  langue        CrmLangue @default(FR)
+  actif         Boolean   @default(true)
+
+  consumptions  LeadMagnetConsumption[]
+  createdAt     DateTime  @default(now())
+}
+
+model LeadMagnetConsumption {
+  id                    String    @id @default(cuid())
+  leadId                String?
+  lead                  Lead?     @relation(fields: [leadId], references: [id])
+  contactId             String?
+  contact               LeadContact? @relation(fields: [contactId], references: [id])
+  magnetId              String
+  magnet                LeadMagnet @relation(fields: [magnetId], references: [id])
+
+  dateTelechargement    DateTime  @default(now())
+  dateAcces             DateTime?
+  tempsDepenseSec       Int?
+  pageScrollPercent     Int?
+
+  declanche_dm          Boolean   @default(false)
+  datePropositionAudit  DateTime?
+}
+
+// ContentPiece : posts LinkedIn, blogs SEO, etc.
+model ContentPiece {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id])
+
+  type            TypeContent
+  titre           String
+  url             String?
+  datePublication DateTime?
+
+  vues            Int       @default(0)
+  likes           Int       @default(0)
+  commentaires    Int       @default(0)
+  partages        Int       @default(0)
+  clicsSortie     Int       @default(0)
+
+  engagements     LinkedInEngagement[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model LinkedInEngagement {
+  id            String    @id @default(cuid())
+  contentId     String
+  content       ContentPiece @relation(fields: [contentId], references: [id])
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id])
+  contactId     String?
+  contact       LeadContact? @relation(fields: [contactId], references: [id])
+
+  type          TypeEngagement
+  contenu       String?
+  date          DateTime  @default(now())
+
+  utiliseEnDM   Boolean   @default(false)
+  dateDM        DateTime?
+}
+
+// --- Couche 2 : Delivery (lien pipeline 3 phases) ---
+
+model BundleRecommendation {
+  id                  String    @id @default(cuid())
+  leadId              String    @unique
+  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  bundleRecommande    BundleId
+  confidence          Int
+  overridesPropose    String?   // JSON
+  customTriggers      String?   // JSON
+  consultationTopics  String[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model ConsultationPhase2 {
+  id                    String    @id @default(cuid())
+  leadId                String    @unique
+  lead                  Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  dateConsultation      DateTime?
+  durationMinutes       Int?
+  participants          String[]
+  notes                 String?
+  blockingIntegrations  String[]
+  exceptionsValidees    String?   // JSON
+
+  statut                StatutConsultation @default(A_PLANIFIER)
+  createdAt             DateTime  @default(now())
+}
+
+model ConsultationDecision {
+  id                  String    @id @default(cuid())
+  leadId              String    @unique
+  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  bundleFinal         BundleId
+  overridesValides    String?   // JSON
+  customItems         String?   // JSON
+  activationPriority  CrmPriorite
+  dateDecision        DateTime  @default(now())
+  decisionPar         String?
+}
+
+model ActivationChecklist {
+  id                      String    @id @default(cuid())
+  leadId                  String    @unique
+  lead                    Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  envEtConfig             Boolean   @default(false)
+  cabinetInterfaceConfig  String?   // JSON
+  seedsAppliques          Boolean   @default(false)
+  utilisateursCreated     Boolean   @default(false)
+  integrationsTestees     String?   // JSON
+  documentsTemplates      Boolean   @default(false)
+  permissionsConfigured   Boolean   @default(false)
+  parcoursUserTeste       Boolean   @default(false)
+  risquesResiduels        String?
+  remiseAccesFait         Boolean   @default(false)
+
+  dateGoLive              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+}
+
+// --- Couche Console v1.1 : Tickets + Impersonation (ADR-007, ADR-008) ---
+
+model SupportTicket {
+  id                  String    @id @default(cuid())
+  cabinetId           String
+  cabinet             Cabinet   @relation("CabinetTickets", fields: [cabinetId], references: [id], onDelete: Cascade)
+  createdById         String
+  createdBy           User      @relation("TicketCreator", fields: [createdById], references: [id])
+
+  type                TypeTicket
+  titre               String
+  description         String
+  priorite            CrmPriorite     @default(NORMALE)
+  statut              StatutTicket    @default(NOUVEAU)
+
+  contexteUrl         String?
+  screenshotUrl       String?
+  consoleLogs         String?
+  assigneeId          String?
+  dateResolution      DateTime?
+  noteResolution      String?
+  satisfactionRating  Int?
+
+  replies             TicketReply[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([cabinetId, statut])
+  @@index([statut, priorite])
+}
+
+model TicketReply {
+  id              String    @id @default(cuid())
+  ticketId        String
+  ticket          SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId        String
+  author          User      @relation("TicketReplyAuthor", fields: [authorId], references: [id])
+  isFromSafeInc   Boolean   @default(false)
+  contenu         String
+  attachements    String[]
+  createdAt       DateTime  @default(now())
+}
+
+model ImpersonationSession {
+  id              String    @id @default(cuid())
+  superadminId    String
+  superadmin      User      @relation("Impersonator", fields: [superadminId], references: [id])
+  cabinetId       String
+  cabinet         Cabinet   @relation("CabinetImpersonations", fields: [cabinetId], references: [id])
+
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  reason          String?
+  actionsCount    Int       @default(0)
+  ipAddress       String?
+  userAgent       String?
+
+  @@index([cabinetId, startedAt])
 }

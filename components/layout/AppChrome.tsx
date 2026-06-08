@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { MobileSidebar } from "@/components/layout/MobileSidebar";
 import { TrustReconciliationBanner } from "@/components/layout/TrustReconciliationBanner";
+import { SupportWidget } from "@/components/support/SupportWidget";
 import type { TrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import type { SidebarCounts } from "@/lib/services/sidebar-counts";
 
@@ -58,6 +59,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           </div>
         </main>
       </div>
+      <SupportWidget />
     </div>
   );
 }
