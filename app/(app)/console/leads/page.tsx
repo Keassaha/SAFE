@@ -88,6 +88,14 @@ export default async function ConsoleLeadsPage() {
       <PageHeader
         title="Cabinets"
         description={`${leads.length} cabinet${leads.length > 1 ? "s" : ""} dans le pipeline`}
+        action={
+          <Link
+            href="/console/leads/nouveau"
+            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            + Nouveau cabinet
+          </Link>
+        }
       />
 
       {leads.length === 0 ? (
