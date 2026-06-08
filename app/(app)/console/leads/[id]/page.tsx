@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
+import { LogActivityForm } from "@/components/console/LogActivityForm";
 
 const STAGE_LABELS: Record<string, string> = {
   AWARENESS: "Awareness", ENGAGED: "Engagé", CONTACTED: "Contacté",
@@ -255,6 +256,9 @@ export default async function ConsoleLeadDetailPage({
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
                 Timeline ({lead.activities.length} activité{lead.activities.length > 1 ? "s" : ""})
               </h2>
+              <div className="mb-4">
+                <LogActivityForm leadId={lead.id} />
+              </div>
               {lead.activities.length === 0 ? (
                 <p className="text-sm text-zinc-500">
                   Aucune activité enregistrée. Logguez votre premier DM, call ou note pour démarrer le scoring engagement.
