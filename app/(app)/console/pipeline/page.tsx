@@ -7,48 +7,44 @@ import {
 } from "@/components/console/pipeline/PipelineBoard";
 import type { StageLead } from "@prisma/client";
 
+// 4 phases lisibles (au lieu de 13 colonnes). Chaque phase regroupe ses stages ;
+// la carte affiche le stage précis + la prochaine action. Spec : CONSOLE_CONSULTANT_REFACTOR_v1.
 const PHASES: {
   phase: string;
-  emoji: string;
+  key: string;
   stages: { key: StageLead; short: string }[];
 }[] = [
   {
-    phase: "Pré-engagement",
-    emoji: "🌱",
+    phase: "À engager",
+    key: "engager",
     stages: [
       { key: "AWARENESS", short: "Awareness" },
       { key: "ENGAGED", short: "Engagé" },
     ],
   },
   {
-    phase: "Engagement",
-    emoji: "💬",
+    phase: "En conversation",
+    key: "conversation",
     stages: [
       { key: "CONTACTED", short: "Contacté" },
       { key: "CONVERSING", short: "Conversation" },
+      { key: "LEAD_MAGNET_SENT", short: "Lead magnet" },
     ],
   },
   {
-    phase: "Pré-audit",
-    emoji: "🎯",
+    phase: "Audit & décision",
+    key: "audit",
     stages: [
-      { key: "LEAD_MAGNET_SENT", short: "LM envoyé" },
       { key: "AUDIT_PROPOSED", short: "Audit proposé" },
       { key: "AUDIT_SCHEDULED", short: "Audit planifié" },
-    ],
-  },
-  {
-    phase: "Décision",
-    emoji: "📋",
-    stages: [
       { key: "AUDIT_COMPLETED", short: "Audit fait" },
-      { key: "CONSULTATION_PHASE2", short: "Consult P2" },
-      { key: "READY_TO_SIGN", short: "Ready to sign" },
+      { key: "CONSULTATION_PHASE2", short: "Consultation" },
+      { key: "READY_TO_SIGN", short: "Prêt à signer" },
     ],
   },
   {
-    phase: "Client",
-    emoji: "🚀",
+    phase: "Clients",
+    key: "clients",
     stages: [
       { key: "SIGNED", short: "Signé" },
       { key: "ACTIVATION_IN_PROGRESS", short: "Activation" },
@@ -92,15 +88,13 @@ export default async function ConsolePipelinePage() {
     <div className="space-y-6">
       <PageHeader
         title="Pipeline"
-        description={`${leads.length} lead${leads.length > 1 ? "s" : ""} actif${leads.length > 1 ? "s" : ""} — Glissez-déposez pour changer de stage — Phase ${workspace.workMode}`}
+        description={`${leads.length} cabinet${leads.length > 1 ? "s" : ""} en cours — glissez une carte vers une phase pour la faire avancer`}
       />
 
       {workspace.workMode === "PRECHAUFFAGE" && (
-        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900">
-          Pendant la phase préchauffage, l'objectif est <strong>de remplir la
-          colonne gauche</strong> (Awareness / Engagé / Contacté), pas de pousser
-          vers le bas du pipeline.
-        </div>
+        <p className="text-xs text-zinc-400">
+          Phase préchauffage : l'objectif est de remplir les deux premières colonnes (À engager, En conversation), pas de pousser vers la signature.
+        </p>
       )}
 
       <PipelineBoard phases={PHASES} initialLeads={leads} />
