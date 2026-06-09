@@ -131,7 +131,7 @@ export default async function ConsoleClientsPage() {
                     {rows.map((r) => (
                       <tr key={r.leadId} className="hover:bg-zinc-50/60">
                         <td className="px-4 py-3">
-                          <Link href={`/console/leads/${r.leadId}`} className="font-medium text-zinc-900 hover:text-emerald-700">
+                          <Link href={`/console/clients/${r.leadId}`} className="font-medium text-zinc-900 hover:text-emerald-700">
                             {r.nom}
                           </Link>
                           {r.cancelAtPeriodEnd && (
@@ -147,7 +147,7 @@ export default async function ConsoleClientsPage() {
                         <td className="px-4 py-3 text-zinc-600">{formatDate(r.derniereActivite)}</td>
                         <td className="px-4 py-3 text-right">
                           <Link
-                            href={`/console/leads/${r.leadId}`}
+                            href={`/console/clients/${r.leadId}`}
                             className="rounded border border-zinc-300 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 hover:border-emerald-400 hover:text-emerald-700"
                           >
                             Détails

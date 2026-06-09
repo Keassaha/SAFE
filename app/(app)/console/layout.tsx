@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
-import { ConsoleNav } from "@/components/console/ConsoleNav";
 
 /**
  * Layout de la Console SAFE Inc.
@@ -9,7 +8,8 @@ import { ConsoleNav } from "@/components/console/ConsoleNav";
  * Accessible uniquement aux utilisateurs rattachés au Cabinet SAFE (dog food, ADR-006).
  * Toute autre tentative redirige vers le tableau de bord normal.
  *
- * Navigation horizontale en haut (ConsoleNav), cohérente avec la nav top de SAFE.
+ * La navigation est désormais UNIFIÉE dans le Header (mode consultant), donc
+ * plus de barre ConsoleNav séparée ici. Spec : CONSOLE_CONSULTANT_REFACTOR_v1.
  */
 export default async function ConsoleLayout({
   children,
@@ -23,15 +23,5 @@ export default async function ConsoleLayout({
     redirect("/tableau-de-bord");
   }
 
-  return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <p className="text-xs uppercase tracking-wide text-emerald-700">
-          Console SAFE Inc. — Tour de contrôle interne
-        </p>
-        <ConsoleNav />
-      </div>
-      {children}
-    </div>
-  );
+  return <>{children}</>;
 }
