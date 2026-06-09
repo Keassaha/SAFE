@@ -4,6 +4,14 @@
 
 ---
 
+## ⚠️ LIRE D'ABORD : CO-DIRECTION.md
+
+**[CO-DIRECTION.md](CO-DIRECTION.md)** — Mode de co-direction TDAH.
+Charge automatiquement. Définit le fonctionnement de chaque interaction.
+Toujours applicable, indépendamment de la tâche.
+
+---
+
 ## Projet
 
 **SAFE Inc.** — SaaS de gestion de cabinet d'avocats (Next.js, Prisma, Supabase).
