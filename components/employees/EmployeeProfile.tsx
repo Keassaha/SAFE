@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { EmployeeRole, EmployeeStatus } from "@prisma/client";
+import type { EmployeeRole, EmployeeStatus, EmploymentType } from "@prisma/client";
 import { EmployeeProfileTabs, type EmployeeProfileTabId } from "./EmployeeProfileTabs";
 import { EmployeeInfoTab } from "./EmployeeInfoTab";
 import { EmployeeAccessTab } from "./EmployeeAccessTab";
@@ -12,6 +12,7 @@ import type { PayslipRow } from "./EmployeePayrollTab";
 import type { SerializedPendingHour, ApprovedSummary } from "./PendingHoursApproval";
 import type { ActivityRow } from "./EmployeeActivityTab";
 import { updateEmployee, generatePayslipForCurrentWeek } from "@/app/(app)/employees/actions";
+import { EmployeeYearEndPanel } from "./EmployeeYearEndPanel";
 
 export type EmployeeProfileData = {
   id: string;
@@ -26,6 +27,8 @@ export type EmployeeProfileData = {
   role: EmployeeRole;
   jobTitle: string | null;
   hourlyRate: number;
+  employmentType: EmploymentType;
+  sinMasked: string | null;
   supervisorId: string | null;
   responsibilities: string | null;
   supervisor?: { fullName: string } | null;
@@ -85,19 +88,27 @@ export function EmployeeProfile({
       )}
 
       {activeTab === "payroll" && (
-        <EmployeePayrollTab
-          payslips={payslips}
-          canGenerate={canManagePayroll}
-          employeeId={employee.id}
-          hourlyRate={employee.hourlyRate}
-          pendingHours={pendingHours}
-          approvedSummary={approvedSummary}
-          locale={locale}
-          onGenerate={async () => {
-            await generatePayslipForCurrentWeek(employee.id);
-            router.refresh();
-          }}
-        />
+        <div className="space-y-4">
+          <EmployeeYearEndPanel
+            employeeId={employee.id}
+            employmentType={employee.employmentType}
+            sinMasked={employee.sinMasked}
+            canEdit={canEdit}
+          />
+          <EmployeePayrollTab
+            payslips={payslips}
+            canGenerate={canManagePayroll}
+            employeeId={employee.id}
+            hourlyRate={employee.hourlyRate}
+            pendingHours={pendingHours}
+            approvedSummary={approvedSummary}
+            locale={locale}
+            onGenerate={async () => {
+              await generatePayslipForCurrentWeek(employee.id);
+              router.refresh();
+            }}
+          />
+        </div>
       )}
 
       {activeTab === "activity" && <EmployeeActivityTab activities={activities} />}

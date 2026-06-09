@@ -75,6 +75,10 @@ export default async function EmployeeDetailPage({
     role: employee.role,
     jobTitle: employee.jobTitle,
     hourlyRate: employee.hourlyRate,
+    employmentType: employee.employmentType,
+    sinMasked: employee.sinNumero
+      ? `***-***-${employee.sinNumero.replace(/\D/g, "").slice(6)}`
+      : null,
     supervisorId: employee.supervisorId,
     responsibilities: employee.responsibilities,
     supervisor: employee.supervisor,

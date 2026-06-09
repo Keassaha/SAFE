@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { canViewEmployees, canCreateEmployees, canEditEmployees } from "@/lib/auth/permissions";
+import { canViewEmployees, canCreateEmployees, canEditEmployees, canManagePayroll } from "@/lib/auth/permissions";
 import { EmployeeSummaryCards } from "@/components/employees/EmployeeSummaryCards";
 import { EmployeeSearchBar } from "@/components/employees/EmployeeSearchBar";
 import { EmployeeFilters } from "@/components/employees/EmployeeFilters";
@@ -111,6 +111,7 @@ export default async function EmployeesPage({
 
   const canCreate = canCreateEmployees(userRole);
   const canEdit = canEditEmployees(userRole);
+  const canPayroll = canManagePayroll(userRole);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -118,11 +119,18 @@ export default async function EmployeesPage({
         title={t("managementTitle")}
         description={t("managementDesc")}
         action={
-          canCreate && (
-            <Link href={routes.employeeNouveau}>
-              <Button>+ {t("newEmployee")}</Button>
-            </Link>
-          )
+          <div className="flex items-center gap-2">
+            {canPayroll && (
+              <Link href={routes.employeeYearEnd}>
+                <Button variant="secondary">Fin d&apos;année T4/T4A</Button>
+              </Link>
+            )}
+            {canCreate && (
+              <Link href={routes.employeeNouveau}>
+                <Button>+ {t("newEmployee")}</Button>
+              </Link>
+            )}
+          </div>
         }
       />
 

@@ -55,6 +55,7 @@ export const routes = {
   employees: "/employees",
   employee: (id: string) => `/employees/${id}`,
   employeeNouveau: "/employees/nouveau",
+  employeeYearEnd: "/employees/year-end",
   comptes: "/comptes",
   connexion: "/connexion",
   inscription: "/inscription",

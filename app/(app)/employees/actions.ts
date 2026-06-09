@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import type { EmployeeRole, EmployeeStatus } from "@prisma/client";
+import type { EmployeeRole, EmployeeStatus, EmploymentType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canEditEmployees } from "@/lib/auth/permissions";
@@ -167,6 +167,41 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
         },
       });
     }
+  });
+
+  revalidatePath("/employees");
+  revalidatePath(routes.employee(employeeId));
+}
+
+/**
+ * Met à jour le type d'emploi (T4/T4A) et le NAS de l'employé.
+ * Réservé aux admins/avocats (canEditEmployees).
+ */
+export async function updateEmployeeYearEndInfo(
+  employeeId: string,
+  employmentType: EmploymentType,
+  sinNumero: string | null,
+) {
+  const { cabinetId, role } = await requireCabinetAndUser();
+  const effectiveRole = role as Parameters<typeof canEditEmployees>[0];
+  if (!canEditEmployees(effectiveRole)) {
+    throw new Error("Non autorisé à modifier cet employé");
+  }
+
+  const existing = await prisma.employee.findFirst({ where: { id: employeeId, cabinetId } });
+  if (!existing) throw new Error("Employé introuvable");
+
+  // Normaliser + valider le NAS (9 chiffres, format XXX-XXX-XXX)
+  let sanitizedSin: string | null = null;
+  if (sinNumero) {
+    const digits = sinNumero.replace(/\D/g, "");
+    if (digits.length !== 9) throw new Error("Le NAS doit contenir exactement 9 chiffres.");
+    sanitizedSin = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  await prisma.employee.update({
+    where: { id: employeeId },
+    data: { employmentType, sinNumero: sanitizedSin },
   });
 
   revalidatePath("/employees");

@@ -194,6 +194,11 @@ enum PayslipAdjustmentType {
   correction
 }
 
+enum EmploymentType {
+  employee
+  contractor
+}
+
 model Employee {
   id               String         @id @default(cuid())
   cabinetId        String
@@ -209,6 +214,8 @@ model Employee {
   role             EmployeeRole
   jobTitle         String?
   hourlyRate       Float          @default(0)
+  employmentType   EmploymentType @default(employee)
+  sinNumero        String?        // NAS — affiché masqué dans l'UI
   supervisorId     String?
   responsibilities String? // assigned responsibilities / workflow
   createdAt        DateTime       @default(now())

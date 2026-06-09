@@ -31,5 +31,5 @@
 
 ## Demandes / prochaines étapes
 - **NOUVEAU (CEO 2026-06-07)** : les records de paie doivent alimenter, en fin de processus, la **préparation des feuillets de fin d'année (T4A / T4)**. Donnée déjà accumulée par `Payslip` (heures, taux, brut, déductions, net, date de paiement par période) → agrégation annuelle par employé. À spécifier (clarifier T4 employé vs T4A contractuel).
-- Activer l'agent (poser `ANTHROPIC_API_KEY`).
+- ~~Activer l'agent (poser `ANTHROPIC_API_KEY`)~~ — **CONFIRMÉ ACTIF en prod 2026-06-09** (clé déjà présente depuis 3j, résumé de dossier testé et fonctionnel par CEO).
 - Décider du sort de `wip/landing-crm-20260605` (scinder landing / Console).
