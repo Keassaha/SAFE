@@ -75,9 +75,9 @@ model Cabinet {
   employeeHoursEntries       EmployeeHoursEntry[]
 
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
-  lead                       Lead?                   @relation("CabinetLead")
-  tickets                    SupportTicket[]         @relation("CabinetTickets")
-  impersonationsOnMe         ImpersonationSession[]  @relation("CabinetImpersonations")
+  lead               Lead?                  @relation("CabinetLead")
+  tickets            SupportTicket[]        @relation("CabinetTickets")
+  impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
 }
 
 enum UserRole {
@@ -152,10 +152,10 @@ model User {
   workSessions     WorkSession[]
 
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
-  leadContact            LeadContact?           @relation("UserLeadContact")
-  ticketsCreated         SupportTicket[]        @relation("TicketCreator")
-  ticketRepliesAuthored  TicketReply[]          @relation("TicketReplyAuthor")
-  impersonationsByMe     ImpersonationSession[] @relation("Impersonator")
+  leadContact           LeadContact?           @relation("UserLeadContact")
+  ticketsCreated        SupportTicket[]        @relation("TicketCreator")
+  ticketRepliesAuthored TicketReply[]          @relation("TicketReplyAuthor")
+  impersonationsByMe    ImpersonationSession[] @relation("Impersonator")
 }
 
 enum EmployeeRole {
@@ -2056,12 +2056,12 @@ model AuditSubmission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // --- CRM / Console SAFE Inc. (Spec v1.1) ---
+  lead Lead? @relation("AuditLead")
+
   @@index([prospectEmail])
   @@index([cabinetId])
   @@index([status])
-
-  // --- CRM / Console SAFE Inc. (Spec v1.1) ---
-  lead Lead? @relation("AuditLead")
 }
 
 model StripeWebhookEvent {
@@ -2953,108 +2953,108 @@ enum StatutTicket {
 
 // Workspace : singleton SAFE Inc. en v1, multi-tenant préparé pour v2 (ADR-002)
 model Workspace {
-  id                            String    @id @default(cuid())
-  nom                           String    @default("SAFE Inc.")
+  id  String @id @default(cuid())
+  nom String @default("SAFE Inc.")
 
   // Mode global (garde-fou phase préchauffage — ADR-005)
-  workMode                      WorkMode  @default(PRECHAUFFAGE)
-  phaseDateDebut                DateTime
-  phaseDateFin                  DateTime?
+  workMode       WorkMode  @default(PRECHAUFFAGE)
+  phaseDateDebut DateTime
+  phaseDateFin   DateTime?
 
   // Objectifs phase préchauffage
-  cibleTemoignageChiffre        Boolean   @default(false)
-  cibleCaseStudyPublie          Boolean   @default(false)
-  cibleAudienceLinkedIn         Int?      @default(1000)
-  cibleConversationsQualifiees  Int?      @default(20)
+  cibleTemoignageChiffre       Boolean @default(false)
+  cibleCaseStudyPublie         Boolean @default(false)
+  cibleAudienceLinkedIn        Int?    @default(1000)
+  cibleConversationsQualifiees Int?    @default(20)
 
   // Métriques actuelles (mises à jour par jobs)
-  audienceActuelle              Int       @default(0)
-  conversationsActuelles        Int       @default(0)
+  audienceActuelle       Int @default(0)
+  conversationsActuelles Int @default(0)
 
-  leads                         Lead[]
-  campaigns                     Campaign[]
-  contentPieces                 ContentPiece[]
+  leads         Lead[]
+  campaigns     Campaign[]
+  contentPieces ContentPiece[]
 
-  createdAt                     DateTime  @default(now())
-  updatedAt                     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Lead : cabinet prospect SAFE (distinct de Cabinet client — ADR-003)
 model Lead {
-  id                    String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // Identification cabinet
-  raisonSociale         String
-  slug                  String    @unique
-  province              CrmProvince
-  ville                 String?
-  regionBarreau         String?
-  langue                CrmLangue
-  siteWeb               String?
-  linkedinUrl           String?
+  raisonSociale String
+  slug          String      @unique
+  province      CrmProvince
+  ville         String?
+  regionBarreau String?
+  langue        CrmLangue
+  siteWeb       String?
+  linkedinUrl   String?
 
   // Caractéristiques cabinet
-  tailleCabinet         TailleCabinet
-  domainesPratique      String[]
-  modeFacturation       ModeFacturationCabinet?
-  aTrustAccounting      Boolean   @default(false)
-  logicielActuel        String?
-  volumeFacturation     VolumeFacturation?
-  nbAvocatsEstime       Int?
-  nbAdjointsEstime      Int?
+  tailleCabinet     TailleCabinet
+  domainesPratique  String[]
+  modeFacturation   ModeFacturationCabinet?
+  aTrustAccounting  Boolean                 @default(false)
+  logicielActuel    String?
+  volumeFacturation VolumeFacturation?
+  nbAvocatsEstime   Int?
+  nbAdjointsEstime  Int?
 
   // Pipeline
-  sourceLead            SourceLead
-  stageLead             StageLead          @default(AWARENESS)
-  statutLead            StatutLead         @default(NURTURE_ONLY)
-  modeleAdoption        ModeleAdoption?
-  prioriteNurturing     PrioriteNurturing  @default(OBSERVATION)
+  sourceLead        SourceLead
+  stageLead         StageLead         @default(AWARENESS)
+  statutLead        StatutLead        @default(NURTURE_ONLY)
+  modeleAdoption    ModeleAdoption?
+  prioriteNurturing PrioriteNurturing @default(OBSERVATION)
 
   // Scoring 3 dimensions (0-100 total)
-  score                 Int       @default(0)
-  scoreFirmographique   Int       @default(0)
-  scoreEngagement       Int       @default(0)
-  scoreEnrichissement   Int       @default(0)
+  score               Int @default(0)
+  scoreFirmographique Int @default(0)
+  scoreEngagement     Int @default(0)
+  scoreEnrichissement Int @default(0)
 
   // Champion interne (adoption bottom-up)
-  championInterneId     String?
-  championInterne       LeadContact? @relation("ChampionLead", fields: [championInterneId], references: [id])
+  championInterneId String?
+  championInterne   LeadContact? @relation("ChampionLead", fields: [championInterneId], references: [id])
 
   // Workspace
-  workspaceId           String
-  workspace             Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   // Tags et notes
-  tags                  String[]
-  notesPrivees          String?
+  tags         String[]
+  notesPrivees String?
 
   // Conversion vers Cabinet (existant)
-  convertedAt           DateTime?
-  cabinetId             String?   @unique
-  cabinet               Cabinet?  @relation("CabinetLead", fields: [cabinetId], references: [id])
-  raisonPerdu           RaisonPerdu?
+  convertedAt DateTime?
+  cabinetId   String?      @unique
+  cabinet     Cabinet?     @relation("CabinetLead", fields: [cabinetId], references: [id])
+  raisonPerdu RaisonPerdu?
 
   // Lien pipeline Delivery (AuditSubmission existant)
-  auditSubmissionId     String?   @unique
-  auditSubmission       AuditSubmission? @relation("AuditLead", fields: [auditSubmissionId], references: [id])
+  auditSubmissionId String?          @unique
+  auditSubmission   AuditSubmission? @relation("AuditLead", fields: [auditSubmissionId], references: [id])
 
   // Relations CRM (1-to-1 vers entités delivery)
-  bundleRecommendation  BundleRecommendation?
-  consultationPhase2    ConsultationPhase2?
-  consultationDecision  ConsultationDecision?
-  activationChecklist   ActivationChecklist?
+  bundleRecommendation BundleRecommendation?
+  consultationPhase2   ConsultationPhase2?
+  consultationDecision ConsultationDecision?
+  activationChecklist  ActivationChecklist?
 
   // Relations 1-to-many
-  contacts              LeadContact[] @relation("LeadToContacts")
-  activities            Activity[]
-  tasks                 Task[]
+  contacts               LeadContact[]           @relation("LeadToContacts")
+  activities             Activity[]
+  tasks                  Task[]
   leadMagnetConsumptions LeadMagnetConsumption[]
-  linkedInEngagements   LinkedInEngagement[]
-  campaigns             Campaign[]    @relation("LeadCampaigns")
+  linkedInEngagements    LinkedInEngagement[]
+  campaigns              Campaign[]              @relation("LeadCampaigns")
 
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  dateDerniereActivite  DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  dateDerniereActivite DateTime?
 
   @@index([stageLead])
   @@index([sourceLead])
@@ -3064,54 +3064,54 @@ model Lead {
 
 // LeadContact : personne dans un cabinet prospect
 model LeadContact {
-  id                       String    @id @default(cuid())
-  leadId                   String
-  lead                     Lead      @relation("LeadToContacts", fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation("LeadToContacts", fields: [leadId], references: [id], onDelete: Cascade)
 
   // Identité
-  prenom                   String
-  nom                      String
-  titre                    String?
-  email                    String?
-  emailSecondaire          String?
-  emailStatut              EmailStatut @default(NON_VERIFIE)
-  sourceEmail              SourceEmail?
-  linkedinUrl              String?
-  telephone                String?
-  languePref               CrmLangue  @default(FR)
+  prenom          String
+  nom             String
+  titre           String?
+  email           String?
+  emailSecondaire String?
+  emailStatut     EmailStatut  @default(NON_VERIFIE)
+  sourceEmail     SourceEmail?
+  linkedinUrl     String?
+  telephone       String?
+  languePref      CrmLangue    @default(FR)
 
   // Rôle CRM
-  roleCrm                  RoleCrm
-  estDecideur              Boolean   @default(false)
-  estChampionInterne       Boolean   @default(false)
-  estApprouveOperationnel  Boolean   @default(false)
-  doNotContact             Boolean   @default(false)
+  roleCrm                 RoleCrm
+  estDecideur             Boolean @default(false)
+  estChampionInterne      Boolean @default(false)
+  estApprouveOperationnel Boolean @default(false)
+  doNotContact            Boolean @default(false)
 
   // ADKAR tracking (intégré au contact, pas modèle séparé)
-  awareness                NiveauAdkar @default(NON_INITIE)
-  desire                   NiveauAdkar?
-  knowledge                Int?
-  ability                  Int?
-  reinforcement            Boolean   @default(false)
+  awareness     NiveauAdkar  @default(NON_INITIE)
+  desire        NiveauAdkar?
+  knowledge     Int?
+  ability       Int?
+  reinforcement Boolean      @default(false)
 
-  notes                    String?
+  notes String?
 
   // Champion réciproque
-  championOfLeads          Lead[]    @relation("ChampionLead")
+  championOfLeads Lead[] @relation("ChampionLead")
 
   // Conversion vers User SAFE (à la signature)
-  convertedAt              DateTime?
-  userId                   String?   @unique
-  user                     User?     @relation("UserLeadContact", fields: [userId], references: [id])
+  convertedAt DateTime?
+  userId      String?   @unique
+  user        User?     @relation("UserLeadContact", fields: [userId], references: [id])
 
   // Relations
-  activities               Activity[]
-  tasks                    Task[]
-  leadMagnetConsumptions   LeadMagnetConsumption[]
-  linkedInEngagements      LinkedInEngagement[]
+  activities             Activity[]
+  tasks                  Task[]
+  leadMagnetConsumptions LeadMagnetConsumption[]
+  linkedInEngagements    LinkedInEngagement[]
 
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([leadId])
   @@index([email])
@@ -3119,31 +3119,31 @@ model LeadContact {
 
 // Activity : timeline unifiée (email, DM, call, meeting, note)
 model Activity {
-  id                String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  leadId            String?
-  lead              Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  contactId         String?
-  contact           LeadContact? @relation(fields: [contactId], references: [id])
-  campaignId        String?
-  campaign          Campaign? @relation(fields: [campaignId], references: [id])
+  leadId     String?
+  lead       Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId  String?
+  contact    LeadContact? @relation(fields: [contactId], references: [id])
+  campaignId String?
+  campaign   Campaign?    @relation(fields: [campaignId], references: [id])
 
-  type              TypeActivity
-  direction         CrmDirection
-  sujet             String?
-  contenu           String?
+  type      TypeActivity
+  direction CrmDirection
+  sujet     String?
+  contenu   String?
 
-  statutEmail       StatutEmail?
-  urlSource         String?
-  attachements      String[]
+  statutEmail  StatutEmail?
+  urlSource    String?
+  attachements String[]
 
-  dureeSecondes     Int?
-  scoreImpact       Int?
+  dureeSecondes Int?
+  scoreImpact   Int?
 
-  date              DateTime  @default(now())
-  createdBy         String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  date      DateTime @default(now())
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([leadId, date])
   @@index([contactId, date])
@@ -3152,26 +3152,26 @@ model Activity {
 
 // Task : tâche de prospection (distinct de DossierTache)
 model Task {
-  id            String    @id @default(cuid())
-  leadId        String?
-  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  contactId     String?
-  contact       LeadContact? @relation(fields: [contactId], references: [id])
+  id        String       @id @default(cuid())
+  leadId    String?
+  lead      Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId String?
+  contact   LeadContact? @relation(fields: [contactId], references: [id])
 
-  type          TypeTaskCrm
-  titre         String
-  description   String?
-  priorite      CrmPriorite     @default(NORMALE)
-  statut        StatutTaskCrm   @default(A_FAIRE)
-  dateEcheance  DateTime?
-  dateClosed    DateTime?
+  type         TypeTaskCrm
+  titre        String
+  description  String?
+  priorite     CrmPriorite   @default(NORMALE)
+  statut       StatutTaskCrm @default(A_FAIRE)
+  dateEcheance DateTime?
+  dateClosed   DateTime?
 
-  trigger       TriggerTaskCrm?
+  trigger TriggerTaskCrm?
 
-  assigneeId    String?
+  assigneeId String?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([statut, dateEcheance])
   @@index([leadId])
@@ -3179,9 +3179,9 @@ model Task {
 
 // Campaign : campagne marketing (LinkedIn, SEO, email, event)
 model Campaign {
-  id               String    @id @default(cuid())
-  workspaceId      String
-  workspace        Workspace @relation(fields: [workspaceId], references: [id])
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   nom              String
   canal            CanalCampaign
@@ -3192,212 +3192,212 @@ model Campaign {
   cibleLeads       Int?
   cibleConversions Int?
 
-  nbLeadsAttribues Int       @default(0)
-  nbConversions    Int       @default(0)
+  nbLeadsAttribues Int @default(0)
+  nbConversions    Int @default(0)
 
-  activities       Activity[]
-  leads            Lead[]    @relation("LeadCampaigns")
+  activities Activity[]
+  leads      Lead[]     @relation("LeadCampaigns")
 
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // LeadMagnet : checklist 8 points, playbook 30j, etc.
 model LeadMagnet {
-  id            String    @id @default(cuid())
-  type          TypeLeadMagnet
-  titre         String
-  description   String?
-  contenuUrl    String?
-  langue        CrmLangue @default(FR)
-  actif         Boolean   @default(true)
+  id          String         @id @default(cuid())
+  type        TypeLeadMagnet
+  titre       String
+  description String?
+  contenuUrl  String?
+  langue      CrmLangue      @default(FR)
+  actif       Boolean        @default(true)
 
-  consumptions  LeadMagnetConsumption[]
-  createdAt     DateTime  @default(now())
+  consumptions LeadMagnetConsumption[]
+  createdAt    DateTime                @default(now())
 }
 
 model LeadMagnetConsumption {
-  id                    String    @id @default(cuid())
-  leadId                String?
-  lead                  Lead?     @relation(fields: [leadId], references: [id])
-  contactId             String?
-  contact               LeadContact? @relation(fields: [contactId], references: [id])
-  magnetId              String
-  magnet                LeadMagnet @relation(fields: [magnetId], references: [id])
+  id        String       @id @default(cuid())
+  leadId    String?
+  lead      Lead?        @relation(fields: [leadId], references: [id])
+  contactId String?
+  contact   LeadContact? @relation(fields: [contactId], references: [id])
+  magnetId  String
+  magnet    LeadMagnet   @relation(fields: [magnetId], references: [id])
 
-  dateTelechargement    DateTime  @default(now())
-  dateAcces             DateTime?
-  tempsDepenseSec       Int?
-  pageScrollPercent     Int?
+  dateTelechargement DateTime  @default(now())
+  dateAcces          DateTime?
+  tempsDepenseSec    Int?
+  pageScrollPercent  Int?
 
-  declanche_dm          Boolean   @default(false)
-  datePropositionAudit  DateTime?
+  declanche_dm         Boolean   @default(false)
+  datePropositionAudit DateTime?
 }
 
 // ContentPiece : posts LinkedIn, blogs SEO, etc.
 model ContentPiece {
-  id              String    @id @default(cuid())
-  workspaceId     String
-  workspace       Workspace @relation(fields: [workspaceId], references: [id])
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   type            TypeContent
   titre           String
   url             String?
   datePublication DateTime?
 
-  vues            Int       @default(0)
-  likes           Int       @default(0)
-  commentaires    Int       @default(0)
-  partages        Int       @default(0)
-  clicsSortie     Int       @default(0)
+  vues         Int @default(0)
+  likes        Int @default(0)
+  commentaires Int @default(0)
+  partages     Int @default(0)
+  clicsSortie  Int @default(0)
 
-  engagements     LinkedInEngagement[]
+  engagements LinkedInEngagement[]
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model LinkedInEngagement {
-  id            String    @id @default(cuid())
-  contentId     String
-  content       ContentPiece @relation(fields: [contentId], references: [id])
-  leadId        String?
-  lead          Lead?     @relation(fields: [leadId], references: [id])
-  contactId     String?
-  contact       LeadContact? @relation(fields: [contactId], references: [id])
+  id        String       @id @default(cuid())
+  contentId String
+  content   ContentPiece @relation(fields: [contentId], references: [id])
+  leadId    String?
+  lead      Lead?        @relation(fields: [leadId], references: [id])
+  contactId String?
+  contact   LeadContact? @relation(fields: [contactId], references: [id])
 
-  type          TypeEngagement
-  contenu       String?
-  date          DateTime  @default(now())
+  type    TypeEngagement
+  contenu String?
+  date    DateTime       @default(now())
 
-  utiliseEnDM   Boolean   @default(false)
-  dateDM        DateTime?
+  utiliseEnDM Boolean   @default(false)
+  dateDM      DateTime?
 }
 
 // --- Couche 2 : Delivery (lien pipeline 3 phases) ---
 
 model BundleRecommendation {
-  id                  String    @id @default(cuid())
-  leadId              String    @unique
-  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  bundleRecommande    BundleId
-  confidence          Int
-  overridesPropose    String?   // JSON
-  customTriggers      String?   // JSON
-  consultationTopics  String[]
+  bundleRecommande   BundleId
+  confidence         Int
+  overridesPropose   String? // JSON
+  customTriggers     String? // JSON
+  consultationTopics String[]
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ConsultationPhase2 {
-  id                    String    @id @default(cuid())
-  leadId                String    @unique
-  lead                  Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  dateConsultation      DateTime?
-  durationMinutes       Int?
-  participants          String[]
-  notes                 String?
-  blockingIntegrations  String[]
-  exceptionsValidees    String?   // JSON
+  dateConsultation     DateTime?
+  durationMinutes      Int?
+  participants         String[]
+  notes                String?
+  blockingIntegrations String[]
+  exceptionsValidees   String? // JSON
 
-  statut                StatutConsultation @default(A_PLANIFIER)
-  createdAt             DateTime  @default(now())
+  statut    StatutConsultation @default(A_PLANIFIER)
+  createdAt DateTime           @default(now())
 }
 
 model ConsultationDecision {
-  id                  String    @id @default(cuid())
-  leadId              String    @unique
-  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  bundleFinal         BundleId
-  overridesValides    String?   // JSON
-  customItems         String?   // JSON
-  activationPriority  CrmPriorite
-  dateDecision        DateTime  @default(now())
-  decisionPar         String?
+  bundleFinal        BundleId
+  overridesValides   String? // JSON
+  customItems        String? // JSON
+  activationPriority CrmPriorite
+  dateDecision       DateTime    @default(now())
+  decisionPar        String?
 }
 
 model ActivationChecklist {
-  id                      String    @id @default(cuid())
-  leadId                  String    @unique
-  lead                    Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  envEtConfig             Boolean   @default(false)
-  cabinetInterfaceConfig  String?   // JSON
-  seedsAppliques          Boolean   @default(false)
-  utilisateursCreated     Boolean   @default(false)
-  integrationsTestees     String?   // JSON
-  documentsTemplates      Boolean   @default(false)
-  permissionsConfigured   Boolean   @default(false)
-  parcoursUserTeste       Boolean   @default(false)
-  risquesResiduels        String?
-  remiseAccesFait         Boolean   @default(false)
+  envEtConfig            Boolean @default(false)
+  cabinetInterfaceConfig String? // JSON
+  seedsAppliques         Boolean @default(false)
+  utilisateursCreated    Boolean @default(false)
+  integrationsTestees    String? // JSON
+  documentsTemplates     Boolean @default(false)
+  permissionsConfigured  Boolean @default(false)
+  parcoursUserTeste      Boolean @default(false)
+  risquesResiduels       String?
+  remiseAccesFait        Boolean @default(false)
 
-  dateGoLive              DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  dateGoLive DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 // --- Couche Console v1.1 : Tickets + Impersonation (ADR-007, ADR-008) ---
 
 model SupportTicket {
-  id                  String    @id @default(cuid())
-  cabinetId           String
-  cabinet             Cabinet   @relation("CabinetTickets", fields: [cabinetId], references: [id], onDelete: Cascade)
-  createdById         String
-  createdBy           User      @relation("TicketCreator", fields: [createdById], references: [id])
+  id          String  @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet @relation("CabinetTickets", fields: [cabinetId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User    @relation("TicketCreator", fields: [createdById], references: [id])
 
-  type                TypeTicket
-  titre               String
-  description         String
-  priorite            CrmPriorite     @default(NORMALE)
-  statut              StatutTicket    @default(NOUVEAU)
+  type        TypeTicket
+  titre       String
+  description String
+  priorite    CrmPriorite  @default(NORMALE)
+  statut      StatutTicket @default(NOUVEAU)
 
-  contexteUrl         String?
-  screenshotUrl       String?
-  consoleLogs         String?
-  assigneeId          String?
-  dateResolution      DateTime?
-  noteResolution      String?
-  satisfactionRating  Int?
+  contexteUrl        String?
+  screenshotUrl      String?
+  consoleLogs        String?
+  assigneeId         String?
+  dateResolution     DateTime?
+  noteResolution     String?
+  satisfactionRating Int?
 
-  replies             TicketReply[]
+  replies TicketReply[]
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([cabinetId, statut])
   @@index([statut, priorite])
 }
 
 model TicketReply {
-  id              String    @id @default(cuid())
-  ticketId        String
-  ticket          SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  authorId        String
-  author          User      @relation("TicketReplyAuthor", fields: [authorId], references: [id])
-  isFromSafeInc   Boolean   @default(false)
-  contenu         String
-  attachements    String[]
-  createdAt       DateTime  @default(now())
+  id            String        @id @default(cuid())
+  ticketId      String
+  ticket        SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User          @relation("TicketReplyAuthor", fields: [authorId], references: [id])
+  isFromSafeInc Boolean       @default(false)
+  contenu       String
+  attachements  String[]
+  createdAt     DateTime      @default(now())
 }
 
 model ImpersonationSession {
-  id              String    @id @default(cuid())
-  superadminId    String
-  superadmin      User      @relation("Impersonator", fields: [superadminId], references: [id])
-  cabinetId       String
-  cabinet         Cabinet   @relation("CabinetImpersonations", fields: [cabinetId], references: [id])
+  id           String  @id @default(cuid())
+  superadminId String
+  superadmin   User    @relation("Impersonator", fields: [superadminId], references: [id])
+  cabinetId    String
+  cabinet      Cabinet @relation("CabinetImpersonations", fields: [cabinetId], references: [id])
 
-  startedAt       DateTime  @default(now())
-  endedAt         DateTime?
-  reason          String?
-  actionsCount    Int       @default(0)
-  ipAddress       String?
-  userAgent       String?
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  reason       String?
+  actionsCount Int       @default(0)
+  ipAddress    String?
+  userAgent    String?
 
   @@index([cabinetId, startedAt])
 }

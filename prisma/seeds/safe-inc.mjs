@@ -33,6 +33,8 @@ const SAFE_INC = {
     nom: "SAFE",
     email: "jeremie@safecabinet.ca",
     plan: "fondateur",
+    // SAFE Inc. utilise son propre produit (dog food) — toujours actif, pas de Stripe requis.
+    stripeSubscriptionStatus: "active",
     // adresse, telephone, logoUrl à compléter via UI Gestion plus tard
     config: JSON.stringify({
       devise: "CAD",
@@ -128,6 +130,7 @@ async function main() {
       data: {
         email: SAFE_INC.cabinet.email,
         plan: SAFE_INC.cabinet.plan,
+        stripeSubscriptionStatus: SAFE_INC.cabinet.stripeSubscriptionStatus,
         config: SAFE_INC.cabinet.config,
       },
     });
