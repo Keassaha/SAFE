@@ -59,7 +59,7 @@ async function main() {
   console.log(`User: ${avocate.nom} (${avocate.email}) — role: ${avocate.role}`);
 
   // 3. Create Natalya (assistante)
-  const assistantHash = await bcrypt.hash("Natalya2026", 12);
+  const assistantHash = await bcrypt.hash("Aalyiah2026", 12);
 
   const assistante = await prisma.user.upsert({
     where: {
@@ -68,16 +68,16 @@ async function main() {
     create: {
       id: "derisier-user-assistante",
       cabinetId: cabinet.id,
-      email: "natalya@derisierlaw.com",
+      email: "aalyiah@derisierlaw.com",
       passwordHash: assistantHash,
-      nom: "Natalya",
+      nom: "Aalyiah",
       role: "assistante",
       isBillable: false,
     },
     update: {
-      email: "natalya@derisierlaw.com",
+      email: "aalyiah@derisierlaw.com",
       passwordHash: assistantHash,
-      nom: "Natalya",
+      nom: "Aalyiah",
       role: "assistante",
     },
   });
