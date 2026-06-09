@@ -754,6 +754,7 @@ function AuditSuccess({
                 {reco.safeOffer.tagline}
               </div>
               <div className="flex items-baseline gap-2">
+                <span className="text-[13px] text-[var(--safe-green-100)] mr-1">À partir de</span>
                 <span
                   className="text-[40px]"
                   style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
@@ -762,6 +763,9 @@ function AuditSuccess({
                 </span>
                 <span className="text-[12px] text-[var(--safe-green-100)]">/ mois · {reco.safeOffer.seats}</span>
               </div>
+              <p className="mt-3 text-[11px] text-[var(--safe-green-100)]/70 leading-relaxed max-w-xs mx-auto">
+                L&apos;offre définitive sera confirmée lors de votre rencontre avec l&apos;équipe SAFE.
+              </p>
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">

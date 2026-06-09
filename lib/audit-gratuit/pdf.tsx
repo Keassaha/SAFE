@@ -326,8 +326,15 @@ function PlanCard({ plan, fmtMoney }: { plan: SitePlan; fmtMoney: (n: number) =>
           </Text>
         </View>
         <Text style={s.planNameDark}>{plan.name}</Text>
-        <Text style={s.planPriceDark}>{plan.monthly == null ? plan.priceLabel : fmtMoney(plan.monthly)}</Text>
+        <Text style={s.planPriceDark}>
+          {plan.monthly == null ? plan.priceLabel : `À partir de ${fmtMoney(plan.monthly)}`}
+        </Text>
         <Text style={s.planSufDark}>{plan.monthly == null ? "tarification personnalisée" : `/ mois · ${plan.seats}`}</Text>
+        {plan.monthly != null && (
+          <Text style={[s.planSufDark, { fontFamily: "Helvetica-Oblique", marginBottom: 4 }]}>
+            Offre définitive confirmée lors de la rencontre.
+          </Text>
+        )}
         <Text style={s.planTaglineDark}>{plan.tagline}</Text>
         {plan.features.map((f, i) => (
           <View key={i} style={s.planFeat}>

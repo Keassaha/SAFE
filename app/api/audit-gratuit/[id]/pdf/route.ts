@@ -2,15 +2,17 @@
  * SAFE — GET /api/audit-gratuit/[id]/pdf
  * Télécharge le rapport PDF d'une soumission d'audit.
  *
- * Accès :
- *   - ?secret=<AUDIT_SYNC_SECRET>  → accès interne (lister + télécharger)
- *   - sinon : accès public avec l'ID (lien envoyé dans l'email au client)
+ * Génération : Playwright (headless Chromium) → route /audit/[id]/print
+ * Remplace l'ancienne génération @react-pdf/renderer.
+ *
+ * Paramètres query :
+ *   ?variant=cream|white  — variante visuelle (défaut : cream)
+ *   ?download=1           — force le téléchargement (Content-Disposition attachment)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { renderAuditReportPdf } from "@/lib/audit-gratuit/pdf";
-import type { Recommendation } from "@/lib/audit-gratuit/recommendation";
+import { renderAuditPrintToPdf } from "@/lib/audit-report/pdf-playwright";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,43 +30,24 @@ export async function GET(
   if (!submission) {
     return NextResponse.json({ error: "Audit introuvable." }, { status: 404 });
   }
-  if (submission.source !== "audit_gratuit_v2") {
-    return NextResponse.json({ error: "Mauvaise source d'audit." }, { status: 400 });
-  }
 
-  let answers: Record<string, unknown> = {};
-  let recommendation: Recommendation | null = null;
+  const rawVariant = req.nextUrl.searchParams.get("variant");
+  const variant = rawVariant === "white" ? "white" : "cream";
 
+  let pdfBuffer: Buffer;
   try {
-    const parsedRep = submission.reponses ? JSON.parse(submission.reponses) : {};
-    answers = (parsedRep.answers || parsedRep || {}) as Record<string, unknown>;
-  } catch {
-    return NextResponse.json({ error: "Réponses illisibles." }, { status: 500 });
+    pdfBuffer = await renderAuditPrintToPdf(submission.id, { variant });
+  } catch (e) {
+    console.error("[pdf/route] renderAuditPrintToPdf failed:", e);
+    return NextResponse.json(
+      { error: "Génération du PDF échouée.", detail: String(e) },
+      { status: 500 }
+    );
   }
-
-  try {
-    recommendation = submission.rapport
-      ? (JSON.parse(submission.rapport) as Recommendation)
-      : null;
-  } catch {
-    recommendation = null;
-  }
-
-  if (!recommendation) {
-    // Recalcul si le rapport stocké est corrompu
-    const { buildRecommendation } = await import("@/lib/audit-gratuit/recommendation");
-    recommendation = buildRecommendation(answers);
-  }
-
-  const pdfBuffer = await renderAuditReportPdf({
-    answers,
-    recommendation,
-    submissionId: submission.id,
-    createdAt: submission.createdAt,
-  });
 
   const filename = `rapport-audit-safe-${submission.id.slice(0, 8)}.pdf`;
-  const disposition = req.nextUrl.searchParams.get("download") === "1" ? "attachment" : "inline";
+  const disposition =
+    req.nextUrl.searchParams.get("download") === "1" ? "attachment" : "inline";
 
   return new NextResponse(new Uint8Array(pdfBuffer), {
     status: 200,
