@@ -62,6 +62,9 @@ export async function renderAuditPrintToPdf(
       await page.setViewport({ width: 816, height: 1056 });
       await page.goto(url, { waitUntil: "networkidle0", timeout });
 
+      // Force screen media — sinon @media print vide le contenu (Tailwind)
+      await page.emulateMediaType("screen");
+
       const pdfBuffer = await page.pdf({
         format: "Letter",
         printBackground: true,
@@ -81,6 +84,9 @@ export async function renderAuditPrintToPdf(
       const page = await browser.newPage();
       await page.setViewportSize({ width: 816, height: 1056 });
       await page.goto(url, { waitUntil: "networkidle", timeout });
+
+      // Force screen media — sinon @media print vide le contenu (Tailwind)
+      await page.emulateMedia({ media: "screen" });
 
       const pdfBuffer = await page.pdf({
         format: "Letter",
