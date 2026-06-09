@@ -23,6 +23,9 @@ import {
   Briefcase,
   Wallet,
   FileText,
+  Building2,
+  LifeBuoy,
+  GitBranch,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
@@ -45,6 +48,7 @@ interface HeaderProps {
   billingMode?: "forfait" | "horaire" | "mixed";
   activeNavIds?: string[] | null;
   role?: string;
+  isSafeInc?: boolean;
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -52,22 +56,26 @@ interface HeaderProps {
  *  ─────────────────────────────────────────────────────────── */
 
 type NavChild = {
-  labelKey: string;
+  labelKey?: string;
+  label?: string; // Libellé littéral (mode consultant, sans i18n)
   href: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   descriptionKey?: string;
+  description?: string; // Description littérale (mode consultant)
 };
 
 type NavGroup =
   | {
       id: string;
-      labelKey: string;
+      labelKey?: string;
+      label?: string;
       href: string;
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
     }
   | {
       id: string;
-      labelKey: string;
+      labelKey?: string;
+      label?: string;
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
       children: NavChild[];
       matchPrefixes: string[];
@@ -176,6 +184,71 @@ const NAV: NavGroup[] = [
   },
 ];
 
+/* ───────────────────────────────────────────────────────────
+ *  Menu consultant unifié (mode SAFE Inc. dog food)
+ *  Spec : docs/product/CONSOLE_CONSULTANT_REFACTOR_v1.md
+ *  Remplace entièrement le menu cabinet quand isSafeInc = true.
+ *  ─────────────────────────────────────────────────────────── */
+
+const CONSULTANT_NAV: NavGroup[] = [
+  {
+    id: "console-dashboard",
+    label: "Tableau de bord",
+    href: "/console",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "console-clients",
+    label: "Clients",
+    href: "/console/clients",
+    icon: Building2,
+  },
+  {
+    id: "console-pipeline",
+    label: "Pipeline",
+    href: "/console/pipeline",
+    icon: GitBranch,
+  },
+  {
+    id: "console-finances",
+    label: "Finances",
+    icon: Wallet,
+    matchPrefixes: [routes.facturation, routes.comptabilite, routes.temps],
+    children: [
+      {
+        label: "Facturation",
+        description: "Abonnements facturés aux cabinets",
+        href: routes.facturation,
+        icon: Receipt,
+      },
+      {
+        label: "Comptabilité",
+        description: "Comptabilité de SAFE Inc.",
+        href: routes.comptabilite,
+        icon: BookOpen,
+      },
+      {
+        label: "Services de consultant",
+        description: "Prestations et honoraires de conseil",
+        href: routes.temps,
+        icon: Clock,
+      },
+    ],
+  },
+  {
+    id: "console-support",
+    label: "Support",
+    href: "/console/support",
+    icon: LifeBuoy,
+  },
+  {
+    id: "console-parametres",
+    label: "Paramètres",
+    href: routes.parametres,
+    icon: Settings,
+  },
+];
+
 function isGroupActive(group: NavGroup, pathname: string): boolean {
   if ("href" in group) {
     return pathname === group.href || pathname.startsWith(`${group.href}/`);
@@ -198,10 +271,17 @@ export function Header({
   cabinetId,
   onOpenMobileNav,
   billingMode,
+  isSafeInc,
 }: HeaderProps) {
   const t = useTranslations("shell.header");
   const tMisc = useTranslations("miscUi");
   const pathname = usePathname();
+
+  // Mode consultant (SAFE Inc.) : menu unifié au lieu du menu cabinet.
+  const navGroups = isSafeInc ? CONSULTANT_NAV : NAV;
+  // Résout le libellé : littéral (consultant) ou clé i18n (cabinet).
+  const navLabel = (o: { label?: string; labelKey?: string }) =>
+    o.label ?? (o.labelKey ? tMisc(o.labelKey) : "");
   const currentUserId = (user as { id?: string })?.id ?? "";
   const initial = (user?.name ?? user?.email ?? "?")[0].toUpperCase();
   const displayName =
@@ -298,7 +378,7 @@ export function Header({
         className="flex-1 hidden lg:flex items-center justify-center gap-1"
         aria-label={tMisc("mainNavigationAria")}
       >
-        {NAV.map((group) => {
+        {navGroups.map((group) => {
           const active = isGroupActive(group, pathname);
           const Icon = group.icon;
 
@@ -316,7 +396,7 @@ export function Header({
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {tMisc(group.labelKey)}
+                {navLabel(group)}
               </Link>
             );
           }
@@ -338,7 +418,7 @@ export function Header({
                 aria-expanded={isOpen}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {tMisc(group.labelKey)}
+                {navLabel(group)}
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -368,7 +448,7 @@ export function Header({
                     />
                     <div className="px-4 pt-4 pb-2">
                       <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium">
-                        {tMisc(group.labelKey)}
+                        {navLabel(group)}
                       </span>
                     </div>
                     <ul role="list" className="pb-2">
@@ -410,11 +490,12 @@ export function Header({
                                       : "text-text-primary"
                                   }`}
                                 >
-                                  {tMisc(child.labelKey)}
+                                  {navLabel(child)}
                                 </span>
-                                {child.descriptionKey && (
+                                {(child.description ?? child.descriptionKey) && (
                                   <span className="block text-[11.5px] font-sans text-text-muted mt-0.5 leading-[1.4]">
-                                    {tMisc(child.descriptionKey)}
+                                    {child.description ??
+                                      (child.descriptionKey ? tMisc(child.descriptionKey) : "")}
                                   </span>
                                 )}
                               </span>

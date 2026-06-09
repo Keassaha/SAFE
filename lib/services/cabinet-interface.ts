@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/db";
+import { CATALOG_DRIVEN_NAV, deriveActiveNavIds } from "@/lib/catalog/nav-bridge";
 
 /**
  * Cached per-request fetch of the cabinet's interface config.
@@ -57,6 +58,15 @@ export const getCabinetInterfaceDerived = cache(
       } catch {
         /* ignore */
       }
+    }
+
+    // ADR-009 — Inversion du menu, derrière le flag CATALOG_DRIVEN_NAV (défaut
+    // éteint). Quand actif, la whitelist de nav est dérivée du catalogue au lieu
+    // d'être la liste brute. Grâce à la parité catalog-safe <-> NAV_ITEMS, la
+    // sortie est identique aujourd'hui ; elle ne change que lorsqu'un outil de
+    // domaine entre dans le manifeste.
+    if (CATALOG_DRIVEN_NAV && activeNavIds) {
+      activeNavIds = deriveActiveNavIds(activeNavIds);
     }
 
     return { billingMode, activeNavIds, hiddenNavIds };

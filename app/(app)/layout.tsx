@@ -9,6 +9,7 @@ import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { QuickCapture } from "@/components/capture/QuickCapture";
+import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import {
   isSubscriptionExemptPath,
@@ -50,6 +51,10 @@ export default async function AppLayout({
   const userId = (session.user as { id?: string }).id ?? undefined;
   const sidebarCounts = cabinetId ? await getSidebarCounts(cabinetId, userId) : null;
 
+  // Mode consultant : SAFE Inc. (dog food) bascule sur une navigation unique
+  // dédiée consultant au lieu du menu cabinet d'avocats. Spec : CONSOLE_CONSULTANT_REFACTOR_v1.
+  const isSafeInc = cabinetId ? await isSafeIncCabinet(cabinetId) : false;
+
   return (
     <QueryProvider>
       <TimerProvider>
@@ -60,8 +65,9 @@ export default async function AppLayout({
           billingMode={billingMode}
           activeNavIds={activeNavIds}
           hiddenNavIds={hiddenNavIds}
-          trustStatus={trustStatus}
+          trustStatus={isSafeInc ? null : trustStatus}
           sidebarCounts={sidebarCounts}
+          isSafeInc={isSafeInc}
         >
           {children}
         </AppChrome>

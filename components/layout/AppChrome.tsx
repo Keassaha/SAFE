@@ -21,9 +21,10 @@ type AppChromeProps = {
   hiddenNavIds?: string[];
   trustStatus?: TrustReconciliationStatus | null;
   sidebarCounts?: SidebarCounts | null;
+  isSafeInc?: boolean;
 };
 
-export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, sidebarCounts }: AppChromeProps) {
+export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, sidebarCounts, isSafeInc }: AppChromeProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -47,6 +48,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           billingMode={billingMode}
           activeNavIds={activeNavIds}
           role={role}
+          isSafeInc={isSafeInc}
           onOpenMobileNav={() => setMobileNavOpen(true)}
         />
         {trustStatus && <TrustReconciliationBanner status={trustStatus} />}
@@ -59,7 +61,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           </div>
         </main>
       </div>
-      <SupportWidget />
+      {!isSafeInc && <SupportWidget />}
     </div>
   );
 }
