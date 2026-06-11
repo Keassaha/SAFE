@@ -475,8 +475,8 @@ async function ensureAssistantUser(cabinetId) {
     return prisma.user.update({
       where: { id: existing.id },
       data: {
-        email: "natalya@derisierlaw.com",
-        nom: "Natalya",
+        email: "aaliyah@derisierlaw.com",
+        nom: "Aaliyah",
         passwordHash,
         role: "assistante",
         isBillable: false,
@@ -487,9 +487,9 @@ async function ensureAssistantUser(cabinetId) {
   return prisma.user.create({
     data: {
       cabinetId,
-      email: "natalya@derisierlaw.com",
+      email: "aaliyah@derisierlaw.com",
       passwordHash,
-      nom: "Natalya",
+      nom: "Aaliyah",
       role: "assistante",
       isBillable: false,
     },

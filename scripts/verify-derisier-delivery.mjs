@@ -19,7 +19,7 @@ const EXPECTED = {
   cabinetIds: ["derisier-law-on-2026"],
   cabinetName: "Derisier Law",
   adminEmail: "info@derisierlaw.com",
-  assistantEmail: "natalya@derisierlaw.com",
+  assistantEmail: "aaliyah@derisierlaw.com",
   plan: "cabinet",
   monthlyPrice: 149,
   locale: "en",
@@ -233,7 +233,7 @@ async function main() {
   );
   const assistant = users.find((u) => u.email?.toLowerCase() === EXPECTED.assistantEmail);
   record(
-    "Assistant user natalya@derisierlaw.com exists",
+    "Assistant user aaliyah@derisierlaw.com exists",
     Boolean(assistant),
     assistant ? `role=${assistant.role}` : "missing"
   );
