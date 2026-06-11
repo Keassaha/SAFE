@@ -1,10 +1,11 @@
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canViewComptabilite } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { ensureExpenseCategories } from "./actions";
 import { ExpenseJournalPageView } from "./ExpenseJournalPageView";
 
 export default async function JournalDepensesPage() {
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canViewComptabilite);
   await ensureExpenseCategories(cabinetId);
 
   const now = new Date();

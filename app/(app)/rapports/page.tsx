@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canViewReports } from "@/lib/auth/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { loadRapportsPayload } from "@/lib/rapports/load";
 import { RapportsView } from "@/components/rapports/RapportsView";
@@ -23,7 +24,7 @@ export default async function RapportsPage({
     statut?: string;
   }>;
 }) {
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canViewReports);
   const t = await getTranslations("mattersUi");
   const params = await searchParams;
   const defaults = getDefaultDates();

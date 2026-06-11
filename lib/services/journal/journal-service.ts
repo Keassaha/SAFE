@@ -13,6 +13,7 @@ import type {
   JournalKpiData,
 } from "@/types/journal";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
+import { computeJournalKpis } from "./kpi";
 
 /**
  * Type du client Prisma accepté : soit le client global, soit un `TransactionClient`
@@ -159,7 +160,6 @@ function buildWhere(
 export interface GetJournalEntriesResult {
   entries: JournalEntryRow[];
   totalCount: number;
-  soldeGlobal: number;
 }
 
 /** Liste les écritures du journal avec filtres et pagination. */
@@ -189,13 +189,6 @@ export async function getJournalEntries(
     prisma.journalGeneralEntry.count({ where }),
   ]);
 
-  const lastSoldeEntry = await prisma.journalGeneralEntry.findFirst({
-    where: { cabinetId: params.cabinetId },
-    orderBy: [{ dateTransaction: "desc" }, { createdAt: "desc" }],
-    select: { solde: true },
-  });
-  const soldeGlobal = lastSoldeEntry?.solde ?? 0;
-
   const rows: JournalEntryRow[] = entries.map((e) => ({
     id: e.id,
     dateTransaction: e.dateTransaction,
@@ -217,10 +210,21 @@ export async function getJournalEntries(
     createdAt: e.createdAt,
   }));
 
-  return { entries: rows, totalCount, soldeGlobal };
+  return { entries: rows, totalCount };
 }
 
-/** Calcule les agrégats pour les KPIs (période optionnelle = ce mois par défaut). */
+/**
+ * Calcule les indicateurs du journal (période optionnelle = ce mois par défaut).
+ *
+ * Délègue le classement à `computeJournalKpis` (fonction PURE et testée) : aucun
+ * indicateur ne dépend du `solde` cumulé stocké par ligne (qui serait faux si une
+ * écriture est antidatée). Les comptes à recevoir proviennent du module facturation
+ * (Σ des soldes dus des factures ouvertes), pas du journal.
+ *
+ * NOTE D'ÉCHELLE : on charge les écritures du cabinet pour reclasser les flux par
+ * type en mémoire. Suffisant pour des cabinets solo/petits ; à remplacer par des
+ * agrégats SQL groupés par type si le volume d'écritures devient important.
+ */
 export async function calculateJournalBalance(
   cabinetId: string,
   options?: { dateFrom?: Date; dateTo?: Date }
@@ -228,99 +232,41 @@ export async function calculateJournalBalance(
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-  const dateFrom = options?.dateFrom ?? monthStart;
-  const dateTo = options?.dateTo ?? monthEnd;
+  const from = options?.dateFrom ?? monthStart;
+  const to = options?.dateTo ?? monthEnd;
+  // Mois précédent ancré au 1er du mois (évite tout débordement de setMonth si
+  // un appelant passe un dateFrom personnalisé tombant un 29/30/31).
+  const prevFrom = new Date(from.getFullYear(), from.getMonth() - 1, 1);
+  const prevTo = new Date(from.getTime() - 1);
 
-  const prevMonthStart = new Date(monthStart);
-  prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
-  const prevMonthEnd = new Date(monthStart.getTime() - 1);
-
-  const wherePeriod: Prisma.JournalGeneralEntryWhereInput = {
-    cabinetId,
-    dateTransaction: { gte: dateFrom, lte: dateTo },
-  };
-  const wherePrevMonth: Prisma.JournalGeneralEntryWhereInput = {
-    cabinetId,
-    dateTransaction: { gte: prevMonthStart, lte: prevMonthEnd },
-  };
-
-  const [
-    revTypes,
-    depTypes,
-    payTypes,
-    trustTypes,
-    allTypes,
-    countThisMonth,
-    prevRevenus,
-    prevDepenses,
-    lastSolde,
-  ] = await Promise.all([
-    prisma.journalGeneralEntry.aggregate({
-      where: {
-        ...wherePeriod,
-        typeTransaction: "FACTURE",
-      },
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.aggregate({
-      where: {
-        ...wherePeriod,
-        typeTransaction: { in: ["DEPENSE", "DEBOURS"] },
-      },
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.aggregate({
-      where: { ...wherePeriod, typeTransaction: "PAIEMENT" },
-      _sum: { montantEntree: true },
-    }),
-    prisma.journalGeneralEntry.aggregate({
-      where: {
-        ...wherePeriod,
-        typeTransaction: { in: ["DEPOT_FIDEICOMMIS", "RETRAIT_FIDEICOMMIS"] },
-      },
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.aggregate({
-      where: wherePeriod,
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.count({ where: wherePeriod }),
-    prisma.journalGeneralEntry.aggregate({
-      where: {
-        ...wherePrevMonth,
-        typeTransaction: "FACTURE",
-      },
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.aggregate({
-      where: {
-        ...wherePrevMonth,
-        typeTransaction: { in: ["DEPENSE", "DEBOURS"] },
-      },
-      _sum: { montantEntree: true, montantSortie: true },
-    }),
-    prisma.journalGeneralEntry.findFirst({
+  const [entries, arAgg] = await Promise.all([
+    prisma.journalGeneralEntry.findMany({
       where: { cabinetId },
-      orderBy: [{ dateTransaction: "desc" }, { createdAt: "desc" }],
-      select: { solde: true },
+      select: {
+        typeTransaction: true,
+        sourceModule: true,
+        montantEntree: true,
+        montantSortie: true,
+        dateTransaction: true,
+      },
+    }),
+    // Comptes à recevoir = Σ des soldes dus des factures OUVERTES (source : facturation).
+    // R2 : on ne somme que les soldes réellement DUS (> 0). Un surpaiement
+    // (balanceDue < 0, crédit client) ne doit JAMAIS réduire les comptes à recevoir.
+    prisma.invoice.aggregate({
+      where: {
+        cabinetId,
+        invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] },
+        balanceDue: { gt: 0 },
+      },
+      _sum: { balanceDue: true },
     }),
   ]);
 
-  const totalRevenus = (revTypes._sum.montantEntree ?? 0) - (revTypes._sum.montantSortie ?? 0);
-  const totalDepenses = (depTypes._sum.montantSortie ?? 0) - (depTypes._sum.montantEntree ?? 0);
-  const totalEncaisse = payTypes._sum.montantEntree ?? 0;
-  const totalFideicommis =
-    (trustTypes._sum.montantEntree ?? 0) - (trustTypes._sum.montantSortie ?? 0);
-  const soldeGlobal = lastSolde?.solde ?? 0;
-
-  return {
-    totalRevenus,
-    totalDepenses,
-    totalEncaisse,
-    totalFideicommis,
-    soldeGlobal,
-    nbTransactionsCeMois: countThisMonth,
-    totalRevenusMoisPrecedent: (prevRevenus._sum.montantEntree ?? 0) - (prevRevenus._sum.montantSortie ?? 0),
-    totalDepensesMoisPrecedent: (prevDepenses._sum.montantSortie ?? 0) - (prevDepenses._sum.montantEntree ?? 0),
-  };
+  return computeJournalKpis(entries, arAgg._sum.balanceDue ?? 0, {
+    from,
+    to,
+    prevFrom,
+    prevTo,
+  });
 }

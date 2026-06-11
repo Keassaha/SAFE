@@ -20,6 +20,8 @@
     "db:studio": "prisma studio",
     "seed:derisier:audit": "node scripts/rebuild-derisier-from-audit.mjs",
     "verify:derisier": "node scripts/verify-derisier-delivery.mjs",
+    "seed:cayard": "node scripts/seed-cayard.mjs",
+    "verify:cayard": "node scripts/verify-cayard-delivery.mjs",
     "clients:find-duplicates": "node scripts/find-client-duplicates.mjs",
     "clients:merge-duplicates": "node scripts/merge-client-duplicates.mjs",
     "i18n:audit": "node scripts/i18n-audit.mjs",

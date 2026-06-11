@@ -1,11 +1,12 @@
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canViewComptabilite } from "@/lib/auth/permissions";
 import { calculateJournalBalance } from "@/lib/services/journal";
 import { prisma } from "@/lib/db";
 import { ensureExpenseCategories } from "@/app/(app)/journal/depenses/actions";
 import { ComptabilitePageView } from "./ComptabilitePageView";
 
 export default async function ComptabilitePage() {
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canViewComptabilite);
 
   const [journalKpis, expenseData] = await Promise.all([
     calculateJournalBalance(cabinetId),

@@ -8,6 +8,8 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getSecurityAlerts } from "@/lib/services/security/security-alerts";
 import { ShieldCheck, AlertTriangle, ShieldAlert, CalendarClock, UserCheck, FileClock } from "lucide-react";
+import { getCabinetProvince } from "@/lib/cabinet/get-province";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   medical: "Examen médical",
@@ -30,6 +32,7 @@ export default async function SecuritePage() {
   }
 
   const r = await getSecurityAlerts(cabinetId);
+  const copy = getTrustRegulatorCopy(await getCabinetProvince(cabinetId));
   const { fideicommis, echeances, conformite, summary } = r;
   const tout = summary.nbCritiques === 0 && summary.nbAvertissements === 0;
 
@@ -83,7 +86,11 @@ export default async function SecuritePage() {
             <p className="text-sm font-medium text-red-800">
               Rapprochement {fideicommis.rapprochementEnRetard.periode} en retard ({fideicommis.rapprochementEnRetard.joursDepuisFinMois} j)
             </p>
-            <p className="text-xs text-red-600">By-Law 9 / B-1 r.5 : certification requise dans les 25 jours.</p>
+            <p className="text-xs text-red-600">
+              {copy.isQuebec
+                ? "Règlement B-1, r. 5 (Barreau du Québec) : rapprochement mensuel à trois voies à certifier."
+                : "By-Law 9, sec. 9.01 (LSO): certification required within 25 days."}
+            </p>
           </Link>
         )}
         {fideicommis.alerts.ecartRapprochement && (

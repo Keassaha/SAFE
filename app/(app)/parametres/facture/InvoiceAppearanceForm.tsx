@@ -127,6 +127,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
         tps: 227.5,
         tvq: 0,
         hst: 227.5,
+        taxRegime: "HST",
         deboursNonTaxableTotal: 0,
         montantTotal: 1977.5,
         montantPaye: 0,

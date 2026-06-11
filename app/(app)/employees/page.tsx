@@ -10,6 +10,7 @@ import {
   type EmployeeSortField,
   type EmployeeSortOrder,
 } from "@/lib/employees/query";
+import { deriveEmployeeAccess } from "@/lib/employees/access";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -105,6 +106,7 @@ export default async function EmployeesPage({
     jobTitle: e.jobTitle,
     hourlyRate: e.hourlyRate,
     status: e.status,
+    access: deriveEmployeeAccess({ userId: e.userId, status: e.status, role: e.role }),
     hireDate: e.hireDate,
     updatedAt: e.updatedAt,
   }));

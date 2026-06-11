@@ -69,13 +69,26 @@ export interface JournalEntryRow {
 }
 
 export interface JournalKpiData {
-  totalRevenus: number;
-  totalDepenses: number;
+  /** Total FACTURÉ sur la période (factures émises). N'est PAS du cash. */
+  totalFacture: number;
+  /** Total ENCAISSÉ sur la période (paiements reçus en compte d'administration). Cash entré. */
   totalEncaisse: number;
-  totalFideicommis: number;
-  soldeGlobal: number;
+  /** Dépenses + débours payés par le cabinet sur la période. Cash sorti. */
+  totalDepenses: number;
+  /** Comptes à recevoir : somme des soldes dus des factures ouvertes (point dans le temps). */
+  comptesARecevoir: number;
+  /**
+   * Solde opérationnel ESTIMÉ : cash réellement entré/sorti du compte d'administration.
+   * = encaissements + ajustements/corrections cash − dépenses − débours.
+   * EXCLUT les FACTURE (créances, pas du cash) ET le fidéicommis (argent du client).
+   */
+  soldeOperationnelEstime: number;
+  /** Solde du compte en fidéicommis (argent du client) — JAMAIS agrégé au solde du cabinet. */
+  soldeFideicommis: number;
+  /** Nombre d'écritures sur la période. */
   nbTransactionsCeMois: number;
-  totalRevenusMoisPrecedent?: number;
+  /** Comparatifs période précédente (optionnels). */
+  totalFactureMoisPrecedent?: number;
   totalDepensesMoisPrecedent?: number;
 }
 

@@ -11,6 +11,7 @@ import {
   calculateJournalBalance,
   exportJournalCsv,
 } from "@/lib/services/journal";
+import { isManualEntryTypeAllowed } from "@/lib/services/journal/manual-entry-policy";
 import type { JournalListParams, JournalKpiData } from "@/types/journal";
 import type { JournalEntryRow } from "@/types/journal";
 import type { JournalSourceModule, JournalTransactionType, UserRole } from "@prisma/client";
@@ -80,14 +81,13 @@ export async function getJournalEntriesAction(
     dateFrom?: Date | string | null;
     dateTo?: Date | string | null;
   }
-): Promise<{ entries: JournalEntryRow[]; totalCount: number; soldeGlobal: number }> {
+): Promise<{ entries: JournalEntryRow[]; totalCount: number }> {
   const cabinetId = await requireCabinetId();
   const normalized = normalizeListParams(params);
   const result = await getJournalEntries({ ...normalized, cabinetId });
   return {
     entries: result.entries,
     totalCount: result.totalCount,
-    soldeGlobal: result.soldeGlobal,
   };
 }
 
@@ -139,6 +139,18 @@ export async function createManualJournalEntryAction(
   }
 
   const parsed = manualJournalEntrySchema.parse(input);
+
+  // Saisie manuelle réservée aux AJUSTEMENTS / CORRECTIONS documentés (politique pure
+  // testée dans manual-entry-policy). Les factures, paiements, dépenses, débours et
+  // mouvements de fidéicommis DOIVENT passer par leur module métier.
+  if (!isManualEntryTypeAllowed(parsed.typeTransaction)) {
+    throw new Error(
+      "La saisie manuelle du journal est réservée aux ajustements et corrections. " +
+        "Pour une facture, un paiement, une dépense, un débours ou un mouvement de " +
+        "fidéicommis, utilisez le module dédié.",
+    );
+  }
+
   if (parsed.clientId) {
     const client = await prisma.client.findFirst({
       where: { id: parsed.clientId, cabinetId },

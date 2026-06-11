@@ -24,11 +24,13 @@ const EXPECTED = {
   monthlyPrice: 149,
   locale: "en",
   province: "ON",
+  hstNumber: "748964277RT0001",
   trustAccountLabel: "Derisier Law Trust Account",
   trustAccountBank: "To confirm",
   navTopLevelIds: ["dashboard", "gestion", "finances", "outils", "parametres"],
   hiddenNavIds: ["employees"],
   disciplines: ["immobilier", "immigration"],
+  taxonomySubjectCodes: ["RE", "LAO", "IMM", "BS", "MIS", "WE", "FA", "BU"],
   forfaitCodesMin: ["IMMO-ACHAT", "IMMO-VENTE", "IMM-EE", "IMM-PARR", "IMM-TRAV"],
 };
 
@@ -90,6 +92,32 @@ async function main() {
       "config.currentOffer.monthlyPrice = 149",
       config.currentOffer?.monthlyPrice === EXPECTED.monthlyPrice,
       `actual=${config.currentOffer?.monthlyPrice}`
+    );
+    record(
+      "config.taxNumbers.hstNumber matches Aaliyah GST/HST number",
+      config.taxNumbers?.hstNumber === EXPECTED.hstNumber,
+      `actual=${config.taxNumbers?.hstNumber}`
+    );
+    const taxonomy = config.dossierTaxonomy;
+    const subjectCodes = new Set((taxonomy?.subjects ?? []).map((subject) => subject.code));
+    const taxonomySubjectsOk = EXPECTED.taxonomySubjectCodes.every((code) => subjectCodes.has(code));
+    record(
+      "config.dossierTaxonomy has Aaliyah subject prefixes",
+      taxonomySubjectsOk,
+      `actual=[${[...subjectCodes].join(", ")}]`
+    );
+    record(
+      "config.dossierTaxonomy numbering = prefix scope / 5 digits",
+      taxonomy?.numbering?.scope === "prefix" && taxonomy?.numbering?.seqWidth === 5,
+      `actual=${taxonomy?.numbering?.scope ?? "(none)"}/${taxonomy?.numbering?.seqWidth ?? "(none)"}`
+    );
+    record(
+      "config.dossierTaxonomy submatters include IMM + RE",
+      Array.isArray(taxonomy?.submatters?.IMM) &&
+        taxonomy.submatters.IMM.length >= 20 &&
+        Array.isArray(taxonomy?.submatters?.RE) &&
+        taxonomy.submatters.RE.length >= 7,
+      `IMM=${taxonomy?.submatters?.IMM?.length ?? 0}, RE=${taxonomy?.submatters?.RE?.length ?? 0}`
     );
     record(
       "config.trustBanking present",
@@ -157,8 +185,8 @@ async function main() {
     );
 
     record(
-      "modules.facturation.principal = forfait",
-      modules?.facturation?.principal === "forfait",
+      "modules.facturation.principal = mixte",
+      modules?.facturation?.principal === "mixte",
       `actual=${modules?.facturation?.principal}`
     );
     record(

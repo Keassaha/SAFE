@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import type { PayslipStatus } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Plus } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/Alert";
+import { Plus, AlertTriangle } from "lucide-react";
 import {
   PendingHoursApproval,
   type SerializedPendingHour,
@@ -72,7 +73,7 @@ export function EmployeePayrollTab({
   const t = useTranslations("employees");
 
   return (
-    <>
+    <div className="space-y-4">
       {canGenerate && employeeId ? (
         <PendingHoursApproval
           employeeId={employeeId}
@@ -81,6 +82,15 @@ export function EmployeePayrollTab({
           hourlyRate={hourlyRate}
           locale={locale}
         />
+      ) : null}
+      {payslips.length > 0 ? (
+        <Alert variant="warning">
+          <AlertTriangle />
+          <AlertTitle>{t("payrollEstimateTitle")}</AlertTitle>
+          <AlertDescription>
+            <p>{t("payrollEstimateBody")}</p>
+          </AlertDescription>
+        </Alert>
       ) : null}
       <Card>
       <CardHeader
@@ -168,6 +178,6 @@ export function EmployeePayrollTab({
         )}
       </CardContent>
     </Card>
-    </>
+    </div>
   );
 }

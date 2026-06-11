@@ -168,7 +168,12 @@ export async function loadRapportsPayload(
     }),
   ]);
 
-  const totalInvoiced = invoices.reduce((s, i) => s + (i.totalInvoiceAmount ?? i.montantTotal ?? 0), 0);
+  // Revenu facturé HORS taxes : la TPS/TVQ/TVH est un passif à remettre, jamais du revenu.
+  const totalInvoicedHT = invoices.reduce(
+    (s, i) =>
+      s + (i.subtotalBeforeTax ?? i.subtotalTaxable ?? (i.montantTotal - (i.tps ?? 0) - (i.tvq ?? 0))),
+    0
+  );
   const totalRabais = invoices.reduce((sum, invoice) => {
     const invoiceRabais = invoice.invoiceLines.reduce((lineSum, line) => {
       const amount = line.lineSubtotal ?? line.montant ?? 0;
@@ -204,7 +209,9 @@ export async function loadRapportsPayload(
   for (const i of invoices) {
     const d = new Date(i.dateEmission);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    byMonth[key] = (byMonth[key] ?? 0) + (i.totalInvoiceAmount ?? i.montantTotal ?? 0);
+    byMonth[key] =
+      (byMonth[key] ?? 0) +
+      (i.subtotalBeforeTax ?? i.subtotalTaxable ?? (i.montantTotal - (i.tps ?? 0) - (i.tvq ?? 0)));
   }
   const months: { monthKey: string; label: string; value: number }[] = [];
   const start = new Date(dateDebut);
@@ -385,7 +392,7 @@ export async function loadRapportsPayload(
       statut,
     },
     kpis: {
-      revenusFactures: totalInvoiced,
+      revenusFactures: totalInvoicedHT,
       rabaisAccordes: totalRabais,
       paiementsRecus: totalPaid,
       facturesImpayees: facturesImpayees,
@@ -402,7 +409,7 @@ export async function loadRapportsPayload(
     taxes,
     deboursRows,
     annuelImpots: {
-      totalRevenus: totalInvoiced,
+      totalRevenus: totalInvoicedHT,
       totalTPS,
       totalTVQ,
       totalPaiements: totalPaid,

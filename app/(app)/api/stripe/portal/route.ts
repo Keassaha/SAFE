@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
+import type { UserRole } from "@prisma/client";
 import { getStripe, appBaseUrl } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canManageCabinetSettings } from "@/lib/auth/permissions";
 
 export async function POST() {
   try {
-    let sessionData: { cabinetId: string };
+    let sessionData: { cabinetId: string; role: string };
     try {
       sessionData = await requireCabinetAndUser();
     } catch {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    // P0 sécurité : le portail de facturation Stripe (changer la carte, annuler
+    // l'abonnement) est une action de gestion du cabinet, réservée à l'admin.
+    if (!canManageCabinetSettings(sessionData.role as UserRole)) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
     const cabinet = await prisma.cabinet.findUnique({

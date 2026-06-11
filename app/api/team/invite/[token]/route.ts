@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { createAuditLog } from "@/lib/services/audit";
 
 // GET — valide le token et retourne les infos de l'invitation
 export async function GET(
@@ -24,11 +25,13 @@ export async function GET(
     return NextResponse.json({ error: "Cette invitation a expiré." }, { status: 410 });
   }
 
+  // SÉCURITÉ : ne JAMAIS exposer la compensation (taux horaire, facturable) dans
+  // cette réponse publique gardée par le seul token. Le serveur l'utilise côté POST
+  // pour créer le compte ; le porteur du lien n'a aucune raison de la voir.
   return NextResponse.json({
     email: invitation.email,
     role: invitation.role,
     cabinetNom: invitation.cabinet.nom,
-    compensation: invitation.compensation ? JSON.parse(invitation.compensation) : null,
   });
 }
 
@@ -74,6 +77,24 @@ export async function POST(
   await prisma.invitation.update({
     where: { token },
     data: { acceptedAt: new Date() },
+  });
+
+  // P4/Sécurité — traçabilité : compte créé par acceptation d'invitation.
+  await createAuditLog({
+    cabinetId: invitation.cabinetId,
+    userId: user.id,
+    entityType: "User",
+    entityId: user.id,
+    action: "create",
+    metadata: { via: "invitation", invitationId: invitation.id, role: invitation.role },
+  });
+  await createAuditLog({
+    cabinetId: invitation.cabinetId,
+    userId: user.id,
+    entityType: "Invitation",
+    entityId: invitation.id,
+    action: "update",
+    metadata: { accepted: true },
   });
 
   return NextResponse.json({ userId: user.id, cabinetNom: invitation.cabinet.nom }, { status: 201 });

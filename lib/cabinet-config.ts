@@ -77,6 +77,8 @@ export type CabinetConfig = {
   devise?: string;
   tauxInteret?: number;
   formatFacture?: string;
+  /** Province du cabinet (ex. "QC", "ON") — pilote la réglementation citée. */
+  province?: string;
   envoiFactureClient?: EnvoiFactureClientConfig;
   taxNumbers?: CabinetTaxNumbers;
   invoice?: CabinetInvoiceConfig;

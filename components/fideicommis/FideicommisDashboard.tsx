@@ -11,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
 import { Scale, FileText, ShieldAlert, Sparkles } from "lucide-react";
+import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 interface ClientOption {
   id: string;
@@ -40,6 +42,7 @@ export function FideicommisDashboard({
   seuilBas = 500,
 }: FideicommisDashboardProps) {
   const tf = useTranslations("fideicommis");
+  const copy = getTrustRegulatorCopy(useCabinetProvince());
 
   return (
     <div className="space-y-6">
@@ -57,13 +60,13 @@ export function FideicommisDashboard({
         <Link href="/comptes/rapprochement">
           <Button variant="secondary">
             <Scale className="w-4 h-4" />
-            Reconciliation
+            {copy.reconciliationButton}
           </Button>
         </Link>
         <Link href="/comptes/rapports">
           <Button variant="secondary">
             <FileText className="w-4 h-4" />
-            Compliance Reports
+            {copy.complianceReportsButton}
           </Button>
         </Link>
         <Link href={routes.securite}>

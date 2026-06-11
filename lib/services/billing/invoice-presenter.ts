@@ -38,7 +38,7 @@ import {
   type CabinetInvoiceTemplate,
 } from "@/lib/cabinet-config";
 import { toDisplayTaxes } from "@/lib/billing/taxes";
-import type { CabinetTaxConfig } from "@/lib/billing/types";
+import type { CabinetTaxConfig, TaxMode } from "@/lib/billing/types";
 
 /**
  * Lit les numéros de taxes du cabinet depuis le JSON `Cabinet.config`.
@@ -179,6 +179,12 @@ export interface PresentedInvoice {
     tvq: number;
     /** TVH (Ontario/Atlantique). > 0 → le gabarit affiche « TVH » au lieu de TPS/TVQ. */
     hst: number;
+    /**
+     * Régime de taxe du CABINET (pilote l'affichage TPS/TVQ vs TVH). Dérivé du
+     * mode de taxe du cabinet, JAMAIS de la province du client : une facture
+     * d'un cabinet QC reste en TPS/TVQ même pour un client domicilié hors-QC.
+     */
+    taxRegime: "HST" | "GST_QST" | "GST_ONLY";
     deboursNonTaxableTotal: number;
     montantTotal: number;
     montantPaye: number;
@@ -278,6 +284,31 @@ function buildRabaisDescription(reason: string | null | undefined, fallback: str
 }
 
 /**
+ * Régime de taxe à AFFICHER, dérivé du mode de taxe du CABINET (jamais de la
+ * province du client). Repli sur l'inférence par montants si le mode est absent.
+ */
+function resolveTaxRegime(
+  mode: TaxMode | undefined,
+  display: { tps: number; tvq: number; hst: number },
+): "HST" | "GST_QST" | "GST_ONLY" {
+  switch (mode) {
+    case "hst":
+      return "HST";
+    case "tps_tvq":
+      return "GST_QST";
+    case "tps_only":
+    case "tps_pst":
+    case "tps_rst":
+    case "none":
+      return "GST_ONLY";
+    default:
+      if (display.hst > 0) return "HST";
+      if (display.tvq > 0) return "GST_QST";
+      return "GST_ONLY";
+  }
+}
+
+/**
  * Construit le modèle de présentation canonique à partir des données Prisma brutes.
  */
 export function presentInvoice(
@@ -295,6 +326,7 @@ export function presentInvoice(
     invoice.tvq ?? 0,
     taxConfig?.mode ?? "tps_tvq",
   );
+  const taxRegime = resolveTaxRegime(taxConfig?.mode, displayTaxes);
 
   // 1. Lignes canoniques venant de InvoiceLine.
   const linesFromInvoiceLine: PresentedLine[] = (invoice.invoiceLines ?? [])
@@ -423,6 +455,7 @@ export function presentInvoice(
       tps: displayTaxes.tps,
       tvq: displayTaxes.tvq,
       hst: displayTaxes.hst,
+      taxRegime,
       deboursNonTaxableTotal: invoice.deboursNonTaxableTotal ?? 0,
       montantTotal: invoice.montantTotal ?? 0,
       montantPaye: invoice.montantPaye ?? 0,

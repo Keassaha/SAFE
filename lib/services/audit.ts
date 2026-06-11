@@ -18,7 +18,12 @@ export type AuditEntityType =
   | "TrustAccount"
   | "TrustTransaction"
   | "DossierNavetteMessage"
-  | "EmployeeHoursEntry";
+  | "EmployeeHoursEntry"
+  // P4 — actions RH / paie (entityType est une colonne String : aucune migration).
+  | "Employee"
+  | "User"
+  | "Invitation"
+  | "Payslip";
 
 export type AuditAction = "create" | "update" | "delete" | "view" | "view_sensitive" | "download";
 

@@ -143,13 +143,28 @@ export function canRecordPayments(role: UserRole): boolean {
   return ["admin_cabinet", "comptabilite"].includes(role);
 }
 
+/**
+ * Voir les rapports financiers (revenus, rentabilité par avocat et par dossier,
+ * taxes, solde fidéicommis). Ouvert aux quatre rôles du cabinet (décision CEO :
+ * l'assistante suit la facturation et les créances). Ce n'est PLUS un blanc-seing
+ * `return true` : un rôle inconnu ou futur non listé est refusé, et la page le
+ * revérifie côté serveur (garde `requirePageAccess`).
+ */
 export function canViewReports(role: UserRole): boolean {
-  return true;
+  return ["admin_cabinet", "avocat", "assistante", "comptabilite"].includes(role);
 }
 
 /** Journal des dépenses (import relevé, catégorisation, validation). */
 export function canManageExpenseJournal(role: UserRole): boolean {
   return ["admin_cabinet", "comptabilite", "assistante"].includes(role);
+}
+
+/**
+ * Accès au module Comptabilité (journal général, dépenses, paiements).
+ * Identique au prédicat de navigation, pour que page et menu restent cohérents.
+ */
+export function canViewComptabilite(role: UserRole): boolean {
+  return canManageExpenseJournal(role) || canManageInvoices(role);
 }
 
 // --- Module A: Documents ---

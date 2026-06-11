@@ -17,7 +17,7 @@ import {
 import type { JournalKpiData, JournalEntryRow } from "@/types/journal";
 import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
 import type { JournalTransactionType } from "@prisma/client";
-import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Activity, Plus } from "lucide-react";
+import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, Plus } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ManualJournalContext } from "./actions";
@@ -55,14 +55,13 @@ export function GeneralJournalPageView({
   const [page, setPage] = useState(1);
   const [entries, setEntries] = useState<JournalEntryRow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [soldeGlobal, setSoldeGlobal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [manualModalOpen, setManualModalOpen] = useState(false);
   const [manualSubmitting, setManualSubmitting] = useState(false);
   const [manualError, setManualError] = useState<string | null>(null);
   const [manualContext, setManualContext] = useState<ManualJournalContext | null>(null);
-  const [manualType, setManualType] = useState<JournalTransactionType>("FACTURE");
+  const [manualType, setManualType] = useState<JournalTransactionType>("AJUSTEMENT");
   const [manualClientId, setManualClientId] = useState("");
 
   const loadEntries = useCallback(async () => {
@@ -80,7 +79,6 @@ export function GeneralJournalPageView({
       });
       setEntries(result.entries);
       setTotalCount(result.totalCount);
-      setSoldeGlobal(result.soldeGlobal);
     } finally {
       setLoading(false);
     }
@@ -207,41 +205,9 @@ export function GeneralJournalPageView({
         maxWidth="max-w-2xl"
       >
         <form key={manualType} onSubmit={handleManualSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              type="button"
-              onClick={() => setManualType("FACTURE")}
-              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
-                manualType === "FACTURE"
-                  ? "border-forest-700 bg-forest-50 text-forest-900"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              {t("invoiceSent")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setManualType("PAIEMENT")}
-              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
-                manualType === "PAIEMENT"
-                  ? "border-forest-700 bg-forest-50 text-forest-900"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              {t("paymentReceived")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setManualType("DEPENSE")}
-              className={`h-10 rounded-md border text-sm font-medium transition-colors ${
-                manualType === "DEPENSE"
-                  ? "border-forest-700 bg-forest-50 text-forest-900"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              {t("expense")}
-            </button>
-          </div>
+          <p className="text-[13px] leading-relaxed text-slate-600 bg-slate-50 border border-slate-200 rounded-md px-3 py-2.5">
+            {t("manualEntryRestrictionHint")}
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -262,11 +228,13 @@ export function GeneralJournalPageView({
                 onChange={(e) => setManualType(e.target.value as JournalTransactionType)}
                 className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
               >
-                {Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
+                {Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS)
+                  .filter(([value]) => value === "AJUSTEMENT" || value === "CORRECTION")
+                  .map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -383,17 +351,24 @@ export function GeneralJournalPageView({
         animate="visible"
       >
         <ComptaKpiCard
-          label={t("kpiGlobalBalance")}
-          value={soldeGlobal}
+          label={t("kpiOperatingBalance")}
+          value={kpis.soldeOperationnelEstime}
           format="currency"
           icon={Scale}
-          semantic={soldeGlobal >= 0 ? "credit" : "debit"}
+          semantic={kpis.soldeOperationnelEstime >= 0 ? "credit" : "debit"}
         />
         <ComptaKpiCard
-          label={t("kpiRevenueThisMonth")}
-          value={kpis.totalRevenus}
+          label={t("kpiBilledThisMonth")}
+          value={kpis.totalFacture}
           format="currency"
           icon={TrendingUp}
+          semantic="credit"
+        />
+        <ComptaKpiCard
+          label={t("kpiCollectedThisMonth")}
+          value={kpis.totalEncaisse}
+          format="currency"
+          icon={Wallet}
           semantic="credit"
         />
         <ComptaKpiCard
@@ -404,10 +379,17 @@ export function GeneralJournalPageView({
           semantic="debit"
         />
         <ComptaKpiCard
-          label={t("kpiTransactionsThisMonth")}
-          value={kpis.nbTransactionsCeMois}
-          format="integer"
-          icon={Activity}
+          label={t("kpiAccountsReceivable")}
+          value={kpis.comptesARecevoir}
+          format="currency"
+          icon={FileClock}
+          semantic="neutral"
+        />
+        <ComptaKpiCard
+          label={t("kpiTrustBalance")}
+          value={kpis.soldeFideicommis}
+          format="currency"
+          icon={Landmark}
           semantic="neutral"
         />
       </motion.div>
@@ -529,15 +511,12 @@ export function GeneralJournalPageView({
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
                       {t("moneyOut")}
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
-                      {t("balance")}
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {entries.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="py-16 text-center">
+                      <td colSpan={8} className="py-16 text-center">
                         <div className="flex flex-col items-center justify-center">
                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
                             <BookOpen className="w-8 h-8 text-slate-500" />
@@ -576,9 +555,6 @@ export function GeneralJournalPageView({
                         </td>
                         <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-red-600">
                           {e.montantSortie > 0 ? formatCurrency(e.montantSortie) : "—"}
-                        </td>
-                        <td className={`px-4 py-3 text-[14px] text-right font-mono tabular-nums font-medium ${e.solde >= 0 ? "text-forest-700" : "text-red-600"}`}>
-                          {formatCurrency(e.solde)}
                         </td>
                       </tr>
                     ))

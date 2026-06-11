@@ -14,6 +14,8 @@ import {
   Clock,
   ExternalLink,
 } from "lucide-react";
+import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 interface ComplianceStatus {
   score: number;
@@ -42,6 +44,7 @@ interface ComplianceStatus {
 }
 
 export function ComplianceDashboard() {
+  const copy = getTrustRegulatorCopy(useCabinetProvince());
   const { data, isLoading } = useQuery({
     queryKey: ["compliance-status"],
     queryFn: async () => {
@@ -154,7 +157,7 @@ export function ComplianceDashboard() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <Scale className="w-4 h-4 text-blue-600" />
-                <h4 className="text-sm font-semibold">Trust Reconciliation</h4>
+                <h4 className="text-sm font-semibold">{copy.trustReconciliationTitle}</h4>
               </div>
               <StatusBadge
                 label={
@@ -264,13 +267,13 @@ export function ComplianceDashboard() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-blue-600" />
-                <h4 className="text-sm font-semibold">LSO Reports</h4>
+                <h4 className="text-sm font-semibold">{copy.complianceReportsButton}</h4>
               </div>
               <p className="text-sm text-neutral-500">
-                Generate By-Law 9 compliance reports
+                {copy.reportGeneratorDesc}
               </p>
               <span className="text-xs text-primary-600 flex items-center gap-1">
-                View Reports <ExternalLink className="w-3 h-3" />
+                {copy.isQuebec ? "Voir les rapports" : "View Reports"} <ExternalLink className="w-3 h-3" />
               </span>
             </CardContent>
           </Card>

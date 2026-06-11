@@ -396,7 +396,10 @@ export async function createTrustCorrection(params: CreateTrustCorrectionParams)
         description: description ?? `Correction fidéicommis — ${montant > 0 ? "+" : ""}${montant.toFixed(2)} $`,
         montantEntree: montant > 0 ? montant : 0,
         montantSortie: montant < 0 ? Math.abs(montant) : 0,
-        sourceModule: "CORRECTION_SYSTEME",
+        // Une correction de fidéicommis corrige de l'argent CLIENT : on l'attribue au
+        // module FIDEICOMMIS (et non CORRECTION_SYSTEME) pour qu'elle ajuste le solde
+        // fidéicommis et JAMAIS le solde opérationnel du cabinet (cf. computeJournalKpis).
+        sourceModule: "FIDEICOMMIS",
         sourceId: created.id,
         utilisateurId: createdById ?? null,
       },

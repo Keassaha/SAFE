@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import Link from "next/link";
+import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 interface ReconciliationStatus {
   expectedPeriode: string;
@@ -14,6 +16,7 @@ interface ReconciliationStatus {
 }
 
 export function ReconciliationAlert() {
+  const copy = getTrustRegulatorCopy(useCabinetProvince());
   const { data, isLoading } = useQuery({
     queryKey: ["reconciliation", "status"],
     queryFn: async () => {
@@ -33,10 +36,12 @@ export function ReconciliationAlert() {
           <CheckCircle className="w-5 h-5 text-green-600 shrink-0" aria-hidden />
           <div className="flex-1">
             <p className="text-sm font-medium text-green-800">
-              Trust reconciliation up to date
+              {copy.alertUpToDate}
             </p>
             <p className="text-xs text-green-600">
-              Period {data.lastCertifiedPeriode} certified
+              {copy.isQuebec
+                ? `Période ${data.lastCertifiedPeriode} certifiée`
+                : `Period ${data.lastCertifiedPeriode} certified`}
             </p>
           </div>
         </CardContent>
@@ -53,10 +58,10 @@ export function ReconciliationAlert() {
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" aria-hidden />
             <div className="flex-1">
               <p className="text-sm font-medium text-red-800">
-                Trust reconciliation overdue — {data.daysSinceMonthEnd} days since month-end
+                {copy.alertOverdueCritical(data.daysSinceMonthEnd)}
               </p>
               <p className="text-xs text-red-600">
-                By-Law 9 requires reconciliation within 25 days. Period {data.expectedPeriode} not certified.
+                {copy.alertOverdueCriticalDetail(data.expectedPeriode)}
               </p>
             </div>
           </CardContent>
@@ -74,10 +79,10 @@ export function ReconciliationAlert() {
             <Clock className="w-5 h-5 text-amber-600 shrink-0" aria-hidden />
             <div className="flex-1">
               <p className="text-sm font-medium text-amber-800">
-                Trust reconciliation due — {25 - data.daysSinceMonthEnd} days remaining
+                {copy.alertDue(25 - data.daysSinceMonthEnd)}
               </p>
               <p className="text-xs text-amber-600">
-                Period {data.expectedPeriode} needs to be reconciled and certified.
+                {copy.alertDueDetail(data.expectedPeriode)}
               </p>
             </div>
           </CardContent>
@@ -94,10 +99,10 @@ export function ReconciliationAlert() {
           <Clock className="w-5 h-5 text-blue-600 shrink-0" aria-hidden />
           <div className="flex-1">
             <p className="text-sm font-medium text-blue-800">
-              Trust reconciliation pending for {data.expectedPeriode}
+              {copy.alertPending(data.expectedPeriode)}
             </p>
             <p className="text-xs text-blue-600">
-              {25 - data.daysSinceMonthEnd} days until By-Law 9 deadline.
+              {copy.alertPendingDetail(25 - data.daysSinceMonthEnd)}
             </p>
           </div>
         </CardContent>

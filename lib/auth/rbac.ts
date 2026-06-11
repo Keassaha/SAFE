@@ -103,7 +103,11 @@ export const ROLE_MODULE_PERMISSIONS: Record<EmployeeRole, Record<RBACModule, RB
     ...modulesWith(VIEW_ONLY, "trust_accounting"),
     ...modulesWith(VIEW_CREATE_EDIT, "expenses", "journal"),
     ...modulesWith(VIEW_EXPORT, "reports"),
-    ...modulesWith(VIEW_CREATE_EDIT, "employees"),
+    // P3 — correctif sécurité : la comptabilité n'a AUCUN accès aux employés
+    // (cf. matrice cible §6.1 ; corrige l'effet de bord historique rbac.ts:106 où
+    // un compte comptabilité pouvait créer / modifier / supprimer des employés et
+    // lancer la paie via les helpers canEditEmployees délégués à cette matrice).
+    employees: [],
     settings: VIEW_ONLY,
   } as Record<RBACModule, RBACAction[]>,
 

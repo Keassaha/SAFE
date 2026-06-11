@@ -7,9 +7,11 @@ import {
 import type { UserRole } from "@prisma/client";
 import { LSOReportGenerator } from "@/components/fideicommis/LSOReportGenerator";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getCabinetProvince } from "@/lib/cabinet/get-province";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 export default async function TrustReportsPage() {
-  const { role } = await requireCabinetAndUser();
+  const { cabinetId, role } = await requireCabinetAndUser();
   const userRole = role as UserRole;
   if (!canViewBillingTrust(userRole)) {
     return (
@@ -19,13 +21,15 @@ export default async function TrustReportsPage() {
     );
   }
 
+  const copy = getTrustRegulatorCopy(await getCabinetProvince(cabinetId));
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Trust Compliance Reports"
-        description="Generate LSO By-Law 9 compliance reports for spot audit readiness. Includes transaction journal, 3-way reconciliation, and LFO interest summary."
+        title={copy.trustReportsTitle}
+        description={copy.trustReportsDesc}
         backHref="/comptes"
-        backLabel="Back to Trust Accounts"
+        backLabel={copy.backToTrustAccounts}
       />
       <LSOReportGenerator
         canGenerate={canEditBillingTrust(userRole)}

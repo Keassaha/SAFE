@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/Input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency } from "@/lib/utils/format";
 import { CheckCircle, AlertTriangle, Shield } from "lucide-react";
+import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
+import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
 interface Reconciliation {
   id: string;
@@ -42,6 +44,7 @@ interface ReconciliationResponse {
 
 export function ReconciliationWorkflow() {
   const queryClient = useQueryClient();
+  const copy = getTrustRegulatorCopy(useCabinetProvince());
 
   const { data, isLoading } = useQuery({
     queryKey: ["reconciliation", "list"],
@@ -152,7 +155,15 @@ export function ReconciliationWorkflow() {
             )}
             <div>
               <p className="text-sm font-medium">
-                {data.status.critical
+                {copy.isQuebec
+                  ? data.status.critical
+                    ? `EN RETARD : ${data.status.daysSinceMonthEnd} jours depuis la fin du mois`
+                    : data.status.overdue
+                    ? `À faire : période ${data.status.expectedPeriode}`
+                    : data.status.lastCertifiedPeriode === data.status.expectedPeriode
+                    ? `Période ${data.status.expectedPeriode} certifiée`
+                    : `Période ${data.status.expectedPeriode} à rapprocher`
+                  : data.status.critical
                   ? `OVERDUE: ${data.status.daysSinceMonthEnd} days since month-end (By-Law 9 limit: 25 days)`
                   : data.status.overdue
                   ? `Due soon: ${25 - data.status.daysSinceMonthEnd} days remaining`
@@ -163,7 +174,7 @@ export function ReconciliationWorkflow() {
               </p>
               {data.status.lastCertifiedPeriode && (
                 <p className="text-xs opacity-75">
-                  Last certified: {data.status.lastCertifiedPeriode}
+                  {copy.isQuebec ? "Dernière certifiée" : "Last certified"}: {data.status.lastCertifiedPeriode}
                 </p>
               )}
             </div>
@@ -175,23 +186,22 @@ export function ReconciliationWorkflow() {
       <Card>
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-4">
-            3-Way Trust Reconciliation — {currentPeriode || "New Period"}
+            {copy.reconciliationHeading} — {currentPeriode || copy.reconcileNewPeriod}
           </h3>
           <p className="text-sm text-neutral-500 mb-6">
-            Enter your bank statement balance and outstanding items. SAFE calculates the
-            register balance automatically from recorded transactions.
+            {copy.reconcileFormIntro}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="Period (YYYY-MM)"
+                label={copy.reconcileFieldPeriod}
                 value={formData.periode || currentPeriode}
                 onChange={(e) => setFormData({ ...formData, periode: e.target.value })}
                 placeholder="2026-04"
               />
               <Input
-                label="Bank Statement Balance ($)"
+                label={copy.reconcileFieldBankStatementBalance}
                 type="number"
                 step="0.01"
                 value={formData.soldeBancaire}
@@ -199,7 +209,7 @@ export function ReconciliationWorkflow() {
                 placeholder="0.00"
               />
               <Input
-                label="Outstanding Cheques ($)"
+                label={copy.reconcileFieldOutstandingCheques}
                 type="number"
                 step="0.01"
                 value={formData.chequesEnCirculation}
@@ -207,7 +217,7 @@ export function ReconciliationWorkflow() {
                 placeholder="0.00"
               />
               <Input
-                label="Deposits in Transit ($)"
+                label={copy.reconcileFieldDepositsInTransit}
                 type="number"
                 step="0.01"
                 value={formData.depotsEnTransit}
@@ -215,7 +225,7 @@ export function ReconciliationWorkflow() {
                 placeholder="0.00"
               />
               <Input
-                label="LFO Interest Payable ($)"
+                label={copy.reconcileFieldFoundationInterestPayable}
                 type="number"
                 step="0.01"
                 value={formData.interetsLFO}
@@ -225,17 +235,17 @@ export function ReconciliationWorkflow() {
             </div>
             <div>
               <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                Notes
+                {copy.reconcileFieldNotes}
               </label>
               <textarea
                 className="w-full h-20 px-3 py-2 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Optional notes for this reconciliation..."
+                placeholder={copy.reconcileNotesPlaceholder}
               />
             </div>
             <Button type="submit" variant="primary" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Calculating..." : "Calculate Reconciliation"}
+              {createMutation.isPending ? copy.reconcileCalculating : copy.reconcileCalculate}
             </Button>
             {createMutation.isError && (
               <p className="text-sm text-status-error">
@@ -252,7 +262,7 @@ export function ReconciliationWorkflow() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">
-                Reconciliation Result — {existingForPeriod.periode}
+                {copy.reconcileResult} — {existingForPeriod.periode}
               </h3>
               <StatusBadge
                 label={existingForPeriod.status}
@@ -265,23 +275,23 @@ export function ReconciliationWorkflow() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="p-4 rounded-safe bg-blue-50 border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium mb-1">Bank (Reconciled)</p>
+                <p className="text-xs text-blue-600 font-medium mb-1">{copy.reconcileBankReconciled}</p>
                 <p className="text-lg font-semibold tabular-nums">
                   {formatCurrency(existingForPeriod.soldeRapproche)}
                 </p>
                 <p className="text-xs text-blue-500 mt-1">
-                  Bank: {formatCurrency(existingForPeriod.soldeBancaire)}
-                  {existingForPeriod.chequesEnCirculation > 0 && ` − Cheques: ${formatCurrency(existingForPeriod.chequesEnCirculation)}`}
-                  {existingForPeriod.depotsEnTransit > 0 && ` + Transit: ${formatCurrency(existingForPeriod.depotsEnTransit)}`}
+                  {copy.reconcileBankLabel} {formatCurrency(existingForPeriod.soldeBancaire)}
+                  {existingForPeriod.chequesEnCirculation > 0 && `${copy.reconcileChequesLabel}${formatCurrency(existingForPeriod.chequesEnCirculation)}`}
+                  {existingForPeriod.depotsEnTransit > 0 && `${copy.reconcileTransitLabel}${formatCurrency(existingForPeriod.depotsEnTransit)}`}
                 </p>
               </div>
               <div className="p-4 rounded-safe bg-green-50 border border-green-200">
-                <p className="text-xs text-green-600 font-medium mb-1">SAFE Register</p>
+                <p className="text-xs text-green-600 font-medium mb-1">{copy.reconcileSafeRegister}</p>
                 <p className="text-lg font-semibold tabular-nums">
                   {formatCurrency(existingForPeriod.soldeRegistre)}
                 </p>
                 <p className="text-xs text-green-500 mt-1">
-                  Sum of all recorded transactions
+                  {copy.reconcileSafeRegisterDesc}
                 </p>
               </div>
               <div className={`p-4 rounded-safe border ${
@@ -292,7 +302,7 @@ export function ReconciliationWorkflow() {
                 <p className={`text-xs font-medium mb-1 ${
                   existingForPeriod.ecart === 0 ? "text-green-600" : "text-red-600"
                 }`}>
-                  Discrepancy
+                  {copy.reconcileDiscrepancy}
                 </p>
                 <p className={`text-lg font-semibold tabular-nums ${
                   existingForPeriod.ecart === 0 ? "text-green-700" : "text-red-700"
@@ -302,15 +312,15 @@ export function ReconciliationWorkflow() {
                 <p className={`text-xs mt-1 ${
                   existingForPeriod.ecart === 0 ? "text-green-500" : "text-red-500"
                 }`}>
-                  {existingForPeriod.ecart === 0 ? "Balanced — ready to certify" : "Must be $0.00 to certify"}
+                  {existingForPeriod.ecart === 0 ? copy.reconcileBalancedReady : copy.reconcileMustBeZero}
                 </p>
               </div>
             </div>
 
             {existingForPeriod.interetsLFO > 0 && (
               <p className="text-sm text-neutral-500 mb-4">
-                LFO Interest: {formatCurrency(existingForPeriod.interetsLFO)}
-                {existingForPeriod.interetsPayesAt ? " (paid)" : " (pending)"}
+                {copy.reconcileFoundationInterestInline} {formatCurrency(existingForPeriod.interetsLFO)}
+                {existingForPeriod.interetsPayesAt ? copy.reconcilePaidSuffix : copy.reconcilePendingSuffix}
               </p>
             )}
 
@@ -323,10 +333,12 @@ export function ReconciliationWorkflow() {
                   disabled={certifyMutation.isPending}
                 >
                   <CheckCircle className="w-4 h-4" />
-                  {certifyMutation.isPending ? "Certifying..." : "Certify Reconciliation"}
+                  {certifyMutation.isPending
+                    ? copy.isQuebec ? "Certification..." : "Certifying..."
+                    : copy.isQuebec ? "Certifier le rapprochement" : "Certify Reconciliation"}
                 </Button>
                 <p className="text-xs text-neutral-500">
-                  I certify that this 3-way reconciliation is accurate per By-Law 9, LSO.
+                  {copy.certificationStatement}
                 </p>
               </div>
             )}
@@ -334,10 +346,12 @@ export function ReconciliationWorkflow() {
             {existingForPeriod.status === "certified" && existingForPeriod.certifiedBy && (
               <div className="flex items-center gap-2 pt-4 border-t text-sm text-green-700">
                 <CheckCircle className="w-4 h-4" />
-                Certified by {existingForPeriod.certifiedBy.nom} on{" "}
-                {existingForPeriod.certifiedAt
-                  ? new Date(existingForPeriod.certifiedAt).toLocaleDateString("en-CA")
-                  : ""}
+                {copy.reconcileCertifiedBy(
+                  existingForPeriod.certifiedBy.nom,
+                  existingForPeriod.certifiedAt
+                    ? new Date(existingForPeriod.certifiedAt).toLocaleDateString("en-CA")
+                    : ""
+                )}
               </div>
             )}
 
@@ -354,17 +368,17 @@ export function ReconciliationWorkflow() {
       {data?.reconciliations && data.reconciliations.length > 0 && (
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Reconciliation History</h3>
+            <h3 className="text-lg font-semibold mb-4">{copy.reconcileHistoryTitle}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left">
-                    <th className="pb-2 font-medium">Period</th>
-                    <th className="pb-2 font-medium">Bank</th>
-                    <th className="pb-2 font-medium">Register</th>
-                    <th className="pb-2 font-medium">Discrepancy</th>
-                    <th className="pb-2 font-medium">Status</th>
-                    <th className="pb-2 font-medium">Certified By</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColPeriod}</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColBank}</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColRegister}</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColDiscrepancy}</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColStatus}</th>
+                    <th className="pb-2 font-medium">{copy.reconcileColCertifiedBy}</th>
                   </tr>
                 </thead>
                 <tbody>

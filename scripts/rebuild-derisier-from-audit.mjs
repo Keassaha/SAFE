@@ -66,6 +66,69 @@ const DERISIER_IDS = [
 const ADMIN_PASSWORD = process.env.DERISIER_ADMIN_PASSWORD || "DerisierLaw2026!";
 const ASSISTANT_PASSWORD = process.env.DERISIER_ASSISTANT_PASSWORD || "Assistant2026!";
 
+const DERISIER_DOSSIER_TAXONOMY = {
+  numbering: { seqWidth: 5, scope: "prefix" },
+  subjects: [
+    { code: "RE", prefix: "RE", labelEn: "Real Estate", labelFr: "Immobilier" },
+    { code: "LAO", prefix: "LAO", labelEn: "Legal Aid Ontario", labelFr: "Aide juridique Ontario" },
+    { code: "IMM", prefix: "IMM", labelEn: "Immigration", labelFr: "Immigration" },
+    { code: "BS", prefix: "BS", labelEn: "Brief Service", labelFr: "Service ponctuel" },
+    { code: "MIS", prefix: "MIS", labelEn: "Miscellaneous", labelFr: "Divers" },
+    { code: "WE", prefix: "WE", labelEn: "Wills & Estates", labelFr: "Testaments & successions" },
+    { code: "FA", prefix: "FA", labelEn: "Family", labelFr: "Famille" },
+    { code: "BU", prefix: "BU", labelEn: "Business", labelFr: "Affaires" },
+    { code: "AS", prefix: "AS", labelEn: "Other Services", labelFr: "Autres services" },
+  ],
+  submatters: {
+    IMM: [
+      { labelEn: "Humanitarian Application", labelFr: "Demande humanitaire" },
+      { labelEn: "Sponsorship", labelFr: "Parrainage" },
+      { labelEn: "Work Permit", labelFr: "Permis de travail" },
+      { labelEn: "Visitor Visa", labelFr: "Permis de séjour" },
+      { labelEn: "Study Permit", labelFr: "Permis d'étude" },
+      { labelEn: "Immigration Appeals", labelFr: "Demande d'appel" },
+      { labelEn: "Express Entry", labelFr: "Entrée express" },
+      { labelEn: "Provincial Nominee", labelFr: "Programmes provinciaux" },
+      { labelEn: "PR Pilot Projects", labelFr: "PR Pilot Projects" },
+      { labelEn: "Refugee Claim Forms", labelFr: "Refugee Claim Forms" },
+      { labelEn: "Refugee Claim Representation", labelFr: "Refugee Claim Representation" },
+      { labelEn: "Invitation Letter", labelFr: "Lettre d'invitation" },
+      { labelEn: "Student Support Affidavit", labelFr: "Déclaration solennelle pour étudiant" },
+      { labelEn: "Complex Affidavits", labelFr: "Déclaration solennelle complexe" },
+      { labelEn: "Submission letter response to immigration without follow-up", labelFr: "Réponse de soumission à l'immigration sans suivi" },
+      { labelEn: "Submission letter response to immigration with follow-up", labelFr: "Réponse de soumission à l'immigration avec suivi" },
+      { labelEn: "Temporary Resident Permit", labelFr: "Permis de séjour temporaire" },
+      { labelEn: "Citizenship Application", labelFr: "Demande de citoyenneté" },
+      { labelEn: "Humanitarian Sponsorship", labelFr: "Parrainage humanitaire" },
+      { labelEn: "US Waiver", labelFr: "US Waiver" },
+      { labelEn: "Procuration / Proxy", labelFr: "Procuration" },
+      { labelEn: "Travel Documents / Declaration in Lieu of Guarantor", labelFr: "Documents de voyage / Déclaration tenant lieu de répondant" },
+      { labelEn: "Travel Documents / Declaration in Lieu of Guarantor (1 form)", labelFr: "Documents de voyage / Déclaration tenant lieu de répondant (1 formulaire)" },
+      { labelEn: "Travel Documents / Application and Declaration in Lieu of Guarantor (Respondent)", labelFr: "Documents de voyage / Demande et déclaration tenant lieu de répondant" },
+      { labelEn: "Consultation", labelFr: "Consultation" },
+    ],
+    RE: [
+      { labelEn: "Purchase Residential", labelFr: "Achat résidentiel" },
+      { labelEn: "Purchase Commercial", labelFr: "Achat commercial" },
+      { labelEn: "Sale", labelFr: "Vente" },
+      { labelEn: "Sale Commercial", labelFr: "Vente commerciale" },
+      { labelEn: "Condo Certificate Consultation", labelFr: "Consultation certificat de copropriété" },
+      { labelEn: "Refinance", labelFr: "Refinancement" },
+      { labelEn: "Express Closing", labelFr: "Fermeture expresse" },
+    ],
+    AS: [
+      { labelEn: "Notarization", labelFr: "Document notarié" },
+      { labelEn: "Cease and Desist Letters", labelFr: "Lettres de cessation et d'abstention" },
+      { labelEn: "Demand Letters", labelFr: "Mise en demeure" },
+      { labelEn: "Incorporation", labelFr: "Incorporation" },
+      { labelEn: "Divorce opinion letter", labelFr: "Lettre d'opinion de divorce" },
+      { labelEn: "Commercial lease", labelFr: "Bail commercial" },
+      { labelEn: "Employment contract", labelFr: "Contrat d'employé" },
+      { labelEn: "Wills", labelFr: "Testaments" },
+    ],
+  },
+};
+
 const CABINET_CONFIG = {
   devise: "CAD",
   tauxInteret: 0,
@@ -85,6 +148,11 @@ const CABINET_CONFIG = {
     monthlyPrice: AUDIT.monthlyPrice,
     totalValue: AUDIT.totalValue,
   },
+  taxNumbers: {
+    hstNumber: "748964277RT0001",
+    businessNumber: "748964277",
+  },
+  dossierTaxonomy: DERISIER_DOSSIER_TAXONOMY,
   trustBanking: {
     enabled: AUDIT.trust.enabled,
     accountCount: AUDIT.trust.accountCount,
@@ -127,7 +195,7 @@ const CABINET_INTERFACE = {
     locale: "en",
     intake: { language: "en" },
     facturation: {
-      principal: "forfait",
+      principal: "mixte",
       periodeFact: "bimonthly",
       joursRelance: 60,
       tauxInterets: 0,
@@ -234,9 +302,9 @@ const CABINET_INTERFACE = {
     ],
   }),
   modeFacturation: JSON.stringify({
-    principal: "forfait",
+    principal: "mixte",
     cadence: "bimonthly",
-    tauxHoraire: false,
+    tauxHoraire: true,
   }),
   conformite: JSON.stringify({
     lso_ontario: true,
@@ -407,6 +475,8 @@ async function ensureAssistantUser(cabinetId) {
     return prisma.user.update({
       where: { id: existing.id },
       data: {
+        email: "natalya@derisierlaw.com",
+        nom: "Natalya",
         passwordHash,
         role: "assistante",
         isBillable: false,
@@ -417,9 +487,9 @@ async function ensureAssistantUser(cabinetId) {
   return prisma.user.create({
     data: {
       cabinetId,
-      email: "assistant@derisierlaw.com",
+      email: "natalya@derisierlaw.com",
       passwordHash,
-      nom: "Assistant Derisier",
+      nom: "Natalya",
       role: "assistante",
       isBillable: false,
     },

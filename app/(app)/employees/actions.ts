@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import type { EmployeeRole, EmployeeStatus, EmploymentType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { createAuditLog } from "@/lib/services/audit";
 import { canEditEmployees } from "@/lib/auth/permissions";
 import { employeeRoleToUserRole } from "@/lib/auth/rbac";
 import { routes } from "@/lib/routes";
@@ -69,7 +70,7 @@ export async function createEmployee(input: CreateEmployeeInput) {
     }
   }
 
-  await prisma.$transaction(async (tx) => {
+  const { employeeId, createdUserId } = await prisma.$transaction(async (tx) => {
     let createdUserId: string | null = null;
 
     if (wantsLogin && legacyRole && input.password) {
@@ -86,7 +87,7 @@ export async function createEmployee(input: CreateEmployeeInput) {
       createdUserId = createdUser.id;
     }
 
-    await tx.employee.create({
+    const employee = await tx.employee.create({
       data: {
         cabinetId,
         userId: createdUserId,
@@ -104,15 +105,44 @@ export async function createEmployee(input: CreateEmployeeInput) {
         supervisorId: input.supervisorId || null,
         responsibilities: input.responsibilities ? sanitizeInput(input.responsibilities.trim()) : null,
       },
+      select: { id: true },
     });
+    return { employeeId: employee.id, createdUserId };
   });
+
+  // P4 — traçabilité RH. Jamais de donnée sensible en clair (pas de NAS ici).
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Employee",
+    entityId: employeeId,
+    action: "create",
+    newValues: {
+      fullName,
+      email,
+      role: input.role,
+      status: input.status,
+      hourlyRate: Number(input.hourlyRate) || 0,
+      hasLogin: wantsLogin,
+    },
+  });
+  if (createdUserId) {
+    await createAuditLog({
+      cabinetId,
+      userId,
+      entityType: "User",
+      entityId: createdUserId,
+      action: "create",
+      metadata: { email, role: legacyRole, linkedEmployeeId: employeeId },
+    });
+  }
 
   revalidatePath("/employees");
   redirect(routes.employees);
 }
 
 export async function updateEmployee(employeeId: string, input: UpdateEmployeeInput) {
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
   const effectiveRole = role as Parameters<typeof canEditEmployees>[0];
   if (!canEditEmployees(effectiveRole)) {
     throw new Error("Non autorisé à modifier cet employé");
@@ -169,6 +199,31 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
     }
   });
 
+  // P4 — traçabilité : diff des champs sensibles (rôle, taux, statut, courriel).
+  const changed: Record<string, { from: unknown; to: unknown }> = {};
+  if (input.role !== undefined && input.role !== existing.role) {
+    changed.role = { from: existing.role, to: input.role };
+  }
+  if (input.hourlyRate !== undefined && Number(input.hourlyRate) !== existing.hourlyRate) {
+    changed.hourlyRate = { from: existing.hourlyRate, to: Number(input.hourlyRate) };
+  }
+  if (input.status !== undefined && input.status !== existing.status) {
+    changed.status = { from: existing.status, to: input.status };
+  }
+  if (input.email !== undefined && input.email.trim().toLowerCase() !== existing.email) {
+    changed.email = { from: existing.email, to: input.email.trim().toLowerCase() };
+  }
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Employee",
+    entityId: employeeId,
+    action: "update",
+    metadata: { changedFields: Object.keys(changed) },
+    oldValues: Object.fromEntries(Object.entries(changed).map(([k, v]) => [k, v.from])),
+    newValues: Object.fromEntries(Object.entries(changed).map(([k, v]) => [k, v.to])),
+  });
+
   revalidatePath("/employees");
   revalidatePath(routes.employee(employeeId));
 }
@@ -182,7 +237,7 @@ export async function updateEmployeeYearEndInfo(
   employmentType: EmploymentType,
   sinNumero: string | null,
 ) {
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
   const effectiveRole = role as Parameters<typeof canEditEmployees>[0];
   if (!canEditEmployees(effectiveRole)) {
     throw new Error("Non autorisé à modifier cet employé");
@@ -202,6 +257,21 @@ export async function updateEmployeeYearEndInfo(
   await prisma.employee.update({
     where: { id: employeeId },
     data: { employmentType, sinNumero: sanitizedSin },
+  });
+
+  // P4 — traçabilité. SÉCURITÉ : on journalise la PRÉSENCE du NAS, jamais sa valeur.
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Employee",
+    entityId: employeeId,
+    action: "update",
+    metadata: { field: "year_end_info" },
+    oldValues: {
+      employmentType: existing.employmentType,
+      sinPresent: Boolean(existing.sinNumero),
+    },
+    newValues: { employmentType, sinPresent: Boolean(sanitizedSin) },
   });
 
   revalidatePath("/employees");
@@ -262,7 +332,7 @@ export async function generatePayslipForEmployee(
   periodEnd: string,
   hoursWorked: number
 ) {
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
   if (!canEditEmployees(role as Parameters<typeof canEditEmployees>[0])) {
     throw new Error("Non autorisé");
   }
@@ -286,6 +356,7 @@ export async function generatePayslipForEmployee(
   const deductions = 0;
   const netPay = grossPay - deductions;
 
+  let payslipId: string;
   if (existing) {
     await prisma.payslip.update({
       where: { id: existing.id },
@@ -297,8 +368,9 @@ export async function generatePayslipForEmployee(
         netPay,
       },
     });
+    payslipId = existing.id;
   } else {
-    await prisma.payslip.create({
+    const created = await prisma.payslip.create({
       data: {
         employeeId,
         payrollPeriodId: periodId,
@@ -309,8 +381,20 @@ export async function generatePayslipForEmployee(
         netPay,
         status: "draft",
       },
+      select: { id: true },
     });
+    payslipId = created.id;
   }
+
+  // P4 — traçabilité paie (montants = estimation brute, cf. bandeau P1).
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Payslip",
+    entityId: payslipId,
+    action: existing ? "update" : "create",
+    metadata: { employeeId, hours, grossPay, netPay },
+  });
 
   revalidatePath(routes.employee(employeeId));
   revalidatePath("/employees");
@@ -333,7 +417,7 @@ export async function updatePayslipStatus(
   status: "draft" | "generated" | "paid",
   paymentDate?: string
 ) {
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
   if (!canEditEmployees(role as Parameters<typeof canEditEmployees>[0])) {
     throw new Error("Non autorisé");
   }
@@ -354,6 +438,18 @@ export async function updatePayslipStatus(
     },
   });
 
+  // P4 — traçabilité : changement de statut de bulletin (ex. marqué « payé »).
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Payslip",
+    entityId: payslipId,
+    action: "update",
+    metadata: { employeeId: payslip.employeeId },
+    oldValues: { status: payslip.status },
+    newValues: { status, paymentDate: status === "paid" ? paymentDate ?? null : null },
+  });
+
   revalidatePath(routes.employee(payslip.employeeId));
 }
 
@@ -363,7 +459,7 @@ export async function addPayslipAdjustment(
   amount: number,
   description?: string
 ) {
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
   if (!canEditEmployees(role as Parameters<typeof canEditEmployees>[0])) {
     throw new Error("Non autorisé");
   }
@@ -395,6 +491,18 @@ export async function addPayslipAdjustment(
   await prisma.payslip.update({
     where: { id: payslipId },
     data: { netPay: newNet },
+  });
+
+  // P4 — traçabilité : ajustement de paie (bonus / déduction / correction).
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Payslip",
+    entityId: payslipId,
+    action: "update",
+    metadata: { employeeId: payslip.employeeId, adjustmentType: type, amount: Number(amount) },
+    oldValues: { netPay: payslip.netPay },
+    newValues: { netPay: newNet },
   });
 
   revalidatePath(routes.employee(payslip.employeeId));

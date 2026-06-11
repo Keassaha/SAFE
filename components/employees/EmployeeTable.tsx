@@ -10,6 +10,7 @@ import { RoleBadge } from "./RoleBadge";
 import type { EmployeeRole } from "@prisma/client";
 import type { EmployeeStatus } from "@prisma/client";
 import type { EmployeeSortField, EmployeeSortOrder } from "@/lib/employees/query";
+import type { EmployeeAccessState } from "@/lib/employees/access";
 
 export type EmployeeRow = {
   id: string;
@@ -20,8 +21,33 @@ export type EmployeeRow = {
   jobTitle: string | null;
   hourlyRate: number;
   status: EmployeeStatus;
+  /** Accès au portail, calculé (compte lié / à configurer / sans accès / inactif). */
+  access: EmployeeAccessState;
   hireDate: Date;
   updatedAt: Date;
+};
+
+const ACCESS_BADGE: Record<EmployeeAccessState, { labelKey: string; hintKey: string; className: string }> = {
+  connected: {
+    labelKey: "accessConnected",
+    hintKey: "accessConnectedHint",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  pending: {
+    labelKey: "accessPending",
+    hintKey: "accessPendingHint",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  no_access: {
+    labelKey: "accessNoAccess",
+    hintKey: "accessNoAccessHint",
+    className: "bg-neutral-100 text-neutral-500 border-neutral-200",
+  },
+  inactive: {
+    labelKey: "accessInactive",
+    hintKey: "accessInactiveHint",
+    className: "bg-neutral-50 text-neutral-400 border-neutral-200",
+  },
 };
 
 interface EmployeeTableProps {
@@ -137,6 +163,7 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
+            <th className="px-4 py-3 font-medium safe-text-secondary">{t("tableHeaderAccess")}</th>
             <th className="px-4 py-3 font-medium safe-text-secondary">
               <SortHeader
                 label={t("tableHeaderHireDate")}
@@ -178,6 +205,14 @@ export function EmployeeTable({
                   }
                 >
                   {statusLabel(row.status)}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <span
+                  title={t(ACCESS_BADGE[row.access].hintKey)}
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${ACCESS_BADGE[row.access].className}`}
+                >
+                  {t(ACCESS_BADGE[row.access].labelKey)}
                 </span>
               </td>
               <td className="px-4 py-3 text-neutral-muted">{formatDate(row.hireDate)}</td>

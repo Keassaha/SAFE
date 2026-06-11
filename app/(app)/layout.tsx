@@ -15,6 +15,7 @@ import {
   isSubscriptionExemptPath,
   shouldBlockForSubscription,
 } from "@/lib/services/subscription-guard";
+import { getCabinetProvince } from "@/lib/cabinet/get-province";
 
 export default async function AppLayout({
   children,
@@ -47,6 +48,11 @@ export default async function AppLayout({
   // Trust reconciliation status — used to show a global compliance banner
   const trustStatus = cabinetId ? await getTrustReconciliationStatus(cabinetId) : null;
 
+  // Province du cabinet — localise toute la réglementation affichée (bannière
+  // + écrans fidéicommis/conformité) : QC → Barreau du Québec (B-1, r. 5) en
+  // français ; sinon LSO Ontario en anglais. Fournie via contexte dans AppChrome.
+  const cabinetProvince = await getCabinetProvince(cabinetId);
+
   // Sidebar live counts (clients actifs, dossiers ouverts, factures à traiter)
   const userId = (session.user as { id?: string }).id ?? undefined;
   const sidebarCounts = cabinetId ? await getSidebarCounts(cabinetId, userId) : null;
@@ -66,6 +72,7 @@ export default async function AppLayout({
           activeNavIds={activeNavIds}
           hiddenNavIds={hiddenNavIds}
           trustStatus={isSafeInc ? null : trustStatus}
+          province={cabinetProvince}
           sidebarCounts={sidebarCounts}
           isSafeInc={isSafeInc}
         >

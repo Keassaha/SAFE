@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { sendEmail, invitationEmailHtml } from "@/lib/email";
 import { getSessionOrRespond } from "@/lib/auth/session";
+import { createAuditLog } from "@/lib/services/audit";
+
+/**
+ * Rôles qu'un administrateur peut attribuer par invitation. P0 sécurité : le rôle
+ * vient du JSON client, il DOIT être validé contre cette liste blanche (sinon
+ * injection d'un rôle arbitraire / escalade). Les rôles RH non connectables
+ * (stagiaire, lecture seule) ne sont pas invitables tant que la normalisation RBAC
+ * (P3) n'a pas tranché leur connexion.
+ */
+const INVITABLE_ROLES = ["admin_cabinet", "avocat", "assistante", "comptabilite"] as const;
+
+const inviteSchema = z.object({
+  email: z.string().trim().email().transform((value) => value.toLowerCase()),
+  role: z.enum(INVITABLE_ROLES),
+  compensation: z.unknown().optional(),
+});
 
 export async function POST(req: NextRequest) {
   const auth = await getSessionOrRespond();
@@ -14,11 +31,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
-  const { email, role, compensation } = await req.json();
-
-  if (!email || !role) {
-    return NextResponse.json({ error: "Email et rôle requis" }, { status: 400 });
+  const parsed = inviteSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invitation invalide : courriel et rôle autorisé requis.", details: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
+  const { email, role, compensation } = parsed.data;
 
   // Vérifier qu'il n'y a pas déjà un utilisateur avec cet email dans ce cabinet
   const existing = await prisma.user.findFirst({ where: { cabinetId, email: email.toLowerCase() } });
@@ -45,6 +65,16 @@ export async function POST(req: NextRequest) {
       expiresAt,
       compensation: compensation ? JSON.stringify(compensation) : null,
     },
+  });
+
+  // Sécurité/traçabilité — qui a invité qui, à quel rôle (jamais la compensation).
+  await createAuditLog({
+    cabinetId,
+    userId: (session.user as { id?: string }).id ?? null,
+    entityType: "Invitation",
+    entityId: invitation.id,
+    action: "create",
+    metadata: { email: email.toLowerCase(), role },
   });
 
   const cabinet = await prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { nom: true } });

@@ -443,6 +443,8 @@ export function CreateInvoiceView({
         tps: totals.tps,
         tvq: totals.tvq,
         hst: totals.hst,
+        taxRegime:
+          totals.mode === "hst" ? "HST" : totals.mode === "tps_tvq" ? "GST_QST" : "GST_ONLY",
         deboursNonTaxableTotal: 0,
         montantTotal: totals.total,
         montantPaye: 0,

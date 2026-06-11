@@ -37,7 +37,6 @@ import {
   font,
   tableColumns,
   legalNotices,
-  provinceToTaxRegime,
 } from "./tokens";
 
 export type InvoiceLanguage = "fr" | "en";
@@ -468,10 +467,11 @@ export function InvoiceDocument({
   const totals = invoice.totals;
   const currency = invoice.currency || "CAD";
 
-  // Province du cabinet → régime de taxes affiché. Le presenter expose déjà
-  // les montants `tps` et `tvq`. La province de référence est celle du client
-  // pour respecter le lieu de fourniture du service.
-  const taxRegime = provinceToTaxRegime(client?.billingProvince ?? null);
+  // Régime de taxe = celui du CABINET (exposé par le presenter), et non la
+  // province du client. Une facture d'un cabinet QC affiche TPS/TVQ même pour
+  // un client hors-QC ; un cabinet dont le client n'a pas de `billingProvince`
+  // n'affiche plus la TVH par défaut.
+  const taxRegime = totals.taxRegime;
 
   // Sous-totaux dérivés des lignes si non fournis explicitement.
   const computed = computeLineSubtotals(invoice.lines);
@@ -673,11 +673,11 @@ export function InvoiceDocument({
           </View>
 
           {/* Taxes — affichage selon régime du client */}
-          {taxRegime === "HST" && totals.tps + totals.tvq > 0 ? (
+          {taxRegime === "HST" && totals.hst > 0 ? (
             <View style={styles.totalLine}>
               <Text style={styles.totalLabel}>{t.taxHst}</Text>
               <Text style={styles.totalValue}>
-                {fmtMoney(totals.tps + totals.tvq, language, currency)}
+                {fmtMoney(totals.hst, language, currency)}
               </Text>
             </View>
           ) : null}

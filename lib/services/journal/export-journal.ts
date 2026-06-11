@@ -30,7 +30,6 @@ export async function exportJournalCsv(params: JournalListParams): Promise<strin
     "Catégorie",
     "Entrée",
     "Sortie",
-    "Solde",
     "Source",
     "Utilisateur",
   ];
@@ -45,7 +44,6 @@ export async function exportJournalCsv(params: JournalListParams): Promise<strin
     e.categorie ?? "",
     e.montantEntree > 0 ? e.montantEntree.toFixed(2) : "",
     e.montantSortie > 0 ? e.montantSortie.toFixed(2) : "",
-    e.solde.toFixed(2),
     JOURNAL_SOURCE_MODULE_LABELS[e.sourceModule],
     e.utilisateurName ?? "",
   ]);
@@ -85,7 +83,6 @@ export async function exportJournalExcelRows(
     "Catégorie",
     "Entrée",
     "Sortie",
-    "Solde",
     "Source",
     "Utilisateur",
   ];
@@ -100,7 +97,6 @@ export async function exportJournalExcelRows(
     e.categorie ?? "",
     e.montantEntree.toString(),
     e.montantSortie.toString(),
-    e.solde.toString(),
     JOURNAL_SOURCE_MODULE_LABELS[e.sourceModule],
     e.utilisateurName ?? "",
   ]);

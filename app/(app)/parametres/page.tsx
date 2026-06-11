@@ -23,6 +23,10 @@ import {
   parseCabinetConfig,
   getEnvoiFactureClientConfig,
 } from "@/lib/cabinet-config";
+import { getCabinetTaxConfig, describeTaxConfig } from "@/lib/billing/taxes";
+import { deriveCabinetSubscriptionState } from "@/lib/services/subscription-state";
+import { getCabinetReadiness } from "@/lib/admin/readiness";
+import { AdminReadinessStrip } from "@/components/parametres/AdminReadinessStrip";
 import {
   canManageCabinetSettings,
   canManageInvoices,
@@ -35,6 +39,30 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 type StatusVariant = "success" | "warning" | "neutral" | "error";
+
+/**
+ * Mappe l'état du domaine Rétention (readiness engine) vers un badge honnête.
+ * `complete` seulement sur couverture prouvée ; jamais « En vigueur » sur un count.
+ */
+function retentionBadgeFor(
+  state: string,
+  covered: number | null,
+): { key: string; variant: StatusVariant } {
+  switch (state) {
+    case "complete":
+      return { key: "statusComplete", variant: "success" };
+    case "warning":
+      return { key: "statusReview", variant: "warning" };
+    case "blocking":
+      return { key: "statusToFrame", variant: "error" };
+    case "not_applicable":
+      return { key: "notConfigured", variant: "neutral" };
+    default: // to_complete
+      return covered && covered > 0
+        ? { key: "statusPartial", variant: "neutral" }
+        : { key: "statusToFrame", variant: "warning" };
+  }
+}
 
 function formatDate(value: Date | null | undefined, fallback: string, locale: string) {
   if (!value) return fallback;
@@ -53,6 +81,18 @@ function formatPlanPrice(plan: string, locale: string) {
     currency: planDef.currency.toUpperCase(),
     maximumFractionDigits: 0,
   }).format(planDef.price / 100);
+}
+
+/** Lit le mode de facturation principal depuis le JSON CabinetInterface.modules. */
+function readBillingPrincipal(modules: unknown): string | null {
+  if (modules && typeof modules === "object") {
+    const fact = (modules as Record<string, unknown>).facturation;
+    if (fact && typeof fact === "object") {
+      const principal = (fact as Record<string, unknown>).principal;
+      if (typeof principal === "string") return principal;
+    }
+  }
+  return null;
 }
 
 function FieldRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
@@ -136,10 +176,11 @@ export default async function ParametresPage() {
 
   const [
     cabinet,
+    cabinetInterface,
     activeEmployeesCount,
     usersCount,
     overdueInvoicesCount,
-    retentionPoliciesCount,
+    readiness,
     latestAuditLog,
   ] = await Promise.all([
     prisma.cabinet.findUnique({
@@ -156,13 +197,18 @@ export default async function ParametresPage() {
         stripeCustomerId: true,
         stripeSubscriptionStatus: true,
         stripeCurrentPeriodEnd: true,
+        stripeCancelAtPeriodEnd: true,
+        stripeTrialEnd: true,
       },
     }),
+    // Le mode de facturation et la config taxes vivent dans CabinetInterface.modules (JSON).
+    prisma.cabinetInterface.findUnique({ where: { cabinetId }, select: { modules: true } }),
     prisma.employee.count({ where: { cabinetId, status: "active" } }),
     prisma.user.count({ where: { cabinetId } }),
     // Doctrine : voir docs/accounting/INVOICE_STATUS_NORMALIZATION.md
     prisma.invoice.count({ where: { cabinetId, ...whereInvoiceOverdue() } }),
-    prisma.documentRetentionPolicy.count({ where: { cabinetId } }),
+    // Readiness engine (P2) : rapport complet, alimente la bande de risques + le badge rétention.
+    getCabinetReadiness(cabinetId),
     prisma.auditLog.findFirst({
       where: { cabinetId },
       orderBy: { createdAt: "desc" },
@@ -191,11 +237,67 @@ export default async function ParametresPage() {
 
   const planPrice = formatPlanPrice(cabinet?.plan ?? "essentiel", locale);
   const renewalDate = formatDate(cabinet?.stripeCurrentPeriodEnd ?? null, t("subscriptionNoRenewal"), locale);
-  const subscriptionConfigured = cabinet?.stripeSubscriptionStatus === "active" || cabinet?.stripeSubscriptionStatus === "trialing";
+
+  // P1 — statuts CALCULÉS (doctrine : jamais de valeur figée trompeuse, jamais « conforme » sans preuve).
+  const currency = config.devise ?? "CAD";
+  const parsedModules: unknown = (() => {
+    try {
+      return cabinetInterface?.modules ? JSON.parse(cabinetInterface.modules) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const taxLabel = describeTaxConfig(getCabinetTaxConfig(parsedModules, config.province));
+  const billingPrincipal = readBillingPrincipal(parsedModules);
+  const billingModeLabel =
+    billingPrincipal === "forfait"
+      ? t("billingForfait")
+      : billingPrincipal === "horaire"
+        ? t("billingModeHourly")
+        : billingPrincipal === "mixte"
+          ? t("billingModeMixed")
+          : t("notConfigured");
+  const subState = deriveCabinetSubscriptionState({
+    plan: cabinet?.plan ?? null,
+    stripeSubscriptionStatus: cabinet?.stripeSubscriptionStatus,
+    stripeCurrentPeriodEnd: cabinet?.stripeCurrentPeriodEnd,
+    stripeCancelAtPeriodEnd: cabinet?.stripeCancelAtPeriodEnd,
+    stripeTrialEnd: cabinet?.stripeTrialEnd,
+  });
+  const subscriptionStatusLabel = subState.active
+    ? subState.isTrialing
+      ? t("subscriptionStatusTrialing")
+      : t("subscriptionStatusActive")
+    : subState.reason === "past_due"
+      ? t("subscriptionStatusPastDue")
+      : subState.reason === "canceled"
+        ? t("subscriptionStatusCanceled")
+        : subState.reason === "unpaid"
+          ? t("subscriptionStatusUnpaid")
+          : subState.reason === "incomplete" || subState.reason === "incomplete_expired"
+            ? t("subscriptionStatusIncomplete")
+            : t("subscriptionNotConfigured");
+  const subscriptionBadgeVariant: StatusVariant = subState.active
+    ? "success"
+    : subState.reason === "past_due" || subState.reason === "unpaid"
+      ? "error"
+      : "warning";
+  // Rétention : couverture RÉELLE par type requis via le readiness engine (P2),
+  // plus de « En vigueur » sur un simple count. On lit le domaine dans le rapport.
+  const retentionDomain = readiness?.domains.find((d) => d.domain === "retention") ?? null;
+  const retentionData = (retentionDomain?.data ?? undefined) as
+    | { covered: number; required: number }
+    | undefined;
+  const retentionBadge = retentionBadgeFor(
+    retentionDomain?.state ?? "to_complete",
+    retentionData?.covered ?? null,
+  );
 
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title={t("title")} description={t("description")} />
+
+      {readiness && <AdminReadinessStrip report={readiness} />}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* 1. Cabinet — identité publique */}
@@ -232,9 +334,9 @@ export default async function ParametresPage() {
           secondaryHref={isAdmin ? routes.parametresFacture : undefined}
           secondaryLabel={isAdmin ? t("cardInvoiceAppearanceCta") : undefined}
         >
-          <FieldRow label={t("billingCurrency")} value="CAD" />
-          <FieldRow label={t("billingTaxes")} value={t("billingTaxesHST")} />
-          <FieldRow label={t("billingPrimaryMode")} value={t("billingForfait")} />
+          <FieldRow label={t("billingCurrency")} value={currency} />
+          <FieldRow label={t("billingTaxes")} value={taxLabel} />
+          <FieldRow label={t("billingPrimaryMode")} value={billingModeLabel} />
           <FieldRow label={t("billingFormat")} value={config.formatFacture ?? t("notConfigured")} />
           <FieldRow
             label={t("billingSecureLink")}
@@ -269,8 +371,8 @@ export default async function ParametresPage() {
           icon={<ShieldCheck className="h-4 w-4" aria-hidden />}
           title={t("cardComplianceTitle")}
           description={t("cardComplianceDescription")}
-          badge={retentionPoliciesCount > 0 ? t("statusInForce") : t("statusToFrame")}
-          badgeVariant={retentionPoliciesCount > 0 ? "success" : "warning"}
+          badge={t(retentionBadge.key)}
+          badgeVariant={retentionBadge.variant}
           primaryHref={canAccessRetention ? routes.parametresRetention : undefined}
           primaryLabel={canAccessRetention ? t("cardComplianceCta") : undefined}
           primaryDisabled={!canAccessRetention}
@@ -281,8 +383,11 @@ export default async function ParametresPage() {
           <FieldRow
             label={t("complianceRetention")}
             value={
-              retentionPoliciesCount > 0
-                ? t("complianceRetentionCount", { count: retentionPoliciesCount })
+              retentionData
+                ? t("complianceRetentionCoverage", {
+                    covered: retentionData.covered,
+                    required: retentionData.required,
+                  })
                 : t("notConfigured")
             }
           />
@@ -296,8 +401,8 @@ export default async function ParametresPage() {
           icon={<CreditCard className="h-4 w-4" aria-hidden />}
           title={t("cardSubscriptionTitle")}
           description={t("cardSubscriptionDescription")}
-          badge={subscriptionConfigured ? t("subscriptionActive") : t("subscriptionNotConfigured")}
-          badgeVariant={subscriptionConfigured ? "success" : "warning"}
+          badge={subscriptionStatusLabel}
+          badgeVariant={subscriptionBadgeVariant}
           primaryHref={isAdmin ? routes.parametresAbonnement : undefined}
           primaryLabel={isAdmin ? t("cardSubscriptionCta") : undefined}
           primaryDisabled={!isAdmin}
@@ -308,11 +413,15 @@ export default async function ParametresPage() {
             value={(cabinet?.plan ?? "essentiel").charAt(0).toUpperCase() + (cabinet?.plan ?? "essentiel").slice(1)}
           />
           <FieldRow label={t("subscriptionMonthlyPrice")} value={`${planPrice}/${tc("perMonthShort")}`} mono />
+          <FieldRow label={t("subscriptionStatus")} value={subscriptionStatusLabel} />
           <FieldRow
-            label={t("subscriptionStatus")}
-            value={cabinet?.stripeSubscriptionStatus ?? t("subscriptionNotConfigured")}
+            label={t("subscriptionRenewal")}
+            value={
+              subState.cancelAtPeriodEnd
+                ? t("subscriptionEndsOn", { date: renewalDate })
+                : renewalDate
+            }
           />
-          <FieldRow label={t("subscriptionRenewal")} value={renewalDate} />
         </SectionCard>
 
         {/* 6. Actions opérationnelles compactes — bas de page */}
