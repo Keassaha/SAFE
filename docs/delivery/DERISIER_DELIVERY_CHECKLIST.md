@@ -72,7 +72,7 @@ Toutes les pages cibles existent dans `app/(app)/`.
 | Rôle | Email | Mot de passe par défaut |
 | --- | --- | --- |
 | `admin_cabinet` (Me Marjorie-Alexandra Derisier) | info@derisierlaw.com | `DerisierLaw2026!` |
-| `assistante` (Natalya) | natalya@derisierlaw.com | `Assistant2026!` |
+| `assistante` (Aaliyah) | aaliyah@derisierlaw.com | `Assistant2026!` |
 
 Mots de passe surchargeables via `DERISIER_ADMIN_PASSWORD` / `DERISIER_ASSISTANT_PASSWORD` lors du seed.
 
@@ -106,8 +106,8 @@ Catalogue complet du `npm run verify:derisier` :
 | Site web | `null` | (champ à ajouter ou config) |
 | Banque du compte fidéicommis | "To confirm" | `Cabinet.config.trustBanking.accounts[0].bank` |
 | Numéro/transit du compte fidéicommis | "TO-CONFIRM-DERISIER-TRUST" | `Cabinet.config.trustBanking.accounts[0].accountNumber` (ajouter `transit`/`institution` au besoin) |
-| Nom complet de l'assistante | "Natalya" (prénom seulement) | `User.nom` pour `natalya@derisierlaw.com` |
-| Email définitif assistante | natalya@derisierlaw.com | confirmer ou remplacer |
+| Nom complet de l'assistante | "Aaliyah" (prénom seulement) | `User.nom` pour `aaliyah@derisierlaw.com` |
+| Email définitif assistante | aaliyah@derisierlaw.com | confirmer ou remplacer |
 | Méthodes de paiement réellement acceptées | cheque, wire, bank_draft, credit_card, interac, cash (audit) | `config.paymentMethods` |
 | Première liste de dossiers à importer | aucune (base opérationnelle vide) | import via `/import` ou seed manuel |
 | Domaine email pour envoi de factures | non configuré | `config.envoiFactureClient` + DNS / domaine SAFE |
@@ -120,7 +120,7 @@ Catalogue complet du `npm run verify:derisier` :
 
 1. **Rejouer le seed canonique** — `npm run seed:derisier:audit` (idempotent, vérifié 2× sans duplication).
 2. **Lancer la vérification** — `npm run verify:derisier` ; attendre 39/39 PASS.
-3. **Tester le login** sur l'environnement de démo avec `info@derisierlaw.com` puis `natalya@derisierlaw.com`. Vérifier que la sidebar affiche bien les 5 sections (Dashboard, Practice, Finances, Tools, Settings) et que "Employees" est absent.
+3. **Tester le login** sur l'environnement de démo avec `info@derisierlaw.com` puis `aaliyah@derisierlaw.com`. Vérifier que la sidebar affiche bien les 5 sections (Dashboard, Practice, Finances, Tools, Settings) et que "Employees" est absent.
 4. **Vérifier la langue EN** sur les écrans suivants au minimum :
    - Dashboard
    - Clients (vide ou avec données placeholder)

@@ -58,8 +58,8 @@ async function main() {
   });
   console.log(`User: ${avocate.nom} (${avocate.email}) — role: ${avocate.role}`);
 
-  // 3. Create Natalya (assistante)
-  const assistantHash = await bcrypt.hash("Aalyiah2026", 12);
+  // 3. Create Aaliyah (assistante)
+  const assistantHash = await bcrypt.hash("Aaliyah2026", 12);
 
   const assistante = await prisma.user.upsert({
     where: {
@@ -68,16 +68,16 @@ async function main() {
     create: {
       id: "derisier-user-assistante",
       cabinetId: cabinet.id,
-      email: "aalyiah@derisierlaw.com",
+      email: "aaliyah@derisierlaw.com",
       passwordHash: assistantHash,
-      nom: "Aalyiah",
+      nom: "Aaliyah",
       role: "assistante",
       isBillable: false,
     },
     update: {
-      email: "aalyiah@derisierlaw.com",
+      email: "aaliyah@derisierlaw.com",
       passwordHash: assistantHash,
-      nom: "Aalyiah",
+      nom: "Aaliyah",
       role: "assistante",
     },
   });
@@ -207,7 +207,7 @@ async function main() {
   console.log("Login credentials:");
   console.log("  Cabinet: Derisier Law");
   console.log("  Avocate: info@derisierlaw.com / Derisier2026");
-  console.log("  Assistante: natalya@derisierlaw.com / Natalya2026");
+  console.log("  Assistante: aaliyah@derisierlaw.com / Aaliyah2026");
 }
 
 main()
