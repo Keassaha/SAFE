@@ -224,7 +224,7 @@ async function main() {
   console.log("  Cabinet, Users, CabinetInterface, DeboursTypes, DeboursTemplates, ForfaitServices");
   console.log("\nCredentials inchangés :");
   console.log("  Avocate : info@derisierlaw.com / Derisier2026");
-  console.log("  Assistante : natalya@derisierlaw.com / Natalya2026");
+  console.log("  Assistante : aaliyah@derisierlaw.com / Aaliyah2026");
 }
 
 main()
