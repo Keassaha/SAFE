@@ -104,7 +104,11 @@ Effort : **S** ≤ ½ j · **M** ½–2 j · **L** > 2 j.
 
 ---
 
-## Lot 6 — Profil comptable du cabinet + onboarding (M-6)
+## Lot 6 — Profil comptable du cabinet + onboarding (M-6) — ✅ FAIT 2026-06-15 (cœur)
+
+> Cœur pur testé (11 tests) + persistance + action serveur. **Pas de migration** (stocké dans `CabinetInterface.modules.comptabilite`). Dérivation profil A/B/C/D + drapeaux d'activation (`features`). Suite compta 213/213 verte, typecheck 0 erreur. **Reliquats** : formulaire UI du questionnaire d'onboarding (la logique d'enregistrement existe via `saveAccountingProfileAction`) et activation conditionnelle de la navigation/modules à partir des `features` (ex. masquer le fidéicommis si `trustModule=false`).
+
+
 
 *La pièce qui rend SAFE « adapté au profil réel du cabinet ». Voir [SAFE_ACCOUNTING_SOP.md](SAFE_ACCOUNTING_SOP.md) §4-5.*
 

@@ -46,9 +46,17 @@
 - Tests : `build-export.test.ts` (7) + `serialize.test.ts` (4). Suite compta **202/202**, typecheck **0 erreur**. Pas de migration.
 - Reliquats : bouton UI (période + format) + persistance du chart surchargé par cabinet.
 
+## Code livré (Lot 6, validé par CEO)
+- `lib/accounting/profil-cabinet.ts` (pur) : `AccountingProfileInput` (questionnaire SOP §4) → `deriveAccountingProfile` → profil A/B/C/D + niveau + `features` (trustModule, trustActive, reconciliationRequired, roles, advancedCategories, multiUser, monthlyExport, exportFormat).
+- `lib/services/accounting-profile.ts` : `get/saveAccountingProfile` (persistance dans `modules.comptabilite`, sans écraser les autres modules, sans migration).
+- `lib/actions/accounting-profile.ts` : `saveAccountingProfileAction` (gardé par `canManageCabinetSettings` + zod) / `getAccountingProfileAction`.
+- Tests : `profil-cabinet.test.ts` (8) + `accounting-profile.test.ts` (3). Suite compta **213/213**, typecheck **0 erreur**. Pas de migration.
+- Reliquats : formulaire UI du questionnaire + activation conditionnelle de la nav à partir des `features`.
+
 ## Commits
 - `d6bf42e` : doctrine + Lots 1-3 (fidéicommis, statuts débours, verrouillage période).
 - `17308de` : Lot 4 (contrôles anti-erreurs de saisie).
+- `1be2bfe` : Lot 5 (export mappable QuickBooks/Xero/Sage).
 
 ## Gates de déploiement (à exécuter avant prod)
 - Lot 1 R-1 : requête soldes fidéicommis négatifs Dérisier (corriger si lignes).
@@ -56,4 +64,4 @@
 - Lot 3 : `prisma migrate deploy` (migration additive `20260615130000_add_accounting_period_lock`) AVANT le déploiement du code.
 
 ## Reste à faire
-- **Lot 6** (profil cabinet + onboarding) — seul lot majeur restant. Reliquats minces : affichage UI warnings (Lot 4), bouton UI export + chart persistant (Lot 5), preview cartes/verrous après migrations en dev, vérif live localisation Cayard/Dérisier (R-3/R-4).
+- **Tous les lots majeurs (1-6) sont livrés.** Reliquats UI/minces : formulaire onboarding + gating nav (Lot 6), affichage UI warnings (Lot 4), bouton UI export + chart persistant par cabinet (Lot 5), preview cartes/verrous après migrations en dev, vérif live localisation Cayard/Dérisier (R-3/R-4), vue taxes province-aware unifiée (M-3).
