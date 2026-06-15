@@ -227,7 +227,7 @@ export default async function NouvelleFacturePage({
       date: tache.date.toISOString().split("T")[0],
       hours: 0,
       rate: 0,
-      amount: tache.montantBase + tache.ajustement,
+      amount: tache.montantFinal,
       montantBase: tache.montantBase,
       ajustement: tache.ajustement,
       taxable: tache.taxable,

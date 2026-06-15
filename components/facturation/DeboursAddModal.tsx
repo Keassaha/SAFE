@@ -11,12 +11,18 @@ import { createDeboursDossier } from "@/lib/actions/debours";
 export interface DeboursAddModalProps {
   open: boolean;
   onClose: () => void;
-  clients: { id: string; raisonSociale: string | null }[];
+	  clients: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
 }
 
 const selectClass =
   "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+
+function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
+  const company = client.raisonSociale?.trim();
+  if (company) return company;
+  return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || "Client sans nom";
+}
 
 export function DeboursAddModal({
   open,
@@ -75,7 +81,7 @@ export function DeboursAddModal({
             >
               <option value="">{td("selectClient")}</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.raisonSociale}</option>
+	                <option key={c.id} value={c.id}>{clientLabel(c)}</option>
               ))}
             </select>
           </div>

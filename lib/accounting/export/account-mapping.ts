@@ -16,6 +16,7 @@ export type AccountKey =
   | "bank_trust"
   | "accounts_receivable"
   | "revenue_fees"
+  | "tax_payable"
   | "expenses"
   | "disbursements_recoverable"
   | "trust_liability"
@@ -37,6 +38,7 @@ export const DEFAULT_ACCOUNT_CHART: AccountChart = {
   bank_trust: { code: "1010", name: "Banque - Fidéicommis" },
   accounts_receivable: { code: "1100", name: "Comptes à recevoir" },
   revenue_fees: { code: "4000", name: "Honoraires" },
+  tax_payable: { code: "2200", name: "Taxes à remettre" },
   expenses: { code: "5000", name: "Dépenses du cabinet" },
   disbursements_recoverable: { code: "1200", name: "Débours à recouvrer" },
   trust_liability: { code: "2100", name: "Fonds détenus en fidéicommis" },

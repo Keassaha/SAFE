@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
+import type { DeboursStatut } from "@prisma/client";
 
 export default async function FacturationFraisPage() {
   const t = await getTranslations("billingUi");
@@ -19,26 +20,26 @@ export default async function FacturationFraisPage() {
       take: 100,
       include: {
         dossier: { select: { id: true, intitule: true, numeroDossier: true } },
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         facture: { select: { id: true, numero: true } },
       },
     }),
     prisma.deboursDossier.aggregate({
-      where: { cabinetId, refacturable: true, factureId: null },
+      where: { cabinetId, refacturable: true, statutDebours: { in: ["NON_FACTURE", "FACTURE"] } },
       _sum: { montant: true },
     }),
     prisma.deboursDossier.aggregate({
       where: {
         cabinetId,
         payeParCabinet: true,
-        OR: [{ factureId: null }, { facture: { paymentStatus: { not: "PAID" } } }],
+        statutDebours: { in: ["NON_FACTURE", "FACTURE"] },
       },
       _sum: { montant: true },
     }),
     prisma.client.findMany({
       where: { cabinetId },
-      select: { id: true, raisonSociale: true },
-      orderBy: { raisonSociale: "asc" },
+      select: { id: true, raisonSociale: true, prenom: true, nom: true },
+      orderBy: [{ raisonSociale: "asc" }, { nom: "asc" }, { prenom: "asc" }],
     }),
     prisma.dossier.findMany({
       where: { cabinetId },
@@ -49,6 +50,25 @@ export default async function FacturationFraisPage() {
 
   const totalARefacturer = deboursARefacturer._sum.montant ?? 0;
   const totalNonRembourses = deboursNonRembourses._sum.montant ?? 0;
+  const clientLabel = (client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) => {
+    const company = client.raisonSociale?.trim();
+    if (company) return company;
+    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || "Client sans nom";
+  };
+  const deboursStatusLabel = (status: DeboursStatut) => {
+    switch (status) {
+      case "NON_FACTURE":
+        return "Non facturé";
+      case "FACTURE":
+        return "Facturé";
+      case "RECOUVRE":
+        return "Recouvré";
+      case "RADIE":
+        return "Radié";
+      default:
+        return status;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -114,7 +134,7 @@ export default async function FacturationFraisPage() {
                     <tr key={d.id} className="border-b border-neutral-border/70">
                       <td className="py-2 pr-2">{formatDate(d.date)}</td>
                       <td className="py-2 pr-2">
-                        <span className="text-neutral-800 block">{d.client.raisonSociale}</span>
+                        <span className="text-neutral-800 block">{clientLabel(d.client)}</span>
                         <Link
                           href={routes.dossier(d.dossierId)}
                           className="text-primary-600 hover:underline text-xs"
@@ -130,15 +150,16 @@ export default async function FacturationFraisPage() {
                         {formatCurrency(d.montant)}
                       </td>
                       <td className="py-2 pr-2">
+                        <span className="block text-neutral-800">{deboursStatusLabel(d.statutDebours)}</span>
                         {d.facture ? (
                           <Link
                             href={routes.facturationFactureEdit(d.facture.id)}
-                            className="text-primary-600 hover:underline"
+                            className="text-primary-600 hover:underline text-xs"
                           >
                             {d.facture.numero}
                           </Link>
                         ) : (
-                          <span className="text-neutral-muted">{t("notBilled")}</span>
+                          <span className="text-neutral-muted text-xs">{t("notBilled")}</span>
                         )}
                       </td>
                     </tr>

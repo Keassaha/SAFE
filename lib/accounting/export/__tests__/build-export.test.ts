@@ -17,7 +17,7 @@ function entry(partial: Partial<ExportableEntry>): ExportableEntry {
 }
 
 describe("buildAccountingExportLines — double-entrée mappée (Lot 5)", () => {
-  it("une FACTURE produit Dr Comptes à recevoir / Cr Honoraires, balancée", () => {
+  it("une FACTURE sans détail de taxes produit Dr Comptes à recevoir / Cr Honoraires, balancée", () => {
     const lines = buildAccountingExportLines([
       entry({ typeTransaction: "FACTURE", sourceModule: "FACTURATION", montantEntree: 100 }),
     ]);
@@ -28,6 +28,23 @@ describe("buildAccountingExportLines — double-entrée mappée (Lot 5)", () => 
     expect(debit.debit).toBe(100);
     expect(credit.accountName).toBe("Honoraires");
     expect(credit.credit).toBe(100);
+  });
+
+  it("une FACTURE avec taxes crédite les taxes séparément des honoraires", () => {
+    const lines = buildAccountingExportLines([
+      entry({
+        typeTransaction: "FACTURE",
+        sourceModule: "FACTURATION",
+        montantEntree: 1130,
+        subtotalBeforeTax: 1000,
+        taxTotal: 130,
+      }),
+    ]);
+    expect(lines).toHaveLength(3);
+    expect(lines.find((l) => l.accountName === "Comptes à recevoir")?.debit).toBe(1130);
+    expect(lines.find((l) => l.accountName === "Honoraires")?.credit).toBe(1000);
+    expect(lines.find((l) => l.accountName === "Taxes à remettre")?.credit).toBe(130);
+    expect(exportTotals(lines)).toEqual({ totalDebit: 1130, totalCredit: 1130, balanced: true });
   });
 
   it("un PAIEMENT produit Dr Banque admin / Cr Comptes à recevoir", () => {

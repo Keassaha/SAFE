@@ -254,7 +254,7 @@ export async function deleteDeboursDossier(id: string) {
 
   const existing = await prisma.deboursDossier.findFirst({
     where: { id, cabinetId },
-    select: { dossierId: true, factureId: true },
+    select: { dossierId: true, factureId: true, statutDebours: true, montant: true },
   });
   if (!existing) {
     redirect("/dossiers");
@@ -262,18 +262,31 @@ export async function deleteDeboursDossier(id: string) {
   if (existing.factureId) {
     return { ok: false as const, error: "already_invoiced" };
   }
+  if (existing.statutDebours === "RADIE") {
+    return { ok: true as const };
+  }
 
-  await prisma.deboursDossier.delete({ where: { id } });
+  await prisma.deboursDossier.update({
+    where: { id },
+    data: { statutDebours: "RADIE" },
+  });
 
   await createAuditLog({
     cabinetId,
     userId,
     entityType: "DeboursDossier",
     entityId: id,
-    action: "delete",
+    action: "update",
+    metadata: {
+      statutDebours: "RADIE",
+      montant: existing.montant,
+      reason: "delete_requested_converted_to_write_off",
+    },
   });
 
   revalidatePath(`/dossiers/${existing.dossierId}`);
+  revalidatePath("/facturation/frais");
+  revalidatePath("/comptabilite");
   return { ok: true as const };
 }
 

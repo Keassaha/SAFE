@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     orderBy: { datePaiement: "desc" },
     take: limit,
     include: {
-      client: { select: { id: true, raisonSociale: true } },
+	      client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
       invoice: { select: { id: true, numero: true } },
       paymentAllocations: true,
     },

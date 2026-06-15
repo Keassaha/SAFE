@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { DeboursAddModal } from "./DeboursAddModal";
 
 interface FacturationFraisActionsProps {
-  clients: { id: string; raisonSociale: string | null }[];
+	  clients: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
 }
 

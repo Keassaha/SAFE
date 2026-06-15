@@ -170,9 +170,10 @@ export default async function FacturationPage({
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           { href: routes.facturationTempsNonFacture, titre: "Temps non facturé", sous: "Revenus dormants" },
+          { href: routes.facturationFrais, titre: "Débours", sous: "À refacturer" },
           { href: routes.facturationCreancesAging, titre: "Aging des créances", sous: "Impayés par ancienneté" },
           { href: routes.facturationTaxes, titre: "TPS / TVQ", sous: "À remettre (estimation)" },
           { href: routes.facturationRentabilite, titre: "Rentabilité", sous: "Marge par dossier" },

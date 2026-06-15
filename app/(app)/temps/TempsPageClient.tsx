@@ -30,6 +30,7 @@ interface TempsPageClientProps {
   /** Ouverture contrôlée du modal d'ajout. Si fourni, prime sur l'état interne. */
   addModalOpen?: boolean;
   onAddModalOpenChange?: (open: boolean) => void;
+  onAddSuccess?: () => void;
 }
 
 export function TempsPageClient({
@@ -39,6 +40,7 @@ export function TempsPageClient({
   hideAddButton = false,
   addModalOpen: controlledAddOpen,
   onAddModalOpenChange,
+  onAddSuccess,
 }: TempsPageClientProps) {
   const t = useTranslations("mattersUi");
   const [filters, setFilters] = useState<TimeEntryFilters>({});
@@ -241,7 +243,11 @@ export function TempsPageClient({
         clients={clients}
         dossiers={dossiers}
         users={users}
-        onSuccess={() => { setAddModalOpen(false); refetch(); }}
+        onSuccess={() => {
+          setAddModalOpen(false);
+          refetch();
+          onAddSuccess?.();
+        }}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -56,6 +57,7 @@ const dateFmt = new Intl.DateTimeFormat("fr-CA", { day: "2-digit", month: "short
 
 export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: TempsMixteViewProps) {
   const t = useTranslations("temps.mixte");
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [chooserOpen, setChooserOpen] = useState(false);
   const [horaireAddOpen, setHoraireAddOpen] = useState(false);
@@ -72,6 +74,24 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
     }
   };
 
+  const handleAddClick = () => {
+    if (activeTab === "horaire") {
+      setHoraireAddOpen(true);
+      return;
+    }
+    if (activeTab === "forfait") {
+      setForfaitAddOpen(true);
+      return;
+    }
+    setChooserOpen(true);
+  };
+
+  const handleEntrySaved = () => {
+    setHoraireAddOpen(false);
+    setForfaitAddOpen(false);
+    router.refresh();
+  };
+
   const totalMontant = overview.tempsMontant + overview.forfaitMontant;
   const totalCount = overview.tempsCount + overview.forfaitCount;
 
@@ -84,7 +104,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
             <TabsTrigger value="horaire">{t("tabs.horaire")}</TabsTrigger>
             <TabsTrigger value="forfait">{t("tabs.forfait")}</TabsTrigger>
           </TabsList>
-          <Button variant="primary" onClick={() => setChooserOpen(true)}>
+          <Button variant="primary" onClick={handleAddClick}>
             <Plus className="w-4 h-4" /> {t("addEntry")}
           </Button>
         </div>
@@ -171,6 +191,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
             hideAddButton
             addModalOpen={horaireAddOpen}
             onAddModalOpenChange={setHoraireAddOpen}
+            onAddSuccess={handleEntrySaved}
           />
         </TabsContent>
 
@@ -181,6 +202,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
             hideAddButton
             addModalOpen={forfaitAddOpen}
             onAddModalOpenChange={setForfaitAddOpen}
+            onAddSuccess={handleEntrySaved}
           />
         </TabsContent>
       </Tabs>

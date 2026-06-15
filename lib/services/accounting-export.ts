@@ -66,7 +66,24 @@ export async function buildPeriodAccountingExport(params: {
     isPeriodLocked(cabinetId, periode),
   ]);
 
+  const invoiceIds = rows
+    .filter((e) => e.typeTransaction === "FACTURE" && e.sourceModule === "FACTURATION" && e.sourceId)
+    .map((e) => e.sourceId as string);
+  const invoices = invoiceIds.length
+    ? await prisma.invoice.findMany({
+        where: { cabinetId, id: { in: invoiceIds } },
+        select: { id: true, subtotalBeforeTax: true, taxTotal: true },
+      })
+    : [];
+  const invoiceById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+
   const entries: ExportableEntry[] = rows.map((e) => ({
+    ...(() => {
+      const invoice = e.sourceId ? invoiceById.get(e.sourceId) : null;
+      return invoice
+        ? { subtotalBeforeTax: invoice.subtotalBeforeTax, taxTotal: invoice.taxTotal }
+        : {};
+    })(),
     id: e.id,
     dateTransaction: e.dateTransaction,
     typeTransaction: e.typeTransaction,

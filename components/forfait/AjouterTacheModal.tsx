@@ -52,9 +52,10 @@ interface AjouterTacheModalProps {
   onClose: () => void;
   dossiers: DossierOption[];
   preselectedDossierId?: string;
+  onSuccess?: () => void;
 }
 
-export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossierId }: AjouterTacheModalProps) {
+export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossierId, onSuccess }: AjouterTacheModalProps) {
   const t = useTranslations("temps.taskRegister.addModal");
   const queryClient = useQueryClient();
   const preselectedDossier = dossiers.find((d) => d.id === preselectedDossierId);
@@ -150,10 +151,16 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["registre-taches"] });
       onClose();
+      onSuccess?.();
       // Reset form
       setClientId(preselectedDossier?.clientId ?? "");
       setDossierId(preselectedDossierId ?? "");
-      setServiceId(""); setDescription(""); setMontant(""); setAjustement(""); setRabais(""); setRabaisRaison("");
+      setServiceId("");
+      setDescription("");
+      setMontant("");
+      setAjustement("");
+      setRabais("");
+      setRabaisRaison("");
     },
   });
 

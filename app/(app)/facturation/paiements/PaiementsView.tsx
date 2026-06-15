@@ -41,7 +41,7 @@ type PaymentRow = {
   id: string;
   clientId: string | null;
   datePaiement: string;
-  client: { id: string; raisonSociale: string | null } | null;
+	  client: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null } | null;
   invoice: { id: string; numero: string } | null;
   montant: number;
   allocatedAmount: number;
@@ -85,7 +85,15 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
 
   const payments = (data?.payments ?? []) as PaymentRow[];
   const clients = contextData?.clients ?? [];
-  const invoices = contextData?.invoices ?? [];
+	  const invoices = contextData?.invoices ?? [];
+
+	  const clientLabel = (client: PaymentRow["client"]) => {
+	    if (!client) return "—";
+	    const company = client.raisonSociale?.trim();
+	    if (company) return company;
+	    const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+	    return person || "Client sans nom";
+	  };
 
   const openCreate = () => {
     setFormMode("create");
@@ -171,7 +179,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                   {payments.map((p) => (
                     <tr key={p.id} className="border-b border-neutral-100 hover:bg-neutral-50/60 transition-colors">
                       <td className="py-2.5 px-3 text-[13px] text-slate-700">{formatDate(p.datePaiement)}</td>
-                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{p.client?.raisonSociale ?? "—"}</td>
+	                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{clientLabel(p.client)}</td>
                       <td className="py-2.5 px-3 text-[13px] font-mono text-slate-700">{p.invoice?.numero ?? "—"}</td>
                       <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.montant)}</td>
                       <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-forest-700">{formatCurrency(p.allocatedAmount)}</td>

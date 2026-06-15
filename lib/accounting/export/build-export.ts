@@ -18,6 +18,8 @@ export interface ExportableEntry {
   sourceModule: JournalSourceModule;
   montantEntree: number;
   montantSortie: number;
+  subtotalBeforeTax?: number | null;
+  taxTotal?: number | null;
   reference?: string | null;
   description?: string | null;
   clientName?: string | null;
@@ -46,6 +48,34 @@ function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
+function pushLine(
+  lines: AccountingExportLine[],
+  params: {
+    date: string;
+    accountCode: string;
+    accountName: string;
+    debit?: number;
+    credit?: number;
+    memo: string;
+    reference: string;
+    name: string;
+  },
+) {
+  const debit = round2(params.debit ?? 0);
+  const credit = round2(params.credit ?? 0);
+  if (debit <= 0 && credit <= 0) return;
+  lines.push({
+    date: params.date,
+    accountCode: params.accountCode,
+    accountName: params.accountName,
+    debit,
+    credit,
+    memo: params.memo,
+    reference: params.reference,
+    name: params.name,
+  });
+}
+
 /**
  * Transforme les écritures en lignes d'export double-entrée balancées.
  * Les écritures de montant nul sont ignorées (rien à exporter).
@@ -58,39 +88,37 @@ export function buildAccountingExportLines(
   const lines: AccountingExportLine[] = [];
 
   for (const e of entries) {
-    const rule = deriveDoubleEntry(e);
-    const amount = round2(rule.amount);
-    if (amount <= 0) continue;
-
     const date = toIsoDate(e.dateTransaction);
     const reference = e.reference ?? "";
     const name = e.clientName ?? "";
     const memoParts = [e.description ?? "", e.dossierLabel ?? ""].filter(Boolean);
     const memo = memoParts.join(" — ");
 
+    if (e.typeTransaction === "FACTURE" && e.sourceModule === "FACTURATION") {
+      const total = round2(e.montantEntree);
+      if (total <= 0) continue;
+      const hasTaxBreakdown = (e.subtotalBeforeTax ?? 0) > 0 || (e.taxTotal ?? 0) > 0;
+      const subtotal = hasTaxBreakdown ? round2(e.subtotalBeforeTax ?? total - (e.taxTotal ?? 0)) : total;
+      const taxTotal = hasTaxBreakdown ? round2(total - subtotal) : 0;
+
+      const ar = chart.accounts_receivable;
+      const revenue = chart.revenue_fees;
+      const tax = chart.tax_payable;
+      pushLine(lines, { date, accountCode: ar.code, accountName: ar.name, debit: total, memo, reference, name });
+      pushLine(lines, { date, accountCode: revenue.code, accountName: revenue.name, credit: subtotal, memo, reference, name });
+      pushLine(lines, { date, accountCode: tax.code, accountName: tax.name, credit: taxTotal, memo, reference, name });
+      continue;
+    }
+
+    const rule = deriveDoubleEntry(e);
+    const amount = round2(rule.amount);
+    if (amount <= 0) continue;
+
     const debitAcc = chart[rule.debit];
     const creditAcc = chart[rule.credit];
 
-    lines.push({
-      date,
-      accountCode: debitAcc.code,
-      accountName: debitAcc.name,
-      debit: amount,
-      credit: 0,
-      memo,
-      reference,
-      name,
-    });
-    lines.push({
-      date,
-      accountCode: creditAcc.code,
-      accountName: creditAcc.name,
-      debit: 0,
-      credit: amount,
-      memo,
-      reference,
-      name,
-    });
+    pushLine(lines, { date, accountCode: debitAcc.code, accountName: debitAcc.name, debit: amount, memo, reference, name });
+    pushLine(lines, { date, accountCode: creditAcc.code, accountName: creditAcc.name, credit: amount, memo, reference, name });
   }
 
   return lines;

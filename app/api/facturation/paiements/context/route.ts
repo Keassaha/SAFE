@@ -29,8 +29,8 @@ export async function GET() {
   const [clients, invoices] = await Promise.all([
     prisma.client.findMany({
       where: { cabinetId },
-      select: { id: true, raisonSociale: true },
-      orderBy: { raisonSociale: "asc" },
+      select: { id: true, raisonSociale: true, prenom: true, nom: true },
+      orderBy: [{ raisonSociale: "asc" }, { nom: "asc" }, { prenom: "asc" }],
     }),
     prisma.invoice.findMany({
       where: {

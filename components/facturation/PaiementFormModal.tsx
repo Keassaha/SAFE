@@ -12,6 +12,13 @@ import { formatCurrency } from "@/lib/utils/format";
 const selectClass =
   "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
 
+function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
+  const company = client.raisonSociale?.trim();
+  if (company) return company;
+  const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  return person || "Client sans nom";
+}
+
 export type PaymentFormPayment = {
   id: string;
   clientId: string | null;
@@ -29,7 +36,7 @@ export interface PaiementFormModalProps {
   onClose: () => void;
   mode: "create" | "edit";
   paymentId?: string | null;
-  clients: { id: string; raisonSociale: string | null }[];
+  clients: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null }[];
   invoices: {
     id: string;
     numero: string;
@@ -58,6 +65,9 @@ export function PaiementFormModal({
   const [payment, setPayment] = useState<PaymentFormPayment | null>(null);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
+  const [paymentAmount, setPaymentAmount] = useState<string>("");
+  const [allocatedAmount, setAllocatedAmount] = useState<string>("0");
 
   const isEdit = mode === "edit" && paymentId;
 
@@ -77,6 +87,7 @@ export function PaiementFormModal({
           (inv) => inv.clientId === selectedClientId && inv.balanceDue > 0
         )
       : [];
+  const selectedInvoice = invoicesForSelectedClient.find((inv) => inv.id === selectedInvoiceId);
 
   useEffect(() => {
     if (!open || !isEdit) {
@@ -105,6 +116,44 @@ export function PaiementFormModal({
       .catch(() => setPayment(null))
       .finally(() => setLoadingPayment(false));
   }, [open, isEdit, paymentId, tp]);
+
+  useEffect(() => {
+    if (!open || mode !== "create") return;
+    setSelectedClientId("");
+    setSelectedInvoiceId("");
+    setPaymentAmount("");
+    setAllocatedAmount("0");
+  }, [open, mode]);
+
+  function handleClientChange(nextClientId: string) {
+    setSelectedClientId(nextClientId);
+    setSelectedInvoiceId("");
+    setAllocatedAmount("0");
+  }
+
+  function handleInvoiceChange(nextInvoiceId: string) {
+    setSelectedInvoiceId(nextInvoiceId);
+    const invoice = invoicesForSelectedClient.find((inv) => inv.id === nextInvoiceId);
+    if (!invoice) {
+      setAllocatedAmount("0");
+      return;
+    }
+    const balance = Math.max(0, invoice.balanceDue);
+    const amount = Number(paymentAmount || 0);
+    const allocation = amount > 0 ? Math.min(amount, balance) : balance;
+    setAllocatedAmount(allocation.toFixed(2));
+    if (!paymentAmount || Number(paymentAmount) <= 0) {
+      setPaymentAmount(balance.toFixed(2));
+    }
+  }
+
+  function handleAmountChange(nextAmount: string) {
+    setPaymentAmount(nextAmount);
+    if (!selectedInvoice) return;
+    const amount = Number(nextAmount || 0);
+    const allocation = amount > 0 ? Math.min(amount, selectedInvoice.balanceDue) : 0;
+    setAllocatedAmount(allocation.toFixed(2));
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -192,13 +241,13 @@ export function PaiementFormModal({
               required
               disabled={!!isEdit}
               value={isEdit ? payment?.clientId ?? "" : selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
+              onChange={(e) => handleClientChange(e.target.value)}
               className={`${selectClass} disabled:opacity-70 disabled:bg-neutral-100`}
             >
               <option value="">{tp("selectClient")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.raisonSociale}
+                  {clientLabel(c)}
                 </option>
               ))}
             </select>
@@ -223,9 +272,11 @@ export function PaiementFormModal({
                 required
                 min={minAmount}
                 step="0.01"
-                defaultValue={payment?.montant}
+                defaultValue={mode === "edit" ? payment?.montant : undefined}
+                value={mode === "create" ? paymentAmount : undefined}
+                onChange={mode === "create" ? (e) => handleAmountChange(e.target.value) : undefined}
                 className={selectClass}
-                placeholder="0,00"
+                placeholder="0.00"
               />
               {isEdit && payment && payment.allocatedAmount > 0 && (
                 <p className="text-xs text-neutral-500 mt-1">
@@ -273,6 +324,8 @@ export function PaiementFormModal({
                 <select
                   name="invoiceId"
                   id="invoiceId"
+                  value={selectedInvoiceId}
+                  onChange={(e) => handleInvoiceChange(e.target.value)}
                   className={selectClass}
                 >
                   <option value="">{tp("noInvoice")}</option>
@@ -292,10 +345,16 @@ export function PaiementFormModal({
                   name="allocatedAmount"
                   min="0"
                   step="0.01"
-                  defaultValue="0"
+                  value={allocatedAmount}
+                  onChange={(e) => setAllocatedAmount(e.target.value)}
                   className={selectClass}
-                  placeholder="0,00"
+                  placeholder="0.00"
                 />
+                {selectedInvoice && (
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Solde facture : {formatCurrency(selectedInvoice.balanceDue)}
+                  </p>
+                )}
               </div>
             </>
           )}

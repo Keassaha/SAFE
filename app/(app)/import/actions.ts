@@ -576,6 +576,16 @@ async function importAccountingLedger(
     try {
       const typeTransaction = resolveTypeTransaction(data.typeTransaction);
       const sourceModule = resolveSourceModule(data.sourceModule);
+      if (typeTransaction === "DEPOT_FIDEICOMMIS" || typeTransaction === "RETRAIT_FIDEICOMMIS" || sourceModule === "FIDEICOMMIS") {
+        log.rejected.push({
+          row: sourceLine,
+          reason:
+            "Import fidéicommis refusé : les mouvements fidéicommis doivent passer par le module dédié pour mettre à jour la carte-client et le solde TrustAccount.",
+          severity: "blocked",
+        });
+        result.skipped++;
+        continue;
+      }
       // La référence stockée reste la référence métier brute du fichier.
       // Le fingerprint vit dans `sourceId` (clé d'idempotence).
       const reference = data.reference ?? null;

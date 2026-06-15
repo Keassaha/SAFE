@@ -34,6 +34,7 @@ interface RegistreTachesPageProps {
   /** Ouverture contrôlée du modal d'ajout. Si fourni, prime sur l'état interne. */
   addModalOpen?: boolean;
   onAddModalOpenChange?: (open: boolean) => void;
+  onAddSuccess?: () => void;
 }
 
 export function RegistreTachesPage({
@@ -41,6 +42,7 @@ export function RegistreTachesPage({
   hideAddButton = false,
   addModalOpen,
   onAddModalOpenChange,
+  onAddSuccess,
 }: RegistreTachesPageProps) {
   const t = useTranslations("temps.taskRegister");
   const [internalAddOpen, setInternalAddOpen] = useState(false);
@@ -117,6 +119,7 @@ export function RegistreTachesPage({
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         dossiers={dossiers}
+        onSuccess={onAddSuccess}
       />
     </div>
   );
