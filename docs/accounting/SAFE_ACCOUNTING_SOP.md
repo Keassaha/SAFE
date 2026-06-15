@@ -151,7 +151,7 @@ Principe : **on ne supprime jamais, on inverse.**
 ## 13. Procédure d'export au comptable
 
 1. Choisir la **période** (mois / trimestre / exercice).
-2. Exporter le journal (CSV / Excel aujourd'hui ; format mappable QuickBooks/Xero/Sage : cible plan).
+2. Exporter le journal (CSV / Excel) **ou** l'export comptable mappable par période (double-entrée, formats QuickBooks / Xero / Sage / générique).
 3. Joindre, selon le besoin : factures, paiements, débours, dépenses, résumé de taxes, mouvements fidéicommis, piste d'audit.
 4. *(Cible)* L'export d'une période certifiée est **horodaté et verrouillé** (snapshot reproductible).
 

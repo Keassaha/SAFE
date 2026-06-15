@@ -12,6 +12,8 @@ import {
   exportJournalCsv,
 } from "@/lib/services/journal";
 import { isManualEntryTypeAllowed } from "@/lib/services/journal/manual-entry-policy";
+import { buildPeriodAccountingExport } from "@/lib/services/accounting-export";
+import type { AccountingExportFormat } from "@/lib/accounting/export/serialize";
 import type { JournalListParams, JournalKpiData } from "@/types/journal";
 import type { JournalEntryRow } from "@/types/journal";
 import type { JournalSourceModule, JournalTransactionType, UserRole } from "@prisma/client";
@@ -216,6 +218,32 @@ export async function exportJournalAction(
   const filename = `journal-general-${new Date().toISOString().slice(0, 10)}.csv`;
   const blob = Buffer.from(csv, "utf-8").toString("base64");
   return { blob, filename };
+}
+
+/**
+ * Export comptable mappable par période (Lot 5) : double-entrée balancée pour
+ * QuickBooks / Xero / Sage. Retourne le CSV (base64) + les métadonnées de contrôle
+ * (totaux débit/crédit, période verrouillée ou non).
+ */
+export async function exportAccountingPeriodAction(
+  periode: string,
+  format: AccountingExportFormat = "generic"
+): Promise<{ blob: string; filename: string; meta: { locked: boolean; balanced: boolean; totalDebit: number; totalCredit: number; lineCount: number } }> {
+  const cabinetId = await requireCabinetId();
+  const { csv, meta } = await buildPeriodAccountingExport({ cabinetId, periode, format });
+  const filename = `export-comptable-${format}-${periode}.csv`;
+  const blob = Buffer.from(csv, "utf-8").toString("base64");
+  return {
+    blob,
+    filename,
+    meta: {
+      locked: meta.locked,
+      balanced: meta.balanced,
+      totalDebit: meta.totalDebit,
+      totalCredit: meta.totalCredit,
+      lineCount: meta.lineCount,
+    },
+  };
 }
 
 function canUseManualJournal(role: UserRole): boolean {

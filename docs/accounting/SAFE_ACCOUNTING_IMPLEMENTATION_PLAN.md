@@ -88,7 +88,11 @@ Effort : **S** ≤ ½ j · **M** ½–2 j · **L** > 2 j.
 
 ---
 
-## Lot 5 — Export comptable mappable (M-5)
+## Lot 5 — Export comptable mappable (M-5) — ✅ FAIT 2026-06-15 (cœur)
+
+> Cœur pur testé (11 tests) + service + action de téléchargement. **Pas de migration** (lecture seule). Double-entrée balancée dérivée du journal mono-axe via mappage de comptes ; 4 formats (generic/QuickBooks/Xero/Sage) ; export par période horodaté avec statut verrouillé. Suite compta 202/202 verte, typecheck 0 erreur. **Reliquats** : bouton UI (sélection période + format) et persistance du plan comptable surchargé par cabinet (le moteur accepte déjà un `chartOverride`).
+
+
 
 *Passer du CSV générique à un export repris tel quel par le comptable / QuickBooks / Xero / Sage.*
 

@@ -39,8 +39,16 @@
 - Tests : `anti-erreurs.test.ts` (11). Suite compta **191/191**, typecheck **0 erreur**. Pas de migration.
 - Reliquat mince : afficher les `warnings` dans les formulaires (toast/bannière).
 
+## Code livré (Lot 5, validé par CEO)
+- `lib/accounting/export/` : `account-mapping.ts` (plan comptable par défaut + surcharge cabinet + dérivation double-entrée par type/module), `build-export.ts` (écritures → lignes Dr/Cr balancées + totaux de contrôle), `serialize.ts` (CSV generic/QuickBooks/Xero/Sage).
+- `lib/services/accounting-export.ts` : `buildPeriodAccountingExport` (par période YYYY-MM, horodaté, statut verrouillé via isPeriodLocked, totaux balancés).
+- Action `exportAccountingPeriodAction` (`app/(app)/journal/general/actions.ts`) : téléchargement base64 + méta de contrôle.
+- Tests : `build-export.test.ts` (7) + `serialize.test.ts` (4). Suite compta **202/202**, typecheck **0 erreur**. Pas de migration.
+- Reliquats : bouton UI (période + format) + persistance du chart surchargé par cabinet.
+
 ## Commits
 - `d6bf42e` : doctrine + Lots 1-3 (fidéicommis, statuts débours, verrouillage période).
+- `17308de` : Lot 4 (contrôles anti-erreurs de saisie).
 
 ## Gates de déploiement (à exécuter avant prod)
 - Lot 1 R-1 : requête soldes fidéicommis négatifs Dérisier (corriger si lignes).
@@ -48,4 +56,4 @@
 - Lot 3 : `prisma migrate deploy` (migration additive `20260615130000_add_accounting_period_lock`) AVANT le déploiement du code.
 
 ## Reste à faire
-- Lot 0 vérif live écrans Cayard/Dérisier (R-3/R-4 localisation, séparé). Lots 5-6 du plan (export mappable, profil cabinet). Affichage UI des warnings Lot 4. Preview UI carte « Débours à récupérer » + écran de gestion des verrous une fois les migrations appliquées en dev.
+- **Lot 6** (profil cabinet + onboarding) — seul lot majeur restant. Reliquats minces : affichage UI warnings (Lot 4), bouton UI export + chart persistant (Lot 5), preview cartes/verrous après migrations en dev, vérif live localisation Cayard/Dérisier (R-3/R-4).
