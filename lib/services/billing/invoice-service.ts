@@ -19,6 +19,7 @@ import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { createAuditLog } from "@/lib/services/audit";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { derivePaymentStatus } from "@/lib/billing/payment-status";
+import { assertInvoiceHasClient } from "@/lib/accounting/anti-erreurs";
 import { writeJournalForIssuedInvoice } from "@/lib/services/journal/billing-journal";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
@@ -42,6 +43,9 @@ export async function createDraftFromBillableItems(params: {
   createdById?: string | null;
 }): Promise<{ invoiceId: string }> {
   const { cabinetId, clientId, dossierId, timeEntryIds, expenseIds = [], createdById } = params;
+
+  // Anti-erreur (doctrine §8) : une facture doit être rattachée à un client.
+  assertInvoiceHasClient({ clientId });
 
   if (timeEntryIds.length === 0 && expenseIds.length === 0) {
     throw new Error("Sélectionnez au moins une fiche de temps ou un débours");

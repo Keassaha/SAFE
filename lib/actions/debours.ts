@@ -11,6 +11,7 @@ import { applyDeboursDossierCorrection } from "@/lib/services/journal/append-onl
 import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
 import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
 import { detectAndEmitIfReady } from "@/lib/services/ready-for-review-service";
+import { warnUnbilledDeboursOnClosedDossier, type GuardWarning } from "@/lib/accounting/anti-erreurs";
 
 async function getDossierCabinetId(dossierId: string): Promise<string | null> {
   const dossier = await prisma.dossier.findFirst({
@@ -53,7 +54,7 @@ export async function createDeboursDossier(formData: FormData) {
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: parsed.data.dossierId, cabinetId },
-    select: { clientId: true },
+    select: { clientId: true, statut: true },
   });
   if (!dossier || dossier.clientId !== parsed.data.clientId) {
     return { ok: false as const, error: "invalid" };
@@ -116,12 +117,20 @@ export async function createDeboursDossier(formData: FormData) {
     callerUserId: userId,
   });
 
+  // Anti-erreur (doctrine §8) : signaler un débours refacturable non facturé créé
+  // sur un dossier déjà fermé/archivé (risque d'oubli de refacturation).
+  const warning: GuardWarning | null = warnUnbilledDeboursOnClosedDossier({
+    statutDebours: created.statutDebours,
+    dossierStatut: dossier.statut,
+    refacturable: created.refacturable,
+  });
+
   revalidatePath(`/dossiers/${dossierId}`);
   revalidatePath("/facturation/frais");
   revalidatePath("/journal/general");
   revalidatePath("/comptabilite");
   revalidatePath("/tableau-de-bord");
-  return { ok: true as const, id: created.id };
+  return { ok: true as const, id: created.id, warning };
 }
 
 export async function updateDeboursDossier(id: string, formData: FormData) {

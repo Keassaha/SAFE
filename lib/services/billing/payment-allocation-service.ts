@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
 import { writeJournalForPayment } from "@/lib/services/journal/billing-journal";
 import { recalculateInvoiceTotals } from "./invoice-service";
+import { warnPaymentWithoutInvoice, type GuardWarning } from "@/lib/accounting/anti-erreurs";
 
 export interface AllocationItem {
   invoiceId: string;
@@ -95,7 +96,7 @@ export async function createPayment(params: {
   receivedById?: string | null;
   invoiceId?: string | null;
   allocatedAmount?: number;
-}): Promise<{ paymentId: string }> {
+}): Promise<{ paymentId: string; warnings: GuardWarning[] }> {
   const {
     cabinetId,
     clientId,
@@ -161,7 +162,11 @@ export async function createPayment(params: {
     performedAt: new Date(),
   });
 
-  return { paymentId: payment.id };
+  const warnings: GuardWarning[] = [];
+  const warning = warnPaymentWithoutInvoice(Boolean(invoiceId));
+  if (warning) warnings.push(warning);
+
+  return { paymentId: payment.id, warnings };
 }
 
 /** Met à jour les champs modifiables d'un paiement. Le montant ne peut pas être inférieur au montant déjà alloué. */

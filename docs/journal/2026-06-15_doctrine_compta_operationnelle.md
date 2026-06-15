@@ -33,10 +33,19 @@
 - Service `lib/services/journal/period-lock.ts` : `getPeriodeFromDate`, `isPeriodLocked`, `lockAccountingPeriod`, `unlockAccountingPeriod`, `getLockedPeriods`.
 - Tests : `period-lock.test.ts` (3) + assertion lock dans `reconciliation-certify.test.ts`. Suite compta **180/180 verte**, typecheck **0 erreur**.
 
+## Code livré (Lot 4, validé par CEO)
+- Module pur `lib/accounting/anti-erreurs.ts` : `assertInvoiceHasClient` (blocage), `warnPaymentWithoutInvoice`, `warnInvoiceWithoutDossier`, `warnUnbilledDeboursOnClosedDossier`.
+- Câblage : blocage facture sans client dans `createDraftFromBillableItems` ; `createPayment` renvoie `warnings` (propagé par la route `/api/facturation/paiements`) ; `createDeboursDossier` renvoie `warning` si débours refacturable non facturé sur dossier fermé/archivé.
+- Tests : `anti-erreurs.test.ts` (11). Suite compta **191/191**, typecheck **0 erreur**. Pas de migration.
+- Reliquat mince : afficher les `warnings` dans les formulaires (toast/bannière).
+
+## Commits
+- `d6bf42e` : doctrine + Lots 1-3 (fidéicommis, statuts débours, verrouillage période).
+
 ## Gates de déploiement (à exécuter avant prod)
 - Lot 1 R-1 : requête soldes fidéicommis négatifs Dérisier (corriger si lignes).
 - Lot 2 : `prisma migrate deploy` (migration additive `20260615120000_add_debours_statut`) AVANT le déploiement du code.
 - Lot 3 : `prisma migrate deploy` (migration additive `20260615130000_add_accounting_period_lock`) AVANT le déploiement du code.
 
 ## Reste à faire
-- Lot 0 vérif live écrans Cayard/Dérisier (R-3/R-4 localisation, séparé). Lots 4-6 du plan (anti-erreurs UI, profil cabinet, export mappable). Preview UI carte « Débours à récupérer » + écran de gestion des verrous une fois les migrations appliquées en dev.
+- Lot 0 vérif live écrans Cayard/Dérisier (R-3/R-4 localisation, séparé). Lots 5-6 du plan (export mappable, profil cabinet). Affichage UI des warnings Lot 4. Preview UI carte « Débours à récupérer » + écran de gestion des verrous une fois les migrations appliquées en dev.

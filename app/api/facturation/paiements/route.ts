@@ -99,7 +99,7 @@ export async function POST(request: Request) {
   } = parsed.data;
 
   try {
-    const { paymentId } = await createPayment({
+    const { paymentId, warnings } = await createPayment({
       cabinetId,
       clientId,
       paymentDate: new Date(paymentDate),
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       invoiceId: invoiceId ?? undefined,
       allocatedAmount,
     });
-    return NextResponse.json({ paymentId });
+    return NextResponse.json({ paymentId, warnings });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur lors de la création du paiement";
     return NextResponse.json({ error: message }, { status: 400 });

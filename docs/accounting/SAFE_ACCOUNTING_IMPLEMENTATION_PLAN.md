@@ -72,7 +72,11 @@ Effort : **S** ≤ ½ j · **M** ½–2 j · **L** > 2 j.
 
 ---
 
-## Lot 4 — Contrôles anti-erreurs interface (M-7)
+## Lot 4 — Contrôles anti-erreurs interface (M-7) — ✅ FAIT 2026-06-15 (logique + serveur)
+
+> Module pur `lib/accounting/anti-erreurs.ts` (testé, 11 tests) + câblage serveur. **Pas de migration.** Reliquat : afficher les `warnings` retournés dans les formulaires (toast/bannière). Suite compta 191/191 verte, typecheck 0 erreur.
+
+
 
 *Les contrôles moteur existent ; il manque les avertissements côté saisie.*
 
