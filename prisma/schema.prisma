@@ -51,6 +51,7 @@ model Cabinet {
   expenseCategorizationRules ExpenseCategorizationRule[]
   cabinetExpenses            CabinetExpense[]
   journalEntries             JournalGeneralEntry[]
+  accountingPeriodLocks      AccountingPeriodLock[]
   employees                  Employee[]
   payrollPeriods             PayrollPeriod[]
   importHistories            ImportHistory[]
@@ -1648,6 +1649,18 @@ model DeboursType {
   @@index([cabinetId, categorie])
 }
 
+// Statut de cycle de vie d'un débours récupérable (doctrine §5/§9).
+//   NON_FACTURE : avancé, pas encore porté sur une facture.
+//   FACTURE     : porté sur une facture émise (en attente de recouvrement).
+//   RECOUVRE    : la facture le couvrant est entièrement payée.
+//   RADIE       : jugé non recouvrable (le cabinet absorbe le coût ; pas de reprise du cash sorti).
+enum DeboursStatut {
+  NON_FACTURE
+  FACTURE
+  RECOUVRE
+  RADIE
+}
+
 // --- Débours par dossier (tblDeboursDossier) ---
 model DeboursDossier {
   id             String   @id @default(cuid())
@@ -1660,12 +1673,13 @@ model DeboursDossier {
   montant        Float
   taxable        Boolean  @default(false)
   date           DateTime
-  payeParCabinet Boolean  @default(true)
-  refacturable   Boolean  @default(true)
+  payeParCabinet Boolean       @default(true)
+  refacturable   Boolean       @default(true)
+  statutDebours  DeboursStatut @default(NON_FACTURE)
   factureId      String?
-  invoiceLineId  String?  @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  invoiceLineId  String?       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   cabinet     Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier     Dossier      @relation(fields: [dossierId], references: [id], onDelete: Cascade)
@@ -1679,6 +1693,7 @@ model DeboursDossier {
   @@index([clientId])
   @@index([factureId])
   @@index([cabinetId, date])
+  @@index([cabinetId, statutDebours])
 }
 
 model ConsentLog {
@@ -1933,6 +1948,25 @@ model JournalGeneralEntry {
   @@index([sourceModule])
   @@index([cabinetId, clientId, dateTransaction])
   @@map("journal_general")
+}
+
+// Verrou de période comptable (doctrine §9 — intégrité de période).
+// Une période verrouillée refuse toute NOUVELLE écriture au journal datée dans ce
+// mois (y compris les corrections : elles s'écrivent dans la période ouverte
+// courante, jamais antidatées dans un mois clos). Posé automatiquement à la
+// certification d'un rapprochement fidéicommis, ou manuellement (« clôturer le mois »).
+model AccountingPeriodLock {
+  id         String   @id @default(cuid())
+  cabinetId  String
+  periode    String // "YYYY-MM"
+  lockedAt   DateTime @default(now())
+  lockedById String?
+  reason     String? // "reconciliation_certified" | "manual_close"
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, periode])
+  @@index([cabinetId])
 }
 
 // ========== Historique des imports ==========

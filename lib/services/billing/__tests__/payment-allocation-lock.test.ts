@@ -78,6 +78,12 @@ const txClient = {
       return { id: "alloc1" };
     }),
   },
+  deboursDossier: {
+    updateMany: vi.fn(async () => {
+      log.txOps.push("deboursDossier.updateMany");
+      return { count: 0 };
+    }),
+  },
 };
 
 const prismaMock = {

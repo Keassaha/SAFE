@@ -94,6 +94,12 @@ function makeTxClient(tag: "tx" | "prisma") {
         return { id: "exp1" };
       }),
     },
+    deboursDossier: {
+      updateMany: vi.fn().mockImplementation(async () => {
+        collect("deboursDossier.updateMany");
+        return { count: 0 };
+      }),
+    },
   };
 }
 

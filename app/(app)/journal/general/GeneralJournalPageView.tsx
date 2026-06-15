@@ -17,7 +17,7 @@ import {
 import type { JournalKpiData, JournalEntryRow } from "@/types/journal";
 import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
 import type { JournalTransactionType } from "@prisma/client";
-import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, Plus } from "lucide-react";
+import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ManualJournalContext } from "./actions";
@@ -383,6 +383,13 @@ export function GeneralJournalPageView({
           value={kpis.comptesARecevoir}
           format="currency"
           icon={FileClock}
+          semantic="neutral"
+        />
+        <ComptaKpiCard
+          label={t("kpiDisbursementsToRecover")}
+          value={kpis.deboursARecuperer}
+          format="currency"
+          icon={HandCoins}
           semantic="neutral"
         />
         <ComptaKpiCard

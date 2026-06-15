@@ -110,6 +110,10 @@ function makeClient(tag: "tx" | "prisma") {
         collect("deboursDossier.update");
         return { id: "dd1" };
       }),
+      updateMany: vi.fn(async () => {
+        collect("deboursDossier.updateMany");
+        return { count: 0 };
+      }),
     },
   };
 }

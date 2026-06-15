@@ -2429,6 +2429,7 @@
     "kpiCollectedThisMonth": "Collected (this month)",
     "kpiExpensesThisMonth": "Expenses (this month)",
     "kpiAccountsReceivable": "Accounts receivable",
+    "kpiDisbursementsToRecover": "Disbursements to recover",
     "kpiTrustBalance": "Trust (client funds)",
     "manualEntryRestrictionHint": "Manual entry is reserved for documented adjustments and corrections. To bill, record a payment, log an expense or disbursement, or move trust funds, use the dedicated module.",
     "filters": "Filters",

@@ -352,6 +352,22 @@ export async function recalculateInvoiceTotals(
       paymentStatus,
     },
   });
+
+  // Lot 2 — cycle de vie des débours (doctrine §5/§9). Quand la facture est
+  // entièrement payée, les débours qu'elle porte passent FACTURE → RECOUVRE.
+  // Si un paiement est ensuite annulé (la facture retombe sous PAID), on revient
+  // RECOUVRE → FACTURE. On ne touche jamais NON_FACTURE ni RADIE.
+  if (paymentStatus === "PAID") {
+    await client.deboursDossier.updateMany({
+      where: { factureId: invoiceId, statutDebours: "FACTURE" },
+      data: { statutDebours: "RECOUVRE" },
+    });
+  } else {
+    await client.deboursDossier.updateMany({
+      where: { factureId: invoiceId, statutDebours: "RECOUVRE" },
+      data: { statutDebours: "FACTURE" },
+    });
+  }
 }
 
 /** Approuve une facture (validation avocat) sans l'émettre : DRAFT → READY_TO_ISSUE */

@@ -220,20 +220,12 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
   // F5: Cross-allocation protection (By-Law 9 / B-1 r.5)
   await validateNoCrossAllocation({ cabinetId, clientId, dossierId, factureId, createdById });
 
-  const balance = await getTrustBalance({ cabinetId, clientId, dossierId });
-  if (montant > balance) {
-    throw new Error(
-      `Solde fidéicommis insuffisant. Solde disponible : ${balance.toFixed(2)}$ ; montant demandé : ${montant.toFixed(2)}$.`
-    );
-  }
-
   const { id: trustAccountId } = await getOrCreateTrustAccount({
     cabinetId,
     clientId,
     matterId: dossierId,
   });
 
-  const newBalance = balance - montant;
   const now = new Date();
 
   if (factureId) {
@@ -243,7 +235,25 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
     if (!invoice) throw new Error("Facture introuvable ou n'appartient pas à ce client");
   }
 
+  // R-2 : le solde est (re)lu À L'INTÉRIEUR de la transaction, sous verrou advisory
+  // par compte fidéicommis. Auparavant le solde était lu hors transaction (TOCTOU) :
+  // deux retraits concurrents pouvaient tous deux passer le contrôle et rendre le
+  // solde du dossier négatif (utilisation des fonds d'un client — B-1 r.5 / By-Law 9).
+  let newBalance = 0;
   const tx = await prisma.$transaction(async (db) => {
+    await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`trust:${trustAccountId}`}))`;
+    const agg = await db.trustTransaction.aggregate({
+      where: { cabinetId, clientId, dossierId },
+      _sum: { amount: true },
+    });
+    const balance = agg._sum.amount ?? 0;
+    if (montant > balance) {
+      throw new Error(
+        `Solde fidéicommis insuffisant. Solde disponible : ${balance.toFixed(2)}$ ; montant demandé : ${montant.toFixed(2)}$.`
+      );
+    }
+    newBalance = balance - montant;
+
     const created = await db.trustTransaction.create({
       data: {
         cabinetId,

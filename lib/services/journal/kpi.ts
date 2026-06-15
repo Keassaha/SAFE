@@ -84,6 +84,7 @@ export function computeJournalKpis(
   entries: KpiEntry[],
   comptesARecevoir: number,
   period: KpiPeriod,
+  deboursARecuperer = 0,
 ): JournalKpiData {
   let totalFacture = 0;
   let totalFactureMoisPrecedent = 0;
@@ -126,6 +127,7 @@ export function computeJournalKpis(
     totalEncaisse: round2(totalEncaisse),
     totalDepenses: round2(totalDepenses),
     comptesARecevoir: round2(comptesARecevoir),
+    deboursARecuperer: round2(deboursARecuperer),
     soldeOperationnelEstime: round2(soldeOperationnelEstime),
     soldeFideicommis: round2(soldeFideicommis),
     nbTransactionsCeMois,

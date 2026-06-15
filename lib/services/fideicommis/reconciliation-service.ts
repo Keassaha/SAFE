@@ -6,6 +6,7 @@
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
 import { getGlobalTrustBalance } from "./trust-balance-service";
+import { lockAccountingPeriod } from "@/lib/services/journal/period-lock";
 
 export interface CreateReconciliationParams {
   cabinetId: string;
@@ -131,6 +132,25 @@ export async function certifyReconciliation(params: CertifyReconciliationParams)
     throw new Error("This reconciliation has already been certified");
   }
 
+  // R-1 : la 3e voie (soldeParDossier) est un _sum agrégé — un compte à -200 $
+  // masqué par un autre à +200 $ donnerait un agrégat sain. On vérifie donc CHAQUE
+  // compte fidéicommis : aucun solde client ne peut être négatif (B-1 r.5 Barreau QC
+  // / By-Law 9 LSO). Une certification sur un compte négatif masquerait un commingling.
+  const comptesNegatifs = await prisma.trustAccount.findMany({
+    where: { cabinetId, currentBalance: { lt: 0 } },
+    select: { id: true, clientId: true, currentBalance: true },
+  });
+  if (comptesNegatifs.length > 0) {
+    const details = comptesNegatifs
+      .map((c) => `${c.id} (${c.currentBalance.toFixed(2)} $)`)
+      .join(", ");
+    throw new Error(
+      `Cannot certify: ${comptesNegatifs.length} trust account(s) have a negative balance. ` +
+      "No client trust balance may be negative (B-1 r.5 / By-Law 9). " +
+      `Accounts to correct: ${details}.`
+    );
+  }
+
   const now = new Date();
   const updated = await prisma.trustReconciliation.update({
     where: { id: reconciliationId },
@@ -139,6 +159,15 @@ export async function certifyReconciliation(params: CertifyReconciliationParams)
       certifiedAt: now,
       certifiedById,
     },
+  });
+
+  // Doctrine §9 — une fois le mois certifié, on verrouille la période : plus aucune
+  // écriture ne peut être antidatée dedans (cf. createJournalEntry).
+  await lockAccountingPeriod({
+    cabinetId,
+    periode: reconciliation.periode,
+    lockedById: certifiedById,
+    reason: "reconciliation_certified",
   });
 
   await createAuditLog({

@@ -77,6 +77,8 @@ export interface JournalKpiData {
   totalDepenses: number;
   /** Comptes à recevoir : somme des soldes dus des factures ouvertes (point dans le temps). */
   comptesARecevoir: number;
+  /** Débours à récupérer : Σ débours payés par le cabinet, refacturables, non encore recouvrés/radiés. */
+  deboursARecuperer: number;
   /**
    * Solde opérationnel ESTIMÉ : cash réellement entré/sorti du compte d'administration.
    * = encaissements + ajustements/corrections cash − dépenses − débours.

@@ -2429,6 +2429,7 @@
     "kpiCollectedThisMonth": "Encaissé (ce mois)",
     "kpiExpensesThisMonth": "Dépenses (ce mois)",
     "kpiAccountsReceivable": "Comptes à recevoir",
+    "kpiDisbursementsToRecover": "Débours à récupérer",
     "kpiTrustBalance": "Fidéicommis (client)",
     "manualEntryRestrictionHint": "La saisie manuelle est réservée aux ajustements et corrections documentés. Pour facturer, encaisser un paiement, saisir une dépense, un débours ou un mouvement de fidéicommis, utilisez le module dédié.",
     "filters": "Filtres",

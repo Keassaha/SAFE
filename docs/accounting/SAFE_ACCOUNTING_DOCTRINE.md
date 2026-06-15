@@ -1,124 +1,172 @@
 # SAFE — Doctrine comptable
 
-Date: 2026-04-29
-Statut: source de vérité.
-Portée: tout module qui crée, modifie ou lit un objet financier.
+Date : 2026-06-15 (remplace la version du 2026-04-29)
+Statut : **source de vérité**. Toute divergence dans le code est un bug, pas une variante autorisée.
+Portée : tout module qui crée, modifie ou lit un objet financier.
+Documents liés : [SAFE_ACCOUNTING_SOP.md](SAFE_ACCOUNTING_SOP.md), [SAFE_ACCOUNTING_CODE_REVIEW.md](SAFE_ACCOUNTING_CODE_REVIEW.md), [SAFE_ACCOUNTING_IMPLEMENTATION_PLAN.md](SAFE_ACCOUNTING_IMPLEMENTATION_PLAN.md), [BILLING_CORE_MODEL.md](BILLING_CORE_MODEL.md), [TAX_AND_PROVINCE_MODEL.md](TAX_AND_PROVINCE_MODEL.md), [EXPENSES_AND_DISBURSEMENTS_DOCTRINE.md](EXPENSES_AND_DISBURSEMENTS_DOCTRINE.md), [INVOICE_STATUS_NORMALIZATION.md](INVOICE_STATUS_NORMALIZATION.md), [APPEND_ONLY_CORRECTIONS.md](APPEND_ONLY_CORRECTIONS.md).
 
-Ce document définit ce qu'est chaque concept dans SAFE et comment ils interagissent. Toute divergence dans le code doit être traitée comme un bug, pas comme une variante autorisée.
+---
 
-## 1. Vocabulaire canonique
+## 1. Positionnement comptable de SAFE
 
-| Concept | Définition |
+**SAFE est une comptabilité juridique opérationnelle avec export comptable externe.**
+
+Cela veut dire trois choses précises :
+
+- **Juridique** : la priorité absolue est la conformité Barreau du Québec (B-1 r.5) et Barreau de l'Ontario (By-Law 9 LSO) sur le fidéicommis, la facturation et la piste d'audit. La comptabilité de SAFE existe d'abord pour protéger le permis d'exercice de l'avocat.
+- **Opérationnelle** : SAFE suit l'argent réel du cabinet au quotidien (qui doit quoi, qu'est-ce qui est entré, qu'est-ce qui est sorti, combien d'argent client je détiens). Elle répond aux questions de gestion, pas aux questions d'états financiers normalisés.
+- **Avec export comptable externe** : SAFE n'est pas le livre comptable final. Elle produit des exports propres, horodatés et mappables que le comptable externe (ou QuickBooks / Xero / Sage) reprend pour les états financiers, la déclaration de taxes finale et l'impôt.
+
+La frontière est volontaire. **L'objectif n'est pas de rendre SAFE complète comme QuickBooks. L'objectif est de rendre SAFE difficile à mal utiliser.**
+
+Modèle technique actuel : journal général **append-only mono-axe** (entrée / sortie classées par type), pas de partie double ni de plan comptable. C'est suffisant pour la conformité et la gestion. Le passage en partie double n'est pas requis et n'est pas au programme (voir §3).
+
+---
+
+## 2. Ce que SAFE fait
+
+| Domaine | Couverture SAFE |
 |---|---|
-| **Facture (`Invoice`)** | Document émis ou en préparation, qui agrège des lignes facturables, calcule taxes et solde dû, et constitue la base de la créance client. |
-| **Ligne de facture (`InvoiceLine`)** | Unité atomique d'une facture : décrit un fait facturable (heure, forfait, débours, intérêts, ajustement). Une ligne porte sa propre taxabilité et son propre `sourceType`. |
-| **Item de facture (`InvoiceItem`)** | **Vue détaillée optionnelle** d'une ligne, utilisée pour granularité avancée (rabais avec parent, sous-éléments). Pour le V2, considérer `InvoiceItem` comme support legacy ; toute nouvelle entité passe par `InvoiceLine`. |
-| **Paiement (`Payment`)** | Encaissement réel d'un client, indépendant des factures. Un paiement n'a pas de facture par défaut — il est ensuite alloué. |
-| **Allocation (`PaymentAllocation`)** | Affectation explicite d'un montant d'un `Payment` vers une `Invoice`. Plusieurs allocations possibles par paiement. La somme des allocations ≤ `Payment.montant`. |
-| **Note de crédit (`CreditNote`)** | Annulation ou réduction d'une facture émise, avec sa propre traçabilité. |
-| **Entrée de journal (`JournalGeneralEntry`)** | Mouvement append-only au registre comptable central. Chaque entrée a un `sourceModule` et un `sourceId` qui pointent vers l'objet métier d'origine. |
-| **Dépense cabinet (`CabinetExpense`)** | Coût opérationnel du cabinet (loyer, abonnements, fournitures), validé depuis un import bancaire ou saisi manuellement. **Jamais refacturé.** |
-| **Débours dossier (`DeboursDossier`)** | Coût avancé par le cabinet pour le compte d'un dossier (frais IRCC, Title Search, etc.), destiné à être refacturé au client. |
-| **Mouvement fidéicommis (`TrustTransaction`)** | Dépôt ou retrait sur le compte en fidéicommis d'un dossier. Append-only, écrit systématiquement au journal. |
-| **Honoraires (`InvoiceItem.type = "honoraires"`)** | Ligne facturable issue du temps ou d'un forfait, taxable au taux principal. |
-| **Forfait (`ForfaitService`)** | Service catalogué à prix fixe (ex: "Real Estate Purchase $1500"). |
-| **Tâche forfaitaire (`RegistreTache`)** | Instance d'un `ForfaitService` ouverte pour un dossier donné, avec ajustement et rabais possibles. |
+| **Factures** | Émission, lignes (honoraires, forfait, débours, intérêts, ajustement), taxes par mode du cabinet, statuts, numérotation sans trou. |
+| **Encaissements** | Paiement réel indépendant des factures, allocation explicite à une ou plusieurs factures, paiement partiel, remboursement. |
+| **Comptes à recevoir** | Solde dû par facture et par client, ancienneté, base pour la relance. |
+| **Débours récupérables** | Frais avancés par le cabinet pour un dossier, destinés à être refacturés au client. |
+| **Dépenses du cabinet** | Coûts d'exploitation jamais refacturés, avec taxes payées (CTI/RTI). |
+| **Taxes TPS/TVQ/TVH** | Taxe collectée à la facturation (méthode d'exercice), taxe payée sur dépenses, résumé par période. |
+| **Fidéicommis par dossier/client** | Journal append-only, carte-client par dossier, solde courant après chaque mouvement, transfert vers admin lié à une facture. |
+| **Rapprochement mensuel fidéicommis** | Rapprochement à 3 voies (banque / registre / par dossier), écart calculé, certification par l'avocat. |
+| **Piste d'audit** | Journal général immuable, corrections par écriture inverse, log d'audit horodaté sur les opérations sensibles. |
+| **Exports comptables** | CSV / Excel du journal, par période. (Mappage QuickBooks/Xero/Sage : cible, voir plan.) |
 
-## 2. Statuts canoniques
+---
 
-### 2.1 Facture
+## 3. Ce que SAFE ne fait PAS
 
-**Décision V2** : la source de vérité est `invoiceStatus` (enum EN). Le champ `statut` (FR) est conservé pour rétro-compatibilité d'affichage mais **ne doit pas être lu pour décision métier**.
+SAFE **ne tente pas** de produire :
 
-États autorisés :
-- `DRAFT` — facture en préparation, modifiable, jamais transmise.
-- `READY_TO_ISSUE` — validée par l'avocat, prête à être envoyée.
-- `ISSUED` — émise au client, créance comptable.
-- `PARTIALLY_PAID` — au moins une allocation reçue, balance > 0.
-- `PAID` — balance = 0.
-- `OVERDUE` — `dateEcheance < today` ET balance > 0.
-- `CANCELLED` — annulation avant émission, n'a jamais été créance.
-- `CREDITED` — réduite ou annulée par une `CreditNote` après émission.
+- un **bilan** complet (actif / passif / capitaux propres) ;
+- une **comptabilité en partie double** complète avec plan comptable ;
+- des **amortissements** d'immobilisations ;
+- une **paie complexe** (la paie reste hors périmètre comptable juridique) ;
+- des **états financiers certifiés** (mission d'examen / audit CPA) ;
+- des **déclarations fiscales finales** (TPS/TVQ finale, T2/CO-17, T1).
 
-### 2.2 TimeEntry
+Pour tout cela, SAFE **exporte** vers le comptable externe. Si un cabinet demande l'une de ces fonctions, la réponse par défaut est : « SAFE prépare et exporte, votre comptable produit le document final. »
 
-Source de vérité : `billingStatus` (enum). `statut` (brouillon/valide/facture) est conservé pour affichage mais ne pilote plus les KPIs.
+---
 
-États : `NON_BILLED`, `READY_TO_BILL`, `IN_DRAFT_INVOICE`, `BILLED`, `NON_BILLABLE`, `WRITTEN_OFF`, `CANCELLED`.
+## 4. Règles fondamentales de non-mélange
 
-### 2.3 RegistreTache
+Ce sont les cinq règles dures. Une violation est un bug critique, jamais une variante.
 
-États : `en_cours`, `complete`, `facture`. Une tâche `facture` est obligatoirement liée à une `InvoiceLine` via `invoiceLineId`.
+1. **Fidéicommis ≠ argent du cabinet (commingling).** L'argent détenu en fidéicommis appartient au client. Il n'entre dans **aucun** total « cabinet » (revenu, solde opérationnel, trésorerie). Il a sa propre carte et son propre rapprochement. *Implémenté : `isTrustEntry()` exclut les types fidéicommis du solde opérationnel ([kpi.ts:54-57](../../lib/services/journal/kpi.ts)).*
+2. **Facture ≠ encaissement.** Une facture émise est une **créance**, pas de la trésorerie. Émettre une facture n'augmente jamais l'encaissé. *Implémenté : `FACTURE` alimente « Facturé », jamais le cash ([kpi.ts:113-115](../../lib/services/journal/kpi.ts)).*
+3. **Taxe ≠ revenu.** La TPS/TVQ/TVH collectée est une dette envers l'État, pas un revenu du cabinet. Le revenu se compte **hors taxe (HT)**. *Implémenté : le journal reçoit le HT (`subtotalBeforeTax`), la taxe est un axe distinct.*
+4. **Débours ≠ dépense.** Un débours est avancé **pour un client** et sera refacturé ; une dépense est un **coût du cabinet** jamais refacturé. Test unique : « est-ce qu'on va le refacturer à un client ? » oui = débours, non = dépense.
+5. **Une écriture de journal ne se modifie jamais.** Toute correction passe par une **écriture inverse** (`CORRECTION`), jamais par un `UPDATE`/`DELETE`. *Implémenté : journal append-only, idempotence `(cabinetId, sourceModule, sourceId)`.*
 
-### 2.4 Payment
+---
 
-Source de vérité : `allocationStatus` (`UNALLOCATED | PARTIALLY_ALLOCATED | ALLOCATED | REVERSED`).
+## 5. Distinction des sept concepts financiers
 
-## 3. Source de vérité des montants
+| Concept | Ce que c'est | Ce que ce n'est pas | Effet trésorerie | Effet créance | Modèle |
+|---|---|---|---|---|---|
+| **Facture** | Créance émise au client | Un encaissement | Aucun | + crée la créance | `Invoice` |
+| **Encaissement** | Argent réellement reçu | Une recette par facture (tant que non alloué) | + cash entré | − réduit la créance via allocation | `Payment` + `PaymentAllocation` |
+| **Compte à recevoir** | Solde dû d'une facture ouverte | De l'argent en banque | Aucun | = la créance restante | dérivé de `Invoice.balanceDue` |
+| **Débours récupérable** | Frais avancé pour un dossier, refacturable | Une dépense du cabinet | − cash sorti (si payé par le cabinet) | ligne future de facture | `DeboursDossier` |
+| **Dépense cabinet** | Coût d'exploitation jamais refacturé | Un débours | − cash sorti | Aucun | `CabinetExpense` |
+| **Fidéicommis** | Argent du client détenu en fiducie | De l'argent du cabinet | **hors trésorerie cabinet** | Aucun | `TrustAccount` + `TrustTransaction` |
+| **Taxe (TPS/TVQ/TVH)** | Montant collecté pour l'État | Un revenu | dette à remettre | Aucun | colonnes `tps`/`tvq` sur `Invoice` |
 
-Pour chaque concept ambigu, la source de vérité est **fixée** :
+Cas limites :
+- Un **débours payé par le cabinet** est à la fois une sortie de trésorerie immédiate (journalisée) **et** une créance refacturable future. Les deux sont vrais.
+- Un **transfert fidéicommis vers admin** lié à une facture : sortie du fidéicommis du client + application à sa facture. Interdit sans facture du **même** client.
 
-| Champ ambigu | Source de vérité (V2) | Justification |
+---
+
+## 6. KPI autorisés
+
+Seuls ces indicateurs sont autorisés sur l'aperçu financier. Aucun KPI ne doit fusionner deux axes.
+
+| KPI | Définition | Source code |
 |---|---|---|
-| `TimeEntry.montant` vs `feeAmount` | `feeAmount ?? montant` via helper `getTimeEntryBillableAmount(entry)` | `feeAmount` reflète le montant **facturable réel** (peut différer du brut si write-down) ; `montant` est le brut (heures × taux). Le helper centralise la règle. |
-| `TimeEntry.tauxHoraire` vs `hourlyRate` | `hourlyRate ?? tauxHoraire` | Idem, `hourlyRate` est le futur canonique. |
-| `TimeEntry.dureeMinutes` vs `durationHours` | `dureeMinutes` (entier) reste source de vérité, `durationHours` dérivé | Précision entière préférée pour minutes. |
-| `Invoice.statut` vs `invoiceStatus` | `invoiceStatus` | Voir §2.1. |
-| `Dossier.soldeFiducieDossier` vs `TrustAccount.currentBalance` | `TrustAccount.currentBalance` | `Dossier.soldeFiducieDossier` est un cache à invalider/recalculer depuis `TrustAccount`. |
-| `RegistreTache.montantBase` vs `ForfaitService.montant` | `RegistreTache.montantBase` (figé à l'ouverture) | Le catalogue peut bouger, la tâche garde sa version. |
+| **Facturé ce mois** | Σ factures émises dans la période (HT, créance) | `totalFacture` |
+| **Encaissé ce mois** | Σ paiements reçus dans la période (cash) | `totalEncaisse` |
+| **Comptes à recevoir** | Σ soldes dus des factures ouvertes (point dans le temps) | `comptesARecevoir` |
+| **Débours à récupérer** | Σ débours payés par le cabinet, refacturables, non encore recouvrés/radiés | `deboursARecuperer` |
+| **Dépenses du mois** | Σ dépenses + débours payés sortis dans la période | `totalDepenses` |
+| **Fidéicommis détenu** | Σ soldes fidéicommis (argent client) — **carte séparée** | `soldeFideicommis` |
+| **Taxes collectées** | TPS/TVQ/TVH facturée sur la période (méthode d'exercice) | module rapports |
+| **Solde opérationnel estimé** | Cash réel = encaissements − dépenses (jamais facture, jamais fidéicommis) | `soldeOperationnelEstime` |
 
-## 4. Qui écrit au journal général
+KPI **interdits** : « Solde global », « Revenu » incluant la taxe, tout total mélangeant fidéicommis et cabinet, « Taxes collectées » présenté comme encaissé alors qu'il s'agit d'exercice (préciser « facturées »).
 
-**Règle d'or** : tout mouvement financier réel doit produire une entrée au journal général. Une entrée n'est jamais modifiée — corrections via `typeTransaction = CORRECTION` et `sourceModule = CORRECTION_SYSTEME`.
+---
 
-| Événement | Crée une entrée ? | `sourceModule` | `typeTransaction` | `sourceId` |
-|---|---|---|---|---|
-| Émission d'une facture (`ISSUED`) | Oui | `FACTURATION` | `FACTURE` | `Invoice.id` |
-| Encaissement d'un paiement | Oui | `PAIEMENTS` | `PAIEMENT` | `Payment.id` |
-| Allocation d'un paiement à une facture | **Non** | (déjà reflété par `PAIEMENT`) | — | — |
-| Dépôt fidéicommis | Oui | `FIDEICOMMIS` | `DEPOT_FIDEICOMMIS` | `TrustTransaction.id` |
-| Retrait fidéicommis | Oui | `FIDEICOMMIS` | `RETRAIT_FIDEICOMMIS` | `TrustTransaction.id` |
-| Validation d'une dépense cabinet | **Oui** (à corriger — actuellement non) | `DEPENSES` | `DEPENSE` | `CabinetExpense.id` |
-| Paiement d'un débours dossier par le cabinet | **Oui** (à corriger — actuellement non) | `DEBOURS` | `DEBOURS` | `DeboursDossier.id` |
-| Refacturation d'un débours via une facture | **Non** (couverte par `FACTURE`) | — | — | — |
-| Ligne d'import bancaire validée comme dépense | Oui (via `CabinetExpense` validée) | `DEPENSES` | `DEPENSE` | `CabinetExpense.id` |
-| Ligne d'import comptable structuré (`migration_comptable`) | Oui | `IMPORT_BANCAIRE` ou type explicite | mappé depuis source | fingerprint ligne |
-| Ajustement manuel | Oui | `AJUSTEMENT_MANUEL` | `AJUSTEMENT` | id de l'opération |
-| Correction systémique | Oui | `CORRECTION_SYSTEME` | `CORRECTION` | id de l'entrée corrigée |
+## 7. Libellés recommandés dans l'interface
 
-**Règle d'idempotence** : pour tout `sourceModule` opérationnel (pas `AJUSTEMENT_MANUEL`), la combinaison `(cabinetId, sourceModule, sourceId)` doit être unique. Un appel répété ne doit jamais créer un doublon.
+| Bon libellé | À bannir | Pourquoi |
+|---|---|---|
+| « Facturé ce mois » | « Revenu », « Chiffre d'affaires TTC » | Une facture impayée n'est pas un revenu encaissé ; la taxe n'est pas un revenu. |
+| « Encaissé ce mois » | « Revenu » | Sépare la trésorerie de la créance. |
+| « Comptes à recevoir » | « Solde dû » seul | Précise qu'il s'agit de créances clients. |
+| « Fidéicommis détenu (argent du client) » | « Solde global », « Solde total » | Empêche toute lecture de commingling. |
+| « Solde opérationnel estimé » | « Bénéfice », « Profit » | « Estimé » signale que ce n'est pas un résultat comptable certifié. |
+| « Taxes facturées (méthode d'exercice) » | « Taxes collectées » | La taxe est due à l'émission, pas à l'encaissement. |
+| « Débours à récupérer » | « Dépenses » | Distingue l'avance refacturable du coût du cabinet. |
+| Mode QC : « TPS 5 % / TVQ 9,975 % » · Mode ON : « TVH 13 % » | Libellé figé d'une province | Le libellé dérive du **mode taxe du cabinet**, jamais d'un défaut. |
 
-**À implémenter** : helpers `writeJournalForCabinetExpense(...)` et `writeJournalForDeboursDossier(...)` dans `lib/services/journal/`, appelés respectivement par `validateImportedTransaction` et `markDeboursPaidByCabinet`.
+Règles dures de présentation (CEO) : **jamais** de numéro de Barreau/LSO sur une facture ; **maximum 2 couleurs** sur une facture.
 
-## 5. Ce qui ne doit PAS être confondu
+---
 
-- **Une `Invoice` n'est pas un encaissement.** Elle exprime une créance, pas une trésorerie.
-- **Un `Payment` n'est pas une recette par facture.** C'est un encaissement brut. Sa ventilation passe par les `PaymentAllocation`.
-- **Une `CabinetExpense` n'est pas un `DeboursDossier`.** Si l'opérateur hésite, le test à appliquer est : « est-ce qu'on va le refacturer à un client ? » → oui = `DeboursDossier`, non = `CabinetExpense`.
-- **Un `DeboursDossier` payé par le cabinet est une dépense ET une créance refacturable.** Côté trésorerie, c'est une sortie immédiate (à journaliser). Côté facture, c'est une ligne future.
-- **Un `RegistreTache` rabais n'est pas un `InvoiceItem` rabais.** Le rabais forfait s'applique côté tâche (avant facturation). Le rabais ligne s'applique sur une facture déjà composée. Choisir un seul des deux par contexte.
-- **Un `TimeEntry.WRITTEN_OFF` n'est jamais facturable.** Tout filtre "à facturer" doit l'exclure.
-- **Une entrée de journal n'est jamais éditée.** Toute modification passe par une `CORRECTION`.
+## 8. Erreurs critiques à éviter
 
-## 6. Cohérence avec la migration comptable
+| Erreur | Conséquence | Gravité |
+|---|---|---|
+| Compter une facture comme de l'argent encaissé | Vision de trésorerie fausse, décisions de dépense erronées | Critique |
+| Inclure le fidéicommis dans un total cabinet (commingling) | Violation Barreau la plus sanctionnée | Critique |
+| Compter la taxe dans le revenu | Double comptage, sur-estimation du résultat, erreur de remise | Critique |
+| Sortir une facture PDF avec le mauvais régime de taxe (province) | Document client-facing faux | Critique |
+| Transférer du fidéicommis vers admin sans facture | Retrait fiduciaire injustifié | Critique |
+| Rendre un solde fidéicommis (par dossier) négatif | Utilisation des fonds d'un client pour un autre | Critique |
+| Modifier ou supprimer une écriture de journal | Perte de la piste d'audit | Élevé |
+| Confondre débours et dépense | Marge faussée, débours jamais refacturés | Élevé |
+| Certifier un rapprochement avec un compte-client négatif masqué | Certification trompeuse | Élevé |
+| Libeller « Taxes collectées » ce qui est « facturé » | Confusion de méthode comptable | Moyen |
 
-Le flux `migration_comptable` ([app/(app)/import/actions.ts](../../app/(app)/import/actions.ts)) écrit directement au journal. C'est la seule porte d'entrée acceptable pour un import comptable historique. Les imports bancaires doivent passer par `CabinetExpense` (validation humaine) puis par le helper `writeJournalForCabinetExpense` — pas directement.
+---
 
-## 7. Architecture cible (synthèse)
+## 9. Logique comptable cible par événement
 
-```
-[Source métier]                 [Persistance]                [Journal général]
-─────────────────────────────────────────────────────────────────────────────
-Émettre une facture        →    Invoice ISSUED          →    JGE FACTURE (FACTURATION)
-Encaisser un paiement      →    Payment + Allocation    →    JGE PAIEMENT (PAIEMENTS)
-Déposer en fidéicommis     →    TrustTransaction        →    JGE DEPOT_FIDEICOMMIS
-Retirer du fidéicommis     →    TrustTransaction        →    JGE RETRAIT_FIDEICOMMIS
-Valider dépense cabinet    →    CabinetExpense valide   →    JGE DEPENSE (DEPENSES)        [À FAIRE]
-Payer un débours dossier   →    DeboursDossier paye     →    JGE DEBOURS (DEBOURS)         [À FAIRE]
-Importer historique compta →    direct                  →    JGE depuis migration_comptable
-Corriger une erreur        →    n/a                     →    JGE CORRECTION (CORRECTION_SYSTEME)
-```
+Règle d'or : **tout mouvement financier réel produit une entrée au journal général.** Une entrée n'est jamais modifiée. Idempotence : `(cabinetId, sourceModule, sourceId)` unique.
 
-## 8. Règle de prudence
+| Événement | Écriture journal | `sourceModule` | `typeTransaction` | Effet KPI | Statut |
+|---|---|---|---|---|---|
+| Émission facture (`ISSUED`) | Oui, **HT** | `FACTURATION` | `FACTURE` | + Facturé, + Comptes à recevoir | ✅ |
+| Encaissement paiement | Oui | `PAIEMENTS` | `PAIEMENT` | + Encaissé, + solde opérationnel | ✅ |
+| Allocation paiement → facture | Non (déjà reflété) | — | — | − Comptes à recevoir | ✅ |
+| Dépôt fidéicommis | Oui | `FIDEICOMMIS` | `DEPOT_FIDEICOMMIS` | + Fidéicommis détenu | ✅ |
+| Retrait fidéicommis | Oui | `FIDEICOMMIS` | `RETRAIT_FIDEICOMMIS` | − Fidéicommis détenu | ✅ |
+| Transfert fidéicommis → facture | Oui (retrait) | `FIDEICOMMIS` | `RETRAIT_FIDEICOMMIS` | − Fidéicommis ; applique à la facture | ✅ (exige facture même client) |
+| Validation dépense cabinet | Oui | `DEPENSES` | `DEPENSE` | + Dépenses, − solde opérationnel | ✅ |
+| Paiement d'un débours par le cabinet | Oui (si `payeParCabinet`) | `DEBOURS` | `DEBOURS` | + Dépenses (sortie), débours à récupérer | ✅ |
+| Refacturation d'un débours | Non (couverte par `FACTURE`) | — | — | — | ✅ |
+| Import comptable historique | Oui (direct) | `IMPORT_BANCAIRE` | mappé | selon type | ✅ |
+| Ajustement manuel | Oui | `AJUSTEMENT_MANUEL` | `AJUSTEMENT` | solde opérationnel | ✅ |
+| Correction | Oui (écriture inverse) | `CORRECTION_SYSTEME` ou `FIDEICOMMIS` | `CORRECTION` | selon module | ✅ |
 
-Quand un événement métier semble proche de plusieurs concepts canoniques, l'opérateur **ne doit pas inventer un raccourci dans le code**. Il ouvre une question dans le repo et la résout par référence à ce document. La liste des concepts est volontairement étroite : tout nouveau concept doit être ajouté ici avant d'être codé.
+Note : une `CORRECTION` issue du module `FIDEICOMMIS` ajuste le solde **fidéicommis**, jamais le cash cabinet ([kpi.ts:54-57](../../lib/services/journal/kpi.ts)).
+
+---
+
+## 10. Procédure SOP
+
+La procédure d'utilisation quotidienne (facturation, encaissement, débours, dépenses, fidéicommis, rapprochement, correction, export, contrôles mensuels) et la configuration par profil de cabinet (A/B/C/D) sont définies dans **[SAFE_ACCOUNTING_SOP.md](SAFE_ACCOUNTING_SOP.md)**.
+
+---
+
+## Règle de prudence (inchangée)
+
+Quand un événement métier semble proche de plusieurs concepts canoniques, **ne pas inventer un raccourci dans le code**. Ouvrir une question et la résoudre par référence à ce document. La liste des concepts est volontairement étroite : tout nouveau concept doit être ajouté ici avant d'être codé.

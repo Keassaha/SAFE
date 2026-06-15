@@ -409,7 +409,7 @@ export async function createInvoiceFromDossier(params: {
 
       await tx.deboursDossier.update({
         where: { id: d.id },
-        data: { factureId: invoice.id },
+        data: { factureId: invoice.id, statutDebours: "FACTURE" },
       });
     }
 

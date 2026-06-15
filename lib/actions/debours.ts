@@ -274,3 +274,45 @@ export async function deleteDeboursDossierForm(formData: FormData) {
   if (!id) return;
   await deleteDeboursDossier(id);
 }
+
+/**
+ * Radie un débours jugé non recouvrable (statut → RADIE). Doctrine §8/§12 :
+ * le cash déjà sorti (écriture DEBOURS) n'est PAS repris — le cabinet absorbe le
+ * coût. On ne radie pas un débours déjà recouvré. La radiation est tracée à l'audit.
+ */
+export async function radierDeboursDossier(id: string, motif?: string) {
+  const { cabinetId, userId } = await requireCabinetAndUser();
+
+  const existing = await prisma.deboursDossier.findFirst({
+    where: { id, cabinetId },
+    select: { dossierId: true, statutDebours: true, montant: true },
+  });
+  if (!existing) {
+    return { ok: false as const, error: "not_found" };
+  }
+  if (existing.statutDebours === "RECOUVRE") {
+    return { ok: false as const, error: "already_recovered" };
+  }
+  if (existing.statutDebours === "RADIE") {
+    return { ok: true as const }; // idempotent
+  }
+
+  await prisma.deboursDossier.update({
+    where: { id },
+    data: { statutDebours: "RADIE" },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "DeboursDossier",
+    entityId: id,
+    action: "update",
+    metadata: { statutDebours: "RADIE", montant: existing.montant, motif: motif ?? null },
+  });
+
+  revalidatePath(`/dossiers/${existing.dossierId}`);
+  revalidatePath("/facturation/frais");
+  revalidatePath("/comptabilite");
+  return { ok: true as const };
+}

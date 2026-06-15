@@ -14,6 +14,7 @@ import type {
 } from "@/types/journal";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
 import { computeJournalKpis } from "./kpi";
+import { getPeriodeFromDate } from "./period-lock";
 
 /**
  * Type du client Prisma accepté : soit le client global, soit un `TransactionClient`
@@ -38,6 +39,25 @@ export async function createJournalEntry(
   }
 
   await client.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.cabinetId}))`;
+
+  // Doctrine §9 — intégrité de période. On refuse toute écriture datée dans un mois
+  // verrouillé (rapprochement certifié ou clôture manuelle). Les corrections doivent
+  // être datées dans la période ouverte courante, jamais antidatées dans un mois clos.
+  // Lecture défensive : un client de transaction mocké sans `accountingPeriodLock`
+  // (tests partiels) saute le contrôle (période considérée ouverte).
+  if (client.accountingPeriodLock?.findUnique) {
+    const periode = getPeriodeFromDate(input.dateTransaction);
+    const lock = await client.accountingPeriodLock.findUnique({
+      where: { cabinetId_periode: { cabinetId: input.cabinetId, periode } },
+      select: { id: true },
+    });
+    if (lock) {
+      throw new Error(
+        `Période ${periode} verrouillée : impossible d'enregistrer une écriture datée dans un mois clos. ` +
+          "Datez l'écriture (ou la correction) dans la période ouverte courante.",
+      );
+    }
+  }
 
   const lastEntry = await client.journalGeneralEntry.findFirst({
     where: { cabinetId: input.cabinetId },
@@ -239,7 +259,7 @@ export async function calculateJournalBalance(
   const prevFrom = new Date(from.getFullYear(), from.getMonth() - 1, 1);
   const prevTo = new Date(from.getTime() - 1);
 
-  const [entries, arAgg] = await Promise.all([
+  const [entries, arAgg, deboursAgg] = await Promise.all([
     prisma.journalGeneralEntry.findMany({
       where: { cabinetId },
       select: {
@@ -261,12 +281,23 @@ export async function calculateJournalBalance(
       },
       _sum: { balanceDue: true },
     }),
+    // Débours à récupérer = Σ débours payés par le cabinet, refacturables, non
+    // encore recouvrés ni radiés (statut NON_FACTURE ou FACTURE). Point dans le temps.
+    prisma.deboursDossier.aggregate({
+      where: {
+        cabinetId,
+        payeParCabinet: true,
+        refacturable: true,
+        statutDebours: { in: ["NON_FACTURE", "FACTURE"] },
+      },
+      _sum: { montant: true },
+    }),
   ]);
 
-  return computeJournalKpis(entries, arAgg._sum.balanceDue ?? 0, {
-    from,
-    to,
-    prevFrom,
-    prevTo,
-  });
+  return computeJournalKpis(
+    entries,
+    arAgg._sum.balanceDue ?? 0,
+    { from, to, prevFrom, prevTo },
+    deboursAgg._sum.montant ?? 0,
+  );
 }
