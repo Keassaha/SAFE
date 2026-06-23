@@ -4,7 +4,7 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Card, CardTitle } from "@/components/ds-safe/core";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { FacturationMainKpis, type FacturationMainKpisData } from "@/components/facturation/FacturationMainKpis";
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
@@ -181,10 +181,10 @@ export default async function FacturationPage({
           <Link
             key={c.href}
             href={c.href}
-            className="rounded-safe border border-emerald-200 bg-emerald-50/50 px-4 py-3 hover:bg-emerald-50 transition-colors"
+            className="rounded-xl border border-si-line bg-si-surface px-4 py-3 hover:bg-si-canvas transition-colors"
           >
-            <p className="text-sm font-semibold text-emerald-900">{c.titre}</p>
-            <p className="text-xs text-emerald-700/80 mt-0.5">{c.sous} →</p>
+            <p className="text-sm font-medium text-si-ink">{c.titre}</p>
+            <p className="text-xs text-si-muted mt-0.5">{c.sous} →</p>
           </Link>
         ))}
       </div>
@@ -193,12 +193,12 @@ export default async function FacturationPage({
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
       </section>
 
-      <Card>
-        <CardHeader
-          title={t("listTitle")}
-          action={<FacturationActions billingMode={billingMode} />}
-        />
-        <CardContent className="space-y-4">
+      <Card className="overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>{t("listTitle")}</CardTitle>
+          <FacturationActions billingMode={billingMode} />
+        </div>
+        <div className="space-y-4 p-6">
           <FacturationFilters
             currentStatut={currentStatut}
             currentSearch={currentSearch}
@@ -207,13 +207,13 @@ export default async function FacturationPage({
             dateTo={dateToParam ?? ""}
           />
           {rows.length === 0 ? (
-            <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+            <p className="text-sm text-si-muted py-8 text-center">
               {t("noMatch")}
             </p>
           ) : (
             <FacturationTable invoices={rows} />
           )}
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

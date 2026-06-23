@@ -28,10 +28,10 @@ interface FacturationMainKpisProps {
 }
 
 const CARD_BASE =
-  "relative overflow-hidden rounded-safe border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md hover:border-[var(--safe-green-700)]";
+  "relative overflow-hidden rounded-2xl border border-si-line bg-si-surface transition-all hover:shadow-si-card hover:border-si-forest/30";
 
 const CARD_ACTIVE =
-  "ring-2 ring-[var(--safe-green-700)] border-[var(--safe-green-700)]";
+  "ring-2 ring-si-forest/30 border-si-forest/40";
 
 /**
  * Unified KPI strip. Each tile is a clickable filter on the current page:
@@ -67,7 +67,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       key: "facturablesSum",
       label: tFacturation("billable"),
       icon: DollarSign,
-      valueColor: "text-status-success",
+      valueColor: "text-si-verified",
       href: "/facturation#facturables",
       statutFilter: "", // ancre interne vers la section "Facturables par client"
       getValue: (k) => `${k.facturablesCount}`,
@@ -78,7 +78,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       key: "verificationCount",
       label: tFacturation("verification"),
       icon: FileCheck,
-      valueColor: "text-amber-600",
+      valueColor: "text-si-amber-ink",
       href: linkWithStatut("brouillon"),
       statutFilter: "brouillon",
       getValue: (k) => `${k.verificationCount}`,
@@ -88,7 +88,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       key: "envoyeesSum",
       label: tFacturation("sent"),
       icon: Send,
-      valueColor: "text-blue-600",
+      valueColor: "text-si-ink",
       href: linkWithStatut("envoyee"),
       statutFilter: "envoyee",
       getValue: (k) => `${k.envoyeesCount}`,
@@ -98,7 +98,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       key: "enRetardSum",
       label: tFacturation("overdue"),
       icon: AlertCircle,
-      valueColor: "text-status-error",
+      valueColor: "text-[#B84A3E]",
       href: linkWithStatut("en_retard"),
       statutFilter: "en_retard",
       getValue: (k) => `${k.enRetardCount}`,
@@ -108,7 +108,7 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
       key: "tauxEncaissement",
       label: tFacturation("collectionRate"),
       icon: Percent,
-      valueColor: "text-[var(--safe-text-title)]",
+      valueColor: "text-si-ink",
       href: linkWithStatut(""),
       statutFilter: "",
       getValue: (k) =>
@@ -132,23 +132,23 @@ export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
           >
             <div className="pt-4 pb-4 px-4 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <p className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide">
+                <p className="text-xs font-medium text-si-muted uppercase tracking-wide">
                   {card.label}
                 </p>
                 <p
-                  className={`text-xl md:text-2xl font-bold tracking-tight truncate ${card.valueColor}`}
+                  className={`font-mono text-xl md:text-2xl font-bold tracking-tight truncate ${card.valueColor}`}
                 >
                   {card.getValue(kpis)}
                 </p>
                 {card.getSub && (
-                  <p className="text-xs text-[var(--safe-text-secondary)]">
+                  <p className="text-xs text-si-muted">
                     {card.subPrefixKey
                       ? `${tFacturation(card.subPrefixKey)} : ${card.getSub(kpis)}`
                       : card.getSub(kpis)}
                   </p>
                 )}
               </div>
-              <div className="p-2 rounded-safe-sm bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
+              <div className="p-2 rounded-[10px] bg-si-forest/[0.06] text-si-forest shrink-0">
                 <Icon className="h-5 w-5" aria-hidden />
               </div>
             </div>

@@ -47,35 +47,35 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
-          <tr className="border-b border-[var(--safe-neutral-border)] bg-neutral-50/80">
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+          <tr className="border-b border-si-line bg-si-canvas/60">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("invoiceNumber")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("client")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("dossier")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("issueDate")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("dueDate")}
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("totalAmount")}
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("balance")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("status")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider w-24">
+            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider w-24">
               {t("reminder")}
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wider w-28">
+            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider w-28">
               {t("actions")}
             </th>
           </tr>
@@ -88,16 +88,16 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
             return (
               <tr
                 key={inv.id}
-                className={`border-b border-[var(--safe-neutral-border)]/80 transition-colors hover:bg-neutral-50/60 ${
-                  i % 2 === 1 ? "bg-neutral-50/40" : ""
+                className={`border-b border-si-line/80 transition-colors hover:bg-si-canvas ${
+                  i % 2 === 1 ? "bg-si-canvas/40" : ""
                 }`}
               >
                 <td className="px-4 py-3">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-2 text-sm font-medium safe-text-title text-primary-600 hover:text-primary-700 hover:underline"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-si-forest hover:text-si-forest hover:underline"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-safe-sm bg-primary-50 text-primary-600">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-si-canvas text-si-forest">
                       <FileText className="h-4 w-4" aria-hidden />
                     </span>
                     <span className="font-mono">{displayInvoiceNumero(inv.numero)}</span>
@@ -106,17 +106,17 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                 <td className="px-4 py-3">
                   <Link
                     href={routes.client(inv.clientId)}
-                    className="inline-flex items-center gap-2 text-sm safe-text-title text-primary-600 hover:text-primary-700 hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-si-forest hover:text-si-forest hover:underline"
                   >
-                    <Building2 className="h-4 w-4 text-[var(--safe-text-secondary)] shrink-0" aria-hidden />
+                    <Building2 className="h-4 w-4 text-si-muted shrink-0" aria-hidden />
                     {inv.client}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-sm safe-text-title">
+                <td className="px-4 py-3 text-sm text-si-ink">
                   {inv.dossierId ? (
                     <Link
                       href={routes.dossier(inv.dossierId)}
-                      className="text-primary-600 hover:text-primary-700 hover:underline"
+                      className="text-si-forest hover:text-si-forest hover:underline"
                     >
                       {inv.dossier}
                     </Link>
@@ -124,24 +124,24 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                     inv.dossier
                   )}
                 </td>
-                <td className="px-4 py-3 text-sm text-[var(--safe-text-secondary)]">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {formatDate(inv.dateEmission)}
                 </td>
-                <td className="px-4 py-3 text-sm text-[var(--safe-text-secondary)]">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {formatDate(inv.dateEcheance)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className="text-sm font-medium safe-text-title">
+                  <span className="font-mono text-sm font-medium text-si-ink">
                     {formatCurrency(inv.montantTotal)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-sm font-medium safe-text-title">
+                    <span className="font-mono text-sm font-medium text-si-ink">
                       {formatCurrency(inv.balanceDue)}
                     </span>
                     {hasPayment && (
-                      <span className="text-xs text-[var(--safe-text-secondary)]">
+                      <span className="text-xs text-si-muted">
                         {percent} {t("paidPercent")}
                       </span>
                     )}
@@ -156,7 +156,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                 <td className="px-4 py-3">
                   {hasReminder ? (
                     <span
-                      className="inline-flex items-center gap-1.5 text-sm text-[var(--safe-text-secondary)]"
+                      className="inline-flex items-center gap-1.5 text-sm text-si-muted"
                       title={
                         inv.lastReminderSentAt
                           ? `${t("relanceOn")} ${formatDate(inv.lastReminderSentAt)}`
@@ -167,13 +167,13 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                       {inv.lastReminderDay != null ? `J+${inv.lastReminderDay}` : "—"}
                     </span>
                   ) : (
-                    <span className="text-sm text-neutral-400">—</span>
+                    <span className="text-sm text-si-muted/50">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:text-si-forest hover:underline"
                   >
                     {t("see")}
                     <ChevronRight className="h-4 w-4" aria-hidden />

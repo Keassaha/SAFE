@@ -55,7 +55,7 @@ export function FacturationFilters({
   return (
     <div className="flex flex-wrap gap-4 items-end">
       <div className="flex items-center gap-2 min-w-[200px]">
-        <Search className="h-4 w-4 text-[var(--safe-text-secondary)] shrink-0" aria-hidden />
+        <Search className="h-4 w-4 text-si-muted shrink-0" aria-hidden />
         <input
           type="search"
           placeholder={t("search")}
@@ -69,15 +69,15 @@ export function FacturationFilters({
             const v = e.target.value.trim();
             if (v !== currentSearch) updateParams({ q: v });
           }}
-          className="flex-1 rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="flex-1 rounded-lg border border-si-line px-3 py-2 text-sm text-si-ink bg-si-surface outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
         />
       </div>
       <div className="flex flex-wrap gap-2 items-center">
-        <label className="text-sm font-medium text-[var(--safe-text-secondary)]">{tFacturation("filterByInvoiceType")}</label>
+        <label className="text-sm font-medium text-si-muted">{tFacturation("filterByInvoiceType")}</label>
         <select
           value={currentStatut ?? ""}
           onChange={(e) => updateParams({ statut: e.target.value || undefined })}
-          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-lg border border-si-line px-3 py-2 text-sm text-si-ink bg-si-surface outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
           aria-label={tFacturation("filterByInvoiceType")}
         >
           {statutOptions.map((opt) => (
@@ -88,23 +88,23 @@ export function FacturationFilters({
         </select>
       </div>
       <div className="flex flex-wrap gap-2 items-center">
-        <label className="text-sm font-medium text-[var(--safe-text-secondary)]">{t("from")}</label>
+        <label className="text-sm font-medium text-si-muted">{t("from")}</label>
         <input
           type="date"
           value={dateFrom}
           onChange={(e) => updateParams({ dateFrom: e.target.value })}
-          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-lg border border-si-line px-3 py-2 text-sm text-si-ink bg-si-surface outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
         />
-        <label className="text-sm font-medium text-[var(--safe-text-secondary)]">{t("to")}</label>
+        <label className="text-sm font-medium text-si-muted">{t("to")}</label>
         <input
           type="date"
           value={dateTo}
           onChange={(e) => updateParams({ dateTo: e.target.value })}
-          className="rounded-safe-sm border border-[var(--safe-neutral-border)] px-3 py-2 text-sm safe-text-title bg-white"
+          className="rounded-lg border border-si-line px-3 py-2 text-sm text-si-ink bg-si-surface outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
         />
       </div>
       {isPending && (
-        <span className="text-xs text-[var(--safe-text-secondary)]">{t("loading")}</span>
+        <span className="text-xs text-si-muted">{t("loading")}</span>
       )}
     </div>
   );
