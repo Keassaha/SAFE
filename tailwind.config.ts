@@ -31,15 +31,15 @@ const config: Config = {
     extend: {
       colors: {
         /* ─── NEW: Brand (forest green) — canonical accent ─── */
-        canvas: tokens.color.slate[50],
-        surface: '#FFFFFF',
-        'surface-2': tokens.color.slate[100],
-        border: tokens.color.slate[300],
-        'border-strong': tokens.color.slate[400],
-        'text-subtle': tokens.color.slate[500],
-        'text-muted': tokens.color.slate[600],
-        'text-body': tokens.color.slate[700],
-        'text-primary': tokens.color.slate[800],
+        canvas: '#EFF2ED',
+        surface: '#FBFCFA',
+        'surface-2': '#E7ECE5',
+        border: '#DCE0DA',
+        'border-strong': '#C4CABE',
+        'text-subtle': '#7A857E',
+        'text-muted': '#5A665F',
+        'text-body': '#3A453E',
+        'text-primary': '#1F2A24',
         
         forest: {
           DEFAULT: tokens.color.forest[700],

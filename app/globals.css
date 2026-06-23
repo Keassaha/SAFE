@@ -177,13 +177,13 @@
   --safe-neutral-200: #E4E4E7; /* zinc-200 — borders default */
   --safe-neutral-100: #F4F4F5; /* zinc-100 — surfaces alt */
   --safe-neutral-50:  #FAFAFA; /* zinc-50  — surfaces subtle */
-  --safe-neutral-border: #E4E4E7;
-  --safe-neutral-bg: #FFFFFF;
+  --safe-neutral-border: #DCE0DA;
+  --safe-neutral-bg: #FBFCFA;
 
   /* Text hierarchy — zinc scale (Minimal Monochrome) */
-  --safe-text-title: #18181B;      /* zinc-900 — titres, headers, KPI */
-  --safe-text-secondary: #3F3F46;  /* zinc-700 — corps principal */
-  --safe-text-muted: #71717A;      /* zinc-500 — labels, hints, captions */
+  --safe-text-title: #1F2A24;      /* zinc-900 — titres, headers, KPI */
+  --safe-text-secondary: #3A453E;  /* zinc-700 — corps principal */
+  --safe-text-muted: #5A665F;      /* zinc-500 — labels, hints, captions */
   --safe-text-metric: #18181B;     /* chiffres KPI — max contraste */
   --safe-text-inverse: #FAFAFA;    /* zinc-50  — texte sur fond sombre */
   --safe-text-inverse-muted: #A1A1AA; /* zinc-400 — muted sur fond sombre */
@@ -247,8 +247,8 @@
   --safe-primary-600: var(--safe-green-600);
   --safe-primary-100: var(--safe-green-100);
   --safe-primary-50: var(--safe-green-50);
-  --safe-neutral-page: #F7F2E8;        /* sand-100 — ivoire chaud (Éditorial canvas) */
-  --safe-neutral-surface: #FCFAF4;     /* sand-50  — crème très léger (cards) */
+  --safe-neutral-page: #EFF2ED;        /* sand-100 — ivoire chaud (Éditorial canvas) */
+  --safe-neutral-surface: #FBFCFA;     /* sand-50  — crème très léger (cards) */
   --safe-neutral-elevated: #FFFFFF;    /* blanc pur (cards élevées) */
   --safe-neutral-text-primary: var(--safe-text-title);
   --safe-neutral-text-secondary: var(--safe-text-secondary);
