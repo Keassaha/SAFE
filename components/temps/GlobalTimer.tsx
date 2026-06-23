@@ -73,8 +73,8 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
       <div className="flex items-center gap-2">
         {timer.running || timer.isPaused || timer.hasStoppedWithPending ? (
           <>
-            <span className="safe-topbar-text flex items-center gap-1.5 text-sm font-mono font-medium text-[var(--safe-text-title)] min-w-[7ch]">
-              <Clock className="w-4 h-4 text-[var(--safe-green-800)]" aria-hidden />
+            <span className="safe-topbar-text flex items-center gap-1.5 text-sm font-mono font-medium text-si-ink min-w-[7ch]">
+              <Clock className="w-4 h-4 text-si-verified" aria-hidden />
               {displayTime}
             </span>
             {timer.hasStoppedWithPending ? (
@@ -82,7 +82,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.triggerOpenSaveModal}
-                  className="p-1.5 rounded-safe-sm bg-green-600 text-white hover:bg-green-700"
+                  className="p-1.5 rounded-lg bg-si-forest text-white hover:bg-si-forest"
                   title={t("saveTime")}
                   aria-label={t("save")}
                 >
@@ -91,7 +91,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.clearPending}
-                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted"
                   title={t("cancel")}
                   aria-label={t("cancel")}
                 >
@@ -104,7 +104,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                   <button
                     type="button"
                     onClick={timer.pause}
-                    className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                    className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted"
                     title={t("pause")}
                     aria-label={t("pause")}
                   >
@@ -114,7 +114,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                   <button
                     type="button"
                     onClick={timer.resume}
-                    className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                    className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted"
                     title={t("resume")}
                     aria-label={t("resume")}
                   >
@@ -124,7 +124,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.restart}
-                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted"
                   title={t("restart")}
                   aria-label={t("restart")}
                 >
@@ -133,7 +133,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.stopOnly}
-                  className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-[var(--safe-text-secondary)]"
+                  className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted"
                   title={t("stopTimer")}
                   aria-label={t("stop")}
                 >
@@ -145,9 +145,9 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
         ) : (
           <Link
             href={routes.temps}
-            className="safe-topbar-text flex items-center gap-1.5 text-sm text-[var(--safe-text-title)] hover:text-[var(--safe-green-700)]"
+            className="safe-topbar-text flex items-center gap-1.5 text-sm text-si-ink hover:text-si-forest"
           >
-            <Clock className="w-4 h-4 text-[var(--safe-icon-default)]" />
+            <Clock className="w-4 h-4 text-si-forest" />
             <span className="hidden sm:inline">{t("time")}</span>
           </Link>
         )}

@@ -33,16 +33,16 @@ export function DigestPreferenceToggle({ enabled: initial }: Props) {
   }
 
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white px-5 py-4">
+    <div className="flex items-center justify-between rounded-2xl border border-si-line bg-si-surface px-5 py-4">
       <div className="flex items-center gap-3">
         {enabled ? (
           <Bell className="h-4 w-4" style={{ color: FOREST }} aria-hidden />
         ) : (
-          <BellOff className="h-4 w-4 text-neutral-400" aria-hidden />
+          <BellOff className="h-4 w-4 text-si-muted/50" aria-hidden />
         )}
         <div>
-          <div className="text-sm font-semibold text-neutral-900">{t("title")}</div>
-          <div className="text-xs text-neutral-500">{enabled ? t("onHint") : t("offHint")}</div>
+          <div className="text-sm font-semibold text-si-ink">{t("title")}</div>
+          <div className="text-xs text-si-muted">{enabled ? t("onHint") : t("offHint")}</div>
         </div>
       </div>
       <button
@@ -55,11 +55,11 @@ export function DigestPreferenceToggle({ enabled: initial }: Props) {
         style={{ backgroundColor: enabled ? FOREST : "#D4D4D8" }}
       >
         <span
-          className="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
+          className="inline-block h-5 w-5 transform rounded-full bg-si-surface shadow transition-transform"
           style={{ transform: enabled ? "translateX(22px)" : "translateX(2px)" }}
         />
         {pending ? (
-          <Loader2 className="absolute -right-6 h-4 w-4 animate-spin text-neutral-400" aria-hidden />
+          <Loader2 className="absolute -right-6 h-4 w-4 animate-spin text-si-muted/50" aria-hidden />
         ) : null}
       </button>
     </div>

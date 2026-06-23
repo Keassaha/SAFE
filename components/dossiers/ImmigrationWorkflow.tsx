@@ -170,7 +170,7 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
                     <CheckCircle className="w-3 h-3" />
                   ) : (
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold
-                      ${isCurrent ? "bg-si-canvas0 text-white" : "bg-si-canvas text-si-muted"}`}>
+                      ${isCurrent ? "bg-si-forest text-white" : "bg-si-canvas text-si-muted"}`}>
                       {step.icon}
                     </span>
                   )}

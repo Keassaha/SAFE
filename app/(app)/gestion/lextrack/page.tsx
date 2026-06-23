@@ -123,9 +123,9 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
     const t = await getTranslations("mattersUi");
 
     const summaryCards = [
-      { title: tg("events"), value: calendarEvents.length, icon: CalendarDays, accent: "text-blue-600" },
-      { title: tm("inProgress"), value: actesEnCours, icon: Clock, accent: "text-amber-600" },
-      { title: tm("urgentOverdue"), value: actesUrgents, icon: AlertTriangle, accent: actesUrgents > 0 ? "text-red-600" : "text-neutral-400" },
+      { title: tg("events"), value: calendarEvents.length, icon: CalendarDays, accent: "text-si-ink" },
+      { title: tm("inProgress"), value: actesEnCours, icon: Clock, accent: "text-si-amber-ink" },
+      { title: tm("urgentOverdue"), value: actesUrgents, icon: AlertTriangle, accent: actesUrgents > 0 ? "text-[#B84A3E]" : "text-si-muted/50" },
       { title: tg("completed"), value: actesTermines, icon: CheckCircle2, accent: "text-emerald-600" },
     ];
 
@@ -167,14 +167,14 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
         {/* KPI cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {summaryCards.map(({ title, value, icon: Icon, accent }) => (
-            <div key={title} className="rounded-safe border border-neutral-border bg-white p-4 shadow-sm">
+            <div key={title} className="rounded-xl border border-si-line bg-si-surface p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-si-muted">{title}</p>
                   <p className={`mt-1 text-2xl font-bold tabular-nums ${accent}`}>{value}</p>
                 </div>
-                <div className="w-8 h-8 rounded-safe-sm bg-neutral-100 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-neutral-400" aria-hidden />
+                <div className="w-8 h-8 rounded-lg bg-si-canvas flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-si-muted/50" aria-hidden />
                 </div>
               </div>
             </div>
@@ -193,10 +193,10 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
 
         {/* Dossier grid */}
         {dossiers.length === 0 ? (
-          <div className="rounded-safe border border-neutral-border bg-white p-6 text-center">
-            <p className="text-sm text-neutral-500">
+          <div className="rounded-xl border border-si-line bg-si-surface p-6 text-center">
+            <p className="text-sm text-si-muted">
               {t("noMatters")}{" "}
-              <Link href={routes.dossierNouveau()} className="text-primary-700 hover:underline font-medium">{t("createMatter")}</Link>
+              <Link href={routes.dossierNouveau()} className="text-si-forest hover:underline font-medium">{t("createMatter")}</Link>
             </p>
           </div>
         ) : (
@@ -225,7 +225,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
   if (!dossier) {
     const t = await getTranslations("mattersUi");
     return (
-      <div className="rounded-safe border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
+      <div className="rounded-xl border border-si-amber/30 bg-si-amber/[0.13] p-4 text-si-amber-ink">
         {t("matterNotFound")}{" "}
         <Link href={routes.gestionLexTrack} className="underline">{t("back")}</Link>
       </div>

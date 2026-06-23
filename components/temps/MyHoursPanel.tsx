@@ -147,24 +147,24 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
       </div>
 
       {/* Saisie */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+      <div className="rounded-2xl border border-si-line bg-si-surface p-5">
         <div className="mb-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-neutral-500" aria-hidden />
-          <h3 className="text-[15px] font-semibold text-neutral-900">{t("submitTitle")}</h3>
+          <Clock className="h-4 w-4 text-si-muted" aria-hidden />
+          <h3 className="text-[15px] font-semibold text-si-ink">{t("submitTitle")}</h3>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
-            <span className="mb-1.5 block text-[12px] font-medium text-neutral-600">{t("fieldDate")}</span>
+            <span className="mb-1.5 block text-[12px] font-medium text-si-muted">{t("fieldDate")}</span>
             <input
               type="date"
               value={date}
               max={today}
               onChange={(e) => setDate(e.target.value)}
-              className="h-[38px] w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-800 focus:border-forest-700 focus:outline-none"
+              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-[12px] font-medium text-neutral-600">{t("fieldHours")}</span>
+            <span className="mb-1.5 block text-[12px] font-medium text-si-muted">{t("fieldHours")}</span>
             <input
               type="number"
               inputMode="decimal"
@@ -174,15 +174,15 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
               value={hours}
               onChange={(e) => setHours(e.target.value)}
               placeholder="0.0"
-              className="h-[38px] w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-800 focus:border-forest-700 focus:outline-none"
+              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-[12px] font-medium text-neutral-600">{t("fieldMatter")}</span>
+            <span className="mb-1.5 block text-[12px] font-medium text-si-muted">{t("fieldMatter")}</span>
             <select
               value={dossierId}
               onChange={(e) => setDossierId(e.target.value)}
-              className="h-[38px] w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-800 focus:border-forest-700 focus:outline-none"
+              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             >
               <option value="">{t("matterNone")}</option>
               {matters.map((m) => (
@@ -191,13 +191,13 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
             </select>
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-[12px] font-medium text-neutral-600">{t("fieldNote")}</span>
+            <span className="mb-1.5 block text-[12px] font-medium text-si-muted">{t("fieldNote")}</span>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t("notePlaceholder")}
-              className="h-[38px] w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-800 focus:border-forest-700 focus:outline-none"
+              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
         </div>
@@ -217,20 +217,20 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
       </div>
 
       {/* Historique */}
-      <div className="rounded-2xl border border-neutral-200 bg-white">
+      <div className="rounded-2xl border border-si-line bg-si-surface">
         <div className="px-5 pt-4 pb-2">
-          <h3 className="text-[15px] font-semibold text-neutral-900">{t("historyTitle")}</h3>
+          <h3 className="text-[15px] font-semibold text-si-ink">{t("historyTitle")}</h3>
         </div>
         {data.entries.length === 0 ? (
-          <p className="px-5 pb-5 pt-2 text-sm text-neutral-400">{t("historyEmpty")}</p>
+          <p className="px-5 pb-5 pt-2 text-sm text-si-muted/50">{t("historyEmpty")}</p>
         ) : (
           <ul className="px-2 pb-2">
             {data.entries.map((e) => {
               const tone = TONE[toneFor(e.status)];
               return (
-                <li key={e.id} className="flex items-center gap-3 border-t border-neutral-100 px-3 py-3 first:border-t-0">
-                  <span className="w-24 shrink-0 text-sm font-medium text-neutral-700">{fmtDate(e.date)}</span>
-                  <span className="w-16 shrink-0 text-sm tabular-nums text-neutral-900">{e.hours} h</span>
+                <li key={e.id} className="flex items-center gap-3 border-t border-si-line px-3 py-3 first:border-t-0">
+                  <span className="w-24 shrink-0 text-sm font-medium text-si-ink">{fmtDate(e.date)}</span>
+                  <span className="w-16 shrink-0 text-sm tabular-nums text-si-ink">{e.hours} h</span>
                   <span
                     className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold"
                     style={{ backgroundColor: tone.bg, color: tone.fg }}
@@ -238,8 +238,8 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
                     <StatusIcon status={e.status} />
                     {statusLabel(e.status)}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-neutral-500">
-                    {e.dossierLabel ? <span className="text-neutral-600">{e.dossierLabel}</span> : null}
+                  <span className="min-w-0 flex-1 truncate text-xs text-si-muted">
+                    {e.dossierLabel ? <span className="text-si-muted">{e.dossierLabel}</span> : null}
                     {e.dossierLabel && e.note ? " · " : ""}
                     {e.note ?? ""}
                     {e.status === "rejected" && e.rejectionReason ? (
@@ -252,7 +252,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
                       disabled={pending}
                       onClick={() => withdraw(e.id)}
                       title={t("withdraw")}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-700 disabled:opacity-50"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-si-line px-2.5 py-1.5 text-xs font-semibold text-si-muted hover:text-si-ink disabled:opacity-50"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden /> {t("withdraw")}
                     </button>
@@ -280,12 +280,12 @@ function SummaryCard({
 }) {
   const c = TONE[tone];
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="rounded-xl border border-si-line bg-si-surface p-4">
       <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: c.fg }}>
         {label}
       </div>
-      <div className="mt-1 text-xl font-bold text-neutral-900 tabular-nums">{value}</div>
-      <div className="mt-0.5 text-[11px] text-neutral-400">{hint}</div>
+      <div className="mt-1 text-xl font-bold text-si-ink tabular-nums">{value}</div>
+      <div className="mt-0.5 text-[11px] text-si-muted/50">{hint}</div>
     </div>
   );
 }

@@ -79,24 +79,24 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
   };
 
   return (
-    <div className="card-glass p-6">
-      <h3 className="text-base font-semibold safe-text-title flex items-center gap-2 tracking-tight">
+    <div className="bg-si-surface border border-si-line p-6">
+      <h3 className="text-base font-semibold text-si-ink flex items-center gap-2 tracking-tight">
         <Play className="w-4 h-4" aria-hidden />
         {t("quickEntry")}
       </h3>
-      <p className="text-sm safe-text-secondary mt-1 mb-4">
+      <p className="text-sm text-si-muted mt-1 mb-4">
         {t("quickEntryDesc")}
       </p>
       <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <Clock className="w-6 h-6 text-green-700" aria-hidden />
+          <div className="w-12 h-12 rounded-full bg-si-verified/10 flex items-center justify-center">
+            <Clock className="w-6 h-6 text-si-verified" aria-hidden />
           </div>
           <div>
-            <p className="text-2xl font-mono font-bold safe-text-metric tabular-nums">
+            <p className="text-2xl font-mono font-bold text-si-ink tabular-nums">
               {formatTimerElapsed(timer.elapsedSeconds)}
             </p>
-            <p className="text-xs safe-text-secondary">
+            <p className="text-xs text-si-muted">
               {timer.running ? t("statusRunning") : timer.hasStoppedWithPending ? t("statusStopped") : timer.isPaused ? t("statusPaused") : t("statusReady")}
             </p>
           </div>
@@ -141,12 +141,12 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
         ) : (
           <>
             <div className="min-w-[180px]">
-              <label className="block text-xs font-medium safe-text-secondary mb-1">{tc("client")}</label>
+              <label className="block text-xs font-medium text-si-muted mb-1">{tc("client")}</label>
               <select
                 value={clientId}
                 onChange={(e) => handleClientChange(e.target.value)}
                 disabled={isLoading}
-                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -158,12 +158,12 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
               </select>
             </div>
             <div className="min-w-[200px]">
-              <label className="block text-xs font-medium safe-text-secondary mb-1">{tc("dossier")}</label>
+              <label className="block text-xs font-medium text-si-muted mb-1">{tc("dossier")}</label>
               <select
                 value={dossierId}
                 onChange={(e) => setDossierId(e.target.value)}
                 disabled={!clientId || isLoading}
-                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="">
                   {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
@@ -176,7 +176,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
               </select>
             </div>
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs font-medium safe-text-secondary mb-1">
+              <label className="block text-xs font-medium text-si-muted mb-1">
                 {t("workingOn")}
               </label>
               <input
@@ -184,7 +184,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 placeholder={t("descriptionOptional")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+                className="w-full h-10 px-3 rounded-lg border border-si-line text-sm"
               />
             </div>
             <Button

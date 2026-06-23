@@ -138,11 +138,11 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
               <CardHeader title={t("recent.title")} />
               <CardContent className="p-0">
                 {overview.recent.length === 0 ? (
-                  <div className="p-8 text-center text-sm safe-text-secondary">
+                  <div className="p-8 text-center text-sm text-si-muted">
                     {t("recent.empty")}
                   </div>
                 ) : (
-                  <ul className="divide-y divide-[var(--safe-neutral-border)]">
+                  <ul className="divide-y divide-si-line">
                     {overview.recent.map((item) => (
                       <li
                         key={`${item.type}-${item.id}`}
@@ -152,7 +152,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                           <span
                             className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                               item.type === "forfait"
-                                ? "bg-amber-100 text-amber-800"
+                                ? "bg-si-amber/[0.13] text-si-amber-ink"
                                 : "bg-sky-100 text-sky-800"
                             }`}
                           >
@@ -163,13 +163,13 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                             )}
                             {item.type === "forfait" ? t("tabs.forfait") : t("tabs.horaire")}
                           </span>
-                          <span className="truncate text-sm safe-text-title">{item.label}</span>
+                          <span className="truncate text-sm text-si-ink">{item.label}</span>
                         </div>
                         <div className="flex items-center gap-4 shrink-0">
-                          <span className="text-xs safe-text-secondary">
+                          <span className="text-xs text-si-muted">
                             {dateFmt.format(new Date(item.date))}
                           </span>
-                          <span className="text-sm font-medium safe-text-title tabular-nums">
+                          <span className="text-sm font-medium text-si-ink tabular-nums">
                             {money.format(item.montant)}
                           </span>
                         </div>
@@ -230,16 +230,16 @@ function SummaryCard({
   highlight?: boolean;
 }) {
   return (
-    <Card className={highlight ? "border-green-600" : undefined}>
+    <Card className={highlight ? "border-si-forest" : undefined}>
       <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-sm safe-text-secondary">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-safe-sm bg-green-100 text-green-800">
+        <div className="flex items-center gap-2 text-sm text-si-muted">
+          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-si-verified/10 text-si-verified">
             {icon}
           </span>
           {label}
         </div>
-        <div className="mt-3 text-2xl font-semibold safe-text-title tabular-nums">{amount}</div>
-        <div className="mt-1 text-xs safe-text-secondary">{count}</div>
+        <div className="mt-3 text-2xl font-semibold text-si-ink tabular-nums">{amount}</div>
+        <div className="mt-1 text-xs text-si-muted">{count}</div>
       </CardContent>
     </Card>
   );

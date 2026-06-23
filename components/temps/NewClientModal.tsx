@@ -61,16 +61,16 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
 
   return (
     <Modal open={open} onClose={handleClose} title={t("registerNewClient")}>
-      <p className="text-sm text-[var(--safe-text-secondary)] mb-4">
+      <p className="text-sm text-si-muted mb-4">
         {t("registerNewClientDesc")}
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("clientType")}</label>
+          <label className="block text-sm font-medium text-si-muted mb-1">{t("clientType")}</label>
           <select
             value={typeClient}
             onChange={(e) => setTypeClient(e.target.value as "personne_physique" | "personne_morale")}
-            className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
           >
             <option value="personne_morale">{t("legalEntity")}</option>
             <option value="personne_physique">{t("naturalPerson")}</option>
@@ -84,7 +84,7 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
           required
           autoFocus
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>
             {pending ? t("registering") : t("registerInRegistry")}

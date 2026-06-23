@@ -63,20 +63,20 @@ export function TimeMetricsCards({
       {cards.map(({ title, value, sub, icon: Icon }) => (
         <div
           key={title}
-          className="card-glass p-5 transition-all duration-200 hover:shadow-md"
+          className="bg-si-surface border border-si-line p-5 transition-all duration-200 hover:shadow-md"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium safe-text-secondary tracking-wider">
+              <p className="text-xs font-medium text-si-muted tracking-wider">
                 {title}
               </p>
-              <p className="mt-1 text-2xl font-bold safe-text-metric">{value}</p>
+              <p className="mt-1 text-2xl font-bold text-si-ink">{value}</p>
               {sub && (
-                <p className="mt-1 text-sm safe-text-secondary">{sub}</p>
+                <p className="mt-1 text-sm text-si-muted">{sub}</p>
               )}
             </div>
-            <div className="w-10 h-10 rounded-safe-sm bg-green-100 flex items-center justify-center">
-              <Icon className="w-5 h-5 text-green-700" aria-hidden />
+            <div className="w-10 h-10 rounded-lg bg-si-verified/10 flex items-center justify-center">
+              <Icon className="w-5 h-5 text-si-verified" aria-hidden />
             </div>
           </div>
         </div>

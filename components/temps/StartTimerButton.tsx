@@ -31,7 +31,7 @@ export function StartTimerButton({
 
   if (running) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-neutral-400">
+      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-si-muted/50">
         <Timer className="h-4 w-4" aria-hidden /> {t("running")}
       </span>
     );

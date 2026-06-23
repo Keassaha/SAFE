@@ -59,16 +59,16 @@ export function TimeFiltersBar({
     <div className="flex flex-col gap-3 py-3 px-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5" role="group" aria-label={t("period")}>
-          <Calendar className="w-4 h-4 text-neutral-500 shrink-0" aria-hidden />
+          <Calendar className="w-4 h-4 text-si-muted shrink-0" aria-hidden />
           {presets.map((p) => (
             <button
               key={p.label}
               type="button"
               onClick={() => setDateRange(p.from, p.to)}
-              className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
                 filters.dateFrom === p.from && filters.dateTo === p.to
-                  ? "bg-green-800 text-white"
-                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                  ? "bg-si-forest text-white"
+                  : "bg-si-canvas text-si-ink hover:bg-si-canvas"
               }`}
             >
               {p.label}
@@ -82,16 +82,16 @@ export function TimeFiltersBar({
             type="date"
             value={filters.dateFrom ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dateFrom: e.target.value || undefined })}
-            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-lg border border-si-line text-sm"
           />
-          <span className="text-sm safe-text-secondary">{t("to")}</span>
+          <span className="text-sm text-si-muted">{t("to")}</span>
           <label className="sr-only" htmlFor="temps-date-to">{t("to")}</label>
           <input
             id="temps-date-to"
             type="date"
             value={filters.dateTo ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dateTo: e.target.value || undefined })}
-            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-lg border border-si-line text-sm"
           />
         </div>
       </div>
@@ -100,8 +100,8 @@ export function TimeFiltersBar({
           <button
             type="button"
             onClick={() => onShowAllEntriesChange(true)}
-            className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
-              showAllEntries ? "bg-green-800 text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+              showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-canvas"
             }`}
           >
             {t("allEntries")}
@@ -110,8 +110,8 @@ export function TimeFiltersBar({
             <button
               type="button"
               onClick={() => onShowAllEntriesChange(false)}
-              className={`px-3 py-1.5 rounded-safe-sm text-sm font-medium ${
-                !showAllEntries ? "bg-green-800 text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                !showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-canvas"
               }`}
             >
               {t("myEntries")}
@@ -120,26 +120,26 @@ export function TimeFiltersBar({
           <button
             type="button"
             onClick={() => onViewModeChange(viewMode === "list" ? "week" : "list")}
-            className="px-3 py-1.5 rounded-safe-sm text-sm font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-si-canvas text-si-ink hover:bg-si-canvas"
           >
             {viewMode === "list" ? t("weekView") : t("listView")}
           </button>
         </div>
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-si-muted" aria-hidden />
           <input
             type="search"
             placeholder={tc("searchPlaceholder")}
             value={filters.q ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, q: e.target.value || undefined })}
-            className="w-full h-10 pl-9 pr-4 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+            className="w-full h-10 pl-9 pr-4 rounded-lg border border-si-line text-sm"
           />
         </div>
         <div className="flex items-center gap-2">
           <select
             value={filters.dossierId ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, dossierId: e.target.value || undefined })}
-            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-lg border border-si-line text-sm"
             aria-label={t("filterByMatter")}
           >
             <option value="">{t("allMatters")}</option>
@@ -153,7 +153,7 @@ export function TimeFiltersBar({
             <select
               value={filters.userId ?? ""}
               onChange={(e) => onFiltersChange({ ...filters, userId: e.target.value || undefined })}
-              className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+              className="h-10 px-3 rounded-lg border border-si-line text-sm"
               aria-label={t("filterByUser")}
             >
               <option value="">{t("allUsers")}</option>
@@ -171,7 +171,7 @@ export function TimeFiltersBar({
                 facture: v === "" ? undefined : v === "facture",
               });
             }}
-            className="h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] text-sm"
+            className="h-10 px-3 rounded-lg border border-si-line text-sm"
             aria-label={t("billingStatus")}
           >
             <option value="">{t("allStatuses")}</option>

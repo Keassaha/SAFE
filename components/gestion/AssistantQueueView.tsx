@@ -58,7 +58,7 @@ export function AssistantQueueView({ queue, currentScope, canSelfAssign }: Assis
       {totalItems === 0 ? (
         <Card>
           <CardContent>
-            <div className="py-10 text-center text-sm safe-text-secondary">
+            <div className="py-10 text-center text-sm text-si-muted">
               {currentScope === "mine"
                 ? "Aucun dossier ne demande votre attention en ce moment."
                 : "Aucun dossier en attente d'action — le cabinet est en ordre."}
@@ -70,7 +70,7 @@ export function AssistantQueueView({ queue, currentScope, canSelfAssign }: Assis
           <DossierBucketCard
             title="Incomplets"
             description="Dossiers avec manquants critiques à traiter"
-            icon={<AlertOctagon className="w-5 h-5 text-[var(--safe-status-error)]" aria-hidden />}
+            icon={<AlertOctagon className="w-5 h-5 text-[#B84A3E]" aria-hidden />}
             items={queue.incomplete}
             emptyMessage="Aucun dossier incomplet."
           />
@@ -78,7 +78,7 @@ export function AssistantQueueView({ queue, currentScope, canSelfAssign }: Assis
             <DossierBucketCard
               title="Sans assistante"
               description="Dossiers actifs encore à assigner"
-              icon={<UserCheck className="w-5 h-5 text-[var(--safe-status-warning)]" aria-hidden />}
+              icon={<UserCheck className="w-5 h-5 text-si-amber-ink" aria-hidden />}
               items={queue.unassigned}
               emptyMessage="Tous les dossiers actifs ont une assistante."
               showSelfAssign={canSelfAssign}
@@ -87,14 +87,14 @@ export function AssistantQueueView({ queue, currentScope, canSelfAssign }: Assis
           <DossierBucketCard
             title="En attente du client"
             description="Le dossier attend une réponse client"
-            icon={<Hourglass className="w-5 h-5 text-[var(--safe-text-secondary)]" aria-hidden />}
+            icon={<Hourglass className="w-5 h-5 text-si-muted" aria-hidden />}
             items={queue.awaitingClient}
             emptyMessage="Aucun dossier en attente client."
           />
           <DossierBucketCard
             title="Prêts pour revue"
             description="Préparation terminée, attente de l'avocat"
-            icon={<ClipboardCheck className="w-5 h-5 text-[var(--safe-status-success)]" aria-hidden />}
+            icon={<ClipboardCheck className="w-5 h-5 text-si-verified" aria-hidden />}
             items={queue.readyForReview}
             emptyMessage="Aucun dossier prêt pour revue."
             highlightReadyForReview
@@ -119,9 +119,9 @@ export function AssistantQueueView({ queue, currentScope, canSelfAssign }: Assis
 
 function ScopeTabs({ current }: { current: "all" | "mine" }) {
   const baseTab =
-    "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-safe-sm border transition-colors";
+    "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-colors";
   const active = "bg-emerald-50 border-emerald-300 text-emerald-800";
-  const inactive = "bg-white border-[var(--safe-neutral-border)] safe-text-secondary hover:bg-neutral-50";
+  const inactive = "bg-si-surface border-si-line text-si-muted hover:bg-si-canvas";
   return (
     <div className="flex items-center gap-2">
       <Link
@@ -169,13 +169,13 @@ function DossierBucketCard({
       <CardContent>
         <div className="flex items-center gap-2 mb-2">
           {icon}
-          <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-[var(--safe-text-secondary)]">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-si-canvas text-si-muted">
             {items.length}
           </span>
         </div>
-        <p className="text-xs safe-text-secondary mb-3">{description}</p>
+        <p className="text-xs text-si-muted mb-3">{description}</p>
         {items.length === 0 ? (
-          <p className="text-sm safe-text-secondary py-3 text-center">{emptyMessage}</p>
+          <p className="text-sm text-si-muted py-3 text-center">{emptyMessage}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item) => (
@@ -216,20 +216,20 @@ function DossierItemRow({ item, showSelfAssign, highlightReadyForReview }: Dossi
 
   return (
     <div
-      className={`relative px-3 py-2 rounded-safe-sm border transition-colors ${
+      className={`relative px-3 py-2 rounded-lg border transition-colors ${
         isReady
-          ? "border-[var(--safe-status-success)]/40 bg-[var(--safe-status-success-bg)]/40"
-          : "border-[var(--safe-neutral-border)]/60 hover:bg-neutral-50/80"
+          ? "border-[var(--safe-si-verified)]/40 bg-si-verified/10"
+          : "border-si-line/60 hover:bg-si-canvas/80"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <Link href={dossierHref} className="block">
-            <div className="text-sm font-medium safe-text-title truncate hover:underline">
+            <div className="text-sm font-medium text-si-ink truncate hover:underline">
               {item.numeroDossier ? `${item.numeroDossier} — ` : ""}
               {item.dossierIntitule}
             </div>
-            <div className="text-xs safe-text-secondary truncate mt-0.5">
+            <div className="text-xs text-si-muted truncate mt-0.5">
               {item.clientName}
             </div>
           </Link>
@@ -238,13 +238,13 @@ function DossierItemRow({ item, showSelfAssign, highlightReadyForReview }: Dossi
           {item.nextAction && (
             <Link
               href={actionHref}
-              className="text-xs mt-1.5 inline-flex items-center gap-1 text-[var(--safe-status-warning)] hover:text-[var(--safe-status-warning)]/80 font-medium hover:underline"
+              className="text-xs mt-1.5 inline-flex items-center gap-1 text-si-amber-ink hover:text-si-amber-ink/80 font-medium hover:underline"
             >
               → {item.nextAction}
             </Link>
           )}
           {!item.nextAction && isReady && (
-            <span className="text-xs mt-1.5 inline-flex items-center gap-1 text-[var(--safe-status-success)] font-medium">
+            <span className="text-xs mt-1.5 inline-flex items-center gap-1 text-si-verified font-medium">
               <CheckCircle2 className="w-3 h-3" aria-hidden />
               Prêt pour revue avocat
             </span>
@@ -260,7 +260,7 @@ function DossierItemRow({ item, showSelfAssign, highlightReadyForReview }: Dossi
 
         <Link
           href={dossierHref}
-          className="shrink-0 mt-0.5 text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
+          className="shrink-0 mt-0.5 text-si-muted hover:text-si-ink"
           aria-label="Ouvrir le dossier"
         >
           <ChevronRight className="w-4 h-4" />
@@ -282,14 +282,14 @@ function TaskBucketCard({ title, description, items }: TaskBucketProps) {
       <CardHeader title={title} />
       <CardContent>
         <div className="flex items-center gap-2 mb-2">
-          <ListChecks className="w-5 h-5 text-[var(--safe-icon-default)]" aria-hidden />
-          <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-[var(--safe-text-secondary)]">
+          <ListChecks className="w-5 h-5 text-si-forest" aria-hidden />
+          <span className="text-xs px-2 py-0.5 rounded-full bg-si-canvas text-si-muted">
             {items.length}
           </span>
         </div>
-        <p className="text-xs safe-text-secondary mb-3">{description}</p>
+        <p className="text-xs text-si-muted mb-3">{description}</p>
         {items.length === 0 ? (
-          <p className="text-sm safe-text-secondary py-3 text-center">
+          <p className="text-sm text-si-muted py-3 text-center">
             Aucune tâche assignée pour l&apos;instant.
           </p>
         ) : (
@@ -298,33 +298,33 @@ function TaskBucketCard({ title, description, items }: TaskBucketProps) {
               <li key={task.taskId}>
                 <Link
                   href={routes.dossier(task.dossierId)}
-                  className="block px-3 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)]/60 hover:bg-neutral-50/80"
+                  className="block px-3 py-2 rounded-lg border border-si-line/60 hover:bg-si-canvas/80"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-sm font-medium safe-text-title truncate">
+                      <div className="text-sm font-medium text-si-ink truncate">
                         {task.titre}
                       </div>
-                      <div className="text-xs safe-text-secondary truncate mt-0.5">
+                      <div className="text-xs text-si-muted truncate mt-0.5">
                         {task.dossierIntitule}
                       </div>
                       <div className="flex items-center gap-2 mt-1.5 text-xs">
-                        <span className="px-1.5 py-0.5 rounded bg-neutral-100 safe-text-secondary capitalize">
+                        <span className="px-1.5 py-0.5 rounded bg-si-canvas text-si-muted capitalize">
                           {task.priorite}
                         </span>
                         {task.daysOverdue !== null && task.daysOverdue > 0 && (
-                          <span className="text-[var(--safe-status-error)] font-medium">
+                          <span className="text-[#B84A3E] font-medium">
                             En retard de {task.daysOverdue} jour(s)
                           </span>
                         )}
                         {task.dateEcheance && task.daysOverdue === null && (
-                          <span className="safe-text-secondary">
+                          <span className="text-si-muted">
                             {formatDate(task.dateEcheance)}
                           </span>
                         )}
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[var(--safe-text-secondary)] shrink-0 mt-0.5" aria-hidden />
+                    <ChevronRight className="w-4 h-4 text-si-muted shrink-0 mt-0.5" aria-hidden />
                   </div>
                 </Link>
               </li>
@@ -348,14 +348,14 @@ function EventBucketCard({ title, description, items }: EventBucketProps) {
       <CardHeader title={title} />
       <CardContent>
         <div className="flex items-center gap-2 mb-2">
-          <CalendarClock className="w-5 h-5 text-[var(--safe-icon-default)]" aria-hidden />
-          <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-[var(--safe-text-secondary)]">
+          <CalendarClock className="w-5 h-5 text-si-forest" aria-hidden />
+          <span className="text-xs px-2 py-0.5 rounded-full bg-si-canvas text-si-muted">
             {items.length}
           </span>
         </div>
-        <p className="text-xs safe-text-secondary mb-3">{description}</p>
+        <p className="text-xs text-si-muted mb-3">{description}</p>
         {items.length === 0 ? (
-          <p className="text-sm safe-text-secondary py-3 text-center">
+          <p className="text-sm text-si-muted py-3 text-center">
             Aucune échéance dans les 14 prochains jours.
           </p>
         ) : (
@@ -364,24 +364,24 @@ function EventBucketCard({ title, description, items }: EventBucketProps) {
               <li key={evt.eventId}>
                 <Link
                   href={routes.gestionLexTrackDossier(evt.dossierId)}
-                  className="block px-3 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)]/60 hover:bg-neutral-50/80"
+                  className="block px-3 py-2 rounded-lg border border-si-line/60 hover:bg-si-canvas/80"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-sm font-medium safe-text-title truncate">
+                      <div className="text-sm font-medium text-si-ink truncate">
                         {evt.titre}
                       </div>
-                      <div className="text-xs safe-text-secondary truncate mt-0.5">
+                      <div className="text-xs text-si-muted truncate mt-0.5">
                         {evt.dossierIntitule} — {evt.type}
                       </div>
-                      <div className="text-xs mt-1.5 safe-text-secondary">
+                      <div className="text-xs mt-1.5 text-si-muted">
                         {formatDate(evt.date)} ·{" "}
                         <span
                           className={
                             evt.daysUntil <= 3
-                              ? "text-[var(--safe-status-error)] font-medium"
+                              ? "text-[#B84A3E] font-medium"
                               : evt.daysUntil <= 7
-                                ? "text-[var(--safe-status-warning)] font-medium"
+                                ? "text-si-amber-ink font-medium"
                                 : ""
                           }
                         >
@@ -389,7 +389,7 @@ function EventBucketCard({ title, description, items }: EventBucketProps) {
                         </span>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[var(--safe-text-secondary)] shrink-0 mt-0.5" aria-hidden />
+                    <ChevronRight className="w-4 h-4 text-si-muted shrink-0 mt-0.5" aria-hidden />
                   </div>
                 </Link>
               </li>

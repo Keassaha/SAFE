@@ -47,7 +47,7 @@ export function AssignToSelfButton({ dossierId, compact = false }: AssignToSelfB
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className={`inline-flex items-center gap-1.5 rounded-safe-sm border border-emerald-300 bg-emerald-50 text-emerald-800 font-medium hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${sizing}`}
+      className={`inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 font-medium hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${sizing}`}
     >
       <UserPlus className="w-3.5 h-3.5" aria-hidden />
       {isPending ? t("assigning") : t("assignToMe")}

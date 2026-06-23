@@ -68,13 +68,13 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
         </h2>
         {dossiers.length > 6 && (
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-si-muted/50" />
             <input
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
               placeholder={t("filterPlaceholder")}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-safe-sm border border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-600)]/50 w-48"
+              className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-white/15 bg-si-surface/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-600)]/50 w-48"
             />
           </div>
         )}
@@ -85,63 +85,63 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <Link
             key={d.id}
             href={d.href}
-            className="group flex items-center gap-3 rounded-safe border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md hover:border-primary-300 hover:-translate-y-0.5"
+            className="group flex items-center gap-3 rounded-xl border border-si-line bg-si-surface p-3 shadow-sm transition-all hover:shadow-md hover:border-si-line hover:-translate-y-0.5"
           >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-primary-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-si-forest">
                   {d.numeroDossier ?? d.reference ?? d.id.slice(0, 8)}
                 </span>
                 {d.type && (
-                  <span className="text-xs font-medium text-neutral-400 uppercase">
+                  <span className="text-xs font-medium text-si-muted/50 uppercase">
                     {TYPE_LABELS[d.type] ?? d.type}
                   </span>
                 )}
               </div>
-              <p className="text-sm font-semibold text-neutral-900 truncate leading-tight">
+              <p className="text-sm font-semibold text-si-ink truncate leading-tight">
                 {d.intitule}
               </p>
               {d.clientName && (
-                <p className="text-xs text-neutral-500 truncate mt-0.5">
+                <p className="text-xs text-si-muted truncate mt-0.5">
                   {d.clientName}
                 </p>
               )}
 
               <div className="flex items-center gap-3 mt-2">
                 {/* Progress bar */}
-                <div className="flex-1 h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+                <div className="flex-1 h-1.5 rounded-full bg-si-canvas overflow-hidden">
                   <div
                     className="h-full rounded-full bg-emerald-500 transition-all"
                     style={{ width: `${d.progressPct}%` }}
                   />
                 </div>
-                <span className="text-xs font-bold tabular-nums text-neutral-500 shrink-0">
+                <span className="text-xs font-bold tabular-nums text-si-muted shrink-0">
                   {d.progressPct}%
                 </span>
               </div>
 
               <div className="flex gap-3 mt-1.5 text-xs tabular-nums">
-                <span className="text-neutral-400">
+                <span className="text-si-muted/50">
                   {t("actsCount", { count: d.total })}
                 </span>
                 {d.enCours > 0 && (
-                  <span className="text-amber-600 font-medium">{t("inProgressCount", { count: d.enCours })}</span>
+                  <span className="text-si-amber-ink font-medium">{t("inProgressCount", { count: d.enCours })}</span>
                 )}
                 {d.enRetard > 0 && (
-                  <span className="text-red-600 font-medium">{t("overdueCount", { count: d.enRetard })}</span>
+                  <span className="text-[#B84A3E] font-medium">{t("overdueCount", { count: d.enRetard })}</span>
                 )}
               </div>
             </div>
 
-            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-primary-500 transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-si-muted/40 group-hover:text-si-forest transition-colors shrink-0" />
           </Link>
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-safe border border-neutral-200 bg-white p-8 text-center">
-          <FolderOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-          <p className="text-sm text-neutral-500">{t("noMatterFound")}</p>
+        <div className="rounded-xl border border-si-line bg-si-surface p-8 text-center">
+          <FolderOpen className="w-8 h-8 text-si-muted/40 mx-auto mb-2" />
+          <p className="text-sm text-si-muted">{t("noMatterFound")}</p>
         </div>
       )}
 
@@ -150,7 +150,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white transition-colors px-4 py-2 rounded-safe-sm hover:bg-white/5"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-si-surface/5"
           >
             {expanded ? (
               <>{t("showLess")} <ChevronUp className="w-3.5 h-3.5" /></>

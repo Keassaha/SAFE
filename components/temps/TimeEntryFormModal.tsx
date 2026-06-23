@@ -201,12 +201,12 @@ export function TimeEntryFormModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("client")}</label>
+          <label className="block text-sm font-medium text-si-muted mb-1">{t("client")}</label>
           <select
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
             required
-            className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
           >
             <option value="">{t("selectClient")}</option>
             {clients.map((c) => (
@@ -215,7 +215,7 @@ export function TimeEntryFormModal({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">
+          <label className="block text-sm font-medium text-si-muted mb-1">
             {t("matter")}{dossierRequired ? ` ${t("requiredSuffix")}` : ""}
           </label>
           <select
@@ -223,7 +223,7 @@ export function TimeEntryFormModal({
             onChange={(e) => setDossierId(e.target.value)}
             required={dossierRequired}
             disabled={!clientId}
-            className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
           >
             <option value="">
               {!clientId
@@ -240,12 +240,12 @@ export function TimeEntryFormModal({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("user")}</label>
+          <label className="block text-sm font-medium text-si-muted mb-1">{t("user")}</label>
           <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             required
-            className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
           >
             {users.map((u) => (
               <option key={u.id} value={u.id}>{u.nom}</option>
@@ -262,17 +262,17 @@ export function TimeEntryFormModal({
           required
         />
         {roundingHint && (
-          <p className="text-xs text-[var(--safe-text-secondary)] -mt-2">
+          <p className="text-xs text-si-muted -mt-2">
             {formatDuree(roundingHint.raw)} → {formatDuree(roundingHint.rounded)} ({t("roundedTo", { minutes: roundingHint.roundingMinutes })})
           </p>
         )}
         <Input label={t("description")} value={description} onChange={(e) => setDescription(e.target.value)} />
         <div>
-          <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("activityType")}</label>
+          <label className="block text-sm font-medium text-si-muted mb-1">{t("activityType")}</label>
           <select
             value={typeActivite}
             onChange={(e) => setTypeActivite(e.target.value)}
-            className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
           >
             <option value="">{t("none")}</option>
             {TIME_ACTIVITY_TYPES.map((t) => (
@@ -291,11 +291,11 @@ export function TimeEntryFormModal({
         </div>
         {isEdit && (
           <div>
-            <label className="block text-sm font-medium text-[var(--safe-text-secondary)] mb-1">{t("statusLabel")}</label>
+            <label className="block text-sm font-medium text-si-muted mb-1">{t("statusLabel")}</label>
             <select
               value={statut}
               onChange={(e) => setStatut(e.target.value as TimeEntryStatut)}
-              className="w-full h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white"
+              className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
             >
               {(Object.keys(TIME_ENTRY_STATUT) as TimeEntryStatut[]).map((s) => (
                 <option key={s} value={s}>{statusLabels[s]}</option>
@@ -312,7 +312,7 @@ export function TimeEntryFormModal({
           onChange={(e) => setTauxHoraire(Number(e.target.value) || 0)}
           required
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>
             {isEdit ? t("save") : t("create")}

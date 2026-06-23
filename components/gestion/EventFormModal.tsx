@@ -125,25 +125,25 @@ export function EventFormModal({
     });
   }
 
-  const inputClass = "w-full rounded-safe-sm border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-colors";
-  const labelClass = "block text-xs font-semibold text-neutral-600 mb-1";
+  const inputClass = "w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink placeholder:text-si-muted/50 focus:outline-none focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified transition-colors";
+  const labelClass = "block text-xs font-semibold text-si-muted mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-safe-md bg-white shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
-          <h2 className="text-lg font-semibold text-neutral-900 tracking-tight">
+      <div className="relative w-full max-w-lg rounded-xl-md bg-si-surface shadow-2xl border border-si-line max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-si-line">
+          <h2 className="text-lg font-semibold text-si-ink tracking-tight">
             {isEdit ? tg("editEvent") : tg("newEvent")}
           </h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors">
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted/50 hover:text-si-ink transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="rounded-safe-sm bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>
+            <div className="rounded-lg bg-[#B84A3E]/10 border border-[#B84A3E]/30 p-3 text-sm text-[#B84A3E]">{error}</div>
           )}
 
           <div>
@@ -219,9 +219,9 @@ export function EventFormModal({
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={tg("notesPlaceholder")} rows={3} className={inputClass + " resize-y"} />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2 border-t border-neutral-100">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-safe border border-neutral-300 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">{tc("cancel")}</button>
-            <button type="submit" disabled={isPending || !title.trim()} className="px-5 py-2 rounded-safe bg-primary-700 text-white text-sm font-medium shadow-sm hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <div className="flex justify-end gap-3 pt-2 border-t border-si-line">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-si-line text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors">{tc("cancel")}</button>
+            <button type="submit" disabled={isPending || !title.trim()} className="px-5 py-2 rounded-xl bg-si-forest text-white text-sm font-medium shadow-sm hover:bg-si-forest-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {isPending ? tg("inProgress") : isEdit ? tc("save") : tg("createEvent")}
             </button>
           </div>

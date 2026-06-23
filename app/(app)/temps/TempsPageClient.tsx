@@ -109,7 +109,7 @@ export function TempsPageClient({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{t("timesheetTitle")}</h1>
@@ -119,7 +119,7 @@ export function TempsPageClient({
             <Link href={routes.facturationHonoraires}>
               <Button
                 variant="secondary"
-                className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                className="bg-si-surface/20 text-white border-white/30 hover:bg-si-surface/30"
               >
                 {t("feesToBill")}
               </Button>
@@ -127,7 +127,7 @@ export function TempsPageClient({
             {!hideAddButton && (
               <Button
                 variant="secondary"
-                className="bg-white text-green-800 hover:bg-white/90"
+                className="bg-si-surface text-si-verified hover:bg-si-surface/90"
                 onClick={() => setAddModalOpen(true)}
               >
                 {t("newEntry")}
@@ -151,20 +151,20 @@ export function TempsPageClient({
         <CardHeader
           title={t("entriesHistory")}
           action={
-            <div className="flex items-center gap-2 text-sm safe-text-secondary">
+            <div className="flex items-center gap-2 text-sm text-si-muted">
               <span>{t("entriesCount", { count: entries.length })}</span>
             </div>
           }
         />
         <CardContent className="p-0">
-          <div className="flex border-b border-[var(--safe-neutral-border)] px-4 gap-1">
+          <div className="flex border-b border-si-line px-4 gap-1">
             <button
               type="button"
               onClick={() => setActiveTab("active")}
               className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
                 activeTab === "active"
-                  ? "border-green-600 text-green-800"
-                  : "border-transparent safe-text-secondary hover:safe-text-title"
+                  ? "border-si-forest text-si-verified"
+                  : "border-transparent text-si-muted hover:text-si-ink"
               }`}
             >
               {t("activeTab", { count: activeCount })}
@@ -174,8 +174,8 @@ export function TempsPageClient({
               onClick={() => setActiveTab("facture")}
               className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
                 activeTab === "facture"
-                  ? "border-green-600 text-green-800"
-                  : "border-transparent safe-text-secondary hover:safe-text-title"
+                  ? "border-si-forest text-si-verified"
+                  : "border-transparent text-si-muted hover:text-si-ink"
               }`}
             >
               {t("archivedTab", { count: archivedCount })}
@@ -194,9 +194,9 @@ export function TempsPageClient({
           />
           {isLoading ? (
             <div className="p-8 space-y-3">
-              <div className="h-4 bg-neutral-200 rounded w-3/4 animate-pulse" />
-              <div className="h-4 bg-neutral-200 rounded w-1/2 animate-pulse" />
-              <div className="h-4 bg-neutral-200 rounded w-2/3 animate-pulse" />
+              <div className="h-4 bg-si-canvas rounded w-3/4 animate-pulse" />
+              <div className="h-4 bg-si-canvas rounded w-1/2 animate-pulse" />
+              <div className="h-4 bg-si-canvas rounded w-2/3 animate-pulse" />
             </div>
           ) : entries.length === 0 ? (
             <EmptyState

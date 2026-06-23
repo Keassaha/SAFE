@@ -63,7 +63,7 @@ export function DocumentsSection({
           <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm text-neutral-muted file:mr-2 file:py-2 file:px-3 file:rounded-safe file:border-0 file:bg-primary-100 file:text-primary-800"
+            className="text-sm text-si-muted file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-si-forest/10 file:text-si-ink"
           />
           <Button type="submit" disabled={!file || uploading}>
             {uploading ? t("sending") : t("upload")}
@@ -71,23 +71,23 @@ export function DocumentsSection({
         </form>
       )}
       {documents.length === 0 ? (
-        <p className="text-sm text-neutral-muted">{t("noDocuments")}</p>
+        <p className="text-sm text-si-muted">{t("noDocuments")}</p>
       ) : (
         <ul className="space-y-2">
           {documents.map((doc) => (
             <li
               key={doc.id}
-              className="flex items-center justify-between gap-2 py-2 border-b border-neutral-borderSubtle last:border-0"
+              className="flex items-center justify-between gap-2 py-2 border-b border-si-lineSubtle last:border-0"
             >
               <span className="text-sm font-medium truncate">{doc.nom}</span>
-              <span className="text-xs text-neutral-muted shrink-0">
+              <span className="text-xs text-si-muted shrink-0">
                 {formatDate(doc.createdAt)} — {t("sizeKb", { size: (doc.sizeBytes / 1024).toFixed(1) })}
               </span>
               <Link
                 href={`/api/documents/${doc.id}/download`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-primary-600 hover:underline shrink-0"
+                className="text-sm text-si-forest hover:underline shrink-0"
               >
                 {t("download")}
               </Link>

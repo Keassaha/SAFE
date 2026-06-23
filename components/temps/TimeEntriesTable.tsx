@@ -42,8 +42,8 @@ function StatutBadge({ billingStatus }: { billingStatus: string | null }) {
   const isFacture = billingStatus === "BILLED";
   const label = isFacture ? t("billed") : t("notBilled");
   const className = isFacture
-    ? "bg-green-100 text-green-800"
-    : "bg-red-100 text-red-800";
+    ? "bg-si-verified/10 text-si-verified"
+    : "bg-[#B84A3E]/10 text-[#B84A3E]";
   return (
     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${className}`}>
       {label}
@@ -99,23 +99,23 @@ export function TimeEntriesTable({
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
-            <tr className="border-b border-[var(--safe-neutral-border)]">
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{tc("date")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{tc("client")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{tc("dossier")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{tc("description")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{t("duration")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{t("rate")}</th>
-              <th className="px-4 py-3 text-right text-xs font-medium safe-text-secondary uppercase">{tc("amount")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{t("lawyer")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase">{tc("status")}</th>
+            <tr className="border-b border-si-line">
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("date")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("client")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("dossier")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("description")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("duration")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("rate")}</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase">{tc("amount")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("lawyer")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("status")}</th>
               <th className="px-4 py-3 w-10" aria-label="Actions" />
             </tr>
           </thead>
           <tbody>
             {entries.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-sm safe-text-secondary">
+                <td colSpan={10} className="px-4 py-8 text-center text-sm text-si-muted">
                   {t("noEntries")}
                 </td>
               </tr>
@@ -123,8 +123,8 @@ export function TimeEntriesTable({
               entries.map((entry, i) => (
                 <tr
                   key={entry.id}
-                  className={`border-b border-[var(--safe-neutral-border)]/80 hover:bg-green-50/50 ${
-                    i % 2 === 1 ? "bg-neutral-100/30" : ""
+                  className={`border-b border-si-line/80 hover:bg-si-verified/10 ${
+                    i % 2 === 1 ? "bg-si-canvas/30" : ""
                   }`}
                 >
                   <td className="px-4 py-3 text-sm whitespace-nowrap">{formatDate(entry.date)}</td>
@@ -135,12 +135,12 @@ export function TimeEntriesTable({
                     {entry.dossier ? (
                       <Link
                         href={routes.dossier(entry.dossier.id)}
-                        className="text-green-800 hover:underline"
+                        className="text-si-verified hover:underline"
                       >
                         {entry.dossier.numeroDossier ?? entry.dossier.reference ?? "—"}
                       </Link>
                     ) : (
-                      <span className="text-[var(--safe-text-secondary)]">{t("noMatter")}</span>
+                      <span className="text-si-muted">{t("noMatter")}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm max-w-[180px] truncate" title={entry.description ?? ""}>
@@ -151,7 +151,7 @@ export function TimeEntriesTable({
                   <td className="px-4 py-3 text-sm font-medium text-right tabular-nums">{formatCurrency(entry.montant)}</td>
                   <td className="px-4 py-3 text-sm">
                     <span className="inline-flex items-center gap-1.5">
-                      <span className="w-7 h-7 rounded-full bg-neutral-200 flex items-center justify-center text-xs font-medium shrink-0">
+                      <span className="w-7 h-7 rounded-full bg-si-canvas flex items-center justify-center text-xs font-medium shrink-0">
                         {entry.user.nom.slice(0, 2).toUpperCase()}
                       </span>
                       {entry.user.nom}
@@ -166,17 +166,17 @@ export function TimeEntriesTable({
                         <button
                           type="button"
                           onClick={() => setMenuId(menuId === entry.id ? null : entry.id)}
-                          className="p-1 rounded hover:bg-neutral-100"
+                          className="p-1 rounded hover:bg-si-canvas"
                           aria-label="Actions"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
                         {menuId === entry.id && (
-                          <div className="absolute right-0 top-full mt-1 py-1 bg-white border rounded-safe-sm shadow-lg z-10 min-w-[140px]">
+                          <div className="absolute right-0 top-full mt-1 py-1 bg-si-surface border rounded-lg shadow-lg z-10 min-w-[140px]">
                             <button
                               type="button"
                               onClick={() => { setEditId(entry.id); setMenuId(null); }}
-                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-neutral-50"
+                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-si-canvas"
                             >
                               <Pencil className="w-4 h-4" /> {tc("edit")}
                             </button>
@@ -184,7 +184,7 @@ export function TimeEntriesTable({
                               <button
                                 type="button"
                                 onClick={() => handleValidate(entry)}
-                                className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-neutral-50"
+                                className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-si-canvas"
                               >
                                 <Check className="w-4 h-4" /> {t("markValidated")}
                               </button>
@@ -192,7 +192,7 @@ export function TimeEntriesTable({
                             <button
                               type="button"
                               onClick={() => handleDelete(entry)}
-                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-red-50 text-red-700"
+                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-[#B84A3E]/10 text-[#B84A3E]"
                             >
                               <Trash2 className="w-4 h-4" /> {tc("delete")}
                             </button>

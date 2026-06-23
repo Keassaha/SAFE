@@ -120,22 +120,22 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white">
+    <div className="rounded-2xl border border-si-line bg-si-surface">
       {/* En-tête */}
       <div className="flex items-center gap-2 px-5 pt-4 pb-2">
-        <h3 className="text-[15px] font-semibold text-neutral-900">{t("title")}</h3>
-        <span className="text-xs text-neutral-500">· {t("subtitle")}</span>
+        <h3 className="text-[15px] font-semibold text-si-ink">{t("title")}</h3>
+        <span className="text-xs text-si-muted">· {t("subtitle")}</span>
       </div>
 
       {/* Fil */}
       <div className="px-5 pb-2">
         {rows.length === 0 ? (
-          <p className="py-4 text-sm text-neutral-400">{t("empty")}</p>
+          <p className="py-4 text-sm text-si-muted/50">{t("empty")}</p>
         ) : (
           rows.map((r) => {
             const tone = TONE[toneFor(r.type)];
             return (
-              <div key={r.id} className="flex gap-3 border-t border-neutral-100 py-3 first:border-t-0">
+              <div key={r.id} className="flex gap-3 border-t border-si-line py-3 first:border-t-0">
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
                   style={{ backgroundColor: tone.bg, color: tone.fg }}
@@ -152,10 +152,10 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
                         {t("due")} {fmtDate(r.dueDate)}
                       </span>
                     ) : null}
-                    <span className="ml-auto text-[11px] text-neutral-400">{fmtDate(r.createdAt)}</span>
+                    <span className="ml-auto text-[11px] text-si-muted/50">{fmtDate(r.createdAt)}</span>
                   </div>
-                  {r.body ? <div className="mt-1 text-sm text-neutral-700">{r.body}</div> : null}
-                  <div className="mt-0.5 text-xs text-neutral-400">
+                  {r.body ? <div className="mt-1 text-sm text-si-ink">{r.body}</div> : null}
+                  <div className="mt-0.5 text-xs text-si-muted/50">
                     {r.authorName ?? "—"}
                     {r.confidentiel ? ` · ${t("confidential")}` : ""}
                   </div>
@@ -165,7 +165,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
                       type="button"
                       disabled={pending}
                       onClick={() => run(() => resolveNavetteAction(r.id, dossierId))}
-                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-600"
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-si-line bg-si-surface px-3 py-1.5 text-xs font-semibold text-si-muted"
                     >
                       {t("markAddressed")}
                     </button>
@@ -215,13 +215,13 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
       </div>
 
       {/* Compose */}
-      <div className="m-4 mt-3 flex items-end gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-2">
+      <div className="m-4 mt-3 flex items-end gap-2 rounded-xl border border-si-line bg-si-canvas p-2">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={1}
           placeholder={mode === "sentback" ? t("sendBackPlaceholder") : t("composePlaceholder")}
-          className="min-h-[40px] flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-neutral-800 outline-none"
+          className="min-h-[40px] flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-si-ink outline-none"
         />
         <button
           type="button"

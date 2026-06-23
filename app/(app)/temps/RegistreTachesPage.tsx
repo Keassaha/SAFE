@@ -104,13 +104,13 @@ export function RegistreTachesPage({
       </Tabs>
 
       {facturerMutation.isError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-safe text-sm text-red-700">
+        <div className="p-3 bg-[#B84A3E]/10 border border-[#B84A3E]/30 rounded-xl text-sm text-[#B84A3E]">
           {facturerMutation.error instanceof Error ? facturerMutation.error.message : t("errorGenerating")}
         </div>
       )}
 
       {facturerMutation.isPending && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-safe text-sm text-blue-700 flex items-center gap-2">
+        <div className="p-3 bg-si-canvas border border-si-line rounded-xl text-sm text-si-ink flex items-center gap-2">
           <Receipt className="w-4 h-4" /> {t("generatingInvoice")}
         </div>
       )}
