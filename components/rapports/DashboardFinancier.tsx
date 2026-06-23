@@ -112,10 +112,10 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
                       key={index}
                       fill={
                         index === chartData.length - 1
-                          ? "#10b981"
+                          ? "#2E7D5B"
                           : index >= chartData.length - 3
-                            ? "#34d399"
-                            : "var(--safe-neutral-border)"
+                            ? "#6FA98E"
+                            : "#D9DED8"
                       }
                     />
                   ))}
