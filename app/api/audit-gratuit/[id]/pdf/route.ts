@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { renderAuditPrintToPdf } from "@/lib/audit-report/pdf-playwright";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Génération PDF coûteuse (Playwright) : limiter le débit par IP pour éviter
+  // un déni de service trivial sur une route publique.
+  const ip = getClientIp(req.headers);
+  if (await isRateLimited(`audit-pdf-${ip}`, 10, 60_000)) {
+    return NextResponse.json(
+      { error: "Trop de demandes. Réessayez dans une minute." },
+      { status: 429 }
+    );
+  }
+
   const { id } = await params;
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "ID requis." }, { status: 400 });

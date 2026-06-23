@@ -161,6 +161,7 @@ async function main() {
         role: SAFE_INC.admin.role,
         defaultHourlyRate: SAFE_INC.admin.defaultHourlyRate,
         isBillable: SAFE_INC.admin.isBillable,
+        isInternal: true,
       },
     });
     console.log("     User mis à jour (rattaché à Cabinet SAFE)");
@@ -174,6 +175,7 @@ async function main() {
         role: SAFE_INC.admin.role,
         defaultHourlyRate: SAFE_INC.admin.defaultHourlyRate,
         isBillable: SAFE_INC.admin.isBillable,
+        isInternal: true,
       },
     });
     console.log(`     ✅ User CEO créé (id: ${user.id})`);

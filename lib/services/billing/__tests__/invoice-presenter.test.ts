@@ -360,3 +360,70 @@ describe("presentClientDisplayName", () => {
     expect(presentClientDisplayName(null)).toBe("Client");
   });
 });
+
+describe("équivalence facture — contrat presenter unique", () => {
+  // Aperçu, PDF, courriel et lien public passent TOUS par presentInvoice. Ces
+  // tests verrouillent la propriété qui garantit qu'ils affichent la même chose.
+
+  it("surface les totaux persistés tels quels", () => {
+    const invoice = baseInvoice({
+      subtotalTaxable: 1995,
+      tps: 99.75,
+      tvq: 199,
+      deboursNonTaxableTotal: 0,
+      montantTotal: 2293.75,
+      montantPaye: 500,
+      balanceDue: 1793.75,
+      invoiceLines: [
+        fakeInvoiceLine({ id: "l-fee", lineType: "fee", description: "Consultation", lineSubtotal: 1950, quantite: 1, tauxUnitaire: 1950 }),
+        fakeInvoiceLine({ id: "l-exp", lineType: "expense", description: "Débours", lineSubtotal: 45, taxable: true, sortOrder: 1 }),
+      ],
+    });
+    const t = presentInvoice(invoice).totals;
+    expect(t.subtotalTaxable).toBe(1995);
+    expect(t.tps).toBe(99.75);
+    expect(t.tvq).toBe(199);
+    expect(t.montantTotal).toBe(2293.75);
+    expect(t.montantPaye).toBe(500);
+    expect(t.balanceDue).toBe(1793.75);
+  });
+
+  it("ne recalcule jamais les totaux à partir des lignes : la colonne persistée fait foi", () => {
+    // Les lignes ne somment pas à montantTotal ; le presenter doit surfacer la
+    // valeur PERSISTÉE, pas une somme recalculée. C'est ce qui garantit que tous
+    // les rendus d'une facture affichent le même chiffre.
+    const invoice = baseInvoice({
+      montantTotal: 9999,
+      balanceDue: 9999,
+      invoiceLines: [fakeInvoiceLine({ lineSubtotal: 100, montant: 100 })],
+    });
+    const t = presentInvoice(invoice).totals;
+    expect(t.montantTotal).toBe(9999);
+    expect(t.balanceDue).toBe(9999);
+  });
+
+  it("fusionne InvoiceLine et InvoiceItem en un seul jeu de lignes", () => {
+    const invoice = baseInvoice({
+      invoiceLines: [
+        fakeInvoiceLine({ id: "l1", lineType: "fee", lineSubtotal: 500 }),
+        fakeInvoiceLine({ id: "l2", lineType: "expense", lineSubtotal: 40, sortOrder: 1 }),
+      ],
+      invoiceItems: [
+        fakeInvoiceItem({ id: "i1", type: "honoraires", amount: 300, description: "Honoraires manuels" }),
+      ],
+    });
+    expect(presentInvoice(invoice).lines).toHaveLength(3);
+  });
+
+  it("est déterministe : deux rendus du même input sont identiques", () => {
+    const invoice = baseInvoice({
+      subtotalTaxable: 1000,
+      tps: 50,
+      tvq: 99.75,
+      montantTotal: 1149.75,
+      balanceDue: 1149.75,
+      invoiceLines: [fakeInvoiceLine({ lineSubtotal: 1000, quantite: 1, tauxUnitaire: 1000 })],
+    });
+    expect(presentInvoice(invoice)).toEqual(presentInvoice(invoice));
+  });
+});

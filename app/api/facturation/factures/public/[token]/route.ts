@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
+import { presentInvoice } from "@/lib/services/billing/invoice-presenter";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 
 /**
  * GET: retourne la facture pour un token de partage (lien client).
- * Pas d'authentification. 404 si token invalide ou expiré.
+ * Pas d'authentification. 404 si token invalide, 410 si expiré.
+ *
+ * Cette route délègue au MÊME presenter (`presentInvoice`) que l'aperçu, le
+ * PDF, le courriel et la page publique `app/facture/[token]/page.tsx`. Elle ne
+ * recalcule plus les lignes ni les totaux par elle-même : ainsi tous les rendus
+ * d'une facture restent identiques (lignes, taxes, total, payé, solde).
  */
 export async function GET(
   _request: Request,
@@ -21,11 +28,26 @@ export async function GET(
       cancelledAt: null,
     },
     include: {
-      cabinet: { select: { id: true, nom: true, adresse: true } },
+      cabinet: {
+        select: {
+          id: true,
+          nom: true,
+          adresse: true,
+          telephone: true,
+          email: true,
+          barreauNumero: true,
+          logoUrl: true,
+          config: true,
+        },
+      },
       client: {
         select: {
           id: true,
           raisonSociale: true,
+          prenom: true,
+          nom: true,
+          typeClient: true,
+          email: true,
           billingAddress: true,
           billingCity: true,
           billingProvince: true,
@@ -33,16 +55,16 @@ export async function GET(
           billingCountry: true,
         },
       },
-      dossier: { select: { id: true, intitule: true, numeroDossier: true } },
+      dossier: {
+        select: { id: true, intitule: true, numeroDossier: true, modeFacturation: true },
+      },
       invoiceItems: {
         orderBy: { createdAt: "asc" },
-        include: { user: { select: { id: true, nom: true } } },
+        include: { user: { select: { nom: true } } },
       },
       invoiceLines: {
         orderBy: { sortOrder: "asc" },
-        include: {
-          timeEntry: { include: { user: { select: { nom: true } } } },
-        },
+        include: { timeEntry: { include: { user: { select: { nom: true } } } } },
       },
     },
   });
@@ -52,71 +74,32 @@ export async function GET(
   }
   const now = new Date();
   if (invoice.shareTokenExpiresAt && invoice.shareTokenExpiresAt < now) {
-    return NextResponse.json(
-      { error: "Ce lien a expiré" },
-      { status: 410 }
-    );
+    return NextResponse.json({ error: "Ce lien a expiré" }, { status: 410 });
   }
 
-  const lineItems = invoice.invoiceLines.map((line) => ({
-    id: line.id,
-    type:
-      line.lineType === "fee"
-        ? "honoraires"
-        : line.lineType === "expense"
-          ? "debours_taxable"
-          : "honoraires",
-    description: line.description,
-    date: line.serviceDate ?? line.createdAt,
-    hours: line.quantite ?? null,
-    rate: line.tauxUnitaire ?? null,
-    amount: line.lineSubtotal ?? line.montant,
-    userId: line.timeEntry?.userId ?? null,
-    userNom: line.timeEntry?.user?.nom ?? null,
-    timeEntryId: line.timeEntryId,
-    parentItemId: null as string | null,
-    parentLineId: null as string | null,
-    source: "line" as const,
-    validationComment: line.validationComment ?? null,
-  }));
-  const itemItems = invoice.invoiceItems.map((item) => ({
-    id: item.id,
-    type: item.type,
-    description: item.description,
-    date: item.date,
-    hours: item.hours,
-    rate: item.rate,
-    amount: item.amount,
-    userId: item.userId,
-    userNom: item.professionalDisplayName ?? item.user?.nom ?? null,
-    timeEntryId: item.timeEntryId,
-    parentItemId: item.parentItemId ?? null,
-    parentLineId: item.parentLineId ?? null,
-    source: "item" as const,
-    validationComment: item.validationComment ?? null,
-  }));
-  const items = [...lineItems, ...itemItems];
+  const taxConfig = await getCabinetTaxConfigById(
+    invoice.cabinetId,
+    prisma,
+    invoice.client?.billingProvince ?? null,
+  );
+  const presented = presentInvoice(invoice, taxConfig);
 
   return NextResponse.json({
-    id: invoice.id,
-    numero: invoice.numero,
+    id: presented.id,
+    numero: presented.numero,
     // Doctrine: docs/accounting/INVOICE_STATUS_NORMALIZATION.md
     statut: deriveLegacyStatut(invoice),
-    dateEmission: invoice.dateEmission,
-    dateEcheance: invoice.dateEcheance,
+    invoiceStatus: presented.invoiceStatus,
+    dateEmission: presented.dateEmission,
+    dateEcheance: presented.dateEcheance,
     clientId: invoice.clientId,
-    cabinet: invoice.cabinet,
-    client: invoice.client,
+    cabinet: presented.cabinet,
+    client: presented.client,
     dossierId: invoice.dossierId,
-    dossier: invoice.dossier,
-    items,
-    subtotalTaxable: invoice.subtotalTaxable,
-    tps: invoice.tps,
-    tvq: invoice.tvq,
-    deboursNonTaxableTotal: invoice.deboursNonTaxableTotal,
-    montantTotal: invoice.montantTotal,
-    montantPaye: invoice.montantPaye,
-    balanceDue: invoice.balanceDue,
-    clientNote: invoice.clientNote,
+    dossier: presented.dossier,
+    isForfait: presented.isForfait,
+    items: presented.lines,
+    totals: presented.totals,
+    clientNote: presented.clientNote,
   });
 }

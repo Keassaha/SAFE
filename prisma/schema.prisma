@@ -98,6 +98,7 @@ model User {
   defaultHourlyRate Float?
   isBillable        Boolean  @default(true)
   digestOptOut      Boolean  @default(false) // N7b — désactive le digest courriel quotidien
+  isInternal        Boolean  @default(false) // équipe SAFE Inc. : accès Console (remplace le check par nom de cabinet)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
