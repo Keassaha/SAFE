@@ -88,14 +88,14 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
     <Card>
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-blue-600" />
+          <Layers className="w-4 h-4 text-si-ink" />
           <h4 className="text-sm font-semibold">Stage-Based Billing (B4)</h4>
         </div>
 
         {!hasStages ? (
           /* Setup form */
           <div className="space-y-3">
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-si-muted">
               Split the flat fee into stages. Default: 50% preparation / 25% submission / 25% follow-up.
             </p>
             <Input
@@ -109,11 +109,11 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
             <div className="space-y-2">
               {customStages.map((stage, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+                  <span className="w-6 h-6 rounded-full bg-si-canvas text-si-ink flex items-center justify-center text-xs font-bold">
                     {i + 1}
                   </span>
                   <input
-                    className="flex-1 h-8 px-2 rounded border border-neutral-border bg-white text-sm"
+                    className="flex-1 h-8 px-2 rounded border border-si-line bg-si-surface text-sm"
                     value={stage.nom}
                     onChange={(e) => {
                       const updated = [...customStages];
@@ -122,7 +122,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                     }}
                   />
                   <input
-                    className="w-16 h-8 px-2 rounded border border-neutral-border bg-white text-sm text-right"
+                    className="w-16 h-8 px-2 rounded border border-si-line bg-si-surface text-sm text-right"
                     type="number"
                     value={stage.pourcentage}
                     onChange={(e) => {
@@ -131,9 +131,9 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                       setCustomStages(updated);
                     }}
                   />
-                  <span className="text-neutral-400 text-xs">%</span>
+                  <span className="text-si-muted/50 text-xs">%</span>
                   {totalForfait && (
-                    <span className="text-xs text-neutral-500 tabular-nums w-20 text-right">
+                    <span className="text-xs text-si-muted tabular-nums w-20 text-right">
                       {formatCurrency(parseFloat(totalForfait) * stage.pourcentage / 100)}
                     </span>
                   )}
@@ -151,7 +151,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
         ) : (
           /* Stage progress view */
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs text-neutral-500">
+            <div className="flex items-center justify-between text-xs text-si-muted">
               <span>Total: {formatCurrency(totalConfigured)}</span>
               <span>Invoiced: {formatCurrency(totalInvoiced)}</span>
             </div>
@@ -159,22 +159,22 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
             {stages.map((stage) => (
               <div
                 key={stage.id}
-                className={`flex items-center gap-3 p-3 rounded-safe border ${
-                  stage.statut === "invoiced" ? "border-green-200 bg-green-50/30" :
-                  stage.statut === "ready" ? "border-blue-200 bg-blue-50/30" :
-                  "border-neutral-200"
+                className={`flex items-center gap-3 p-3 rounded-xl border ${
+                  stage.statut === "invoiced" ? "border-si-verified/30 bg-si-verified/10" :
+                  stage.statut === "ready" ? "border-si-line bg-si-canvas/30" :
+                  "border-si-line"
                 }`}
               >
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  stage.statut === "invoiced" ? "bg-green-200 text-green-700" :
-                  stage.statut === "ready" ? "bg-blue-200 text-blue-700" :
-                  "bg-neutral-200 text-neutral-500"
+                  stage.statut === "invoiced" ? "bg-si-verified/10 text-si-verified" :
+                  stage.statut === "ready" ? "bg-si-canvas text-si-ink" :
+                  "bg-si-canvas text-si-muted"
                 }`}>
                   {stage.statut === "invoiced" ? <CheckCircle className="w-3 h-3" /> : stage.ordre}
                 </span>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{stage.nom}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-si-muted">
                     {formatCurrency(stage.montant)}
                     {stage.pourcentage && ` (${stage.pourcentage}%)`}
                   </p>
@@ -204,7 +204,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                   </Button>
                 )}
                 {stage.invoice && (
-                  <span className="text-xs text-green-600">
+                  <span className="text-xs text-si-verified">
                     #{stage.invoice.numero}
                   </span>
                 )}
@@ -212,7 +212,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
             ))}
 
             {markReadyMutation.isError && (
-              <p className="text-sm text-status-error">
+              <p className="text-sm text-[#B84A3E]">
                 {markReadyMutation.error instanceof Error ? markReadyMutation.error.message : "Error"}
               </p>
             )}

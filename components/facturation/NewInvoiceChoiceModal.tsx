@@ -121,21 +121,21 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
           <button
             type="button"
             onClick={() => setMode("registre")}
-            className="group text-left p-5 rounded-safe border-2 border-neutral-border hover:border-green-700 hover:bg-green-50/50 transition-all"
+            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-forest hover:bg-si-verified/10 transition-all"
           >
             <div className="flex items-start gap-3 mb-3">
-              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-safe bg-green-100 text-green-700 border border-green-200">
+              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-verified/10 text-si-verified border border-si-verified/30">
                 <BookOpen className="w-5 h-5" />
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-700 text-white text-[10px] font-semibold tracking-wide uppercase">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-si-forest text-white text-[10px] font-semibold tracking-wide uppercase">
                 {t("recommended")}
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-1">{t("fromRegister")}</h3>
-            <p className="text-xs text-neutral-600 leading-snug">
+            <h3 className="text-sm font-semibold text-si-ink mb-1">{t("fromRegister")}</h3>
+            <p className="text-xs text-si-muted leading-snug">
               {t("fromRegisterDescription")}
             </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-green-700 group-hover:gap-2 transition-all">
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-si-verified group-hover:gap-2 transition-all">
               {t("continue")} <ArrowRight className="w-3 h-3" />
             </span>
           </button>
@@ -143,18 +143,18 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
           <button
             type="button"
             onClick={handleFromScratch}
-            className="group text-left p-5 rounded-safe border-2 border-neutral-border hover:border-neutral-400 hover:bg-neutral-50 transition-all"
+            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-line hover:bg-si-canvas transition-all"
           >
             <div className="flex items-start gap-3 mb-3">
-              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-safe bg-neutral-100 text-neutral-700 border border-neutral-200">
+              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-canvas text-si-ink border border-si-line">
                 <Pencil className="w-5 h-5" />
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-1">{t("fromScratch")}</h3>
-            <p className="text-xs text-neutral-600 leading-snug">
+            <h3 className="text-sm font-semibold text-si-ink mb-1">{t("fromScratch")}</h3>
+            <p className="text-xs text-si-muted leading-snug">
               {t("fromScratchDescription")}
             </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-neutral-700 group-hover:gap-2 transition-all">
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-si-ink group-hover:gap-2 transition-all">
               {t("createBlankInvoice")} <ArrowRight className="w-3 h-3" />
             </span>
           </button>
@@ -167,25 +167,25 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
             <button
               type="button"
               onClick={() => setMode("choose")}
-              className="text-neutral-500 hover:text-neutral-800 underline"
+              className="text-si-muted hover:text-si-ink underline"
             >
               ← {t("back")}
             </button>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-2">
+            <label className="block text-sm font-medium text-si-muted mb-2">
               {t("matterToInvoice")}
             </label>
 
             {loading && dossiers.length === 0 ? (
-              <div className="flex items-center justify-center p-8 text-neutral-500 text-sm">
+              <div className="flex items-center justify-center p-8 text-si-muted text-sm">
                 <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("loadingMatters")}
               </div>
             ) : dossiers.length === 0 ? (
-              <div className="p-6 text-center rounded-safe bg-neutral-50 border border-neutral-border">
-                <p className="text-sm text-neutral-600 mb-2">{t("noUnbilledTasks")}</p>
-                <p className="text-xs text-neutral-500">
+              <div className="p-6 text-center rounded-xl bg-si-canvas border border-si-line">
+                <p className="text-sm text-si-muted mb-2">{t("noUnbilledTasks")}</p>
+                <p className="text-xs text-si-muted">
                   {t("addTasksBeforeInvoicing")}
                 </p>
                 <Button variant="secondary" onClick={handleFromScratch} className="mt-3">
@@ -197,10 +197,10 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                 {dossiers.map((d) => (
                   <label
                     key={d.id}
-                    className={`flex items-center gap-3 p-3 rounded-safe border cursor-pointer transition-colors ${
+                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                       selectedDossierId === d.id
-                        ? "border-green-700 bg-green-50/50"
-                        : "border-neutral-border hover:bg-neutral-50"
+                        ? "border-si-forest bg-si-verified/10"
+                        : "border-si-line hover:bg-si-canvas"
                     }`}
                   >
                     <input
@@ -209,14 +209,14 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                       value={d.id}
                       checked={selectedDossierId === d.id}
                       onChange={() => setSelectedDossierId(d.id)}
-                      className="accent-green-700"
+                      className="accent-si-forest"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-neutral-900 truncate">
-                        {d.numeroDossier && <span className="font-mono text-xs text-neutral-500 mr-2">{d.numeroDossier}</span>}
+                      <p className="text-sm font-medium text-si-ink truncate">
+                        {d.numeroDossier && <span className="font-mono text-xs text-si-muted mr-2">{d.numeroDossier}</span>}
                         {d.intitule}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-si-muted">
                         {t("unbilledTaskCount", { count: d.taskCount })}
                       </p>
                     </div>
@@ -252,7 +252,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
       )}
 
       {error && (
-        <p className="mt-3 text-sm text-status-error">{error}</p>
+        <p className="mt-3 text-sm text-[#B84A3E]">{error}</p>
       )}
     </Modal>
   );

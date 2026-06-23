@@ -127,7 +127,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
       {!embeddedInComptabilite && (
         <Link
           href={routes.facturation}
-          className="inline-flex items-center gap-2 text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] text-sm"
+          className="inline-flex items-center gap-2 text-si-muted hover:text-si-ink text-sm"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
           {t("backToOverview")}
@@ -150,10 +150,10 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
             </div>
           ) : payments.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">{t("noPayments")}</p>
+            <p className="text-si-muted py-8 text-center">{t("noPayments")}</p>
           ) : (
             <motion.div
               className="overflow-x-auto"
@@ -164,26 +164,26 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
             >
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("date")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("client")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("invoice")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("amount")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("allocated")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("unallocated")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500">{t("status")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500 w-32">{t("actions")}</th>
+                  <tr className="border-b border-si-line bg-si-canvas">
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("date")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("client")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("invoice")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("amount")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("allocated")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("unallocated")}</th>
+                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("status")}</th>
+                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted w-32">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {payments.map((p) => (
-                    <tr key={p.id} className="border-b border-neutral-100 hover:bg-neutral-50/60 transition-colors">
-                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{formatDate(p.datePaiement)}</td>
-	                      <td className="py-2.5 px-3 text-[13px] text-slate-700">{clientLabel(p.client)}</td>
-                      <td className="py-2.5 px-3 text-[13px] font-mono text-slate-700">{p.invoice?.numero ?? "—"}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.montant)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-forest-700">{formatCurrency(p.allocatedAmount)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-slate-700">{formatCurrency(p.unallocatedAmount)}</td>
+                    <tr key={p.id} className="border-b border-si-line hover:bg-si-canvas/60 transition-colors">
+                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{formatDate(p.datePaiement)}</td>
+	                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{clientLabel(p.client)}</td>
+                      <td className="py-2.5 px-3 text-[13px] font-mono text-si-ink">{p.invoice?.numero ?? "—"}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{formatCurrency(p.montant)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-verified">{formatCurrency(p.allocatedAmount)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{formatCurrency(p.unallocatedAmount)}</td>
                       <td className="py-2.5 px-3">
                         <StatusBadge
                           label={t(ALLOCATION_STATUS_LABEL_KEYS[p.allocationStatus as AllocationStatusKey])}

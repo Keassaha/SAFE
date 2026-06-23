@@ -106,11 +106,11 @@ export function HonorairesView({
       <Card>
         <CardHeader
           title={t("honorairesLabel")}
-          action={<span className="text-sm text-[var(--safe-text-secondary)]">{tb("clientsWithFeesToBill", { count: clients.length })}</span>}
+          action={<span className="text-sm text-si-muted">{tb("clientsWithFeesToBill", { count: clients.length })}</span>}
         />
         <CardContent>
           {clients.length === 0 ? (
-            <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+            <p className="text-sm text-si-muted py-8 text-center">
               {t("noBillableFees")}
             </p>
           ) : (
@@ -125,15 +125,15 @@ export function HonorairesView({
                     className={`rounded-lg border p-4 space-y-3 ${
                       aboveThreshold
                         ? "bg-orange-50 border-orange-200"
-                        : "bg-white border-[var(--safe-neutral-border)]"
+                        : "bg-si-surface border-si-line"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-[var(--safe-text-title)] truncate">
+                        <h4 className="font-medium text-si-ink truncate">
                           {client.clientName}
                         </h4>
-                        <p className="text-xs text-[var(--safe-text-secondary)]">
+                        <p className="text-xs text-si-muted">
                           {tb("timesheetsAndDisbursements", { hours: client.hourCount, disbursements: client.expenseCount })}
                         </p>
                       </div>
@@ -146,12 +146,12 @@ export function HonorairesView({
 
                     <div className="space-y-2 py-2 border-t border-b border-current border-opacity-10">
                       <div className="flex justify-between items-baseline text-sm">
-                        <span className="text-[var(--safe-text-secondary)]">{tb("accumulatedAmount")}</span>
-                        <span className="font-semibold text-[var(--safe-text-title)]">
+                        <span className="text-si-muted">{tb("accumulatedAmount")}</span>
+                        <span className="font-semibold text-si-ink">
                           {formatCurrency(client.totalAmount)}
                         </span>
                       </div>
-                      <div className="flex justify-between items-baseline text-xs text-[var(--safe-text-secondary)]">
+                      <div className="flex justify-between items-baseline text-xs text-si-muted">
                         <span>{tb("threshold")}</span>
                         <span>{formatCurrency(threshold)}</span>
                       </div>
@@ -172,7 +172,7 @@ export function HonorairesView({
         </CardContent>
       </Card>
 
-      <div className="text-xs text-[var(--safe-text-secondary)]">
+      <div className="text-xs text-si-muted">
         <p>
           {tb("defaultThreshold")} <strong>{formatCurrency(DEFAULT_THRESHOLD)}</strong>
         </p>

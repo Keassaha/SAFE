@@ -205,28 +205,28 @@ export function GeneralJournalPageView({
         maxWidth="max-w-2xl"
       >
         <form key={manualType} onSubmit={handleManualSubmit} className="space-y-5">
-          <p className="text-[13px] leading-relaxed text-slate-600 bg-slate-50 border border-slate-200 rounded-md px-3 py-2.5">
+          <p className="text-[13px] leading-relaxed text-si-muted bg-si-canvas border border-si-line rounded-md px-3 py-2.5">
             {t("manualEntryRestrictionHint")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("date")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("date")}</label>
               <input
                 name="dateTransaction"
                 type="date"
                 required
                 defaultValue={toDateStr(new Date())}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("type")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("type")}</label>
               <select
                 name="typeTransaction"
                 value={manualType}
                 onChange={(e) => setManualType(e.target.value as JournalTransactionType)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 {Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS)
                   .filter(([value]) => value === "AJUSTEMENT" || value === "CORRECTION")
@@ -241,12 +241,12 @@ export function GeneralJournalPageView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("client")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("client")}</label>
               <select
                 name="clientId"
                 value={manualClientId}
                 onChange={(e) => setManualClientId(e.target.value)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("noClient")}</option>
                 {manualContext?.clients.map((client) => (
@@ -257,10 +257,10 @@ export function GeneralJournalPageView({
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("matter")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("matter")}</label>
               <select
                 name="dossierId"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("noMatter")}</option>
                 {manualDossiers.map((dossier) => (
@@ -274,36 +274,36 @@ export function GeneralJournalPageView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("reference")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("reference")}</label>
               <input
                 name="reference"
                 placeholder={manualType === "FACTURE" ? t("invoiceNumberPlaceholder") : t("referencePlaceholder")}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("category")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("category")}</label>
               <input
                 name="categorie"
                 defaultValue={defaultCategoryFor(manualType)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("description")}</label>
+            <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("description")}</label>
             <input
               name="description"
               required
               defaultValue={defaultDescriptionFor(manualType)}
-              className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+              className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("moneyIn")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("moneyIn")}</label>
               <input
                 name="montantEntree"
                 type="number"
@@ -312,11 +312,11 @@ export function GeneralJournalPageView({
                 required={defaultDirection === "IN"}
                 defaultValue={defaultDirection === "IN" ? "" : "0"}
                 placeholder="0,00"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">{t("moneyOut")}</label>
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("moneyOut")}</label>
               <input
                 name="montantSortie"
                 type="number"
@@ -325,12 +325,12 @@ export function GeneralJournalPageView({
                 required={defaultDirection === "OUT"}
                 defaultValue={defaultDirection === "OUT" ? "" : "0"}
                 placeholder="0,00"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
           </div>
 
-          {manualError && <p className="text-sm text-red-600">{manualError}</p>}
+          {manualError && <p className="text-sm text-[#B84A3E]">{manualError}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" disabled={manualSubmitting} onClick={() => setManualModalOpen(false)}>
@@ -412,35 +412,35 @@ export function GeneralJournalPageView({
             }}
           >
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
                 {t("from")}
               </label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
                 {t("to")}
               </label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
                 {t("type")}
               </label>
               <select
                 value={typeTransaction}
                 onChange={(e) => setTypeTransaction(e.target.value)}
-                className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("allTypes")}</option>
                 {TRANSACTION_TYPE_OPTIONS.map((opt) => (
@@ -451,7 +451,7 @@ export function GeneralJournalPageView({
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-slate-700 mb-[6px]">
+              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
                 {t("search")}
               </label>
               <input
@@ -459,7 +459,7 @@ export function GeneralJournalPageView({
                 placeholder={t("searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-forest-700 focus:shadow-focus outline-none"
+                className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <Button type="submit" variant="primary">
@@ -473,7 +473,7 @@ export function GeneralJournalPageView({
         <CardHeader
           title={t("entries")}
           action={
-            <span className="text-sm font-normal text-neutral-500">
+            <span className="text-sm font-normal text-si-muted">
               {t("entryCount", { count: totalCount })}
             </span>
           }
@@ -481,7 +481,7 @@ export function GeneralJournalPageView({
         <CardContent className="p-0 overflow-x-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-forest-700" aria-hidden />
+              <Loader2 className="w-8 h-8 animate-spin text-si-verified" aria-hidden />
             </div>
           ) : (
             <>
@@ -493,29 +493,29 @@ export function GeneralJournalPageView({
               >
               <table className="min-w-full">
                 <thead>
-                  <tr className="border-b-[0.5px] border-slate-200 bg-slate-50">
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                  <tr className="border-b-[0.5px] border-si-line bg-si-canvas">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("date")}
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("type")}
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("reference")}
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("client")}
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("matter")}
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("description")}
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("moneyIn")}
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-600 uppercase tracking-[0.05em]">
+                    <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("moneyOut")}
                     </th>
                   </tr>
@@ -525,11 +525,11 @@ export function GeneralJournalPageView({
                     <tr>
                       <td colSpan={8} className="py-16 text-center">
                         <div className="flex flex-col items-center justify-center">
-                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
-                            <BookOpen className="w-8 h-8 text-slate-500" />
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-si-canvas mb-4">
+                            <BookOpen className="w-8 h-8 text-si-muted" />
                           </div>
-                          <p className="text-[16px] font-medium text-slate-800">{t("emptyTitle")}</p>
-                          <p className="text-[14px] text-slate-600 mt-2 max-w-[400px] mx-auto">{t("emptyHint")}</p>
+                          <p className="text-[16px] font-medium text-si-ink">{t("emptyTitle")}</p>
+                          <p className="text-[14px] text-si-muted mt-2 max-w-[400px] mx-auto">{t("emptyHint")}</p>
                         </div>
                       </td>
                     </tr>
@@ -537,30 +537,30 @@ export function GeneralJournalPageView({
                     entries.map((e) => (
                       <tr
                         key={e.id}
-                        className="border-b-[0.5px] border-slate-100 hover:bg-neutral-50/60 transition-colors"
+                        className="border-b-[0.5px] border-si-line hover:bg-si-canvas/60 transition-colors"
                       >
-                        <td className="px-4 py-3 text-[14px] text-slate-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                           {formatDate(e.dateTransaction)}
                         </td>
-                        <td className="px-4 py-3 text-[14px] text-slate-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                           {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
                         </td>
-                        <td className="px-4 py-3 text-[14px] font-mono text-slate-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-[14px] font-mono text-si-ink whitespace-nowrap">
                           {e.reference ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-[14px] text-slate-700 max-w-[180px] truncate">
+                        <td className="px-4 py-3 text-[14px] text-si-ink max-w-[180px] truncate">
                           {e.clientName ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-[14px] font-mono text-slate-700 max-w-[180px] truncate">
+                        <td className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[180px] truncate">
                           {e.dossierLabel ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-[14px] text-slate-700 max-w-[220px] truncate">
+                        <td className="px-4 py-3 text-[14px] text-si-ink max-w-[220px] truncate">
                           {e.description}
                         </td>
-                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-forest-700">
+                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-verified">
                           {e.montantEntree > 0 ? formatCurrency(e.montantEntree) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-red-600">
+                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-[#B84A3E]">
                           {e.montantSortie > 0 ? formatCurrency(e.montantSortie) : "—"}
                         </td>
                       </tr>
@@ -570,8 +570,8 @@ export function GeneralJournalPageView({
               </table>
               </motion.div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200">
-                  <p className="text-sm text-neutral-500">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-si-line">
+                  <p className="text-sm text-si-muted">
                     {t("pageOf", { page, totalPages })}
                   </p>
                   <div className="flex gap-2">

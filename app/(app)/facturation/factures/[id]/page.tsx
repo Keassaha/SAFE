@@ -83,24 +83,24 @@ export default async function FacturePreviewPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <header className="flex flex-col gap-4 rounded-safe border border-neutral-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+      <header className="flex flex-col gap-4 rounded-xl border border-si-line bg-si-surface p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <Link
             href={routes.facturation}
-            className="inline-flex items-center gap-2 text-sm font-medium text-neutral-500 transition-colors hover:text-forest-700"
+            className="inline-flex items-center gap-2 text-sm font-medium text-si-muted transition-colors hover:text-si-verified"
           >
             <ArrowLeft className="h-4 w-4" />
             {t("backToInvoices")}
           </Link>
           <div className="mt-4 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-si-canvas text-si-verified">
               <FileText className="h-5 w-5" />
             </span>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-si-ink">
                 {t("invoicePreviewTitle", { numero: displayInvoiceNumero(invoice.numero) })}
               </h1>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-sm text-si-muted">
                 {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut, t)}
               </p>
             </div>
@@ -112,8 +112,8 @@ export default async function FacturePreviewPage({
         />
       </header>
 
-      <section className="rounded-safe border border-neutral-200 bg-neutral-50 p-4 shadow-sm md:p-8">
-        <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+      <section className="rounded-xl border border-si-line bg-si-canvas p-4 shadow-sm md:p-8">
+        <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl border border-white/70 bg-si-surface shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
           <InvoiceTemplateClean
             numero={displayInvoiceNumero(invoice.numero)}
             dateEmission={invoice.dateEmission.toISOString()}

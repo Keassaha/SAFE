@@ -54,15 +54,15 @@ export function DeboursAddForm({
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {tc("client")} <span className="text-status-error">*</span>
+              <label className="block text-sm font-medium text-si-muted mb-1">
+                {tc("client")} <span className="text-[#B84A3E]">*</span>
               </label>
               <select
                 name="clientId"
                 required
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
               >
                 <option value="">{td("chooseClient")}</option>
                 {clients.map((c) => (
@@ -73,14 +73,14 @@ export function DeboursAddForm({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {tc("dossier")} <span className="text-status-error">*</span>
+              <label className="block text-sm font-medium text-si-muted mb-1">
+                {tc("dossier")} <span className="text-[#B84A3E]">*</span>
               </label>
               <select
                 name="dossierId"
                 required
                 disabled={!clientId || dossiersForClient.length === 0}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none disabled:opacity-60"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none disabled:opacity-60"
               >
                 <option value="">
                   {!clientId
@@ -99,12 +99,12 @@ export function DeboursAddForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+            <label className="block text-sm font-medium text-si-muted mb-1">
               {td("typeOptional")}
             </label>
             <select
               name="deboursTypeId"
-              className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
+              className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
             >
               <option value="">{td("manual")}</option>
               {deboursTypes.map((t) => (
@@ -132,14 +132,14 @@ export function DeboursAddForm({
               required
             />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {tc("date")}
               </label>
               <input
                 type="date"
                 name="date"
                 defaultValue={new Date().toISOString().slice(0, 10)}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
               />
             </div>
           </div>
@@ -172,7 +172,7 @@ export function DeboursAddForm({
           </div>
 
           {submitError && (
-            <p className="text-sm text-status-error">{submitError}</p>
+            <p className="text-sm text-[#B84A3E]">{submitError}</p>
           )}
 
           <Button type="submit">{td("saveDisbursement")}</Button>

@@ -89,10 +89,10 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsToRebill")} />
           <CardContent>
-            <p className="text-2xl font-semibold text-primary-700">
+            <p className="text-2xl font-semibold text-si-forest">
               {formatCurrency(totalARefacturer)}
             </p>
-            <p className="text-sm text-neutral-muted mt-1">
+            <p className="text-sm text-si-muted mt-1">
               {t("disbursementsToRebillHint")}
             </p>
           </CardContent>
@@ -100,10 +100,10 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsUnreimbursed")} />
           <CardContent>
-            <p className="text-2xl font-semibold text-primary-700">
+            <p className="text-2xl font-semibold text-si-forest">
               {formatCurrency(totalNonRembourses)}
             </p>
-            <p className="text-sm text-neutral-muted mt-1">
+            <p className="text-sm text-si-muted mt-1">
               {t("disbursementsUnreimbursedHint")}
             </p>
           </CardContent>
@@ -113,14 +113,14 @@ export default async function FacturationFraisPage() {
         <CardHeader title={t("chargesList")} />
         <CardContent>
           {debours.length === 0 ? (
-            <p className="text-sm text-neutral-muted py-4">
+            <p className="text-sm text-si-muted py-4">
               {t("noDisbursements")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-border text-left text-neutral-muted">
+                  <tr className="border-b border-si-line text-left text-si-muted">
                     <th className="py-2 pr-2">{t("date")}</th>
                     <th className="py-2 pr-2">{t("clientMatter")}</th>
                     <th className="py-2 pr-2">{t("description")}</th>
@@ -131,13 +131,13 @@ export default async function FacturationFraisPage() {
                 </thead>
                 <tbody>
                   {debours.map((d) => (
-                    <tr key={d.id} className="border-b border-neutral-border/70">
+                    <tr key={d.id} className="border-b border-si-line/70">
                       <td className="py-2 pr-2">{formatDate(d.date)}</td>
                       <td className="py-2 pr-2">
-                        <span className="text-neutral-800 block">{clientLabel(d.client)}</span>
+                        <span className="text-si-ink block">{clientLabel(d.client)}</span>
                         <Link
                           href={routes.dossier(d.dossierId)}
-                          className="text-primary-600 hover:underline text-xs"
+                          className="text-si-forest hover:underline text-xs"
                         >
                           {d.dossier.numeroDossier ?? d.dossier.intitule}
                         </Link>
@@ -150,16 +150,16 @@ export default async function FacturationFraisPage() {
                         {formatCurrency(d.montant)}
                       </td>
                       <td className="py-2 pr-2">
-                        <span className="block text-neutral-800">{deboursStatusLabel(d.statutDebours)}</span>
+                        <span className="block text-si-ink">{deboursStatusLabel(d.statutDebours)}</span>
                         {d.facture ? (
                           <Link
                             href={routes.facturationFactureEdit(d.facture.id)}
-                            className="text-primary-600 hover:underline text-xs"
+                            className="text-si-forest hover:underline text-xs"
                           >
                             {d.facture.numero}
                           </Link>
                         ) : (
-                          <span className="text-neutral-muted text-xs">{t("notBilled")}</span>
+                          <span className="text-si-muted text-xs">{t("notBilled")}</span>
                         )}
                       </td>
                     </tr>

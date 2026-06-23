@@ -16,7 +16,7 @@ export interface DeboursAddModalProps {
 }
 
 const selectClass =
-  "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
   const company = client.raisonSociale?.trim();
@@ -71,7 +71,7 @@ export function DeboursAddModal({
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tc("client")} *</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("client")} *</label>
             <select
               name="clientId"
               required
@@ -86,7 +86,7 @@ export function DeboursAddModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tc("dossier")} *</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("dossier")} *</label>
             <select
               name="dossierId"
               required
@@ -104,7 +104,7 @@ export function DeboursAddModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tc("date")} *</label>
+          <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("date")} *</label>
           <input
             type="date"
             name="date"
@@ -122,7 +122,7 @@ export function DeboursAddModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{td("quantityRequired")}</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{td("quantityRequired")}</label>
             <input
               type="number"
               name="quantite"
@@ -134,7 +134,7 @@ export function DeboursAddModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{td("unitPriceRequired")}</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{td("unitPriceRequired")}</label>
             <div className="relative">
               <input
                 type="number"
@@ -145,27 +145,27 @@ export function DeboursAddModal({
                 placeholder="0"
                 className={`${selectClass} pr-8`}
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">$</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-si-muted">$</span>
             </div>
           </div>
         </div>
 
-        <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
-          <input type="checkbox" name="refacturable" defaultChecked value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
+        <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
+          <input type="checkbox" name="refacturable" defaultChecked value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
           {td("billableToClient")}
         </label>
         <div className="flex gap-2">
-          <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
-            <input type="checkbox" name="taxable" value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
+          <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
+            <input type="checkbox" name="taxable" value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
             {td("taxable")}
           </label>
-          <label className="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
-            <input type="checkbox" name="payeParCabinet" defaultChecked value="on" className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500/30" />
+          <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
+            <input type="checkbox" name="payeParCabinet" defaultChecked value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
             {td("paidByFirm")}
           </label>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={handleClose} disabled={submitting}>

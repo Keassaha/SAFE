@@ -30,16 +30,16 @@ export function SuiviPipelineView({
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Envoyées : factures émises actives + payées (historique du pipeline) */}
-        <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
-          <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
+        <div className="rounded-lg border border-si-line bg-si-canvas p-4">
+          <h3 className="font-semibold text-si-ink mb-4">
             {t("statusSent")}
-            <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
+            <span className="ml-2 text-sm font-normal text-si-muted">
               ({envoyees.length})
             </span>
           </h3>
           <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
             {envoyees.length === 0 ? (
-              <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+              <p className="text-sm text-si-muted py-8 text-center">
                 {t("noSentInvoicesShort")}
               </p>
             ) : (
@@ -56,16 +56,16 @@ export function SuiviPipelineView({
         </div>
 
         {/* En retard : dérivé de dateEcheance < now sur factures émises non payées */}
-        <div className="rounded-lg border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-50)] p-4">
-          <h3 className="font-semibold text-[var(--safe-text-title)] mb-4">
+        <div className="rounded-lg border border-si-line bg-si-canvas p-4">
+          <h3 className="font-semibold text-si-ink mb-4">
             {t("statusOverdue")}
-            <span className="ml-2 text-sm font-normal text-[var(--safe-text-secondary)]">
+            <span className="ml-2 text-sm font-normal text-si-muted">
               ({enRetard.length})
             </span>
           </h3>
           <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
             {enRetard.length === 0 ? (
-              <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+              <p className="text-sm text-si-muted py-8 text-center">
                 {t("noOverdueInvoices")}
               </p>
             ) : (

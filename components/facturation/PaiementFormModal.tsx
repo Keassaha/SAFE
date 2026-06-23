@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
   const company = client.raisonSociale?.trim();
@@ -228,21 +228,21 @@ export function PaiementFormModal({
     >
       {isEdit && loadingPayment ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
         </div>
       ) : isEdit && !payment ? (
-        <p className="text-neutral-500 py-4">{tp("paymentNotFound")}</p>
+        <p className="text-si-muted py-4">{tp("paymentNotFound")}</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tc("client")} *</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("client")} *</label>
             <select
               name="clientId"
               required
               disabled={!!isEdit}
               value={isEdit ? payment?.clientId ?? "" : selectedClientId}
               onChange={(e) => handleClientChange(e.target.value)}
-              className={`${selectClass} disabled:opacity-70 disabled:bg-neutral-100`}
+              className={`${selectClass} disabled:opacity-70 disabled:bg-si-canvas`}
             >
               <option value="">{tp("selectClient")}</option>
               {clients.map((c) => (
@@ -255,7 +255,7 @@ export function PaiementFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tc("date")} *</label>
+              <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("date")} *</label>
               <input
                 type="date"
                 name="paymentDate"
@@ -265,7 +265,7 @@ export function PaiementFormModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tp("amountRequired")}</label>
+              <label className="block text-sm font-medium text-si-muted mb-1.5">{tp("amountRequired")}</label>
               <input
                 type="number"
                 name="amount"
@@ -279,7 +279,7 @@ export function PaiementFormModal({
                 placeholder="0.00"
               />
               {isEdit && payment && payment.allocatedAmount > 0 && (
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-si-muted mt-1">
                   {tp("minimumAllocated", { amount: formatCurrency(payment.allocatedAmount) })}
                 </p>
               )}
@@ -287,7 +287,7 @@ export function PaiementFormModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tp("paymentMethod")}</label>
+            <label className="block text-sm font-medium text-si-muted mb-1.5">{tp("paymentMethod")}</label>
             <select
               name="paymentMethod"
               defaultValue={payment?.paymentMethod ?? "other"}
@@ -318,7 +318,7 @@ export function PaiementFormModal({
           {mode === "create" && (
             <>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-1.5">
+                <label className="block text-sm font-medium text-si-muted mb-1.5">
                   {tp("allocateToInvoice")}
                 </label>
                 <select
@@ -337,7 +337,7 @@ export function PaiementFormModal({
                 </select>
               </div>
               <div id="allocatedAmountWrap">
-                <label className="block text-sm font-medium text-neutral-600 mb-1.5">
+                <label className="block text-sm font-medium text-si-muted mb-1.5">
                   {tp("amountToAllocate")}
                 </label>
                 <input
@@ -351,7 +351,7 @@ export function PaiementFormModal({
                   placeholder="0.00"
                 />
                 {selectedInvoice && (
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-xs text-si-muted mt-1">
                     Solde facture : {formatCurrency(selectedInvoice.balanceDue)}
                   </p>
                 )}
@@ -359,7 +359,7 @@ export function PaiementFormModal({
             </>
           )}
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} disabled={submitting}>

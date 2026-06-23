@@ -17,22 +17,22 @@ function TaxCard({ titre, line }: { titre: string; line: TaxLine }) {
   return (
     <Card>
       <CardContent className="p-4 space-y-1">
-        <h3 className="text-sm font-semibold text-neutral-text-primary">{titre}</h3>
+        <h3 className="text-sm font-semibold text-si-ink">{titre}</h3>
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-500">Perçue (ventes)</span>
+          <span className="text-si-muted">Perçue (ventes)</span>
           <span className="tabular-nums">{formatCurrency(line.percue)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-500">− Notes de crédit</span>
+          <span className="text-si-muted">− Notes de crédit</span>
           <span className="tabular-nums">{formatCurrency(line.notesCredit)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-500">− Crédits sur intrants</span>
+          <span className="text-si-muted">− Crédits sur intrants</span>
           <span className="tabular-nums">{formatCurrency(line.creditsIntrants)}</span>
         </div>
-        <div className="flex justify-between text-base font-semibold border-t border-neutral-200 pt-1 mt-1">
+        <div className="flex justify-between text-base font-semibold border-t border-si-line pt-1 mt-1">
           <span>À remettre</span>
-          <span className={`tabular-nums ${line.aRemettre < 0 ? "text-emerald-700" : "text-neutral-900"}`}>
+          <span className={`tabular-nums ${line.aRemettre < 0 ? "text-emerald-700" : "text-si-ink"}`}>
             {formatCurrency(line.aRemettre)}
           </span>
         </div>
@@ -48,7 +48,7 @@ export default async function TaxesPage({
 }) {
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
-    return <div className="p-6"><p className="text-status-error">Accès refusé.</p></div>;
+    return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;
   }
 
   const { from: fromParam, to: toParam } = await searchParams;
@@ -71,19 +71,19 @@ export default async function TaxesPage({
         <CardContent className="p-4">
           <form className="flex flex-wrap items-end gap-3" method="get">
             <label className="text-sm">
-              <span className="block text-neutral-500 mb-1">Du</span>
+              <span className="block text-si-muted mb-1">Du</span>
               <input type="date" name="from" defaultValue={report.periode.from}
-                className="h-9 px-2 rounded border border-neutral-border bg-white text-sm" />
+                className="h-9 px-2 rounded border border-si-line bg-si-surface text-sm" />
             </label>
             <label className="text-sm">
-              <span className="block text-neutral-500 mb-1">Au</span>
+              <span className="block text-si-muted mb-1">Au</span>
               <input type="date" name="to" defaultValue={report.periode.to}
-                className="h-9 px-2 rounded border border-neutral-border bg-white text-sm" />
+                className="h-9 px-2 rounded border border-si-line bg-si-surface text-sm" />
             </label>
-            <button type="submit" className="h-9 px-4 rounded-safe-sm bg-forest-700 text-forest-50 text-sm font-medium hover:opacity-90">
+            <button type="submit" className="h-9 px-4 rounded-lg bg-si-forest text-si-surface text-sm font-medium hover:opacity-90">
               Appliquer
             </button>
-            <span className="text-xs text-neutral-500 self-center">
+            <span className="text-xs text-si-muted self-center">
               Période : {formatDate(report.periode.from)} → {formatDate(report.periode.to)}
             </span>
           </form>
@@ -102,7 +102,7 @@ export default async function TaxesPage({
         </CardContent>
       </Card>
 
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-si-muted">
         Estimation indicative. Les montants officiels à déclarer doivent être validés par votre comptable
         (traitement des cas particuliers, ajustements, méthode rapide, etc.).
       </p>

@@ -190,19 +190,19 @@ function uid() {
 /* ------------------------------------------------------------------ */
 
 const card =
-  "bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_24px_rgba(0,0,0,0.07)]";
+  "bg-si-surface/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_24px_rgba(0,0,0,0.07)]";
 
 const sectionTitle =
-  "text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-400";
+  "text-[11px] font-semibold uppercase tracking-[0.08em] text-si-muted/50";
 
 const selectBase =
-  "w-full h-11 px-4 pr-9 rounded-xl border border-neutral-200/80 bg-white/80 text-sm text-neutral-800 appearance-none focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 hover:border-neutral-300";
+  "w-full h-11 px-4 pr-9 rounded-xl border border-si-line/80 bg-si-surface/80 text-sm text-si-ink appearance-none focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 hover:border-si-line";
 
 const inputBase =
-  "w-full h-11 px-4 rounded-xl border border-neutral-200/80 bg-white/80 text-sm text-neutral-800 focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 hover:border-neutral-300";
+  "w-full h-11 px-4 rounded-xl border border-si-line/80 bg-si-surface/80 text-sm text-si-ink focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 hover:border-si-line";
 
 const lineInput =
-  "w-full h-10 px-3 rounded-lg border border-neutral-200/60 bg-white/90 text-sm focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200";
+  "w-full h-10 px-3 rounded-lg border border-si-line/60 bg-si-surface/90 text-sm focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200";
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -763,10 +763,10 @@ export function CreateInvoiceView({
   return (
     <div className="min-h-screen bg-transparent">
       {/* ── Top bar ── */}
-      <div className="sticky top-0 z-30 flex items-center justify-between bg-white/60 backdrop-blur-xl border-b border-white/40 px-8 py-4">
+      <div className="sticky top-0 z-30 flex items-center justify-between bg-si-surface/60 backdrop-blur-xl border-b border-white/40 px-8 py-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors duration-200"
+          className="flex items-center gap-2.5 text-sm text-si-muted hover:text-si-ink transition-colors duration-200"
         >
           <ArrowLeft size={16} />
           <span className="font-medium">{t("invoices")}</span>
@@ -776,7 +776,7 @@ export function CreateInvoiceView({
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
             <FileText size={16} className="text-white" />
           </div>
-          <h1 className="text-lg font-bold text-neutral-800 tracking-tight">
+          <h1 className="text-lg font-bold text-si-ink tracking-tight">
             {t("newInvoice")}
           </h1>
         </div>
@@ -785,7 +785,7 @@ export function CreateInvoiceView({
           <button
             onClick={() => router.back()}
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl text-sm font-medium text-neutral-600 bg-white/80 border border-neutral-200/60 hover:bg-white hover:border-neutral-300 transition-all duration-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-xl text-sm font-medium text-si-muted bg-si-surface/80 border border-si-line/60 hover:bg-si-surface hover:border-si-line transition-all duration-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t("cancel")}
           </button>
@@ -808,12 +808,12 @@ export function CreateInvoiceView({
 
       {submitError && (
         <div className="px-8 pt-4 max-w-[1600px] mx-auto">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-[#B84A3E]/10 border border-[#B84A3E]/30 text-[#B84A3E] text-sm">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
             <p className="flex-1">{submitError}</p>
             <button
               onClick={() => setSubmitError(null)}
-              className="text-red-400 hover:text-red-600 text-xs font-medium"
+              className="text-[#B84A3E] hover:text-[#B84A3E] text-xs font-medium"
             >
               {t("close")}
             </button>
@@ -842,19 +842,19 @@ export function CreateInvoiceView({
                     </select>
                     <ChevronDown
                       size={14}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-si-muted/50 pointer-events-none"
                     />
                   </div>
                 </div>
                 <div>
                   <label className={`block mb-2 ${sectionTitle}`}>{t("currency")}</label>
                   <div
-                    className={`${inputBase} flex items-center justify-between bg-neutral-50 text-neutral-700 cursor-not-allowed select-none`}
+                    className={`${inputBase} flex items-center justify-between bg-si-canvas text-si-ink cursor-not-allowed select-none`}
                     aria-readonly="true"
                     title={t("currencyLockedTitle")}
                   >
                     <span className="font-semibold">CAD</span>
-                    <span className="text-xs text-neutral-400">{t("canadianDollar")}</span>
+                    <span className="text-xs text-si-muted/50">{t("canadianDollar")}</span>
                   </div>
                 </div>
               </div>
@@ -873,27 +873,27 @@ export function CreateInvoiceView({
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
                 <div className="col-span-2">
-                  <span className="text-neutral-400 text-xs">{t("firm")}</span>
-                  <p className="font-semibold text-neutral-800 mt-0.5">
+                  <span className="text-si-muted/50 text-xs">{t("firm")}</span>
+                  <p className="font-semibold text-si-ink mt-0.5">
                     {cabinet.nom}
                   </p>
                 </div>
                 {cabinet.adresse && (
                   <div>
-                    <span className="text-neutral-400 text-xs">{t("address")}</span>
-                    <p className="text-neutral-700 mt-0.5">{cabinet.adresse}</p>
+                    <span className="text-si-muted/50 text-xs">{t("address")}</span>
+                    <p className="text-si-ink mt-0.5">{cabinet.adresse}</p>
                   </div>
                 )}
                 {cabinet.telephone && (
                   <div>
-                    <span className="text-neutral-400 text-xs">{t("phone")}</span>
-                    <p className="text-neutral-700 mt-0.5">{cabinet.telephone}</p>
+                    <span className="text-si-muted/50 text-xs">{t("phone")}</span>
+                    <p className="text-si-ink mt-0.5">{cabinet.telephone}</p>
                   </div>
                 )}
                 {cabinet.email && (
                   <div>
-                    <span className="text-neutral-400 text-xs">{t("email")}</span>
-                    <p className="text-neutral-700 mt-0.5">{cabinet.email}</p>
+                    <span className="text-si-muted/50 text-xs">{t("email")}</span>
+                    <p className="text-si-ink mt-0.5">{cabinet.email}</p>
                   </div>
                 )}
                 {/* NB: numéro du Barreau volontairement omis — donnée confidentielle */}
@@ -922,7 +922,7 @@ export function CreateInvoiceView({
                     </select>
                     <ChevronDown
                       size={14}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-si-muted/50 pointer-events-none"
                     />
                   </div>
                 </div>
@@ -934,9 +934,9 @@ export function CreateInvoiceView({
                     value={documentNumber}
                     readOnly
                     aria-readonly="true"
-                    className={`${inputBase} bg-neutral-50 text-neutral-500 cursor-not-allowed`}
+                    className={`${inputBase} bg-si-canvas text-si-muted cursor-not-allowed`}
                   />
-                  <p className="mt-1.5 text-[11px] text-neutral-400">
+                  <p className="mt-1.5 text-[11px] text-si-muted/50">
                     {t("autoAssignedOnCreation")}
                   </p>
                 </div>
@@ -985,7 +985,7 @@ export function CreateInvoiceView({
                     className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
                       dueDatePreset === p
                         ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
-                        : "bg-white/80 text-neutral-500 border border-neutral-200/60 hover:bg-white hover:text-neutral-700 hover:border-neutral-300"
+                        : "bg-si-surface/80 text-si-muted border border-si-line/60 hover:bg-si-surface hover:text-si-ink hover:border-si-line"
                     }`}
                   >
                     {t("daysCount", { count: p })}
@@ -1014,15 +1014,15 @@ export function CreateInvoiceView({
                 </select>
                 <ChevronDown
                   size={14}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-si-muted/50 pointer-events-none"
                 />
               </div>
 
               {selectedClient && (
-                <div className="mt-4 rounded-xl bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-100/60 text-sm">
+                <div className="mt-4 rounded-xl bg-gradient-to-br from-emerald-50/60 to-si-surface border border-emerald-100/60 text-sm">
                   {/* 1. Client name (always first) */}
                   <div className="px-4 pt-4">
-                    <p className="font-semibold text-neutral-900 text-base leading-tight">
+                    <p className="font-semibold text-si-ink text-base leading-tight">
                       {clientDisplayName(selectedClient)}
                     </p>
                   </div>
@@ -1035,7 +1035,7 @@ export function CreateInvoiceView({
                       </p>
                       <div className="space-y-0.5">
                         {selectedClient.dossiers.slice(0, 4).map((d) => (
-                          <p key={d.id} className="text-neutral-700 text-[13px] leading-snug">
+                          <p key={d.id} className="text-si-ink text-[13px] leading-snug">
                             {d.numeroDossier && (
                               <span className="font-mono text-emerald-700 mr-1.5">
                                 {d.numeroDossier}
@@ -1051,12 +1051,12 @@ export function CreateInvoiceView({
                   {/* 3. Coordonnées */}
                   <div className="px-4 py-3 space-y-0.5">
                     {selectedClient.billingAddress && (
-                      <p className="text-neutral-500">{selectedClient.billingAddress}</p>
+                      <p className="text-si-muted">{selectedClient.billingAddress}</p>
                     )}
                     {(selectedClient.billingCity ||
                       selectedClient.billingProvince ||
                       selectedClient.billingPostalCode) && (
-                      <p className="text-neutral-500">
+                      <p className="text-si-muted">
                         {[
                           selectedClient.billingCity,
                           selectedClient.billingProvince,
@@ -1067,19 +1067,19 @@ export function CreateInvoiceView({
                       </p>
                     )}
                     {selectedClient.telephone && (
-                      <p className="text-neutral-500">{selectedClient.telephone}</p>
+                      <p className="text-si-muted">{selectedClient.telephone}</p>
                     )}
                     {selectedClient.email && (
-                      <p className="text-neutral-500">{selectedClient.email}</p>
+                      <p className="text-si-muted">{selectedClient.email}</p>
                     )}
                   </div>
                 </div>
               )}
 
               {selectedClient && (
-                <div className="mt-4 rounded-xl border border-neutral-100 bg-white/70 p-4">
+                <div className="mt-4 rounded-xl border border-si-line bg-si-surface/70 p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-[0.08em]">
+                    <p className="text-xs font-semibold text-si-muted uppercase tracking-[0.08em]">
                       {t("detectedItems")}
                     </p>
                     <span className="text-xs font-semibold text-emerald-700">
@@ -1087,11 +1087,11 @@ export function CreateInvoiceView({
                     </span>
                   </div>
                   {billablesForSelectedClient.length > 0 ? (
-                    <p className="mt-2 text-sm text-neutral-500">
+                    <p className="mt-2 text-sm text-si-muted">
                       {t("autoLoadedItems")}
                     </p>
                   ) : (
-                    <p className="mt-2 text-sm text-neutral-500">
+                    <p className="mt-2 text-sm text-si-muted">
                       {t("noExistingItems")}
                     </p>
                   )}
@@ -1109,7 +1109,7 @@ export function CreateInvoiceView({
                     {isForfait ? t("billedTasks") : t("invoiceLines")}
                   </h3>
                   {isForfait && (
-                    <p className="text-[11px] text-neutral-400 mt-1">
+                    <p className="text-[11px] text-si-muted/50 mt-1">
                       {t("selectPresetTaskHint")}
                     </p>
                   )}
@@ -1132,7 +1132,7 @@ export function CreateInvoiceView({
                   </button>
                   <button
                     onClick={addFrais}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-all duration-200"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-si-amber-ink hover:text-si-amber-ink px-3 py-1.5 rounded-lg hover:bg-si-amber/[0.13] transition-all duration-200"
                     title={t("addAdminChargesTitle")}
                   >
                     <Receipt size={14} />
@@ -1144,29 +1144,29 @@ export function CreateInvoiceView({
               <div className="space-y-3">
                 {lines.map((line) => {
                   const detailsRow = (
-                    <div className="col-span-12 flex items-center gap-4 pt-2.5 mt-1 border-t border-neutral-100/80">
+                    <div className="col-span-12 flex items-center gap-4 pt-2.5 mt-1 border-t border-si-line/80">
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <CalendarDays size={12} className="text-neutral-400 shrink-0" />
-                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
+                        <CalendarDays size={12} className="text-si-muted/50 shrink-0" />
+                        <span className="text-[10px] text-si-muted/50 uppercase tracking-wide shrink-0">
                           {t("date")}
                         </span>
                         <input
                           type="date"
                           value={line.date}
                           onChange={(e) => updateLine(line.id, { date: e.target.value })}
-                          className="flex-1 h-7 px-2 rounded-md border border-transparent text-xs text-neutral-600 bg-transparent hover:border-neutral-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none tabular-nums"
+                          className="flex-1 h-7 px-2 rounded-md border border-transparent text-xs text-si-muted bg-transparent hover:border-si-line focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none tabular-nums"
                         />
                       </div>
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <UserIcon size={12} className="text-neutral-400 shrink-0" />
-                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide shrink-0">
+                        <UserIcon size={12} className="text-si-muted/50 shrink-0" />
+                        <span className="text-[10px] text-si-muted/50 uppercase tracking-wide shrink-0">
                           {t("responsible")}
                         </span>
                         <div className="relative flex-1">
                           <select
                             value={line.responsableUserId ?? ""}
                             onChange={(e) => selectResponsable(line.id, e.target.value)}
-                            className="w-full h-7 pl-2 pr-6 rounded-md border border-transparent text-xs text-neutral-600 bg-transparent hover:border-neutral-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none appearance-none"
+                            className="w-full h-7 pl-2 pr-6 rounded-md border border-transparent text-xs text-si-muted bg-transparent hover:border-si-line focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/20 outline-none appearance-none"
                           >
                             <option value="">—</option>
                             {lawyers.map((u) => (
@@ -1177,7 +1177,7 @@ export function CreateInvoiceView({
                           </select>
                           <ChevronDown
                             size={11}
-                            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-si-muted/50 pointer-events-none"
                           />
                         </div>
                         {line.responsableNom && (
@@ -1198,17 +1198,17 @@ export function CreateInvoiceView({
                   const modeToggle =
                     isMixed && line.sourceType === "manual" ? (
                       <div className="col-span-12 flex items-center gap-2 mb-1">
-                        <span className="text-[10px] text-neutral-400 uppercase tracking-wide">
+                        <span className="text-[10px] text-si-muted/50 uppercase tracking-wide">
                           {t("type")}
                         </span>
-                        <div className="inline-flex rounded-lg border border-neutral-200 p-0.5 bg-white">
+                        <div className="inline-flex rounded-lg border border-si-line p-0.5 bg-si-surface">
                           <button
                             type="button"
                             onClick={() => setLineMode(line.id, "forfait")}
                             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
                               showForfait
-                                ? "bg-emerald-600 text-white"
-                                : "text-neutral-500 hover:text-neutral-700"
+                                ? "bg-si-forest text-white"
+                                : "text-si-muted hover:text-si-ink"
                             }`}
                           >
                             {t("flatFee")}
@@ -1218,8 +1218,8 @@ export function CreateInvoiceView({
                             onClick={() => setLineMode(line.id, "honoraires")}
                             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
                               !showForfait
-                                ? "bg-emerald-600 text-white"
-                                : "text-neutral-500 hover:text-neutral-700"
+                                ? "bg-si-forest text-white"
+                                : "text-si-muted hover:text-si-ink"
                             }`}
                           >
                             {t("hours")}
@@ -1237,7 +1237,7 @@ export function CreateInvoiceView({
                         className={`grid grid-cols-12 gap-3 items-end p-4 rounded-xl border transition-all duration-200 ${
                           isRabais
                             ? "bg-emerald-50/50 border-emerald-100/80 hover:border-emerald-200"
-                            : "bg-amber-50/40 border-amber-100/80 hover:border-amber-200"
+                            : "bg-si-amber/[0.13] border-si-amber/30 hover:border-si-amber/30"
                         }`}
                       >
                         <div className="col-span-9">
@@ -1261,7 +1261,7 @@ export function CreateInvoiceView({
                           />
                         </div>
                         <div className="col-span-2">
-                          <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                          <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                             {t("amount")}
                           </label>
                           <div className="relative">
@@ -1283,12 +1283,12 @@ export function CreateInvoiceView({
                               className={`${lineInput} text-right font-semibold ${isRabais ? "pl-7" : ""}`}
                             />
                           </div>
-                          <label className="mt-1.5 flex items-center gap-1.5 text-[10px] text-neutral-400">
+                          <label className="mt-1.5 flex items-center gap-1.5 text-[10px] text-si-muted/50">
                             <input
                               type="checkbox"
                               checked={line.taxable !== false}
                               onChange={(e) => updateLine(line.id, { taxable: e.target.checked })}
-                              className="rounded border-neutral-300"
+                              className="rounded border-si-line"
                             />
                             {t("taxableGstQst")}
                           </label>
@@ -1296,7 +1296,7 @@ export function CreateInvoiceView({
                         <div className="col-span-1 flex justify-end">
                           <button
                             onClick={() => removeLine(line.id)}
-                            className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                            className="p-2 rounded-lg text-si-muted/40 hover:text-[#B84A3E] hover:bg-[#B84A3E]/10 transition-all duration-200"
                             title={t("delete")}
                           >
                             <Trash2 size={14} />
@@ -1310,11 +1310,11 @@ export function CreateInvoiceView({
                     /* ── Forfait mode: task picker + editable amount ── */
                     <div
                       key={line.id}
-                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
+                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-si-canvas/80 to-si-surface border border-si-line/80 transition-all duration-200 hover:border-si-line"
                     >
                       {modeToggle}
                       <div className="col-span-9">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {line.sourceType === "manual" ? t("presetTask") : t("billableItem")}
                         </label>
                         {line.sourceType === "manual" ? (
@@ -1340,7 +1340,7 @@ export function CreateInvoiceView({
                               </select>
                               <ChevronDown
                                 size={14}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-si-muted/50 pointer-events-none"
                               />
                             </div>
                             <input
@@ -1356,18 +1356,18 @@ export function CreateInvoiceView({
                           <input
                             value={line.description}
                             readOnly
-                            className={`${lineInput} bg-neutral-50 text-neutral-500`}
+                            className={`${lineInput} bg-si-canvas text-si-muted`}
                           />
                         )}
                         {line.dossierLabel && (
-                          <p className="mt-1 text-[10px] text-neutral-400 truncate">
+                          <p className="mt-1 text-[10px] text-si-muted/50 truncate">
                             {line.dossierLabel}
                           </p>
                         )}
                         {((line.ajustement ?? 0) !== 0 || (line.rabais ?? 0) > 0) && (
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             {(line.ajustement ?? 0) !== 0 && (
-                              <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
+                              <span className="rounded-md bg-si-amber/[0.13] px-2 py-1 font-medium text-si-amber-ink">
                                 {t("adjustment")} {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
                               </span>
                             )}
@@ -1380,7 +1380,7 @@ export function CreateInvoiceView({
                         )}
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("amount")}
                         </label>
                         <input
@@ -1394,13 +1394,13 @@ export function CreateInvoiceView({
                               amount: parseFloat(e.target.value) || 0,
                             })
                           }
-                          className={`${lineInput} text-right font-semibold ${line.sourceType !== "manual" ? "bg-neutral-50 text-neutral-500" : ""}`}
+                          className={`${lineInput} text-right font-semibold ${line.sourceType !== "manual" ? "bg-si-canvas text-si-muted" : ""}`}
                         />
                       </div>
                       <div className="col-span-1 flex justify-end">
                         <button
                           onClick={() => removeLine(line.id)}
-                          className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                          className="p-2 rounded-lg text-si-muted/40 hover:text-[#B84A3E] hover:bg-[#B84A3E]/10 transition-all duration-200"
                           title={t("delete")}
                         >
                           <Trash2 size={14} />
@@ -1412,11 +1412,11 @@ export function CreateInvoiceView({
                     /* ── Horaire mode: description + hours × rate ── */
                     <div
                       key={line.id}
-                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-neutral-50/80 to-white border border-neutral-100/80 transition-all duration-200 hover:border-neutral-200"
+                      className="grid grid-cols-12 gap-3 items-end p-4 rounded-xl bg-gradient-to-br from-si-canvas/80 to-si-surface border border-si-line/80 transition-all duration-200 hover:border-si-line"
                     >
                       {modeToggle}
                       <div className="col-span-5">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("description")}
                         </label>
                         <input
@@ -1426,17 +1426,17 @@ export function CreateInvoiceView({
                             updateLine(line.id, { description: e.target.value })
                           }
                           placeholder={t("serviceDescriptionPlaceholder")}
-                          className={`${lineInput} ${line.sourceType !== "manual" ? "bg-neutral-50 text-neutral-500" : ""}`}
+                          className={`${lineInput} ${line.sourceType !== "manual" ? "bg-si-canvas text-si-muted" : ""}`}
                         />
                         {line.dossierLabel && (
-                          <p className="mt-1 text-[10px] text-neutral-400 truncate">
+                          <p className="mt-1 text-[10px] text-si-muted/50 truncate">
                             {line.dossierLabel}
                           </p>
                         )}
                         {((line.ajustement ?? 0) !== 0 || (line.rabais ?? 0) > 0) && (
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             {(line.ajustement ?? 0) !== 0 && (
-                              <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-700">
+                              <span className="rounded-md bg-si-amber/[0.13] px-2 py-1 font-medium text-si-amber-ink">
                                 {t("adjustment")} {(line.ajustement ?? 0) > 0 ? "+" : ""}{(line.ajustement ?? 0).toFixed(2)} $
                               </span>
                             )}
@@ -1449,7 +1449,7 @@ export function CreateInvoiceView({
                         )}
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("hours")}
                         </label>
                         <input
@@ -1466,7 +1466,7 @@ export function CreateInvoiceView({
                         />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("rate")}
                         </label>
                         <input
@@ -1483,17 +1483,17 @@ export function CreateInvoiceView({
                         />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[11px] text-neutral-400 font-medium mb-1">
+                        <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("amount")}
                         </label>
-                        <p className="h-10 flex items-center justify-end text-sm font-bold text-neutral-800 tabular-nums">
+                        <p className="h-10 flex items-center justify-end text-sm font-bold text-si-ink tabular-nums">
                           {line.amount.toFixed(2)} $
                         </p>
                       </div>
                       <div className="col-span-1 flex justify-end">
                         <button
                           onClick={() => removeLine(line.id)}
-                          className="p-2 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                          className="p-2 rounded-lg text-si-muted/40 hover:text-[#B84A3E] hover:bg-[#B84A3E]/10 transition-all duration-200"
                           title={t("delete")}
                         >
                           <Trash2 size={14} />
@@ -1506,13 +1506,13 @@ export function CreateInvoiceView({
               </div>
 
               {/* Totals summary */}
-              <div className="mt-5 pt-5 border-t border-neutral-100 space-y-2.5 text-sm">
-                <div className="flex justify-between text-neutral-500">
+              <div className="mt-5 pt-5 border-t border-si-line space-y-2.5 text-sm">
+                <div className="flex justify-between text-si-muted">
                   <span>{t("subtotalFees")}</span>
                   <span className="tabular-nums">{totals.subtotalHonoraires.toFixed(2)} $</span>
                 </div>
                 {totals.totalFrais > 0 && (
-                  <div className="flex justify-between text-amber-700">
+                  <div className="flex justify-between text-si-amber-ink">
                     <span>{t("adminCharges")}</span>
                     <span className="tabular-nums">+{totals.totalFrais.toFixed(2)} $</span>
                   </div>
@@ -1523,28 +1523,28 @@ export function CreateInvoiceView({
                     <span className="tabular-nums">−{totals.totalRabais.toFixed(2)} $</span>
                   </div>
                 )}
-                <div className="flex justify-between text-neutral-500 pt-1.5 border-t border-neutral-100/60">
+                <div className="flex justify-between text-si-muted pt-1.5 border-t border-si-line/60">
                   <span>{t("subtotal")}</span>
                   <span className="tabular-nums font-medium">{totals.subtotal.toFixed(2)} $</span>
                 </div>
                 {totals.mode === "hst" ? (
-                  <div className="flex justify-between text-neutral-400">
+                  <div className="flex justify-between text-si-muted/50">
                     <span>TVH (13%)</span>
                     <span className="tabular-nums">{totals.hst.toFixed(2)} $</span>
                   </div>
                 ) : (
                   <>
-                    <div className="flex justify-between text-neutral-400">
+                    <div className="flex justify-between text-si-muted/50">
                       <span>TPS (5%)</span>
                       <span className="tabular-nums">{totals.tps.toFixed(2)} $</span>
                     </div>
-                    <div className="flex justify-between text-neutral-400">
+                    <div className="flex justify-between text-si-muted/50">
                       <span>TVQ (9,975%)</span>
                       <span className="tabular-nums">{totals.tvq.toFixed(2)} $</span>
                     </div>
                   </>
                 )}
-                <div className="flex justify-between font-bold text-neutral-800 text-base pt-3 border-t border-neutral-100">
+                <div className="flex justify-between font-bold text-si-ink text-base pt-3 border-t border-si-line">
                   <span>{t("total")}</span>
                   <span className="tabular-nums">{totals.total.toFixed(2)} $</span>
                 </div>
@@ -1561,7 +1561,7 @@ export function CreateInvoiceView({
                 onChange={(e) => setClientNote(e.target.value)}
                 placeholder={t("optionalMessagePlaceholder")}
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-neutral-200/80 bg-white/80 text-sm text-neutral-800 placeholder:text-neutral-300 focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-si-line/80 bg-si-surface/80 text-sm text-si-ink placeholder:text-si-muted/40 focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-400 outline-none transition-all duration-200 resize-none"
               />
             </div>
           </div>
@@ -1576,18 +1576,18 @@ export function CreateInvoiceView({
             </div>
             {presentedPreview.cabinet?.invoiceTemplate === "derisier" &&
             presentedPreview.cabinet?.invoiceSignature ? (
-              <label className="flex items-center gap-2 cursor-pointer text-sm text-neutral-600 select-none">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-si-muted select-none">
                 <input
                   type="checkbox"
                   checked={showSignature}
                   onChange={(e) => setShowSignature(e.target.checked)}
-                  className="h-4 w-4 rounded border-neutral-300 text-emerald-500 focus:ring-emerald-400/30"
+                  className="h-4 w-4 rounded border-si-line text-emerald-500 focus:ring-emerald-400/30"
                 />
                 {t("addMySignature")}
               </label>
             ) : null}
           </div>
-          <div className="rounded-2xl border border-white/60 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.09)]">
+          <div className="rounded-2xl border border-white/60 bg-si-surface shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.09)]">
             {/*
              * Aperçu canonique : rend le document via @react-pdf/renderer.
              * Le PDF téléchargé final utilisera EXACTEMENT le même composant

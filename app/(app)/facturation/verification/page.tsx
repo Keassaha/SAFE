@@ -32,44 +32,44 @@ export default async function FacturationVerificationPage() {
       <Card>
         <CardHeader title={t("invoicesInReview")} />
         <CardContent>
-          <p className="text-sm text-[var(--safe-text-secondary)] mb-4">
+          <p className="text-sm text-si-muted mb-4">
             {t("reviewIntro")}
           </p>
           {invoices.length === 0 ? (
-            <p className="text-sm text-[var(--safe-text-secondary)] py-8 text-center">
+            <p className="text-sm text-si-muted py-8 text-center">
               {t("noInvoicesPendingReview")}
             </p>
           ) : (
-            <ul className="divide-y divide-[var(--safe-neutral-border)]">
+            <ul className="divide-y divide-si-line">
               {invoices.map((inv) => (
                 <li key={inv.id}>
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-safe-sm hover:bg-[var(--safe-neutral-bg)] transition-colors"
+                    className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-lg hover:bg-si-canvas transition-colors"
                   >
-                    <div className="p-2 rounded-safe-sm bg-amber-100 text-amber-700">
+                    <div className="p-2 rounded-lg bg-si-amber/[0.13] text-si-amber-ink">
                       <FileText className="h-5 w-5" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-[var(--safe-text-title)]">
+                      <p className="font-medium text-si-ink">
                         {displayInvoiceNumero(inv.numero)} — {inv.client.raisonSociale}
                       </p>
-                      <p className="text-sm text-[var(--safe-text-secondary)]">
+                      <p className="text-sm text-si-muted">
                         {inv.dossier?.intitule ?? t("noMatter")} · {t("issuedColon")}{" "}
                         {formatDate(inv.dateEmission)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-semibold text-[var(--safe-text-title)]">
+                      <p className="font-semibold text-si-ink">
                         {formatCurrency(inv.montantTotal)}
                       </p>
-                      <p className="text-xs text-[var(--safe-text-secondary)]">
+                      <p className="text-xs text-si-muted">
                         {inv.invoiceStatus === "READY_TO_ISSUE"
                           ? t("approvedReadyToSend")
                           : t("awaitingApproval")}
                       </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-[var(--safe-text-secondary)] shrink-0" aria-hidden />
+                    <ChevronRight className="h-5 w-5 text-si-muted shrink-0" aria-hidden />
                   </Link>
                 </li>
               ))}

@@ -218,7 +218,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
   return (
     <div className="space-y-6">
-      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <Link
           href={routes.facturationHonoraires}
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
@@ -240,18 +240,18 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
         <CardHeader title={t("invoiceDraft")} />
         <CardContent>
           {draftLines.length === 0 ? (
-            <p className="text-neutral-500 py-6 text-center text-sm">
+            <p className="text-si-muted py-6 text-center text-sm">
               {t("checkItemsToSeeDraft")}
             </p>
           ) : (
-            <div className="rounded-safe-sm border border-neutral-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-neutral-200 flex justify-between items-start">
+            <div className="rounded-lg border border-si-line bg-si-surface shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-si-line flex justify-between items-start">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-neutral-500 font-medium">
+                  <p className="text-xs uppercase tracking-wider text-si-muted font-medium">
                     {t("draftNotIssued")}
                   </p>
-                  <p className="text-lg font-semibold text-neutral-900 mt-0.5">{clientName}</p>
-                  <p className="text-sm text-neutral-500 mt-1">
+                  <p className="text-lg font-semibold text-si-ink mt-0.5">{clientName}</p>
+                  <p className="text-sm text-si-muted mt-1">
                     {t("plannedIssueDate")} {formatDate(new Date())}
                   </p>
                 </div>
@@ -259,16 +259,16 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-200 bg-neutral-50">
-                      <th className="text-left py-3 px-4 font-medium text-neutral-700">{t("date")}</th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-700">{t("description")}</th>
-                      <th className="text-right py-3 px-4 font-medium text-neutral-700">{t("amount")}</th>
+                    <tr className="border-b border-si-line bg-si-canvas">
+                      <th className="text-left py-3 px-4 font-medium text-si-ink">{t("date")}</th>
+                      <th className="text-left py-3 px-4 font-medium text-si-ink">{t("description")}</th>
+                      <th className="text-right py-3 px-4 font-medium text-si-ink">{t("amount")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {draftLines.map((line) => (
-                      <tr key={line.id} className="border-b border-neutral-100">
-                        <td className="py-2 px-4 text-neutral-600">{formatDate(line.date)}</td>
+                      <tr key={line.id} className="border-b border-si-line">
+                        <td className="py-2 px-4 text-si-muted">{formatDate(line.date)}</td>
                         <td className={line.type === "rabais" ? "py-2 px-4 text-emerald-700" : "py-2 px-4"}>
                           {line.description}
                         </td>
@@ -280,21 +280,21 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   </tbody>
                 </table>
               </div>
-              <div className="px-6 py-4 border-t border-neutral-200 bg-neutral-50/80 space-y-1.5">
+              <div className="px-6 py-4 border-t border-si-line bg-si-canvas/80 space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalFees")}</span>
+                  <span className="text-si-muted">{t("subtotalFees")}</span>
                   <span>{formatCurrency(totalHonoraires)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalDisbursements")}</span>
+                  <span className="text-si-muted">{t("subtotalDisbursements")}</span>
                   <span>{formatCurrency(totalDebours)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalFlatFees")}</span>
+                  <span className="text-si-muted">{t("subtotalFlatFees")}</span>
                   <span>{formatCurrency(totalForfaits)}</span>
                 </div>
                 {totalAjustements !== 0 && (
-                  <div className="flex justify-between text-sm text-amber-700">
+                  <div className="flex justify-between text-sm text-si-amber-ink">
                     <span>{t("adjustmentsIncluded")}</span>
                     <span>{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
                   </div>
@@ -307,22 +307,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 )}
                 {isHst ? (
                   <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600">TVH (13 %)</span>
+                    <span className="text-si-muted">TVH (13 %)</span>
                     <span>{formatCurrency(hst)}</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">TPS (5 %)</span>
+                      <span className="text-si-muted">TPS (5 %)</span>
                       <span>{formatCurrency(tps)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">TVQ (9,975 %)</span>
+                      <span className="text-si-muted">TVQ (9,975 %)</span>
                       <span>{formatCurrency(tvq)}</span>
                     </div>
                   </>
                 )}
-                <div className="flex justify-between font-semibold pt-2 mt-2 border-t border-neutral-200">
+                <div className="flex justify-between font-semibold pt-2 mt-2 border-t border-si-line">
                   <span>{t("totalToBill")}</span>
                   <span>{formatCurrency(totalTTC)}</span>
                 </div>
@@ -365,21 +365,21 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
             </div>
           ) : entries.length === 0 && expenses.length === 0 && registreTaches.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">
+            <p className="text-si-muted py-8 text-center">
               {t("noItemsToBillForClient")}
             </p>
           ) : (
             <>
               {entries.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("timesheets")}</h3>
+                  <h3 className="text-sm font-medium text-si-ink mb-2 tracking-tight">{t("timesheets")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
-                        <tr className="border-b border-neutral-200 bg-neutral-50">
+                        <tr className="border-b border-si-line bg-si-canvas">
                           <th className="w-10 py-3 px-3">
                             <input
                               type="checkbox"
@@ -400,7 +400,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         {entries.map((e) => (
                           <tr
                             key={e.id}
-                            className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                            className="border-b border-si-line hover:bg-si-canvas/80"
                           >
                             <td className="py-2 px-3">
                               <input
@@ -411,12 +411,12 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: e.description ?? t("lineFallback") })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatDate(e.date)}</td>
                             <td className="py-2 px-3">{e.userNom}</td>
                             <td className="py-2 px-3">
                               {e.description ?? "—"}
                               {e.isDrafted && (
-                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                <span className="ml-2 rounded-full bg-si-amber/[0.13] px-2 py-0.5 text-[11px] text-si-amber-ink">
                                   {t("invoiceBadge", { numero: e.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
@@ -439,11 +439,11 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               )}
               {expenses.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("disbursements")}</h3>
+                  <h3 className="text-sm font-medium text-si-ink mb-2 tracking-tight">{t("disbursements")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
-                        <tr className="border-b border-neutral-200 bg-neutral-50">
+                        <tr className="border-b border-si-line bg-si-canvas">
                           <th className="w-10 py-3 px-3">
                             <input
                               type="checkbox"
@@ -463,7 +463,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         {expenses.map((e) => (
                           <tr
                             key={e.id}
-                            className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                            className="border-b border-si-line hover:bg-si-canvas/80"
                           >
                             <td className="py-2 px-3">
                               <input
@@ -474,11 +474,11 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: e.description })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-neutral-600">{formatDate(e.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatDate(e.date)}</td>
                             <td className="py-2 px-3">
                               {e.description}
                               {e.isDrafted && (
-                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                <span className="ml-2 rounded-full bg-si-amber/[0.13] px-2 py-0.5 text-[11px] text-si-amber-ink">
                                   {t("invoiceBadge", { numero: e.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
@@ -495,11 +495,11 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               )}
               {registreTaches.length > 0 && (
                 <>
-                  <h3 className="text-sm font-medium text-neutral-700 mb-2 tracking-tight">{t("flatFeeTasks")}</h3>
+                  <h3 className="text-sm font-medium text-si-ink mb-2 tracking-tight">{t("flatFeeTasks")}</h3>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm border-collapse">
                       <thead>
-                        <tr className="border-b border-neutral-200 bg-neutral-50">
+                        <tr className="border-b border-si-line bg-si-canvas">
                           <th className="w-10 py-3 px-3">
                             <input
                               type="checkbox"
@@ -522,7 +522,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         {registreTaches.map((tache) => (
                           <tr
                             key={tache.id}
-                            className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                            className="border-b border-si-line hover:bg-si-canvas/80"
                           >
                             <td className="py-2 px-3">
                               <input
@@ -533,24 +533,24 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: tache.description })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-neutral-600">{formatDate(tache.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatDate(tache.date)}</td>
                             <td className="py-2 px-3">{tache.dossierIntitule ?? "—"}</td>
                             <td className="py-2 px-3">
                               {tache.description}
                               {tache.isDrafted && (
-                                <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+                                <span className="ml-2 rounded-full bg-si-amber/[0.13] px-2 py-0.5 text-[11px] text-si-amber-ink">
                                   {t("invoiceBadge", { numero: tache.invoiceNumero ?? t("inProgress") })}
                                 </span>
                               )}
                             </td>
                             <td className="py-2 px-3 text-right">{formatCurrency(tache.montantBase)}</td>
-                            <td className={`py-2 px-3 text-right ${tache.ajustement !== 0 ? "text-amber-700 font-medium" : "text-neutral-400"}`}>
+                            <td className={`py-2 px-3 text-right ${tache.ajustement !== 0 ? "text-si-amber-ink font-medium" : "text-si-muted/50"}`}>
                               {tache.ajustement !== 0 ? `${tache.ajustement > 0 ? "+" : ""}${formatCurrency(tache.ajustement)}` : "—"}
                             </td>
-                            <td className={`py-2 px-3 text-right ${tache.rabais > 0 ? "text-emerald-700 font-medium" : "text-neutral-400"}`}>
+                            <td className={`py-2 px-3 text-right ${tache.rabais > 0 ? "text-emerald-700 font-medium" : "text-si-muted/50"}`}>
                               {tache.rabais > 0 ? `-${formatCurrency(tache.rabais)}` : "—"}
                               {tache.rabaisRaison && (
-                                <p className="text-[10px] font-normal text-neutral-400">{tache.rabaisRaison}</p>
+                                <p className="text-[10px] font-normal text-si-muted/50">{tache.rabaisRaison}</p>
                               )}
                             </td>
                             <td className="py-2 px-3 text-right font-medium">{formatCurrency(tache.amount)}</td>
@@ -563,21 +563,21 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                 </>
               )}
 
-              <div className="mt-6 p-4 rounded-safe-sm bg-neutral-50 border border-neutral-200 space-y-2">
+              <div className="mt-6 p-4 rounded-lg bg-si-canvas border border-si-line space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalFees")}</span>
+                  <span className="text-si-muted">{t("subtotalFees")}</span>
                   <span className="font-medium">{formatCurrency(totalHonoraires)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalDisbursements")}</span>
+                  <span className="text-si-muted">{t("subtotalDisbursements")}</span>
                   <span className="font-medium">{formatCurrency(totalDebours)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("subtotalFlatFees")}</span>
+                  <span className="text-si-muted">{t("subtotalFlatFees")}</span>
                   <span className="font-medium">{formatCurrency(totalForfaits)}</span>
                 </div>
                 {totalAjustements !== 0 && (
-                  <div className="flex justify-between text-sm text-amber-700">
+                  <div className="flex justify-between text-sm text-si-amber-ink">
                     <span>{t("adjustmentsIncluded")}</span>
                     <span className="font-medium">{totalAjustements > 0 ? "+" : ""}{formatCurrency(totalAjustements)}</span>
                   </div>
@@ -589,27 +589,27 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-600">{t("selectedTotalHours")}</span>
+                  <span className="text-si-muted">{t("selectedTotalHours")}</span>
                   <span>{totalHeures.toFixed(1)} h</span>
                 </div>
                 {isHst ? (
                   <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600">TVH (13 %)</span>
+                    <span className="text-si-muted">TVH (13 %)</span>
                     <span>{formatCurrency(hst)}</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">TPS (5 %)</span>
+                      <span className="text-si-muted">TPS (5 %)</span>
                       <span>{formatCurrency(tps)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">TVQ (9,975 %)</span>
+                      <span className="text-si-muted">TVQ (9,975 %)</span>
                       <span>{formatCurrency(tvq)}</span>
                     </div>
                   </>
                 )}
-                <div className="flex justify-between font-medium pt-2 border-t border-neutral-200">
+                <div className="flex justify-between font-medium pt-2 border-t border-si-line">
                   <span>{t("totalToBill")}</span>
                   <span>{formatCurrency(totalTTC)}</span>
                 </div>

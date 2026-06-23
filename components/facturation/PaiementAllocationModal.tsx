@@ -9,7 +9,7 @@ import { formatCurrency } from "@/lib/utils/format";
 import { Loader2 } from "lucide-react";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-safe border border-neutral-200 bg-neutral-50/80 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all";
+  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 export interface PaiementAllocationModalProps {
   open: boolean;
@@ -129,25 +129,25 @@ export function PaiementAllocationModal({
     <Modal open={open} onClose={handleClose} title={tp("allocatePayment")}>
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
         </div>
       ) : !payment ? (
-        <p className="text-neutral-500 py-4">{tp("paymentNotFound")}</p>
+        <p className="text-si-muted py-4">{tp("paymentNotFound")}</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="rounded-safe-sm bg-neutral-50 p-4 text-sm">
-            <p className="font-medium text-neutral-800">{tp("totalAmountLabel")} : {formatCurrency(payment.montant)}</p>
-            <p className="text-neutral-600">
+          <div className="rounded-lg bg-si-canvas p-4 text-sm">
+            <p className="font-medium text-si-ink">{tp("totalAmountLabel")} : {formatCurrency(payment.montant)}</p>
+            <p className="text-si-muted">
               {tp("alreadyAllocated")} : {formatCurrency(payment.allocatedAmount)} — {tp("unallocated")} :{" "}
               {formatCurrency(payment.unallocatedAmount)}
             </p>
           </div>
           {payment.unallocatedAmount <= 0 ? (
-            <p className="text-neutral-500">{tp("fullyAllocated")}</p>
+            <p className="text-si-muted">{tp("fullyAllocated")}</p>
           ) : (
             <>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-1.5">{tp("invoiceRequired")}</label>
+                <label className="block text-sm font-medium text-si-muted mb-1.5">{tp("invoiceRequired")}</label>
                 <select
                   value={invoiceId}
                   onChange={(e) => setInvoiceId(e.target.value)}
@@ -163,7 +163,7 @@ export function PaiementAllocationModal({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-1.5">
+                <label className="block text-sm font-medium text-si-muted mb-1.5">
                   {tp("amountToAllocateRequired")} (max. {formatCurrency(maxAllocatable)})
                 </label>
                 <input
@@ -180,7 +180,7 @@ export function PaiementAllocationModal({
             </>
           )}
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} disabled={submitting}>

@@ -22,11 +22,11 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       case "brouillon":
         return "bg-gray-50 border-gray-200";
       case "validee":
-        return "bg-blue-50 border-blue-200";
+        return "bg-si-canvas border-si-line";
       case "envoyee":
-        return "bg-green-50 border-green-200";
+        return "bg-si-verified/10 border-si-verified/30";
       case "en_retard":
-        return "bg-red-50 border-red-200";
+        return "bg-[#B84A3E]/10 border-[#B84A3E]/30";
     }
   };
 
@@ -35,11 +35,11 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       case "brouillon":
         return "bg-gray-100 text-gray-700";
       case "validee":
-        return "bg-blue-100 text-blue-700";
+        return "bg-si-canvas text-si-ink";
       case "envoyee":
-        return "bg-green-100 text-green-700";
+        return "bg-si-verified/10 text-si-verified";
       case "en_retard":
-        return "bg-red-100 text-red-700";
+        return "bg-[#B84A3E]/10 text-[#B84A3E]";
     }
   };
 
@@ -49,11 +49,11 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
     <div className={`rounded-lg border p-3 space-y-2 ${getStatusColor()}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-[var(--safe-text-title)] truncate">
+          <p className="text-sm font-medium text-si-ink truncate">
             {invoice.client.raisonSociale || t("noClient")}
           </p>
           {invoice.dossier && (
-            <p className="text-xs text-[var(--safe-text-secondary)] truncate">
+            <p className="text-xs text-si-muted truncate">
               {invoice.dossier.intitule}
             </p>
           )}
@@ -63,7 +63,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
             {displayInvoiceNumero(invoice.numero)}
           </span>
           {showRetardBadge && (
-            <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-red-600 text-white whitespace-nowrap">
+            <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-[#B84A3E] text-white whitespace-nowrap">
               {t("overdue")}
             </span>
           )}
@@ -71,23 +71,23 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       </div>
 
       <div className="flex justify-between items-baseline pt-1 border-t border-current border-opacity-10">
-        <span className="text-xs text-[var(--safe-text-secondary)]">{t("totalLabel")}</span>
-        <span className="text-sm font-semibold text-[var(--safe-text-title)]">
+        <span className="text-xs text-si-muted">{t("totalLabel")}</span>
+        <span className="text-sm font-semibold text-si-ink">
           {formatCurrency(invoice.montantTotal)}
         </span>
       </div>
 
       {invoice.balanceDue > 0 && (status === "envoyee" || status === "en_retard") && (
         <div className="flex justify-between items-baseline text-xs">
-          <span className="text-[var(--safe-text-secondary)]">{t("balanceDueLabel")}</span>
-          <span className={`font-semibold ${status === "en_retard" ? "text-red-700" : "text-[var(--safe-text-title)]"}`}>
+          <span className="text-si-muted">{t("balanceDueLabel")}</span>
+          <span className={`font-semibold ${status === "en_retard" ? "text-[#B84A3E]" : "text-si-ink"}`}>
             {formatCurrency(invoice.balanceDue)}
           </span>
         </div>
       )}
 
       {invoice.dateEcheance && (
-        <p className="text-xs text-[var(--safe-text-secondary)]">
+        <p className="text-xs text-si-muted">
           {t("dueDateLabel")} {formatDate(invoice.dateEcheance)}
         </p>
       )}

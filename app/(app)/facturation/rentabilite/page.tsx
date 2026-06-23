@@ -15,7 +15,7 @@ function pct(v: number | null): string {
 export default async function RentabilitePage() {
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
-    return <div className="p-6"><p className="text-status-error">Accès refusé.</p></div>;
+    return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;
   }
 
   const { totals, dossiers } = await getDossierProfitability(cabinetId);
@@ -31,21 +31,21 @@ export default async function RentabilitePage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4">
-          <p className="text-xs text-neutral-500">Facturé HT</p>
+          <p className="text-xs text-si-muted">Facturé HT</p>
           <p className="text-xl font-semibold tabular-nums">{formatCurrency(totals.factureHT)}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-neutral-500">Débours payés</p>
+          <p className="text-xs text-si-muted">Débours payés</p>
           <p className="text-xl font-semibold tabular-nums">{formatCurrency(totals.coutsDirects)}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-neutral-500">Marge brute</p>
-          <p className={`text-xl font-semibold tabular-nums ${totals.margeBrute < 0 ? "text-red-700" : "text-emerald-700"}`}>
+          <p className="text-xs text-si-muted">Marge brute</p>
+          <p className={`text-xl font-semibold tabular-nums ${totals.margeBrute < 0 ? "text-[#B84A3E]" : "text-emerald-700"}`}>
             {formatCurrency(totals.margeBrute)}
           </p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-neutral-500">Dossiers</p>
+          <p className="text-xs text-si-muted">Dossiers</p>
           <p className="text-xl font-semibold tabular-nums">{totals.nbDossiers}</p>
         </CardContent></Card>
       </div>
@@ -53,12 +53,12 @@ export default async function RentabilitePage() {
       <Card>
         <CardContent className="p-0">
           {dossiers.length === 0 ? (
-            <p className="text-neutral-500 py-10 text-center">Aucune donnée de rentabilité.</p>
+            <p className="text-si-muted py-10 text-center">Aucune donnée de rentabilité.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50 text-left">
+                  <tr className="border-b border-si-line bg-si-canvas text-left">
                     <th className="py-3 px-4 font-medium">Dossier</th>
                     <th className="py-3 px-4 font-medium">Client</th>
                     <th className="py-3 px-4 font-medium text-right">Facturé HT</th>
@@ -69,7 +69,7 @@ export default async function RentabilitePage() {
                 </thead>
                 <tbody>
                   {dossiers.map((d) => (
-                    <tr key={d.dossierId} className="border-b border-neutral-100 hover:bg-neutral-50/70">
+                    <tr key={d.dossierId} className="border-b border-si-line hover:bg-si-canvas/70">
                       <td className="py-2.5 px-4">
                         <Link href={routes.dossier(d.dossierId)} className="text-emerald-700 hover:underline">
                           {d.numeroDossier ? `${d.numeroDossier} — ` : ""}{d.intitule}
@@ -78,7 +78,7 @@ export default async function RentabilitePage() {
                       <td className="py-2.5 px-4">{d.clientNom}</td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{formatCurrency(d.factureHT)}</td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{formatCurrency(d.coutsDirects)}</td>
-                      <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${d.margeBrute < 0 ? "text-red-700" : ""}`}>
+                      <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${d.margeBrute < 0 ? "text-[#B84A3E]" : ""}`}>
                         {formatCurrency(d.margeBrute)}
                       </td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{pct(d.margePct)}</td>

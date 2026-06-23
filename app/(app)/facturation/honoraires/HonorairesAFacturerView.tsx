@@ -15,12 +15,12 @@ import type { FacturationHonorairesQueryInput } from "@/lib/validations/facturat
 import { Search, Eye, FileText, FilePlus2, Loader2, ArrowLeft } from "lucide-react";
 
 const ICON_BTN_BASE =
-  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-500 focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed";
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-si-verified focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed";
 const ICON_BTN_OUTLINE =
-  "border border-forest-700/30 text-forest-700 bg-white hover:bg-forest-50";
+  "border border-si-forest/30 text-si-verified bg-si-surface hover:bg-si-canvas";
 const ICON_BTN_GHOST =
-  "border border-transparent text-forest-700 hover:bg-forest-50";
-const ICON_BTN_PRIMARY = "bg-forest-700 text-forest-50 hover:opacity-90";
+  "border border-transparent text-si-verified hover:bg-si-canvas";
+const ICON_BTN_PRIMARY = "bg-si-forest text-si-surface hover:opacity-90";
 
 interface HonorairesAFacturerViewProps {
   cabinetId: string;
@@ -55,7 +55,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
   return (
     <div className="space-y-6">
       {!embedded && (
-        <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+        <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
           <Link
             href={routes.facturation}
             className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
@@ -77,7 +77,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <Link href={routes.temps}>
                 <Button
                   variant="secondary"
-                  className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                  className="bg-si-surface/20 text-white border-white/30 hover:bg-si-surface/30"
                 >
                   {t("timesheet")}
                 </Button>
@@ -92,23 +92,23 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2 min-w-[200px]">
-              <Search className="w-4 h-4 text-neutral-500" />
+              <Search className="w-4 h-4 text-si-muted" />
               <input
                 type="search"
                 placeholder={t("searchClientPlaceholder")}
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
-                className="flex-1 rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
+                className="flex-1 rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">{t("lawyer")}</label>
+              <label className="text-sm text-si-muted">{t("lawyer")}</label>
               <select
                 value={filters.userId ?? ""}
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, userId: e.target.value || undefined }))
                 }
-                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[160px]"
+                className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[160px]"
               >
                 <option value="">{t("all")}</option>
                 {users.map((u) => (
@@ -119,13 +119,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">{t("matter")}</label>
+              <label className="text-sm text-si-muted">{t("matter")}</label>
               <select
                 value={filters.dossierId ?? ""}
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }))
                 }
-                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm min-w-[200px]"
+                className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[200px]"
               >
                 <option value="">{t("all")}</option>
                 {dossiers.map((d) => (
@@ -136,7 +136,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">{t("from")}</label>
+              <label className="text-sm text-si-muted">{t("from")}</label>
               <input
                 type="date"
                 value={filters.dateFrom ? String(filters.dateFrom).slice(0, 10) : ""}
@@ -146,11 +146,11 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                     dateFrom: e.target.value ? new Date(e.target.value) : undefined,
                   }))
                 }
-                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
+                className="rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-neutral-600">{t("to")}</label>
+              <label className="text-sm text-si-muted">{t("to")}</label>
               <input
                 type="date"
                 value={filters.dateTo ? String(filters.dateTo).slice(0, 10) : ""}
@@ -160,7 +160,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                     dateTo: e.target.value ? new Date(e.target.value) : undefined,
                   }))
                 }
-                className="rounded-safe-sm border border-neutral-300 px-3 py-2 text-sm"
+                className="rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
           </div>
@@ -172,17 +172,17 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
             </div>
           ) : rows.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">
+            <p className="text-si-muted py-8 text-center">
               {t("noFeesForCriteria")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50">
+                  <tr className="border-b border-si-line bg-si-canvas">
                     <th className="text-left py-3 px-3 font-medium">{t("client")}</th>
                     <th className="text-right py-3 px-3 font-medium">{t("entries")}</th>
                     <th className="text-right py-3 px-3 font-medium">{t("totalHours")}</th>
@@ -203,7 +203,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                     return (
                     <tr
                       key={row.clientId}
-                      className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                      className="border-b border-si-line hover:bg-si-canvas/80"
                     >
                       <td className="py-3 px-3 font-medium">{row.clientName}</td>
                       <td className="py-3 px-3 text-right">{row.count}</td>
@@ -225,7 +225,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                       <td className="py-3 px-3 text-right font-medium">
                         {formatCurrency(row.totalAFacturer)}
                       </td>
-                      <td className="py-3 px-3 text-neutral-600">
+                      <td className="py-3 px-3 text-si-muted">
                         {formatDate(row.lastDate)}
                       </td>
                       <td className="py-3 px-3 text-right">

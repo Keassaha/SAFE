@@ -50,7 +50,7 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
   const closeMenu = () => setMenuOpen(false);
 
   const menuItemClass =
-    "flex items-center gap-3 w-full px-3 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 transition-colors";
+    "flex items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors";
 
   return (
     <div className="flex items-center gap-2">
@@ -71,22 +71,22 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
         {menuOpen && (
           <div
             role="menu"
-            className="absolute right-0 mt-2 w-64 rounded-safe bg-white border border-[var(--safe-neutral-border)] shadow-lg z-20 py-1 animate-fade-in"
+            className="absolute right-0 mt-2 w-64 rounded-xl bg-si-surface border border-si-line shadow-lg z-20 py-1 animate-fade-in"
           >
             <Link href={routes.facturationNotesCredit} className={menuItemClass} onClick={closeMenu} role="menuitem">
-              <FileMinus className="h-4 w-4 text-neutral-400" aria-hidden />
+              <FileMinus className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("creditNotes")}</span>
             </Link>
             <Link href={routes.facturationFrais} className={menuItemClass} onClick={closeMenu} role="menuitem">
-              <Receipt className="h-4 w-4 text-neutral-400" aria-hidden />
+              <Receipt className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("disbursementsRegister")}</span>
             </Link>
             <Link href={`${routes.facturationSuivi}?retard=1`} className={menuItemClass} onClick={closeMenu} role="menuitem">
-              <Bell className="h-4 w-4 text-neutral-400" aria-hidden />
+              <Bell className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("remindersAndOverdue")}</span>
             </Link>
 
-            <div className="my-1 h-px bg-neutral-100" />
+            <div className="my-1 h-px bg-si-canvas" />
 
             <button
               type="button"
@@ -95,9 +95,9 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
               title={t("comingSoon")}
               role="menuitem"
             >
-              <Download className="h-4 w-4 text-neutral-400" aria-hidden />
+              <Download className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("exportCsvPdf")}</span>
-              <span className="text-[10px] uppercase tracking-wide text-neutral-400">{t("soonBadge")}</span>
+              <span className="text-[10px] uppercase tracking-wide text-si-muted/50">{t("soonBadge")}</span>
             </button>
             <button
               type="button"
@@ -106,9 +106,9 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
               title={t("comingSoon")}
               role="menuitem"
             >
-              <Settings className="h-4 w-4 text-neutral-400" aria-hidden />
+              <Settings className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("billingSettings")}</span>
-              <span className="text-[10px] uppercase tracking-wide text-neutral-400">{t("soonBadge")}</span>
+              <span className="text-[10px] uppercase tracking-wide text-si-muted/50">{t("soonBadge")}</span>
             </button>
           </div>
         )}

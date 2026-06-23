@@ -27,7 +27,7 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
 
   return (
     <div className="space-y-6">
-      <header className="rounded-safe bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
         <Link
           href={routes.facturation}
           className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
@@ -46,15 +46,15 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
             </div>
           ) : notes.length === 0 ? (
-            <p className="text-neutral-500 py-8 text-center">{t("noCreditNotes")}</p>
+            <p className="text-si-muted py-8 text-center">{t("noCreditNotes")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50">
+                  <tr className="border-b border-si-line bg-si-canvas">
                     <th className="text-left py-3 px-3 font-medium">{t("number")}</th>
                     <th className="text-left py-3 px-3 font-medium">{t("date")}</th>
                     <th className="text-left py-3 px-3 font-medium">{t("originalInvoice")}</th>
@@ -66,7 +66,7 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
                 </thead>
                 <tbody>
                   {notes.map((n: { id: string; creditNoteNumber: string; creditDate: string; invoiceId: string; totalCredit: number; appliedAmount: number; remainingAmount: number; status: string }) => (
-                    <tr key={n.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
+                    <tr key={n.id} className="border-b border-si-line hover:bg-si-canvas/80">
                       <td className="py-2 px-3 font-medium">{n.creditNoteNumber}</td>
                       <td className="py-2 px-3">{formatDate(n.creditDate)}</td>
                       <td className="py-2 px-3">{n.invoiceId}</td>

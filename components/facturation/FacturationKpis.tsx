@@ -28,7 +28,7 @@ interface FacturationKpisProps {
 }
 
 const CARD_BASE =
-  "relative overflow-hidden rounded-safe border border-[var(--safe-neutral-border)] bg-white shadow-sm transition-all hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2";
+  "relative overflow-hidden rounded-xl border border-si-line bg-si-surface shadow-sm transition-all hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-verified focus-visible:ring-offset-2";
 
 function KpiCard({
   card,
@@ -55,11 +55,11 @@ function KpiCard({
   return (
     <Link
       href={card.href}
-      className={`${CARD_BASE} ${isActive ? "ring-2 ring-primary-500 ring-offset-2" : ""}`}
+      className={`${CARD_BASE} ${isActive ? "ring-2 ring-si-verified ring-offset-2" : ""}`}
     >
       <div className="pt-4 pb-4 px-4 flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
-          <p className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide">
+          <p className="text-xs font-medium text-si-muted uppercase tracking-wide">
             {card.label}
           </p>
           <p
@@ -68,7 +68,7 @@ function KpiCard({
             {card.getValue(kpis)}
           </p>
         </div>
-        <div className="p-2 rounded-safe-sm bg-neutral-100 text-[var(--safe-text-secondary)] shrink-0">
+        <div className="p-2 rounded-lg bg-si-canvas text-si-muted shrink-0">
           <Icon className="h-5 w-5" aria-hidden />
         </div>
       </div>
@@ -95,7 +95,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       statut: "",
       label: tf("billedThisMonth"),
       icon: DollarSign,
-      valueColor: "text-status-success",
+      valueColor: "text-si-verified",
       href: "/facturation",
       getValue: (k) => formatCurrency(k.totalFactureMois),
     },
@@ -104,7 +104,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       statut: "payee",
       label: tf("collectedThisMonth"),
       icon: TrendingUp,
-      valueColor: "text-status-success",
+      valueColor: "text-si-verified",
       href: "/facturation?statut=payee",
       getValue: (k) => formatCurrency(k.totalEncaisseMois),
     },
@@ -113,7 +113,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       statut: "",
       label: tf("collectionRate"),
       icon: Percent,
-      valueColor: "text-[var(--safe-text-title)]",
+      valueColor: "text-si-ink",
       href: "/facturation",
       getValue: (k) =>
         typeof k.tauxEncaissement === "number" ? `${k.tauxEncaissement}%` : "—",
@@ -134,7 +134,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       statut: "en_retard",
       label: tf("overdue"),
       icon: AlertCircle,
-      valueColor: "text-status-error",
+      valueColor: "text-[#B84A3E]",
       href: "/facturation?statut=en_retard",
       getValue: (k) =>
         `${t("invoiceCount", { count: k.enRetardCount })} — ${formatCurrency(k.enRetardSum)}`,
@@ -144,7 +144,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
       statut: "brouillon",
       label: tf("drafts"),
       icon: FileText,
-      valueColor: "text-[var(--safe-text-secondary)]",
+      valueColor: "text-si-muted",
       href: "/facturation?statut=brouillon",
       getValue: (k) => t("invoiceCount", { count: k.brouillonsCount }),
     },
@@ -158,7 +158,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
   return (
     <div className="space-y-5">
       <section>
-        <h2 className="text-sm font-semibold text-[var(--safe-text-secondary)] uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-si-muted uppercase tracking-wider mb-3">
           {tf("monthSummary")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -175,7 +175,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
         </div>
       </section>
       <section>
-        <h2 className="text-sm font-semibold text-[var(--safe-text-secondary)] uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-si-muted uppercase tracking-wider mb-3">
           {tf("toWatch")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 max-w-2xl">

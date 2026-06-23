@@ -110,26 +110,26 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
         {/* Invoice Summary */}
         <div className="grid grid-cols-2 gap-4 pb-4 border-b">
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("client")}</p>
-            <p className="font-semibold text-[var(--safe-text-title)]">
+            <p className="text-xs text-si-muted mb-1">{t("client")}</p>
+            <p className="font-semibold text-si-ink">
               {invoice.client.raisonSociale || t("noClient")}
             </p>
           </div>
           {invoice.dossier && (
             <div>
-              <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("matter")}</p>
-              <p className="font-semibold text-[var(--safe-text-title)]">{invoice.dossier.intitule}</p>
+              <p className="text-xs text-si-muted mb-1">{t("matter")}</p>
+              <p className="font-semibold text-si-ink">{invoice.dossier.intitule}</p>
             </div>
           )}
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("issueDate")}</p>
-            <p className="font-semibold text-[var(--safe-text-title)]">
+            <p className="text-xs text-si-muted mb-1">{t("issueDate")}</p>
+            <p className="font-semibold text-si-ink">
               {formatDate(invoice.dateEmission)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-[var(--safe-text-secondary)] mb-1">{t("dueDate")}</p>
-            <p className="font-semibold text-[var(--safe-text-title)]">
+            <p className="text-xs text-si-muted mb-1">{t("dueDate")}</p>
+            <p className="font-semibold text-si-ink">
               {formatDate(invoice.dateEcheance)}
             </p>
           </div>
@@ -138,14 +138,14 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
         {/* Totals */}
         <div className="space-y-2 py-4 border-b">
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--safe-text-secondary)]">{t("totalAmountLabel")}</span>
-            <span className="font-semibold text-[var(--safe-text-title)]">
+            <span className="text-si-muted">{t("totalAmountLabel")}</span>
+            <span className="font-semibold text-si-ink">
               {formatCurrency(invoice.montantTotal)}
             </span>
           </div>
           {invoice.balanceDue > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--safe-text-secondary)]">{t("remainingToPay")}</span>
+              <span className="text-si-muted">{t("remainingToPay")}</span>
               <span className="font-semibold text-orange-600">
                 {formatCurrency(invoice.balanceDue)}
               </span>
@@ -155,8 +155,8 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
 
         {/* Line Items Summary */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-[var(--safe-text-title)]">{t("invoiceLines")}</h4>
-          <div className="text-xs text-[var(--safe-text-secondary)] space-y-1">
+          <h4 className="text-sm font-semibold text-si-ink">{t("invoiceLines")}</h4>
+          <div className="text-xs text-si-muted space-y-1">
             <p>{t("invoiceLineCount", { count: invoice.invoiceLines.length })}</p>
           </div>
         </div>
