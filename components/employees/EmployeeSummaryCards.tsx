@@ -39,7 +39,7 @@ export function EmployeeSummaryCards({
       value: active.toLocaleString("fr-CA"),
       icon: UserCheck,
       sub: `${activePercent}%`,
-      subClassName: "text-status-success",
+      subClassName: "text-si-verified",
     },
     {
       title: t("inactiveEmployees"),
@@ -56,10 +56,10 @@ export function EmployeeSummaryCards({
   ];
 
   const iconColors = [
-    "bg-green-100 text-[var(--safe-icon-default)]",
-    "bg-status-success-bg text-status-success",
-    "bg-neutral-100 text-neutral-600",
-    "bg-green-50 text-[var(--safe-icon-accent)]",
+    "bg-si-verified/10 text-si-forest",
+    "bg-si-verified/10 text-si-verified",
+    "bg-si-canvas text-si-muted",
+    "bg-si-verified/10 text-si-forest",
   ] as const;
 
   const { reduceMotion } = useSafeMotion();
@@ -77,22 +77,22 @@ export function EmployeeSummaryCards({
         <motion.div
           key={title}
           variants={itemVariants}
-          className="card-glass rounded-safe-lg p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
+          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
+              <p className="text-xs font-semibold text-si-muted uppercase tracking-widest">
                 {title}
               </p>
-              <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
+              <p className="mt-1.5 text-2xl font-bold text-si-ink tracking-tight tabular-nums">
                 {value}
               </p>
               {sub && (
-                <p className={`mt-1 text-sm ${subClassName ?? "safe-text-secondary"}`}>{sub}</p>
+                <p className={`mt-1 text-sm ${subClassName ?? "text-si-muted"}`}>{sub}</p>
               )}
             </div>
             <div
-              className={`w-11 h-11 shrink-0 rounded-safe flex items-center justify-center ${iconColors[i % iconColors.length]}`}
+              className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${iconColors[i % iconColors.length]}`}
             >
               <Icon className="w-5 h-5" aria-hidden />
             </div>

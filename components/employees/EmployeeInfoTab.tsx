@@ -110,47 +110,47 @@ export function EmployeeInfoTab({
       <CardContent className="space-y-6">
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("fullName")}
             </dt>
             <dd className="mt-1 text-sm font-medium">{employee.fullName}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">{tc("email")}</dt>
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">{tc("email")}</dt>
             <dd className="mt-1 text-sm">{employee.email}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {tc("phone")}
             </dt>
             <dd className="mt-1 text-sm">{employee.phone ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("hireDate")}
             </dt>
             <dd className="mt-1 text-sm">{formatDate(employee.hireDate)}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">{tc("status")}</dt>
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">{tc("status")}</dt>
             <dd className="mt-1 text-sm">
               {employee.status === "active" ? tc("active") : tc("inactive")}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("jobTitle")}
             </dt>
             <dd className="mt-1 text-sm">{employee.jobTitle ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("hourlyRate")}
             </dt>
             <dd className="mt-1 text-sm">{formatCurrency(employee.hourlyRate)}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("supervisor")}
             </dt>
             <dd className="mt-1 text-sm">
@@ -160,7 +160,7 @@ export function EmployeeInfoTab({
         </dl>
         {employee.address && (
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {tc("address")}
             </dt>
             <dd className="mt-1 text-sm whitespace-pre-wrap">{employee.address}</dd>
@@ -168,7 +168,7 @@ export function EmployeeInfoTab({
         )}
         {employee.responsibilities && (
           <div>
-            <dt className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("responsibilities")}
             </dt>
             <dd className="mt-1 text-sm whitespace-pre-wrap">{employee.responsibilities}</dd>

@@ -14,7 +14,7 @@ export function RetentionPoliciesList({
   const tc = useTranslations("common");
   if (policies.length === 0) {
     return (
-      <p className="text-sm text-neutral-muted">{t("noPolicies")}</p>
+      <p className="text-sm text-si-muted">{t("noPolicies")}</p>
     );
   }
   return (
@@ -22,10 +22,10 @@ export function RetentionPoliciesList({
       {policies.map((p) => (
         <li
           key={p.id}
-          className="flex items-center justify-between gap-2 py-2 border-b border-neutral-borderSubtle last:border-0"
+          className="flex items-center justify-between gap-2 py-2 border-b border-si-lineSubtle last:border-0"
         >
           <span className="font-medium">{p.documentType}</span>
-          <span className="text-sm text-neutral-muted">
+          <span className="text-sm text-si-muted">
             {p.retentionYears} {t("years")}
             {p.legalBasis ? ` — ${p.legalBasis}` : ""}
           </span>

@@ -151,8 +151,8 @@ export default async function EmployeeDetailPage({
             <span
               className={
                 employee.status === "active"
-                  ? "text-status-success text-sm font-medium"
-                  : "text-neutral-500 text-sm"
+                  ? "text-si-verified text-sm font-medium"
+                  : "text-si-muted text-sm"
               }
             >
               {employee.status === "active" ? t("statusActiveLabel") : t("statusInactiveLabel")}

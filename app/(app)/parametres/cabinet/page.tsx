@@ -56,12 +56,12 @@ export default async function CabinetSettingsPage({
       />
 
       {errorBanner && (
-        <div className="rounded-safe-sm border border-status-error/40 bg-status-error/5 px-4 py-3 text-sm text-status-error">
+        <div className="rounded-lg border border-[#B84A3E]/40 bg-[#B84A3E]/5 px-4 py-3 text-sm text-[#B84A3E]">
           {errorBanner}
         </div>
       )}
       {successBanner && (
-        <div className="rounded-safe-sm border border-status-success/40 bg-status-success/5 px-4 py-3 text-sm text-status-success">
+        <div className="rounded-lg border border-si-verified/40 bg-si-verified/5 px-4 py-3 text-sm text-si-verified">
           {successBanner}
         </div>
       )}
@@ -112,13 +112,13 @@ export default async function CabinetSettingsPage({
                 defaultValue={cabinet.logoUrl ?? ""}
                 placeholder="https://…"
               />
-              <p className="mt-1.5 text-xs safe-text-secondary">{t("cabinetLogoHint")}</p>
+              <p className="mt-1.5 text-xs text-si-muted">{t("cabinetLogoHint")}</p>
             </div>
 
-            <div className="pt-4 border-t border-neutral-border/60">
+            <div className="pt-4 border-t border-si-line/60">
               <div className="mb-3">
-                <h4 className="text-sm font-semibold safe-text-title">{t("cabinetTaxNumbersSection")}</h4>
-                <p className="text-xs safe-text-secondary mt-1">{t("cabinetTaxNumbersHint")}</p>
+                <h4 className="text-sm font-semibold text-si-ink">{t("cabinetTaxNumbersSection")}</h4>
+                <p className="text-xs text-si-muted mt-1">{t("cabinetTaxNumbersHint")}</p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Input
@@ -148,7 +148,7 @@ export default async function CabinetSettingsPage({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-border/60">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-si-line/60">
               <Button type="submit">{tc("save")}</Button>
             </div>
           </form>

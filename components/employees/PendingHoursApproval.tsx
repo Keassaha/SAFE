@@ -80,11 +80,11 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
   if (pending.length === 0 && !approved) return null;
 
   return (
-    <div className="mb-4 rounded-2xl border border-neutral-200 bg-white">
+    <div className="mb-4 rounded-2xl border border-si-line bg-si-surface">
       {/* En-tête + badge */}
       <div className="flex items-center gap-2 px-5 pt-4 pb-2">
         <CircleDashed className="h-4 w-4" style={{ color: WARN.fg }} aria-hidden />
-        <h3 className="text-[15px] font-semibold text-neutral-900">{t("title")}</h3>
+        <h3 className="text-[15px] font-semibold text-si-ink">{t("title")}</h3>
         {pending.length > 0 ? (
           <span
             className="rounded-md px-2 py-0.5 text-[11px] font-semibold"
@@ -99,12 +99,12 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
       {pending.length > 0 ? (
         <ul className="px-2">
           {pending.map((p) => (
-            <li key={p.id} className="border-t border-neutral-100 px-3 py-3 first:border-t-0">
+            <li key={p.id} className="border-t border-si-line px-3 py-3 first:border-t-0">
               <div className="flex items-center gap-3">
-                <span className="w-24 shrink-0 text-sm font-medium text-neutral-700">{fmtDate(p.date)}</span>
-                <span className="w-16 shrink-0 text-sm tabular-nums text-neutral-900">{p.hours} h</span>
-                <span className="min-w-0 flex-1 truncate text-xs text-neutral-500">
-                  {p.dossierLabel ? <span className="text-neutral-600">{p.dossierLabel}</span> : null}
+                <span className="w-24 shrink-0 text-sm font-medium text-si-ink">{fmtDate(p.date)}</span>
+                <span className="w-16 shrink-0 text-sm tabular-nums text-si-ink">{p.hours} h</span>
+                <span className="min-w-0 flex-1 truncate text-xs text-si-muted">
+                  {p.dossierLabel ? <span className="text-si-muted">{p.dossierLabel}</span> : null}
                   {p.dossierLabel && p.note ? " · " : ""}
                   {p.note ?? ""}
                 </span>
@@ -134,7 +134,7 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder={t("reasonPlaceholder")}
-                    className="h-[34px] flex-1 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-800 focus:border-forest-700 focus:outline-none"
+                    className="h-[34px] flex-1 rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
                   />
                   <button
                     type="button"
@@ -155,8 +155,8 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
 
       {/* Génération de la paie depuis les heures approuvées */}
       {approved ? (
-        <div className="m-4 mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-          <div className="text-sm text-neutral-700">
+        <div className="m-4 mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-si-line bg-si-canvas px-4 py-3">
+          <div className="text-sm text-si-ink">
             {t("approvedReady", {
               count: approved.count,
               hours: approved.totalHours,

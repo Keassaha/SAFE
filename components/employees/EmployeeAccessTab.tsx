@@ -34,34 +34,34 @@ export function EmployeeAccessTab({
       <CardHeader title={t("accessAndRole")} />
       <CardContent className="space-y-6">
         <div>
-          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+          <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-2">
             {t("currentRole")}
           </p>
           <RoleBadge role={role} className="text-sm px-3 py-1" />
         </div>
 
         <div>
-          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+          <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-2">
             {t("loginAccount")}
           </p>
-          <p className="text-sm text-neutral-800">
+          <p className="text-sm text-si-ink">
             {hasLoginAccess ? t("configured") : t("notConfigured")}
           </p>
         </div>
 
         <div>
-          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+          <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-3">
             {t("permissionsByModule")}
           </p>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border border-neutral-border rounded-safe-sm overflow-hidden">
+            <table className="w-full text-sm border border-si-line rounded-lg overflow-hidden">
               <thead>
-                <tr className="bg-neutral-surface/70 border-b border-neutral-border">
-                  <th className="text-left px-4 py-2 font-medium text-neutral-700">{t("module")}</th>
+                <tr className="bg-si-surface/70 border-b border-si-line">
+                  <th className="text-left px-4 py-2 font-medium text-si-ink">{t("module")}</th>
                   {RBAC_ACTIONS.map((action) => (
                     <th
                       key={action}
-                      className="text-center px-2 py-2 font-medium text-neutral-700 w-20"
+                      className="text-center px-2 py-2 font-medium text-si-ink w-20"
                     >
                       {t(`permissions.${action}`)}
                     </th>
@@ -74,9 +74,9 @@ export function EmployeeAccessTab({
                   return (
                     <tr
                       key={module}
-                      className="border-b border-neutral-border last:border-b-0 hover:bg-neutral-surface/30"
+                      className="border-b border-si-line last:border-b-0 hover:bg-si-surface/30"
                     >
-                      <td className="px-4 py-2 font-medium text-neutral-800">
+                      <td className="px-4 py-2 font-medium text-si-ink">
                         {t(`modules.${module}`)}
                       </td>
                       {RBAC_ACTIONS.map((action) => {
@@ -84,11 +84,11 @@ export function EmployeeAccessTab({
                         return (
                           <td key={action} className="text-center px-2 py-2">
                             {allowed ? (
-                              <span className="text-status-success" aria-label={t("allowed")}>
+                              <span className="text-si-verified" aria-label={t("allowed")}>
                                 ✓
                               </span>
                             ) : (
-                              <span className="text-neutral-300" aria-label={t("notAllowed")}>
+                              <span className="text-si-muted/40" aria-label={t("notAllowed")}>
                                 —
                               </span>
                             )}
@@ -104,14 +104,14 @@ export function EmployeeAccessTab({
         </div>
 
         {canChangeRole && onRoleChange && (
-          <div className="pt-4 border-t border-neutral-border">
-            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+          <div className="pt-4 border-t border-si-line">
+            <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-2">
               {t("changeRole")}
             </p>
             <select
               value={role}
               onChange={(e) => onRoleChange(e.target.value as EmployeeRole)}
-              className="rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
             >
               {(Object.keys(EMPLOYEE_ROLE_LABELS) as EmployeeRole[]).map((r) => (
                 <option key={r} value={r}>

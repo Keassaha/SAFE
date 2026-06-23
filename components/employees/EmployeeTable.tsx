@@ -36,17 +36,17 @@ const ACCESS_BADGE: Record<EmployeeAccessState, { labelKey: string; hintKey: str
   pending: {
     labelKey: "accessPending",
     hintKey: "accessPendingHint",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
+    className: "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30",
   },
   no_access: {
     labelKey: "accessNoAccess",
     hintKey: "accessNoAccessHint",
-    className: "bg-neutral-100 text-neutral-500 border-neutral-200",
+    className: "bg-si-canvas text-si-muted border-si-line",
   },
   inactive: {
     labelKey: "accessInactive",
     hintKey: "accessInactiveHint",
-    className: "bg-neutral-50 text-neutral-400 border-neutral-200",
+    className: "bg-si-canvas text-si-muted/50 border-si-line",
   },
 };
 
@@ -93,7 +93,7 @@ function SortHeader({
   return (
     <Link
       href={getSortUrl(field, isActive ? nextOrder : "asc")}
-      className="inline-flex items-center gap-1 text-xs font-medium text-neutral-muted uppercase tracking-wider hover:text-primary-700"
+      className="inline-flex items-center gap-1 text-xs font-medium text-si-muted uppercase tracking-wider hover:text-si-forest"
     >
       {label}
       <Icon className="w-3.5 h-3.5" />
@@ -124,8 +124,8 @@ export function EmployeeTable({
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm" role="table">
         <thead>
-          <tr className="border-b border-neutral-border bg-neutral-surface/50">
-            <th className="px-4 py-3 font-medium safe-text-secondary">
+          <tr className="border-b border-si-line bg-si-canvas/60">
+            <th className="px-4 py-3 font-medium text-si-muted">
               <SortHeader
                 label={t("tableHeaderName")}
                 field="fullName"
@@ -134,9 +134,9 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">{t("tableHeaderEmail")}</th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">{t("tableHeaderTitle")}</th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">
+            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderEmail")}</th>
+            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderTitle")}</th>
+            <th className="px-4 py-3 font-medium text-si-muted">
               <SortHeader
                 label={t("tableHeaderRole")}
                 field="role"
@@ -145,7 +145,7 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">
+            <th className="px-4 py-3 font-medium text-si-muted">
               <SortHeader
                 label={t("tableHeaderHourlyRate")}
                 field="hourlyRate"
@@ -154,7 +154,7 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">
+            <th className="px-4 py-3 font-medium text-si-muted">
               <SortHeader
                 label={t("tableHeaderStatus")}
                 field="status"
@@ -163,8 +163,8 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">{t("tableHeaderAccess")}</th>
-            <th className="px-4 py-3 font-medium safe-text-secondary">
+            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderAccess")}</th>
+            <th className="px-4 py-3 font-medium text-si-muted">
               <SortHeader
                 label={t("tableHeaderHireDate")}
                 field="hireDate"
@@ -173,25 +173,25 @@ export function EmployeeTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="px-4 py-3 font-medium safe-text-secondary w-28">{t("tableHeaderActions")}</th>
+            <th className="px-4 py-3 font-medium text-si-muted w-28">{t("tableHeaderActions")}</th>
           </tr>
         </thead>
         <tbody>
           {employees.map((row) => (
             <tr
               key={row.id}
-              className="border-b border-neutral-border hover:bg-neutral-surface/30 transition-colors"
+              className="border-b border-si-line hover:bg-si-surface/30 transition-colors"
             >
               <td className="px-4 py-3">
                 <Link
                   href={routes.employee(row.id)}
-                  className="font-medium text-primary-700 hover:underline"
+                  className="font-medium text-si-forest hover:underline"
                 >
                   {row.fullName}
                 </Link>
               </td>
-              <td className="px-4 py-3 text-neutral-muted">{row.email}</td>
-              <td className="px-4 py-3 text-neutral-muted">{row.jobTitle ?? "—"}</td>
+              <td className="px-4 py-3 text-si-muted">{row.email}</td>
+              <td className="px-4 py-3 text-si-muted">{row.jobTitle ?? "—"}</td>
               <td className="px-4 py-3">
                 <RoleBadge role={row.role} />
               </td>
@@ -200,8 +200,8 @@ export function EmployeeTable({
                 <span
                   className={
                     row.status === "active"
-                      ? "text-status-success font-medium"
-                      : "text-neutral-muted"
+                      ? "text-si-verified font-medium"
+                      : "text-si-muted"
                   }
                 >
                   {statusLabel(row.status)}
@@ -215,7 +215,7 @@ export function EmployeeTable({
                   {t(ACCESS_BADGE[row.access].labelKey)}
                 </span>
               </td>
-              <td className="px-4 py-3 text-neutral-muted">{formatDate(row.hireDate)}</td>
+              <td className="px-4 py-3 text-si-muted">{formatDate(row.hireDate)}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Link href={routes.employee(row.id)}>

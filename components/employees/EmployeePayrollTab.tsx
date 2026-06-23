@@ -106,29 +106,29 @@ export function EmployeePayrollTab({
       />
       <CardContent className="p-0">
         {payslips.length === 0 ? (
-          <div className="py-12 text-center text-neutral-muted text-sm">
+          <div className="py-12 text-center text-si-muted text-sm">
             {t("noPayroll")}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm" role="table">
               <thead>
-                <tr className="border-b border-neutral-border bg-neutral-surface/50">
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">
+                <tr className="border-b border-si-line bg-si-canvas/60">
+                  <th className="px-4 py-3 text-left font-medium text-si-muted">
                     {t("weekStart")}
                   </th>
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left font-medium text-si-muted">
                     {t("weekEnd")}
                   </th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">{t("hours")}</th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">{t("rate")}</th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">{t("gross")}</th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-right font-medium text-si-muted">{t("hours")}</th>
+                  <th className="px-4 py-3 text-right font-medium text-si-muted">{t("rate")}</th>
+                  <th className="px-4 py-3 text-right font-medium text-si-muted">{t("gross")}</th>
+                  <th className="px-4 py-3 text-right font-medium text-si-muted">
                     {t("deductions")}
                   </th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">{t("net")}</th>
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">{t("tableHeaderStatus")}</th>
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-right font-medium text-si-muted">{t("net")}</th>
+                  <th className="px-4 py-3 text-left font-medium text-si-muted">{t("tableHeaderStatus")}</th>
+                  <th className="px-4 py-3 text-left font-medium text-si-muted">
                     {t("paymentDate")}
                   </th>
                 </tr>
@@ -137,7 +137,7 @@ export function EmployeePayrollTab({
                 {payslips.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-neutral-border hover:bg-neutral-surface/30"
+                    className="border-b border-si-line hover:bg-si-surface/30"
                   >
                     <td className="px-4 py-3">{formatDate(row.periodStart)}</td>
                     <td className="px-4 py-3">{formatDate(row.periodEnd)}</td>
@@ -158,16 +158,16 @@ export function EmployeePayrollTab({
                       <span
                         className={
                           row.status === "paid"
-                            ? "text-status-success"
+                            ? "text-si-verified"
                             : row.status === "generated"
-                              ? "text-blue-600"
-                              : "text-neutral-500"
+                              ? "text-si-ink"
+                              : "text-si-muted"
                         }
                       >
                         {t(STATUS_KEYS[row.status])}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-neutral-muted">
+                    <td className="px-4 py-3 text-si-muted">
                       {row.paymentDate ? formatDate(row.paymentDate) : "—"}
                     </td>
                   </tr>

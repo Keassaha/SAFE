@@ -61,7 +61,7 @@ export function ComplianceDashboard() {
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Card key={i}>
             <CardContent className="p-6">
-              <div className="h-20 bg-neutral-100 animate-pulse rounded" />
+              <div className="h-20 bg-si-canvas animate-pulse rounded" />
             </CardContent>
           </Card>
         ))}
@@ -70,12 +70,12 @@ export function ComplianceDashboard() {
   }
 
   const scoreColor =
-    data.scoreVariant === "success" ? "text-green-700" :
-    data.scoreVariant === "warning" ? "text-amber-700" : "text-red-700";
+    data.scoreVariant === "success" ? "text-si-verified" :
+    data.scoreVariant === "warning" ? "text-si-amber-ink" : "text-[#B84A3E]";
 
   const scoreBg =
-    data.scoreVariant === "success" ? "bg-green-50 border-green-200" :
-    data.scoreVariant === "warning" ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+    data.scoreVariant === "success" ? "bg-si-verified/10 border-si-verified/30" :
+    data.scoreVariant === "warning" ? "bg-si-amber/[0.13] border-si-amber/30" : "bg-[#B84A3E]/10 border-[#B84A3E]/30";
 
   return (
     <div className="space-y-6">
@@ -96,7 +96,7 @@ export function ComplianceDashboard() {
                 variant={data.scoreVariant}
               />
             </div>
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-si-muted">
               {data.counts.totalActiveDossiers} active files |{" "}
               {data.issues.length === 0
                 ? "All checks passed"
@@ -107,7 +107,7 @@ export function ComplianceDashboard() {
           {/* Progress ring visual */}
           <div className="relative w-16 h-16 shrink-0">
             <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-neutral-200" />
+              <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-si-muted/25" />
               <circle
                 cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4"
                 strokeDasharray={`${(data.score / 100) * 176} 176`}
@@ -125,23 +125,23 @@ export function ComplianceDashboard() {
           {data.issues.map((issue) => (
             <Link key={issue.id} href={issue.href}>
               <Card className={`cursor-pointer hover:shadow-md transition-shadow border ${
-                issue.severity === "error" ? "border-red-200 bg-red-50/30" : "border-amber-200 bg-amber-50/30"
+                issue.severity === "error" ? "border-[#B84A3E]/30 bg-[#B84A3E]/10" : "border-si-amber/30 bg-si-amber/[0.13]"
               }`}>
                 <CardContent className="p-3 flex items-center gap-3">
                   <AlertTriangle className={`w-4 h-4 shrink-0 ${
-                    issue.severity === "error" ? "text-red-600" : "text-amber-600"
+                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
                   }`} />
                   <span className={`text-sm font-medium flex-1 ${
-                    issue.severity === "error" ? "text-red-800" : "text-amber-800"
+                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
                   }`}>
                     {issue.label}
                   </span>
                   <span className={`text-sm font-bold tabular-nums ${
-                    issue.severity === "error" ? "text-red-700" : "text-amber-700"
+                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
                   }`}>
                     {issue.count}
                   </span>
-                  <ExternalLink className="w-3 h-3 text-neutral-400" />
+                  <ExternalLink className="w-3 h-3 text-si-muted/50" />
                 </CardContent>
               </Card>
             </Link>
@@ -156,7 +156,7 @@ export function ComplianceDashboard() {
           <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4 text-blue-600" />
+                <Scale className="w-4 h-4 text-si-ink" />
                 <h4 className="text-sm font-semibold">{copy.trustReconciliationTitle}</h4>
               </div>
               <StatusBadge
@@ -169,7 +169,7 @@ export function ComplianceDashboard() {
                   data.reconciliation.status === "overdue" ? "warning" : "success"
                 }
               />
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-si-muted">
                 Expected: {data.reconciliation.expectedPeriode}
                 {data.reconciliation.lastCertified && ` | Last: ${data.reconciliation.lastCertified}`}
               </p>
@@ -181,11 +181,11 @@ export function ComplianceDashboard() {
         <Card>
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" />
+              <FileText className="w-4 h-4 text-si-ink" />
               <h4 className="text-sm font-semibold">FINTRAC ID Verification</h4>
             </div>
             {data.counts.dossiersWithoutFintrac === 0 ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm">
+              <div className="flex items-center gap-1 text-si-verified text-sm">
                 <CheckCircle className="w-4 h-4" /> All verified
               </div>
             ) : (
@@ -201,11 +201,11 @@ export function ComplianceDashboard() {
         <Card>
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-600" />
+              <Users className="w-4 h-4 text-si-ink" />
               <h4 className="text-sm font-semibold">Conflict of Interest</h4>
             </div>
             {data.counts.unresolvedConflicts === 0 ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm">
+              <div className="flex items-center gap-1 text-si-verified text-sm">
                 <CheckCircle className="w-4 h-4" /> No unresolved conflicts
               </div>
             ) : (
@@ -221,11 +221,11 @@ export function ComplianceDashboard() {
         <Card>
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" />
+              <FileText className="w-4 h-4 text-si-ink" />
               <h4 className="text-sm font-semibold">Signed Mandates</h4>
             </div>
             {data.counts.dossiersWithoutMandate === 0 ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm">
+              <div className="flex items-center gap-1 text-si-verified text-sm">
                 <CheckCircle className="w-4 h-4" /> All files have mandates
               </div>
             ) : (
@@ -241,11 +241,11 @@ export function ComplianceDashboard() {
         <Card>
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600" />
+              <Clock className="w-4 h-4 text-si-ink" />
               <h4 className="text-sm font-semibold">Immigration Documents</h4>
             </div>
             {data.counts.expiredDocuments === 0 && data.counts.expiringSoonDocuments === 0 ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm">
+              <div className="flex items-center gap-1 text-si-verified text-sm">
                 <CheckCircle className="w-4 h-4" /> All documents valid
               </div>
             ) : (
@@ -266,13 +266,13 @@ export function ComplianceDashboard() {
           <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600" />
+                <FileText className="w-4 h-4 text-si-ink" />
                 <h4 className="text-sm font-semibold">{copy.complianceReportsButton}</h4>
               </div>
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-si-muted">
                 {copy.reportGeneratorDesc}
               </p>
-              <span className="text-xs text-primary-600 flex items-center gap-1">
+              <span className="text-xs text-si-forest flex items-center gap-1">
                 {copy.isQuebec ? "Voir les rapports" : "View Reports"} <ExternalLink className="w-3 h-3" />
               </span>
             </CardContent>

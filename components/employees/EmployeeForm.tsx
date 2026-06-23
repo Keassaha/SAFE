@@ -83,14 +83,14 @@ export function EmployeeForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {error && (
-        <div className="rounded-safe-sm bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-lg bg-[#B84A3E]/10 border border-[#B84A3E]/30 px-4 py-3 text-sm text-[#B84A3E]">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="firstName" className="block text-sm font-medium text-si-ink mb-1">
             {t("firstName")} *
           </label>
           <input
@@ -99,11 +99,11 @@ export function EmployeeForm({
             required
             value={form.firstName}
             onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
         </div>
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="lastName" className="block text-sm font-medium text-si-ink mb-1">
             {t("lastName")} *
           </label>
           <input
@@ -112,13 +112,13 @@ export function EmployeeForm({
             required
             value={form.lastName}
             onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-si-ink mb-1">
           {tc("email")} *
         </label>
         <input
@@ -127,14 +127,14 @@ export function EmployeeForm({
           required
           value={form.email}
           onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           disabled={mode === "edit"}
         />
       </div>
 
       {mode === "create" && (
-        <div className="rounded-safe-sm border border-neutral-border bg-neutral-surface/40 p-4 space-y-3">
-          <label className="flex items-start gap-3 text-sm text-neutral-800">
+        <div className="rounded-lg border border-si-line bg-si-surface/40 p-4 space-y-3">
+          <label className="flex items-start gap-3 text-sm text-si-ink">
             <input
               type="checkbox"
               className="mt-1"
@@ -151,14 +151,14 @@ export function EmployeeForm({
           </label>
 
           {enableLogin && !roleCanSignIn && (
-            <p className="text-sm text-amber-700">
+            <p className="text-sm text-si-amber-ink">
               {t("roleIncompatible")}
             </p>
           )}
 
           {enableLogin && roleCanSignIn && (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-si-ink mb-1">
                 {t("temporaryPassword")} *
               </label>
               <input
@@ -168,9 +168,9 @@ export function EmployeeForm({
                 required
                 value={form.password ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
               />
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-si-muted">
                 {t("loginHint")}
               </p>
             </div>
@@ -179,7 +179,7 @@ export function EmployeeForm({
       )}
 
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-1">
+        <label htmlFor="phone" className="block text-sm font-medium text-si-ink mb-1">
           {tc("phone")}
         </label>
         <input
@@ -187,12 +187,12 @@ export function EmployeeForm({
           type="tel"
           value={form.phone ?? ""}
           onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value || undefined }))}
-          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
         />
       </div>
 
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-neutral-700 mb-1">
+        <label htmlFor="address" className="block text-sm font-medium text-si-ink mb-1">
           {tc("address")}
         </label>
         <textarea
@@ -200,13 +200,13 @@ export function EmployeeForm({
           rows={2}
           value={form.address ?? ""}
           onChange={(e) => setForm((p) => ({ ...p, address: e.target.value || undefined }))}
-          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="hireDate" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="hireDate" className="block text-sm font-medium text-si-ink mb-1">
             {t("hireDate")} *
           </label>
           <input
@@ -215,18 +215,18 @@ export function EmployeeForm({
             required
             value={form.hireDate}
             onChange={(e) => setForm((p) => ({ ...p, hireDate: e.target.value }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
         </div>
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="status" className="block text-sm font-medium text-si-ink mb-1">
             {tc("status")}
           </label>
           <select
             id="status"
             value={form.status}
             onChange={(e) => setForm((p) => ({ ...p, status: e.target.value as EmployeeStatus }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="active">{tc("active")}</option>
             <option value="inactive">{tc("inactive")}</option>
@@ -236,7 +236,7 @@ export function EmployeeForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="role" className="block text-sm font-medium text-si-ink mb-1">
             {t("role")} *
           </label>
           <select
@@ -244,7 +244,7 @@ export function EmployeeForm({
             required
             value={form.role}
             onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as EmployeeRole }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           >
             {ROLES.map((r) => (
               <option key={r.value} value={r.value}>
@@ -254,7 +254,7 @@ export function EmployeeForm({
           </select>
         </div>
         <div>
-          <label htmlFor="jobTitle" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="jobTitle" className="block text-sm font-medium text-si-ink mb-1">
             {t("jobTitle")}
           </label>
           <input
@@ -262,14 +262,14 @@ export function EmployeeForm({
             type="text"
             value={form.jobTitle ?? ""}
             onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value || undefined }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="hourlyRate" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="hourlyRate" className="block text-sm font-medium text-si-ink mb-1">
             {t("hourlyRate")} *
           </label>
           <input
@@ -280,12 +280,12 @@ export function EmployeeForm({
             required
             value={form.hourlyRate}
             onChange={(e) => setForm((p) => ({ ...p, hourlyRate: Number(e.target.value) || 0 }))}
-            className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
         </div>
         {supervisorOptions.length > 0 && (
           <div>
-            <label htmlFor="supervisorId" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="supervisorId" className="block text-sm font-medium text-si-ink mb-1">
               {t("supervisor")}
             </label>
             <select
@@ -294,7 +294,7 @@ export function EmployeeForm({
               onChange={(e) =>
                 setForm((p) => ({ ...p, supervisorId: e.target.value || undefined }))
               }
-              className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
             >
               <option value="">—</option>
               {supervisorOptions
@@ -310,7 +310,7 @@ export function EmployeeForm({
       </div>
 
       <div>
-        <label htmlFor="responsibilities" className="block text-sm font-medium text-neutral-700 mb-1">
+        <label htmlFor="responsibilities" className="block text-sm font-medium text-si-ink mb-1">
           {t("responsibilities")}
         </label>
         <textarea
@@ -320,7 +320,7 @@ export function EmployeeForm({
           onChange={(e) =>
             setForm((p) => ({ ...p, responsibilities: e.target.value || undefined }))
           }
-          className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           placeholder={t("responsibilitiesPlaceholder")}
         />
       </div>

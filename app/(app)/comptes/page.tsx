@@ -13,7 +13,7 @@ export default async function ComptesPage() {
   if (!canViewBillingTrust(role as "admin_cabinet" | "avocat" | "assistante" | "comptabilite")) {
     return (
       <div className="p-6">
-        <p className="text-status-error">{t("noAccess")}</p>
+        <p className="text-[#B84A3E]">{t("noAccess")}</p>
       </div>
     );
   }

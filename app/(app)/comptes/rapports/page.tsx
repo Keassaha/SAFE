@@ -16,7 +16,7 @@ export default async function TrustReportsPage() {
   if (!canViewBillingTrust(userRole)) {
     return (
       <div className="p-6">
-        <p className="text-status-error">You do not have access to this section.</p>
+        <p className="text-[#B84A3E]">You do not have access to this section.</p>
       </div>
     );
   }

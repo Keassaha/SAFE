@@ -73,14 +73,14 @@ export function EnvoiFactureConfigForm() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
       </div>
     );
   }
 
   if (error && !config) {
     return (
-      <p className="text-sm text-red-600 py-4">
+      <p className="text-sm text-[#B84A3E] py-4">
         {error}
       </p>
     );
@@ -98,20 +98,20 @@ export function EnvoiFactureConfigForm() {
               onChange={(e) =>
                 setConfig((c) => (c ? { ...c, activer: e.target.checked } : c))
               }
-              className="rounded border-neutral-300"
+              className="rounded border-si-line"
             />
-            <span className="text-sm font-medium text-[var(--safe-text-title)]">
+            <span className="text-sm font-medium text-si-ink">
               {t("enableUniqueLinks")}
             </span>
           </label>
-          <p className="text-sm text-[var(--safe-text-secondary)]">
+          <p className="text-sm text-si-muted">
             {t("uniqueLinksHelp")}
           </p>
 
           <div>
             <label
               htmlFor="lienExpirationJours"
-              className="block text-sm font-medium text-[var(--safe-text-title)] mb-1"
+              className="block text-sm font-medium text-si-ink mb-1"
             >
               {t("linkExpirationLabel")}
             </label>
@@ -134,15 +134,15 @@ export function EnvoiFactureConfigForm() {
                     : c
                 )
               }
-              className="w-24 rounded border border-neutral-300 px-3 py-2 text-sm"
+              className="w-24 rounded border border-si-line px-3 py-2 text-sm"
             />
-            <p className="mt-1 text-xs text-[var(--safe-text-secondary)]">
+            <p className="mt-1 text-xs text-si-muted">
               {t("linkExpirationHint")}
             </p>
           </div>
 
           {error && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-[#B84A3E]">{error}</p>
           )}
 
           <div className="pt-2">

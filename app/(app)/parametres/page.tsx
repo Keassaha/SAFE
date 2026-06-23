@@ -98,8 +98,8 @@ function readBillingPrincipal(modules: unknown): string | null {
 function FieldRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5 text-sm">
-      <span className="safe-text-secondary text-xs uppercase tracking-wide">{label}</span>
-      <span className={`safe-text-title font-medium text-right ${mono ? "tabular-nums" : ""}`}>{value}</span>
+      <span className="text-si-muted text-xs uppercase tracking-wide">{label}</span>
+      <span className={`text-si-ink font-medium text-right ${mono ? "tabular-nums" : ""}`}>{value}</span>
     </div>
   );
 }
@@ -133,17 +133,17 @@ function SectionCard({
 }) {
   return (
     <Card className="flex flex-col h-full">
-      <div className="px-6 py-4 border-b border-[var(--safe-neutral-border)]/60 flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-safe-sm bg-[var(--safe-green-100)] text-[var(--safe-icon-default)]">
+      <div className="px-6 py-4 border-b border-si-line/60 flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-si-forest/10 text-si-forest">
           {icon}
         </span>
-        <h2 className="text-base font-semibold safe-text-title tracking-tight">{title}</h2>
+        <h2 className="text-base font-semibold text-si-ink tracking-tight">{title}</h2>
         {badge ? <StatusBadge label={badge} variant={badgeVariant ?? "neutral"} /> : null}
       </div>
       <CardContent className="flex-1 flex flex-col">
-        <p className="text-sm safe-text-secondary mb-3">{description}</p>
+        <p className="text-sm text-si-muted mb-3">{description}</p>
         <div className="space-y-1 mb-4 flex-1">{children}</div>
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-neutral-border/60">
+        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-si-line/60">
           {primaryHref && primaryLabel && !primaryDisabled ? (
             <Link
               href={primaryHref}
@@ -153,12 +153,12 @@ function SectionCard({
               <ChevronRight className="h-4 w-4" aria-hidden />
             </Link>
           ) : primaryDisabled && primaryDisabledHint ? (
-            <span className="text-xs safe-text-secondary">{primaryDisabledHint}</span>
+            <span className="text-xs text-si-muted">{primaryDisabledHint}</span>
           ) : null}
           {secondaryHref && secondaryLabel ? (
             <Link
               href={secondaryHref}
-              className="ml-auto inline-flex items-center gap-1 text-xs safe-text-secondary hover:safe-text-title"
+              className="ml-auto inline-flex items-center gap-1 text-xs text-si-muted hover:text-si-ink"
             >
               {secondaryLabel}
               <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -429,45 +429,45 @@ export default async function ParametresPage() {
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href={routes.parametresEnvoiFacture}
-              className="flex items-center gap-3 rounded-safe-sm border border-neutral-border/60 px-3 py-2.5 text-sm hover:bg-neutral-50 transition-colors"
+              className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
             >
-              <Send className="h-4 w-4 safe-text-secondary" aria-hidden />
-              <span className="safe-text-title font-medium">{t("quickInvoiceSend")}</span>
+              <Send className="h-4 w-4 text-si-muted" aria-hidden />
+              <span className="text-si-ink font-medium">{t("quickInvoiceSend")}</span>
             </Link>
             {isAdmin && (
               <Link
                 href={routes.parametresFacture}
-                className="flex items-center gap-3 rounded-safe-sm border border-neutral-border/60 px-3 py-2.5 text-sm hover:bg-neutral-50 transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
-                <Receipt className="h-4 w-4 safe-text-secondary" aria-hidden />
-                <span className="safe-text-title font-medium">{t("cardInvoiceAppearanceCta")}</span>
+                <Receipt className="h-4 w-4 text-si-muted" aria-hidden />
+                <span className="text-si-ink font-medium">{t("cardInvoiceAppearanceCta")}</span>
               </Link>
             )}
             {canAccessAudit && (
               <Link
                 href={routes.parametresAudit}
-                className="flex items-center gap-3 rounded-safe-sm border border-neutral-border/60 px-3 py-2.5 text-sm hover:bg-neutral-50 transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
-                <FileClock className="h-4 w-4 safe-text-secondary" aria-hidden />
-                <span className="safe-text-title font-medium">{t("quickAudit")}</span>
+                <FileClock className="h-4 w-4 text-si-muted" aria-hidden />
+                <span className="text-si-ink font-medium">{t("quickAudit")}</span>
               </Link>
             )}
             {canAccessRetention && (
               <Link
                 href={routes.parametresRetention}
-                className="flex items-center gap-3 rounded-safe-sm border border-neutral-border/60 px-3 py-2.5 text-sm hover:bg-neutral-50 transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
-                <ShieldCheck className="h-4 w-4 safe-text-secondary" aria-hidden />
-                <span className="safe-text-title font-medium">{t("quickRetention")}</span>
+                <ShieldCheck className="h-4 w-4 text-si-muted" aria-hidden />
+                <span className="text-si-ink font-medium">{t("quickRetention")}</span>
               </Link>
             )}
             {overdueInvoicesCount > 0 && canAccessBilling && (
               <Link
                 href={routes.facturation}
-                className="flex items-center gap-3 rounded-safe-sm border border-status-warning/40 bg-status-warning/5 px-3 py-2.5 text-sm hover:bg-status-warning/10 transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-si-amber/40 bg-si-amber/5 px-3 py-2.5 text-sm hover:bg-si-amber/10 transition-colors"
               >
-                <CircleDollarSign className="h-4 w-4 text-status-warning" aria-hidden />
-                <span className="safe-text-title font-medium">
+                <CircleDollarSign className="h-4 w-4 text-si-amber-ink" aria-hidden />
+                <span className="text-si-ink font-medium">
                   {t("quickOverdue", { count: overdueInvoicesCount })}
                 </span>
               </Link>

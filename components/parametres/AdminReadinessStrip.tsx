@@ -49,25 +49,25 @@ export async function AdminReadinessStrip({ report }: { report: ReadinessReport 
   const issues = [...report.blocking, ...report.warnings];
 
   const scoreColor =
-    report.score >= 80 ? "text-emerald-600" : report.score >= 50 ? "text-amber-600" : "text-red-600";
+    report.score >= 80 ? "text-emerald-600" : report.score >= 50 ? "text-si-amber-ink" : "text-[#B84A3E]";
 
   return (
-    <div className="rounded-[var(--safe-radius-lg)] border border-neutral-border bg-neutral-surface/50 px-4 py-3">
+    <div className="rounded-[var(--safe-radius-lg)] border border-si-line bg-si-canvas/60 px-4 py-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium safe-text-title">{t("readinessTitle")}</span>
+          <span className="text-sm font-medium text-si-ink">{t("readinessTitle")}</span>
           <span className={`text-sm font-semibold tabular-nums ${scoreColor}`}>
             {t("readinessScore", { score: report.score })}
           </span>
         </div>
         <div className="text-xs">
           {report.blocking.length > 0 && (
-            <span className="text-red-600 font-medium mr-3">
+            <span className="text-[#B84A3E] font-medium mr-3">
               {t("readinessBlockingCount", { count: report.blocking.length })}
             </span>
           )}
           {report.warnings.length > 0 && (
-            <span className="text-amber-600 font-medium">
+            <span className="text-si-amber-ink font-medium">
               {t("readinessWarningCount", { count: report.warnings.length })}
             </span>
           )}
@@ -85,15 +85,15 @@ export async function AdminReadinessStrip({ report }: { report: ReadinessReport 
             <li key={d.domain} className="flex items-center justify-between gap-3 text-sm">
               <span className="flex items-center gap-2">
                 {d.state === "blocking" ? (
-                  <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-600" aria-hidden />
+                  <AlertCircle className="h-4 w-4 flex-shrink-0 text-[#B84A3E]" aria-hidden />
                 ) : (
-                  <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600" aria-hidden />
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0 text-si-amber-ink" aria-hidden />
                 )}
-                <span className="safe-text-secondary">{t(DOMAIN_TITLE_KEY[d.domain])}</span>
+                <span className="text-si-muted">{t(DOMAIN_TITLE_KEY[d.domain])}</span>
               </span>
               <Link
                 href={DOMAIN_ROUTE[d.domain]}
-                className="text-primary-700 hover:underline whitespace-nowrap"
+                className="text-si-forest hover:underline whitespace-nowrap"
               >
                 {t("readinessFix")}
               </Link>

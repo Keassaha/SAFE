@@ -54,7 +54,7 @@ export default async function EmployeesPage({
     return (
       <div className="space-y-6">
         <PageHeader title={t("title")} description={t("accessDenied")} />
-        <p className="text-neutral-muted">{t("noPermission")}</p>
+        <p className="text-si-muted">{t("noPermission")}</p>
       </div>
     );
   }

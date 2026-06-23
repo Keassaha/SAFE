@@ -194,7 +194,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
         <Card>
           <CardHeader title={t("accentColorTitle")} />
           <CardContent className="space-y-4">
-            <p className="text-sm safe-text-secondary">
+            <p className="text-sm text-si-muted">
               {t("accentColorHelp")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -207,7 +207,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                     onClick={() => setAccent(p.hex)}
                     title={t(p.labelKey)}
                     className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
-                      isActive ? "border-neutral-900 ring-2 ring-neutral-300" : "border-white shadow"
+                      isActive ? "border-si-ink ring-2 ring-si-line" : "border-white shadow"
                     }`}
                     style={{ backgroundColor: p.hex }}
                     aria-label={t(p.labelKey)}
@@ -225,12 +225,12 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                 className="font-mono"
               />
               <div
-                className="h-10 w-10 shrink-0 rounded-safe-sm border border-neutral-border"
+                className="h-10 w-10 shrink-0 rounded-lg border border-si-line"
                 style={{ backgroundColor: accentValid ? (normalized as string) : "#FFFFFF" }}
               />
             </div>
             {!accentValid && (
-              <p className="flex items-center gap-1.5 text-xs text-status-warning">
+              <p className="flex items-center gap-1.5 text-xs text-si-amber-ink">
                 <AlertTriangle className="h-3.5 w-3.5" />
                 {t("accentInvalidWarning")}
               </p>
@@ -243,12 +243,12 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
           <CardHeader title={t("logoTitle")} />
           <CardContent className="space-y-3">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-safe-sm border border-neutral-border bg-neutral-50 overflow-hidden">
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-si-line bg-si-canvas overflow-hidden">
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={logoUrl} alt={t("logoAlt")} className="max-h-full max-w-full object-contain" />
                 ) : (
-                  <span className="text-xs safe-text-secondary">{t("logoNone")}</span>
+                  <span className="text-xs text-si-muted">{t("logoNone")}</span>
                 )}
               </div>
               <div className="flex gap-2">
@@ -269,8 +269,8 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                 )}
               </div>
             </div>
-            <p className="text-xs safe-text-secondary">{t("logoHint")}</p>
-            {logoError && <p className="text-xs text-status-error">{logoError}</p>}
+            <p className="text-xs text-si-muted">{t("logoHint")}</p>
+            {logoError && <p className="text-xs text-[#B84A3E]">{logoError}</p>}
           </CardContent>
         </Card>
 
@@ -278,24 +278,24 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
         <Card>
           <CardHeader title={t("noticeTitle")} />
           <CardContent className="space-y-3">
-            <p className="text-xs safe-text-secondary">{t("noticeHint")}</p>
+            <p className="text-xs text-si-muted">{t("noticeHint")}</p>
             <div>
-              <label className="block text-sm font-medium safe-text-title mb-1">{t("noticeLangFr")}</label>
+              <label className="block text-sm font-medium text-si-ink mb-1">{t("noticeLangFr")}</label>
               <textarea
                 value={noticeFr}
                 onChange={(e) => setNoticeFr(e.target.value)}
                 rows={4}
-                className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-si-line px-3 py-2 text-sm"
                 placeholder={t("noticePlaceholderFr")}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium safe-text-title mb-1">{t("noticeLangEn")}</label>
+              <label className="block text-sm font-medium text-si-ink mb-1">{t("noticeLangEn")}</label>
               <textarea
                 value={noticeEn}
                 onChange={(e) => setNoticeEn(e.target.value)}
                 rows={4}
-                className="w-full rounded-safe-sm border border-neutral-border px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-si-line px-3 py-2 text-sm"
                 placeholder={t("noticePlaceholderEn")}
               />
             </div>
@@ -311,7 +311,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
               <Input label={t("signatureTitleFrLabel")} name="signatureTitleFr" value={sigTitleFr} onChange={(e) => setSigTitleFr(e.target.value)} placeholder={t("signatureTitleFrPlaceholder")} />
               <Input label={t("signatureTitleEnLabel")} name="signatureTitleEn" value={sigTitleEn} onChange={(e) => setSigTitleEn(e.target.value)} placeholder={t("signatureTitleEnPlaceholder")} />
             </div>
-            <p className="text-xs safe-text-secondary">{t("signatureHint")}</p>
+            <p className="text-xs text-si-muted">{t("signatureHint")}</p>
           </CardContent>
         </Card>
 
@@ -321,11 +321,11 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
             {t("save")}
           </Button>
           {savedOk && (
-            <span className="flex items-center gap-1.5 text-sm text-status-success">
+            <span className="flex items-center gap-1.5 text-sm text-si-verified">
               <Check className="h-4 w-4" /> {t("saved")}
             </span>
           )}
-          {error && <span className="text-sm text-status-error">{error}</span>}
+          {error && <span className="text-sm text-[#B84A3E]">{error}</span>}
         </div>
       </div>
 
@@ -334,7 +334,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
         <Card>
           <CardHeader title={t("livePreviewTitle")} />
           <CardContent>
-            <div className="border border-neutral-border rounded-safe-sm overflow-hidden bg-neutral-50">
+            <div className="border border-si-line rounded-lg overflow-hidden bg-si-canvas">
               <InvoicePreview invoice={sample} language="fr" showSignature className="min-h-[640px]" />
             </div>
           </CardContent>

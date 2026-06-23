@@ -10,7 +10,7 @@ export default async function ReconciliationPage() {
   if (!canEditBillingTrust(role as "admin_cabinet" | "avocat" | "assistante" | "comptabilite")) {
     return (
       <div className="p-6">
-        <p className="text-status-error">You do not have access to this section.</p>
+        <p className="text-[#B84A3E]">You do not have access to this section.</p>
       </div>
     );
   }
