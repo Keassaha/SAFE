@@ -103,7 +103,7 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "var(--text-si-muted)", fontSize: 10 }}
+                  tick={{ fill: "#5A665F", fontSize: 10 }}
                 />
                 <YAxis hide />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>

@@ -218,7 +218,7 @@ function DossierItemRow({ item, showSelfAssign, highlightReadyForReview }: Dossi
     <div
       className={`relative px-3 py-2 rounded-lg border transition-colors ${
         isReady
-          ? "border-[var(--safe-si-verified)]/40 bg-si-verified/10"
+          ? "border-si-verified/40 bg-si-verified/10"
           : "border-si-line/60 hover:bg-si-canvas/80"
       }`}
     >
