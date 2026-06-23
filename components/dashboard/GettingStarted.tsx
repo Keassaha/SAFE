@@ -26,8 +26,9 @@ const ITEMS: {
 const TOTAL_STEPS = ITEMS.length;
 
 /**
- * Éditorial Chaleureux onboarding — sand-50 card with forest-green progress
- * and check affordance. No white-alpha, no dark-mode overlays.
+ * Checklist « Pour bien démarrer » — design safe-interface (si). Pilotée par
+ * les données réelles du cabinet (chaque item se coche quand l'action est faite).
+ * Affichée sur le tableau de bord tant que l'onboarding n'est pas complet.
  */
 export function GettingStarted({ checklist }: GettingStartedProps) {
   const t = useTranslations("dashboard.gettingStarted");
@@ -35,58 +36,24 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
   const progressPercent = (completedCount / TOTAL_STEPS) * 100;
 
   return (
-    <div
-      className="overflow-hidden p-5 md:p-6"
-      style={{
-        background: "var(--sand-50)",
-        border: "1px solid var(--sand-300)",
-        borderLeft: "4px solid var(--brand-800)",
-        borderRadius: 12,
-        boxShadow: "0 1px 2px rgba(11,11,12,0.04)",
-      }}
-    >
+    <div className="overflow-hidden rounded-2xl border border-si-line border-l-4 border-l-si-forest bg-si-surface p-5 md:p-6">
       <div className="mb-4">
-        <h3
-          className="flex items-center gap-1.5 tracking-tight"
-          style={{
-            fontSize: 15,
-            fontWeight: 600,
-            color: "var(--zinc-950)",
-            letterSpacing: "-0.01em",
-            margin: 0,
-          }}
-        >
-          <Sparkles
-            className="w-4 h-4"
-            strokeWidth={1.5}
-            style={{ color: "var(--brand-800)" }}
-            aria-hidden
-          />
+        <h3 className="flex items-center gap-1.5 font-serif text-[19px] leading-tight text-si-ink">
+          <Sparkles className="w-4 h-4 text-si-forest" strokeWidth={1.5} aria-hidden />
           {t("title")}
         </h3>
-        <p className="text-xs mt-0.5" style={{ color: "var(--sand-600)" }}>
-          {t("subtitle")}
-        </p>
+        <p className="text-xs mt-1 text-si-muted">{t("subtitle")}</p>
       </div>
 
       {/* Barre de progression */}
       <div className="mb-5">
-        <div
-          className="flex justify-between text-xs mb-1.5"
-          style={{ color: "var(--sand-700)" }}
-        >
-          <span>
-            {t("progressLabel", { current: completedCount, total: TOTAL_STEPS })}
-          </span>
-          <span className="tabular-nums">{Math.round(progressPercent)}%</span>
+        <div className="flex justify-between text-xs mb-1.5 text-si-muted">
+          <span>{t("progressLabel", { current: completedCount, total: TOTAL_STEPS })}</span>
+          <span className="font-mono tabular-nums">{Math.round(progressPercent)}%</span>
         </div>
-        <div
-          className="h-2 rounded-full overflow-hidden"
-          style={{ background: "var(--sand-200)" }}
-        >
+        <div className="h-2 rounded-full overflow-hidden bg-si-canvas">
           <motion.div
-            className="h-full rounded-full"
-            style={{ background: "var(--brand-800)" }}
+            className="h-full rounded-full bg-si-forest"
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ type: "tween", duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
@@ -101,77 +68,29 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
             <li key={key}>
               <Link
                 href={href}
-                className="flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-                style={{
-                  background: done ? "var(--sand-100)" : "transparent",
-                  color: done ? "var(--sand-700)" : "var(--zinc-950)",
-                  border: "1px solid var(--sand-300)",
-                  textDecoration: "none",
-                }}
-                aria-label={
-                  done
-                    ? t("doneLabel", { label: t(labelKey) })
-                    : t("todoLabel", { label: t(labelKey) })
-                }
+                className={`flex items-center gap-3 rounded-lg border border-si-line px-3 py-2 transition-colors ${
+                  done ? "bg-si-canvas text-si-muted" : "bg-transparent text-si-ink hover:bg-si-canvas"
+                }`}
+                aria-label={done ? t("doneLabel", { label: t(labelKey) }) : t("todoLabel", { label: t(labelKey) })}
               >
-                <motion.span
-                  className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                  style={{
-                    background: done ? "var(--brand-800)" : "var(--sand-50)",
-                    border: `1.5px solid ${done ? "var(--brand-800)" : "var(--sand-400)"}`,
-                  }}
+                <span
+                  className={`relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+                    done ? "bg-si-forest border-si-forest" : "bg-si-surface border-si-line"
+                  }`}
                   aria-hidden
                   role="img"
                   aria-label={done ? t("checked") : t("unchecked")}
-                  animate={
-                    done
-                      ? {
-                          boxShadow: [
-                            "0 0 0 0 rgba(31,58,46,0)",
-                            "0 0 10px 2px rgba(31,58,46,0.30)",
-                            "0 0 6px 1px rgba(31,58,46,0.18)",
-                          ],
-                        }
-                      : {}
-                  }
-                  transition={
-                    done
-                      ? { duration: 0.4, times: [0, 0.6, 1] }
-                      : {}
-                  }
                 >
                   {done ? (
-                    <motion.span
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.25, delay: 0.1 }}
-                    >
-                      <Check
-                        className="h-3.5 w-3.5"
-                        strokeWidth={2.5}
-                        style={{ color: "var(--sand-50)" }}
-                      />
-                    </motion.span>
+                    <Check className="h-3.5 w-3.5 text-si-surface" strokeWidth={2.5} />
                   ) : (
-                    <Circle
-                      className="h-3 w-3"
-                      strokeWidth={2}
-                      style={{ color: "var(--sand-500, #BCAD8D)" }}
-                    />
+                    <Circle className="h-3 w-3 text-si-muted/50" strokeWidth={2} />
                   )}
-                </motion.span>
-                <span
-                  className="flex-1 text-sm"
-                  style={{ fontWeight: done ? 500 : 600 }}
-                >
+                </span>
+                <span className={`flex-1 text-sm ${done ? "font-medium" : "font-semibold"}`}>
                   {t(labelKey)}
                 </span>
-                <ArrowRight
-                  className="h-4 w-4 shrink-0"
-                  strokeWidth={1.5}
-                  style={{ color: "var(--sand-600)" }}
-                  aria-hidden
-                />
+                <ArrowRight className="h-4 w-4 shrink-0 text-si-muted" strokeWidth={1.5} aria-hidden />
               </Link>
             </li>
           );

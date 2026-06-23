@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { DashboardPayload } from "@/lib/dashboard/types";
+import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import {
   ComplianceStrip,
   PriorityCard,
@@ -28,7 +29,14 @@ export function DashboardViewSafe({ payload }: { payload: DashboardPayload }) {
     activeClientsCount,
     activeDossiersCount,
     soldeFideicommis,
+    onboardingChecklist,
   } = payload;
+
+  // Cabinet neuf : tant que l'onboarding n'est pas complet, on guide d'abord.
+  const onboardingComplete = onboardingChecklist
+    ? Object.values(onboardingChecklist).every(Boolean)
+    : true;
+  const showOnboarding = Boolean(onboardingChecklist) && !onboardingComplete;
 
   const recon = lastReconciliation;
   const trustToReconcile = !recon || recon.status !== "certified" || recon.daysSince > 31;
@@ -90,6 +98,12 @@ export function DashboardViewSafe({ payload }: { payload: DashboardPayload }) {
 
   return (
     <div className="bg-si-canvas text-si-ink font-sans rounded-2xl p-6 sm:p-8">
+      {showOnboarding && onboardingChecklist && (
+        <div className="mb-5">
+          <GettingStarted checklist={onboardingChecklist} />
+        </div>
+      )}
+
       <ComplianceStrip items={compliance} rightNote={dateLabel} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5">
