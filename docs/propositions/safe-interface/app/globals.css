@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans;
+  }
+}
+
+@layer utilities {
+  /* Lueurs d'angle du systeme de design v3 */
+  .glow-verified {
+    background: radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%);
+  }
+  .glow-verified-strong {
+    background: radial-gradient(circle, rgba(46, 125, 91, 0.5), transparent 70%);
+  }
+
+  /* Caret discret pour les selects natifs */
+  .select-caret {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #5a665f 50%),
+      linear-gradient(135deg, #5a665f 50%, transparent 50%);
+    background-position: calc(100% - 18px) 18px, calc(100% - 13px) 18px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+}
