@@ -60,7 +60,7 @@ export function ClientSearchBar() {
     <form onSubmit={handleSubmit} className="flex-1 min-w-0 max-w-md">
       <div className="relative">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-muted pointer-events-none"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-si-muted pointer-events-none"
           aria-hidden
         />
         <input
@@ -69,11 +69,11 @@ export function ClientSearchBar() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={t("searchPlaceholder")}
-          className="w-full h-10 pl-9 pr-4 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all text-sm"
+          className="w-full h-10 pl-9 pr-4 rounded-lg border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none transition-all text-sm"
           aria-label={t("searchLabel")}
         />
         {isPending && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-muted">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-si-muted">
             …
           </span>
         )}

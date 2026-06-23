@@ -61,13 +61,16 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
     ...clients.map((c) => ({ value: c.id, label: c.raisonSociale })),
   ];
 
+  const selectClass =
+    "h-10 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none";
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <select
         aria-label={t("filterByStatus")}
         value={searchParams.get(PARAMS.status) ?? ""}
         onChange={(e) => updateFilter(PARAMS.status, e.target.value)}
-        className="h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+        className={selectClass}
       >
         {STATUS_OPTIONS.map((o) => (
           <option key={o.value || "all"} value={o.value}>
@@ -79,7 +82,7 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
         aria-label={t("filterByType")}
         value={searchParams.get(PARAMS.type) ?? ""}
         onChange={(e) => updateFilter(PARAMS.type, e.target.value)}
-        className="h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+        className={selectClass}
       >
         {TYPE_OPTIONS.map((o) => (
           <option key={o.value || "all"} value={o.value}>
@@ -91,7 +94,7 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
         aria-label={t("filterByClient")}
         value={searchParams.get(PARAMS.clientId) ?? ""}
         onChange={(e) => updateFilter(PARAMS.clientId, e.target.value)}
-        className="h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none min-w-[180px]"
+        className={`${selectClass} min-w-[180px]`}
       >
         {clientOptions.map((o) => (
           <option key={o.value || "all"} value={o.value}>
@@ -103,7 +106,7 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
         type="button"
         onClick={handleRefresh}
         disabled={isPending}
-        className="inline-flex items-center gap-2 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary hover:bg-neutral-50 text-sm font-medium transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-si-line bg-si-surface text-si-muted hover:text-si-forest hover:bg-si-canvas text-sm font-medium transition-colors disabled:opacity-50"
         aria-label={t("refresh")}
       >
         <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />

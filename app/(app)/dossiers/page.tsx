@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Card, CardTitle } from "@/components/ds-safe/core";
 import {
   buildDossierListWhere,
   getDossierListOrderBy,
@@ -174,51 +174,45 @@ export default async function DossiersPage({
         actesUrgents={actesUrgentsCount}
         actesTermines={actesTermines}
       />
-      <div className="rounded-safe-md bg-white shadow-lg p-6 space-y-0">
-        <Card className="border-0 shadow-none bg-transparent">
-          <CardHeader
-            title={t("matterList")}
+      <Card className="overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>{t("matterList")}</CardTitle>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <DossierSearchBar />
+            <DossierFilters clients={clients} />
+          </div>
+        </div>
+        {dossiers.length === 0 ? (
+          <EmptyState
+            title={t("noMatters")}
+            description={t("createFirstMatter")}
             action={
-              <div className="flex flex-wrap items-center gap-3">
-                <DossierSearchBar />
-                <DossierFilters clients={clients} />
-              </div>
+              canCreate ? (
+                <DossierCreateModal
+                  clients={clients}
+                  avocats={avocats}
+                  assistants={assistants}
+                  canCreate={canCreate}
+                  buttonLabel={t("newMatter")}
+                />
+              ) : undefined
             }
           />
-          <CardContent className="p-0">
-            {dossiers.length === 0 ? (
-              <EmptyState
-                title={t("noMatters")}
-                description={t("createFirstMatter")}
-                action={
-                  canCreate ? (
-                    <DossierCreateModal
-                      clients={clients}
-                      avocats={avocats}
-                      assistants={assistants}
-                      canCreate={canCreate}
-                      buttonLabel={t("newMatter")}
-                    />
-                  ) : undefined
-                }
-              />
-            ) : (
-              <>
-                <DossiersTable
-                  dossiers={dossiers}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-                <DossierPagination
-                  totalCount={totalCount}
-                  currentPage={page}
-                  pageSize={DOSSIER_LIST_PAGE_SIZE}
-                />
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        ) : (
+          <>
+            <DossiersTable
+              dossiers={dossiers}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+            />
+            <DossierPagination
+              totalCount={totalCount}
+              currentPage={page}
+              pageSize={DOSSIER_LIST_PAGE_SIZE}
+            />
+          </>
+        )}
+      </Card>
     </div>
   );
 }

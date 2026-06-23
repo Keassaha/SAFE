@@ -136,6 +136,26 @@ const config: Config = {
         /* ─── Zinc: explicit — lets DS components write `bg-zinc-*` safely.
          * Tailwind ships zinc by default; this namespace pins our source. */
         zinc: colors.zinc,
+
+        /* ─── Design system safe-interface (variante froide albâtre) ───
+         * Namespace `si-*` ADDITIF : porté tel quel depuis le design fourni
+         * (docs/propositions/safe-interface/tailwind.config.ts) sans toucher
+         * aux tokens existants. Sert au socle + à la page de démonstration.
+         * La bascule des écrans réels se fera ensuite, écran par écran. */
+        "si-forest": { DEFAULT: "#0B1F19", soft: "#16312A" },
+        "si-canvas": "#EFF2ED",
+        "si-surface": "#FBFCFA",
+        "si-ink": "#1F2A24",
+        "si-muted": "#5A665F",
+        "si-verified": "#2E7D5B",
+        "si-amber": "#B07A1C",
+        /* Variante foncée pour le TEXTE amber (WCAG AA, >=4.5:1). Vérifiée sur
+         * les 3 fonds documentés du DS, y compris le pire cas : le tint
+         * bg-si-amber/[0.13] composé sur si-canvas (#EFF2ED) -> ~4.72:1. Le
+         * #B07A1C reste réservé au fond/à la pastille (contraste non requis). */
+        "si-amber-ink": "#835A10",
+        "si-line": "rgba(31,42,36,0.10)",
+        "si-line2": "rgba(31,42,36,0.06)",
       },
 
       fontFamily: {
@@ -217,6 +237,8 @@ const config: Config = {
         sm: "var(--safe-shadow-sm)",
         md: "var(--safe-shadow-md)",
         lg: "var(--safe-shadow-lg)",
+        /* Ombre de carte du design safe-interface (namespace si-*) */
+        "si-card": "0 18px 40px -32px rgba(31,42,36,0.40)",
       },
 
       backdropBlur: {

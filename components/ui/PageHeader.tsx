@@ -36,25 +36,23 @@ export function PageHeader({
     compact: "dash-header relative overflow-hidden rounded-lg p-5 [&>*]:relative [&>*]:z-10",
   }[variant] || "dash-header relative overflow-hidden rounded-lg p-8 [&>*]:relative [&>*]:z-10";
 
+  // Fond forêt plat (#0B1F19), signature récurrente du design safe-interface.
   const containerStyle: React.CSSProperties =
     variant === "default" || variant === "compact"
-      ? {
-          background:
-            "linear-gradient(115deg, #0F2A22 0%, #1F3A2E 35%, #234539 65%, #2B6A4E 100%)",
-        }
+      ? { backgroundColor: "#0B1F19" }
       : {};
 
   const titleClasses = {
-    default: "text-[32px] font-sans font-semibold text-forest-50",
+    default: "text-[31px] font-serif text-si-surface",
     dashboard: "text-[32px] font-sans font-semibold text-slate-900",
-    compact: "text-[22px] font-sans font-semibold text-forest-50",
-  }[variant] || "text-[32px] font-sans font-semibold text-forest-50";
+    compact: "text-[22px] font-serif text-si-surface",
+  }[variant] || "text-[31px] font-serif text-si-surface";
 
-  const descriptionClasses = variant === "dashboard" ? "text-[14px] text-slate-600 font-sans" : "text-[14px] text-forest-200 font-sans";
-  const backTextClasses = variant === "dashboard" ? "text-slate-600 hover:text-slate-900" : "text-forest-50/70 hover:text-forest-50";
-  const breadcrumbTextClasses = variant === "dashboard" ? "text-slate-600" : "text-forest-50/70";
-  const breadcrumbHoverClasses = variant === "dashboard" ? "hover:text-slate-900" : "hover:text-forest-50";
-  const breadcrumbActiveClasses = variant === "dashboard" ? "text-slate-900" : "text-forest-50";
+  const descriptionClasses = variant === "dashboard" ? "text-[14px] text-slate-600 font-sans" : "text-[14px] text-si-surface/70 font-sans";
+  const backTextClasses = variant === "dashboard" ? "text-slate-600 hover:text-slate-900" : "text-si-surface/70 hover:text-si-surface";
+  const breadcrumbTextClasses = variant === "dashboard" ? "text-slate-600" : "font-mono text-si-surface/60";
+  const breadcrumbHoverClasses = variant === "dashboard" ? "hover:text-slate-900" : "hover:text-si-surface";
+  const breadcrumbActiveClasses = variant === "dashboard" ? "text-slate-900" : "text-si-surface";
 
   return (
     <header className={`${containerClasses}`} style={containerStyle}>

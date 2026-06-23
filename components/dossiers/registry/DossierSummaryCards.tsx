@@ -38,61 +38,58 @@ export function DossierSummaryCards({
       value: totalDossiers.toLocaleString("fr-CA"),
       icon: Folder,
       sub: null as string | null,
-      subClassName: undefined as string | undefined,
+      subTone: "muted" as "muted" | "verified",
+      valueTone: "ink" as "ink" | "amber",
     },
     {
       title: t("activeMatters"),
       value: actifsCount.toLocaleString("fr-CA"),
       icon: FolderOpen,
       sub: `${actifPercent}${t("ofTotal")}`,
-      subClassName: "text-status-success",
+      subTone: "verified" as const,
+      valueTone: "ink" as const,
     },
     {
       title: t("closedMatters"),
       value: cloturesCount.toLocaleString("fr-CA"),
       icon: FolderCheck,
       sub: null,
-      subClassName: undefined,
+      subTone: "muted" as const,
+      valueTone: "ink" as const,
     },
     {
       title: t("totalActs"),
       value: totalActes.toLocaleString("fr-CA"),
       icon: ListChecks,
       sub: `${terminePercent}${t("completed")}`,
-      subClassName: "text-status-success",
+      subTone: "verified" as const,
+      valueTone: "ink" as const,
     },
     {
       title: t("inProgress"),
       value: actesEnCours.toLocaleString("fr-CA"),
       icon: Clock,
       sub: null,
-      subClassName: undefined,
+      subTone: "muted" as const,
+      valueTone: "ink" as const,
     },
     {
       title: t("urgentOverdue"),
       value: actesUrgents.toLocaleString("fr-CA"),
       icon: AlertTriangle,
       sub: null,
-      subClassName: actesUrgents > 0 ? "text-[var(--safe-status-error)]" : undefined,
+      subTone: "muted" as const,
+      valueTone: actesUrgents > 0 ? ("amber" as const) : ("ink" as const),
     },
     {
       title: t("completed2"),
       value: actesTermines.toLocaleString("fr-CA"),
       icon: CheckCircle2,
       sub: null,
-      subClassName: undefined,
+      subTone: "muted" as const,
+      valueTone: "ink" as const,
     },
   ];
-
-  const iconColors = [
-    "bg-green-100 text-[var(--safe-icon-default)]",
-    "bg-status-success-bg text-status-success",
-    "bg-green-100 text-green-700",
-    "bg-green-50 text-[var(--safe-icon-accent)]",
-    "bg-amber-50 text-amber-600",
-    "bg-red-50 text-red-600",
-    "bg-emerald-50 text-emerald-600",
-  ] as const;
 
   const { reduceMotion } = useSafeMotion();
   const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
@@ -105,28 +102,28 @@ export function DossierSummaryCards({
       initial="hidden"
       animate="visible"
     >
-      {cards.map(({ title, value, icon: Icon, sub, subClassName }, i) => (
+      {cards.map(({ title, value, icon: Icon, sub, subTone, valueTone }) => (
         <motion.div
           key={title}
           variants={itemVariants}
-          className="card-glass rounded-safe-lg p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
+          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-si-card hover:-translate-y-0.5"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
                 {title}
               </p>
-              <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
+              <p className={`mt-2 font-mono text-[22px] leading-none tabular-nums ${valueTone === "amber" ? "text-si-amber-ink" : "text-si-ink"}`}>
                 {value}
               </p>
               {sub && (
-                <p className={`mt-1 text-sm ${subClassName ?? "safe-text-secondary"}`}>{sub}</p>
+                <p className={`mt-2 text-[12px] ${subTone === "verified" ? "text-si-verified" : "text-si-muted"}`}>
+                  {sub}
+                </p>
               )}
             </div>
-            <div
-              className={`w-11 h-11 shrink-0 rounded-safe flex items-center justify-center ${iconColors[i % iconColors.length]}`}
-            >
-              <Icon className="w-5 h-5" aria-hidden />
+            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-forest/[0.06] text-si-forest">
+              <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden />
             </div>
           </div>
         </motion.div>

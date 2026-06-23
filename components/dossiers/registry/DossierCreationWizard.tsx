@@ -210,12 +210,12 @@ export function DossierCreationWizard({
               key={s.id}
               type="button"
               onClick={() => goToStep(s.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-safe-sm text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
-                  ? "bg-primary-100 text-primary-800"
+                  ? "bg-si-forest/10 text-si-forest"
                   : isPast
-                    ? "bg-primary-50 text-primary-700"
-                    : "bg-neutral-100 text-neutral-muted"
+                    ? "bg-si-canvas text-si-ink"
+                    : "bg-si-canvas/60 text-si-muted"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -229,11 +229,11 @@ export function DossierCreationWizard({
         {/* Step 1: Identification */}
         <div className={step !== 1 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("matterIdentification")}
             </h3>
-            <div className="rounded-safe-sm border border-neutral-border bg-neutral-surface/50 px-3 py-2 text-sm text-neutral-muted">
-              <span className="font-medium text-neutral-text-secondary">{t("matterNumberAuto")}</span>{" "}
+            <div className="rounded-lg border border-si-line bg-si-canvas/60 px-3 py-2 text-sm text-si-muted">
+              <span className="font-medium text-si-muted">{t("matterNumberAuto")}</span>{" "}
               {t("matterNumberAutoDesc", { year })}
             </div>
             {hasTaxonomy ? (
@@ -241,8 +241,8 @@ export function DossierCreationWizard({
                 {/* « Type » = pratique du cabinet (taxonomie). Pilote le préfixe
                     de numérotation + le type métier dérivé côté serveur. */}
                 <div>
-                  <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                    {tc("type")} <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-si-muted mb-1">
+                    {tc("type")} <span className="text-si-amber-ink">*</span>
                   </label>
                   <select
                     name="subject"
@@ -252,7 +252,7 @@ export function DossierCreationWizard({
                       setSelectedSubject(e.target.value);
                       setSelectedSubmatter("");
                     }}
-                    className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                    className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                   >
                     <option value="">{t("selectType")}</option>
                     {subjectOptions!.map((o) => (
@@ -266,14 +266,14 @@ export function DossierCreationWizard({
                     Affiché seulement si la pratique en définit. */}
                 {selectedSubject && availableSubmatters.length > 0 && (
                   <div>
-                    <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                    <label className="block text-sm font-medium text-si-muted mb-1">
                       {t("subjectLabel")}
                     </label>
                     <select
                       name="submatter"
                       value={selectedSubmatter}
                       onChange={(e) => setSelectedSubmatter(e.target.value)}
-                      className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                      className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                     >
                       <option value="">{t("subjectSelect")}</option>
                       {availableSubmatters.map((o) => (
@@ -287,15 +287,15 @@ export function DossierCreationWizard({
               </>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                  {tc("type")} <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-si-muted mb-1">
+                  {tc("type")} <span className="text-si-amber-ink">*</span>
                 </label>
                 <select
                   name="type"
                   required
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   {TYPE_OPTIONS.map((o) => (
                     <option key={o.value || "none"} value={o.value}>
@@ -308,11 +308,11 @@ export function DossierCreationWizard({
             <Input label={t("referenceOptional")} name="reference" placeholder="Ex. DOS-2024-001" />
             <Input label={`${t("matterTitle")} (${tc("optional").toLowerCase()})`} name="intitule" placeholder={t("taskTitle")} />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("initialStatus")}</label>
+              <label className="block text-sm font-medium text-si-muted mb-1">{t("initialStatus")}</label>
               <select
                 name="statut"
                 defaultValue="actif"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 {STATUT_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -327,19 +327,19 @@ export function DossierCreationWizard({
         {/* Step 2: Client */}
         <div className={step !== 2 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("clientAssociation")}
             </h3>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {tc("client")} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-si-muted mb-1">
+                {tc("client")} <span className="text-si-amber-ink">*</span>
               </label>
               <select
                 name="clientId"
                 required
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -355,16 +355,16 @@ export function DossierCreationWizard({
         {/* Step 3: Team */}
         <div className={step !== 3 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("team")}
             </h3>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("responsibleLawyer")}
               </label>
               <select
                 name="avocatResponsableId"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">{t("noMatterNone")}</option>
                 {avocats.map((a) => (
@@ -376,12 +376,12 @@ export function DossierCreationWizard({
             </div>
             {assistants.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                <label className="block text-sm font-medium text-si-muted mb-1">
                   {t("legalAssistant")}
                 </label>
                 <select
                   name="assistantJuridiqueId"
-                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   <option value="">{t("noMatterNone")}</option>
                   {assistants.map((a) => (
@@ -398,7 +398,7 @@ export function DossierCreationWizard({
         {/* Step 4: Court */}
         <div className={step !== 4 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("court")}
             </h3>
             <Input label={t("courtNameLabel")} name="tribunalNom" placeholder={t("optional")} />
@@ -411,14 +411,14 @@ export function DossierCreationWizard({
         {/* Step 5: Billing */}
         <div className={step !== 5 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("stepBilling")}
             </h3>
             {isCabinetForfait ? (
               <>
                 <input type="hidden" name="modeFacturation" value="forfait" />
-                <div className="rounded-safe-sm border border-neutral-border bg-neutral-surface/50 px-3 py-2 text-sm text-neutral-muted">
-                  <span className="font-medium text-neutral-text-secondary">
+                <div className="rounded-lg border border-si-line bg-si-canvas/60 px-3 py-2 text-sm text-si-muted">
+                  <span className="font-medium text-si-muted">
                     {t("billingFlat")}
                   </span>{" "}
                   — {t("billingFlatCabinetNote")}
@@ -427,12 +427,12 @@ export function DossierCreationWizard({
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                  <label className="block text-sm font-medium text-si-muted mb-1">
                     {t("billingModeLabel")}
                   </label>
                   <select
                     name="modeFacturation"
-                    className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                    className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                   >
                     {MODE_FACTURATION_OPTIONS.map((o) => (
                       <option key={o.value || "none"} value={o.value}>
@@ -457,17 +457,17 @@ export function DossierCreationWizard({
         {/* Step 6: Summary */}
         <div className={step !== 6 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("summaryTitle")}
             </h3>
-            <p className="text-sm text-neutral-muted">
+            <p className="text-sm text-si-muted">
               {t("summaryDescription")}
             </p>
-            <div className="rounded-safe border border-neutral-border bg-neutral-surface/50 p-4 space-y-2">
+            <div className="rounded-xl border border-si-line bg-si-canvas/60 p-4 space-y-2">
               {getSummary().map(({ label, value }) => (
                 <div key={label} className="flex gap-2 text-sm">
-                  <span className="font-medium text-neutral-muted w-44 shrink-0">{label}</span>
-                  <span className="text-neutral-text-primary break-words">{value || "—"}</span>
+                  <span className="font-medium text-si-muted w-44 shrink-0">{label}</span>
+                  <span className="text-si-ink break-words">{value || "—"}</span>
                 </div>
               ))}
             </div>
@@ -477,7 +477,7 @@ export function DossierCreationWizard({
 
       {error && <p className="text-sm text-status-error">{error}</p>}
 
-      <div className="flex items-center justify-between pt-4 border-t border-neutral-border">
+      <div className="flex items-center justify-between pt-4 border-t border-si-line">
         <div>
           {step > 1 && (
             <Button type="button" variant="secondary" onClick={() => goToStep(step - 1)}>

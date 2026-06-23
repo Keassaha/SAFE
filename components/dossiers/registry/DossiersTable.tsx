@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Eye, Pencil, Clock, Archive, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { archiveDossier } from "@/app/(app)/dossiers/actions";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { DossierSortField, DossierSortOrder } from "@/lib/dossiers/query";
 
 export type DossierRow = {
@@ -48,7 +49,7 @@ function SortHeader({
   return (
     <Link
       href={getSortUrl(field, isActive ? nextOrder : "asc")}
-      className="inline-flex items-center gap-1 text-xs font-medium text-neutral-muted uppercase tracking-wider hover:text-primary-700"
+      className="inline-flex items-center gap-1 text-xs font-medium text-si-muted uppercase tracking-wider hover:text-si-forest"
     >
       {label}
       <Icon className="w-3.5 h-3.5" />
@@ -74,6 +75,12 @@ function clientDisplayName(row: DossierRow): string {
   return row.client.raisonSociale ?? "";
 }
 
+function statutVariant(statut: string): "success" | "warning" | "neutral" {
+  if (statut === "actif" || statut === "ouvert") return "success";
+  if (statut === "cloture" || statut === "archive") return "neutral";
+  return "warning";
+}
+
 function DossierActionsMenu({ row }: { row: DossierRow }) {
   const t = useTranslations("matters");
   const tc = useTranslations("common");
@@ -95,7 +102,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-safe-sm text-neutral-muted hover:bg-neutral-200 hover:text-neutral-text-primary transition-colors"
+        className="p-1.5 rounded-lg text-si-muted hover:bg-si-canvas hover:text-si-ink transition-colors"
         aria-label={tc("actions")}
         aria-expanded={open}
         aria-haspopup="true"
@@ -104,12 +111,12 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 py-1 bg-white border border-neutral-border rounded-safe-sm shadow-lg z-20 min-w-[160px]"
+          className="absolute right-0 top-full mt-1 py-1 bg-si-surface border border-si-line rounded-lg shadow-si-card z-20 min-w-[160px]"
           role="menu"
         >
           <Link
             href={routes.dossier(row.id)}
-            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-neutral-text-primary hover:bg-neutral-50"
+            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas"
             role="menuitem"
             onClick={() => setOpen(false)}
           >
@@ -118,7 +125,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
           </Link>
           <Link
             href={`${routes.dossier(row.id)}?edit=1`}
-            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-neutral-text-primary hover:bg-neutral-50"
+            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas"
             role="menuitem"
             onClick={() => setOpen(false)}
           >
@@ -127,7 +134,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
           </Link>
           <Link
             href={routes.dossier(row.id)}
-            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-neutral-text-primary hover:bg-neutral-50"
+            className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas"
             role="menuitem"
             onClick={() => setOpen(false)}
           >
@@ -138,7 +145,7 @@ function DossierActionsMenu({ row }: { row: DossierRow }) {
             <form action={archiveDossier.bind(null, row.id)} className="block">
               <button
                 type="submit"
-                className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-neutral-text-primary hover:bg-neutral-50"
+                className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas"
                 role="menuitem"
                 onClick={() => setOpen(false)}
               >
@@ -189,7 +196,7 @@ export function DossiersTable({
 
   if (dossiers.length === 0) {
     return (
-      <div className="px-4 py-8 text-center text-neutral-muted text-sm">
+      <div className="px-4 py-8 text-center text-si-muted text-sm">
         {t("noMattersFound")}
       </div>
     );
@@ -199,7 +206,7 @@ export function DossiersTable({
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-border bg-neutral-surface/50">
+          <tr className="border-b border-si-line bg-si-canvas/60">
             <th className="text-left py-3 px-4">
               <SortHeader
                 label={t("matterNumberHeader")}
@@ -218,7 +225,7 @@ export function DossiersTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="text-left py-3 px-4">{tc("client")}</th>
+            <th className="text-left py-3 px-4 text-xs font-medium text-si-muted uppercase tracking-wider">{tc("client")}</th>
             <th className="text-left py-3 px-4">
               <SortHeader
                 label={t("lawyer")}
@@ -228,7 +235,7 @@ export function DossiersTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="text-left py-3 px-4">{tc("type")}</th>
+            <th className="text-left py-3 px-4 text-xs font-medium text-si-muted uppercase tracking-wider">{tc("type")}</th>
             <th className="text-left py-3 px-4">
               <SortHeader
                 label={tc("status")}
@@ -247,52 +254,45 @@ export function DossiersTable({
                 getSortUrl={getSortUrl}
               />
             </th>
-            <th className="text-right py-3 px-4">{tc("actions")}</th>
+            <th className="text-right py-3 px-4 text-xs font-medium text-si-muted uppercase tracking-wider">{tc("actions")}</th>
           </tr>
         </thead>
         <tbody>
           {dossiers.map((row) => (
             <tr
               key={row.id}
-              className="border-b border-neutral-border hover:bg-neutral-surface/30 transition-colors duration-200"
+              className="border-b border-si-line hover:bg-si-canvas transition-colors duration-200"
             >
-              <td className="py-3 px-4 font-medium text-neutral-text-primary">
+              <td className="py-3 px-4">
                 <Link
                   href={routes.dossier(row.id)}
-                  className="text-primary-700 hover:underline"
+                  className="font-mono text-si-forest hover:underline"
                 >
                   {row.numeroDossier ?? row.reference ?? "—"}
                 </Link>
               </td>
-              <td className="py-3 px-4 text-neutral-text-secondary">{row.intitule}</td>
+              <td className="py-3 px-4 text-si-ink">{row.intitule}</td>
               <td className="py-3 px-4">
                 <Link
                   href={routes.client(row.clientId)}
-                  className="text-primary-700 hover:underline"
+                  className="text-si-forest hover:underline"
                 >
                   {clientDisplayName(row)}
                 </Link>
               </td>
-              <td className="py-3 px-4 text-neutral-text-secondary">
+              <td className="py-3 px-4 text-si-muted">
                 {row.avocatResponsable?.nom ?? "—"}
               </td>
-              <td className="py-3 px-4 text-neutral-text-secondary">
+              <td className="py-3 px-4 text-si-muted">
                 {row.type ? TYPE_LABELS[row.type] ?? row.type : "—"}
               </td>
               <td className="py-3 px-4">
-                <span
-                  className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                    row.statut === "actif" || row.statut === "ouvert"
-                      ? "bg-status-success-bg text-status-success"
-                      : row.statut === "cloture" || row.statut === "archive"
-                        ? "bg-neutral-200 text-neutral-muted"
-                        : "bg-amber-100 text-amber-800"
-                  }`}
-                >
-                  {STATUT_LABELS[row.statut] ?? row.statut}
-                </span>
+                <StatusBadge
+                  label={STATUT_LABELS[row.statut] ?? row.statut}
+                  variant={statutVariant(row.statut)}
+                />
               </td>
-              <td className="py-3 px-4 text-neutral-muted">{formatDate(row.dateOuverture)}</td>
+              <td className="py-3 px-4 text-si-muted">{formatDate(row.dateOuverture)}</td>
               <td className="py-3 px-4 text-right">
                 <div className="flex items-center justify-end">
                   <DossierActionsMenu row={row} />

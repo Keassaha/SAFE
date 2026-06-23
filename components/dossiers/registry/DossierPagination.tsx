@@ -37,8 +37,8 @@ export function DossierPagination({
   if (totalCount <= pageSize) return null;
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-border bg-neutral-surface/30">
-      <p className="text-sm text-neutral-muted">
+    <div className="flex items-center justify-between px-4 py-3 border-t border-si-line bg-si-canvas/40">
+      <p className="text-sm text-si-muted">
         {totalCount === 0
           ? t("noMatterCount")
           : t("paginationRange", { start, end, total: totalCount, plural: totalCount > 1 ? "s" : "" })}
@@ -46,25 +46,25 @@ export function DossierPagination({
       <div className="flex items-center gap-2">
         <Link
           href={hasPrev ? buildUrl(currentPage - 1) : "#"}
-          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-safe-sm text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             hasPrev
-              ? "text-primary-700 hover:bg-primary-50"
-              : "text-neutral-400 pointer-events-none"
+              ? "text-si-forest hover:bg-si-canvas"
+              : "text-si-muted/50 pointer-events-none"
           }`}
           aria-disabled={!hasPrev}
         >
           <ChevronLeft className="w-4 h-4" />
           {tc("previous")}
         </Link>
-        <span className="text-sm text-neutral-muted">
+        <span className="text-sm text-si-muted">
           {t("page", { current: currentPage, total: totalPages })}
         </span>
         <Link
           href={hasNext ? buildUrl(currentPage + 1) : "#"}
-          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-safe-sm text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             hasNext
-              ? "text-primary-700 hover:bg-primary-50"
-              : "text-neutral-400 pointer-events-none"
+              ? "text-si-forest hover:bg-si-canvas"
+              : "text-si-muted/50 pointer-events-none"
           }`}
           aria-disabled={!hasNext}
         >

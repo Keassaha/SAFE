@@ -30,7 +30,8 @@ import type {
   DashboardReadyForReviewSignal,
 } from "@/lib/dashboard/types";
 import { routes } from "@/lib/routes";
-import { DashboardView } from "@/components/dashboard/DashboardView";
+import { DashboardView } from "@/components/dashboard/DashboardView"; // repli
+import { DashboardViewSafe } from "@/components/dashboard/DashboardViewSafe";
 import {
   whereInvoiceDraft,
   whereInvoiceIssuedActive,
@@ -932,7 +933,8 @@ export default async function TableauDeBordPage() {
   return (
     <div className="space-y-5">
       {glanceRows.length > 0 ? <LawyerGlance rows={glanceRows} /> : null}
-      <DashboardView payload={payload} />
+      {/* Design safe-interface. Repli : remplacer DashboardViewSafe par DashboardView. */}
+      <DashboardViewSafe payload={payload} />
     </div>
   );
 }

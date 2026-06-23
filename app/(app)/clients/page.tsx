@@ -5,10 +5,10 @@ import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { buildClientListWhere, getClientListOrderBy, CLIENT_LIST_PAGE_SIZE } from "@/lib/clients/query";
 import type { ClientSortField, ClientSortOrder } from "@/lib/clients/query";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Card, CardTitle } from "@/components/ds-safe/core";
 import { canCreateClients, canEditClients, canManageClients, canViewClients } from "@/lib/auth/permissions";
 import { ClientSummaryCards } from "@/components/clients/registry/ClientSummaryCards";
 import { ClientSearchBar } from "@/components/clients/registry/ClientSearchBar";
@@ -165,44 +165,40 @@ export default async function ClientsPage({
         unbilledAmount={unbilledAmount}
       />
 
-      <Card>
-        <CardHeader
-          title={t("clientList")}
-          action={
-            <div className="flex flex-wrap items-center gap-3">
-              <ClientSearchBar />
-              <ClientFilters />
-            </div>
-          }
-        />
-        <CardContent className="p-0">
-          {rows.length === 0 ? (
-            <EmptyState
-              title={t("noClients")}
-              description={t("createFirstClient")}
-              action={
-                canCreate ? (
-                  <ClientCreateModal lawyers={lawyers} canCreate={canCreate} buttonLabel={t("newClient")} />
-                ) : undefined
-              }
+      <Card className="overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>{t("clientList")}</CardTitle>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <ClientSearchBar />
+            <ClientFilters />
+          </div>
+        </div>
+        {rows.length === 0 ? (
+          <EmptyState
+            title={t("noClients")}
+            description={t("createFirstClient")}
+            action={
+              canCreate ? (
+                <ClientCreateModal lawyers={lawyers} canCreate={canCreate} buttonLabel={t("newClient")} />
+              ) : undefined
+            }
+          />
+        ) : (
+          <>
+            <ClientTable
+              clients={rows}
+              canEdit={canEdit}
+              canArchive={canArchive}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
             />
-          ) : (
-            <>
-              <ClientTable
-                clients={rows}
-                canEdit={canEdit}
-                canArchive={canArchive}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-              />
-              <ClientPagination
-                totalCount={totalCount}
-                currentPage={page}
-                pageSize={CLIENT_LIST_PAGE_SIZE}
-              />
-            </>
-          )}
-        </CardContent>
+            <ClientPagination
+              totalCount={totalCount}
+              currentPage={page}
+              pageSize={CLIENT_LIST_PAGE_SIZE}
+            />
+          </>
+        )}
       </Card>
     </div>
   );

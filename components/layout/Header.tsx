@@ -26,12 +26,12 @@ import {
   Building2,
   LifeBuoy,
   GitBranch,
+  Flame,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import { GlobalTimer } from "@/components/temps/GlobalTimer";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
-import { LogoMark } from "@/components/brand/Logo";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface HeaderProps {
@@ -198,6 +198,12 @@ const CONSULTANT_NAV: NavGroup[] = [
     icon: LayoutDashboard,
   },
   {
+    id: "console-safe-lead",
+    label: "SAFE Lead",
+    href: "/console/safe-lead",
+    icon: Flame,
+  },
+  {
     id: "console-clients",
     label: "Clients",
     href: "/console/clients",
@@ -338,8 +344,8 @@ export function Header({
 
   return (
     <header
-      className="shrink-0 flex items-center justify-between px-4 md:px-6 gap-4 h-16 border-b-[0.5px] bg-surface/95 backdrop-blur-sm z-30 relative"
-      style={{ borderBottomColor: "var(--sand-400)" }}
+      className="shrink-0 flex items-center justify-between px-4 md:px-6 gap-4 h-16 border-b-[0.5px] bg-si-surface/95 backdrop-blur-sm z-30 relative"
+      style={{ borderBottomColor: "var(--si-line)" }}
     >
       {/* ── LEFT: Mobile menu + Logo + Cabinet ───────────────── */}
       <div className="flex items-center gap-4 min-w-0">
@@ -347,7 +353,7 @@ export function Header({
           <button
             type="button"
             onClick={onOpenMobileNav}
-            className="shrink-0 lg:hidden p-1.5 -ml-1.5 rounded-md hover:bg-[var(--sand-50)] transition-colors"
+            className="shrink-0 lg:hidden p-1.5 -ml-1.5 rounded-md hover:bg-[var(--si-canvas)] transition-colors"
             aria-label={t("openMenu")}
           >
             <Menu className="w-5 h-5 text-text-body" strokeWidth={1.75} />
@@ -356,15 +362,24 @@ export function Header({
 
         <Link
           href={routes.tableauDeBord}
-          className="flex items-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600/40"
+          className="flex items-center gap-2.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
           aria-label={tMisc("logoHomeAria")}
         >
-          <LogoMark size={26} />
+          <span
+            aria-hidden
+            className="flex items-center justify-center rounded-[7px] bg-si-forest text-si-surface font-serif leading-none"
+            style={{ width: 28, height: 28, fontSize: 17 }}
+          >
+            S
+          </span>
+          <span className="hidden sm:block font-serif text-[17px] tracking-[-0.02em] text-si-ink">
+            Safe
+          </span>
         </Link>
 
         <span
           className="hidden xl:block w-px h-6"
-          style={{ background: "var(--sand-400)" }}
+          style={{ background: "var(--si-line)" }}
         />
 
         <span className="hidden xl:block text-[13px] font-sans font-medium text-text-body truncate max-w-[200px]">
@@ -390,8 +405,8 @@ export function Header({
                 href={group.href}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[13px] font-sans font-medium transition-colors ${
                   active
-                    ? "bg-[var(--sand-50)] text-text-primary"
-                    : "text-text-muted hover:text-text-primary hover:bg-[var(--sand-50)]/60"
+                    ? "bg-[var(--si-canvas)] text-text-primary"
+                    : "text-text-muted hover:text-text-primary hover:bg-si-canvas/60"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
@@ -411,8 +426,8 @@ export function Header({
                 onMouseEnter={() => setOpenGroupId(group.id)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[13px] font-sans font-medium transition-colors ${
                   active || isOpen
-                    ? "bg-[var(--sand-50)] text-text-primary"
-                    : "text-text-muted hover:text-text-primary hover:bg-[var(--sand-50)]/60"
+                    ? "bg-[var(--si-canvas)] text-text-primary"
+                    : "text-text-muted hover:text-text-primary hover:bg-si-canvas/60"
                 }`}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
@@ -425,7 +440,7 @@ export function Header({
                   className="flex items-center"
                 >
                   <ChevronDown
-                    className="w-3.5 h-3.5 text-text-subtle"
+                    className="w-3.5 h-3.5 text-si-muted"
                     strokeWidth={1.75}
                   />
                 </motion.span>
@@ -444,10 +459,10 @@ export function Header({
                   >
                     <span
                       aria-hidden
-                      className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-forest-600 to-transparent"
+                      className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-si-forest to-transparent"
                     />
                     <div className="px-4 pt-4 pb-2">
-                      <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium">
+                      <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-si-forest font-medium">
                         {navLabel(group)}
                       </span>
                     </div>
@@ -465,16 +480,16 @@ export function Header({
                               role="menuitem"
                               className={`group flex items-start gap-3 px-4 py-2.5 transition-colors ${
                                 childActive
-                                  ? "bg-forest-600/5"
-                                  : "hover:bg-[var(--sand-50)]"
+                                  ? "bg-si-forest/5"
+                                  : "hover:bg-[var(--si-canvas)]"
                               }`}
                               onClick={() => setOpenGroupId(null)}
                             >
                               <span
                                 className={`shrink-0 mt-0.5 w-7 h-7 rounded-[7px] flex items-center justify-center border border-[0.5px] transition-colors ${
                                   childActive
-                                    ? "bg-forest-600 border-forest-600 text-white"
-                                    : "bg-[var(--sand-50)] border-border text-forest-600 group-hover:bg-forest-600/10 group-hover:border-forest-600/30"
+                                    ? "bg-si-forest border-si-forest text-white"
+                                    : "bg-[var(--si-canvas)] border-border text-si-forest group-hover:bg-si-forest/10 group-hover:border-si-forest/30"
                                 }`}
                               >
                                 <ChildIcon
@@ -486,7 +501,7 @@ export function Header({
                                 <span
                                   className={`block text-[13px] font-sans font-medium leading-tight ${
                                     childActive
-                                      ? "text-forest-600"
+                                      ? "text-si-forest"
                                       : "text-text-primary"
                                   }`}
                                 >
@@ -516,7 +531,7 @@ export function Header({
       <div className="flex items-center gap-2 lg:gap-3 shrink-0">
         <div className="relative hidden md:block w-44 lg:w-56">
           <Search
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-text-subtle"
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-si-muted"
             strokeWidth={1.75}
           />
           <input
@@ -524,9 +539,9 @@ export function Header({
             type="search"
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
-            className="w-full h-[32px] pl-8 pr-10 rounded-[7px] bg-[var(--sand-50)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-forest-600/40 focus:bg-surface transition-all placeholder:text-text-subtle"
+            className="w-full h-[32px] pl-8 pr-10 rounded-[7px] bg-[var(--si-canvas)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-si-forest/40 focus:bg-surface transition-all placeholder:text-si-muted"
           />
-          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 px-1 bg-surface border border-[0.5px] border-border text-text-subtle text-[9px] font-mono rounded pointer-events-none uppercase">
+          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 px-1 bg-surface border border-[0.5px] border-border text-si-muted text-[9px] font-mono rounded pointer-events-none uppercase">
             ⌘K
           </kbd>
         </div>
@@ -549,7 +564,7 @@ export function Header({
           <button
             type="button"
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="w-[32px] h-[32px] rounded-full bg-forest-600 flex items-center justify-center text-white text-[12px] font-semibold hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600/40"
+            className="w-[32px] h-[32px] rounded-full bg-si-forest flex items-center justify-center text-white text-[12px] font-semibold hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
             aria-label={displayName}
             aria-haspopup="menu"
             aria-expanded={userMenuOpen}
@@ -567,8 +582,8 @@ export function Header({
                 role="menu"
                 className="absolute right-0 mt-2 w-64 bg-surface border border-[0.5px] border-border rounded-[10px] shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)] overflow-hidden z-50"
               >
-                <div className="px-4 py-3 border-b border-[0.5px] border-border/70 bg-[var(--sand-50)]/60">
-                  <p className="text-[11px] font-sans uppercase tracking-[0.12em] text-forest-600 font-medium">
+                <div className="px-4 py-3 border-b border-[0.5px] border-border/70 bg-si-canvas/60">
+                  <p className="text-[11px] font-sans uppercase tracking-[0.12em] text-si-forest font-medium">
                     {tMisc("account")}
                   </p>
                   <p className="font-serif text-[15px] text-text-primary mt-1 truncate">
@@ -586,7 +601,7 @@ export function Header({
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--sand-50)] hover:text-text-primary transition-colors"
+                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--si-canvas)] hover:text-text-primary transition-colors"
                   >
                     <Settings className="w-4 h-4" strokeWidth={1.75} />
                     {t("settings")}
@@ -595,7 +610,7 @@ export function Header({
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--sand-50)] hover:text-text-primary transition-colors"
+                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--si-canvas)] hover:text-text-primary transition-colors"
                   >
                     <UserIcon className="w-4 h-4" strokeWidth={1.75} />
                     {tMisc("myProfile")}

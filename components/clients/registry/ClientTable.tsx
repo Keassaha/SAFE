@@ -75,7 +75,7 @@ function SortHeader({
   return (
     <Link
       href={getSortUrl(field, isActive ? nextOrder : "asc")}
-      className="inline-flex items-center gap-1 text-xs font-medium text-neutral-muted uppercase tracking-wider hover:text-primary-700"
+      className="inline-flex items-center gap-1 text-xs font-medium text-si-muted uppercase tracking-wider hover:text-si-forest"
     >
       {label}
       <Icon className="w-3.5 h-3.5" />
@@ -135,7 +135,7 @@ export function ClientTable({
 
   if (clients.length === 0) {
     return (
-      <p className="px-6 py-8 text-center text-sm text-neutral-muted">
+      <p className="px-6 py-8 text-center text-sm text-si-muted">
         {t("noMatchCriteria")}
       </p>
     );
@@ -144,8 +144,8 @@ export function ClientTable({
   return (
     <>
       {canArchive && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2 bg-primary-50 border-b border-primary-100">
-          <span className="text-sm font-medium text-primary-800">
+        <div className="flex items-center gap-3 px-4 py-2 bg-si-canvas border-b border-si-line">
+          <span className="text-sm font-medium text-si-ink">
             {t("selectedCount", { count: selectedIds.size })}
           </span>
           <Button
@@ -160,7 +160,7 @@ export function ClientTable({
           <button
             type="button"
             onClick={() => setSelectedIds(new Set())}
-            className="text-sm text-neutral-muted hover:text-primary-700"
+            className="text-sm text-si-muted hover:text-si-forest"
           >
             {tc("cancel")}
           </button>
@@ -173,18 +173,18 @@ export function ClientTable({
           <Link
             key={row.id}
             href={routes.client(row.id)}
-            className="block rounded-safe-sm border border-neutral-border bg-white p-3 active:bg-primary-50/40 transition-colors"
+            className="block rounded-xl border border-si-line bg-si-surface p-3 active:bg-si-canvas transition-colors"
           >
             <div className="flex items-center gap-3 mb-2">
-              <span className="flex-shrink-0 w-9 h-9 rounded-full bg-neutral-200 border-2 border-neutral-300 flex items-center justify-center text-sm font-medium text-neutral-700">
+              <span className="flex-shrink-0 w-9 h-9 rounded-full bg-si-canvas border border-si-line flex items-center justify-center text-sm font-medium text-si-forest">
                 {initials(row)}
               </span>
               <div className="min-w-0 flex-1">
-                <span className="text-sm font-medium text-neutral-text-primary block truncate">
+                <span className="text-sm font-medium text-si-ink block truncate">
                   {displayName(row)}
                 </span>
                 {(row.email || row.telephone) && (
-                  <span className="text-xs text-neutral-muted block truncate">
+                  <span className="text-xs text-si-muted block truncate">
                     {row.email ?? row.telephone}
                   </span>
                 )}
@@ -206,9 +206,9 @@ export function ClientTable({
                 }
               />
             </div>
-            <div className="flex items-center gap-4 text-xs text-neutral-muted">
+            <div className="flex items-center gap-4 text-xs text-si-muted">
               <span>{row.dossiersActifsCount} {t("activeMatters").toLowerCase()}</span>
-              <span className="font-medium text-neutral-text-primary tabular-nums">
+              <span className="font-mono font-medium text-si-ink tabular-nums">
                 {formatCurrency(row.honorairesAccumules, "CAD", locale)}
               </span>
               {row.lastActivityAt && (
@@ -228,14 +228,14 @@ export function ClientTable({
       <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full">
           <thead>
-            <tr className="border-b border-neutral-border bg-neutral-surface/50">
+            <tr className="border-b border-si-line bg-si-canvas/60">
               {canArchive && (
                 <th className="px-4 py-3 w-10">
                   <input
                     type="checkbox"
                     checked={selectedIds.size === clients.length && clients.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                    className="rounded border-si-line text-si-forest focus:ring-si-forest"
                     aria-label={t("selectAll")}
                   />
                 </th>
@@ -249,7 +249,7 @@ export function ClientTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
                 {t("contactInfo")}
               </th>
               <th className="px-4 py-3 text-left">
@@ -261,13 +261,13 @@ export function ClientTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
                 {t("language")}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
                 {t("activeMatters")}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
                 {t("accumulatedFees")}
               </th>
               <th className="px-4 py-3 text-left">
@@ -288,7 +288,7 @@ export function ClientTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-neutral-muted uppercase tracking-wider w-16">
+              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider w-16">
                 {tc("actions")}
               </th>
             </tr>
@@ -297,7 +297,7 @@ export function ClientTable({
             {clients.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-neutral-border/80 transition-colors duration-200 hover:bg-primary-50/40"
+                className="border-b border-si-line transition-colors duration-200 hover:bg-si-canvas"
               >
                 {canArchive && (
                   <td className="px-4 py-3">
@@ -305,7 +305,7 @@ export function ClientTable({
                       type="checkbox"
                       checked={selectedIds.has(row.id)}
                       onChange={() => toggleSelect(row.id)}
-                      className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                      className="rounded border-si-line text-si-forest focus:ring-si-forest"
                       aria-label={t("selectClient", { name: row.raisonSociale ?? "" })}
                     />
                   </td>
@@ -315,43 +315,43 @@ export function ClientTable({
                     href={routes.client(row.id)}
                     className="flex items-center gap-3 group"
                   >
-                    <span className="flex-shrink-0 w-9 h-9 rounded-full bg-neutral-200 border-2 border-neutral-300 flex items-center justify-center text-sm font-medium text-neutral-700">
+                    <span className="flex-shrink-0 w-9 h-9 rounded-full bg-si-canvas border border-si-line flex items-center justify-center text-sm font-medium text-si-forest">
                       {initials(row)}
                     </span>
-                    <span className="text-sm font-medium text-neutral-text-primary group-hover:text-primary-700">
+                    <span className="text-sm font-medium text-si-ink group-hover:text-si-forest">
                       {displayName(row)}
                     </span>
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   <div className="flex flex-col">
                     {row.email && (
                       <a
                         href={`mailto:${row.email}`}
-                        className="text-primary-700 hover:underline"
+                        className="text-si-forest hover:underline"
                       >
                         {row.email}
                       </a>
                     )}
                     {row.telephone && (
-                      <span className="text-neutral-muted">{row.telephone}</span>
+                      <span className="text-si-muted">{row.telephone}</span>
                     )}
                     {!row.email && !row.telephone && "—"}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {row.assignedLawyerNom ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {row.langue ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-text-secondary">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {row.dossiersActifsCount === 0
                     ? t("noCases")
                     : row.dossiersActifsCount}
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className="text-neutral-text-primary font-medium tabular-nums">
+                  <span className="font-mono text-si-ink font-medium tabular-nums">
                     {formatCurrency(row.honorairesAccumules, "CAD", locale)}
                   </span>
                 </td>
@@ -373,7 +373,7 @@ export function ClientTable({
                     }
                   />
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-muted">
+                <td className="px-4 py-3 text-sm text-si-muted">
                   {row.lastActivityAt
                     ? new Intl.DateTimeFormat(intlLocale, {
                         day: "numeric",
@@ -417,7 +417,7 @@ function ClientRowActions({
     <div className="flex items-center justify-end gap-1">
       <Link
         href={routes.client(clientId)}
-        className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
+        className="inline-flex p-2 rounded-lg text-si-muted hover:bg-si-canvas hover:text-si-forest transition-colors"
         title={tc("view")}
       >
         <Eye className="w-4 h-4" />
@@ -425,7 +425,7 @@ function ClientRowActions({
       {canEdit ? (
         <Link
           href={`${routes.client(clientId)}?edit=1`}
-          className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          className="inline-flex p-2 rounded-lg text-si-muted hover:bg-si-canvas hover:text-si-forest transition-colors"
           title={tc("edit")}
         >
           <Pencil className="w-4 h-4" />
@@ -436,17 +436,17 @@ function ClientRowActions({
       {hasCases ? (
         <Link
           href={routes.dossiers + `?clientId=${clientId}`}
-          className="inline-flex p-2 rounded-safe-sm text-green-600 hover:bg-primary-50 hover:text-green-700 transition-colors relative items-center justify-center"
+          className="inline-flex p-2 rounded-lg text-si-verified hover:bg-si-canvas hover:text-si-verified transition-colors relative items-center justify-center"
           title={t("openMatters")}
         >
           <FolderOpen className="w-4 h-4" />
           <span className="absolute inset-0 flex items-center justify-center pointer-events-none mt-0.5" aria-hidden>
-            <Check className="w-2.5 h-2.5 text-green-600" strokeWidth={3} />
+            <Check className="w-2.5 h-2.5 text-si-verified" strokeWidth={3} />
           </span>
         </Link>
       ) : (
         <span
-          className="inline-flex p-2 rounded-safe-sm text-red-500/80"
+          className="inline-flex p-2 rounded-lg text-si-amber/80"
           title={t("noOpenMatters")}
           aria-hidden
         >
@@ -457,7 +457,7 @@ function ClientRowActions({
         <form action={archiveClient.bind(null, clientId)} className="inline">
           <button
             type="submit"
-            className="inline-flex p-2 rounded-safe-sm text-neutral-muted hover:bg-status-warning-bg hover:text-status-warning transition-colors"
+            className="inline-flex p-2 rounded-lg text-si-muted hover:bg-si-amber/10 hover:text-si-amber transition-colors"
             title={t("archive")}
           >
             <Archive className="w-4 h-4" />

@@ -215,12 +215,12 @@ export function ClientCreationWizard({
               key={s.id}
               type="button"
               onClick={() => goToStep(s.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-safe-sm text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
-                  ? "bg-primary-100 text-primary-800"
+                  ? "bg-si-forest/10 text-si-forest"
                   : isPast
-                    ? "bg-primary-50 text-primary-700"
-                    : "bg-neutral-100 text-neutral-muted"
+                    ? "bg-si-canvas text-si-ink"
+                    : "bg-si-canvas/60 text-si-muted"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -233,23 +233,23 @@ export function ClientCreationWizard({
       <div className="min-h-[320px]">
         <div className={step !== 1 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("clientIdentification")}
             </h3>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("clientTypeLabel")}
               </label>
               <select
                 name="typeClient"
                 value={typeClient}
                 onChange={(e) => setTypeClient(e.target.value as "personne_morale" | "personne_physique")}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="personne_morale">{t("company")}</option>
                 <option value="personne_physique">{t("individual")}</option>
               </select>
-              <p className="mt-1 text-xs text-neutral-muted">
+              <p className="mt-1 text-xs text-si-muted">
                 {isMorale ? t("companyHint") : t("individualHint")}
               </p>
             </div>
@@ -307,7 +307,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 2 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("stepContact")}
             </h3>
             <Input
@@ -345,12 +345,12 @@ export function ClientCreationWizard({
               <Input label={t("country")} name="country" defaultValue={initialData?.country ?? "Canada"} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("preferredContact")}
               </label>
               <select
                 name="preferredContactMethod"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="email">{t("contactEmail")}</option>
@@ -359,12 +359,12 @@ export function ClientCreationWizard({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("languageLabel")}
               </label>
               <select
                 name="langue"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="FR">{tc("french")}</option>
@@ -376,18 +376,18 @@ export function ClientCreationWizard({
 
         <div className={step !== 3 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("legalRepresentation")}
             </h3>
             {lawyers.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                <label className="block text-sm font-medium text-si-muted mb-1">
                   {t("assignedLawyerLabel")}
                 </label>
                 <select
                   name="assignedLawyerId"
                   defaultValue={initialData?.assignedLawyerId ?? ""}
-                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   <option value="">{t("noLawyer")}</option>
                   {lawyers.map((l) => (
@@ -399,13 +399,13 @@ export function ClientCreationWizard({
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("representationType")}
               </label>
               <select
                 name="representationType"
                 defaultValue={initialData?.representationType ?? ""}
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="plaintiff">{t("plaintiff")}</option>
@@ -419,9 +419,9 @@ export function ClientCreationWizard({
                 name="retainerSigned"
                 id="retainerSigned"
                 value="on"
-                className="rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                className="rounded border-si-line text-si-forest focus:ring-si-verified"
               />
-              <label htmlFor="retainerSigned" className="text-sm text-neutral-text-secondary">
+              <label htmlFor="retainerSigned" className="text-sm text-si-muted">
                 {t("retainerSigned")}
               </label>
             </div>
@@ -435,7 +435,7 @@ export function ClientCreationWizard({
 
         <div className={step !== 4 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("billingTitle")}
             </h3>
             <Input
@@ -460,12 +460,12 @@ export function ClientCreationWizard({
               placeholder={t("paymentTermsPlaceholder")}
             />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("preferredPayment")}
               </label>
               <select
                 name="preferredPaymentMethod"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="card">{t("paymentCard")}</option>
@@ -479,34 +479,34 @@ export function ClientCreationWizard({
 
         <div className={step !== 5 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("complianceTitle")}
             </h3>
-            <p className="text-sm text-neutral-muted">{t("conflictCheckIntro")}</p>
+            <p className="text-sm text-si-muted">{t("conflictCheckIntro")}</p>
             <ConflictCheckBanner
               t={t}
               loading={conflictLoading}
               result={conflictResult}
             />
             {conflictResult?.status === "high_risk" && (
-              <label className="flex items-start gap-2 rounded-safe border border-status-error/40 bg-status-error/5 p-3 text-sm text-neutral-text-primary">
+              <label className="flex items-start gap-2 rounded-xl border border-status-error/40 bg-status-error/5 p-3 text-sm text-si-ink">
                 <input
                   type="checkbox"
                   checked={conflictAcknowledged}
                   onChange={(e) => setConflictAcknowledged(e.target.checked)}
-                  className="mt-0.5 rounded border-neutral-border text-primary-600 focus:ring-primary-500"
+                  className="mt-0.5 rounded border-si-line text-si-forest focus:ring-si-verified"
                 />
                 <span>{t("conflictAcknowledge")}</span>
               </label>
             )}
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("conflictNotes")}
               </label>
               <textarea
                 name="conflictNotes"
                 rows={3}
-                className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30"
+                className="w-full px-3 py-2 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 placeholder={t("conflictNotesPlaceholder")}
               />
             </div>
@@ -515,17 +515,17 @@ export function ClientCreationWizard({
 
         <div className={step !== 6 ? "hidden" : ""}>
           <div className="space-y-4 max-w-xl">
-            <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">
+            <h3 className="text-lg font-serif text-si-ink tracking-tight">
               {t("summaryTitle")}
             </h3>
-            <p className="text-sm text-neutral-muted">
+            <p className="text-sm text-si-muted">
               {t("summaryDescription")}
             </p>
-            <div className="rounded-safe border border-neutral-border bg-neutral-surface/50 p-4 space-y-2">
+            <div className="rounded-xl border border-si-line bg-si-canvas/60 p-4 space-y-2">
               {getSummary().map(({ label, value }) => (
                 <div key={label} className="flex gap-2 text-sm">
-                  <span className="font-medium text-neutral-muted w-40 shrink-0">{label}</span>
-                  <span className="text-neutral-text-primary">{value || "—"}</span>
+                  <span className="font-medium text-si-muted w-40 shrink-0">{label}</span>
+                  <span className="text-si-ink">{value || "—"}</span>
                 </div>
               ))}
             </div>
@@ -569,7 +569,7 @@ export function ClientCreationWizard({
         <p className="text-sm text-status-error">{error}</p>
       )}
 
-      <div className="flex items-center justify-between pt-4 border-t border-neutral-border">
+      <div className="flex items-center justify-between pt-4 border-t border-si-line">
         <div>
           {step > 1 && (
             <Button
@@ -630,7 +630,7 @@ function ConflictCheckBanner({
 }) {
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-safe-sm border border-neutral-border bg-neutral-50 px-3 py-2 text-sm text-neutral-muted">
+      <div className="flex items-center gap-2 rounded-lg border border-si-line bg-si-canvas px-3 py-2 text-sm text-si-muted">
         <Loader2 className="w-4 h-4 animate-spin" />
         {t("conflictCheckLoading")}
       </div>
@@ -639,7 +639,7 @@ function ConflictCheckBanner({
   if (!result) {
     if (compact) return null;
     return (
-      <div className="rounded-safe-sm border border-dashed border-neutral-border bg-neutral-50 px-3 py-2 text-sm text-neutral-muted">
+      <div className="rounded-lg border border-dashed border-si-line bg-si-canvas px-3 py-2 text-sm text-si-muted">
         {t("conflictCheckIdle")}
       </div>
     );
@@ -647,7 +647,7 @@ function ConflictCheckBanner({
 
   if (result.status === "error") {
     return (
-      <div className="flex items-start gap-2 rounded-safe-sm border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-sm text-neutral-text-primary">
+      <div className="flex items-start gap-2 rounded-lg border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-sm text-si-ink">
         <AlertTriangle className="w-4 h-4 mt-0.5 text-status-warning" />
         <span>{t("conflictCheckError")}</span>
       </div>
@@ -656,11 +656,11 @@ function ConflictCheckBanner({
 
   if (result.status === "clear") {
     return (
-      <div className="flex items-start gap-2 rounded-safe-sm border border-status-success/40 bg-status-success/10 px-3 py-2 text-sm text-neutral-text-primary">
+      <div className="flex items-start gap-2 rounded-lg border border-status-success/40 bg-status-success/10 px-3 py-2 text-sm text-si-ink">
         <CheckCircle2 className="w-4 h-4 mt-0.5 text-status-success" />
         <div>
           <div className="font-medium">{t("conflictStatus_clear")}</div>
-          <div className="text-xs text-neutral-muted">
+          <div className="text-xs text-si-muted">
             {t("conflictCheckMeta", { query: result.query, time: formatTime(result.checkedAt) })}
           </div>
         </div>
@@ -675,12 +675,12 @@ function ConflictCheckBanner({
   const iconCls = isHigh ? "text-status-error" : "text-status-warning";
 
   return (
-    <div className={`rounded-safe-sm border ${containerCls} p-3 text-sm text-neutral-text-primary`}>
+    <div className={`rounded-lg border ${containerCls} p-3 text-sm text-si-ink`}>
       <div className="flex items-start gap-2">
         <AlertTriangle className={`w-4 h-4 mt-0.5 ${iconCls}`} />
         <div className="flex-1 space-y-1">
           <div className="font-semibold">{t(`conflictStatus_${result.status}`)}</div>
-          <div className="text-xs text-neutral-muted">
+          <div className="text-xs text-si-muted">
             {t("conflictCheckMeta", { query: result.query, time: formatTime(result.checkedAt) })}
           </div>
         </div>
@@ -690,14 +690,14 @@ function ConflictCheckBanner({
           {result.matches.slice(0, 8).map((m, idx) => (
             <li
               key={`${m.kind}-${m.id}-${idx}`}
-              className="rounded-safe-sm bg-white/70 border border-neutral-border px-3 py-2"
+              className="rounded-lg bg-si-surface/70 border border-si-line px-3 py-2"
             >
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-neutral-muted">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-si-muted">
                 <span>{t(`conflictKind_${m.kind}`)}</span>
                 <span>·</span>
                 <span>{t(`conflictRisk_${m.risk}`)}</span>
               </div>
-              <div className="mt-1 text-sm font-medium text-neutral-text-primary">
+              <div className="mt-1 text-sm font-medium text-si-ink">
                 {m.href ? (
                   <Link href={m.href} target="_blank" className="hover:underline">
                     {m.label}
@@ -706,7 +706,7 @@ function ConflictCheckBanner({
                   m.label
                 )}
               </div>
-              <div className="text-xs text-neutral-muted">{t(`conflictReason_${m.reason}`)}</div>
+              <div className="text-xs text-si-muted">{t(`conflictReason_${m.reason}`)}</div>
             </li>
           ))}
         </ul>

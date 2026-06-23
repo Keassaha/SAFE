@@ -31,35 +31,31 @@ export function ClientSummaryCards({
       title: t("totalClients"),
       value: totalClients.toLocaleString(intlLocale),
       icon: Users,
-      sub: null,
+      sub: null as string | null,
+      subTone: "muted" as const,
     },
     {
       title: t("activeClients"),
       value: activeClients.toLocaleString(intlLocale),
       icon: UserCheck,
       sub: `${activePercent}% ${t("ofTotal")}`,
-      subClassName: "text-status-success",
+      subTone: "verified" as const,
     },
     {
       title: t("activeMatters"),
       value: activeCasesCount.toLocaleString(intlLocale),
       icon: FolderOpen,
       sub: t("distributedOver", { count: activeCasesCount }),
+      subTone: "muted" as const,
     },
     {
       title: t("unbilledAmount"),
       value: formatCurrency(unbilledAmount, "CAD", locale),
       icon: DollarSign,
-      sub: null,
+      sub: null as string | null,
+      subTone: "muted" as const,
     },
   ];
-
-  const iconColors = [
-    "bg-green-100 text-[var(--safe-icon-default)]",
-    "bg-status-success-bg text-status-success",
-    "bg-green-100 text-green-700",
-    "bg-green-50 text-[var(--safe-icon-accent)]",
-  ] as const;
 
   const { reduceMotion } = useSafeMotion();
   const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
@@ -72,28 +68,28 @@ export function ClientSummaryCards({
       initial="hidden"
       animate="visible"
     >
-      {cards.map(({ title, value, icon: Icon, sub, subClassName }, i) => (
+      {cards.map(({ title, value, icon: Icon, sub, subTone }) => (
         <motion.div
           key={title}
           variants={itemVariants}
-          className="card-glass rounded-safe-lg p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
+          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-si-card hover:-translate-y-0.5"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
                 {title}
               </p>
-              <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
+              <p className="mt-2 font-mono text-[26px] leading-none text-si-ink tabular-nums">
                 {value}
               </p>
               {sub && (
-                <p className={`mt-1 text-sm ${subClassName ?? "safe-text-secondary"}`}>{sub}</p>
+                <p className={`mt-2 text-[12px] ${subTone === "verified" ? "text-si-verified" : "text-si-muted"}`}>
+                  {sub}
+                </p>
               )}
             </div>
-            <div
-              className={`w-11 h-11 shrink-0 rounded-safe flex items-center justify-center ${iconColors[i % iconColors.length]}`}
-            >
-              <Icon className="w-5 h-5" aria-hidden />
+            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-forest/[0.06] text-si-forest">
+              <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden />
             </div>
           </div>
         </motion.div>
