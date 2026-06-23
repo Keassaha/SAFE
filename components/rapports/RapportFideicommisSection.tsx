@@ -16,7 +16,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
       title: t("depositsPeriod"),
       value: formatCurrency(data.depots),
       icon: ArrowDownCircle,
-      className: "border-l-emerald-500",
+      className: "border-l-si-verified",
     },
     {
       title: t("withdrawalsPeriod"),

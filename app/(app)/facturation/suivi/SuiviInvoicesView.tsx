@@ -63,7 +63,7 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                 <td className="py-2 px-3 font-medium">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="text-si-forest hover:text-si-forest inline-flex items-center gap-1"
+                    className="text-si-forest hover:underline inline-flex items-center gap-1"
                   >
                     <FileText className="h-4 w-4 shrink-0" aria-hidden />
                     {displayInvoiceNumero(inv.numero)}
@@ -109,7 +109,7 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <Link
                       href={routes.facturationFactureEdit(inv.id)}
-                      className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:text-si-forest"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:underline"
                     >
                       <Link2 className="h-4 w-4" aria-hidden />
                       {t("sendToClient")}
@@ -117,7 +117,7 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                     {inv.balanceDue > 0 && (
                       <Link
                         href={`${routes.facturationPaiements}?invoiceId=${encodeURIComponent(inv.id)}`}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:text-si-forest"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:underline"
                       >
                         <DollarSign className="h-4 w-4" aria-hidden />
                         {t("addPayment")}

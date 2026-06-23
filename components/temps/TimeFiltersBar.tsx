@@ -68,7 +68,7 @@ export function TimeFiltersBar({
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
                 filters.dateFrom === p.from && filters.dateTo === p.to
                   ? "bg-si-forest text-white"
-                  : "bg-si-canvas text-si-ink hover:bg-si-canvas"
+                  : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
               }`}
             >
               {p.label}
@@ -101,7 +101,7 @@ export function TimeFiltersBar({
             type="button"
             onClick={() => onShowAllEntriesChange(true)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-              showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-canvas"
+              showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
             }`}
           >
             {t("allEntries")}
@@ -111,7 +111,7 @@ export function TimeFiltersBar({
               type="button"
               onClick={() => onShowAllEntriesChange(false)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                !showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-canvas"
+                !showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
               }`}
             >
               {t("myEntries")}
@@ -120,7 +120,7 @@ export function TimeFiltersBar({
           <button
             type="button"
             onClick={() => onViewModeChange(viewMode === "list" ? "week" : "list")}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-si-canvas text-si-ink hover:bg-si-canvas"
+            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-si-canvas text-si-ink hover:bg-si-muted/15"
           >
             {viewMode === "list" ? t("weekView") : t("listView")}
           </button>

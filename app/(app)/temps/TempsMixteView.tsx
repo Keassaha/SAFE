@@ -153,7 +153,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                             className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                               item.type === "forfait"
                                 ? "bg-si-amber/[0.13] text-si-amber-ink"
-                                : "bg-sky-100 text-sky-800"
+                                : "bg-si-forest/[0.06] text-si-forest"
                             }`}
                           >
                             {item.type === "forfait" ? (

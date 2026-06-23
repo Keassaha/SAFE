@@ -26,7 +26,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
             {formatCurrency(data.tpsCollectee)}
           </p>
         </div>
-        <div className="bg-si-surface border border-si-line overflow-hidden p-5 border-l-4 border-l-violet-500">
+        <div className="bg-si-surface border border-si-line overflow-hidden p-5 border-l-4 border-l-si-forest">
           <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-1">
             {t("tvqCollected")}
           </p>
@@ -34,7 +34,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
             {formatCurrency(data.tvqCollectee)}
           </p>
         </div>
-        <div className="bg-si-surface border border-si-line overflow-hidden p-5 border-l-4 border-l-emerald-500">
+        <div className="bg-si-surface border border-si-line overflow-hidden p-5 border-l-4 border-l-si-verified">
           <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-1">
             {t("totalTaxes")}
           </p>

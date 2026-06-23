@@ -126,7 +126,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
       { title: tg("events"), value: calendarEvents.length, icon: CalendarDays, accent: "text-si-ink" },
       { title: tm("inProgress"), value: actesEnCours, icon: Clock, accent: "text-si-amber-ink" },
       { title: tm("urgentOverdue"), value: actesUrgents, icon: AlertTriangle, accent: actesUrgents > 0 ? "text-[#B84A3E]" : "text-si-muted/50" },
-      { title: tg("completed"), value: actesTermines, icon: CheckCircle2, accent: "text-emerald-600" },
+      { title: tg("completed"), value: actesTermines, icon: CheckCircle2, accent: "text-si-verified" },
     ];
 
     const dossierItems = dossiers.map((d) => {

@@ -133,7 +133,7 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
             <span>{t("columnSection")}</span>
             <span>{t("columnStatus")}</span>
           </div>
-          <div className="divide-y divide-[var(--safe-neutral-border)]">
+          <div className="divide-y divide-si-line">
             {entries.map((entry) => (
               <div key={entry.id} className="grid grid-cols-[minmax(0,1fr)_8rem_7rem] gap-3 px-3 py-3 text-sm">
                 <div className="min-w-0">

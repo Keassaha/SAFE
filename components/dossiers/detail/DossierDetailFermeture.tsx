@@ -16,7 +16,7 @@ export function DossierDetailFermeture({
   const t = useTranslations("matterDetailUi");
   const isFerme = statutDossier === "cloture" || statutDossier === "FERMÉ";
   return (
-    <div className="rounded-lg border border-si-line bg-[var(--safe-neutral-bg)] p-6">
+    <div className="rounded-lg border border-si-line bg-si-surface p-6">
       <p className="text-sm text-si-muted">
         {t("closureTitle", { id: dossierId })}
       </p>

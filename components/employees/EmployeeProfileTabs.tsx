@@ -49,7 +49,7 @@ export function EmployeeProfileTabs({
             className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
               isActive
                 ? "text-si-forest"
-                : "text-si-muted hover:text-si-muted"
+                : "text-si-muted hover:text-si-ink"
             }`}
           >
             {isActive && (

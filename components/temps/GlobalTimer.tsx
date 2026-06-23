@@ -82,7 +82,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 <button
                   type="button"
                   onClick={timer.triggerOpenSaveModal}
-                  className="p-1.5 rounded-lg bg-si-forest text-white hover:bg-si-forest"
+                  className="p-1.5 rounded-lg bg-si-forest text-white hover:bg-si-forest-soft"
                   title={t("saveTime")}
                   aria-label={t("save")}
                 >

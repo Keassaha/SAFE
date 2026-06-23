@@ -239,7 +239,7 @@ export default async function DossierDetailPage({
                 {STATUT_LABELS[dossier.statut] ?? dossier.statut}
               </span>
               {mandatIncomplet && (
-                <span className="inline-flex items-center gap-1 rounded-lg bg-[#B84A3E]/10 border border-[#B84A3E]/30/70 px-3 py-1 text-xs font-medium text-[#B84A3E]">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-[#B84A3E]/10 border border-[#B84A3E]/30 px-3 py-1 text-xs font-medium text-[#B84A3E]">
                   ⚠ Mandat incomplet
                 </span>
               )}

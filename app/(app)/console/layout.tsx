@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import type { UserRole } from "@prisma/client";
 import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { isSafeInternalUser } from "@/lib/safe-inc";
 import { canManageCabinetSettings } from "@/lib/auth/permissions";
 
 /**
  * Layout de la Console SAFE Inc.
  *
- * Accessible uniquement aux utilisateurs rattachés au Cabinet SAFE (dog food, ADR-006).
+ * Accessible uniquement aux membres de l'équipe interne SAFE Inc.
+ * (flag `User.isInternal`, avec repli transitoire sur le cabinet "SAFE").
  * Toute autre tentative redirige vers le tableau de bord normal.
  *
  * La navigation est désormais UNIFIÉE dans le Header (mode consultant), donc
@@ -18,14 +19,13 @@ export default async function ConsoleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { cabinetId, role } = await requireCabinetAndUser();
-  const isSafe = await isSafeIncCabinet(cabinetId);
+  const { userId, role } = await requireCabinetAndUser();
+  const isInternal = await isSafeInternalUser(userId);
 
-  // P0 sécurité : la Console n'est pas seulement réservée au cabinet SAFE, elle
-  // exige aussi un rôle administrateur. Un compte non-admin du cabinet SAFE
-  // (assistante, comptabilité) ne doit PAS accéder aux données de tous les clients.
-  // Étape minimale ; un rôle interne distinct (User.isInternal) est prévu en P3.
-  if (!isSafe || !canManageCabinetSettings(role as UserRole)) {
+  // P0 sécurité : la Console exige à la fois un compte interne SAFE Inc. ET un
+  // rôle administrateur. Un compte interne non-admin ne doit PAS accéder aux
+  // données de tous les clients.
+  if (!isInternal || !canManageCabinetSettings(role as UserRole)) {
     redirect("/tableau-de-bord");
   }
 

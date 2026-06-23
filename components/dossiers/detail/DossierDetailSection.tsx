@@ -19,7 +19,7 @@ export function DossierDetailSection({
 }: DossierDetailSectionProps) {
   const t = useTranslations("matterDetailUi");
   return (
-    <div className="rounded-lg border border-si-line bg-[var(--safe-neutral-bg)] p-6 space-y-3">
+    <div className="rounded-lg border border-si-line bg-si-surface p-6 space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-si-ink">{label}</h3>

@@ -161,13 +161,13 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                 key={stage.id}
                 className={`flex items-center gap-3 p-3 rounded-xl border ${
                   stage.statut === "invoiced" ? "border-si-verified/30 bg-si-verified/10" :
-                  stage.statut === "ready" ? "border-si-line bg-si-canvas/30" :
+                  stage.statut === "ready" ? "border-si-verified/30 bg-si-verified/10" :
                   "border-si-line"
                 }`}
               >
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                   stage.statut === "invoiced" ? "bg-si-verified/10 text-si-verified" :
-                  stage.statut === "ready" ? "bg-si-canvas text-si-ink" :
+                  stage.statut === "ready" ? "bg-si-verified/10 text-si-verified" :
                   "bg-si-canvas text-si-muted"
                 }`}>
                   {stage.statut === "invoiced" ? <CheckCircle className="w-3 h-3" /> : stage.ordre}
