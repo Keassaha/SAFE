@@ -27,7 +27,7 @@ export function ClientProfileTabs({ tabs, activeTab, onTabChange }: ClientProfil
 
   return (
     <nav
-      className="relative flex gap-1 border-b border-neutral-border"
+      className="relative flex gap-1 border-b border-si-line"
       aria-label={t("profileSections")}
     >
       {tabs.map((tab) => {
@@ -40,14 +40,14 @@ export function ClientProfileTabs({ tabs, activeTab, onTabChange }: ClientProfil
             onClick={() => onTabChange(tab.id)}
             className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
               isActive
-                ? "text-primary-700"
-                : "text-neutral-muted hover:text-neutral-text-secondary"
+                ? "text-si-forest"
+                : "text-si-muted hover:text-si-muted"
             }`}
           >
             {isActive && (
               <motion.span
                 layoutId="client-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-si-forest rounded-t"
                 transition={tMicro}
                 aria-hidden
               />
@@ -55,7 +55,7 @@ export function ClientProfileTabs({ tabs, activeTab, onTabChange }: ClientProfil
             <Icon className="w-4 h-4 relative z-10" />
             <span className="relative z-10">{t(tab.labelKey as any)}</span>
             {tab.count != null && (
-              <span className="text-neutral-muted relative z-10">({tab.count})</span>
+              <span className="text-si-muted relative z-10">({tab.count})</span>
             )}
           </button>
         );

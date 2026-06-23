@@ -91,18 +91,18 @@ export function ClientDossierFinancier({
         {cards.map(({ title, value, sub, icon: Icon }) => (
           <div
             key={title}
-            className="rounded-safe bg-white border border-neutral-border/80 shadow-[var(--safe-shadow-sm)] p-4"
+            className="rounded-xl bg-si-surface border border-si-line/80 shadow-[var(--safe-shadow-sm)] p-4"
           >
-            <p className="text-xs font-medium text-neutral-muted uppercase tracking-wider">
+            <p className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {title}
             </p>
-            <p className="mt-1 text-xl font-semibold text-neutral-text-primary">
+            <p className="mt-1 text-xl font-semibold text-si-ink">
               {value}
             </p>
             {sub && (
-              <p className="mt-0.5 text-sm text-neutral-muted">{sub}</p>
+              <p className="mt-0.5 text-sm text-si-muted">{sub}</p>
             )}
-            <div className="mt-2 w-8 h-8 rounded-safe-sm bg-primary-100 flex items-center justify-center text-primary-700">
+            <div className="mt-2 w-8 h-8 rounded-lg bg-si-forest/10 flex items-center justify-center text-si-forest">
               <Icon className="w-4 h-4" />
             </div>
           </div>
@@ -113,14 +113,14 @@ export function ClientDossierFinancier({
         <CardHeader
           title={t("financialHistory")}
           action={
-            <span className="text-xs text-neutral-muted">
+            <span className="text-xs text-si-muted">
               {t("financialHistorySub")}
             </span>
           }
         />
         <CardContent>
           {transactions.length === 0 ? (
-            <div className="py-8 text-center text-neutral-muted">
+            <div className="py-8 text-center text-si-muted">
               <FileText className="w-10 h-10 mx-auto mb-2 opacity-50" />
               <p className="text-sm">{t("noTransactions")}</p>
             </div>
@@ -129,9 +129,9 @@ export function ClientDossierFinancier({
               {transactions.map((tx, i) => (
                 <li
                   key={i}
-                  className="flex justify-between items-center py-2 border-b border-neutral-border/60 last:border-0"
+                  className="flex justify-between items-center py-2 border-b border-si-line/60 last:border-0"
                 >
-                  <span className="text-sm text-neutral-text-secondary">
+                  <span className="text-sm text-si-muted">
                     {formatDate(tx.date)} — {tx.label}
                   </span>
                   <span className="text-sm font-medium">
@@ -148,7 +148,7 @@ export function ClientDossierFinancier({
         <CardHeader
           title={t("timePerformed")}
           action={
-            <span className="text-xs text-neutral-muted">
+            <span className="text-xs text-si-muted">
               {t("timeEntriesSummary", {
                 count: timeEntries.length,
                 hours: totalHeures.toFixed(1),
@@ -159,30 +159,30 @@ export function ClientDossierFinancier({
         />
         <CardContent>
           {timeEntries.length === 0 ? (
-            <p className="py-6 text-center text-sm text-neutral-muted">
+            <p className="py-6 text-center text-sm text-si-muted">
               {t("noTimeEntriesForClient")}
             </p>
           ) : (
-            <div className="overflow-x-auto border border-neutral-border rounded-safe-sm">
+            <div className="overflow-x-auto border border-si-line rounded-lg">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="bg-neutral-surface/50 border-b border-neutral-border">
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                  <tr className="bg-si-canvas/60 border-b border-si-line">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableDate")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableMatter")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableDescription")}
                     </th>
-                    <th className="text-right py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-right py-2 px-3 font-medium text-si-muted">
                       {t("tableDuration")}
                     </th>
-                    <th className="text-right py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-right py-2 px-3 font-medium text-si-muted">
                       {t("tableAmount")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableLawyer")}
                     </th>
                   </tr>
@@ -191,16 +191,16 @@ export function ClientDossierFinancier({
                   {timeEntries.map((r) => (
                     <tr
                       key={r.id}
-                      className="border-b border-neutral-border last:border-0"
+                      className="border-b border-si-line last:border-0"
                     >
-                      <td className="py-2 px-3 text-neutral-muted">
+                      <td className="py-2 px-3 text-si-muted">
                         {formatDate(r.date)}
                       </td>
                       <td className="py-2 px-3">
                         {r.dossierId ? (
                           <Link
                             href={routes.dossier(r.dossierId)}
-                            className="text-primary-600 hover:underline"
+                            className="text-si-forest hover:underline"
                           >
                             {r.dossierIntitule ?? "—"}
                           </Link>
@@ -229,30 +229,30 @@ export function ClientDossierFinancier({
         <CardHeader title={t("invoices")} />
         <CardContent>
           {invoices.length === 0 ? (
-            <p className="py-6 text-center text-sm text-neutral-muted">
+            <p className="py-6 text-center text-sm text-si-muted">
               {t("noInvoicesForClient")}
             </p>
           ) : (
-            <div className="overflow-x-auto border border-neutral-border rounded-safe-sm">
+            <div className="overflow-x-auto border border-si-line rounded-lg">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="bg-neutral-surface/50 border-b border-neutral-border">
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                  <tr className="bg-si-canvas/60 border-b border-si-line">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableInvoiceNumber")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableMatter")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableIssueDate")}
                     </th>
-                    <th className="text-right py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-right py-2 px-3 font-medium text-si-muted">
                       {t("tableAmount")}
                     </th>
-                    <th className="text-right py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-right py-2 px-3 font-medium text-si-muted">
                       {t("tableBalance")}
                     </th>
-                    <th className="text-left py-2 px-3 font-medium text-neutral-muted">
+                    <th className="text-left py-2 px-3 font-medium text-si-muted">
                       {t("tableStatus")}
                     </th>
                     <th className="w-10" />
@@ -262,12 +262,12 @@ export function ClientDossierFinancier({
                   {invoices.map((inv) => (
                     <tr
                       key={inv.id}
-                      className="border-b border-neutral-border last:border-0 hover:bg-neutral-50/50"
+                      className="border-b border-si-line last:border-0 hover:bg-si-canvas/50"
                     >
-                      <td className="py-2 px-3 font-medium text-neutral-800">
+                      <td className="py-2 px-3 font-medium text-si-ink">
                         {displayInvoiceNumero(inv.numero)}
                       </td>
-                      <td className="py-2 px-3 text-neutral-muted">
+                      <td className="py-2 px-3 text-si-muted">
                         {inv.dossierIntitule ?? "—"}
                       </td>
                       <td className="py-2 px-3">
@@ -283,12 +283,12 @@ export function ClientDossierFinancier({
                         <span
                           className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                             inv.statut === "payee"
-                              ? "bg-status-success-bg text-status-success"
+                              ? "bg-si-verified/10 text-si-verified"
                               : inv.statut === "en_retard"
-                                ? "bg-status-error-bg text-status-error"
+                                ? "bg-[#B84A3E]/10 text-[#B84A3E]"
                                 : inv.statut === "brouillon"
-                                  ? "bg-neutral-100 text-neutral-600"
-                                  : "bg-status-warning-bg text-status-warning"
+                                  ? "bg-si-canvas text-si-muted"
+                                  : "bg-si-amber/[0.13] text-si-amber-ink"
                           }`}
                         >
                           {tInv(inv.statut as any)}

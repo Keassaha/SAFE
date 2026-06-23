@@ -23,12 +23,12 @@ export function IdentityVerificationSection({
 
   if (verifications.length === 0) {
     return (
-      <p className="text-sm text-neutral-muted">
+      <p className="text-sm text-si-muted">
         {t("noVerification")}
         {canManage && (
           <Link
             href={routes.clientVerificationIdentite(clientId)}
-            className="ml-2 text-primary-600 hover:underline"
+            className="ml-2 text-si-forest hover:underline"
           >
             {t("addVerification")}
           </Link>
@@ -41,17 +41,17 @@ export function IdentityVerificationSection({
       {verifications.map((v) => (
         <li
           key={v.id}
-          className="flex items-center justify-between gap-2 py-2 border-b border-neutral-borderSubtle last:border-0"
+          className="flex items-center justify-between gap-2 py-2 border-b border-si-lineSubtle last:border-0"
         >
           <span className="text-sm">
             {formatDate(v.date)} — {v.methode} —{" "}
             <span
               className={
                 v.statut === "verifie"
-                  ? "text-status-success"
+                  ? "text-si-verified"
                   : v.statut === "refuse"
-                    ? "text-status-error"
-                    : "text-status-warning"
+                    ? "text-[#B84A3E]"
+                    : "text-si-amber-ink"
               }
             >
               {v.statut}
@@ -62,7 +62,7 @@ export function IdentityVerificationSection({
               href={`/api/documents/${v.document.id}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-primary-600 hover:underline"
+              className="text-xs text-si-forest hover:underline"
             >
               {t("attachment")}
             </a>
@@ -73,7 +73,7 @@ export function IdentityVerificationSection({
         <li>
           <Link
             href={routes.clientVerificationIdentite(clientId)}
-            className="text-sm text-primary-600 hover:underline"
+            className="text-sm text-si-forest hover:underline"
           >
             {t("addVerification")}
           </Link>

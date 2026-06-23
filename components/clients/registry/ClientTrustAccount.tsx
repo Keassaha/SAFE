@@ -33,23 +33,23 @@ export function ClientTrustAccount({
       <CardHeader title={t("trustAccount")} />
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-muted">{t("trustBalance")}</span>
-          <span className="text-lg font-semibold text-neutral-text-primary">
+          <span className="text-sm text-si-muted">{t("trustBalance")}</span>
+          <span className="text-lg font-semibold text-si-ink">
             {formatCurrency(balance, "CAD", locale)}
           </span>
         </div>
         {trustAccountId && (
           <div className="text-sm">
-            <span className="text-neutral-muted">{t("trustAccountLabel")} : </span>
-            <span className="text-neutral-text-secondary">{trustAccountId}</span>
+            <span className="text-si-muted">{t("trustAccountLabel")} : </span>
+            <span className="text-si-muted">{trustAccountId}</span>
           </div>
         )}
-        <div className="text-sm text-neutral-muted">
+        <div className="text-sm text-si-muted">
           {t("trustPaymentsAllowed")} :{" "}
           {allowTrustPayments ? tc("yes") : tc("no")}
         </div>
         {lastTransactionDate && (
-          <p className="text-xs text-neutral-muted">
+          <p className="text-xs text-si-muted">
             {t("lastOperation")} :{" "}
             {new Intl.DateTimeFormat(intlLocale, {
               dateStyle: "medium",
@@ -57,10 +57,10 @@ export function ClientTrustAccount({
           </p>
         )}
         {clientId && (
-          <div className="pt-2 border-t border-neutral-border">
+          <div className="pt-2 border-t border-si-line">
             <Link
               href={`${routes.comptes}?clientId=${encodeURIComponent(clientId)}`}
-              className="text-sm text-primary-600 hover:underline"
+              className="text-sm text-si-forest hover:underline"
             >
               {t("viewTrustModule")}
             </Link>

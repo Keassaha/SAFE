@@ -26,14 +26,14 @@ export function ClientHistoryTab({ items }: ClientHistoryTabProps) {
       <CardHeader
         title={t("activityHistory")}
         action={
-          <span className="text-xs text-neutral-muted">
+          <span className="text-xs text-si-muted">
             {t("activityHistoryFullDesc")}
           </span>
         }
       />
       <CardContent>
         {items.length === 0 ? (
-          <div className="py-8 text-center text-neutral-muted">
+          <div className="py-8 text-center text-si-muted">
             <Clock className="w-10 h-10 mx-auto mb-2 opacity-50" />
             <p className="text-sm">{t("noActivityRecorded")}</p>
           </div>
@@ -42,9 +42,9 @@ export function ClientHistoryTab({ items }: ClientHistoryTabProps) {
             {items.map((item) => (
               <li
                 key={item.id}
-                className="flex gap-3 py-2 border-b border-neutral-border/60 last:border-0"
+                className="flex gap-3 py-2 border-b border-si-line/60 last:border-0"
               >
-                <span className="text-xs text-neutral-muted shrink-0 w-20">
+                <span className="text-xs text-si-muted shrink-0 w-20">
                   {new Intl.DateTimeFormat(intlLocale, {
                     day: "numeric",
                     month: "short",
@@ -54,11 +54,11 @@ export function ClientHistoryTab({ items }: ClientHistoryTabProps) {
                   }).format(new Date(item.date))}
                 </span>
                 <div>
-                  <span className="text-sm font-medium text-neutral-text-primary">
+                  <span className="text-sm font-medium text-si-ink">
                     {item.label}
                   </span>
                   {item.entityType && (
-                    <span className="ml-2 text-xs text-neutral-muted">
+                    <span className="ml-2 text-xs text-si-muted">
                       ({item.entityType})
                     </span>
                   )}

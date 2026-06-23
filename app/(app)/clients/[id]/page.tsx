@@ -280,7 +280,7 @@ export default async function ClientDetailPage({
             {canEditClient && !showForm && (
               <Link
                 href={`${routes.client(id)}?edit=1`}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-neutral-text-secondary text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5 hover:bg-primary-50 hover:border-primary-200 hover:shadow-md active:translate-y-0"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-surface/25 bg-si-surface/10 text-si-surface text-sm font-medium transition-colors hover:bg-si-surface/20"
               >
                 <Pencil className="w-4 h-4" />
                 {tc("edit")}
@@ -289,10 +289,10 @@ export default async function ClientDetailPage({
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
                 client.status === "actif"
-                  ? "bg-status-success-bg text-status-success"
+                  ? "bg-si-verified/20 text-[#9FE3C2]"
                   : client.status === "inactif"
-                    ? "bg-status-warning-bg text-status-warning"
-                    : "bg-neutral-200 text-neutral-muted"
+                    ? "bg-si-amber/25 text-[#F0D9A8]"
+                    : "bg-si-surface/15 text-si-surface/70"
               }`}
             >
               {client.status === "actif"
@@ -304,7 +304,7 @@ export default async function ClientDetailPage({
             {dossiers.length > 0 && (
               <Link
                 href={routes.dossiers + `?clientId=${id}`}
-                className="inline-flex items-center gap-1.5 rounded-safe-sm border border-white/25 bg-white/10 px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-si-surface/10 px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-si-surface/20 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
               >
                 {t("viewFullMatter")}
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -330,8 +330,8 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
       ) : (
-        <div className="rounded-safe bg-white border border-neutral-border shadow-[var(--safe-shadow-md)] overflow-hidden">
-          <div className="p-6 border-b border-neutral-border">
+        <div className="rounded-2xl bg-si-surface border border-si-line overflow-hidden">
+          <div className="p-6 border-b border-si-line">
             <ClientProfile
               data={profileData}
               canEditBilling={canEditBilling}
@@ -345,25 +345,25 @@ export default async function ClientDetailPage({
           <CardHeader
             title={tu("draftedDocuments")}
             action={
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-si-muted">
                 {tu("allMattersDocCount", { count: richDocs.length })}
               </span>
             }
           />
           <CardContent>
             {richDocs.length === 0 ? (
-              <p className="text-sm text-slate-500 italic">
+              <p className="text-sm text-si-muted italic">
                 {tu("noDraftedDocuments")}
               </p>
             ) : (
-              <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
+              <div className="border border-si-line rounded-md overflow-hidden bg-si-surface">
                 {richDocs.map((d, i) => {
                   const statutColor =
                     d.statut === "final"
-                      ? "text-green-700 bg-green-50 border-green-200"
+                      ? "text-si-verified bg-si-verified/10 border-si-verified/30"
                       : d.statut === "brouillon"
-                      ? "text-amber-700 bg-amber-50 border-amber-200"
-                      : "text-slate-600 bg-slate-50 border-slate-200";
+                      ? "text-si-amber-ink bg-si-amber/[0.13] border-si-amber/30"
+                      : "text-si-muted bg-si-canvas border-si-line";
                   const statutLabel =
                     d.statut === "final"
                       ? tu("docStatusFinal")
@@ -374,15 +374,15 @@ export default async function ClientDetailPage({
                     <Link
                       key={d.id}
                       href={`/edition/${d.dossierId}/${d.id}`}
-                      className={`flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors ${
-                        i > 0 ? "border-t border-slate-100" : ""
+                      className={`flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
+                        i > 0 ? "border-t border-si-line" : ""
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-slate-900 truncate">
+                        <div className="text-sm font-medium text-si-ink truncate">
                           {d.titre}
                         </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
+                        <div className="text-xs text-si-muted mt-0.5">
                           {d.type} · {tu("matterLabel")}{" "}
                           {d.dossier?.numeroDossier ?? d.dossier?.intitule ?? "—"}
                           {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}

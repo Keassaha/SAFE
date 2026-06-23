@@ -31,16 +31,16 @@ export function ClientCompliance({
         <CardContent className="space-y-2">
           <div className="flex items-center gap-2">
             {conflictChecked ? (
-              <ShieldCheck className="w-4 h-4 text-status-success" />
+              <ShieldCheck className="w-4 h-4 text-si-verified" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-status-warning" />
+              <AlertTriangle className="w-4 h-4 text-si-amber-ink" />
             )}
             <span className="text-sm font-medium">
               {conflictChecked ? t("conflictDone") : t("conflictNotDone")}
             </span>
           </div>
           {conflictCheckDate && (
-            <p className="text-xs text-neutral-muted">
+            <p className="text-xs text-si-muted">
               {tc("date")} :{" "}
               {new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(
                 conflictCheckDate
@@ -48,7 +48,7 @@ export function ClientCompliance({
             </p>
           )}
           {conflictNotes && (
-            <p className="text-sm text-neutral-text-secondary mt-2 whitespace-pre-wrap">
+            <p className="text-sm text-si-muted mt-2 whitespace-pre-wrap">
               {conflictNotes}
             </p>
           )}
@@ -59,16 +59,16 @@ export function ClientCompliance({
         <CardContent className="space-y-2">
           <div className="flex items-center gap-2">
             {identityVerified ? (
-              <ShieldCheck className="w-4 h-4 text-status-success" />
+              <ShieldCheck className="w-4 h-4 text-si-verified" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-status-warning" />
+              <AlertTriangle className="w-4 h-4 text-si-amber-ink" />
             )}
             <span className="text-sm font-medium">
               {identityVerified ? t("verified") : t("notVerified")}
             </span>
           </div>
           {verificationDate && (
-            <p className="text-xs text-neutral-muted">
+            <p className="text-xs text-si-muted">
               {tc("date")} :{" "}
               {new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(
                 verificationDate

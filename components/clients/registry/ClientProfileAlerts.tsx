@@ -56,8 +56,8 @@ export function ClientProfileAlerts({
   if (alerts.length === 0) return null;
 
   return (
-    <div className="rounded-safe border border-status-warning-bg bg-status-warning-bg/50 p-4 space-y-2">
-      <p className="text-sm font-medium text-status-warning flex items-center gap-2">
+    <div className="rounded-xl border border-si-amber/30 bg-si-amber/[0.08] p-4 space-y-2">
+      <p className="text-sm font-medium text-si-amber-ink flex items-center gap-2">
         <AlertTriangle className="w-4 h-4" />
         {t("alerts")}
       </p>
@@ -66,14 +66,14 @@ export function ClientProfileAlerts({
           const Icon = a.icon;
           const content = (
             <>
-              <Icon className="w-4 h-4 shrink-0 text-status-warning" />
-              <span className="text-sm text-neutral-text-secondary">{a.message}</span>
+              <Icon className="w-4 h-4 shrink-0 text-si-amber-ink" />
+              <span className="text-sm text-si-muted">{a.message}</span>
             </>
           );
           return (
             <li key={a.id} className="flex items-center gap-2">
               {a.href ? (
-                <Link href={a.href} className="flex items-center gap-2 hover:text-primary-700">
+                <Link href={a.href} className="flex items-center gap-2 hover:text-si-forest">
                   {content}
                 </Link>
               ) : (

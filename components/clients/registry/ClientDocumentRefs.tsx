@@ -47,7 +47,7 @@ export function ClientDocumentRefs({
       <Card>
         <CardHeader title={t("keyDocuments")} />
         <CardContent>
-          <p className="text-sm text-neutral-muted">
+          <p className="text-sm text-si-muted">
             {t("noDocumentRefs")}
           </p>
         </CardContent>
@@ -64,7 +64,7 @@ export function ClientDocumentRefs({
             <li key={key}>
               <Link
                 href={`${baseDownloadUrl}/${docId}/download`}
-                className="inline-flex items-center gap-2 text-sm text-primary-700 hover:underline"
+                className="inline-flex items-center gap-2 text-sm text-si-forest hover:underline"
               >
                 <FileText className="w-4 h-4 shrink-0" />
                 {LABELS[key] ?? key}

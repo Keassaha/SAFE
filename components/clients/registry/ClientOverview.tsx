@@ -41,41 +41,41 @@ export function ClientOverview({ data }: { data: ClientOverviewData }) {
       <Card>
         <CardHeader title={t("clientInfo")} />
         <CardContent className="space-y-4">
-          <p className="text-sm text-neutral-muted">
+          <p className="text-sm text-si-muted">
             {t("clientType")} :{" "}
-            <span className="text-neutral-text-primary">
+            <span className="text-si-ink">
               {data.typeClient === "personne_physique" ? t("individual") : t("company")}
             </span>
           </p>
           <div className="grid gap-3">
             {data.primary_email && (
               <div className="flex items-center gap-2 text-sm">
-                <Mail className="w-4 h-4 text-neutral-muted shrink-0" />
-                <a href={`mailto:${data.primary_email}`} className="text-primary-700 hover:underline">
+                <Mail className="w-4 h-4 text-si-muted shrink-0" />
+                <a href={`mailto:${data.primary_email}`} className="text-si-forest hover:underline">
                   {data.primary_email}
                 </a>
               </div>
             )}
             {data.phone_primary && (
               <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-neutral-muted shrink-0" />
+                <Phone className="w-4 h-4 text-si-muted shrink-0" />
                 <span>{data.phone_primary}</span>
               </div>
             )}
             {(data.address_line_1 || data.city) && (
               <div className="flex items-start gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-neutral-muted shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-si-muted shrink-0 mt-0.5" />
                 <span>{formatAddress(data)}</span>
               </div>
             )}
             {data.langue && (
               <div className="flex items-center gap-2 text-sm">
-                <Globe className="w-4 h-4 text-neutral-muted shrink-0" />
+                <Globe className="w-4 h-4 text-si-muted shrink-0" />
                 <span>{data.langue === "FR" ? tc("french") : data.langue === "EN" ? tc("english") : data.langue}</span>
               </div>
             )}
           </div>
-          <p className="text-xs text-neutral-muted pt-2">
+          <p className="text-xs text-si-muted pt-2">
             {t("createdOn")} :{" "}
             {new Intl.DateTimeFormat(intlLocale, {
               day: "numeric",
@@ -89,7 +89,7 @@ export function ClientOverview({ data }: { data: ClientOverviewData }) {
         <Card>
           <CardHeader title={t("notes")} />
           <CardContent>
-            <p className="text-sm text-neutral-text-secondary whitespace-pre-wrap">
+            <p className="text-sm text-si-muted whitespace-pre-wrap">
               {data.notesConfidentielles}
             </p>
           </CardContent>
