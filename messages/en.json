@@ -683,6 +683,8 @@
     "filterByInvoiceType": "Invoice type",
     "amountLabel": "Amount",
     "noMatch": "No invoices match the criteria.",
+    "emptyTitle": "No invoices yet",
+    "emptyDesc": "Create your first invoice, or add time and disbursements to bill.",
     "registreTitle": "Invoice register",
     "registreDescription": "List of invoices with filters by client, status and period.",
     "allStatuses": "All statuses",

@@ -683,6 +683,8 @@
     "filterByInvoiceType": "Type de facture",
     "amountLabel": "Montant",
     "noMatch": "Aucune facture ne correspond aux critères.",
+    "emptyTitle": "Aucune facture pour l'instant",
+    "emptyDesc": "Créez votre première facture, ou ajoutez du temps et des débours à refacturer.",
     "registreTitle": "Registre des factures",
     "registreDescription": "Liste des factures avec filtres par client, statut et période.",
     "allStatuses": "Tous les statuts",

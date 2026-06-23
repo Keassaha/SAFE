@@ -5,6 +5,8 @@ import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { Card, CardTitle } from "@/components/ds-safe/core";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { FacturationMainKpis, type FacturationMainKpisData } from "@/components/facturation/FacturationMainKpis";
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
@@ -57,6 +59,7 @@ export default async function FacturationPage({
   const currentSearch = (q ?? "").trim();
   const dateFrom = dateFromParam ? new Date(dateFromParam) : null;
   const dateTo = dateToParam ? new Date(dateToParam) : null;
+  const hasActiveFilter = Boolean(currentStatut || currentSearch || dateFrom || dateTo);
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -207,9 +210,21 @@ export default async function FacturationPage({
             dateTo={dateToParam ?? ""}
           />
           {rows.length === 0 ? (
-            <p className="text-sm text-si-muted py-8 text-center">
-              {t("noMatch")}
-            </p>
+            hasActiveFilter ? (
+              <p className="text-sm text-si-muted py-8 text-center">
+                {t("noMatch")}
+              </p>
+            ) : (
+              <EmptyState
+                title={t("emptyTitle")}
+                description={t("emptyDesc")}
+                action={
+                  <Link href={routes.facturationFactureNouvelle}>
+                    <Button type="button">{t("newInvoice")}</Button>
+                  </Link>
+                }
+              />
+            )
           ) : (
             <FacturationTable invoices={rows} />
           )}
