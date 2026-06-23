@@ -75,12 +75,12 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
 
   return (
     <section
-      className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
+      className="rounded-2xl border border-si-line bg-si-surface p-5 shadow-sm"
       aria-label={t.title}
     >
       {/* En-tête */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-400">
+        <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-si-muted/50">
           {t.title}
         </h2>
         {caughtUp ? (
@@ -95,7 +95,7 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
 
       {/* Résumé narratif (mémoire externalisée) */}
       <p
-        className="mt-3 pl-3.5 text-[15px] leading-relaxed text-neutral-800"
+        className="mt-3 pl-3.5 text-[15px] leading-relaxed text-si-ink"
         style={{ borderLeft: `3px solid ${ACCENT}` }}
       >
         {resume.summary}
@@ -150,7 +150,7 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
             >
               {t.nextAction}
             </div>
-            <div className="mt-0.5 text-[15px] font-semibold text-neutral-900">
+            <div className="mt-0.5 text-[15px] font-semibold text-si-ink">
               {resume.nextAction}
             </div>
           </div>

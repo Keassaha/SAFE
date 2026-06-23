@@ -88,11 +88,11 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
   const hasAnyRisk = FIELDS.some((f) => getValue(f.key));
 
   return (
-    <Card className={`border ${existing?.misrepresentation ? "border-red-300 bg-red-50/30" : hasAnyRisk ? "border-amber-200 bg-amber-50/30" : ""}`}>
+    <Card className={`border ${existing?.misrepresentation ? "border-[#B84A3E]/40 bg-[#B84A3E]/10" : hasAnyRisk ? "border-si-amber/30 bg-si-amber/[0.13]" : ""}`}>
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-blue-600" />
+            <FileText className="w-4 h-4 text-si-ink" />
             <h4 className="text-sm font-semibold">Background Declaration (D7)</h4>
           </div>
           {isCompleted && (
@@ -103,7 +103,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
           )}
         </div>
 
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-si-muted">
           Non-disclosure of any of these items constitutes misrepresentation under Art. 40 LIPR
           and may result in a 5-year ban from all Canadian immigration programs.
         </p>
@@ -112,7 +112,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
           {FIELDS.map((f) => {
             const checked = getValue(f.key);
             return (
-              <div key={f.key} className={`p-3 rounded-safe border ${checked && f.danger ? "border-red-300 bg-red-50" : checked ? "border-amber-200 bg-amber-50" : "border-neutral-200"}`}>
+              <div key={f.key} className={`p-3 rounded-xl border ${checked && f.danger ? "border-[#B84A3E]/40 bg-[#B84A3E]/10" : checked ? "border-si-amber/30 bg-si-amber/[0.13]" : "border-si-line"}`}>
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -121,11 +121,11 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
                     className="mt-0.5 rounded"
                   />
                   <div className="flex-1">
-                    <span className={`text-sm font-medium ${f.danger && checked ? "text-red-800" : ""}`}>
+                    <span className={`text-sm font-medium ${f.danger && checked ? "text-[#B84A3E]" : ""}`}>
                       {f.label}
                     </span>
                     {f.danger && checked && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-red-700">
+                      <div className="flex items-center gap-1 mt-1 text-xs text-[#B84A3E]">
                         <AlertTriangle className="w-3 h-3" />
                         5-year ban risk — document thoroughly
                       </div>
@@ -134,7 +134,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
                 </label>
                 {checked && (
                   <textarea
-                    className="w-full mt-2 px-3 py-2 rounded-safe border border-neutral-border bg-white text-sm"
+                    className="w-full mt-2 px-3 py-2 rounded-xl border border-si-line bg-si-surface text-sm"
                     placeholder="Provide details (dates, countries, circumstances)..."
                     rows={2}
                     value={getDetail(f.detailKey)}
@@ -155,7 +155,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
             {saveMutation.isPending ? "Saving..." : isCompleted ? "Update Declaration" : "Save Declaration"}
           </Button>
           {isCompleted && existing?.clientSignedAt && (
-            <span className="text-xs text-green-600 flex items-center gap-1">
+            <span className="text-xs text-si-verified flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
               Signed {new Date(existing.clientSignedAt).toLocaleDateString("en-CA")}
             </span>
@@ -163,7 +163,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
         </div>
 
         {saveMutation.isError && (
-          <p className="text-sm text-status-error">
+          <p className="text-sm text-[#B84A3E]">
             {saveMutation.error instanceof Error ? saveMutation.error.message : "Error"}
           </p>
         )}

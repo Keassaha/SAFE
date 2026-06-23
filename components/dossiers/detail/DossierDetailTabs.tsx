@@ -105,7 +105,7 @@ export function DossierDetailTabs({ dossierId, statutDossier, sections }: Dossie
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* Liste verticale des onglets — Liquid Glass clair */}
-        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-safe border border-slate-200/70 bg-white/75 backdrop-blur-sm p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
+        <TabsList className="flex h-auto flex-shrink-0 flex-row flex-wrap gap-1 rounded-xl border border-si-line bg-si-surface/75 backdrop-blur-sm p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] lg:flex-col lg:w-56 lg:flex-nowrap lg:gap-0 lg:p-2">
           {sections.map((section) => {
             const iconName = section.icone ?? "FileText";
             const Icon = ICON_MAP[iconName] ?? FileText;
@@ -113,7 +113,7 @@ export function DossierDetailTabs({ dossierId, statutDossier, sections }: Dossie
               <TabsTrigger
                 key={section.sectionKey}
                 value={section.sectionKey}
-                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-safe-sm px-3 py-2 text-left text-sm font-medium text-slate-700 transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-600/20 data-[state=inactive]:hover:bg-slate-100 data-[state=inactive]:hover:text-slate-900"
+                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-si-forest data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-600/20 data-[state=inactive]:hover:bg-si-canvas data-[state=inactive]:hover:text-si-ink"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center lg:h-9 lg:w-9">
                   <Icon className="h-4 w-4" />

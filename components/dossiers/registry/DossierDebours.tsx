@@ -69,17 +69,17 @@ export function DossierDebours({
               const result = await createDeboursDossier(formData);
               if (result.ok) setShowAdd(false);
             }}
-            className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+            className="rounded-lg border border-si-line p-4 space-y-3 bg-si-surface/30"
           >
             <input type="hidden" name="dossierId" value={dossierId} />
             <input type="hidden" name="clientId" value={clientId} />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("typeOptional")}
               </label>
               <select
                 name="deboursTypeId"
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="">{t("manualEntry")}</option>
                 {deboursTypes.map((dt) => (
@@ -105,14 +105,14 @@ export function DossierDebours({
                 required
               />
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                <label className="block text-sm font-medium text-si-muted mb-1">
                   {tc("date")}
                 </label>
                 <input
                   type="date"
                   name="date"
                   defaultValue={new Date().toISOString().slice(0, 10)}
-                  className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
+                  className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
                 />
               </div>
             </div>
@@ -140,14 +140,14 @@ export function DossierDebours({
         )}
 
         {debours.length === 0 && !showAdd ? (
-          <p className="text-sm text-neutral-muted py-4">
+          <p className="text-sm text-si-muted py-4">
             {t("noDisbursementsMessage")}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-neutral-border text-left text-neutral-muted">
+                <tr className="border-b border-si-line text-left text-si-muted">
                   <th className="py-2 pr-2">{tc("date")}</th>
                   <th className="py-2 pr-2">{t("typeDescription")}</th>
                   <th className="py-2 pr-2 text-right">{tc("amount")}</th>
@@ -158,11 +158,11 @@ export function DossierDebours({
               </thead>
               <tbody>
                 {debours.map((d) => (
-                  <tr key={d.id} className="border-b border-neutral-border/70">
+                  <tr key={d.id} className="border-b border-si-line/70">
                     <td className="py-2 pr-2">{formatDate(d.date)}</td>
                     <td className="py-2 pr-2">
                       {d.deboursTypeNom ? (
-                        <span className="text-neutral-muted">{d.deboursTypeCategorie} — </span>
+                        <span className="text-si-muted">{d.deboursTypeCategorie} — </span>
                       ) : null}
                       {d.description}
                     </td>
@@ -174,13 +174,13 @@ export function DossierDebours({
                       {d.factureId ? (
                         <Link
                           href={routes.facturationFactureEdit(d.factureId)}
-                          className="text-primary-600 hover:underline inline-flex items-center gap-1"
+                          className="text-si-forest hover:underline inline-flex items-center gap-1"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           {d.factureNumero ?? t("invoice")}
                         </Link>
                       ) : (
-                        <span className="text-neutral-muted">{t("notInvoiced")}</span>
+                        <span className="text-si-muted">{t("notInvoiced")}</span>
                       )}
                     </td>
                     <td className="py-2 pr-2">
@@ -189,7 +189,7 @@ export function DossierDebours({
                           <button
                             type="button"
                             onClick={() => setEditingId(editingId === d.id ? null : d.id)}
-                            className="p-1.5 rounded text-neutral-muted hover:bg-neutral-100 hover:text-neutral-700"
+                            className="p-1.5 rounded text-si-muted hover:bg-si-canvas hover:text-si-ink"
                             aria-label={tc("edit")}
                           >
                             <Pencil className="w-4 h-4" />
@@ -204,7 +204,7 @@ export function DossierDebours({
                             <input type="hidden" name="id" value={d.id} />
                             <button
                               type="submit"
-                              className="p-1.5 rounded text-neutral-muted hover:bg-red-50 hover:text-red-600"
+                              className="p-1.5 rounded text-si-muted hover:bg-[#B84A3E]/10 hover:text-[#B84A3E]"
                               aria-label={tc("delete")}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -222,11 +222,11 @@ export function DossierDebours({
 
         {debours.length > 0 && (
           <div className="flex flex-wrap gap-4 pt-2 text-sm">
-            <span className="text-neutral-muted">
-              {t("disbursementsToReinvoice")} : <strong className="text-neutral-800">{formatCurrency(totalRefacturable)}</strong>
+            <span className="text-si-muted">
+              {t("disbursementsToReinvoice")} : <strong className="text-si-ink">{formatCurrency(totalRefacturable)}</strong>
             </span>
             {totalFacture > 0 && (
-              <span className="text-neutral-muted">
+              <span className="text-si-muted">
                 {t("disbursementsAlreadyInvoiced", { count: totalFacture })}
               </span>
             )}

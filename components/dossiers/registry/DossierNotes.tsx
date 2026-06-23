@@ -61,13 +61,13 @@ export function DossierNotes({
           {showAdd && (
             <form
               action={createDossierNote}
-              className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+              className="rounded-lg border border-si-line p-4 space-y-3 bg-si-surface/30"
             >
               <input type="hidden" name="dossierId" value={dossierId} />
               <div>
                 <label
                   htmlFor="note-content"
-                  className="block text-sm font-medium text-neutral-text-secondary mb-1"
+                  className="block text-sm font-medium text-si-muted mb-1"
                 >
                   {t("noteContent")}
                 </label>
@@ -76,7 +76,7 @@ export function DossierNotes({
                   name="content"
                   rows={4}
                   required
-                  className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
+                  className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none transition-all"
                   placeholder={t("notePlaceholder")}
                 />
               </div>
@@ -90,16 +90,16 @@ export function DossierNotes({
           )}
 
           {notes.length === 0 && !showAdd ? (
-            <p className="text-sm text-neutral-muted">{t("noNotesYet")}</p>
+            <p className="text-sm text-si-muted">{t("noNotesYet")}</p>
           ) : (
             <ul className="space-y-3">
               {notes.map((note) => (
                 <li
                   key={note.id}
-                  className="rounded-safe-sm border border-neutral-border p-3 bg-white/80 text-sm"
+                  className="rounded-lg border border-si-line p-3 bg-si-surface/80 text-sm"
                 >
-                  <p className="text-neutral-text-secondary whitespace-pre-wrap">{note.content}</p>
-                  <p className="mt-2 text-xs text-neutral-muted">
+                  <p className="text-si-muted whitespace-pre-wrap">{note.content}</p>
+                  <p className="mt-2 text-xs text-si-muted">
                     {formatDate(note.createdAt)}
                     {note.createdByNom ? ` — ${note.createdByNom}` : ""}
                   </p>
@@ -114,7 +114,7 @@ export function DossierNotes({
         <Card>
           <CardHeader title={t("confidentialNotes")} />
           <CardContent>
-            <p className="text-sm text-neutral-muted">{t("noConfidentialNotes")}</p>
+            <p className="text-sm text-si-muted">{t("noConfidentialNotes")}</p>
           </CardContent>
         </Card>
       )}
@@ -125,7 +125,7 @@ export function DossierNotes({
             <Card>
               <CardHeader title={t("confidentialDescriptionTitle")} />
               <CardContent>
-                <p className="text-sm text-neutral-text-secondary whitespace-pre-wrap">
+                <p className="text-sm text-si-muted whitespace-pre-wrap">
                   {descriptionConfidentielle}
                 </p>
               </CardContent>
@@ -135,7 +135,7 @@ export function DossierNotes({
             <Card>
               <CardHeader title={t("legalStrategyNotesTitle")} />
               <CardContent>
-                <p className="text-sm text-neutral-text-secondary whitespace-pre-wrap">
+                <p className="text-sm text-si-muted whitespace-pre-wrap">
                   {notesStrategieJuridique}
                 </p>
               </CardContent>

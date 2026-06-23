@@ -49,10 +49,10 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
 
   if (!itemId) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-white">
+      <div className="flex flex-1 items-center justify-center bg-si-surface">
         <div className="text-center">
-          <FileText className="mx-auto h-12 w-12 text-slate-300" />
-          <p className="mt-4 text-sm font-medium text-slate-600">
+          <FileText className="mx-auto h-12 w-12 text-si-muted/50" />
+          <p className="mt-4 text-sm font-medium text-si-muted">
             {t("selectDocumentToView")}
           </p>
         </div>
@@ -62,10 +62,10 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-white">
+      <div className="flex flex-1 items-center justify-center bg-si-surface">
         <div className="text-center">
-          <Loader className="mx-auto h-8 w-8 animate-spin text-slate-400" />
-          <p className="mt-4 text-sm text-slate-600">{t("loading")}</p>
+          <Loader className="mx-auto h-8 w-8 animate-spin text-si-muted/60" />
+          <p className="mt-4 text-sm text-si-muted">{t("loading")}</p>
         </div>
       </div>
     );
@@ -73,27 +73,27 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
 
   if (!document) {
     return (
-      <div className="flex flex-1 flex-col bg-white p-6 lg:border-l lg:border-slate-200/70">
+      <div className="flex flex-1 flex-col bg-si-surface p-6 lg:border-l lg:border-si-line">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{t("documentNotFound")}</h2>
+            <h2 className="text-lg font-semibold text-si-ink">{t("documentNotFound")}</h2>
           </div>
           <button
             onClick={() => onEdit(itemId)}
-            className="inline-flex items-center gap-2 rounded-safe-sm border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
           >
             <Edit className="h-4 w-4" />
             {t("create")}
           </button>
         </div>
 
-        <div className="mt-6 flex flex-1 items-center justify-center rounded-safe border border-dashed border-slate-300 bg-slate-50">
+        <div className="mt-6 flex flex-1 items-center justify-center rounded-xl border border-dashed border-si-line bg-si-canvas">
           <div className="text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-slate-400" />
-            <p className="mt-4 text-sm text-slate-600">
+            <AlertCircle className="mx-auto h-12 w-12 text-si-muted/60" />
+            <p className="mt-4 text-sm text-si-muted">
               {t("documentDoesNotExistYet")}
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-si-muted">
               {t("clickCreateToAddDocument")}
             </p>
           </div>
@@ -107,12 +107,12 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
   const docType = isRichDocument ? document.type : document.documentType;
 
   return (
-    <div className="flex flex-1 flex-col bg-white p-6 lg:border-l lg:border-slate-200/70 overflow-y-auto">
+    <div className="flex flex-1 flex-col bg-si-surface p-6 lg:border-l lg:border-si-line overflow-y-auto">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-          <p className="mt-1 text-sm text-slate-600">{t("typeLabel", { type: docType })}</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <h2 className="text-lg font-semibold text-si-ink">{title}</h2>
+          <p className="mt-1 text-sm text-si-muted">{t("typeLabel", { type: docType })}</p>
+          <p className="mt-1 text-xs text-si-muted">
             {t("createdOn", { date: new Date(document.createdAt).toLocaleDateString("fr-CA") })}
           </p>
         </div>
@@ -122,7 +122,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
               href={`/api/documents/download/${document.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-safe-sm border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
             >
               <Download className="h-4 w-4" />
               {t("download")}
@@ -130,7 +130,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
           )}
           <button
             onClick={() => onEdit(itemId)}
-            className="inline-flex items-center gap-2 rounded-safe-sm border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
           >
             <Edit className="h-4 w-4" />
             {t("edit")}
@@ -139,36 +139,36 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
       </div>
 
       {/* Document content */}
-      <div className="mt-6 flex-1 rounded-safe border border-slate-200 bg-slate-50 p-4">
+      <div className="mt-6 flex-1 rounded-xl border border-si-line bg-si-canvas p-4">
         {isRichDocument ? (
-          <div className="prose prose-sm max-w-none text-slate-900">
+          <div className="prose prose-sm max-w-none text-si-ink">
             {/* Placeholder for rich document content rendering */}
-            <div className="text-sm text-slate-600">
+            <div className="text-sm text-si-muted">
               <p className="mb-2 font-medium">{t("documentContent")}</p>
-              <div className="rounded bg-white p-3 font-mono text-xs">
+              <div className="rounded bg-si-surface p-3 font-mono text-xs">
                 {document.content
                   ? t("tiptapContent", { count: (document.content as string).length })
                   : t("emptyDocument")}
               </div>
-              <p className="mt-3 text-xs text-slate-500">
+              <p className="mt-3 text-xs text-si-muted">
                 {t("statusLabel")} <span className="font-medium">{document.statut}</span>
               </p>
             </div>
           </div>
         ) : (
           <div className="flex h-96 flex-col items-center justify-center">
-            <FileText className="h-16 w-16 text-slate-300" />
-            <p className="mt-4 text-sm text-slate-600">
+            <FileText className="h-16 w-16 text-si-muted/50" />
+            <p className="mt-4 text-sm text-si-muted">
               {t("fileLabel", { name: document.nom })}
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-si-muted">
               {t("formatLabel", { format: document.mimeType })}
             </p>
             <a
               href={`/api/documents/download/${document.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-safe-sm bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-si-forest px-4 py-2 text-sm font-medium text-white hover:bg-si-forest-soft transition-colors"
             >
               <Download className="h-4 w-4" />
               {t("downloadFile")}

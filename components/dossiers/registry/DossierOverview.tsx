@@ -61,10 +61,10 @@ export function DossierOverview({ data }: DossierOverviewProps) {
       <Card>
         <CardHeader title={tc("client")} />
         <CardContent>
-          <p className="text-neutral-text-secondary">
+          <p className="text-si-muted">
             <Link
               href={routes.client(data.clientId)}
-              className="text-primary-700 hover:underline font-medium"
+              className="text-si-forest hover:underline font-medium"
             >
               {data.clientName}
             </Link>
@@ -76,12 +76,12 @@ export function DossierOverview({ data }: DossierOverviewProps) {
         <CardHeader title={t("team")} />
         <CardContent className="space-y-2 text-sm">
           <div>
-            <span className="text-neutral-muted">{t("responsibleLawyerLabel")}</span>{" "}
+            <span className="text-si-muted">{t("responsibleLawyerLabel")}</span>{" "}
             {data.avocatResponsableNom ?? "—"}
           </div>
           {data.assistantJuridiqueNom && (
             <div>
-              <span className="text-neutral-muted">{t("legalAssistantLabel")}</span>{" "}
+              <span className="text-si-muted">{t("legalAssistantLabel")}</span>{" "}
               {data.assistantJuridiqueNom}
             </div>
           )}
@@ -94,23 +94,23 @@ export function DossierOverview({ data }: DossierOverviewProps) {
           <CardContent className="space-y-2 text-sm">
             {data.tribunalNom && (
               <div>
-                <span className="text-neutral-muted">{t("courtName")}</span> {data.tribunalNom}
+                <span className="text-si-muted">{t("courtName")}</span> {data.tribunalNom}
               </div>
             )}
             {data.districtJudiciaire && (
               <div>
-                <span className="text-neutral-muted">{t("district")}</span> {data.districtJudiciaire}
+                <span className="text-si-muted">{t("district")}</span> {data.districtJudiciaire}
               </div>
             )}
             {data.numeroDossierTribunal && (
               <div>
-                <span className="text-neutral-muted">{t("courtFileLabel")}</span>{" "}
+                <span className="text-si-muted">{t("courtFileLabel")}</span>{" "}
                 {data.numeroDossierTribunal}
               </div>
             )}
             {data.nomJuge && (
               <div>
-                <span className="text-neutral-muted">{t("judgeLabel")}</span> {data.nomJuge}
+                <span className="text-si-muted">{t("judgeLabel")}</span> {data.nomJuge}
               </div>
             )}
           </CardContent>
@@ -121,24 +121,24 @@ export function DossierOverview({ data }: DossierOverviewProps) {
         <CardHeader title={t("matterSummary")} />
         <CardContent className="space-y-2 text-sm">
           <div className="flex flex-wrap gap-2">
-            <span className="text-neutral-muted">{t("statusLabel")}</span>
+            <span className="text-si-muted">{t("statusLabel")}</span>
             <span
               className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                 data.statut === "actif" || data.statut === "ouvert"
-                  ? "bg-status-success-bg text-status-success"
-                  : "bg-neutral-200 text-neutral-muted"
+                  ? "bg-si-verified/10 text-si-verified"
+                  : "bg-si-canvas text-si-muted"
               }`}
             >
               {STATUT_LABELS[data.statut] ?? data.statut}
             </span>
             {data.type && (
               <>
-                <span className="text-neutral-muted">{t("typeLabel")}</span>
+                <span className="text-si-muted">{t("typeLabel")}</span>
                 <span>{TYPE_LABELS[data.type] ?? data.type}</span>
               </>
             )}
           </div>
-          <div className="text-neutral-muted">
+          <div className="text-si-muted">
             {t("openingDate")}{" "}
             {new Date(data.dateOuverture).toLocaleDateString("fr-CA", {
               year: "numeric",
@@ -148,7 +148,7 @@ export function DossierOverview({ data }: DossierOverviewProps) {
           </div>
           {data.modeFacturation && (
             <div>
-              <span className="text-neutral-muted">{t("billingLabel")}</span>{" "}
+              <span className="text-si-muted">{t("billingLabel")}</span>{" "}
               {MODE_FACTURATION_LABELS[data.modeFacturation] ?? data.modeFacturation}
               {data.tauxHoraire != null && data.tauxHoraire > 0 && (
                 <> — {data.tauxHoraire} $/h</>
@@ -156,7 +156,7 @@ export function DossierOverview({ data }: DossierOverviewProps) {
             </div>
           )}
           {data.resumeDossier && (
-            <p className="mt-2 text-neutral-text-secondary whitespace-pre-wrap">
+            <p className="mt-2 text-si-muted whitespace-pre-wrap">
               {data.resumeDossier}
             </p>
           )}

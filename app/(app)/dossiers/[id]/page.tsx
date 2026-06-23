@@ -207,7 +207,7 @@ export default async function DossierDetailPage({
   return (
     <div className="space-y-0">
       {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
-      <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/75 backdrop-blur-md px-6 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <header className="sticky top-0 z-10 border-b border-si-line bg-si-surface/75 backdrop-blur-md px-6 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-3">
@@ -217,29 +217,29 @@ export default async function DossierDetailPage({
               >
                 ← {t("backToList")}
               </Link>
-              <span className="text-slate-300">·</span>
-              <span className="text-sm text-slate-600 truncate">{clientName}</span>
+              <span className="text-si-muted/50">·</span>
+              <span className="text-sm text-si-muted truncate">{clientName}</span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-si-ink sm:text-2xl">
               {numeroDossier} — {dossier.intitule}
             </h1>
             <div className="flex flex-wrap items-center gap-2">
               {dossier.avocatResponsable?.nom && (
-                <span className="rounded-safe-sm bg-slate-100 border border-slate-200/60 px-3 py-1 text-xs font-medium text-slate-700">
+                <span className="rounded-lg bg-si-canvas border border-si-line/60 px-3 py-1 text-xs font-medium text-si-ink">
                   Avocat : {dossier.avocatResponsable.nom}
                 </span>
               )}
               <span
-                className={`inline-flex items-center rounded-safe-sm px-3 py-1 text-xs font-semibold ${
+                className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold ${
                   dossier.statut === "actif" || dossier.statut === "ouvert"
                     ? "bg-emerald-50 border border-emerald-200/70 text-emerald-700"
-                    : "bg-slate-100 border border-slate-200/60 text-slate-600"
+                    : "bg-si-canvas border border-si-line/60 text-si-muted"
                 }`}
               >
                 {STATUT_LABELS[dossier.statut] ?? dossier.statut}
               </span>
               {mandatIncomplet && (
-                <span className="inline-flex items-center gap-1 rounded-safe-sm bg-red-50 border border-red-200/70 px-3 py-1 text-xs font-medium text-red-700">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-[#B84A3E]/10 border border-[#B84A3E]/30/70 px-3 py-1 text-xs font-medium text-[#B84A3E]">
                   ⚠ Mandat incomplet
                 </span>
               )}
@@ -255,13 +255,13 @@ export default async function DossierDetailPage({
             />
             <Link
               href={routes.client(dossier.clientId)}
-              className="inline-flex items-center rounded-safe-sm border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white hover:border-slate-300 transition-colors"
+              className="inline-flex items-center rounded-lg border border-si-line bg-si-surface/80 px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-surface hover:border-si-line transition-colors"
             >
               {t("viewClient")}
             </Link>
             <Link
               href={`${routes.dossier(id)}?edit=1`}
-              className="inline-flex items-center rounded-safe-sm bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-600/20"
+              className="inline-flex items-center rounded-lg bg-si-forest px-4 py-2 text-sm font-semibold text-white hover:bg-si-forest-soft transition-colors shadow-md shadow-si-card"
             >
               {t("editMatter")}
             </Link>
@@ -271,7 +271,7 @@ export default async function DossierDetailPage({
 
       {/* T1 — Bloc « Où j'en étais ? » (context-resume, différenciateur + TDAH). */}
       {resume && (
-        <section className="px-6 pt-5 bg-white">
+        <section className="px-6 pt-5 bg-si-surface">
           <DossierResumeCard
             resume={resume}
             locale={resumeLocale}
@@ -282,7 +282,7 @@ export default async function DossierDetailPage({
 
       {/* Résumé IA du dossier — factuel, garde-fous Barreau, validation humaine.
           Inactif (message) tant que ANTHROPIC_API_KEY n'est pas configurée. */}
-      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+      <section className="px-6 py-5 border-b border-si-line bg-si-surface">
         <DossierResumeIA
           dossierId={dossier.id}
           initialResume={dossier.resumeDossier}
@@ -292,7 +292,7 @@ export default async function DossierDetailPage({
 
       {/* Carte État de préparation — V2 couche assistante active (deep links + bouton). */}
       {preparationStatus && (
-        <section id="preparation" className="px-6 py-5 border-b border-slate-200/70 bg-white scroll-mt-24">
+        <section id="preparation" className="px-6 py-5 border-b border-si-line bg-si-surface scroll-mt-24">
           <DossierPreparationCard
             status={preparationStatus}
             dossierId={dossier.id}
@@ -303,7 +303,7 @@ export default async function DossierDetailPage({
       )}
 
       {/* N2 — Navette : communication interne assistante↔avocate sur ce dossier */}
-      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+      <section className="px-6 py-5 border-b border-si-line bg-si-surface">
         <NavetteThread
           dossierId={id}
           rows={navetteSerialized}
@@ -314,56 +314,56 @@ export default async function DossierDetailPage({
       </section>
 
       {/* Documents rédigés via l'éditeur SAFE */}
-      <section className="px-6 py-5 border-b border-slate-200/70 bg-white">
+      <section className="px-6 py-5 border-b border-si-line bg-si-surface">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">Documents rédigés</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-sm font-semibold text-si-ink">Documents rédigés</h2>
+            <p className="text-xs text-si-muted mt-0.5">
               Documents créés depuis l&apos;éditeur · liés à ce dossier
             </p>
           </div>
           <Link
             href={`/edition/${id}`}
-            className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-medium transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md bg-si-forest hover:bg-si-forest-soft text-white px-3 py-1.5 text-xs font-medium transition-colors"
           >
             + Nouveau / Atelier
           </Link>
         </div>
         {richDocs.length === 0 ? (
-          <div className="text-xs text-slate-500 italic py-3 px-3 bg-slate-50 rounded-md border border-slate-200">
+          <div className="text-xs text-si-muted italic py-3 px-3 bg-si-canvas rounded-md border border-si-line">
             Aucun document rédigé pour ce dossier.{" "}
             <Link href={`/edition/${id}`} className="text-emerald-700 hover:underline">
               Créer le premier
             </Link>
           </div>
         ) : (
-          <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
+          <div className="border border-si-line rounded-md overflow-hidden bg-si-surface">
             {richDocs.map((d, i) => {
               const statutColor =
                 d.statut === "final"
-                  ? "text-green-700 bg-green-50 border-green-200"
+                  ? "text-si-verified bg-si-verified/10 border-si-verified/30"
                   : d.statut === "brouillon"
-                  ? "text-amber-700 bg-amber-50 border-amber-200"
-                  : "text-slate-600 bg-slate-50 border-slate-200";
+                  ? "text-si-amber-ink bg-si-amber/[0.13] border-si-amber/30"
+                  : "text-si-muted bg-si-canvas border-si-line";
               const statutLabel =
                 d.statut === "final" ? "Final" : d.statut === "brouillon" ? "Brouillon" : "Archivé";
               return (
                 <Link
                   key={d.id}
                   href={`/edition/${id}/${d.id}`}
-                  className={`flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors ${
-                    i > 0 ? "border-t border-slate-100" : ""
+                  className={`flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
+                    i > 0 ? "border-t border-si-line" : ""
                   }`}
                 >
-                  <div className="text-slate-400">
+                  <div className="text-si-muted/60">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                       <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
                       <path d="M14 3v5h5" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-slate-900 truncate">{d.titre}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-sm font-medium text-si-ink truncate">{d.titre}</div>
+                    <div className="text-xs text-si-muted mt-0.5">
                       {d.type} · {d._count.versions} version{d._count.versions > 1 ? "s" : ""}
                       {d.lastEditedBy?.nom && ` · ${d.lastEditedBy.nom}`}
                       {" · "}

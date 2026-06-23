@@ -128,8 +128,8 @@ export function BriefcaseSidebar({
   };
 
   return (
-    <div className="flex h-full w-full flex-col border-b border-slate-200/70 bg-slate-50/50 p-4 lg:w-64 lg:border-b-0 lg:border-r lg:overflow-y-auto">
-      <h2 className="mb-4 text-sm font-semibold text-slate-900">{t("briefcaseTitle")}</h2>
+    <div className="flex h-full w-full flex-col border-b border-si-line bg-si-canvas/50 p-4 lg:w-64 lg:border-b-0 lg:border-r lg:overflow-y-auto">
+      <h2 className="mb-4 text-sm font-semibold text-si-ink">{t("briefcaseTitle")}</h2>
 
       <nav className="space-y-1">
         {runtimeSections.map((section) => {
@@ -141,7 +141,7 @@ export function BriefcaseSidebar({
             <div key={section.sectionKey}>
               <button
                 onClick={() => toggleSection(section.sectionKey)}
-                className="flex w-full items-center gap-2 rounded-safe-sm px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white transition-colors"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-surface transition-colors"
               >
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4 shrink-0" />
@@ -151,7 +151,7 @@ export function BriefcaseSidebar({
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{section.label}</span>
                 {section.items.length > 0 && (
-                  <span className="ml-auto shrink-0 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+                  <span className="ml-auto shrink-0 rounded-full bg-si-canvas px-1.5 py-0.5 text-[10px] font-semibold text-si-muted">
                     {section.items.length}
                   </span>
                 )}
@@ -160,7 +160,7 @@ export function BriefcaseSidebar({
               {isExpanded && (
                 <div className="ml-6 space-y-0.5 py-1">
                   {section.items.length === 0 ? (
-                    <div className="px-3 py-2 text-xs text-slate-400 italic">
+                    <div className="px-3 py-2 text-xs text-si-muted/60 italic">
                       {t("noDocument")}
                     </div>
                   ) : (
@@ -168,16 +168,16 @@ export function BriefcaseSidebar({
                       <button
                         key={item.id}
                         onClick={() => onSelectItem(item.id)}
-                        className={`flex w-full items-start gap-2 rounded-safe-sm px-3 py-2 text-left text-sm transition-colors ${
+                        className={`flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                           selectedItemId === item.id
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200/70"
-                            : "text-slate-700 hover:bg-white"
+                            : "text-si-ink hover:bg-si-surface"
                         }`}
                       >
                         <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-current" />
                         <span className="truncate">{item.title}</span>
                         {item.isRequired && (
-                          <span className="ml-auto shrink-0 text-xs font-semibold text-red-600">*</span>
+                          <span className="ml-auto shrink-0 text-xs font-semibold text-[#B84A3E]">*</span>
                         )}
                       </button>
                     ))

@@ -44,18 +44,18 @@ const STATE_ICON: Record<PreparationState, React.ComponentType<{ className?: str
 };
 
 const STATE_TONE: Record<PreparationState, string> = {
-  bloque: "text-[var(--safe-status-error)]",
-  incomplet: "text-[var(--safe-status-error)]",
-  en_attente_client: "text-[var(--safe-text-secondary)]",
-  en_preparation: "text-[var(--safe-status-warning)]",
-  pret_pour_revue: "text-[var(--safe-status-success)]",
+  bloque: "text-[#B84A3E]",
+  incomplet: "text-[#B84A3E]",
+  en_attente_client: "text-si-muted",
+  en_preparation: "text-si-amber-ink",
+  pret_pour_revue: "text-si-verified",
 };
 
 const SEVERITY_TONE: Record<MissingItemSeverity, string> = {
-  blocking: "text-[var(--safe-status-error)] bg-[var(--safe-status-error-bg)]",
-  critical: "text-[var(--safe-status-error)] bg-[var(--safe-status-error-bg)]",
-  warning: "text-[var(--safe-status-warning)] bg-[var(--safe-status-warning-bg)]",
-  info: "safe-text-secondary bg-neutral-100",
+  blocking: "text-[#B84A3E] bg-[#B84A3E]/10",
+  critical: "text-[#B84A3E] bg-[#B84A3E]/10",
+  warning: "text-si-amber-ink bg-si-amber/[0.13]",
+  info: "text-si-muted bg-si-canvas",
 };
 
 export function DossierPreparationCard({
@@ -85,7 +85,7 @@ export function DossierPreparationCard({
               {PREPARATION_STATE_LABELS[status.state]}
             </div>
             {status.nextAction && (
-              <div className="text-sm safe-text-title mt-0.5">
+              <div className="text-sm text-si-ink mt-0.5">
                 <span className="font-medium">Prochaine action :</span>{" "}
                 {topItemHref && topItem?.kind !== "assistant" ? (
                   <Link href={topItemHref} className="text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1">
@@ -98,20 +98,20 @@ export function DossierPreparationCard({
               </div>
             )}
             {isReady && !status.nextAction && (
-              <div className="text-sm safe-text-secondary mt-0.5">
+              <div className="text-sm text-si-muted mt-0.5">
                 Tout est prêt — l&apos;avocat peut relire.
               </div>
             )}
           </div>
           <div className="flex flex-col items-end gap-1.5">
             {isReady && (
-              <span className="text-xs px-2 py-1 rounded-full bg-[var(--safe-status-success-bg)] text-[var(--safe-status-success)] font-medium inline-flex items-center gap-1">
+              <span className="text-xs px-2 py-1 rounded-full bg-si-verified/10 text-si-verified font-medium inline-flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" aria-hidden />
                 Prêt pour revue
               </span>
             )}
             {status.readyToBill && (
-              <span className="text-xs px-2 py-1 rounded-full bg-[var(--safe-status-success-bg)] text-[var(--safe-status-success)] font-medium">
+              <span className="text-xs px-2 py-1 rounded-full bg-si-verified/10 text-si-verified font-medium">
                 Prêt à facturer
               </span>
             )}
@@ -127,10 +127,10 @@ export function DossierPreparationCard({
           )}
 
         {status.missingItems.length === 0 ? (
-          <p className="text-sm safe-text-secondary py-2">Aucun manquant détecté.</p>
+          <p className="text-sm text-si-muted py-2">Aucun manquant détecté.</p>
         ) : (
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wider font-medium safe-text-secondary">
+            <p className="text-xs uppercase tracking-wider font-medium text-si-muted">
               Manquants ({status.missingItems.length})
             </p>
             <ul className="space-y-1.5">
@@ -170,7 +170,7 @@ function MissingItemRow({ item, ctx, canSelfAssign, dossierId }: MissingItemRowP
       <div className="flex items-start gap-2">
         {badge}
         <div className="flex-1 flex items-center justify-between gap-2 flex-wrap">
-          <span className="safe-text-title">{item.label}</span>
+          <span className="text-si-ink">{item.label}</span>
           {canSelfAssign && <AssignToSelfButton dossierId={dossierId} compact />}
         </div>
       </div>
@@ -183,7 +183,7 @@ function MissingItemRow({ item, ctx, canSelfAssign, dossierId }: MissingItemRowP
         {badge}
         <Link
           href={action.href}
-          className="safe-text-title hover:text-emerald-800 hover:underline inline-flex items-center gap-1"
+          className="text-si-ink hover:text-emerald-800 hover:underline inline-flex items-center gap-1"
         >
           {item.label}
           <ArrowRight className="w-3.5 h-3.5 text-emerald-700" aria-hidden />
@@ -195,7 +195,7 @@ function MissingItemRow({ item, ctx, canSelfAssign, dossierId }: MissingItemRowP
   return (
     <div className="flex items-start gap-2">
       {badge}
-      <span className="safe-text-title">{item.label}</span>
+      <span className="text-si-ink">{item.label}</span>
     </div>
   );
 }

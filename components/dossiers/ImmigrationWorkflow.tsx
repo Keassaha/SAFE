@@ -78,7 +78,7 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="h-32 bg-neutral-100 animate-pulse rounded" />
+          <div className="h-32 bg-si-canvas animate-pulse rounded" />
         </CardContent>
       </Card>
     );
@@ -90,19 +90,19 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
     <div className="space-y-4">
       {/* ITA Deadline Alert */}
       {data.itaDeadline && (
-        <Card className={`border ${data.itaDeadline.isCritical ? "border-red-300 bg-red-50/30" : data.itaDeadline.isUrgent ? "border-amber-200 bg-amber-50/30" : "border-blue-200 bg-blue-50/30"}`}>
+        <Card className={`border ${data.itaDeadline.isCritical ? "border-[#B84A3E]/40 bg-[#B84A3E]/10" : data.itaDeadline.isUrgent ? "border-si-amber/30 bg-si-amber/[0.13]" : "border-si-line bg-si-canvas/30"}`}>
           <CardContent className="p-3 flex items-center gap-3">
             {data.itaDeadline.isCritical ? (
-              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-[#B84A3E] shrink-0" />
             ) : (
-              <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+              <Clock className="w-4 h-4 text-si-amber-ink shrink-0" />
             )}
             <div className="flex-1">
-              <p className={`text-sm font-medium ${data.itaDeadline.isCritical ? "text-red-800" : "text-amber-800"}`}>
+              <p className={`text-sm font-medium ${data.itaDeadline.isCritical ? "text-[#B84A3E]" : "text-si-amber-ink"}`}>
                 ITA Deadline: {data.itaDeadline.daysLeft} days remaining
                 {data.itaDeadline.daysLeft <= 0 && " — EXPIRED! Profile will be deleted."}
               </p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-si-muted">
                 Submit by {data.workflow.submissionDeadline
                   ? new Date(data.workflow.submissionDeadline).toLocaleDateString("en-CA")
                   : "—"}
@@ -114,8 +114,8 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
 
       {/* Misrepresentation warning */}
       {data.misrepresentationRisk && (
-        <Card className="border-red-300 bg-red-50/30">
-          <CardContent className="p-3 flex items-center gap-2 text-red-800">
+        <Card className="border-[#B84A3E]/40 bg-[#B84A3E]/10">
+          <CardContent className="p-3 flex items-center gap-2 text-[#B84A3E]">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <p className="text-sm font-medium">
               Art. 40 LIPR — Prior misrepresentation declared. 5-year ban risk. Review carefully.
@@ -126,12 +126,12 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
 
       {/* Document expiry warnings */}
       {(data.expiredDocs > 0 || data.expiringSoonDocs > 0) && (
-        <Card className={`border ${data.expiredDocs > 0 ? "border-red-200 bg-red-50/30" : "border-amber-200 bg-amber-50/30"}`}>
+        <Card className={`border ${data.expiredDocs > 0 ? "border-[#B84A3E]/30 bg-[#B84A3E]/10" : "border-si-amber/30 bg-si-amber/[0.13]"}`}>
           <CardContent className="p-3 flex items-center gap-2">
-            <AlertTriangle className={`w-4 h-4 shrink-0 ${data.expiredDocs > 0 ? "text-red-600" : "text-amber-600"}`} />
+            <AlertTriangle className={`w-4 h-4 shrink-0 ${data.expiredDocs > 0 ? "text-[#B84A3E]" : "text-si-amber-ink"}`} />
             <p className="text-sm">
-              {data.expiredDocs > 0 && <span className="text-red-700 font-medium">{data.expiredDocs} expired document(s). </span>}
-              {data.expiringSoonDocs > 0 && <span className="text-amber-700">{data.expiringSoonDocs} expiring within 30 days.</span>}
+              {data.expiredDocs > 0 && <span className="text-[#B84A3E] font-medium">{data.expiredDocs} expired document(s). </span>}
+              {data.expiringSoonDocs > 0 && <span className="text-si-amber-ink">{data.expiringSoonDocs} expiring within 30 days.</span>}
             </p>
           </CardContent>
         </Card>
@@ -141,10 +141,10 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Globe className="w-4 h-4 text-blue-600" />
+            <Globe className="w-4 h-4 text-si-ink" />
             <h4 className="text-sm font-semibold">IRCC Workflow</h4>
             {data.workflow.irccNumDossier && (
-              <span className="text-xs text-neutral-500 ml-auto">
+              <span className="text-xs text-si-muted ml-auto">
                 IRCC# {data.workflow.irccNumDossier}
               </span>
             )}
@@ -161,16 +161,16 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
                   onClick={() => updateStatut.mutate(step.value)}
                   disabled={updateStatut.isPending}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
-                    ${isCompleted ? "bg-green-100 text-green-700 border border-green-300" :
-                      isCurrent ? "bg-blue-100 text-blue-700 border-2 border-blue-400 shadow-sm" :
-                      "bg-neutral-50 text-neutral-400 border border-neutral-200 hover:bg-neutral-100"}
+                    ${isCompleted ? "bg-si-verified/10 text-si-verified border border-si-verified/40" :
+                      isCurrent ? "bg-si-canvas text-si-ink border-2 border-si-forest/40 shadow-sm" :
+                      "bg-si-canvas text-si-muted/50 border border-si-line hover:bg-si-canvas"}
                   `}
                 >
                   {isCompleted ? (
                     <CheckCircle className="w-3 h-3" />
                   ) : (
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold
-                      ${isCurrent ? "bg-blue-500 text-white" : "bg-neutral-200 text-neutral-500"}`}>
+                      ${isCurrent ? "bg-si-canvas0 text-white" : "bg-si-canvas text-si-muted"}`}>
                       {step.icon}
                     </span>
                   )}
@@ -199,14 +199,14 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
               >
                 Set ITA
               </Button>
-              <span className="text-xs text-neutral-500 mb-2">60-day deadline starts on ITA date</span>
+              <span className="text-xs text-si-muted mb-2">60-day deadline starts on ITA date</span>
             </div>
           )}
 
           {/* CNP Code */}
           <div className="flex items-center gap-3 pt-3 border-t mt-3">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-neutral-500 mb-1">
+              <label className="block text-xs font-medium text-si-muted mb-1">
                 NOC/CNP Code
               </label>
               <span className="text-sm font-medium">
@@ -220,7 +220,7 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
               />
             )}
             {!data.workflow.cnpValidated && (
-              <p className="text-xs text-amber-600">
+              <p className="text-xs text-si-amber-ink">
                 CNP must match primary duties, not job title
               </p>
             )}

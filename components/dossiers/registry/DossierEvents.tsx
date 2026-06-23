@@ -64,15 +64,15 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
         {showAdd && (
           <form
             action={createDossierEvenement}
-            className="rounded-safe-sm border border-neutral-border p-4 space-y-3 bg-neutral-surface/30"
+            className="rounded-lg border border-si-line p-4 space-y-3 bg-si-surface/30"
           >
             <input type="hidden" name="dossierId" value={dossierId} />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{tc("type")}</label>
+              <label className="block text-sm font-medium text-si-muted mb-1">{tc("type")}</label>
               <select
                 name="type"
                 required
-                className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm"
+                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="audience">{t("eventTypeHearing")}</option>
                 <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
@@ -84,11 +84,11 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
             <Input label={t("eventDateTime")} name="date" type="datetime-local" required />
             <Input label={t("eventLocation")} name="lieu" placeholder={t("optional")} />
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("eventNotes")}</label>
+              <label className="block text-sm font-medium text-si-muted mb-1">{t("eventNotes")}</label>
               <textarea
                 name="notes"
                 rows={2}
-                className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
                 placeholder={t("optional")}
               />
             </div>
@@ -102,7 +102,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
         )}
 
         {events.length === 0 && !showAdd ? (
-          <p className="text-sm text-neutral-muted">{t("noEvents")}</p>
+          <p className="text-sm text-si-muted">{t("noEvents")}</p>
         ) : (
           <ul className="space-y-2">
             {events
@@ -112,12 +112,12 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                   <li key={e.id}>
                     <form
                       action={(fd) => updateDossierEvenement(e.id, fd)}
-                      className="rounded-safe-sm border border-primary-200 p-4 space-y-3 bg-primary-50/30"
+                      className="rounded-lg border border-si-line p-4 space-y-3 bg-si-canvas/30"
                     >
                       <input type="hidden" name="dossierId" value={dossierId} />
                       <div>
-                        <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{tc("type")}</label>
-                        <select name="type" defaultValue={e.type} required className="w-full h-10 px-3 rounded-safe-sm border border-neutral-border bg-white text-sm">
+                        <label className="block text-sm font-medium text-si-muted mb-1">{tc("type")}</label>
+                        <select name="type" defaultValue={e.type} required className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                           <option value="audience">{t("eventTypeHearing")}</option>
                           <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
                           <option value="echeance">{t("eventTypeDeadline")}</option>
@@ -136,12 +136,12 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                       />
                       <Input label={t("eventLocation")} name="lieu" defaultValue={e.lieu ?? ""} />
                       <div>
-                        <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("eventNotes")}</label>
+                        <label className="block text-sm font-medium text-si-muted mb-1">{t("eventNotes")}</label>
                         <textarea
                           name="notes"
                           rows={2}
                           defaultValue={e.notes ?? ""}
-                          className="w-full px-3 py-2 rounded-safe-sm border border-neutral-border bg-white text-sm"
+                          className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -155,11 +155,11 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                 ) : (
                   <li
                     key={e.id}
-                    className="flex items-center justify-between gap-2 py-2 px-3 rounded-safe-sm border border-neutral-border hover:bg-neutral-surface/30"
+                    className="flex items-center justify-between gap-2 py-2 px-3 rounded-lg border border-si-line hover:bg-si-surface/30"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-neutral-text-primary truncate">{e.titre}</p>
-                      <p className="text-xs text-neutral-muted">
+                      <p className="font-medium text-si-ink truncate">{e.titre}</p>
+                      <p className="text-xs text-si-muted">
                         {TYPE_LABELS[e.type] ?? e.type} · {formatDate(e.date)}
                         {e.lieu && ` · ${e.lieu}`}
                       </p>
@@ -168,7 +168,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                       <button
                         type="button"
                         onClick={() => setEditingId(e.id)}
-                        className="p-2 text-neutral-muted hover:text-primary-700 rounded"
+                        className="p-2 text-si-muted hover:text-si-forest rounded"
                         aria-label={tc("edit")}
                       >
                         <Pencil className="w-4 h-4" />
@@ -176,7 +176,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                       <form action={deleteDossierEvenement.bind(null, e.id)} className="inline">
                         <button
                           type="submit"
-                          className="p-2 text-neutral-muted hover:text-red-600 rounded"
+                          className="p-2 text-si-muted hover:text-[#B84A3E] rounded"
                           aria-label={tc("delete")}
                         >
                           <Trash2 className="w-4 h-4" />

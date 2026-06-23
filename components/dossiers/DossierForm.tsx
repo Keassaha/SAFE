@@ -68,14 +68,14 @@ export function DossierForm({
     >
       {isEdit && dossier && <input type="hidden" name="id" value={dossier.id} />}
       <div>
-        <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+        <label className="block text-sm font-medium text-si-muted mb-1">
           {tc("client")}
         </label>
         <select
           name="clientId"
           required
           defaultValue={dossier?.clientId ?? initialClientId ?? ""}
-          className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="">{t("selectClient")}</option>
           {clients.map((c) => (
@@ -87,13 +87,13 @@ export function DossierForm({
       </div>
       {avocats && avocats.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+          <label className="block text-sm font-medium text-si-muted mb-1">
             {t("responsibleLawyer")}
           </label>
           <select
             name="avocatResponsableId"
             defaultValue={dossier?.avocatResponsableId ?? ""}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             {avocats.map((u) => (
@@ -106,13 +106,13 @@ export function DossierForm({
       )}
       {assistants && assistants.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+          <label className="block text-sm font-medium text-si-muted mb-1">
             {t("legalAssistant")}
           </label>
           <select
             name="assistantJuridiqueId"
             defaultValue={(dossier as { assistantJuridiqueId?: string | null })?.assistantJuridiqueId ?? ""}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             {assistants.map((u) => (
@@ -137,13 +137,13 @@ export function DossierForm({
       />
       {!hasTaxonomy && (
         <div>
-          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+          <label className="block text-sm font-medium text-si-muted mb-1">
             {tc("type")}
           </label>
           <select
             name="type"
             defaultValue={dossier?.type ?? ""}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             <option value="droit_famille">{t("typeFamily")}</option>
@@ -162,7 +162,7 @@ export function DossierForm({
           {/* « Type » = pratique du cabinet (taxonomie) ; pilote matterCode +
               le type métier dérivé côté serveur. */}
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+            <label className="block text-sm font-medium text-si-muted mb-1">
               {tc("type")}
             </label>
             <select
@@ -172,7 +172,7 @@ export function DossierForm({
                 setSelectedSubject(e.target.value);
                 setSelectedSubmatter("");
               }}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
             >
               <option value="">{t("selectType")}</option>
               {subjectOptions!.map((o) => (
@@ -185,14 +185,14 @@ export function DossierForm({
           {/* « Sujet » = point précis (sous-matière), si défini pour la pratique. */}
           {selectedSubject && availableSubmatters.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("subjectLabel")}
               </label>
               <select
                 name="submatter"
                 value={selectedSubmatter}
                 onChange={(e) => setSelectedSubmatter(e.target.value)}
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+                className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               >
                 <option value="">{t("subjectSelect")}</option>
                 {availableSubmatters.map((o) => (
@@ -240,13 +240,13 @@ export function DossierForm({
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+        <label className="block text-sm font-medium text-si-muted mb-1">
           {tc("status")}
         </label>
         <select
           name="statut"
           defaultValue={dossier?.statut ?? "actif"}
-          className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="ouvert">{t("statusOpen")}</option>
           <option value="actif">{t("statusActive")}</option>
@@ -290,22 +290,22 @@ export function DossierForm({
             defaultValue={(dossier as { nomJuge?: string | null })?.nomJuge ?? ""}
           />
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("matterSummary")}</label>
+            <label className="block text-sm font-medium text-si-muted mb-1">{t("matterSummary")}</label>
             <textarea
               name="resumeDossier"
               rows={2}
               defaultValue={(dossier as { resumeDossier?: string | null })?.resumeDossier ?? ""}
-              className="w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+              className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
             />
           </div>
           {canEditSensitive && (
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("legalStrategyNotes")}</label>
+              <label className="block text-sm font-medium text-si-muted mb-1">{t("legalStrategyNotes")}</label>
               <textarea
                 name="notesStrategieJuridique"
                 rows={2}
                 defaultValue={(dossier as { notesStrategieJuridique?: string | null })?.notesStrategieJuridique ?? ""}
-                className="w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+                className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               />
             </div>
           )}
@@ -314,11 +314,11 @@ export function DossierForm({
           ) : (
             <>
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("billingMode")}</label>
+                <label className="block text-sm font-medium text-si-muted mb-1">{t("billingMode")}</label>
                 <select
                   name="modeFacturation"
                   defaultValue={(dossier as { modeFacturation?: string | null })?.modeFacturation ?? ""}
-                  className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+                  className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
                 >
                   <option value="">{t("noMatterNone")}</option>
                   <option value="horaire">{t("billingHourly")}</option>
@@ -348,14 +348,14 @@ export function DossierForm({
           />
           {canEditSensitive && (
             <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+              <label className="block text-sm font-medium text-si-muted mb-1">
                 {t("confidentialDescription")}
               </label>
               <textarea
                 name="descriptionConfidentielle"
                 defaultValue={dossier.descriptionConfidentielle ?? ""}
                 rows={3}
-                className="w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+                className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               />
             </div>
           )}
@@ -374,12 +374,12 @@ export function DossierForm({
       {/* Immigration sousType for new dossiers */}
       {!isEdit && (
         <div id="immigration-sous-type-section" className="hidden">
-          <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+          <label className="block text-sm font-medium text-si-muted mb-1">
             Immigration Type
           </label>
           <select
             name="sousType"
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30"
+            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="ee">Express Entry</option>
             <option value="parrainage">Sponsorship</option>
@@ -402,7 +402,7 @@ export function DossierForm({
         />
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit">
           {isEdit ? tc("save") : t("createMatter")}

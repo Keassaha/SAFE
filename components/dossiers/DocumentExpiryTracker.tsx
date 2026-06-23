@@ -77,7 +77,7 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileCheck className="w-4 h-4 text-blue-600" />
+            <FileCheck className="w-4 h-4 text-si-ink" />
             <h4 className="text-sm font-semibold">Document Expiry Tracker (D8)</h4>
           </div>
           <Button variant="secondary" onClick={() => setShowAdd(!showAdd)}>
@@ -88,13 +88,13 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
 
         {/* Add form */}
         {showAdd && (
-          <div className="flex flex-wrap items-end gap-3 p-3 bg-neutral-50 rounded-safe border">
+          <div className="flex flex-wrap items-end gap-3 p-3 bg-si-canvas rounded-xl border">
             <div>
-              <label className="block text-xs font-medium text-neutral-500 mb-1">Document Type</label>
+              <label className="block text-xs font-medium text-si-muted mb-1">Document Type</label>
               <select
                 value={newDocType}
                 onChange={(e) => setNewDocType(e.target.value)}
-                className="h-9 px-2 rounded-safe border border-neutral-border bg-white text-sm"
+                className="h-9 px-2 rounded-xl border border-si-line bg-si-surface text-sm"
               >
                 <option value="">Select...</option>
                 {DOC_TYPES.map((t) => (
@@ -103,12 +103,12 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-500 mb-1">Issued Date</label>
+              <label className="block text-xs font-medium text-si-muted mb-1">Issued Date</label>
               <input
                 type="date"
                 value={newDocDate}
                 onChange={(e) => setNewDocDate(e.target.value)}
-                className="h-9 px-2 rounded-safe border border-neutral-border bg-white text-sm"
+                className="h-9 px-2 rounded-xl border border-si-line bg-si-surface text-sm"
               />
             </div>
             <Button
@@ -123,7 +123,7 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
 
         {/* Document list */}
         {docs.length === 0 ? (
-          <p className="text-sm text-neutral-400 py-4 text-center">
+          <p className="text-sm text-si-muted/50 py-4 text-center">
             No documents tracked yet. Add medical exam, police certificates, etc.
           </p>
         ) : (
@@ -131,25 +131,25 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
             {docs.map((doc) => (
               <div
                 key={doc.id}
-                className={`flex items-center justify-between p-2.5 rounded-safe border ${
-                  doc.expiryStatus === "expired" ? "border-red-200 bg-red-50/30" :
-                  doc.expiryStatus === "expiring_soon" ? "border-amber-200 bg-amber-50/30" :
-                  "border-neutral-200"
+                className={`flex items-center justify-between p-2.5 rounded-xl border ${
+                  doc.expiryStatus === "expired" ? "border-[#B84A3E]/30 bg-[#B84A3E]/10" :
+                  doc.expiryStatus === "expiring_soon" ? "border-si-amber/30 bg-si-amber/[0.13]" :
+                  "border-si-line"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {doc.expiryStatus === "expired" ? (
-                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                    <AlertTriangle className="w-4 h-4 text-[#B84A3E] shrink-0" />
                   ) : doc.expiryStatus === "expiring_soon" ? (
-                    <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <Clock className="w-4 h-4 text-si-amber-ink shrink-0" />
                   ) : (
-                    <FileCheck className="w-4 h-4 text-green-600 shrink-0" />
+                    <FileCheck className="w-4 h-4 text-si-verified shrink-0" />
                   )}
                   <div>
                     <p className="text-sm font-medium">
                       {doc.label || DOC_TYPES.find((t) => t.value === doc.type)?.label || doc.type}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-si-muted">
                       Issued: {new Date(doc.issuedAt).toLocaleDateString("en-CA")}
                       {doc.expiresAt && ` — Expires: ${new Date(doc.expiresAt).toLocaleDateString("en-CA")}`}
                     </p>

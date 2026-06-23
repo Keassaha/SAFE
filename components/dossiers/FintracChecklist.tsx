@@ -42,11 +42,11 @@ export function FintracChecklist({
   const bothDocsSelected = doc1 !== "" && doc2 !== "" && doc1 !== doc2;
 
   return (
-    <Card className={`border ${isUrgent ? "border-red-300 bg-red-50/30" : verified ? "border-green-200 bg-green-50/30" : "border-amber-200 bg-amber-50/30"}`}>
+    <Card className={`border ${isUrgent ? "border-[#B84A3E]/40 bg-[#B84A3E]/10" : verified ? "border-si-verified/30 bg-si-verified/10" : "border-si-amber/30 bg-si-amber/[0.13]"}`}>
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className={`w-4 h-4 ${isUrgent ? "text-red-600" : verified ? "text-green-600" : "text-amber-600"}`} />
+            <Shield className={`w-4 h-4 ${isUrgent ? "text-[#B84A3E]" : verified ? "text-si-verified" : "text-si-amber-ink"}`} />
             <h4 className="text-sm font-semibold">
               FINTRAC Identity Verification
             </h4>
@@ -58,7 +58,7 @@ export function FintracChecklist({
         </div>
 
         {isUrgent && (
-          <div className="flex items-center gap-2 text-red-700 text-sm bg-red-100 p-2 rounded-safe">
+          <div className="flex items-center gap-2 text-[#B84A3E] text-sm bg-[#B84A3E]/10 p-2 rounded-xl">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <p>
               {daysUntilClosing! <= 0
@@ -69,21 +69,21 @@ export function FintracChecklist({
           </div>
         )}
 
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-si-muted">
           FINTRAC requires verification of identity using two (2) valid, original, government-issued
           identification documents. Penalty for non-compliance: up to $500,000.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-              ID Document 1 <span className="text-status-error">*</span>
+            <label className="block text-sm font-medium text-si-muted mb-1">
+              ID Document 1 <span className="text-[#B84A3E]">*</span>
             </label>
             <select
               name="fintracDoc1"
               value={doc1}
               onChange={(e) => setDoc1(e.target.value)}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30 outline-none"
+              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
             >
               <option value="">Select ID type...</option>
               {ID_TYPES.map((t) => (
@@ -92,14 +92,14 @@ export function FintracChecklist({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-              ID Document 2 <span className="text-status-error">*</span>
+            <label className="block text-sm font-medium text-si-muted mb-1">
+              ID Document 2 <span className="text-[#B84A3E]">*</span>
             </label>
             <select
               name="fintracDoc2"
               value={doc2}
               onChange={(e) => setDoc2(e.target.value)}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30 outline-none"
+              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
             >
               <option value="">Select ID type...</option>
               {ID_TYPES.filter((t) => t !== doc1).map((t) => (
@@ -110,7 +110,7 @@ export function FintracChecklist({
         </div>
 
         {doc1 && doc2 && doc1 === doc2 && (
-          <p className="text-sm text-status-error">
+          <p className="text-sm text-[#B84A3E]">
             Two different ID types are required.
           </p>
         )}
@@ -131,7 +131,7 @@ export function FintracChecklist({
         </label>
 
         {verified && (
-          <div className="flex items-center gap-2 text-green-700 text-sm">
+          <div className="flex items-center gap-2 text-si-verified text-sm">
             <CheckCircle className="w-4 h-4" />
             Identity verification complete
           </div>

@@ -99,11 +99,11 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
   const hasUnresolvedConflict = latestCheck?.conflictsFound && !latestCheck?.resolution;
 
   return (
-    <Card className={`border ${hasUnresolvedConflict ? "border-red-300 bg-red-50/30" : "border-neutral-200"}`}>
+    <Card className={`border ${hasUnresolvedConflict ? "border-[#B84A3E]/40 bg-[#B84A3E]/10" : "border-si-line"}`}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className={`w-4 h-4 ${hasUnresolvedConflict ? "text-red-600" : "text-green-600"}`} />
+            <Shield className={`w-4 h-4 ${hasUnresolvedConflict ? "text-[#B84A3E]" : "text-si-verified"}`} />
             <h4 className="text-sm font-semibold">Conflict of Interest Check</h4>
           </div>
           {latestCheck && (
@@ -132,7 +132,7 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
             <Search className="w-3 h-3" />
             {runMutation.isPending ? "Checking..." : latestCheck ? "Re-check" : "Run Check"}
           </Button>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-si-muted">
             Searching &quot;{clientName}&quot; across all active matters
           </span>
         </div>
@@ -141,13 +141,13 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
         {result && (
           <div className="space-y-3 pt-3 border-t">
             {!result.conflictsFound ? (
-              <div className="flex items-center gap-2 text-green-700 text-sm">
+              <div className="flex items-center gap-2 text-si-verified text-sm">
                 <CheckCircle className="w-4 h-4" />
                 <span>No conflicts found across {result.totalMatters} active matters.</span>
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2 text-red-700 text-sm">
+                <div className="flex items-center gap-2 text-[#B84A3E] text-sm">
                   <AlertTriangle className="w-4 h-4" />
                   <span className="font-medium">
                     {result.conflicts.length} potential conflict{result.conflicts.length > 1 ? "s" : ""} found
@@ -155,12 +155,12 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
                 </div>
                 <div className="space-y-2">
                   {result.conflicts.map((c, i) => (
-                    <div key={i} className="p-2 rounded-safe bg-white border border-red-200 text-sm">
-                      <p className="font-medium text-red-800">
+                    <div key={i} className="p-2 rounded-xl bg-si-surface border border-[#B84A3E]/30 text-sm">
+                      <p className="font-medium text-[#B84A3E]">
                         {c.dossierNumeroDossier && `${c.dossierNumeroDossier} — `}
                         {c.dossierIntitule}
                       </p>
-                      <p className="text-xs text-red-600">
+                      <p className="text-xs text-[#B84A3E]">
                         {RELATION_LABELS[c.relation] ?? c.relation}
                         {c.clientName && ` — ${c.clientName}`}
                       </p>
@@ -201,14 +201,14 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
 
         {/* History */}
         {history?.checks && history.checks.length > 0 && !result && (
-          <div className="text-xs text-neutral-500 pt-2 border-t">
+          <div className="text-xs text-si-muted pt-2 border-t">
             Last check: {new Date(latestCheck!.checkedAt).toLocaleDateString("en-CA")} by {latestCheck!.checkedBy.nom}
             {latestCheck!.resolution && ` — ${latestCheck!.resolution.replace(/_/g, " ")}`}
           </div>
         )}
 
         {runMutation.isError && (
-          <p className="text-sm text-status-error">
+          <p className="text-sm text-[#B84A3E]">
             {runMutation.error instanceof Error ? runMutation.error.message : "Error"}
           </p>
         )}

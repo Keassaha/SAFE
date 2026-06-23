@@ -31,15 +31,15 @@ export function DossierTrustAccount({
       <CardHeader title={t("trustAccountTitle")} />
       <CardContent className="space-y-2 text-sm">
         <div>
-          <span className="text-neutral-muted">{t("matterBalance")}</span>{" "}
+          <span className="text-si-muted">{t("matterBalance")}</span>{" "}
           <span className="font-medium">{formatCurrency(solde)}</span>
         </div>
         <div>
-          <span className="text-neutral-muted">{t("trustPaymentsAuthorized")}</span>{" "}
+          <span className="text-si-muted">{t("trustPaymentsAuthorized")}</span>{" "}
           {autoriserPaiementFiducie ? tc("yes") : tc("no")}
         </div>
         {clientTrustLink && (
-          <div className="pt-2 border-t border-neutral-border">{clientTrustLink}</div>
+          <div className="pt-2 border-t border-si-line">{clientTrustLink}</div>
         )}
       </CardContent>
     </Card>

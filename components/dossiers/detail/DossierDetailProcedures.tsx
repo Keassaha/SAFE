@@ -86,24 +86,24 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
   const reviewCount = useMemo(() => entries.filter((entry) => entry.needsReview).length, [entries]);
 
   return (
-    <div className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white p-5">
-      <div className="flex flex-col gap-3 border-b border-[var(--safe-neutral-border)] pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="rounded-lg border border-si-line bg-si-surface p-5">
+      <div className="flex flex-col gap-3 border-b border-si-line pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--safe-text-secondary)]">
+          <p className="text-xs font-medium uppercase tracking-wide text-si-muted">
             {modeLabel(mode)}
           </p>
-          <h3 className="mt-1 text-base font-semibold text-[var(--safe-text-primary)]">
+          <h3 className="mt-1 text-base font-semibold text-si-ink">
             {t("proceduresStructuredEntries")}
           </h3>
-          <p className="mt-1 text-sm text-[var(--safe-text-secondary)]">
+          <p className="mt-1 text-sm text-si-muted">
             {t("proceduresAutoFeed")}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-[var(--safe-text-secondary)]">
+        <div className="flex items-center gap-2 text-xs text-si-muted">
           {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <FolderOpen className="h-3.5 w-3.5" />}
           <span>{t("entriesCount", { count: entries.length })}</span>
           {reviewCount > 0 ? (
-            <span className="rounded-safe-sm bg-amber-50 px-2 py-0.5 font-medium text-amber-700">
+            <span className="rounded-lg bg-si-amber/[0.13] px-2 py-0.5 font-medium text-si-amber-ink">
               {t("reviewCount", { count: reviewCount })}
             </span>
           ) : null}
@@ -111,24 +111,24 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
       </div>
 
       {error ? (
-        <div className="mt-4 rounded-safe-sm border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="mt-4 rounded-lg border border-[#B84A3E]/30 bg-[#B84A3E]/10 p-3 text-sm text-[#B84A3E]">
           {error}
         </div>
       ) : null}
 
       {!loading && entries.length === 0 ? (
-        <div className="mt-4 rounded-safe-sm border border-dashed border-slate-200 bg-slate-50/70 p-5 text-center">
-          <FileText className="mx-auto h-5 w-5 text-slate-400" />
-          <p className="mt-2 text-sm font-medium text-slate-700">{t("proceduresEmptyTitle")}</p>
-          <p className="mt-1 text-xs text-slate-500">
+        <div className="mt-4 rounded-lg border border-dashed border-si-line bg-si-canvas/70 p-5 text-center">
+          <FileText className="mx-auto h-5 w-5 text-si-muted/60" />
+          <p className="mt-2 text-sm font-medium text-si-ink">{t("proceduresEmptyTitle")}</p>
+          <p className="mt-1 text-xs text-si-muted">
             {t("proceduresEmptyHint")}
           </p>
         </div>
       ) : null}
 
       {entries.length > 0 ? (
-        <div className="mt-4 overflow-hidden rounded-safe-sm border border-[var(--safe-neutral-border)]">
-          <div className="grid grid-cols-[minmax(0,1fr)_8rem_7rem] gap-3 border-b border-[var(--safe-neutral-border)] bg-slate-50 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+        <div className="mt-4 overflow-hidden rounded-lg border border-si-line">
+          <div className="grid grid-cols-[minmax(0,1fr)_8rem_7rem] gap-3 border-b border-si-line bg-si-canvas px-3 py-2 text-xs font-medium uppercase tracking-wide text-si-muted">
             <span>{t("columnDocumentEvent")}</span>
             <span>{t("columnSection")}</span>
             <span>{t("columnStatus")}</span>
@@ -139,24 +139,24 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     {entry.needsReview ? (
-                      <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+                      <AlertCircle className="h-4 w-4 shrink-0 text-si-amber-ink" />
                     ) : (
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                     )}
-                    <p className="truncate font-medium text-[var(--safe-text-primary)]">{entry.title}</p>
+                    <p className="truncate font-medium text-si-ink">{entry.title}</p>
                   </div>
-                  <p className="mt-1 text-xs text-[var(--safe-text-secondary)]">
+                  <p className="mt-1 text-xs text-si-muted">
                     {entry.entryType.replace(/_/g, " ")} · {formatDate(entry.eventDate)}
                     {entry.confidence != null ? ` · ${t("confidence", { value: entry.confidence })}` : ""}
                   </p>
                   {entry.notes ? (
-                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{entry.notes}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-si-muted">{entry.notes}</p>
                   ) : null}
                 </div>
-                <div className="self-start rounded-safe-sm bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+                <div className="self-start rounded-lg bg-si-canvas px-2 py-1 text-xs font-medium text-si-muted">
                   {entry.sectionKey}
                 </div>
-                <div className="self-start rounded-safe-sm bg-white px-2 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                <div className="self-start rounded-lg bg-si-surface px-2 py-1 text-xs font-medium text-si-ink ring-1 ring-si-line">
                   {statusLabel(entry.status)}
                 </div>
               </div>

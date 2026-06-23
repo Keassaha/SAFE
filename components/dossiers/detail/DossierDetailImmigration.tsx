@@ -93,11 +93,11 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
       <Card>
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2 mb-1">
-            <FileText className="w-4 h-4 text-blue-600" />
-            <h4 className="text-sm font-semibold text-[var(--safe-text-title)]">
+            <FileText className="w-4 h-4 text-si-ink" />
+            <h4 className="text-sm font-semibold text-si-ink">
               {t("irccDocuments")}
             </h4>
-            <span className="ml-auto text-xs text-[var(--safe-text-secondary)]">
+            <span className="ml-auto text-xs text-si-muted">
               {t("emailToClient")}
             </span>
           </div>
@@ -108,20 +108,20 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
               return (
                 <div
                   key={doc.id}
-                  className="flex items-center gap-3 rounded-safe border border-white/10 bg-white/5 px-3 py-2.5"
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-si-surface/5 px-3 py-2.5"
                 >
                   <span className="text-base">{doc.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{doc.label}</p>
                     <p className="text-xs text-white/50 truncate">{doc.sublabel}</p>
                     {state.status === "success" && (
-                      <p className="text-xs text-green-400 flex items-center gap-1 mt-0.5">
+                      <p className="text-xs text-si-verified flex items-center gap-1 mt-0.5">
                         <CheckCircle className="w-3 h-3" />
                         {state.message}
                       </p>
                     )}
                     {state.status === "error" && (
-                      <p className="text-xs text-red-400 flex items-center gap-1 mt-0.5">
+                      <p className="text-xs text-[#B84A3E] flex items-center gap-1 mt-0.5">
                         <AlertCircle className="w-3 h-3" />
                         {state.message}
                       </p>
@@ -132,7 +132,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
                       href={doc.viewHref(dossierId)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-safe-sm border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/10 transition-colors"
+                      className="inline-flex items-center rounded-lg border border-white/20 bg-si-surface/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-si-surface/10 transition-colors"
                     >
                       {t("viewPdf")}
                     </a>

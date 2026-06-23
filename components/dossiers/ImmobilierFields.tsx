@@ -31,22 +31,22 @@ export function ImmobilierFields({
   const isCondo = sousType === "condo";
 
   return (
-    <Card className="border-blue-200 bg-blue-50/30">
+    <Card className="border-si-line bg-si-canvas/30">
       <CardContent className="p-4 space-y-4">
-        <div className="flex items-center gap-2 text-blue-700">
+        <div className="flex items-center gap-2 text-si-ink">
           <Home className="w-4 h-4" />
           <h4 className="text-sm font-semibold">Real Estate — Transaction Details</h4>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-              Transaction Type <span className="text-status-error">*</span>
+            <label className="block text-sm font-medium text-si-muted mb-1">
+              Transaction Type <span className="text-[#B84A3E]">*</span>
             </label>
             <select
               name="sousType"
               defaultValue={sousType ?? "achat"}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
+              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
             >
               {SOUS_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -62,7 +62,7 @@ export function ImmobilierFields({
               type="date"
               defaultValue={closingDate ?? ""}
             />
-            <Calendar className="w-4 h-4 text-blue-500 ml-2 mb-3 shrink-0" />
+            <Calendar className="w-4 h-4 text-si-muted ml-2 mb-3 shrink-0" />
           </div>
         </div>
 
@@ -75,13 +75,13 @@ export function ImmobilierFields({
               placeholder="123 Main St, Toronto, ON M5V 1A1"
             />
           </div>
-          <MapPin className="w-4 h-4 text-blue-500 mb-3 shrink-0" />
+          <MapPin className="w-4 h-4 text-si-muted mb-3 shrink-0" />
         </div>
 
         {/* Condo-specific fields (D5) */}
         {(isCondo || isEdit) && (
           <div className={`space-y-4 ${isCondo ? "" : "hidden"}`} id="condo-fields">
-            <div className="flex items-center gap-2 text-blue-600 pt-2 border-t border-blue-200">
+            <div className="flex items-center gap-2 text-si-ink pt-2 border-t border-si-line">
               <Building2 className="w-4 h-4" />
               <h5 className="text-sm font-medium">Condo-Specific</h5>
             </div>
@@ -99,7 +99,7 @@ export function ImmobilierFields({
                 placeholder="e.g. Level 1, #12"
               />
             </div>
-            <p className="text-xs text-blue-600">
+            <p className="text-xs text-si-ink">
               Verify PIN numbers match APS and condo plan. LAWPRO reports PIN mismatches as a recurring error.
             </p>
           </div>

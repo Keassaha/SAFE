@@ -52,19 +52,19 @@ export function DossierBilling({
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-4 text-sm">
           <div>
-            <span className="text-neutral-muted">{t("totalHours")}</span>{" "}
+            <span className="text-si-muted">{t("totalHours")}</span>{" "}
             <span className="font-medium">{totalHeures.toFixed(1)} h</span>
           </div>
           <div>
-            <span className="text-neutral-muted">{t("totalAmount")}</span>{" "}
+            <span className="text-si-muted">{t("totalAmount")}</span>{" "}
             <span className="font-medium">{formatCurrency(totalMontant)}</span>
           </div>
         </div>
         {timeEntries.length > 0 ? (
-          <div className="overflow-x-auto border border-neutral-border rounded-safe-sm">
+          <div className="overflow-x-auto border border-si-line rounded-lg">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-neutral-surface/50 border-b border-neutral-border">
+                <tr className="bg-si-canvas/60 border-b border-si-line">
                   <th className="text-left py-2 px-3">{tc("date")}</th>
                   <th className="text-left py-2 px-3">{tc("description")}</th>
                   <th className="text-right py-2 px-3">{t("duration")}</th>
@@ -74,8 +74,8 @@ export function DossierBilling({
               </thead>
               <tbody>
                 {timeEntries.map((r) => (
-                  <tr key={r.id} className="border-b border-neutral-border last:border-0">
-                    <td className="py-2 px-3 text-neutral-muted">
+                  <tr key={r.id} className="border-b border-si-line last:border-0">
+                    <td className="py-2 px-3 text-si-muted">
                       {new Date(r.date).toLocaleDateString("fr-CA")}
                     </td>
                     <td className="py-2 px-3">{r.description ?? "—"}</td>
@@ -92,11 +92,11 @@ export function DossierBilling({
             </table>
           </div>
         ) : (
-          <p className="text-neutral-muted text-sm">
+          <p className="text-si-muted text-sm">
             {t("noTimesheets")}{" "}
             <Link
               href={routes.temps}
-              className="text-primary-700 hover:underline"
+              className="text-si-forest hover:underline"
             >
               {t("addTimesheetLink")}
             </Link>
