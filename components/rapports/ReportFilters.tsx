@@ -38,7 +38,7 @@ export function ReportFilters({
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-end">
       <div>
-        <label className="block text-sm font-medium text-neutral-muted mb-1">
+        <label className="block text-sm font-medium text-si-muted mb-1">
           {t("year")}
         </label>
         <input
@@ -47,16 +47,16 @@ export function ReportFilters({
           defaultValue={currentYear}
           min="2020"
           max={new Date().getFullYear() + 1}
-          className="w-28 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-28 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-neutral-muted mb-1">
+        <label className="block text-sm font-medium text-si-muted mb-1">
           {t("client")}
         </label>
         <select
           name="clientId"
-          className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={currentClientId}
         >
           <option value="">{t("all")}</option>
@@ -68,12 +68,12 @@ export function ReportFilters({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-neutral-muted mb-1">
+        <label className="block text-sm font-medium text-si-muted mb-1">
           {t("lawyer")}
         </label>
         <select
           name="userId"
-          className="w-48 h-10 px-3 rounded-safe-sm border border-neutral-border bg-white/80 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={currentUserId}
         >
           <option value="">{t("all")}</option>

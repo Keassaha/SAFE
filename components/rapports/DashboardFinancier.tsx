@@ -91,8 +91,8 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
           />
         ))}
       </div>
-      <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-emerald-500">
-        <h3 className="text-sm font-semibold safe-text-title mb-4 tracking-tight">
+      <div className="bg-si-surface border border-si-line overflow-hidden p-5 md:p-6 border-l-4 border-l-si-verified">
+        <h3 className="text-sm font-semibold text-si-ink mb-4 tracking-tight">
           {t("billedRevenueByMonth")}
         </h3>
         {hasChartData ? (
@@ -103,7 +103,7 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "var(--safe-text-secondary)", fontSize: 10 }}
+                  tick={{ fill: "var(--text-si-muted)", fontSize: 10 }}
                 />
                 <YAxis hide />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -124,7 +124,7 @@ export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierP
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-sm safe-text-secondary py-8 text-center">
+          <p className="text-sm text-si-muted py-8 text-center">
             {t("noPeriodData")}
           </p>
         )}

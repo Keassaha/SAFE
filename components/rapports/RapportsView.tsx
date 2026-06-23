@@ -23,7 +23,7 @@ import { RapportFacturationTable } from "./RapportFacturationTable";
 /* Lazy-load recharts-heavy component */
 const DashboardFinancier = dynamic(
   () => import("./DashboardFinancier").then(m => ({ default: m.DashboardFinancier })),
-  { loading: () => <div className="h-80 bg-neutral-100 rounded-safe-sm animate-pulse" /> }
+  { loading: () => <div className="h-80 bg-si-canvas rounded-lg animate-pulse" /> }
 );
 import { ComptesRecevoirSection } from "./ComptesRecevoirSection";
 import { PerformanceAvocatsTable } from "./PerformanceAvocatsTable";
@@ -84,10 +84,10 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-safe-sm text-sm font-medium transition-all duration-200 text-left ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-left ${
                   isActive
                     ? "bg-gradient-to-r from-[#051F20] to-[#163832] text-white shadow-md"
-                    : "text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-100)] hover:text-[var(--safe-text-title)]"
+                    : "text-si-muted hover:bg-si-canvas hover:text-si-ink"
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" aria-hidden />
@@ -105,7 +105,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value as TabId)}
-            className="w-full h-11 px-4 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-[var(--safe-text-title)] font-medium"
+            className="w-full h-11 px-4 rounded-lg border border-si-line bg-si-surface text-si-ink font-medium"
           >
             {TABS.map((tab) => (
               <option key={tab.id} value={tab.id}>{tab.label}</option>
@@ -117,7 +117,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         <button
           type="button"
           onClick={() => setFiltersOpen(!filtersOpen)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white text-sm font-medium text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] hover:border-[var(--safe-neutral-300)] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-si-line bg-si-surface text-sm font-medium text-si-muted hover:text-si-ink hover:border-si-line transition-colors"
         >
           <SlidersHorizontal className="w-4 h-4" />
           {tc("filters")}
@@ -125,7 +125,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         </button>
 
         {filtersOpen && (
-          <div className="p-4 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/60 backdrop-blur-sm">
+          <div className="p-4 rounded-lg border border-si-line bg-si-surface/60 backdrop-blur-sm">
             <RapportsFilters
               clients={payload.clients}
               avocats={payload.avocats}

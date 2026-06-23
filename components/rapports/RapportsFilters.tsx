@@ -57,7 +57,7 @@ export function RapportsFilters({
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-end">
       <div>
-        <label htmlFor="rapports-dateDebut" className="block text-sm font-medium safe-text-secondary mb-1">
+        <label htmlFor="rapports-dateDebut" className="block text-sm font-medium text-si-muted mb-1">
           {tc("from")}
         </label>
         <input
@@ -65,11 +65,11 @@ export function RapportsFilters({
           name="dateDebut"
           type="date"
           defaultValue={defaultDateDebut}
-          className="w-40 h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/80 safe-text-title focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-40 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
-        <label htmlFor="rapports-dateFin" className="block text-sm font-medium safe-text-secondary mb-1">
+        <label htmlFor="rapports-dateFin" className="block text-sm font-medium text-si-muted mb-1">
           {tc("to")}
         </label>
         <input
@@ -77,17 +77,17 @@ export function RapportsFilters({
           name="dateFin"
           type="date"
           defaultValue={defaultDateFin}
-          className="w-40 h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/80 safe-text-title focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-40 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
-        <label htmlFor="rapports-clientId" className="block text-sm font-medium safe-text-secondary mb-1">
+        <label htmlFor="rapports-clientId" className="block text-sm font-medium text-si-muted mb-1">
           {tc("client")}
         </label>
         <select
           id="rapports-clientId"
           name="clientId"
-          className="w-48 min-w-0 h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/80 safe-text-title focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultClientId}
         >
           <option value="">{tc("all")}</option>
@@ -99,13 +99,13 @@ export function RapportsFilters({
         </select>
       </div>
       <div>
-        <label htmlFor="rapports-userId" className="block text-sm font-medium safe-text-secondary mb-1">
+        <label htmlFor="rapports-userId" className="block text-sm font-medium text-si-muted mb-1">
           {t("lawyer")}
         </label>
         <select
           id="rapports-userId"
           name="userId"
-          className="w-48 min-w-0 h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/80 safe-text-title focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-48 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultUserId}
         >
           <option value="">{tc("all")}</option>
@@ -117,13 +117,13 @@ export function RapportsFilters({
         </select>
       </div>
       <div>
-        <label htmlFor="rapports-statut" className="block text-sm font-medium safe-text-secondary mb-1">
+        <label htmlFor="rapports-statut" className="block text-sm font-medium text-si-muted mb-1">
           {t("invoiceStatus")}
         </label>
         <select
           id="rapports-statut"
           name="statut"
-          className="w-44 min-w-0 h-10 px-3 rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/80 safe-text-title focus:ring-2 focus:ring-primary-500/30 outline-none"
+          className="w-44 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultStatut}
         >
           {STATUT_OPTIONS.map((o) => (

@@ -56,7 +56,7 @@ export default async function RapportsPage({
         title={t("reportsTitle")}
         description={t("reportsDescription")}
       />
-      <Suspense fallback={<p className="safe-text-secondary">{t("reportsLoading")}</p>}>
+      <Suspense fallback={<p className="text-si-muted">{t("reportsLoading")}</p>}>
         <RapportsView payload={payload} />
       </Suspense>
     </div>

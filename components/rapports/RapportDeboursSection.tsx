@@ -19,7 +19,7 @@ export function RapportDeboursSection({ data }: { data: RapportDeboursRow[] }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold safe-text-title tracking-tight">{t("disbursementsReportTitle")}</h3>
+      <h3 className="text-sm font-semibold text-si-ink tracking-tight">{t("disbursementsReportTitle")}</h3>
       <DataTable
         columns={columns}
         data={data}
