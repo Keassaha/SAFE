@@ -25,11 +25,11 @@ const SEMANTIC_STYLES: Record<
   ComptaKpiSemantic,
   { iconBg: string; iconColor: string; valueColor: string; ring: string }
 > = {
-  neutral: { iconBg: "bg-slate-100",  iconColor: "text-slate-600",  valueColor: "text-slate-900", ring: "" },
-  credit:  { iconBg: "bg-forest-50",  iconColor: "text-forest-700", valueColor: "text-forest-700", ring: "" },
-  debit:   { iconBg: "bg-red-50",     iconColor: "text-red-600",    valueColor: "text-red-600",    ring: "" },
-  warning: { iconBg: "bg-amber-50",   iconColor: "text-amber-600",  valueColor: "text-slate-900",  ring: "" },
-  alert:   { iconBg: "bg-amber-50",   iconColor: "text-amber-600",  valueColor: "text-amber-600",  ring: "ring-1 ring-amber-300" },
+  neutral: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest",  valueColor: "text-si-ink",       ring: "" },
+  credit:  { iconBg: "bg-si-verified/10",   iconColor: "text-si-verified", valueColor: "text-si-verified",  ring: "" },
+  debit:   { iconBg: "bg-[#B84A3E]/10",     iconColor: "text-[#B84A3E]",   valueColor: "text-[#B84A3E]",    ring: "" },
+  warning: { iconBg: "bg-si-amber/[0.13]",  iconColor: "text-si-amber",    valueColor: "text-si-ink",       ring: "" },
+  alert:   { iconBg: "bg-si-amber/[0.13]",  iconColor: "text-si-amber",    valueColor: "text-si-amber-ink", ring: "ring-1 ring-si-amber/30" },
 };
 
 export function ComptaKpiCard({
@@ -50,29 +50,29 @@ export function ComptaKpiCard({
   const trendNegative = trend && trend.value < 0;
   const TrendIcon = trendPositive ? TrendingUp : trendNegative ? TrendingDown : Minus;
   const trendPillClass = trendPositive
-    ? "bg-forest-50 text-forest-700"
+    ? "bg-si-verified/10 text-si-verified"
     : trendNegative
-    ? "bg-red-50 text-red-600"
-    : "bg-slate-100 text-slate-500";
+    ? "bg-[#B84A3E]/10 text-[#B84A3E]"
+    : "bg-si-canvas text-si-muted";
 
   return (
     <motion.div
       variants={reduceMotion ? staggerItemReduced : staggerItem}
       whileHover={{ y: -1, boxShadow: "0 8px 24px rgba(26,46,40,0.10)" }}
-      className={`bg-white border-[0.5px] border-slate-200 rounded-safe-md p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
+      className={`bg-si-surface border-[0.5px] border-si-line rounded-2xl p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
     >
       {/* Top row */}
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-slate-500 leading-tight">
+        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted leading-tight">
           {label}
         </p>
-        <span className={`w-8 h-8 rounded-safe-sm flex items-center justify-center shrink-0 ${styles.iconBg}`}>
+        <span className={`w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 ${styles.iconBg}`}>
           <Icon className={`w-4 h-4 ${styles.iconColor}`} strokeWidth={1.75} />
         </span>
       </div>
 
       {/* Value */}
-      <div className={`mt-3 text-[24px] font-semibold tabular-nums leading-none ${styles.valueColor}`}>
+      <div className={`mt-3 font-mono text-[24px] font-semibold tabular-nums leading-none ${styles.valueColor}`}>
         {animated ? (
           format === "currency" ? (
             <AnimatedNumber value={value} decimals={2} suffix={"\u00a0$"} />
@@ -99,7 +99,7 @@ export function ComptaKpiCard({
 
       {/* SubText */}
       {subText && (
-        <p className="mt-1.5 text-[12px] text-slate-500 truncate" title={subText}>
+        <p className="mt-1.5 text-[12px] text-si-muted truncate" title={subText}>
           {subText}
         </p>
       )}

@@ -61,7 +61,7 @@ export function ComptabilitePageView({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1, ease }}
-        className="relative flex gap-8 border-b-[0.5px] border-border mb-8"
+        className="relative flex gap-8 border-b-[0.5px] border-si-line mb-8"
         aria-label={t("tabsAriaLabel")}
       >
         {TABS.map((tab_) => {
@@ -73,14 +73,14 @@ export function ComptabilitePageView({
               href={routes.comptabiliteTab(tab_.id)}
               className={`relative flex items-center gap-2 py-3 text-[13px] transition-colors duration-200 ${
                 isActive
-                  ? "font-medium text-text-primary"
-                  : "text-text-muted hover:text-text-primary"
+                  ? "font-medium text-si-ink"
+                  : "text-si-muted hover:text-si-ink"
               }`}
             >
               {isActive && (
                 <motion.span
                   layoutId="comptabilite-tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-forest-600"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-si-forest"
                   transition={tMicro}
                   aria-hidden
                 />
