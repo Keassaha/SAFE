@@ -13,7 +13,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`card-glass safe-hover-lift overflow-hidden ${className}`}
+      className={`bg-si-surface border border-si-line rounded-2xl overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -31,7 +31,7 @@ export function MotionCard({
   return (
     <motion.div
       variants={staggerItem}
-      className={`card-glass safe-hover-lift overflow-hidden ${className}`}
+      className={`bg-si-surface border border-si-line rounded-2xl overflow-hidden ${className}`}
     >
       {children}
     </motion.div>
@@ -48,8 +48,8 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-6 py-4 border-b border-[var(--safe-neutral-border)]/60 flex justify-between items-center ${className}`}>
-      <h2 className="text-base font-semibold safe-text-title tracking-tight">
+    <div className={`px-6 py-4 border-b border-si-line flex justify-between items-center ${className}`}>
+      <h2 className="font-serif text-[19px] leading-tight text-si-ink">
         {title}
       </h2>
       {action}
@@ -64,5 +64,5 @@ export function CardContent({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`p-6 text-[var(--safe-text-title)] ${className}`}>{children}</div>;
+  return <div className={`p-6 text-si-ink ${className}`}>{children}</div>;
 }
