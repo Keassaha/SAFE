@@ -2296,6 +2296,8 @@
     "backToOverview": "Retour à la vue d'ensemble",
     "newPayment": "Nouveau paiement",
     "recentPayments": "Paiements récents",
+    "unallocatedAlertTitle": "Paiements non alloués",
+    "unallocatedAlertSub": "{count} en attente · {amount} à allouer à une facture",
     "noPayments": "Aucun paiement.",
     "invoice": "Facture",
     "allocated": "Alloué",

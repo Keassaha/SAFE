@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle } from "lucide-react";
 import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
@@ -84,6 +84,11 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
   });
 
   const payments = (data?.payments ?? []) as PaymentRow[];
+  // Paiements orphelins : argent reçu mais non encore alloué à une facture.
+  const unallocatedPayments = payments.filter(
+    (p) => p.unallocatedAmount > 0 && p.allocationStatus !== "REVERSED",
+  );
+  const unallocatedTotal = unallocatedPayments.reduce((s, p) => s + p.unallocatedAmount, 0);
   const clients = contextData?.clients ?? [];
 	  const invoices = contextData?.invoices ?? [];
 
@@ -144,6 +149,21 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           {t("newPayment")}
         </Button>
       </div>
+
+      {unallocatedPayments.length > 0 && (
+        <div className="flex items-start gap-3 rounded-2xl border border-si-amber/30 bg-si-amber/[0.08] p-4">
+          <AlertCircle className="h-5 w-5 shrink-0 text-si-amber-ink mt-0.5" aria-hidden />
+          <div>
+            <p className="text-sm font-medium text-si-amber-ink">{t("unallocatedAlertTitle")}</p>
+            <p className="mt-0.5 text-xs text-si-muted">
+              {t("unallocatedAlertSub", {
+                count: unallocatedPayments.length,
+                amount: formatCurrency(unallocatedTotal),
+              })}
+            </p>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader title={t("recentPayments")} />
