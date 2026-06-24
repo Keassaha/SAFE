@@ -25,7 +25,15 @@ export type AuditEntityType =
   | "Invitation"
   | "Payslip";
 
-export type AuditAction = "create" | "update" | "delete" | "view" | "view_sensitive" | "download";
+export type AuditAction =
+  | "create"
+  | "update"
+  | "delete"
+  | "view"
+  | "view_sensitive"
+  | "download"
+  // P3 — intention de remboursement d'un surpaiement (action est une colonne String : aucune migration).
+  | "refund_requested";
 
 export interface CreateAuditLogParams {
   cabinetId: string;

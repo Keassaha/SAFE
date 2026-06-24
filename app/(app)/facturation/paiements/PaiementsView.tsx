@@ -10,10 +10,12 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins } from "lucide-react";
 import { fadeInUp, useSafeMotion } from "@/lib/motion";
+import { Modal } from "@/components/ui/Modal";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
+import type { ClientCreditBalance } from "@/lib/services/billing/overpayment-service";
 
 type AllocationStatusKey = "UNALLOCATED" | "PARTIALLY_ALLOCATED" | "ALLOCATED" | "REVERSED";
 
@@ -63,6 +65,10 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     unallocatedAmount: number;
     clientId: string | null;
   } | null>(null);
+  const [refundClient, setRefundClient] = useState<ClientCreditBalance | null>(null);
+  const [refundNote, setRefundNote] = useState("");
+  const [refundSubmitting, setRefundSubmitting] = useState(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["facturation", "paiements"],
@@ -82,6 +88,16 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     },
     enabled: formModalOpen || allocationModalOpen,
   });
+
+  const { data: surData, refetch: refetchSurpaiements } = useQuery({
+    queryKey: ["facturation", "surpaiements"],
+    queryFn: async () => {
+      const res = await fetch("/api/facturation/surpaiements");
+      if (!res.ok) throw new Error("Erreur chargement surpaiements");
+      return res.json();
+    },
+  });
+  const creditClients = (surData?.clients ?? []) as ClientCreditBalance[];
 
   const payments = (data?.payments ?? []) as PaymentRow[];
   // Paiements orphelins : argent reçu mais non encore alloué à une facture.
@@ -127,6 +143,25 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     p.unallocatedAmount > 0 &&
     (p.allocationStatus === "UNALLOCATED" || p.allocationStatus === "PARTIALLY_ALLOCATED");
 
+  async function handleRequestRefund() {
+    if (!refundClient) return;
+    setRefundSubmitting(true);
+    setRefundError(null);
+    const res = await fetch("/api/facturation/surpaiements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId: refundClient.clientId, note: refundNote || undefined }),
+    });
+    setRefundSubmitting(false);
+    if (res.ok) {
+      setRefundClient(null);
+      setRefundNote("");
+      await refetchSurpaiements();
+    } else {
+      setRefundError(t("refundError"));
+    }
+  }
+
   return (
     <div className="space-y-6">
       {!embeddedInComptabilite && (
@@ -163,6 +198,53 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
             </p>
           </div>
         </div>
+      )}
+
+      {creditClients.length > 0 && (
+        <Card>
+          <CardHeader title={t("overpaymentSectionTitle")} />
+          <CardContent>
+            <p className="mb-3 text-sm text-si-muted">{t("overpaymentSectionSub")}</p>
+            <ul className="divide-y divide-si-line">
+              {creditClients.map((c) => (
+                <li key={c.clientId} className="flex items-center justify-between gap-3 py-2.5">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-si-amber/[0.13] text-si-amber-ink">
+                      <Coins className="h-4 w-4" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-medium text-si-ink">{c.label}</p>
+                      <p className="text-xs text-si-muted">
+                        {t("creditBalanceLabel")} :{" "}
+                        <span className="font-mono tabular-nums text-si-amber-ink">
+                          {formatCurrency(c.creditBalance)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  {c.refundRequested ? (
+                    <span className="shrink-0 rounded-full bg-si-amber/[0.13] px-2.5 py-1 text-xs font-medium text-si-amber-ink">
+                      {t("refundRequestedBadge")}
+                    </span>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="tertiary"
+                      className="shrink-0"
+                      onClick={() => {
+                        setRefundError(null);
+                        setRefundNote("");
+                        setRefundClient(c);
+                      }}
+                    >
+                      {t("requestRefund")}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
 
       <Card>
@@ -286,6 +368,49 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
         invoices={invoices}
         onSuccess={() => setAllocationModalOpen(false)}
       />
+
+      <Modal
+        open={Boolean(refundClient)}
+        onClose={() => setRefundClient(null)}
+        title={t("refundModalTitle")}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-si-muted">{t("refundModalIntro")}</p>
+          {refundClient && (
+            <p className="text-sm text-si-ink">
+              {refundClient.label} :{" "}
+              <span className="font-mono tabular-nums text-si-amber-ink">
+                {formatCurrency(refundClient.creditBalance)}
+              </span>
+            </p>
+          )}
+          <div>
+            <label className="mb-1 block text-sm text-si-ink">{t("refundNoteLabel")}</label>
+            <textarea
+              value={refundNote}
+              onChange={(e) => setRefundNote(e.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
+            />
+          </div>
+          <p className="text-xs text-si-muted">{t("refundManualNotice")}</p>
+          {refundError && <p className="text-sm text-[var(--safe-status-error)]">{refundError}</p>}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="tertiary" onClick={() => setRefundClient(null)}>
+              {t("refundCancel")}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={refundSubmitting}
+              onClick={handleRequestRefund}
+            >
+              {refundSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
+              {t("refundConfirm")}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
