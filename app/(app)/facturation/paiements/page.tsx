@@ -1,9 +1,8 @@
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canManageInvoices } from "@/lib/auth/permissions";
 import { FacturationPaiementsView } from "./PaiementsView";
-import { redirect } from "next/navigation";
 
 export default async function FacturationPaiementsPage() {
-  const cabinetId = await requireCabinetId();
-  if (!cabinetId) redirect("/connexion");
+  const { cabinetId } = await requirePageAccess(canManageInvoices);
   return <FacturationPaiementsView cabinetId={cabinetId} />;
 }

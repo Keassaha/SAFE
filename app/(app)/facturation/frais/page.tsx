@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canManageInvoices } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -11,7 +12,7 @@ import type { DeboursStatut } from "@prisma/client";
 
 export default async function FacturationFraisPage() {
   const t = await getTranslations("billingUi");
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canManageInvoices);
 
   const [debours, deboursARefacturer, deboursNonRembourses, clients, dossiers] = await Promise.all([
     prisma.deboursDossier.findMany({

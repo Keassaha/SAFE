@@ -1,4 +1,5 @@
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canManageInvoices } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -10,7 +11,7 @@ import { SuiviPipelineView } from "./SuiviPipelineView";
 import { whereInvoiceIssuedActive, whereInvoiceOverdue } from "@/lib/billing/invoice-status";
 
 export default async function FacturationSuiviPage() {
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canManageInvoices);
   const t = await getTranslations("facturation");
 
   // Cette page est dédiée au suivi POST-émission (envoyées, en retard, encaissement).

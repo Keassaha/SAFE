@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { requireCabinetId } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canManageInvoices } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
@@ -11,7 +12,7 @@ import { FileText, ChevronRight } from "lucide-react";
 
 export default async function FacturationVerificationPage() {
   const t = await getTranslations("billingUi");
-  const cabinetId = await requireCabinetId();
+  const { cabinetId } = await requirePageAccess(canManageInvoices);
 
   const invoices = await prisma.invoice.findMany({
     where: {
