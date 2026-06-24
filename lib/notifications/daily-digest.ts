@@ -50,7 +50,7 @@ const STR: Record<DigestLocale, Record<string, string>> = {
     subject: "Votre résumé du jour",
     greeting: "Bonjour",
     intro: "Voici ce qui demande votre attention aujourd’hui.",
-    navetteTitle: "Navette — en attente de vous",
+    navetteTitle: "Navette : en attente de vous",
     deadlinesTitle: "Échéances proches",
     tasksTitle: "Tâches en retard",
     hoursTitle: "Heures à approuver",
@@ -78,7 +78,7 @@ const STR: Record<DigestLocale, Record<string, string>> = {
     subject: "Your daily summary",
     greeting: "Hello",
     intro: "Here is what needs your attention today.",
-    navetteTitle: "Navette — waiting on you",
+    navetteTitle: "Navette: waiting on you",
     deadlinesTitle: "Upcoming deadlines",
     tasksTitle: "Overdue tasks",
     hoursTitle: "Hours to approve",
@@ -149,7 +149,7 @@ export function digestSubject(d: DigestData, locale: DigestLocale): string {
   if (d.navetteNeedsMe.count > 0) bits.push(`${d.navetteNeedsMe.count} ${s(locale, "navetteTitle").toLowerCase()}`);
   if (d.upcomingDeadlines.length > 0) bits.push(`${d.upcomingDeadlines.length} ${s(locale, "deadlinesTitle").toLowerCase()}`);
   const base = s(locale, "subject");
-  return bits.length ? `${base} — ${bits.join(" · ")}` : base;
+  return bits.length ? `${base} · ${bits.join(" · ")}` : base;
 }
 
 const FOREST = "#1F3A2E";

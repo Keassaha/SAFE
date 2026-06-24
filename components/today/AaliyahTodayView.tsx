@@ -12,6 +12,8 @@ import {
   Check,
   MessageSquare,
   Award,
+  FileText,
+  Receipt,
 } from "lucide-react";
 import { StartTimerButton } from "@/components/temps/StartTimerButton";
 import type { NavetteMessageType } from "@prisma/client";
@@ -101,6 +103,8 @@ function InboxIcon({ type }: { type: TodayInboxRow["type"] }) {
     case "question": return <HelpCircle className={c} aria-hidden />;
     case "approved": return <Check className={c} aria-hidden />;
     case "ready_for_review": return <Send className={c} aria-hidden />;
+    case "document_ready": return <FileText className={c} aria-hidden />;
+    case "invoice_ready": return <Receipt className={c} aria-hidden />;
     case "acte_urgent": return <AlertTriangle className={c} aria-hidden />;
     default: return <MessageSquare className={c} aria-hidden />;
   }

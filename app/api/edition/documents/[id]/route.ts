@@ -87,8 +87,9 @@ export async function PUT(
         body: updated.titre,
         sourceRef: `document:${id}`,
       });
-    } catch {
-      // signal best-effort
+    } catch (err) {
+      // signal best-effort : un échec n'empêche pas l'enregistrement du document
+      console.error("[navette] document_ready: erreur best-effort", { id, err });
     }
   }
 

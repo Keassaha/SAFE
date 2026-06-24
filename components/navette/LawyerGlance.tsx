@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Send, HelpCircle, Check, CornerUpLeft, Loader2, ArrowRight, FileText, Receipt } from "lucide-react";
+import { Send, HelpCircle, Check, CornerUpLeft, Loader2, ArrowRight, FileText, Receipt, AlertTriangle } from "lucide-react";
 import { approveMatterAction, sendBackAction } from "@/app/(app)/navette/actions";
 import type { NavetteMessageType } from "@prisma/client";
 
@@ -25,6 +25,7 @@ const LABEL_KEY: Record<string, string> = {
   question: "typeQuestion",
   document_ready: "typeDocumentReady",
   invoice_ready: "typeInvoiceReady",
+  acte_urgent: "typeActeUrgent",
 };
 
 function GlanceIcon({ type }: { type: NavetteMessageType }) {
@@ -33,6 +34,8 @@ function GlanceIcon({ type }: { type: NavetteMessageType }) {
     case "question": return <HelpCircle className={cls} aria-hidden />;
     case "document_ready": return <FileText className={cls} aria-hidden />;
     case "invoice_ready": return <Receipt className={cls} aria-hidden />;
+    case "acte_urgent": return <AlertTriangle className={cls} aria-hidden />;
+    case "ready_for_review": return <Send className={cls} aria-hidden />;
     default: return <Send className={cls} aria-hidden />;
   }
 }

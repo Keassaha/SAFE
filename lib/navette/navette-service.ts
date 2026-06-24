@@ -91,6 +91,17 @@ export async function createNavetteMessage(
   const parties = await getDossierParties(input.cabinetId, input.dossierId, client);
   if (!parties) return { ok: false, error: "not_found" };
 
+  // Idempotence : un signal dérivé portant un sourceRef ne doit jamais être
+  // dupliqué (retry d'une mutation métier, run concurrent du scan d'échéances).
+  // On renvoie le message existant plutôt que d'en créer un second.
+  if (input.sourceRef) {
+    const existing = await client.dossierNavetteMessage.findFirst({
+      where: { cabinetId: input.cabinetId, type: input.type, sourceRef: input.sourceRef },
+      select: { id: true },
+    });
+    if (existing) return { ok: true, id: existing.id };
+  }
+
   // Destinataire implicite : l'avocate écrit à l'assistante, et inversement.
   const recipientId =
     input.recipientId !== undefined
@@ -294,10 +305,17 @@ export async function getNavetteInbox(
 export function countNeedsMe(
   cabinetId: string,
   userId: string,
+  viewerRole?: string,
   client: DBClient = prisma,
 ): Promise<number> {
   return client.dossierNavetteMessage.count({
-    where: { cabinetId, recipientId: userId, resolvedAt: null },
+    where: {
+      cabinetId,
+      recipientId: userId,
+      resolvedAt: null,
+      // L'assistante ne compte jamais un message confidentiel (cf. getNavetteInbox).
+      ...(viewerRole === "assistante" ? { confidentiel: false } : {}),
+    },
   });
 }
 

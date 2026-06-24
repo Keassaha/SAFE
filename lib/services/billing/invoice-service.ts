@@ -419,28 +419,34 @@ export async function approveInvoice(params: {
   if (invoice.dossierId) {
     try {
       const [dossier, approver] = await Promise.all([
-        prisma.dossier.findUnique({
-          where: { id: invoice.dossierId },
-          select: { avocatResponsableId: true },
+        prisma.dossier.findFirst({
+          where: { id: invoice.dossierId, cabinetId: invoice.cabinetId },
+          select: { avocatResponsableId: true, assistantJuridiqueId: true },
         }),
         prisma.user.findUnique({ where: { id: approvedById }, select: { role: true } }),
       ]);
-      if (dossier?.avocatResponsableId && approver?.role) {
-        await createNavetteMessage({
+      // Destinataire : l'avocat responsable, à défaut l'assistant(e) du dossier.
+      const recipientId = dossier?.avocatResponsableId ?? dossier?.assistantJuridiqueId ?? null;
+      if (recipientId && approver?.role) {
+        const res = await createNavetteMessage({
           cabinetId: invoice.cabinetId,
           dossierId: invoice.dossierId,
           authorId: approvedById,
           authorRole: approver.role,
           type: "invoice_ready",
-          recipientId: dossier.avocatResponsableId,
+          recipientId,
           body: invoice.numero,
           dueDate: invoice.dateEcheance ?? null,
           sourceRef: `invoice:${invoiceId}`,
           confidentiel: true,
         });
+        if (!res.ok) {
+          console.error("[navette] invoice_ready non émis", { invoiceId, error: res.error });
+        }
       }
-    } catch {
+    } catch (err) {
       // signal best-effort : on n'interrompt pas le flux d'approbation
+      console.error("[navette] invoice_ready: erreur best-effort", { invoiceId, err });
     }
   }
 }

@@ -67,8 +67,10 @@ export async function detectAndEmitUrgentActes(cabinetId: string, now: Date): Pr
         sourceRef,
       });
       if (res.ok) emitted++;
-    } catch {
+      else console.error("[navette] acte_urgent non émis", { acteId: acte.id, error: res.error });
+    } catch (err) {
       // best-effort : un acte qui échoue n'interrompt pas le scan
+      console.error("[navette] acte_urgent: erreur best-effort", { acteId: acte.id, err });
     }
   }
   return emitted;
