@@ -22,6 +22,7 @@
     "verify:derisier": "node scripts/verify-derisier-delivery.mjs",
     "seed:cayard": "node scripts/seed-cayard.mjs",
     "seed:demo": "node prisma/seeds/demo-cabinet.mjs",
+    "cleanup:test-client": "node scripts/delete-test-client.mjs",
     "verify:cayard": "node scripts/verify-cayard-delivery.mjs",
     "clients:find-duplicates": "node scripts/find-client-duplicates.mjs",
     "clients:merge-duplicates": "node scripts/merge-client-duplicates.mjs",
