@@ -251,7 +251,11 @@ export function DossierForm({
           <option value="ouvert">{t("statusOpen")}</option>
           <option value="actif">{t("statusActive")}</option>
           <option value="en_attente">{t("statusPending")}</option>
-          <option value="cloture">{t("statusClosed")}</option>
+          {/* La fermeture passe par l'onglet Fermeture (trace + garde-fous) :
+              on n'expose "clôturé" ici que pour un dossier déjà fermé. */}
+          {dossier?.statut === "cloture" && (
+            <option value="cloture">{t("statusClosed")}</option>
+          )}
           <option value="archive">{t("statusArchived")}</option>
         </select>
       </div>

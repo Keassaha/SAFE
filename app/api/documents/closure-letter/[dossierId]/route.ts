@@ -6,6 +6,7 @@ import type { DocumentProps } from "@react-pdf/renderer";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canViewDossiers } from "@/lib/auth/permissions";
+import { getTrustBalance } from "@/lib/services/fideicommis/trust-balance-service";
 import { ClosureLetterPDF, type ClosureLetterData } from "@/components/pdf/ClosureLetterPDF";
 import type { UserRole } from "@prisma/client";
 
@@ -53,12 +54,14 @@ export async function GET(
   const totalPaid = invoices.reduce((sum, inv) => sum + (inv.montantPaye ?? 0), 0);
   const balance = Math.max(totalBilled - totalPaid, 0);
 
-  // Trust balance
-  const trustAccounts = await prisma.trustAccount.findMany({
-    where: { cabinetId, matterId: dossierId },
-    select: { currentBalance: true },
+  // Solde fidéicommis : MÊME source que l'alerte de fermeture (closure-blockers)
+  // pour que la lettre au client corresponde à ce qui est affiché. Source unique
+  // et auditable : somme des transactions (append-only), scopée client + dossier.
+  const trustBalance = await getTrustBalance({
+    cabinetId,
+    clientId: dossier.client.id,
+    dossierId,
   });
-  const trustBalance = trustAccounts.reduce((sum, ta) => sum + ta.currentBalance, 0);
 
   // Detect language
   let language: "en" | "fr" = "fr";
@@ -121,10 +124,11 @@ export async function GET(
       adresse: dossier.cabinet.adresse,
       telephone: dossier.cabinet.telephone,
       email: dossier.cabinet.email,
-      barreauNumero: dossier.cabinet.barreauNumero,
+      // Règle CEO : jamais de numéro de Barreau sur un document destiné au client.
+      barreauNumero: null,
     },
     avocat: {
-      nom: dossier.avocatResponsable?.nom ?? "—",
+      nom: dossier.avocatResponsable?.nom ?? "",
       barreauNumero: null,
       email: dossier.avocatResponsable?.email ?? null,
     },

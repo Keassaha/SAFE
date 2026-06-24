@@ -10,6 +10,8 @@ import { dossierEvenementSchema } from "@/lib/validations/dossierEvenement";
 import { dossierNoteSchema } from "@/lib/validations/dossierNote";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { getDossierClosureBlockers, type ClosureBlockers } from "@/lib/services/dossiers/closure-blockers";
+import { computeRetentionUntil } from "@/lib/dossiers/retention";
 import { generateCartable } from "@/lib/dossiers/cartable-service";
 import { loadDossierPreparationSnapshot } from "@/lib/dossiers/preparation-loader";
 import { getDossierPreparationStatus } from "@/lib/dossiers/preparation-status";
@@ -236,8 +238,15 @@ export async function updateDossier(id: string, formData: FormData) {
 
   const current = await prisma.dossier.findFirst({
     where: { id, cabinetId },
-    select: { descriptionConfidentielle: true, notesStrategieJuridique: true, intitule: true },
+    select: { descriptionConfidentielle: true, notesStrategieJuridique: true, intitule: true, statut: true },
   });
+
+  // Garde-fou : la fermeture (statut "cloture") doit passer par l'onglet
+  // Fermeture (closeDossier) pour vérifier les bloquants et produire une trace.
+  // On bloque toute transition silencieuse vers "cloture" via le formulaire générique.
+  if (parsed.data.statut === "cloture" && current?.statut !== "cloture") {
+    redirect(`/dossiers/${id}?error=use_closure_tab`);
+  }
   const numeroDossierValue = parsed.data.numeroDossier?.trim() || null;
   if (numeroDossierValue) {
     const existing = await prisma.dossier.findFirst({
@@ -351,6 +360,113 @@ export async function archiveDossier(id: string) {
   revalidatePath("/dossiers");
   revalidatePath(`/dossiers/${id}`);
   redirect("/dossiers");
+}
+
+/**
+ * Ferme officiellement un dossier (statut "cloture").
+ *
+ * - Solde fidéicommis négatif : blocage dur (conformité), jamais acquittable.
+ * - Autres éléments en attente (facture impayée, débours non recouvré, fonds à
+ *   restituer) : ALERTE acquittable — le dossier se ferme après confirmation
+ *   explicite (opts.acknowledge), conforme au calendrier (« marqué fermé ET alerté »).
+ * - Produit une TRACE : DossierClosure (qui/quand) + AuditLog + dateCloture +
+ *   retentionJusqua calculée (même source que la lettre de fermeture).
+ *
+ * Appelée depuis l'onglet Fermeture (client) ; retourne un résultat (pas de redirect).
+ */
+export async function closeDossier(
+  dossierId: string,
+  opts: { acknowledge?: boolean } = {},
+): Promise<
+  | { ok: true; closedAt: string; retentionJusqua: string }
+  | { ok: false; reason: "not_found" }
+  | { ok: false; reason: "already_closed" }
+  | { ok: false; reason: "hard_block"; blockers: ClosureBlockers }
+  | { ok: false; reason: "needs_ack"; blockers: ClosureBlockers }
+> {
+  const { cabinetId, userId } = await requireCabinetAndUser();
+
+  const dossier = await prisma.dossier.findFirst({
+    where: { id: dossierId, cabinetId },
+    select: { id: true, clientId: true, type: true, statut: true },
+  });
+  if (!dossier) return { ok: false as const, reason: "not_found" };
+  if (dossier.statut === "cloture") return { ok: false as const, reason: "already_closed" };
+
+  const blockers = await getDossierClosureBlockers({
+    cabinetId,
+    dossierId,
+    clientId: dossier.clientId,
+  });
+
+  // Solde fidéicommis négatif : blocage dur, non acquittable.
+  if (blockers.hasHardBlock) {
+    return { ok: false as const, reason: "hard_block", blockers };
+  }
+  // Autres éléments en attente : confirmation explicite requise.
+  if (blockers.hasBlockers && !opts.acknowledge) {
+    return { ok: false as const, reason: "needs_ack", blockers };
+  }
+
+  const closedAt = new Date();
+  const retentionJusqua = await computeRetentionUntil(cabinetId, dossier.type, closedAt);
+  const checklist = {
+    blockersAcknowledged: blockers.hasBlockers,
+    snapshot: {
+      facturesImpayees: blockers.factures,
+      deboursNonRecouvres: blockers.debours,
+      soldeFiducie: blockers.trust.balance,
+    },
+  };
+
+  await prisma.$transaction([
+    prisma.dossier.update({
+      where: { id: dossierId, cabinetId },
+      data: { statut: "cloture" as DossierStatut, dateCloture: closedAt, retentionJusqua },
+    }),
+    prisma.dossierClosure.upsert({
+      where: { dossierId },
+      create: {
+        dossierId,
+        closedById: userId,
+        closedAt,
+        destructionDate: retentionJusqua,
+        checklist,
+      },
+      update: {
+        closedById: userId,
+        closedAt,
+        destructionDate: retentionJusqua,
+        checklist,
+      },
+    }),
+  ]);
+
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Dossier",
+    entityId: dossierId,
+    action: "update",
+    metadata: {
+      statut: "cloture",
+      blockersAcknowledged: blockers.hasBlockers,
+      facturesImpayees: blockers.factures.count,
+      montantImpaye: blockers.factures.montant,
+      deboursNonRecouvres: blockers.debours.count,
+      soldeFiducie: blockers.trust.balance,
+    },
+  });
+
+  revalidatePath("/dossiers");
+  revalidatePath(`/dossiers/${dossierId}`);
+  revalidatePath("/tableau-de-bord");
+
+  return {
+    ok: true as const,
+    closedAt: closedAt.toISOString(),
+    retentionJusqua: retentionJusqua.toISOString(),
+  };
 }
 
 async function getDossierCabinetId(dossierId: string): Promise<string | null> {

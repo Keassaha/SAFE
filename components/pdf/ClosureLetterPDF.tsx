@@ -75,7 +75,7 @@ const TEXT = {
       "It has been our pleasure to represent you. Should you require legal services in the future, please do not hesitate to contact us.",
     closing: "Sincerely,",
     footer: (cabinetName: string, lso: string | null) =>
-      `${cabinetName}${lso ? ` — LSO #${lso}` : ""} — File Closure Letter`,
+      `${cabinetName}${lso ? ` · LSO #${lso}` : ""} · File Closure Letter`,
   },
   fr: {
     subject: "Clôture du dossier",
@@ -97,7 +97,7 @@ const TEXT = {
       "Il nous a fait plaisir de vous représenter. N'hésitez pas à nous contacter pour tout besoin futur.",
     closing: "Cordialement,",
     footer: (cabinetName: string, barreau: string | null) =>
-      `${cabinetName}${barreau ? ` — Barreau #${barreau}` : ""} — Lettre de clôture`,
+      `${cabinetName}${barreau ? ` · Barreau #${barreau}` : ""} · Lettre de clôture`,
   },
 } as const;
 
@@ -136,7 +136,7 @@ export function ClosureLetterPDF({ data }: { data: ClosureLetterData }) {
         </View>
 
         <Text style={styles.subjectLine}>
-          {t.subject} — {data.dossier.numero ?? "—"} — {data.dossier.intitule}
+          {[t.subject, data.dossier.numero, data.dossier.intitule].filter(Boolean).join(" · ")}
         </Text>
 
         <Text style={styles.paragraph}>{t.intro(greetingName)}</Text>
@@ -174,7 +174,7 @@ export function ClosureLetterPDF({ data }: { data: ClosureLetterData }) {
           <View style={styles.signatureLine} />
           <Text style={styles.signatureLabel}>
             {data.avocat.nom}
-            {data.avocat.barreauNumero ? ` — LSO/Barreau #${data.avocat.barreauNumero}` : ""}
+            {data.avocat.barreauNumero ? ` · LSO/Barreau #${data.avocat.barreauNumero}` : ""}
           </Text>
         </View>
 
