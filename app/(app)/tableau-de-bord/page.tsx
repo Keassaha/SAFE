@@ -919,11 +919,17 @@ export default async function TableauDeBordPage() {
   const isLawyerRole = userRole === "avocat" || userRole === "admin_cabinet";
   const glanceRows = isLawyerRole
     ? (await getNavetteInbox(cabinetId, userId, userRole, "needs_me", 10))
-        .filter((m) => m.type === "ready_for_review" || m.type === "question")
+        .filter(
+          (m) =>
+            m.type === "ready_for_review" ||
+            m.type === "question" ||
+            m.type === "document_ready" ||
+            m.type === "invoice_ready",
+        )
         .map((m) => ({
           id: m.id,
           dossierId: m.dossierId,
-          type: m.type as "ready_for_review" | "question",
+          type: m.type,
           body: m.body,
           matterLabel: m.numeroDossier?.trim() || m.dossierIntitule,
           authorName: m.authorName,

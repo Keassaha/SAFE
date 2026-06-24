@@ -4,13 +4,14 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Send, HelpCircle, Check, CornerUpLeft, Loader2, ArrowRight } from "lucide-react";
+import { Send, HelpCircle, Check, CornerUpLeft, Loader2, ArrowRight, FileText, Receipt } from "lucide-react";
 import { approveMatterAction, sendBackAction } from "@/app/(app)/navette/actions";
+import type { NavetteMessageType } from "@prisma/client";
 
 export interface GlanceRow {
   id: string;
   dossierId: string;
-  type: "ready_for_review" | "question";
+  type: NavetteMessageType;
   body: string | null;
   matterLabel: string;
   authorName: string | null;
@@ -18,6 +19,23 @@ export interface GlanceRow {
 
 // Rouge destructif — hors palette si (forêt/albâtre), conservé pour l'action « Renvoyer ».
 const DANGER = "#8A3A2D";
+
+const LABEL_KEY: Record<string, string> = {
+  ready_for_review: "typeReadyForReview",
+  question: "typeQuestion",
+  document_ready: "typeDocumentReady",
+  invoice_ready: "typeInvoiceReady",
+};
+
+function GlanceIcon({ type }: { type: NavetteMessageType }) {
+  const cls = "h-4 w-4";
+  switch (type) {
+    case "question": return <HelpCircle className={cls} aria-hidden />;
+    case "document_ready": return <FileText className={cls} aria-hidden />;
+    case "invoice_ready": return <Receipt className={cls} aria-hidden />;
+    default: return <Send className={cls} aria-hidden />;
+  }
+}
 
 /**
  * Vue avocate « 15 secondes » : ce qui l'attend (prêt pour revue + questions),
@@ -60,19 +78,19 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
       <div className="mt-2">
         {rows.map((r) => {
           const isReady = r.type === "ready_for_review";
-          const chipClass = isReady
-            ? "bg-si-forest/[0.06] text-si-forest"
-            : "bg-si-amber/[0.13] text-si-amber";
+          const chipClass = r.type === "question"
+            ? "bg-si-amber/[0.13] text-si-amber"
+            : "bg-si-forest/[0.06] text-si-forest";
           return (
             <div key={r.id} className="border-t border-si-line2 py-3 first:border-t-0">
               <div className="flex items-start gap-3">
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${chipClass}`}>
-                  {isReady ? <Send className="h-4 w-4" aria-hidden /> : <HelpCircle className="h-4 w-4" aria-hidden />}
+                  <GlanceIcon type={r.type} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-bold uppercase tracking-wide text-si-muted">
-                      {isReady ? t("typeReadyForReview") : t("typeQuestion")}
+                      {t(LABEL_KEY[r.type] ?? "typeInfo")}
                     </span>
                     <span className="rounded-md border border-si-line bg-si-canvas px-2 py-0.5 text-xs font-semibold text-si-muted">{r.matterLabel}</span>
                   </div>
