@@ -2298,6 +2298,7 @@
     "recentPayments": "Recent payments",
     "unallocatedAlertTitle": "Unallocated payments",
     "unallocatedAlertSub": "{count} pending · {amount} to allocate to an invoice",
+    "viewReceipt": "View receipt",
     "noPayments": "No payments.",
     "invoice": "Invoice",
     "allocated": "Allocated",

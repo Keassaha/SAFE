@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText } from "lucide-react";
 import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
@@ -212,6 +212,16 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <div className="flex justify-end gap-1">
+                          <a
+                            href={`/api/documents/payment-receipt/${p.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center rounded-lg p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                            aria-label={t("viewReceipt")}
+                            title={t("viewReceipt")}
+                          >
+                            <FileText className="w-4 h-4" aria-hidden />
+                          </a>
                           <Button
                             type="button"
                             variant="tertiary"

@@ -2298,6 +2298,7 @@
     "recentPayments": "Paiements récents",
     "unallocatedAlertTitle": "Paiements non alloués",
     "unallocatedAlertSub": "{count} en attente · {amount} à allouer à une facture",
+    "viewReceipt": "Voir le reçu",
     "noPayments": "Aucun paiement.",
     "invoice": "Facture",
     "allocated": "Alloué",
