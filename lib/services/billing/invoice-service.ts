@@ -21,6 +21,7 @@ import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { derivePaymentStatus } from "@/lib/billing/payment-status";
 import { assertInvoiceHasClient } from "@/lib/accounting/anti-erreurs";
 import { writeJournalForIssuedInvoice } from "@/lib/services/journal/billing-journal";
+import { createNavetteMessage } from "@/lib/navette/navette-service";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
@@ -411,6 +412,37 @@ export async function approveInvoice(params: {
     performedBy: approvedById,
     performedAt: now,
   });
+
+  // P5 — signal navette « facture prête à émettre » vers l'avocat responsable.
+  // Best-effort : un échec de signal ne doit jamais annuler l'approbation.
+  // Le modèle navette est centré dossier : une facture sans dossier n'émet pas.
+  if (invoice.dossierId) {
+    try {
+      const [dossier, approver] = await Promise.all([
+        prisma.dossier.findUnique({
+          where: { id: invoice.dossierId },
+          select: { avocatResponsableId: true },
+        }),
+        prisma.user.findUnique({ where: { id: approvedById }, select: { role: true } }),
+      ]);
+      if (dossier?.avocatResponsableId && approver?.role) {
+        await createNavetteMessage({
+          cabinetId: invoice.cabinetId,
+          dossierId: invoice.dossierId,
+          authorId: approvedById,
+          authorRole: approver.role,
+          type: "invoice_ready",
+          recipientId: dossier.avocatResponsableId,
+          body: invoice.numero,
+          dueDate: invoice.dateEcheance ?? null,
+          sourceRef: `invoice:${invoiceId}`,
+          confidentiel: true,
+        });
+      }
+    } catch {
+      // signal best-effort : on n'interrompt pas le flux d'approbation
+    }
+  }
 }
 
 /** Émet une facture (DRAFT ou READY_TO_ISSUE → ISSUED) et met à jour les lignes source */

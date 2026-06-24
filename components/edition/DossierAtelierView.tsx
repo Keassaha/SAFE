@@ -254,7 +254,23 @@ function DocumentRow({
 }) {
   const t = useTranslations("editorUi");
   const [showMove, setShowMove] = useState(false);
+  const [markingFinal, setMarkingFinal] = useState(false);
   const router = useRouter();
+  // P5 — « Marquer comme final » : déclenche le signal navette « document prêt »
+  // côté serveur (transition brouillon → final dans la route PUT).
+  const markFinal = async () => {
+    setMarkingFinal(true);
+    try {
+      await fetch(`/api/edition/documents/${doc.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statut: "final" }),
+      });
+      router.refresh();
+    } finally {
+      setMarkingFinal(false);
+    }
+  };
   const typeColor = DOC_TYPE_COLORS[doc.type] ?? DOC_TYPE_COLORS.autre;
   const typeLabel = t(DOC_TYPE_KEYS[doc.type] ?? "docTypeAutre");
 
@@ -305,6 +321,18 @@ function DocumentRow({
             title={t("moveToAnotherMatter")}
           >
             <FolderOpen className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* P5 — Marquer comme final (prévient l'avocate via la navette) */}
+        {doc.statut === "brouillon" && (
+          <button
+            onClick={(e) => { e.preventDefault(); markFinal(); }}
+            disabled={markingFinal}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-green-600 shrink-0 disabled:opacity-50"
+            title={t("markFinal")}
+          >
+            <CheckCircle className="w-4 h-4" />
           </button>
         )}
       </div>

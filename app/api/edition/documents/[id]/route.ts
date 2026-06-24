@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { createNavetteMessage } from "@/lib/navette/navette-service";
 import { z } from "zod";
 
 const UpdateDocSchema = z.object({
@@ -71,6 +72,25 @@ export async function PUT(
       lastEditedAt: new Date(),
     },
   });
+
+  // P5 — signal navette « document prêt » à la transition brouillon → final.
+  // Destinataire auto : l'assistante prévient l'avocate (ou inversement, courtoisie).
+  // Best-effort : un échec de signal ne bloque pas l'enregistrement.
+  if (doc.statut === "brouillon" && parsed.data.statut === "final") {
+    try {
+      await createNavetteMessage({
+        cabinetId: session.cabinetId,
+        dossierId: doc.dossierId,
+        authorId: session.userId,
+        authorRole: session.role,
+        type: "document_ready",
+        body: updated.titre,
+        sourceRef: `document:${id}`,
+      });
+    } catch {
+      // signal best-effort
+    }
+  }
 
   return NextResponse.json(updated);
 }

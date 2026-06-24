@@ -3040,6 +3040,7 @@
     "byAuthor": " by {author}",
     "versionCount": "{count, plural, =0 {no version} one {# version} other {# versions}}",
     "moveToAnotherMatter": "Move to another matter",
+    "markFinal": "Mark as final (notifies the lawyer)",
     "newDocument": "New document",
     "title": "Title",
     "newDocumentPlaceholder": "E.g. Demand letter",
