@@ -14,6 +14,7 @@ import {
   Award,
 } from "lucide-react";
 import { StartTimerButton } from "@/components/temps/StartTimerButton";
+import type { NavetteMessageType } from "@prisma/client";
 
 /* ── Types (déjà calculés par la page) ── */
 export interface TodayNextAction {
@@ -28,7 +29,7 @@ export interface TodayNextAction {
 export interface TodayInboxRow {
   id: string;
   dossierId: string;
-  type: "question" | "info" | "sent_back" | "ready_for_review" | "approved" | "reply";
+  type: NavetteMessageType;
   body: string | null;
   matterLabel: string;
   authorName: string | null;
@@ -87,6 +88,9 @@ function inboxTone(type: TodayInboxRow["type"]): keyof typeof TONE {
     case "question": return "warn";
     case "approved": return "succ";
     case "ready_for_review": return "brand";
+    case "document_ready": return "brand";
+    case "invoice_ready": return "brand";
+    case "acte_urgent": return "err";
     default: return "muted";
   }
 }
@@ -97,6 +101,7 @@ function InboxIcon({ type }: { type: TodayInboxRow["type"] }) {
     case "question": return <HelpCircle className={c} aria-hidden />;
     case "approved": return <Check className={c} aria-hidden />;
     case "ready_for_review": return <Send className={c} aria-hidden />;
+    case "acte_urgent": return <AlertTriangle className={c} aria-hidden />;
     default: return <MessageSquare className={c} aria-hidden />;
   }
 }

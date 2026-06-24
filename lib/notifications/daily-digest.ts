@@ -69,6 +69,9 @@ const STR: Record<DigestLocale, Record<string, string>> = {
     typeApproved: "Approuvé",
     typeInfo: "Info",
     typeReply: "Réponse",
+    typeDocumentReady: "Document prêt",
+    typeInvoiceReady: "Facture prête",
+    typeActeUrgent: "Acte urgent",
   },
   en: {
     subject: "Your daily summary",
@@ -94,6 +97,9 @@ const STR: Record<DigestLocale, Record<string, string>> = {
     typeApproved: "Approved",
     typeInfo: "Info",
     typeReply: "Reply",
+    typeDocumentReady: "Document ready",
+    typeInvoiceReady: "Invoice ready",
+    typeActeUrgent: "Urgent task",
   },
 };
 
@@ -111,6 +117,9 @@ function typeLabel(locale: DigestLocale, type: NavetteMessageType): string {
     approved: "typeApproved",
     info: "typeInfo",
     reply: "typeReply",
+    document_ready: "typeDocumentReady",
+    invoice_ready: "typeInvoiceReady",
+    acte_urgent: "typeActeUrgent",
   };
   return s(locale, map[type]);
 }

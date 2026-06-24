@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { CornerUpLeft, HelpCircle, Check, Send, MessageSquare, Loader2 } from "lucide-react";
+import { CornerUpLeft, HelpCircle, Check, Send, MessageSquare, Loader2, FileText, Receipt, AlertTriangle } from "lucide-react";
 import type { NavetteMessageType } from "@prisma/client";
 import {
   sendNavetteMessageAction,
@@ -50,6 +50,9 @@ function toneFor(type: NavetteMessageType): keyof typeof TONE {
     case "question": return "warn";
     case "approved": return "succ";
     case "ready_for_review": return "brand";
+    case "document_ready": return "brand";
+    case "invoice_ready": return "brand";
+    case "acte_urgent": return "err";
     default: return "muted";
   }
 }
@@ -61,6 +64,9 @@ function IconFor({ type }: { type: NavetteMessageType }) {
     case "question": return <HelpCircle className={cls} aria-hidden />;
     case "approved": return <Check className={cls} aria-hidden />;
     case "ready_for_review": return <Send className={cls} aria-hidden />;
+    case "document_ready": return <FileText className={cls} aria-hidden />;
+    case "invoice_ready": return <Receipt className={cls} aria-hidden />;
+    case "acte_urgent": return <AlertTriangle className={cls} aria-hidden />;
     default: return <MessageSquare className={cls} aria-hidden />;
   }
 }
@@ -85,6 +91,9 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
         ready_for_review: "typeReadyForReview",
         info: "typeInfo",
         reply: "typeReply",
+        document_ready: "typeDocumentReady",
+        invoice_ready: "typeInvoiceReady",
+        acte_urgent: "typeActeUrgent",
       } as const)[type],
     );
 

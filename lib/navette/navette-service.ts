@@ -68,6 +68,8 @@ export interface CreateNavetteInput {
   body?: string | null;
   dueDate?: Date | null;
   parentId?: string | null;
+  /** Réf. stable de la source (ex: "acte:{id}") pour dédupliquer les signaux dérivés. */
+  sourceRef?: string | null;
   confidentiel?: boolean;
 }
 
@@ -108,6 +110,7 @@ export async function createNavetteMessage(
       body: input.body ?? null,
       dueDate: input.dueDate ?? null,
       parentId: input.parentId ?? null,
+      sourceRef: input.sourceRef ?? null,
       confidentiel: input.confidentiel ?? false,
     },
     select: { id: true },

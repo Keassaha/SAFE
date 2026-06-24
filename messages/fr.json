@@ -3249,6 +3249,9 @@
     "typeReadyForReview": "Prêt pour revue",
     "typeInfo": "Info",
     "typeReply": "Réponse",
+    "typeDocumentReady": "Document prêt",
+    "typeInvoiceReady": "Facture prête",
+    "typeActeUrgent": "Acte urgent",
     "glanceTitle": "vous attend",
     "open": "Ouvrir",
     "cancel": "Annuler"

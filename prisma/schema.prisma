@@ -2415,6 +2415,9 @@ enum NavetteMessageType {
   ready_for_review // assistante → avocate : prêt à valider
   approved // avocate → assistante : validé
   reply // réponse à un message parent
+  document_ready // P5 : document passé brouillon → final (→ avocate)
+  invoice_ready // P5 : facture prête à émettre (→ avocate)
+  acte_urgent // P5 : acte à échéance < 3j ou en retard (→ assistante)
 }
 
 /// Navette — fil de communication interne CENTRÉ DOSSIER (assistante↔avocate).
@@ -2433,6 +2436,7 @@ model DossierNavetteMessage {
   body         String? // texte ; null pour un pur évènement d'état
   dueDate      DateTime? // échéance optionnelle (sent_back / question)
   parentId     String? // threading (reply) — pas une relation FK
+  sourceRef    String? // P5 : réf. stable de la source (ex: "acte:{id}") pour dédupliquer les signaux dérivés
   confidentiel Boolean            @default(false)
   readAt       DateTime?
   readById     String?

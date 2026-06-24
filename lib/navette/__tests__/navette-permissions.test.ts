@@ -40,6 +40,21 @@ describe("canSendNavetteType — frontière doctrinale", () => {
   it("comptabilite ne peut rien envoyer", () => {
     expect(canSendNavetteType("comptabilite", "question")).toBe(false);
     expect(canSendNavetteType("comptabilite", "info")).toBe(false);
+    expect(canSendNavetteType("comptabilite", "invoice_ready")).toBe(false);
+    expect(canSendNavetteType("comptabilite", "acte_urgent")).toBe(false);
+  });
+
+  it("P5 — invoice_ready réservé avocat/admin (l'avocate valide la facture)", () => {
+    expect(canSendNavetteType("avocat", "invoice_ready")).toBe(true);
+    expect(canSendNavetteType("admin_cabinet", "invoice_ready")).toBe(true);
+    expect(canSendNavetteType("assistante", "invoice_ready")).toBe(false);
+  });
+
+  it("P5 — document_ready / acte_urgent : tout participant", () => {
+    for (const role of ["assistante", "avocat", "admin_cabinet"]) {
+      expect(canSendNavetteType(role, "document_ready")).toBe(true);
+      expect(canSendNavetteType(role, "acte_urgent")).toBe(true);
+    }
   });
 });
 

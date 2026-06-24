@@ -37,12 +37,15 @@ export function canSendNavetteType(role: string, type: NavetteMessageType): bool
   switch (type) {
     case "sent_back":
     case "approved":
-      return isLawyerOrAdmin(role); // l'avocate décide
+    case "invoice_ready":
+      return isLawyerOrAdmin(role); // l'avocate décide / valide la facture
     case "ready_for_review":
       return isAssistantOrAdmin(role); // l'assistante prépare
     case "question":
     case "info":
     case "reply":
+    case "document_ready": // une partie publie un document prêt
+    case "acte_urgent": // signal dérivé (scan d'échéances), émis au nom d'une partie
       return true; // tout participant
     default:
       return false;
