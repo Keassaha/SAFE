@@ -280,15 +280,18 @@ export default async function DossierDetailPage({
         </section>
       )}
 
-      {/* Résumé IA du dossier — factuel, garde-fous Barreau, validation humaine.
-          Inactif (message) tant que ANTHROPIC_API_KEY n'est pas configurée. */}
-      <section className="px-6 py-5 border-b border-si-line bg-si-surface">
-        <DossierResumeIA
-          dossierId={dossier.id}
-          initialResume={dossier.resumeDossier}
-          canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
-        />
-      </section>
+      {/* Résumé IA du dossier — fonction IA différée : entièrement MASQUÉE tant que
+          ANTHROPIC_API_KEY n'est pas configurée (pas de bouton qui échoue devant un cabinet).
+          Réapparaît automatiquement dès que la clé est ajoutée. */}
+      {process.env.ANTHROPIC_API_KEY && (
+        <section className="px-6 py-5 border-b border-si-line bg-si-surface">
+          <DossierResumeIA
+            dossierId={dossier.id}
+            initialResume={dossier.resumeDossier}
+            canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
+          />
+        </section>
+      )}
 
       {/* Carte État de préparation — V2 couche assistante active (deep links + bouton). */}
       {preparationStatus && (
