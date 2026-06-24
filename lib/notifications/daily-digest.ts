@@ -2,6 +2,7 @@ import type { NavetteMessageType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { getNavetteInbox } from "@/lib/navette/navette-service";
+import { detectAndEmitUrgentActes } from "@/lib/navette/acte-urgent-scan";
 import { countPendingHours } from "@/lib/payroll/employee-hours-service";
 
 /**
@@ -376,6 +377,14 @@ export async function runDailyDigest(options: RunDigestOptions = {}): Promise<Ru
   const appUrl = appBaseUrl();
 
   for (const cabinet of cabinets) {
+    // P5 — émet les « actes urgents » du jour AVANT de composer les digests,
+    // pour qu'ils remontent dans la navette ET dans le courriel du même run.
+    try {
+      await detectAndEmitUrgentActes(cabinet.id, now);
+    } catch {
+      // scan best-effort : n'interrompt pas l'envoi du digest
+    }
+
     const users = await prisma.user.findMany({
       where: {
         cabinetId: cabinet.id,
