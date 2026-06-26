@@ -84,6 +84,29 @@ export function validateAllocationRequest(input: {
   return { ok: true, items: allocations };
 }
 
+/**
+ * Allocation initiale sûre quand un paiement est saisi directement depuis une
+ * facture. Sans montant explicite, on applique le paiement jusqu'au plus petit
+ * des deux montants : paiement reçu ou solde dû. Le surplus reste non alloué
+ * et ressort comme crédit client à traiter.
+ */
+export function resolveInitialAllocationAmount(input: {
+  paymentAmount: number;
+  invoiceBalanceDue: number;
+  requestedAllocatedAmount?: number | null;
+}): number {
+  const paymentAmount = roundSignedMoney(input.paymentAmount);
+  const invoiceBalanceDue = roundSignedMoney(input.invoiceBalanceDue);
+  const requested =
+    input.requestedAllocatedAmount != null
+      ? roundSignedMoney(input.requestedAllocatedAmount)
+      : null;
+
+  if (requested != null && requested > 0) return requested;
+  if (paymentAmount <= 0 || invoiceBalanceDue <= 0) return 0;
+  return Math.min(paymentAmount, invoiceBalanceDue);
+}
+
 export async function createPayment(params: {
   cabinetId: string;
   clientId: string;
@@ -111,7 +134,60 @@ export async function createPayment(params: {
     allocatedAmount,
   } = params;
 
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Le montant du paiement doit être strictement positif");
+  }
+
   const payment = await prisma.$transaction(async (tx) => {
+    let invoiceForAllocation:
+      | {
+          id: string;
+          cabinetId: string;
+          clientId: string;
+          dossierId: string | null;
+          numero: string;
+          balanceDue: number;
+        }
+      | null = null;
+    let initialAllocationAmount = 0;
+
+    if (invoiceId) {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`invoice:${invoiceId}`}))`;
+      invoiceForAllocation = await tx.invoice.findFirst({
+        where: { id: invoiceId, cabinetId, clientId },
+        select: {
+          id: true,
+          cabinetId: true,
+          clientId: true,
+          dossierId: true,
+          numero: true,
+          balanceDue: true,
+        },
+      });
+      if (!invoiceForAllocation) {
+        throw new Error("Facture introuvable ou n'appartient pas à ce client");
+      }
+
+      initialAllocationAmount = resolveInitialAllocationAmount({
+        paymentAmount: amount,
+        invoiceBalanceDue: invoiceForAllocation.balanceDue,
+        requestedAllocatedAmount: allocatedAmount,
+      });
+      if (initialAllocationAmount <= 0) {
+        throw new Error(
+          "La facture sélectionnée n'a aucun solde dû. Enregistrez ce paiement sans facture pour le traiter comme crédit client.",
+        );
+      }
+
+      const validation = validateAllocationRequest({
+        paymentTotal: amount,
+        alreadyAllocatedFromThisPayment: 0,
+        allocations: [{ invoiceId, allocatedAmount: initialAllocationAmount }],
+        invoiceBalances: new Map([[invoiceId, invoiceForAllocation.balanceDue]]),
+      });
+      if (!validation.ok) throw new Error(validation.error);
+    }
+
     const created = await tx.payment.create({
       data: {
         cabinetId,
@@ -140,16 +216,31 @@ export async function createPayment(params: {
       utilisateurId: receivedById ?? null,
     });
 
+    if (invoiceForAllocation && initialAllocationAmount > 0) {
+      await tx.paymentAllocation.create({
+        data: {
+          paymentId: created.id,
+          invoiceId: invoiceForAllocation.id,
+          allocatedAmount: initialAllocationAmount,
+          allocatedAt: new Date(),
+        },
+      });
+
+      await tx.payment.update({
+        where: { id: created.id },
+        data: {
+          allocationStatus:
+            initialAllocationAmount >= amount
+              ? "ALLOCATED"
+              : "PARTIALLY_ALLOCATED",
+        },
+      });
+
+      await recalculateInvoiceTotals(invoiceForAllocation.id, tx);
+    }
+
     return created;
   });
-
-  if (invoiceId && allocatedAmount != null && allocatedAmount > 0) {
-    await allocateToInvoices({
-      paymentId: payment.id,
-      allocations: [{ invoiceId, allocatedAmount }],
-      performedById: receivedById,
-    });
-  }
 
   await createAuditLog({
     cabinetId,
@@ -167,6 +258,10 @@ export async function createPayment(params: {
   if (warning) warnings.push(warning);
 
   return { paymentId: payment.id, warnings };
+}
+
+function roundSignedMoney(value: number): number {
+  return Math.round((value || 0) * 100) / 100;
 }
 
 /** Met à jour les champs modifiables d'un paiement. Le montant ne peut pas être inférieur au montant déjà alloué. */

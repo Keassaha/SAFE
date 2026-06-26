@@ -20,7 +20,10 @@ import type { JournalTransactionType } from "@prisma/client";
 import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
+import { MovementsTable } from "@/components/comptabilite/MovementsTable";
 import type { ManualJournalContext } from "./actions";
+
+type JournalViewMode = "readable" | "expert";
 
 const PAGE_SIZE = 50;
 const TRANSACTION_TYPE_OPTIONS: { value: JournalTransactionType; label: string }[] = (
@@ -41,8 +44,11 @@ function endOfMonth(d: Date): Date {
 
 export function GeneralJournalPageView({
   initialKpis,
+  embedded = false,
 }: {
   initialKpis: JournalKpiData;
+  /** Intégré dans la page Comptabilité : masque les KPI (déjà affichés en haut de page). */
+  embedded?: boolean;
 }) {
   const t = useTranslations("accountingUi");
   const { reduceMotion } = useSafeMotion();
@@ -63,6 +69,7 @@ export function GeneralJournalPageView({
   const [manualContext, setManualContext] = useState<ManualJournalContext | null>(null);
   const [manualType, setManualType] = useState<JournalTransactionType>("AJUSTEMENT");
   const [manualClientId, setManualClientId] = useState("");
+  const [viewMode, setViewMode] = useState<JournalViewMode>("readable");
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
@@ -169,6 +176,7 @@ export function GeneralJournalPageView({
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
   const manualDossiers = manualContext?.dossiers.filter((dossier) => !manualClientId || dossier.clientId === manualClientId) ?? [];
   const defaultDirection = defaultDirectionFor(manualType);
+  const invoiceBalanceThisMonth = kpis.totalFacture - kpis.totalEncaisse;
 
   return (
     <div className="space-y-6 pb-12">
@@ -344,6 +352,7 @@ export function GeneralJournalPageView({
         </form>
       </Modal>
 
+      {!embedded && (
       <motion.div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         variants={reduceMotion ? staggerContainerReduced : staggerContainer}
@@ -370,6 +379,14 @@ export function GeneralJournalPageView({
           format="currency"
           icon={Wallet}
           semantic="credit"
+        />
+        <ComptaKpiCard
+          label={t("kpiInvoiceBalanceThisMonth")}
+          value={invoiceBalanceThisMonth}
+          format="currency"
+          icon={FileClock}
+          semantic={invoiceBalanceThisMonth >= 0 ? "warning" : "debit"}
+          subText={t("kpiInvoiceBalanceHint")}
         />
         <ComptaKpiCard
           label={t("kpiExpensesThisMonth")}
@@ -400,6 +417,7 @@ export function GeneralJournalPageView({
           semantic="neutral"
         />
       </motion.div>
+      )}
 
       <Card>
         <CardHeader title={t("filters")} />
@@ -473,9 +491,31 @@ export function GeneralJournalPageView({
         <CardHeader
           title={t("entries")}
           action={
-            <span className="text-sm font-normal text-si-muted">
-              {t("entryCount", { count: totalCount })}
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="inline-flex rounded-lg border border-si-line bg-si-canvas p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("readable")}
+                  className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
+                    viewMode === "readable" ? "bg-si-surface text-si-ink shadow-sm" : "text-si-muted hover:text-si-ink"
+                  }`}
+                >
+                  {t("viewReadable")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("expert")}
+                  className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
+                    viewMode === "expert" ? "bg-si-surface text-si-ink shadow-sm" : "text-si-muted hover:text-si-ink"
+                  }`}
+                >
+                  {t("viewExpert")}
+                </button>
+              </div>
+              <span className="text-sm font-normal text-si-muted">
+                {t("entryCount", { count: totalCount })}
+              </span>
+            </div>
           }
         />
         <CardContent className="p-0 overflow-x-auto">
@@ -483,6 +523,40 @@ export function GeneralJournalPageView({
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-si-verified" aria-hidden />
             </div>
+          ) : viewMode === "readable" ? (
+            <>
+              <motion.div
+                variants={reduceMotion ? undefined : fadeInUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+              >
+                <MovementsTable entries={entries} />
+              </motion.div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-si-line">
+                  <p className="text-sm text-si-muted">{t("pageOf", { page, totalPages })}</p>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                    >
+                      {t("previous")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                    >
+                      {t("next")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <>
               <motion.div
@@ -534,37 +608,40 @@ export function GeneralJournalPageView({
                       </td>
                     </tr>
                   ) : (
-                    entries.map((e) => (
-                      <tr
-                        key={e.id}
-                        className="border-b-[0.5px] border-si-line hover:bg-si-canvas/60 transition-colors"
-                      >
-                        <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                          {formatDate(e.dateTransaction)}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                          {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] font-mono text-si-ink whitespace-nowrap">
-                          {e.reference ?? "—"}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] text-si-ink max-w-[180px] truncate">
-                          {e.clientName ?? "—"}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[180px] truncate">
-                          {e.dossierLabel ?? "—"}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] text-si-ink max-w-[220px] truncate">
-                          {e.description}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-verified">
-                          {e.montantEntree > 0 ? formatCurrency(e.montantEntree) : "—"}
-                        </td>
-                        <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-[#B84A3E]">
-                          {e.montantSortie > 0 ? formatCurrency(e.montantSortie) : "—"}
-                        </td>
-                      </tr>
-                    ))
+                    entries.map((e) => {
+                      const display = displayJournalAmounts(e);
+                      return (
+                        <tr
+                          key={e.id}
+                          className="border-b-[0.5px] border-si-line hover:bg-si-canvas/60 transition-colors"
+                        >
+                          <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
+                            {formatDate(e.dateTransaction)}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
+                            {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] font-mono text-si-ink whitespace-nowrap">
+                            {e.reference ?? "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] text-si-ink max-w-[180px] truncate">
+                            {e.clientName ?? "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[180px] truncate">
+                            {e.dossierLabel ?? "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] text-si-ink max-w-[220px] truncate">
+                            {e.description}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-verified">
+                            {display.inAmount > 0 ? formatCurrency(display.inAmount) : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-[#B84A3E]">
+                            {display.outAmount > 0 ? formatCurrency(display.outAmount) : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -600,6 +677,19 @@ export function GeneralJournalPageView({
       </Card>
     </div>
   );
+}
+
+function displayJournalAmounts(entry: JournalEntryRow): { inAmount: number; outAmount: number } {
+  if (entry.typeTransaction === "PAIEMENT") {
+    return {
+      inAmount: 0,
+      outAmount: Math.max(entry.montantEntree, entry.montantSortie),
+    };
+  }
+  return {
+    inAmount: entry.montantEntree,
+    outAmount: entry.montantSortie,
+  };
 }
 
 function defaultDirectionFor(type: JournalTransactionType): "IN" | "OUT" {

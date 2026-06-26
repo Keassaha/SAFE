@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  resolveInitialAllocationAmount,
   validateAllocationRequest,
   type AllocationItem,
 } from "@/lib/services/billing/payment-allocation-service";
@@ -100,5 +101,60 @@ describe("validateAllocationRequest — règles métier d'allocation", () => {
       invoiceBalances: balances([["inv1", 100], ["inv2", 100]]),
     });
     expect(result).toEqual({ ok: true, items });
+  });
+});
+
+describe("resolveInitialAllocationAmount — paiement saisi depuis une facture", () => {
+  it("alloue automatiquement le plus petit montant entre paiement et solde dû", () => {
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 80,
+        invoiceBalanceDue: 120,
+      }),
+    ).toBe(80);
+
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 150,
+        invoiceBalanceDue: 120,
+      }),
+    ).toBe(120);
+  });
+
+  it("respecte un montant d'allocation explicite positif", () => {
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 150,
+        invoiceBalanceDue: 120,
+        requestedAllocatedAmount: 50,
+      }),
+    ).toBe(50);
+  });
+
+  it("retombe sur l'allocation automatique si le montant explicite est absent ou zéro", () => {
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 150,
+        invoiceBalanceDue: 120,
+        requestedAllocatedAmount: 0,
+      }),
+    ).toBe(120);
+
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 150,
+        invoiceBalanceDue: 120,
+        requestedAllocatedAmount: null,
+      }),
+    ).toBe(120);
+  });
+
+  it("n'alloue rien si la facture n'a aucun solde dû", () => {
+    expect(
+      resolveInitialAllocationAmount({
+        paymentAmount: 100,
+        invoiceBalanceDue: 0,
+      }),
+    ).toBe(0);
   });
 });

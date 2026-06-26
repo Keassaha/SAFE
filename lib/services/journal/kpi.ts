@@ -50,8 +50,11 @@ export interface KpiEntry {
  * Les dépôts/retraits le sont par leur type. Une CORRECTION issue du module
  * FIDEICOMMIS (cf. createTrustCorrection) corrige aussi de l'argent client : elle
  * doit ajuster le solde fidéicommis, jamais le solde opérationnel du cabinet.
+ *
+ * Exporté pour que la couche de présentation (movement-semantics) classe les
+ * écritures EXACTEMENT comme les KPI — pas de divergence possible.
  */
-function isTrustEntry(e: KpiEntry): boolean {
+export function isTrustEntry(e: Pick<KpiEntry, "typeTransaction" | "sourceModule">): boolean {
   if (TRUST_TX_TYPES.includes(e.typeTransaction)) return true;
   return e.typeTransaction === "CORRECTION" && e.sourceModule === "FIDEICOMMIS";
 }
