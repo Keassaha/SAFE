@@ -3,14 +3,10 @@ import { PALETTE, VARIANTS } from "./theme";
 import { CoverPage } from "./pages/CoverPage";
 import { ProfilPage } from "./pages/ProfilPage";
 import { ScorePage } from "./pages/ScorePage";
-import { DetailPage } from "./pages/DetailPage";
 import { RisquesPage } from "./pages/RisquesPage";
 import { BarreauPage } from "./pages/BarreauPage";
-import { OpportunitesPage } from "./pages/OpportunitesPage";
 import { CoutPage } from "./pages/CoutPage";
 import { OffrePage } from "./pages/OffrePage";
-import { EtapesPage } from "./pages/EtapesPage";
-import { AnnexePage } from "./pages/AnnexePage";
 import type { AuditReport as TAuditReport, Variant } from "@/types/audit-report";
 
 interface Props {
@@ -20,8 +16,6 @@ interface Props {
 
 export function AuditReport({ data, variant = "white" }: Props) {
   const v = VARIANTS[variant];
-  const isWhite = variant === "white";
-  const pagesBg = isWhite ? (v as typeof VARIANTS.white).pageGradient : PALETTE.sage50;
 
   const cssVars = `
     .audit-report {
@@ -48,8 +42,7 @@ export function AuditReport({ data, variant = "white" }: Props) {
       width: 100%;
       aspect-ratio: 8.5 / 11;
       box-sizing: border-box;
-      background: ${v.pageBg ?? "transparent"};
-      ${isWhite ? `background-image: ${(v as typeof VARIANTS.white).pageGradient};` : ""}
+      background: ${v.pageBg ?? "#FFFFFF"};
     }
     @media print {
       @page { size: 8.5in 11in; margin: 0; }
@@ -77,14 +70,10 @@ export function AuditReport({ data, variant = "white" }: Props) {
         <CoverPage data={data} variant={variant} />
         <ProfilPage data={data} variant={variant} />
         <ScorePage data={data} variant={variant} />
-        <DetailPage data={data} variant={variant} />
         <RisquesPage data={data} variant={variant} />
         <BarreauPage data={data} variant={variant} />
-        <OpportunitesPage data={data} variant={variant} />
         <CoutPage data={data} variant={variant} />
         <OffrePage data={data} variant={variant} />
-        <EtapesPage data={data} variant={variant} />
-        <AnnexePage data={data} variant={variant} />
       </div>
     </div>
   );

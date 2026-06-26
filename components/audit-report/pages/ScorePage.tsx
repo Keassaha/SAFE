@@ -42,13 +42,29 @@ export function ScorePage({ data, variant }: Props) {
         {/* Left column: gauge + distribution */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
           {/* Gauge */}
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <HalfGauge
-              value={score.valeur}
-              arcColor={colors.arc}
-              label={score.libelle}
-              subLabel={`${total} point${total !== 1 ? "s" : ""} d'exposition identifié${total !== 1 ? "s" : ""}`}
-            />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+            <HalfGauge value={score.valeur} arcColor={colors.arc} />
+            <p
+              style={{
+                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
+                fontSize: "15px",
+                fontStyle: "italic",
+                color: colors.arc,
+                margin: 0,
+              }}
+            >
+              {score.libelle}
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-geist-sans, sans-serif)",
+                fontSize: "9px",
+                color: PALETTE.moss2,
+                margin: 0,
+              }}
+            >
+              {total} point{total !== 1 ? "s" : ""} d'exposition identifié{total !== 1 ? "s" : ""}
+            </p>
           </div>
 
           {/* Distribution bars */}

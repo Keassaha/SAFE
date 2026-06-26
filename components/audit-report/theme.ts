@@ -26,13 +26,12 @@ export const VARIANTS = {
     haloGoldOpacity:  ".13",
   },
   white: {
-    pageBg:   "transparent",
-    pageGradient: "linear-gradient(157deg,#FFFFFF 0%,#FDFCFA 56%,#F7F2E9 100%)",
+    pageBg:   "#FFFFFF",
     card:     "#FFFFFF",
-    cardDeep: "#F2EEE6",
-    shadow:   "0 1px 2px rgba(11,31,25,.04), 0 10px 26px rgba(11,31,25,.055)",
-    haloGreenOpacity: ".12",
-    haloGoldOpacity:  ".10",
+    cardDeep: "#F4F2EC",
+    shadow:   "0 1px 2px rgba(11,31,25,.05)",
+    haloGreenOpacity: "0",
+    haloGoldOpacity:  "0",
   },
 } as const;
 

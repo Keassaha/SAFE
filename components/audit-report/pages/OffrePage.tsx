@@ -11,16 +11,16 @@ interface Props {
 }
 
 export function OffrePage({ data, variant }: Props) {
-  const { offre } = data;
+  const { offre, etapes } = data;
 
   return (
     <PageShell
       pageLabel="Notre offre"
-      pageNum="08"
+      pageNum="06"
       date={data.meta.date}
       variant={variant}
     >
-      <Eyebrow>08 · Notre offre</Eyebrow>
+      <Eyebrow>06 · Notre offre</Eyebrow>
       <DisplayTitle size="lg">
         Moins cher qu'une heure de votre <Em>temps.</Em>
       </DisplayTitle>
@@ -223,6 +223,38 @@ export function OffrePage({ data, variant }: Props) {
             </p>
           </div>
         ))}
+      </div>
+
+      {/* Prochaines étapes (bande compacte de clôture) */}
+      <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: `0.5px solid ${PALETTE.lineSoft}` }}>
+        <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.gold, marginBottom: "12px" }}>
+          Prochaines étapes
+        </p>
+        <div style={{ display: "flex", gap: "16px" }}>
+          {etapes.map((etape, i) => (
+            <div key={i} style={{ flex: 1, display: "flex", gap: "10px", alignItems: "flex-start" }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-instrument-serif, Georgia, serif)",
+                  fontSize: "18px",
+                  color: PALETTE.sage,
+                  lineHeight: 1,
+                  flexShrink: 0,
+                }}
+              >
+                {i + 1}
+              </span>
+              <div>
+                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", fontWeight: 600, color: PALETTE.ink, margin: "0 0 3px" }}>
+                  {etape.titre}
+                </p>
+                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8.5px", color: PALETTE.moss, lineHeight: 1.5, margin: 0 }}>
+                  {etape.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </PageShell>
   );

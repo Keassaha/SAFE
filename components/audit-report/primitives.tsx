@@ -247,35 +247,31 @@ export function StatTile({
 }
 
 /* ── HalfGauge SVG ────────────────────────────────────────────────── */
+/* Schéma volontairement simple : un demi-arc + le score au centre.    */
+/* Le libellé et le sous-libellé sont rendus en HTML par la page, hors  */
+/* du SVG, pour éviter tout débordement du viewBox.                     */
 export function HalfGauge({
   value,
   max = 100,
   arcColor,
-  label,
-  subLabel,
 }: {
   value: number;
   max?: number;
   arcColor: string;
-  label: string;
-  subLabel?: string;
 }) {
-  const CX = 130;
-  const CY = 125;
-  const R = 110;
+  const CX = 120;
+  const CY = 120;
+  const R = 96;
   const pct = Math.max(0, Math.min(1, value / max));
 
-  // Start point of arc (left, 180°)
+  // Point de départ de l'arc (gauche, 180°)
   const sx = CX - R;
   const sy = CY;
 
-  // End point at angle θ = π - π×pct (from positive x-axis)
+  // Point final à l'angle θ = π − π×pct (depuis l'axe x positif)
   const theta = Math.PI - Math.PI * pct;
   const ex = CX + R * Math.cos(theta);
   const ey = CY - R * Math.sin(theta);
-
-  // large-arc-flag: 1 if arc > 180°, else 0 (pct must be exactly 1 for 180°)
-  const largeArc = pct > 0.5 ? 1 : 0;
 
   const bgPath = `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}`;
   const fgPath =
@@ -283,43 +279,31 @@ export function HalfGauge({
       ? ""
       : pct >= 1
       ? bgPath
-      : `M ${sx} ${sy} A ${R} ${R} 0 ${largeArc} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+      : `M ${sx} ${sy} A ${R} ${R} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
   return (
-    <svg viewBox="0 0 260 140" style={{ width: "100%", maxWidth: "260px" }} aria-hidden="true">
-      {/* Background arc */}
-      <path
-        d={bgPath}
-        fill="none"
-        stroke={PALETTE.sage100}
-        strokeWidth="14"
-        strokeLinecap="round"
-      />
+    <svg viewBox="0 0 240 150" style={{ width: "100%", maxWidth: "240px" }} aria-hidden="true">
+      {/* Arc de fond */}
+      <path d={bgPath} fill="none" stroke={PALETTE.sage100} strokeWidth="12" strokeLinecap="round" />
 
-      {/* Progress arc */}
+      {/* Arc de progression */}
       {fgPath && (
-        <path
-          d={fgPath}
-          fill="none"
-          stroke={arcColor}
-          strokeWidth="14"
-          strokeLinecap="round"
-        />
+        <path d={fgPath} fill="none" stroke={arcColor} strokeWidth="12" strokeLinecap="round" />
       )}
 
-      {/* Dot at end of progress arc */}
+      {/* Point en bout d'arc */}
       {pct > 0 && pct < 1 && (
-        <circle cx={ex.toFixed(2)} cy={ey.toFixed(2)} r="7" fill={arcColor} />
+        <circle cx={ex.toFixed(2)} cy={ey.toFixed(2)} r="6" fill={arcColor} />
       )}
 
-      {/* Score number */}
+      {/* Score */}
       <text
         x={CX}
-        y={CY - 8}
+        y={CY - 6}
         textAnchor="middle"
         style={{
           fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-          fontSize: "52px",
+          fontSize: "44px",
           fill: PALETTE.ink,
           fontWeight: 400,
         }}
@@ -327,50 +311,20 @@ export function HalfGauge({
         {value}
       </text>
 
-      {/* /100 suffix */}
+      {/* Suffixe /100 */}
       <text
         x={CX}
-        y={CY + 18}
+        y={CY + 16}
         textAnchor="middle"
         style={{
           fontFamily: "var(--font-geist-mono, monospace)",
-          fontSize: "11px",
-          fill: PALETTE.moss,
-          letterSpacing: "0.08em",
+          fontSize: "10px",
+          fill: PALETTE.moss2,
+          letterSpacing: "0.1em",
         }}
       >
-        sur 100
+        sur {max}
       </text>
-
-      {/* Label */}
-      <text
-        x={CX}
-        y={CY + 38}
-        textAnchor="middle"
-        style={{
-          fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-          fontSize: "15px",
-          fill: arcColor,
-          fontStyle: "italic",
-        }}
-      >
-        {label}
-      </text>
-
-      {subLabel && (
-        <text
-          x={CX}
-          y={CY + 54}
-          textAnchor="middle"
-          style={{
-            fontFamily: "var(--font-geist-sans, sans-serif)",
-            fontSize: "9px",
-            fill: PALETTE.moss2,
-          }}
-        >
-          {subLabel}
-        </text>
-      )}
     </svg>
   );
 }

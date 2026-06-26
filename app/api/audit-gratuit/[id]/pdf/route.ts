@@ -6,7 +6,7 @@
  * Remplace l'ancienne génération @react-pdf/renderer.
  *
  * Paramètres query :
- *   ?variant=cream|white  — variante visuelle (défaut : cream)
+ *   ?variant=white|cream  — variante visuelle (défaut : white)
  *   ?download=1           — force le téléchargement (Content-Disposition attachment)
  */
 
@@ -43,7 +43,7 @@ export async function GET(
   }
 
   const rawVariant = req.nextUrl.searchParams.get("variant");
-  const variant = rawVariant === "white" ? "white" : "cream";
+  const variant = rawVariant === "cream" ? "cream" : "white";
 
   let pdfBuffer: Buffer;
   try {

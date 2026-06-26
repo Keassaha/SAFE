@@ -15,11 +15,11 @@ export function RisquesPage({ data, variant }: Props) {
   return (
     <PageShell
       pageLabel="Analyse des risques"
-      pageNum="04"
+      pageNum="03"
       date={data.meta.date}
       variant={variant}
     >
-      <Eyebrow>04 · Analyse des risques</Eyebrow>
+      <Eyebrow>03 · Analyse des risques</Eyebrow>
       <DisplayTitle size="lg">
         Les points d'exposition <Em>identifiés.</Em>
       </DisplayTitle>

@@ -27,25 +27,29 @@ export function CoverPage({ data, variant }: Props) {
         padding: "56px 60px 52px",
       }}
     >
-      {/* Halos */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute", top: 0, left: 0,
-          width: "400px", height: "400px",
-          background: `radial-gradient(circle, ${haloGreen(variant)}, transparent 68%)`,
-          filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute", bottom: 0, right: 0,
-          width: "400px", height: "400px",
-          background: `radial-gradient(circle, ${haloGold(variant)}, transparent 68%)`,
-          filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
-        }}
-      />
+      {/* Halos (crème uniquement) */}
+      {variant === "cream" && (
+        <>
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute", top: 0, left: 0,
+              width: "400px", height: "400px",
+              background: `radial-gradient(circle, ${haloGreen(variant)}, transparent 68%)`,
+              filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
+            }}
+          />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute", bottom: 0, right: 0,
+              width: "400px", height: "400px",
+              background: `radial-gradient(circle, ${haloGold(variant)}, transparent 68%)`,
+              filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
+            }}
+          />
+        </>
+      )}
 
       {/* Top: eyebrow + confidential */}
       <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>

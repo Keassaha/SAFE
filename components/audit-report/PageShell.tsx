@@ -17,7 +17,7 @@ export function PageShell({
   children,
   pageLabel,
   pageNum,
-  total = "11",
+  total = "06",
   date,
   variant,
   darkPage = false,
@@ -28,14 +28,8 @@ export function PageShell({
     ? "rgba(169,194,178,.15)"
     : PALETTE.line;
 
-  const haloGreen =
-    variant === "cream"
-      ? "rgba(22,59,46,.16)"
-      : "rgba(22,59,46,.12)";
-  const haloGold =
-    variant === "cream"
-      ? "rgba(169,119,42,.13)"
-      : "rgba(169,119,42,.10)";
+  // Halos uniquement en variante crème ; la variante blanche reste nette et sobre.
+  const showHalos = variant === "cream";
 
   return (
     <div
@@ -50,35 +44,39 @@ export function PageShell({
         padding: "40px 48px 32px",
       }}
     >
-      {/* Corner halos */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "340px",
-          height: "340px",
-          background: `radial-gradient(circle, ${haloGreen}, transparent 68%)`,
-          filter: "blur(46px)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          right: 0,
-          width: "340px",
-          height: "340px",
-          background: `radial-gradient(circle, ${haloGold}, transparent 68%)`,
-          filter: "blur(46px)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
+      {/* Corner halos (crème uniquement) */}
+      {showHalos && (
+        <>
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "340px",
+              height: "340px",
+              background: `radial-gradient(circle, rgba(22,59,46,.16), transparent 68%)`,
+              filter: "blur(46px)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: "340px",
+              height: "340px",
+              background: `radial-gradient(circle, rgba(169,119,42,.13), transparent 68%)`,
+              filter: "blur(46px)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        </>
+      )}
 
       {/* Header */}
       <header

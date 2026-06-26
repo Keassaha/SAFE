@@ -18,11 +18,11 @@ export function CoutPage({ data, variant }: Props) {
   return (
     <PageShell
       pageLabel="Le coût de résolution"
-      pageNum="07"
+      pageNum="05"
       date={data.meta.date}
       variant={variant}
     >
-      <Eyebrow>07 · Le coût de résolution</Eyebrow>
+      <Eyebrow>05 · Le coût de résolution</Eyebrow>
       <DisplayTitle size="lg">
         Ce que coûterait une stack <Em>comparable.</Em>
       </DisplayTitle>

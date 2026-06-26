@@ -15,11 +15,11 @@ export function BarreauPage({ data, variant }: Props) {
   return (
     <PageShell
       pageLabel="Ce que dit votre Barreau"
-      pageNum="05"
+      pageNum="04"
       date={data.meta.date}
       variant={variant}
     >
-      <Eyebrow>05 · Ce que dit votre Barreau</Eyebrow>
+      <Eyebrow>04 · Ce que dit votre Barreau</Eyebrow>
       <DisplayTitle size="lg">
         Vos obligations clés, et où vous en <Em>êtes.</Em>
       </DisplayTitle>
