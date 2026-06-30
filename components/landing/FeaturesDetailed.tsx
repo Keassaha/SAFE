@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { BrowserFrame } from "./ui/BrowserFrame";
 import { CursorDemo } from "./ui/CursorDemo";
+import { NavetteDemo } from "./ui/NavetteDemo";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -49,10 +50,12 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/fideicommis.png",
     alt: "Comptes en fidéicommis dans SAFE, soldes par client et conciliation",
     label: "safecabinet.ca · Fidéicommis",
+    // Boutons réels de la page Fidéicommis, dans l'ordre logique de la démo.
+    // % relatifs au cadre navigateur (la barre de titre ajoute ~5% en haut).
     hotspots: [
-      { x: 26, y: 38 },
-      { x: 70, y: 30 },
-      { x: 52, y: 72 },
+      { x: 82, y: 24 }, // Ajouter une transaction
+      { x: 24, y: 56 }, // Réconciliation
+      { x: 50, y: 56 }, // Tableau de sécurité
     ],
   },
   {
@@ -70,6 +73,10 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/facture.png",
     alt: "Facture générée dans SAFE, en dollars canadiens avec TPS et TVQ",
     label: "safecabinet.ca · Facture",
+    // Le bouton réel de cette vue : ouvrir le PDF de la facture.
+    hotspots: [
+      { x: 80, y: 24 }, // Voir le PDF
+    ],
   },
   {
     num: "03",
@@ -85,10 +92,10 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/comptabilite.png",
     alt: "Page comptabilité de SAFE, vue claire des flux du cabinet",
     label: "safecabinet.ca · Comptabilité",
+    // Boutons réels de la page Comptabilité : créer une écriture, puis exporter pour le comptable.
     hotspots: [
-      { x: 22, y: 40 },
-      { x: 78, y: 36 },
-      { x: 50, y: 74 },
+      { x: 74, y: 74 }, // Nouvelle écriture
+      { x: 85, y: 74 }, // Export CSV
     ],
   },
 ];
@@ -179,22 +186,11 @@ export function FeaturesDetailed() {
           transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
           className="mt-12"
         >
-          <CursorDemo
-            hotspots={[
-              { x: 24, y: 34 },
-              { x: 62, y: 52 },
-              { x: 40, y: 76 },
-            ]}
-          >
-            <BrowserFrame
-              src="/images/app/dashboard.png"
-              alt="Tableau de bord de SAFE : ce qui demande une décision d'abord, les chiffres ensuite"
-              label="safecabinet.ca · Tableau de bord"
-              priority
-            />
-          </CursorDemo>
+          {/* Démo INTERACTIVE : le curseur clique « Approuver » et l'élément passe
+              réellement à « Approuvé » (vrai changement d'état, en boucle). */}
+          <NavetteDemo />
           <p className="mt-3 text-center text-[13px] text-text-subtle">
-            Votre tableau de bord : ce qui demande une décision d'abord, vos chiffres ensuite.
+            En direct : l'adjointe prépare, vous approuvez en un clic.
           </p>
         </motion.div>
       </section>
