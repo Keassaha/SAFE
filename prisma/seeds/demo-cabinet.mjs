@@ -132,7 +132,7 @@ async function main() {
   const dossier1 = await upsertDossier(cabinet.id, "2026-001", {
     clientId: clientPP.id,
     intitule: "Tremblay c. Commission — révision",
-    type: "litige",
+    type: "litige_civil",
     statut: "actif",
     avocatResponsableId: avocat.id,
     assistantJuridiqueId: assistante.id,

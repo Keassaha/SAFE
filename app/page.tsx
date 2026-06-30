@@ -4,10 +4,13 @@ import { Hero } from '@/components/landing/Hero';
 import { ProblemSection } from '@/components/landing/ProblemSection';
 import { NotYourFault } from '@/components/landing/NotYourFault';
 import { VirtualEmployees } from '@/components/landing/VirtualEmployees';
+import { PourLadjointe } from '@/components/landing/PourLadjointe';
 import { FeaturesGrid } from '@/components/landing/FeaturesGrid';
+import { ProduitEnVrai } from '@/components/landing/ProduitEnVrai';
 import { Objections } from '@/components/landing/Objections';
 import { ProcessTimeline } from '@/components/landing/ProcessTimeline';
 import { PricingGrid } from '@/components/landing/PricingGrid';
+import { FoundingOffer } from '@/components/landing/FoundingOffer';
 import { FinalCta } from '@/components/landing/FinalCta';
 import { Footer } from '@/components/landing/Footer';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -31,10 +34,13 @@ export default function LandingPage() {
         <ProblemSection />
         <NotYourFault />
         <VirtualEmployees />
+        <PourLadjointe />
         <FeaturesGrid />
+        <ProduitEnVrai />
         <Objections />
         <ProcessTimeline />
         <PricingGrid />
+        <FoundingOffer />
         <FinalCta />
       </main>
       <Footer />

@@ -4,9 +4,11 @@
 export const TARIFICATION = {
   fondateurs: {
     placesPrises: 1,
-    placesTotal: 50,
-    prix: 990,
-    deadlineJours: 90,
+    placesTotal: 5,
+    moisGratuits: 12,
+    abonnementVie: 50,
+    prixRegulierBarre: 149,
+    rachatUnique: 5000,
   },
   paliers: {
     solo: {
@@ -84,14 +86,9 @@ export const FAQ_TARIFICATION = [
       "L'audit de votre pratique, le choix du bundle adapté à votre cabinet (familial, immobilier, immigration, affaires, généraliste), les ajustements de relances, dashboard, templates, onglets visibles et permissions selon vos besoins. La configuration est incluse dès le palier Solo.",
   },
   {
-    question: "Le Pack Employé Virtuel a-t-il un engagement minimum ?",
-    answer:
-      "Non. Le Pack est un abonnement mensuel de 1 000 $, sans setup fee et résiliable en tout temps. Vous pouvez l'activer ou le désactiver à votre guise.",
-  },
-  {
     question: "SAFE est-il conforme aux exigences de mon Barreau ou de ma Law Society ?",
     answer:
-      "SAFE est actuellement déployé pour le Québec (Barreau du Québec, Règlement B-1, r.5) et l'Ontario (LSO By-Law 9). Les autres juridictions canadiennes sont en cours d'intégration. La conformité par juridiction est validée à l'audit.",
+      "SAFE est actuellement déployé pour le Québec (Barreau du Québec, Règlement B-1, r.5) et l'Ontario (LSO By-Law 9). Les autres juridictions canadiennes sont en cours d'intégration. Le périmètre réglementaire couvert pour votre juridiction est confirmé lors de l'audit. SAFE facilite le suivi de vos obligations, la responsabilité professionnelle reste la vôtre.",
   },
   {
     question: "Comment fonctionne la garantie d'activation sous 30 jours ?",
@@ -109,8 +106,13 @@ export const FAQ_TARIFICATION = [
       "Oui. SAFE est hébergé au Canada. Vos données ne quittent jamais le territoire canadien. Les données sensibles sont chiffrées AES-256. SAFE est conforme à la Loi 25 du Québec et à PIPEDA.",
   },
   {
-    question: "L'offre Fondateurs reviendra-t-elle un jour ?",
+    question: "L'offre fondatrice reviendra-t-elle un jour ?",
     answer:
-      "Non. L'offre Fondateurs est strictement limitée aux 50 premiers cabinets. Une fois les 50 places prises ou la deadline de 90 jours atteinte, elle est définitivement fermée. Les Fondateurs conservent leur prix Solo à vie.",
+      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée. Les cabinets fondateurs conservent leur tarif de 50 $/mois à vie, ou leur accès via le rachat unique.",
+  },
+  {
+    question: "Comment fonctionne le tarif gelé à vie ?",
+    answer:
+      "Vous signez maintenant et votre tarif fondateur de 50 $/mois est verrouillé pour toujours, au lieu de 149 $. Il n'augmentera jamais tant que vous restez membre. Les 12 premiers mois sont gratuits, à partir du jour où vous activez l'outil.",
   },
 ] as const;

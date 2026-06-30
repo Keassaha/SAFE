@@ -11,7 +11,7 @@ const BOOK_CALL_HREF = "/audit-gratuit";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
-  { label: "Prix après audit", href: "/tarification" },
+  { label: "Tarification", href: "/tarification" },
   { label: "Audit gratuit", href: "/audit-gratuit" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
@@ -40,7 +40,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="inline-flex items-center gap-2 group transition-transform duration-300 hover:scale-[1.02]">
             <Logo size={22} accentColor="#FFFFFF" />
-            <span className="font-serif text-[17px] tracking-[-0.02em] text-white mt-0.5">Safe</span>
+            <span className="font-serif text-[17px] tracking-[-0.02em] text-white mt-0.5">SAFE</span>
           </Link>
 
           {/* Desktop nav — centered */}

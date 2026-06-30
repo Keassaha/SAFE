@@ -11,8 +11,10 @@ import {
   Landmark,
 } from "lucide-react";
 import { BrowserFrame } from "./ui/BrowserFrame";
-import { CursorDemo } from "./ui/CursorDemo";
 import { NavetteDemo } from "./ui/NavetteDemo";
+import { FideicommisDemo } from "./ui/FideicommisDemo";
+import { FactureDemo } from "./ui/FactureDemo";
+import { ComptabiliteDemo } from "./ui/ComptabiliteDemo";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -31,7 +33,7 @@ type Showcase = {
   src: string;
   alt: string;
   label: string;
-  hotspots?: { x: number; y: number }[];
+  demo?: React.ComponentType;
 };
 
 const SHOWCASE: Showcase[] = [
@@ -50,13 +52,7 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/fideicommis.png",
     alt: "Comptes en fidéicommis dans SAFE, soldes par client et conciliation",
     label: "safecabinet.ca · Fidéicommis",
-    // Boutons réels de la page Fidéicommis, dans l'ordre logique de la démo.
-    // % relatifs au cadre navigateur (la barre de titre ajoute ~5% en haut).
-    hotspots: [
-      { x: 82, y: 24 }, // Ajouter une transaction
-      { x: 24, y: 56 }, // Réconciliation
-      { x: 50, y: 56 }, // Tableau de sécurité
-    ],
+    demo: FideicommisDemo,
   },
   {
     num: "02",
@@ -73,10 +69,7 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/facture.png",
     alt: "Facture générée dans SAFE, en dollars canadiens avec TPS et TVQ",
     label: "safecabinet.ca · Facture",
-    // Le bouton réel de cette vue : ouvrir le PDF de la facture.
-    hotspots: [
-      { x: 80, y: 24 }, // Voir le PDF
-    ],
+    demo: FactureDemo,
   },
   {
     num: "03",
@@ -92,11 +85,7 @@ const SHOWCASE: Showcase[] = [
     src: "/images/app/comptabilite.png",
     alt: "Page comptabilité de SAFE, vue claire des flux du cabinet",
     label: "safecabinet.ca · Comptabilité",
-    // Boutons réels de la page Comptabilité : créer une écriture, puis exporter pour le comptable.
-    hotspots: [
-      { x: 74, y: 74 }, // Nouvelle écriture
-      { x: 85, y: 74 }, // Export CSV
-    ],
+    demo: ComptabiliteDemo,
   },
 ];
 
@@ -199,6 +188,7 @@ export function FeaturesDetailed() {
       <section className="mx-auto max-w-[1180px] px-6 py-12 space-y-24">
         {SHOWCASE.map((f, i) => {
           const Icon = KICKER_ICONS[f.kicker] ?? ShieldCheck;
+          const Demo = f.demo;
           const reversed = i % 2 === 1;
           return (
             <motion.div
@@ -236,10 +226,8 @@ export function FeaturesDetailed() {
               </div>
 
               <div className={reversed ? "lg:order-1" : ""}>
-                {f.hotspots ? (
-                  <CursorDemo hotspots={f.hotspots}>
-                    <BrowserFrame src={f.src} alt={f.alt} label={f.label} />
-                  </CursorDemo>
+                {Demo ? (
+                  <Demo />
                 ) : (
                   <BrowserFrame src={f.src} alt={f.alt} label={f.label} />
                 )}

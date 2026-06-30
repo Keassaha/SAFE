@@ -9,17 +9,17 @@ const steps = [
   {
     num: "01",
     title: "Audit gratuit",
-    text: "Nous commençons par comprendre votre cabinet, vos outils actuels et les irritants qui ralentissent votre quotidien.",
+    text: "Nous partons de votre cabinet, de vos outils actuels et des irritants qui ralentissent votre quotidien.",
   },
   {
     num: "02",
-    title: "Diagnostic clair",
-    text: "Vous recevez les problèmes relevés, les gains possibles et les priorités à corriger, selon votre réalité.",
+    title: "Diagnostic chiffré",
+    text: "Vous recevez vos zones de friction, vos gains possibles et vos priorités, en chiffres réels.",
   },
   {
     num: "03",
-    title: "Proposition adaptée",
-    text: "Le plan d'action et le tarif vous sont présentés seulement après l'analyse, en fonction du travail réellement nécessaire.",
+    title: "Plan clair",
+    text: "Le plan d'action adapté à votre cabinet, avec un tarif que vous connaissez déjà. Libre à vous de l'accepter.",
   },
 ];
 
@@ -36,14 +36,14 @@ export function PricingGrid() {
         className="mb-14 text-center flex flex-col items-center"
       >
         <span className="text-[12px] font-sans uppercase tracking-[0.15em] text-forest-600 font-medium block mb-4">
-          Prix après audit
+          Tarification
         </span>
         <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary mb-4 max-w-2xl">
-          D&apos;abord le diagnostic,{" "}
-          <span className="italic text-forest-600">ensuite seulement le tarif.</span>
+          Des prix clairs.{" "}
+          <span className="italic text-forest-600">Un audit gratuit pour chiffrer ce que ça vous rapporte.</span>
         </h2>
         <p className="text-[15px] text-text-body font-sans leading-[1.6] max-w-xl">
-          Pour la plupart des cabinets, ce que SAFE permet de récupérer dépasse largement son coût&nbsp;: des heures d&apos;administration, des factures envoyées à temps et une trésorerie qui ne reste plus immobilisée entre le travail livré et le paiement. L&apos;audit gratuit chiffre précisément ce que cela représente chez vous, avant même qu&apos;un tarif ne soit nommé.
+          Nos tarifs sont publics et sans surprise, à partir de 99&nbsp;$/mois pour un cabinet solo, tout inclus. Avant même de parler abonnement, l&apos;audit gratuit met un chiffre sur ce que SAFE vous fait récupérer&nbsp;: des heures d&apos;administration, des factures envoyées à temps, et une trésorerie qui ne reste plus immobilisée entre le travail livré et le paiement.
         </p>
       </motion.div>
 
@@ -84,10 +84,10 @@ export function PricingGrid() {
       >
         <div>
           <p className="text-[15px] font-medium text-text-primary mb-1">
-            Aucun engagement avant validation.
+            Des tarifs publics, aucun engagement.
           </p>
           <p className="text-[13px] text-text-body leading-[1.6] max-w-2xl">
-            Vous recevez d&apos;abord votre diagnostic. Le tarif vient ensuite, accompagné d&apos;un plan clair que vous restez libre d&apos;accepter ou de refuser.
+            Nos prix sont affichés et sans surprise. L&apos;audit gratuit vous montre, en chiffres, ce que SAFE vous fait récupérer chaque mois. Vous restez libre d&apos;accepter ou de refuser.
           </p>
         </div>
         <Link href="/audit-gratuit" className="shrink-0">

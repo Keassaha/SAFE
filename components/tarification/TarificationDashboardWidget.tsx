@@ -11,7 +11,7 @@ type Props = {
 // Si "fondateurs" est demandé mais que les 50 places sont prises, on retombe sur "pack-ev".
 
 export function TarificationDashboardWidget({ variant = "pack-ev" }: Props) {
-  const { placesPrises, placesTotal, prix } = TARIFICATION.fondateurs;
+  const { placesPrises, placesTotal, abonnementVie } = TARIFICATION.fondateurs;
   const fondateursOuvert = placesPrises < placesTotal;
   const showFondateurs = variant === "fondateurs" && fondateursOuvert;
 
@@ -28,7 +28,7 @@ export function TarificationDashboardWidget({ variant = "pack-ev" }: Props) {
           </span>
         </div>
         <p className="font-sans font-medium text-[15px] text-text-primary mb-1.5">
-          Verrouillez votre prix Solo à vie pour {prix} $.
+          Verrouillez votre tarif à vie à {abonnementVie} $/mois, 12 mois gratuits.
         </p>
         <p className="text-[13px] text-text-body leading-[1.6] mb-5">
           Cette offre ne sera jamais répétée.

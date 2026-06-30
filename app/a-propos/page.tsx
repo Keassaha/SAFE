@@ -108,10 +108,10 @@ function StoryTimeline() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const events = [
-    { year: "2024", text: "Le constat : trop de cabinets passent autant de temps sur l'opérationnel que sur le droit." },
-    { year: "2025", text: "Septembre — Fondation de SAFE par Jérémie Tiahou. Construction du socle conforme B-1 r.5." },
-    { year: "2025", text: "Pensé d'abord en comptabilité, ensuite en logiciel. Hébergement canadien, Loi 25, By-Laws de la LSO." },
-    { year: "2026", text: "Premier cycle de cabinets accompagnés. Migration assistée, mise en service, accompagnement humain." },
+    { year: "2025", text: "Le constat, depuis la comptabilité d'une avocate en droit de la famille : trente minutes pour émettre une seule facture, du temps facturable laissé sur la table." },
+    { year: "2025", text: "Août. Début de la construction de SAFE. Pensé d'abord en comptabilité, ensuite en logiciel. Socle conforme B-1 r.5, hébergement canadien, Loi 25." },
+    { year: "2026", text: "SAFE se construit en public. Les avancées, les chiffres, les doutes, les leçons, documentés au fil de l'eau." },
+    { year: "2026", text: "Premiers cabinets accompagnés. Migration assistée, mise en service, accompagnement humain à chaque étape." },
   ];
 
   return (
@@ -193,8 +193,8 @@ export default function AProposPage() {
                 transition={{ delay: 0.1, duration: 0.6 }}
                 className="font-sans text-5xl md:text-6xl lg:text-7xl text-text-primary mb-8 leading-[1.05] tracking-tight"
               >
-                Beaucoup de cabinets s&apos;appuient encore sur des processus manuels{" "}
-                <span className="italic text-forest-600">qui freinent leur efficacité.</span>
+                Je n&apos;étais pas avocat.{" "}
+                <span className="italic text-forest-600">Je tenais leurs livres.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -202,7 +202,7 @@ export default function AProposPage() {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="text-lg text-text-body leading-relaxed font-sans"
               >
-                SAFE a été fondé en septembre 2025 par Jérémie Tiahou. Formé en gestion d&apos;entreprise et spécialisé dans la comptabilité des petites structures, il a conçu SAFE autour d&apos;une observation simple : des dirigeants compétents — avocats inclus — passent autant de temps sur l&apos;opérationnel et la comptabilité que sur leur métier. SAFE a été conçu pour corriger ce déséquilibre.
+                Pendant des mois, j&apos;ai tenu la comptabilité d&apos;une avocate en droit de la famille. C&apos;est de cette chaise, celle du teneur de livres qui voyait chaque mois où l&apos;argent s&apos;évaporait, que SAFE est né. Je m&apos;appelle Jérémie Tiahou, et voici l&apos;histoire.
               </motion.p>
             </div>
           </div>
@@ -215,23 +215,23 @@ export default function AProposPage() {
             <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
               <div>
                 <p className="text-lg font-sans italic text-forest-600 mb-4">
-                  Notre conviction
+                  Le déclic
                 </p>
                 <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-8 leading-tight tracking-tight">
-                  Un cabinet d&apos;avocats mérite mieux qu&apos;un outil générique.
+                  Le problème, ce n&apos;était pas l&apos;avocate. C&apos;était le système.
                 </h2>
                 <div className="space-y-6 text-text-body font-sans leading-relaxed">
                   <p>
-                    Quand la facturation, les suivis sensibles et la conformité reposent sur Excel, sur des habitudes orales et sur des vérifications manuelles, le cabinet devient plus lourd à faire tourner et plus stressant à piloter.
+                    Elle refusait catégoriquement QuickBooks. Trop complexe, mal adapté à sa pratique. Alors on gérait tout son cabinet autrement : Excel, fiches de temps papier, classeur physique, courriels éparpillés.
                   </p>
                   <p>
-                    Les logiciels universels demandent au cabinet de s&apos;adapter à eux. SAFE fait l&apos;inverse : il s&apos;adapte à la réalité d&apos;une pratique juridique en province, à ses obligations, à son équipe et à son mode de facturation.
+                    Le résultat ? Trente minutes pour émettre une seule facture. Toujours du retard. Du temps facturable constamment laissé sur la table.
                   </p>
                   <p>
-                    Audit, validation, configuration, migration, mise en service. À chaque étape, quelqu&apos;un vous accompagne. La technologie est au service du cabinet, pas l&apos;inverse.
+                    J&apos;ai d&apos;abord cru que c&apos;était un cas isolé. Je me trompais. Une juge me l&apos;a confirmé, elle connaissait plusieurs avocats exactement dans la même situation. J&apos;en ai parlé à deux autres avocates, même tableur, même constat. Un seul mot revenait pour décrire leur quotidien : « infernal ».
                   </p>
                   <p className="text-text-primary font-medium">
-                    Nous ne livrons pas un logiciel. Nous mettons un cabinet en ordre.
+                    C&apos;est là que j&apos;ai compris. Le problème n&apos;était pas l&apos;avocate. C&apos;était le système.
                   </p>
                 </div>
               </div>
@@ -254,15 +254,20 @@ export default function AProposPage() {
                   La mission
                 </p>
                 <h2 className="font-sans text-3xl md:text-5xl text-text-primary mb-8 leading-tight tracking-tight">
-                  Fournir un système sur mesure, conforme aux barreaux, pour que les avocats
-                  gèrent leur comptabilité{" "}
-                  <span className="italic text-forest-600">sans y perdre leur temps.</span>
+                  Aucun avocat solo ne devrait perdre une heure de son expertise{" "}
+                  <span className="italic text-forest-600">sur des tâches que la machine devrait faire à sa place.</span>
                 </h2>
-                <p className="text-lg text-text-body font-sans leading-relaxed">
-                  La conformité ne devrait jamais être un obstacle à la pratique du droit.
-                  SAFE automatise la facturation, le fidéicommis et la conformité pour que
-                  vous puissiez dédier votre énergie à vos clients, pas à la paperasse.
-                </p>
+                <div className="space-y-5 text-lg text-text-body font-sans leading-relaxed">
+                  <p>
+                    Depuis août 2025, je construis SAFE : le centre de commande du cabinet d&apos;avocats solo. Un système qui automatise la facturation, la comptabilité et l&apos;administratif des dossiers clients.
+                  </p>
+                  <p>
+                    Les logiciels universels demandent au cabinet de s&apos;adapter à eux. SAFE fait l&apos;inverse, il s&apos;adapte à votre pratique, à vos obligations et à votre façon de facturer. Pour que votre énergie aille à vos clients, pas à la paperasse.
+                  </p>
+                  <p className="text-text-primary font-medium">
+                    Aujourd&apos;hui, j&apos;ouvre une nouvelle étape : je construis SAFE en public. Les avancées, les chiffres, les doutes, les leçons. Si vous êtes avocat solo, ou si l&apos;admin vous freine encore, on est sur le même fil.
+                  </p>
+                </div>
               </div>
 
               {/* Animated timeline */}

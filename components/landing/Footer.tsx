@@ -10,17 +10,17 @@ export function Footer() {
           <div className="flex flex-col max-w-[280px]">
             <div className="flex items-center gap-2 mb-4">
               <Logo size={24} accentColor="#FFFFFF" />
-              <span className="font-serif text-[17px] tracking-[-0.02em] text-surface">Safe</span>
+              <span className="font-serif text-[17px] tracking-[-0.02em] text-surface">SAFE</span>
             </div>
             <p className="text-[13px] text-[#A1A1A1] font-sans leading-[1.6]">
-              Votre conformité, votre tranquillité. SAFE vérifie vos registres, vos journaux et vos rapprochements fiduciaires en continu. Pensé pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario.
+              Votre conformité, votre tranquillité. SAFE garde vos registres, vos journaux et vos rapprochements fiduciaires à jour et prêts à présenter. Pensé pour les cabinets d&apos;avocats du Québec et de l&apos;Ontario.
             </p>
           </div>
           
           <div className="flex flex-col gap-3">
             <h4 className="text-[13px] font-sans font-medium text-surface mb-2">Produit</h4>
             <Link href="#produit" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Fonctionnalités</Link>
-            <Link href="#tarification" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Prix après audit</Link>
+            <Link href="#tarification" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Tarification</Link>
             <Link href="#audit" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Audit d'efficacité</Link>
             <Link href="/login" className="text-[13px] text-[#A1A1A1] hover:text-surface transition-colors">Connexion au portail</Link>
           </div>
@@ -40,9 +40,14 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[0.5px] border-[#27272A] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-[12px] font-sans text-[#52525B]">© {new Date().getFullYear()} SafeCabinet Inc. Tous droits réservés.</span>
-          <span className="text-[12px] font-sans text-[#52525B]">Hébergé au Canada · Conforme Loi 25</span>
+        <div className="pt-8 border-t border-[0.5px] border-[#27272A] flex flex-col gap-4">
+          <p className="text-[12px] font-sans text-[#52525B] leading-[1.6] max-w-3xl">
+            SAFE est un outil de gestion. Il facilite le suivi de vos obligations professionnelles, il ne s&apos;y substitue pas. La responsabilité déontologique demeure celle du cabinet.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-[12px] font-sans text-[#52525B]">© {new Date().getFullYear()} SafeCabinet Inc. Tous droits réservés.</span>
+            <span className="text-[12px] font-sans text-[#52525B]">Hébergé au Canada · Conforme Loi 25</span>
+          </div>
         </div>
       </div>
     </footer>

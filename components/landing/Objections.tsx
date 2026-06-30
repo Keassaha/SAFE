@@ -33,7 +33,7 @@ const OBJECTIONS: QA[] = [
   },
   {
     q: "Et le prix ?",
-    a: "Le tarif n'est présenté qu'après l'audit gratuit, une fois la valeur chiffrée pour votre cabinet. Toujours sans engagement.",
+    a: "Nos tarifs sont publics : à partir de 99 $/mois pour un cabinet solo, tout inclus, sans frais cachés. L'audit gratuit vous montre, chiffres à l'appui, ce que SAFE vous fait récupérer chaque mois. Toujours sans engagement.",
   },
 ];
 

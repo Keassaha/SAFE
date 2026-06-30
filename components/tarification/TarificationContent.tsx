@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronDown, Clock3, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
-import { TARIFICATION, AUTOMATIONS, FAQ_TARIFICATION } from "@/lib/tarification";
+import { TARIFICATION, FAQ_TARIFICATION } from "@/lib/tarification";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const AUDIT_HREF = "/audit-gratuit";
@@ -129,64 +129,167 @@ function Hero() {
         className="relative max-w-4xl mx-auto text-center"
       >
         <motion.div variants={fadeUp}>
-          <Eyebrow>Tarification SAFE</Eyebrow>
+          <Eyebrow>Offre fondatrice</Eyebrow>
         </motion.div>
         <motion.h1
           variants={fadeUp}
           className="font-serif text-[44px] sm:text-[60px] leading-[1.02] tracking-[-0.025em] text-zinc-900 mb-6"
         >
-          Le système de gestion de cabinet conçu par et pour les{" "}
+          On bâtit SAFE avec cinq cabinets.{" "}
           <span className="bg-gradient-to-r from-emerald-700 to-emerald-500 bg-clip-text text-transparent italic">
-            avocats canadiens et québécois
+            Pas seulement pour eux.
           </span>
-          .
         </motion.h1>
         <motion.p
           variants={fadeUp}
           className="text-[17px] text-zinc-600 font-sans leading-[1.65] max-w-2xl mx-auto mb-10"
         >
-          Avoir un cabinet qui tourne sans vous le vendredi après-midi — sans embaucher,
-          sans apprendre un nouveau métier, sans risquer un faux pas avec votre Barreau.
+          SAFE est une jeune entreprise basée au Québec. Pour continuer à nous
+          développer, on s&apos;associe à un petit nombre de cabinets partenaires, et on
+          leur réserve des conditions qui ne reviendront pas.
         </motion.p>
         <motion.div
           variants={fadeUp}
           className="flex flex-col sm:flex-row gap-3 justify-center"
         >
-          <PrimaryButton href={AUDIT_HREF} size="lg">
-            Diagnostic gratuit (15 min) &rarr;
+          <PrimaryButton href="/contact" size="lg">
+            Nous contacter &rarr;
           </PrimaryButton>
-          <GhostButton href="#paliers">Voir les paliers</GhostButton>
+          <GhostButton href="#prix-reguliers">Voir nos prix réguliers</GhostButton>
         </motion.div>
       </motion.div>
     </section>
   );
 }
 
-function PourquoiMaintenant() {
-  const items = [
+function OffreFondatrice() {
+  const {
+    placesPrises,
+    placesTotal,
+    abonnementVie,
+    prixRegulierBarre,
+    rachatUnique,
+    moisGratuits,
+  } = TARIFICATION.fondateurs;
+  const restantes = Math.max(placesTotal - placesPrises, 0);
+  return (
+    <section id="fondateurs" className="py-20 px-6 max-w-5xl mx-auto">
+      <SectionHeader
+        eyebrow="L'offre fondatrice"
+        title={
+          <>
+            Cinq places.{" "}
+            <span className="italic text-emerald-700">Un tarif gelé à vie.</span>
+          </>
+        }
+        subtitle={`${moisGratuits} mois gratuits dès l'activation, puis un tarif verrouillé pour toujours. Deux façons d'en profiter, à votre choix.`}
+      />
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch"
+      >
+        {/* Abonnement à vie */}
+        <motion.div
+          variants={fadeUp}
+          className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-950 bg-[linear-gradient(145deg,#163327_0%,#0f241b_48%,#07130f_100%)] text-white shadow-[0_30px_90px_-52px_rgba(7,19,15,0.85)]"
+        >
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-200 via-white to-emerald-300" />
+          <span className="inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-semibold px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            Le choix des fondateurs
+          </span>
+          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-100/75 mb-3">
+            Abonnement à vie
+          </p>
+          <div className="flex items-end gap-2">
+            <span className="font-serif text-[48px] leading-none text-white">
+              {abonnementVie} $
+            </span>
+            <span className="pb-1 text-[14px] text-white/70">/ mois</span>
+            <span className="pb-1 ml-1 text-[15px] text-white/40 line-through">
+              {prixRegulierBarre} $
+            </span>
+          </div>
+          <p className="text-[13.5px] leading-[1.6] text-white/85 mt-4 mb-7">
+            {moisGratuits} mois gratuits dès l&apos;activation, puis {abonnementVie} $/mois
+            gelés à vie. Aucune hausse, jamais, tant que vous restez membre.
+          </p>
+          <Link href="/contact" className="safe-site-cta-primary relative mt-auto">
+            Nous contacter &rarr;
+          </Link>
+        </motion.div>
+
+        {/* Rachat unique */}
+        <motion.div
+          variants={fadeUp}
+          className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-900/10 bg-white/80 shadow-[0_18px_60px_-48px_rgba(31,58,46,0.48)] hover:border-emerald-900/20 hover:bg-white transition-all"
+        >
+          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-800 mb-3">
+            Rachat unique
+          </p>
+          <div className="flex items-end gap-2">
+            <span className="font-serif text-[48px] leading-none text-zinc-900">
+              {rachatUnique.toLocaleString("fr-CA")} $
+            </span>
+            <span className="pb-1 text-[14px] text-zinc-500">une seule fois</span>
+          </div>
+          <p className="text-[13.5px] leading-[1.6] text-zinc-700 mt-4 mb-7">
+            Vous payez une fois, plus jamais de mensualité à gérer. Accès à vie, mises à
+            jour de conformité comprises. Réservé aux cinq cabinets fondateurs.
+          </p>
+          <Link href="/contact" className="safe-site-cta-secondary relative mt-auto">
+            Nous contacter &rarr;
+          </Link>
+        </motion.div>
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, delay: 0.2, ease }}
+        className="mt-8 text-center text-[13px] text-zinc-500"
+      >
+        {placesPrises} / {placesTotal} places attribuées ·{" "}
+        {restantes > 1 ? `${restantes} places restantes` : `${restantes} place restante`}
+      </motion.p>
+    </section>
+  );
+}
+
+function PartenariatFondateur() {
+  const points = [
     {
-      titre: "Pénurie d'adjointes",
-      desc: "Embaucher un bookkeeper coûte 45 000 $ et plus par an au Canada.",
+      num: "01",
+      titre: "Une entreprise qui grandit avec ses cabinets",
+      desc: "Nous sommes une petite équipe. Les cinq premiers cabinets nous aident à bâtir le bon outil, pas l'inverse.",
     },
     {
-      titre: "Loi 25, FINTRAC, exigences Barreau renforcées",
-      desc: "Un cabinet non conforme = risque réel de plainte ou de sanction.",
+      num: "02",
+      titre: "Votre retour oriente l'outil",
+      desc: "Ce que vous nous dites se retrouve dans la prochaine version. Vous n'êtes pas un dossier parmi mille.",
     },
     {
-      titre: "L'écart se creuse",
-      desc: "Les cabinets qui ont automatisé en 2025 ont 12 mois d'avance.",
+      num: "03",
+      titre: "Un prix gelé à vie",
+      desc: "En échange de votre confiance maintenant, votre tarif ne bouge plus, jamais.",
     },
   ];
   return (
-    <section className="py-24 px-6 max-w-6xl mx-auto">
+    <section className="py-20 px-6 max-w-6xl mx-auto">
       <SectionHeader
-        eyebrow="Pourquoi maintenant"
+        eyebrow="Pourquoi une offre fondatrice"
         title={
           <>
-            Trois fenêtres se referment{" "}
-            <span className="italic text-emerald-700">en même temps</span>.
+            Un partenariat,{" "}
+            <span className="italic text-emerald-700">pas une promotion</span>.
           </>
         }
+        subtitle="L'idée est simple et assumée. On cherche cinq cabinets pour avancer avec nous, et on récompense ceux qui embarquent tôt."
       />
       <motion.div
         initial="hidden"
@@ -195,19 +298,70 @@ function PourquoiMaintenant() {
         variants={stagger}
         className="grid grid-cols-1 md:grid-cols-3 gap-5"
       >
-        {items.map((it) => (
+        {points.map((p) => (
           <motion.div
-            key={it.titre}
+            key={p.num}
             variants={fadeUp}
             className="relative overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 p-7 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-shadow"
           >
-            <GradientOrb className="-top-12 -right-12 w-32 h-32 opacity-60" />
+            <div className="relative mb-5 inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 font-serif text-[14px]">
+              {p.num}
+            </div>
             <h3 className="relative font-sans font-semibold text-[16px] text-zinc-900 mb-3 leading-[1.3]">
-              {it.titre}
+              {p.titre}
             </h3>
             <p className="relative text-[13.5px] text-zinc-600 font-sans leading-[1.65]">
-              {it.desc}
+              {p.desc}
             </p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </section>
+  );
+}
+
+function AvantagesFondateurs() {
+  const avantages = [
+    "12 mois gratuits dès l'activation",
+    "Tarif de 50 $/mois gelé à vie",
+    "Option de rachat unique à 5 000 $",
+    "Mise en route faite avec vous, sans frais",
+    "Migration de vos données incluse",
+    "Mises à jour de conformité au Barreau incluses",
+    "Accès prioritaire au support",
+    "Voix au chapitre sur la feuille de route",
+    "Hébergement au Canada, données chiffrées",
+    "Statut de membre fondateur",
+  ];
+  return (
+    <section className="py-20 px-6 max-w-5xl mx-auto">
+      <SectionHeader
+        eyebrow="Ce que vous obtenez"
+        title={
+          <>
+            Tous les avantages{" "}
+            <span className="italic text-emerald-700">fondateurs</span>.
+          </>
+        }
+        subtitle="Une seule signature, et tout ce qui suit est compris."
+      />
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3.5"
+      >
+        {avantages.map((a) => (
+          <motion.div
+            key={a}
+            variants={fadeUp}
+            className="flex gap-3 text-[14px] text-zinc-700 font-sans"
+          >
+            <span className="shrink-0 mt-[1px] flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-800">
+              <Check className="h-3 w-3" aria-hidden="true" />
+            </span>
+            <span>{a}</span>
           </motion.div>
         ))}
       </motion.div>
@@ -230,8 +384,8 @@ function PaliersGrid() {
     },
     {
       icon: TrendingUp,
-      value: "6x à 12x",
-      label: "ROI typique quand le Pack est activé",
+      value: "Tout inclus",
+      label: "configuration, mise en service et migration des données",
     },
   ];
   const paliers = [
@@ -242,7 +396,7 @@ function PaliersGrid() {
       prix: `${solo.prix} $`,
       prixSuffix: "/mois",
       annuel: `${solo.prixAnnuel} $/mois en annuel · économie ${solo.eco} $`,
-      pourQui: "1 avocat (avec ou sans adjointe), toute discipline.",
+      pourQui: "1 avocat, toute discipline.",
       proof: "Moins qu'une demi-heure facturable.",
       features: [
         "Configuration adaptée à votre pratique",
@@ -250,7 +404,7 @@ function PaliersGrid() {
         "Facturation forfait, horaire ou mixte",
         "Comptabilité fidéicommis intégrée",
         "Cartables réglementaires standards",
-        "Conformité automatisée",
+        "Suivi de conformité intégré",
         "Bilingue FR/EN, hébergé au Canada",
         "Support standard",
       ],
@@ -302,16 +456,16 @@ function PaliersGrid() {
   ];
 
   return (
-    <section id="paliers" className="relative py-24 px-6 max-w-6xl mx-auto">
+    <section id="prix-reguliers" className="relative py-24 px-6 max-w-6xl mx-auto">
       <SectionHeader
-        eyebrow="Prix et valeur"
+        eyebrow="Nos prix réguliers"
         title={
           <>
-            Une tarification simple. Une impression de{" "}
-            <span className="italic text-emerald-700">cabinet haut de gamme</span>.
+            Et après la phase fondatrice,{" "}
+            <span className="italic text-emerald-700">des prix simples et publics</span>.
           </>
         }
-        subtitle="Vous ne payez pas seulement un accès logiciel. Vous obtenez une configuration, une mise en service, et un système qui réduit le travail administratif visible dans votre cabinet."
+        subtitle="Une fois les cinq places fondatrices comblées, voici nos tarifs standards. Pas de surprise, pas de paliers cachés."
       />
 
       <motion.div
@@ -522,109 +676,6 @@ function InclusPartout() {
   );
 }
 
-function PackEmployeVirtuel() {
-  return (
-    <section
-      id="employe-virtuel"
-      className="relative py-24 px-6 max-w-6xl mx-auto"
-    >
-      <SectionHeader
-        eyebrow="Pack Employé Virtuel"
-        title={
-          <>
-            L'assistant de vos assistants{" "}
-            <span className="italic text-emerald-700">qui assure</span>.
-          </>
-        }
-        subtitle="Zéro erreur. Cent pour cent de contrôle. Cent pour cent de précision. Sous votre regard vigilant."
-      />
-
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 text-white p-10 mb-14 max-w-2xl mx-auto text-center shadow-xl shadow-emerald-800/25"
-      >
-        <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-emerald-300/15 blur-3xl pointer-events-none" />
-        <p className="relative text-[11px] uppercase tracking-[0.18em] text-white/70 font-semibold mb-4">
-          Pack Employé Virtuel
-        </p>
-        <div className="relative flex items-baseline gap-1 justify-center mb-3">
-          <span className="font-serif text-[56px] leading-none tracking-[-0.02em]">
-            {TARIFICATION.packEv.prix.toLocaleString("fr-CA")} $
-          </span>
-          <span className="text-[15px] text-white/70">/mois</span>
-        </div>
-        <p className="relative text-[14px] text-white/80 leading-[1.65] mb-7">
-          Tout inclus. Sans setup fee. Résiliable en tout temps.
-        </p>
-        <Link
-          href={AUDIT_HREF}
-          className="safe-site-cta-primary relative"
-        >
-          Activer mon Pack &rarr;
-        </Link>
-      </motion.div>
-
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6, ease }}
-        className="text-center text-[15px] text-zinc-600 max-w-2xl mx-auto leading-[1.7] mb-12"
-      >
-        Ce ne sont pas des chatbots. Ce sont des séries d'automations qui exécutent les
-        tâches répétitives de votre cabinet — vous gardez la décision finale, l'IA exécute
-        le reste.
-      </motion.p>
-
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={stagger}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-      >
-        {AUTOMATIONS.map((a) => (
-          <motion.div
-            key={a.num}
-            variants={fadeUp}
-            className="relative overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-shadow"
-          >
-            <GradientOrb className="-top-12 -right-12 w-32 h-32 opacity-50" />
-            <div className="relative mb-4 inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 font-serif text-[14px]">
-              {a.num}
-            </div>
-            <h3 className="relative font-sans font-semibold text-[15px] text-zinc-900 mb-2.5 leading-[1.3]">
-              {a.titre}
-            </h3>
-            <p className="relative text-[13px] text-zinc-600 font-sans leading-[1.65]">
-              {a.desc}
-            </p>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6, ease }}
-        className="mt-14 text-center"
-      >
-        <p className="text-[15px] text-zinc-700 leading-[1.7] max-w-3xl mx-auto">
-          Un assistant junior coûte 2 500 à 3 333 $ par mois. Le Pack vous fait économiser{" "}
-          <span className="font-semibold text-emerald-700">60 à 70 %</span>. ROI typique :{" "}
-          <span className="font-semibold text-emerald-700">6× à 12×</span> dès le premier
-          mois.
-        </p>
-      </motion.div>
-    </section>
-  );
-}
-
 function TripleGarantie() {
   const garanties = [
     {
@@ -690,7 +741,7 @@ function TripleGarantie() {
         className="mt-10 mx-auto max-w-3xl text-center"
       >
         <p className="text-[12px] uppercase tracking-[0.18em] text-emerald-700 font-semibold mb-3">
-          Time-to-first-value contractuel
+          Notre engagement de mise en service
         </p>
         <p className="text-[14.5px] text-zinc-600 leading-[1.8]">
           <span className="font-semibold text-zinc-900">Jour 1</span> — première facture
@@ -698,74 +749,6 @@ function TripleGarantie() {
           dossier numérisé. <span className="font-semibold text-zinc-900">Jour 7</span> —
           première heure de gain mesurée.
         </p>
-      </motion.div>
-    </section>
-  );
-}
-
-function OffreFondateurs() {
-  const { placesPrises, placesTotal, prix, deadlineJours } = TARIFICATION.fondateurs;
-  const closed = placesPrises >= placesTotal;
-  return (
-    <section id="fondateurs" className="py-24 px-6 max-w-3xl mx-auto">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        variants={fadeUp}
-        className="text-center"
-      >
-        <Eyebrow>Offre Fondateurs</Eyebrow>
-        <h2 className="font-serif text-[34px] sm:text-[40px] leading-[1.05] tracking-[-0.02em] text-zinc-900 mb-4">
-          {placesTotal} places.{" "}
-          <span className="italic text-emerald-700">Jamais relancée.</span>
-        </h2>
-        <p className="text-[15px] text-zinc-600 leading-[1.7] max-w-xl mx-auto mb-10">
-          Vous ne devenez pas client : vous devenez{" "}
-          <span className="text-zinc-900 font-medium">partenaire fondateur</span>. Votre voix
-          oriente la roadmap. Votre prix est verrouillé pour toujours.
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.7, ease }}
-        className="relative overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm border border-emerald-700/15 p-8 sm:p-10 shadow-[0_8px_32px_rgba(31,58,46,0.08)]"
-      >
-        <GradientOrb className="-top-24 -right-24 w-72 h-72 opacity-50" />
-        <GradientOrb className="-bottom-24 -left-24 w-72 h-72 opacity-30" color="sand" />
-
-        <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
-          {[
-            ["Prix", `${prix} $`, "une seule fois"],
-            ["Accès", "Solo", "à vie"],
-            ["Places", `${placesPrises} / ${placesTotal}`, closed ? "fermée" : "restantes"],
-            ["Deadline", `${deadlineJours} j`, "après lancement"],
-          ].map(([k, v, sub]) => (
-            <div key={k}>
-              <p className="text-[10.5px] uppercase tracking-[0.18em] text-emerald-700 font-semibold mb-2">
-                {k}
-              </p>
-              <p className="font-serif text-[22px] text-zinc-900 leading-[1.1] mb-0.5">
-                {v}
-              </p>
-              <p className="text-[11.5px] text-zinc-500">{sub}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-emerald-700/10">
-          <p className="text-[13px] text-zinc-500 italic">
-            Cette offre ne sera jamais répétée.
-          </p>
-          {!closed && (
-            <PrimaryButton href={AUDIT_HREF}>
-              Devenir Fondateur &rarr;
-            </PrimaryButton>
-          )}
-        </div>
       </motion.div>
     </section>
   );
@@ -848,9 +831,9 @@ function CtaFinal() {
           variants={fadeUp}
           className="font-serif text-[36px] sm:text-[44px] leading-[1.05] tracking-[-0.02em] text-zinc-900 mb-5"
         >
-          Prêt à voir votre cabinet{" "}
+          Prêt à faire partie{" "}
           <span className="bg-gradient-to-r from-emerald-700 to-emerald-500 bg-clip-text text-transparent italic">
-            dans SAFE
+            des cinq
           </span>{" "}
           ?
         </motion.h2>
@@ -858,16 +841,16 @@ function CtaFinal() {
           variants={fadeUp}
           className="text-[15.5px] text-zinc-600 leading-[1.7] max-w-xl mx-auto mb-10"
         >
-          Trois étapes : diagnostic gratuit, discovery call, activation sous 7 jours.
+          On vous explique l&apos;offre fondatrice en quinze minutes, sans engagement.
         </motion.p>
         <motion.div
           variants={fadeUp}
           className="flex flex-col sm:flex-row gap-3 justify-center"
         >
-          <PrimaryButton href={AUDIT_HREF} size="lg">
-            Lancer mon diagnostic gratuit &rarr;
+          <PrimaryButton href="/contact" size="lg">
+            Nous contacter &rarr;
           </PrimaryButton>
-          <GhostButton href="/contact">Réserver un appel de 30 min</GhostButton>
+          <GhostButton href={AUDIT_HREF}>Faire l&apos;audit gratuit d&apos;abord</GhostButton>
         </motion.div>
       </motion.div>
     </section>
@@ -878,13 +861,13 @@ export function TarificationContent() {
   return (
     <div className="relative">
       <Hero />
-      <PourquoiMaintenant />
+      <OffreFondatrice />
+      <PartenariatFondateur />
+      <AvantagesFondateurs />
       <PaliersGrid />
       <InclusPartout />
-      <PackEmployeVirtuel />
       <TripleGarantie />
       <FAQSection />
-      <OffreFondateurs />
       <CtaFinal />
     </div>
   );

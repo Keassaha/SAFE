@@ -10,6 +10,21 @@ function num(v: unknown): number {
   return Number(v ?? 0);
 }
 
+/**
+ * Lit un sous-champ pouvant être stocké soit en clé plate
+ * (`groupe_champ`, `"groupe.champ"`), soit dans un objet imbriqué
+ * (`a[groupe] = { champ }`). Retourne toujours une chaîne.
+ */
+function nestedStr(a: Answers, group: string, field: string): string {
+  const flat = a[`${group}_${field}`] ?? a[`${group}.${field}`];
+  if (flat !== undefined && flat !== null && flat !== "") return str(flat);
+  const obj = a[group];
+  if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+    return str((obj as Record<string, unknown>)[field]);
+  }
+  return "";
+}
+
 function midHours(v: unknown): { min: number; max: number } {
   switch (str(v)) {
     case "lt2":  return { min: 0, max: 2 };
@@ -225,10 +240,13 @@ function arr(v: unknown): string[] {
 }
 
 export function buildCabinet(a: Answers): AuditReport["cabinet"] {
-  const nomComplet = str(a.identite_nom_complet || a["identite.nom_complet"]);
-  const titre = str(a.identite_titre || a["identite.titre"]);
-  const ville = str(a.localisation_ville || a["localisation.ville"]);
-  const province = str(a.localisation_province || a["localisation.province"] || "QC");
+  // Certaines réponses sont stockées sous forme d'objet imbriqué
+  // (ex. localisation = { ville, province }, identite = { nom_complet, titre }).
+  // nestedStr() lit l'objet imbriqué avec repli sur d'éventuelles clés plates.
+  const nomComplet = nestedStr(a, "identite", "nom_complet");
+  const titre = nestedStr(a, "identite", "titre");
+  const ville = nestedStr(a, "localisation", "ville");
+  const province = nestedStr(a, "localisation", "province") || "QC";
   const domainesBrut = str(a.domaines_pratique || a.domaines || "");
   const domaines = domainesBrut
     .split(/[,;/\n]+/)
@@ -499,7 +517,7 @@ export function buildRisques(a: Answers): AuditReport["risques"] {
 export function buildBarreau(a: Answers): AuditReport["barreau"] {
   const items: AuditReport["barreau"] = [];
   const fidei = str(a.fideicommis_usage);
-  const province = str(a.localisation_province || a["localisation.province"] || "QC");
+  const province = nestedStr(a, "localisation", "province") || "QC";
 
   if (["actif", "peu"].includes(fidei)) {
     items.push({
@@ -783,7 +801,7 @@ export function buildAnnexe(a: Answers): AuditReport["annexe"] {
       titre: "Le cabinet",
       reponses: [
         { code: "raison_sociale",   question: "Raison sociale",               reponse: str(a.raison_sociale) },
-        { code: "localisation",     question: "Localisation",                 reponse: `${str(a.localisation_ville || a["localisation.ville"])}, ${str(a.localisation_province || a["localisation.province"])}` },
+        { code: "localisation",     question: "Localisation",                 reponse: `${nestedStr(a, "localisation", "ville")}, ${nestedStr(a, "localisation", "province")}` },
         { code: "forme_juridique",  question: "Forme juridique",              reponse: formeLabel(a.forme_juridique) },
         { code: "annees_pratique",  question: "Ancienneté de pratique",       reponse: ancienneteLabel(a.annees_pratique) },
       ].filter((r) => r.reponse && r.reponse !== "Non précisé"),

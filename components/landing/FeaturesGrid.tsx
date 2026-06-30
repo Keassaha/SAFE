@@ -23,7 +23,7 @@ const FEATURES: Feature[] = [
     num: "02",
     kicker: "Fidéicommis",
     title: "Un fidéicommis plus clair.",
-    body: "Registre tenu, conciliation mensuelle et piste de vérification complète. La conformité au B-1, r.5 et aux By-Laws de la LSO est assurée en continu, pas seulement le jour de l'inspection.",
+    body: "Registre tenu, conciliation mensuelle et piste de vérification complète. Conçu pour suivre les exigences du B-1, r.5 et des By-Laws de la LSO en continu, pas seulement le jour de l'inspection.",
     outcome: "Tracé en continu",
   },
   {
