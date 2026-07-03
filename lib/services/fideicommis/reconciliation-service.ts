@@ -7,6 +7,34 @@ import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
 import { getGlobalTrustBalance } from "./trust-balance-service";
 import { lockAccountingPeriod } from "@/lib/services/journal/period-lock";
+import { getCabinetProvince } from "@/lib/cabinet/get-province";
+import { resolveProvince } from "@/lib/compliance/rules";
+
+/**
+ * Sévérité du retard de rapprochement, PROVINCE-AWARE (fonction pure, testable).
+ *
+ * Ontario (By-Law 9, art. 22(2)) : le rapprochement mensuel doit être complété au plus
+ * tard 25 jours après la fin du mois. On alerte à J+20 (marge) et on marque non-conforme
+ * (critique) à J+25.
+ *
+ * Québec (B-1, r. 5) : l'obligation est un rapprochement mensuel, SANS délai chiffré en
+ * jours (livres « à jour »). On garde un RAPPEL doux (overdue) mais on ne déclare JAMAIS
+ * « critique / non-conforme » sur un compte de jours qui n'existe pas dans le règlement.
+ * Réf. registre TR-QC-06 / TR-ON-02 / STATUS-PROV-01.
+ */
+export function computeReconciliationSeverity(params: {
+  isCurrentPeriodDone: boolean;
+  daysSinceMonthEnd: number;
+  province?: string | null;
+}): { overdue: boolean; critical: boolean } {
+  const { isCurrentPeriodDone, daysSinceMonthEnd } = params;
+  if (isCurrentPeriodDone) return { overdue: false, critical: false };
+  const isQuebec = resolveProvince(params.province) === "QC";
+  const overdue = daysSinceMonthEnd > 20; // rappel (les deux provinces)
+  // Le seuil critique J+25 est PROPRE À L'ONTARIO. Jamais « critique » au Québec.
+  const critical = !isQuebec && daysSinceMonthEnd > 25;
+  return { overdue, critical };
+}
 
 export interface CreateReconciliationParams {
   cabinetId: string;
@@ -212,10 +240,14 @@ export async function getReconciliation(id: string, cabinetId: string) {
 
 /**
  * Checks if reconciliation is overdue for the current period.
- * By-Law 9: must be completed within 25 days of month-end.
- * Returns { overdue: boolean, daysSinceMonthEnd: number, lastPeriode: string | null }
+ * Province-aware (cf. computeReconciliationSeverity) : ON = seuil By-Law 9 J+25 ;
+ * QC = rappel doux sans seuil critique (aucun délai chiffré au Québec).
+ * `province` est optionnel : s'il n'est pas fourni, il est lu depuis le cabinet.
  */
-export async function getReconciliationStatus(cabinetId: string) {
+export async function getReconciliationStatus(
+  cabinetId: string,
+  province?: string | null,
+) {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth(); // 0-indexed
@@ -231,15 +263,24 @@ export async function getReconciliationStatus(cabinetId: string) {
     (now.getTime() - monthEndDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  const latest = await getLatestReconciliation(cabinetId);
+  const [latest, resolvedProvince] = await Promise.all([
+    getLatestReconciliation(cabinetId),
+    province !== undefined ? Promise.resolve(province) : getCabinetProvince(cabinetId),
+  ]);
   const lastCertifiedPeriode = latest?.status === "certified" ? latest.periode : null;
   const isCurrentPeriodDone = latest?.periode === expectedPeriode && latest?.status === "certified";
+
+  const { overdue, critical } = computeReconciliationSeverity({
+    isCurrentPeriodDone,
+    daysSinceMonthEnd,
+    province: resolvedProvince,
+  });
 
   return {
     expectedPeriode,
     daysSinceMonthEnd,
-    overdue: !isCurrentPeriodDone && daysSinceMonthEnd > 20, // alert at J+20 (5-day margin)
-    critical: !isCurrentPeriodDone && daysSinceMonthEnd > 25, // non-compliant at J+25
+    overdue,
+    critical,
     lastCertifiedPeriode,
     lastReconciliation: latest,
   };

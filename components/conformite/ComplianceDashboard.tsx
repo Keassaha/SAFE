@@ -27,6 +27,14 @@ interface ComplianceStatus {
     count: number;
     href: string;
   }[];
+  obligations?: {
+    id: string;
+    domain: string;
+    statement: string;
+    source: string;
+    confidence: "CONFIRME" | "PARTIEL" | "INCERTAIN";
+    deadline: string | null;
+  }[];
   reconciliation: {
     status: string;
     lastCertified: string | null;
@@ -42,6 +50,22 @@ interface ComplianceStatus {
     expiringSoonDocuments: number;
   };
 }
+
+const OBLIGATION_DOMAIN_LABELS: Record<string, { fr: string; en: string }> = {
+  fideicommis: { fr: "Fidéicommis", en: "Trust accounting" },
+  cash: { fr: "Espèces", en: "Cash" },
+  retention: { fr: "Conservation", en: "Retention" },
+  conflicts: { fr: "Conflits d'intérêts", en: "Conflicts of interest" },
+  fintrac: { fr: "FINTRAC", en: "FINTRAC" },
+  privacy: { fr: "Vie privée", en: "Privacy" },
+  billing: { fr: "Facturation et taxes", en: "Billing and taxes" },
+  federal: { fr: "Fédéral", en: "Federal" },
+};
+
+const OBLIGATION_COPY = {
+  fr: { heading: "Vos obligations de conformité", toConfirm: "à confirmer", due: "échéance" },
+  en: { heading: "Your compliance obligations", toConfirm: "to confirm", due: "due" },
+};
 
 export function ComplianceDashboard() {
   const copy = getTrustRegulatorCopy(useCabinetProvince());
@@ -279,6 +303,53 @@ export function ComplianceDashboard() {
           </Card>
         </Link>
       </div>
+
+      {/* Vos obligations de conformité (sourcées, province-aware) — ADR-011.
+          Rendu seulement si l'API renvoie des obligations (flag COMPLIANCE_RULES_ENABLED). */}
+      {data.obligations && data.obligations.length > 0 && (() => {
+        const oc = copy.isQuebec ? OBLIGATION_COPY.fr : OBLIGATION_COPY.en;
+        const lang: "fr" | "en" = copy.isQuebec ? "fr" : "en";
+        return (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Scale className="w-4 h-4 text-si-ink" />
+              <h3 className="text-sm font-semibold">{oc.heading}</h3>
+              <span className="text-xs text-si-muted">
+                {copy.isQuebec ? "Barreau du Québec" : "Law Society of Ontario"}
+              </span>
+            </div>
+            {Object.entries(
+              data.obligations.reduce<Record<string, typeof data.obligations>>((acc, o) => {
+                (acc[o.domain] ??= []).push(o);
+                return acc;
+              }, {}),
+            ).map(([domain, rules]) => (
+              <div key={domain} className="space-y-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-si-muted">
+                  {OBLIGATION_DOMAIN_LABELS[domain]?.[lang] ?? domain}
+                </h4>
+                <ul className="space-y-2">
+                  {rules.map((o) => (
+                    <li key={o.id} className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-si-verified" />
+                      <div className="min-w-0">
+                        <p className="text-sm text-si-ink">{o.statement}</p>
+                        <p className="text-xs text-si-muted">
+                          {o.source}
+                          {o.deadline && ` · ${oc.due} ${o.deadline}`}
+                          {o.confidence === "PARTIEL" && ` · ${oc.toConfirm}`}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        );
+      })()}
     </div>
   );
 }

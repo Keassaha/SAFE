@@ -3,6 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getReconciliationStatus } from "@/lib/services/fideicommis";
+import { getCabinetProvince } from "@/lib/cabinet/get-province";
+import {
+  COMPLIANCE_RULES_ENABLED,
+  getDisplayableRules,
+  localeForProvince,
+} from "@/lib/compliance/rules";
 
 /**
  * GET /api/conformite — Aggregated compliance status for dashboard.
@@ -18,6 +24,8 @@ export async function GET() {
     return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
   }
 
+  const province = await getCabinetProvince(cabinetId);
+
   const [
     reconciliation,
     dossiersWithoutFintrac,
@@ -27,8 +35,8 @@ export async function GET() {
     expiringSoonDocuments,
     totalActiveDossiers,
   ] = await Promise.all([
-    // Trust reconciliation status
-    getReconciliationStatus(cabinetId),
+    // Trust reconciliation status (province-aware : QC sans seuil critique J+25)
+    getReconciliationStatus(cabinetId, province),
 
     // Immobilier dossiers without FINTRAC verification
     prisma.dossier.count({
@@ -122,10 +130,27 @@ export async function GET() {
 
   score = Math.max(0, score);
 
+  // Obligations de conformité sourcées, province-aware (ADR-011).
+  // Sous flag COMPLIANCE_RULES_ENABLED (défaut éteint) : rien n'est renvoyé tant que
+  // le flag n'est pas activé, donc aucun changement de comportement en production.
+  // getDisplayableRules exclut par construction tout INCERTAIN et toute règle sans source.
+  const locale = localeForProvince(province);
+  const obligations = COMPLIANCE_RULES_ENABLED
+    ? getDisplayableRules(province).map((r) => ({
+        id: r.id,
+        domain: r.domain,
+        statement: r.statement[locale],
+        source: r.source,
+        confidence: r.confidence,
+        deadline: r.deadline ?? null,
+      }))
+    : [];
+
   return NextResponse.json({
     score,
     scoreVariant: score >= 80 ? "success" : score >= 60 ? "warning" : "error",
     issues,
+    obligations,
     reconciliation: {
       status: reconciliation.critical ? "critical" : reconciliation.overdue ? "overdue" : "ok",
       lastCertified: reconciliation.lastCertifiedPeriode,
