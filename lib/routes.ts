@@ -57,6 +57,7 @@ export const routes = {
   employeeNouveau: "/employees/nouveau",
   employeeYearEnd: "/employees/year-end",
   comptes: "/comptes",
+  conformite: "/conformite",
   connexion: "/connexion",
   inscription: "/inscription",
   onboarding: "/onboarding",

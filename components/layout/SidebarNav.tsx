@@ -126,6 +126,7 @@ const NAV_ITEMS: NavItem[] = [
       { id: "facturation", href: routes.facturation, labelKey: "nav.billing", icon: Receipt, show: canManageInvoices },
       { id: "comptabilite", href: routes.comptabilite, labelKey: "nav.comptabilite", icon: BookOpen, show: (role) => canManageExpenseJournal(role) || canManageInvoices(role) },
       { id: "comptes", href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust },
+      { id: "conformite", href: routes.conformite, labelKey: "nav.compliance", icon: ShieldCheck, show: () => true },
       { id: "temps", href: routes.temps, labelKey: "nav.timesheets", icon: Clock, show: () => true }, // Prestation & honoraires (Temps)
     ],
   },
