@@ -20,9 +20,11 @@ import { DossierPagination } from "@/components/dossiers/registry/DossierPaginat
 import { DossierCreateModal } from "@/components/dossiers/registry/DossierCreateModal";
 import type { UserRole } from "@prisma/client";
 import { canManageDossiers, canViewDossiers } from "@/lib/auth/permissions";
+import { getCabinetDossierTaxonomyOptions } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 const SORT_FIELDS: DossierSortField[] = [
   "reference",
@@ -134,6 +136,14 @@ export default async function DossiersPage({
 
   const canCreate = canManageDossiers(role as UserRole);
 
+  // Taxonomie configurée du cabinet → sujets/sous-matières + numérotation par
+  // préfixe dans le modal de création (comme la page /dossiers/nouveau).
+  const locale = await getLocale();
+  const [taxonomyOptions, cabinetBillingMode] = await Promise.all([
+    getCabinetDossierTaxonomyOptions(cabinetId, locale),
+    getCabinetBillingMode(cabinetId),
+  ]);
+
   const exportParams = new URLSearchParams();
   if (params.q) exportParams.set("q", params.q);
   if (params.clientId) exportParams.set("clientId", params.clientId);
@@ -160,6 +170,9 @@ export default async function DossiersPage({
                 avocats={avocats}
                 assistants={assistants}
                 canCreate={canCreate}
+                cabinetBillingMode={cabinetBillingMode}
+                subjectOptions={taxonomyOptions.subjectOptions}
+                submatterOptions={taxonomyOptions.submatterOptions}
               />
             )}
           </div>
@@ -194,6 +207,9 @@ export default async function DossiersPage({
                   assistants={assistants}
                   canCreate={canCreate}
                   buttonLabel={t("newMatter")}
+                  cabinetBillingMode={cabinetBillingMode}
+                  subjectOptions={taxonomyOptions.subjectOptions}
+                  submatterOptions={taxonomyOptions.submatterOptions}
                 />
               ) : undefined
             }

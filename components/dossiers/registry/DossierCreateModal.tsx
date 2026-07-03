@@ -6,6 +6,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { DossierCreationWizard } from "./DossierCreationWizard";
 
+type TaxonomyOption = { value: string; label: string };
+
 interface DossierCreateModalProps {
   clients: { id: string; typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   avocats: { id: string; nom: string }[];
@@ -16,6 +18,12 @@ interface DossierCreateModalProps {
   /** Label du bouton */
   buttonLabel?: string;
   variant?: "primary" | "secondary" | "tertiary";
+  /** Mode de facturation du cabinet (forfait → étape facturation adaptée). */
+  cabinetBillingMode?: "forfait" | "horaire" | "mixed";
+  /** Sujets de la taxonomie cabinet (absent = types génériques + numérotation legacy). */
+  subjectOptions?: TaxonomyOption[];
+  /** Sous-matières par code de Sujet. */
+  submatterOptions?: Record<string, TaxonomyOption[]>;
 }
 
 export function DossierCreateModal({
@@ -26,6 +34,9 @@ export function DossierCreateModal({
   initialClientId,
   buttonLabel,
   variant = "primary",
+  cabinetBillingMode,
+  subjectOptions,
+  submatterOptions,
 }: DossierCreateModalProps) {
   const t = useTranslations("matters");
   const [open, setOpen] = useState(false);
@@ -52,6 +63,9 @@ export function DossierCreateModal({
             avocats={avocats}
             assistants={assistants}
             initialClientId={initialClientId}
+            cabinetBillingMode={cabinetBillingMode}
+            subjectOptions={subjectOptions}
+            submatterOptions={submatterOptions}
           />
         </div>
       </Modal>
