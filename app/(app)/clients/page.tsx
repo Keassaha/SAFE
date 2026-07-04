@@ -17,6 +17,7 @@ import { ClientTable } from "@/components/clients/registry/ClientTable";
 import { ClientPagination } from "@/components/clients/registry/ClientPagination";
 import { ClientSuccessBanner } from "@/components/clients/registry/ClientSuccessBanner";
 import { ClientCreateModal } from "@/components/clients/registry/ClientCreateModal";
+import { ClientQuickCreateModal } from "@/components/clients/registry/ClientQuickCreateModal";
 import type { ClientRow } from "@/components/clients/registry/ClientTable";
 import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -151,6 +152,9 @@ export default async function ClientsPage({
                 {tc("export")} CSV
               </Button>
             </Link>
+            {canCreate && (
+              <ClientQuickCreateModal canCreate={canCreate} />
+            )}
             {canCreate && (
               <ClientCreateModal lawyers={lawyers} canCreate={canCreate} />
             )}

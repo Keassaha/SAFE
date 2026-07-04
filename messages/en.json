@@ -1229,7 +1229,11 @@
     "by": "by {name}",
     "invoiceLabel": "Invoice {number}",
     "paymentLabel": "Payment — Invoice {number}",
-    "archiveClientConfirm": "Archive this client? Their matters, invoices and records are preserved (Law Society compliance). The client will no longer appear in the active list."
+    "archiveClientConfirm": "Archive this client? Their matters, invoices and records are preserved (Law Society compliance). The client will no longer appear in the active list.",
+    "quickCreate": "Quick add",
+    "quickCreateHint": "Just a name to start. Complete the file later.",
+    "clientCreated": "Client created",
+    "fullName": "Full name"
   },
   "matters": {
     "title": "Matters",

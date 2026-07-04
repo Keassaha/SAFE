@@ -1229,7 +1229,11 @@
     "by": "par {name}",
     "invoiceLabel": "Facture {number}",
     "paymentLabel": "Paiement — Facture {number}",
-    "archiveClientConfirm": "Archiver ce client ? Ses dossiers, factures et registres sont conservés (conformité Barreau). Le client n’apparaîtra plus dans la liste active."
+    "archiveClientConfirm": "Archiver ce client ? Ses dossiers, factures et registres sont conservés (conformité Barreau). Le client n’apparaîtra plus dans la liste active.",
+    "quickCreate": "Création rapide",
+    "quickCreateHint": "Juste un nom pour commencer. Vous compléterez la fiche plus tard.",
+    "clientCreated": "Client créé",
+    "fullName": "Nom complet"
   },
   "matters": {
     "title": "Dossiers",
