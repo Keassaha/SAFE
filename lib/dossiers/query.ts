@@ -13,9 +13,15 @@ export function buildDossierListWhere(
     lawyer?: string | null;
     /** When set (e.g. for LAWYER role), only dossiers where avocatResponsableId = this user. */
     restrictToUserId?: string | null;
+    /**
+     * Vue active : quand aucun statut n'est explicitement filtré, masque les
+     * dossiers clôturés/archivés (ils restent accessibles via le filtre de statut).
+     * Utilisé pour la LISTE ; les statistiques comptent tous les statuts.
+     */
+    excludeClosedByDefault?: boolean;
   }
 ): Prisma.DossierWhereInput {
-  const { q, clientId, status, type, lawyer, restrictToUserId } = filters;
+  const { q, clientId, status, type, lawyer, restrictToUserId, excludeClosedByDefault } = filters;
   const where: Prisma.DossierWhereInput = { cabinetId };
 
   if (restrictToUserId?.trim()) {
@@ -40,11 +46,14 @@ export function buildDossierListWhere(
 
   if (status?.trim() && ["ouvert", "actif", "en_attente", "cloture", "archive"].includes(status)) {
     where.statut = status as "ouvert" | "actif" | "en_attente" | "cloture" | "archive";
+  } else if (excludeClosedByDefault) {
+    // Vue active par défaut : on masque clôturés + archivés.
+    where.statut = { notIn: ["cloture", "archive"] };
   }
 
   if (
     type?.trim() &&
-    ["droit_famille", "litige_civil", "criminel", "immigration", "corporate", "autre"].includes(
+    ["droit_famille", "litige_civil", "criminel", "immigration", "immobilier", "corporate", "autre"].includes(
       type
     )
   ) {
@@ -53,6 +62,7 @@ export function buildDossierListWhere(
       | "litige_civil"
       | "criminel"
       | "immigration"
+      | "immobilier"
       | "corporate"
       | "autre";
   }

@@ -66,20 +66,24 @@ export default async function DossiersPage({
     ? (params.sortOrder as DossierSortOrder)
     : "desc";
 
-  const where = buildDossierListWhere(cabinetId, {
+  const baseFilters = {
     q: params.q ?? null,
     clientId: params.clientId ?? null,
     status: params.status ?? null,
     type: params.type ?? null,
     restrictToUserId: role === "avocat" ? userId : null,
-  });
+  };
+  // Liste : vue active (masque clôturés/archivés sauf filtre de statut explicite).
+  // Stats : comptent tous les statuts (la carte « clôturés » doit rester juste).
+  const listWhere = buildDossierListWhere(cabinetId, { ...baseFilters, excludeClosedByDefault: true });
+  const statsWhere = buildDossierListWhere(cabinetId, baseFilters);
   const orderBy = getDossierListOrderBy(sortBy, sortOrder);
 
   const today = new Date();
 
   const [dossiers, totalCount, stats, clients, acteStats, avocats, assistants] = await Promise.all([
     prisma.dossier.findMany({
-      where,
+      where: listWhere,
       orderBy,
       skip: (page - 1) * DOSSIER_LIST_PAGE_SIZE,
       take: DOSSIER_LIST_PAGE_SIZE,
@@ -88,10 +92,10 @@ export default async function DossiersPage({
         avocatResponsable: { select: { nom: true } },
       },
     }),
-    prisma.dossier.count({ where }),
+    prisma.dossier.count({ where: listWhere }),
     prisma.dossier.groupBy({
       by: ["statut"],
-      where,
+      where: statsWhere,
       _count: true,
     }),
     prisma.client.findMany({
