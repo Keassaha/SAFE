@@ -2414,7 +2414,8 @@
     "noAttachableDocs": "Aucun document du dossier à joindre.",
     "draftBadge": "Brouillon",
     "loading": "Chargement…",
-    "sendWithCount": "Envoyer (+{n})"
+    "sendWithCount": "Envoyer (+{n})",
+    "importProof": "Importer une preuve"
   },
   "accountingUi": {
     "pageTitle": "Comptabilité",
@@ -3455,5 +3456,18 @@
     "title": "Résumé courriel quotidien",
     "onHint": "Vous recevez un résumé une fois par jour (en semaine).",
     "offHint": "Désactivé. Vous ne recevrez pas de résumé courriel."
+  },
+  "paymentImport": {
+    "title": "Importer une preuve de paiement",
+    "dropHint": "Déposez une capture Interac ou un PDF, ou cliquez pour choisir",
+    "acceptedTypes": "Image (PNG, JPG) ou PDF, max 10 Mo",
+    "analyzing": "Lecture de la preuve en cours...",
+    "confidenceCertain": "Rapprochement certain",
+    "confidenceConfirm": "À vérifier avant d’enregistrer",
+    "confidenceNone": "Aucun rapprochement automatique",
+    "thirdPartyPayer": "Reçu de {payer} (tiers)",
+    "proofPreview": "Preuve",
+    "confirm": "Confirmer et enregistrer",
+    "errorExtract": "Impossible de lire cette preuve. Saisissez le paiement manuellement."
   }
 }

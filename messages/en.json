@@ -2414,7 +2414,8 @@
     "noAttachableDocs": "No file documents to attach.",
     "draftBadge": "Draft",
     "loading": "Loading…",
-    "sendWithCount": "Send (+{n})"
+    "sendWithCount": "Send (+{n})",
+    "importProof": "Import a proof"
   },
   "accountingUi": {
     "pageTitle": "Accounting",
@@ -3455,5 +3456,18 @@
     "title": "Daily email summary",
     "onHint": "You get one summary per day (weekdays).",
     "offHint": "Off. You will not receive an email summary."
+  },
+  "paymentImport": {
+    "title": "Import a payment proof",
+    "dropHint": "Drop an Interac screenshot or a PDF, or click to choose",
+    "acceptedTypes": "Image (PNG, JPG) or PDF, max 10 MB",
+    "analyzing": "Reading the proof...",
+    "confidenceCertain": "Confident match",
+    "confidenceConfirm": "Verify before saving",
+    "confidenceNone": "No automatic match",
+    "thirdPartyPayer": "Received from {payer} (third party)",
+    "proofPreview": "Proof",
+    "confirm": "Confirm and save",
+    "errorExtract": "Could not read this proof. Enter the payment manually."
   }
 }

@@ -10,10 +10,11 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud } from "lucide-react";
 import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { Modal } from "@/components/ui/Modal";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
+import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
 import type { ClientCreditBalance } from "@/lib/services/billing/overpayment-service";
 
@@ -55,6 +56,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
   const t = useTranslations("billingUi");
   const { reduceMotion } = useSafeMotion();
   const [formModalOpen, setFormModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
   const [allocationModalOpen, setAllocationModalOpen] = useState(false);
@@ -86,7 +88,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
       if (!res.ok) throw new Error("Erreur chargement contexte");
       return res.json();
     },
-    enabled: formModalOpen || allocationModalOpen,
+    enabled: formModalOpen || allocationModalOpen || importModalOpen,
   });
 
   const { data: surData, refetch: refetchSurpaiements } = useQuery({
@@ -173,7 +175,16 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           {t("backToOverview")}
         </Link>
       )}
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setImportModalOpen(true)}
+          className="shrink-0"
+        >
+          <UploadCloud className="w-4 h-4 mr-2" aria-hidden />
+          {t("importProof")}
+        </Button>
         <Button
           type="button"
           variant="primary"
@@ -346,6 +357,14 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
         clients={clients}
         invoices={invoices}
         onSuccess={() => setFormModalOpen(false)}
+      />
+
+      <ImportPreuveModal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        clients={clients}
+        invoices={invoices}
+        onSuccess={() => setImportModalOpen(false)}
       />
 
       <PaiementAllocationModal
