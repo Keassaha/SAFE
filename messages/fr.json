@@ -2172,7 +2172,17 @@
     "quickInvoiceSend": "Envoi de facture client",
     "quickAudit": "Piste d'audit",
     "quickRetention": "Rétention documentaire",
-    "quickOverdue": "{count} facture(s) en retard"
+    "quickOverdue": "{count} facture(s) en retard",
+    "paymentsPageTitle": "Paiements en ligne",
+    "paymentsPageDescription": "Acceptez les paiements de facture par carte. L'argent va directement dans votre compte, jamais chez SAFE.",
+    "paymentsIntro": "SAFE utilise Stripe Connect : vos clients paient leurs factures par carte et les fonds arrivent directement chez vous. Le fidéicommis ne passe jamais par ce canal.",
+    "paymentsStatusNotConnected": "Non configuré",
+    "paymentsStatusIncomplete": "Configuration à terminer",
+    "paymentsStatusReady": "Paiements activés",
+    "paymentsConnectButton": "Configurer les paiements",
+    "paymentsContinueButton": "Terminer la configuration",
+    "paymentsRefreshButton": "Actualiser le statut",
+    "paymentsSetupError": "La configuration des paiements a échoué. Vérifiez que Connect est activé sur votre compte Stripe, puis réessayez."
   },
   "validation": {
     "close": "Fermer"

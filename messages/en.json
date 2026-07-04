@@ -2172,7 +2172,17 @@
     "quickInvoiceSend": "Client invoice delivery",
     "quickAudit": "Audit trail",
     "quickRetention": "Document retention",
-    "quickOverdue": "{count} overdue invoice(s)"
+    "quickOverdue": "{count} overdue invoice(s)",
+    "paymentsPageTitle": "Online payments",
+    "paymentsPageDescription": "Accept invoice payments by card. The money goes straight to your account, never to SAFE.",
+    "paymentsIntro": "SAFE uses Stripe Connect: your clients pay invoices by card and funds land directly with you. Trust money never goes through this channel.",
+    "paymentsStatusNotConnected": "Not set up",
+    "paymentsStatusIncomplete": "Setup incomplete",
+    "paymentsStatusReady": "Payments enabled",
+    "paymentsConnectButton": "Set up payments",
+    "paymentsContinueButton": "Finish setup",
+    "paymentsRefreshButton": "Refresh status",
+    "paymentsSetupError": "Payment setup failed. Make sure Connect is enabled on your Stripe account, then try again."
   },
   "validation": {
     "close": "Close"
