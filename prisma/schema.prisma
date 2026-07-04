@@ -25,6 +25,10 @@ model Cabinet {
   stripeCurrentPeriodEnd   DateTime?
   stripeCancelAtPeriodEnd  Boolean   @default(false)
   stripeTrialEnd           DateTime?
+  // Stripe Connect (Express) — compte connecté du cabinet pour encaisser les
+  // factures en ligne (direct charge : l'argent va direct à l'avocate). ADR-012.
+  stripeConnectAccountId      String?  @unique
+  stripeConnectChargesEnabled Boolean  @default(false)
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
 
@@ -1272,6 +1276,11 @@ model Payment {
   allocationStatus  AllocationStatus      @default(UNALLOCATED)
   note              String?
   receivedById      String?
+  // Origine du paiement : "stripe" | "interac" | "cash" | null (saisie manuelle
+  // historique). `providerRef` = référence externe (ex. Stripe PaymentIntent id)
+  // pour la traçabilité et l'idempotence du webhook. ADR-012.
+  provider          String?
+  providerRef       String?
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @default(now()) @updatedAt
 
@@ -1280,6 +1289,7 @@ model Payment {
   invoice            Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   paymentAllocations PaymentAllocation[]
 
+  @@unique([cabinetId, providerRef]) // idempotence : un PaymentIntent → un seul Payment
   @@index([cabinetId])
   @@index([clientId])
   @@index([invoiceId])
