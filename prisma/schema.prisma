@@ -83,6 +83,7 @@ model Cabinet {
   lead               Lead?                  @relation("CabinetLead")
   tickets            SupportTicket[]        @relation("CabinetTickets")
   impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
+  payerRules         PayerRule[]
 }
 
 enum UserRole {
@@ -424,6 +425,7 @@ model Client {
   workSessions          WorkSession[]
   readyForReviewSignals DossierReadyForReviewSignal[]
   dossierDocketEntries  DossierDocketEntry[]
+  payerRules            PayerRule[]
 
   @@index([cabinetId])
   @@index([cabinetId, raisonSociale])
@@ -1277,10 +1279,15 @@ model Payment {
   note              String?
   receivedById      String?
   // Origine du paiement : "stripe" | "interac" | "cash" | null (saisie manuelle
-  // historique). `providerRef` = référence externe (ex. Stripe PaymentIntent id)
-  // pour la traçabilité et l'idempotence du webhook. ADR-012.
+  // historique). `providerRef` = référence externe (ex. Stripe PaymentIntent id,
+  // n° de réf Interac) pour la traçabilité et l'idempotence anti-doublon. ADR-012.
   provider          String?
   providerRef       String?
+  // Import intelligent de preuve de paiement (Interac) — lot L4.
+  preuveStorageKey  String? // clé de l'image/PDF de preuve conservée
+  preuveExtractedAt DateTime? // trace : paiement issu d'une extraction IA
+  payerName         String? // payeur réel si tiers (source des fonds, distinct du client)
+  payerEmail        String?
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @default(now()) @updatedAt
 
@@ -1309,6 +1316,36 @@ model PaymentAllocation {
 
   @@index([paymentId])
   @@index([invoiceId])
+}
+
+/// Règle de payeur tiers : rattache un payeur (parent, employeur, assureur...) au
+/// client pour qui il paie. Import intelligent de preuve de paiement — lot L5.
+/// `payerName` est stocké NORMALISÉ (sans accents, minuscules) pour le matching.
+model PayerRule {
+  id          String         @id @default(cuid())
+  cabinetId   String
+  payerEmail  String? // au moins un des deux identifiants
+  payerName   String? // normalisé
+  clientId    String? // cible (requis pour CLIENT_UNIQUE)
+  dossierId   String? // optionnel : précise le dossier
+  scope       PayerRuleScope
+  note        String? // ex: « Père de la cliente », « Assureur Intact »
+  active      Boolean        @default(true)
+  source      String? // "manuel" | "appris"
+  createdById String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+
+  cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId, payerEmail])
+  @@index([cabinetId])
+}
+
+enum PayerRuleScope {
+  CLIENT_UNIQUE // ce payeur paie toujours pour CE client → résolution auto
+  PAYEUR_CONNU // payeur tiers multi-clients → reconnaissance seule, client choisi par montant
 }
 
 enum InvoiceReminderType {

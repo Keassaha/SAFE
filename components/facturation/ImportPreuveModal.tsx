@@ -54,6 +54,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPdf, setIsPdf] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [extraction, setExtraction] = useState<PaymentProofExtraction | null>(null);
   const [match, setMatch] = useState<PaymentMatch | null>(null);
 
@@ -64,6 +65,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
   const [date, setDate] = useState("");
   const [reference, setReference] = useState("");
   const [note, setNote] = useState("");
+  const [rememberPayer, setRememberPayer] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -71,12 +73,14 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       setError(null);
       setExtraction(null);
       setMatch(null);
+      setSelectedFile(null);
       setClientId("");
       setInvoiceId("");
       setAmount("");
       setDate("");
       setReference("");
       setNote("");
+      setRememberPayer(false);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
@@ -88,6 +92,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
     setIsPdf(file.type === "application/pdf");
+    setSelectedFile(file);
     setPhase("loading");
 
     try {
@@ -120,23 +125,29 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
     setError(null);
     setPhase("submitting");
     const selectedInvoice = invoicesForClient.find((inv) => inv.id === invoiceId);
-    const payload = {
-      clientId,
-      paymentDate: date,
-      amount: Number(amount),
-      paymentMethod: "e_transfer",
-      referenceNumber: reference || null,
-      note: note || null,
-      invoiceId: invoiceId || null,
-      allocatedAmount: selectedInvoice
-        ? Math.min(Number(amount), selectedInvoice.balanceDue)
-        : undefined,
-    };
+    const fd = new FormData();
+    if (selectedFile) fd.append("file", selectedFile);
+    fd.append("clientId", clientId);
+    fd.append("paymentDate", date);
+    fd.append("amount", String(Number(amount)));
+    if (invoiceId) fd.append("invoiceId", invoiceId);
+    if (selectedInvoice) {
+      fd.append("allocatedAmount", String(Math.min(Number(amount), selectedInvoice.balanceDue)));
+    }
+    if (reference) fd.append("referenceNumber", reference);
+    if (note) fd.append("note", note);
+    if (extraction?.referenceInterac) fd.append("interacReference", extraction.referenceInterac);
+    // Source des fonds (trace AML) quand le versement vient d'un tiers, ou quand on
+    // mémorise le payeur pour créer une règle.
+    const sendPayer = match?.isThirdPartyPayer || rememberPayer;
+    if (sendPayer && extraction?.expediteurNom) fd.append("payerName", extraction.expediteurNom);
+    if (sendPayer && extraction?.expediteurCourriel) fd.append("payerEmail", extraction.expediteurCourriel);
+    if (rememberPayer) fd.append("rememberPayer", "true");
+
     try {
-      const res = await fetch("/api/facturation/paiements", {
+      const res = await fetch("/api/facturation/paiements/import-preuve/confirmer", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: fd,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? tp("errorSaving"));
@@ -295,6 +306,22 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
               />
             </div>
           </div>
+
+          {/* Apprentissage : mémoriser le payeur tiers → ce client */}
+          {clientId && !match.matchedByRule && (extraction.expediteurNom || extraction.expediteurCourriel) && (
+            <label className="flex items-start gap-2.5 rounded-xl border border-si-line bg-si-canvas/50 px-3.5 py-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberPayer}
+                onChange={(e) => setRememberPayer(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-si-line text-si-verified focus:ring-si-verified/30"
+              />
+              <span className="text-sm text-si-ink">
+                {t("rememberPayer", { payer: extraction.expediteurNom ?? extraction.expediteurCourriel ?? "" })}
+                <span className="block text-xs text-si-muted mt-0.5">{t("rememberPayerHint")}</span>
+              </span>
+            </label>
+          )}
 
           {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
 

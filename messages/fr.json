@@ -2425,7 +2425,9 @@
     "draftBadge": "Brouillon",
     "loading": "Chargement…",
     "sendWithCount": "Envoyer (+{n})",
-    "importProof": "Importer une preuve"
+    "importProof": "Importer une preuve",
+    "viewProof": "Voir la preuve",
+    "managePayers": "Payeurs tiers"
   },
   "accountingUi": {
     "pageTitle": "Comptabilité",
@@ -3478,6 +3480,37 @@
     "thirdPartyPayer": "Reçu de {payer} (tiers)",
     "proofPreview": "Preuve",
     "confirm": "Confirmer et enregistrer",
-    "errorExtract": "Impossible de lire cette preuve. Saisissez le paiement manuellement."
+    "errorExtract": "Impossible de lire cette preuve. Saisissez le paiement manuellement.",
+    "rememberPayer": "Se souvenir : {payer} paie pour ce client",
+    "rememberPayerHint": "Au prochain virement de ce payeur, le bon client sera reconnu automatiquement."
+  },
+  "payerRules": {
+    "payerRulesTitle": "Payeurs tiers",
+    "payerRulesDesc": "Quand un tiers (parent, employeur, assureur) paie pour un client, ces règles rattachent automatiquement le bon client au prochain virement.",
+    "payerRulesEmpty": "Aucune règle pour l’instant. Elles se créent automatiquement quand vous cochez « se souvenir » à l’import d’une preuve, ou manuellement ci-dessous.",
+    "addRule": "Ajouter une règle",
+    "colPayer": "Payeur",
+    "colClient": "Client",
+    "colScope": "Portée",
+    "colNote": "Note",
+    "colStatus": "Statut",
+    "colActions": "Actions",
+    "scopeClientUnique": "Client unique",
+    "scopeKnownPayer": "Payeur connu",
+    "active": "Active",
+    "inactive": "Inactive",
+    "payerEmailLabel": "Courriel du payeur",
+    "payerNameLabel": "Nom du payeur",
+    "clientLabel": "Client",
+    "noteLabel": "Note (facultatif)",
+    "scopeLabel": "Portée",
+    "scopeClientUniqueHint": "Ce payeur paie toujours pour ce client (résolution automatique).",
+    "scopeKnownPayerHint": "Payeur multi-clients (assureur...) : reconnu, mais le client reste à choisir.",
+    "save": "Enregistrer la règle",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "deleteRule": "Supprimer",
+    "createError": "Impossible de créer la règle.",
+    "learnedBadge": "Apprise"
   }
 }

@@ -97,12 +97,67 @@ saisie manuelle) ✓ · champs pré-remplis exacts (montant 750, date 2026-06-28
 zéro erreur console ✓. tsc 0 erreur (hors console WIP CEO connu). Le chemin 🟢 est couvert par les
 tests unitaires L2 (pas de client local au bon courriel pour le démontrer live).
 
+## L4 LIVRÉ + VÉRIFIÉ AU NAVIGATEUR (2026-07-05) ✅
+Anti-doublon + conservation de preuve + source des fonds.
+
+DÉCOUVERTE clé : le gate stockage n'en est pas un pour ce lot. (a) `lib/services/document.ts` a déjà
+un fallback local (`shouldUseLocalStorage()` quand NODE_ENV≠prod) + primitives `writeDocumentObject`/
+`readDocumentObject` → réutilisées telles quelles. Le désalignement Supabase prod (`SUPABASE_URL`=nhiorv)
+reste un problème INFRA PARTAGÉ (tous les documents), pas spécifique. (b) Le schéma a déjà `provider`/
+`providerRef` + `@@unique([cabinetId, providerRef])` (ADR-012, fondation Stripe du CEO) → RÉUTILISÉS pour
+l'anti-doublon Interac (`provider='interac'`, `providerRef`=réf Interac). Donc PAS de colonne
+`interacReference` redondante ni de 2e contrainte.
+
+Migration additive `20260704120000_add_payment_proof_fields` : 4 colonnes nullables sur Payment
+(`preuveStorageKey`, `preuveExtractedAt`, `payerName`, `payerEmail`). Appliquée au DB LOCAL en SQL direct
+(psql) car le local n'a AUCUN historique de migration (dérive connue → jamais `migrate dev/deploy` local).
+Prod appliquera via `migrate deploy` dans son pipeline. `prisma generate` relancé.
+
+Code : `createPayment` étendu (provider/providerRef/payer*/preuve* + pré-check anti-doublon sur
+providerRef, la contrainte unique fait foi). Nouvelle route `import-preuve/confirmer` (multipart :
+fichier + champs → conserve la preuve en best-effort, crée le paiement). Route `[id]/preuve` (stream,
+Next 15 params:Promise). Modal → confirme via confirmer (garde le File, passe réf Interac + payeur si
+tiers). Tableau paiements : lien trombone « Voir la preuve » si `preuveStorageKey`. i18n viewProof FR/EN.
+
+Vérif navigateur (serveur dev, PDF réel) : upload → sélection client → confirmer → paiement créé
+(montant 750, provider=interac, providerRef=C1ArqBDEgCn7, preuve conservée, preuveExtractedAt) ✓ ;
+route preuve GET par ID = 200 application/pdf 223 Ko ✓ ; re-import même réf = 409 « déjà enregistré » ✓.
+tsc 0 erreur (Next 15 params corrigé). Suites finance+billing+accounting : 20 fichiers / 126 tests verts.
+Données de test locales nettoyées (paiements + journal + fichiers preuve).
+
+## L5 LIVRÉ + VÉRIFIÉ AU NAVIGATEUR (2026-07-05) ✅
+Moteur de règles de payeur tiers avec apprentissage dans le flux.
+
+Migration `20260705120000_add_payer_rule` : type `PayerRuleScope` + table `PayerRule` (+ relations
+Cabinet/Client, cascade). Appliquée au DB local en SQL direct. `prisma generate` relancé (⚠️ le serveur
+dev doit être REDÉMARRÉ pour recharger le client Prisma, sinon `prisma.payerRule` undefined → 500 ;
+appris à la dure).
+
+Code :
+- `lib/services/finance/payer-rules.ts` : CRUD (`createPayerRule` normalise payerName + anti-doublon de
+  règle, `listPayerRules`, `setPayerRuleActive`, `deletePayerRule`).
+- Loader `payment-match-candidates.ts` : charge désormais les vraies règles actives (fin du `[]`).
+- Apprentissage en flux : `confirmer` accepte `rememberPayer` → crée une règle CLIENT_UNIQUE `source=appris`.
+- Modal : case « Se souvenir : {payeur} paie pour ce client » (affichée si client choisi + pas déjà
+  résolu par règle + expéditeur présent).
+- API `payeurs-regles` (GET/POST) + `[id]` (PATCH activer/désactiver, DELETE).
+- Page `app/(app)/parametres/payeurs-tiers` + `components/parametres/PayeursReglesView.tsx` (liste +
+  création manuelle CLIENT_UNIQUE/PAYEUR_CONNU + toggle + suppression + badge « Apprise »).
+- Point d'entrée : lien « Payeurs tiers » dans l'en-tête de la page paiements. Route
+  `parametresPayeursTiers`. i18n `payerRules.*` + clés modal + `billingUi.managePayers` FR/EN.
+
+Vérif navigateur (PDF réel) : confirmer avec « se souvenir » → `ruleLearned:true`, règle CLIENT_UNIQUE
+source=appris, payerName normalisé ✓ ; re-extraction → matcher résout le client VIA la règle
+(`byRule:CLIENT_UNIQUE`, isThirdParty, raison « Règle de payeur… ») ✓ ; page réglages affiche règle +
+badge Apprise ✓ ; PATCH+DELETE = 200, règle 1→0 ✓. tsc 0 erreur. Finance+billing : 14 fichiers / 81
+tests verts. Données de test nettoyées (paiements + journaux + preuves + règles).
+
 ## État
-Spec figée v1. **L1 + L2 + L3 terminés et vérifiés (unit + navigateur).** Base fonctionnelle utilisable :
-uploader une preuve Interac → pré-remplir → confirmer → paiement créé. Restent :
-- **L4** : garde-fous doublon (réf Interac unique) + conservation de la preuve (dépend du GATE stockage
-  Supabase désaligné) + migrations (`Payment.preuveStorageKey/interacReference/payerName/payerEmail`).
-- **L5** : règles de payeur tiers (`PayerRule` + « se souvenir » + page réglages).
-- **L6-L8** (v2) : intake email.
-RIEN n'est commité (tous fichiers en working tree).
+Spec figée v1. **L1 → L5 terminés et vérifiés (unit + navigateur). FEATURE COMPLÈTE (v1).**
+Uploader preuve Interac → extraire → rapprocher (avec règles de payeur qui s'apprennent) → confirmer →
+paiement avec preuve conservée + anti-doublon + trace source des fonds. Restent :
+- **INFRA (hors périmètre feature)** : réaligner `SUPABASE_URL`/service role prod sur le projet canonique
+  (`rsblxm…`) pour que la conservation de preuve marche AUSSI en prod (dev only sinon).
+- **L6-L8** (v2) : intake email (OAuth boîte courriel).
+Commit `30daac9` = L1-L3. **L4 + L5 PAS ENCORE commités** (working tree). Travail Stripe du CEO intact.
 </content>

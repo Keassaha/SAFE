@@ -2425,7 +2425,9 @@
     "draftBadge": "Draft",
     "loading": "Loading…",
     "sendWithCount": "Send (+{n})",
-    "importProof": "Import a proof"
+    "importProof": "Import a proof",
+    "viewProof": "View proof",
+    "managePayers": "Third-party payers"
   },
   "accountingUi": {
     "pageTitle": "Accounting",
@@ -3478,6 +3480,37 @@
     "thirdPartyPayer": "Received from {payer} (third party)",
     "proofPreview": "Proof",
     "confirm": "Confirm and save",
-    "errorExtract": "Could not read this proof. Enter the payment manually."
+    "errorExtract": "Could not read this proof. Enter the payment manually.",
+    "rememberPayer": "Remember: {payer} pays for this client",
+    "rememberPayerHint": "Next time this payer sends money, the right client will be recognized automatically."
+  },
+  "payerRules": {
+    "payerRulesTitle": "Third-party payers",
+    "payerRulesDesc": "When a third party (parent, employer, insurer) pays for a client, these rules automatically attach the right client to the next transfer.",
+    "payerRulesEmpty": "No rules yet. They are created automatically when you tick “remember” while importing a proof, or manually below.",
+    "addRule": "Add a rule",
+    "colPayer": "Payer",
+    "colClient": "Client",
+    "colScope": "Scope",
+    "colNote": "Note",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "scopeClientUnique": "Single client",
+    "scopeKnownPayer": "Known payer",
+    "active": "Active",
+    "inactive": "Inactive",
+    "payerEmailLabel": "Payer email",
+    "payerNameLabel": "Payer name",
+    "clientLabel": "Client",
+    "noteLabel": "Note (optional)",
+    "scopeLabel": "Scope",
+    "scopeClientUniqueHint": "This payer always pays for this client (automatic resolution).",
+    "scopeKnownPayerHint": "Multi-client payer (insurer...): recognized, but the client still needs to be chosen.",
+    "save": "Save rule",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "deleteRule": "Delete",
+    "createError": "Could not create the rule.",
+    "learnedBadge": "Learned"
   }
 }

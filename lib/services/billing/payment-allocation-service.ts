@@ -119,6 +119,13 @@ export async function createPayment(params: {
   receivedById?: string | null;
   invoiceId?: string | null;
   allocatedAmount?: number;
+  // Import intelligent de preuve (Interac) — lot L4.
+  provider?: string | null;
+  providerRef?: string | null;
+  payerName?: string | null;
+  payerEmail?: string | null;
+  preuveStorageKey?: string | null;
+  preuveExtractedAt?: Date | null;
 }): Promise<{ paymentId: string; warnings: GuardWarning[] }> {
   const {
     cabinetId,
@@ -132,10 +139,29 @@ export async function createPayment(params: {
     receivedById,
     invoiceId,
     allocatedAmount,
+    provider,
+    providerRef,
+    payerName,
+    payerEmail,
+    preuveStorageKey,
+    preuveExtractedAt,
   } = params;
 
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error("Le montant du paiement doit être strictement positif");
+  }
+
+  // Anti-doublon : un même virement (provider/providerRef) ne s'enregistre qu'une fois.
+  // La contrainte unique [cabinetId, providerRef] garantit l'idempotence côté DB ;
+  // ce pré-check produit un message clair avant d'atteindre la contrainte.
+  if (providerRef) {
+    const existing = await prisma.payment.findFirst({
+      where: { cabinetId, providerRef },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new Error("Ce virement a déjà été enregistré (doublon détecté).");
+    }
   }
 
   const payment = await prisma.$transaction(async (tx) => {
@@ -204,6 +230,12 @@ export async function createPayment(params: {
         note: note ?? undefined,
         receivedById: receivedById ?? undefined,
         invoiceId: invoiceId ?? undefined,
+        provider: provider ?? undefined,
+        providerRef: providerRef ?? undefined,
+        payerName: payerName ?? undefined,
+        payerEmail: payerEmail ?? undefined,
+        preuveStorageKey: preuveStorageKey ?? undefined,
+        preuveExtractedAt: preuveExtractedAt ?? undefined,
       },
       include: {
         client: { select: { raisonSociale: true, prenom: true, nom: true } },

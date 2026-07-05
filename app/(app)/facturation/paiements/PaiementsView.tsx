@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud, Paperclip, Users } from "lucide-react";
 import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { Modal } from "@/components/ui/Modal";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
@@ -50,6 +50,7 @@ type PaymentRow = {
   allocatedAmount: number;
   unallocatedAmount: number;
   allocationStatus: string;
+  preuveStorageKey?: string | null;
 };
 
 export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
@@ -175,7 +176,15 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           {t("backToOverview")}
         </Link>
       )}
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href={routes.parametresPayeursTiers}
+          className="inline-flex items-center gap-1.5 text-sm text-si-muted hover:text-si-forest"
+        >
+          <Users className="w-4 h-4 shrink-0" aria-hidden />
+          {t("managePayers")}
+        </Link>
+        <div className="flex items-center gap-2">
         <Button
           type="button"
           variant="secondary"
@@ -194,6 +203,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           <Plus className="w-4 h-4 mr-2" aria-hidden />
           {t("newPayment")}
         </Button>
+        </div>
       </div>
 
       {unallocatedPayments.length > 0 && (
@@ -305,6 +315,18 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <div className="flex justify-end gap-1">
+                          {p.preuveStorageKey && (
+                            <a
+                              href={`/api/facturation/paiements/${p.id}/preuve`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center rounded-lg p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                              aria-label={t("viewProof")}
+                              title={t("viewProof")}
+                            >
+                              <Paperclip className="w-4 h-4" aria-hidden />
+                            </a>
+                          )}
                           <a
                             href={`/api/documents/payment-receipt/${p.id}`}
                             target="_blank"

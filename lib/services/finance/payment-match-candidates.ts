@@ -8,7 +8,7 @@ import type { MatchCandidates } from "@/lib/services/finance/match-payment";
  * Spec : docs/product/SPEC_IMPORT_PREUVE_PAIEMENT.md (lot L3).
  */
 export async function loadPaymentMatchCandidates(cabinetId: string): Promise<MatchCandidates> {
-  const [clients, openInvoices, dossiers] = await Promise.all([
+  const [clients, openInvoices, dossiers, payerRules] = await Promise.all([
     prisma.client.findMany({
       where: { cabinetId },
       select: {
@@ -35,14 +35,21 @@ export async function loadPaymentMatchCandidates(cabinetId: string): Promise<Mat
       select: { id: true, numeroDossier: true, clientId: true },
       take: 2000,
     }),
+    prisma.payerRule.findMany({
+      where: { cabinetId, active: true },
+      select: {
+        id: true,
+        payerEmail: true,
+        payerName: true,
+        clientId: true,
+        dossierId: true,
+        scope: true,
+        note: true,
+        active: true,
+      },
+      take: 2000,
+    }),
   ]);
 
-  return {
-    clients,
-    openInvoices,
-    dossiers,
-    // Les règles de payeur tiers arrivent au lot L5 (table `PayerRule`).
-    // En attendant, aucune règle : le matcher se rabat sur courriel/nom/dossier.
-    payerRules: [],
-  };
+  return { clients, openInvoices, dossiers, payerRules };
 }
