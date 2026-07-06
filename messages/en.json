@@ -3483,7 +3483,11 @@
     "confirm": "Confirm and save",
     "errorExtract": "Could not read this proof. Enter the payment manually.",
     "rememberPayer": "Remember: {payer} pays for this client",
-    "rememberPayerHint": "Next time this payer sends money, the right client will be recognized automatically."
+    "rememberPayerHint": "Next time this payer sends money, the right client will be recognized automatically.",
+    "duplicateTitle": "Proof already imported",
+    "duplicateByFile": "This file has already been imported. To avoid a duplicate, it cannot be saved a second time.",
+    "duplicateByReference": "This Interac transfer has already been recorded. To avoid a duplicate, it cannot be recorded again.",
+    "duplicateExisting": "Existing payment: {montant} — {client} (on {date})."
   },
   "payerRules": {
     "payerRulesTitle": "Third-party payers",

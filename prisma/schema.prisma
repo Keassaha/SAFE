@@ -1286,6 +1286,7 @@ model Payment {
   // Import intelligent de preuve de paiement (Interac) — lot L4.
   preuveStorageKey  String? // clé de l'image/PDF de preuve conservée
   preuveExtractedAt DateTime? // trace : paiement issu d'une extraction IA
+  preuveHash        String? // SHA-256 du fichier de preuve — anti-doublon par contenu
   payerName         String? // payeur réel si tiers (source des fonds, distinct du client)
   payerEmail        String?
   createdAt         DateTime              @default(now())
@@ -1297,6 +1298,7 @@ model Payment {
   paymentAllocations PaymentAllocation[]
 
   @@unique([cabinetId, providerRef]) // idempotence : un PaymentIntent → un seul Payment
+  @@unique([cabinetId, preuveHash]) // anti-doublon : un même fichier de preuve → un seul Payment
   @@index([cabinetId])
   @@index([clientId])
   @@index([invoiceId])

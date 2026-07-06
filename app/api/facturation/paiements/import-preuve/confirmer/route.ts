@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { createPayment } from "@/lib/services/billing/payment-allocation-service";
 import { createPayerRule } from "@/lib/services/finance/payer-rules";
+import { hashProofFile, findDuplicateProofPayment } from "@/lib/services/finance/proof-dedup";
 import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
 import type { UserRole } from "@prisma/client";
 
@@ -65,25 +66,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
-  // Anti-doublon (pré-check convivial ; la contrainte unique fait foi in fine).
-  if (interacReference) {
-    const dup = await prisma.payment.findFirst({
-      where: { cabinetId: data.cabinetId, providerRef: interacReference },
-      select: { id: true },
-    });
-    if (dup) {
-      return NextResponse.json(
-        { error: "Ce virement a déjà été enregistré (doublon détecté)." },
-        { status: 409 },
-      );
-    }
-  }
-
-  // Conservation de la preuve (best effort : un échec de stockage ne bloque pas
-  // l'enregistrement du paiement, qui est le fait comptable important).
+  // Lecture du fichier + empreinte (avant tout, pour l'anti-doublon par contenu).
   let preuveStorageKey: string | null = null;
   let preuveMime: string | null = null;
   let preuveSize = 0;
+  let preuveHash: string | null = null;
+  let proofBuffer: Buffer | null = null;
   const file = form.get("file");
   if (file instanceof File && file.size > 0) {
     if (!EXT[file.type]) {
@@ -92,12 +80,38 @@ export async function POST(request: Request) {
     if (file.size > MAX_BYTES) {
       return NextResponse.json({ error: "Preuve trop volumineuse (max 10 Mo)" }, { status: 413 });
     }
-    const key = `payment-proofs/${data.cabinetId}/${new Date().getFullYear()}/${randomUUID()}.${EXT[file.type]}`;
+    proofBuffer = Buffer.from(await file.arrayBuffer());
+    preuveHash = hashProofFile(proofBuffer);
+    preuveMime = file.type;
+    preuveSize = file.size;
+  }
+
+  // Anti-doublon (pré-check convivial ; les contraintes uniques font foi in fine) :
+  // même fichier (hash) OU même virement Interac (référence).
+  const duplicate = await findDuplicateProofPayment(data.cabinetId, {
+    hash: preuveHash,
+    providerRef: interacReference,
+  });
+  if (duplicate) {
+    return NextResponse.json(
+      {
+        error:
+          duplicate.matchedBy === "hash"
+            ? "Cette preuve a déjà été importée (fichier identique)."
+            : "Ce virement a déjà été enregistré (doublon détecté).",
+        duplicate,
+      },
+      { status: 409 },
+    );
+  }
+
+  // Conservation de la preuve (best effort : un échec de stockage ne bloque pas
+  // l'enregistrement du paiement, qui est le fait comptable important).
+  if (proofBuffer && preuveMime) {
+    const key = `payment-proofs/${data.cabinetId}/${new Date().getFullYear()}/${randomUUID()}.${EXT[preuveMime]}`;
     try {
-      await writeDocumentObject(key, Buffer.from(await file.arrayBuffer()), file.type);
+      await writeDocumentObject(key, proofBuffer, preuveMime);
       preuveStorageKey = key;
-      preuveMime = file.type;
-      preuveSize = file.size;
     } catch (err) {
       console.error("Conservation de la preuve échouée (paiement enregistré quand même):", err);
     }
@@ -124,6 +138,7 @@ export async function POST(request: Request) {
       payerEmail,
       preuveStorageKey,
       preuveExtractedAt: new Date(),
+      preuveHash,
     });
 
     // Conservation dans le dossier du client : la preuve devient un Document rattaché

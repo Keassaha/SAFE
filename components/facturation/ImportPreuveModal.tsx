@@ -32,7 +32,7 @@ export interface ImportPreuveModalProps {
   onSuccess?: () => void;
 }
 
-type Phase = "upload" | "loading" | "review" | "submitting";
+type Phase = "upload" | "loading" | "review" | "submitting" | "duplicate";
 
 const CONFIDENCE_STYLE: Record<
   PaymentMatch["confidence"],
@@ -57,6 +57,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [extraction, setExtraction] = useState<PaymentProofExtraction | null>(null);
   const [match, setMatch] = useState<PaymentMatch | null>(null);
+  const [duplicate, setDuplicate] = useState<{ datePaiement: string; montant: number; clientLabel: string | null; matchedBy: "hash" | "reference" } | null>(null);
 
   // Champs éditables (pré-remplis depuis extraction + match)
   const [clientId, setClientId] = useState("");
@@ -73,6 +74,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       setError(null);
       setExtraction(null);
       setMatch(null);
+      setDuplicate(null);
       setSelectedFile(null);
       setClientId("");
       setInvoiceId("");
@@ -102,6 +104,11 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? t("errorExtract"));
 
+      if (data.alreadyImported) {
+        setDuplicate(data.duplicate ?? null);
+        setPhase("duplicate");
+        return;
+      }
       const ext = data.extraction as PaymentProofExtraction;
       const m = data.match as PaymentMatch;
       setExtraction(ext);
@@ -195,6 +202,34 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
         <div className="flex flex-col items-center gap-3 py-16">
           <Loader2 className="h-8 w-8 animate-spin text-si-verified" />
           <p className="text-sm text-si-muted">{t("analyzing")}</p>
+        </div>
+      )}
+
+      {phase === "duplicate" && (
+        <div className="space-y-5">
+          <div className="flex items-start gap-3 rounded-xl border border-[#B84A3E]/30 bg-[#B84A3E]/[0.06] px-4 py-4">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#B84A3E]" aria-hidden />
+            <div>
+              <p className="text-sm font-semibold text-[#B84A3E]">{t("duplicateTitle")}</p>
+              <p className="mt-1 text-sm text-si-ink">
+                {duplicate?.matchedBy === "hash" ? t("duplicateByFile") : t("duplicateByReference")}
+              </p>
+              {duplicate && (
+                <p className="mt-2 text-xs text-si-muted">
+                  {t("duplicateExisting", {
+                    montant: formatCurrency(duplicate.montant),
+                    client: duplicate.clientLabel ?? "—",
+                    date: duplicate.datePaiement.slice(0, 10),
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button type="button" variant="secondary" onClick={onClose}>
+              {tc("close")}
+            </Button>
+          </div>
         </div>
       )}
 

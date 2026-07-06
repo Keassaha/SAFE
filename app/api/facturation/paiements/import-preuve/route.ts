@@ -5,6 +5,7 @@ import { canManageInvoices } from "@/lib/auth/permissions";
 import { extractPaymentProof } from "@/lib/ai/extract-payment-proof";
 import { matchPaymentProof } from "@/lib/services/finance/match-payment";
 import { loadPaymentMatchCandidates } from "@/lib/services/finance/payment-match-candidates";
+import { hashProofFile, findDuplicateProofPayment } from "@/lib/services/finance/proof-dedup";
 import type { UserRole } from "@prisma/client";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 Mo
@@ -64,6 +65,8 @@ export async function POST(request: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const hash = hashProofFile(buffer);
+
   const extraction = await extractPaymentProof({ buffer, mimeType: file.type });
   if (!extraction) {
     return NextResponse.json(
@@ -72,8 +75,17 @@ export async function POST(request: Request) {
     );
   }
 
+  // Anti-doublon dès l'upload : même fichier (hash) ou même virement (référence Interac).
+  const duplicate = await findDuplicateProofPayment(data.cabinetId, {
+    hash,
+    providerRef: extraction.referenceInterac,
+  });
+  if (duplicate) {
+    return NextResponse.json({ alreadyImported: true, duplicate, extraction });
+  }
+
   const candidates = await loadPaymentMatchCandidates(data.cabinetId);
   const match = matchPaymentProof(extraction, candidates);
 
-  return NextResponse.json({ extraction, match });
+  return NextResponse.json({ extraction, match, hash });
 }

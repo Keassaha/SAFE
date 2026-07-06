@@ -3483,7 +3483,11 @@
     "confirm": "Confirmer et enregistrer",
     "errorExtract": "Impossible de lire cette preuve. Saisissez le paiement manuellement.",
     "rememberPayer": "Se souvenir : {payer} paie pour ce client",
-    "rememberPayerHint": "Au prochain virement de ce payeur, le bon client sera reconnu automatiquement."
+    "rememberPayerHint": "Au prochain virement de ce payeur, le bon client sera reconnu automatiquement.",
+    "duplicateTitle": "Preuve déjà importée",
+    "duplicateByFile": "Ce fichier a déjà été importé. Pour éviter un doublon, il ne peut pas être enregistré une seconde fois.",
+    "duplicateByReference": "Ce virement Interac a déjà été enregistré. Pour éviter un doublon, il ne peut pas l’être une seconde fois.",
+    "duplicateExisting": "Paiement existant : {montant} — {client} (le {date})."
   },
   "payerRules": {
     "payerRulesTitle": "Payeurs tiers",

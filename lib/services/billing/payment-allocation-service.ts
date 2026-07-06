@@ -126,6 +126,7 @@ export async function createPayment(params: {
   payerEmail?: string | null;
   preuveStorageKey?: string | null;
   preuveExtractedAt?: Date | null;
+  preuveHash?: string | null;
 }): Promise<{ paymentId: string; warnings: GuardWarning[] }> {
   const {
     cabinetId,
@@ -145,6 +146,7 @@ export async function createPayment(params: {
     payerEmail,
     preuveStorageKey,
     preuveExtractedAt,
+    preuveHash,
   } = params;
 
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -161,6 +163,17 @@ export async function createPayment(params: {
     });
     if (existing) {
       throw new Error("Ce virement a déjà été enregistré (doublon détecté).");
+    }
+  }
+
+  // Anti-doublon par contenu : un même fichier de preuve (hash) ne s'enregistre qu'une fois.
+  if (preuveHash) {
+    const existingByHash = await prisma.payment.findFirst({
+      where: { cabinetId, preuveHash },
+      select: { id: true },
+    });
+    if (existingByHash) {
+      throw new Error("Cette preuve a déjà été importée (fichier identique).");
     }
   }
 
@@ -236,6 +249,7 @@ export async function createPayment(params: {
         payerEmail: payerEmail ?? undefined,
         preuveStorageKey: preuveStorageKey ?? undefined,
         preuveExtractedAt: preuveExtractedAt ?? undefined,
+        preuveHash: preuveHash ?? undefined,
       },
       include: {
         client: { select: { raisonSociale: true, prenom: true, nom: true } },
