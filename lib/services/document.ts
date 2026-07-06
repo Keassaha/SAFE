@@ -5,29 +5,24 @@ import { createAuditLog } from "./audit";
 import { DocumentRetentionError } from "./document-errors";
 import { canManageDocuments, canViewDocuments } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
-import { createClient } from "@supabase/supabase-js";
+import { put, get, del } from "@vercel/blob";
 import path from "path";
 import fs from "fs/promises";
 
 const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
-const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "documents";
-
-function getSupabaseStorageClient() {
-  const url = process.env.SUPABASE_URL;
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE ??
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    process.env.SUPABASE_SERVICE_ROLE_SECRET;
-
-  if (!url || !serviceRoleKey) return null;
-
-  return createClient(url, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  }).storage.from(STORAGE_BUCKET);
-}
 
 function shouldUseLocalStorage() {
   return process.env.STORAGE_PROVIDER === "local" || process.env.NODE_ENV !== "production";
+}
+
+/**
+ * Stockage objet des documents = Vercel Blob (PRIVÉ) en production, système de
+ * fichiers local en dev. Les documents juridiques sont confidentiels (Barreau) :
+ * le store Blob est en accès privé, jamais exposé par URL publique ; les fichiers
+ * sont toujours servis via des routes authentifiées qui lisent côté serveur.
+ */
+function useBlobStorage() {
+  return !shouldUseLocalStorage() && !!process.env.BLOB_READ_WRITE_TOKEN;
 }
 
 function getStoragePath(cabinetId: string, documentId: string): string {
@@ -124,19 +119,18 @@ export async function writeDocumentObject(
   contentType = "application/octet-stream",
   options: { upsert?: boolean } = {}
 ): Promise<void> {
-  const bucket = getSupabaseStorageClient();
-
-  if (bucket) {
-    const { error } = await bucket.upload(storageKey, buffer, {
+  if (useBlobStorage()) {
+    await put(storageKey, buffer, {
+      access: "private",
       contentType,
-      upsert: options.upsert ?? false,
+      addRandomSuffix: false,
+      allowOverwrite: options.upsert ?? false,
     });
-    if (error) throw error;
     return;
   }
 
   if (!shouldUseLocalStorage()) {
-    throw new Error("Supabase Storage is not configured for document uploads");
+    throw new Error("Aucun stockage de documents configuré (ni Vercel Blob ni local)");
   }
 
   const fullPath = path.join(UPLOAD_BASE, storageKey);
@@ -145,32 +139,27 @@ export async function writeDocumentObject(
 }
 
 export async function readDocumentObject(storageKey: string): Promise<Buffer> {
-  const bucket = getSupabaseStorageClient();
-
-  if (bucket) {
-    const { data, error } = await bucket.download(storageKey);
-    if (error) throw error;
-    return Buffer.from(await data.arrayBuffer());
+  if (useBlobStorage()) {
+    const result = await get(storageKey, { access: "private" });
+    if (!result) throw new Error(`Document introuvable dans Vercel Blob : ${storageKey}`);
+    return Buffer.from(await new Response(result.stream).arrayBuffer());
   }
 
   if (!shouldUseLocalStorage()) {
-    throw new Error("Supabase Storage is not configured for document downloads");
+    throw new Error("Aucun stockage de documents configuré (ni Vercel Blob ni local)");
   }
 
   return fs.readFile(path.join(UPLOAD_BASE, storageKey));
 }
 
 async function deleteDocumentObject(storageKey: string): Promise<void> {
-  const bucket = getSupabaseStorageClient();
-
-  if (bucket) {
-    const { error } = await bucket.remove([storageKey]);
-    if (error) throw error;
+  if (useBlobStorage()) {
+    await del(storageKey);
     return;
   }
 
   if (!shouldUseLocalStorage()) {
-    throw new Error("Supabase Storage is not configured for document deletion");
+    throw new Error("Aucun stockage de documents configuré (ni Vercel Blob ni local)");
   }
 
   await fs.unlink(path.join(UPLOAD_BASE, storageKey));
