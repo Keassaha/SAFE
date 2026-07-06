@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser, requireCabinetId } from "@/lib/auth/session";
 import { revalidatePath } from "next/cache";
-import { normalizeRows } from "@/lib/import/pipeline";
+import { normalizeRows, analyzeFile, type AnalysisResult } from "@/lib/import/pipeline";
 import type {
   DocumentType,
   ColumnMapping,
@@ -26,6 +26,21 @@ import {
 } from "@/lib/import/normalizers/accounting-ledger";
 import { isJournalIdempotencyConflict } from "@/lib/services/journal/idempotency";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
+
+/**
+ * Analyse un relevé bancaire PDF CÔTÉ SERVEUR (l'extraction utilise Claude, donc
+ * `ANTHROPIC_API_KEY` serveur). Renvoie le même `AnalysisResult` que l'analyse
+ * client des CSV/Excel : le wizard enchaîne ensuite sur l'aperçu habituel.
+ */
+export async function analyzeStatementPdf(formData: FormData): Promise<AnalysisResult> {
+  await requireCabinetId();
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    throw new Error("Aucun fichier fourni.");
+  }
+  const buffer = await file.arrayBuffer();
+  return analyzeFile(buffer, file.name);
+}
 
 type DossierStatut = "ouvert" | "actif" | "en_attente" | "cloture" | "archive";
 

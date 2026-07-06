@@ -5,12 +5,13 @@ import { useTranslations } from "next-intl";
 import { Upload, FileSpreadsheet, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-const ACCEPTED_EXTENSIONS = [".xlsx", ".xls", ".csv", ".txt"];
+const ACCEPTED_EXTENSIONS = [".xlsx", ".xls", ".csv", ".txt", ".pdf"];
 const ACCEPTED_MIME = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "application/vnd.ms-excel",
   "text/csv",
   "text/plain",
+  "application/pdf",
 ];
 
 type SelectedFile = {
@@ -119,7 +120,7 @@ export function DropZone({
         <input
           ref={inputRef}
           type="file"
-          accept=".xlsx,.xls,.csv,.txt"
+          accept=".xlsx,.xls,.csv,.txt,.pdf"
           multiple
           className="hidden"
           onChange={handleChange}

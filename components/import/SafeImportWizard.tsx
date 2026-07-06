@@ -13,7 +13,7 @@ import { ImportResultSummary } from "./ImportResultSummary";
 import { ImportHistoryTable } from "./ImportHistoryTable";
 import { analyzeFile, generatePreview, generateAccountingPreview } from "@/lib/import/pipeline";
 import { detectColumns, getFieldLabels } from "@/lib/import/detect-columns";
-import { executeImport } from "@/app/(app)/import/actions";
+import { executeImport, analyzeStatementPdf } from "@/app/(app)/import/actions";
 import { Loader2, Upload, ArrowRight, ArrowLeft, History } from "lucide-react";
 import { toast } from "sonner";
 import type {
@@ -56,8 +56,18 @@ export function SafeImportWizard() {
     setLoading(true);
 
     try {
-      const buffer = await file.arrayBuffer();
-      const result = await analyzeFile(buffer, file.name);
+      const isPdf =
+        file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+      let result;
+      if (isPdf) {
+        // Extraction serveur (Claude lit le relevé PDF) → même AnalysisResult.
+        const fd = new FormData();
+        fd.append("file", file);
+        result = await analyzeStatementPdf(fd);
+      } else {
+        const buffer = await file.arrayBuffer();
+        result = await analyzeFile(buffer, file.name);
+      }
       setAnalysis(result);
       setDocType(result.classification.type);
       setMapping(result.mapping);

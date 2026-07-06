@@ -1,5 +1,6 @@
 import { parseExcelBuffer } from "./parsers/excel";
 import { parseCsvText } from "./parsers/csv";
+import { parsePdfBuffer } from "./parsers/pdf";
 import { classifyDocument } from "./classify";
 import { detectColumns, getFieldLabels } from "./detect-columns";
 import { normalizeClientRow } from "./normalizers/client";
@@ -43,7 +44,11 @@ export async function parseFile(
     const text = typeof buffer === "string" ? buffer : new TextDecoder().decode(buffer);
     return parseCsvText(text, fileName);
   }
-  throw new Error(`Format non supporté : .${ext}. Formats acceptés : .xlsx, .csv, .txt`);
+  if (ext === "pdf") {
+    if (typeof buffer === "string") throw new Error("Un relevé PDF nécessite un fichier binaire.");
+    return parsePdfBuffer(buffer, fileName);
+  }
+  throw new Error(`Format non supporté : .${ext}. Formats acceptés : .xlsx, .csv, .txt, .pdf`);
 }
 
 export async function analyzeFile(
