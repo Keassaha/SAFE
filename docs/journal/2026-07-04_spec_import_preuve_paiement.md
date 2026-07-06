@@ -174,4 +174,23 @@ serveur (`SUPABASE_URL`) pointent encore le projet mort `nhiorv…` au lieu du c
 en prod : paiement + matching + anti-doublon + règles = OK ; seule l'image de preuve dégrade proprement
 (non stockée) jusqu'au réalignement Supabase (tâche infra distincte, risquée car peut orphaner les docs
 existants — nécessite la clé service-role du projet canonique).
+
+## PREUVE DANS LE DOSSIER CLIENT + STOCKAGE VERCEL BLOB (2026-07-06) ✅
+1) **Preuve classée dans le dossier du client** (demande CEO) : à la confirmation, la preuve devient un
+`Document` rattaché au client (+ dossier si dérivable de la facture), type `preuve_paiement`, via le
+module documents (rétention Barreau). Section « Documents du client » ajoutée sur la page client
+(`DocumentsSection` était importé mais jamais rendu). Commit `dee38c6`. Vérifié en dev (visible sur la fiche client).
+
+2) **GATE STOCKAGE RÉSOLU — bascule sur Vercel Blob** (décision CEO : plutôt que réparer Supabase).
+Store Blob PRIVÉ `safe-documents` créé (`vercel blob create-store --access private --yes`), token
+`BLOB_READ_WRITE_TOKEN` provisionné Prod+Preview+Dev. `lib/services/document.ts` réécrit : write/read/del
+→ Vercel Blob privé (`put/get/del`, `access:'private'`, `addRandomSuffix:false`), fallback fichiers
+locaux conservé en dev. Confidentiel (Barreau) : store privé, jamais d'URL publique, servi via routes
+auth. Round-trip put/get/del vérifié avec le vrai token. Supabase Storage retiré de document.ts (les
+clés `nhiorv…` mortes deviennent hors-sujet). Commit `cabfcc5`. Déployé prod (`vercel --prod`), santé OK.
+
+⚠️ INCIDENT évité : `vercel blob create-store` a fait un `env pull` qui a ÉCRASÉ `.env.local` (DATABASE_URL
+→ prod, clé Anthropic perdue). Restauré : DB locale (`safe_local` depuis `.env` racine) + Anthropic
+(depuis `.env.local.bak.claude`) + token Blob. LEÇON : les commandes `vercel blob`/`vercel env` écrasent
+`.env.local` — sauvegarder avant.
 </content>
