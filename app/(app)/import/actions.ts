@@ -25,7 +25,12 @@ import {
   buildAccountingIdempotencyQuery,
 } from "@/lib/import/normalizers/accounting-ledger";
 import { isJournalIdempotencyConflict } from "@/lib/services/journal/idempotency";
+import { hashProofFile } from "@/lib/services/finance/proof-dedup";
+import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
+import { randomUUID } from "crypto";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
+
+const RELEVE_DOCUMENT_TYPE = "releve_bancaire";
 
 /**
  * Analyse un relevé bancaire PDF CÔTÉ SERVEUR (l'extraction utilise Claude, donc
@@ -33,12 +38,26 @@ import type { JournalTransactionType, JournalSourceModule } from "@prisma/client
  * client des CSV/Excel : le wizard enchaîne ensuite sur l'aperçu habituel.
  */
 export async function analyzeStatementPdf(formData: FormData): Promise<AnalysisResult> {
-  await requireCabinetId();
+  const cabinetId = await requireCabinetId();
   const file = formData.get("file");
   if (!(file instanceof File)) {
     throw new Error("Aucun fichier fourni.");
   }
   const buffer = await file.arrayBuffer();
+
+  // Anti-doublon : un relevé déjà importé (même fichier) est conservé comme Document
+  // avec son hash. On bloque le ré-import AVANT l'extraction (évite un appel IA inutile).
+  const hash = hashProofFile(Buffer.from(buffer));
+  const already = await prisma.document.findFirst({
+    where: { cabinetId, documentType: RELEVE_DOCUMENT_TYPE, hash },
+    select: { createdAt: true },
+  });
+  if (already) {
+    throw new Error(
+      `Ce relevé a déjà été importé le ${already.createdAt.toISOString().slice(0, 10)}. Pour éviter les doublons, il ne peut pas être réimporté.`,
+    );
+  }
+
   return analyzeFile(buffer, file.name);
 }
 
@@ -166,6 +185,8 @@ export async function executeImport(
   type: DocumentType,
   mapping: ColumnMapping,
   fileName: string,
+  /** PDF du relevé (base64) à conserver au dossier du cabinet, pour les relevés bancaires. */
+  fileBase64?: string | null,
 ): Promise<ImportResult> {
   const { cabinetId, userId } = await requireCabinetAndUser();
   const startTime = Date.now();
@@ -190,6 +211,29 @@ export async function executeImport(
       await importTimeEntries(cabinetId, userId, normalized as NormalizedRow<NormalizedTimeEntry>[], result);
     } else if (type === "releve_bancaire") {
       await importBankStatements(cabinetId, userId, normalized as NormalizedRow<NormalizedBankTransaction>[], result, fileName);
+      // Conservation du relevé (Document cabinet + hash anti-doublon). Best effort :
+      // un échec de stockage ne remet pas en cause les transactions importées.
+      if (fileBase64) {
+        try {
+          const buffer = Buffer.from(fileBase64, "base64");
+          const hash = hashProofFile(buffer);
+          const key = `bank-statements/${cabinetId}/${new Date().getFullYear()}/${randomUUID()}.pdf`;
+          await writeDocumentObject(key, buffer, "application/pdf");
+          await createDocumentRecord({
+            cabinetId,
+            userId,
+            nom: `Relevé bancaire — ${fileName}`,
+            mimeType: "application/pdf",
+            sizeBytes: buffer.length,
+            storageKey: key,
+            hash,
+            documentType: RELEVE_DOCUMENT_TYPE,
+            aiAssisted: true,
+          });
+        } catch (err) {
+          console.error("Conservation du relevé échouée (transactions importées):", err);
+        }
+      }
     } else if (type === "migration_comptable") {
       accountingDecisions = await importAccountingLedger(
         cabinetId,

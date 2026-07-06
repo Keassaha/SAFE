@@ -49,6 +49,7 @@ export function SafeImportWizard() {
   const [accountingBreakdown, setAccountingBreakdown] = useState<AccountingPreviewBreakdown | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const handleFilesSelected = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -58,6 +59,7 @@ export function SafeImportWizard() {
     try {
       const isPdf =
         file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+      setPdfFile(isPdf ? file : null);
       let result;
       if (isPdf) {
         // Extraction serveur (Claude lit le relevé PDF) → même AnalysisResult.
@@ -113,11 +115,22 @@ export function SafeImportWizard() {
     setLoading(true);
 
     try {
+      // Pour un relevé PDF : joindre le fichier (base64) afin de le conserver au cabinet.
+      let fileBase64: string | null = null;
+      if (pdfFile && docType === "releve_bancaire") {
+        const bytes = new Uint8Array(await pdfFile.arrayBuffer());
+        let binary = "";
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+        }
+        fileBase64 = btoa(binary);
+      }
       const result = await executeImport(
         analysis.parsed.rows,
         docType,
         mapping,
         analysis.parsed.fileName,
+        fileBase64,
       );
       setImportResult(result);
       setStep("result");
@@ -132,7 +145,7 @@ export function SafeImportWizard() {
     } finally {
       setLoading(false);
     }
-  }, [analysis, docType, mapping, t]);
+  }, [analysis, docType, mapping, t, pdfFile]);
 
   const reset = useCallback(() => {
     setStep("upload");
