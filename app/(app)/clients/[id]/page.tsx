@@ -417,6 +417,19 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
       )}
+
+      {!showForm && (
+        <Card className="mt-4">
+          <CardHeader title={tu("clientDocuments")} />
+          <CardContent>
+            <DocumentsSection
+              clientId={client.id}
+              documents={documents}
+              canManage={canEditClient}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

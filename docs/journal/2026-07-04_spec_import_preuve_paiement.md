@@ -160,4 +160,18 @@ paiement avec preuve conservée + anti-doublon + trace source des fonds. Restent
   (`rsblxm…`) pour que la conservation de preuve marche AUSSI en prod (dev only sinon).
 - **L6-L8** (v2) : intake email (OAuth boîte courriel).
 Commit `30daac9` = L1-L3. **L4 + L5 PAS ENCORE commités** (working tree). Travail Stripe du CEO intact.
+
+## DÉPLOYÉ EN PRODUCTION (2026-07-06) 🚀
+Commits `30daac9` (L1-L3) + `d4489b9` (L4-L5) poussés sur origin. Déploiement prod via `vercel --prod`
+(le projet N'EST PAS git-connecté : les mises en prod sont des `vercel --prod` CLI depuis le checkout
+local, pas des git push). Build OK 2 min → `migrate deploy` a appliqué mes 2 migrations additives en prod.
+Aliasé sur **www.safecabinet.ca**. Vérifs prod : homepage 200 ; routes `payeurs-regles` / `import-preuve`
+/ `[id]/preuve` = 401 (déployées, garde-fou auth OK) ; base prod (`rsblxmmqlnywcjxztebu`) confirmée =
+4 colonnes preuve sur Payment + table PayerRule présentes. FEATURE LIVE.
+
+⚠️ SEUL RELIQUAT : conservation d'IMAGE de preuve en prod dépend du stockage Supabase, dont les clés
+serveur (`SUPABASE_URL`) pointent encore le projet mort `nhiorv…` au lieu du canonique `rsblxm…`. Donc
+en prod : paiement + matching + anti-doublon + règles = OK ; seule l'image de preuve dégrade proprement
+(non stockée) jusqu'au réalignement Supabase (tâche infra distincte, risquée car peut orphaner les docs
+existants — nécessite la clé service-role du projet canonique).
 </content>

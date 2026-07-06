@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { createPayment } from "@/lib/services/billing/payment-allocation-service";
 import { createPayerRule } from "@/lib/services/finance/payer-rules";
-import { writeDocumentObject } from "@/lib/services/document";
+import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
 import type { UserRole } from "@prisma/client";
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -82,6 +82,8 @@ export async function POST(request: Request) {
   // Conservation de la preuve (best effort : un échec de stockage ne bloque pas
   // l'enregistrement du paiement, qui est le fait comptable important).
   let preuveStorageKey: string | null = null;
+  let preuveMime: string | null = null;
+  let preuveSize = 0;
   const file = form.get("file");
   if (file instanceof File && file.size > 0) {
     if (!EXT[file.type]) {
@@ -94,6 +96,8 @@ export async function POST(request: Request) {
     try {
       await writeDocumentObject(key, Buffer.from(await file.arrayBuffer()), file.type);
       preuveStorageKey = key;
+      preuveMime = file.type;
+      preuveSize = file.size;
     } catch (err) {
       console.error("Conservation de la preuve échouée (paiement enregistré quand même):", err);
     }
@@ -122,6 +126,38 @@ export async function POST(request: Request) {
       preuveExtractedAt: new Date(),
     });
 
+    // Conservation dans le dossier du client : la preuve devient un Document rattaché
+    // au client (et au dossier de la facture, le cas échéant). Elle apparaît ainsi dans
+    // le dossier du client, avec la rétention Barreau du module documents.
+    let proofFiled = false;
+    if (preuveStorageKey && preuveMime && data.userId) {
+      try {
+        let dossierId: string | null = null;
+        if (invoiceId) {
+          const inv = await prisma.invoice.findFirst({
+            where: { id: invoiceId, cabinetId: data.cabinetId },
+            select: { dossierId: true },
+          });
+          dossierId = inv?.dossierId ?? null;
+        }
+        await createDocumentRecord({
+          cabinetId: data.cabinetId,
+          userId: data.userId,
+          clientId,
+          dossierId,
+          nom: `Preuve de paiement Interac${interacReference ? ` — ${interacReference}` : ""} (${paymentDate})`,
+          mimeType: preuveMime,
+          sizeBytes: preuveSize,
+          storageKey: preuveStorageKey,
+          documentType: "preuve_paiement",
+          aiAssisted: true,
+        });
+        proofFiled = true;
+      } catch (err) {
+        console.error("Classement de la preuve dans le dossier client échoué (paiement enregistré):", err);
+      }
+    }
+
     // Apprentissage dans le flux : mémoriser ce payeur tiers → ce client, pour
     // que le prochain virement du même payeur soit reconnu automatiquement.
     let ruleLearned = false;
@@ -142,7 +178,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ paymentId, warnings, proofStored: Boolean(preuveStorageKey), ruleLearned });
+    return NextResponse.json({ paymentId, warnings, proofStored: Boolean(preuveStorageKey), proofFiled, ruleLearned });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur lors de la création du paiement";
     // Doublon rattrapé par la contrainte unique en cas de course.

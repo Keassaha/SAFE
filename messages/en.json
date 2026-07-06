@@ -2644,7 +2644,8 @@
     "matterLabel": "Matter",
     "docStatusFinal": "Final",
     "docStatusDraft": "Draft",
-    "docStatusArchived": "Archived"
+    "docStatusArchived": "Archived",
+    "clientDocuments": "Client documents"
   },
   "settingsUi": {
     "backToSettings": "Back to settings",

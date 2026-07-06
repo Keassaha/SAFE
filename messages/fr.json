@@ -2644,7 +2644,8 @@
     "matterLabel": "Dossier",
     "docStatusFinal": "Final",
     "docStatusDraft": "Brouillon",
-    "docStatusArchived": "Archivé"
+    "docStatusArchived": "Archivé",
+    "clientDocuments": "Documents du client"
   },
   "settingsUi": {
     "backToSettings": "Retour aux paramètres",
