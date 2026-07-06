@@ -194,3 +194,14 @@ clés `nhiorv…` mortes deviennent hors-sujet). Commit `cabfcc5`. Déployé pro
 (depuis `.env.local.bak.claude`) + token Blob. LEÇON : les commandes `vercel blob`/`vercel env` écrasent
 `.env.local` — sauvegarder avant.
 </content>
+
+## ANTI-DOUBLON PAR HASH DE FICHIER (2026-07-06, commit cff6632, déployé prod) ✅
+Demande CEO : empêcher d'uploader deux fois la même preuve, même si la réf Interac est illisible.
+Ajout `Payment.preuveHash` (SHA-256 du fichier) + index unique `[cabinetId, preuveHash]` (migration
+`20260706120000_add_payment_preuve_hash`, appliquée prod via build). `lib/services/finance/proof-dedup.ts`
+(hashProofFile + findDuplicateProofPayment : match par hash OU par providerRef). Deux niveaux :
+(1) détection DÈS L'UPLOAD (route import-preuve → `alreadyImported` + paiement existant) → le modal
+affiche un blocage rouge, impossible de continuer ; (2) blocage DUR à la confirmation (pré-check +
+contrainte unique) même si l'UI est contournée, même avec une référence différente (le hash suffit).
+Vérifié dev : 2e upload du même fichier bloqué à l'upload (matchedBy hash) ET en 409 à la confirmation.
+Colonne + index unique confirmés en prod.
