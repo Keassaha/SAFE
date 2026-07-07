@@ -96,7 +96,7 @@ export function ExportButtons({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("exportReport")}>
+    <div className="no-print flex flex-wrap items-center gap-2" role="group" aria-label={t("exportReport")}>
       <button
         type="button"
         onClick={handleCsv}

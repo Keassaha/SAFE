@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewReports } from "@/lib/auth/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { prisma } from "@/lib/db";
 import { loadRapportsPayload } from "@/lib/rapports/load";
 import { RapportsView } from "@/components/rapports/RapportsView";
 
@@ -48,16 +49,31 @@ export default async function RapportsPage({
     statut: params.statut ?? null,
   };
 
-  const payload = await loadRapportsPayload(cabinetId, filters);
+  const [payload, cabinet] = await Promise.all([
+    loadRapportsPayload(cabinetId, filters),
+    prisma.cabinet.findUnique({
+      where: { id: cabinetId },
+      select: { nom: true, adresse: true, logoUrl: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <PageHeader
-        title={t("reportsTitle")}
-        description={t("reportsDescription")}
-      />
+      <div className="no-print">
+        <PageHeader
+          title={t("reportsTitle")}
+          description={t("reportsDescription")}
+        />
+      </div>
       <Suspense fallback={<p className="text-si-muted">{t("reportsLoading")}</p>}>
-        <RapportsView payload={payload} />
+        <RapportsView
+          payload={payload}
+          cabinet={{
+            nom: cabinet?.nom ?? "",
+            adresse: cabinet?.adresse ?? null,
+            logoUrl: cabinet?.logoUrl ?? null,
+          }}
+        />
       </Suspense>
     </div>
   );

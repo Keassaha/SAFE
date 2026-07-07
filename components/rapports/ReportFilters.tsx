@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import type { Client, User } from "@prisma/client";
 import { useTranslations } from "next-intl";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export function ReportFilters({
   clients,
@@ -62,7 +63,7 @@ export function ReportFilters({
           <option value="">{t("all")}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.raisonSociale}
+              {clientDisplayName(c)}
             </option>
           ))}
         </select>

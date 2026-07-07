@@ -2887,7 +2887,12 @@
     "withdrawalsPeriod": "Utilisations (période)",
     "trustBalance": "Solde fidéicommis",
     "trustReportTitle": "Rapport fidéicommis",
-    "transactionsOverPeriod": "{count, plural, one {# transaction sur la période.} other {# transactions sur la période.}}"
+    "transactionsOverPeriod": "{count, plural, one {# transaction sur la période.} other {# transactions sur la période.}}",
+    "downloadPdf": "Télécharger en PDF",
+    "period": "Période",
+    "generatedOn": "Généré le",
+    "confidential": "Document confidentiel",
+    "allReports": "Tous les rapports"
   },
   "dashboardUi": {
     "allInOrder": "Tout est en ordre",

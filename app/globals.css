@@ -1022,6 +1022,71 @@
   }
 }
 
+/* Impression / export PDF des rapports financiers : n'imprimer que la zone
+   de rapport active, avec un rendu document propre (marges, tableaux, couleurs). */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.6cm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #rapport-print-area,
+  #rapport-print-area * {
+    visibility: visible;
+  }
+
+  /* Les boutons d'export et autres commandes ne doivent jamais apparaître. */
+  #rapport-print-area .no-print,
+  #rapport-print-area .no-print * {
+    visibility: hidden !important;
+  }
+
+  #rapport-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    /* Préserver couleurs de marque et alternance de lignes des tableaux. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Cartes et sections : pas d'ombres, éviter les coupures en plein contenu. */
+  #rapport-print-area .rounded-2xl,
+  #rapport-print-area [class*="rounded"] {
+    box-shadow: none !important;
+  }
+
+  #rapport-print-area section,
+  #rapport-print-area table {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Tableaux de rapport : rendu compact et lisible sur papier. */
+  #rapport-print-area table {
+    width: 100% !important;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+  #rapport-print-area thead {
+    display: table-header-group;
+  }
+  #rapport-print-area th,
+  #rapport-print-area td {
+    padding: 5px 8px !important;
+  }
+  #rapport-print-area tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
 /* --- Utilities spécifiques à la refonte (Linear-style) --- */
 @layer utilities {
   .landing-grid {

@@ -2887,7 +2887,12 @@
     "withdrawalsPeriod": "Withdrawals (period)",
     "trustBalance": "Trust account balance",
     "trustReportTitle": "Trust account report",
-    "transactionsOverPeriod": "{count, plural, one {# transaction over the period.} other {# transactions over the period.}}"
+    "transactionsOverPeriod": "{count, plural, one {# transaction over the period.} other {# transactions over the period.}}",
+    "downloadPdf": "Download as PDF",
+    "period": "Period",
+    "generatedOn": "Generated on",
+    "confidential": "Confidential document",
+    "allReports": "All reports"
   },
   "dashboardUi": {
     "allInOrder": "Everything is in order",

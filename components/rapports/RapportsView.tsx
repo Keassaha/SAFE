@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -13,9 +13,11 @@ import {
   Calendar,
   SlidersHorizontal,
   ChevronDown,
+  Download,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { RapportsPayload } from "@/lib/rapports/types";
+import { formatDate } from "@/lib/utils/format";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { RapportsFilters } from "./RapportsFilters";
 import { RapportFacturationTable } from "./RapportFacturationTable";
@@ -46,16 +48,31 @@ type TabId =
   | "debours"
   | "annuel-impots";
 
-export function RapportsView({ payload }: { payload: RapportsPayload }) {
+export function RapportsView({
+  payload,
+  cabinet,
+}: {
+  payload: RapportsPayload;
+  cabinet: { nom: string; adresse: string | null; logoUrl: string | null };
+}) {
   const t = useTranslations("rapports");
   const tc = useTranslations("common");
   const tr = useTranslations("reportsUi");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Date de génération : rendue côté client uniquement pour éviter tout
+  // décalage d'hydratation (fuseau/locale) entre le serveur et le navigateur.
+  const [generatedAt, setGeneratedAt] = useState<string>("");
+  useEffect(() => {
+    setGeneratedAt(formatDate(new Date()));
+  }, []);
   const { filters } = payload;
   const dateDebutStr = filters.dateDebut;
   const dateFinStr = filters.dateFin;
   const annee = parseInt(filters.dateFin.slice(0, 4), 10);
+  const periodLabel = `${formatDate(dateDebutStr)} – ${formatDate(dateFinStr)}`;
+
+  const handlePrint = () => window.print();
 
   const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "dashboard", label: t("financialDashboard"), icon: LayoutDashboard },
@@ -74,7 +91,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
   return (
     <div className="flex gap-6 min-h-[600px]">
       {/* Sidebar navigation */}
-      <aside className="hidden lg:flex flex-col w-56 shrink-0">
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 no-print">
         <nav className="sticky top-6 space-y-1">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -101,7 +118,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
       {/* Main content */}
       <div className="flex-1 min-w-0 space-y-5">
         {/* Mobile tab selector */}
-        <div className="lg:hidden">
+        <div className="lg:hidden no-print">
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value as TabId)}
@@ -113,19 +130,39 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
           </select>
         </div>
 
-        {/* Filters toggle */}
-        <button
-          type="button"
-          onClick={() => setFiltersOpen(!filtersOpen)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-si-line bg-si-surface text-sm font-medium text-si-muted hover:text-si-ink hover:border-si-line transition-colors"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          {tc("filters")}
-          <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
-        </button>
+        {/* Barre d'outils du rapport actif : titre, période, filtres, export PDF */}
+        <div className="no-print flex flex-wrap items-end justify-between gap-3 border-b border-si-line pb-4">
+          <div className="min-w-0">
+            <h2 className="font-serif text-xl md:text-2xl text-si-ink tracking-tight truncate">
+              {activeTabData.label}
+            </h2>
+            <p className="text-sm text-si-muted mt-0.5">
+              {tr("period")} : {periodLabel}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-si-line bg-si-surface text-sm font-medium text-si-muted hover:text-si-ink transition-colors"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {tc("filters")}
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
+            </button>
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#051F20] to-[#163832] text-white text-sm font-medium shadow-sm hover:opacity-95 transition-opacity"
+            >
+              <Download className="w-4 h-4" />
+              {tr("downloadPdf")}
+            </button>
+          </div>
+        </div>
 
         {filtersOpen && (
-          <div className="p-4 rounded-lg border border-si-line bg-si-surface/60 backdrop-blur-sm">
+          <div className="no-print p-4 rounded-lg border border-si-line bg-si-surface/60 backdrop-blur-sm">
             <RapportsFilters
               clients={payload.clients}
               avocats={payload.avocats}
@@ -138,7 +175,43 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
           </div>
         )}
 
-        {/* Active report content */}
+        {/* Zone imprimable : seule cette section apparaît dans le PDF */}
+        <div id="rapport-print-area" className="space-y-5">
+          {/* En-tête de document (visible uniquement à l'impression / PDF) */}
+          <div className="hidden print:block mb-4">
+            <div className="flex items-start justify-between gap-4 border-b-2 border-[#163832] pb-3">
+              <div className="flex items-start gap-3 min-w-0">
+                {cabinet.logoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cabinet.logoUrl}
+                    alt={cabinet.nom}
+                    className="h-12 w-auto max-w-[160px] object-contain shrink-0"
+                  />
+                )}
+                <div className="min-w-0">
+                  {cabinet.nom && (
+                    <div className="text-lg font-semibold text-si-ink">{cabinet.nom}</div>
+                  )}
+                  {cabinet.adresse && (
+                    <div className="text-xs text-si-muted mt-0.5">{cabinet.adresse}</div>
+                  )}
+                </div>
+              </div>
+              <div className="text-right text-xs text-si-muted shrink-0">
+                {generatedAt && <div>{tr("generatedOn")} {generatedAt}</div>}
+                <div className="uppercase tracking-wider mt-1">{tr("confidential")}</div>
+              </div>
+            </div>
+            <div className="mt-3">
+              <h1 className="font-serif text-2xl text-si-ink">{activeTabData.label}</h1>
+              <p className="text-sm text-si-muted mt-0.5">
+                {tr("period")} : {periodLabel}
+              </p>
+            </div>
+          </div>
+
+          {/* Active report content */}
         {activeTab === "dashboard" && (
           <DashboardFinancier
             kpis={payload.kpis}
@@ -149,6 +222,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         {activeTab === "facturation" && (
           <Card>
             <CardHeader
+              className="print:hidden"
               title={t("billingReport")}
               action={
                 <ExportButtons
@@ -181,7 +255,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
 
         {activeTab === "comptes-recevoir" && (
           <Card>
-            <CardHeader title={t("accountsReceivable")} />
+            <CardHeader title={t("accountsReceivable")} className="print:hidden" />
             <CardContent>
               <ComptesRecevoirSection data={payload.comptesRecevoir} />
             </CardContent>
@@ -191,6 +265,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         {activeTab === "performance-avocats" && (
           <Card>
             <CardHeader
+              className="print:hidden"
               title={t("lawyerPerformance")}
               action={
                 <ExportButtons
@@ -218,6 +293,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         {activeTab === "rentabilite-dossier" && (
           <Card>
             <CardHeader
+              className="print:hidden"
               title={t("matterProfitability")}
               action={
                 <ExportButtons
@@ -244,7 +320,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
 
         {activeTab === "fideicommis" && (
           <Card>
-            <CardHeader title={t("trustReport")} />
+            <CardHeader title={t("trustReport")} className="print:hidden" />
             <CardContent>
               <RapportFideicommisSection data={payload.fideicommis} />
             </CardContent>
@@ -253,7 +329,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
 
         {activeTab === "taxes" && (
           <Card>
-            <CardHeader title={t("taxReport")} />
+            <CardHeader title={t("taxReport")} className="print:hidden" />
             <CardContent>
               <RapportTaxesSection data={payload.taxes} />
             </CardContent>
@@ -263,6 +339,7 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
         {activeTab === "debours" && (
           <Card>
             <CardHeader
+              className="print:hidden"
               title={t("disbursementsReport")}
               action={
                 <ExportButtons
@@ -289,12 +366,13 @@ export function RapportsView({ payload }: { payload: RapportsPayload }) {
 
         {activeTab === "annuel-impots" && (
           <Card>
-            <CardHeader title={t("annualTaxReport")} />
+            <CardHeader title={t("annualTaxReport")} className="print:hidden" />
             <CardContent>
               <RapportAnnuelImpotsSection data={payload.annuelImpots} annee={annee} />
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
