@@ -16,6 +16,8 @@
     "test:run": "vitest run",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:check": "prisma migrate diff --from-url \"$DIRECT_URL\" --to-schema-datamodel prisma/schema.prisma --exit-code",
+    "db:check:strict": "prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url \"$SHADOW_DATABASE_URL\" --exit-code",
     "db:baseline": "prisma migrate resolve --applied \"20250309180000_init\"",
     "db:studio": "prisma studio",
     "seed:derisier:audit": "node scripts/rebuild-derisier-from-audit.mjs",

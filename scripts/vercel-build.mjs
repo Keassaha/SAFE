@@ -71,4 +71,58 @@ try {
 }
 
 run("npx", ["prisma", "migrate", "deploy"]);
+
+// Garde-fou anti-P0 (incident 2026-07-06, commit 5fefd57).
+// Des colonnes avaient été ajoutées à prisma/schema.prisma (Cabinet.stripeConnect*)
+// SANS fichier de migration. `migrate deploy` n'avait donc rien appliqué, la base prod
+// n'a jamais reçu les colonnes, et prisma.user.findFirst({ include: { cabinet: true } })
+// plantait pour tous les cabinets.
+//
+// Ici, une fois les migrations en attente appliquées, on compare la base RÉELLE au
+// schéma. Si le schéma décrit encore des colonnes/tables qu'aucune migration n'a créées,
+// la diff est non vide (exit 2) et on casse le build AVANT de livrer du code qui planterait.
+// On utilise --from-url (pas --from-migrations, qui exigerait un shadow database absent
+// de l'environnement de build Vercel).
+const schemaGuardUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+
+if (!schemaGuardUrl) {
+  console.error(
+    "Garde-fou schéma : aucune DIRECT_URL/DATABASE_URL disponible, dérive schéma↔base non vérifiable. Build interrompu."
+  );
+  process.exit(1);
+}
+
+const drift = run(
+  "npx",
+  [
+    "prisma",
+    "migrate",
+    "diff",
+    "--from-url",
+    schemaGuardUrl,
+    "--to-schema-datamodel",
+    "prisma/schema.prisma",
+    "--exit-code",
+  ],
+  { allowFailure: true }
+);
+
+if (drift.status === 2) {
+  console.error(
+    "\nGarde-fou schéma : ÉCHEC. La base déployée ne correspond pas à prisma/schema.prisma.\n" +
+      "Une modification du schéma n'a pas de migration correspondante (cf. incident P0 du 2026-07-06).\n" +
+      "Générez la migration manquante (`prisma migrate dev --name <nom>`), committez-la, puis redéployez.\n"
+  );
+  process.exit(1);
+}
+
+if (drift.status !== 0) {
+  console.error(
+    `\nGarde-fou schéma : la vérification de dérive a échoué (code ${drift.status}). Build interrompu par précaution.\n`
+  );
+  process.exit(1);
+}
+
+console.log("Garde-fou schéma : base et prisma/schema.prisma alignés.");
+
 run("npx", ["next", "build"]);
