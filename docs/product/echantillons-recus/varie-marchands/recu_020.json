@@ -1,0 +1,62 @@
+{
+  "merchantName": "McDonald's",
+  "merchantAddress": "16725 Stony Plain Rd Edmonton AB T5P 4A9",
+  "date": "2018-03-10",
+  "time": "07:39 PM",
+  "receiptNumber": "04kdfwg532",
+  "items": [
+    {
+      "name": "Delivery",
+      "quantity": 1,
+      "unitPrice": 0.00,
+      "totalPrice": 0.00
+    ,
+      "name": "10 McNuggets EVM",
+      "quantity": 1,
+      "unitPrice": 10.29,
+      "totalPrice": 10.29
+    },
+    {
+      "name": "L Coke",
+      "quantity": 1,
+      "unitPrice": 0.40,
+      "totalPrice": 0.40
+    },
+    {
+      "name": "HM GrChs S-Fry Yog",
+      "quantity": 1,
+      "unitPrice": 3.99,
+      "totalPrice": 3.99
+    },
+    {
+      "name": "6 Cookies",
+      "quantity": 1,
+      "unitPrice": 2.89,
+      "totalPrice": 2.89
+    },
+    {
+      "name": "Baked Apple Pie",
+      "quantity": 1,
+      "unitPrice": 1.19,
+      "totalPrice": 1.19
+    },
+    {
+      "name": "L French Fries",
+      "quantity": 1,
+      "unitPrice": 3.29,
+      "totalPrice": 3.29
+    },
+    {
+      "name": "L Iced Tea",
+      "quantity": 1,
+      "unitPrice": 2.99,
+      "totalPrice": 2.99
+    }
+  ],
+  "subtotal": 25.04,
+  "tax": 1.11,
+  "tip": null,
+  "total": 26.15,
+  "paymentMethod": "CREDIT SALES - McDelivery",
+  "category": "Fast Food"
+}

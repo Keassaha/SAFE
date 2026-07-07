@@ -1,0 +1,21 @@
+{
+  "merchantName": "IN-N-OUT BURGER",
+  "merchantAddress": "SANTA CLARA",
+  "date": "2012-04-27",
+  "time": "12:49",
+  "receiptNumber": "176 1 262 1110",
+  "items": [
+    {
+      "name": "HAMB W GR X L X T M Inst pro",
+      "quantity": 1,
+      "unitPrice": 2.00,
+      "totalPrice": 2.00
+    }
+  ],
+  "subtotal": 2.00,
+  "tax": 0.17,
+  "tip": null,
+  "total": 2.17,
+  "paymentMethod": "Cash",
+  "category": "Fast Food"
+}

@@ -1,0 +1,39 @@
+{
+  "merchantName": "Nick's Tuscan Grill",
+  "merchantAddress": "149 Mineola Blvd Mineola NY 11501",
+  "date": "2018-03-18",
+  "time": "10:54",
+  "receiptNumber": null,
+  "items": [
+    {
+      "name": "Open Food",
+      "quantity": 1,
+      "unitPrice": 22.00,
+      "totalPrice": 22.00
+    },
+    {
+      "name": "Ossobuco",
+      "quantity": 1,
+      "unitPrice": 28.00,
+      "totalPrice": 28.00
+    },
+    {
+      "name": "Diet Coke",
+      "quantity": 1,
+      "unitPrice": 2.50,
+      "totalPrice": 2.50
+    },
+    {
+      "name": "G 14 Hands Cab",
+      "quantity": 1,
+      "unitPrice": 10.00,
+      "totalPrice": 10.00
+    }
+  ],
+  "subtotal": 62.50,
+  "tax": 5.39,
+  "tip": null,
+  "total": 67.89,
+  "paymentMethod": null,
+  "category": "Restaurant"
+}

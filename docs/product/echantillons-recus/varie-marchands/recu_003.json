@@ -1,0 +1,69 @@
+{
+  "merchantName": "COSTCO WHOLESALE",
+  "merchantAddress": "16375 N. Washington St. Thornton, CO 80023",
+  "date": "2016-04-20",
+  "time": "15:00",
+  "receiptNumber": "172",
+  "items": [
+    {
+      "name": "FF BS BREAST",
+      "quantity": 1,
+      "unitPrice": 23.99,
+      "totalPrice": 23.99
+    },
+    {
+      "name": "KS DICED TOM",
+      "quantity": 1,
+      "unitPrice": 6.49,
+      "totalPrice": 6.49
+    },
+    {
+      "name": "JACKORGSALSA",
+      "quantity": 1,
+      "unitPrice": 2.97,
+      "totalPrice": 2.97
+    },
+    {
+      "name": "18CT EGGS",
+      "quantity": 3,
+      "unitPrice": 4.29,
+      "totalPrice": 12.87
+    },
+    {
+      "name": "GRAPE TOMATO",
+      "quantity": 1,
+      "unitPrice": 6.29,
+      "totalPrice": 6.29
+    },
+    {
+      "name": "ECO HALF PAN",
+      "quantity": 1,
+      "unitPrice": 6.49,
+      "totalPrice": 6.49
+    },
+    {
+      "name": "GRND TURKEY",
+      "quantity": 1,
+      "unitPrice": 18.47,
+      "totalPrice": 18.47
+    },
+    {
+      "name": "CHPD ONION",
+      "quantity": 1,
+      "unitPrice": 3.59,
+      "totalPrice": 3.59
+    },
+    {
+      "name": "MONT JACK 2#",
+      "quantity": 1,
+      "unitPrice": 4.45,
+      "totalPrice": 4.45
+    }
+  ],
+  "subtotal": 85.61,
+  "tax": 3.52,
+  "tip": null,
+  "total": 89.13,
+  "paymentMethod": "Check",
+  "category": "Groceries"
+}

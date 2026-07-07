@@ -1,0 +1,21 @@
+{
+  "merchantName": "KFC",
+  "merchantAddress": "3880 Hempstead Turnpike Levittown",
+  "date": "2016-07-08",
+  "time": "21:16",
+  "receiptNumber": "2884",
+  "items": [
+    {
+      "name": "Family Fill Up",
+      "quantity": 1,
+      "unitPrice": 20.00,
+      "totalPrice": 20.00
+    }
+  ],
+  "subtotal": 20.00,
+  "tax": 1.73,
+  "tip": null,
+  "total": 21.73,
+  "paymentMethod": "ETender Credit",
+  "category": "Fast Food"
+}

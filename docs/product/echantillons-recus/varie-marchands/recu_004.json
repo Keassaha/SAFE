@@ -1,0 +1,39 @@
+{
+  "merchantName": "MOD Pizza",
+  "merchantAddress": "26902 92nd Ave NW Suite A Stanwood, WA 98292",
+  "date": "2019-05-19",
+  "time": "16:06",
+  "receiptNumber": "AABT4HN6ACCM",
+  "items": [
+    {
+      "name": "Draft Beer",
+      "quantity": 2,
+      "unitPrice": 4.97,
+      "totalPrice": 9.94
+    },
+    {
+      "name": "Fountain Drink (16oz)",
+      "quantity": 1,
+      "unitPrice": 2.17,
+      "totalPrice": 2.17
+    },
+    {
+      "name": "MOD Pizza",
+      "quantity": 1,
+      "unitPrice": 8.67,
+      "totalPrice": 8.67
+    },
+    {
+      "name": "Mini MOD",
+      "quantity": 1,
+      "unitPrice": 6.67,
+      "totalPrice": 6.67
+    }
+  ],
+  "subtotal": 27.45,
+  "tax": 2.53,
+  "tip": 3.59,
+  "total": 33.57,
+  "paymentMethod": "Visa",
+  "category": "Restaurant"
+}

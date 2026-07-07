@@ -1,0 +1,57 @@
+{
+  "merchantName": "KAZ RAMEN",
+  "merchantAddress": "22413 BARTON ROAD GRAND TERRACE, CA 92313",
+  "date": "2018-11-04",
+  "time": "21:07",
+  "receiptNumber": "4AW465DENMVRT",
+  "items": [
+    {
+      "name": "Tonkotsu",
+      "quantity": 1,
+      "unitPrice": 9.50,
+      "totalPrice": 9.50
+    },
+    {
+      "name": "Tofu",
+      "quantity": 1,
+      "unitPrice": 0.00,
+      "totalPrice": 0.00
+    },
+    {
+      "name": "Egg",
+      "quantity": 1,
+      "unitPrice": 1.30,
+      "totalPrice": 1.30
+    },
+    {
+      "name": "Corn",
+      "quantity": 1,
+      "unitPrice": 0.50,
+      "totalPrice": 0.50
+    },
+    {
+      "name": "Bamboo shoots",
+      "quantity": 1,
+      "unitPrice": 1.00,
+      "totalPrice": 1.00
+    },
+    {
+      "name": "Naruto",
+      "quantity": 1,
+      "unitPrice": 0.75,
+      "totalPrice": 0.75
+    },
+    {
+      "name": "Spicy",
+      "quantity": 1,
+      "unitPrice": 0.00,
+      "totalPrice": 0.00
+    }
+  ],
+  "subtotal": 13.05,
+  "tax": 1.01,
+  "tip": null,
+  "total": 14.06,
+  "paymentMethod": null,
+  "category": "Restaurant"
+}

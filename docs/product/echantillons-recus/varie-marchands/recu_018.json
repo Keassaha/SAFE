@@ -1,0 +1,14 @@
+{
+  "merchantName": "the Golden Spear Cafe",
+  "merchantAddress": "East Hampton, NY",
+  "date": "2015-08-06",
+  "time": "11:01",
+  "receiptNumber": "9391",
+  "items": [],
+  "subtotal": 22.70,
+  "tax": null,
+  "tip": null,
+  "total": null,
+  "paymentMethod": "Visa",
+  "category": null
+}

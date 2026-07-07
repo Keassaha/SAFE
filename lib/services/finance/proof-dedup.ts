@@ -61,3 +61,44 @@ export async function findDuplicateProofPayment(
     matchedBy: opts.hash && existing.preuveHash === opts.hash ? "hash" : "reference",
   };
 }
+
+export interface DuplicateExpense {
+  id: string;
+  date: Date;
+  montant: number;
+  fournisseur: string | null;
+  matchedBy: "hash";
+}
+
+/**
+ * Anti-doublon symétrique côté dépense (import de reçu, R2).
+ * Cherche une dépense du cabinet portant le même reçu (même contenu via `hash`).
+ * Retourne la dépense en doublon, ou `null`.
+ * Spec : docs/product/SPEC_IMPORT_RECU_DEPENSE.md (§5).
+ */
+export async function findDuplicateExpense(
+  cabinetId: string,
+  opts: { hash?: string | null },
+): Promise<DuplicateExpense | null> {
+  if (!opts.hash) return null;
+
+  const existing = await prisma.cabinetExpense.findFirst({
+    where: { cabinetId, pieceHash: opts.hash },
+    select: {
+      id: true,
+      date: true,
+      montant: true,
+      fournisseurNormalise: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!existing) return null;
+
+  return {
+    id: existing.id,
+    date: existing.date,
+    montant: existing.montant,
+    fournisseur: existing.fournisseurNormalise,
+    matchedBy: "hash",
+  };
+}

@@ -1,0 +1,57 @@
+{
+  "merchantName": "Quick 73 Smoke City Market",
+  "merchantAddress": "5242 Van Nuys BLVD Sherman Oaks, CA 91401",
+  "date": "2015-06-26",
+  "time": "16:55",
+  "receiptNumber": "234673 #1",
+  "items": [
+    {
+      "name": "Beef Ribs",
+      "quantity": 1,
+      "unitPrice": 36.86,
+      "totalPrice": 36.86
+    },
+    {
+      "name": "Pulled Pork Sand",
+      "quantity": 1,
+      "unitPrice": 8.50,
+      "totalPrice": 8.50
+    },
+    {
+      "name": "*Reg",
+      "quantity": 1,
+      "unitPrice": 0.00,
+      "totalPrice": 0.00
+    },
+    {
+      "name": "Creamed Corn[Small]",
+      "quantity": 1,
+      "unitPrice": 3.35,
+      "totalPrice": 3.35
+    },
+    {
+      "name": "Longhorn Mac & Cheese[sm]",
+      "quantity": 1,
+      "unitPrice": 4.20,
+      "totalPrice": 4.20
+    },
+    {
+      "name": "Chocolate Cake[Slice]",
+      "quantity": 1,
+      "unitPrice": 3.95,
+      "totalPrice": 3.95
+    },
+    {
+      "name": "Fountain Soda",
+      "quantity": 1,
+      "unitPrice": 2.25,
+      "totalPrice": 2.25
+    }
+  ],
+  "subtotal": 59.11,
+  "tax": 5.32,
+  "tip": null,
+  "total": 64.43,
+  "paymentMethod": "Wells Fargo",
+  "category": "Restaurant"
+}

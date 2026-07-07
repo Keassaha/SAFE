@@ -1,0 +1,39 @@
+{
+  "merchantName": "STANFORD'S",
+  "merchantAddress": "17300 SOUTHCENTER PARKWAY TUKWILA, WA 98188",
+  "date": "2017-09-30",
+  "time": "19:36",
+  "receiptNumber": "3885",
+  "items": [
+    {
+      "name": "CHIC TEND AP",
+      "quantity": 1,
+      "unitPrice": 9.95,
+      "totalPrice": 9.95
+    },
+    {
+      "name": "RIBS 1/2 ST",
+      "quantity": 1,
+      "unitPrice": 18.95,
+      "totalPrice": 18.95
+    },
+    {
+      "name": "BRG DELUXE",
+      "quantity": 1,
+      "unitPrice": 14.95,
+      "totalPrice": 14.95
+    },
+    {
+      "name": "K TIMING",
+      "quantity": 1,
+      "unitPrice": -9.95,
+      "totalPrice": -9.95
+    }
+  ],
+  "subtotal": 33.90,
+  "tax": 3.39,
+  "tip": null,
+  "total": 37.29,
+  "paymentMethod": "American Express",
+  "category": null
+}

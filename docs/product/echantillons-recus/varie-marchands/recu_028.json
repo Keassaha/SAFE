@@ -1,0 +1,57 @@
+{
+  "merchantName": "Spiral Diner & Bakery",
+  "merchantAddress": "608 E Hickory St Denton, TX 76205",
+  "date": "2019-06-16",
+  "time": "10:04",
+  "receiptNumber": "185736",
+  "items": [
+    {
+      "name": "Real Smooth",
+      "quantity": 1,
+      "unitPrice": 7.99,
+      "totalPrice": 7.99
+    },
+    {
+      "name": "Short Stack",
+      "quantity": 1,
+      "unitPrice": 8.59,
+      "totalPrice": 8.59
+    },
+    {
+      "name": "Coffee",
+      "quantity": 1,
+      "unitPrice": 2.99,
+      "totalPrice": 2.99
+    },
+    {
+      "name": "Breakfast Quesadilla",
+      "quantity": 1,
+      "unitPrice": 13.99,
+      "totalPrice": 13.99
+    },
+    {
+      "name": "NO Sausage",
+      "quantity": 1,
+      "unitPrice": 0.00,
+      "totalPrice": 0.00
+    },
+    {
+      "name": "Grilled Spinach",
+      "quantity": 1,
+      "unitPrice": 1.99,
+      "totalPrice": 1.99
+    },
+    {
+      "name": "Southern Comfort",
+      "quantity": 1,
+      "unitPrice": 10.99,
+      "totalPrice": 10.99
+    }
+  ],
+  "subtotal": 46.54,
+  "tax": 3.84,
+  "tip": null,
+  "total": 50.38,
+  "paymentMethod": null,
+  "category": "Restaurant"
+}

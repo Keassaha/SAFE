@@ -1,0 +1,69 @@
+{
+  "merchantName": "Via Mar Restaurant",
+  "merchantAddress": "4105 Maine Ave Baldwin park, CA 91706",
+  "date": "2018-09-06",
+  "time": null,
+  "receiptNumber": "320502",
+  "items": [
+    {
+      "name": "TAP BEER 10-HH Modelo Tap.",
+      "quantity": 6,
+      "unitPrice": 1.59,
+      "totalPrice": 9.54
+    },
+    {
+      "name": "Manzanita Sol",
+      "quantity": 2,
+      "unitPrice": 2.75,
+      "totalPrice": 5.50
+    },
+    {
+      "name": "Tamarindo",
+      "quantity": 1,
+      "unitPrice": 2.75,
+      "totalPrice": 2.75
+    },
+    {
+      "name": "Sprite",
+      "quantity": 1,
+      "unitPrice": 2.75,
+      "totalPrice": 2.75
+    },
+    {
+      "name": "Thur. 2 Cock Shrimp",
+      "quantity": 1,
+      "unitPrice": 11.95,
+      "totalPrice": 11.95
+    },
+    {
+      "name": "Whole Fish Tilapia Whl Fried",
+      "quantity": 2,
+      "unitPrice": 10.95,
+      "totalPrice": 21.90
+    },
+    {
+      "name": "2 tcs Governador > plan , fries",
+      "quantity": 1,
+      "unitPrice": 7.75,
+      "totalPrice": 7.75
+    },
+    {
+      "name": "French Fries",
+      "quantity": 1,
+      "unitPrice": 2.50,
+      "totalPrice": 2.50
+    },
+    {
+      "name": "Taco DE Asada > plain, papas",
+      "quantity": 1,
+      "unitPrice": 2.25,
+      "totalPrice": 2.25
+    }
+  ],
+  "subtotal": 66.89,
+  "tax": 6.35,
+  "tip": null,
+  "total": 73.24,
+  "paymentMethod": null,
+  "category": null
+}

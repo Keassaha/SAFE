@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Receipt } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { ExpenseJournalKpis } from "@/components/expense-journal/ExpenseJournalKpis";
 import { ImportStatementBlock } from "@/components/expense-journal/ImportStatementBlock";
+import { ImportRecuModal } from "@/components/expense-journal/ImportRecuModal";
 import { ExpensesJournalTable } from "@/components/expense-journal/ExpensesJournalTable";
 import { ValidationPanel } from "@/components/expense-journal/ValidationPanel";
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
@@ -38,14 +43,35 @@ export function ExpenseJournalPageView({
   categories: ExpenseCategory[];
   transactions: BankImportTransaction[];
 }) {
+  const router = useRouter();
+  const t = useTranslations("receiptImport");
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState<boolean>(false);
+  const [recuModalOpen, setRecuModalOpen] = useState<boolean>(false);
 
   const selectedTransaction = transactions.find((t) => t.id === selectedTransactionId);
 
   return (
     <div className="space-y-6 pb-12">
+      <div className="flex items-center justify-end">
+        <Button type="button" onClick={() => setRecuModalOpen(true)}>
+          <Receipt className="h-4 w-4" aria-hidden />
+          {t("importButton")}
+        </Button>
+      </div>
+
       <ExpenseJournalKpis data={kpis} />
+
+      <ImportRecuModal
+        open={recuModalOpen}
+        onClose={() => setRecuModalOpen(false)}
+        categories={categories}
+        onSuccess={() => {
+          setRecuModalOpen(false);
+          setSelectedTransactionId(null);
+          router.refresh();
+        }}
+      />
 
       <ImportStatementBlock
         onSuccess={() => {

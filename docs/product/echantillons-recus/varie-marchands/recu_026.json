@@ -1,0 +1,33 @@
+{
+  "merchantName": "la Source",
+  "merchantAddress": "39, Rue Alain Chartier 75015 PARIS",
+  "date": "2015-08-02",
+  "time": null,
+  "receiptNumber": "0002",
+  "items": [
+    {
+      "name": "PERRIER",
+      "quantity": 1,
+      "unitPrice": 5.80,
+      "totalPrice": 5.80
+    },
+    {
+      "name": "COCA-COLA",
+      "quantity": 1,
+      "unitPrice": 5.80,
+      "totalPrice": 5.80
+    },
+    {
+      "name": "JUS ORANGE",
+      "quantity": 1,
+      "unitPrice": 5.40,
+      "totalPrice": 5.40
+    }
+  ],
+  "subtotal": 15.45,
+  "tax": 1.55,
+  "tip": null,
+  "total": 17.00,
+  "paymentMethod": null,
+  "category": null
+}
