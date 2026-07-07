@@ -6,6 +6,7 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { releveQuerySchema } from "@/lib/validations/fideicommis";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { TrustStatementPDF } from "@/components/fideicommis/TrustStatementPDF";
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
       where,
       orderBy: { date: "asc" },
       include: {
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { id: true, intitule: true, numeroDossier: true } },
       },
     }),
@@ -85,14 +86,16 @@ export async function GET(request: Request) {
 
   const wantPdf = searchParams.get("format") === "pdf";
   if (wantPdf) {
-    let clientNom: string | null = transactions[0]?.client?.raisonSociale ?? null;
+    let clientNom: string | null = transactions[0]?.client
+      ? clientDisplayName(transactions[0].client, "") || null
+      : null;
     let dossierIntitule: string | null = transactions[0]?.dossier?.intitule ?? null;
     if (clientId && !clientNom) {
       const c = await prisma.client.findFirst({
         where: { id: clientId, cabinetId },
-        select: { raisonSociale: true },
+        select: { raisonSociale: true, prenom: true, nom: true },
       });
-      clientNom = c?.raisonSociale ?? null;
+      clientNom = c ? clientDisplayName(c, "") || null : null;
     }
     if (dossierId && !dossierIntitule) {
       const d = await prisma.dossier.findFirst({

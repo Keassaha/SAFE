@@ -60,7 +60,7 @@ export async function GET(request: Request) {
       orderBy: { date: "desc" },
       take: limit,
       include: {
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { id: true, intitule: true, numeroDossier: true } },
       },
     }),

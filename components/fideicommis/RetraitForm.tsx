@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCreateTrustWithdrawal, useTrustBalance } from "@/lib/hooks/useFideicommis";
 import { formatCurrency } from "@/lib/utils/format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
 
 interface ClientOption {
   id: string;
   raisonSociale: string | null;
+  prenom: string | null;
+  nom: string | null;
 }
 
 interface DossierOption {
@@ -152,7 +155,7 @@ export function RetraitForm({
                 <option value="">{tf("selectClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.raisonSociale}
+                    {clientDisplayName(c)}
                   </option>
                 ))}
               </select>

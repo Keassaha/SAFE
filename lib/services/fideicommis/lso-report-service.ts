@@ -5,6 +5,7 @@
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export interface GenerateReportParams {
   cabinetId: string;
@@ -109,7 +110,7 @@ export async function generateReportData(params: GenerateReportParams): Promise<
     orderBy: { date: "asc" },
     include: {
       dossier: { select: { intitule: true, numeroDossier: true } },
-      client: { select: { raisonSociale: true } },
+      client: { select: { raisonSociale: true, prenom: true, nom: true } },
     },
   });
 
@@ -134,7 +135,7 @@ export async function generateReportData(params: GenerateReportParams): Promise<
       dossier: tx.dossier
         ? `${tx.dossier.numeroDossier || ""} — ${tx.dossier.intitule}`
         : null,
-      client: tx.client?.raisonSociale ?? null,
+      client: tx.client ? clientDisplayName(tx.client, "") || null : null,
       amount: tx.amount,
       balance: runningBalance,
     };

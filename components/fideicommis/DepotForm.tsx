@@ -6,11 +6,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCreateTrustDeposit } from "@/lib/hooks/useFideicommis";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
 
 interface ClientOption {
   id: string;
   raisonSociale: string | null;
+  prenom: string | null;
+  nom: string | null;
 }
 
 interface DossierOption {
@@ -109,7 +112,7 @@ export function DepotForm({ clients, dossiers, onSuccess, disabled, embedded }: 
               <option value="">{tf("selectClient")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.raisonSociale}
+                  {clientDisplayName(c)}
                 </option>
               ))}
             </select>

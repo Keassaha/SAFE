@@ -5,13 +5,14 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { useTrustTransactions, type TrustTransactionsFilters } from "@/lib/hooks/useFideicommis";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
 
 interface TransactionsTableProps {
   cabinetId: string | null;
-  clients: { id: string; raisonSociale: string | null }[];
+  clients: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   dossiers: { id: string; clientId: string; intitule: string; numeroDossier: string | null }[];
 }
 
@@ -54,7 +55,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
               <option value="">{tf("allClients")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.raisonSociale}
+                  {clientDisplayName(c)}
                 </option>
               ))}
             </select>
@@ -112,7 +113,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
                 {transactions.map((t) => (
                   <tr key={t.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
                     <td className="py-2 px-3">{formatDate(t.date)}</td>
-                    <td className="py-2 px-3">{t.client?.raisonSociale ?? "—"}</td>
+                    <td className="py-2 px-3">{t.client ? clientDisplayName(t.client) : "—"}</td>
                     <td className="py-2 px-3">
                       {t.dossier ? (t.dossier.numeroDossier ? `${t.dossier.numeroDossier} – ` : "") + t.dossier.intitule : "—"}
                     </td>

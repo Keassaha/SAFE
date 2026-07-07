@@ -21,7 +21,7 @@ export interface TrustTransactionRow {
   correctionOfId: string | null;
   createdById: string | null;
   createdAt: string;
-  client: { id: string; raisonSociale: string };
+  client: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null };
   dossier: { id: string; intitule: string; numeroDossier: string | null } | null;
 }
 
