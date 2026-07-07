@@ -102,11 +102,11 @@ export async function PATCH(
           intitule: true,
           numeroDossier: true,
           reference: true,
-          client: { select: { raisonSociale: true } },
+          client: { select: { raisonSociale: true, prenom: true, nom: true } },
         },
       },
       client: {
-        select: { id: true, raisonSociale: true },
+        select: { id: true, raisonSociale: true, prenom: true, nom: true },
       },
       user: { select: { id: true, nom: true } },
       invoiceLines: { select: { id: true } },

@@ -7,6 +7,7 @@
 
 import { prisma } from "@/lib/db";
 import { isPeriodLocked } from "@/lib/services/journal/period-lock";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import {
   buildAccountingExportLines,
   exportTotals,
@@ -59,7 +60,7 @@ export async function buildPeriodAccountingExport(params: {
       where: { cabinetId, dateTransaction: { gte: from, lte: to } },
       orderBy: [{ dateTransaction: "asc" }, { createdAt: "asc" }],
       include: {
-        client: { select: { raisonSociale: true } },
+        client: { select: { raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { intitule: true, numeroDossier: true } },
       },
     }),
@@ -92,7 +93,7 @@ export async function buildPeriodAccountingExport(params: {
     montantSortie: e.montantSortie,
     reference: e.reference,
     description: e.description,
-    clientName: e.client?.raisonSociale ?? null,
+    clientName: e.client ? clientDisplayName(e.client, "") || null : null,
     dossierLabel: e.dossier
       ? `${e.dossier.numeroDossier ?? ""} ${e.dossier.intitule}`.trim()
       : null,

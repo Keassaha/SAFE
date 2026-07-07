@@ -17,7 +17,7 @@ export interface TimeEntryRow {
   billingStatus: string | null;
   tauxHoraire: number;
   montant: number;
-  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string } } | null;
+  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string | null; prenom: string | null; nom: string | null } } | null;
   user: { id: string; nom: string };
   invoiceLines: { id: string }[];
 }

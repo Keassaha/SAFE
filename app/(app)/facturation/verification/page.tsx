@@ -4,6 +4,7 @@ import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -21,7 +22,7 @@ export default async function FacturationVerificationPage() {
       invoiceStatus: { in: ["DRAFT", "READY_TO_ISSUE"] },
     },
     include: {
-      client: { select: { id: true, raisonSociale: true } },
+      client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
       dossier: { select: { id: true, intitule: true } },
     },
     orderBy: { dateEmission: "desc" },
@@ -53,7 +54,7 @@ export default async function FacturationVerificationPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-si-ink">
-                        {displayInvoiceNumero(inv.numero)} — {inv.client.raisonSociale}
+                        {displayInvoiceNumero(inv.numero)} — {clientDisplayName(inv.client)}
                       </p>
                       <p className="text-sm text-si-muted">
                         {inv.dossier?.intitule ?? t("noMatter")} · {t("issuedColon")}{" "}

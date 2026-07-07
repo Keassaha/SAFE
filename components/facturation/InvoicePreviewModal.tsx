@@ -9,10 +9,11 @@ import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { isInvoiceDraft, isInvoiceIssued, getInvoiceLifecycleCategory } from "@/lib/billing/invoice-status";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 interface InvoicePreviewModalProps {
   invoice: Invoice & {
-    client: { id: string; raisonSociale: string | null };
+    client: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null };
     dossier: { id: string; intitule: string } | null;
     invoiceLines: InvoiceLine[];
   };
@@ -112,7 +113,7 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
           <div>
             <p className="text-xs text-si-muted mb-1">{t("client")}</p>
             <p className="font-semibold text-si-ink">
-              {invoice.client.raisonSociale || t("noClient")}
+              {clientDisplayName(invoice.client, t("noClient"))}
             </p>
           </div>
           {invoice.dossier && (

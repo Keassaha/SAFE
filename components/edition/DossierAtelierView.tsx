@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { UploadZone } from "./UploadZone";
 import { MoveDocumentDialog } from "./MoveDocumentDialog";
 
@@ -51,7 +52,7 @@ interface DossierDetail {
   intitule: string;
   numeroDossier?: string | null;
   type?: string | null;
-  client: { id: string; raisonSociale?: string | null };
+  client: { id: string; raisonSociale?: string | null; prenom?: string | null; nom?: string | null };
   richDocuments: RichDoc[];
 }
 
@@ -113,7 +114,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
           {t("workshop")}
         </Link>
         <span>/</span>
-        <span className="text-[var(--safe-text-secondary)]">{dossier.client.raisonSociale}</span>
+        <span className="text-[var(--safe-text-secondary)]">{clientDisplayName(dossier.client)}</span>
         <span>/</span>
         <span className="font-medium text-[var(--safe-text-title)]">{dossier.intitule}</span>
       </div>
@@ -129,7 +130,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
               {dossier.intitule}
             </h1>
             <p className="text-sm text-[var(--safe-text-secondary)]">
-              {dossier.client.raisonSociale}
+              {clientDisplayName(dossier.client)}
               {dossier.numeroDossier && (
                 <span className="ml-2 font-mono">#{dossier.numeroDossier}</span>
               )}

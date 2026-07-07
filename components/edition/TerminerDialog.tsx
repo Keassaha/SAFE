@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { CheckCircle, Clock, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 const TYPES_ACTIVITE = [
   { value: "redaction", labelKey: "activityRedaction" },
@@ -18,7 +19,7 @@ interface Props {
     id: string;
     titre: string;
     dossier: { id: string; intitule: string; tauxHoraire?: number | null };
-    client: { raisonSociale?: string | null };
+    client: { raisonSociale?: string | null; prenom?: string | null; nom?: string | null };
   };
   sessionId: string;
   dureeMinutes: number;
@@ -107,7 +108,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
 
           {/* Contexte */}
           <div className="text-sm text-[var(--safe-text-secondary)] bg-[var(--safe-neutral-bg)] rounded-lg px-3 py-2">
-            <span className="font-medium text-[var(--safe-text-title)]">{doc.client.raisonSociale}</span>
+            <span className="font-medium text-[var(--safe-text-title)]">{clientDisplayName(doc.client)}</span>
             {" · "}
             {doc.dossier.intitule}
           </div>

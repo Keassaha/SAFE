@@ -24,7 +24,7 @@ export default async function FacturationSuiviPage() {
     prisma.invoice.findMany({
       where: { cabinetId, ...whereInvoiceIssuedActive(now) },
       include: {
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { id: true, intitule: true } },
         invoiceLines: true,
       },
@@ -33,7 +33,7 @@ export default async function FacturationSuiviPage() {
     prisma.invoice.findMany({
       where: { cabinetId, ...whereInvoiceOverdue(now) },
       include: {
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { id: true, intitule: true } },
         invoiceLines: true,
       },

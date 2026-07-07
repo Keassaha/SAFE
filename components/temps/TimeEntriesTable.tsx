@@ -6,6 +6,7 @@ import { MoreVertical, Pencil, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
 import type { TimeEntryStatut } from "@prisma/client";
@@ -25,8 +26,8 @@ interface TimeEntryRow {
   billingStatus: string | null;
   tauxHoraire: number;
   montant: number;
-  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string | null } } | null;
-  client?: { id: string; raisonSociale: string | null } | null;
+  dossier: { id: string; intitule: string; numeroDossier: string | null; reference: string | null; client: { raisonSociale: string | null; prenom: string | null; nom: string | null } } | null;
+  client?: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null } | null;
   user: { id: string; nom: string };
   invoiceLines: { id: string }[];
 }
@@ -129,7 +130,11 @@ export function TimeEntriesTable({
                 >
                   <td className="px-4 py-3 text-sm whitespace-nowrap">{formatDate(entry.date)}</td>
                   <td className="px-4 py-3 text-sm">
-                    {entry.dossier?.client?.raisonSociale ?? entry.client?.raisonSociale ?? "—"}
+                    {entry.dossier?.client
+                    ? clientDisplayName(entry.dossier.client)
+                    : entry.client
+                    ? clientDisplayName(entry.client)
+                    : "—"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {entry.dossier ? (

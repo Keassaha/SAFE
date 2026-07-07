@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createDeboursDossier } from "@/lib/actions/debours";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export interface DeboursAddFormProps {
-  clients: { id: string; raisonSociale: string | null }[];
+  clients: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
   deboursTypes: { id: string; nom: string; categorie: string }[];
 }
@@ -67,7 +68,7 @@ export function DeboursAddForm({
                 <option value="">{td("chooseClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.raisonSociale}
+                    {clientDisplayName(c)}
                   </option>
                 ))}
               </select>

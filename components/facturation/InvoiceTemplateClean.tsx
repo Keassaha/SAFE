@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export type InvoiceLanguage = "fr" | "en";
 
@@ -98,6 +99,8 @@ export type InvoiceCleanProps = {
   } | null;
   client?: {
     raisonSociale: string | null;
+    prenom?: string | null;
+    nom?: string | null;
     billingAddress?: string | null;
     billingCity?: string | null;
     billingProvince?: string | null;
@@ -241,7 +244,7 @@ export function InvoiceTemplateClean({
             {client ? (
               <>
                 <p className="font-bold text-neutral-900 text-[13.5px] leading-tight">
-                  {client.raisonSociale}
+                  {clientDisplayName(client, t.noClient)}
                 </p>
                 <div className="mt-1.5 space-y-0.5">
                   {formatClientAddress(client).map((line, i) => (

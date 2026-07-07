@@ -7,7 +7,7 @@ import { InvoicePreviewModal } from "@/components/facturation/InvoicePreviewModa
 import { InvoiceCard } from "@/components/facturation/InvoiceCard";
 
 type InvoiceWithRelations = Invoice & {
-  client: { id: string; raisonSociale: string | null };
+  client: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null };
   dossier: { id: string; intitule: string } | null;
   invoiceLines: InvoiceLine[];
 };

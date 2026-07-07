@@ -22,7 +22,7 @@ export default async function ComptesPage() {
     prisma.client.findMany({
       where: { cabinetId },
       orderBy: { raisonSociale: "asc" },
-      select: { id: true, raisonSociale: true },
+      select: { id: true, raisonSociale: true, prenom: true, nom: true },
     }),
     prisma.dossier.findMany({
       where: { cabinetId },

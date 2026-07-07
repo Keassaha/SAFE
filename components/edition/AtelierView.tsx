@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { FolderOpen, Clock, FileText, ChevronRight, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 // Couleurs par type de dossier — Vert + Beige clair (Option 2)
 // Clés alignées avec l'enum DossierType de Prisma
@@ -45,6 +46,8 @@ interface DossierWithDocs {
 interface ClientWithDossiers {
   id: string;
   raisonSociale?: string | null;
+  prenom?: string | null;
+  nom?: string | null;
   dossiers: DossierWithDocs[];
 }
 
@@ -52,7 +55,7 @@ interface ActiveSession {
   id: string;
   richDocument: { id: string; titre: string } | null;
   dossier: { id: string; intitule: string } | null;
-  client: { id: string; raisonSociale?: string | null } | null;
+  client: { id: string; raisonSociale?: string | null; prenom?: string | null; nom?: string | null } | null;
   startedAt: string;
 }
 
@@ -94,11 +97,11 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
                   : "bg-[var(--safe-neutral-border)] text-[var(--safe-text-secondary)]"
               }`}
             >
-              {(client.raisonSociale ?? "?")[0].toUpperCase()}
+              {clientDisplayName(client, "?")[0].toUpperCase()}
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
-                {client.raisonSociale ?? t("noName")}
+                {clientDisplayName(client, t("noName"))}
               </p>
               <p
                 className={`text-xs ${
@@ -148,7 +151,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-[var(--safe-text-title)]">
-                  {selectedClient.raisonSociale}
+                  {clientDisplayName(selectedClient)}
                 </h2>
                 <p className="text-sm text-[var(--safe-text-secondary)]">
                   {t("activeMatterCount", { count: selectedClient.dossiers.length })}

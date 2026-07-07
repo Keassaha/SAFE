@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export type InvoiceTemplateItem = {
   id: string;
@@ -28,6 +29,8 @@ export type InvoiceTemplateProps = {
   } | null;
   client?: {
     raisonSociale: string | null;
+    prenom?: string | null;
+    nom?: string | null;
     billingAddress?: string | null;
     billingCity?: string | null;
     billingProvince?: string | null;
@@ -176,7 +179,7 @@ export function InvoiceTemplate({
             {tf("billedTo")}
           </p>
           <p className="font-semibold text-[var(--safe-text-title)]">
-            {client?.raisonSociale ?? tc("client")}
+            {client ? clientDisplayName(client, tc("client")) : tc("client")}
           </p>
           {client && formatClientAddress(client).length > 0 && (
             <div className="mt-1 text-sm text-[var(--safe-text-secondary)]">

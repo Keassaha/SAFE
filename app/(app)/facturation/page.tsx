@@ -98,7 +98,7 @@ export default async function FacturationPage({
           : {}),
       },
       include: {
-        client: { select: { id: true, raisonSociale: true } },
+        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         dossier: { select: { id: true, intitule: true } },
         reminderLogs: { orderBy: { sentAt: "desc" as const }, take: 1 },
       },
