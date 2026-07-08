@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { UserPlus, Users, ShieldAlert, X } from "lucide-react";
-import type { PartieDraft, PartieExterneRole } from "@/lib/dossiers/parties";
+import { UserPlus, Users, ShieldAlert, X, Search, Plus } from "lucide-react";
+import type { PartieDraft, PartieExterneRole, CoClientTypeClient } from "@/lib/dossiers/parties";
 
 export interface PartiesEditorClient {
   id: string;
@@ -25,15 +25,20 @@ function formatClientLabel(client?: PartiesEditorClient): string {
   return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
 }
 
+type CoClient =
+  | { kind: "existing"; clientId: string }
+  | { kind: "new"; typeClient: CoClientTypeClient; nom: string };
+
 interface ExterneRow {
   nomAffiche: string;
   role: PartieExterneRole;
 }
 
 /**
- * Éditeur « personnes du dossier » : co-clients (fiches Client) + parties externes
- * (nom + rôle, jamais une fiche Client). Sérialise tout dans un champ caché
- * `partiesJson` lu par les server actions. Le client principal reste géré à part.
+ * Éditeur « personnes du dossier » : co-clients (fiches Client existantes OU
+ * nouvelles personnes créées sur place) + parties externes (nom + rôle, jamais
+ * une fiche Client). Sérialise tout dans un champ caché `partiesJson` lu par les
+ * server actions. Le client principal reste géré à part.
  * Doctrine : docs/product/SPEC_MULTI_CLIENTS_PARTIES_DOSSIER.md
  */
 export function DossierPartiesEditor({
@@ -47,11 +52,12 @@ export function DossierPartiesEditor({
 }) {
   const t = useTranslations("matters");
 
-  const [coClientIds, setCoClientIds] = useState<string[]>(() =>
+  const [coClients, setCoClients] = useState<CoClient[]>(() =>
     initialParties
       .filter((p): p is Extract<PartieDraft, { nature: "co_client" }> => p.nature === "co_client")
-      .map((p) => p.clientId),
+      .map((p) => ({ kind: "existing" as const, clientId: p.clientId })),
   );
+  const [query, setQuery] = useState("");
   const [externes, setExternes] = useState<ExterneRow[]>(() =>
     initialParties
       .filter(
@@ -61,18 +67,49 @@ export function DossierPartiesEditor({
       .map((p) => ({ nomAffiche: p.nomAffiche, role: p.role })),
   );
 
-  // Options de co-client : on exclut le principal et ceux déjà ajoutés.
-  const availableForRow = (currentValue: string) =>
-    clients.filter(
-      (c) =>
-        c.id !== principalClientId &&
-        (c.id === currentValue || !coClientIds.includes(c.id)),
-    );
+  const clientById = useMemo(() => {
+    const m = new Map<string, PartiesEditorClient>();
+    for (const c of clients) m.set(c.id, c);
+    return m;
+  }, [clients]);
+
+  const addedExistingIds = new Set(
+    coClients.filter((c): c is Extract<CoClient, { kind: "existing" }> => c.kind === "existing").map((c) => c.clientId),
+  );
+
+  const q = query.trim().toLowerCase();
+  const results = q
+    ? clients
+        .filter(
+          (c) =>
+            c.id !== principalClientId &&
+            !addedExistingIds.has(c.id) &&
+            formatClientLabel(c).toLowerCase().includes(q),
+        )
+        .slice(0, 6)
+    : [];
+
+  const addExisting = (clientId: string) => {
+    setCoClients((prev) => [...prev, { kind: "existing", clientId }]);
+    setQuery("");
+  };
+  const addNew = (typeClient: CoClientTypeClient) => {
+    const nom = query.trim();
+    if (!nom) return;
+    setCoClients((prev) => [...prev, { kind: "new", typeClient, nom }]);
+    setQuery("");
+  };
+  const removeCoClient = (idx: number) => setCoClients((prev) => prev.filter((_, i) => i !== idx));
+
+  const coClientLabel = (c: CoClient): string =>
+    c.kind === "existing" ? formatClientLabel(clientById.get(c.clientId)) || "—" : c.nom;
 
   const partiesJson = JSON.stringify([
-    ...coClientIds
-      .filter((id) => id && id !== principalClientId)
-      .map((clientId) => ({ nature: "co_client", clientId })),
+    ...coClients.map((c) =>
+      c.kind === "existing"
+        ? { nature: "co_client", clientId: c.clientId }
+        : { nature: "co_client_new", typeClient: c.typeClient, nom: c.nom },
+    ),
     ...externes
       .filter((e) => e.nomAffiche.trim())
       .map((e) => ({ nature: "partie_externe", nomAffiche: e.nomAffiche.trim(), role: e.role })),
@@ -93,45 +130,81 @@ export function DossierPartiesEditor({
         </div>
         <p className="text-xs text-si-muted">{t("coClientsHint")}</p>
 
-        <div className="space-y-2">
-          {coClientIds.map((value, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <select
-                value={value}
-                onChange={(e) => {
-                  const next = [...coClientIds];
-                  next[idx] = e.target.value;
-                  setCoClientIds(next);
-                }}
-                className={inputClass}
+        {/* Cartes des co-clients ajoutés */}
+        {coClients.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {coClients.map((c, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-2 rounded-full border border-si-line bg-si-canvas/70 pl-3 pr-1.5 py-1"
               >
-                <option value="">{t("selectClient")}</option>
-                {availableForRow(value).map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {formatClientLabel(c)}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                aria-label={t("removePerson")}
-                onClick={() => setCoClientIds(coClientIds.filter((_, i) => i !== idx))}
-                className="shrink-0 h-10 w-10 grid place-items-center rounded-[10px] border border-si-line text-si-muted hover:text-si-ink hover:bg-si-canvas transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+                <span className="text-sm text-si-ink">{coClientLabel(c)}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wide text-si-muted">
+                  {c.kind === "new" ? t("coClientNewBadge") : t("coClientBadge")}
+                </span>
+                <button
+                  type="button"
+                  aria-label={t("removePerson")}
+                  onClick={() => removeCoClient(idx)}
+                  className="shrink-0 h-6 w-6 grid place-items-center rounded-full text-si-muted hover:text-si-ink hover:bg-si-surface transition"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setCoClientIds([...coClientIds, ""])}
-          className="inline-flex items-center gap-2 text-sm font-medium text-si-forest hover:underline"
-        >
-          <UserPlus className="w-4 h-4" />
-          {t("addCoClient")}
-        </button>
+        {/* Recherche + création sur place */}
+        <div className="relative">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-si-muted" />
+            <input
+              type="text"
+              value={query}
+              placeholder={t("coClientSearchPlaceholder")}
+              onChange={(e) => setQuery(e.target.value)}
+              className={`${inputClass} pl-9`}
+            />
+          </div>
+
+          {q && (
+            <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-[10px] border border-si-line bg-si-surface shadow-lg">
+              {results.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => addExisting(c.id)}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas transition"
+                >
+                  <Users className="w-3.5 h-3.5 text-si-muted shrink-0" />
+                  {formatClientLabel(c)}
+                </button>
+              ))}
+              {results.length === 0 && (
+                <p className="px-3 py-2 text-xs text-si-muted">{t("coClientNoMatch")}</p>
+              )}
+              <div className="border-t border-si-line">
+                <button
+                  type="button"
+                  onClick={() => addNew("personne_physique")}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-forest hover:bg-si-canvas transition"
+                >
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  {t("createAsIndividual", { name: query.trim() })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addNew("personne_morale")}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-forest hover:bg-si-canvas transition"
+                >
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  {t("createAsCompany", { name: query.trim() })}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Autres parties (adverse / tiers) */}

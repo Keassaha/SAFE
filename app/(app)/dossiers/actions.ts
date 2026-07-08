@@ -178,6 +178,7 @@ export async function createDossier(formData: FormData) {
   // Toujours exécuté (même flag off), pour garantir l'invariant « 1 principal par dossier ».
   await syncDossierParties({
     cabinetId,
+    userId,
     dossierId: dossier.id,
     principalClientId: parsed.data.clientId,
     drafts: parsePartiesDrafts(formData.get("partiesJson") as string | null),
@@ -330,6 +331,7 @@ export async function updateDossier(id: string, formData: FormData) {
   if (formData.has("partiesJson")) {
     await syncDossierParties({
       cabinetId,
+      userId,
       dossierId: id,
       principalClientId: parsed.data.clientId,
       drafts: parsePartiesDrafts(formData.get("partiesJson") as string | null),
