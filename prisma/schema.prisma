@@ -9,28 +9,28 @@ datasource db {
 }
 
 model Cabinet {
-  id                       String    @id @default(cuid())
-  nom                      String
-  adresse                  String?
-  telephone                String?
-  email                    String?
-  logoUrl                  String?
-  barreauNumero            String? // LSO#, Barreau# for invoice header
-  config                   String? // JSON: tauxInteret, devise, formatFacture
-  plan                     String    @default("essentiel")
-  stripeCustomerId         String?   @unique
-  stripeSubscriptionId     String?   @unique
-  stripePriceId            String?
-  stripeSubscriptionStatus String?
-  stripeCurrentPeriodEnd   DateTime?
-  stripeCancelAtPeriodEnd  Boolean   @default(false)
-  stripeTrialEnd           DateTime?
+  id                          String    @id @default(cuid())
+  nom                         String
+  adresse                     String?
+  telephone                   String?
+  email                       String?
+  logoUrl                     String?
+  barreauNumero               String? // LSO#, Barreau# for invoice header
+  config                      String? // JSON: tauxInteret, devise, formatFacture
+  plan                        String    @default("essentiel")
+  stripeCustomerId            String?   @unique
+  stripeSubscriptionId        String?   @unique
+  stripePriceId               String?
+  stripeSubscriptionStatus    String?
+  stripeCurrentPeriodEnd      DateTime?
+  stripeCancelAtPeriodEnd     Boolean   @default(false)
+  stripeTrialEnd              DateTime?
   // Stripe Connect (Express) — compte connecté du cabinet pour encaisser les
   // factures en ligne (direct charge : l'argent va direct à l'avocate). ADR-012.
-  stripeConnectAccountId      String?  @unique
-  stripeConnectChargesEnabled Boolean  @default(false)
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
+  stripeConnectAccountId      String?   @unique
+  stripeConnectChargesEnabled Boolean   @default(false)
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
 
   users                      User[]
   clients                    Client[]
@@ -84,6 +84,7 @@ model Cabinet {
   tickets            SupportTicket[]        @relation("CabinetTickets")
   impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
   payerRules         PayerRule[]
+  dossierParties     DossierPartie[]
 }
 
 enum UserRole {
@@ -222,7 +223,7 @@ model Employee {
   jobTitle         String?
   hourlyRate       Float          @default(0)
   employmentType   EmploymentType @default(employee)
-  sinNumero        String?        // NAS — affiché masqué dans l'UI
+  sinNumero        String? // NAS — affiché masqué dans l'UI
   supervisorId     String?
   responsibilities String? // assigned responsibilities / workflow
   createdAt        DateTime       @default(now())
@@ -321,6 +322,20 @@ enum RepresentationType {
   plaintiff
   defendant
   advisor
+}
+
+// Plusieurs personnes sur un dossier (co-clients + parties).
+// Doctrine : docs/product/SPEC_MULTI_CLIENTS_PARTIES_DOSSIER.md
+enum DossierPartieNature {
+  co_client // rattaché à une fiche Client (notre côté : facturable, fiducie)
+  partie_externe // nom libre, JAMAIS une fiche Client (adverse ou tiers)
+}
+
+enum DossierPartieRole {
+  mandant_principal // le client principal du dossier (miroir de Dossier.clientId)
+  co_client // autre client de notre côté
+  partie_adverse // partie opposée
+  tiers // intervenant, témoin, autre partie non adverse
 }
 
 enum PreferredPaymentMethod {
@@ -426,6 +441,7 @@ model Client {
   readyForReviewSignals DossierReadyForReviewSignal[]
   dossierDocketEntries  DossierDocketEntry[]
   payerRules            PayerRule[]
+  dossierParties        DossierPartie[]
 
   @@index([cabinetId])
   @@index([cabinetId, raisonSociale])
@@ -549,6 +565,7 @@ model Dossier {
   docketEntries         DossierDocketEntry[]
   navetteMessages       DossierNavetteMessage[]
   employeeHoursEntries  EmployeeHoursEntry[]
+  parties               DossierPartie[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -602,6 +619,40 @@ model DossierMandate {
   avocatSubstitut   User?   @relation("MandateAvocatSubstitut", fields: [avocatSubstitutId], references: [id], onDelete: SetNull)
 
   @@index([dossierId])
+}
+
+// Personnes rattachées à un dossier (au-delà du client principal Dossier.clientId).
+// Deux natures, jamais confondues :
+//  - co_client      : lien vers une fiche Client (facturable, fiducie). clientId requis.
+//  - partie_externe : nom libre (adverse/tiers), JAMAIS une fiche Client. nomAffiche requis.
+// Garde-fou de conformité : une partie adverse ne devient jamais un Client
+// (conflit d'intérêts + Loi 25). Invariants détaillés dans la spec §3.3.
+model DossierPartie {
+  id        String              @id @default(cuid())
+  cabinetId String
+  dossierId String
+  nature    DossierPartieNature
+  role      DossierPartieRole
+
+  // Renseigné SI ET SEULEMENT SI nature = co_client
+  clientId String?
+
+  // Renseigné SI ET SEULEMENT SI nature = partie_externe
+  nomAffiche String?
+
+  estPrincipal Boolean  @default(false) // vrai uniquement pour le mandant principal
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  client  Client? @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  @@index([dossierId])
+  @@index([dossierId, nature])
+  @@index([clientId])
 }
 
 model DossierPiece {
@@ -1338,8 +1389,8 @@ model PayerRule {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
 
-  cabinet Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client  Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([cabinetId, payerEmail])
   @@index([cabinetId])
@@ -1713,15 +1764,15 @@ enum DeboursStatut {
 
 // --- Débours par dossier (tblDeboursDossier) ---
 model DeboursDossier {
-  id             String   @id @default(cuid())
+  id             String        @id @default(cuid())
   cabinetId      String
   dossierId      String
   clientId       String
   deboursTypeId  String?
   description    String
-  quantite       Float    @default(1)
+  quantite       Float         @default(1)
   montant        Float
-  taxable        Boolean  @default(false)
+  taxable        Boolean       @default(false)
   date           DateTime
   payeParCabinet Boolean       @default(true)
   refacturable   Boolean       @default(true)

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { DossierCreationWizard } from "@/components/dossiers/registry/DossierCreationWizard";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { getCabinetDossierTaxonomyOptions } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { isMultiPartiesDossierEnabled } from "@/lib/flags";
 import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function NouveauDossierPage({
@@ -59,6 +60,7 @@ export default async function NouveauDossierPage({
             cabinetBillingMode={cabinetBillingMode}
             subjectOptions={taxonomyOptions.subjectOptions}
             submatterOptions={taxonomyOptions.submatterOptions}
+            multiPartiesEnabled={isMultiPartiesDossierEnabled()}
             initialError={params.error === "invalid" ? tx("newMatterErrorRequired") : undefined}
           />
         </CardContent>

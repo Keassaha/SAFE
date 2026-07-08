@@ -25,6 +25,8 @@ import { getTranslations } from "next-intl/server";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
 import { localizedLabel } from "@/lib/dossiers/taxonomy";
+import { isMultiPartiesDossierEnabled } from "@/lib/flags";
+import type { PartieDraft } from "@/lib/dossiers/parties";
 
 function clientDisplayName(dossier: {
   client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
@@ -34,6 +36,16 @@ function clientDisplayName(dossier: {
     return [c.nom, c.prenom].filter(Boolean).join(", ");
   }
   return c.raisonSociale ?? "";
+}
+
+function partyClientLabel(
+  c: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string } | null,
+): string {
+  if (!c) return "";
+  if (c.typeClient === "personne_physique") {
+    return [c.prenom, c.nom].filter(Boolean).join(" ").trim() || c.raisonSociale || "";
+  }
+  return c.raisonSociale || [c.prenom, c.nom].filter(Boolean).join(" ").trim();
 }
 
 export default async function DossierDetailPage({
@@ -61,6 +73,32 @@ export default async function DossierDetailPage({
     },
   });
   if (!dossier) notFound();
+
+  // Personnes du dossier (co-clients + parties externes), au-delà du principal.
+  const multiPartiesEnabled = isMultiPartiesDossierEnabled();
+  const dossierParties = multiPartiesEnabled
+    ? await prisma.dossierPartie.findMany({
+        where: { dossierId: id, cabinetId },
+        orderBy: [{ estPrincipal: "desc" }, { createdAt: "asc" }],
+        include: {
+          client: {
+            select: { id: true, typeClient: true, raisonSociale: true, prenom: true, nom: true },
+          },
+        },
+      })
+    : [];
+  // Parties à réinjecter dans le formulaire d'édition (hors principal).
+  const initialParties: PartieDraft[] = dossierParties
+    .filter((p) => !p.estPrincipal)
+    .map((p) =>
+      p.nature === "co_client" && p.clientId
+        ? { nature: "co_client" as const, clientId: p.clientId }
+        : {
+            nature: "partie_externe" as const,
+            nomAffiche: p.nomAffiche ?? "",
+            role: (p.role === "tiers" ? "tiers" : "partie_adverse") as "partie_adverse" | "tiers",
+          },
+    );
 
   // Sections cartable — génération auto si dossier existant sans sections
   let sections = await getDossierSections(id, cabinetId);
@@ -157,6 +195,8 @@ export default async function DossierDetailPage({
               cabinetBillingMode={cabinetBillingMode}
               subjectOptions={subjectOptions}
               submatterOptions={submatterOptions}
+              multiPartiesEnabled={multiPartiesEnabled}
+              initialParties={initialParties}
               error={
                 error === "invalid"
                   ? tc("invalidData")
@@ -268,6 +308,52 @@ export default async function DossierDetailPage({
           </div>
         </div>
       </header>
+
+      {/* Personnes du dossier — co-clients + parties (adverse/tiers). N'apparaît
+          que si le dossier réunit plus d'une personne. Doctrine :
+          docs/product/SPEC_MULTI_CLIENTS_PARTIES_DOSSIER.md */}
+      {multiPartiesEnabled && dossierParties.some((p) => !p.estPrincipal) && (
+        <section className="px-6 pt-5 bg-si-surface">
+          <div className="rounded-2xl border border-si-line bg-si-surface p-4">
+            <h2 className="mb-3 text-sm font-semibold text-si-ink">{t("dossierPeople")}</h2>
+            <ul className="space-y-2">
+              {dossierParties.map((p) => {
+                const isExterne = p.nature === "partie_externe";
+                const label = isExterne ? p.nomAffiche ?? "—" : partyClientLabel(p.client);
+                const badge = p.estPrincipal
+                  ? t("principalClientBadge")
+                  : p.nature === "co_client"
+                    ? t("coClientBadge")
+                    : p.role === "tiers"
+                      ? t("roleThird")
+                      : t("roleAdverse");
+                return (
+                  <li key={p.id} className="flex items-center justify-between gap-3">
+                    <span className="min-w-0 truncate text-sm text-si-ink">
+                      {!isExterne && p.clientId ? (
+                        <Link href={routes.client(p.clientId)} className="hover:underline">
+                          {label}
+                        </Link>
+                      ) : (
+                        label
+                      )}
+                    </span>
+                    <span
+                      className={`shrink-0 rounded-lg border px-2 py-0.5 text-xs font-medium ${
+                        isExterne
+                          ? "border-si-line bg-si-canvas text-si-muted"
+                          : "border-emerald-200/70 bg-emerald-50 text-emerald-700"
+                      }`}
+                    >
+                      {badge}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* T1 — Bloc « Où j'en étais ? » (context-resume, différenciateur + TDAH). */}
       {resume && (

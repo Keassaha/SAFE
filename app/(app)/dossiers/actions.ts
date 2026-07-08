@@ -20,7 +20,10 @@ import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-taxonomy";
 import { getSubjectByCode, subjectCodeToDossierType } from "@/lib/dossiers/taxonomy";
 import { buildNumeroDossier, maxSequenceAnyPrefix } from "@/lib/dossiers/numero";
-import type { DossierStatut, DossierType, ModeFacturationDossier } from "@prisma/client";
+import { parsePartiesDrafts } from "@/lib/dossiers/parties";
+import { syncDossierParties, reconcilePrincipalParty } from "@/lib/dossiers/parties-sync";
+import type { DossierStatut, DossierType, ModeFacturationDossier, UserRole } from "@prisma/client";
+import { canManageDossiers } from "@/lib/auth/permissions";
 
 export async function createDossier(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
@@ -171,6 +174,15 @@ export async function createDossier(formData: FormData) {
   }
   await generateCartable(dossier.id, cabinetId, dossier.type, dossier.sousType);
 
+  // Personnes du dossier : crée le mandant principal + co-clients + parties externes.
+  // Toujours exécuté (même flag off), pour garantir l'invariant « 1 principal par dossier ».
+  await syncDossierParties({
+    cabinetId,
+    dossierId: dossier.id,
+    principalClientId: parsed.data.clientId,
+    drafts: parsePartiesDrafts(formData.get("partiesJson") as string | null),
+  });
+
   await createAuditLog({
     cabinetId,
     userId,
@@ -312,6 +324,20 @@ export async function updateDossier(id: string, formData: FormData) {
       } : {}),
     },
   });
+  // Personnes du dossier. Si le formulaire embarque l'éditeur (champ partiesJson
+  // présent), on synchronise l'ensemble ; sinon on se contente d'aligner le
+  // principal sur clientId, sans jamais effacer des parties existantes.
+  if (formData.has("partiesJson")) {
+    await syncDossierParties({
+      cabinetId,
+      dossierId: id,
+      principalClientId: parsed.data.clientId,
+      drafts: parsePartiesDrafts(formData.get("partiesJson") as string | null),
+    });
+  } else {
+    await reconcilePrincipalParty({ cabinetId, dossierId: id, principalClientId: parsed.data.clientId });
+  }
+
   await createAuditLog({
     cabinetId,
     userId,
@@ -360,6 +386,97 @@ export async function archiveDossier(id: string) {
   revalidatePath("/dossiers");
   revalidatePath(`/dossiers/${id}`);
   redirect("/dossiers");
+}
+
+/**
+ * Actions en lot sur une sélection de dossiers (Lot A — gestion de portefeuille).
+ *
+ * Garde-fous :
+ * - `canManageDossiers` requis (admin_cabinet + assistante ; tous deux vue cabinet).
+ * - `updateMany` toujours borné à `cabinetId` (isolation tenant ; un id étranger
+ *   est ignoré, jamais d'erreur qui fuite l'existence).
+ * - `cloture` INTERDIT ici : la fermeture passe par `closeDossier` et ses
+ *   bloqueurs de conformité (solde fiducie négatif, factures impayées). L'archivage
+ *   reste une action douce distincte.
+ * - Plafond de 200 dossiers par lot.
+ * - Un audit log par dossier touché (traçabilité Barreau).
+ */
+export async function bulkUpdateDossiers(input: {
+  ids: string[];
+  action: "setStatut" | "assignLawyer" | "archive";
+  statut?: "ouvert" | "actif" | "en_attente";
+  avocatResponsableId?: string;
+}): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { ok: false, error: "forbidden" };
+  }
+
+  const ids = Array.from(new Set((input.ids ?? []).filter((v) => typeof v === "string" && v.trim())));
+  if (ids.length === 0) {
+    return { ok: false, error: "empty" };
+  }
+  if (ids.length > 200) {
+    return { ok: false, error: "too_many" };
+  }
+
+  let data: { statut: DossierStatut } | { avocatResponsableId: string };
+  let auditMeta: Record<string, unknown>;
+
+  if (input.action === "setStatut") {
+    const allowed: DossierStatut[] = ["ouvert", "actif", "en_attente"];
+    if (!input.statut || !allowed.includes(input.statut)) {
+      return { ok: false, error: "invalid_statut" };
+    }
+    data = { statut: input.statut };
+    auditMeta = { bulk: true, action: "setStatut", statut: input.statut };
+  } else if (input.action === "assignLawyer") {
+    const lawyerId = input.avocatResponsableId?.trim();
+    if (!lawyerId) {
+      return { ok: false, error: "invalid_lawyer" };
+    }
+    // L'avocat doit appartenir au cabinet et pouvoir être responsable.
+    const lawyer = await prisma.user.findFirst({
+      where: { id: lawyerId, cabinetId, role: { in: ["admin_cabinet", "avocat"] } },
+      select: { id: true },
+    });
+    if (!lawyer) {
+      return { ok: false, error: "invalid_lawyer" };
+    }
+    data = { avocatResponsableId: lawyerId };
+    auditMeta = { bulk: true, action: "assignLawyer", avocatResponsableId: lawyerId };
+  } else if (input.action === "archive") {
+    data = { statut: "archive" as DossierStatut };
+    auditMeta = { bulk: true, action: "archive", statut: "archive" };
+  } else {
+    return { ok: false, error: "invalid_action" };
+  }
+
+  const result = await prisma.dossier.updateMany({
+    where: { id: { in: ids }, cabinetId },
+    data,
+  });
+
+  // Audit : on ne trace que les dossiers réellement présents dans le cabinet.
+  const touched = await prisma.dossier.findMany({
+    where: { id: { in: ids }, cabinetId },
+    select: { id: true },
+  });
+  await Promise.all(
+    touched.map((d) =>
+      createAuditLog({
+        cabinetId,
+        userId,
+        entityType: "Dossier",
+        entityId: d.id,
+        action: "update",
+        metadata: auditMeta,
+      }),
+    ),
+  );
+
+  revalidatePath("/dossiers");
+  return { ok: true, count: result.count };
 }
 
 /**

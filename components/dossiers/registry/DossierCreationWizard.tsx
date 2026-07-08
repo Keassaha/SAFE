@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { createDossier } from "@/app/(app)/dossiers/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DossierPartiesEditor } from "@/components/dossiers/DossierPartiesEditor";
 import { routes } from "@/lib/routes";
 import type { CabinetBillingMode } from "@/lib/services/cabinet-interface";
 import {
@@ -34,6 +35,8 @@ interface DossierCreationWizardProps {
   subjectOptions?: TaxonomyOption[];
   /** Sous-matières par code de Sujet (libellé localisé en value + label). */
   submatterOptions?: Record<string, TaxonomyOption[]>;
+  /** Feature « plusieurs personnes sur un dossier » (co-clients + parties). */
+  multiPartiesEnabled?: boolean;
 }
 
 export function DossierCreationWizard({
@@ -45,6 +48,7 @@ export function DossierCreationWizard({
   cabinetBillingMode = "horaire",
   subjectOptions,
   submatterOptions,
+  multiPartiesEnabled = false,
 }: DossierCreationWizardProps) {
   const hasTaxonomy = Boolean(subjectOptions && subjectOptions.length > 0);
   const isCabinetForfait = cabinetBillingMode === "forfait";
@@ -348,7 +352,17 @@ export function DossierCreationWizard({
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-si-muted">{t("principalClientHint")}</p>
             </div>
+
+            {multiPartiesEnabled && selectedClientId.trim() && (
+              <div className="pt-2 border-t border-si-line">
+                <DossierPartiesEditor
+                  clients={clients}
+                  principalClientId={selectedClientId}
+                />
+              </div>
+            )}
           </div>
         </div>
 

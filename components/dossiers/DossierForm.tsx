@@ -17,7 +17,9 @@ import { ImmigrationWorkflow } from "@/components/dossiers/ImmigrationWorkflow";
 import { BackgroundDeclarationForm } from "@/components/dossiers/BackgroundDeclarationForm";
 import { DocumentExpiryTracker } from "@/components/dossiers/DocumentExpiryTracker";
 import { ConflictCheckWidget } from "@/components/dossiers/ConflictCheckWidget";
+import { DossierPartiesEditor } from "@/components/dossiers/DossierPartiesEditor";
 import { BillingStageConfig } from "@/components/facturation/BillingStageConfig";
+import type { PartieDraft } from "@/lib/dossiers/parties";
 import type { Dossier, Client, User } from "@prisma/client";
 import type { CabinetBillingMode } from "@/lib/services/cabinet-interface";
 
@@ -32,6 +34,8 @@ export function DossierForm({
   cabinetBillingMode = "horaire",
   subjectOptions,
   submatterOptions,
+  multiPartiesEnabled = false,
+  initialParties = [],
 }: {
   dossier?: Dossier & { client?: Pick<Client, "prenom" | "nom" | "raisonSociale"> };
   clients: Client[];
@@ -43,6 +47,8 @@ export function DossierForm({
   cabinetBillingMode?: CabinetBillingMode;
   subjectOptions?: { value: string; label: string }[];
   submatterOptions?: Record<string, { value: string; label: string }[]>;
+  multiPartiesEnabled?: boolean;
+  initialParties?: PartieDraft[];
 }) {
   const isCabinetForfait = cabinetBillingMode === "forfait";
   const t = useTranslations("matters");
@@ -57,6 +63,9 @@ export function DossierForm({
     (dossier as { sousType?: string | null })?.sousType ?? "",
   );
   const availableSubmatters = submatterOptions?.[selectedSubject] ?? [];
+  const [principalClientId, setPrincipalClientId] = useState(
+    dossier?.clientId ?? initialClientId ?? "",
+  );
   const createAction = async (formData: FormData) => {
     await createDossier(formData);
   };
@@ -74,7 +83,8 @@ export function DossierForm({
         <select
           name="clientId"
           required
-          defaultValue={dossier?.clientId ?? initialClientId ?? ""}
+          value={principalClientId}
+          onChange={(e) => setPrincipalClientId(e.target.value)}
           className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="">{t("selectClient")}</option>
@@ -85,6 +95,15 @@ export function DossierForm({
           ))}
         </select>
       </div>
+      {multiPartiesEnabled && principalClientId.trim() && (
+        <div className="pt-2 border-t border-si-line">
+          <DossierPartiesEditor
+            clients={clients}
+            principalClientId={principalClientId}
+            initialParties={initialParties}
+          />
+        </div>
+      )}
       {avocats && avocats.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-si-muted mb-1">

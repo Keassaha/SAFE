@@ -32,6 +32,7 @@ import { useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import { GlobalTimer } from "@/components/temps/GlobalTimer";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface HeaderProps {
@@ -365,15 +366,9 @@ export function Header({
           className="flex items-center gap-2.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
           aria-label={tMisc("logoHomeAria")}
         >
-          <span
-            aria-hidden
-            className="flex items-center justify-center rounded-[7px] bg-si-forest text-si-surface font-serif leading-none"
-            style={{ width: 28, height: 28, fontSize: 17 }}
-          >
-            S
-          </span>
-          <span className="hidden sm:block font-serif text-[17px] tracking-[-0.02em] text-si-ink">
-            Safe
+          <SafeLogo markOnly variant="dark" noPulse size={20} />
+          <span className="hidden sm:block font-serif text-[17px] tracking-[0.04em] text-si-ink">
+            SAFE
           </span>
         </Link>
 
