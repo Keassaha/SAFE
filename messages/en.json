@@ -1075,6 +1075,8 @@
     "confidentialNotes": "Confidential notes (restricted access)",
     "createClient": "Create client",
     "creatingClient": "Creating…",
+    "thenCreateAffaire": "Create a matter for this client right away",
+    "thenCreateAffaireHint": "You can add co-clients and other parties there (several people on one matter).",
     "clientCreatedSuccess": "Client created successfully.",
     "clientArchivedSuccess": "Client(s) archived successfully.",
     "keyDocuments": "Key documents",

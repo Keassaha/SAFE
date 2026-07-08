@@ -209,6 +209,13 @@ export async function createClient(formData: FormData) {
     metadata: { raisonSociale: client.raisonSociale },
   });
   revalidatePath("/clients");
+  // Enchaînement optionnel : « créer une affaire pour ce client tout de suite ».
+  // On part vers l'assistant de dossier avec le client pré-rempli comme principal ;
+  // c'est là que s'ajoutent co-clients et parties (plusieurs personnes par affaire).
+  const thenCreateDossier = formData.get("thenCreateDossier");
+  if (thenCreateDossier === "on" || thenCreateDossier === "true") {
+    redirect(`/dossiers/nouveau?clientId=${client.id}`);
+  }
   redirect("/clients?success=created");
 }
 

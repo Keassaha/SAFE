@@ -1075,6 +1075,8 @@
     "confidentialNotes": "Notes confidentielles (accès restreint)",
     "createClient": "Créer le client",
     "creatingClient": "Création…",
+    "thenCreateAffaire": "Créer une affaire pour ce client tout de suite",
+    "thenCreateAffaireHint": "Vous pourrez y ajouter les co-clients et les autres parties (plusieurs personnes pour une même affaire).",
     "clientCreatedSuccess": "Client créé avec succès.",
     "clientArchivedSuccess": "Client(s) archivé(s) avec succès.",
     "keyDocuments": "Documents clés",

@@ -535,6 +535,15 @@ export function ClientCreationWizard({
               result={conflictResult}
               compact
             />
+            <label className="flex items-start gap-2 rounded-xl border border-si-line bg-si-surface px-3 py-2 cursor-pointer">
+              <input type="checkbox" name="thenCreateDossier" className="mt-0.5" />
+              <span className="text-sm text-si-ink">
+                {t("thenCreateAffaire")}
+                <span className="block text-xs text-si-muted">
+                  {t("thenCreateAffaireHint")}
+                </span>
+              </span>
+            </label>
           </div>
         </div>
       </div>
