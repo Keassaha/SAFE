@@ -35,7 +35,60 @@ import type { UserRole } from "@prisma/client";
  *   - Échec d'envoi → InvoiceSendLog.status = "failed" + facture NON marquée
  *     comme envoyée. L'utilisateur peut relancer.
  */
-/** GET — liste les RichDocuments du dossier de la facture, joignables à l'envoi. */
+/** Nom d'affichage du client à partir des champs bruts. */
+function clientDisplayName(client: {
+  raisonSociale: string | null;
+  prenom: string | null;
+  nom: string | null;
+} | null): string {
+  if (!client) return "Madame, Monsieur";
+  if (client.raisonSociale?.trim()) return client.raisonSociale.trim();
+  const full = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  return full || "Madame, Monsieur";
+}
+
+/** Message d'accompagnement par défaut (texte brut, éditable par l'utilisateur). */
+function defaultMessage(opts: {
+  clientName: string;
+  invoiceNumber: string;
+  dueDate?: string;
+  cabinetName: string;
+}): string {
+  const lines = [
+    `Bonjour ${opts.clientName},`,
+    "",
+    `Veuillez trouver en pièce jointe notre facture n° ${opts.invoiceNumber}.`,
+  ];
+  if (opts.dueDate) lines.push(`Échéance : ${opts.dueDate}.`);
+  lines.push(
+    "",
+    "N'hésitez pas à communiquer avec nous pour toute question.",
+    "",
+    "Cordialement,",
+    opts.cabinetName,
+  );
+  return lines.join("\n");
+}
+
+/** Instructions de paiement par défaut (préqualifiées, à ajuster). */
+function defaultPaymentInstructions(opts: {
+  invoiceNumber: string;
+  cabinetName: string;
+  cabinetEmail?: string | null;
+}): string {
+  const interac = opts.cabinetEmail?.trim()
+    ? `• Virement Interac à : ${opts.cabinetEmail.trim()}`
+    : "• Virement Interac à : [votre courriel]";
+  return [
+    "Modes de paiement acceptés :",
+    interac,
+    `• Chèque à l'ordre de ${opts.cabinetName}`,
+    "",
+    `Merci d'indiquer le numéro de facture ${opts.invoiceNumber} en référence pour un traitement rapide et sans erreur.`,
+  ].join("\n");
+}
+
+/** GET — RichDocuments joignables + valeurs par défaut du message d'envoi. */
 export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> }
@@ -52,7 +105,13 @@ export async function GET(
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, cabinetId },
-    select: { dossierId: true },
+    select: {
+      dossierId: true,
+      numero: true,
+      dateEcheance: true,
+      client: { select: { raisonSociale: true, prenom: true, nom: true } },
+      cabinet: { select: { nom: true, email: true } },
+    },
   });
   if (!invoice) return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
 
@@ -65,7 +124,24 @@ export async function GET(
       })
     : [];
 
-  return NextResponse.json({ documents });
+  const clientName = clientDisplayName(invoice.client);
+  const cabinetName = invoice.cabinet?.nom ?? "Cabinet";
+  const invoiceNumber = invoice.numero ?? "";
+  const dueDate = invoice.dateEcheance
+    ? new Date(invoice.dateEcheance).toLocaleDateString("fr-CA")
+    : undefined;
+
+  const defaults = {
+    subject: `Facture ${invoiceNumber} — ${cabinetName}`,
+    message: defaultMessage({ clientName, invoiceNumber, dueDate, cabinetName }),
+    paymentInstructions: defaultPaymentInstructions({
+      invoiceNumber,
+      cabinetName,
+      cabinetEmail: invoice.cabinet?.email,
+    }),
+  };
+
+  return NextResponse.json({ documents, defaults });
 }
 
 export async function POST(
@@ -80,10 +156,23 @@ export async function POST(
   // Pièces additionnelles optionnelles : RichDocuments du dossier à joindre
   // (ex. lettre explicative). Best-effort : un body absent/invalide = aucune pièce.
   let attachRichDocumentIds: string[] = [];
+  let customSubject: string | undefined;
+  let customMessage: string | undefined;
+  let paymentInstructions: string | undefined;
   try {
-    const body = (await request.json()) as { attachRichDocumentIds?: unknown };
+    const body = (await request.json()) as {
+      attachRichDocumentIds?: unknown;
+      subject?: unknown;
+      message?: unknown;
+      paymentInstructions?: unknown;
+    };
     if (Array.isArray(body?.attachRichDocumentIds)) {
       attachRichDocumentIds = body.attachRichDocumentIds.filter((x): x is string => typeof x === "string");
+    }
+    if (typeof body?.subject === "string" && body.subject.trim()) customSubject = body.subject.trim();
+    if (typeof body?.message === "string" && body.message.trim()) customMessage = body.message;
+    if (typeof body?.paymentInstructions === "string" && body.paymentInstructions.trim()) {
+      paymentInstructions = body.paymentInstructions;
     }
   } catch {
     attachRichDocumentIds = [];
@@ -175,14 +264,18 @@ export async function POST(
   const hasAttachment = pdfBuffer != null && pdfBuffer.length > 0;
 
   // 3. Construire la lettre d'accompagnement honnête (le texte reflète la réalité).
-  const { subject, html } = invoiceAccompanyingEmailHtml({
+  const built = invoiceAccompanyingEmailHtml({
     clientName,
     invoiceNumber: presented.numero,
     cabinetName,
     dueDate,
     shareUrl: hasAttachment ? undefined : shareUrl,
     hasAttachment,
+    customMessage,
+    paymentInstructions,
   });
+  const subject = customSubject ?? built.subject;
+  const html = built.html;
 
   const attachmentList: { filename: string; content: Buffer }[] = hasAttachment
     ? [{ filename: invoicePdfFilename(presented), content: pdfBuffer as Buffer }]

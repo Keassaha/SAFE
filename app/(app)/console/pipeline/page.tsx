@@ -92,7 +92,7 @@ export default async function ConsolePipelinePage() {
       />
 
       {workspace.workMode === "PRECHAUFFAGE" && (
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-si-muted">
           Phase préchauffage : l'objectif est de remplir les deux premières colonnes (À engager, En conversation), pas de pousser vers la signature.
         </p>
       )}

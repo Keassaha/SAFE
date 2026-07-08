@@ -8,6 +8,7 @@ import { Eye, Pencil, Clock, Archive, MoreVertical, ArrowUpDown, ArrowUp, ArrowD
 import { routes } from "@/lib/routes";
 import { archiveDossier } from "@/app/(app)/dossiers/actions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { DossierBulkActionBar } from "@/components/dossiers/registry/DossierBulkActionBar";
 import type { DossierSortField, DossierSortOrder } from "@/lib/dossiers/query";
 
 export type DossierRow = {
@@ -28,6 +29,10 @@ interface DossiersTableProps {
   dossiers: DossierRow[];
   sortBy?: DossierSortField;
   sortOrder?: DossierSortOrder;
+  /** Liste des avocats du cabinet (pour l'assignation en lot). */
+  avocats?: { id: string; nom: string }[];
+  /** Autorise les actions en lot (admin_cabinet / assistante). */
+  canManage?: boolean;
 }
 
 function SortHeader({
@@ -164,10 +169,38 @@ export function DossiersTable({
   dossiers,
   sortBy = "dateOuverture",
   sortOrder = "desc",
+  avocats = [],
+  canManage = false,
 }: DossiersTableProps) {
   const t = useTranslations("matters");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const pageIds = dossiers.map((d) => d.id);
+  const allSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+
+  function toggleOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelectedIds((prev) => {
+      if (pageIds.every((id) => prev.has(id))) {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.delete(id));
+        return next;
+      }
+      return new Set([...prev, ...pageIds]);
+    });
+  }
+
+  const selectable = canManage;
 
   const STATUT_LABELS: Record<string, string> = {
     ouvert: t("statusOpen"),
@@ -202,11 +235,31 @@ export function DossiersTable({
     );
   }
 
+  const selectedIdList = pageIds.filter((id) => selectedIds.has(id));
+
   return (
     <div className="overflow-x-auto">
+      {selectable && selectedIdList.length > 0 && (
+        <DossierBulkActionBar
+          selectedIds={selectedIdList}
+          avocats={avocats}
+          onClear={() => setSelectedIds(new Set())}
+        />
+      )}
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-si-line bg-si-canvas/60">
+            {selectable && (
+              <th className="w-10 py-3 pl-4 pr-0">
+                <input
+                  type="checkbox"
+                  aria-label={t("bulkSelectAll")}
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  className="h-4 w-4 rounded border-si-line text-si-forest focus:ring-si-forest/30"
+                />
+              </th>
+            )}
             <th className="text-left py-3 px-4">
               <SortHeader
                 label={t("matterNumberHeader")}
@@ -261,8 +314,21 @@ export function DossiersTable({
           {dossiers.map((row) => (
             <tr
               key={row.id}
-              className="border-b border-si-line hover:bg-si-canvas transition-colors duration-200"
+              className={`border-b border-si-line transition-colors duration-200 ${
+                selectedIds.has(row.id) ? "bg-si-forest/5" : "hover:bg-si-canvas"
+              }`}
             >
+              {selectable && (
+                <td className="w-10 py-3 pl-4 pr-0">
+                  <input
+                    type="checkbox"
+                    aria-label={t("bulkSelectRow")}
+                    checked={selectedIds.has(row.id)}
+                    onChange={() => toggleOne(row.id)}
+                    className="h-4 w-4 rounded border-si-line text-si-forest focus:ring-si-forest/30"
+                  />
+                </td>
+              )}
               <td className="py-3 px-4">
                 <Link
                   href={routes.dossier(row.id)}

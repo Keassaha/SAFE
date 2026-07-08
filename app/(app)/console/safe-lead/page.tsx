@@ -47,9 +47,9 @@ function formatDate(date: Date | null) {
 }
 
 function scoreTone(score: number) {
-  if (score >= 75) return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  if (score >= 60) return "border-orange-200 bg-orange-50 text-orange-800";
-  return "border-zinc-200 bg-zinc-50 text-zinc-700";
+  if (score >= 75) return "border-si-verified/30 bg-si-verified/10 text-si-verified";
+  if (score >= 60) return "border-si-amber/30 bg-si-amber/[0.13] text-si-amber-ink";
+  return "border-si-line bg-si-canvas text-si-ink";
 }
 
 function KpiCard({
@@ -62,11 +62,11 @@ function KpiCard({
   helper: string;
 }) {
   return (
-    <Card className="border border-zinc-200/70 bg-white shadow-sm">
+    <Card className="border border-si-line bg-si-surface shadow-sm">
       <CardContent className="px-5 py-4">
-        <p className="text-3xl font-semibold tracking-tight text-zinc-950">{value}</p>
-        <p className="mt-2 text-sm font-medium text-zinc-900">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-zinc-500">{helper}</p>
+        <p className="text-3xl font-semibold tracking-tight text-si-ink">{value}</p>
+        <p className="mt-2 text-sm font-medium text-si-ink">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-si-muted">{helper}</p>
       </CardContent>
     </Card>
   );
@@ -83,12 +83,12 @@ function SectionTitle({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-si-verified/20 bg-si-verified/10 text-si-verified">
         <Icon className="h-4 w-4" strokeWidth={1.8} />
       </span>
       <div>
-        <h2 className="text-base font-semibold tracking-tight text-zinc-950">{title}</h2>
-        <p className="mt-0.5 text-sm leading-5 text-zinc-500">{subtitle}</p>
+        <h2 className="text-base font-semibold tracking-tight text-si-ink">{title}</h2>
+        <p className="mt-0.5 text-sm leading-5 text-si-muted">{subtitle}</p>
       </div>
     </div>
   );
@@ -181,7 +181,7 @@ export default async function SafeLeadPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
+            className="inline-flex items-center gap-2 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface transition hover:bg-si-forest-soft"
           >
             <Plus className="h-4 w-4" />
             Nouveau lead
@@ -197,7 +197,7 @@ export default async function SafeLeadPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.45fr_0.9fr]">
-        <Card className="border border-zinc-200/70 bg-white shadow-sm">
+        <Card className="border border-si-line bg-si-surface shadow-sm">
           <CardContent className="space-y-5">
             <SectionTitle
               icon={Flame}
@@ -205,40 +205,40 @@ export default async function SafeLeadPage() {
               subtitle="Les cabinets à qualifier ou relancer en priorité."
             />
 
-            <div className="divide-y divide-zinc-100">
+            <div className="divide-y divide-si-line">
               {priorityLeads.length === 0 ? (
-                <p className="py-8 text-sm text-zinc-500">Aucun lead actif pour l'instant.</p>
+                <p className="py-8 text-sm text-si-muted">Aucun lead actif pour l'instant.</p>
               ) : (
                 priorityLeads.map((lead) => (
                   <Link
                     key={lead.id}
                     href={`/console/leads/${lead.id}`}
-                    className="group grid gap-3 py-4 transition hover:bg-zinc-50/60 sm:grid-cols-[1fr_auto] sm:px-2"
+                    className="group grid gap-3 py-4 transition hover:bg-si-canvas/60 sm:grid-cols-[1fr_auto] sm:px-2"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-medium text-zinc-950 group-hover:text-emerald-700">
+                        <h3 className="font-medium text-si-ink group-hover:text-si-verified">
                           {lead.raisonSociale}
                         </h3>
                         <span className={`rounded border px-2 py-0.5 text-xs font-semibold tabular-nums ${scoreTone(lead.score)}`}>
                           {lead.score}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-si-muted">
                         {lead.ville ? `${lead.ville}, ` : ""}
                         {lead.province} · {SOURCE_LABELS[lead.sourceLead] ?? lead.sourceLead} · {STAGE_LABELS[lead.stageLead] ?? lead.stageLead}
                       </p>
-                      <div className="mt-3 grid gap-2 text-xs text-zinc-600 sm:grid-cols-3">
+                      <div className="mt-3 grid gap-2 text-xs text-si-muted sm:grid-cols-3">
                         <span>Firmo {lead.scoreFirmographique}/40</span>
                         <span>Engagement {lead.scoreEngagement}/40</span>
                         <span>Enrichi {lead.scoreEnrichissement}/20</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between gap-4 text-xs text-zinc-500 sm:justify-end">
+                    <div className="flex items-center justify-between gap-4 text-xs text-si-muted sm:justify-end">
                       <span>{lead._count.contacts} contact{lead._count.contacts > 1 ? "s" : ""}</span>
                       <span>{lead._count.activities} activité{lead._count.activities > 1 ? "s" : ""}</span>
                       <span>{formatDate(lead.dateDerniereActivite)}</span>
-                      <ArrowRight className="h-4 w-4 text-zinc-400 transition group-hover:text-emerald-700" />
+                      <ArrowRight className="h-4 w-4 text-si-muted transition group-hover:text-si-verified" />
                     </div>
                   </Link>
                 ))
@@ -248,7 +248,7 @@ export default async function SafeLeadPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="border border-zinc-200/70 bg-white shadow-sm">
+          <Card className="border border-si-line bg-si-surface shadow-sm">
             <CardContent className="space-y-5">
               <SectionTitle
                 icon={Radar}
@@ -257,11 +257,11 @@ export default async function SafeLeadPage() {
               />
               <div className="space-y-3">
                 {sourceBreakdown.map((source) => (
-                  <div key={source.sourceLead} className="flex items-center justify-between rounded-md border border-zinc-100 bg-zinc-50 px-3 py-2.5">
-                    <span className="text-sm font-medium text-zinc-800">
+                  <div key={source.sourceLead} className="flex items-center justify-between rounded-md border border-si-line bg-si-canvas px-3 py-2.5">
+                    <span className="text-sm font-medium text-si-ink">
                       {SOURCE_LABELS[source.sourceLead] ?? source.sourceLead}
                     </span>
-                    <span className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-zinc-700 shadow-sm">
+                    <span className="rounded bg-si-surface px-2 py-0.5 text-xs font-semibold text-si-ink shadow-sm">
                       {source._count._all}
                     </span>
                   </div>
@@ -270,7 +270,7 @@ export default async function SafeLeadPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-zinc-200/70 bg-white shadow-sm">
+          <Card className="border border-si-line bg-si-surface shadow-sm">
             <CardContent className="space-y-5">
               <SectionTitle
                 icon={Target}
@@ -278,17 +278,17 @@ export default async function SafeLeadPage() {
                 subtitle="Ce que SAFE Lead doit faire remonter."
               />
               <div className="grid gap-3">
-                <div className="rounded-md border border-orange-100 bg-orange-50 px-3 py-3">
-                  <p className="text-sm font-semibold text-orange-900">{staleHotLeads} relance{staleHotLeads > 1 ? "s" : ""} chaude{staleHotLeads > 1 ? "s" : ""}</p>
-                  <p className="mt-1 text-xs leading-5 text-orange-800">Score 60+ sans activité récente depuis 14 jours.</p>
+                <div className="rounded-md border border-si-amber/20 bg-si-amber/[0.13] px-3 py-3">
+                  <p className="text-sm font-semibold text-si-amber-ink">{staleHotLeads} relance{staleHotLeads > 1 ? "s" : ""} chaude{staleHotLeads > 1 ? "s" : ""}</p>
+                  <p className="mt-1 text-xs leading-5 text-si-amber-ink">Score 60+ sans activité récente depuis 14 jours.</p>
                 </div>
-                <div className="rounded-md border border-emerald-100 bg-emerald-50 px-3 py-3">
-                  <p className="text-sm font-semibold text-emerald-900">{activitiesThisWeek} activité{activitiesThisWeek > 1 ? "s" : ""} cette semaine</p>
-                  <p className="mt-1 text-xs leading-5 text-emerald-800">Interactions CRM reliées aux leads SAFE Inc.</p>
+                <div className="rounded-md border border-si-verified/20 bg-si-verified/10 px-3 py-3">
+                  <p className="text-sm font-semibold text-si-verified">{activitiesThisWeek} activité{activitiesThisWeek > 1 ? "s" : ""} cette semaine</p>
+                  <p className="mt-1 text-xs leading-5 text-si-verified">Interactions CRM reliées aux leads SAFE Inc.</p>
                 </div>
-                <div className="rounded-md border border-blue-100 bg-blue-50 px-3 py-3">
-                  <p className="text-sm font-semibold text-blue-900">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
-                  <p className="mt-1 text-xs leading-5 text-blue-800">Actifs qui peuvent déclencher une qualification.</p>
+                <div className="rounded-md border border-si-forest/15 bg-si-forest/[0.06] px-3 py-3">
+                  <p className="text-sm font-semibold text-si-forest">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
+                  <p className="mt-1 text-xs leading-5 text-si-forest">Actifs qui peuvent déclencher une qualification.</p>
                 </div>
               </div>
             </CardContent>
@@ -296,7 +296,7 @@ export default async function SafeLeadPage() {
         </div>
       </div>
 
-      <Card className="border border-zinc-200/70 bg-white shadow-sm">
+      <Card className="border border-si-line bg-si-surface shadow-sm">
         <CardContent className="space-y-5">
           <SectionTitle
             icon={Sparkles}
@@ -309,9 +309,9 @@ export default async function SafeLeadPage() {
               ["Signal d'intention", "Audit demandé, ressource consommée, réponse à un DM, commentaire qualifié ou référence directe."],
               ["Prochaine action", "Chaque lead chaud doit avoir une relance, une invitation audit ou une consultation à planifier."],
             ].map(([title, text]) => (
-              <div key={title} className="rounded-md border border-zinc-200 bg-zinc-50 px-4 py-4">
-                <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600">{text}</p>
+              <div key={title} className="rounded-md border border-si-line bg-si-canvas px-4 py-4">
+                <h3 className="text-sm font-semibold text-si-ink">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-si-muted">{text}</p>
               </div>
             ))}
           </div>

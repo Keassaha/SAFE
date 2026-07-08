@@ -19,8 +19,9 @@ import { DossiersTable } from "@/components/dossiers/registry/DossiersTable";
 import { DossierPagination } from "@/components/dossiers/registry/DossierPagination";
 import { DossierCreateModal } from "@/components/dossiers/registry/DossierCreateModal";
 import type { UserRole } from "@prisma/client";
-import { canManageDossiers, canViewDossiers } from "@/lib/auth/permissions";
+import { canManageDossiers, canViewDossiers, canViewBillingTrust } from "@/lib/auth/permissions";
 import { getCabinetDossierTaxonomyOptions } from "@/lib/dossiers/cabinet-dossier-taxonomy";
+import { isMultiPartiesDossierEnabled } from "@/lib/flags";
 import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -48,6 +49,10 @@ export default async function DossiersPage({
     page?: string;
     sortBy?: string;
     sortOrder?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    overdue?: string;
+    trust?: string;
   }>;
 }) {
   const t = await getTranslations("matters");
@@ -66,20 +71,27 @@ export default async function DossiersPage({
     ? (params.sortOrder as DossierSortOrder)
     : "desc";
 
+  const today = new Date();
+  const canViewTrust = canViewBillingTrust(role as UserRole);
+
   const baseFilters = {
     q: params.q ?? null,
     clientId: params.clientId ?? null,
     status: params.status ?? null,
     type: params.type ?? null,
     restrictToUserId: role === "avocat" ? userId : null,
+    dateFrom: params.dateFrom ?? null,
+    dateTo: params.dateTo ?? null,
+    overdueTasks: params.overdue === "1",
+    now: today,
+    // Le filtre fiducie n'est appliqué que si le rôle a le droit de la voir.
+    trust: canViewTrust ? (params.trust ?? null) : null,
   };
   // Liste : vue active (masque clôturés/archivés sauf filtre de statut explicite).
   // Stats : comptent tous les statuts (la carte « clôturés » doit rester juste).
   const listWhere = buildDossierListWhere(cabinetId, { ...baseFilters, excludeClosedByDefault: true });
   const statsWhere = buildDossierListWhere(cabinetId, baseFilters);
   const orderBy = getDossierListOrderBy(sortBy, sortOrder);
-
-  const today = new Date();
 
   const [dossiers, totalCount, stats, clients, acteStats, avocats, assistants] = await Promise.all([
     prisma.dossier.findMany({
@@ -139,6 +151,7 @@ export default async function DossiersPage({
   });
 
   const canCreate = canManageDossiers(role as UserRole);
+  const multiPartiesEnabled = isMultiPartiesDossierEnabled();
 
   // Taxonomie configurée du cabinet → sujets/sous-matières + numérotation par
   // préfixe dans le modal de création (comme la page /dossiers/nouveau).
@@ -153,6 +166,10 @@ export default async function DossiersPage({
   if (params.clientId) exportParams.set("clientId", params.clientId);
   if (params.status) exportParams.set("status", params.status);
   if (params.type) exportParams.set("type", params.type);
+  if (params.dateFrom) exportParams.set("dateFrom", params.dateFrom);
+  if (params.dateTo) exportParams.set("dateTo", params.dateTo);
+  if (params.overdue === "1") exportParams.set("overdue", "1");
+  if (canViewTrust && params.trust) exportParams.set("trust", params.trust);
   const exportHref = `/api/dossiers/export?${exportParams.toString()}`;
 
   return (
@@ -177,6 +194,7 @@ export default async function DossiersPage({
                 cabinetBillingMode={cabinetBillingMode}
                 subjectOptions={taxonomyOptions.subjectOptions}
                 submatterOptions={taxonomyOptions.submatterOptions}
+                multiPartiesEnabled={multiPartiesEnabled}
               />
             )}
           </div>
@@ -196,7 +214,7 @@ export default async function DossiersPage({
           <CardTitle>{t("matterList")}</CardTitle>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <DossierSearchBar />
-            <DossierFilters clients={clients} />
+            <DossierFilters clients={clients} canViewTrust={canViewTrust} />
           </div>
         </div>
         {dossiers.length === 0 ? (
@@ -214,6 +232,7 @@ export default async function DossiersPage({
                   cabinetBillingMode={cabinetBillingMode}
                   subjectOptions={taxonomyOptions.subjectOptions}
                   submatterOptions={taxonomyOptions.submatterOptions}
+                  multiPartiesEnabled={multiPartiesEnabled}
                 />
               ) : undefined
             }
@@ -224,6 +243,8 @@ export default async function DossiersPage({
               dossiers={dossiers}
               sortBy={sortBy}
               sortOrder={sortOrder}
+              avocats={avocats}
+              canManage={canCreate}
             />
             <DossierPagination
               totalCount={totalCount}

@@ -24,6 +24,8 @@ interface DossierCreateModalProps {
   subjectOptions?: TaxonomyOption[];
   /** Sous-matières par code de Sujet. */
   submatterOptions?: Record<string, TaxonomyOption[]>;
+  /** Feature « plusieurs personnes sur un dossier » (co-clients + parties). */
+  multiPartiesEnabled?: boolean;
 }
 
 export function DossierCreateModal({
@@ -37,6 +39,7 @@ export function DossierCreateModal({
   cabinetBillingMode,
   subjectOptions,
   submatterOptions,
+  multiPartiesEnabled = false,
 }: DossierCreateModalProps) {
   const t = useTranslations("matters");
   const [open, setOpen] = useState(false);
@@ -66,6 +69,7 @@ export function DossierCreateModal({
             cabinetBillingMode={cabinetBillingMode}
             subjectOptions={subjectOptions}
             submatterOptions={submatterOptions}
+            multiPartiesEnabled={multiPartiesEnabled}
           />
         </div>
       </Modal>

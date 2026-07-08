@@ -32,6 +32,12 @@ export function SubscriptionManager({
 
   const planEntries = Object.entries(PLANS) as [PlanKey, (typeof PLANS)[PlanKey]][];
   const currentKey = (currentPlan in PLANS ? currentPlan : "essentiel") as PlanKey;
+  const recommendedKey: PlanKey = "professionnel";
+  const taglines: Record<PlanKey, string> = {
+    essentiel: t("subscriptionTaglineEssentiel"),
+    professionnel: t("subscriptionTaglineProfessionnel"),
+    cabinet: t("subscriptionTaglineCabinet"),
+  };
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
   const formattedRenewal = formatDate(periodEnd, intlLocale);
   const formattedTrialEnd = formatDate(trialEnd ?? null, intlLocale);
@@ -109,68 +115,57 @@ export function SubscriptionManager({
         </div>
       )}
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-3 gap-4 md:gap-5 md:items-start">
         {planEntries.map(([key, plan]) => {
           const isCurrent = currentKey === key;
+          const isRecommended = key === recommendedKey;
           const monthly = new Intl.NumberFormat(intlLocale, {
             style: "currency",
             currency: plan.currency.toUpperCase(),
             maximumFractionDigits: 0,
           }).format(plan.price / 100);
+          const features: string[] = [
+            plan.features.maxUsers === -1
+              ? t("subscriptionFeatureUnlimitedUsers")
+              : t("subscriptionFeatureUsers", { count: plan.features.maxUsers }),
+            t("subscriptionFeatureAllIncluded"),
+          ];
           return (
             <div
               key={key}
-              className={`rounded-safe-lg border p-5 ${
-                isCurrent
-                  ? "border-status-success/50 bg-status-success/5"
-                  : "border-neutral-border/60"
+              className={`relative flex flex-col rounded-safe-lg border p-5 transition-shadow ${
+                isRecommended
+                  ? "border-forest/60 bg-forest/[0.03] shadow-sm ring-1 ring-forest/20 md:-mt-2 md:pb-7"
+                  : "border-neutral-border/60 bg-white/40"
               }`}
             >
+              {isRecommended && (
+                <span className="absolute -top-2.5 left-5 rounded-full bg-forest px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
+                  {t("subscriptionRecommended")}
+                </span>
+              )}
               <div className="flex items-center justify-between gap-2">
                 <h3 className="font-semibold safe-text-title">{plan.name}</h3>
                 {isCurrent && (
-                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-status-success bg-status-success/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-status-success bg-status-success/10 px-2 py-0.5 rounded-full shrink-0">
                     {t("subscriptionCurrent")}
                   </span>
                 )}
               </div>
-              <p className="text-2xl font-bold safe-text-metric tabular-nums mt-2">
-                {monthly}
+              <p className="text-xs safe-text-secondary mt-0.5">{taglines[key]}</p>
+              <p className="mt-3 flex items-baseline gap-1">
+                <span className="text-3xl font-bold safe-text-metric tabular-nums">{monthly}</span>
                 <span className="text-sm font-normal safe-text-secondary">
                   /{tc("perMonthShort")}
                 </span>
               </p>
-              <ul className="mt-4 space-y-2 text-sm safe-text-secondary">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                  {plan.features.maxUsers === -1
-                    ? t("subscriptionFeatureUnlimitedUsers")
-                    : t("subscriptionFeatureUsers", { count: plan.features.maxUsers })}
-                </li>
-                {plan.features.trustAccounts && (
-                  <li className="flex items-center gap-2">
+              <ul className="mt-4 space-y-2 text-sm safe-text-secondary flex-1">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                    {t("subscriptionFeatureTrust")}
+                    {feature}
                   </li>
-                )}
-                {plan.features.virtualEmployees && (
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                    {t("subscriptionFeatureVirtualEmployees")}
-                  </li>
-                )}
-                {plan.features.advancedReports && (
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                    {t("subscriptionFeatureReports")}
-                  </li>
-                )}
-                {plan.features.api && (
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-status-success shrink-0" aria-hidden />
-                    {t("subscriptionFeatureApi")}
-                  </li>
-                )}
+                ))}
               </ul>
               <Button
                 type="button"
@@ -190,6 +185,10 @@ export function SubscriptionManager({
           );
         })}
       </div>
+
+      <p className="text-xs safe-text-secondary text-center">
+        {t("subscriptionBillingNote")}
+      </p>
     </div>
   );
 }

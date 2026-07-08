@@ -47,11 +47,14 @@ export function FacturePreviewActions({
   const isDraft = invoiceStatus === "DRAFT" || invoiceStatus == null;
   const canIssue = invoiceStatus === "DRAFT" || invoiceStatus === "READY_TO_ISSUE";
 
-  // Fenêtre d'envoi : permet de joindre d'autres documents du dossier (E4).
+  // Fenêtre d'envoi : message éditable + instructions de paiement + pièces jointes.
   const [showSend, setShowSend] = useState(false);
   const [docs, setDocs] = useState<AttachableDoc[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [paymentInstructions, setPaymentInstructions] = useState("");
 
   const openSendDialog = async () => {
     setShowSend(true);
@@ -61,6 +64,11 @@ export function FacturePreviewActions({
       const res = await fetch(`/api/facturation/factures/${invoiceId}/envoyer-email`);
       const data = await res.json().catch(() => ({ documents: [] }));
       setDocs(Array.isArray(data.documents) ? data.documents : []);
+      if (data.defaults) {
+        setSubject(data.defaults.subject ?? "");
+        setMessage(data.defaults.message ?? "");
+        setPaymentInstructions(data.defaults.paymentInstructions ?? "");
+      }
     } catch {
       setDocs([]);
     } finally {
@@ -71,7 +79,12 @@ export function FacturePreviewActions({
   const confirmSend = async () => {
     try {
       setPendingAction("envoyer-email");
-      await postInvoiceAction(invoiceId, "envoyer-email", { attachRichDocumentIds: [...selected] });
+      await postInvoiceAction(invoiceId, "envoyer-email", {
+        attachRichDocumentIds: [...selected],
+        subject,
+        message,
+        paymentInstructions,
+      });
       toast.success(t("toastInvoiceSent"));
       setShowSend(false);
       router.refresh();
@@ -156,16 +169,52 @@ export function FacturePreviewActions({
 
       {showSend ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowSend(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-si-surface shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-2xl bg-si-surface shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-si-line px-5 py-3">
               <h3 className="text-[15px] font-semibold text-si-ink">{t("sendInvoiceTitle")}</h3>
               <button type="button" onClick={() => setShowSend(false)} className="text-si-muted/50 hover:text-si-ink" aria-label="Fermer">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="px-5 py-4">
-              <p className="text-sm text-si-muted">{t("sendInvoiceBody")}</p>
+            <div className="overflow-y-auto px-5 py-4">
+              <p className="text-sm text-si-muted">Vous pouvez corriger l&apos;objet et le message avant l&apos;envoi. La facture PDF est jointe automatiquement.</p>
+
+              {/* Objet */}
+              <div className="mt-4">
+                <label className="mb-1 block text-[12px] font-medium text-si-muted">Objet</label>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                />
+              </div>
+
+              {/* Message */}
               <div className="mt-3">
+                <label className="mb-1 block text-[12px] font-medium text-si-muted">Message</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={7}
+                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                />
+              </div>
+
+              {/* Instructions de paiement */}
+              <div className="mt-3">
+                <label className="mb-1 block text-[12px] font-medium text-si-muted">Instructions de paiement</label>
+                <textarea
+                  value={paymentInstructions}
+                  onChange={(e) => setPaymentInstructions(e.target.value)}
+                  rows={5}
+                  placeholder="Modes de paiement, coordonnées, rappel du n° de facture…"
+                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink placeholder:text-si-muted/60 focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                />
+                <p className="mt-1 text-[11px] text-si-muted">Affichées dans un encadré distinct au bas du courriel.</p>
+              </div>
+
+              <div className="mt-4">
                 <div className="mb-1.5 flex items-center gap-1.5 text-[12px] font-medium text-si-muted">
                   <Paperclip className="h-3.5 w-3.5" />
                   {t("attachOtherDocs")}

@@ -9,10 +9,15 @@ import { Card, CardContent } from "@/components/ui/Card";
 // KPIs               : jours restants, cabinets actifs, pipeline chaud, momentum 7j.
 // Zone 3  Colonnes   : gauche « qui toucher aujourd'hui » · droite « flux recent ».
 // Tout reste server-side via Prisma et le workspace SAFE Inc.
+// Design : safe-interface (forêt/albâtre, tokens si-*). Aligné sur l'interface cabinet.
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 const HOUR_MS = 1000 * 60 * 60;
 const PHASE_DAYS = 90;
+
+// Danger : hex du design system (#B84A3E, pas de token si-danger). Cf. ComptaKpiCard.
+// Les classes sont écrites en LITTÉRAL (pas d'interpolation) pour que le scanner
+// Tailwind les génère.
 
 const STAGE_LABELS: Record<StageLead, string> = {
   AWARENESS: "Awareness",
@@ -89,39 +94,39 @@ function relativeTime(date: Date, now: Date) {
 
 function progressTone(percent: number) {
   if (percent >= 85) {
-    return { text: "text-red-700", bar: "bg-red-600", track: "bg-red-100", border: "border-red-200" };
+    return { text: "text-[#B84A3E]", bar: "bg-[#B84A3E]", track: "bg-[#B84A3E]/10", border: "border-[#B84A3E]/30" };
   }
   if (percent >= 60) {
-    return { text: "text-orange-700", bar: "bg-orange-500", track: "bg-orange-100", border: "border-orange-200" };
+    return { text: "text-si-amber-ink", bar: "bg-si-amber", track: "bg-si-amber/[0.13]", border: "border-si-amber/30" };
   }
-  return { text: "text-emerald-700", bar: "bg-emerald-600", track: "bg-emerald-100", border: "border-emerald-200" };
+  return { text: "text-si-verified", bar: "bg-si-verified", track: "bg-si-verified/10", border: "border-si-line" };
 }
 
 function scoreTone(score: number) {
-  if (score >= 75) return "bg-emerald-100 text-emerald-800 border-emerald-200";
-  if (score >= 60) return "bg-orange-100 text-orange-800 border-orange-200";
-  return "bg-zinc-100 text-zinc-700 border-zinc-200";
+  if (score >= 75) return "bg-si-verified/10 text-si-verified border-si-verified/30";
+  if (score >= 60) return "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30";
+  return "bg-si-canvas text-si-muted border-si-line";
 }
 
 function stageTone(stage: StageLead) {
   if (stage === "LIVE" || stage === "AMBASSADOR") {
-    return "bg-emerald-50 text-emerald-800 border-emerald-200";
+    return "bg-si-verified/10 text-si-verified border-si-verified/30";
   }
   if (["READY_TO_SIGN", "SIGNED", "ACTIVATION_IN_PROGRESS"].includes(stage)) {
-    return "bg-blue-50 text-blue-800 border-blue-200";
+    return "bg-si-forest/[0.06] text-si-forest border-si-forest/20";
   }
   if (["AUDIT_PROPOSED", "AUDIT_SCHEDULED", "AUDIT_COMPLETED", "CONSULTATION_PHASE2"].includes(stage)) {
-    return "bg-orange-50 text-orange-800 border-orange-200";
+    return "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30";
   }
-  return "bg-zinc-50 text-zinc-700 border-zinc-200";
+  return "bg-si-canvas text-si-muted border-si-line";
 }
 
 function activityTone(type: TypeActivity) {
-  if (["CONTRAT_SIGNE", "GO_LIVE", "AUDIT_SOUMIS"].includes(type)) return "bg-emerald-500";
-  if (["CALL", "MEETING", "DEMO"].includes(type)) return "bg-blue-500";
-  if (["CHURN_SIGNAL", "EMAIL_BOUNCE"].includes(type)) return "bg-red-500";
-  if (["LINKEDIN_DM", "EMAIL_RECU", "EMAIL_CLIQUE"].includes(type)) return "bg-orange-500";
-  return "bg-zinc-400";
+  if (["CONTRAT_SIGNE", "GO_LIVE", "AUDIT_SOUMIS"].includes(type)) return "bg-si-verified";
+  if (["CALL", "MEETING", "DEMO"].includes(type)) return "bg-si-forest";
+  if (["CHURN_SIGNAL", "EMAIL_BOUNCE"].includes(type)) return "bg-[#B84A3E]";
+  if (["LINKEDIN_DM", "EMAIL_RECU", "EMAIL_CLIQUE"].includes(type)) return "bg-si-amber";
+  return "bg-si-muted";
 }
 
 function KpiCard({
@@ -136,18 +141,18 @@ function KpiCard({
   tone?: "neutral" | "green" | "orange" | "red";
 }) {
   const valueClass = {
-    neutral: "text-zinc-950",
-    green: "text-emerald-700",
-    orange: "text-orange-700",
-    red: "text-red-700",
+    neutral: "text-si-ink",
+    green: "text-si-verified",
+    orange: "text-si-amber-ink",
+    red: "text-[#B84A3E]",
   }[tone];
 
   return (
-    <Card className="border border-zinc-200/70 bg-white shadow-sm">
+    <Card>
       <CardContent className="px-5 py-4">
-        <p className={`text-3xl font-semibold tracking-tight ${valueClass}`}>{value}</p>
-        <p className="mt-2 text-sm font-medium text-zinc-900">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-zinc-500">{subtext}</p>
+        <p className={`font-mono text-[28px] font-semibold tabular-nums leading-none tracking-tight ${valueClass}`}>{value}</p>
+        <p className="mt-3 text-sm font-medium text-si-ink">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-si-muted">{subtext}</p>
       </CardContent>
     </Card>
   );
@@ -163,7 +168,7 @@ function StageBadge({ stage }: { stage: StageLead }) {
 
 function ScoreBadge({ score }: { score: number }) {
   return (
-    <span className={`inline-flex min-w-10 justify-center rounded-md border px-2 py-1 text-xs font-semibold tabular-nums ${scoreTone(score)}`}>
+    <span className={`inline-flex min-w-10 justify-center rounded-md border px-2 py-1 font-mono text-xs font-semibold tabular-nums ${scoreTone(score)}`}>
       {score}
     </span>
   );
@@ -264,12 +269,12 @@ export default async function ConsolePage() {
   return (
     <div className="space-y-6">
       {/* ── ZONE 1 — Ancre ──────────────────────────────────────── */}
-      <section className={`rounded-lg border ${progress.border} bg-white px-5 py-4 shadow-sm`}>
+      <section className={`rounded-2xl border ${progress.border} bg-si-surface px-5 py-4`}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">Console SAFE Inc.</h1>
+            <h1 className="font-serif text-[28px] leading-tight tracking-tight text-si-ink">Console SAFE Inc.</h1>
             {workspace.workMode === "PRECHAUFFAGE" && (
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-si-muted">
                 Phase préchauffage active : audience cible LinkedIn {workspace.cibleAudienceLinkedIn ?? 1000}.
               </p>
             )}
@@ -280,14 +285,14 @@ export default async function ConsolePage() {
               <span className={`font-medium ${progress.text}`}>
                 J+{elapsedDays}/{totalDays} jours
               </span>
-              <span className="font-medium tabular-nums text-zinc-700">{progressPercent}%</span>
+              <span className="font-mono font-medium tabular-nums text-si-ink">{progressPercent}%</span>
             </div>
             <div className={`h-2.5 overflow-hidden rounded-full ${progress.track}`}>
               <div className={`h-full rounded-full ${progress.bar}`} style={{ width: `${progressPercent}%` }} />
             </div>
           </div>
 
-          <p className="whitespace-nowrap text-sm font-medium capitalize text-zinc-600">{formatDate(today)}</p>
+          <p className="whitespace-nowrap text-sm font-medium capitalize text-si-muted">{formatDate(today)}</p>
         </div>
       </section>
 
@@ -295,24 +300,24 @@ export default async function ConsolePage() {
       {pilote && (
         <Link
           href={`/console/clients/${pilote.id}`}
-          className="block rounded-lg border border-emerald-200 bg-emerald-50/40 px-6 py-5 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50"
+          className="block rounded-2xl border border-si-verified/30 bg-si-verified/[0.05] px-6 py-5 transition hover:border-si-verified/50 hover:bg-si-verified/10"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">Cliente pilote</p>
-              <h2 className="mt-1 text-lg font-semibold text-zinc-950">{pilote.raisonSociale}</h2>
-              <p className="mt-0.5 text-sm text-zinc-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-si-verified">Cliente pilote</p>
+              <h2 className="mt-1 font-serif text-[19px] leading-tight text-si-ink">{pilote.raisonSociale}</h2>
+              <p className="mt-0.5 text-sm text-si-muted">
                 {[pilote.ville, pilote.province].filter(Boolean).join(", ") || "—"}
               </p>
             </div>
-            <span className="inline-flex items-center rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">
+            <span className="inline-flex items-center rounded-full bg-si-verified px-3 py-1 text-xs font-medium text-si-surface">
               Live
             </span>
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-4 border-t border-emerald-100 pt-4">
+          <div className="mt-4 grid grid-cols-3 gap-4 border-t border-si-verified/20 pt-4">
             <div>
-              <p className="text-xs uppercase tracking-wide text-zinc-500">Dernier contact</p>
-              <p className="mt-1 text-sm font-medium text-zinc-800">
+              <p className="text-xs uppercase tracking-wide text-si-muted">Dernier contact</p>
+              <p className="mt-1 text-sm font-medium text-si-ink">
                 {piloteDerniers === null
                   ? "Aucun"
                   : piloteDerniers === 0
@@ -321,14 +326,14 @@ export default async function ConsolePage() {
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-zinc-500">Tickets ouverts</p>
-              <p className={`mt-1 text-sm font-medium ${piloteTickets > 0 ? "text-amber-700" : "text-zinc-800"}`}>
+              <p className="text-xs uppercase tracking-wide text-si-muted">Tickets ouverts</p>
+              <p className={`mt-1 font-mono text-sm font-medium tabular-nums ${piloteTickets > 0 ? "text-si-amber-ink" : "text-si-ink"}`}>
                 {piloteTickets}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-zinc-500">Score</p>
-              <p className="mt-1 text-sm font-medium text-zinc-800">{pilote.score} / 100</p>
+              <p className="text-xs uppercase tracking-wide text-si-muted">Score</p>
+              <p className="mt-1 font-mono text-sm font-medium tabular-nums text-si-ink">{pilote.score} / 100</p>
             </div>
           </div>
         </Link>
@@ -364,25 +369,25 @@ export default async function ConsolePage() {
 
       {/* ── ZONE 3 — Deux colonnes ──────────────────────────────── */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-        <Card className="border border-zinc-200/70 bg-white shadow-sm">
+        <Card>
           <CardContent className="p-0">
-            <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-si-line px-5 py-4">
               <div>
-                <h2 className="text-base font-semibold text-zinc-950">Qui toucher aujourd'hui</h2>
-                <p className="mt-1 text-sm text-zinc-500">Inactifs depuis plus de 5 jours ou score de conversion élevé.</p>
+                <h2 className="font-serif text-[19px] leading-tight text-si-ink">Qui toucher aujourd'hui</h2>
+                <p className="mt-1 text-sm text-si-muted">Inactifs depuis plus de 5 jours ou score de conversion élevé.</p>
               </div>
-              <Link href="/console/clients" className="shrink-0 text-xs font-medium text-emerald-700 hover:underline">
+              <Link href="/console/clients" className="shrink-0 text-xs font-medium text-si-verified hover:underline">
                 Tous les clients
               </Link>
             </div>
 
             {priorityLeads.length === 0 ? (
               <div className="px-5 py-10 text-center">
-                <p className="text-sm font-medium text-zinc-900">Vous êtes à jour.</p>
-                <p className="mt-1 text-sm text-zinc-500">Aucune relance prioritaire pour aujourd'hui.</p>
+                <p className="text-sm font-medium text-si-ink">Vous êtes à jour.</p>
+                <p className="mt-1 text-sm text-si-muted">Aucune relance prioritaire pour aujourd'hui.</p>
               </div>
             ) : (
-              <div className="divide-y divide-zinc-100">
+              <div className="divide-y divide-si-line">
                 {priorityLeads.map((lead) => {
                   const lastContactDays = lead.dateDerniereActivite
                     ? daysBetween(lead.dateDerniereActivite, today)
@@ -392,15 +397,15 @@ export default async function ConsolePage() {
                     <Link
                       key={lead.id}
                       href={`/console/clients/${lead.id}`}
-                      className="grid gap-3 px-5 py-4 transition hover:bg-zinc-50 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+                      className="grid gap-3 px-5 py-4 transition hover:bg-si-canvas/60 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
                     >
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-zinc-950">{lead.raisonSociale}</p>
+                          <p className="truncate text-sm font-semibold text-si-ink">{lead.raisonSociale}</p>
                           <StageBadge stage={lead.stageLead} />
                           <ScoreBadge score={lead.score} />
                         </div>
-                        <p className="mt-2 text-sm text-zinc-500">
+                        <p className="mt-2 text-sm text-si-muted">
                           {lead.ville ? `${lead.ville} · ` : ""}
                           Dernier contact :{" "}
                           {lastContactDays === null
@@ -410,7 +415,7 @@ export default async function ConsolePage() {
                               : `${lastContactDays} jour${lastContactDays > 1 ? "s" : ""}`}
                         </p>
                       </div>
-                      <span className="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 px-3 text-sm font-medium text-zinc-800">
+                      <span className="inline-flex h-9 items-center justify-center rounded-md border border-si-line px-3 text-sm font-medium text-si-ink transition hover:bg-si-canvas">
                         Ouvrir
                       </span>
                     </Link>
@@ -421,24 +426,24 @@ export default async function ConsolePage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-zinc-200/70 bg-white shadow-sm">
+        <Card>
           <CardContent className="p-0">
-            <div className="border-b border-zinc-100 px-5 py-4">
-              <h2 className="text-base font-semibold text-zinc-950">Ce qui s'est passé</h2>
-              <p className="mt-1 text-sm text-zinc-500">Les 8 dernières activités CRM.</p>
+            <div className="border-b border-si-line px-5 py-4">
+              <h2 className="font-serif text-[19px] leading-tight text-si-ink">Ce qui s'est passé</h2>
+              <p className="mt-1 text-sm text-si-muted">Les 8 dernières activités CRM.</p>
             </div>
 
             {recentActivities.length === 0 ? (
-              <div className="px-5 py-10 text-center text-sm text-zinc-500">Aucune activité récente.</div>
+              <div className="px-5 py-10 text-center text-sm text-si-muted">Aucune activité récente.</div>
             ) : (
-              <ol className="divide-y divide-zinc-100">
+              <ol className="divide-y divide-si-line">
                 {recentActivities.map((activity) => (
                   <li key={activity.id} className="flex gap-3 px-5 py-4">
                     <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${activityTone(activity.type)}`} />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-zinc-950">{ACTIVITY_LABELS[activity.type]}</p>
-                      <p className="mt-1 truncate text-sm text-zinc-500">{activity.lead?.raisonSociale ?? "Lead sans nom"}</p>
-                      <p className="mt-1 text-xs text-zinc-400">{relativeTime(activity.date, today)}</p>
+                      <p className="text-sm font-medium text-si-ink">{ACTIVITY_LABELS[activity.type]}</p>
+                      <p className="mt-1 truncate text-sm text-si-muted">{activity.lead?.raisonSociale ?? "Lead sans nom"}</p>
+                      <p className="mt-1 text-xs text-si-muted">{relativeTime(activity.date, today)}</p>
                     </div>
                   </li>
                 ))}

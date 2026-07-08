@@ -16,7 +16,7 @@ const TYPES = [
 ];
 
 const inputCls =
-  "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+  "w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20";
 
 export function LogActivityForm({ leadId }: { leadId: string }) {
   const router = useRouter();
@@ -48,7 +48,7 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full rounded-md border border-dashed border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-600 hover:border-emerald-400 hover:text-emerald-700"
+        className="w-full rounded-md border border-dashed border-si-line px-4 py-2.5 text-sm font-medium text-si-muted hover:border-si-verified/50 hover:text-si-verified"
       >
         + Logger une activité
       </button>
@@ -58,16 +58,16 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 rounded-md border border-zinc-200 bg-zinc-50/60 p-4"
+      className="space-y-3 rounded-md border border-si-line bg-si-canvas/60 p-4"
     >
       {error && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-1.5 text-xs text-red-800">
+        <div className="rounded border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-1.5 text-xs text-[#B84A3E]">
           ⚠️ {error}
         </div>
       )}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">
+          <label className="mb-1 block text-xs font-medium text-si-muted">
             Type
           </label>
           <select
@@ -84,7 +84,7 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">
+          <label className="mb-1 block text-xs font-medium text-si-muted">
             Direction
           </label>
           <select
@@ -100,7 +100,7 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-600">
+        <label className="mb-1 block text-xs font-medium text-si-muted">
           Sujet
         </label>
         <input
@@ -110,7 +110,7 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-600">
+        <label className="mb-1 block text-xs font-medium text-si-muted">
           Contenu / notes
         </label>
         <textarea
@@ -124,18 +124,18 @@ export function LogActivityForm({ leadId }: { leadId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
         >
           {isPending ? "Enregistrement…" : "Enregistrer"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+          className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60"
         >
           Annuler
         </button>
-        <span className="ml-auto text-[11px] text-zinc-500">
+        <span className="ml-auto text-[11px] text-si-muted">
           Met à jour le score automatiquement
         </span>
       </div>

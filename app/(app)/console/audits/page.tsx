@@ -37,10 +37,10 @@ type AuditRow = {
 
 function niveauBadge(n: Niveau) {
   const map: Record<Niveau, { label: string; cls: string }> = {
-    CRITIQUE: { label: "Critique", cls: "bg-red-100 text-red-800 border-red-200" },
-    AVERTISSEMENT: { label: "Avertissement", cls: "bg-amber-100 text-amber-800 border-amber-200" },
-    CONFORME: { label: "Conforme", cls: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-    NON_APPLICABLE: { label: "N/A", cls: "bg-zinc-100 text-zinc-600 border-zinc-200" },
+    CRITIQUE: { label: "Critique", cls: "bg-[#B84A3E]/10 text-[#B84A3E] border-[#B84A3E]/30" },
+    AVERTISSEMENT: { label: "Avertissement", cls: "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30" },
+    CONFORME: { label: "Conforme", cls: "bg-si-verified/10 text-si-verified border-si-verified/30" },
+    NON_APPLICABLE: { label: "N/A", cls: "bg-si-canvas text-si-muted border-si-line" },
   };
   const { label, cls } = map[n];
   return (
@@ -163,7 +163,7 @@ export default async function ConsoleAuditsPage() {
           {/* Alertes */}
           {alertes.length > 0 && (
             <div>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
                 Alertes ({alertes.length})
               </h2>
               <div className="space-y-2">
@@ -172,22 +172,22 @@ export default async function ConsoleAuditsPage() {
                     key={r.cabinetId}
                     className={`flex items-center gap-3 rounded-md border px-4 py-3 ${
                       r.niveau === "CRITIQUE"
-                        ? "border-red-200 bg-red-50/60"
-                        : "border-amber-200 bg-amber-50/50"
+                        ? "border-[#B84A3E]/30 bg-[#B84A3E]/[0.06]"
+                        : "border-si-amber/30 bg-si-amber/[0.13]"
                     }`}
                   >
                     <span className="text-lg">
                       {r.niveau === "CRITIQUE" ? "🛑" : "⚠️"}
                     </span>
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-zinc-900">
+                      <div className="text-sm font-medium text-si-ink">
                         {r.nom}
                       </div>
-                      <div className="text-xs text-zinc-600">{r.raison}</div>
+                      <div className="text-xs text-si-muted">{r.raison}</div>
                     </div>
                     <Link
                       href={`/console/leads/${r.leadId}`}
-                      className="rounded border border-zinc-300 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 hover:border-emerald-400 hover:text-emerald-700"
+                      className="rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
                     >
                       Voir le cabinet
                     </Link>
@@ -199,14 +199,14 @@ export default async function ConsoleAuditsPage() {
 
           {/* Table complète */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
               Tous les cabinets clients
             </h2>
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+                    <thead className="border-b border-si-line bg-si-canvas text-xs uppercase tracking-wide text-si-muted">
                       <tr>
                         <th className="px-4 py-3 text-left">Cabinet</th>
                         <th className="px-4 py-3 text-left">Conformité</th>
@@ -215,27 +215,27 @@ export default async function ConsoleAuditsPage() {
                         <th className="px-4 py-3 text-left">Dernière réconciliation</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100">
+                    <tbody className="divide-y divide-si-line">
                       {rows.map((r) => (
-                        <tr key={r.cabinetId} className="hover:bg-zinc-50/60">
+                        <tr key={r.cabinetId} className="hover:bg-si-canvas/60">
                           <td className="px-4 py-3">
                             <Link
                               href={`/console/leads/${r.leadId}`}
-                              className="font-medium text-zinc-900 hover:text-emerald-700"
+                              className="font-medium text-si-ink hover:text-si-verified"
                             >
                               {r.nom}
                             </Link>
                           </td>
                           <td className="px-4 py-3">{niveauBadge(r.niveau)}</td>
-                          <td className="px-4 py-3 text-zinc-600">{r.raison}</td>
+                          <td className="px-4 py-3 text-si-muted">{r.raison}</td>
                           <td
                             className={`px-4 py-3 text-right tabular-nums ${
-                              r.trustBalance < 0 ? "font-semibold text-red-700" : "text-zinc-700"
+                              r.trustBalance < 0 ? "font-semibold text-[#B84A3E]" : "text-si-ink"
                             }`}
                           >
                             {r.hasActivity ? money(r.trustBalance) : "—"}
                           </td>
-                          <td className="px-4 py-3 text-zinc-600">
+                          <td className="px-4 py-3 text-si-muted">
                             {r.lastReconciled ?? "—"}
                           </td>
                         </tr>
@@ -249,7 +249,7 @@ export default async function ConsoleAuditsPage() {
         </>
       )}
 
-      <div className="rounded-md border border-zinc-200 bg-zinc-50 px-4 py-2 text-xs text-zinc-600">
+      <div className="rounded-md border border-si-line bg-si-canvas px-4 py-2 text-xs text-si-muted">
         💡 Les données de conformité proviennent du produit SAFE (réconciliations
         fidéicommis des cabinets). Un cabinet apparaît ici dès qu'il est converti
         en client et possède de l'activité fidéicommis.
@@ -269,16 +269,16 @@ function KpiCard({
 }) {
   const valueClass =
     accent === "emerald"
-      ? "text-emerald-700"
+      ? "text-si-verified"
       : accent === "amber"
-      ? "text-amber-700"
+      ? "text-si-amber-ink"
       : accent === "red"
-      ? "text-red-700"
-      : "text-zinc-900";
+      ? "text-[#B84A3E]"
+      : "text-si-ink";
   return (
     <Card>
       <CardContent className="px-6 py-5">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
+        <p className="text-xs uppercase tracking-wide text-si-muted">{label}</p>
         <p className={`mt-2 text-3xl font-semibold tabular-nums ${valueClass}`}>
           {value}
         </p>

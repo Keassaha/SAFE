@@ -54,7 +54,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           isSafeInc={isSafeInc}
           onOpenMobileNav={() => setMobileNavOpen(true)}
         />
-        {trustStatus && <TrustReconciliationBanner status={trustStatus} province={province} />}
+        {!isSafeInc && trustStatus && <TrustReconciliationBanner status={trustStatus} province={province} />}
         <main
           className="flex-1 px-3 sm:px-4 md:px-8 py-4 sm:py-6 overflow-y-auto flex flex-col relative overscroll-contain bg-transparent"
           role="main"

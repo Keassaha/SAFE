@@ -19,9 +19,34 @@ export function buildDossierListWhere(
      * Utilisé pour la LISTE ; les statistiques comptent tous les statuts.
      */
     excludeClosedByDefault?: boolean;
+    /** Filtres avancés (Lot A) — plage de dates d'ouverture (ISO). */
+    dateFrom?: string | null;
+    dateTo?: string | null;
+    /** N'affiche que les dossiers avec au moins une tâche non terminée et échue. */
+    overdueTasks?: boolean | null;
+    /**
+     * Date de référence pour « échue » (passée par l'appelant, jamais `new Date()`
+     * ici : le builder doit rester pur et déterministe).
+     */
+    now?: Date | null;
+    /** Fiducie : "positive" (solde > 0), "negative" (solde < 0), sinon ignoré. */
+    trust?: string | null;
   }
 ): Prisma.DossierWhereInput {
-  const { q, clientId, status, type, lawyer, restrictToUserId, excludeClosedByDefault } = filters;
+  const {
+    q,
+    clientId,
+    status,
+    type,
+    lawyer,
+    restrictToUserId,
+    excludeClosedByDefault,
+    dateFrom,
+    dateTo,
+    overdueTasks,
+    now,
+    trust,
+  } = filters;
   const where: Prisma.DossierWhereInput = { cabinetId };
 
   if (restrictToUserId?.trim()) {
@@ -69,6 +94,44 @@ export function buildDossierListWhere(
 
   if (lawyer?.trim() && !restrictToUserId) {
     where.avocatResponsableId = lawyer.trim();
+  }
+
+  // Plage de dates d'ouverture. Borne haute inclusive (fin de journée).
+  const from = dateFrom?.trim() ? new Date(dateFrom.trim()) : null;
+  const to = dateTo?.trim() ? new Date(dateTo.trim()) : null;
+  const validFrom = from && !Number.isNaN(from.getTime()) ? from : null;
+  const validTo = to && !Number.isNaN(to.getTime()) ? to : null;
+  // Si les bornes sont incohérentes (from > to), on ignore la plage.
+  if (validFrom && validTo && validFrom > validTo) {
+    // no-op : plage invalide, ignorée.
+  } else {
+    const range: Prisma.DateTimeFilter = {};
+    if (validFrom) range.gte = validFrom;
+    if (validTo) {
+      const end = new Date(validTo);
+      end.setHours(23, 59, 59, 999);
+      range.lte = end;
+    }
+    if (range.gte || range.lte) {
+      where.dateOuverture = range;
+    }
+  }
+
+  // Tâches en retard : au moins une DossierTache non terminée/annulée et échue.
+  if (overdueTasks && now) {
+    where.taches = {
+      some: {
+        statut: { notIn: ["terminee", "annulee"] },
+        dateEcheance: { lt: now },
+      },
+    };
+  }
+
+  // Fiducie : solde positif ou négatif (signal de conformité).
+  if (trust === "positive") {
+    where.soldeFiducieDossier = { gt: 0 };
+  } else if (trust === "negative") {
+    where.soldeFiducieDossier = { lt: 0 };
   }
 
   return where;

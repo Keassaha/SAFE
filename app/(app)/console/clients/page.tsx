@@ -6,6 +6,7 @@ import { PLANS, type PlanKey } from "@/lib/stripe";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { isConsoleIntakeEnabled } from "@/lib/flags";
 
 /**
  * Gestion clients / Abonnements — Console SAFE Inc.
@@ -39,12 +40,12 @@ function formatDate(d: Date | null | undefined): string {
 
 function statutBadge(active: boolean, isTrialing: boolean, status: string | null) {
   if (isTrialing) {
-    return <span className="inline-flex items-center rounded border border-amber-200 bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Essai</span>;
+    return <span className="inline-flex items-center rounded border border-si-amber/30 bg-si-amber/[0.13] px-2 py-0.5 text-xs font-medium text-si-amber-ink">Essai</span>;
   }
   if (active) {
-    return <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Actif</span>;
+    return <span className="inline-flex items-center rounded border border-si-verified/30 bg-si-verified/10 px-2 py-0.5 text-xs font-medium text-si-verified">Actif</span>;
   }
-  return <span className="inline-flex items-center rounded border border-red-200 bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">{status ?? "Inactif"}</span>;
+  return <span className="inline-flex items-center rounded border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-2 py-0.5 text-xs font-medium text-[#B84A3E]">{status ?? "Inactif"}</span>;
 }
 
 export default async function ConsoleClientsPage() {
@@ -96,6 +97,16 @@ export default async function ConsoleClientsPage() {
       <PageHeader
         title="Gestion clients"
         description="Abonnements des cabinets clients — données Stripe réelles"
+        action={
+          isConsoleIntakeEnabled() ? (
+            <Link
+              href="/console/clients/nouveau"
+              className="inline-flex items-center rounded-xl bg-si-surface px-4 py-2 text-sm font-medium text-si-forest transition hover:bg-si-surface/90"
+            >
+              + Nouveau client
+            </Link>
+          ) : undefined
+        }
       />
 
       {rows.length === 0 ? (
@@ -116,7 +127,7 @@ export default async function ConsoleClientsPage() {
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+                  <thead className="border-b border-si-line bg-si-canvas text-xs uppercase tracking-wide text-si-muted">
                     <tr>
                       <th className="px-4 py-3 text-left">Cabinet</th>
                       <th className="px-4 py-3 text-left">Plan</th>
@@ -127,28 +138,28 @@ export default async function ConsoleClientsPage() {
                       <th className="px-4 py-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-100">
+                  <tbody className="divide-y divide-si-line">
                     {rows.map((r) => (
-                      <tr key={r.leadId} className="hover:bg-zinc-50/60">
+                      <tr key={r.leadId} className="hover:bg-si-canvas/60">
                         <td className="px-4 py-3">
-                          <Link href={`/console/clients/${r.leadId}`} className="font-medium text-zinc-900 hover:text-emerald-700">
+                          <Link href={`/console/clients/${r.leadId}`} className="font-medium text-si-ink hover:text-si-verified">
                             {r.nom}
                           </Link>
                           {r.cancelAtPeriodEnd && (
-                            <span className="ml-2 text-[10px] uppercase tracking-wide text-red-600">Résiliation prévue</span>
+                            <span className="ml-2 text-[10px] uppercase tracking-wide text-[#B84A3E]">Résiliation prévue</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-zinc-700">{planLabel(r.plan)}</td>
+                        <td className="px-4 py-3 text-si-ink">{planLabel(r.plan)}</td>
                         <td className="px-4 py-3">{statutBadge(r.active, r.isTrialing, r.status)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums text-zinc-700">
+                        <td className="px-4 py-3 text-right tabular-nums text-si-ink">
                           {r.mrr > 0 ? money(r.mrr) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-zinc-600">{formatDate(r.renouvellement)}</td>
-                        <td className="px-4 py-3 text-zinc-600">{formatDate(r.derniereActivite)}</td>
+                        <td className="px-4 py-3 text-si-muted">{formatDate(r.renouvellement)}</td>
+                        <td className="px-4 py-3 text-si-muted">{formatDate(r.derniereActivite)}</td>
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`/console/clients/${r.leadId}`}
-                            className="rounded border border-zinc-300 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 hover:border-emerald-400 hover:text-emerald-700"
+                            className="rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
                           >
                             Détails
                           </Link>
@@ -163,7 +174,7 @@ export default async function ConsoleClientsPage() {
         </>
       )}
 
-      <div className="rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 text-xs text-zinc-600">
+      <div className="rounded-md border border-si-line bg-si-canvas px-4 py-3 text-xs text-si-muted">
         💡 Les actions de gestion (appliquer un rabais Stripe, suspendre un compte
         pour non-paiement) arrivent en v2. Elles nécessitent un câblage Stripe
         prudent pour ne pas affecter la facturation réelle des clients.
@@ -182,14 +193,14 @@ function KpiCard({
   accent?: "default" | "emerald" | "amber" | "red";
 }) {
   const valueClass =
-    accent === "emerald" ? "text-emerald-700"
-    : accent === "amber" ? "text-amber-700"
-    : accent === "red" ? "text-red-700"
-    : "text-zinc-900";
+    accent === "emerald" ? "text-si-verified"
+    : accent === "amber" ? "text-si-amber-ink"
+    : accent === "red" ? "text-[#B84A3E]"
+    : "text-si-ink";
   return (
     <Card>
       <CardContent className="px-6 py-5">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
+        <p className="text-xs uppercase tracking-wide text-si-muted">{label}</p>
         <p className={`mt-2 text-3xl font-semibold tabular-nums ${valueClass}`}>{value}</p>
       </CardContent>
     </Card>

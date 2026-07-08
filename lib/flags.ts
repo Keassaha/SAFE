@@ -18,3 +18,12 @@ function envOff(value: string | undefined): boolean {
 export function isMultiPartiesDossierEnabled(): boolean {
   return !envOff(process.env.SAFE_FEATURE_MULTI_PARTIES);
 }
+
+/**
+ * Intake client de la Console (ajout manuel d'un cabinet, calqué sur l'audit).
+ * ACTIVÉE par défaut. Kill-switch : SAFE_FEATURE_CONSOLE_INTAKE=off.
+ * Spec : docs/product/SPEC_INTAKE_CLIENT_CONSOLE.md
+ */
+export function isConsoleIntakeEnabled(): boolean {
+  return !envOff(process.env.SAFE_FEATURE_CONSOLE_INTAKE);
+}

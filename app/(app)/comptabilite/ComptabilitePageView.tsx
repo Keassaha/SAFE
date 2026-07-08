@@ -51,12 +51,15 @@ interface ComptabilitePageViewProps {
     categories: ExpenseCategory[];
     transactions: BankImportTransaction[];
   };
+  /** Mode consultant SAFE Inc. : masque le fidéicommis (non pertinent). */
+  isSafeInc?: boolean;
 }
 
 export function ComptabilitePageView({
   cabinetId,
   initialJournalKpis,
   expenseData,
+  isSafeInc = false,
 }: ComptabilitePageViewProps) {
   const t = useTranslations("accountingUi");
   const searchParams = useSearchParams();
@@ -68,7 +71,14 @@ export function ComptabilitePageView({
 
   return (
     <div className="max-w-[1180px] w-full mx-auto px-2 pb-24 pt-4 font-sans space-y-6 animate-fade-in">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
+      <PageHeader
+        title={t("pageTitle")}
+        description={
+          isSafeInc
+            ? "Une vue claire des flux : cash, factures, créances et dépenses."
+            : t("pageDescription")
+        }
+      />
 
       {/* ── Bloc 1 : synthèse financière (cartes cliquables) ── */}
       <section>
@@ -83,7 +93,7 @@ export function ComptabilitePageView({
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div className={`mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isSafeInc ? "xl:grid-cols-4" : "xl:grid-cols-5"} gap-3`}>
           <SummaryCard
             href={routes.facturation}
             icon={FileText}
@@ -124,16 +134,19 @@ export function ComptabilitePageView({
             linkLabel={t("cardExpensesLink")}
             tone="negative"
           />
-          <SummaryCard
-            href={routes.comptes}
-            icon={Landmark}
-            title={t("cardTrustTitle")}
-            amount={k.soldeFideicommis}
-            explanation={t("cardTrustExpl")}
-            badge={t("cardTrustBadge")}
-            linkLabel={t("cardTrustLink")}
-            tone="trust"
-          />
+          {/* Fidéicommis : masqué en mode consultant SAFE Inc. (non pertinent). */}
+          {!isSafeInc && (
+            <SummaryCard
+              href={routes.comptes}
+              icon={Landmark}
+              title={t("cardTrustTitle")}
+              amount={k.soldeFideicommis}
+              explanation={t("cardTrustExpl")}
+              badge={t("cardTrustBadge")}
+              linkLabel={t("cardTrustLink")}
+              tone="trust"
+            />
+          )}
         </div>
 
         {showHelp && (

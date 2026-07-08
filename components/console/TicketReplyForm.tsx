@@ -55,7 +55,7 @@ export function TicketReplyForm({
   return (
     <div className="space-y-3">
       {error && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-1.5 text-xs text-red-800">⚠️ {error}</div>
+        <div className="rounded border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-1.5 text-xs text-[#B84A3E]">⚠️ {error}</div>
       )}
 
       <form onSubmit={handleReply} className="space-y-2">
@@ -63,25 +63,25 @@ export function TicketReplyForm({
           name="contenu"
           required
           rows={3}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
           placeholder="Répondre au client…"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
         >
           {isPending ? "Envoi…" : "Envoyer la réponse"}
         </button>
       </form>
 
-      <div className="flex items-center gap-2 border-t border-zinc-200 pt-3">
-        <span className="text-xs text-zinc-500">Changer le statut :</span>
+      <div className="flex items-center gap-2 border-t border-si-line pt-3">
+        <span className="text-xs text-si-muted">Changer le statut :</span>
         <select
           defaultValue={currentStatut}
           onChange={(e) => handleStatus(e.target.value)}
           disabled={isPending}
-          className="rounded-md border border-zinc-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none"
+          className="rounded-md border border-si-line px-2 py-1 text-xs focus:border-si-verified focus:outline-none"
         >
           {STATUTS.map((s) => (
             <option key={s.v} value={s.v}>{s.l}</option>

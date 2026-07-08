@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireCabinetAndUser, requireCabinetId } from "@/lib/auth/session";
 import { revalidatePath } from "next/cache";
 import { normalizeRows, analyzeFile, type AnalysisResult } from "@/lib/import/pipeline";
+import { reconcilePrincipalParty } from "@/lib/dossiers/parties-sync";
 import type {
   DocumentType,
   ColumnMapping,
@@ -109,6 +110,7 @@ async function findOrCreateDossier(
   extra: Partial<NormalizedClient>,
 ): Promise<string> {
   let dossierId: string;
+  let created = false;
   if (numeroDossier) {
     const existing = await prisma.dossier.findFirst({
       where: { cabinetId, numeroDossier },
@@ -128,6 +130,7 @@ async function findOrCreateDossier(
         },
       });
       dossierId = dossier.id;
+      created = true;
     }
   } else {
     const dossier = await prisma.dossier.create({
@@ -141,6 +144,14 @@ async function findOrCreateDossier(
       },
     });
     dossierId = dossier.id;
+    created = true;
+  }
+
+  // Personnes du dossier : tout dossier importé reçoit son mandant principal
+  // (= clientId), pour garder l'invariant « 1 principal par dossier » à l'échelle
+  // du système. On ne touche pas aux dossiers existants (parties déjà en place).
+  if (created) {
+    await reconcilePrincipalParty({ cabinetId, dossierId, principalClientId: clientId });
   }
 
   // Remplir le mandat du dossier à partir des données d'import

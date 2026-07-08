@@ -9,13 +9,19 @@ const PARAMS = {
   status: "status",
   type: "type",
   clientId: "clientId",
+  dateFrom: "dateFrom",
+  dateTo: "dateTo",
+  overdue: "overdue",
+  trust: "trust",
 } as const;
 
 interface DossierFiltersProps {
   clients: { id: string; raisonSociale: string | null }[];
+  /** Autorise le filtre fiducie (rôles avec accès facturation/fiducie). */
+  canViewTrust?: boolean;
 }
 
-export function DossierFilters({ clients }: DossierFiltersProps) {
+export function DossierFilters({ clients, canViewTrust = false }: DossierFiltersProps) {
   const t = useTranslations("matters");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,7 +67,17 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
     ...clients.map((c) => ({ value: c.id, label: c.raisonSociale })),
   ];
 
+  const TRUST_OPTIONS = [
+    { value: "", label: t("filterTrustAny") },
+    { value: "positive", label: t("filterTrustPositive") },
+    { value: "negative", label: t("filterTrustNegative") },
+  ];
+
+  const overdueActive = searchParams.get(PARAMS.overdue) === "1";
+
   const selectClass =
+    "h-10 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none";
+  const dateClass =
     "h-10 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none";
 
   return (
@@ -102,6 +118,52 @@ export function DossierFilters({ clients }: DossierFiltersProps) {
           </option>
         ))}
       </select>
+      <label className="flex items-center gap-1.5 text-sm text-si-muted">
+        <span className="whitespace-nowrap">{t("filterDateFrom")}</span>
+        <input
+          type="date"
+          aria-label={t("filterDateFrom")}
+          value={searchParams.get(PARAMS.dateFrom) ?? ""}
+          onChange={(e) => updateFilter(PARAMS.dateFrom, e.target.value)}
+          className={dateClass}
+        />
+      </label>
+      <label className="flex items-center gap-1.5 text-sm text-si-muted">
+        <span className="whitespace-nowrap">{t("filterDateTo")}</span>
+        <input
+          type="date"
+          aria-label={t("filterDateTo")}
+          value={searchParams.get(PARAMS.dateTo) ?? ""}
+          onChange={(e) => updateFilter(PARAMS.dateTo, e.target.value)}
+          className={dateClass}
+        />
+      </label>
+      <button
+        type="button"
+        onClick={() => updateFilter(PARAMS.overdue, overdueActive ? "" : "1")}
+        aria-pressed={overdueActive}
+        className={`inline-flex items-center gap-2 h-10 px-3 rounded-lg border text-sm font-medium transition-colors ${
+          overdueActive
+            ? "border-si-forest/40 bg-si-forest/10 text-si-forest"
+            : "border-si-line bg-si-surface text-si-muted hover:text-si-forest hover:bg-si-canvas"
+        }`}
+      >
+        {t("filterOverdueTasks")}
+      </button>
+      {canViewTrust && (
+        <select
+          aria-label={t("filterByTrust")}
+          value={searchParams.get(PARAMS.trust) ?? ""}
+          onChange={(e) => updateFilter(PARAMS.trust, e.target.value)}
+          className={selectClass}
+        >
+          {TRUST_OPTIONS.map((o) => (
+            <option key={o.value || "all"} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      )}
       <button
         type="button"
         onClick={handleRefresh}

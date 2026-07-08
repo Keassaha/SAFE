@@ -95,6 +95,16 @@ export function invoiceEmailHtml(
  * Le contenu de la facture (lignes, taxes, totaux) reste dans le PDF officiel —
  * il n'est pas inséré dans le HTML.
  */
+/** Échappe le HTML et convertit les retours à la ligne en <br/> (pour texte saisi). */
+function escapeToHtml(text: string): string {
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+  return escaped.replace(/\n/g, "<br/>");
+}
+
 export function invoiceAccompanyingEmailHtml(opts: {
   clientName: string;
   invoiceNumber: string;
@@ -104,29 +114,53 @@ export function invoiceAccompanyingEmailHtml(opts: {
   shareUrl?: string;
   /** True si un PDF est réellement joint au courriel. */
   hasAttachment: boolean;
+  /** Message d'accompagnement rédigé/édité par l'utilisateur (texte brut). */
+  customMessage?: string;
+  /** Instructions de paiement à afficher en bloc distinct (texte brut). */
+  paymentInstructions?: string;
 }): { subject: string; html: string } {
   const subject = `Facture ${opts.invoiceNumber} — ${opts.cabinetName}`;
-  const greeting = `Bonjour ${opts.clientName},`;
-  const intro = opts.hasAttachment
-    ? `Veuillez trouver <strong>en pièce jointe</strong> notre facture n° <strong>${opts.invoiceNumber}</strong> relativement à votre dossier.`
-    : opts.shareUrl
-      ? `Vous trouverez notre facture n° <strong>${opts.invoiceNumber}</strong> à l'adresse sécurisée ci-dessous.`
-      : `Notre facture n° <strong>${opts.invoiceNumber}</strong> a été émise. Notre équipe vous transmettra le document officiel sous peu.`;
-  const dueLine = opts.dueDate
-    ? `<p style="margin: 12px 0;">Échéance : <strong>${opts.dueDate}</strong>.</p>`
-    : "";
+
+  // Corps : message personnalisé si fourni, sinon lettre générée par défaut.
+  let bodyBlock: string;
+  if (opts.customMessage && opts.customMessage.trim()) {
+    bodyBlock = `<div style="margin: 0 0 12px 0;">${escapeToHtml(opts.customMessage.trim())}</div>`;
+  } else {
+    const greeting = `Bonjour ${opts.clientName},`;
+    const intro = opts.hasAttachment
+      ? `Veuillez trouver <strong>en pièce jointe</strong> notre facture n° <strong>${opts.invoiceNumber}</strong> relativement à votre dossier.`
+      : opts.shareUrl
+        ? `Vous trouverez notre facture n° <strong>${opts.invoiceNumber}</strong> à l'adresse sécurisée ci-dessous.`
+        : `Notre facture n° <strong>${opts.invoiceNumber}</strong> a été émise. Notre équipe vous transmettra le document officiel sous peu.`;
+    const dueLine = opts.dueDate
+      ? `<p style="margin: 12px 0;">Échéance : <strong>${opts.dueDate}</strong>.</p>`
+      : "";
+    bodyBlock = `
+      <p style="margin: 0 0 16px 0;">${greeting}</p>
+      <p style="margin: 0 0 12px 0;">${intro}</p>
+      ${dueLine}
+      <p style="margin: 16px 0;">N'hésitez pas à communiquer avec nous pour toute question.</p>
+      <p style="margin: 16px 0 0 0;">Cordialement,<br/><strong>${opts.cabinetName}</strong></p>`;
+  }
+
   const linkBlock =
     !opts.hasAttachment && opts.shareUrl
       ? `<p style="margin: 24px 0;"><a href="${opts.shareUrl}" style="display: inline-block; padding: 10px 18px; background: #0F2A22; color: #FFFFFF; text-decoration: none; border-radius: 4px; font-weight: 600;">Consulter la facture</a></p>`
       : "";
+
+  const paymentBlock =
+    opts.paymentInstructions && opts.paymentInstructions.trim()
+      ? `<div style="margin: 24px 0 0 0; padding: 16px; background: #F3F6F2; border: 1px solid #DDE6DC; border-radius: 8px;">
+           <p style="margin: 0 0 8px 0; font-weight: 600; color: #0F2A22;">Instructions de paiement</p>
+           <div style="color: #33413A; font-size: 14px; line-height: 1.5;">${escapeToHtml(opts.paymentInstructions.trim())}</div>
+         </div>`
+      : "";
+
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1a1a1a;">
-      <p style="margin: 0 0 16px 0;">${greeting}</p>
-      <p style="margin: 0 0 12px 0;">${intro}</p>
-      ${dueLine}
+      ${bodyBlock}
       ${linkBlock}
-      <p style="margin: 16px 0;">N'hésitez pas à communiquer avec nous pour toute question.</p>
-      <p style="margin: 16px 0 0 0;">Cordialement,<br/><strong>${opts.cabinetName}</strong></p>
+      ${paymentBlock}
       <hr style="margin: 32px 0 12px 0; border: none; border-top: 1px solid #e5e5e5;" />
       <p style="color: #888; font-size: 11px; margin: 0;">Cet envoi a été émis par SAFE pour le compte de ${opts.cabinetName}.</p>
     </div>

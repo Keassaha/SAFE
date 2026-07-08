@@ -2,15 +2,17 @@ import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewComptabilite } from "@/lib/auth/permissions";
 import { calculateJournalBalance } from "@/lib/services/journal";
 import { prisma } from "@/lib/db";
+import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { ensureExpenseCategories } from "@/app/(app)/journal/depenses/actions";
 import { ComptabilitePageView } from "./ComptabilitePageView";
 
 export default async function ComptabilitePage() {
   const { cabinetId } = await requirePageAccess(canViewComptabilite);
 
-  const [journalKpis, expenseData] = await Promise.all([
+  const [journalKpis, expenseData, isSafeInc] = await Promise.all([
     calculateJournalBalance(cabinetId),
     loadExpenseJournalData(cabinetId),
+    isSafeIncCabinet(cabinetId),
   ]);
 
   return (
@@ -18,6 +20,7 @@ export default async function ComptabilitePage() {
       cabinetId={cabinetId}
       initialJournalKpis={journalKpis}
       expenseData={expenseData}
+      isSafeInc={isSafeInc}
     />
   );
 }

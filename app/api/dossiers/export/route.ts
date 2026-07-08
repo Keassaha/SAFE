@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import type { UserRole } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canViewDossiers } from "@/lib/auth/permissions";
+import { canViewDossiers, canViewBillingTrust } from "@/lib/auth/permissions";
 import { buildDossierListWhere } from "@/lib/dossiers/query";
 
 function escapeCsvCell(value: string): string {
@@ -50,6 +50,11 @@ export async function GET(request: Request) {
   const status = searchParams.get("status");
   const type = searchParams.get("type");
   const lawyer = searchParams.get("lawyer");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+  const overdueTasks = searchParams.get("overdue") === "1";
+  // La fiducie n'est visible que pour les rôles autorisés (parité avec la liste).
+  const trust = canViewBillingTrust(role) ? searchParams.get("trust") : null;
 
   const where = buildDossierListWhere(cabinetId, {
     q,
@@ -57,6 +62,11 @@ export async function GET(request: Request) {
     status,
     type,
     lawyer,
+    dateFrom,
+    dateTo,
+    overdueTasks,
+    now: new Date(),
+    trust,
   });
 
   const dossiers = await prisma.dossier.findMany({

@@ -47,9 +47,9 @@ const DOMAINE_LABELS: Record<string, string> = {
   fiscal: "Fiscal",
 };
 
-const labelCls = "block text-xs font-medium text-zinc-600 mb-1";
+const labelCls = "block text-xs font-medium text-si-muted mb-1";
 const inputCls =
-  "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+  "w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20";
 
 export function NewLeadForm() {
   const router = useRouter();
@@ -73,14 +73,14 @@ export function NewLeadForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800">
+        <div className="rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-4 py-2 text-sm text-[#B84A3E]">
           ⚠️ {error}
         </div>
       )}
 
       {/* Identité */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-600">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
           Identité
         </h2>
         <div>
@@ -134,7 +134,7 @@ export function NewLeadForm() {
 
       {/* Caractéristiques */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-600">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
           Caractéristiques du cabinet
         </h2>
         <div className="grid grid-cols-2 gap-4">
@@ -163,7 +163,7 @@ export function NewLeadForm() {
           <label className={labelCls}>Domaines de pratique</label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {DOMAINES.map((d) => (
-              <label key={d} className="flex items-center gap-2 text-sm text-zinc-700">
+              <label key={d} className="flex items-center gap-2 text-sm text-si-ink">
                 <input type="checkbox" name="domainesPratique" value={d} />
                 {DOMAINE_LABELS[d]}
               </label>
@@ -189,7 +189,7 @@ export function NewLeadForm() {
             />
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex items-center gap-2 text-sm text-si-ink">
           <input type="checkbox" name="aTrustAccounting" />
           Gère un compte en fidéicommis
         </label>
@@ -197,7 +197,7 @@ export function NewLeadForm() {
 
       {/* Acquisition */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-600">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
           Acquisition
         </h2>
         <div>
@@ -221,18 +221,18 @@ export function NewLeadForm() {
         </div>
       </section>
 
-      <div className="flex items-center gap-3 border-t border-zinc-200 pt-4">
+      <div className="flex items-center gap-3 border-t border-si-line pt-4">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
         >
           {isPending ? "Création…" : "Créer le cabinet"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/console/leads")}
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="rounded-md border border-si-line px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas/60"
         >
           Annuler
         </button>

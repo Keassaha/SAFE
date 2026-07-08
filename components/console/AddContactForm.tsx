@@ -14,7 +14,7 @@ const ROLES = [
 ];
 
 const inputCls =
-  "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+  "w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20";
 
 export function AddContactForm({ leadId }: { leadId: string }) {
   const router = useRouter();
@@ -42,7 +42,7 @@ export function AddContactForm({ leadId }: { leadId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md border border-dashed border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:border-emerald-400 hover:text-emerald-700"
+        className="rounded-md border border-dashed border-si-line px-3 py-1.5 text-xs font-medium text-si-muted hover:border-si-verified/50 hover:text-si-verified"
       >
         + Ajouter un contact
       </button>
@@ -52,26 +52,26 @@ export function AddContactForm({ leadId }: { leadId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-3 space-y-3 rounded-md border border-zinc-200 bg-zinc-50/60 p-4"
+      className="mt-3 space-y-3 rounded-md border border-si-line bg-si-canvas/60 p-4"
     >
       {error && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-1.5 text-xs text-red-800">
+        <div className="rounded border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-1.5 text-xs text-[#B84A3E]">
           ⚠️ {error}
         </div>
       )}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Prénom *</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Prénom *</label>
           <input name="prenom" required className={inputCls} />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Nom *</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Nom *</label>
           <input name="nom" required className={inputCls} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Rôle *</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Rôle *</label>
           <select name="roleCrm" required className={inputCls} defaultValue="ADJOINT_JURIDIQUE">
             {ROLES.map((r) => (
               <option key={r.v} value={r.v}>
@@ -81,17 +81,17 @@ export function AddContactForm({ leadId }: { leadId: string }) {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Titre</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Titre</label>
           <input name="titre" className={inputCls} placeholder="Ex: Adjointe principale" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Courriel</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Courriel</label>
           <input name="email" type="email" className={inputCls} placeholder="prenom@cabinet.ca" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Statut courriel</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Statut courriel</label>
           <select name="emailStatut" className={inputCls} defaultValue="NON_VERIFIE">
             <option value="NON_VERIFIE">Non vérifié</option>
             <option value="VALIDE">Valide</option>
@@ -102,19 +102,19 @@ export function AddContactForm({ leadId }: { leadId: string }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">LinkedIn</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">LinkedIn</label>
           <input name="linkedinUrl" className={inputCls} placeholder="https://linkedin.com/in/…" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Téléphone</label>
+          <label className="mb-1 block text-xs font-medium text-si-muted">Téléphone</label>
           <input name="telephone" className={inputCls} placeholder="514-555-0000" />
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex items-center gap-2 text-sm text-si-ink">
           <input type="checkbox" name="estDecideur" /> Décideur
         </label>
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex items-center gap-2 text-sm text-si-ink">
           <input type="checkbox" name="estChampionInterne" /> Champion interne (bottom-up)
         </label>
       </div>
@@ -122,14 +122,14 @@ export function AddContactForm({ leadId }: { leadId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
         >
           {isPending ? "Ajout…" : "Ajouter le contact"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+          className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60"
         >
           Annuler
         </button>

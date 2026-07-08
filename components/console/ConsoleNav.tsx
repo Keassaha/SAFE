@@ -49,12 +49,12 @@ export function ConsoleNav() {
           return (
             <span
               key={item.href}
-              className="flex shrink-0 cursor-not-allowed items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-zinc-400"
+              className="flex shrink-0 cursor-not-allowed items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-si-muted"
               title="À venir"
             >
               <Icon className="h-4 w-4" />
               {item.label}
-              <span className="ml-1 rounded bg-zinc-100 px-1 py-0.5 text-[9px] uppercase tracking-wide text-zinc-400">
+              <span className="ml-1 rounded bg-si-canvas px-1 py-0.5 text-[9px] uppercase tracking-wide text-si-muted">
                 bientôt
               </span>
             </span>
@@ -67,8 +67,8 @@ export function ConsoleNav() {
             href={item.href}
             className={`flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
               active
-                ? "border-emerald-600 text-emerald-700"
-                : "border-transparent text-zinc-600 hover:text-zinc-900"
+                ? "border-si-verified text-si-verified"
+                : "border-transparent text-si-muted hover:text-si-ink"
             }`}
           >
             <Icon className="h-4 w-4" />

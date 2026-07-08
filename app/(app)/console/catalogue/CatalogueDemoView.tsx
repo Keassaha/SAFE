@@ -39,8 +39,8 @@ const DOMAINS: { id: Domaine; label: string }[] = [
 
 function StatusBadge({ status }: { status: "ga" | "beta" | "custom" }) {
   const map = {
-    ga: "bg-emerald-100 text-emerald-700",
-    beta: "bg-amber-100 text-amber-700",
+    ga: "bg-si-verified/10 text-si-verified",
+    beta: "bg-si-amber/[0.13] text-si-amber-ink",
     custom: "bg-violet-100 text-violet-700",
   };
   return (
@@ -55,8 +55,8 @@ function StatusBadge({ status }: { status: "ga" | "beta" | "custom" }) {
 function KindBadge({ kind }: { kind: "page" | "widget" | "action" }) {
   const map = {
     page: "bg-sky-100 text-sky-700",
-    widget: "bg-zinc-200 text-zinc-700",
-    action: "bg-orange-100 text-orange-700",
+    widget: "bg-si-line text-si-ink",
+    action: "bg-si-amber/[0.13] text-si-amber-ink",
   };
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${map[kind]}`}>
@@ -101,14 +101,14 @@ export function CatalogueDemoView() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
       {/* ── Colonne gauche : le menu COMPOSÉ (le résultat) ──────────────── */}
       <div className="space-y-3">
-        <div className="rounded-lg border border-zinc-200 bg-white p-3">
-          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <div className="rounded-lg border border-si-line bg-si-surface p-3">
+          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-si-muted">
             Menu du cabinet (composé)
           </p>
           <nav className="space-y-3">
             {composed.menu.map((group) => (
               <div key={group.id}>
-                <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-si-muted">
                   {group.label}
                 </p>
                 <ul className="space-y-0.5">
@@ -117,9 +117,9 @@ export function CatalogueDemoView() {
                     return (
                       <li
                         key={item.id}
-                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60"
                       >
-                        <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+                        <Icon className="h-4 w-4 shrink-0 text-si-muted" strokeWidth={1.5} />
                         <span className="flex-1 truncate">{item.label}</span>
                         {item.status !== "ga" && <StatusBadge status={item.status} />}
                       </li>
@@ -132,7 +132,7 @@ export function CatalogueDemoView() {
         </div>
 
         {composed.missingDependencies.length > 0 && (
-          <div className="rounded-md border border-red-300 bg-red-50 p-3 text-xs text-red-800">
+          <div className="rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 p-3 text-xs text-[#B84A3E]">
             <p className="font-semibold">Dépendances manquantes</p>
             <ul className="mt-1 list-disc pl-4">
               {composed.missingDependencies.map((d) => (
@@ -145,8 +145,8 @@ export function CatalogueDemoView() {
         )}
 
         {composed.injections.length > 0 && (
-          <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700">
-            <p className="font-semibold text-zinc-500">
+          <div className="rounded-md border border-si-line bg-si-canvas p-3 text-xs text-si-ink">
+            <p className="font-semibold text-si-muted">
               Widgets / actions injectés (hors menu)
             </p>
             <ul className="mt-1 space-y-1">
@@ -154,7 +154,7 @@ export function CatalogueDemoView() {
                 <li key={inj.toolId} className="flex items-center gap-1.5">
                   <KindBadge kind={inj.kind} />
                   <span className="truncate">{inj.label}</span>
-                  <span className="text-zinc-400">
+                  <span className="text-si-muted">
                     → {inj.host}/{inj.slotOrLocation}
                   </span>
                 </li>
@@ -167,7 +167,7 @@ export function CatalogueDemoView() {
       {/* ── Colonne droite : le CATALOGUE (la bibliothèque) ─────────────── */}
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-zinc-500">
+          <span className="text-xs font-medium text-si-muted">
             Simuler un audit :
           </span>
           {DOMAINS.map((d) => (
@@ -175,18 +175,18 @@ export function CatalogueDemoView() {
               key={d.id}
               type="button"
               onClick={() => applyDomainPreset(d.id)}
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-emerald-400 hover:bg-emerald-50"
+              className="rounded-full border border-si-line bg-si-surface px-3 py-1 text-xs font-medium text-si-ink transition hover:border-si-verified/50 hover:bg-si-verified/10"
             >
               Cabinet « {d.label} »
             </button>
           ))}
         </div>
 
-        <div className="rounded-lg border border-zinc-200 bg-white">
-          <div className="border-b border-zinc-100 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <div className="rounded-lg border border-si-line bg-si-surface">
+          <div className="border-b border-si-line px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-si-muted">
             Bibliothèque interne ({CATALOG.length} outils) — cochez pour activer
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-si-line">
             {CATALOG.map((tool) => {
               const on = activated.has(tool.id);
               return (
@@ -200,30 +200,30 @@ export function CatalogueDemoView() {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-zinc-900">
+                        <span className="font-medium text-si-ink">
                           {tool.label}
                         </span>
                         <KindBadge kind={tool.placement.kind} />
                         <StatusBadge status={tool.status} />
                         {tool.domains.length === 0 ? (
-                          <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] text-zinc-500">
+                          <span className="rounded bg-si-canvas px-1.5 py-0.5 text-[10px] text-si-muted">
                             cœur
                           </span>
                         ) : (
                           tool.domains.map((d) => (
                             <span
                               key={d}
-                              className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-700"
+                              className="rounded bg-si-verified/10 px-1.5 py-0.5 text-[10px] text-si-verified"
                             >
                               {d}
                             </span>
                           ))
                         )}
                       </div>
-                      <p className="mt-0.5 text-sm text-zinc-500">
+                      <p className="mt-0.5 text-sm text-si-muted">
                         {tool.description}
                       </p>
-                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-zinc-400">
+                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-si-muted">
                         {tool.placement.kind === "page" && (
                           <span>
                             placement : menu « {tool.placement.group} » (#
@@ -248,7 +248,7 @@ export function CatalogueDemoView() {
                           <span>seeds : {tool.seeds.join(", ")}</span>
                         ) : null}
                         {tool.compliance?.length ? (
-                          <span className="text-amber-600">
+                          <span className="text-si-amber-ink">
                             conformité : {tool.compliance.join(" · ")}
                           </span>
                         ) : null}
@@ -261,11 +261,11 @@ export function CatalogueDemoView() {
           </ul>
         </div>
 
-        <details className="rounded-lg border border-zinc-200 bg-zinc-50">
-          <summary className="cursor-pointer px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <details className="rounded-lg border border-si-line bg-si-canvas">
+          <summary className="cursor-pointer px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-si-muted">
             Manifeste d'activation (ce que la Console générerait)
           </summary>
-          <pre className="overflow-x-auto px-4 pb-4 text-xs text-zinc-700">
+          <pre className="overflow-x-auto px-4 pb-4 text-xs text-si-ink">
             {manifest}
           </pre>
         </details>

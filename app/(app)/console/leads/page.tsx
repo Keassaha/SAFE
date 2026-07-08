@@ -39,10 +39,10 @@ const SOURCE_LABELS: Record<string, string> = {
 function ScoreBadge({ score }: { score: number }) {
   const color =
     score >= 70
-      ? "bg-emerald-100 text-emerald-800"
+      ? "bg-si-verified/10 text-si-verified"
       : score >= 40
-      ? "bg-amber-100 text-amber-800"
-      : "bg-zinc-100 text-zinc-700";
+      ? "bg-si-amber/[0.13] text-si-amber-ink"
+      : "bg-si-canvas text-si-ink";
   return (
     <span
       className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${color}`}
@@ -58,10 +58,10 @@ function StageBadge({ stage }: { stage: string }) {
     stage,
   );
   const color = isLive
-    ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+    ? "bg-si-verified/10 text-si-verified border-si-verified/30"
     : isClosing
-    ? "bg-blue-100 text-blue-800 border-blue-200"
-    : "bg-zinc-100 text-zinc-700 border-zinc-200";
+    ? "bg-si-forest/[0.06] text-si-forest border-si-forest/20"
+    : "bg-si-canvas text-si-ink border-si-line";
   return (
     <span
       className={`inline-flex items-center rounded border px-2 py-0.5 text-xs ${color}`}
@@ -91,7 +91,7 @@ export default async function ConsoleLeadsPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className="inline-flex items-center gap-1.5 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft"
           >
             + Nouveau cabinet
           </Link>
@@ -108,7 +108,7 @@ export default async function ConsoleLeadsPage() {
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+                <thead className="border-b border-si-line bg-si-canvas text-xs uppercase tracking-wide text-si-muted">
                   <tr>
                     <th className="px-4 py-3 text-left">Cabinet</th>
                     <th className="px-4 py-3 text-left">Stage</th>
@@ -120,21 +120,21 @@ export default async function ConsoleLeadsPage() {
                     <th className="px-4 py-3 text-right">Activités</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100">
+                <tbody className="divide-y divide-si-line">
                   {leads.map((lead) => (
                     <tr
                       key={lead.id}
-                      className="cursor-pointer transition hover:bg-zinc-50/60"
+                      className="cursor-pointer transition hover:bg-si-canvas/60"
                     >
                       <td className="px-4 py-3">
                         <Link
                           href={`/console/leads/${lead.id}`}
-                          className="block font-medium text-zinc-900 hover:text-emerald-700"
+                          className="block font-medium text-si-ink hover:text-si-verified"
                         >
                           {lead.raisonSociale}
                         </Link>
                         {lead.cabinet && (
-                          <div className="mt-0.5 text-xs text-emerald-700">
+                          <div className="mt-0.5 text-xs text-si-verified">
                             ✓ Client converti
                           </div>
                         )}
@@ -143,7 +143,7 @@ export default async function ConsoleLeadsPage() {
                             {lead.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
-                                className="inline-flex items-center rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] text-zinc-600"
+                                className="inline-flex items-center rounded bg-si-canvas px-1.5 py-0.5 text-[10px] text-si-muted"
                               >
                                 {tag}
                               </span>
@@ -154,25 +154,25 @@ export default async function ConsoleLeadsPage() {
                       <td className="px-4 py-3">
                         <StageBadge stage={lead.stageLead} />
                       </td>
-                      <td className="px-4 py-3 text-zinc-700">
+                      <td className="px-4 py-3 text-si-ink">
                         {SOURCE_LABELS[lead.sourceLead] ?? lead.sourceLead}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <ScoreBadge score={lead.score} />
                       </td>
-                      <td className="px-4 py-3 text-zinc-700">
+                      <td className="px-4 py-3 text-si-ink">
                         <div>{lead.province}</div>
                         {lead.ville && (
-                          <div className="text-xs text-zinc-500">{lead.ville}</div>
+                          <div className="text-xs text-si-muted">{lead.ville}</div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-zinc-700">
+                      <td className="px-4 py-3 text-si-ink">
                         {lead.tailleCabinet.replace(/_/g, "-")}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums text-zinc-600">
+                      <td className="px-4 py-3 text-right tabular-nums text-si-muted">
                         {lead._count.contacts}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums text-zinc-600">
+                      <td className="px-4 py-3 text-right tabular-nums text-si-muted">
                         {lead._count.activities}
                       </td>
                     </tr>

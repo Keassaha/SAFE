@@ -49,10 +49,10 @@ export default async function TicketDetailPage({
       />
 
       <div className="flex items-center gap-3">
-        <span className="inline-flex items-center rounded border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-sm text-zinc-700">
+        <span className="inline-flex items-center rounded border border-si-line bg-si-canvas px-2.5 py-1 text-sm text-si-ink">
           {STATUT_LABELS[ticket.statut] ?? ticket.statut}
         </span>
-        <span className="text-sm text-zinc-500">
+        <span className="text-sm text-si-muted">
           Ouvert le {formatDateTime(ticket.createdAt)}
         </span>
       </div>
@@ -60,10 +60,10 @@ export default async function TicketDetailPage({
       {/* Description initiale */}
       <Card>
         <CardContent className="px-6 py-5">
-          <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
+          <div className="mb-2 text-xs uppercase tracking-wide text-si-muted">
             Demande initiale — {ticket.createdBy?.nom ?? "Client"}
           </div>
-          <p className="whitespace-pre-wrap text-sm text-zinc-800">{ticket.description}</p>
+          <p className="whitespace-pre-wrap text-sm text-si-ink">{ticket.description}</p>
         </CardContent>
       </Card>
 
@@ -75,17 +75,17 @@ export default async function TicketDetailPage({
               key={r.id}
               className={`rounded-md border px-5 py-4 ${
                 r.isFromSafeInc
-                  ? "border-emerald-200 bg-emerald-50/40"
-                  : "border-zinc-200 bg-white"
+                  ? "border-si-verified/30 bg-si-verified/[0.05]"
+                  : "border-si-line bg-si-surface"
               }`}
             >
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-700">
+                <span className="text-xs font-medium text-si-ink">
                   {r.isFromSafeInc ? "SAFE Inc." : "Client"} · {r.author?.nom ?? ""}
                 </span>
-                <span className="text-xs text-zinc-400">{formatDateTime(r.createdAt)}</span>
+                <span className="text-xs text-si-muted">{formatDateTime(r.createdAt)}</span>
               </div>
-              <p className="whitespace-pre-wrap text-sm text-zinc-800">{r.contenu}</p>
+              <p className="whitespace-pre-wrap text-sm text-si-ink">{r.contenu}</p>
             </div>
           ))}
         </div>
@@ -94,7 +94,7 @@ export default async function TicketDetailPage({
       {/* Répondre + statut */}
       <Card>
         <CardContent className="px-6 py-5">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
             Répondre
           </h2>
           <TicketReplyForm ticketId={ticket.id} currentStatut={ticket.statut} />

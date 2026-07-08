@@ -78,28 +78,28 @@ function formatDateTime(d: Date | null | undefined): string {
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 70 ? "bg-emerald-100 text-emerald-800"
-    : score >= 40 ? "bg-amber-100 text-amber-800" : "bg-zinc-100 text-zinc-700";
+  const color = score >= 70 ? "bg-si-verified/10 text-si-verified"
+    : score >= 40 ? "bg-si-amber/[0.13] text-si-amber-ink" : "bg-si-canvas text-si-ink";
   return <span className={`inline-flex items-center rounded px-2.5 py-1 text-sm font-semibold ${color}`}>Score {score}</span>;
 }
 function StageBadge({ stage }: { stage: string }) {
   const isLive = stage === "LIVE" || stage === "AMBASSADOR";
   const isClosing = ["SIGNED", "ACTIVATION_IN_PROGRESS", "READY_TO_SIGN"].includes(stage);
-  const color = isLive ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-    : isClosing ? "bg-blue-100 text-blue-800 border-blue-200"
-    : "bg-zinc-100 text-zinc-700 border-zinc-200";
+  const color = isLive ? "bg-si-verified/10 text-si-verified border-si-verified/30"
+    : isClosing ? "bg-si-forest/[0.06] text-si-forest border-si-forest/20"
+    : "bg-si-canvas text-si-ink border-si-line";
   return <span className={`inline-flex items-center rounded border px-2.5 py-1 text-sm font-medium ${color}`}>{STAGE_LABELS[stage] ?? stage}</span>;
 }
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5 py-2">
-      <span className="text-xs uppercase tracking-wide text-zinc-500">{label}</span>
-      <span className="text-sm text-zinc-900">{value ?? "—"}</span>
+      <span className="text-xs uppercase tracking-wide text-si-muted">{label}</span>
+      <span className="text-sm text-si-ink">{value ?? "—"}</span>
     </div>
   );
 }
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">{children}</h2>;
+  return <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">{children}</h2>;
 }
 
 /** Parse JSON sûr → objet plat. */
@@ -166,10 +166,10 @@ export default async function ConsoleClientDetailPage({
       <div className="flex flex-wrap items-center gap-3">
         <StageBadge stage={lead.stageLead} />
         <ScoreBadge score={lead.score} />
-        <span className="inline-flex items-center rounded border border-zinc-200 px-2.5 py-1 text-sm text-zinc-700">
+        <span className="inline-flex items-center rounded border border-si-line px-2.5 py-1 text-sm text-si-ink">
           {STATUT_LABELS[lead.statutLead] ?? lead.statutLead}
         </span>
-        <span className="text-sm text-zinc-500">via {SOURCE_LABELS[lead.sourceLead] ?? lead.sourceLead}</span>
+        <span className="text-sm text-si-muted">via {SOURCE_LABELS[lead.sourceLead] ?? lead.sourceLead}</span>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -209,17 +209,17 @@ export default async function ConsoleClientDetailPage({
               {lead.auditSubmission ? (
                 <>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-sm text-zinc-600">Score d'audit</span>
-                    <span className="text-2xl font-semibold text-emerald-700">
+                    <span className="text-sm text-si-muted">Score d'audit</span>
+                    <span className="text-2xl font-semibold text-si-verified">
                       {lead.auditSubmission.scoreGlobal ?? "—"}
-                      <span className="text-sm text-zinc-400"> / 100</span>
+                      <span className="text-sm text-si-muted"> / 100</span>
                     </span>
                   </div>
                   {auditScores && (
-                    <div className="space-y-1 border-t border-zinc-100 pt-2 text-sm">
+                    <div className="space-y-1 border-t border-si-line pt-2 text-sm">
                       {Object.entries(auditScores).map(([k, v]) => (
                         <div key={k} className="flex justify-between">
-                          <span className="capitalize text-zinc-600">{k.replace(/_/g, " ")}</span>
+                          <span className="capitalize text-si-muted">{k.replace(/_/g, " ")}</span>
                           <span className="tabular-nums">{typeof v === "number" ? v : String(v)}</span>
                         </div>
                       ))}
@@ -229,13 +229,13 @@ export default async function ConsoleClientDetailPage({
                   <InfoRow label="Soumis le" value={formatDate(lead.auditSubmission.createdAt)} />
                   <Link
                     href={`/audit/${lead.auditSubmission.id}`}
-                    className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-emerald-700 hover:underline"
+                    className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-si-verified hover:underline"
                   >
                     Voir le rapport d'audit →
                   </Link>
                 </>
               ) : (
-                <p className="text-sm text-zinc-500">Aucun audit gratuit lié à ce cabinet.</p>
+                <p className="text-sm text-si-muted">Aucun audit gratuit lié à ce cabinet.</p>
               )}
             </CardContent>
           </Card>
@@ -244,10 +244,10 @@ export default async function ConsoleClientDetailPage({
             <CardContent className="space-y-2 px-6 py-5">
               <SectionTitle>Scoring CRM</SectionTitle>
               <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between"><span className="text-zinc-600">Firmographique</span><span className="tabular-nums">{lead.scoreFirmographique} / 40</span></div>
-                <div className="flex justify-between"><span className="text-zinc-600">Engagement</span><span className="tabular-nums">{lead.scoreEngagement} / 40</span></div>
-                <div className="flex justify-between"><span className="text-zinc-600">Enrichissement</span><span className="tabular-nums">{lead.scoreEnrichissement} / 20</span></div>
-                <div className="mt-2 flex justify-between border-t border-zinc-200 pt-2 font-semibold"><span>Total</span><span className="tabular-nums">{lead.score} / 100</span></div>
+                <div className="flex justify-between"><span className="text-si-muted">Firmographique</span><span className="tabular-nums">{lead.scoreFirmographique} / 40</span></div>
+                <div className="flex justify-between"><span className="text-si-muted">Engagement</span><span className="tabular-nums">{lead.scoreEngagement} / 40</span></div>
+                <div className="flex justify-between"><span className="text-si-muted">Enrichissement</span><span className="tabular-nums">{lead.scoreEnrichissement} / 20</span></div>
+                <div className="mt-2 flex justify-between border-t border-si-line pt-2 font-semibold"><span>Total</span><span className="tabular-nums">{lead.score} / 100</span></div>
               </div>
             </CardContent>
           </Card>
@@ -258,7 +258,7 @@ export default async function ConsoleClientDetailPage({
                 <SectionTitle>Tags</SectionTitle>
                 <div className="flex flex-wrap gap-1.5">
                   {lead.tags.map((tag) => (
-                    <span key={tag} className="inline-flex items-center rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700">{tag}</span>
+                    <span key={tag} className="inline-flex items-center rounded bg-si-canvas px-2 py-0.5 text-xs text-si-ink">{tag}</span>
                   ))}
                 </div>
               </CardContent>
@@ -273,7 +273,7 @@ export default async function ConsoleClientDetailPage({
             <CardContent className="px-6 py-5">
               <SectionTitle>Abonnement</SectionTitle>
               {!isProvisioned ? (
-                <p className="text-sm text-zinc-500">Cabinet non encore provisionné dans SAFE. Aucun abonnement actif.</p>
+                <p className="text-sm text-si-muted">Cabinet non encore provisionné dans SAFE. Aucun abonnement actif.</p>
               ) : (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <InfoRow label="Plan" value={subPlan ? planLabel(String(subPlan)) : "—"} />
@@ -298,7 +298,7 @@ export default async function ConsoleClientDetailPage({
               <CardContent className="px-6 py-5">
                 <SectionTitle>Conformité fidéicommis</SectionTitle>
                 {!trust || !trust.hasTrustActivity ? (
-                  <p className="text-sm text-zinc-500">Aucune activité fidéicommis enregistrée pour ce cabinet.</p>
+                  <p className="text-sm text-si-muted">Aucune activité fidéicommis enregistrée pour ce cabinet.</p>
                 ) : (
                   <div className="flex items-start justify-between gap-4">
                     <div className="grid flex-1 grid-cols-2 gap-4">
@@ -308,10 +308,10 @@ export default async function ConsoleClientDetailPage({
                     <span
                       className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
                         trust.isOverdue
-                          ? "bg-red-100 text-red-800"
+                          ? "bg-[#B84A3E]/10 text-[#B84A3E]"
                           : trust.hasNeverReconciled
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-emerald-100 text-emerald-800"
+                            ? "bg-si-amber/[0.13] text-si-amber-ink"
+                            : "bg-si-verified/10 text-si-verified"
                       }`}
                     >
                       {trust.isOverdue
@@ -332,15 +332,15 @@ export default async function ConsoleClientDetailPage({
               <SectionTitle>Activation & accès</SectionTitle>
               {isProvisioned ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-emerald-700">
+                  <p className="text-sm text-si-verified">
                     Cabinet provisionné dans SAFE ({cabinetUsers.length} accès).
                   </p>
                   {cabinetUsers.length > 0 && (
-                    <ul className="divide-y divide-zinc-100 rounded-md border border-zinc-100">
+                    <ul className="divide-y divide-si-line rounded-md border border-si-line">
                       {cabinetUsers.map((u) => (
                         <li key={u.id} className="flex items-center justify-between px-3 py-2 text-sm">
-                          <span className="text-zinc-900">{u.nom || u.email}</span>
-                          <span className="rounded bg-zinc-100 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-600">
+                          <span className="text-si-ink">{u.nom || u.email}</span>
+                          <span className="rounded bg-si-canvas px-2 py-0.5 text-[10px] uppercase tracking-wide text-si-muted">
                             {u.role}
                           </span>
                         </li>
@@ -350,17 +350,17 @@ export default async function ConsoleClientDetailPage({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-zinc-600">
+                  <p className="text-sm text-si-muted">
                     Ce cabinet n'a pas encore d'accès SAFE. L'activation crée le cabinet et invite l'avocat et son adjoint.
                   </p>
                   <button
                     type="button"
                     disabled
-                    className="inline-flex cursor-not-allowed items-center gap-2 rounded-md bg-emerald-600/60 px-4 py-2 text-sm font-medium text-white"
+                    className="inline-flex cursor-not-allowed items-center gap-2 rounded-md bg-si-verified/60 px-4 py-2 text-sm font-medium text-si-surface"
                     title="Flux d'activation en cours de câblage (chantier suivant)"
                   >
                     Activer le cabinet & créer les accès
-                    <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wide">bientôt</span>
+                    <span className="rounded bg-si-surface/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wide">bientôt</span>
                   </button>
                 </div>
               )}
@@ -372,26 +372,26 @@ export default async function ConsoleClientDetailPage({
             <CardContent className="px-6 py-5">
               <SectionTitle>Contacts ({lead.contacts.length})</SectionTitle>
               {lead.contacts.length === 0 ? (
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-si-muted">
                   Aucun contact identifié. Ajoutez le décideur et le champion interne pour activer le scoring bottom-up.
                 </p>
               ) : (
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-si-line">
                   {lead.contacts.map((contact) => (
                     <div key={contact.id} className="flex items-start justify-between py-3">
                       <div>
-                        <div className="font-medium text-zinc-900">
+                        <div className="font-medium text-si-ink">
                           {contact.prenom} {contact.nom}
-                          {contact.estDecideur && <span className="ml-2 inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-blue-800">Décideur</span>}
-                          {contact.estChampionInterne && <span className="ml-1 inline-flex items-center rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-emerald-800">Champion</span>}
+                          {contact.estDecideur && <span className="ml-2 inline-flex items-center rounded bg-si-forest/[0.06] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-forest">Décideur</span>}
+                          {contact.estChampionInterne && <span className="ml-1 inline-flex items-center rounded bg-si-verified/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-verified">Champion</span>}
                         </div>
-                        <div className="text-xs text-zinc-500">
+                        <div className="text-xs text-si-muted">
                           {ROLE_LABELS[contact.roleCrm] ?? contact.roleCrm}{contact.titre && ` · ${contact.titre}`}
                         </div>
-                        {contact.email && <div className="mt-1 text-xs text-zinc-600">{contact.email}</div>}
+                        {contact.email && <div className="mt-1 text-xs text-si-muted">{contact.email}</div>}
                       </div>
-                      <div className="text-right text-xs text-zinc-500">
-                        ADKAR : <span className="text-zinc-700">{ADKAR_LABELS[contact.awareness]}</span>
+                      <div className="text-right text-xs text-si-muted">
+                        ADKAR : <span className="text-si-ink">{ADKAR_LABELS[contact.awareness]}</span>
                       </div>
                     </div>
                   ))}
@@ -407,21 +407,21 @@ export default async function ConsoleClientDetailPage({
               <SectionTitle>Timeline ({lead.activities.length} activité{lead.activities.length > 1 ? "s" : ""})</SectionTitle>
               <div className="mb-4"><LogActivityForm leadId={lead.id} /></div>
               {lead.activities.length === 0 ? (
-                <p className="text-sm text-zinc-500">Aucune activité enregistrée. Logguez votre premier DM, appel ou note.</p>
+                <p className="text-sm text-si-muted">Aucune activité enregistrée. Logguez votre premier DM, appel ou note.</p>
               ) : (
                 <ul className="space-y-3">
                   {lead.activities.map((activity) => (
-                    <li key={activity.id} className="flex gap-3 border-l-2 border-zinc-200 pl-3">
+                    <li key={activity.id} className="flex gap-3 border-l-2 border-si-line pl-3">
                       <div className="flex-1">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-sm font-medium text-zinc-900">{activity.type.replace(/_/g, " ")}</span>
-                          <span className="text-[10px] uppercase tracking-wide text-zinc-500">{activity.direction}</span>
+                          <span className="text-sm font-medium text-si-ink">{activity.type.replace(/_/g, " ")}</span>
+                          <span className="text-[10px] uppercase tracking-wide text-si-muted">{activity.direction}</span>
                         </div>
-                        {activity.sujet && <div className="text-sm text-zinc-700">{activity.sujet}</div>}
+                        {activity.sujet && <div className="text-sm text-si-ink">{activity.sujet}</div>}
                         {activity.contenu && (
-                          <div className="mt-1 text-xs text-zinc-600">{activity.contenu.slice(0, 200)}{activity.contenu.length > 200 ? "…" : ""}</div>
+                          <div className="mt-1 text-xs text-si-muted">{activity.contenu.slice(0, 200)}{activity.contenu.length > 200 ? "…" : ""}</div>
                         )}
-                        <div className="mt-1 text-xs text-zinc-500">{formatDateTime(activity.date)}</div>
+                        <div className="mt-1 text-xs text-si-muted">{formatDateTime(activity.date)}</div>
                       </div>
                     </li>
                   ))}
@@ -434,7 +434,7 @@ export default async function ConsoleClientDetailPage({
             <Card>
               <CardContent className="px-6 py-5">
                 <SectionTitle>Notes privées</SectionTitle>
-                <p className="whitespace-pre-wrap text-sm text-zinc-700">{lead.notesPrivees}</p>
+                <p className="whitespace-pre-wrap text-sm text-si-ink">{lead.notesPrivees}</p>
               </CardContent>
             </Card>
           )}
