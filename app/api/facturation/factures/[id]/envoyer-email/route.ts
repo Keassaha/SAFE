@@ -14,6 +14,11 @@ import {
 } from "@/lib/services/billing/invoice-pdf";
 import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { renderRichDocumentsToPdf } from "@/lib/services/client-send/send-to-client";
+import {
+  parseCabinetConfig,
+  getEmailFactureConfig,
+  applyInvoiceEmailVariables,
+} from "@/lib/cabinet-config";
 import type { UserRole } from "@prisma/client";
 
 /**
@@ -110,7 +115,7 @@ export async function GET(
       numero: true,
       dateEcheance: true,
       client: { select: { raisonSociale: true, prenom: true, nom: true } },
-      cabinet: { select: { nom: true, email: true } },
+      cabinet: { select: { nom: true, email: true, config: true } },
     },
   });
   if (!invoice) return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
@@ -131,14 +136,26 @@ export async function GET(
     ? new Date(invoice.dateEcheance).toLocaleDateString("fr-CA")
     : undefined;
 
+  // Gabarit sauvegardé au niveau du cabinet (paramètres → envoi de facture).
+  // S'il existe, il pré-remplit la modale APRÈS substitution des variables ;
+  // sinon on retombe sur les valeurs générées par défaut.
+  const savedEmail = getEmailFactureConfig(parseCabinetConfig(invoice.cabinet?.config ?? null));
+  const emailVars = { client: clientName, numeroFacture: invoiceNumber, cabinet: cabinetName, echeance: dueDate ?? "" };
+
   const defaults = {
-    subject: `Facture ${invoiceNumber} — ${cabinetName}`,
-    message: defaultMessage({ clientName, invoiceNumber, dueDate, cabinetName }),
-    paymentInstructions: defaultPaymentInstructions({
-      invoiceNumber,
-      cabinetName,
-      cabinetEmail: invoice.cabinet?.email,
-    }),
+    subject: savedEmail.objet?.trim()
+      ? applyInvoiceEmailVariables(savedEmail.objet, emailVars)
+      : `Facture ${invoiceNumber} — ${cabinetName}`,
+    message: savedEmail.message?.trim()
+      ? applyInvoiceEmailVariables(savedEmail.message, emailVars)
+      : defaultMessage({ clientName, invoiceNumber, dueDate, cabinetName }),
+    paymentInstructions: savedEmail.instructionsPaiement?.trim()
+      ? applyInvoiceEmailVariables(savedEmail.instructionsPaiement, emailVars)
+      : defaultPaymentInstructions({
+          invoiceNumber,
+          cabinetName,
+          cabinetEmail: invoice.cabinet?.email,
+        }),
   };
 
   return NextResponse.json({ documents, defaults });

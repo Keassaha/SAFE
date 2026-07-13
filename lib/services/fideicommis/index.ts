@@ -2,7 +2,7 @@
  * Module fidéicommis — soldes, transactions et rapprochement.
  */
 
-export { getTrustBalance, getGlobalTrustBalance } from "./trust-balance-service";
+export { getTrustBalance, getGlobalTrustBalance, countClientsWithTrustFunds } from "./trust-balance-service";
 export {
   createTrustDeposit,
   createTrustWithdrawal,

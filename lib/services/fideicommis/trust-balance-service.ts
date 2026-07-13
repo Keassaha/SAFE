@@ -37,3 +37,18 @@ export async function getGlobalTrustBalance(cabinetId: string): Promise<number> 
   });
   return result._sum.amount ?? 0;
 }
+
+/**
+ * Nombre de clients détenant réellement des sommes en fidéicommis (solde > 0),
+ * calculé depuis le registre append-only TrustTransaction (source de vérité).
+ * Utilisé par le tableau de bord (« Clients avec fonds en fiducie ») plutôt que
+ * de compter la table TrustAccount, qui n'est pas toujours peuplée.
+ */
+export async function countClientsWithTrustFunds(cabinetId: string): Promise<number> {
+  const groups = await prisma.trustTransaction.groupBy({
+    by: ["clientId"],
+    where: { cabinetId },
+    _sum: { amount: true },
+  });
+  return groups.filter((g) => (g._sum.amount ?? 0) > 0).length;
+}

@@ -8,7 +8,7 @@ const CreateDocSchema = z.object({
   dossierId: z.string().min(1),
   clientId: z.string().min(1),
   titre: z.string().min(1).max(255),
-  type: z.enum(["note", "lettre", "contrat", "procedure", "requete", "autre"]).default("note"),
+  type: z.enum(["note", "lettre", "contrat", "procedure", "requete", "mandat", "autre"]).default("note"),
   content: z.string().default("{}"),
 });
 

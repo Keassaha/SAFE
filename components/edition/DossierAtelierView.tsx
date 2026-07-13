@@ -21,10 +21,11 @@ const DOC_TYPE_KEYS: Record<string, string> = {
   contrat: "docTypeContrat",
   procedure: "docTypeProcedure",
   requete: "docTypeRequete",
+  mandat: "docTypeMandat",
   autre: "docTypeAutre",
 };
 
-const DOC_TYPE_VALUES = ["note", "lettre", "contrat", "procedure", "requete", "autre"];
+const DOC_TYPE_VALUES = ["note", "lettre", "contrat", "procedure", "requete", "mandat", "autre"];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   note: "bg-yellow-100 text-yellow-700",
@@ -32,6 +33,7 @@ const DOC_TYPE_COLORS: Record<string, string> = {
   contrat: "bg-green-100 text-green-700",
   procedure: "bg-purple-100 text-purple-700",
   requete: "bg-red-100 text-red-700",
+  mandat: "bg-amber-100 text-amber-800",
   autre: "bg-gray-100 text-gray-700",
 };
 

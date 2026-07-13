@@ -38,6 +38,7 @@ export async function GET() {
       activer: true,
       lienExpirationJours: 30,
     },
+    emailFacture: config.emailFacture ?? {},
   });
 }
 
@@ -88,6 +89,27 @@ export async function PATCH(request: Request) {
     }
   }
 
+  // Gabarit d'email de facture : chaque champ est un texte optionnel, borné à
+  // 5000 caractères (garde-fou anti-abus, largement au-delà d'un courriel réel).
+  if (patch.emailFacture !== undefined) {
+    if (typeof patch.emailFacture !== "object" || patch.emailFacture === null) {
+      return NextResponse.json(
+        { error: "emailFacture doit être un objet" },
+        { status: 400 }
+      );
+    }
+    const email = patch.emailFacture as Record<string, unknown>;
+    for (const field of ["objet", "message", "instructionsPaiement"] as const) {
+      const value = email[field];
+      if (value !== undefined && (typeof value !== "string" || value.length > 5000)) {
+        return NextResponse.json(
+          { error: `Champ « ${field} » invalide (texte, 5000 caractères max)` },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
   const cabinet = await prisma.cabinet.findUnique({
     where: { id: cabinetId },
     select: { config: true },
@@ -104,5 +126,6 @@ export async function PATCH(request: Request) {
       activer: true,
       lienExpirationJours: 30,
     },
+    emailFacture: updated.emailFacture ?? {},
   });
 }

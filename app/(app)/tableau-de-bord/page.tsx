@@ -7,7 +7,7 @@ import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
-import { getGlobalTrustBalance } from "@/lib/services/fideicommis";
+import { getGlobalTrustBalance, countClientsWithTrustFunds } from "@/lib/services/fideicommis";
 import { getDashboardVisibility } from "@/lib/dashboard/visibility";
 import type {
   DashboardKpis,
@@ -345,15 +345,16 @@ export default async function TableauDeBordPage() {
     prisma.invoice.count({
       where: { cabinetId, ...whereInvoiceIssuedActive(now) },
     }),
+    // « Factures impayées » : factures émises (non brouillon) avec un solde à recevoir.
     prisma.invoice.count({
-      where: { cabinetId, ...whereInvoiceDraft() },
+      where: { cabinetId, statut: { not: "brouillon" }, balanceDue: { gt: 0 } },
     }),
     prisma.timeEntry.count({
       where: { cabinetId, statut: { not: "facture" }, facturable: true },
     }),
-    prisma.trustAccount.count({
-      where: { cabinetId },
-    }).catch(() => 0 as number),
+    // « Clients avec fonds en fiducie » : depuis le registre TrustTransaction
+    // (source de vérité du solde), et non la table TrustAccount souvent vide.
+    countClientsWithTrustFunds(cabinetId).catch(() => 0 as number),
     prisma.invoice.findMany({
       where: { cabinetId, ...whereInvoiceOverdue(now) },
       select: { balanceDue: true, dateEcheance: true },

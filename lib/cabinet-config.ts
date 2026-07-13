@@ -73,6 +73,22 @@ export type CabinetInvoiceConfig = {
   accentColor?: string;
 };
 
+/**
+ * Gabarit par défaut du courriel qui accompagne l'envoi d'une facture.
+ * Sauvegardé une fois au niveau du cabinet, réutilisé à chaque envoi et
+ * toujours modifiable dans la modale juste avant d'envoyer. Les champs
+ * acceptent des variables : {{client}}, {{numero_facture}}, {{cabinet}},
+ * {{echeance}} (substituées au moment de l'envoi).
+ */
+export type EmailFactureConfig = {
+  /** Objet du courriel (ex. « Facture {{numero_facture}} — {{cabinet}} »). */
+  objet?: string;
+  /** Corps du message d'accompagnement (texte brut, sauts de ligne conservés). */
+  message?: string;
+  /** Instructions de paiement affichées dans l'encadré du courriel. */
+  instructionsPaiement?: string;
+};
+
 export type CabinetConfig = {
   devise?: string;
   tauxInteret?: number;
@@ -80,6 +96,7 @@ export type CabinetConfig = {
   /** Province du cabinet (ex. "QC", "ON") — pilote la réglementation citée. */
   province?: string;
   envoiFactureClient?: EnvoiFactureClientConfig;
+  emailFacture?: EmailFactureConfig;
   taxNumbers?: CabinetTaxNumbers;
   invoice?: CabinetInvoiceConfig;
 };
@@ -105,6 +122,33 @@ export function getEnvoiFactureClientConfig(config: CabinetConfig): EnvoiFacture
 
 export function getCabinetTaxNumbers(config: CabinetConfig): CabinetTaxNumbers {
   return config.taxNumbers ?? {};
+}
+
+export function getEmailFactureConfig(config: CabinetConfig): EmailFactureConfig {
+  return config.emailFacture ?? {};
+}
+
+/**
+ * Substitue les variables d'un gabarit d'email de facture par leurs valeurs.
+ * Tolérante aux alias courants ({{numero}} == {{numero_facture}}) et insensible
+ * aux espaces internes ({{ client }} fonctionne aussi). Une variable inconnue
+ * est laissée telle quelle (l'utilisateur voit tout de suite sa coquille).
+ */
+export function applyInvoiceEmailVariables(
+  template: string,
+  vars: { client?: string; numeroFacture?: string; cabinet?: string; echeance?: string },
+): string {
+  const table: Record<string, string> = {
+    client: vars.client ?? "",
+    numero: vars.numeroFacture ?? "",
+    numero_facture: vars.numeroFacture ?? "",
+    cabinet: vars.cabinet ?? "",
+    echeance: vars.echeance ?? "",
+  };
+  return template.replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (match, key: string) => {
+    const normalized = key.toLowerCase();
+    return normalized in table ? table[normalized] : match;
+  });
 }
 
 /**
@@ -164,6 +208,10 @@ export function mergeCabinetConfig(
       patch.envoiFactureClient !== undefined
         ? { ...current.envoiFactureClient, ...patch.envoiFactureClient }
         : current.envoiFactureClient,
+    emailFacture:
+      patch.emailFacture !== undefined
+        ? { ...current.emailFacture, ...patch.emailFacture }
+        : current.emailFacture,
     taxNumbers:
       patch.taxNumbers !== undefined
         ? { ...current.taxNumbers, ...patch.taxNumbers }

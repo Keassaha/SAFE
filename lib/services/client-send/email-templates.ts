@@ -8,7 +8,7 @@
  * service d'envoi. Voix « vous », ton professionnel, sans emoji.
  */
 
-export type SendableDocType = "note" | "lettre" | "contrat" | "procedure" | "requete" | "autre";
+export type SendableDocType = "note" | "lettre" | "contrat" | "procedure" | "requete" | "mandat" | "autre";
 
 export interface DocEmailVars {
   clientNom: string;
@@ -22,6 +22,8 @@ const INTRO_FR: Record<SendableDocType, (v: DocEmailVars) => string> = {
     "Veuillez trouver ci-joint le document contractuel relatif à votre dossier. Nous vous invitons à en prendre connaissance attentivement.",
   procedure: () => "Veuillez trouver ci-joint le document de procédure relatif à votre dossier.",
   requete: () => "Veuillez trouver ci-joint la requête relative à votre dossier.",
+  mandat: () =>
+    "Veuillez trouver ci-joint le mandat relatif à votre dossier. Nous vous invitons à en prendre connaissance, à le signer et à nous le retourner.",
   note: (v) => `Veuillez trouver ci-joint le document « ${v.documentTitre} » relatif à votre dossier.`,
   autre: (v) => `Veuillez trouver ci-joint le document « ${v.documentTitre} » relatif à votre dossier.`,
 };
@@ -32,6 +34,8 @@ const INTRO_EN: Record<SendableDocType, (v: DocEmailVars) => string> = {
     "Please find attached the contractual document regarding your file. We invite you to review it carefully.",
   procedure: () => "Please find attached the procedural document regarding your file.",
   requete: () => "Please find attached the application regarding your file.",
+  mandat: () =>
+    "Please find attached the engagement letter regarding your file. We invite you to review it, sign it and return it to us.",
   note: (v) => `Please find attached the document “${v.documentTitre}” regarding your file.`,
   autre: (v) => `Please find attached the document “${v.documentTitre}” regarding your file.`,
 };
@@ -45,7 +49,7 @@ export function documentEmailTemplate(
   locale: "fr" | "en",
   vars: DocEmailVars,
 ): { subject: string; body: string } {
-  const key: SendableDocType = (["note", "lettre", "contrat", "procedure", "requete", "autre"].includes(type)
+  const key: SendableDocType = (["note", "lettre", "contrat", "procedure", "requete", "mandat", "autre"].includes(type)
     ? type
     : "autre") as SendableDocType;
 

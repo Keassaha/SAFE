@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   FileSignature,
   FileText,
@@ -22,8 +24,12 @@ import {
   MessageSquareWarning,
   ChevronDown,
   ChevronRight,
+  Plus,
+  Upload,
+  Loader2,
   LucideIcon,
 } from "lucide-react";
+import { ImportMandatDialog } from "../detail/ImportMandatDialog";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   FileSignature,
@@ -88,9 +94,26 @@ export function BriefcaseSidebar({
   onSelectItem,
 }: BriefcaseSidebarProps) {
   const t = useTranslations("miscUi");
+  const tm = useTranslations("matterDetailUi");
+  const router = useRouter();
+  const [creatingMandat, setCreatingMandat] = useState(false);
+  const [showImportMandat, setShowImportMandat] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set([sections[0]?.sectionKey ?? "mandat"])
   );
+
+  const createMandat = async () => {
+    setCreatingMandat(true);
+    try {
+      const res = await fetch(`/api/dossiers/${dossierId}/mandat`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.id) throw new Error(data?.error ?? tm("mandateError"));
+      router.push(`/edition/${dossierId}/${data.id}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : tm("mandateError"));
+      setCreatingMandat(false);
+    }
+  };
   const [runtimeSections, setRuntimeSections] = useState<RuntimeSection[]>(
     sections.map((s) => ({ id: s.id, sectionKey: s.sectionKey, label: s.label, icone: s.icone, items: [] }))
   );
@@ -182,12 +205,51 @@ export function BriefcaseSidebar({
                       </button>
                     ))
                   )}
+
+                  {section.sectionKey === "mandat" && (
+                    <div className="mt-1 space-y-1 border-t border-si-line/60 pt-2">
+                      <button
+                        onClick={createMandat}
+                        disabled={creatingMandat}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-primary hover:bg-si-primary/5 disabled:opacity-60"
+                      >
+                        {creatingMandat ? (
+                          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4 shrink-0" />
+                        )}
+                        <span className="truncate">
+                          {creatingMandat ? tm("mandateCreating") : tm("mandateCreateButton")}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => setShowImportMandat(true)}
+                        disabled={creatingMandat}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink hover:bg-si-surface disabled:opacity-60"
+                      >
+                        <Upload className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{tm("mandateImportButton")}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           );
         })}
       </nav>
+
+      {showImportMandat && (
+        <ImportMandatDialog
+          dossierId={dossierId}
+          onClose={() => setShowImportMandat(false)}
+          onImported={(id, warning) => {
+            setShowImportMandat(false);
+            if (warning) toast.warning(warning);
+            router.push(`/edition/${dossierId}/${id}`);
+          }}
+        />
+      )}
     </div>
   );
 }

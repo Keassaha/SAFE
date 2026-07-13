@@ -174,11 +174,13 @@ export interface OnboardingChecklist {
 /** Indicateurs section data */
 export interface DashboardIndicators {
   invoicesSent: number;
+  /** Factures émises avec un solde à recevoir (« Factures impayées »). */
   invoicesPending: number;
   timeEntries: number;
   unbilledEntries: number;
   /** Intérêts cumulés at 14%/an on overdue invoices */
   accruedInterest: number;
+  /** Clients détenant des sommes en fidéicommis (solde > 0, depuis TrustTransaction). */
   activeTrustAccounts: number;
 }
 

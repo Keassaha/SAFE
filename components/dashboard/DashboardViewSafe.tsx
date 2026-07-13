@@ -81,14 +81,14 @@ export function DashboardViewSafe({ payload }: { payload: DashboardPayload }) {
       state: trustToReconcile ? "warn" : "ok",
     },
     {
-      title: "Comptes fiducie actifs",
-      detail: "Suivi mensuel (B-1 r.5)",
+      title: "Clients avec fonds en fiducie",
+      detail: "Sommes détenues en fiducie (B-1 r.5)",
       status: String(indicators.activeTrustAccounts),
       state: "ok",
     },
     {
-      title: "Factures en attente",
-      detail: "À valider ou émettre",
+      title: "Factures impayées",
+      detail: "Solde à recevoir",
       status: String(indicators.invoicesPending),
       state: indicators.invoicesPending > 0 ? "warn" : "ok",
     },
