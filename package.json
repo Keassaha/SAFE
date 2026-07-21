@@ -18,6 +18,7 @@
     "db:migrate": "prisma migrate dev",
     "db:baseline": "prisma migrate resolve --applied \"20250309180000_init\"",
     "db:studio": "prisma studio",
+    "secure:rls": "node scripts/secure-rls.mjs",
     "seed:derisier:audit": "node scripts/rebuild-derisier-from-audit.mjs",
     "verify:derisier": "node scripts/verify-derisier-delivery.mjs",
     "seed:cayard": "node scripts/seed-cayard.mjs",

@@ -71,4 +71,11 @@ try {
 }
 
 run("npx", ["prisma", "migrate", "deploy"]);
+
+// Réactive RLS sur toute nouvelle table créée par les migrations.
+// Ferme la faille "table publiquement accessible" de l'API Supabase.
+// allowFailure : ne bloque pas un déploiement sur un souci transitoire,
+// mais loggue clairement toute table restée non sécurisée.
+run("node", ["scripts/secure-rls.mjs"], { allowFailure: true });
+
 run("npx", ["next", "build"]);
