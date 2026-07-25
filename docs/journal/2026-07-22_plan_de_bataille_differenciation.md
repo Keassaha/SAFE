@@ -119,7 +119,7 @@
 
 **Qui fait quoi** : action CEO (peut avancer en parallèle des étapes code 2-4, mais reste une étape à cocher).
 
-**Statut** : ⬜ à faire
+**Statut** : 🟡 recherche faite (2026-07-25), clôture dépend du CEO + Barreau. Réponses sourcées consignées dans `docs/compliance/QUESTIONS_BARREAU.md` (section « Réponses de recherche »). Résolues (confiance haute) : délai QC (aucun), FINTRAC ne s'applique PAS aux avocats (CSC 2015), no-cash 7500 + exceptions, n° TPS/TVQ dès 30 $, ON 25 j. Partielles : conflits QC (art. 72-73), Loi 25 (⚠ « 72 h » = RGPD, pas Loi 25), conflits ON (r. 3.4). Ouvertes (vraie question Barreau) : délai du Rapport comptable annuel (Q-BARREAU-02), audit CPA obligatoire ou non (Q-BARREAU-03). **Découverte** : SAFE impose des vérifications FINTRAC aux avocats alors que FINTRAC ne s'y applique pas — cadrage à revoir (les règles d'identification des ordres, elles, s'appliquent). Rien codé sans validation CEO.
 
 ---
 
