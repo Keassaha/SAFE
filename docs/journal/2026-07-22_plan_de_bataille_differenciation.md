@@ -92,7 +92,11 @@
 **Définition de terminé** :
 - Le CEO clique, obtient un document qu'il pourrait remettre à un inspecteur du Barreau.
 
-**Statut** : ⬜ à faire
+**Statut** : ✅ code fait et vérifié à l'écran en local (2026-07-25). Reste à déployer (avec étapes 2-3) + flag prod.
+
+**Réalisé** : bouton « Générer le dossier d'inspection » sur `/conformite` (V2) → route `app/api/conformite/dossier-inspection/route.ts` qui agrège readiness (14 domaines) + rapport annuel de rapprochements fidéicommis + extrait du journal d'audit + identité cabinet, et rend un PDF via `components/conformite/InspectionDossierPDF.tsx` (react-pdf, réutilise letterhead + tokens). Libellés province-aware (FR pour cabinet QC, EN pour ON). Vérifié : route renvoie un vrai PDF (`%PDF`, en-têtes de téléchargement), et rendu visuel confirmé (4 sections propres, qualité document). Réutilise `generateReportData`, `getCabinetReadiness`, `prisma.auditLog`, `getTrustRegulatorCopy` — aucune nouvelle source de données.
+
+**Hors v1 (buffer)** : archiver/stocker le PDF (champ `TrustComplianceReport.pdfUrl` inutilisé), joindre les pièces justificatives réelles, journal d'audit complet (v1 = 60 dernières entrées), plage de dates configurable. Note : les libellés de preuve par domaine viennent du moteur (FR uniquement) — mineur pour un cabinet EN.
 
 ---
 
@@ -132,3 +136,5 @@
 - 2026-07-22 : Étape 2 terminée (code). Le calendrier existait déjà mais était orphelin. Ajout de l'entrée « Agenda » dans le vrai menu (Header.tsx) + traductions. Flux complet vérifié à l'écran en local. Reste : déploiement (décision CEO).
 - 2026-07-22 : Étape 3 bâtie (code). Readiness 14 domaines exposé sur `/conformite` (vue `ReadinessOverview`, score « Prêt pour l'inspection », flag `COMPLIANCE_DASHBOARD_V2`), opérationnel gardé en section secondaire. Vérifié à l'écran (score 78 %). 2 affinages au buffer. Reste : déploiement + flag en prod. À déployer avec étape 2.
 - 2026-07-25 : Étape 3 complétée. Les 2 affinages (détail fiducie par dossier + widget opérationnel bilingue) faits et vérifiés à l'écran. Nuance : anglais résiduel = copie réglementaire province (QC = français). Reste au buffer : bannière globale « URGENT » à localiser. Reste à déployer (avec étape 2) + flag prod.
+- 2026-07-25 : Étape 4 complétée. Dossier d'inspection PDF en un clic sur `/conformite` (route + InspectionDossierPDF + bouton). Vérifié à l'écran (PDF valide, rendu 4 sections). Reste à déployer + flag prod. 4 étapes sur 5 bâties ; reste l'étape 5 (questions Barreau, devoir CEO).
+- 2026-07-25 : Déploiement prod NON fait (décision voie 1). L'arbre de travail contenait 135 fichiers non commités (re-skin design en cours, inachevé) entremêlés avec conformité+agenda dans des fichiers partagés — impossible d'isoler « 2+3 » proprement, et déployer aurait poussé le re-skin inachevé en prod. Choix CEO : commiter l'état pour tout sauvegarder, garder la prod pour quand la branche release sera cohérente. Commit `c456e4c` sur `release/2026-06-11-compta-admin-derisier`. Flag `COMPLIANCE_DASHBOARD_V2` à poser en prod au moment du déploiement.

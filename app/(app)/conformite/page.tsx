@@ -71,7 +71,15 @@ export default async function ConformitePage() {
     const trustDetail = await buildTrustDetail(cabinetId, province);
     return (
       <div className="space-y-8 animate-fade-in">
-        <PageHeader title={copy.complianceTitle} description={copy.complianceDesc} />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <PageHeader title={copy.complianceTitle} description={copy.complianceDesc} />
+          <a
+            href="/api/conformite/dossier-inspection"
+            className="inline-flex shrink-0 items-center gap-2 rounded-[var(--safe-radius)] bg-si-forest px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            {t("generateInspectionBundle")}
+          </a>
+        </div>
 
         <ReadinessOverview report={report} />
 

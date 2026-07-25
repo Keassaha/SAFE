@@ -975,6 +975,7 @@
     "fix": "Corriger",
     "operationalHeading": "Points opérationnels",
     "operationalSubtitle": "Suivi des dossiers actifs : rapprochement, FINTRAC, mandats, conflits et documents.",
+    "generateInspectionBundle": "Générer le dossier d'inspection",
     "trustDetailTitle": "Détail fidéicommis",
     "trustNextRecon": "Prochain rapprochement : {periode}",
     "trustNoActivity": "Aucune activité de fidéicommis.",

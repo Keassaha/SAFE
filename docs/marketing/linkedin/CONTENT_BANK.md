@@ -48,3 +48,11 @@ Colle ceci dans Perplexity avant publication :
 > 2. Les livres comptables et la comptabilité en fidéicommis d'un cabinet d'avocats au Québec sont-ils sujets à inspection par le Barreau du Québec ?
 > 3. Une erreur de saisie de montant dans les livres peut-elle être détectée tardivement (déclaration de taxes, fin d'exercice, inspection) ?
 > Donne des sources pour chaque point et signale toute affirmation trop forte ou inexacte.
+
+---
+
+## Idée capturée — « On a remplacé notre plus beau schéma par une fiche de dossier »
+
+Statut : idée capturée le 2026-07-25 pendant la refonte des visuels de la landing. À développer au format 4 sections.
+
+L'angle : sur notre page d'accueil, le visuel le plus travaillé était un beau diagramme abstrait, un cercle central, quatre bulles, des courbes. Tout le monde fait ça. On l'a supprimé et remplacé par une simple fiche de dossier : Succession Tremblay, 6,5 heures approuvées, une facture de 3 200 $, une avance en fiducie rapprochée, une échéance au 30 juin. Personne ne confie son fidéicommis à un diagramme. On le confie à un outil dont on voit qu'il tient un dossier comme on le tient soi-même. Leçon build-in-public : montrer le produit, pas le concept (cohérent « preuve visuelle avant tout »).

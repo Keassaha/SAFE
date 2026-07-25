@@ -79,30 +79,38 @@ const PRODUCT_LIST = [
   },
 ] as const;
 
-const SYSTEM_NODES = [
-  {
-    id: "dossiers",
-    label: "Dossiers",
-    icon: FolderKanban,
-    position: { left: "13%", top: "17%" },
-  },
+const DOSSIER_LINKS = [
   {
     id: "temps",
-    label: "Temps",
-    icon: Clock3,
-    position: { right: "13%", top: "14%" },
+    category: "Temps",
+    detail: "6,5 h approuvées",
+    value: "6,5 h",
+    status: "Prêtes à facturer",
+    tone: GREEN,
   },
   {
     id: "facturation",
-    label: "Facturation",
-    icon: ReceiptText,
-    position: { left: "11%", bottom: "14%" },
+    category: "Facturation",
+    detail: "Facture 2026-041",
+    value: "3 200 $",
+    status: "Prête à envoyer",
+    tone: GREEN,
   },
   {
-    id: "fideicommis",
-    label: "Fidéicommis",
-    icon: WalletCards,
-    position: { right: "9%", bottom: "13%" },
+    id: "fiducie",
+    category: "Fidéicommis",
+    detail: "Avance détenue en fiducie",
+    value: "12 500 $",
+    status: "Rapprochée",
+    tone: VERIFIED,
+  },
+  {
+    id: "echeance",
+    category: "Échéance",
+    detail: "Inventaire successoral",
+    value: "30 juin",
+    status: "À valider",
+    tone: "#A16B16",
   },
 ] as const;
 
@@ -296,7 +304,7 @@ function Hero() {
           </motion.p>
         </div>
 
-        <motion.div {...fadeUp(0.12)} className="relative lg:-mr-24 lg:pl-3">
+        <motion.div {...fadeUp(0.12)} className="relative lg:pl-3">
           <ProductListVisual />
         </motion.div>
       </div>
@@ -328,129 +336,78 @@ function ProofStrip() {
 function SystemFigure() {
   const reduceMotion = useReducedMotion();
 
-  const paths = [
-    "M 360 250 C 282 218, 244 150, 142 112",
-    "M 360 250 C 438 206, 478 137, 578 103",
-    "M 360 250 C 281 292, 229 350, 128 401",
-    "M 360 250 C 443 286, 482 363, 591 407",
-  ];
-
   return (
     <motion.div
       {...fadeUp(0.08)}
-      className="relative min-h-[430px] overflow-hidden sm:min-h-[500px]"
+      className="w-full overflow-hidden rounded-[14px] border lg:max-w-[620px] lg:justify-self-end"
       style={{
-        background:
-          "radial-gradient(circle at 50% 50%, rgba(18,161,80,0.08), rgba(18,161,80,0.015) 31%, transparent 58%)",
+        background: SURFACE,
+        borderColor: LINE,
+        boxShadow: "0 40px 80px -60px rgba(11,31,25,0.45)",
       }}
     >
       <div
-        aria-hidden
-        className="absolute inset-[5%] opacity-50"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(31,58,46,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(31,58,46,0.045) 1px, transparent 1px)",
-          backgroundSize: "38px 38px",
-          maskImage: "radial-gradient(circle at center, black 10%, transparent 70%)",
-        }}
-      />
-
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-1/2 h-[318px] w-[318px] -translate-x-1/2 -translate-y-1/2 rounded-full border"
-        style={{ borderColor: "rgba(31,58,46,0.055)" }}
-      />
-
-      <svg
-        aria-hidden
-        viewBox="0 0 720 500"
-        preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full overflow-visible"
+        className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b px-5 py-4 sm:px-7 sm:py-5"
+        style={{ borderColor: LINE }}
       >
-        {paths.map((path, index) => (
-          <motion.path
-            key={path}
-            d={path}
-            fill="none"
-            stroke={GREEN}
-            strokeWidth="1.25"
-            strokeLinecap="round"
-            initial={reduceMotion ? false : { opacity: 0, pathLength: 0 }}
-            whileInView={{ opacity: 0.28, pathLength: 1 }}
-            viewport={{ once: true, amount: 0.45 }}
-            transition={{ delay: 0.12 + index * 0.11, duration: 0.8, ease: EASE }}
-          />
-        ))}
-      </svg>
-
-      <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-        <motion.div
-          className="relative flex h-[92px] w-[92px] items-center justify-center rounded-full border"
-          style={{
-            background: "#F8FBF8",
-            borderColor: GREEN,
-            boxShadow: "0 20px 48px -28px rgba(18,79,49,0.5)",
-          }}
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.55, ease: EASE }}
-        >
-          <span
-            aria-hidden
-            className="absolute inset-[7px] rounded-full border"
-            style={{ borderColor: "rgba(18,161,80,0.34)" }}
-          />
-          <SafeLogo
-            markOnly
-            noPulse
-            size={34}
-            className="[&>span]:!bg-[#F1F8F3] [&>span]:!ring-[#12A150]/70"
-          />
-        </motion.div>
-        <span className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: MUTED }}>
-          Contexte partagé
+        <div>
+          <p className="font-sans text-[10.5px] uppercase tracking-[0.14em]" style={{ color: FAINT }}>
+            Dossier
+          </p>
+          <p className="mt-1 font-serif text-[22px] font-normal" style={{ color: INK }}>
+            Succession Tremblay
+          </p>
+        </div>
+        <span className="font-mono text-[11px]" style={{ color: FAINT }}>
+          2026-014 · Aaliyah Côté
         </span>
       </div>
 
-      {SYSTEM_NODES.map((node, index) => {
-        const Icon = node.icon;
-
-        return (
+      <div className="relative px-5 pb-2 pt-1 sm:px-7">
+        <span
+          aria-hidden
+          className="absolute bottom-[30px] left-[24px] top-[10px] w-px sm:left-[32px]"
+          style={{ background: "rgba(18,161,80,0.22)" }}
+        />
+        {DOSSIER_LINKS.map((link, index) => (
           <motion.div
-            key={node.id}
-            className="absolute flex w-[92px] flex-col items-center text-center sm:w-[112px]"
-            style={node.position}
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.45 }}
-            transition={{ delay: 0.34 + index * 0.1, duration: 0.5, ease: EASE }}
+            key={link.id}
+            initial={reduceMotion ? false : { opacity: 0, x: 10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.14 + index * 0.1, duration: 0.4, ease: EASE }}
+            className="relative grid grid-cols-[10px_1fr_auto] items-center gap-x-4 border-b py-4 last:border-0"
+            style={{ borderColor: LINE_SOFT }}
           >
             <span
-              className="relative flex h-12 w-12 items-center justify-center rounded-full border sm:h-14 sm:w-14"
-              style={{
-                background: "#F6FAF7",
-                borderColor: "rgba(18,161,80,0.28)",
-                color: GREEN,
-              }}
-            >
-              <Icon size={19} strokeWidth={1.5} />
+              className="h-2 w-2 rounded-full border-2"
+              style={{ background: SURFACE, borderColor: "rgba(18,161,80,0.55)" }}
+            />
+            <span className="min-w-0">
+              <span className="block font-sans text-[10.5px] uppercase tracking-[0.09em]" style={{ color: FAINT }}>
+                {link.category}
+              </span>
+              <span className="mt-0.5 block truncate font-sans text-[13.5px]" style={{ color: INK }}>
+                {link.detail}
+              </span>
             </span>
-            <span
-              className="mt-2 font-sans text-[11.5px] sm:text-[12.5px]"
-              style={{ color: INK }}
-            >
-              {node.label}
+            <span className="text-right">
+              <span className="block font-mono text-[14px]" style={{ color: INK }}>
+                {link.value}
+              </span>
+              <span className="mt-0.5 block font-sans text-[11px]" style={{ color: link.tone }}>
+                {link.status}
+              </span>
             </span>
           </motion.div>
-        );
-      })}
+        ))}
+      </div>
 
-      <div
-        aria-hidden
-        className="absolute inset-x-[12%] bottom-[5%] h-px"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(31,58,46,0.10), transparent)" }}
-      />
+      <div className="border-t px-5 py-4 sm:px-7" style={{ borderColor: LINE }}>
+        <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
+          Quatre réalités, un seul dossier. Rien n’est recopié d’un fichier à l’autre.
+        </p>
+      </div>
     </motion.div>
   );
 }
@@ -544,22 +501,47 @@ function ReconciliationFigure() {
 
 function BillingFlowFigure() {
   const steps = [
-    { label: "Temps saisi", value: "6,5 h", icon: Clock3 },
-    { label: "Facture émise", value: "3 200 $", icon: ReceiptText },
-    { label: "Paiement reçu", value: "14 juin", icon: Check },
+    {
+      label: "Temps approuvé",
+      detail: "Succession Tremblay · 6,5 h",
+      value: "6,5 h",
+      date: "31 mai",
+      icon: Clock3,
+      done: false,
+    },
+    {
+      label: "Facture 2026-041 émise",
+      detail: "Heures et débours déjà rattachés",
+      value: "3 200 $",
+      date: "2 juin",
+      icon: ReceiptText,
+      done: false,
+    },
+    {
+      label: "Paiement reçu",
+      detail: "Solde du dossier réglé",
+      value: "3 200 $",
+      date: "14 juin",
+      icon: Check,
+      done: true,
+    },
   ];
 
   return (
     <div className="overflow-hidden rounded-[14px] border bg-white p-5 sm:p-7" style={{ borderColor: LINE }}>
-      <div className="relative grid gap-5 sm:grid-cols-3">
-        <motion.div
+      <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: LINE }}>
+        <span className="font-sans text-[13px]" style={{ color: INK }}>Du temps saisi au paiement</span>
+        <span className="font-mono text-[11px]" style={{ color: FAINT }}>DOSSIER 2026-014</span>
+      </div>
+      <div className="relative mt-1">
+        <motion.span
           aria-hidden
-          className="absolute left-[12%] right-[12%] top-7 hidden h-px origin-left sm:block"
-          style={{ background: GREEN }}
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
+          className="absolute bottom-8 left-[17px] top-6 w-px origin-top"
+          style={{ background: "rgba(18,161,80,0.3)" }}
+          initial={{ scaleY: 0 }}
+          whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: EASE }}
+          transition={{ duration: 0.8, ease: EASE }}
         />
         {steps.map((step, index) => {
           const Icon = step.icon;
@@ -569,22 +551,37 @@ function BillingFlowFigure() {
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.12 + index * 0.16, duration: 0.4 }}
-              className="relative z-10"
+              transition={{ delay: 0.15 + index * 0.16, duration: 0.4, ease: EASE }}
+              className="relative grid grid-cols-[36px_1fr_auto] items-center gap-x-4 border-b py-4 last:border-0"
+              style={{ borderColor: LINE_SOFT }}
             >
               <span
-                className="flex h-14 w-14 items-center justify-center rounded-full border"
-                style={{ background: "#F7FAF7", borderColor: "rgba(18,161,80,0.22)", color: GREEN }}
+                className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border"
+                style={{
+                  background: step.done ? "rgba(18,161,80,0.1)" : "#F7FAF7",
+                  borderColor: step.done ? "rgba(18,161,80,0.45)" : "rgba(18,161,80,0.22)",
+                  color: step.done ? VERIFIED : GREEN,
+                }}
               >
-                <Icon size={18} strokeWidth={1.6} />
+                <Icon size={15} strokeWidth={1.7} />
               </span>
-              <p className="mt-4 font-sans text-[12px]" style={{ color: FAINT }}>{step.label}</p>
-              <p className="mt-1 font-mono text-[18px]" style={{ color: INK }}>{step.value}</p>
+              <span className="min-w-0">
+                <span className="block truncate font-sans text-[13.5px]" style={{ color: INK }}>{step.label}</span>
+                <span className="mt-0.5 block truncate font-sans text-[11.5px]" style={{ color: FAINT }}>
+                  {step.detail}
+                </span>
+              </span>
+              <span className="text-right">
+                <span className="block font-mono text-[15px]" style={{ color: INK }}>{step.value}</span>
+                <span className="mt-0.5 block font-mono text-[10.5px] uppercase" style={{ color: FAINT }}>
+                  {step.date}
+                </span>
+              </span>
             </motion.div>
           );
         })}
       </div>
-      <div className="mt-8 border-t pt-4 font-sans text-[12.5px]" style={{ borderColor: LINE, color: VERIFIED }}>
+      <div className="mt-4 border-t pt-4 font-sans text-[12.5px]" style={{ borderColor: LINE, color: VERIFIED }}>
         Chaque étape conserve le dossier et le client d’origine.
       </div>
     </div>

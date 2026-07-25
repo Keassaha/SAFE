@@ -975,6 +975,7 @@
     "fix": "Fix",
     "operationalHeading": "Operational items",
     "operationalSubtitle": "Active files tracking: reconciliation, FINTRAC, mandates, conflicts and documents.",
+    "generateInspectionBundle": "Generate inspection dossier",
     "trustDetailTitle": "Trust detail",
     "trustNextRecon": "Next reconciliation: {periode}",
     "trustNoActivity": "No trust activity.",
