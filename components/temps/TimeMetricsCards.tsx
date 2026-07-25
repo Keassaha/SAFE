@@ -1,9 +1,8 @@
 "use client";
 
-import { Clock, Calendar, DollarSign, Percent } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils/format";
-import { SkeletonCard } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface TimeMetricsCardsProps {
   semaineHeures: number;
@@ -26,59 +25,47 @@ export function TimeMetricsCards({
       title: t("metricThisWeek"),
       value: `${semaineHeures.toFixed(1)} h`,
       sub: t("metricHours"),
-      icon: Clock,
     },
     {
       title: t("metricThisMonth"),
       value: `${moisHeures.toFixed(1)} h`,
       sub: t("metricHours"),
-      icon: Calendar,
     },
     {
       title: t("metricUnbilled"),
       value: formatCurrency(nonFactureMontant),
       sub: t("metricAmountToBill"),
-      icon: DollarSign,
     },
     {
       title: t("metricBillableRate"),
       value: `${tauxFacturablePercent} %`,
       sub: t("metricBillableEntries"),
-      icon: Percent,
     },
   ];
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 border-y border-si-line bg-si-surface lg:grid-cols-4" aria-busy="true">
         {[1, 2, 3, 4].map((i) => (
-          <SkeletonCard key={i} />
+          <div key={i} className="border-b border-r border-si-line2 px-4 py-3">
+            <Skeleton className="mb-2 h-3 w-24" />
+            <Skeleton className="h-6 w-20" />
+          </div>
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map(({ title, value, sub, icon: Icon }) => (
+    <div className="grid grid-cols-2 border-y border-si-line bg-si-surface lg:grid-cols-4">
+      {cards.map(({ title, value, sub }) => (
         <div
           key={title}
-          className="bg-si-surface border border-si-line p-5 transition-all duration-200 hover:shadow-md"
+          className="min-w-0 border-b border-r border-si-line2 px-4 py-3"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-si-muted tracking-wider">
-                {title}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-si-ink">{value}</p>
-              {sub && (
-                <p className="mt-1 text-sm text-si-muted">{sub}</p>
-              )}
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-si-verified/10 flex items-center justify-center">
-              <Icon className="w-5 h-5 text-si-verified" aria-hidden />
-            </div>
-          </div>
+          <p className="truncate text-[11px] font-medium text-si-muted">{title}</p>
+          <p className="mt-1 truncate font-mono text-xl font-medium tabular-nums text-si-ink">{value}</p>
+          {sub && <p className="mt-1 truncate text-xs text-si-muted">{sub}</p>}
         </div>
       ))}
     </div>

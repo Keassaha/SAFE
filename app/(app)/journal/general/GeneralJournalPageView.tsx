@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -173,36 +174,58 @@ export function GeneralJournalPageView({
     }
   }
 
+  // Cible de projection des actions quand le journal est embarqué dans la page
+  // Comptabilité. Résolue après le montage, sinon le noeud n'existe pas encore.
+  const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
+  const [hostLookupDone, setHostLookupDone] = useState(false);
+  useEffect(() => {
+    if (!embedded) return;
+    setActionsHost(document.getElementById("compta-journal-actions"));
+    setHostLookupDone(true);
+  }, [embedded]);
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
   const manualDossiers = manualContext?.dossiers.filter((dossier) => !manualClientId || dossier.clientId === manualClientId) ?? [];
   const defaultDirection = defaultDirectionFor(manualType);
   const invoiceBalanceThisMonth = kpis.totalFacture - kpis.totalEncaisse;
 
+  const actionButtons = (
+    <>
+      <Button
+        type="button"
+        variant="primary"
+        onClick={openManualEntry}
+      >
+        <Plus className="w-4 h-4" aria-hidden />
+        <span className="ml-2">{t("newEntry")}</span>
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={handleExport}
+        disabled={exporting}
+      >
+        {exporting ? (
+          <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+        ) : (
+          <Download className="w-4 h-4" aria-hidden />
+        )}
+        <span className="ml-2">{t("exportCsv")}</span>
+      </Button>
+    </>
+  );
+
   return (
     <div className="space-y-6 pb-12">
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          variant="primary"
-          onClick={openManualEntry}
-        >
-          <Plus className="w-4 h-4" aria-hidden />
-          <span className="ml-2">{t("newEntry")}</span>
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleExport}
-          disabled={exporting}
-        >
-          {exporting ? (
-            <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
-          ) : (
-            <Download className="w-4 h-4" aria-hidden />
-          )}
-          <span className="ml-2">{t("exportCsv")}</span>
-        </Button>
-      </div>
+      {/* Embarqué dans la page Comptabilité, le journal projette ses actions sur la
+          ligne de titre de la section plutôt que de les laisser flotter au milieu
+          de la page. Autonome, il les rend à sa place habituelle. */}
+      {embedded && actionsHost
+        ? createPortal(actionButtons, actionsHost)
+        : embedded && !hostLookupDone
+          ? null /* le temps de résoudre la cible, évite un saut visuel */
+          : /* cible absente ou vue autonome : on rend en place, jamais rien */
+            <div className="flex flex-wrap justify-end gap-2">{actionButtons}</div>}
 
       <Modal
         open={manualModalOpen}

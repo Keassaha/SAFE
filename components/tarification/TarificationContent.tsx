@@ -167,8 +167,9 @@ function OffreFondatrice() {
     placesPrises,
     placesTotal,
     abonnementVie,
+    abonnementAnnuel,
     prixRegulierBarre,
-    rachatUnique,
+    prixRegulierAnnuelBarre,
     moisGratuits,
   } = TARIFICATION.fondateurs;
   const restantes = Math.max(placesTotal - placesPrises, 0);
@@ -203,7 +204,7 @@ function OffreFondatrice() {
             Le choix des fondateurs
           </span>
           <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-100/75 mb-3">
-            Abonnement à vie
+            Paiement mensuel
           </p>
           <div className="flex items-end gap-2">
             <span className="font-serif text-[48px] leading-none text-white">
@@ -223,23 +224,26 @@ function OffreFondatrice() {
           </Link>
         </motion.div>
 
-        {/* Rachat unique */}
+        {/* Paiement annuel */}
         <motion.div
           variants={fadeUp}
           className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-900/10 bg-white/80 shadow-[0_18px_60px_-48px_rgba(31,58,46,0.48)] hover:border-emerald-900/20 hover:bg-white transition-all"
         >
           <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-800 mb-3">
-            Rachat unique
+            Paiement annuel · 2 mois offerts
           </p>
           <div className="flex items-end gap-2">
             <span className="font-serif text-[48px] leading-none text-zinc-900">
-              {rachatUnique.toLocaleString("fr-CA")} $
+              {abonnementAnnuel.toLocaleString("fr-CA")} $
             </span>
-            <span className="pb-1 text-[14px] text-zinc-500">une seule fois</span>
+            <span className="pb-1 text-[14px] text-zinc-500">/ an</span>
+            <span className="pb-1 ml-1 text-[15px] text-zinc-400 line-through">
+              {prixRegulierAnnuelBarre.toLocaleString("fr-CA")} $
+            </span>
           </div>
           <p className="text-[13.5px] leading-[1.6] text-zinc-700 mt-4 mb-7">
-            Vous payez une fois, plus jamais de mensualité à gérer. Accès à vie, mises à
-            jour de conformité comprises. Réservé aux cinq cabinets fondateurs.
+            Le même tarif fondateur gelé à vie, réglé une fois par an. Deux mois offerts
+            par rapport au mensuel, soit {abonnementAnnuel.toLocaleString("fr-CA")} $/an au lieu de 600 $.
           </p>
           <Link href="/contact" className="safe-site-cta-secondary relative mt-auto">
             Nous contacter &rarr;
@@ -324,7 +328,7 @@ function AvantagesFondateurs() {
   const avantages = [
     "12 mois gratuits dès l'activation",
     "Tarif de 50 $/mois gelé à vie",
-    "Option de rachat unique à 5 000 $",
+    "Ou 500 $/an gelé à vie, deux mois offerts",
     "Mise en route faite avec vous, sans frais",
     "Migration de vos données incluse",
     "Mises à jour de conformité au Barreau incluses",
@@ -374,8 +378,8 @@ function PaliersGrid() {
   const valueProofs = [
     {
       icon: Clock3,
-      value: "5 h",
-      label: "récupérées par semaine visées en 60 jours",
+      value: "Des heures",
+      label: "d'administration récupérées chaque semaine",
     },
     {
       icon: ShieldCheck,
@@ -440,7 +444,7 @@ function PaliersGrid() {
       prix: "Sur devis",
       prixSuffix: "",
       annuel: "Quand le standard ne suffit plus.",
-      pourQui: "6 avocats et plus, multi-bureaux, workflows hors cadre.",
+      pourQui: "6 avocats et plus, multi-bureaux, flux de travail hors cadre.",
       proof: "Architecture et accompagnement calibrés au cabinet.",
       features: [
         "Tout le palier Cabinet",
@@ -685,8 +689,8 @@ function TripleGarantie() {
     },
     {
       num: "02",
-      titre: "Performance — 5 h par semaine récupérées en 60 jours",
-      desc: "Nous mesurons votre temps gagné dans le tableau de bord. Si vous n'atteignez pas 5 heures par semaine récupérées au jour 60, nous continuons de travailler avec vous gratuitement — accompagnement, formation, ajustements — jusqu'à ce que vous y soyez.",
+      titre: "Performance mesurée, ou on continue avec vous",
+      desc: "Nous mesurons votre temps gagné dans le tableau de bord. Tant que vous ne voyez pas une différence réelle sur votre charge administrative, notre équipe continue de travailler avec vous sans frais, accompagnement, formation et ajustements compris.",
     },
     {
       num: "03",

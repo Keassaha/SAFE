@@ -49,10 +49,10 @@ export function TarificationDashboardWidget({ variant = "pack-ev" }: Props) {
         Pack Employé Virtuel
       </p>
       <p className="font-sans font-medium text-[15px] text-text-primary mb-1.5">
-        Vous récupérez en moyenne 6 à 12 heures par semaine.
+        Le travail répétitif de la semaine, fait en arrière-plan.
       </p>
       <p className="text-[13px] text-text-body leading-[1.6] mb-5">
-        Activez votre Employé Virtuel — l&apos;assistant de vos assistants. Dix automations
+        Activez votre Employé Virtuel, l&apos;assistant de vos assistants. Dix automations
         qui exécutent vos tâches répétitives. Vous gardez le contrôle, l&apos;IA fait le reste.
       </p>
       <div className="flex flex-wrap gap-2">

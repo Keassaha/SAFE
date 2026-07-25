@@ -24,19 +24,19 @@ interface AuditFormProps {
 /* ── Labels i18n basiques ─────────────────────────────────────────── */
 const T = {
   fr: {
-    brand: "Safe",
+    brand: "SAFE",
     confidential: "Confidentiel",
     founderTitle: "Jérémie Tiahou",
-    founderSub: "Fondateur · Safe",
+    founderSub: "Fondateur · SAFE",
     stats: [
       { v: "15 min", l: "Durée" },
       { v: "24 h",   l: "Rapport" },
       { v: "0 $",    l: "Gratuit" },
     ],
     hello:
-      "Bonjour. Je suis Jérémie, fondateur de Safe. Ce questionnaire va me permettre de comprendre votre cabinet et de vous préparer un rapport personnalisé sur votre efficacité, votre conformité et une offre réellement adaptée.",
+      "Bonjour. Je suis Jérémie, fondateur de SAFE. Ce questionnaire va me permettre de comprendre votre cabinet et de vous préparer un rapport personnalisé sur votre efficacité, votre conformité et une offre réellement adaptée.",
     helloEn:
-      "Hi. I'm Jérémie, founder of Safe. This questionnaire will help me understand your practice and prepare a personalized report on your efficiency, compliance, and an offer tailored to you.",
+      "Hi. I'm Jérémie, founder of SAFE. This questionnaire will help me understand your practice and prepare a personalized report on your efficiency, compliance, and an offer tailored to you.",
     previous: "Précédent",
     next: "Suivant",
     submit: "Livrer mon rapport",
@@ -56,17 +56,17 @@ const T = {
     maxChecked: (n: number) => `Maximum ${n} sélections.`,
   },
   en: {
-    brand: "Safe",
+    brand: "SAFE",
     confidential: "Confidential",
     founderTitle: "Jérémie Tiahou",
-    founderSub: "Founder · Safe",
+    founderSub: "Founder · SAFE",
     stats: [
       { v: "15 min", l: "Duration" },
       { v: "24 h",   l: "Report" },
       { v: "0 $",    l: "Free" },
     ],
     hello:
-      "Hi. I'm Jérémie, founder of Safe. This short questionnaire will help me understand your practice and prepare a personalized report on your efficiency, compliance, and a tailored offer.",
+      "Hi. I'm Jérémie, founder of SAFE. This short questionnaire will help me understand your practice and prepare a personalized report on your efficiency, compliance, and a tailored offer.",
     helloEn: "",
     previous: "Previous",
     next: "Next",
@@ -776,7 +776,7 @@ function AuditSuccess({
                 Télécharger le PDF →
               </a>
               <a
-                href="mailto:jeremie@safecabinet.ca?subject=Suite%20à%20mon%20audit%20SAFE"
+                href="mailto:jeremie@safecabinet.ca?subject=Suite%20à%20mon%20diagnostic%20SAFE"
                 className="audit-v2-btn-ghost justify-center"
               >
                 Planifier l&apos;appel de 30 min

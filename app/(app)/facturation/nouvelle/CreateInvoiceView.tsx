@@ -680,20 +680,30 @@ export function CreateInvoiceView({
     setLines((prev) => (prev.length > 1 ? prev.filter((l) => l.id !== id) : prev));
   }
 
+  /** Affiche une erreur ET remonte en haut de page pour qu'elle soit visible :
+   *  le bouton "Créer" est sticky, mais la bannière d'erreur est en flux normal
+   *  et se retrouve hors écran quand on a défilé jusqu'aux lignes. */
+  function raiseError(message: string) {
+    setSubmitError(message);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
   async function handleCreate() {
     if (isSubmitting) return;
     setSubmitError(null);
 
     // --- Validation ---
     if (!selectedClientId) {
-      setSubmitError(t("errorSelectClient"));
+      raiseError(t("errorSelectClient"));
       return;
     }
     const manualLines = lines.filter(
       (l) => (l.sourceType ?? "manual") === "manual" && l.description.trim().length > 0 && l.amount > 0
     );
     if (manualLines.length === 0 && selectedSourceLines.length === 0) {
-      setSubmitError(t("errorNoLines"));
+      raiseError(t("errorNoLines"));
       return;
     }
 
@@ -749,9 +759,7 @@ export function CreateInvoiceView({
       }
       router.refresh();
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : t("errorUnexpected")
-      );
+      raiseError(err instanceof Error ? err.message : t("errorUnexpected"));
       setIsSubmitting(false);
     }
   }

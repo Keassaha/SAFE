@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   ClipboardCheck,
   Sunrise,
+  CalendarDays,
 } from "lucide-react";
 import {
   canViewClients,
@@ -96,6 +97,9 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { id: "clients", href: routes.clients, labelKey: "nav.clients", icon: Users, show: canViewClients },
       { id: "dossiers", href: routes.dossiers, labelKey: "nav.matters", icon: FolderOpen, show: canViewDossiers },
+      // Agenda — calendrier du cabinet (événements + échéances). Le composant existait déjà
+      // sur /gestion/lextrack mais n'était atteignable par aucune entrée de menu.
+      { id: "agenda", href: routes.gestionLexTrack, labelKey: "nav.planning", icon: CalendarDays, show: () => true },
       // File assistante — couche assistante active. Visible pour assistante, admin_cabinet, avocat.
       // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
       {

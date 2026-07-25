@@ -82,6 +82,7 @@ model Cabinet {
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
   lead               Lead?                  @relation("CabinetLead")
   tickets            SupportTicket[]        @relation("CabinetTickets")
+  conversations      SupportConversation[]  @relation("CabinetConversations")
   impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
   payerRules         PayerRule[]
   dossierParties     DossierPartie[]
@@ -163,6 +164,8 @@ model User {
   leadContact           LeadContact?           @relation("UserLeadContact")
   ticketsCreated        SupportTicket[]        @relation("TicketCreator")
   ticketRepliesAuthored TicketReply[]          @relation("TicketReplyAuthor")
+  conversationsCreated  SupportConversation[]  @relation("ConversationCreator")
+  messagesAuthored      SupportMessage[]       @relation("MessageAuthor")
   impersonationsByMe    ImpersonationSession[] @relation("Impersonator")
 }
 
@@ -3092,6 +3095,11 @@ enum StatutTicket {
   REOUVERT
 }
 
+enum StatutConversation {
+  OUVERTE
+  ARCHIVEE
+}
+
 // --- Models CRM ---
 
 // Workspace : singleton SAFE Inc. en v1, multi-tenant préparé pour v2 (ADR-002)
@@ -3507,6 +3515,12 @@ model SupportTicket {
   noteResolution     String?
   satisfactionRating Int?
 
+  // Origine : billet dérivé d'une conversation de chat (le cas échéant)
+  conversationId  String?
+  conversation    SupportConversation? @relation("ConversationTickets", fields: [conversationId], references: [id], onDelete: SetNull)
+  sourceMessageId String?
+  sourceMessage   SupportMessage?      @relation("MessageDerivedTickets", fields: [sourceMessageId], references: [id], onDelete: SetNull)
+
   replies TicketReply[]
 
   createdAt DateTime @default(now())
@@ -3514,6 +3528,69 @@ model SupportTicket {
 
   @@index([cabinetId, statut])
   @@index([statut, priorite])
+  @@index([conversationId])
+}
+
+/// Fil de discussion (chat) entre un cabinet client et SAFE Inc.
+/// Plusieurs fils par cabinet (un par sujet). Bidirectionnel.
+model SupportConversation {
+  id          String  @id @default(cuid())
+  cabinetId   String
+  cabinet     Cabinet @relation("CabinetConversations", fields: [cabinetId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User    @relation("ConversationCreator", fields: [createdById], references: [id])
+
+  sujet  String
+  statut StatutConversation @default(OUVERTE)
+
+  lastMessageAt DateTime @default(now())
+
+  messages SupportMessage[]
+  tickets  SupportTicket[]  @relation("ConversationTickets")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cabinetId, statut])
+  @@index([lastMessageAt])
+}
+
+/// Message individuel dans un fil de discussion.
+model SupportMessage {
+  id             String              @id @default(cuid())
+  conversationId String
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User                @relation("MessageAuthor", fields: [authorId], references: [id])
+
+  isFromSafeInc Boolean   @default(false)
+  contenu       String
+  attachements  String[]
+  readAt        DateTime?
+
+  // Billets dérivés de ce message (transformation en billet côté CRM)
+  derivedTickets SupportTicket[] @relation("MessageDerivedTickets")
+  // Pièces jointes (images, PDF, Word…) stockées sur Vercel Blob privé
+  pieces SupportAttachment[]
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+/// Pièce jointe d'un message de chat. Le fichier est sur Vercel Blob (privé),
+/// servi uniquement via route authentifiée. storageKey = clé Blob.
+model SupportAttachment {
+  id         String         @id @default(cuid())
+  messageId  String
+  message    SupportMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  nom        String
+  mimeType   String
+  sizeBytes  Int
+  storageKey String
+  createdAt  DateTime       @default(now())
+
+  @@index([messageId])
 }
 
 model TicketReply {

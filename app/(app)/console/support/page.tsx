@@ -76,6 +76,13 @@ export default async function ConsoleSupportPage() {
         description={`${tickets.length} ticket${tickets.length > 1 ? "s" : ""} · ${ouverts} ouvert${ouverts > 1 ? "s" : ""}`}
       />
 
+      <div className="flex items-center gap-2 text-sm">
+        <Link href="/console/support/messages" className="rounded-md px-3 py-1.5 text-si-muted hover:bg-si-canvas">
+          Messages
+        </Link>
+        <span className="rounded-md bg-si-forest/[0.06] px-3 py-1.5 font-medium text-si-forest">Billets</span>
+      </div>
+
       <Card>
         <CardContent className="px-5 py-4">
           <NewTicketForm cabinets={cabinetOptions} />
@@ -85,7 +92,7 @@ export default async function ConsoleSupportPage() {
       {tickets.length === 0 ? (
         <EmptyState
           title="Aucun ticket"
-          description="Créez un ticket pour suivre une demande, un bug ou une remarque d'un cabinet client. Le widget client bidirectionnel arrive ensuite."
+          description="Les billets naissent des discussions clients (onglet Messages), ou créez-en un directement ci-dessus pour suivre une demande, un bug ou une remarque."
         />
       ) : (
         <Card>

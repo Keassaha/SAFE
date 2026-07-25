@@ -17,26 +17,26 @@ export function ProblemSection() {
 
   const cards: Card[] = [
     {
-      stat: "1 sur 3",
+      stat: "Sans préavis",
+      eyebrow: "La conformité",
+      eyebrowColor: "text-forest-600",
+      title: "La conformité ne s'improvise pas.",
+      body: "Le Barreau inspecte de façon aléatoire, quand il veut. Le jour où l'avis arrive, il est trop tard pour tout remettre en ordre.",
+      source: "Inspection du Barreau",
+    },
+    {
+      stat: "1 écart",
       eyebrow: "Le fidéicommis",
-      title: "Le fidéicommis laisse peu de place à l'erreur.",
-      body: "Un cabinet solo sur trois ne pourrait pas fournir ses registres fiduciaires à temps si une inspection était demandée. Or, un seul écart entre le journal, le grand livre et la banque peut suffire à déclencher une mesure du Barreau.",
-      source: "Conformité fiduciaire",
+      title: "Un casse-tête strict, chaque mois.",
+      body: "Journal, grand livre et banque doivent concorder au sou près. Un seul écart peut suffire à déclencher une mesure du Barreau.",
+      source: "Comptes en fidéicommis",
     },
     {
       stat: "30 j",
       eyebrow: "La facturation",
-      eyebrowColor: "text-forest-600",
-      title: "Une facturation en retard pèse sur votre trésorerie.",
-      body: "Entre le travail livré et le paiement reçu, des semaines s'écoulent. Des heures restent non facturées, des comptes traînent, et votre trésorerie attend pendant que vos charges, elles, arrivent à l'heure.",
+      title: "Longue à faire, dure à suivre.",
+      body: "Des semaines entre le travail livré et le paiement. Des heures non facturées, une trésorerie qui attend.",
       source: "Cycle de facturation",
-    },
-    {
-      stat: "24h",
-      eyebrow: "Le préavis",
-      title: "Une inspection arrive rarement à l'avance.",
-      body: "Les Sociétés du Barreau inspectent de façon aléatoire, sans préavis obligatoire ni motif à fournir. Lorsque l'avis arrive, il est souvent trop tard pour tout remettre en ordre.",
-      source: "Inspection professionnelle",
     },
   ];
 
@@ -53,11 +53,11 @@ export function ProblemSection() {
           L&apos;enjeu
         </span>
         <h2 className="font-serif text-[38px] leading-[1.1] tracking-[-0.02em] text-text-primary max-w-2xl">
-          Vous savez ce qui est en jeu. <span className="italic text-forest-600">Le plus dur, c&apos;est de tout suivre en même temps.</span>
+          Le risque n&apos;est pas de mal faire. <span className="italic text-forest-600">C&apos;est de ne pas tout suivre à temps.</span>
         </h2>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/70">
         {cards.map((c, i) => (
           <ProblemCard key={c.title} card={c} index={i} ease={ease} />
         ))}
@@ -76,83 +76,46 @@ function ProblemCard({
   ease: readonly [number, number, number, number];
 }) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 40 }}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, delay: 0.1 + index * 0.1, ease }}
-      whileHover="hover"
-      className="group relative flex flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)] hover:-translate-y-1"
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, delay: 0.1 + index * 0.12, ease }}
+      className="group flex flex-col px-0 py-9 md:px-8 md:py-3 first:md:pl-0 last:md:pr-0"
     >
-      {/* Halo radial vert */}
-      <motion.span
-        aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-[10px]"
-        initial={{ opacity: 0 }}
-        variants={{ hover: { opacity: 1 } }}
-        transition={{ duration: 0.6, ease }}
-        style={{
-          background:
-            "radial-gradient(600px circle at 50% 0%, rgba(31,58,46,0.08), transparent 55%)",
-        }}
-      />
-
-      {/* Trait vert supérieur */}
-      <motion.span
-        aria-hidden
-        className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-forest-600 via-forest-600/80 to-transparent origin-left"
-        initial={{ scaleX: 0 }}
-        variants={{ hover: { scaleX: 1 } }}
-        transition={{ duration: 0.9, ease }}
-      />
-
-      {/* Statistique */}
-      <div className="flex flex-col items-start mb-6 relative z-10">
-        <motion.span
-          className="font-serif text-[52px] leading-[1] tabular-nums tracking-[-0.02em] text-text-primary"
-          variants={{ hover: { x: 4 } }}
-          transition={{ duration: 0.5, ease }}
-        >
-          {card.stat}
-        </motion.span>
-        <motion.span
-          className={`text-[11px] font-sans uppercase tracking-[0.12em] mt-3 ${
-            card.eyebrowColor ?? "text-text-muted"
-          }`}
-          variants={{ hover: { color: "#1F3A2E" } }}
-          transition={{ duration: 0.4 }}
-        >
-          {card.eyebrow}
-        </motion.span>
-      </div>
-
-      {/* Titre */}
-      <motion.h3
-        className="font-serif text-[17px] leading-[1.3] text-text-primary mb-3 relative z-10"
-        variants={{ hover: { x: 2 } }}
-        transition={{ duration: 0.5, ease }}
+      <span
+        className="font-serif italic text-[14px] text-forest-600 mb-7"
+        style={{ letterSpacing: "0.04em" }}
       >
-        {card.title}
-      </motion.h3>
+        &mdash; 0{index + 1}
+      </span>
 
-      {/* Body */}
-      <p className="text-[13.5px] text-text-body font-sans leading-[1.6] mb-6 flex-1 relative z-10">
+      <span className="font-serif text-[44px] leading-[1.02] tracking-[-0.02em] text-text-primary">
+        {card.stat}
+      </span>
+
+      <span
+        className={`text-[11px] font-sans uppercase tracking-[0.14em] mt-5 mb-5 ${
+          card.eyebrowColor ?? "text-text-muted"
+        }`}
+      >
+        {card.eyebrow}
+      </span>
+
+      <h3 className="font-serif text-[19px] leading-[1.25] text-text-primary mb-3">
+        {card.title}
+      </h3>
+
+      <p className="text-[13.5px] text-text-body font-sans leading-[1.65] mb-8 flex-1">
         {card.body}
       </p>
 
-      {/* Footer source avec trait qui grandit au hover */}
-      <div className="mt-auto relative z-10 flex items-center gap-2 pt-5">
-        <motion.span
-          aria-hidden
-          className="h-px bg-forest-600/60 origin-left"
-          initial={{ width: 12 }}
-          variants={{ hover: { width: 28 } }}
-          transition={{ duration: 0.6, ease }}
-        />
+      <div className="mt-auto flex items-center gap-2.5">
+        <span className="h-px w-6 bg-forest-600/50 transition-[width] duration-500 group-hover:w-10" />
         <span className="font-serif italic text-[12.5px] text-text-subtle">
           {card.source}
         </span>
       </div>
-    </motion.article>
+    </motion.div>
   );
 }

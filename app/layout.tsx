@@ -77,10 +77,6 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
-      style={{
-        "--font-inter": "var(--font-geist-sans)",
-        "--font-jetbrains-loaded": "var(--font-geist-mono)",
-      } as React.CSSProperties}
     >
       <body className="min-h-screen font-sans bg-slate-50 text-slate-800 antialiased selection:bg-forest-100 selection:text-forest-600">
         <NextIntlClientProvider locale={locale} messages={messages}>

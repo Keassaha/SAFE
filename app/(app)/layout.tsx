@@ -9,6 +9,7 @@ import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { QuickCapture } from "@/components/capture/QuickCapture";
+import { SupportWidget } from "@/components/support/SupportWidget";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import {
@@ -79,6 +80,7 @@ export default async function AppLayout({
           {children}
         </AppChrome>
         <QuickCapture />
+        {cabinetId && <SupportWidget cabinetId={cabinetId} />}
       </TimerProvider>
     </QueryProvider>
   );

@@ -159,13 +159,13 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans: ['var(--font-inter)', "system-ui", "-apple-system", "sans-serif"],
-        heading: ['var(--font-inter)', "system-ui", "-apple-system", "sans-serif"],
-        mono: ['var(--font-jetbrains-loaded)', "ui-monospace", "monospace"],
-        display: ['var(--font-inter)', "ui-sans-serif", "system-ui", "sans-serif"],
+        /* Duo de marque validé (CEO 2026-07-17) : Instrument Serif pour les titres
+         * (jamais sous 20px, une seule graisse) + Geist pour tout le reste.
+         * Pas d'autre famille ni d'alias secondaire. */
+        sans: ['var(--font-geist-sans)', "system-ui", "-apple-system", "sans-serif"],
+        mono: ['var(--font-geist-mono)', "ui-monospace", "monospace"],
         serif: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
         instrument: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
-        jakarta: ['var(--font-inter)', "ui-sans-serif", "system-ui", "sans-serif"],
       },
 
       letterSpacing: {

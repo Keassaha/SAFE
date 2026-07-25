@@ -1,10 +1,10 @@
 import { buildMetadata } from "@/lib/seo";
 
-// Page /audit-gratuit client : SEO porté par ce layout serveur.
+// La route technique reste /audit-gratuit, le terme public est « diagnostic ».
 export const metadata = buildMetadata({
-  title: "Audit gratuit",
+  title: "Diagnostic gratuit",
   description:
-    "Obtenez un audit gratuit de la gestion de votre cabinet : facturation, temps facturable, comptabilité en fiducie. Identifiez les pertes de revenus.",
+    "Obtenez un diagnostic gratuit de la gestion de votre cabinet : facturation, temps facturable et fidéicommis.",
   path: "/audit-gratuit",
 });
 

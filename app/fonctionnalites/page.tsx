@@ -1,30 +1,13 @@
-import { Navbar } from "@/components/marketing/Navbar";
-import { FeaturesDetailed } from "@/components/landing/FeaturesDetailed";
-import { FinalCta } from "@/components/landing/FinalCta";
-import { Footer } from "@/components/landing/Footer";
+import PublicFeaturesPage from "@/components/public-site/FeaturesPage";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Fonctionnalités",
   description:
-    "Facturation, suivi du temps, forfaits et comptabilité en fiducie : tout ce qu'un petit cabinet d'avocats québécois gère au quotidien, au même endroit.",
+    "Fidéicommis, facturation, temps et dossiers reliés dans un système conçu pour les petits cabinets d’avocats.",
   path: "/fonctionnalites",
 });
 
 export default function FonctionnalitesPage() {
-  return (
-    <div className="flex flex-col min-h-screen bg-canvas font-sans text-text-body antialiased">
-      <Navbar />
-      <main className="flex-1 mt-[80px]">
-        {/* Page Fonctionnalités enrichie : hero animé + piliers + captures réelles */}
-        <FeaturesDetailed />
-
-        {/* The Final CTA wrapper with matching background */}
-        <div className="bg-canvas border-y border-[0.5px] border-border pb-10">
-           <FinalCta />
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  return <PublicFeaturesPage />;
 }

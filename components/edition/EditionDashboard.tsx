@@ -2,18 +2,21 @@ import Link from "next/link";
 import { FileText, FolderOpen, Sparkles, ArrowRight, Clock } from "lucide-react";
 import { routes } from "@/lib/routes";
 
+// Palette calée sur les tokens si-* du design system, pour que l'édition ait la
+// même couleur que les autres écrans. L'accent était #4f46e5, l'indigo générique
+// SaaS (tell anti-slop A1), remplacé par le vert forêt de la marque.
 const V1 = {
-  bg: "#fafaf9",
-  bgAlt: "#ffffff",
-  border: "#ececea",
-  text: "#18181b",
-  textMid: "#52525b",
-  textDim: "#a1a1aa",
-  accent: "#4f46e5",
-  accentSoft: "#eef2ff",
-  accentText: "#3730a3",
-  success: "#16a34a",
-  warn: "#d97706",
+  bg: "#EFF2ED", // si-canvas
+  bgAlt: "#FBFCFA", // si-surface
+  border: "rgba(31,42,36,0.10)", // si-line
+  text: "#1F2A24", // si-ink
+  textMid: "#5A665F", // si-muted
+  textDim: "#98A19A", // si-muted, plus clair
+  accent: "#0B1F19", // si-forest
+  accentSoft: "#E6EEE9", // vert forêt très pâle
+  accentText: "#0B1F19", // si-forest
+  success: "#2E7D5B", // si-verified
+  warn: "#835A10", // si-amber-ink (lisible, AA)
 };
 
 interface RecentDoc {

@@ -77,11 +77,8 @@
    *  All three loaded in app/layout.tsx via next/font.
    *  ─────────────────────────────────────────────────────────── */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   --font-serif: var(--font-instrument-serif), Georgia, ui-serif, serif;
-  /* Legacy fonts kept addressable for marketing pages only */
-  --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   /* ───────────────────────────────────────────────────────────
    *  BRAND — Forest green scale (Éditorial Chaleureux)

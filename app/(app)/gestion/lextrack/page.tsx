@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { LexTrackBoard } from "@/components/gestion/LexTrackBoard";
 import { SafetrackCalendar } from "@/components/gestion/SafetrackCalendar";
 import { SafetrackDossierGrid } from "@/components/gestion/SafetrackDossierGrid";
+import { PageHeader } from "@/components/ui/PageHeader";
 import {
   dossierActeToTask,
   usersToLawyers,
@@ -156,28 +157,24 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
     });
 
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold text-white tracking-tight">{t("planningTitle")}</h1>
-          <p className="mt-1 text-sm text-white/70">
-            {t("planningDescription")}
-          </p>
-        </div>
+      <div className="space-y-6 animate-fade-in">
+        {/* Le titre était en text-white sans conteneur foncé, donc illisible sur le
+            fond clair. On reprend l'en-tête compact commun aux autres écrans. */}
+        <PageHeader
+          title={t("planningTitle")}
+          description={t("planningDescription")}
+          action={<div id="agenda-header-actions" className="flex items-center gap-2" />}
+        />
 
-        {/* KPI cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {summaryCards.map(({ title, value, icon: Icon, accent }) => (
-            <div key={title} className="rounded-xl border border-si-line bg-si-surface p-4 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-si-muted">{title}</p>
-                  <p className={`mt-1 text-2xl font-bold tabular-nums ${accent}`}>{value}</p>
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-si-canvas flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-si-muted/50" aria-hidden />
-                </div>
-              </div>
-            </div>
+        {/* Synthèse en barre dense plutôt qu'en cartes à ombre (doctrine §6).
+            Les icônes décoratives sautent (A6), le chiffre porte l'information et
+            son libellé le qualifie, la couleur ne le porte donc jamais seule. */}
+        <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 border-y border-si-line py-2.5">
+          {summaryCards.map(({ title, value, accent }) => (
+            <span key={title} className="flex items-baseline gap-1.5">
+              <span className={`font-mono text-[15px] tabular-nums ${accent}`}>{value}</span>
+              <span className="text-[12px] text-si-muted">{title}</span>
+            </span>
           ))}
         </div>
 

@@ -13,7 +13,7 @@ interface Props {
 
 export function OffrePage({ data, variant }: Props) {
   const { offre, etapes } = data;
-  const { placesTotal, abonnementVie, prixRegulierBarre, rachatUnique, moisGratuits } =
+  const { placesTotal, abonnementVie, abonnementAnnuel, prixRegulierBarre, moisGratuits } =
     TARIFICATION.fondateurs;
 
   return (
@@ -110,10 +110,11 @@ export function OffrePage({ data, variant }: Props) {
                 margin: "0 0 2px",
               }}
             >
-              {rachatUnique.toLocaleString("fr-CA")} $
+              {abonnementAnnuel.toLocaleString("fr-CA")} $
+              <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /an</span>
             </p>
             <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8px", color: PALETTE.sage }}>
-              rachat unique, une fois
+              à vie, 2 mois offerts
             </p>
           </div>
         </div>

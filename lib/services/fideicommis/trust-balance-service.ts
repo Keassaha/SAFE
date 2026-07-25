@@ -39,6 +39,29 @@ export async function getGlobalTrustBalance(cabinetId: string): Promise<number> 
 }
 
 /**
+ * Soldes fidéicommis agrégés par (client, dossier), calculés depuis le registre
+ * append-only. Utilisé par la vue conformité pour montrer le détail « solde par
+ * dossier ». Exclut les lignes dont le solde net est ~0 (epsilon anti-bruit).
+ */
+export async function getTrustBalancesByDossier(
+  cabinetId: string,
+): Promise<Array<{ clientId: string; dossierId: string | null; balance: number }>> {
+  const groups = await prisma.trustTransaction.groupBy({
+    by: ["clientId", "dossierId"],
+    where: { cabinetId },
+    _sum: { amount: true },
+  });
+  return groups
+    .map((g) => ({
+      clientId: g.clientId,
+      dossierId: g.dossierId,
+      balance: g._sum.amount ?? 0,
+    }))
+    .filter((g) => Math.abs(g.balance) > 0.005)
+    .sort((a, b) => b.balance - a.balance);
+}
+
+/**
  * Nombre de clients détenant réellement des sommes en fidéicommis (solde > 0),
  * calculé depuis le registre append-only TrustTransaction (source de vérité).
  * Utilisé par le tableau de bord (« Clients avec fonds en fiducie ») plutôt que

@@ -66,7 +66,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           </div>
         </main>
       </div>
-      {!isSafeInc && <SupportWidget />}
+      {!isSafeInc && cabinetId && <SupportWidget cabinetId={cabinetId} />}
     </div>
   );
 }

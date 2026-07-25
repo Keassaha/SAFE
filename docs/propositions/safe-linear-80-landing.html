@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Ébauche locale de la landing SAFE inspirée de la discipline visuelle de Linear." />
+    <title>SAFE · Ébauche Linear 80</title>
+    <style>
+      @font-face {
+        font-family: "Geist";
+        src: url("./assets/fonts/Geist-Variable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Geist Mono";
+        src: url("./assets/fonts/GeistMono-Variable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Instrument Serif";
+        src: url("./assets/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Instrument Serif";
+        src: url("./assets/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+        font-style: italic;
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      :root {
+        --canvas: #eff2ed;
+        --surface: #fbfcfa;
+        --surface-pure: #ffffff;
+        --ink: #1f2a24;
+        --ink-soft: #3a453e;
+        --muted: #5a665f;
+        --quiet: #7c877f;
+        --line: #dce0da;
+        --line-strong: #c4cabe;
+        --forest: #1f3a2e;
+        --forest-deep: #0e2419;
+        --green: #12a150;
+        --verified: #2e7d5b;
+        --mint: #d4e8d9;
+        --warm: #f7f2e8;
+        --amber: #b07a1c;
+        --danger: #8a3a2d;
+        --sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        --serif: "Instrument Serif", Georgia, serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --max: 1344px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        letter-spacing: -0.014em;
+        -webkit-font-smoothing: antialiased;
+      }
+      button, a { font: inherit; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+      ::selection { background: var(--mint); color: var(--forest-deep); }
+      :focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
+
+      .page-grid {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, rgba(31, 42, 36, 0.035) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(31, 42, 36, 0.025) 1px, transparent 1px);
+        background-size: calc((100vw - 48px) / 12) 100%, 100% 72px;
+        mask-image: linear-gradient(to bottom, black, transparent 75%);
+      }
+      .container {
+        width: min(calc(100% - 40px), var(--max));
+        margin-inline: auto;
+      }
+      .hairline { border-top: 1px solid var(--line); }
+      .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+      .nav-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        padding: 10px 0 0;
+      }
+      .nav {
+        min-height: 62px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 0 14px 0 16px;
+        border: 1px solid rgba(31, 42, 36, 0.12);
+        border-radius: 12px;
+        background: rgba(251, 252, 250, 0.88);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 8px 30px rgba(14, 36, 25, 0.035);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        text-decoration: none;
+      }
+      .mark-shell {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #eef5f0;
+        border: 1px solid rgba(31, 58, 46, 0.12);
+      }
+      .brand-name {
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 1;
+        letter-spacing: 0.01em;
+      }
+      .nav-links { display: flex; align-items: center; gap: 4px; }
+      .nav-links a {
+        padding: 8px 12px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 13px;
+        color: var(--muted);
+        transition: 140ms var(--ease);
+      }
+      .nav-links a:hover { color: var(--ink); background: rgba(31, 42, 36, 0.05); }
+      .nav-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+      .login { font-size: 13px; color: var(--muted); text-decoration: none; padding: 8px 10px; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        text-decoration: none;
+        font-weight: 580;
+        font-size: 13px;
+        transition: 160ms var(--ease);
+      }
+      .button-primary { color: #fff; background: var(--forest-deep); }
+      .button-primary:hover { background: var(--forest); transform: translateY(-1px); }
+      .button-secondary { border-color: var(--line-strong); background: rgba(251, 252, 250, 0.7); }
+      .button-secondary:hover { border-color: var(--forest); background: var(--surface); }
+      .button-light { color: var(--forest-deep); background: #f8fdf9; }
+      .button-light:hover { background: #fff; transform: translateY(-1px); }
+      .mobile-menu { display: none; background: none; border: 0; padding: 8px; color: var(--ink); }
+
+      .hero {
+        padding: 126px 0 0;
+        overflow: hidden;
+      }
+      .hero-copy {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.5fr);
+        gap: 56px;
+        align-items: end;
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+        color: var(--verified);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+      .hero h1 {
+        max-width: 970px;
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(64px, 7vw, 102px);
+        font-weight: 400;
+        line-height: 0.91;
+        letter-spacing: -0.048em;
+      }
+      .hero h1 em { color: var(--forest); font-weight: 400; }
+      .hero-side {
+        padding-bottom: 6px;
+      }
+      .hero-side p {
+        max-width: 395px;
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 18px;
+        line-height: 1.5;
+        letter-spacing: -0.02em;
+      }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+      .trust-line {
+        margin-top: 17px;
+        color: var(--quiet);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.025em;
+      }
+
+      .hero-stage {
+        position: relative;
+        margin-top: 84px;
+        padding: 8px;
+        border: 1px solid rgba(31, 42, 36, 0.18);
+        border-radius: 20px 20px 0 0;
+        background: rgba(251, 252, 250, 0.48);
+        box-shadow: 0 40px 80px -44px rgba(11, 31, 25, 0.5);
+      }
+      .hero-stage::before {
+        content: "";
+        position: absolute;
+        width: 58%;
+        height: 44%;
+        left: 21%;
+        top: -15%;
+        z-index: -1;
+        background: rgba(46, 125, 91, 0.12);
+        filter: blur(90px);
+        border-radius: 50%;
+      }
+      .stage-toolbar {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--line);
+        border-radius: 12px 12px 0 0;
+        background: var(--surface);
+        color: var(--quiet);
+        font-size: 11px;
+      }
+      .stage-toolbar strong { color: var(--ink-soft); font-weight: 520; }
+      .stage-dots { display: flex; gap: 5px; }
+      .stage-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+      .hero-crop {
+        height: min(62vw, 710px);
+        min-height: 520px;
+        overflow: hidden;
+        background: var(--surface);
+      }
+      .hero-crop img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+      .hero-fade {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 0;
+        height: 23%;
+        pointer-events: none;
+        background: linear-gradient(to bottom, transparent, var(--canvas));
+      }
+
+      .trust {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .trust-item {
+        min-height: 116px;
+        padding: 26px 22px 22px 0;
+        border-right: 1px solid var(--line);
+      }
+      .trust-item + .trust-item { padding-left: 22px; }
+      .trust-item:last-child { border-right: 0; }
+      .trust-item span {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--quiet);
+        font-family: var(--mono);
+        font-size: 10px;
+      }
+      .trust-item strong { display: block; margin-bottom: 3px; font-weight: 560; font-size: 14px; }
+      .trust-item p { margin: 0; color: var(--muted); font-size: 12px; }
+
+      .manifesto { padding: 148px 0 142px; }
+      .manifesto-intro {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: start;
+        margin-bottom: 94px;
+      }
+      .manifesto h2,
+      .section-head h2 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(44px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: -0.042em;
+        font-weight: 400;
+      }
+      .manifesto-intro > p,
+      .section-head > div > p {
+        max-width: 510px;
+        margin: 6px 0 0;
+        color: var(--ink-soft);
+        font-size: 22px;
+        line-height: 1.42;
+        letter-spacing: -0.025em;
+      }
+      .principles {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line-strong);
+      }
+      .principle { min-height: 230px; padding: 27px 30px 26px 0; border-right: 1px solid var(--line); }
+      .principle + .principle { padding-left: 30px; }
+      .principle:last-child { border-right: 0; }
+      .figure {
+        display: flex;
+        justify-content: space-between;
+        color: var(--quiet);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+      }
+      .principle h3 { margin: 70px 0 8px; font-size: 16px; font-weight: 570; }
+      .principle p { max-width: 330px; margin: 0; color: var(--muted); font-size: 14px; }
+
+      .product-section {
+        padding: 144px 0 132px;
+        border-top: 1px solid var(--line);
+        overflow: hidden;
+      }
+      .section-head {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        margin-bottom: 86px;
+      }
+      .section-index {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 21px;
+        color: var(--verified);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .section-index::after { content: ""; width: 38px; height: 1px; background: var(--line-strong); }
+      .benefit {
+        display: inline-flex;
+        margin-top: 24px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        color: var(--forest);
+        font-size: 13px;
+        font-weight: 550;
+      }
+      .product-frame {
+        position: relative;
+        width: min(1480px, calc(100vw - 24px));
+        margin-left: 50%;
+        transform: translateX(-50%);
+        padding: 8px;
+        border: 1px solid rgba(31, 42, 36, 0.18);
+        border-radius: 20px;
+        background: rgba(251, 252, 250, 0.55);
+        box-shadow: 0 30px 70px -52px rgba(11, 31, 25, 0.65);
+      }
+      .product-frame img { width: 100%; border-radius: 12px; }
+      .product-caption {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .product-caption span:last-child { text-align: right; font-family: var(--mono); font-size: 10px; }
+      .detail-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 54px;
+        border-top: 1px solid var(--line);
+      }
+      .detail {
+        padding: 24px 25px 0 0;
+        border-right: 1px solid var(--line);
+      }
+      .detail + .detail { padding-left: 25px; }
+      .detail:last-child { border-right: 0; }
+      .detail b { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 560; }
+      .detail p { margin: 0; color: var(--muted); font-size: 12px; }
+
+      .dark-system {
+        padding: 128px 0;
+        background: var(--forest-deep);
+        color: #f8fdf9;
+      }
+      .dark-head {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        margin-bottom: 84px;
+      }
+      .dark-head h2 {
+        max-width: 650px;
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(48px, 5.2vw, 72px);
+        line-height: 0.96;
+        letter-spacing: -0.045em;
+        font-weight: 400;
+      }
+      .dark-head p {
+        max-width: 475px;
+        margin: 4px 0 0;
+        color: #b8c9bf;
+        font-size: 20px;
+      }
+      .system-rail {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid rgba(255, 255, 255, 0.16);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      }
+      .system-step {
+        min-height: 248px;
+        padding: 26px;
+        border-right: 1px solid rgba(255, 255, 255, 0.13);
+      }
+      .system-step:first-child { padding-left: 0; }
+      .system-step:last-child { border-right: 0; }
+      .system-step .mono { color: #8fb49f; font-size: 10px; }
+      .system-step h3 { margin: 84px 0 7px; font-size: 15px; font-weight: 560; }
+      .system-step p { margin: 0; color: #9fb2a7; font-size: 13px; }
+
+      .continuity { padding: 140px 0; }
+      .continuity-grid {
+        display: grid;
+        grid-template-columns: 0.82fr 1.18fr;
+        gap: 90px;
+      }
+      .continuity h2 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(46px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        font-weight: 400;
+      }
+      .continuity-copy > p { max-width: 440px; color: var(--muted); font-size: 17px; }
+      .changelog { border-top: 1px solid var(--line-strong); }
+      .release {
+        display: grid;
+        grid-template-columns: 100px 1fr auto;
+        gap: 20px;
+        align-items: start;
+        padding: 24px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .release time { color: var(--quiet); font-family: var(--mono); font-size: 10px; }
+      .release h3 { margin: 0 0 5px; font-size: 14px; font-weight: 570; }
+      .release p { margin: 0; color: var(--muted); font-size: 12px; }
+      .release-tag {
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: var(--mint);
+        color: var(--forest);
+        font-family: var(--mono);
+        font-size: 9px;
+      }
+
+      .offer { padding: 136px 0; border-top: 1px solid var(--line); }
+      .offer-head {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        margin-bottom: 82px;
+      }
+      .offer h2 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(46px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        font-weight: 400;
+      }
+      .offer-head p { max-width: 480px; margin: 3px 0 0; color: var(--ink-soft); font-size: 20px; }
+      .price-rail {
+        display: grid;
+        grid-template-columns: 1fr 1fr 0.72fr;
+        border-top: 1px solid var(--line-strong);
+        border-bottom: 1px solid var(--line-strong);
+      }
+      .price {
+        min-height: 315px;
+        padding: 28px 30px 30px 0;
+        border-right: 1px solid var(--line);
+      }
+      .price + .price { padding-left: 30px; }
+      .price:last-child { border-right: 0; }
+      .price-label { color: var(--quiet); font-family: var(--mono); font-size: 10px; text-transform: uppercase; }
+      .price-number {
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+        margin: 52px 0 8px;
+        font-family: var(--mono);
+        font-size: 46px;
+        letter-spacing: -0.06em;
+      }
+      .price-number small { color: var(--muted); font-family: var(--sans); font-size: 12px; letter-spacing: 0; }
+      .price p { max-width: 300px; margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+      .price-note { display: flex; flex-direction: column; justify-content: space-between; }
+      .price-note strong { margin-top: 54px; font-family: var(--serif); font-size: 28px; font-weight: 400; line-height: 1.05; }
+      .price-note span:last-child { color: var(--muted); font-size: 12px; }
+
+      .final {
+        padding: 150px 0 54px;
+        background: var(--forest-deep);
+        color: #f8fdf9;
+      }
+      .final-main {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 90px;
+        align-items: end;
+        padding-bottom: 120px;
+      }
+      .final h2 {
+        max-width: 780px;
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(62px, 7vw, 100px);
+        line-height: 0.9;
+        letter-spacing: -0.05em;
+        font-weight: 400;
+      }
+      .final h2 em { color: #8fb49f; font-weight: 400; }
+      .final-side p { max-width: 420px; margin: 0 0 28px; color: #b8c9bf; font-size: 18px; }
+      .final-meta { margin-top: 15px; color: #82958a; font-family: var(--mono); font-size: 10px; }
+      .footer {
+        display: grid;
+        grid-template-columns: 1.4fr repeat(3, 0.6fr);
+        gap: 34px;
+        padding: 38px 0 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+      }
+      .footer-brand p { max-width: 330px; color: #81958a; font-size: 12px; }
+      .footer h3 { margin: 0 0 12px; color: #8fb49f; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .footer a { display: block; width: fit-content; margin: 7px 0; color: #b7c6be; text-decoration: none; font-size: 12px; }
+      .footer a:hover { color: #fff; }
+      .draft-label {
+        margin-top: 38px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,.09);
+        color: #71847a;
+        font-family: var(--mono);
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+      }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
+
+      @media (max-width: 1000px) {
+        .nav { grid-template-columns: 1fr auto; }
+        .nav-links { display: none; }
+        .hero-copy, .manifesto-intro, .section-head, .dark-head, .offer-head { grid-template-columns: 1fr; gap: 32px; }
+        .hero-side { max-width: 560px; }
+        .principles { grid-template-columns: 1fr; }
+        .principle, .principle + .principle { min-height: 160px; padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+        .principle h3 { margin-top: 44px; }
+        .system-rail { grid-template-columns: 1fr 1fr; }
+        .system-step:nth-child(2) { border-right: 0; }
+        .system-step:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.13); }
+        .continuity-grid { grid-template-columns: 1fr; gap: 60px; }
+        .price-rail { grid-template-columns: 1fr 1fr; }
+        .price-note { grid-column: 1 / -1; min-height: 180px; padding-left: 0 !important; border-top: 1px solid var(--line); }
+        .price-note strong { margin-top: 26px; }
+        .final-main { grid-template-columns: 1fr; gap: 42px; }
+      }
+
+      @media (max-width: 720px) {
+        .container { width: min(calc(100% - 28px), var(--max)); }
+        .nav-wrap { padding-top: 6px; }
+        .nav { min-height: 54px; padding-inline: 10px; border-radius: 10px; }
+        .mark-shell { width: 32px; height: 32px; }
+        .brand-name { font-size: 20px; }
+        .login { display: none; }
+        .nav-actions .button { min-height: 34px; padding-inline: 11px; font-size: 11px; }
+        .hero { padding-top: 90px; }
+        .hero h1 { font-size: clamp(52px, 15.5vw, 72px); }
+        .hero-side p { font-size: 16px; }
+        .hero-actions { flex-direction: column; align-items: stretch; }
+        .hero-stage { width: calc(100vw - 14px); margin-left: 50%; transform: translateX(-50%); margin-top: 52px; }
+        .hero-crop { height: 510px; min-height: 0; }
+        .hero-crop img { width: auto; max-width: none; height: 100%; object-position: top left; }
+        .trust-grid { grid-template-columns: 1fr 1fr; }
+        .trust-item:nth-child(2) { border-right: 0; }
+        .trust-item:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+        .trust-item { min-height: 126px; padding: 20px 16px 18px 0; }
+        .trust-item + .trust-item { padding-left: 16px; }
+        .trust-item:nth-child(3) { padding-left: 0; }
+        .manifesto, .product-section, .continuity, .offer { padding: 90px 0; }
+        .manifesto-intro, .section-head, .dark-head, .offer-head { margin-bottom: 52px; }
+        .manifesto h2, .section-head h2, .continuity h2, .offer h2 { font-size: 44px; }
+        .manifesto-intro > p, .section-head > div > p, .offer-head p { font-size: 18px; }
+        .product-frame { width: calc(100vw - 14px); }
+        .product-frame img { height: 510px; object-fit: cover; object-position: top left; }
+        .product-caption { grid-template-columns: 1fr; }
+        .product-caption span:last-child { text-align: left; }
+        .detail-strip { grid-template-columns: 1fr; }
+        .detail, .detail + .detail { padding: 18px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+        .dark-system { padding: 88px 0; }
+        .dark-head h2 { font-size: 48px; }
+        .dark-head p { font-size: 17px; }
+        .system-rail { grid-template-columns: 1fr; }
+        .system-step, .system-step:first-child { min-height: 176px; padding: 22px 0; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.13); }
+        .system-step h3 { margin-top: 48px; }
+        .release { grid-template-columns: 76px 1fr; }
+        .release-tag { display: none; }
+        .price-rail { grid-template-columns: 1fr; }
+        .price, .price + .price { min-height: 260px; padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+        .price-note { grid-column: auto; }
+        .final { padding-top: 92px; }
+        .final-main { padding-bottom: 80px; }
+        .final h2 { font-size: 60px; }
+        .footer { grid-template-columns: 1fr 1fr; }
+        .footer-brand { grid-column: 1 / -1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        .reveal { opacity: 1; transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-grid" aria-hidden="true"></div>
+
+    <header class="nav-wrap">
+      <nav class="nav container" aria-label="Navigation principale">
+        <a class="brand" href="#accueil" aria-label="SAFE, retour en haut">
+          <span class="mark-shell">
+            <svg width="25" height="25" viewBox="0 0 24 24" role="img" aria-label="Marque SAFE">
+              <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill="#1F3A2E"/>
+              <path d="M 19.5,18.5 Q 20.5,20.5 18.5,20 L 11.5,20 Q 9.5,20.5 10.5,18.5 L 14,11.5 Q 15,9.5 16,11.5 Z" fill="#1F3A2E" opacity=".55"/>
+            </svg>
+          </span>
+          <span class="brand-name">SAFE</span>
+        </a>
+        <div class="nav-links">
+          <a href="#produit">Produit</a>
+          <a href="#methode">Méthode</a>
+          <a href="#tarification">Tarification</a>
+          <a href="#securite">Sécurité</a>
+        </div>
+        <div class="nav-actions">
+          <a class="login" href="#">Connexion</a>
+          <a class="button button-primary" href="#audit">Faire mon audit gratuit</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="accueil">
+        <div class="container">
+          <div class="hero-copy">
+            <div>
+              <div class="eyebrow">Gestion de cabinet · Québec et Ontario</div>
+              <h1>Votre cabinet,<br><em>toujours en ordre.</em></h1>
+            </div>
+            <div class="hero-side">
+              <p>SAFE prépare l’administration, tient le fidéicommis et suit ce qui doit être facturé. Vous gardez le jugement. Le cabinet cesse de dépendre de la mémoire.</p>
+              <div class="hero-actions">
+                <a class="button button-primary" href="#audit">Faire mon audit gratuit</a>
+                <a class="button button-secondary" href="#produit">Voir le produit <span aria-hidden="true">↓</span></a>
+              </div>
+              <div class="trust-line">Sans engagement · Données au Canada · Français et anglais</div>
+            </div>
+          </div>
+
+          <div class="hero-stage">
+            <div class="stage-toolbar">
+              <div class="stage-dots"><i></i><i></i><i></i></div>
+              <strong>SAFE · Tableau de bord</strong>
+              <span class="mono">APERÇU RÉEL</span>
+            </div>
+            <div class="hero-crop">
+              <img src="../../public/images/app/dashboard.png" alt="Tableau de bord réel de SAFE montrant la Navette et les étapes de configuration du cabinet" />
+            </div>
+            <div class="hero-fade" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust" aria-label="Repères de confiance">
+        <div class="container trust-grid">
+          <div class="trust-item">
+            <span>01 / LOCAL</span>
+            <strong>Conçu au Québec</strong>
+            <p>Pour la réalité des petits cabinets.</p>
+          </div>
+          <div class="trust-item">
+            <span>02 / CONFORMITÉ</span>
+            <strong>Conforme B-1, r.5</strong>
+            <p>Les registres et contrôles au même endroit.</p>
+          </div>
+          <div class="trust-item">
+            <span>03 / DONNÉES</span>
+            <strong>Hébergées au Canada</strong>
+            <p>Une architecture adaptée aux données sensibles.</p>
+          </div>
+          <div class="trust-item">
+            <span>04 / CONTRÔLE</span>
+            <strong>Vous validez</strong>
+            <p>SAFE prépare. Le jugement reste humain.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="manifesto" id="methode">
+        <div class="container">
+          <div class="manifesto-intro reveal">
+            <h2>Le copilote<br>du copilote.</h2>
+            <p>Votre adjointe connaît le cabinet. SAFE lui donne un système qui prépare, vérifie et signale sans lui retirer la décision.</p>
+          </div>
+          <div class="principles">
+            <article class="principle reveal">
+              <div class="figure"><span>FIG 0.1</span><span>PRÉPARER</span></div>
+              <h3>Avant que l’urgence arrive</h3>
+              <p>Les questions, documents et tâches remontent quand une décision est réellement nécessaire.</p>
+            </article>
+            <article class="principle reveal">
+              <div class="figure"><span>FIG 0.2</span><span>VÉRIFIER</span></div>
+              <h3>Avant que l’erreur circule</h3>
+              <p>Les écarts, soldes et approbations restent visibles avant de toucher une facture ou un registre.</p>
+            </article>
+            <article class="principle reveal">
+              <div class="figure"><span>FIG 0.3</span><span>ENCAISSER</span></div>
+              <h3>Sans perdre le contrôle</h3>
+              <p>Le temps accompli avance vers la facture, puis le paiement, sans promesse magique ni donnée inventée.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-section" id="produit">
+        <div class="container">
+          <header class="section-head reveal">
+            <div>
+              <div class="section-index">Acte 01 · Tenir</div>
+              <h2>Le travail arrive<br>déjà préparé.</h2>
+            </div>
+            <div>
+              <p>La Navette rassemble ce qui attend une réponse, une révision ou une approbation. Le cabinet voit le prochain geste sans ouvrir cinq modules.</p>
+              <span class="benefit">Résultat: savoir ce qui est prêt et ce qui bloque.</span>
+            </div>
+          </header>
+          <figure class="product-frame reveal">
+            <img src="../../public/images/app/dashboard.png" alt="Vue réelle de la Navette SAFE avec une question, un document prêt et une approbation" />
+          </figure>
+          <div class="container product-caption">
+            <span>Une vue d’attention, pas un tableau de bord rempli artificiellement.</span>
+            <span>SAFE / NAVETTE / 2026</span>
+          </div>
+          <div class="detail-strip">
+            <div class="detail"><b>Questions regroupées</b><p>Ce qui exige une décision humaine remonte dans une liste courte.</p></div>
+            <div class="detail"><b>Documents à valider</b><p>L’adjointe prépare. L’avocat approuve ou renvoie avec contexte.</p></div>
+            <div class="detail"><b>Progression visible</b><p>Le cabinet sait ce qui est configuré et ce qui reste à faire.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-section">
+        <div class="container">
+          <header class="section-head reveal">
+            <div>
+              <div class="section-index">Acte 02 · Vérifier</div>
+              <h2>Le fidéicommis<br>reste lisible.</h2>
+            </div>
+            <div>
+              <p>Soldes, dépôts, retraits et relevés restent liés aux clients et aux dossiers. Les signaux importants sont visibles avant la fermeture du mois.</p>
+              <span class="benefit">Résultat: voir l’écart avant qu’il devienne un problème.</span>
+            </div>
+          </header>
+          <figure class="product-frame reveal">
+            <img src="../../public/images/app/fideicommis.png" alt="Vue réelle des comptes en fidéicommis dans SAFE" />
+          </figure>
+          <div class="container product-caption">
+            <span>Les montants restent tabulaires. La couleur sert aux états, jamais au décor.</span>
+            <span>SAFE / FIDÉICOMMIS / 2026</span>
+          </div>
+          <div class="detail-strip">
+            <div class="detail"><b>Surveillance continue</b><p>Les soldes négatifs et fonds dormants deviennent des signaux explicites.</p></div>
+            <div class="detail"><b>Historique lié</b><p>Chaque mouvement reste rattaché au client, au dossier et à sa référence.</p></div>
+            <div class="detail"><b>Relevé mensuel</b><p>La préparation du contrôle mensuel appartient au même espace de travail.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-section">
+        <div class="container">
+          <header class="section-head reveal">
+            <div>
+              <div class="section-index">Acte 03 · Encaisser</div>
+              <h2>Le travail accompli<br>devient facturable.</h2>
+            </div>
+            <div>
+              <p>Le temps non facturé, les créances et les paiements cessent d’être des rapports séparés. SAFE montre où se trouve l’argent et ce qui doit avancer.</p>
+              <span class="benefit">Résultat: facturer et relancer avec une vue complète.</span>
+            </div>
+          </header>
+          <figure class="product-frame reveal">
+            <img src="../../public/images/app/facturation.png" alt="Vue réelle de la facturation et du suivi des paiements dans SAFE" />
+          </figure>
+          <div class="container product-caption">
+            <span>Une chaîne continue, du temps saisi jusqu’au paiement suivi.</span>
+            <span>SAFE / FACTURATION / 2026</span>
+          </div>
+          <div class="detail-strip">
+            <div class="detail"><b>À facturer</b><p>Les honoraires, débours et taxes sont regroupés par client et dossier.</p></div>
+            <div class="detail"><b>À vérifier</b><p>Les factures attendent une validation claire avant d’être émises.</p></div>
+            <div class="detail"><b>À relancer</b><p>Les retards et l’âge des créances restent visibles sans exporter un tableau.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dark-system" id="securite">
+        <div class="container">
+          <div class="dark-head reveal">
+            <h2>Un système calme.<br>Des responsabilités claires.</h2>
+            <p>SAFE automatise la préparation, jamais le jugement. Chaque étape importante garde une trace, un responsable et un moment de validation.</p>
+          </div>
+          <div class="system-rail">
+            <article class="system-step"><span class="mono">01 / SIGNALER</span><h3>Ce qui mérite l’attention</h3><p>Une exception remonte. Le reste demeure silencieux.</p></article>
+            <article class="system-step"><span class="mono">02 / PRÉPARER</span><h3>Le travail répétitif</h3><p>Les données et documents sont rassemblés avant la décision.</p></article>
+            <article class="system-step"><span class="mono">03 / VALIDER</span><h3>Le jugement humain</h3><p>L’avocat ou l’adjointe confirme ce qui engage le cabinet.</p></article>
+            <article class="system-step"><span class="mono">04 / TRACER</span><h3>Une preuve retrouvable</h3><p>Le geste, la date et le contexte restent disponibles.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="continuity">
+        <div class="container continuity-grid">
+          <div class="continuity-copy reveal">
+            <h2>Construit<br>en public.</h2>
+            <p>Quand la clientèle est encore limitée, la meilleure preuve n’est pas un mur de logos. C’est un produit qui avance et des améliorations que l’on peut nommer.</p>
+          </div>
+          <div class="changelog">
+            <article class="release">
+              <time datetime="2026-07">JUIL 2026</time>
+              <div><h3>Navette de validation</h3><p>Questions, documents et approbations réunis dans une vue d’attention.</p></div>
+              <span class="release-tag">LIVRÉ</span>
+            </article>
+            <article class="release">
+              <time datetime="2026-06">JUIN 2026</time>
+              <div><h3>Surveillance du fidéicommis</h3><p>Signalement des soldes négatifs et préparation des relevés mensuels.</p></div>
+              <span class="release-tag">LIVRÉ</span>
+            </article>
+            <article class="release">
+              <time datetime="2026-06">JUIN 2026</time>
+              <div><h3>Facturation et suivi</h3><p>Temps facturable, validation, émission et créances dans une même chaîne.</p></div>
+              <span class="release-tag">LIVRÉ</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="offer" id="tarification">
+        <div class="container">
+          <div class="offer-head reveal">
+            <h2>Un prix lisible.<br>Un départ accompagné.</h2>
+            <p>L’audit gratuit vient d’abord. Il permet de comprendre le cabinet avant de proposer la configuration qui lui convient.</p>
+          </div>
+          <div class="price-rail">
+            <article class="price">
+              <div class="price-label">Solo</div>
+              <div class="price-number">99 $ <small>/ mois</small></div>
+              <p>Pour une pratique individuelle qui veut réunir dossiers, temps, facturation et fidéicommis.</p>
+              <a class="button button-secondary" href="#audit">Commencer par l’audit</a>
+            </article>
+            <article class="price">
+              <div class="price-label">Cabinet</div>
+              <div class="price-number">149 $ <small>/ mois</small></div>
+              <p>Pour un petit cabinet qui partage les responsabilités entre avocats et adjointes.</p>
+              <a class="button button-primary" href="#audit">Commencer par l’audit</a>
+            </article>
+            <aside class="price price-note">
+              <div class="price-label">Configuration</div>
+              <strong>Incluse.<br>Sans frais cachés.</strong>
+              <span>Le périmètre exact est confirmé après l’audit.</span>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="final" id="audit">
+        <div class="container">
+          <div class="final-main">
+            <h2>Voyez où votre cabinet<br><em>perd du temps.</em></h2>
+            <div class="final-side">
+              <p>L’audit gratuit produit un diagnostic clair de vos opérations, de votre facturation et de vos points de contrôle.</p>
+              <a class="button button-light" href="#">Faire mon audit gratuit <span aria-hidden="true">→</span></a>
+              <div class="final-meta">Aucune carte de crédit · Aucun engagement · Rapport confidentiel</div>
+            </div>
+          </div>
+          <footer class="footer">
+            <div class="footer-brand">
+              <a class="brand" href="#accueil">
+                <span class="mark-shell">
+                  <svg width="25" height="25" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill="#1F3A2E"/>
+                    <path d="M 19.5,18.5 Q 20.5,20.5 18.5,20 L 11.5,20 Q 9.5,20.5 10.5,18.5 L 14,11.5 Q 15,9.5 16,11.5 Z" fill="#1F3A2E" opacity=".55"/>
+                  </svg>
+                </span>
+                <span class="brand-name">SAFE</span>
+              </a>
+              <p>Gestion de cabinet pour les avocats du Québec et de l’Ontario.</p>
+            </div>
+            <div><h3>Produit</h3><a href="#produit">Navette</a><a href="#produit">Fidéicommis</a><a href="#produit">Facturation</a></div>
+            <div><h3>Entreprise</h3><a href="#">À propos</a><a href="#">Sécurité</a><a href="#">Contact</a></div>
+            <div><h3>Accès</h3><a href="#">Connexion</a><a href="#audit">Audit gratuit</a><a href="#tarification">Tarification</a></div>
+          </footer>
+          <div class="draft-label">Ébauche locale · Non intégrée · Inspiration structurelle Linear · Identité et produit SAFE</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        }),
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+    </script>
+  </body>
+</html>

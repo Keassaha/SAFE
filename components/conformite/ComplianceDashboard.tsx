@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import Link from "next/link";
@@ -67,7 +68,28 @@ const OBLIGATION_COPY = {
   en: { heading: "Your compliance obligations", toConfirm: "to confirm", due: "due" },
 };
 
+/** Traduit un incident opérationnel par son id (le label serveur reste un repli). */
+function issueLabel(t: ReturnType<typeof useTranslations>, issue: ComplianceStatus["issues"][number]): string {
+  switch (issue.id) {
+    case "reconciliation":
+      return issue.severity === "error" ? t("issueReconOverdue") : t("issueReconDueSoon");
+    case "fintrac":
+      return t("issueFintrac");
+    case "conflicts":
+      return t("issueConflicts");
+    case "mandates":
+      return t("issueMandates");
+    case "expired_docs":
+      return t("issueExpiredDocs");
+    case "expiring_docs":
+      return t("issueExpiringDocs");
+    default:
+      return issue.label;
+  }
+}
+
 export function ComplianceDashboard() {
+  const t = useTranslations("conformite");
   const copy = getTrustRegulatorCopy(useCabinetProvince());
   const { data, isLoading } = useQuery({
     queryKey: ["compliance-status"],
@@ -101,6 +123,8 @@ export function ComplianceDashboard() {
     data.scoreVariant === "success" ? "bg-si-verified/10 border-si-verified/30" :
     data.scoreVariant === "warning" ? "bg-si-amber/[0.13] border-si-amber/30" : "bg-[#B84A3E]/10 border-[#B84A3E]/30";
 
+  const scoreLabel = data.score >= 80 ? t("opCompliant") : data.score >= 60 ? t("opAtRisk") : t("opNonCompliant");
+
   return (
     <div className="space-y-6">
       {/* Score card */}
@@ -113,18 +137,18 @@ export function ComplianceDashboard() {
             <div className="flex items-center gap-2 mb-1">
               <Shield className={`w-5 h-5 ${scoreColor}`} />
               <h2 className="text-lg font-semibold">
-                Compliance Score
+                {t("opScoreTitle")}
               </h2>
-              <StatusBadge
-                label={data.score >= 80 ? "Compliant" : data.score >= 60 ? "At Risk" : "Non-Compliant"}
-                variant={data.scoreVariant}
-              />
+              <StatusBadge label={scoreLabel} variant={data.scoreVariant} />
             </div>
             <p className="text-sm text-si-muted">
-              {data.counts.totalActiveDossiers} active files |{" "}
+              {t("opActiveFiles", { count: data.counts.totalActiveDossiers })} |{" "}
               {data.issues.length === 0
-                ? "All checks passed"
-                : `${data.issues.filter((i) => i.severity === "error").length} critical, ${data.issues.filter((i) => i.severity === "warning").length} warnings`
+                ? t("opAllPassed")
+                : t("opCriticalWarnings", {
+                    critical: data.issues.filter((i) => i.severity === "error").length,
+                    warnings: data.issues.filter((i) => i.severity === "warning").length,
+                  })
               }
             </p>
           </div>
@@ -158,7 +182,7 @@ export function ComplianceDashboard() {
                   <span className={`text-sm font-medium flex-1 ${
                     issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
                   }`}>
-                    {issue.label}
+                    {issueLabel(t, issue)}
                   </span>
                   <span className={`text-sm font-bold tabular-nums ${
                     issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
@@ -185,8 +209,8 @@ export function ComplianceDashboard() {
               </div>
               <StatusBadge
                 label={
-                  data.reconciliation.status === "critical" ? "Overdue" :
-                  data.reconciliation.status === "overdue" ? "Due Soon" : "Up to Date"
+                  data.reconciliation.status === "critical" ? t("stReconOverdue") :
+                  data.reconciliation.status === "overdue" ? t("stReconDueSoon") : t("stReconUpToDate")
                 }
                 variant={
                   data.reconciliation.status === "critical" ? "error" :
@@ -194,8 +218,8 @@ export function ComplianceDashboard() {
                 }
               />
               <p className="text-xs text-si-muted">
-                Expected: {data.reconciliation.expectedPeriode}
-                {data.reconciliation.lastCertified && ` | Last: ${data.reconciliation.lastCertified}`}
+                {t("lblExpected")}: {data.reconciliation.expectedPeriode}
+                {data.reconciliation.lastCertified && ` | ${t("lblLast")}: ${data.reconciliation.lastCertified}`}
               </p>
             </CardContent>
           </Card>
@@ -206,15 +230,15 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">FINTRAC ID Verification</h4>
+              <h4 className="text-sm font-semibold">{t("wFintracTitle")}</h4>
             </div>
             {data.counts.dossiersWithoutFintrac === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
-                <CheckCircle className="w-4 h-4" /> All verified
+                <CheckCircle className="w-4 h-4" /> {t("stAllVerified")}
               </div>
             ) : (
               <StatusBadge
-                label={`${data.counts.dossiersWithoutFintrac} unverified`}
+                label={t("stUnverified", { count: data.counts.dossiersWithoutFintrac })}
                 variant="error"
               />
             )}
@@ -226,15 +250,15 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">Conflict of Interest</h4>
+              <h4 className="text-sm font-semibold">{t("wConflictsTitle")}</h4>
             </div>
             {data.counts.unresolvedConflicts === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
-                <CheckCircle className="w-4 h-4" /> No unresolved conflicts
+                <CheckCircle className="w-4 h-4" /> {t("stNoConflicts")}
               </div>
             ) : (
               <StatusBadge
-                label={`${data.counts.unresolvedConflicts} unresolved`}
+                label={t("stUnresolved", { count: data.counts.unresolvedConflicts })}
                 variant="error"
               />
             )}
@@ -246,15 +270,15 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">Signed Mandates</h4>
+              <h4 className="text-sm font-semibold">{t("wMandatesTitle")}</h4>
             </div>
             {data.counts.dossiersWithoutMandate === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
-                <CheckCircle className="w-4 h-4" /> All files have mandates
+                <CheckCircle className="w-4 h-4" /> {t("stAllMandates")}
               </div>
             ) : (
               <StatusBadge
-                label={`${data.counts.dossiersWithoutMandate} missing`}
+                label={t("stMissing", { count: data.counts.dossiersWithoutMandate })}
                 variant="warning"
               />
             )}
@@ -266,19 +290,19 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">Immigration Documents</h4>
+              <h4 className="text-sm font-semibold">{t("wDocsTitle")}</h4>
             </div>
             {data.counts.expiredDocuments === 0 && data.counts.expiringSoonDocuments === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
-                <CheckCircle className="w-4 h-4" /> All documents valid
+                <CheckCircle className="w-4 h-4" /> {t("stAllDocsValid")}
               </div>
             ) : (
               <div className="space-y-1">
                 {data.counts.expiredDocuments > 0 && (
-                  <StatusBadge label={`${data.counts.expiredDocuments} expired`} variant="error" />
+                  <StatusBadge label={t("stExpired", { count: data.counts.expiredDocuments })} variant="error" />
                 )}
                 {data.counts.expiringSoonDocuments > 0 && (
-                  <StatusBadge label={`${data.counts.expiringSoonDocuments} expiring soon`} variant="warning" />
+                  <StatusBadge label={t("stExpiringSoon", { count: data.counts.expiringSoonDocuments })} variant="warning" />
                 )}
               </div>
             )}
@@ -297,7 +321,7 @@ export function ComplianceDashboard() {
                 {copy.reportGeneratorDesc}
               </p>
               <span className="text-xs text-si-forest flex items-center gap-1">
-                {copy.isQuebec ? "Voir les rapports" : "View Reports"} <ExternalLink className="w-3 h-3" />
+                {t("viewReports")} <ExternalLink className="w-3 h-3" />
               </span>
             </CardContent>
           </Card>

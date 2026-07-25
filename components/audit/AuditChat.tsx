@@ -1691,7 +1691,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
           {
             id: uid(),
             sender: "auditor",
-            text: "Bonjour ! Je suis Jérémy, fondateur de SAFE.\n\nCet audit couvre 7 piliers de votre pratique : gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nEnviron 15 à 20 min · 100 % confidentiel.\n\nÀ la fin, vous recevrez un diagnostic personnalisé : votre score de conformité, les risques identifiés, l'impact financier estimé et un plan d'action concret.\n\nPrêt(e) à commencer ?",
+            text: "Bonjour ! Je suis Jérémie, fondateur de SAFE.\n\nCet audit couvre 7 piliers de votre pratique : gestion des dossiers, échéanciers, clientèle, facturation, fidéicommis, opérations et conformité.\n\nEnviron 15 à 20 min · 100 % confidentiel.\n\nÀ la fin, vous recevrez un diagnostic personnalisé : votre score de conformité, les risques identifiés, l'impact financier estimé et un plan d'action concret.\n\nPrêt(e) à commencer ?",
             timestamp: Date.now(),
           },
         ]);
@@ -2310,7 +2310,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             J
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémy — SAFE</h1>
+            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémie — SAFE</h1>
             <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
               {isTyping ? (
                 <span className="text-[var(--safe-text-secondary)] font-medium">écrit...</span>

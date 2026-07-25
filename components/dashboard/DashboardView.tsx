@@ -3,7 +3,6 @@
 import type { ComponentType, ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   AlertTriangle,
   Banknote,
@@ -22,13 +21,6 @@ import {
 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { PageHeader } from "@/components/ui/PageHeader";
-import {
-  staggerContainer,
-  staggerItem,
-  staggerContainerReduced,
-  staggerItemReduced,
-  useSafeMotion,
-} from "@/lib/motion";
 import type {
   BillingFollowUpRow,
   DashboardPayload,
@@ -82,21 +74,20 @@ type HealthCard = {
   sub?: string;
   href: string;
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  iconBg: string;
 };
 
 function toneBorder(tone: Tone) {
-  if (tone === "danger") return "bg-[#FBE4DF] text-[#8A342A] border-[#EAB9AF]";
-  if (tone === "warn") return "bg-[#FFF4D8] text-[#94620C] border-[#E7C66F]";
-  if (tone === "ok") return "bg-[#E7F2EA] text-[#1F3A2E] border-[#BED6C6]";
-  return "bg-[#F3F6F4] text-[#3B4A43] border-[#DCE5E0]";
+  if (tone === "danger") return "border-status-error/25 bg-status-error-bg text-status-error";
+  if (tone === "warn") return "border-si-amber/25 bg-si-amber/10 text-si-amber-ink";
+  if (tone === "ok") return "border-si-verified/25 bg-si-verified/10 text-si-verified";
+  return "border-si-line bg-si-line2 text-si-muted";
 }
 
 function LinkLabel({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-[#1F3A2E] hover:underline"
+      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-si-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-si-forest/35 focus-visible:outline-offset-2"
     >
       {children}
       <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -450,7 +441,6 @@ function buildHealthCards(
       sub: totalClients > 0 ? t("kpiActiveClientsSub", { percent: activePercent }) : undefined,
       href: ACTIVE_CLIENTS_ROUTE,
       icon: UserCheck,
-      iconBg: "bg-status-success-bg text-status-success",
     },
   ];
 
@@ -462,7 +452,6 @@ function buildHealthCards(
       sub: payload.kpis.paymentsReceived.trendLabel,
       href: routes.facturationPaiements,
       icon: Wallet,
-      iconBg: "bg-green-100 text-[var(--safe-icon-default)]",
     });
     cards.push({
       key: "outstanding",
@@ -474,7 +463,6 @@ function buildHealthCards(
           : undefined,
       href: routes.facturationSuivi,
       icon: Receipt,
-      iconBg: totalOutstanding > 0 ? "bg-[#FFF4D8] text-[#94620C]" : "bg-green-100 text-green-700",
     });
   }
 
@@ -488,7 +476,6 @@ function buildHealthCards(
         : undefined,
     href: routes.dossiers,
     icon: BriefcaseBusiness,
-    iconBg: "bg-green-100 text-green-700",
   });
 
   if (payload.visibility.showTrustBalance) {
@@ -499,12 +486,6 @@ function buildHealthCards(
       sub: trustRisk.label,
       href: routes.comptes,
       icon: Landmark,
-      iconBg:
-        trustRisk.severity === "danger"
-          ? "bg-[#FBE4DF] text-[#8A342A]"
-          : trustRisk.severity === "warn"
-            ? "bg-[#FFF4D8] text-[#94620C]"
-            : "bg-green-50 text-[var(--safe-icon-accent)]",
     });
   }
 
@@ -512,47 +493,20 @@ function buildHealthCards(
 }
 
 function HealthCardsGrid({ cards }: { cards: HealthCard[] }) {
-  const { reduceMotion } = useSafeMotion();
-  const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
-  const itemVariants = reduceMotion ? staggerItemReduced : staggerItem;
-  const cols = cards.length >= 5 ? "lg:grid-cols-5" : "lg:grid-cols-4";
-
   return (
-    <motion.div
-      className={`grid grid-cols-1 sm:grid-cols-2 ${cols} gap-4`}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {cards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <motion.div key={card.key} variants={itemVariants} className="h-full">
-            <Link
-              href={card.href}
-              className="block h-full card-glass rounded-safe-lg p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold safe-text-secondary uppercase tracking-widest">
-                    {card.title}
-                  </p>
-                  <p className="mt-1.5 text-2xl font-bold safe-text-metric tracking-tight tabular-nums">
-                    {card.value}
-                  </p>
-                  {card.sub && <p className="mt-1 text-sm safe-text-secondary">{card.sub}</p>}
-                </div>
-                <div
-                  className={`w-11 h-11 shrink-0 rounded-safe flex items-center justify-center ${card.iconBg}`}
-                >
-                  <Icon className="w-5 h-5" aria-hidden />
-                </div>
-              </div>
-            </Link>
-          </motion.div>
-        );
-      })}
-    </motion.div>
+    <div className="grid grid-cols-1 border-y border-si-line bg-si-surface sm:grid-cols-2 lg:grid-cols-4">
+      {cards.map((card) => (
+        <Link
+          key={card.key}
+          href={card.href}
+          className="min-w-0 border-b border-si-line2 px-4 py-3 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2 sm:border-r lg:border-b-0"
+        >
+          <p className="truncate text-[11px] font-medium text-si-muted">{card.title}</p>
+          <p className="mt-1 truncate font-mono text-xl font-medium tabular-nums text-si-ink">{card.value}</p>
+          {card.sub && <p className="mt-1 truncate text-xs text-si-muted" title={card.sub}>{card.sub}</p>}
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -564,11 +518,11 @@ function ActionList({
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
-      <div className="divide-y divide-[#E5ECE8]">
+    <div className="overflow-hidden rounded-lg border border-si-line bg-si-surface">
+      <div className="divide-y divide-si-line2">
         {items.length === 0 ? (
           <div className="flex items-center gap-3 px-4 py-8">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BED6C6] bg-[#E7F2EA] text-[#1F3A2E]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-si-verified/25 bg-si-verified/10 text-si-verified">
               <CheckCircle2 className="h-5 w-5" aria-hidden />
             </span>
             <div>
@@ -583,7 +537,7 @@ function ActionList({
               <Link
                 key={item.key}
                 href={item.href}
-                className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#F6F8F7]"
+                className="group flex items-center gap-3 px-4 py-3 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
               >
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border ${toneBorder(item.tone)}`}
@@ -599,7 +553,7 @@ function ActionList({
                 </div>
                 {item.extra}
                 <ChevronRight
-                  className="h-4 w-4 shrink-0 text-[#8E9A94] transition-transform group-hover:translate-x-0.5"
+                  className="h-4 w-4 shrink-0 text-si-muted"
                   aria-hidden
                 />
               </Link>
@@ -623,17 +577,17 @@ function PipelineBoard({
       {columns.map((column) => (
         <div
           key={column.key}
-          className="flex min-h-[190px] flex-col rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-3"
+          className="flex min-h-[190px] flex-col rounded-lg border border-si-line bg-si-surface p-3"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="truncate text-sm font-semibold safe-text-title">{column.title}</h3>
-            <span className="rounded-md bg-[#F3F6F4] px-2 py-1 text-sm font-semibold tabular-nums safe-text-title">
+            <span className="rounded-full bg-si-line2 px-2 py-1 font-mono text-xs font-medium tabular-nums text-si-ink">
               {column.count}
             </span>
           </div>
           <div className="flex flex-1 flex-col gap-2">
             {column.items.length === 0 ? (
-              <p className="rounded-md border border-dashed border-[#DCE5E0] px-3 py-3 text-xs text-[#8E9A94]">
+              <p className="rounded-md border border-dashed border-si-line px-3 py-3 text-xs text-si-muted">
                 {t("pipelineEmpty")}
               </p>
             ) : (
@@ -641,7 +595,7 @@ function PipelineBoard({
                 <Link
                   key={item.id}
                   href={item.href}
-                  className="rounded-md border border-[#E5ECE8] px-3 py-2 transition-colors hover:border-[#BED6C6] hover:bg-[#F6F8F7]"
+                  className="rounded-md border border-si-line px-3 py-2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
                 >
                   <p className="truncate text-xs font-semibold safe-text-title">{item.label}</p>
                   {item.sub && <p className="mt-0.5 truncate text-[11px] safe-text-secondary">{item.sub}</p>}
@@ -687,18 +641,18 @@ function ActivityRecent({
   ].slice(0, 6);
 
   return (
-    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] overflow-hidden">
+    <div className="overflow-hidden rounded-lg border border-si-line bg-si-surface">
       {items.length === 0 ? (
         <p className="px-4 py-6 text-sm safe-text-secondary">{t("activityEmpty")}</p>
       ) : (
-        <div className="divide-y divide-[#E5ECE8]">
+        <div className="divide-y divide-si-line2">
           {items.map((item) => (
             <Link
               key={item.id}
               href={item.href}
-              className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[#F6F8F7]"
+              className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
             >
-              <FileText className="h-4 w-4 shrink-0 text-[#68776F]" aria-hidden />
+              <FileText className="h-4 w-4 shrink-0 text-si-muted" aria-hidden />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium safe-text-title">{item.label}</p>
                 <p className="truncate text-xs safe-text-secondary">{item.detail}</p>
@@ -723,7 +677,7 @@ function SixMonthChart({
 }) {
   if (rows.length < 2) {
     return (
-      <div className="rounded-safe-lg border border-[#E5ECE8] bg-white p-6 text-center text-sm safe-text-secondary">
+      <div className="rounded-lg border border-si-line bg-si-surface p-6 text-center text-sm text-si-muted">
         {t("chartNoData")}
       </div>
     );
@@ -740,19 +694,19 @@ function SixMonthChart({
       .join(" ");
 
   return (
-    <div className="rounded-safe-lg border border-[#E5ECE8] bg-white shadow-[0_1px_2px_rgba(23,37,31,0.04)] p-4">
+    <div className="rounded-lg border border-si-line bg-si-surface p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold safe-text-title">{t("chartTitle")}</h3>
         <LinkLabel href={routes.rapports}>{t("reports")}</LinkLabel>
       </div>
       <svg viewBox="0 0 100 100" className="h-44 w-full" preserveAspectRatio="none" aria-hidden>
         {[25, 50, 75].map((y) => (
-          <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="#DCE5E0" strokeWidth="0.4" />
+          <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="var(--si-line)" strokeWidth="0.4" />
         ))}
         <polyline
           points={points((r) => r.invoiced)}
           fill="none"
-          stroke="#8E9A94"
+          stroke="var(--si-muted)"
           strokeWidth="1.2"
           strokeDasharray="3 2"
           vectorEffect="non-scaling-stroke"
@@ -760,17 +714,17 @@ function SixMonthChart({
         <polyline
           points={points((r) => r.collected)}
           fill="none"
-          stroke="#1F3A2E"
+          stroke="var(--si-forest)"
           strokeWidth="1.8"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
       <div className="mt-2 flex flex-wrap items-center gap-4 text-xs safe-text-secondary">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-4 bg-[#1F3A2E]" /> {t("chartCollected")}
+          <span className="h-0.5 w-4 bg-si-forest" /> {t("chartCollected")}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-4 border-t border-dashed border-[#8E9A94]" /> {t("chartInvoiced")}
+          <span className="h-0.5 w-4 border-t border-dashed border-si-muted" /> {t("chartInvoiced")}
         </span>
       </div>
     </div>
@@ -831,7 +785,7 @@ export function DashboardView({ payload }: DashboardViewProps) {
           {payload.visibility.showActivityFeed ? (
             <ActivityRecent payload={payload} locale={intlLocale} t={t} />
           ) : (
-            <div className="rounded-safe-lg border border-[#E5ECE8] bg-white p-6 text-sm safe-text-secondary">
+            <div className="rounded-lg border border-si-line bg-si-surface p-6 text-sm text-si-muted">
               {t("activityEmpty")}
             </div>
           )}

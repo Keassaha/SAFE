@@ -34,13 +34,16 @@ export async function GET() {
         numeroDossier: true,
         reference: true,
         clientId: true,
+        // Taux négocié au dossier : sert de pré-remplissage prioritaire dans la saisie de temps.
+        tauxHoraire: true,
         client: { select: { typeClient: true, raisonSociale: true, prenom: true, nom: true } },
       },
       orderBy: { intitule: "asc" },
     }),
     prisma.user.findMany({
       where: { cabinetId },
-      select: { id: true, nom: true },
+      // defaultHourlyRate : taux de l'avocat, pré-rempli automatiquement à la saisie (modifiable).
+      select: { id: true, nom: true, defaultHourlyRate: true },
       orderBy: { nom: "asc" },
     }),
   ]);

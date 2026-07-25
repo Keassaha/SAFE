@@ -12,8 +12,8 @@ import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 
 type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
-type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
-type UserOption = { id: string; nom: string };
+type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; tauxHoraire?: number | null; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
+type UserOption = { id: string; nom: string; defaultHourlyRate?: number | null };
 
 // Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom
 // pour afficher un libellé sélectionnable dans la liste déroulante.
@@ -70,6 +70,8 @@ export function TimeEntryFormModal({
   const [facturable, setFacturable] = useState(initial?.facturable ?? true);
   const [statut, setStatut] = useState<TimeEntryStatut>(initial?.statut ?? "brouillon");
   const [tauxHoraire, setTauxHoraire] = useState(initial?.tauxHoraire ?? 0);
+  // Verrou : une fois le taux saisi/modifié à la main, on ne le réécrase plus automatiquement.
+  const [rateManuallyEdited, setRateManuallyEdited] = useState((initial?.tauxHoraire ?? 0) > 0);
   const [error, setError] = useState<string | null>(null);
   const [roundingHint, setRoundingHint] = useState<{ raw: number; rounded: number; roundingMinutes: number } | undefined>(undefined);
 
@@ -114,8 +116,21 @@ export function TimeEntryFormModal({
     setFacturable(initial?.facturable ?? true);
     setStatut(initial?.statut ?? "brouillon");
     setTauxHoraire(initial?.tauxHoraire ?? 0);
+    // Entrée existante avec un taux déjà fixé → on considère la valeur verrouillée.
+    // Nouvelle entrée (taux 0) → déverrouillée, l'auto-remplissage prendra le relais.
+    setRateManuallyEdited((initial?.tauxHoraire ?? 0) > 0);
     setError(null);
   }, [open, initial, currentUserId, dossiers]);
+
+  // Pré-remplissage automatique du taux : taux du dossier (négocié) sinon taux de l'avocat sélectionné.
+  // Ne s'applique que tant que l'utilisateur n'a pas saisi de taux à la main.
+  useEffect(() => {
+    if (!open || rateManuallyEdited) return;
+    const dossierRate = dossiers.find((d) => d.id === dossierId)?.tauxHoraire;
+    const userRate = users.find((u) => u.id === userId)?.defaultHourlyRate;
+    const resolved = dossierRate ?? userRate ?? 0;
+    setTauxHoraire(resolved);
+  }, [open, rateManuallyEdited, userId, dossierId, users, dossiers]);
 
   const createMutation = useCreateTimeEntry(cabinetId);
   const updateMutation = useUpdateTimeEntry(cabinetId);
@@ -309,9 +324,15 @@ export function TimeEntryFormModal({
           step="0.01"
           min={0}
           value={String(tauxHoraire)}
-          onChange={(e) => setTauxHoraire(Number(e.target.value) || 0)}
+          onChange={(e) => {
+            setTauxHoraire(Number(e.target.value) || 0);
+            setRateManuallyEdited(true);
+          }}
           required
         />
+        {!rateManuallyEdited && tauxHoraire > 0 && (
+          <p className="text-xs text-si-muted -mt-2">{t("rateAutofillHint")}</p>
+        )}
         {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>

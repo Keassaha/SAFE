@@ -9,6 +9,8 @@ interface Column<T> {
   hideOnMobile?: boolean;
   /** Mark as primary — always shown prominently on mobile card */
   primary?: boolean;
+  /** Right-align and use tabular mono numerals for amounts, dates and references. */
+  numeric?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -41,7 +43,7 @@ export function DataTable<T>({
         {data.map((row) => (
           <div
             key={keyExtractor(row)}
-            className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white p-3 space-y-1.5"
+            className="space-y-1.5 rounded-lg border border-si-line bg-si-surface p-3"
           >
             {columns
               .filter((col) => !col.hideOnMobile)
@@ -65,7 +67,7 @@ export function DataTable<T>({
                         <span className="text-xs safe-text-secondary shrink-0">
                           {col.header}
                         </span>
-                        <span className="safe-text-title text-right truncate">
+                        <span className={`truncate text-right text-si-ink ${col.numeric ? "font-mono tabular-nums" : ""}`}>
                           {value}
                         </span>
                       </>
@@ -81,11 +83,13 @@ export function DataTable<T>({
       <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full">
           <thead>
-            <tr className="border-b border-[var(--safe-neutral-border)]">
+            <tr className="border-b border-si-line">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-xs font-medium safe-text-secondary uppercase tracking-wider"
+                  className={`h-9 px-3 text-[11px] font-medium text-si-muted ${
+                    col.numeric ? "text-right font-mono tabular-nums" : "text-left"
+                  }`}
                 >
                   {col.header}
                 </th>
@@ -93,17 +97,17 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {data.map((row, i) => (
+            {data.map((row) => (
               <tr
                 key={keyExtractor(row)}
-                className={`border-b border-[var(--safe-neutral-border)]/80 transition-colors duration-200 hover:bg-green-50/50 ${
-                  i % 2 === 1 ? "bg-neutral-100/30" : ""
-                }`}
+                className="h-11 border-b border-si-line2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className="px-4 py-3 text-sm safe-text-title"
+                    className={`px-3 text-[13px] text-si-ink ${
+                      col.numeric ? "text-right font-mono tabular-nums" : "text-left"
+                    }`}
                   >
                     {col.render
                       ? col.render(row)

@@ -32,7 +32,7 @@ export default function AuditGratuitPage() {
   const menuLinks = [
     { href: "/", label: "Accueil" },
     { href: "/#produit", label: "Fonctionnalités" },
-    { href: "/tarification", label: "Prix après audit" },
+    { href: "/tarification", label: "Prix après diagnostic" },
     { href: "/contact", label: "Contact" },
     { href: "/login", label: "Connexion" },
   ];
@@ -109,7 +109,7 @@ export default function AuditGratuitPage() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-[#E5E0D5] mb-6">
               <span className="w-2 h-2 rounded-full bg-[var(--safe-green-800)] animate-pulse" />
               <span className="text-[11px] font-medium text-neutral-600 tracking-wide">
-                Audit gratuit · Rapport sous 24 h
+                Diagnostic gratuit · Rapport sous 24 h
               </span>
             </div>
 
@@ -129,15 +129,15 @@ export default function AuditGratuitPage() {
             <div className="grid grid-cols-3 gap-3 mb-10">
               {[
                 { num: "01", label: "Plus de revenus", sub: "Fuites de facturation colmatées" },
-                { num: "02", label: "Plus de temps",   sub: "8 h / sem en moyenne libérées" },
-                { num: "03", label: "Plus tranquille", sub: "Conformité Barreau assurée" },
+                { num: "02", label: "Plus de temps",   sub: "Des heures d'administration libérées" },
+                { num: "03", label: "Plus tranquille", sub: "Vos obligations Barreau suivies" },
               ].map((it) => (
                 <div key={it.label} className="audit-v2-card text-left">
                   <div
                     className="text-[13px] mb-3 text-[var(--safe-green-800)]"
                     style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif", letterSpacing: "0.08em" }}
                   >
-                    — {it.num}
+                    {it.num}
                   </div>
                   <p className="text-[13px] font-semibold text-[#111]">{it.label}</p>
                   <p className="text-[11px] text-neutral-500 mt-0.5">{it.sub}</p>
@@ -149,11 +149,11 @@ export default function AuditGratuitPage() {
               onClick={() => setPhase("language")}
               className="audit-v2-btn-primary mx-auto text-[15px] px-9 py-4"
             >
-              Commencer l&apos;audit →
+              Commencer le diagnostic →
             </button>
 
             <p className="mt-5 text-[11px] text-neutral-400 tracking-wide">
-              Confidentiel · Aucune carte de crédit · Tarif proposé après l&apos;audit
+              Confidentiel · Aucune carte de crédit · Tarif proposé après le diagnostic
             </p>
           </motion.div>
         )}

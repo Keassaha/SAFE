@@ -4,8 +4,7 @@
  * Crée :
  * - 1 Workspace singleton (mode PRECHAUFFAGE jusqu'au 2026-09-04)
  * - 1 Lead converti rattaché au Cabinet existant (votre cliente actuelle)
- * - 5 Leads fictifs à différents stages pour visualiser le pipeline
- * - Quelques LeadContacts + Activities par Lead
+ *   Aucun lead fictif : la console ne contient que des données réelles.
  *
  * Usage :
  *   node prisma/seeds/crm-workspace-and-leads.mjs
@@ -151,118 +150,12 @@ async function upsertSampleLead(workspaceId, sample) {
   return lead;
 }
 
-// --- 5 Leads fictifs pour visualiser le pipeline ---
-const SAMPLE_LEADS = [
-  {
-    raisonSociale: "Cabinet Tremblay-Lapointe",
-    slug: "tremblay-lapointe",
-    province: "QC",
-    ville: "Montréal",
-    langue: "FR",
-    tailleCabinet: "DEUX_CINQ",
-    domainesPratique: ["droit_famille", "litige_civil"],
-    modeFacturation: "MIXTE",
-    aTrustAccounting: true,
-    logicielActuel: "Juris Concept",
-    nbAvocatsEstime: 3,
-    sourceLead: "LINKEDIN_DM_WARM",
-    stageLead: "CONSULTATION_PHASE2",
-    statutLead: "QUALIFIED_AUDIT",
-    modeleAdoption: "BOTTOM_UP",
-    score: 78,
-    scoreFirmographique: 32,
-    scoreEngagement: 28,
-    scoreEnrichissement: 18,
-    tags: ["candidat_founder_50", "test_pilote_possible"],
-  },
-  {
-    raisonSociale: "Étude juridique Bergeron",
-    slug: "etude-bergeron",
-    province: "QC",
-    ville: "Québec",
-    langue: "FR",
-    tailleCabinet: "SOLO",
-    domainesPratique: ["droit_famille"],
-    modeFacturation: "FORFAIT",
-    aTrustAccounting: true,
-    logicielActuel: "aucun",
-    nbAvocatsEstime: 1,
-    sourceLead: "SEO_ORGANIC",
-    stageLead: "AUDIT_COMPLETED",
-    statutLead: "QUALIFIED_AUDIT",
-    modeleAdoption: "TOP_DOWN",
-    score: 65,
-    scoreFirmographique: 30,
-    scoreEngagement: 20,
-    scoreEnrichissement: 15,
-    tags: ["solo_famille"],
-  },
-  {
-    raisonSociale: "Cabinet Gagnon Avocats",
-    slug: "gagnon-avocats",
-    province: "QC",
-    ville: "Sherbrooke",
-    langue: "FR",
-    tailleCabinet: "SIX_DIX",
-    domainesPratique: ["droit_affaires", "litige_civil"],
-    modeFacturation: "HORAIRE",
-    aTrustAccounting: false,
-    logicielActuel: "Clio",
-    nbAvocatsEstime: 7,
-    sourceLead: "LINKEDIN_POST",
-    stageLead: "CONVERSING",
-    statutLead: "NURTURE_ONLY",
-    modeleAdoption: "BOTTOM_UP",
-    score: 52,
-    scoreFirmographique: 25,
-    scoreEngagement: 17,
-    scoreEnrichissement: 10,
-    tags: ["clio_user"],
-  },
-  {
-    raisonSociale: "Boutique Immigration Dubé",
-    slug: "boutique-immigration-dube",
-    province: "ON",
-    ville: "Ottawa",
-    langue: "BILINGUE",
-    tailleCabinet: "DEUX_CINQ",
-    domainesPratique: ["immigration"],
-    modeFacturation: "FORFAIT",
-    aTrustAccounting: true,
-    logicielActuel: "Excel",
-    nbAvocatsEstime: 2,
-    sourceLead: "LINKEDIN_DM_COLD",
-    stageLead: "LEAD_MAGNET_SENT",
-    statutLead: "NURTURE_ONLY",
-    modeleAdoption: "BOTTOM_UP",
-    score: 45,
-    scoreFirmographique: 20,
-    scoreEngagement: 15,
-    scoreEnrichissement: 10,
-    tags: ["immigration_on"],
-  },
-  {
-    raisonSociale: "Cabinet Roy & Filles",
-    slug: "roy-et-filles",
-    province: "QC",
-    ville: "Trois-Rivières",
-    langue: "FR",
-    tailleCabinet: "ONZE_VINGT",
-    domainesPratique: ["droit_affaires", "fiscal"],
-    modeFacturation: "HORAIRE",
-    aTrustAccounting: true,
-    logicielActuel: "ProLaw",
-    nbAvocatsEstime: 14,
-    sourceLead: "REFERRAL",
-    stageLead: "AWARENESS",
-    statutLead: "NURTURE_ONLY",
-    score: 28,
-    scoreFirmographique: 18,
-    scoreEngagement: 5,
-    scoreEnrichissement: 5,
-    tags: ["referral_cliente_actuelle"],
-  },
-];
+// --- Leads fictifs : RETIRÉS ---
+// Décision CEO 2026-07-08 : la console ne doit contenir que des données réelles
+// (Me Derisier et son cabinet). Les 5 leads fictifs de démo ont été supprimés de
+// la prod et ne doivent plus être réinjectés. On garde le tableau vide pour ne
+// pas casser la boucle du main(), et pour documenter le choix.
+const SAMPLE_LEADS = [];
 
 // --- Main ---
 async function main() {
@@ -275,7 +168,7 @@ async function main() {
   console.log("\n[2/3] Lead converti (cliente actuelle)...");
   const convertedLead = await upsertConvertedLead(workspace.id);
 
-  console.log("\n[3/3] Leads fictifs (5) pour visualiser le pipeline...");
+  console.log("\n[3/3] Leads fictifs : aucun (console = données réelles seulement).");
   for (const sample of SAMPLE_LEADS) {
     await upsertSampleLead(workspace.id, sample);
   }
@@ -303,7 +196,6 @@ async function main() {
       `   Lead pilote dog food : ${convertedLead.raisonSociale} (LIVE)`,
     );
   }
-  console.log(`   Pipeline visualisable : 5 Leads à différents stages`);
   console.log(`   Phase Workspace : PRECHAUFFAGE (J+1 sur 90)\n`);
 }
 

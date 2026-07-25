@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
@@ -129,6 +130,15 @@ export function SafetrackCalendar({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Cible de projection de l'action principale dans la bannière de page.
+  // Résolue après le montage, sinon le noeud n'existe pas encore.
+  const [headerHost, setHeaderHost] = useState<HTMLElement | null>(null);
+  const [hostLookupDone, setHostLookupDone] = useState(false);
+  useEffect(() => {
+    setHeaderHost(document.getElementById("agenda-header-actions"));
+    setHostLookupDone(true);
+  }, []);
+
   const unifiedByDay = useMemo(() => {
     const map = new Map<number, UnifiedEvent[]>();
 
@@ -192,9 +202,21 @@ export function SafetrackCalendar({
     setDeleting(false);
   }
 
+  // bg-forest-700 (et non primary-700) : c'est la classe que le CSS de la bannière
+  // sait reprendre en teinte claire quand le bouton est projeté sur le fond forêt.
+  const newEventButton = (
+    <button
+      type="button"
+      onClick={() => { setShowModal(true); setEditEvent(null); }}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-safe-sm bg-forest-700 text-white hover:bg-forest-900 transition-colors"
+    >
+      <Plus className="w-3.5 h-3.5" /> {tg("eventLabel")}
+    </button>
+  );
+
   return (
     <>
-      <div className="rounded-safe-md border border-neutral-200 bg-white overflow-hidden shadow-sm">
+      <div className="rounded-safe-md border border-si-line bg-si-surface overflow-hidden shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-100">
           <div className="flex items-center gap-2">
@@ -202,9 +224,13 @@ export function SafetrackCalendar({
             <h3 className="text-sm font-semibold text-neutral-900 tracking-tight">{tg("agenda")}</h3>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-safe-sm bg-primary-700 text-white hover:bg-primary-800 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> {tg("eventLabel")}
-            </button>
+            {/* L'action « Événement » remonte dans la bannière de page, comme sur
+                l'écran Clients. Si la cible manque, elle reste ici, jamais perdue. */}
+            {headerHost
+              ? createPortal(newEventButton, headerHost)
+              : hostLookupDone
+                ? newEventButton
+                : null}
             <div className="flex items-center gap-0.5 ml-2">
               <button type="button" onClick={prevMonth} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
               <button type="button" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); setSelectedDay(now.getDate()); }} className="px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 rounded-safe-sm transition-colors">{tg("todayShort")}</button>
@@ -219,19 +245,19 @@ export function SafetrackCalendar({
           <div className="flex-1 p-3">
             <div className="grid grid-cols-7 mb-1">
               {WEEKDAY_LABELS.map((label) => (
-                <div key={label} className="text-center text-xs font-semibold uppercase tracking-wider text-neutral-400 py-1.5">{label}</div>
+                <div key={label} className="text-center text-[11px] font-medium uppercase tracking-caps text-si-muted py-1.5">{label}</div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-px bg-neutral-100 rounded-safe overflow-hidden">
+            <div className="grid grid-cols-7 gap-px bg-si-line rounded-safe overflow-hidden">
               {weeks.flat().map((d, idx) => {
-                if (d === null) return <div key={`e-${idx}`} className="bg-white min-h-[4.5rem]" />;
+                if (d === null) return <div key={`e-${idx}`} className="bg-si-surface min-h-[4.5rem]" />;
                 const items = unifiedByDay.get(d) ?? [];
                 const isToday = isCurrentMonth && d === now.getDate();
                 const isSelected = d === selectedDay;
                 return (
                   <button key={d} type="button" onClick={() => { setSelectedDay(d === selectedDay ? null : d); setExpandedId(null); }}
-                    className={`bg-white min-h-[4.5rem] p-1 text-left transition-colors relative ${isSelected ? "ring-2 ring-primary-500 ring-inset z-10" : "hover:bg-primary-50/50"}`}>
-                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${isToday ? "bg-primary-700 text-white" : "text-neutral-700"}`}>{d}</span>
+                    className={`bg-si-surface min-h-[4.5rem] p-1 text-left transition-colors relative ${isSelected ? "ring-2 ring-si-forest ring-inset z-10" : "hover:bg-si-canvas"}`}>
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium tabular-nums ${isToday ? "bg-si-forest text-white" : "text-si-ink"}`}>{d}</span>
                     <div className="mt-0.5 space-y-px">
                       {items.slice(0, 2).map((item) => {
                         if (item.kind === "event") {
@@ -265,19 +291,21 @@ export function SafetrackCalendar({
           </div>
 
           {/* Day detail panel */}
-          <div className="lg:w-72 border-t lg:border-t-0 lg:border-l border-neutral-100 p-4 bg-neutral-50/50">
+          <div className="lg:w-72 border-t lg:border-t-0 lg:border-l border-si-line p-4 bg-si-canvas/40">
             {selectedDay !== null ? (
               <>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">{selectedDay} {MONTH_NAMES[month]}</p>
-                    <p className="text-lg font-bold text-neutral-900">{dayItems.length} {dayItems.length !== 1 ? tg("itemsCount") : tg("itemsCount")}</p>
+                    <p className="text-[11px] font-medium uppercase tracking-caps text-si-muted">{selectedDay} {MONTH_NAMES[month]}</p>
+                    <p className="mt-0.5 font-mono text-[15px] tabular-nums text-si-ink">{dayItems.length} {dayItems.length !== 1 ? tg("itemsCount") : tg("itemsCount")}</p>
                   </div>
                   <button type="button" onClick={() => { setShowModal(true); setEditEvent(null); }} className="p-2 rounded-safe-sm bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors"><Plus className="w-4 h-4" /></button>
                 </div>
 
                 {dayItems.length === 0 ? (
-                  <div className="rounded-safe bg-neutral-100 p-4 text-center"><p className="text-sm text-neutral-500">{tg("noElements")}</p></div>
+                  /* État vide discret : un filet et une phrase, pas une boîte grise
+                     qui pèse autant qu'un contenu réel. */
+                  <p className="border-t border-si-line pt-3 text-[13px] text-si-muted">{tg("noElements")}</p>
                 ) : (
                   <div className="space-y-2 max-h-[26rem] overflow-y-auto">
                     {dayItems.map((item) => {

@@ -27,6 +27,7 @@ import {
   LifeBuoy,
   GitBranch,
   Flame,
+  CalendarDays,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
@@ -93,7 +94,7 @@ const NAV: NavGroup[] = [
     id: "pratique",
     labelKey: "navPractice",
     icon: Briefcase,
-    matchPrefixes: [routes.clients, routes.dossiers, routes.employees],
+    matchPrefixes: [routes.clients, routes.dossiers, routes.employees, routes.gestionLexTrack],
     children: [
       {
         labelKey: "navClients",
@@ -106,6 +107,12 @@ const NAV: NavGroup[] = [
         href: routes.dossiers,
         icon: FolderOpen,
         descriptionKey: "navMattersDesc",
+      },
+      {
+        labelKey: "navAgenda",
+        href: routes.gestionLexTrack,
+        icon: CalendarDays,
+        descriptionKey: "navAgendaDesc",
       },
       {
         labelKey: "navEmployees",

@@ -31,31 +31,25 @@ export function PageHeader({
 
   // Define styles based on Design System variant
   const containerClasses = {
-    default: "dash-header relative overflow-hidden rounded-lg p-8 [&>*]:relative [&>*]:z-10",
+    default: "dash-header relative overflow-hidden rounded-lg bg-si-forest p-8 [&>*]:relative [&>*]:z-10",
     dashboard: "bg-transparent py-4",
-    compact: "dash-header relative overflow-hidden rounded-lg p-5 [&>*]:relative [&>*]:z-10",
-  }[variant] || "dash-header relative overflow-hidden rounded-lg p-8 [&>*]:relative [&>*]:z-10";
-
-  // Fond forêt plat (#0B1F19), signature récurrente du design safe-interface.
-  const containerStyle: React.CSSProperties =
-    variant === "default" || variant === "compact"
-      ? { backgroundColor: "#0B1F19" }
-      : {};
+    compact: "dash-header relative overflow-hidden rounded-lg bg-si-forest p-5 [&>*]:relative [&>*]:z-10",
+  }[variant] || "dash-header relative overflow-hidden rounded-lg bg-si-forest p-8 [&>*]:relative [&>*]:z-10";
 
   const titleClasses = {
     default: "text-[31px] font-serif text-si-surface",
-    dashboard: "text-[32px] font-sans font-semibold text-slate-900",
+    dashboard: "font-serif text-[32px] font-normal text-si-ink",
     compact: "text-[22px] font-serif text-si-surface",
   }[variant] || "text-[31px] font-serif text-si-surface";
 
-  const descriptionClasses = variant === "dashboard" ? "text-[14px] text-slate-600 font-sans" : "text-[14px] text-si-surface/70 font-sans";
-  const backTextClasses = variant === "dashboard" ? "text-slate-600 hover:text-slate-900" : "text-si-surface/70 hover:text-si-surface";
-  const breadcrumbTextClasses = variant === "dashboard" ? "text-slate-600" : "font-mono text-si-surface/60";
-  const breadcrumbHoverClasses = variant === "dashboard" ? "hover:text-slate-900" : "hover:text-si-surface";
-  const breadcrumbActiveClasses = variant === "dashboard" ? "text-slate-900" : "text-si-surface";
+  const descriptionClasses = variant === "dashboard" ? "max-w-[65ch] font-sans text-[14px] text-si-muted" : "max-w-[65ch] font-sans text-[14px] text-si-surface/70";
+  const backTextClasses = variant === "dashboard" ? "text-si-muted hover:text-si-ink" : "text-si-surface/70 hover:text-si-surface";
+  const breadcrumbTextClasses = variant === "dashboard" ? "text-si-muted" : "font-mono text-si-surface/60";
+  const breadcrumbHoverClasses = variant === "dashboard" ? "hover:text-si-ink" : "hover:text-si-surface";
+  const breadcrumbActiveClasses = variant === "dashboard" ? "text-si-ink" : "text-si-surface";
 
   return (
-    <header className={`${containerClasses}`} style={containerStyle}>
+    <header className={containerClasses}>
       {backHref && (
         <Link
           href={backHref}

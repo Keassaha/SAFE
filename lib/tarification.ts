@@ -7,8 +7,9 @@ export const TARIFICATION = {
     placesTotal: 5,
     moisGratuits: 12,
     abonnementVie: 50,
+    abonnementAnnuel: 500,
     prixRegulierBarre: 149,
-    rachatUnique: 5000,
+    prixRegulierAnnuelBarre: 1788,
   },
   paliers: {
     solo: {
@@ -50,7 +51,7 @@ export const AUTOMATIONS = [
   {
     num: "05",
     titre: "Relances de factures",
-    desc: "Séquence automatique J+7, 15, 30, 45. Recouvrement moyen +28 %.",
+    desc: "Séquence automatique J+7, 15, 30, 45. Vos créances cessent de vieillir en silence.",
   },
   {
     num: "06",
@@ -65,7 +66,7 @@ export const AUTOMATIONS = [
   {
     num: "08",
     titre: "Suivi des temps non facturés",
-    desc: "Détection des heures non comptabilisées, bascule en facturable. 6 à 12 h par semaine récupérées.",
+    desc: "Détection des heures non comptabilisées, bascule en facturable. Le temps oublié redevient facturable.",
   },
   {
     num: "09",
@@ -108,7 +109,7 @@ export const FAQ_TARIFICATION = [
   {
     question: "L'offre fondatrice reviendra-t-elle un jour ?",
     answer:
-      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée. Les cabinets fondateurs conservent leur tarif de 50 $/mois à vie, ou leur accès via le rachat unique.",
+      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée. Les cabinets fondateurs conservent leur tarif gelé à vie, au choix 50 $/mois ou 500 $/an (deux mois offerts).",
   },
   {
     question: "Comment fonctionne le tarif gelé à vie ?",

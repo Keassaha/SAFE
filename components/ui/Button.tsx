@@ -12,21 +12,20 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  // OFFICIAL DS v1.0 VARIANTS
-  primary: "bg-forest-700 text-forest-50 hover:opacity-90",
-  secondary: "bg-transparent text-forest-700 border border-forest-700/50 hover:bg-forest-50",
-  ghost: "bg-transparent text-forest-700 hover:bg-forest-50 border border-transparent",
-  destructive: "bg-[#A32D2D] text-[#FCEBEB] hover:opacity-90",
+  primary: "bg-si-forest text-si-surface hover:brightness-95",
+  secondary: "border border-si-line bg-transparent text-si-ink hover:bg-si-line2",
+  ghost: "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink",
+  destructive: "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg",
 
   // LEGACY ALIASES (Mapped to DS variants)
-  tertiary: "bg-transparent text-forest-700 hover:bg-forest-50 border border-transparent", // alias ghost
-  soft: "bg-forest-50 text-forest-900 border border-transparent hover:bg-forest-100", 
-  danger: "bg-[#A32D2D] text-[#FCEBEB] hover:opacity-90",
+  tertiary: "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink",
+  soft: "border border-si-line bg-si-canvas text-si-ink hover:bg-si-line2",
+  danger: "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg",
   "landing-primary": "bg-slate-900 text-white rounded-full hover:bg-slate-800",
   "landing-secondary": "bg-transparent text-slate-900 border border-slate-300 rounded-full hover:bg-slate-50",
-  outlined: "bg-transparent text-forest-700 border border-forest-700/50 hover:bg-forest-50",
-  dark: "bg-forest-900 text-forest-50 hover:bg-forest-800",
-  "dark-ghost": "bg-transparent text-forest-50 border border-forest-50/20 hover:bg-forest-900",
+  outlined: "border border-si-line bg-transparent text-si-ink hover:bg-si-line2",
+  dark: "bg-si-forest text-si-surface hover:brightness-95",
+  "dark-ghost": "border border-si-surface/20 bg-transparent text-si-surface hover:bg-si-surface/10",
 };
 
 const sizes: Record<Size, string> = {
@@ -46,9 +45,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-md font-sans text-[14px] font-medium transition-base",
-        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-500 focus-visible:ring-offset-1 focus-visible:shadow-focus",
-        "disabled:opacity-40 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-1.5 rounded-md font-sans text-[13px] font-medium tracking-[-0.008em] transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-si-forest/35 focus-visible:outline-offset-[-2px]",
+        "disabled:cursor-default disabled:opacity-45",
         variants[variant],
         sizes[size],
         className

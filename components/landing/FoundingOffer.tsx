@@ -99,7 +99,7 @@ export function FoundingOffer() {
               Le choix des fondateurs
             </span>
             <p className="font-sans text-[13px] uppercase tracking-[0.12em] text-text-body/60">
-              Abonnement à vie
+              Paiement mensuel
             </p>
             <div className="mt-5 flex items-end gap-2">
               <span className="font-serif text-[52px] leading-none text-text-primary">50&nbsp;$</span>
@@ -113,7 +113,7 @@ export function FoundingOffer() {
             </p>
           </motion.div>
 
-          {/* Option B : rachat unique */}
+          {/* Option B : paiement annuel avantageux */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -123,14 +123,17 @@ export function FoundingOffer() {
             className="flex flex-col rounded-[10px] border border-[0.5px] border-border bg-canvas p-8 transition-[box-shadow,border-color] duration-300 hover:border-forest-600/40 hover:shadow-[0_24px_60px_-32px_rgba(31,58,46,0.4)]"
           >
             <p className="font-sans text-[13px] uppercase tracking-[0.12em] text-text-body/60">
-              Rachat unique
+              Paiement annuel · 2 mois offerts
             </p>
             <div className="mt-5 flex items-end gap-2">
-              <span className="font-serif text-[52px] leading-none text-text-primary">5&nbsp;000&nbsp;$</span>
-              <span className="mb-2 font-sans text-[14px] text-text-body">une seule fois</span>
+              <span className="font-serif text-[52px] leading-none text-text-primary">500&nbsp;$</span>
+              <span className="mb-2 font-sans text-[14px] text-text-body">/&nbsp;an</span>
+              <span className="mb-2 ml-1 font-sans text-[15px] text-text-body/40 line-through">
+                1&nbsp;788&nbsp;$
+              </span>
             </div>
             <p className="mt-5 font-sans text-[14px] leading-[1.6] text-text-body">
-              Vous payez une fois, plus jamais de mensualité à gérer. Accès à vie, mises à jour de conformité comprises. Réservé aux cinq cabinets fondateurs.
+              Le même tarif fondateur gelé à vie, réglé une fois par an. Deux mois offerts par rapport au mensuel, soit 500&nbsp;$/an au lieu de 600&nbsp;$.
             </p>
           </motion.div>
         </div>

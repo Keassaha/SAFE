@@ -638,8 +638,8 @@ export function AuditReportPDF({ contactName, contactFirm, contactEmail, practic
         </View>
 
         <View style={s.coverFooter}>
-          <Text style={s.coverFooterText}>SAFE — La plateforme de gestion pour avocats</Text>
-          <Text style={s.coverFooterText}>www.safe-juridique.com</Text>
+          <Text style={s.coverFooterText}>SAFE, la gestion de cabinet pour avocats</Text>
+          <Text style={s.coverFooterText}>www.safecabinet.ca</Text>
         </View>
       </Page>
 
@@ -850,7 +850,7 @@ export function AuditReportPDF({ contactName, contactFirm, contactEmail, practic
 
         <View style={s.ctaContact}>
           <Text style={s.ctaContactLabel}>Réservez votre démo personnalisée</Text>
-          <Text style={s.ctaContactValue}>www.safe-juridique.com/demo</Text>
+          <Text style={s.ctaContactValue}>www.safecabinet.ca/demo</Text>
         </View>
 
         <View style={s.coverFooter}>

@@ -63,7 +63,9 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
+        {/* Restes d'un thème sombre : ces libellés étaient en text-white sur fond
+            clair, donc invisibles. Repassés sur les tokens si-*. */}
+        <h2 className="text-[11px] font-medium uppercase tracking-caps text-si-muted">
           {t("dossiersCount", { count: filtered.length })}
         </h2>
         {dossiers.length > 6 && (
@@ -74,7 +76,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
               placeholder={t("filterPlaceholder")}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-white/15 bg-si-surface/5 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-600)]/50 w-48"
+              className="pl-8 pr-3 py-1.5 text-xs rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:outline-none focus:ring-2 focus:ring-si-forest/35 w-48"
             />
           </div>
         )}
@@ -150,7 +152,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-si-surface/5"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-si-muted hover:text-si-ink transition-colors px-4 py-2 rounded-md hover:bg-si-canvas"
           >
             {expanded ? (
               <>{t("showLess")} <ChevronUp className="w-3.5 h-3.5" /></>

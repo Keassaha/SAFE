@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import {
   useTimeEntries,
   useTempsContext,
@@ -109,33 +110,28 @@ export function TempsPageClient({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{t("timesheetTitle")}</h1>
-            <p className="mt-1 text-white/80 text-sm">{t("timesheetSubtitle")}</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+      <PageHeader
+        variant="dashboard"
+        title={t("timesheetTitle")}
+        description={t("timesheetSubtitle")}
+        action={
+          <>
             <Link href={routes.facturationHonoraires}>
-              <Button
-                variant="secondary"
-                className="bg-si-surface/20 text-white border-white/30 hover:bg-si-surface/30"
-              >
+              <Button variant="secondary">
                 {t("feesToBill")}
               </Button>
             </Link>
             {!hideAddButton && (
               <Button
-                variant="secondary"
-                className="bg-si-surface text-si-verified hover:bg-si-surface/90"
+                variant="primary"
                 onClick={() => setAddModalOpen(true)}
               >
                 {t("newEntry")}
               </Button>
             )}
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <SaisieRapideBlock cabinetId={cabinetId} currentUserId={userId} />
 
@@ -193,10 +189,10 @@ export function TempsPageClient({
             users={users}
           />
           {isLoading ? (
-            <div className="p-8 space-y-3">
-              <div className="h-4 bg-si-canvas rounded w-3/4 animate-pulse" />
-              <div className="h-4 bg-si-canvas rounded w-1/2 animate-pulse" />
-              <div className="h-4 bg-si-canvas rounded w-2/3 animate-pulse" />
+            <div className="space-y-3 p-8" aria-busy="true">
+              <div className="h-4 w-3/4 rounded-md bg-si-line" />
+              <div className="h-4 w-1/2 rounded-md bg-si-line" />
+              <div className="h-4 w-2/3 rounded-md bg-si-line" />
             </div>
           ) : entries.length === 0 ? (
             <EmptyState

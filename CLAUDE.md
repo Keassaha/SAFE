@@ -117,4 +117,15 @@ Ces fichiers definissent les artefacts de sortie, les entites du modele et la st
 
 ---
 
-**Dernière mise à jour** : 2026-04-15
+## Base de connaissances design (sources humaines)
+
+Pour tout travail de design, UI, layout, page, écran ou composant, consulter AVANT de coder:
+
+- `docs/design/DESIGN_HUMAIN.md` — base hiérarchisée de conseils design tirés de créateurs humains (source de vérité, markdown portable).
+- `docs/design/sources/` — extractions par vidéo + catalogue.
+
+Objectif: produire des interfaces qui ressemblent a du travail humain de qualite, jamais a du design genere par IA. Les meta-regles (§0) et le catalogue anti-slop (§10) priment. Passer la checklist §10 avant de dire qu'un ecran est termine. Le skill Claude `design-humain` declenche l'ingestion d'une nouvelle video et l'application de la base.
+
+---
+
+**Dernière mise à jour** : 2026-07-21

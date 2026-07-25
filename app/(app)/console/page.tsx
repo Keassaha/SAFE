@@ -2,7 +2,13 @@ import Link from "next/link";
 import type { StageLead, TypeActivity } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSafeIncWorkspace } from "@/lib/safe-inc";
+import { PLANS, type PlanKey } from "@/lib/stripe";
 import { Card, CardContent } from "@/components/ui/Card";
+
+/** Montant en dollars canadiens, sans décimales (tableau de bord). */
+function money(n: number): string {
+  return n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+}
 
 // Zone 1  Ancre      : phase J+X/90, barre de progression, date du jour.
 // Zone 2  Cliente    : bloc dedie Me Derisier (actif #1 du prechauffage).
@@ -266,6 +272,52 @@ export default async function ConsolePage() {
 
   const remainingTone = remainingDays <= 10 ? "red" : remainingDays <= 30 ? "orange" : "green";
 
+  // ── Trésorerie SAFE Inc. (dog food) : l'argent qui entre et qui sort ──
+  const safeCabinet = await prisma.cabinet.findFirst({
+    where: { nom: "SAFE" },
+    select: { id: true },
+  });
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+  let moneyIn = 0;
+  let moneyOut = 0;
+  let mrr = 0;
+  if (safeCabinet) {
+    const [payAgg, expAgg, clientCabinets] = await Promise.all([
+      prisma.payment.aggregate({
+        where: { cabinetId: safeCabinet.id, datePaiement: { gte: monthStart, lte: monthEnd } },
+        _sum: { montant: true },
+      }),
+      prisma.cabinetExpense.aggregate({
+        where: {
+          cabinetId: safeCabinet.id,
+          typeTransaction: "DEPENSE",
+          date: { gte: monthStart, lte: monthEnd },
+        },
+        _sum: { montant: true },
+      }),
+      // MRR : abonnements actifs des cabinets clients (hors SAFE Inc.).
+      prisma.lead.findMany({
+        where: {
+          workspaceId: workspace.id,
+          cabinetId: { not: null },
+          cabinet: { nom: { not: "SAFE" } },
+        },
+        select: { cabinet: { select: { plan: true, stripeSubscriptionStatus: true } } },
+      }),
+    ]);
+    moneyIn = payAgg._sum.montant ?? 0;
+    moneyOut = expAgg._sum.montant ?? 0;
+    for (const l of clientCabinets) {
+      const plan = l.cabinet?.plan;
+      const status = l.cabinet?.stripeSubscriptionStatus;
+      if (plan && plan in PLANS && (status === "active" || status === "trialing")) {
+        mrr += PLANS[plan as PlanKey].price / 100;
+      }
+    }
+  }
+  const monthlyNet = moneyIn - moneyOut;
+
   return (
     <div className="space-y-6">
       {/* ── ZONE 1 — Ancre ──────────────────────────────────────── */}
@@ -365,6 +417,38 @@ export default async function ConsolePage() {
           subtext="Votre momentum de la semaine"
           tone={weekActivities > 0 ? "green" : "neutral"}
         />
+      </section>
+
+      {/* ── Trésorerie : l'argent qui entre et qui sort ─────────── */}
+      <section>
+        <h2 className="font-serif text-[19px] leading-tight text-si-ink">L'argent qui entre et qui sort</h2>
+        <p className="mt-1 text-sm text-si-muted">Trésorerie de SAFE Inc. ce mois-ci.</p>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <KpiCard
+            value={money(moneyIn)}
+            label="Argent qui entre"
+            subtext="Encaissé ce mois"
+            tone={moneyIn > 0 ? "green" : "neutral"}
+          />
+          <KpiCard
+            value={money(moneyOut)}
+            label="Argent qui sort"
+            subtext="Dépenses ce mois"
+            tone={moneyOut > 0 ? "orange" : "neutral"}
+          />
+          <KpiCard
+            value={money(monthlyNet)}
+            label="Solde du mois"
+            subtext="Entrées moins sorties"
+            tone={monthlyNet < 0 ? "red" : monthlyNet > 0 ? "green" : "neutral"}
+          />
+          <KpiCard
+            value={money(mrr)}
+            label="Revenu récurrent"
+            subtext="MRR des abonnements actifs"
+            tone={mrr > 0 ? "green" : "neutral"}
+          />
+        </div>
       </section>
 
       {/* ── ZONE 3 — Deux colonnes ──────────────────────────────── */}
