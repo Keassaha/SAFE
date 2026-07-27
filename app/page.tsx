@@ -1,4 +1,4 @@
-import PublicHomePage from "@/components/public-site/HomePage";
+import ExperienceCinema from "@/components/public-site/ExperienceCinema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildMetadata, organizationSchema, softwareApplicationSchema } from "@/lib/seo";
 
@@ -13,7 +13,7 @@ export default function LandingPage() {
   return (
     <>
       <JsonLd schema={[organizationSchema(), softwareApplicationSchema()]} />
-      <PublicHomePage />
+      <ExperienceCinema />
     </>
   );
 }

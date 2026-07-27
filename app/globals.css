@@ -1663,63 +1663,55 @@
 }
 
 /* ───────────────────────────────────────────────────────────────
-   AUDIT GRATUIT v2 — Palette crème + vert SAFE
-   Design : image fournie (serif + JT + cartes), orange → vert.
+   DIAGNOSTIC — mêmes jetons que le site public (components/public-site/shared.tsx)
+   Albâtre + forêt. Fond plat, un seul filet, une seule ombre, transitions lentes.
+   Les classes gardent leur nom historique (audit-v2-*) pour ne rien casser.
 ─────────────────────────────────────────────────────────────── */
 
 .audit-v2-bg {
-  background:
-    radial-gradient(ellipse at top left,  rgba(212,232,217,0.55), transparent 60%),
-    radial-gradient(ellipse at bottom right, rgba(238,245,240,0.8), transparent 55%),
-    #F8F5EF;
-  color: #111;
+  /* fond plat : pas de dégradés empilés, le site public n'en a pas */
+  background: #EFF2ED;
+  color: #1F2A24;
 }
 
 .audit-v2-card {
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(229, 224, 213, 0.9);
-  border-radius: 14px;
+  background: #FBFCFA;
+  border: 1px solid rgba(31, 42, 36, 0.08);
+  border-radius: 12px;
   padding: 20px 22px;
-  box-shadow:
-    0 1px 2px rgba(17,17,17,0.03),
-    0 4px 24px -12px rgba(17,17,17,0.08);
-  backdrop-filter: blur(6px);
 }
 
 .audit-v2-card-lg {
-  background: #FFFFFF;
-  border: 1px solid rgba(229, 224, 213, 0.9);
-  border-radius: 18px;
+  background: #FBFCFA;
+  border: 1px solid rgba(31, 42, 36, 0.08);
+  border-radius: 14px;
   padding: 28px 28px;
-  box-shadow:
-    0 1px 2px rgba(17,17,17,0.04),
-    0 8px 32px -14px rgba(17,17,17,0.10);
+  box-shadow: 0 30px 60px -44px rgba(11, 31, 25, 0.45);
 }
 
 @media (min-width: 640px) {
-  .audit-v2-card-lg { padding: 36px 36px; }
+  .audit-v2-card-lg { padding: 38px 40px; }
 }
 
 .audit-v2-input,
 .audit-v2-textarea {
   width: 100%;
-  background: #FBFAF6;
-  border: 1px solid #E5E0D5;
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(31, 42, 36, 0.14);
+  border-radius: 8px;
   padding: 12px 14px;
   font-size: 15px;
-  color: #111;
-  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  color: #1F2A24;
+  transition: border-color .32s ease, box-shadow .32s ease;
   font-family: inherit;
 }
 .audit-v2-input::placeholder,
-.audit-v2-textarea::placeholder { color: #9A9388; }
+.audit-v2-textarea::placeholder { color: #7C877F; }
 .audit-v2-input:focus,
 .audit-v2-textarea:focus {
   outline: none;
-  border-color: var(--safe-green-800);
-  background: #FFFFFF;
-  box-shadow: 0 0 0 4px rgba(31, 58, 46, 0.08);
+  border-color: #12A150;
+  box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.10);
 }
 .audit-v2-textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
 
@@ -1730,44 +1722,32 @@
   gap: 2px;
   text-align: left;
   padding: 14px 16px;
-  background: #FBFAF6;
-  border: 1px solid #E5E0D5;
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid rgba(31, 42, 36, 0.10);
+  border-radius: 10px;
   transition:
-    background-color .18s ease,
-    border-color .18s ease,
-    color .18s ease,
-    box-shadow .22s ease,
-    transform .16s ease;
+    background-color .34s ease,
+    border-color .34s ease,
+    color .34s ease,
+    box-shadow .34s ease;
   cursor: pointer;
   min-height: 60px;
-  will-change: transform;
 }
-/* Hover sur option NON-sélectionnée : fond blanc + lift, liseré vert */
+/* Survol d'une option non retenue : le filet se teinte, rien ne saute */
 .audit-v2-option:not(.audit-v2-option--active):hover {
-  border-color: var(--safe-green-800);
+  border-color: rgba(18, 161, 80, 0.45);
   background: #FFFFFF;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px -12px rgba(31,58,46,0.25);
 }
-.audit-v2-option:not(.audit-v2-option--active):active {
-  transform: translateY(0) scale(0.985);
-}
-/* Option sélectionnée : reste verte en permanence, y compris au hover */
+/* Option retenue : vert forêt calme, pas le vert d'accent du bouton */
 .audit-v2-option--active {
-  background: var(--safe-green-800);
-  border-color: var(--safe-green-800);
-  color: #FFFFFF;
-  box-shadow: 0 8px 26px -10px rgba(31,58,46,0.55);
-  transform: translateY(-1px);
+  background: #1F3A2E;
+  border-color: #1F3A2E;
+  color: #F4F7F3;
+  box-shadow: 0 18px 34px -24px rgba(11, 31, 25, 0.7);
 }
 .audit-v2-option--active:hover {
-  background: #162B20; /* safe-green-900 : teinte plus profonde au hover, lisible */
-  border-color: #162B20;
-  box-shadow: 0 10px 30px -10px rgba(14,36,25,0.65);
-}
-.audit-v2-option--active:active {
-  transform: translateY(0) scale(0.985);
+  background: #16291F;
+  border-color: #16291F;
 }
 .audit-v2-option--compact { padding: 10px 12px; min-height: 44px; }
 .audit-v2-option-label {
@@ -1778,108 +1758,127 @@
 }
 .audit-v2-option-sub {
   font-size: 12px;
-  color: #7A7368;
+  color: #5A665F;
   line-height: 1.4;
 }
-.audit-v2-option--active .audit-v2-option-sub { color: rgba(212,232,217,0.85); }
+.audit-v2-option--active .audit-v2-option-sub { color: rgba(244, 247, 243, 0.7); }
 .audit-v2-option-check {
   position: absolute;
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.16);
   border-radius: 999px;
   font-size: 11px;
-  color: #FFFFFF;
+  color: #F4F7F3;
 }
 .audit-v2-option--compact .audit-v2-option-check { right: 10px; width: 16px; height: 16px; font-size: 10px; }
 
 .audit-v2-btn-primary {
   display: inline-flex; align-items: center; gap: 10px;
-  background: var(--safe-green-800);
+  background: #12A150;
   color: #FFFFFF;
-  padding: 13px 22px;
-  border-radius: 10px;
+  padding: 0 24px;
+  height: 44px;
+  border-radius: 7px;
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  transition: all .2s ease;
-  box-shadow: 0 10px 24px -16px rgba(31,58,46,0.65);
+  font-weight: 500;
+  transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1), background .28s ease;
+  box-shadow: 0 14px 28px -18px rgba(18, 161, 80, 0.85);
 }
-.audit-v2-btn-primary:hover:not(:disabled) {
-  background: var(--safe-green-900);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px -16px rgba(14,36,25,0.75);
-}
-.audit-v2-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.audit-v2-btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
+.audit-v2-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .audit-v2-btn-ghost {
   display: inline-flex; align-items: center; gap: 8px;
-  color: #4A4A4A;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 13px;
+  color: #5A665F;
+  padding: 0 18px;
+  height: 44px;
+  border-radius: 7px;
+  font-size: 13.5px;
   font-weight: 500;
   background: transparent;
   border: 1px solid transparent;
-  transition: all .18s ease;
+  transition: color .28s ease, border-color .28s ease;
 }
 .audit-v2-btn-ghost:hover {
-  color: #111;
-  background: rgba(255,255,255,0.7);
-  border-color: #E5E0D5;
+  color: #1F2A24;
+  border-color: rgba(31, 42, 36, 0.14);
 }
 
 .audit-v2-kpi {
   background: #FFFFFF;
-  border: 1px solid #E5E0D5;
-  border-radius: 12px;
-  padding: 14px 12px;
+  border: 1px solid rgba(31, 42, 36, 0.08);
+  border-radius: 10px;
+  padding: 16px 12px;
   text-align: center;
 }
 .audit-v2-kpi-val {
-  font-family: var(--font-instrument-serif), Georgia, serif;
-  font-size: 22px;
-  color: #111;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 21px;
+  color: #1F2A24;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 .audit-v2-kpi-lab {
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: #8A8578;
-  margin-top: 6px;
+  letter-spacing: 0.16em;
+  color: #7C877F;
+  margin-top: 7px;
   line-height: 1.35;
 }
 
 .audit-v2-offer {
-  background: linear-gradient(135deg, #0E2419 0%, #1F3A2E 100%);
-  color: #FFFFFF;
-  border-radius: 16px;
+  background: #14261F;
+  color: #EAF2EC;
+  border-radius: 14px;
   padding: 26px 28px;
   text-align: left;
-  box-shadow: 0 16px 40px -16px rgba(14,36,25,0.55);
 }
+
+/* ── Rail d'étapes du diagnostic (même grammaire que le site public) ── */
+.audit-rail { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 40; }
+.audit-rail-stop { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.audit-rail-stop + .audit-rail-stop { margin-top: 18px; }
+.audit-rail-label {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #5A665F;
+  opacity: 0;
+  transition: opacity .65s ease;
+}
+.audit-rail-dash {
+  display: block;
+  height: 1.5px;
+  width: 12px;
+  border-radius: 2px;
+  background: #7C877F;
+  opacity: 0.4;
+  transition: width .65s cubic-bezier(0.16, 1, 0.3, 1), background .65s ease, opacity .65s ease;
+}
+/* étape franchie : le tiret reste vert, plus court que l'étape en cours */
+.audit-rail-stop--done .audit-rail-dash { background: #12A150; opacity: 0.55; }
+.audit-rail-stop--live .audit-rail-label { opacity: 1; }
+.audit-rail-stop--live .audit-rail-dash { width: 26px; background: #12A150; opacity: 1; }
+
+@media (max-width: 1100px) { .audit-rail { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .audit-v2-option,
   .audit-v2-btn-primary,
   .audit-v2-btn-ghost,
   .audit-v2-input,
-  .audit-v2-textarea {
+  .audit-v2-textarea,
+  .audit-rail-dash,
+  .audit-rail-label {
     transition: none;
   }
-}
-
-/* ── Audit v2 — micro-animations ─────────────────────────────── */
-@keyframes audit-v2-mark-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(143, 180, 159, 0.0), 0 10px 24px -12px rgba(14,36,25,0.45); }
-  50%      { box-shadow: 0 0 0 6px rgba(143, 180, 159, 0.08), 0 14px 32px -12px rgba(14,36,25,0.55); }
-}
-.audit-v2-mark-shell {
-  animation: audit-v2-mark-glow 4s ease-in-out infinite;
 }
 
 @keyframes audit-v2-progress-shine {

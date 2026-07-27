@@ -6,7 +6,7 @@
  * Référence design : SPEC_LANDING_RECONCILIEE_2026-07-23.md
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -190,12 +190,12 @@ export function Footer() {
             <p className="font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: "#7F9187" }}>
               {col.titre}
             </p>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-2 space-y-0 sm:mt-4 sm:space-y-2.5">
               {col.links.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-sans text-[13.5px] transition-colors hover:text-white"
+                    className="inline-flex min-h-[40px] items-center font-sans text-[13.5px] transition-colors hover:text-white sm:min-h-0"
                     style={{ color: "#AAB7AF" }}
                   >
                     {link.label}
@@ -246,6 +246,249 @@ export function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ── Petits utilitaires de scène (mêmes courbes que l'accueil) ── */
+export const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+export const scenePhase = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
+export const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+export const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+
+/**
+ * Progression amortie d'une zone épinglée (même mécanique que l'accueil).
+ * `onFrame` reçoit la progression 0→1 et manipule le DOM directement,
+ * sans re-render React. Ne tourne que quand la zone est proche du viewport.
+ */
+export function useScrollScrub(
+  zoneRef: React.RefObject<HTMLElement | null>,
+  onFrame: (progress: number, time: number) => void
+) {
+  const cbRef = useRef(onFrame);
+  cbRef.current = onFrame;
+
+  useEffect(() => {
+    const el = zoneRef.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let raf = 0;
+    let shown = reduced ? 1 : 0;
+    const loop = (time: number) => {
+      raf = requestAnimationFrame(loop);
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (r.bottom < -300 || r.top > vh + 300) return;
+      const total = r.height - vh;
+      const target = reduced || total <= 0 ? 1 : clamp01(-r.top / total);
+      shown += (target - shown) * (reduced ? 1 : 0.11);
+      if (Math.abs(target - shown) < 0.0005) shown = target;
+      cbRef.current(shown, time);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [zoneRef]);
+}
+
+/* Galet du mark SAFE, même géométrie que components/branding/SafeLogo.tsx. */
+const MARK_PATH =
+  "M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z";
+/* Centre visuel du galet dans le repère 24×24 et sa largeur nominale. */
+const MARK_CX = 9;
+const MARK_CY = 7.6;
+const MARK_W = 10.4;
+const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgba(18,161,80,0.22)", "rgba(90,102,95,0.20)"];
+
+/**
+ * Triangles du logo flottants, brassés par le curseur, même langage que le hero
+ * de l'accueil. Léger : ~11 pièces, dessin seulement quand le canvas est visible,
+ * coupé en prefers-reduced-motion.
+ */
+export function PaperDrift({ count = 11 }: { count?: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let seed = 20260726;
+    const rnd = () => {
+      seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const papers = Array.from({ length: count }, (_, i) => ({
+      /* les galets encadrent le titre : la bande de droite, un peu la marge de
+         gauche, jamais la colonne de texte */
+      fx: i % 4 === 0 ? 0.01 + rnd() * 0.13 : 0.71 + rnd() * 0.31,
+      /* réparti sur la hauteur plutôt qu'au hasard : évite les paquets */
+      fy: 0.04 + ((i + rnd() * 0.85) / count) * 0.9,
+      size: 38 + rnd() * 58,
+      rot: (rnd() - 0.5) * 1.1,
+      /* un galet sur deux pointe vers le haut : les deux moitiés du mark */
+      flip: rnd() > 0.45,
+      tint: Math.floor(rnd() * 3),
+      drift: rnd() * Math.PI * 2,
+      ox: 0, oy: 0, vx: 0, vy: 0,
+    }));
+    const markPath = new Path2D(MARK_PATH);
+
+    const pointer = { x: -9999, y: -9999, speed: 0 };
+    const onMove = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      const nx = e.clientX - r.left, ny = e.clientY - r.top;
+      pointer.speed = Math.min(40, Math.hypot(nx - pointer.x, ny - pointer.y));
+      pointer.x = nx; pointer.y = ny;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+
+    let visible = true;
+    const io = new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; });
+    io.observe(canvas);
+
+    const ctx = canvas.getContext("2d")!;
+    let raf = 0;
+    const frame = (time: number) => {
+      raf = requestAnimationFrame(frame);
+      if (!visible) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const r = canvas.getBoundingClientRect();
+      const W = r.width, H = r.height;
+      const bw = Math.round(W * dpr), bh = Math.round(H * dpr);
+      if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      /* les triangles du logo SAFE, plutôt que des bouts de papier */
+      papers.forEach((p) => {
+        const dx0 = Math.sin(time * 0.00032 + p.drift) * 10;
+        const dy0 = Math.cos(time * 0.00026 + p.drift * 1.7) * 8;
+        let x = p.fx * W + dx0, y = p.fy * H + dy0;
+
+        const dx = x - pointer.x, dy = y - pointer.y;
+        const d = Math.hypot(dx, dy);
+        const R = 150;
+        if (d < R && d > 0.001) {
+          const force = (1 - d / R) * (0.8 + pointer.speed * 0.1);
+          p.vx += (dx / d) * force * 2.6;
+          p.vy += (dy / d) * force * 2.6;
+        }
+        p.vx *= 0.88; p.vy *= 0.88;
+        p.ox = (p.ox + p.vx) * 0.96;
+        p.oy = (p.oy + p.vy) * 0.96;
+        x += p.ox; y += p.oy;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(p.rot + p.ox * 0.002 + (p.flip ? Math.PI : 0));
+        const breath = 1 + Math.sin(time * 0.0004 + p.drift) * 0.05;
+        const s = (p.size / MARK_W) * breath;
+        ctx.scale(s, s);
+        ctx.translate(-MARK_CX, -MARK_CY);
+        ctx.globalAlpha = p.flip ? 0.6 : 1;
+        ctx.fillStyle = MARK_TINTS[p.tint];
+        ctx.fill(markPath);
+        ctx.restore();
+      });
+    };
+    raf = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onMove);
+      io.disconnect();
+    };
+  }, [count]);
+
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+    />
+  );
+}
+
+/**
+ * Rail d'étapes à droite, comme sur l'accueil : un tiret par section, celui de
+ * la section en cours s'allonge et se nomme. Repères de lecture pendant le
+ * défilement, jamais cliquable.
+ */
+export type RailStop = { id: string; label: string };
+
+export function SceneRail({ stops }: { stops: readonly RailStop[] }) {
+  const [live, setLive] = useState<string | null>(null);
+
+  useEffect(() => {
+    /* lecture seule de quelques rects : pas de rAF, l'état ne change qu'aux
+       changements de section */
+    const read = () => {
+      const mid = window.innerHeight * 0.5;
+      let found: string | null = null;
+      for (const s of stops) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) { found = s.id; break; }
+      }
+      setLive((prev) => (prev === found ? prev : found));
+    };
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    window.addEventListener("resize", read);
+    return () => {
+      window.removeEventListener("scroll", read);
+      window.removeEventListener("resize", read);
+    };
+  }, [stops]);
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-[18px] lg:flex"
+      style={{ opacity: live ? 1 : 0, transition: "opacity 800ms ease" }}
+    >
+      {stops.map((s) => {
+        const on = s.id === live;
+        return (
+          <div key={s.id} className="flex items-center justify-end gap-2.5">
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.12em] whitespace-nowrap"
+              style={{ color: MUTED, opacity: on ? 1 : 0, transition: "opacity 650ms ease" }}
+            >
+              {s.label}
+            </span>
+            <span
+              style={{
+                display: "block",
+                height: 1.5,
+                borderRadius: 2,
+                width: on ? 26 : 12,
+                background: on ? GREEN : FAINT,
+                opacity: on ? 1 : 0.4,
+                transition:
+                  "width 650ms cubic-bezier(0.16,1,0.3,1), background 650ms ease, opacity 650ms ease",
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Indicateur de défilement au bas d'une scène épinglée. Piloté par la scène. */
+export function ScrollHint({ label = "Faites défiler" }: { label?: string }) {
+  return (
+    <p
+      data-scroll-hint
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-[5vh] text-center font-mono text-[11px] uppercase tracking-[0.18em] sm:text-[10px]"
+      style={{ color: FAINT, transition: "opacity 700ms ease" }}
+    >
+      {label}
+    </p>
+  );
+}
+
 export function PageHeader({
   eyebrow,
   titre,
@@ -256,8 +499,9 @@ export function PageHeader({
   intro?: React.ReactNode;
 }) {
   return (
-    <section className="px-6 pb-16 pt-36" style={{ background: BG }}>
-      <div className="mx-auto max-w-3xl">
+    <section className="relative overflow-hidden px-6 pb-16 pt-36" style={{ background: BG }}>
+      <PaperDrift />
+      <div className="relative mx-auto max-w-3xl">
         <Eyebrow>{eyebrow}</Eyebrow>
         <motion.h1
           {...fadeUp(0.06)}

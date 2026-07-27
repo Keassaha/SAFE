@@ -13,7 +13,7 @@ export function CtaFinalPreview() {
         <motion.div {...fadeUp(0)} className="mb-8 inline-flex items-center gap-2">
           <LivePulse />
           <span className="font-sans text-[12px] uppercase tracking-[0.1em] text-text-muted">
-            5 places fondatrices · tarif verrouillé à vie
+            5 places fondatrices · première année à tarif fondateur
           </span>
         </motion.div>
 

@@ -8,7 +8,7 @@ import { Button } from "./ui/Button";
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const inclusions = [
-  "12 mois gratuits dès l'activation",
+  "Première année à 50 $/mois (Solo) ou 100 $/mois (Cabinet)",
   "Mise en route faite avec vous, sans frais",
   "Mises à jour de conformité au Barreau incluses",
   "Statut de membre fondateur : votre avis oriente l'outil",
@@ -76,7 +76,7 @@ export function FoundingOffer() {
 
           <h2 className="mb-5 max-w-2xl font-serif text-[42px] leading-[1.07] tracking-[-0.02em] text-text-primary">
             Devenez l&apos;un des 5 cabinets fondateurs.{" "}
-            <span className="italic text-forest-600">Votre tarif, gelé à vie.</span>
+            <span className="italic text-forest-600">Votre première année à tarif fondateur.</span>
           </h2>
 
           <p className="max-w-xl font-sans text-[16px] leading-[1.65] text-text-body">
@@ -99,17 +99,17 @@ export function FoundingOffer() {
               Le choix des fondateurs
             </span>
             <p className="font-sans text-[13px] uppercase tracking-[0.12em] text-text-body/60">
-              Paiement mensuel
+              Pratique solo
             </p>
             <div className="mt-5 flex items-end gap-2">
               <span className="font-serif text-[52px] leading-none text-text-primary">50&nbsp;$</span>
               <span className="mb-2 font-sans text-[14px] text-text-body">/&nbsp;mois</span>
               <span className="mb-2 ml-1 font-sans text-[15px] text-text-body/40 line-through">
-                149&nbsp;$
+                99&nbsp;$
               </span>
             </div>
             <p className="mt-5 font-sans text-[14px] leading-[1.6] text-text-body">
-              12 mois gratuits dès l&apos;activation, puis 50&nbsp;$/mois gelés à vie. Aucune hausse, jamais, tant que vous restez membre.
+              Première année à 50&nbsp;$ par mois, pendant 12 mois à partir de l&apos;activation. Ensuite, le tarif régulier de 99&nbsp;$ par mois s&apos;applique.
             </p>
           </motion.div>
 
@@ -123,17 +123,17 @@ export function FoundingOffer() {
             className="flex flex-col rounded-[10px] border border-[0.5px] border-border bg-canvas p-8 transition-[box-shadow,border-color] duration-300 hover:border-forest-600/40 hover:shadow-[0_24px_60px_-32px_rgba(31,58,46,0.4)]"
           >
             <p className="font-sans text-[13px] uppercase tracking-[0.12em] text-text-body/60">
-              Paiement annuel · 2 mois offerts
+              Cabinet en équipe
             </p>
             <div className="mt-5 flex items-end gap-2">
-              <span className="font-serif text-[52px] leading-none text-text-primary">500&nbsp;$</span>
-              <span className="mb-2 font-sans text-[14px] text-text-body">/&nbsp;an</span>
+              <span className="font-serif text-[52px] leading-none text-text-primary">100&nbsp;$</span>
+              <span className="mb-2 font-sans text-[14px] text-text-body">/&nbsp;mois</span>
               <span className="mb-2 ml-1 font-sans text-[15px] text-text-body/40 line-through">
-                1&nbsp;788&nbsp;$
+                149&nbsp;$
               </span>
             </div>
             <p className="mt-5 font-sans text-[14px] leading-[1.6] text-text-body">
-              Le même tarif fondateur gelé à vie, réglé une fois par an. Deux mois offerts par rapport au mensuel, soit 500&nbsp;$/an au lieu de 600&nbsp;$.
+              Première année à 100&nbsp;$ par mois, pendant 12 mois à partir de l&apos;activation. Ensuite, le tarif régulier de 149&nbsp;$ par mois s&apos;applique.
             </p>
           </motion.div>
         </div>

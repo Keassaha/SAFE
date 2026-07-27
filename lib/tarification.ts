@@ -5,11 +5,10 @@ export const TARIFICATION = {
   fondateurs: {
     placesPrises: 1,
     placesTotal: 5,
-    moisGratuits: 12,
-    abonnementVie: 50,
-    abonnementAnnuel: 500,
-    prixRegulierBarre: 149,
-    prixRegulierAnnuelBarre: 1788,
+    // Première année à tarif fondateur, puis tarif régulier (paliers ci-dessous).
+    dureeMois: 12,
+    premiereAnneeSolo: 50,
+    premiereAnneeCabinet: 100,
   },
   paliers: {
     solo: {
@@ -109,11 +108,11 @@ export const FAQ_TARIFICATION = [
   {
     question: "L'offre fondatrice reviendra-t-elle un jour ?",
     answer:
-      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée. Les cabinets fondateurs conservent leur tarif gelé à vie, au choix 50 $/mois ou 500 $/an (deux mois offerts).",
+      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée.",
   },
   {
-    question: "Comment fonctionne le tarif gelé à vie ?",
+    question: "Comment fonctionne le tarif fondateur ?",
     answer:
-      "Vous signez maintenant et votre tarif fondateur de 50 $/mois est verrouillé pour toujours, au lieu de 149 $. Il n'augmentera jamais tant que vous restez membre. Les 12 premiers mois sont gratuits, à partir du jour où vous activez l'outil.",
+      "Votre première année d'abonnement est à tarif fondateur : 50 $ par mois pour une pratique solo, 100 $ par mois pour un cabinet en équipe, pendant 12 mois à partir de l'activation. Ensuite, le tarif régulier s'applique : 99 $ ou 149 $ par mois.",
   },
 ] as const;

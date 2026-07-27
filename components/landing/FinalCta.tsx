@@ -19,7 +19,7 @@ export function FinalCta() {
       >
         <div className="w-1.5 h-1.5 rounded-full bg-warning" />
         <span className="text-[12px] font-sans tracking-[0.02em] text-text-body">
-          5 places fondatrices · tarif verrouillé à vie
+          5 places fondatrices · première année à tarif fondateur
         </span>
       </motion.div>
 

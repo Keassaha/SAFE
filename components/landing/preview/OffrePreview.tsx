@@ -9,7 +9,7 @@ import { TARIFICATION } from "@/lib/tarification";
 // 07 Offre et prix — prix publics lisibles, l'audit gratuit reste l'action dominante,
 // l'offre fondatrice distincte et honnête. Tout aligné à gauche.
 const inclusions = [
-  "12 mois gratuits dès l'activation",
+  "Première année à 50 $/mois (Solo) ou 100 $/mois (Cabinet)",
   "Mise en route faite avec vous, sans frais",
   "Mises à jour de conformité au Barreau incluses",
   "Statut de membre fondateur : votre avis oriente l'outil",
@@ -84,15 +84,15 @@ export function OffrePreview() {
               50&nbsp;$
             </span>
             <span className="mb-1.5 font-sans text-[14px]" style={{ color: MUTED }}>
-              /&nbsp;mois, gelé à vie
+              /&nbsp;mois la première année
             </span>
             <span className="mb-1.5 ml-1 font-sans text-[14px] line-through" style={{ color: "#B8BDB7" }}>
-              149&nbsp;$
+              99&nbsp;$
             </span>
           </div>
           <p className="mt-4 font-sans text-[14px] leading-[1.6]" style={{ color: MUTED }}>
-            Douze mois gratuits dès l&apos;activation, puis un tarif fondateur gelé à vie selon les
-            conditions déjà définies.
+            Première année à tarif fondateur : 50&nbsp;$ par mois en Solo, 100&nbsp;$ par mois en
+            Cabinet. Ensuite, le tarif régulier s&apos;applique.
           </p>
           <ul className="mt-6 flex flex-col gap-3">
             {inclusions.map((item, i) => (

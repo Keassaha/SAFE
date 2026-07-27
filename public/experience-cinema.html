@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SAFE · L'expérience cinématique</title>
+<meta name="description" content="SAFE tient votre cabinet ensemble. Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même contexte." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #EFF2ED;
+    --surface: #FBFCFA;
+    --ink: #1F2A24;
+    --muted: #5A665F;
+    --faint: #7C877F;
+    --green: #12A150;
+    --forest: #1F3A2E;
+    --verified: #1F6A47;
+    --amber: #8A6A1E;
+    --line: rgba(31, 42, 36, 0.08);
+    --line-soft: rgba(31, 42, 36, 0.05);
+    --serif: "Instrument Serif", Georgia, serif;
+    --sans: "Geist", -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+
+  /* ── Menu ── */
+  #nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 0 min(4vw, 44px);
+    height: 60px;
+    background: rgba(239, 242, 237, 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  #nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--serif);
+    font-size: 21px;
+    letter-spacing: 0.01em;
+  }
+  #nav .brand i {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  #nav .links {
+    display: flex;
+    gap: 26px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  #nav .links a:hover { color: var(--ink); }
+  #nav .cta {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 7px;
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── Rail de progression discret ── */
+  #rail {
+    position: fixed;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  #rail.on { opacity: 1; }
+  #rail .stop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  #rail .stop span { opacity: 0; transition: opacity 0.3s ease; }
+  #rail .stop i {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--faint);
+    opacity: 0.45;
+    transition: all 0.3s ease;
+  }
+  #rail .stop.live span { opacity: 1; color: var(--muted); }
+  #rail .stop.live i { background: var(--green); opacity: 1; transform: scale(1.35); }
+
+  /* ── Structure pin / scrub ── */
+  .pinzone { position: relative; }
+  .pinzone .pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  /* ── Scène 1 : l'assemblage → vraie capture ── */
+  #zone-hero { height: 420vh; }
+  #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hero-shot {
+    position: absolute;
+    opacity: 0;
+    border-radius: 14px;
+    box-shadow: 0 46px 90px -46px rgba(11, 31, 25, 0.55);
+    border: 1px solid var(--line);
+    object-fit: cover;
+    will-change: opacity;
+  }
+  #hero-copy {
+    position: absolute;
+    left: 0; right: 0;
+    top: 17vh;
+    padding: 0 min(6vw, 84px);
+    max-width: 1240px;
+    margin: 0 auto;
+    will-change: transform, opacity;
+  }
+  #hero-copy h1 {
+    margin-top: 20px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(44px, 7.4vw, 92px);
+    line-height: 0.99;
+    letter-spacing: -0.026em;
+    max-width: 14ch;
+  }
+  #hero-copy h1 em { font-style: italic; color: var(--green); }
+  #hero-copy p.lede {
+    margin-top: 26px;
+    max-width: 52ch;
+    font-size: clamp(15px, 1.35vw, 18px);
+    line-height: 1.62;
+    color: var(--muted);
+  }
+  #hero-hint {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 4.5vh;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    transition: opacity 0.4s ease;
+  }
+  #hero-caption {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 5.5vh;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+
+  /* ── Bande de preuves ── */
+  #preuves {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+    gap: 14px;
+    padding: 20px min(6vw, 84px);
+    max-width: 1240px;
+    margin: 0 auto;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  #preuves span { display: flex; align-items: center; gap: 8px; }
+  #preuves i {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex: none;
+  }
+  .strip { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+  /* ── Section Le système (vraie capture, révélation douce) ── */
+  #systeme { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
+  #systeme .inner { max-width: 1240px; margin: 0 auto; }
+  #systeme .head {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: 1fr 0.9fr;
+    align-items: end;
+  }
+  #systeme h2 {
+    margin-top: 16px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(32px, 3.6vw, 48px);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  #systeme .head p { max-width: 52ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
+  #systeme .shot {
+    margin-top: 52px;
+    transform: translateY(36px) scale(0.985);
+    opacity: 0;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
+  }
+  #systeme .shot.seen { transform: none; opacity: 1; }
+  #systeme .after { margin-top: 18px; font-size: 13px; color: var(--verified); }
+
+  /* ── Maquette navigable : fiche client → dossier ── */
+  #demo {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 40px 80px -44px rgba(11, 31, 25, 0.5);
+    overflow: hidden;
+  }
+  #demo .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--forest);
+    color: #E9EFE9;
+    font-size: 12.5px;
+  }
+  #demo .bar .crumb { display: flex; align-items: center; gap: 8px; }
+  #demo .bar .crumb b { font-weight: 500; }
+  #demo .bar .crumb .sep { opacity: 0.45; }
+  #demo .bar .hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9FD5B4;
+  }
+  #demo .stage { position: relative; min-height: 470px; }
+  #demo .screen {
+    position: absolute;
+    inset: 0;
+    padding: 24px 26px;
+    opacity: 0;
+    transform: translateX(26px);
+    pointer-events: none;
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+  }
+  #demo .screen.on {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  #demo .screen.off-left { transform: translateX(-26px); }
+
+  #demo h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; }
+  #demo .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    background: rgba(18, 161, 80, 0.1);
+    color: var(--verified);
+  }
+  #demo .pill.gray { background: rgba(31, 42, 36, 0.06); color: var(--muted); }
+  #demo .pill i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  /* écran 1 : fiche client */
+  #demo .client-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 26px;
+  }
+  #demo .panel {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    background: #fff;
+  }
+  #demo .panel + .panel { margin-top: 14px; }
+  #demo .panel .ptitle {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  #demo .id-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+  #demo .kv { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+  #demo .kv:last-child { border-bottom: 0; }
+  #demo .kv .k { color: var(--muted); }
+  #demo .kv .v { text-align: right; color: var(--ink); }
+  #demo .kv .v.num { font-family: var(--mono); }
+  #demo .dossier-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    padding: 13px 14px;
+    margin: 0 -14px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  #demo .dossier-row:hover { background: rgba(18, 161, 80, 0.06); }
+  #demo .dossier-row .num { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  #demo .dossier-row .titre { font-size: 13.5px; color: var(--ink); }
+  #demo .dossier-row .go {
+    grid-row: span 2;
+    align-self: center;
+    font-size: 12.5px;
+    color: var(--green);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  #demo .dossier-row.closed { cursor: default; }
+  #demo .dossier-row.closed:hover { background: transparent; }
+  #demo .dossier-row.closed .titre { color: var(--muted); }
+
+  /* écran 2 : dossier */
+  #demo .doss-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  #demo .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--muted);
+    cursor: pointer;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 12px;
+    background: #fff;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  #demo .back:hover { color: var(--ink); border-color: rgba(31, 42, 36, 0.2); }
+  #demo .doss-head .who { margin-left: auto; font-size: 12px; color: var(--faint); }
+  #demo .tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 16px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  #demo .tab {
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s ease;
+  }
+  #demo .tab:hover { color: var(--ink); }
+  #demo .tab.on { color: var(--ink); border-bottom-color: var(--green); }
+  #demo .tabpane { display: none; padding-top: 16px; }
+  #demo .tabpane.on { display: block; }
+  #demo .apercu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  #demo .stat { border: 1px solid var(--line); border-radius: 10px; padding: 13px 15px; background: #fff; }
+  #demo .stat .lbl { font-size: 11.5px; color: var(--faint); }
+  #demo .stat .val { margin-top: 3px; font-size: 15px; color: var(--ink); }
+  #demo .stat .val.num { font-family: var(--mono); }
+  #demo table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  #demo th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 11.5px;
+    color: var(--faint);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  #demo th.num, #demo td.num { text-align: right; font-family: var(--mono); }
+  #demo td { padding: 10px 0; border-bottom: 1px solid var(--line-soft); color: var(--ink); vertical-align: top; }
+  #demo td .sub { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  #demo tr.total td { border-bottom: 0; font-weight: 500; }
+  #demo .note { margin-top: 12px; font-size: 12px; color: var(--verified); }
+  #demo .note.neutral { color: var(--faint); }
+
+  @media (max-width: 860px) {
+    #demo .client-grid { grid-template-columns: 1fr; }
+    #demo .stage { min-height: 560px; }
+    #demo .apercu-grid { grid-template-columns: 1fr; }
+    #demo .bar .hint { display: none; }
+  }
+
+  /* ── Scènes récit épinglées ── */
+  .story .pin {
+    display: grid;
+    align-content: center;
+    padding: 0 min(6vw, 84px);
+  }
+  .story .grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: center;
+  }
+  .story.reverse .grid { grid-template-columns: 1.08fr 0.92fr; }
+  .story h2 {
+    margin-top: 18px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 3.3vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    max-width: 15ch;
+  }
+  .story p.body {
+    margin-top: 20px;
+    max-width: 48ch;
+    font-size: clamp(14px, 1.2vw, 16px);
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  .story p.result {
+    margin-top: 24px;
+    padding-left: 16px;
+    border-left: 2px solid var(--green);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 44ch;
+  }
+
+  #zone-verifier { height: 340vh; }
+  #zone-encaisser { height: 360vh; }
+  #zone-collaborer { height: 340vh; }
+
+  /* ── Rapprochement à trois voies (réaliste) ── */
+  #rapprochement {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 28px;
+    box-shadow: 0 30px 60px -38px rgba(11, 31, 25, 0.5);
+  }
+  #rapprochement .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 15px;
+  }
+  #rapprochement .head span:first-child { font-size: 13.5px; }
+  #rapprochement .head span:last-child { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  #rapprochement .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line-soft);
+    will-change: transform, opacity;
+  }
+  #rapprochement .row .lbl { font-size: 13.5px; color: var(--muted); }
+  #rapprochement .row .amt {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  #rapprochement .row .amt i {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  #rapprochement .row.gap .amt { color: #9A6712; }
+  #rapprochement .row.gap .amt i { background: #C38A24; box-shadow: 0 0 0 5px rgba(195, 138, 36, 0.10); }
+  #rapprochement .row.gap.ok .amt { color: var(--ink); }
+  #rapprochement .row.gap.ok .amt i { background: var(--green); box-shadow: none; }
+  #rapprochement .banners { position: relative; margin-top: 18px; min-height: 46px; }
+  #rapprochement .banner {
+    position: absolute;
+    inset: 0 0 auto 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 9px;
+    padding: 12px 15px;
+    font-size: 12px;
+    line-height: 1.5;
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+  #rapprochement .banner.warn { background: rgba(195, 138, 36, 0.08); color: #72531B; }
+  #rapprochement .banner.okay { background: rgba(18, 161, 80, 0.09); color: var(--verified); }
+  #rapprochement .banner i {
+    flex: none;
+    width: 7px; height: 7px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── Facture réaliste ── */
+  #facture-wrap { position: relative; }
+  #facture {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 30px 32px 26px;
+    box-shadow: 0 30px 60px -38px rgba(11, 31, 25, 0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  #facture .fhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  #facture .fhead .t { font-family: var(--serif); font-size: 25px; }
+  #facture .fhead .d { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  #facture .fsub {
+    margin-top: 6px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  #facture .fline {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 13px;
+    will-change: transform, opacity;
+  }
+  #facture .fline .desc { color: var(--ink); }
+  #facture .fline .sub { display: block; margin-top: 2px; font-size: 11.5px; color: var(--faint); }
+  #facture .fline .amt { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  #facture .ftotals { margin-top: 14px; margin-left: auto; max-width: 300px; }
+  #facture .trow {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  #facture .trow .amt { font-family: var(--mono); color: var(--ink); }
+  #facture .trow.grand {
+    margin-top: 8px;
+    padding-top: 11px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--ink);
+  }
+  #facture .trow.grand .amt { font-size: 17px; }
+  #facture .stamp {
+    position: absolute;
+    left: 34px;
+    bottom: 46px;
+    padding: 7px 16px;
+    border: 2px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transform: rotate(-8deg) scale(1.6);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .chip {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    box-shadow: 0 14px 28px -18px rgba(11, 31, 25, 0.4);
+    white-space: nowrap;
+    will-change: transform, opacity;
+    opacity: 0;
+  }
+  .chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+  /* ── Scène Collaborer (Navette) ── */
+  #navette { position: relative; height: min(58vh, 460px); }
+  .nav-card {
+    position: absolute;
+    left: 8%;
+    width: min(72%, 330px);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 22px 44px -30px rgba(11, 31, 25, 0.45);
+    will-change: transform, opacity;
+  }
+  .nav-card .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .nav-card .txt { display: block; margin-top: 5px; font-size: 13px; color: var(--ink); }
+  .nav-card .who { display: block; margin-top: 4px; font-size: 11.5px; color: var(--faint); }
+  #decision {
+    position: absolute;
+    right: 0;
+    top: 68%;
+    width: min(58%, 300px);
+    background: var(--forest);
+    color: #F4F7F3;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 30px 60px -34px rgba(11, 31, 25, 0.7);
+    will-change: transform, opacity;
+  }
+  #decision .tag { color: #9FD5B4; }
+  #decision .txt { color: #F4F7F3; font-size: 13.5px; }
+  #decision .sub { margin-top: 8px; font-size: 11.5px; color: rgba(244, 247, 243, 0.62); line-height: 1.5; }
+
+  /* ── Sections calmes ── */
+  section.flat { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
+  section.flat .inner { max-width: 1100px; margin: 0 auto; }
+  section.flat.surface { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+  #tarifs .head h2 {
+    margin-top: 14px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 3.4vw, 46px);
+    line-height: 1.08;
+  }
+  #tarifs .plan {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  #tarifs .plan:first-of-type { margin-top: 34px; border-top: 1px solid var(--line); }
+  #tarifs .plan .name { font-size: 15px; }
+  #tarifs .plan .detail { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  #tarifs .plan .price { font-family: var(--mono); font-size: 25px; text-align: right; }
+  #tarifs .plan .price small { font-family: var(--sans); font-size: 11px; color: var(--faint); margin-left: 4px; }
+  #tarifs .note { margin-top: 18px; font-size: 12.5px; color: var(--faint); }
+
+  #questions .q {
+    display: grid;
+    grid-template-columns: 0.86fr 1.14fr;
+    gap: 18px;
+    padding: 26px 0;
+    border-top: 1px solid var(--line);
+  }
+  #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.35; }
+  #questions .q p { max-width: 58ch; font-size: 14px; line-height: 1.65; color: var(--muted); }
+  #questions h2 {
+    margin-top: 14px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 3.4vw, 46px);
+    line-height: 1.08;
+    max-width: 16ch;
+  }
+
+  #cta { text-align: center; }
+  #cta h2 {
+    margin: 18px auto 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 4.6vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 18ch;
+  }
+  #cta p { margin: 22px auto 0; max-width: 50ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
+  #cta .actions { margin-top: 34px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 7px;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 14px 28px -18px rgba(18, 161, 80, 0.85);
+    transition: transform 0.2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: none; }
+
+  footer {
+    padding: 34px min(6vw, 84px) 44px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 860px) {
+    #rail, #nav .links { display: none; }
+    #preuves { grid-template-columns: 1fr 1fr; justify-content: start; }
+    #systeme .head { grid-template-columns: 1fr; align-items: start; }
+    .story .grid, .story.reverse .grid { grid-template-columns: 1fr; gap: 26px; }
+    .story .pin { align-content: start; padding-top: 10vh; }
+    .chip { display: none; }
+    #facture { padding: 22px 18px; }
+    #facture .stamp { left: 14px; bottom: 150px; }
+    #navette { height: 50vh; }
+    #questions .q { grid-template-columns: 1fr; gap: 8px; }
+    #zone-hero { height: 340vh; }
+    #zone-verifier, #zone-encaisser { height: 280vh; }
+    #zone-collaborer { height: 280vh; }
+  }
+
+  /* ── Motion réduit ── */
+  @media (prefers-reduced-motion: reduce) {
+    #zone-hero, #zone-verifier, #zone-encaisser, #zone-collaborer { height: auto; }
+    .pinzone .pin { position: relative; height: auto; min-height: 100vh; }
+    #hero-hint { display: none; }
+    #systeme .shot { transform: none; opacity: 1; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a class="brand" href="#top"><i></i>Safe</a>
+  <div class="links">
+    <a href="#systeme">Le système</a>
+    <a href="#zone-verifier">Vérifier</a>
+    <a href="#zone-encaisser">Encaisser</a>
+    <a href="#zone-collaborer">Collaborer</a>
+    <a href="#tarifs">Tarification</a>
+  </div>
+  <a class="cta" href="/diagnostic">Faire le diagnostic</a>
+</nav>
+
+<div id="rail" aria-hidden="true">
+  <div class="stop" data-rail="hero"><span>Assembler</span><i></i></div>
+  <div class="stop" data-rail="verifier"><span>Vérifier</span><i></i></div>
+  <div class="stop" data-rail="encaisser"><span>Encaisser</span><i></i></div>
+  <div class="stop" data-rail="collaborer"><span>Collaborer</span><i></i></div>
+</div>
+
+<!-- ═══ Scène 1 · L'assemblage → vraie capture du tableau de bord ═══ -->
+<div class="pinzone" id="zone-hero">
+  <div class="pin" id="top">
+    <canvas id="hero-canvas"></canvas>
+    <img id="hero-shot" src="/experience-assets/app-tableau-de-bord.jpg"
+         alt="Tableau de bord SAFE réel : facturation, encaissements, créances et fidéicommis du cabinet, en langage simple." />
+    <div id="hero-copy">
+      <p class="kicker">SAFE · système de gestion pour cabinets d'avocats</p>
+      <h1>SAFE tient votre cabinet <em>ensemble.</em></h1>
+      <p class="lede">Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même
+      contexte. Vous voyez ce qui est à jour, ce qui attend et ce qui ne concorde pas.</p>
+    </div>
+    <p id="hero-caption">Capture réelle de SAFE. Une lecture simple des décisions qui demandent votre attention, dès l'ouverture.</p>
+    <p id="hero-hint">Faites défiler</p>
+  </div>
+</div>
+
+<!-- ═══ Bande de preuves ═══ -->
+<div class="strip">
+  <div id="preuves">
+    <span><i></i>Conçu au Québec</span>
+    <span><i></i>Données hébergées au Canada</span>
+    <span><i></i>Pensé pour le fidéicommis</span>
+    <span><i></i>Utilisé dans un vrai cabinet</span>
+  </div>
+</div>
+
+<!-- ═══ Le système ═══ -->
+<section id="systeme">
+  <div class="inner">
+    <div class="head">
+      <div>
+        <p class="kicker">Un système, pas une collection d'outils</p>
+        <h2>Chaque action garde son contexte.</h2>
+      </div>
+      <p>Un dossier ne vit pas séparément de son temps, de sa facture ou de ses fonds en
+      fiducie. SAFE relie ces éléments pour que l'information circule sans être recopiée.</p>
+    </div>
+    <div class="shot" id="systeme-shot">
+      <div id="demo">
+        <div class="bar">
+          <span class="crumb"><b>SAFE</b><span class="sep">·</span><span id="demo-crumb">Clients / Marie-Claude Tremblay</span></span>
+          <span class="hint">Maquette navigable · cliquez</span>
+        </div>
+        <div class="stage">
+
+          <!-- Écran 1 · Fiche client -->
+          <div class="screen on" id="screen-client">
+            <div class="client-grid">
+              <div>
+                <div class="panel">
+                  <p class="ptitle">Fiche client</p>
+                  <div class="id-row">
+                    <h3>Marie-Claude Tremblay</h3>
+                    <span class="pill"><i></i>Active</span>
+                  </div>
+                  <div style="margin-top:10px">
+                    <div class="kv"><span class="k">Type</span><span class="v">Particulier · liquidatrice</span></div>
+                    <div class="kv"><span class="k">Courriel</span><span class="v">mc.tremblay@exemple.ca</span></div>
+                    <div class="kv"><span class="k">Téléphone</span><span class="v">418 555-0142</span></div>
+                    <div class="kv"><span class="k">Ville</span><span class="v">Lévis (Québec)</span></div>
+                    <div class="kv"><span class="k">Cliente depuis</span><span class="v">2024</span></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <p class="ptitle">Soldes</p>
+                  <div class="kv"><span class="k">À recevoir</span><span class="v num">0,00 $</span></div>
+                  <div class="kv"><span class="k">En fiducie</span><span class="v num">2 225,00 $</span></div>
+                  <div class="kv"><span class="k">Dernier paiement</span><span class="v num">3 679,20 $ · 14 juin</span></div>
+                </div>
+              </div>
+              <div>
+                <div class="panel">
+                  <p class="ptitle">Dossiers de la cliente</p>
+                  <div class="dossier-row" data-goto="dossier" role="button" tabindex="0">
+                    <span class="num">2026-014 · Succession</span>
+                    <span class="go">Ouvrir le dossier →</span>
+                    <span class="titre">Succession Tremblay</span>
+                  </div>
+                  <div class="dossier-row closed">
+                    <span class="num">2024-032 · Immobilier</span>
+                    <span class="pill gray" style="align-self:center"><i></i>Clôturé</span>
+                    <span class="titre">Vente d'un immeuble locatif</span>
+                  </div>
+                </div>
+                <div class="panel">
+                  <p class="ptitle">Activité récente</p>
+                  <div class="kv"><span class="k">14 juin</span><span class="v">Paiement reçu · Facture 2026-041</span></div>
+                  <div class="kv"><span class="k">2 juin</span><span class="v">Facture 2026-041 envoyée</span></div>
+                  <div class="kv"><span class="k">28 mai</span><span class="v">6,5 h approuvées</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Écran 2 · Dossier -->
+          <div class="screen" id="screen-dossier">
+            <div class="doss-head">
+              <span class="back" data-goto="client" role="button" tabindex="0">← Fiche client</span>
+              <h3>Dossier 2026-014 · Succession Tremblay</h3>
+              <span class="pill"><i></i>Actif</span>
+              <span class="who">Responsable : Me A. Côté</span>
+            </div>
+            <div class="tabs">
+              <span class="tab on" data-tab="apercu">Aperçu</span>
+              <span class="tab" data-tab="temps">Temps</span>
+              <span class="tab" data-tab="facturation">Facturation</span>
+              <span class="tab" data-tab="fiducie">Fiducie</span>
+              <span class="tab" data-tab="documents">Documents</span>
+            </div>
+
+            <div class="tabpane on" data-pane="apercu">
+              <div class="apercu-grid">
+                <div class="stat"><p class="lbl">Type</p><p class="val">Succession · vérification de testament</p></div>
+                <div class="stat"><p class="lbl">Ouvert le</p><p class="val">8 mai 2026</p></div>
+                <div class="stat"><p class="lbl">Temps au dossier</p><p class="val num">6,5 h</p></div>
+                <div class="stat"><p class="lbl">Prochaine échéance</p><p class="val">30 juin · Production de l'inventaire</p></div>
+              </div>
+              <p class="note">Temps, facture, fiducie et documents vivent dans le même dossier. Parcourez les onglets.</p>
+            </div>
+
+            <div class="tabpane" data-pane="temps">
+              <table>
+                <tr><th>Date</th><th>Description</th><th class="num">Durée</th></tr>
+                <tr><td>12 mai</td><td>Rédaction de la requête en vérification</td><td class="num">2,1 h</td></tr>
+                <tr><td>15 mai</td><td>Appel avec la liquidatrice</td><td class="num">0,8 h</td></tr>
+                <tr><td>21 mai</td><td>Préparation de l'inventaire préliminaire</td><td class="num">2,4 h</td></tr>
+                <tr><td>28 mai</td><td>Révision et corrections</td><td class="num">1,2 h</td></tr>
+                <tr class="total"><td></td><td>Total approuvé</td><td class="num">6,5 h</td></tr>
+              </table>
+              <p class="note">Ces heures ont remonté dans la facture 2026-041 sans ressaisie.</p>
+            </div>
+
+            <div class="tabpane" data-pane="facturation">
+              <table>
+                <tr><th>Facture 2026-041 · 2 juin</th><th class="num">Montant</th></tr>
+                <tr><td>Honoraires professionnels<span class="sub">6,5 h approuvées · mai 2026</span></td><td class="num">2 925,00 $</td></tr>
+                <tr><td>Débours · Frais de greffe</td><td class="num">195,00 $</td></tr>
+                <tr><td>Débours · Signification par huissier</td><td class="num">80,00 $</td></tr>
+                <tr><td>TPS et TVQ</td><td class="num">479,20 $</td></tr>
+                <tr class="total"><td>Total · payée le 14 juin</td><td class="num">3 679,20 $</td></tr>
+              </table>
+              <p class="note">Chaque ligne conserve le dossier et la cliente d'origine.</p>
+            </div>
+
+            <div class="tabpane" data-pane="fiducie">
+              <table>
+                <tr><th>Mouvement</th><th class="num">Montant</th></tr>
+                <tr><td>5 mai · Avance reçue de la cliente</td><td class="num">2 500,00 $</td></tr>
+                <tr><td>12 mai · Frais de greffe payés du compte</td><td class="num">-195,00 $</td></tr>
+                <tr><td>21 mai · Huissier payé du compte</td><td class="num">-80,00 $</td></tr>
+                <tr class="total"><td>Solde en fiducie</td><td class="num">2 225,00 $</td></tr>
+              </table>
+              <p class="note">Argent de la cliente, séparé du cabinet. Jamais un revenu.</p>
+            </div>
+
+            <div class="tabpane" data-pane="documents">
+              <table>
+                <tr><th>Document</th><th class="num">Statut</th></tr>
+                <tr><td>Requête en vérification de testament<span class="sub">Déposée au greffe · 12 mai</span></td><td class="num"><span class="pill"><i></i>Déposée</span></td></tr>
+                <tr><td>Inventaire préliminaire<span class="sub">Préparé par l'adjointe · 21 mai</span></td><td class="num"><span class="pill gray"><i></i>En révision</span></td></tr>
+                <tr><td>Correspondance du greffe<span class="sub">Classée au dossier · 26 mai</span></td><td class="num"><span class="pill"><i></i>Classée</span></td></tr>
+              </table>
+              <p class="note">Chaque document est rangé dans son dossier, avec son statut.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <p class="after">Maquette navigable, données fictives. Le contexte circule d'une action à la suivante sans être ressaisi.</p>
+  </div>
+</section>
+
+<!-- ═══ Scène 2 · Vérifier ═══ -->
+<div class="pinzone story" id="zone-verifier">
+  <div class="pin">
+    <div class="grid">
+      <div class="copy">
+        <p class="kicker">Vérifier</p>
+        <h2>L'écart apparaît avant l'inspection.</h2>
+        <p class="body">SAFE compare le relevé bancaire, le registre du fidéicommis et les soldes par
+        dossier. Lorsqu'un montant ne concorde pas, le système le signale et empêche une
+        certification prématurée.</p>
+        <p class="result">Vous corrigez une différence identifiée, pas un doute diffus.</p>
+      </div>
+      <div id="rapprochement">
+        <div class="head">
+          <span>Rapprochement à trois voies</span>
+          <span>JUIN 2026</span>
+        </div>
+        <div class="row" data-vrow="0">
+          <span class="lbl">Solde bancaire</span>
+          <span class="amt">21 000,00 $ <i></i></span>
+        </div>
+        <div class="row" data-vrow="1">
+          <span class="lbl">Registre du fidéicommis</span>
+          <span class="amt">21 000,00 $ <i></i></span>
+        </div>
+        <div class="row gap" data-vrow="2" id="vrow-gap">
+          <span class="lbl">Soldes par dossier</span>
+          <span class="amt"><span id="vgap-amt">20 500,00 $</span> <i></i></span>
+        </div>
+        <div class="banners">
+          <div class="banner warn" id="vbanner-warn">
+            <i></i><span>Écart de 500 $. La certification reste bloquée jusqu'à la correction.</span>
+          </div>
+          <div class="banner okay" id="vbanner-okay">
+            <i></i><span>Concordance. Les trois soldes s'accordent, la certification peut être produite.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Scène 3 · Encaisser (facture réaliste) ═══ -->
+<div class="pinzone story reverse" id="zone-encaisser">
+  <div class="pin">
+    <div class="grid">
+      <div id="facture-wrap">
+        <div id="facture">
+          <div class="fhead">
+            <span class="t">Facture 2026-041</span>
+            <span class="d">2 JUIN 2026</span>
+          </div>
+          <p class="fsub">Succession Tremblay · Dossier 2026-014</p>
+          <div class="fline" data-frow="0">
+            <span class="desc">Honoraires professionnels<span class="sub">6,5 h approuvées · mai 2026</span></span>
+            <span class="amt">2 925,00 $</span>
+          </div>
+          <div class="fline" data-frow="1">
+            <span class="desc">Débours · Frais de greffe<span class="sub">Rattaché au dossier le 12 mai</span></span>
+            <span class="amt">195,00 $</span>
+          </div>
+          <div class="fline" data-frow="2">
+            <span class="desc">Débours · Signification par huissier<span class="sub">Rattaché au dossier le 21 mai</span></span>
+            <span class="amt">80,00 $</span>
+          </div>
+          <div class="ftotals">
+            <div class="trow"><span>Sous-total</span><span class="amt" id="f-sub">0,00 $</span></div>
+            <div class="trow"><span>TPS (5 %)</span><span class="amt" id="f-tps">0,00 $</span></div>
+            <div class="trow"><span>TVQ (9,975 %)</span><span class="amt" id="f-tvq">0,00 $</span></div>
+            <div class="trow grand"><span>Total</span><span class="amt" id="f-total">0,00 $</span></div>
+          </div>
+          <div class="stamp" id="f-stamp">Payée · 14 juin</div>
+        </div>
+        <div class="chip" data-chip="0"><i></i>Temps approuvé · 6,5 h</div>
+        <div class="chip" data-chip="1"><i></i>Frais de greffe · 195 $</div>
+        <div class="chip" data-chip="2"><i></i>Huissier · 80 $</div>
+      </div>
+      <div class="copy">
+        <p class="kicker">Encaisser</p>
+        <h2>Le travail suit son chemin jusqu'au paiement.</h2>
+        <p class="body">Les heures et les débours sont déjà rattachés au dossier. Ils peuvent remonter
+        dans la facture, puis rester visibles jusqu'à l'encaissement, sans reconstruire
+        l'historique.</p>
+        <p class="result">Moins de ressaisie. Moins de travail réalisé qui reste oublié.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Scène 4 · Collaborer ═══ -->
+<div class="pinzone story" id="zone-collaborer">
+  <div class="pin">
+    <div class="grid">
+      <div class="copy">
+        <p class="kicker">Collaborer</p>
+        <h2>L'équipe prépare. L'avocat garde le jugement.</h2>
+        <p class="body">La Navette rassemble les questions, les documents prêts et les éléments à
+        valider. L'adjointe sait ce qui avance. L'avocat retrouve les décisions qui demandent
+        réellement son attention.</p>
+        <p class="result">SAFE soutient le copilote du cabinet sans se substituer à lui.</p>
+      </div>
+      <div id="navette">
+        <div class="nav-card" data-card="0">
+          <span class="tag" style="color:#A06C16">Question</span>
+          <span class="txt">Confirmer la date de signature</span>
+          <span class="who">Aaliyah Côté · Dossier 2026-001</span>
+        </div>
+        <div class="nav-card" data-card="1">
+          <span class="tag" style="color:var(--muted)">Document prêt</span>
+          <span class="txt">Projet de requête en révision</span>
+          <span class="who">Aaliyah Côté · Dossier 2026-001</span>
+        </div>
+        <div class="nav-card" data-card="2">
+          <span class="tag" style="color:var(--verified)">Prêt pour revue</span>
+          <span class="txt">Requête prête à valider</span>
+          <span class="who">Aaliyah Côté · Dossier 2026-001</span>
+        </div>
+        <div id="decision">
+          <span class="tag">Pour l'avocat</span>
+          <span class="txt">Requête prête à valider</span>
+          <p class="sub">Une décision, préparée par l'équipe, au moment où elle compte.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Tarification ═══ -->
+<section class="flat" id="tarifs">
+  <div class="inner">
+    <div class="head">
+      <p class="kicker">Tarification</p>
+      <h2>Simple dès le départ.</h2>
+    </div>
+    <div class="plan">
+      <div>
+        <p class="name">Solo</p>
+        <p class="detail">Pour une pratique individuelle.</p>
+      </div>
+      <p class="price">99 $<small>/ mois</small></p>
+    </div>
+    <div class="plan">
+      <div>
+        <p class="name">Cabinet</p>
+        <p class="detail">Pour une petite équipe qui travaille ensemble.</p>
+      </div>
+      <p class="price">149 $<small>/ mois</small></p>
+    </div>
+    <p class="note">Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.</p>
+  </div>
+</section>
+
+<!-- ═══ Questions ═══ -->
+<section class="flat surface" id="questions">
+  <div class="inner">
+    <p class="kicker">Avant de nous parler</p>
+    <h2>Des réponses précises aux questions importantes.</h2>
+    <div style="margin-top: 44px;">
+      <div class="q">
+        <h3>SAFE garantit-il ma conformité ?</h3>
+        <p>Non. SAFE soutient la tenue, la vérification et la traçabilité. La responsabilité
+        professionnelle demeure celle du cabinet.</p>
+      </div>
+      <div class="q">
+        <h3>Est-ce que SAFE remplace mon adjointe ?</h3>
+        <p>Non. SAFE prépare, relie et signale. Votre équipe conserve le jugement et la
+        connaissance du cabinet.</p>
+      </div>
+      <div class="q">
+        <h3>À qui appartiennent mes données ?</h3>
+        <p>À votre cabinet. Les données sont hébergées au Canada et peuvent être exportées dans
+        les formats offerts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA final ═══ -->
+<section class="flat" id="cta">
+  <div class="inner">
+    <p class="kicker">La prochaine étape</p>
+    <h2>Voyons si SAFE convient à votre façon de travailler.</h2>
+    <p>Commencez par un diagnostic concret de votre cabinet. Vous décidez ensuite si une
+    démonstration mérite vingt minutes de votre temps.</p>
+    <div class="actions">
+      <a class="btn" href="/diagnostic">Faire le diagnostic</a>
+      <a class="btn ghost" href="/demo">Réserver une rencontre</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>SAFE · prototype de laboratoire, non indexé · captures réelles sur données de démonstration</span>
+  <span>Expérience cinématique · scroll piloté</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var COL = {
+    bg: "#EFF2ED", surface: "#FBFCFA", ink: "#1F2A24", muted: "#5A665F",
+    faint: "#7C877F", green: "#12A150", forest: "#1F3A2E",
+    verified: "#1F6A47", amber: "#8A6A1E", line: "rgba(31,42,36,0.08)"
+  };
+
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function phase(p, a, b) { return clamp01((p - a) / (b - a)); }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  function fmt(n) {
+    return n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " $";
+  }
+
+  function zoneProgress(el) {
+    var r = el.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var total = r.height - vh;
+    if (total <= 0) return 1;
+    return clamp01(-r.top / total);
+  }
+
+  function fitCanvas(canvas) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var r = canvas.getBoundingClientRect();
+    var w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h;
+    }
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: r.width, h: r.height };
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* ════════ Scène 1 · L'assemblage → vraie capture ════════ */
+  var heroZone = document.getElementById("zone-hero");
+  var heroCanvas = document.getElementById("hero-canvas");
+  var heroShot = document.getElementById("hero-shot");
+  var heroCopy = document.getElementById("hero-copy");
+  var heroCaption = document.getElementById("hero-caption");
+  var heroHint = document.getElementById("hero-hint");
+
+  /* cibles : cadre 1000×625 (même ratio 16:10 que la capture) */
+  function dashboardTargets() {
+    var t = [];
+    t.push({ x: 24, y: 20, w: 180, h: 16 });
+    t.push({ x: 796, y: 20, w: 74, h: 16 });
+    t.push({ x: 884, y: 20, w: 92, h: 16 });
+    for (var i = 0; i < 5; i++) t.push({ x: 24, y: 74 + i * 34, w: 132, h: 14 });
+    t.push({ x: 188, y: 66, w: 240, h: 108 });
+    t.push({ x: 444, y: 66, w: 240, h: 108 });
+    t.push({ x: 700, y: 66, w: 276, h: 108 });
+    t.push({ x: 188, y: 198, w: 496, h: 252 });
+    for (var j = 0; j < 5; j++) t.push({ x: 700, y: 198 + j * 52, w: 276, h: 40 });
+    t.push({ x: 188, y: 474, w: 496, h: 26 });
+    t.push({ x: 188, y: 512, w: 496, h: 26 });
+    t.push({ x: 700, y: 474, w: 276, h: 64 });
+    return t;
+  }
+
+  var papers = (function () {
+    var rnd = mulberry32(20260725);
+    var targets = dashboardTargets();
+    return targets.map(function (tg, i) {
+      return {
+        tg: tg,
+        sx: rnd(), sy: rnd(),
+        sr: (rnd() - 0.5) * 1.4,
+        sw: 34 + rnd() * 52, sh: 22 + rnd() * 30,
+        drift: rnd() * Math.PI * 2,
+        delay: (i % 7) / 7 * 0.3,
+        ox: 0, oy: 0, vx: 0, vy: 0
+      };
+    });
+  })();
+
+  /* le curseur brasse les papiers tant qu'ils ne sont pas rangés */
+  var pointer = { x: -9999, y: -9999, speed: 0 };
+  window.addEventListener("pointermove", function (e) {
+    var r = heroCanvas.getBoundingClientRect();
+    var nx = e.clientX - r.left, ny = e.clientY - r.top;
+    pointer.speed = Math.min(40, Math.hypot(nx - pointer.x, ny - pointer.y));
+    pointer.x = nx; pointer.y = ny;
+  }, { passive: true });
+
+  function drawHero(p, time) {
+    var f = fitCanvas(heroCanvas);
+    var ctx = f.ctx, W = f.w, H = f.h;
+    ctx.clearRect(0, 0, W, H);
+
+    var scale = Math.min(W * 0.78 / 1000, H * 0.62 / 625);
+    if (W < 860) scale = Math.min(W * 0.92 / 1000, H * 0.5 / 625);
+    var frameW = 1000 * scale, frameH = 625 * scale;
+    var fx = (W - frameW) / 2;
+    var fy = lerp(H * 0.58, (H - frameH) / 2 + H * 0.03, phase(p, 0.35, 0.85));
+
+    var assemble = easeInOut(phase(p, 0.22, 0.82));
+
+    var frameA = phase(p, 0.55, 0.85);
+    if (frameA > 0) {
+      ctx.save();
+      ctx.globalAlpha = frameA;
+      ctx.fillStyle = COL.surface;
+      ctx.strokeStyle = COL.line;
+      roundRect(ctx, fx, fy, frameW, frameH, 14 * scale);
+      ctx.shadowColor = "rgba(11,31,25,0.28)";
+      ctx.shadowBlur = 60 * scale;
+      ctx.shadowOffsetY = 30 * scale;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    papers.forEach(function (pp) {
+      var local = easeOutCubic(phase(assemble, pp.delay, 1));
+      var driftX = Math.sin(time * 0.0004 + pp.drift) * 14 * (1 - local);
+      var driftY = Math.cos(time * 0.00032 + pp.drift * 1.7) * 10 * (1 - local);
+      var x0 = pp.sx * W * 0.9 + W * 0.05 + driftX;
+      var y0 = pp.sy * H * 0.85 + H * 0.05 + driftY;
+      var x1 = fx + pp.tg.x * scale, y1 = fy + pp.tg.y * scale;
+      var w = lerp(pp.sw, pp.tg.w * scale, local);
+      var h = lerp(pp.sh, pp.tg.h * scale, local);
+      var x = lerp(x0, x1, local), y = lerp(y0, y1, local);
+      var rot = pp.sr * (1 - local);
+
+      /* brassage au curseur : répulsion douce, qui s'éteint quand la pièce se range */
+      var free = 1 - local;
+      if (free > 0.02 && !REDUCED) {
+        var dx = (x + w / 2 + pp.ox) - pointer.x;
+        var dy = (y + h / 2 + pp.oy) - pointer.y;
+        var d = Math.hypot(dx, dy);
+        var R = 170;
+        if (d < R && d > 0.001) {
+          var force = (1 - d / R) * (0.9 + pointer.speed * 0.12) * free;
+          pp.vx += (dx / d) * force * 3.2;
+          pp.vy += (dy / d) * force * 3.2;
+        }
+        pp.vx *= 0.88; pp.vy *= 0.88;
+        pp.ox = (pp.ox + pp.vx) * 0.965;
+        pp.oy = (pp.oy + pp.vy) * 0.965;
+        x += pp.ox * free;
+        y += pp.oy * free;
+        rot += pp.ox * 0.0022 * free;
+      } else {
+        pp.ox *= 0.8; pp.oy *= 0.8; pp.vx = 0; pp.vy = 0;
+      }
+
+      ctx.save();
+      ctx.translate(x + w / 2, y + h / 2);
+      ctx.rotate(rot);
+      var isCard = pp.tg.h > 60;
+      ctx.globalAlpha = lerp(0.85, isCard ? 1 : 0.9, local);
+      ctx.fillStyle = local > 0.7 && isCard ? COL.bg : COL.surface;
+      ctx.strokeStyle = COL.line;
+      roundRect(ctx, -w / 2, -h / 2, w, h, Math.min(8, h * 0.3));
+      if (local < 0.7) {
+        ctx.shadowColor = "rgba(11,31,25,0.16)";
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 8;
+      }
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    /* la vraie capture prend la place de la maquette assemblée */
+    var shotA = phase(p, 0.72, 0.92);
+    heroShot.style.left = fx + "px";
+    heroShot.style.top = fy + "px";
+    heroShot.style.width = frameW + "px";
+    heroShot.style.height = frameH + "px";
+    heroShot.style.borderRadius = (14 * scale) + "px";
+    heroShot.style.opacity = String(easeInOut(shotA));
+
+    var lift = easeInOut(phase(p, 0.3, 0.7));
+    heroCopy.style.transform = "translateY(" + (-lift * 9) + "vh)";
+    heroCopy.style.opacity = String(1 - phase(p, 0.4, 0.72));
+    heroCaption.style.opacity = String(phase(p, 0.9, 0.99));
+    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.9, 0.99)) * 12) + "px)";
+    heroHint.style.opacity = String(p < 0.04 ? 1 : 0);
+  }
+
+  /* ════════ Scène 2 · Vérifier (rapprochement réaliste) ════════ */
+  var verZone = document.getElementById("zone-verifier");
+  var vrows = Array.prototype.slice.call(document.querySelectorAll("#rapprochement .row"));
+  var vgapRow = document.getElementById("vrow-gap");
+  var vgapAmt = document.getElementById("vgap-amt");
+  var vwarn = document.getElementById("vbanner-warn");
+  var vokay = document.getElementById("vbanner-okay");
+
+  function drawVerifier(p) {
+    vrows.forEach(function (row, i) {
+      var a = easeOutCubic(phase(p, 0.03 + i * 0.09, 0.22 + i * 0.09));
+      row.style.opacity = String(a);
+      row.style.transform = "translateX(" + ((1 - a) * 18) + "px)";
+    });
+
+    /* l'écart tient un moment, puis la correction s'écrit sous vos yeux */
+    var correct = easeInOut(phase(p, 0.52, 0.8));
+    var value = 20500 + 500 * correct;
+    vgapAmt.textContent = fmt(value);
+    vgapRow.classList.toggle("ok", correct >= 1);
+
+    var warnA = phase(p, 0.3, 0.38) * (1 - phase(p, 0.78, 0.88));
+    vwarn.style.opacity = String(warnA);
+    vwarn.style.transform = "translateY(" + ((1 - phase(p, 0.3, 0.38)) * 10) + "px)";
+
+    var okA = phase(p, 0.86, 0.96);
+    vokay.style.opacity = String(okA);
+    vokay.style.transform = "translateY(" + ((1 - okA) * 10) + "px)";
+  }
+
+  /* ════════ Scène 3 · Encaisser (facture réaliste) ════════ */
+  var encZone = document.getElementById("zone-encaisser");
+  var flines = Array.prototype.slice.call(document.querySelectorAll("#facture .fline"));
+  var chips = Array.prototype.slice.call(document.querySelectorAll("#facture-wrap .chip"));
+  var fSub = document.getElementById("f-sub");
+  var fTps = document.getElementById("f-tps");
+  var fTvq = document.getElementById("f-tvq");
+  var fTotal = document.getElementById("f-total");
+  var fStamp = document.getElementById("f-stamp");
+  var LINE_AMOUNTS = [2925, 195, 80];
+
+  function drawEncaisser(p) {
+    var landed = 0;
+    flines.forEach(function (line, i) {
+      var t = phase(p, 0.06 + i * 0.13, 0.3 + i * 0.13);
+      var fly = easeInOut(t);
+
+      /* le jeton part de la droite et se pose sur sa ligne */
+      var chip = chips[i];
+      if (chip) {
+        var lineTop = line.offsetTop;
+        chip.style.top = (lineTop + 10) + "px";
+        chip.style.right = lerp(-46, 30, fly) + "px";
+        chip.style.transform = "translateY(" + ((1 - fly) * -34) + "px)";
+        chip.style.opacity = String(t <= 0 ? 0 : t >= 1 ? 0 : Math.min(1, t * 4));
+      }
+      /* la ligne de facture se matérialise quand le jeton arrive */
+      var mat = phase(t, 0.75, 1);
+      line.style.opacity = String(0.25 + mat * 0.75);
+      line.style.transform = "translateX(" + ((1 - mat) * 10) + "px)";
+      landed += LINE_AMOUNTS[i] * mat;
+    });
+
+    /* les totaux comptent à mesure que les lignes se posent */
+    var sub = landed;
+    var taxes = easeInOut(phase(p, 0.56, 0.74));
+    var tps = sub * 0.05 * taxes;
+    var tvq = sub * 0.09975 * taxes;
+    var totalReveal = easeInOut(phase(p, 0.62, 0.8));
+    fSub.textContent = fmt(sub);
+    fTps.textContent = fmt(tps);
+    fTvq.textContent = fmt(tvq);
+    fTotal.textContent = fmt((sub + tps + tvq) * totalReveal);
+
+    /* cachet Payée */
+    var st = easeOutCubic(phase(p, 0.86, 0.96));
+    fStamp.style.opacity = String(st);
+    fStamp.style.transform = "rotate(-8deg) scale(" + lerp(1.6, 1, st) + ")";
+  }
+
+  /* ════════ Scène 4 · Collaborer ════════ */
+  var colZone = document.getElementById("zone-collaborer");
+  var navCards = Array.prototype.slice.call(document.querySelectorAll(".nav-card"));
+  var decision = document.getElementById("decision");
+  var cardScatter = [
+    { x: -60, y: -30, r: -7 },
+    { x: 70, y: 40, r: 5 },
+    { x: -30, y: 120, r: -4 }
+  ];
+
+  function drawCollaborer(p) {
+    navCards.forEach(function (card, i) {
+      var settle = easeOutCubic(phase(p, 0.05 + i * 0.12, 0.45 + i * 0.12));
+      var sc = cardScatter[i];
+      var restY = i * 100;
+      var x = lerp(sc.x, 0, settle);
+      var y = lerp(sc.y + restY, restY, settle);
+      var r = lerp(sc.r, 0, settle);
+      card.style.transform = "translate(" + x + "px," + y + "px) rotate(" + r + "deg)";
+      card.style.opacity = String(0.25 + settle * 0.75);
+    });
+    var dec = easeOutCubic(phase(p, 0.62, 0.9));
+    decision.style.opacity = String(dec);
+    decision.style.transform = "translateX(" + ((1 - dec) * 36) + "px)";
+  }
+
+  /* ════════ Maquette navigable : fiche client → dossier ════════ */
+  var demo = document.getElementById("demo");
+  var screenClient = document.getElementById("screen-client");
+  var screenDossier = document.getElementById("screen-dossier");
+  var demoCrumb = document.getElementById("demo-crumb");
+
+  function showScreen(name) {
+    var toDossier = name === "dossier";
+    screenClient.classList.toggle("on", !toDossier);
+    screenClient.classList.toggle("off-left", toDossier);
+    screenDossier.classList.toggle("on", toDossier);
+    demoCrumb.textContent = toDossier
+      ? "Clients / Marie-Claude Tremblay / Dossier 2026-014"
+      : "Clients / Marie-Claude Tremblay";
+  }
+
+  demo.addEventListener("click", function (e) {
+    var go = e.target.closest("[data-goto]");
+    if (go) { showScreen(go.getAttribute("data-goto")); return; }
+    var tab = e.target.closest("[data-tab]");
+    if (tab) {
+      var name = tab.getAttribute("data-tab");
+      demo.querySelectorAll(".tab").forEach(function (t) {
+        t.classList.toggle("on", t === tab);
+      });
+      demo.querySelectorAll(".tabpane").forEach(function (p) {
+        p.classList.toggle("on", p.getAttribute("data-pane") === name);
+      });
+    }
+  });
+  demo.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var go = e.target.closest("[data-goto]");
+    if (go) { e.preventDefault(); showScreen(go.getAttribute("data-goto")); }
+  });
+
+  /* ════════ Révélation douce de la section Le système ════════ */
+  var systemeShot = document.getElementById("systeme-shot");
+  if ("IntersectionObserver" in window && !REDUCED) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { systemeShot.classList.add("seen"); io.disconnect(); }
+      });
+    }, { threshold: 0.25 });
+    io.observe(systemeShot);
+  } else {
+    systemeShot.classList.add("seen");
+  }
+
+  /* ════════ Rail ════════ */
+  var rail = document.getElementById("rail");
+  var railStops = {
+    hero: rail.querySelector('[data-rail="hero"]'),
+    verifier: rail.querySelector('[data-rail="verifier"]'),
+    encaisser: rail.querySelector('[data-rail="encaisser"]'),
+    collaborer: rail.querySelector('[data-rail="collaborer"]')
+  };
+  function zoneVisible(el) {
+    var r = el.getBoundingClientRect();
+    return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
+  }
+  function updateRail(zones) {
+    var anyLive = false;
+    Object.keys(zones).forEach(function (key) {
+      var live = zoneVisible(zones[key]);
+      railStops[key].classList.toggle("live", live);
+      if (live) anyLive = true;
+    });
+    rail.classList.toggle("on", anyLive);
+  }
+
+  /* ════════ Boucle : progression amortie ════════ */
+  var shown = { hero: 0, verifier: 0, encaisser: 0, collaborer: 0 };
+  var zones = { hero: heroZone, verifier: verZone, encaisser: encZone, collaborer: colZone };
+
+  function frame(time) {
+    var SMOOTH = REDUCED ? 1 : 0.16;
+    Object.keys(shown).forEach(function (k) {
+      var target = zoneProgress(zones[k]);
+      shown[k] += (target - shown[k]) * SMOOTH;
+      if (Math.abs(target - shown[k]) < 0.0005) shown[k] = target;
+    });
+
+    if (REDUCED) {
+      shown.hero = 1; shown.verifier = 1; shown.encaisser = 1; shown.collaborer = 1;
+    }
+
+    drawHero(shown.hero, time);
+    drawVerifier(shown.verifier);
+    drawEncaisser(shown.encaisser);
+    drawCollaborer(shown.collaborer);
+    updateRail(zones);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

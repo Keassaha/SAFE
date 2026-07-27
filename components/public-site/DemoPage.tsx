@@ -28,6 +28,12 @@ export default function DemoPage() {
         intro="En 20 minutes, nous regardons comment vous tenez vos dossiers, votre temps et votre fidéicommis aujourd’hui. Vous verrez ensuite si SAFE mérite d’aller plus loin."
       />
 
+      <style dangerouslySetInnerHTML={{ __html: `
+        .demo-input:focus {
+          border-color: ${GREEN} !important;
+          box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.12);
+        }
+      ` }} />
       <section className="px-6 pb-24" style={{ background: BG }}>
         <div className="mx-auto grid max-w-5xl gap-12 sm:grid-cols-2 sm:items-start">
           {/* Déroulement */}
@@ -35,14 +41,23 @@ export default function DemoPage() {
             <p className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
               Le déroulement
             </p>
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-6 space-y-5">
               {DEROULEMENT.map((d, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: GREEN }} aria-hidden />
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: 16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 + i * 0.1, duration: 0.45 }}
+                  className="flex gap-4"
+                >
+                  <span className="mt-0.5 font-mono text-[12px]" style={{ color: GREEN }} aria-hidden>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span className="font-sans text-[16px] leading-[1.55]" style={{ color: MUTED }}>
                     {d}
                   </span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </motion.div>
@@ -63,7 +78,7 @@ export default function DemoPage() {
                   <input
                     type={c.type}
                     placeholder={c.placeholder}
-                    className="mt-1.5 h-11 w-full rounded-[8px] px-3.5 font-sans text-[14.5px] outline-none"
+                    className="demo-input mt-1.5 h-11 w-full rounded-[8px] px-3.5 font-sans text-[14.5px] outline-none transition-shadow"
                     style={{ background: "#fff", border: `1px solid ${LINE}`, color: INK }}
                   />
                 </label>
@@ -82,6 +97,17 @@ export default function DemoPage() {
               tiers.
             </p>
           </motion.form>
+        </div>
+      </section>
+
+      <section className="border-t px-6 py-5" style={{ background: SURFACE, borderColor: LINE }}>
+        <div className="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {["Conçu au Québec", "Données hébergées au Canada", "Pensé pour le fidéicommis", "Utilisé dans un vrai cabinet"].map((p) => (
+            <div key={p} className="flex items-center gap-2 font-sans text-[12.5px]" style={{ color: MUTED }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} aria-hidden />
+              {p}
+            </div>
+          ))}
         </div>
       </section>
     </PageShell>

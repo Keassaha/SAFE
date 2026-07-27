@@ -166,12 +166,12 @@ function OffreFondatrice() {
   const {
     placesPrises,
     placesTotal,
-    abonnementVie,
-    abonnementAnnuel,
-    prixRegulierBarre,
-    prixRegulierAnnuelBarre,
-    moisGratuits,
+    dureeMois,
+    premiereAnneeSolo,
+    premiereAnneeCabinet,
   } = TARIFICATION.fondateurs;
+  const prixSolo = TARIFICATION.paliers.solo.prix;
+  const prixCabinet = TARIFICATION.paliers.cabinet.prix;
   const restantes = Math.max(placesTotal - placesPrises, 0);
   return (
     <section id="fondateurs" className="py-20 px-6 max-w-5xl mx-auto">
@@ -180,10 +180,10 @@ function OffreFondatrice() {
         title={
           <>
             Cinq places.{" "}
-            <span className="italic text-emerald-700">Un tarif gelé à vie.</span>
+            <span className="italic text-emerald-700">Une première année à tarif fondateur.</span>
           </>
         }
-        subtitle={`${moisGratuits} mois gratuits dès l'activation, puis un tarif verrouillé pour toujours. Deux façons d'en profiter, à votre choix.`}
+        subtitle={`${premiereAnneeSolo} $ par mois en Solo, ${premiereAnneeCabinet} $ par mois en Cabinet pendant ${dureeMois} mois. Ensuite, le tarif régulier s'applique.`}
       />
 
       <motion.div
@@ -204,20 +204,20 @@ function OffreFondatrice() {
             Le choix des fondateurs
           </span>
           <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-100/75 mb-3">
-            Paiement mensuel
+            Pratique solo
           </p>
           <div className="flex items-end gap-2">
             <span className="font-serif text-[48px] leading-none text-white">
-              {abonnementVie} $
+              {premiereAnneeSolo} $
             </span>
             <span className="pb-1 text-[14px] text-white/70">/ mois</span>
             <span className="pb-1 ml-1 text-[15px] text-white/40 line-through">
-              {prixRegulierBarre} $
+              {prixSolo} $
             </span>
           </div>
           <p className="text-[13.5px] leading-[1.6] text-white/85 mt-4 mb-7">
-            {moisGratuits} mois gratuits dès l&apos;activation, puis {abonnementVie} $/mois
-            gelés à vie. Aucune hausse, jamais, tant que vous restez membre.
+            Première année à {premiereAnneeSolo} $ par mois, pendant {dureeMois} mois à partir
+            de l&apos;activation. Ensuite, le tarif régulier de {prixSolo} $ par mois s&apos;applique.
           </p>
           <Link href="/contact" className="safe-site-cta-primary relative mt-auto">
             Nous contacter &rarr;
@@ -230,20 +230,21 @@ function OffreFondatrice() {
           className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-900/10 bg-white/80 shadow-[0_18px_60px_-48px_rgba(31,58,46,0.48)] hover:border-emerald-900/20 hover:bg-white transition-all"
         >
           <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-800 mb-3">
-            Paiement annuel · 2 mois offerts
+            Cabinet en équipe
           </p>
           <div className="flex items-end gap-2">
             <span className="font-serif text-[48px] leading-none text-zinc-900">
-              {abonnementAnnuel.toLocaleString("fr-CA")} $
+              {premiereAnneeCabinet} $
             </span>
-            <span className="pb-1 text-[14px] text-zinc-500">/ an</span>
+            <span className="pb-1 text-[14px] text-zinc-500">/ mois</span>
             <span className="pb-1 ml-1 text-[15px] text-zinc-400 line-through">
-              {prixRegulierAnnuelBarre.toLocaleString("fr-CA")} $
+              {prixCabinet} $
             </span>
           </div>
           <p className="text-[13.5px] leading-[1.6] text-zinc-700 mt-4 mb-7">
-            Le même tarif fondateur gelé à vie, réglé une fois par an. Deux mois offerts
-            par rapport au mensuel, soit {abonnementAnnuel.toLocaleString("fr-CA")} $/an au lieu de 600 $.
+            Première année à {premiereAnneeCabinet} $ par mois, pendant {dureeMois} mois à
+            partir de l&apos;activation. Ensuite, le tarif régulier de {prixCabinet} $ par mois
+            s&apos;applique.
           </p>
           <Link href="/contact" className="safe-site-cta-secondary relative mt-auto">
             Nous contacter &rarr;
@@ -279,8 +280,8 @@ function PartenariatFondateur() {
     },
     {
       num: "03",
-      titre: "Un prix gelé à vie",
-      desc: "En échange de votre confiance maintenant, votre tarif ne bouge plus, jamais.",
+      titre: "Une première année à tarif fondateur",
+      desc: "En échange de votre confiance maintenant, votre première année est à tarif réduit, sans autre condition.",
     },
   ];
   return (
@@ -326,9 +327,8 @@ function PartenariatFondateur() {
 
 function AvantagesFondateurs() {
   const avantages = [
-    "12 mois gratuits dès l'activation",
-    "Tarif de 50 $/mois gelé à vie",
-    "Ou 500 $/an gelé à vie, deux mois offerts",
+    "Première année à 50 $/mois (Solo) ou 100 $/mois (Cabinet)",
+    "Tarif régulier seulement après 12 mois",
     "Mise en route faite avec vous, sans frais",
     "Migration de vos données incluse",
     "Mises à jour de conformité au Barreau incluses",

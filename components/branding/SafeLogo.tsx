@@ -176,7 +176,11 @@ export function SafeLogo({
         className={`relative flex shrink-0 items-center justify-center rounded-[10px] ${markBg}`}
         style={{ width: size + 8, height: size + 8 }}
       >
-        <ChevronMark size={size - 4} tone={resolvedTone} />
+        {/* `noPulse` sert aux logos de navigation et de pied de page : on y veut un
+           mark toujours visible. L'entrée animée reste réservée aux usages décoratifs,
+           car ses variantes laissaient les chevrons à opacité 0 quand elle ne se
+           déclenchait pas. */}
+        <ChevronMark size={size - 4} tone={resolvedTone} animate={!noPulse} />
       </span>
 
       {!markOnly && (

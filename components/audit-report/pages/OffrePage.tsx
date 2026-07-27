@@ -13,8 +13,10 @@ interface Props {
 
 export function OffrePage({ data, variant }: Props) {
   const { offre, etapes } = data;
-  const { placesTotal, abonnementVie, abonnementAnnuel, prixRegulierBarre, moisGratuits } =
+  const { placesTotal, dureeMois, premiereAnneeSolo, premiereAnneeCabinet } =
     TARIFICATION.fondateurs;
+  const prixSolo = TARIFICATION.paliers.solo.prix;
+  const prixCabinet = TARIFICATION.paliers.cabinet.prix;
 
   return (
     <PageShell
@@ -66,7 +68,7 @@ export function OffrePage({ data, variant }: Props) {
               margin: "0 0 4px",
             }}
           >
-            {moisGratuits} mois gratuits, puis un tarif gelé à vie.
+            Première année à tarif fondateur, pendant {dureeMois} mois.
           </p>
           <p
             style={{
@@ -93,11 +95,11 @@ export function OffrePage({ data, variant }: Props) {
                 margin: "0 0 2px",
               }}
             >
-              {abonnementVie} $
+              {premiereAnneeSolo} $
               <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /mois</span>
             </p>
             <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8px", color: PALETTE.sage }}>
-              à vie, au lieu de {prixRegulierBarre} $
+              Solo, 1re année, puis {prixSolo} $
             </p>
           </div>
           <div style={{ borderLeft: `0.5px solid ${PALETTE.moss2}`, paddingLeft: "14px", textAlign: "right" }}>
@@ -110,11 +112,11 @@ export function OffrePage({ data, variant }: Props) {
                 margin: "0 0 2px",
               }}
             >
-              {abonnementAnnuel.toLocaleString("fr-CA")} $
-              <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /an</span>
+              {premiereAnneeCabinet} $
+              <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /mois</span>
             </p>
             <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8px", color: PALETTE.sage }}>
-              à vie, 2 mois offerts
+              Cabinet, 1re année, puis {prixCabinet} $
             </p>
           </div>
         </div>
