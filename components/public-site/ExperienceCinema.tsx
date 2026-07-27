@@ -7,7 +7,7 @@
  * Maquette navigable (fiche client → dossier) et brassage des papiers au curseur.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
 const CSS = `
@@ -618,8 +618,9 @@ const CSS = `
     box-shadow: 0 30px 60px -34px rgba(11, 31, 25, 0.7);
     will-change: transform, opacity;
   }
-  .xc #decision .tag { color: #9FD5B4; }
-  .xc #decision .txt { color: #F4F7F3; font-size: 13.5px; }
+  .xc #decision .tag { color: #9FD5B4; display: block; }
+  /* sans display block, « Pour l'avocat » et le titre se collaient */
+  .xc #decision .txt { color: #F4F7F3; font-size: 13.5px; display: block; margin-top: 5px; }
   .xc #decision .sub { margin-top: 8px; font-size: 11.5px; color: rgba(244, 247, 243, 0.62); line-height: 1.5; }
 
   .xc section.flat { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
@@ -711,8 +712,90 @@ const CSS = `
   .xc footer .fbrand { display: inline-flex; align-items: center; gap: 12px; }
   .xc footer a:hover { color: var(--ink); }
 
+  /* ── Bouton et panneau de navigation au téléphone ── */
+  .xc #burger {
+    display: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .xc #burger span { display: block; width: 19px; }
+  .xc #burger i {
+    display: block;
+    height: 1.6px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+  .xc #burger i + i { margin-top: 4.5px; }
+  .xc #burger span.ouvert i:nth-child(1) { transform: translateY(6.1px) rotate(45deg); }
+  .xc #burger span.ouvert i:nth-child(2) { opacity: 0; }
+  .xc #burger span.ouvert i:nth-child(3) { transform: translateY(-6.1px) rotate(-45deg); }
+
+  .xc #voile {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    border: 0;
+    background: rgba(11, 31, 25, 0.4);
+    animation: xcFade 0.25s ease;
+  }
+  .xc #menu-mobile {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    padding: 6px min(6vw, 44px) 26px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 24px 48px -28px rgba(11, 31, 25, 0.45);
+    animation: xcSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc #menu-mobile a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    border-bottom: 1px solid var(--line);
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .xc #menu-mobile a span { color: var(--faint); }
+  .xc #menu-mobile .mm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .xc #menu-mobile .mm-actions a {
+    justify-content: center;
+    min-height: 48px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 15px;
+  }
+  /* sélecteur aussi spécifique que la règle générique juste au-dessus, sinon le
+     fond vert du bouton était écrasé et le libellé blanc devenait invisible */
+  .xc #menu-mobile .mm-actions a.mm-cta {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    font-weight: 500;
+  }
+  @keyframes xcFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes xcSlide { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
   @media (max-width: 860px) {
-    .xc #rail, .xc #nav .links { display: none; }
+    .xc #rail, .xc #nav .links, .xc #nav .signin, .xc #nav .cta { display: none; }
+    .xc #burger { display: inline-flex; }
+    .xc #nav { justify-content: space-between; }
     /* rien sous 11 px au doigt : les libellés de la maquette et l'indice de défilement */
     .xc #demo .panel .ptitle,
     .xc #demo .bar .hint,
@@ -731,9 +814,23 @@ const CSS = `
     .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 26px; }
     .xc .story .pin { align-content: start; padding-top: 10vh; }
     .xc .chip { display: none; }
-    .xc #facture { padding: 22px 18px; }
-    .xc #facture .stamp { left: 14px; bottom: 150px; }
-    .xc #navette { height: 50vh; }
+    /* on réserve une bande sous le total : le cachet s'y pose au lieu de barrer
+       les montants */
+    .xc #facture { padding: 22px 18px 74px; }
+    .xc #facture .stamp { left: 16px; bottom: 16px; }
+    /* La carte « Pour l'avocat » chevauchait les cartes de la Navette et sortait
+       de l'écran. Au téléphone, elle se range dessous, pleine largeur. */
+    .xc #navette { height: 396px; }
+    .xc .story .pin { padding-top: 7vh; }
+    .xc .nav-card { padding: 11px 14px; }
+    .xc .nav-card { left: 0; width: 100%; }
+    .xc #decision {
+      top: auto;
+      bottom: 0;
+      right: auto;
+      left: 0;
+      width: 100%;
+    }
     .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
     /* Au pouce, chaque scène doit se lire vite : on raccourcit la course
        plutôt que de faire défiler seize écrans. */
@@ -1036,7 +1133,9 @@ function runExperience(root: HTMLElement): () => void {
     navCards.forEach((card, i) => {
       const settle = easeOutCubic(phase(p, 0.05 + i * 0.12, 0.45 + i * 0.12));
       const sc = cardScatter[i];
-      const restY = i * 100;
+      /* cartes plus rapprochées au téléphone : sinon la carte « Pour l'avocat »
+         se retrouve sous la ligne de flottaison */
+      const restY = i * (window.innerWidth < 860 ? 88 : 100);
       const x = lerp(sc.x, 0, settle);
       const y = lerp(sc.y + restY, restY, settle);
       const r = lerp(sc.r, 0, settle);
@@ -1167,6 +1266,7 @@ function runExperience(root: HTMLElement): () => void {
 
 export default function ExperienceCinema() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [menuOuvert, setMenuOuvert] = useState(false);
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -1191,7 +1291,48 @@ export default function ExperienceCinema() {
           <a className="signin" href="/connexion">Connexion</a>
           <a className="cta" href="/audit-gratuit">Faire le diagnostic</a>
         </div>
+        {/* Au téléphone, les liens étaient simplement masqués : la landing n'offrait
+           plus aucun chemin vers le reste du site. */}
+        <button
+          type="button"
+          id="burger"
+          aria-label={menuOuvert ? "Fermer la navigation" : "Ouvrir la navigation"}
+          aria-expanded={menuOuvert}
+          onClick={() => setMenuOuvert((v) => !v)}
+        >
+          <span className={menuOuvert ? "ouvert" : ""} aria-hidden>
+            <i /><i /><i />
+          </span>
+        </button>
       </nav>
+
+      {menuOuvert ? (
+        <>
+          <button
+            type="button"
+            id="voile"
+            aria-label="Fermer la navigation"
+            onClick={() => setMenuOuvert(false)}
+          />
+          <div id="menu-mobile">
+            {[
+              ["/fonctionnalites", "Fonctionnalités"],
+              ["/tarification", "Tarification"],
+              ["/a-propos", "À propos"],
+              ["/contact", "Contact"],
+            ].map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setMenuOuvert(false)}>
+                {label}
+                <span aria-hidden>›</span>
+              </a>
+            ))}
+            <div className="mm-actions">
+              <a className="mm-ghost" href="/connexion">Connexion</a>
+              <a className="mm-cta" href="/audit-gratuit">Diagnostic</a>
+            </div>
+          </div>
+        </>
+      ) : null}
 
       <div id="rail" aria-hidden="true">
         <div className="stop" data-rail="hero"><span>Assembler</span><i /></div>

@@ -656,3 +656,44 @@ un SVG statique.
 
 - La capture du tableau de bord dans le hero de l'accueil reste petite sur téléphone :
   c'est une capture desktop réduite à 360 px. Piste : recadrage mobile dédié.
+
+---
+
+## Version 14 (2026-07-27) — correctifs mobiles de la landing, signalés depuis un vrai téléphone
+
+Le CEO a envoyé des captures prises sur son iPhone depuis `safecabinet.ca`. Trois
+défauts réels, tous propres à la page d'accueil.
+
+1. **Aucune navigation au téléphone.** La barre de la landing masquait simplement ses
+   liens sous 860 px (`#nav .links { display: none }`) : il ne restait que « Connexion »
+   et le bouton diagnostic, et aucun chemin vers le reste du site. Ajout d'un bouton
+   hamburger animé (barres qui se croisent), d'un voile et d'un panneau plein largeur :
+   quatre liens à 56 px, deux boutons à 48 px.
+2. **Carte « Pour l'avocat » qui chevauchait la Navette** et sortait de l'écran à droite.
+   Au téléphone, les trois cartes passent en pleine largeur et la carte foncée se range
+   dessous. Pas vertical des cartes ramené de 100 à 88 px pour que l'ensemble tienne
+   au-dessus de la ligne de flottaison.
+3. **Texte collé** : « Pour l'avocatRequête prête à ». Les `span` de `#decision`
+   n'héritaient pas du `display: block` défini pour `.nav-card`.
+
+Deux défauts trouvés dans la foulée :
+
+- **Cachet « Payée » qui barrait les totaux** de la facture sur téléphone. Une bande de
+  74 px est réservée sous le total, le cachet s'y pose.
+- **Bouton « Diagnostic » invisible** dans le nouveau panneau : la règle générique
+  `.xc #menu-mobile .mm-actions a` (spécificité 121) écrasait `.xc #menu-mobile .mm-cta`
+  (120), le fond vert était perdu et le texte blanc devenait illisible sur fond clair.
+  Sélecteur porté à `a.mm-cta`.
+
+### Vérification v14
+
+Playwright à 390 px : menu ouvert avec six entrées mesurées (56 px et 48 px), bouton
+diagnostic en vert `rgb(18,161,80)` sur blanc, carte « Pour l'avocat » entièrement
+visible (bas à 794 px pour une fenêtre de 844), zéro collision avec les cartes, zéro
+collision entre le cachet et les totaux. Aucune erreur de page.
+
+### Rappel de contexte
+
+Les captures du CEO viennent de la production, qui porte encore le commit `f58d3aa`.
+La passe mobile `a9b7dbb` et ces correctifs ne sont pas déployés : sur ce projet, un
+push sur la branche de release déploie directement en production.
