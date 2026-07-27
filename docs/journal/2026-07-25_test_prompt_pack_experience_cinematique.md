@@ -596,3 +596,63 @@ L'accueil fait 16 écrans de haut sur téléphone, à cause des quatre zones ép
 C'est long. Piste si le CEO le souhaite : raccourcir les zones épinglées sous 860 px
 (elles sont déjà réduites, on peut aller plus loin) ou ne garder que deux scènes
 épinglées sur téléphone et présenter les deux autres en sections normales.
+
+---
+
+## Version 13 (2026-07-27) — passe mobile mesurée
+
+### Méthode
+
+Audit automatisé à 390 px sur les cinq pages publiques : débordement horizontal,
+textes sous 11 px, cibles tactiles sous 40 px, longueur de page. Correctifs, puis
+nouvelle mesure. Le panneau navigateur intégré n'exécute pas le JavaScript de la page
+(titres invisibles, menu inerte) : c'est un artefact du panneau, confirmé en comparant
+avec Playwright où tout fonctionne. Vérification faite au vrai navigateur.
+
+### Avant → après
+
+| Mesure | Avant | Après |
+|---|---|---|
+| Textes sous 11 px | 8+ par page | 0 |
+| Cibles tactiles sous 40 px | 8+ par page | 0 |
+| Débordement horizontal | aucun | aucun |
+| Longueur de l'accueil | 16 écrans | 12 écrans |
+
+### Correctifs
+
+1. **Menu mobile** : voile sombre qui isole du contenu, panneau glissé avec libellés en
+   cascade, rangées de 56 px à 17 px, chevrons alignés à droite, boutons de 48 px. Le
+   voile est rendu **hors de l'entête** : le `backdrop-filter` de la barre crée un bloc
+   conteneur qui empêchait un enfant `fixed` de couvrir la page.
+2. **Maquettes** : champs et boutons à 44 px minimum, entrées à 16 px pour empêcher le
+   zoom automatique d'iOS, libellés minuscules relevés à 11 px via `.mock-mini`.
+3. **Galets décoratifs** : moitié moins nombreux, deux fois plus petits et cantonnés à
+   la marge droite sur téléphone. Ils passaient derrière les titres et gênaient la
+   lecture.
+4. **Typographie d'entête** : titre à 33 px sur 18 caractères de large, intro à 16,5 px,
+   marges verticales resserrées.
+5. **`fadeUp`** : marge de déclenchement ramenée de 80 à 40 px, une marge trop grande
+   retardait l'apparition sur petit écran.
+6. **Espacements de section** : `py-16` sur mobile au lieu de `py-24`, scènes épinglées
+   de l'accueil raccourcies (hero 250vh, autres 190-200vh).
+7. **Capture Excel** : rail glissable horizontalement à 780 px de large sur téléphone,
+   avec invite « Faites glisser », au lieu d'une image illisible en pleine largeur.
+
+### Correctif de logique repéré au passage
+
+Scène « Vérifier » de l'accueil : la bannière « Écart de 500 $ » restait affichée
+au-dessus de trois soldes déjà corrigés à 21 000 $. Les fenêtres de scrub se
+chevauchaient. La bannière s'efface désormais pendant que le montant se corrige, et
+« Concordance » n'apparaît qu'une fois la correction terminée.
+
+### Correctif antérieur, découvert en cherchant le logo
+
+`SafeLogo` enveloppait le mark dans une animation d'entrée framer-motion qui ne se
+déclenchait pas sous `LazyMotion` : les chevrons restaient à opacité 0 **sur tout le
+site**, navigation et pieds de page compris. Les logos sans pulsation rendent désormais
+un SVG statique.
+
+### Reste à traiter
+
+- La capture du tableau de bord dans le hero de l'accueil reste petite sur téléphone :
+  c'est une capture desktop réduite à 360 px. Piste : recadrage mobile dédié.

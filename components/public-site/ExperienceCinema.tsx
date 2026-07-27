@@ -735,9 +735,14 @@ const CSS = `
     .xc #facture .stamp { left: 14px; bottom: 150px; }
     .xc #navette { height: 50vh; }
     .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
-    .xc #zone-hero { height: 340vh; }
-    .xc #zone-verifier, .xc #zone-encaisser { height: 280vh; }
-    .xc #zone-collaborer { height: 280vh; }
+    /* Au pouce, chaque scène doit se lire vite : on raccourcit la course
+       plutôt que de faire défiler seize écrans. */
+    .xc #zone-hero { height: 250vh; }
+    .xc #zone-verifier, .xc #zone-encaisser { height: 200vh; }
+    .xc #zone-collaborer { height: 190vh; }
+    .xc section.flat { padding: clamp(56px, 8vh, 96px) min(6vw, 84px); }
+    .xc #systeme { padding: clamp(56px, 8vh, 96px) min(6vw, 84px); }
+    .xc #systeme .shot { margin-top: 32px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -956,15 +961,17 @@ function runExperience(root: HTMLElement): () => void {
       row.style.transform = "translateX(" + ((1 - a) * 18) + "px)";
     });
 
-    const correct = easeInOut(phase(p, 0.52, 0.8));
+    const correct = easeInOut(phase(p, 0.58, 0.78));
     vgapAmt.textContent = fmt(20500 + 500 * correct);
     vgapRow.classList.toggle("ok", correct >= 1);
 
-    const warnA = phase(p, 0.3, 0.38) * (1 - phase(p, 0.78, 0.88));
+    /* la bannière d'écart s'efface pendant que le montant se corrige : sinon on
+       lit « écart de 500 $ » au-dessus de trois soldes déjà concordants */
+    const warnA = phase(p, 0.3, 0.38) * (1 - phase(p, 0.58, 0.7));
     vwarn.style.opacity = String(warnA);
     vwarn.style.transform = "translateY(" + ((1 - phase(p, 0.3, 0.38)) * 10) + "px)";
 
-    const okA = phase(p, 0.86, 0.96);
+    const okA = phase(p, 0.8, 0.9);
     vokay.style.opacity = String(okA);
     vokay.style.transform = "translateY(" + ((1 - okA) * 10) + "px)";
   }

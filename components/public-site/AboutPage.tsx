@@ -294,8 +294,8 @@ export default function AProposPage() {
   return (
     <PageShell>
       {/* ═══ Hero ═══ */}
-      <section className="relative overflow-hidden px-6 pb-24 pt-32 sm:pt-40" style={{ background: BG }}>
-        <div className="mx-auto grid max-w-[1240px] items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+      <section className="relative overflow-hidden px-6 pb-16 pt-28 sm:pb-24 sm:pt-40" style={{ background: BG }}>
+        <div className="mx-auto grid max-w-[1240px] items-center gap-10 sm:gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
           <div>
             <motion.p
               initial={{ opacity: 0 }}
@@ -343,7 +343,7 @@ export default function AProposPage() {
       </section>
 
       {/* ═══ Le problème ═══ */}
-      <section className="px-6 py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
+      <section className="px-6 py-16 sm:py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
         <div className="mx-auto max-w-[1100px]">
           <motion.p
             initial={{ opacity: 0, y: 14 }}
@@ -391,7 +391,7 @@ export default function AProposPage() {
       </section>
 
       {/* ═══ Ce que SAFE a fait · avant / après ═══ */}
-      <section className="px-6 py-24" style={{ background: BG, borderTop: `1px solid ${LINE}` }}>
+      <section className="px-6 py-16 sm:py-24" style={{ background: BG, borderTop: `1px solid ${LINE}` }}>
         <div className="mx-auto max-w-[1100px]">
           <motion.p
             initial={{ opacity: 0 }}
@@ -434,7 +434,7 @@ export default function AProposPage() {
       <SceneBascule />
 
       {/* ═══ Ce que ça change aujourd'hui ═══ */}
-      <section className="px-6 py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
+      <section className="px-6 py-16 sm:py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
         <div className="mx-auto grid max-w-[1100px] items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -475,7 +475,7 @@ export default function AProposPage() {
       </section>
 
       {/* ═══ Le fondateur, en fin de page ═══ */}
-      <section className="px-6 py-24" style={{ background: BG, borderTop: `1px solid ${LINE}` }}>
+      <section className="px-6 py-16 sm:py-24" style={{ background: BG, borderTop: `1px solid ${LINE}` }}>
         <div className="mx-auto max-w-[640px]">
           <motion.p
             initial={{ opacity: 0 }}

@@ -114,10 +114,10 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
   return (
     <section
       id={s.cle}
-      className="scroll-mt-20 px-6 py-24"
+      className="scroll-mt-20 px-6 py-16 sm:py-24"
       style={{ background: s.fond, borderTop: `1px solid ${LINE}` }}
     >
-      <div className="mx-auto grid max-w-[1140px] gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <div className="mx-auto grid max-w-[1140px] gap-9 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -186,7 +186,7 @@ export default function FonctionnalitesPage() {
       />
 
       {/* Sommaire cliquable, pour donner la mesure de la page */}
-      <section className="px-6 pb-12" style={{ background: BG }}>
+      <section className="px-6 pb-10 sm:pb-12" style={{ background: BG }}>
         <div className="mx-auto flex max-w-[1140px] flex-wrap gap-2">
           {SECTIONS.map((s, i) => (
             <a
@@ -207,7 +207,7 @@ export default function FonctionnalitesPage() {
       ))}
 
       {/* La limite */}
-      <section className="px-6 py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
+      <section className="px-6 py-16 sm:py-24" style={{ background: SURFACE, borderTop: `1px solid ${LINE}` }}>
         <div className="mx-auto max-w-[640px]">
           <motion.p
             initial={{ opacity: 0 }}

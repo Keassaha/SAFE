@@ -8,7 +8,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 
@@ -36,10 +36,15 @@ export const R = {
   auditReel: "/audit-gratuit",
 };
 
+/**
+ * Entrée douce à l'arrivée dans l'écran.
+ * La marge négative est modeste : sur un écran de téléphone, une marge trop
+ * grande retarde le déclenchement et le texte paraît manquant.
+ */
 export const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 14 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
+  viewport: { once: true, margin: "-40px" },
   transition: { duration: 0.45, delay, ease: EASE },
 });
 
@@ -53,6 +58,24 @@ export function Nav() {
   ];
 
   return (
+    <>
+    {/* Le voile vit hors de l'entête : le `backdrop-filter` de la barre crée un
+       bloc conteneur qui empêcherait un enfant `fixed` de couvrir la page. */}
+    <AnimatePresence>
+      {mobileOpen && (
+        <motion.button
+          type="button"
+          aria-label="Fermer la navigation"
+          onClick={() => setMobileOpen(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ background: "rgba(11,31,25,0.4)" }}
+        />
+      )}
+    </AnimatePresence>
     <header
       className="fixed inset-x-0 top-0 z-50"
       style={{
@@ -105,42 +128,71 @@ export function Nav() {
         </button>
       </nav>
 
-      {mobileOpen && (
-        <div className="border-t px-6 pb-6 pt-3 lg:hidden" style={{ borderColor: LINE, background: BG }}>
-          <div className="mx-auto max-w-6xl">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="flex min-h-12 items-center border-b font-sans text-[15px]"
-                style={{ color: INK, borderColor: LINE }}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <Link
-                href="/connexion"
-                onClick={() => setMobileOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-[7px] border font-sans text-[14px]"
-                style={{ color: INK, borderColor: LINE }}
-              >
-                Connexion
-              </Link>
-              <Link
-                href={R.diagnostic}
-                onClick={() => setMobileOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-[7px] font-sans text-[14px] font-medium"
-                style={{ background: GREEN, color: "#fff" }}
-              >
-                Diagnostic
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Panneau mobile : voile qui isole du contenu, entrée glissée, rangées
+         généreuses au pouce. Les libellés arrivent en cascade. */}
+      <AnimatePresence>
+        {mobileOpen && (
+            <motion.div
+              key="menu-mobile"
+              initial={{ opacity: 0, y: -14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.32, ease: EASE }}
+              className="relative z-50 border-t px-6 pb-7 pt-2 lg:hidden"
+              style={{
+                borderColor: LINE,
+                background: BG,
+                boxShadow: "0 24px 48px -28px rgba(11,31,25,0.45)",
+              }}
+            >
+              <div className="mx-auto max-w-6xl">
+                {links.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex min-h-14 items-center justify-between border-b font-sans text-[17px]"
+                      style={{ color: INK, borderColor: LINE }}
+                    >
+                      {link.label}
+                      <span aria-hidden style={{ color: FAINT }}>›</span>
+                    </Link>
+                  </motion.div>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 + links.length * 0.05, duration: 0.3, ease: EASE }}
+                  className="mt-5 grid grid-cols-2 gap-3"
+                >
+                  <Link
+                    href="/connexion"
+                    onClick={() => setMobileOpen(false)}
+                    className="inline-flex h-12 items-center justify-center rounded-[8px] border font-sans text-[15px]"
+                    style={{ color: INK, borderColor: LINE, background: SURFACE }}
+                  >
+                    Connexion
+                  </Link>
+                  <Link
+                    href={R.diagnostic}
+                    onClick={() => setMobileOpen(false)}
+                    className="inline-flex h-12 items-center justify-center rounded-[8px] font-sans text-[15px] font-medium"
+                    style={{ background: GREEN, color: "#fff" }}
+                  >
+                    Diagnostic
+                  </Link>
+                </motion.div>
+              </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </header>
+    </>
   );
 }
 
@@ -308,6 +360,11 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    /* Sur téléphone ces galets passaient derrière le titre et le rendaient
+       pénible à lire : moins nombreux, plus petits, cantonnés à la marge. */
+    const petitEcran = window.matchMedia("(max-width: 860px)").matches;
+    const nombre = petitEcran ? Math.max(4, Math.round(count * 0.45)) : count;
+
     let seed = 20260726;
     const rnd = () => {
       seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
@@ -315,13 +372,17 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
       t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-    const papers = Array.from({ length: count }, (_, i) => ({
+    const papers = Array.from({ length: nombre }, (_, i) => ({
       /* les galets encadrent le titre : la bande de droite, un peu la marge de
          gauche, jamais la colonne de texte */
-      fx: i % 4 === 0 ? 0.01 + rnd() * 0.13 : 0.71 + rnd() * 0.31,
+      fx: petitEcran
+        ? 0.78 + rnd() * 0.26
+        : i % 4 === 0
+          ? 0.01 + rnd() * 0.13
+          : 0.71 + rnd() * 0.31,
       /* réparti sur la hauteur plutôt qu'au hasard : évite les paquets */
-      fy: 0.04 + ((i + rnd() * 0.85) / count) * 0.9,
-      size: 38 + rnd() * 58,
+      fy: 0.04 + ((i + rnd() * 0.85) / nombre) * 0.9,
+      size: (petitEcran ? 20 : 38) + rnd() * (petitEcran ? 26 : 58),
       rot: (rnd() - 0.5) * 1.1,
       /* un galet sur deux pointe vers le haut : les deux moitiés du mark */
       flip: rnd() > 0.45,
@@ -499,13 +560,13 @@ export function PageHeader({
   intro?: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden px-6 pb-16 pt-36" style={{ background: BG }}>
+    <section className="relative overflow-hidden px-6 pb-14 pt-28 sm:pb-16 sm:pt-36" style={{ background: BG }}>
       <PaperDrift />
       <div className="relative mx-auto max-w-3xl">
         <Eyebrow>{eyebrow}</Eyebrow>
         <motion.h1
           {...fadeUp(0.06)}
-          className="mt-4 max-w-[22ch] font-serif text-[36px] leading-[1.08] sm:text-[52px]"
+          className="mt-4 max-w-[18ch] font-serif text-[33px] leading-[1.1] sm:max-w-[22ch] sm:text-[52px]"
           style={{ color: INK, letterSpacing: "-0.018em" }}
         >
           {titre}
@@ -513,7 +574,7 @@ export function PageHeader({
         {intro && (
           <motion.p
             {...fadeUp(0.12)}
-            className="mt-6 max-w-[54ch] font-sans text-[17px] leading-[1.55] sm:text-[19px]"
+            className="mt-5 max-w-[54ch] font-sans text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
             style={{ color: MUTED }}
           >
             {intro}
