@@ -188,17 +188,26 @@ const CSS = `
   }
 
   .xc #preuves {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    justify-content: space-between;
-    gap: 14px;
+    display: flex;
     padding: 20px min(6vw, 84px);
     max-width: 1240px;
     margin: 0 auto;
     font-size: 12.5px;
     color: var(--muted);
+    overflow: hidden;
   }
-  .xc #preuves span { display: flex; align-items: center; gap: 8px; }
+  /* Au large : les quatre preuves tiennent sur une ligne, réparties.
+     Au téléphone (voir la requête média) : bande qui défile toute seule,
+     un seul rang lisible au lieu de quatre libellés à l'étroit. */
+  .xc .pv-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+  }
+  .xc .pv-track.clone { display: none; }
+  .xc #preuves span { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
   .xc #preuves i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
   .xc .strip { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 
@@ -791,6 +800,7 @@ const CSS = `
   }
   @keyframes xcFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes xcSlide { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+  @keyframes xcMarquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 
   @media (max-width: 860px) {
     .xc #rail, .xc #nav .links, .xc #nav .signin, .xc #nav .cta { display: none; }
@@ -805,23 +815,69 @@ const CSS = `
     .xc #demo .dossier-row .titre { font-size: 12.5px; }
     .xc #demo .dossier-row .go { min-height: 44px; display: inline-flex; align-items: center; }
     .xc .nav-card .tag, .xc #decision .tag { font-size: 11px; }
-    .xc #preuves { grid-template-columns: 1fr 1fr; justify-content: start; }
+    /* Bande de preuves : au pouce, elle défile en boucle au lieu de tasser
+       quatre libellés sur deux rangs. */
+    .xc #preuves {
+      padding: 14px 0;
+      max-width: none;
+      flex-wrap: nowrap;
+      /* les libellés s'estompent aux bords au lieu d'être tranchés net */
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 26px, #000 calc(100% - 26px), transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 26px, #000 calc(100% - 26px), transparent);
+    }
+    .xc .pv-track {
+      flex: none;
+      width: auto;
+      /* jamais plus court que l'écran, sinon un trou apparaît à la boucle */
+      min-width: 100%;
+      gap: 0;
+      justify-content: space-around;
+      animation: xcMarquee 24s linear infinite;
+    }
+    .xc .pv-track.clone { display: flex; }
+    .xc #preuves span { padding: 0 18px; }
     .xc #systeme .head { grid-template-columns: 1fr; align-items: start; }
     .xc #demo .client-grid { grid-template-columns: 1fr; }
-    .xc #demo .stage { min-height: 560px; }
+    /* Les écrans de la maquette sont superposés en absolu au large. Au
+       téléphone, 979 px de contenu se retrouvaient enfermés dans 560 px avec un
+       défilement interne invisible : la fiche cliente était coupée en plein
+       milieu. On les remet dans le flux, l'écran actif donne sa hauteur. */
+    .xc #demo .stage { min-height: 0; }
+    .xc #demo .screen {
+      position: static;
+      display: none;
+      opacity: 1;
+      transform: none;
+      overflow: visible;
+      padding: 20px 16px;
+      transition: none;
+    }
+    .xc #demo .screen.on { display: block; }
     .xc #demo .apercu-grid { grid-template-columns: 1fr; }
     .xc #demo .bar .hint { display: none; }
-    .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 26px; }
-    .xc .story .pin { align-content: start; padding-top: 10vh; }
+    /* Chaque scène est épinglée sur un écran de haut. Au téléphone, le texte
+       plus la maquette dépassaient cette hauteur et le bas de la scène était
+       tranché. On resserre l'ensemble pour que tout tienne d'un coup d'oeil. */
+    .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 18px; }
+    .xc .story .pin { align-content: center; padding-top: 6vh; }
+    .xc .story h2 { margin-top: 12px; font-size: 27px; }
+    .xc .story p.body { margin-top: 13px; font-size: 14px; line-height: 1.55; }
+    .xc .story p.result { margin-top: 15px; font-size: 13px; line-height: 1.5; }
     .xc .chip { display: none; }
     /* on réserve une bande sous le total : le cachet s'y pose au lieu de barrer
        les montants */
-    .xc #facture { padding: 22px 18px 74px; }
-    .xc #facture .stamp { left: 16px; bottom: 16px; }
+    .xc #facture { padding: 18px 15px 58px; }
+    .xc #facture .fhead .t { font-size: 21px; }
+    .xc #facture .fsub { padding-bottom: 11px; }
+    .xc #facture .fline { padding: 9px 0; }
+    .xc #facture .ftotals { margin-top: 10px; }
+    .xc #facture .trow { padding: 3px 0; }
+    /* le cachet est incliné : sa boîte dépasse le bord bas de la carte, qui
+       rogne les coins. On le remonte dans la bande réservée. */
+    .xc #facture .stamp { left: 16px; bottom: 30px; }
     /* La carte « Pour l'avocat » chevauchait les cartes de la Navette et sortait
        de l'écran. Au téléphone, elle se range dessous, pleine largeur. */
     .xc #navette { height: 396px; }
-    .xc .story .pin { padding-top: 7vh; }
     .xc .nav-card { padding: 11px 14px; }
     .xc .nav-card { left: 0; width: 100%; }
     .xc #decision {
@@ -842,11 +898,32 @@ const CSS = `
     .xc #systeme .shot { margin-top: 32px; }
   }
 
+  /* Écrans courts (iPhone SE, mini, ou barre d'adresse déployée) : la scène
+     épinglée dispose de moins de 740 px de haut. On resserre encore, sinon le
+     dernier paragraphe passe sous le pli et disparaît. */
+  @media (max-width: 860px) and (max-height: 740px) {
+    .xc .story .pin { padding-top: 0; }
+    .xc .story .grid, .xc .story.reverse .grid { gap: 10px; }
+    .xc .story h2 { font-size: 24px; margin-top: 6px; }
+    .xc .story p.body { margin-top: 8px; }
+    .xc .story p.result { margin-top: 6px; padding-left: 12px; }
+    .xc #facture { padding: 13px 14px 34px; }
+    .xc #facture .fhead .t { font-size: 19px; }
+    .xc #facture .fsub { padding-bottom: 9px; }
+    .xc #facture .fline { padding: 7px 0; }
+    .xc #facture .trow { padding: 2px 0; }
+    .xc #facture .stamp { left: 14px; bottom: 31px; }
+    .xc #navette { height: 352px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .xc #zone-hero, .xc #zone-verifier, .xc #zone-encaisser, .xc #zone-collaborer { height: auto; }
     .xc .pinzone .pin { position: relative; height: auto; min-height: 100vh; }
     .xc #hero-hint { display: none; }
     .xc #systeme .shot { transform: none; opacity: 1; transition: none; }
+    /* pas de défilement automatique : la bande se parcourt au doigt */
+    .xc .pv-track { animation: none; }
+    .xc #preuves { overflow-x: auto; }
   }
 `;
 
@@ -1264,6 +1341,13 @@ function runExperience(root: HTMLElement): () => void {
   };
 }
 
+const PREUVES = [
+  "Conçu au Québec",
+  "Données hébergées au Canada",
+  "Pensé pour le fidéicommis",
+  "Utilisé dans un vrai cabinet",
+];
+
 export default function ExperienceCinema() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [menuOuvert, setMenuOuvert] = useState(false);
@@ -1369,10 +1453,14 @@ export default function ExperienceCinema() {
       {/* Bande de preuves */}
       <div className="strip">
         <div id="preuves">
-          <span><i />Conçu au Québec</span>
-          <span><i />Données hébergées au Canada</span>
-          <span><i />Pensé pour le fidéicommis</span>
-          <span><i />Utilisé dans un vrai cabinet</span>
+          <div className="pv-track">
+            {PREUVES.map((p) => (<span key={p}><i />{p}</span>))}
+          </div>
+          {/* copie muette : elle prend le relais quand la première sort de
+              l'écran, pour un défilement sans rupture au téléphone */}
+          <div className="pv-track clone" aria-hidden="true">
+            {PREUVES.map((p) => (<span key={p}><i />{p}</span>))}
+          </div>
         </div>
       </div>
 
