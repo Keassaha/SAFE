@@ -859,6 +859,11 @@ const CSS = `
        plus la maquette dépassaient cette hauteur et le bas de la scène était
        tranché. On resserre l'ensemble pour que tout tienne d'un coup d'oeil. */
     .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 18px; }
+    /* Encaisser est la seule scène inversée : au large la facture est à gauche
+       du texte, mais empilée au téléphone elle passait avant le titre. On lit
+       d'abord de quoi il s'agit, la facture illustre ensuite, comme dans les
+       deux autres scènes. */
+    .xc .story.reverse .copy { order: -1; }
     .xc .story .pin { align-content: center; padding-top: 6vh; }
     .xc .story h2 { margin-top: 12px; font-size: 27px; }
     .xc .story p.body { margin-top: 13px; font-size: 14px; line-height: 1.55; }
