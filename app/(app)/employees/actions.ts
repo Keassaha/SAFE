@@ -188,12 +188,19 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
         updates.fullName ??
         `${(input.firstName ?? existing.firstName).trim()} ${(input.lastName ?? existing.lastName).trim()}`.trim();
       const nextRole = employeeRoleToUserRole((input.role ?? existing.role) as EmployeeRole);
+      const previousRole = employeeRoleToUserRole(existing.role as EmployeeRole);
+      // Un changement de rôle doit prendre effet tout de suite, pas à l'expiration
+      // du JWT 30 jours (audit 2026-07-28, §M1). Idem pour une désactivation.
+      const rightsChanged =
+        (nextRole && nextRole !== previousRole) ||
+        (input.status !== undefined && input.status !== existing.status);
 
       await tx.user.update({
         where: { id: existing.userId },
         data: {
           nom: nextFullName,
           ...(nextRole ? { role: nextRole } : {}),
+          ...(rightsChanged ? { sessionsValidFrom: new Date() } : {}),
         },
       });
     }

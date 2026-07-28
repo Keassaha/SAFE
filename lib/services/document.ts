@@ -1,4 +1,15 @@
-"use server";
+/**
+ * Module SERVEUR (bibliothèque interne), pas un fichier d'actions.
+ *
+ * La directive "use server" a été retirée (audit sécurité 2026-07-28, §E4) : elle
+ * transformait chaque fonction exportée en point d'entrée RPC adressable depuis le
+ * navigateur. Or ces fonctions reçoivent `cabinetId` en PARAMÈTRE au lieu de le
+ * dériver de la session : un appelant qui obtenait l'identifiant d'action pouvait
+ * passer le cabinetId d'un autre cabinet et lire, écrire ou supprimer hors du sien.
+ *
+ * Ce module est importé par des routes API et des actions serveur qui portent déjà
+ * leur propre garde de session. Ne PAS remettre "use server" ici.
+ */
 
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "./audit";
@@ -11,7 +22,26 @@ import fs from "fs/promises";
 
 const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
+/**
+ * Garde-fou perte de données (audit 2026-07-28, §M4).
+ *
+ * Sur Vercel, le système de fichiers d'une fonction est éphémère : tout document
+ * écrit en local disparaît au prochain déploiement, silencieusement. Une simple
+ * variable `STORAGE_PROVIDER=local` posée par erreur en production suffisait donc
+ * à perdre des pièces clients sans le moindre signal. On refuse net.
+ */
+function assertStorageConfigIsSafe() {
+  if (process.env.VERCEL_ENV === "production" && process.env.STORAGE_PROVIDER === "local") {
+    throw new Error(
+      "STORAGE_PROVIDER=local est interdit en production : le disque des fonctions Vercel " +
+        "est éphémère, les documents clients seraient perdus au prochain déploiement. " +
+        "Retirer la variable et utiliser Vercel Blob (BLOB_READ_WRITE_TOKEN).",
+    );
+  }
+}
+
 function shouldUseLocalStorage() {
+  assertStorageConfigIsSafe();
   return process.env.STORAGE_PROVIDER === "local" || process.env.NODE_ENV !== "production";
 }
 

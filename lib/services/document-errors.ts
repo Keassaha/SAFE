@@ -1,9 +1,10 @@
 /**
  * Erreurs du service Documents.
  *
- * Fichier séparé car `lib/services/document.ts` est un module `"use server"`
- * (Server Actions) où seules des fonctions async peuvent être exportées —
- * une classe d'erreur ne peut donc pas y vivre.
+ * Fichier séparé à l'origine parce que `lib/services/document.ts` portait
+ * `"use server"` (seules des fonctions async y sont exportables). Cette directive
+ * a été retirée à l'audit du 2026-07-28, mais la séparation est conservée : elle
+ * garde les erreurs importables depuis un composant client sans tirer le service.
  */
 
 /** Levée quand un document rattaché à un client/dossier ne peut être supprimé (rétention Barreau). */

@@ -23,5 +23,9 @@ declare module "next-auth/jwt" {
     id: string;
     cabinetId: string;
     role: UserRole;
+    /** Horodatage de la dernière relecture des droits en base (audit §M1). */
+    checkedAt?: number;
+    /** Session révoquée : compte supprimé, employé désactivé, ou droits changés. */
+    revoked?: boolean;
   }
 }

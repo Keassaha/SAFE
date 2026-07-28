@@ -38,13 +38,17 @@ export async function POST(req: NextRequest) {
 
     if (!user) return successResponse;
 
-    // Générer un token sécurisé
+    // Générer un token sécurisé. Seul son HACHÉ est stocké (audit 2026-07-28, §M3) :
+    // une lecture de la table User (fuite de sauvegarde, accès en lecture à la base)
+    // ne doit pas suffire à prendre le contrôle des comptes. Le porteur du lien est
+    // le seul à détenir la valeur en clair.
     const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const expiry = new Date(Date.now() + 3600000); // 1 heure
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { resetToken: token, resetTokenExpiry: expiry },
+      data: { resetToken: tokenHash, resetTokenExpiry: expiry },
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
