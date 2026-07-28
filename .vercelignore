@@ -11,6 +11,12 @@ node_modules
 planning
 scripts/*
 !scripts/vercel-build.mjs
+# secure-rls.mjs est appelé PAR vercel-build.mjs après `prisma migrate deploy`.
+# Sans cette exception il n'était jamais téléversé : le build échouait en
+# silence sur « Cannot find module scripts/secure-rls.mjs » (allowFailure), et
+# RLS n'a donc jamais été réactivé automatiquement depuis son ajout le
+# 2026-07-21. Toute table créée depuis restait exposée à l'API REST Supabase.
+!scripts/secure-rls.mjs
 .git
 *.log
 *.md
