@@ -179,11 +179,49 @@ Correctif : rotation immédiate vers un secret aléatoire de 32+ caractères, mi
 
 ---
 
+## 🔴 Découvert au déploiement — C4. Le script RLS n'a jamais tourné
+
+**Constat.** L'audit statique avait validé `scripts/secure-rls.mjs` comme filet de sécurité
+exécuté à chaque déploiement. Les journaux du déploiement de production `f2d2c5b` ont
+montré autre chose :
+
+```
+Error: Cannot find module '/vercel/path0/scripts/secure-rls.mjs'
+```
+
+[.vercelignore](.vercelignore) excluait `scripts/*` avec une seule exception,
+`!scripts/vercel-build.mjs`. Le script RLS n'a donc **jamais été téléversé** depuis son
+ajout le 2026-07-21. L'appel étant en `allowFailure`, chaque build échouait en silence :
+rien dans la sortie, aucun déploiement rouge, et la protection réputée active ne l'était
+pas.
+
+**Conséquence, mesurée.** Après correction de `.vercelignore` et redéploiement, le script
+a rapporté :
+
+```
+secure-rls: RLS activé sur 3 table(s) : SupportAttachment, SupportConversation, SupportMessage
+```
+
+Ces trois tables, créées par les migrations du 17 juillet, étaient donc restées **sans RLS
+pendant 11 jours**, c'est-à-dire lisibles et modifiables via l'API REST Supabase avec la
+clé publiable qui est livrée dans le frontend. Elles contiennent les fils de support entre
+les cabinets et SAFE Inc. et leurs pièces jointes.
+
+**Correctif appliqué.** `!scripts/secure-rls.mjs` ajouté à `.vercelignore` (commit
+`5d654ac`), redéployé, RLS confirmé actif sur les trois tables.
+
+**Leçon à retenir.** Un `allowFailure` sur un contrôle de sécurité transforme une panne en
+silence. À reprendre : faire échouer le build si `secure-rls.mjs` est introuvable, et ne
+tolérer l'échec que sur une erreur transitoire de base.
+
+---
+
 ## Statut des correctifs (2026-07-28, même jour)
 
 | Point | Statut | Où |
 |---|---|---|
-| C1 Preview migre la prod | ✅ Corrigé | `scripts/vercel-build.mjs` : migrations et RLS uniquement si `VERCEL_ENV === "production"` |
+| C1 Preview migre la prod | ✅ Corrigé et déployé | `scripts/vercel-build.mjs` : migrations et RLS uniquement si `VERCEL_ENV === "production"` |
+| C4 Script RLS jamais téléversé | ✅ Corrigé et déployé | `.vercelignore` : `!scripts/secure-rls.mjs` — 3 tables de support sécurisées après 11 jours d'exposition |
 | C2 Cascade `User` → documents/heures | ✅ Corrigé | `prisma/schema.prisma` + migration `20260728120000_protect_client_records_from_cascade` (8 clés étrangères passées en `RESTRICT`) |
 | C3 Sauvegardes | ⏳ Action CEO | Vérifier le plan Supabase et la fenêtre PITR ; aligner le DPA si < 30 jours |
 | E1 Secret webhook Stripe | ⏳ Action CEO | Valeur `whsec_…` à récupérer dans le tableau de bord Stripe |
@@ -199,7 +237,18 @@ Correctif : rotation immédiate vers un secret aléatoire de 32+ caractères, mi
 Vérification : `npx prisma validate` ✅, `npx tsc --noEmit` ✅ (zéro erreur), `vitest run` 753 tests verts.
 Un échec de suite subsiste (`ready-for-review-detection-hooks.test.ts`, paquet `server-only` non résolu par Vite) : **antérieur à ces changements**, vérifié par `git stash`.
 
-Les migrations ne s'appliqueront qu'au prochain déploiement de **production**.
+**Déployé en production le 2026-07-28** (commits `f2d2c5b` puis `5d654ac`,
+`https://www.safecabinet.ca`). Les deux migrations sont appliquées, confirmé dans les
+journaux de build : `Applying migration 20260728120000_protect_client_records_from_cascade`
+puis `20260728121000_add_user_sessions_valid_from`, `All migrations have been successfully
+applied`. Santé après déploiement : accueil 200, `/connexion` 200, `/api/auth/db-check`
+`{"ok":true}`, `/tableau-de-bord` 307 vers la connexion.
+
+Note sur le déblocage : le déploiement précédent était en état `BLOCKED`
+(`TEAM_ACCESS_REQUIRED`), motif exact renvoyé par l'API Vercel :
+« Git author votre@email.com must have access to the team ». Le dépôt portait encore
+l'identité git gabarit `Votre Nom <votre@email.com>`, que Vercel refuse puisqu'elle ne
+correspond à aucun membre de l'équipe. Identité corrigée en `Keassaha`, déploiement passé.
 
 ---
 

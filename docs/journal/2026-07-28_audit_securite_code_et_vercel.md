@@ -91,4 +91,51 @@ résolu par Vite) est antérieur, confirmé par `git stash`.
 - Vérifier le plan Supabase et la fenêtre PITR réelle ; aligner le DPA si < 30 jours.
 - Rotation du mot de passe Postgres.
 
-Les deux migrations s'appliqueront au prochain déploiement de production.
+## Déblocage et déploiement production (même jour)
+
+Le déploiement de production était en état `BLOCKED`. Motif exact, lu dans
+`readyStateReason` via l'API Vercel (invisible dans `vercel inspect --logs`) :
+
+> Git author votre@email.com must have access to the team keassaha's projects
+> on Vercel to create deployments. — `blockCode: TEAM_ACCESS_REQUIRED`
+
+Le dépôt portait encore l'identité git gabarit `Votre Nom <votre@email.com>`.
+Vercel refuse tout déploiement dont l'auteur du commit ne correspond à aucun
+membre de l'équipe. Identité corrigée en `Keassaha`, CLI Vercel mise à jour
+(54.6.0 → 58.1.0), déploiement passé.
+
+Commits `f2d2c5b` puis `5d654ac`, aliasés sur www.safecabinet.ca. Les deux
+migrations sont appliquées (confirmé dans les journaux de build). Santé après
+déploiement : accueil 200, `/connexion` 200, `db-check` `{"ok":true}`,
+`/tableau-de-bord` 307.
+
+## Trouvaille du déploiement : le script RLS n'avait jamais tourné
+
+Les journaux du premier déploiement ont sorti :
+
+    Error: Cannot find module '/vercel/path0/scripts/secure-rls.mjs'
+
+`.vercelignore` excluait `scripts/*` avec pour seule exception `vercel-build.mjs`.
+Le script RLS n'a donc jamais été téléversé depuis son ajout le 2026-07-21, et
+l'appel étant en `allowFailure`, l'échec était totalement silencieux.
+
+Après correction et redéploiement :
+
+    secure-rls: RLS activé sur 3 table(s) : SupportAttachment, SupportConversation, SupportMessage
+
+Ces trois tables sont restées **11 jours sans RLS**, donc lisibles et modifiables
+via l'API REST Supabase avec la clé publiable livrée dans le frontend. Elles
+contiennent les fils de support cabinet ↔ SAFE Inc. et leurs pièces jointes.
+C'est fermé.
+
+Leçon : un `allowFailure` posé sur un contrôle de sécurité transforme une panne
+en silence. À reprendre — faire échouer le build si le script est introuvable.
+
+## État du CEO
+
+Deux choses valent d'être notées pour la suite. D'abord, ce que l'audit statique
+n'avait pas vu, ce sont les journaux d'exécution qui l'ont montré : la prochaine
+revue de sécurité devrait lire une sortie de build réelle, pas seulement le code.
+Ensuite, quatre points restent en attente et ils demandent tous un accès compte
+(Stripe, Upstash, Supabase, rotation du mot de passe) : ils ne bougeront pas tant
+qu'ils ne seront pas planifiés explicitement.
