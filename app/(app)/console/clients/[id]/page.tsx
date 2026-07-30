@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { LogActivityForm } from "@/components/console/LogActivityForm";
 import { AddContactForm } from "@/components/console/AddContactForm";
+import { BandeauConversion } from "@/components/console/BandeauConversion";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { PLANS, type PlanKey } from "@/lib/stripe";
@@ -150,6 +151,23 @@ export default async function ConsoleClientDetailPage({
       : Promise.resolve([]),
   ]);
 
+  // État de la conversion. `cabinetId` est unique sur Lead : la conversion ne
+  // peut pas se produire deux fois, la base le garantit.
+  const invitationAttente = cabinetId
+    ? await prisma.invitation.findFirst({
+        where: { cabinetId, acceptedAt: null },
+        orderBy: { createdAt: "desc" },
+        select: { email: true, expiresAt: true },
+      })
+    : null;
+  const etatConversion: "A_CONVERTIR" | "INVITATION_EN_ATTENTE" | "ACTIF" = !cabinetId
+    ? lead.stageLead === "SIGNED"
+      ? "A_CONVERTIR"
+      : "ACTIF"
+    : invitationAttente
+      ? "INVITATION_EN_ATTENTE"
+      : "ACTIF";
+
   const auditScores = safeJson(lead.auditSubmission?.scores);
   const subPlan = subscription?.plan ?? lead.cabinet?.plan ?? null;
   const mrr = subscription?.active && !subscription.isTrialing && subPlan ? planMonthly(String(subPlan)) : 0;
@@ -161,6 +179,13 @@ export default async function ConsoleClientDetailPage({
         description={`${lead.province} ${lead.ville ?? ""} · ${TAILLE_LABELS[lead.tailleCabinet] ?? lead.tailleCabinet}`}
         backHref="/console/clients"
         backLabel="Tous les clients"
+      />
+
+      <BandeauConversion
+        leadId={lead.id}
+        etat={etatConversion}
+        invitationEmail={invitationAttente?.email ?? null}
+        invitationExpiree={invitationAttente ? invitationAttente.expiresAt < new Date() : false}
       />
 
       <div className="flex flex-wrap items-center gap-3">
