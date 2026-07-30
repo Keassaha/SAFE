@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { hasConsoleAccess } from "@/lib/safe-inc";
 import { readDocumentObject } from "@/lib/services/document";
 
 // GET /api/support/attachments/[id]
@@ -30,7 +30,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const convoCabinetId = piece.message.conversation.cabinetId;
   const isOwner = convoCabinetId === session.cabinetId;
-  const isSafe = await isSafeIncCabinet(session.cabinetId);
+  // Lecture inter-cabinets : réservée à la Console, pas à tout le cabinet SAFE.
+  const isSafe = await hasConsoleAccess(session.userId, session.role);
   if (!isOwner && !isSafe) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }

@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet, getSafeIncWorkspace } from "@/lib/safe-inc";
+import { requireConsoleAccess, getSafeIncWorkspace } from "@/lib/safe-inc";
 import {
   createLeadSchema,
   computeFirmographicScore,
@@ -42,10 +41,7 @@ export async function createLead(
   formData: FormData,
 ): Promise<CreateLeadResult> {
   try {
-    const { cabinetId } = await requireCabinetAndUser();
-    if (!(await isSafeIncCabinet(cabinetId))) {
-      return { ok: false, error: "Accès réservé à SAFE Inc." };
-    }
+    await requireConsoleAccess();
 
     const workspace = await getSafeIncWorkspace();
 

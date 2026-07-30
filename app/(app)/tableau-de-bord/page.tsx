@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { hasConsoleAccess } from "@/lib/safe-inc";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getEffectiveRole, userRoleToEmployeeRole } from "@/lib/auth/rbac";
 import type { UserRole } from "@prisma/client";
@@ -53,7 +53,9 @@ export default async function TableauDeBordPage() {
   const { cabinetId, userId, role } = await requireCabinetAndUser();
 
   // SAFE Inc. (dog food) atterrit sur sa Console, pas sur l'interface cabinet.
-  if (await isSafeIncCabinet(cabinetId)) {
+  // Condition alignée sur la garde de la Console : sans cela, un membre non-admin
+  // du cabinet SAFE rebondirait entre les deux pages indéfiniment.
+  if (await hasConsoleAccess(userId, role)) {
     redirect("/console");
   }
 

@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { requireConsoleAccess } from "@/lib/safe-inc";
 import { recomputeLeadScore } from "@/lib/services/crm/scoring";
 import type { TypeActivity, CrmDirection } from "@prisma/client";
 
@@ -40,10 +39,7 @@ export async function createActivity(
   formData: FormData,
 ): Promise<CreateActivityResult> {
   try {
-    const { cabinetId, userId } = await requireCabinetAndUser();
-    if (!(await isSafeIncCabinet(cabinetId))) {
-      return { ok: false, error: "Accès réservé à SAFE Inc." };
-    }
+    const { userId } = await requireConsoleAccess();
 
     const leadId = String(formData.get("leadId") || "");
     const type = String(formData.get("type") || "") as TypeActivity;

@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { requireConsoleAccess } from "@/lib/safe-inc";
 import type { StageLead } from "@prisma/client";
 
 const VALID_STAGES: StageLead[] = [
@@ -32,12 +31,7 @@ export async function updateLeadStage(
   newStage: StageLead,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const { cabinetId } = await requireCabinetAndUser();
-
-    const isSafe = await isSafeIncCabinet(cabinetId);
-    if (!isSafe) {
-      return { ok: false, error: "Accès non autorisé" };
-    }
+    await requireConsoleAccess();
 
     if (!VALID_STAGES.includes(newStage)) {
       return { ok: false, error: "Stage invalide" };

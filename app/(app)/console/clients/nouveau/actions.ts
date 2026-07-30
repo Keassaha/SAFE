@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet, getSafeIncWorkspace } from "@/lib/safe-inc";
+import { requireConsoleAccess, getSafeIncWorkspace } from "@/lib/safe-inc";
 import { isConsoleIntakeEnabled } from "@/lib/flags";
 import { computeFirmographicScore } from "@/lib/validations/crm-lead";
 import { buildRecommendation } from "@/lib/audit-gratuit/recommendation";
@@ -167,10 +166,7 @@ export async function createClientFromIntake(input: {
     if (!isConsoleIntakeEnabled()) {
       return { ok: false, error: "Fonctionnalité désactivée." };
     }
-    const { cabinetId } = await requireCabinetAndUser();
-    if (!(await isSafeIncCabinet(cabinetId))) {
-      return { ok: false, error: "Accès réservé à SAFE Inc." };
-    }
+    await requireConsoleAccess();
     const workspace = await getSafeIncWorkspace();
     const a = input.answers ?? {};
 

@@ -6,7 +6,10 @@
  *
  * En v2 multi-tenant, ce check sera remplacé par un check sur Workspace.
  */
+import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canManageCabinetSettings } from "@/lib/auth/permissions";
 
 const SAFE_INC_CABINET_NAME = "SAFE";
 
@@ -53,11 +56,55 @@ export async function getSafeIncWorkspace() {
   return workspace;
 }
 
-/** Vérifie superadmin SAFE Inc. + retourne le workspace. */
-export async function requireSafeSuperadmin(cabinetId: string) {
-  const ok = await isSafeIncCabinet(cabinetId);
-  if (!ok) {
-    throw new Error("Accès Console réservé aux administrateurs SAFE Inc.");
+/** Message d'erreur unique, pour ne pas renseigner un attaquant sur la cause. */
+export const CONSOLE_ACCESS_DENIED = "Accès Console réservé aux administrateurs SAFE Inc.";
+
+/**
+ * Condition d'accès à la Console, sous forme booléenne.
+ *
+ * Deux exigences CUMULATIVES :
+ *  - compte interne SAFE Inc. (`User.isInternal`, avec repli transitoire sur le
+ *    nom de cabinet "SAFE") ;
+ *  - rôle administrateur.
+ *
+ * Un compte interne non-admin ne doit pas voir les données de tous les clients,
+ * et un admin d'un cabinet client ne doit pas voir la Console. Les deux
+ * conditions se répondent : aucune ne suffit seule.
+ *
+ * Variante non-throwing, pour les endroits où l'accès Console n'est pas un
+ * prérequis mais un privilège supplémentaire (support bidirectionnel).
+ */
+export async function hasConsoleAccess(
+  userId: string,
+  role: string,
+): Promise<boolean> {
+  if (!canManageCabinetSettings(role as UserRole)) return false;
+  return isSafeInternalUser(userId);
+}
+
+/**
+ * Garde d'accès unique de la Console SAFE Inc.
+ *
+ * Reproduit exactement la condition du layout pour que les server actions, qui
+ * sont des endpoints POST autonomes, ne soient jamais plus permissives que
+ * l'écran qui les affiche. Sans cela, masquer un bouton ne protège rien.
+ *
+ * À appeler en PREMIÈRE ligne de toute action Console. Ne jamais se contenter
+ * de `isSafeIncCabinet` : appartenir au cabinet SAFE n'est pas un rôle.
+ */
+export async function requireConsoleAccess(): Promise<{
+  userId: string;
+  cabinetId: string;
+}> {
+  const { userId, cabinetId, role } = await requireCabinetAndUser();
+  if (!(await hasConsoleAccess(userId, role))) {
+    throw new Error(CONSOLE_ACCESS_DENIED);
   }
+  return { userId, cabinetId };
+}
+
+/** Garde Console + workspace SAFE Inc., pour les actions qui ont besoin des deux. */
+export async function requireSafeSuperadmin() {
+  await requireConsoleAccess();
   return getSafeIncWorkspace();
 }

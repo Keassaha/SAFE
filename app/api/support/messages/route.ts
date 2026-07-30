@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { hasConsoleAccess } from "@/lib/safe-inc";
 import { writeDocumentObject } from "@/lib/services/document";
 import { broadcastSupport, supportChannels } from "@/lib/support/realtime";
 import path from "path";
@@ -53,7 +53,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Maximum ${MAX_FILES} fichiers par message` }, { status: 400 });
   }
 
-  const isSafe = await isSafeIncCabinet(session.cabinetId);
+  // Privilège inter-cabinets : réservé à la Console (interne SAFE Inc. ET admin).
+  // Appartenir au cabinet SAFE ne suffit pas, sinon un rôle non-admin pourrait
+  // écrire dans le fil de n'importe quel client.
+  const isSafe = await hasConsoleAccess(session.userId, session.role);
 
   // Fil existant, ou création d'un nouveau fil (client uniquement).
   let convo: { id: string; cabinetId: string } | null;

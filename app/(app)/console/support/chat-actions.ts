@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { requireConsoleAccess } from "@/lib/safe-inc";
 import type { TypeTicket, CrmPriorite } from "@prisma/client";
 
 const VALID_TYPES: TypeTicket[] = ["BUG", "DEMANDE_FEATURE", "QUESTION", "REMARQUE", "URGENCE"];
@@ -12,10 +11,7 @@ const VALID_PRIORITES: CrmPriorite[] = ["HAUTE", "NORMALE", "BASSE"];
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
 async function assertSafe() {
-  const { cabinetId, userId } = await requireCabinetAndUser();
-  if (!(await isSafeIncCabinet(cabinetId))) {
-    throw new Error("Accès réservé à SAFE Inc.");
-  }
+  const { userId } = await requireConsoleAccess();
   return { userId };
 }
 

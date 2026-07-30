@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
+import { requireConsoleAccess } from "@/lib/safe-inc";
 import { recomputeLeadScore } from "@/lib/services/crm/scoring";
 import type { RoleCrm, EmailStatut, CrmLangue } from "@prisma/client";
 
@@ -34,10 +33,7 @@ export async function createContact(
   formData: FormData,
 ): Promise<CreateContactResult> {
   try {
-    const { cabinetId } = await requireCabinetAndUser();
-    if (!(await isSafeIncCabinet(cabinetId))) {
-      return { ok: false, error: "Accès réservé à SAFE Inc." };
-    }
+    await requireConsoleAccess();
 
     const leadId = String(formData.get("leadId") || "");
     const prenom = String(formData.get("prenom") || "").trim();

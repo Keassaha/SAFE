@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { hasConsoleAccess } from "@/lib/safe-inc";
 import { requireCabinetAndUser } from "@/lib/auth/session";
-import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { isConsoleIntakeEnabled } from "@/lib/flags";
 import { ConsoleIntakeForm } from "@/components/console/ConsoleIntakeForm";
 import { listImportableAudits } from "./actions";
@@ -14,8 +14,8 @@ import { listImportableAudits } from "./actions";
 export default async function NouveauClientPage() {
   if (!isConsoleIntakeEnabled()) notFound();
 
-  const { cabinetId } = await requireCabinetAndUser();
-  if (!(await isSafeIncCabinet(cabinetId))) {
+  const { userId, role } = await requireCabinetAndUser();
+  if (!(await hasConsoleAccess(userId, role))) {
     redirect("/tableau-de-bord");
   }
 
