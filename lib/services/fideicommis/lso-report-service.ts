@@ -149,8 +149,10 @@ export async function generateReportData(params: GenerateReportParams): Promise<
   );
 
   // Get reconciliation for this period
-  const reconciliation = await prisma.trustReconciliation.findUnique({
-    where: { cabinetId_periode: { cabinetId, periode } },
+  // CH-01 — la clé d'unicité inclut désormais le compte bancaire (s. 18(8)ii ON).
+  // `findFirst` pour ne pas dépendre de la forme composite de la clé.
+  const reconciliation = await prisma.trustReconciliation.findFirst({
+    where: { cabinetId, periode },
     include: { certifiedBy: { select: { nom: true } } },
   });
 
@@ -225,8 +227,10 @@ export async function createComplianceReport(params: GenerateReportParams) {
 
   const reportData = await generateReportData(params);
 
-  const reconciliation = await prisma.trustReconciliation.findUnique({
-    where: { cabinetId_periode: { cabinetId, periode } },
+  // CH-01 — la clé d'unicité inclut désormais le compte bancaire (s. 18(8)ii ON).
+  // `findFirst` pour ne pas dépendre de la forme composite de la clé.
+  const reconciliation = await prisma.trustReconciliation.findFirst({
+    where: { cabinetId, periode },
   });
 
   const report = await prisma.trustComplianceReport.create({

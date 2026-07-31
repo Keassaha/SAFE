@@ -17,6 +17,15 @@ const mocks = vi.hoisted(() => ({
     clientIdentityVerification: {
       create: vi.fn(),
     },
+    // CH-06.6 — `createIdentityVerification` lit désormais la province du cabinet
+    // (pour valider la méthode contre le régime applicable) et le réglage
+    // `identityProofRequired`. Les deux viennent du même modèle.
+    cabinet: {
+      findUnique: vi.fn(async () => ({
+        config: JSON.stringify({ province: "QC" }),
+        identityProofRequired: true,
+      })),
+    },
     deboursDossier: {
       create: vi.fn(),
       findFirst: vi.fn(),
@@ -169,6 +178,11 @@ describe("ready-for-review detection hooks", () => {
       date: new Date("2026-04-29T10:00:00Z"),
       methode: "piece_identite",
       statut: "verifie",
+      // CH-06.6 — une vérification ne peut être marquée « vérifiée » sans preuve
+      // (art. 22 B-1 r.5 / s. 23(13) By-Law 7.1). Ce test porte sur le signal
+      // « dossier prêt pour revue », pas sur la règle de preuve : on joint donc
+      // une pièce pour rester dans le cas nominal.
+      documentId: "doc_piece_identite",
     });
 
     expect(mocks.prisma.client.updateMany).toHaveBeenCalledWith(

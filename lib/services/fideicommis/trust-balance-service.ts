@@ -30,9 +30,19 @@ export async function getTrustBalance(params: {
 /**
  * Solde total fidéicommis du cabinet (tous clients et dossiers).
  */
-export async function getGlobalTrustBalance(cabinetId: string): Promise<number> {
+export async function getGlobalTrustBalance(
+  cabinetId: string,
+  /**
+   * Compte bancaire (CH-01). Fourni, le solde est borné à CE compte — c'est ce
+   * qu'exigent l'art. 36 B-1 r.5 (livres distincts par compte général) et la
+   * s. 18(8)ii By-Law 9 (rapprochement détaillé de chaque compte). Omis, on
+   * additionne tous les comptes, ce qui reste utile pour un tableau de bord mais
+   * ne constitue JAMAIS un rapprochement réglementaire.
+   */
+  trustBankAccountId?: string | null,
+): Promise<number> {
   const result = await prisma.trustTransaction.aggregate({
-    where: { cabinetId },
+    where: { cabinetId, ...(trustBankAccountId ? { trustBankAccountId } : {}) },
     _sum: { amount: true },
   });
   return result._sum.amount ?? 0;
@@ -45,10 +55,12 @@ export async function getGlobalTrustBalance(cabinetId: string): Promise<number> 
  */
 export async function getTrustBalancesByDossier(
   cabinetId: string,
+  /** Compte bancaire (CH-01). Fourni, ne renvoie que les cartes-clients de CE compte. */
+  trustBankAccountId?: string | null,
 ): Promise<Array<{ clientId: string; dossierId: string | null; balance: number }>> {
   const groups = await prisma.trustTransaction.groupBy({
     by: ["clientId", "dossierId"],
-    where: { cabinetId },
+    where: { cabinetId, ...(trustBankAccountId ? { trustBankAccountId } : {}) },
     _sum: { amount: true },
   });
   return groups
