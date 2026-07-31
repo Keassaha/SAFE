@@ -1,0 +1,29 @@
+-- CH-06.5 — Interrupteur DATÉ du garde-fou d'identité.
+-- Réf. docs/compliance/PROGRAMME_INSPECTION_READY.md §4 (CH-06)
+--
+-- Pourquoi une date et non un booléen.
+--
+-- Le garde-fou d'identité (art. 26(1) B-1 r.5 / s. 22(1)(b) By-Law 7.1) refuse les
+-- mouvements de fonds pour un client non vérifié. C'est la règle, mais pour un
+-- cabinet déjà en production dont les fiches n'ont jamais porté de vérification,
+-- l'activation immédiate bloque le travail du jour au lendemain.
+--
+-- Un booléen « garde-fou activé » réglerait le problème et en créerait un pire :
+-- il serait mis à « off » un mardi pour débloquer quelqu'un, et y resterait. Ce
+-- dépôt en a déjà un exemple — COMPLIANCE_RULES_ENABLED, éteint par défaut depuis
+-- des mois, avec un registre d'obligations qui ne pilote rien.
+--
+-- Une DATE force à répondre « à partir de quand », permet d'afficher un compte à
+-- rebours au cabinet, et rend l'absence de décision VISIBLE : un cabinet sans date
+-- est signalé comme écart de conformité ouvert, pas comme un état normal.
+--
+-- Sémantique :
+--   NULL     → mode observation. Le contrôle s'exécute, avertit, journalise, ne bloque pas.
+--   future   → période de régularisation en cours.
+--   atteinte → blocage effectif.
+--
+-- Migration STRICTEMENT ADDITIVE (PR-10). Colonne nullable : tous les cabinets
+-- existants démarrent en mode observation, donc AUCUN blocage n'apparaît au
+-- déploiement. L'activation est une décision explicite, cabinet par cabinet.
+
+ALTER TABLE "Cabinet" ADD COLUMN IF NOT EXISTS "identityGateEnforcedFrom" TIMESTAMP(3);

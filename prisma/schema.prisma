@@ -16,6 +16,38 @@ model Cabinet {
   email                       String?
   logoUrl                     String?
   barreauNumero               String? // LSO#, Barreau# for invoice header
+  /// Fin d'exercice financier, format "MM-DD". Toutes les durées de conservation
+  /// ancrées sur l'exercice en dépendent : art. 32 QC (7 ans après la fin de
+  /// l'exercice) et By-Law 9 s. 23 ON (6 ans / 10 ans précédant la dernière fin
+  /// d'exercice). Sans cette donnée, aucune rétention n'est calculable.
+  fiscalYearEnd               String?
+  /// Date à partir de laquelle le garde-fou d'identité BLOQUE les mouvements de
+  /// fonds (art. 26(1) B-1 r.5 / s. 22(1)(b) By-Law 7.1).
+  ///
+  /// Volontairement une DATE et non un booléen. Un interrupteur booléen se met à
+  /// « off » un mardi pour débloquer quelqu'un et y reste deux ans — c'est
+  /// exactement ce qui est arrivé à COMPLIANCE_RULES_ENABLED dans ce dépôt. Une
+  /// date force à répondre « à partir de quand », affiche un compte à rebours, et
+  /// rend l'absence de décision visible plutôt que silencieuse.
+  ///
+  /// null      → mode observation : le contrôle s'exécute, avertit et journalise,
+  ///             mais ne bloque pas. Signalé comme écart de conformité ouvert.
+  /// future    → période de régularisation, compte à rebours affiché au cabinet.
+  /// atteinte  → blocage effectif.
+  identityGateEnforcedFrom    DateTime?
+  /// Exige-t-on une pièce justificative pour marquer une identité « vérifiée » ?
+  ///
+  /// Par défaut OUI (art. 22 B-1 r.5 / s. 23(13) By-Law 7.1). Le réglage existe
+  /// parce qu'un cabinet peut avoir des raisons légitimes de ne pas téléverser
+  /// (pièces au papier, coffre, système documentaire externe). Il ne dispense PAS
+  /// de conserver la pièce : il dispense de la déposer dans SAFE.
+  ///
+  /// La levée est ATTRIBUÉE : qui, quand, pourquoi. Une dispense anonyme est une
+  /// dispense que personne n'assume, et c'est ce qu'un inspecteur cherche.
+  identityProofRequired       Boolean   @default(true)
+  identityProofWaivedById     String?
+  identityProofWaivedAt       DateTime?
+  identityProofWaiverReason   String?
   config                      String? // JSON: tauxInteret, devise, formatFacture
   plan                        String    @default("essentiel")
   stripeCustomerId            String?   @unique
@@ -86,6 +118,27 @@ model Cabinet {
   impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
   payerRules         PayerRule[]
   dossierParties     DossierPartie[]
+  beneficialOwners     BeneficialOwner[]
+  identityAttestations IdentityAttestation[]
+  trustBankAccounts    TrustBankAccount[]
+  trustCheques         TrustCheque[]
+  trustMonthlyReports  TrustMonthlyReport[]
+  cashReceipts         CashReceipt[]
+  cashRefunds          CashRefund[]
+  transferRequisitions ElectronicTrustTransferRequisition[]
+  trustSignatories     TrustSignatory[]
+  ledgerTransfers      ClientLedgerTransfer[]
+  referralFees         ReferralFee[]
+}
+
+/// Statut du permis d'exercice. Réf. By-Law 9 s. 2, 2.2, 2.3 (ON) ·
+/// B-1 r.5 art. 74 à 82 (QC, cessation d'exercice).
+enum LicenceStatus {
+  ACTIVE
+  SUSPENDED
+  BANKRUPT
+  REVOKED
+  RETIRED
 }
 
 enum UserRole {
@@ -111,6 +164,13 @@ model User {
   // changement de rôle n'invalidait rien. Tout JWT émis avant cette date est
   // refusé au prochain contrôle.
   sessionsValidFrom DateTime?
+  /// Statut du permis. s. 2 et 2.2 By-Law 9 : un titulaire failli ou suspendu ne
+  /// peut pas manier de fonds détenus en fiducie. s. 2.3(1) : le suspendu dispose de
+  /// 30 jours pour retirer les fonds de ses comptes en fiducie.
+  licenceNumber     String?
+  licenceStatus     LicenceStatus @default(ACTIVE)
+  suspendedFrom     DateTime?
+  bankruptSince     DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -420,6 +480,28 @@ model Client {
   conflictChecked             Boolean                 @default(false)
   conflictCheckDate           DateTime?
   conflictNotes               String?
+
+  // ── CH-06 — identification du client (B-1 r.5 art. 13-14 / By-Law 7.1 s. 23(1))
+  /// Occupation. Exigée pour toute personne physique dans les DEUX régimes
+  /// (art. 14(1)d QC / s. 23(1)5 ON). Champ absent jusqu'ici : l'obligation ne
+  /// pouvait donc pas être satisfaite.
+  occupation                  String?
+  /// Nature générale des activités d'une société ou d'un organisme
+  /// (art. 14(2)d QC / s. 23(1)6 ON).
+  natureActivites             String?
+  /// Le client agit-il pour un tiers ? Si oui, les mêmes renseignements sont exigés
+  /// sur ce tiers (art. 14 al. 3 QC / s. 23(1)8 ON).
+  actsForThirdParty           Boolean                 @default(false)
+  thirdPartyDetails           String?
+  /// Exemption de vérification invoquée (art. 21 QC / s. 22(2)(3)(4) ON), validée
+  /// contre la province : une exemption ontarienne n'exempte pas au Québec.
+  identityExemption           String?
+  identityExemptionJustification String?
+  /// Premier mouvement de fonds pour ce client : point de départ du délai de
+  /// vérification (60 jours au QC, 30 en ON pour une organisation).
+  firstFundsMovementAt        DateTime?
+  /// Échéance de vérification calculée. Au-delà, les mouvements sont bloqués.
+  identityVerificationDueAt   DateTime?
   documentRefs                String? // JSON: retainer_agreement, id_documents, court_documents, client_correspondence
   createdAt                   DateTime                @default(now())
   updatedAt                   DateTime                @updatedAt
@@ -437,6 +519,10 @@ model Client {
   trustAccounts         TrustAccount[]
   trustTransactions     TrustTransaction[]
   identityVerifications ClientIdentityVerification[]
+  beneficialOwners      BeneficialOwner[]
+  identityAttestations  IdentityAttestation[]
+  trustBankAccounts     TrustBankAccount[]
+  cashReceipts          CashReceipt[]
   consentLogs           ConsentLog[]
   payments              Payment[]
   creditNotes           CreditNote[]
@@ -1154,6 +1240,35 @@ enum TrustTransactionType {
   correction
 }
 
+/// Motif réglementaire d'un retrait du compte général en fidéicommis.
+/// Source : B-1 r.5 art. 56 (QC) — trois seuls retraits permis ;
+///          By-Law 9 s. 9(1) (ON) — cinq motifs, dont le dépôt par inadvertance.
+/// Un retrait sans motif est refusé (CH-00, programme Inspection Ready).
+/// Objet d'un mouvement en fidéicommis (art. 38(1)f et (2)f B-1 r.5).
+/// Code normalisé pour les rapports réglementaires ; `purposeText` porte le détail.
+enum TrustPurposeCode {
+  AVANCE_HONORAIRES
+  AVANCE_DEBOURS
+  FONDS_CLOTURE
+  CONSIGNATION
+  REGLEMENT
+  SUCCESSION
+  REMISE_CLIENT
+  PAIEMENT_TIERS
+  AUTRE
+}
+
+enum TrustWithdrawalMotive {
+  /// art. 56(1) QC / s. 9(1)1-2 ON — argent à remettre au client ou à un tiers en son nom.
+  REMISE_CLIENT_OU_TIERS
+  /// art. 56(2) QC / s. 9(1)3 ON — honoraires et débours POUR LESQUELS LA FACTURATION A ÉTÉ ENVOYÉE.
+  HONORAIRES_DEBOURS_FACTURES
+  /// art. 56(3) QC / s. 9(1)4 ON — transfert direct vers un autre compte en fidéicommis.
+  TRANSFERT_AUTRE_FIDEICOMMIS
+  /// s. 9(1)5 ON — sommes déposées par inadvertance qui n'auraient pas dû l'être.
+  DEPOT_PAR_INADVERTANCE
+}
+
 enum TrustModePaiement {
   CHEQUE
   VIREMENT
@@ -1472,6 +1587,641 @@ model InvoiceSendLog {
   @@index([invoiceId, createdAt])
 }
 
+/// Compte bancaire en fidéicommis.
+///
+/// C'est l'entité qui manquait à SAFE. `TrustAccount` n'est PAS un compte bancaire :
+/// c'est le sous-compte d'un client pour un dossier, autrement dit la carte-client.
+/// Le règlement, lui, raisonne par compte bancaire :
+///
+///   art. 36 QC   — « livres, journaux et registres DISTINCTS pour chaque compte
+///                   général en fidéicommis » ;
+///   art. 41(7)   — copie du relevé de l'institution POUR CHAQUE compte général ;
+///   art. 42(6)(7)— liste des comptes particuliers, et des comptes fermés ;
+///   s. 7(5) ON   — « A licensee may keep one or more trust accounts » ;
+///   s. 18(8)ii   — « A detailed reconciliation made monthly of EACH trust bank account » ;
+///   s. 9(3) ON   — jamais plus que ce qui est détenu pour ce client DANS CE COMPTE.
+///
+/// Sans cette entité, un cabinet à deux comptes en fidéicommis mélange deux banques
+/// dans un seul écart de rapprochement, et aucun des rapports réglementaires n'est
+/// produisible.
+/// Registre des chèques tirés sur un compte en fidéicommis.
+///
+/// Art. 61 B-1 r.5 : les chèques « doivent porter le nom de l'avocat ou de la société
+/// au sein de laquelle il exerce, suivi de la mention "en fidéicommis" ou "in trust"
+/// et ils doivent être NUMÉROTÉS CONSÉCUTIVEMENT ».
+/// Art. 57 al. 2 : ils « ne peuvent être payables au porteur, à l'ordre de "caisse",
+/// de "cash" ou être faits en blanc ».
+/// s. 11(a) By-Law 9 : « shall not be made payable either to cash or to bearer ».
+///
+/// L'art. 41(2) exige au rapport mensuel la liste des chèques EN CIRCULATION avec,
+/// pour chacun, le montant, la date d'émission, le numéro, le nom du client et le
+/// numéro de dossier. Sans ce registre, cette liste est impossible à produire :
+/// c'est pourquoi elle était réduite à un simple nombre saisi à la main.
+/// Rapport comptable mensuel — LE livrable de l'inspection.
+///
+/// Art. 40 B-1 r.5 : « L'avocat doit tenir à jour un registre permanent contenant les
+/// rapports comptables mensuels de chaque compte général en fidéicommis. »
+/// Art. 41 : sur le formulaire prescrit par le Comité exécutif, SEPT blocs, dont
+/// quatre sont des LISTES DÉTAILLÉES ligne par ligne.
+/// s. 18(8) By-Law 9 : comparaison mensuelle « together with the reasons for any
+/// differences », appuyée par (i) une liste détaillée par client et (ii) un
+/// rapprochement détaillé de chaque compte bancaire.
+/// s. 22(2) : créé dans les 25 jours suivant la fin du mois.
+///
+/// Avant CH-03, SAFE stockait `chequesEnCirculation` et `depotsEnTransit` comme deux
+/// nombres flottants saisis à la main. Aucune ligne n'existait. C'est ce qui rendait
+/// le rapport de l'art. 41 impossible à produire, et donc l'inspection insurvivable.
+/// Reçu d'une somme reçue en espèces.
+///
+/// Art. 70 B-1 r.5 : « L'avocat doit remettre à la personne de qui il reçoit une
+/// somme en espèces un reçu dont il conserve une copie », portant six mentions et
+/// signé par l'avocat ET par la personne de qui provient la somme.
+/// s. 19(1) By-Law 9 : « a book of duplicate receipts », mêmes mentions moins
+/// l'objet, mêmes signatures.
+///
+/// **Aucun seuil.** Les deux textes visent « une somme en espèces » / « every
+/// licensee who receives cash ». Un reçu est exigé pour 50 $ comme pour 50 000 $.
+/// Réquisition de virement électronique — Formulaire 9A.
+///
+/// s. 12(2)4 By-Law 9 : « **BEFORE** any data describing the details of the transfer
+/// or authorizing the financial institution to carry out the transfer is entered into
+/// the electronic trust transfer system, an electronic trust transfer requisition
+/// must be signed. » s. 12(7) : elle est au Formulaire 9A.
+/// s. 18(11) : réquisitions signées et confirmations imprimées signées, conservées
+/// dix ans (s. 23(2)).
+///
+/// ⚠️ ONTARIO SEULEMENT. B-1 r.5 n'a aucun équivalent : l'art. 58 permet le virement
+/// vers un compte non fiduciaire au nom de l'avocat, sans réquisition ni double
+/// contrôle. Imposer ce modèle à un cabinet québécois inventerait une obligation.
+model ElectronicTrustTransferRequisition {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+  /// 9A (virement courant) · 9B / 9C (fonds de clôture immobilière, s. 13).
+  formType           String   @default("9A")
+
+  clientName             String
+  dossierRef             String?
+  amount                 Float
+  recipientName          String
+  recipientInstitution   String
+  recipientBranch        String?
+  recipientBranchAddress String?
+  recipientAccountNumber String
+  purpose                String
+
+  /// s. 12(2)4 — signée AVANT toute saisie. L'ordre est vérifié, pas seulement
+  /// l'existence : une réquisition signée après coup régularise, elle ne vérifie pas.
+  signedByUserId String
+  signedAt       DateTime
+
+  /// s. 12(2)1 — deux personnes DISTINCTES, deux mots de passe. Le praticien
+  /// véritablement seul en est dispensé (s. 12(3)), et l'exemption est consignée.
+  dataEnteredByUserId       String?
+  dataEnteredAt             DateTime?
+  authorizedByUserId        String?
+  authorizedAt              DateTime?
+  solePractitionerExemption Boolean   @default(false)
+
+  /// s. 12(2)3 — les six éléments que la confirmation doit porter.
+  confirmationDocumentId           String?
+  confirmationReceivedAt           DateTime?
+  confirmationSourceAccount        String?
+  confirmationRecipientInstitution String?
+  confirmationRecipientName        String?
+  confirmationRecipientAccount     String?
+  confirmationInstitutionReceivedAt DateTime?
+  confirmationSentAt               DateTime?
+
+  /// s. 12(5) — imprimer, comparer, annoter, signer et dater, au plus tard à la
+  /// clôture du jour bancaire suivant l'envoi de la confirmation.
+  countersignDueAt      DateTime?
+  printedAt             DateTime?
+  comparedAt            DateTime?
+  annotatedClientId     String?
+  annotatedDossierId    String?
+  countersignedByUserId String?
+  countersignedAt       DateTime?
+
+  trustTransactionId String?  @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  @@index([cabinetId, countersignedAt])
+  @@index([trustBankAccountId, signedAt])
+}
+
+/// Pouvoir de signature sur un compte en fiducie, et cautionnement.
+///
+/// s. 11(b) By-Law 9 : un non-titulaire ne peut signer un chèque en fiducie que dans
+/// des circonstances exceptionnelles, s'il a le pouvoir de signature ET s'il est
+/// « bonded in an amount **at least equal to the maximum balance on deposit during
+/// the immediately preceding fiscal year** of the licensee in all the trust accounts
+/// on which signing authority has been delegated to the person ».
+/// s. 12(2)4ii reprend la même condition pour signer une réquisition de virement.
+///
+/// Le montant du cautionnement n'est donc pas arbitraire : il se calcule.
+model TrustSignatory {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  userId             String
+  trustBankAccountId String
+  isLicensee         Boolean  @default(true)
+
+  bondAmount     Float?
+  bondExpiryDate DateTime?
+  bondDocumentId String?
+
+  authorizedFrom DateTime
+  authorizedTo   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, trustBankAccountId])
+  @@index([cabinetId])
+}
+
+/// Transfert de fonds entre cartes-clients.
+///
+/// s. 18(4) By-Law 9 : « A record showing all transfers of money between clients'
+/// trust ledger accounts **and explaining the purpose for which each transfer is
+/// made**. » Le règlement suppose donc que ces transferts existent : il en exige le
+/// registre. art. 56(3) B-1 r.5 permet le transfert direct vers un autre compte en
+/// fidéicommis.
+///
+/// SAFE les interdisait de façon absolue. Le sur-blocage poussait au contournement
+/// par un retrait suivi d'un dépôt, deux opérations qui cassent le lien et rendent ce
+/// registre impossible à produire.
+model ClientLedgerTransfer {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+  date               DateTime
+  amount             Float
+
+  fromClientId  String
+  fromDossierId String?
+  toClientId    String
+  toDossierId   String?
+
+  /// s. 18(4) — « explaining the purpose for which each transfer is made ».
+  purpose String
+
+  /// Les deux écritures append-only produites par le transfert.
+  debitTransactionId  String? @unique
+  creditTransactionId String? @unique
+
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId, date])
+  @@index([fromClientId])
+  @@index([toClientId])
+}
+
+/// Registre des frais de renvoi — s. 19.1 By-Law 9.
+///
+/// « Every licensee who pays or receives a referral fee […] shall maintain […] a
+/// record showing all referral fees received / paid » avec, dans chaque cas, la date,
+/// le mode, le montant, le titulaire concerné et le client, plus tous les documents
+/// afférents.
+///
+/// ⚠️ ONTARIO SEULEMENT. B-1 r.5 ne traite pas des frais de renvoi.
+model ReferralFee {
+  id                  String   @id @default(cuid())
+  cabinetId           String
+  /// RECEIVED | PAID
+  direction           String
+  date                DateTime
+  /// s. 19.1(1)(2) — « the method by which each referral fee is received / paid ».
+  method              String
+  amount              Float
+  /// Titulaire de qui le frais est reçu, ou à qui il est payé.
+  counterpartyLicensee String
+  clientId            String?
+  /// s. 19.1(2) — « the number or a similar identifier of any document used to pay ».
+  documentIdentifier  String?
+  agreementDocumentId String?
+  createdAt           DateTime @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId, date])
+  @@index([cabinetId, direction])
+}
+
+model CashReceipt {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  /// Numérotation séquentielle sans trou, par cabinet. Le carnet de reçus « en
+  /// double » de la s. 19(1) suppose une séquence vérifiable.
+  receiptNumber Int
+  date          DateTime
+
+  /// Art. 70(2) / s. 19(1) — nom de la personne de qui la somme provient.
+  payerName     String
+  /// Montant tel que présenté, dans sa devise d'origine.
+  amount        Float
+  currency      String   @default("CAD")
+  /// Art. 73 / s. 4(2) — valeur en dollars canadiens. C'est ce montant qui est
+  /// agrégé et comparé au seuil.
+  cadAmount     Float
+  conversionRate     Float?
+  conversionRateDate DateTime?
+
+  clientId      String
+  dossierId     String
+  /// Art. 70(6) — objet pour lequel la somme est reçue. Non exigé en Ontario.
+  purpose       String?
+
+  receivedByUserId String
+  /// Art. 70 al. 2 — les DEUX signatures.
+  licenseeSignatureDocumentId String?
+  payerSignatureDocumentId    String?
+  /// s. 19(2) By-Law 9 — la signature du payeur peut manquer après efforts
+  /// raisonnables, à condition de les documenter. Aucune dispense équivalente au
+  /// Québec : le champ y reste vide.
+  payerSignatureWaivedReason  String?
+
+  /// Province du régime appliqué. Une réception jugée conforme sous un régime ne
+  /// prouve pas la conformité sous l'autre : les exceptions ne sont pas les mêmes.
+  province      String
+  /// La somme est-elle reçue en fidéicommis ? Décisif au Québec (art. 69).
+  intoTrust     Boolean  @default(true)
+  /// Exception invoquée au seuil, le cas échéant (art. 69 QC / s. 6 ON).
+  exemptionInvoked      String?
+  exemptionJustification String?
+  /// s. 6(e) ON — l'exception « honoraires, débours, cautionnement » n'est acquise
+  /// que si tout remboursement se fait lui aussi en espèces. Mémorisé à la réception.
+  refundMustBeCash      Boolean @default(false)
+
+  /// Art. 71 QC — déclaration au directeur de l'inspection dans les 30 jours.
+  /// Sans équivalent ontarien : les champs y restent nuls.
+  declarationDueAt      DateTime?
+  declarationSentAt     DateTime?
+  declarationDocumentId String?
+
+  trustTransactionId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  refunds CashRefund[]
+
+  @@unique([cabinetId, receiptNumber])
+  @@index([cabinetId, date])
+  @@index([cabinetId, dossierId])
+  @@index([cabinetId, declarationDueAt])
+}
+
+/// Remboursement d'une somme reçue en espèces.
+///
+/// Art. 72 B-1 r.5 : « Malgré l'article 57, l'avocat qui est tenu de rembourser, en
+/// tout ou en partie, une somme de 7 500 $ ou plus qu'il a reçue en espèces, doit
+/// effectuer ce remboursement EN ESPÈCES », contre un reçu signé par le bénéficiaire
+/// portant cinq mentions.
+///
+/// C'est le SEUL cas où le règlement impose une sortie en espèces, alors que
+/// l'art. 57 l'interdit par ailleurs. Le flux est donc distinct et explicite.
+model CashRefund {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  cashReceiptId String
+  date          DateTime
+  amount        Float
+  /// Art. 72(2) — nom de la personne qui reçoit la somme.
+  recipientName String
+  clientId      String
+  dossierId     String
+  /// Reçu signé par le bénéficiaire.
+  signatureDocumentId String?
+  createdAt     DateTime @default(now())
+
+  cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cashReceipt CashReceipt @relation(fields: [cashReceiptId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  @@index([cashReceiptId])
+}
+
+model TrustMonthlyReport {
+  id                 String  @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+  periode            String  // "YYYY-MM"
+
+  /// draft | complete | certified
+  status             String  @default("draft")
+
+  // ── Art. 41(4) — total des recettes et des débours du mois ────────────────
+  totalReceipts      Float   @default(0)
+  totalDisbursements Float   @default(0)
+
+  // ── Art. 41(5) — état comparatif journal ↔ relevé bancaire ────────────────
+  bankStatementBalance    Float
+  journalBalance          Float
+  /// 3ᵉ voie : somme des soldes inscrits aux cartes-clients (art. 41(1)).
+  ledgerSumBalance        Float
+  outstandingChequesTotal Float @default(0)
+  depositsInTransitTotal  Float @default(0)
+  reconciledBalance       Float
+  /// reconciledBalance − journalBalance
+  ecartBanque             Float @default(0)
+  /// ledgerSumBalance − journalBalance
+  ecartCartesClients      Float @default(0)
+
+  /// Art. 41(7) — « la copie du relevé de l'institution financière pour le mois
+  /// visé ». Obligatoire pour certifier : un rapport sans relevé ne compare rien.
+  bankStatementDocumentId String?
+
+  /// Instantané immuable figé à la certification (PR-5). Un recalcul ultérieur ne
+  /// réécrit JAMAIS un rapport signé : un inspecteur compare des documents datés.
+  snapshotJson       String?
+
+  /// PR-3 — liste des contrôles RÉELLEMENT exécutés, d'où l'attestation est tirée.
+  verifiedControlsJson String?
+  declarationText      String?
+  certifiedById        String?
+  certifiedAt          DateTime?
+  lockedAt             DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
+  ledgerSnapshot    TrustClientLedgerSnapshot[]
+  outstandingCheques TrustOutstandingChequeLine[]
+  depositsInTransit  TrustDepositInTransitLine[]
+  discrepancies      TrustDiscrepancyReason[]
+
+  @@unique([trustBankAccountId, periode])
+  @@index([cabinetId, periode])
+  @@index([cabinetId, status])
+}
+
+/// Art. 41(1) — « la liste des soldes inscrits aux cartes-clients à la fin du mois,
+/// en indiquant le nom du client, le numéro ou la désignation du dossier et LA DATE
+/// DE LA DERNIÈRE INSCRIPTION ».
+/// s. 18(8)i — « A detailed listing made monthly showing the amount of money held in
+/// trust for each client and identifying each client. »
+///
+/// `lastEntryDate` est le champ que SAFE n'avait nulle part. Sans lui, ce bloc du
+/// rapport est incomplet quoi qu'on fasse.
+model TrustClientLedgerSnapshot {
+  id            String    @id @default(cuid())
+  reportId      String
+  clientId      String
+  clientName    String
+  dossierId     String?
+  dossierRef    String?
+  balance       Float
+  lastEntryDate DateTime?
+
+  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+/// Art. 41(2) — « la liste des chèques en circulation à la fin du mois, en indiquant
+/// pour chacun le montant, la date d'émission, le numéro du chèque, le nom du client
+/// et le numéro ou la désignation du dossier ».
+model TrustOutstandingChequeLine {
+  id           String   @id @default(cuid())
+  reportId     String
+  chequeId     String?
+  chequeNumber Int
+  issueDate    DateTime
+  amount       Float
+  payeeName    String
+  clientName   String?
+  dossierRef   String?
+  /// Signalé quand le chèque circule depuis plus de six mois. Repère de pratique
+  /// bancaire, PAS une règle du Barreau.
+  stale        Boolean  @default(false)
+
+  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+/// Art. 41(3) — « la liste des recettes en circulation à la fin du mois, en indiquant
+/// pour chacune le montant, la date de réception, le nom du client et le numéro ou la
+/// désignation du dossier ».
+model TrustDepositInTransitLine {
+  id             String   @id @default(cuid())
+  reportId       String
+  transactionId  String?
+  receivedDate   DateTime
+  amount         Float
+  payerName      String?
+  clientName     String?
+  dossierRef     String?
+
+  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+/// s. 18(8) By-Law 9 — « together with THE REASONS for any differences between the
+/// totals ». Le motif est une donnée structurée, pas une note libre : un écart sans
+/// motif consigné est exactement ce qu'un inspecteur relève.
+model TrustDiscrepancyReason {
+  id           String    @id @default(cuid())
+  reportId     String
+  /// BANK | LEDGER — quelle comparaison présente l'écart.
+  kind         String
+  amount       Float
+  explanation  String
+  raisedAt     DateTime  @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+
+  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model TrustCheque {
+  id                 String            @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+  /// Numérotation consécutive, unique par compte (art. 61).
+  chequeNumber       Int
+  issueDate          DateTime
+  /// Bénéficiaire nominatif. VALIDÉ : jamais vide, jamais « cash », « caisse »,
+  /// « bearer » ou « porteur » (art. 57 al. 2 QC / s. 11(a) ON).
+  payeeName          String
+  amount             Float
+  clientId           String?
+  dossierId          String?
+  trustTransactionId String?           @unique
+  status             TrustChequeStatus @default(ISSUED)
+  clearedAt          DateTime?
+  voidedAt           DateTime?
+  /// Un chèque annulé est conservé, jamais supprimé : un trou dans la séquence est
+  /// exactement ce qu'un inspecteur cherche.
+  voidReason         String?
+  /// Signataire. Art. 11(b) By-Law 9 : un non-titulaire ne peut signer que s'il a le
+  /// pouvoir de signature ET est cautionné. Contrôle posé au chantier CH-07.
+  signedById         String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([trustBankAccountId, chequeNumber])
+  @@index([cabinetId])
+  @@index([cabinetId, status])
+  @@index([trustBankAccountId, issueDate])
+}
+
+enum TrustChequeStatus {
+  /// Émis, non encore compensé. C'est l'état qui alimente la liste de l'art. 41(2).
+  ISSUED
+  /// Compensé par la banque.
+  CLEARED
+  /// Annulé. Conservé pour ne pas créer de trou dans la séquence.
+  VOIDED
+  /// En circulation depuis plus de six mois. Signalé : fonds possiblement non réclamés.
+  STALE
+}
+
+/// Pièce justificative rattachée à une opération en fidéicommis.
+///
+/// Art. 32 B-1 r.5 : conservation 7 ans après la fin de l'exercice de « toutes les
+/// pièces justificatives ou de contrôle », nommément les copies de reçus émis, les
+/// relevés d'institutions financières, les copies de chèques compensés, les
+/// bordereaux de dépôt détaillés et les documents confirmant les virements
+/// électroniques — plus « une copie de tout chèque ou autre ordre de paiement reçu
+/// en fidéicommis ».
+/// s. 18(10) By-Law 9 : « Bank statements or pass books, cashed cheques and detailed
+/// duplicate deposit slips for all trust and general accounts. »
+model TrustTransactionDocument {
+  id                 String                      @id @default(cuid())
+  trustTransactionId String
+  documentId         String
+  role               TrustSupportingDocumentRole
+  createdAt          DateTime                    @default(now())
+
+  trustTransaction TrustTransaction @relation(fields: [trustTransactionId], references: [id], onDelete: Cascade)
+  document         Document         @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@unique([trustTransactionId, documentId, role])
+  @@index([trustTransactionId])
+  @@index([documentId])
+}
+
+enum TrustSupportingDocumentRole {
+  /// Art. 32(2) — copie de tout chèque ou ordre de paiement REÇU en fidéicommis.
+  CHEQUE_RECU
+  /// Art. 32(3) — bordereau de dépôt détaillé.
+  BORDEREAU_DEPOT
+  /// Art. 32(3) / s. 18(10) — chèque compensé.
+  CHEQUE_COMPENSE
+  /// Art. 32(3) — document confirmant une opération par virement électronique.
+  CONFIRMATION_VIREMENT
+  /// Art. 70 — reçu d'espèces signé par les deux parties.
+  RECU_ESPECES
+  /// Art. 41(7) / s. 18(10) — relevé de l'institution financière.
+  RELEVE_BANCAIRE
+  AUTRE
+}
+
+model TrustBankAccount {
+  id                 String               @id @default(cuid())
+  cabinetId          String
+  type               TrustBankAccountType @default(GENERAL)
+
+  /// Libellé légal du compte tel qu'il apparaît à l'institution.
+  /// VALIDÉ : doit contenir « en fidéicommis » ou « in trust » (art. 50 al. 2 et 63 al. 2 QC).
+  accountLabel       String
+  institutionName    String
+  institutionBranch  String?
+  /// Adresse de la succursale. Art. 50 QC : succursale QUÉBÉCOISE obligatoire.
+  branchAddress      String?
+  branchProvince     String?
+  /// Numéro de compte. Exigé par l'art. 41(6) et 42(6) pour les rapports
+  /// réglementaires, donc il ne peut pas être omis.
+  /// ⚠️ Stocké en clair : aucune couche de chiffrement applicative n'existe encore
+  /// dans le dépôt. Chantier de chiffrement de champ ouvert séparément.
+  accountNumber      String
+  /// Quatre derniers chiffres, pour l'affichage courant sans exposer le numéro complet.
+  accountNumberLast4 String
+  currency           String               @default("CAD")
+
+  /// Art. 50 QC : l'institution doit avoir conclu une entente avec le Barreau au
+  /// sens du Règlement sur le fonds d'études juridiques (B-1, r. 10).
+  barreauAgreementConfirmed Boolean        @default(false)
+  /// Art. 51 QC (compte général) et 64 QC (compte particulier) : formulaire prescrit
+  /// transmis sans délai au Barreau ET à l'institution, l'avocat en conserve copie.
+  regulatorNotifiedAt       DateTime?
+  regulatorFormDocumentId   String?
+  /// Art. 64 QC : pour un compte particulier, un exemplaire est aussi remis au client.
+  clientCopySentAt          DateTime?
+
+  openedAt           DateTime
+  /// Art. 42(7) QC : la liste des comptes fermés durant la période est exigée au
+  /// rapport annuel. Un compte fermé n'est donc jamais supprimé.
+  closedAt           DateTime?
+  closureReason      String?
+
+  /// Comptes particuliers seulement (art. 62 à 68 QC) : ouverts quand le client
+  /// exige que les revenus de son dépôt lui soient remis.
+  clientId           String?
+  dossierId          String?
+  initialDeposit     Float?
+
+  /// Bénéficiaire des intérêts. Compte général : Fonds d'études juridiques (QC,
+  /// art. 50 renvoyant à B-1 r.10) ou Law Foundation of Ontario (s. 57 Law Society
+  /// Act). Compte particulier : le client (art. 62).
+  interestBeneficiary TrustInterestBeneficiary @default(FONDS_ETUDES_JURIDIQUES)
+
+  /// Solde de contrôle, dérivé du registre append-only. Cache, jamais autorité (PR-1).
+  currentBalance     Float                @default(0)
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  cabinet         Cabinet               @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client          Client?               @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  transactions    TrustTransaction[]
+  reconciliations TrustReconciliation[]
+  cheques         TrustCheque[]
+  monthlyReports  TrustMonthlyReport[]
+  transferRequisitions ElectronicTrustTransferRequisition[]
+  signatories          TrustSignatory[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, type])
+  @@index([cabinetId, closedAt])
+}
+
+enum TrustBankAccountType {
+  /// Compte général en fidéicommis (art. 50 QC / s. 7 ON). Fonds de plusieurs clients.
+  GENERAL
+  /// Compte particulier en fidéicommis (art. 62 QC). Un seul client, revenus à lui remettre.
+  PARTICULIER
+}
+
+enum TrustInterestBeneficiary {
+  FONDS_ETUDES_JURIDIQUES
+  LAW_FOUNDATION_ONTARIO
+  CLIENT
+}
+
 model TrustAccount {
   id             String   @id @default(cuid())
   cabinetId      String
@@ -1497,6 +2247,9 @@ model TrustTransaction {
   id              String                       @id @default(cuid())
   cabinetId       String
   trustAccountId  String?
+  /// Compte bancaire en fidéicommis d'où sortent ou où entrent les fonds.
+  /// Nullable le temps de la reprise ; obligatoire pour toute nouvelle écriture.
+  trustBankAccountId String?
   clientId        String
   dossierId       String?
   date            DateTime
@@ -1509,17 +2262,55 @@ model TrustTransaction {
   description     String?
   reference       String?
   modePaiement    TrustModePaiement?
+  /// Motif réglementaire du retrait (art. 56 QC / s. 9(1) ON). Obligatoire sur tout
+  /// nouveau retrait ; nullable pour l'historique antérieur à CH-00.
+  withdrawalMotive TrustWithdrawalMotive?
+
+  // ── CH-02 — champs du journal de caisse en fidéicommis ─────────────────────
+  // Art. 38 B-1 r.5 et s. 18(1)(2) By-Law 9 énumèrent ce que CHAQUE ligne doit
+  // porter. Sans ces champs, le journal de caisse et les cartes-clients (art. 39)
+  // sont inexploitables, et le rapport mensuel de l'art. 41 ne peut pas être rempli.
+
+  /// Art. 38(1)c QC / s. 18(1) ON — « le nom de la personne de qui la somme est reçue ».
+  /// Distinct du client : un tiers peut verser pour lui (art. 49).
+  payerName        String?
+  /// Art. 38(2)c QC / s. 18(2) ON — « le nom du bénéficiaire du débours ».
+  payeeName        String?
+  /// Art. 38(1)f et (2)f QC — « l'objet pour lequel la somme est reçue / le débours
+  /// est effectué ». Code normalisé pour les rapports, texte libre pour le détail.
+  purposeCode      TrustPurposeCode?
+  purposeText      String?
+  /// Art. 38(2)h QC / s. 18(2) ON — « le numéro de chèque » ou tout identifiant du
+  /// document ayant servi au débours.
+  chequeNumber     Int?
+  /// Art. 38(1)g QC — « une indication selon laquelle la somme a été reçue en
+  /// espèces ». Normalisé, plutôt que déduit du mode de paiement.
+  isCash           Boolean @default(false)
+  /// Art. 50 QC (« sans délai ») / s. 7(1) ON (« immediately »). Sans les DEUX dates,
+  /// le respect du délai de dépôt est invérifiable : c'est l'écart entre elles qui
+  /// constitue la preuve.
+  receivedAt       DateTime?
+  depositedAt      DateTime?
+  /// Art. 48 QC — « les sommes d'argent en fidéicommis doivent être utilisées selon
+  /// leur affectation ». Sans affectation consignée, l'obligation est invérifiable.
+  fundAllocation   String?
+  /// Art. 49 QC — l'avocat informe le client sans délai quand les fonds viennent
+  /// d'un tiers. La date de notification est la preuve du « sans délai ».
+  fromThirdParty   Boolean @default(false)
+  clientNotifiedAt DateTime?
   correctionOfId  String?
   createdById     String?
   createdAt       DateTime                     @default(now())
 
   cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   trustAccount TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
+  trustBankAccount TrustBankAccount? @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
   client       Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   dossier      Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   invoice      Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   correctionOf TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
   corrections  TrustTransaction[] @relation("TrustCorrection")
+  supportingDocuments TrustTransactionDocument[]
 
   @@index([cabinetId])
   @@index([trustAccountId])
@@ -1527,6 +2318,8 @@ model TrustTransaction {
   @@index([dossierId])
   @@index([date])
   @@index([cabinetId, clientId, dossierId, date])
+  @@index([trustBankAccountId])
+  @@index([cabinetId, trustBankAccountId, date])
 }
 
 model CreditNote {
@@ -1622,16 +2415,136 @@ model ClientIdentityVerification {
   id         String                     @id @default(cuid())
   clientId   String
   date       DateTime
-  methode    String // pièce d'identité, vidéo, etc.
+  methode    String // pièce d'identité, vidéo, etc. (champ libre historique)
   statut     IdentityVerificationStatus @default(en_attente)
   documentId String? // référence optionnelle vers Document (preuve)
   notes      String?
   createdAt  DateTime                   @default(now())
   updatedAt  DateTime                   @updatedAt
 
+  // ── CH-06 — identification et vérification (B-1 r.5 art. 20-27 / By-Law 7.1 Partie III)
+  /// Province du régime appliqué au moment de la vérification. Une vérification
+  /// faite sous le régime ontarien ne prouve pas la conformité québécoise, et
+  /// inversement : la méthode acceptée n'est pas la même.
+  province          String?
+  /// Code de méthode normalisé, validé contre la liste de la province
+  /// (lib/compliance/identity.ts). Le champ `methode` reste libre pour l'historique.
+  methodCode        String?
+  /// Personne physique ou organisation : les délais et les méthodes en dépendent.
+  subjectKind       String?
+  /// Source des fonds. ONTARIO SEULEMENT (By-Law 7.1 s. 23(2)). B-1 r.5 ne comporte
+  /// aucune obligation équivalente : ne jamais l'exiger d'un cabinet québécois.
+  sourceOfFunds     String?
+  /// Date à laquelle les renseignements ont été OBTENUS, distincte de la date de
+  /// vérification. By-Law 7.1 s. 23(12.1) l'exige explicitement.
+  recordedAt        DateTime?
+  /// By-Law 7.1 s. 23(12.2) : pour une organisation, mesures prises pour confirmer
+  /// l'exactitude des renseignements de propriété effective, et leur date.
+  accuracyMeasures  String?
+  accuracyConfirmedAt DateTime?
+  /// By-Law 7.1 s. 23(2.2) : procédure de repli quand la propriété effective ne peut
+  /// pas être établie. Sans équivalent au Québec, où l'obligation est inconditionnelle.
+  fallbackSeniorOfficer String?
+  fallbackConsistencyNote String?
+  fallbackRiskAssessment  String?
+  fallbackRecordedAt      DateTime?
+  verifiedById      String?
+
+  // ── CH-06.7 — mode de preuve ────────────────────────────────────────────────
+  /// Comment la pièce est-elle probante ?
+  ///  DOCUMENT_JOINT       : la copie est déposée dans SAFE.
+  ///  ATTESTATION_MANUELLE : la copie est conservée ailleurs (papier, coffre,
+  ///                         GED externe) et l'avocat l'atteste en indiquant où.
+  ///                         L'art. 22 B-1 r.5 exige que la copie soit « consignée
+  ///                         ou conservée au dossier », pas qu'elle soit dans SAFE.
+  ///  DISPENSE_CABINET     : enregistrée sans pièce sous la dispense du cabinet.
+  proofMode             String?
+  /// Où la pièce est physiquement conservée. Obligatoire pour ATTESTATION_MANUELLE :
+  /// une attestation qui ne dit pas où chercher ne vaut rien à l'inspection.
+  proofLocation         String?
+  /// Texte de l'attestation, figé au moment de la signature.
+  attestationStatement  String?
+  attestedById          String?
+  attestedAt            DateTime?
+
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
+  @@index([clientId])
+}
+
+/// Propriété effective d'une organisation cliente.
+/// Sources : B-1 r.5 art. 14(2)e et 23(2) (QC) · By-Law 7.1 s. 23(1)7 et 23(2.1) (ON).
+///
+/// Divergence encodée dans `role` : le Québec exige le nom ET L'OCCUPATION des
+/// administrateurs (art. 23(2)1) ; l'Ontario n'exige que leur nom (s. 23(2.1)(a)).
+/// Le seuil de 25 % est identique dans les deux régimes, mais l'Ontario le qualifie
+/// d'« efforts raisonnables » et prévoit un repli, pas le Québec.
+model BeneficialOwner {
+  id               String   @id @default(cuid())
+  cabinetId        String
+  clientId         String
+  role             BeneficialOwnerRole
+  nom              String
+  adresse          String?
+  /// Exigée au Québec pour les administrateurs (art. 23(2)1) ; facultative en Ontario.
+  occupation       String?
+  /// Poste occupé — exigé pour les personnes autorisées (art. 14(2)e / s. 23(1)7).
+  poste            String?
+  telephone        String?
+  /// Pourcentage détenu, directement ou indirectement. Pertinent dès 25 %.
+  ownershipPercent Float?
+  verifiedAt       DateTime?
+  sourceDocumentId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  @@index([clientId])
+  @@index([clientId, role])
+}
+
+enum BeneficialOwnerRole {
+  /// Administrateur de la société ou de l'organisme.
+  ADMINISTRATEUR
+  /// Détient, directement ou indirectement, 25 % ou plus.
+  DETENTEUR_25_PLUS
+  /// Personne autorisée à donner des directives (art. 14(2)e QC / s. 23(1)7 ON).
+  PERSONNE_AUTORISEE
+  /// Fiduciaire, bénéficiaire connu ou constituant. ONTARIO seulement (s. 23(2.1)(b)(ii)).
+  FIDUCIE_PARTIE
+}
+
+/// Attestation de répondant — B-1 r.5 art. 24(2). QUÉBEC SEULEMENT.
+///
+/// Quand l'avocat ne rencontre pas une personne physique présente au Canada, il peut
+/// obtenir l'attestation écrite d'un répondant (juge, commissaire à l'assermentation,
+/// professionnel au sens du Code des professions). L'Ontario n'a pas ce mécanisme :
+/// By-Law 7.1 s. 23(7) énumère limitativement trois méthodes, dont aucune n'est le
+/// répondant. Ne jamais proposer ce flux à un cabinet ontarien.
+model IdentityAttestation {
+  id                    String   @id @default(cuid())
+  cabinetId             String
+  clientId              String
+  /// Nom du répondant.
+  attestorName          String
+  /// Qualité : juge, commissaire à l'assermentation, professionnel, etc. (art. 24 al. 3).
+  attestorQuality       String
+  attestorAddress       String
+  /// Type et numéro de référence du document d'identification fourni (art. 24 al. 2).
+  documentType          String
+  documentReference     String
+  signedAt              DateTime
+  attestationDocumentId String?
+  createdAt             DateTime @default(now())
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
   @@index([clientId])
 }
 
@@ -1672,6 +2585,7 @@ model Document {
   reviewedBy            User?                        @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
   identityVerifications ClientIdentityVerification[]
   docketEntries         DossierDocketEntry[]
+  trustSupportingFor    TrustTransactionDocument[]
 
   @@index([cabinetId])
   @@index([clientId])
@@ -2051,6 +2965,17 @@ model JournalGeneralEntry {
   sourceModule    JournalSourceModule
   sourceId        String?
   utilisateurId   String?
+
+  // ── CH-02 — champs du journal de caisse d'ADMINISTRATION ──────────────────
+  // Art. 34 B-1 r.5 : pour chaque recette, le nom de la personne de qui la somme est
+  // reçue, l'objet, et l'indication « espèces » ; pour chaque débours, le nom du
+  // bénéficiaire. s. 18(5)(6) By-Law 9 ajoute l'identifiant du document utilisé.
+  payerName          String?
+  payeeName          String?
+  purposeText        String?
+  isCash             Boolean @default(false)
+  documentIdentifier String?
+
   createdAt       DateTime               @default(now())
 
   cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
@@ -2266,6 +3191,13 @@ model TrustReconciliation {
   cabinetId String
   cabinet   Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
+  /// Compte bancaire rapproché. La s. 18(8)ii ON exige « a detailed reconciliation
+  /// made monthly of EACH trust bank account » : un rapprochement global sur
+  /// plusieurs comptes ne satisfait ni l'Ontario ni l'art. 36 québécois.
+  /// Nullable le temps de la reprise.
+  trustBankAccountId String?
+  trustBankAccount   TrustBankAccount? @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
   periode String // "2026-04" (YYYY-MM)
 
   // Données 3-way reconciliation
@@ -2274,8 +3206,22 @@ model TrustReconciliation {
   depotsEnTransit      Float @default(0) // Dépôts non encore crédités
   soldeRapproche       Float // soldeBancaire - chequesEnCirculation + depotsEnTransit
   soldeRegistre        Float // Somme transactions SAFE (source de vérité)
-  soldeParDossier      Float // Somme TrustAccount.currentBalance
+  soldeParDossier      Float // Somme des soldes de cartes-clients dérivés du registre append-only
   ecart                Float @default(0) // soldeRapproche - soldeRegistre (doit être 0)
+
+  /// TROISIÈME VOIE (CH-00, écart P-1). Écart entre la somme des cartes-clients
+  /// (dérivée du registre append-only) et le solde du registre. Doit être 0 pour
+  /// certifier. Sans ce champ, la « comparaison à trois voies » annoncée au client
+  /// n'en comparait que deux : art. 41(5) QC exige l'état comparatif, et
+  /// s. 18(8) ON exige explicitement la liste détaillée par client en appui.
+  ecartCartesClients   Float @default(0)
+
+  /// PR-3 — liste sérialisée des contrôles RÉELLEMENT exécutés au moment de la
+  /// certification. Le texte de l'attestation est généré à partir de cette liste :
+  /// on ne fait jamais signer plus large que ce que le système a vérifié.
+  verifiedControlsJson String?
+  /// Texte exact de l'attestation signée, figé (PR-5).
+  declarationText      String?
 
   // Certification par l'avocat
   certifiedAt   DateTime?
@@ -2294,9 +3240,19 @@ model TrustReconciliation {
 
   complianceReports TrustComplianceReport[]
 
-  @@unique([cabinetId, periode])
+  /// Un rapprochement PAR COMPTE et par période. La s. 18(8)ii By-Law 9 exige
+  /// « a detailed reconciliation made monthly of EACH trust bank account », et
+  /// l'art. 36 B-1 r.5 des livres distincts par compte général : un cabinet à deux
+  /// comptes doit donc pouvoir produire deux rapprochements pour le même mois.
+  /// L'ancienne contrainte `[cabinetId, periode]` le rendait impossible.
+  ///
+  /// Nuance Postgres : deux NULL sont considérés distincts, donc la contrainte ne
+  /// protège pas les rapprochements antérieurs à la reprise. Elle protège tous ceux
+  /// créés une fois les comptes saisis, ce qui est le cas visé.
+  @@unique([cabinetId, trustBankAccountId, periode])
   @@index([cabinetId])
   @@index([cabinetId, status])
+  @@index([trustBankAccountId, periode])
 }
 
 // --- Rapport conformité fidéicommis (PDF exportable) ---
