@@ -6,6 +6,7 @@ import type { UserRole } from "@prisma/client";
 import { correctionBodySchema } from "@/lib/validations/fideicommis";
 import { createTrustCorrection } from "@/lib/services/fideicommis";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { isTrustComplianceError } from "@/lib/services/fideicommis/errors";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -50,6 +51,11 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ success: true, transactionId });
   } catch (err) {
+    // Une erreur de conformité porte son article et sa porte de sortie : on les
+    // renvoie au client HTTP plutôt qu'une chaîne opaque.
+    if (isTrustComplianceError(err)) {
+      return NextResponse.json({ error: err.message, compliance: err.toJSON() }, { status: 422 });
+    }
     const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement de la correction";
     return NextResponse.json({ error: message }, { status: 400 });
   }

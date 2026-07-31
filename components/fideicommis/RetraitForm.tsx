@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { TrustWithdrawalMotive } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -50,7 +51,11 @@ export function RetraitForm({
     () => new Date().toISOString().slice(0, 10)
   );
   const [factureId, setFactureId] = useState("");
-  const [modePaiement, setModePaiement] = useState<"CHEQUE" | "VIREMENT" | "INTERAC" | "ESPECES" | "AUTRE">("VIREMENT");
+  const [motive, setMotive] = useState<TrustWithdrawalMotive | "">("");
+  // `ESPECES` est volontairement absent : l'art. 57 B-1 r.5 interdit tout retrait
+  // en espèces d'un compte général en fidéicommis, et la s. 11(a) By-Law 9 interdit
+  // les chèques payables à « cash » ou au porteur. Le service refuse également.
+  const [modePaiement, setModePaiement] = useState<"CHEQUE" | "VIREMENT" | "INTERAC" | "AUTRE">("VIREMENT");
   const [reference, setReference] = useState("");
   const [description, setDescription] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -59,6 +64,7 @@ export function RetraitForm({
     dossierId: string;
     montant: number;
     dateTransaction: string;
+    motive: TrustWithdrawalMotive;
     factureId?: string | null;
     modePaiement?: string | null;
     reference?: string | null;
@@ -69,9 +75,22 @@ export function RetraitForm({
     { value: "CHEQUE", label: tf("paymentModeCheque") },
     { value: "VIREMENT", label: tf("paymentModeTransfer") },
     { value: "INTERAC", label: tf("paymentModeInterac") },
-    { value: "ESPECES", label: tf("paymentModeCash") },
     { value: "AUTRE", label: tf("paymentModeOther") },
   ] as const;
+
+  /**
+   * Motifs de retrait. Trois au Québec (B-1 r.5 art. 56), cinq en Ontario
+   * (By-Law 9 s. 9(1)) — le dépôt par inadvertance n'existe qu'en Ontario, on le
+   * propose partout plutôt que d'en priver un cabinet ontarien, le service tranche.
+   */
+  const MOTIFS = [
+    { value: "REMISE_CLIENT_OU_TIERS", label: tf("withdrawalMotiveRemise") },
+    { value: "HONORAIRES_DEBOURS_FACTURES", label: tf("withdrawalMotiveHonoraires") },
+    { value: "TRANSFERT_AUTRE_FIDEICOMMIS", label: tf("withdrawalMotiveTransfert") },
+    { value: "DEPOT_PAR_INADVERTANCE", label: tf("withdrawalMotiveInadvertance") },
+  ] as const;
+
+  const invoiceRequired = motive === "HONORAIRES_DEBOURS_FACTURES";
 
   const { data: soldeData } = useTrustBalance(cabinetId, clientId || null, dossierId || null);
   const solde = soldeData?.solde ?? 0;
@@ -95,11 +114,21 @@ export function RetraitForm({
       toast.error(tf("insufficientBalance", { amount: formatCurrency(solde) }));
       return;
     }
+    // art. 56 B-1 r.5 / s. 9(1) By-Law 9 — le motif rend le retrait licite.
+    if (!motive) {
+      toast.error(tf("withdrawalMotiveRequired"));
+      return;
+    }
+    if (motive === "HONORAIRES_DEBOURS_FACTURES" && !factureId.trim()) {
+      toast.error(tf("withdrawalInvoiceRequired"));
+      return;
+    }
     const payload = {
       clientId,
       dossierId,
       montant: amount,
       dateTransaction,
+      motive,
       factureId: factureId || undefined,
       modePaiement,
       reference: reference || undefined,
@@ -118,6 +147,7 @@ export function RetraitForm({
         setReference("");
         setDescription("");
         setFactureId("");
+        setMotive("");
         setConfirmOpen(false);
         setPendingPayload(null);
         onSuccess?.();
@@ -199,13 +229,41 @@ export function RetraitForm({
                 disabled={disabled}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                {tf("withdrawalMotive")} <span className="text-status-error">*</span>
+              </label>
+              <select
+                value={motive}
+                onChange={(e) => setMotive(e.target.value as TrustWithdrawalMotive | "")}
+                required
+                disabled={disabled}
+                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+              >
+                <option value="">{tf("withdrawalMotiveSelect")}</option>
+                {MOTIFS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-neutral-muted">{tf("withdrawalMotiveHint")}</p>
+            </div>
             <Input
-              label={tf("linkedInvoice")}
+              label={
+                invoiceRequired ? `${tf("linkedInvoice")} *` : tf("linkedInvoice")
+              }
               value={factureId}
               onChange={(e) => setFactureId(e.target.value)}
               placeholder={tf("invoiceIdPlaceholder")}
+              required={invoiceRequired}
               disabled={disabled}
             />
+            {invoiceRequired && (
+              <p className="-mt-2 text-xs text-neutral-muted">
+                {tf("withdrawalInvoiceRequired")}
+              </p>
+            )}
             <div>
               <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
                 {tf("paymentMode")}
@@ -222,6 +280,7 @@ export function RetraitForm({
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-neutral-muted">{tf("withdrawalCashNotice")}</p>
             </div>
             <Input
               label={tf("reference")}

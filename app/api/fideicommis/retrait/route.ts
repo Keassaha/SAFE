@@ -6,6 +6,7 @@ import type { UserRole } from "@prisma/client";
 import { retraitBodySchema } from "@/lib/validations/fideicommis";
 import { createTrustWithdrawal } from "@/lib/services/fideicommis";
 import { sanitizeInput } from "@/lib/utils/sanitize";
+import { isTrustComplianceError } from "@/lib/services/fideicommis/errors";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
       dossierId: parsed.data.dossierId,
       montant: parsed.data.montant,
       dateTransaction: parsed.data.dateTransaction,
+      motive: parsed.data.motive,
       factureId: parsed.data.factureId ?? null,
       modePaiement: parsed.data.modePaiement ?? null,
       reference: parsed.data.reference ? sanitizeInput(parsed.data.reference) : null,
@@ -51,6 +53,12 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ success: true, transactionId });
   } catch (err) {
+    // Une erreur de conformité porte son article et sa porte de sortie : on les
+    // renvoie au client HTTP plutôt qu'une chaîne opaque. Un message d'erreur qui
+    // cite son article est un message qu'un avocat peut vérifier.
+    if (isTrustComplianceError(err)) {
+      return NextResponse.json({ error: err.message, compliance: err.toJSON() }, { status: 422 });
+    }
     const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement du retrait";
     return NextResponse.json({ error: message }, { status: 400 });
   }

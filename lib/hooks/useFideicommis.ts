@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { TrustWithdrawalMotive } from "@prisma/client";
 
 export interface TrustTransactionRow {
   id: string;
@@ -138,6 +139,8 @@ export function useCreateTrustWithdrawal() {
       dossierId: string;
       montant: number;
       dateTransaction: Date | string;
+      /** Motif réglementaire du retrait. Obligatoire (art. 56 B-1 r.5 / s. 9(1) By-Law 9). */
+      motive: TrustWithdrawalMotive;
       factureId?: string | null;
       modePaiement?: string | null;
       reference?: string | null;

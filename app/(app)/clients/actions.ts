@@ -439,27 +439,108 @@ export async function archiveClientsBulk(ids: string[]) {
   redirect("/clients?success=archived");
 }
 
+/** Types de pièces acceptés pour une vérification d'identité. */
+const IDENTITY_PROOF_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+];
+const IDENTITY_PROOF_MAX_BYTES = 15 * 1024 * 1024;
+
+/**
+ * Enregistre une vérification d'identité.
+ *
+ * CH-06.6 — la pièce justificative est téléversée dans le même geste. L'art. 22
+ * B-1 r.5 impose d'obtenir copie du document et de la conserver au dossier ; la
+ * s. 23(13) By-Law 7.1 exige une copie de CHAQUE document utilisé. Sans elle, le
+ * service refuse de marquer « vérifié » — ce qui empêche de débloquer le garde-fou
+ * des mouvements de fonds sur une simple affirmation.
+ */
 export async function createIdentityVerification(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
   const clientId = formData.get("clientId") as string;
   const date = formData.get("date") ? new Date(formData.get("date") as string) : new Date();
   const methode = (formData.get("methode") as string) || "Pièce d'identité";
+  const methodCode = (formData.get("methodCode") as string) || null;
   const statut = (formData.get("statut") as "en_attente" | "verifie" | "refuse") || "verifie";
   const notes = (formData.get("notes") as string) || undefined;
+  const sourceOfFunds = (formData.get("sourceOfFunds") as string) || null;
+  const recordedAt = formData.get("recordedAt")
+    ? new Date(formData.get("recordedAt") as string)
+    : null;
+  // CH-06.7 — confirmation manuelle : la pièce est conservée hors SAFE (papier,
+  // coffre, GED externe). L'avocat atteste et indique où.
+  const proofMode =
+    (formData.get("proofMode") as "DOCUMENT_JOINT" | "ATTESTATION_MANUELLE" | null) || null;
+  const proofLocation = (formData.get("proofLocation") as string) || null;
   if (!clientId) {
     redirect("/clients?error=invalid");
   }
-  const { createIdentityVerification: createVerification } = await import("@/lib/services/identity-verification");
-  await createVerification({
-    clientId,
-    cabinetId,
-    userId,
-    date,
-    methode,
-    statut,
-    notes,
-  });
+
+  // ── Pièce justificative ────────────────────────────────────────────────────
+  let documentId: string | null = (formData.get("documentId") as string) || null;
+  const file = formData.get("preuve") as File | null;
+  if (file && file.size > 0) {
+    if (!IDENTITY_PROOF_TYPES.includes(file.type)) {
+      redirect(`/clients/${clientId}/verification-identite?error=proof_type`);
+    }
+    if (file.size > IDENTITY_PROOF_MAX_BYTES) {
+      redirect(`/clients/${clientId}/verification-identite?error=proof_size`);
+    }
+    const { writeDocumentObject, createDocumentRecord } = await import("@/lib/services/document");
+    const { randomUUID, createHash } = await import("crypto");
+    const path = await import("path");
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const hash = createHash("sha256").update(buffer).digest("hex");
+    const ext = path.extname(file.name) || ".bin";
+    const storageKey = `${cabinetId}/${new Date().getFullYear()}/identite/${randomUUID()}${ext}`;
+    await writeDocumentObject(storageKey, buffer, file.type || "application/octet-stream");
+
+    const doc = await createDocumentRecord({
+      cabinetId,
+      userId,
+      clientId,
+      nom: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      storageKey,
+      hash,
+      // Type normalisé, aligné sur le référentiel de rétention (piece_identite).
+      documentType: "piece_identite",
+    });
+    documentId = doc.id;
+  }
+
+  const { createIdentityVerification: createVerification, IdentityVerificationInvalidError } =
+    await import("@/lib/services/identity-verification");
+  try {
+    await createVerification({
+      clientId,
+      cabinetId,
+      userId,
+      date,
+      methode,
+      methodCode,
+      statut,
+      notes,
+      documentId,
+      recordedAt,
+      sourceOfFunds,
+      proofMode,
+      proofLocation,
+    });
+  } catch (e) {
+    // Le refus réglementaire remonte à l'écran avec son code, pas comme une erreur
+    // serveur opaque : l'utilisateur doit pouvoir corriger (PR-2).
+    if (e instanceof IdentityVerificationInvalidError) {
+      redirect(`/clients/${clientId}/verification-identite?error=${e.code}`);
+    }
+    throw e;
+  }
   revalidatePath(`/clients/${clientId}`);
   revalidatePath(`/clients/${clientId}/verification-identite`);
-  redirect(`/clients/${clientId}/verification-identite`);
+  redirect(`/clients/${clientId}/verification-identite?success=1`);
 }

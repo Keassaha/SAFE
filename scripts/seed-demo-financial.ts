@@ -98,6 +98,8 @@ async function main() {
   await createTrustWithdrawal({
     cabinetId: cabinet.id, clientId: beaulieu.id, dossierId: dossier2.id, montant: 2000,
     dateTransaction: new Date(), factureId: draftB.invoiceId,
+    // art. 56(2) B-1 r.5 / s. 9(1)3 By-Law 9 — la facture B est émise ET envoyée plus haut.
+    motive: "HONORAIRES_DEBOURS_FACTURES",
     description: "Application au solde de la facture", createdById: avocat.id,
   });
   console.log(`[F] Retrait fidéicommis 2 000 $ appliqué à la facture B`);

@@ -47,6 +47,7 @@ export const routes = {
   parametresAbonnement: "/parametres/abonnement",
   parametresPaiements: "/parametres/paiements",
   parametresAudit: "/parametres/audit",
+  parametresConformite: "/parametres/conformite",
   parametresRetention: "/parametres/retention",
   parametresEnvoiFacture: "/parametres/envoi-facture",
   parametresFacture: "/parametres/facture",

@@ -1606,7 +1606,17 @@
     "monthNovember": "November",
     "monthDecember": "December",
     "loadingError": "Loading error",
-    "errorGeneric": "Error"
+    "errorGeneric": "Error",
+    "withdrawalMotive": "Withdrawal reason",
+    "withdrawalMotiveHint": "Only three withdrawals from the general trust account are permitted (By-Law 9, s. 9(1)).",
+    "withdrawalMotiveSelect": "Select a reason",
+    "withdrawalMotiveRemise": "Payment to the client or a third party on their behalf",
+    "withdrawalMotiveHonoraires": "Billed fees and disbursements",
+    "withdrawalMotiveTransfert": "Transfer to another trust account",
+    "withdrawalMotiveInadvertance": "Money paid in through inadvertence",
+    "withdrawalMotiveRequired": "Select the withdrawal reason.",
+    "withdrawalInvoiceRequired": "A withdrawal for fees and disbursements must be linked to a delivered invoice.",
+    "withdrawalCashNotice": "Cash withdrawals from a trust account are not permitted (By-Law 9, s. 11)."
   },
   "payments": {
     "newPayment": "New payment",
