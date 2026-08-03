@@ -1,6 +1,6 @@
 # Matrice de conformité — état réel
 
-**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07 à CH-10
+**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07 à CH-11
 **Source** : [audit du 2026-07-30](AUDIT_REGLEMENTAIRE_INSPECTION_2026-07-30.md) · [programme](PROGRAMME_INSPECTION_READY.md)
 
 > Ce document est destiné à être montré, y compris à un prospect. Il ne contient
@@ -27,11 +27,16 @@ initial confondait les deux, et l'aurait fait manquer entièrement.
 Méthode identique aux trois mesures : chaque obligation pondérée par criticité
 (critique 4, majeur 3, moyen 2, mineur 1), notée 1,0 couverte · 0,5 partielle · 0 absente.
 
-| | Départ | CH-04 | CH-05 | CH-07 | CH-08 | CH-09 | Actuel (CH-10) | Cible |
+| | Départ | CH-05 | CH-07 | CH-08 | CH-09 | CH-10 | Actuel (CH-11) | Cible |
 |---|---|---|---|---|---|---|---|---|
-| **Barreau du Québec** | 48 | 85 | 91 | 93 | 96 | 98 | **99 / 100** | 100 |
-| **Law Society of Ontario** | 42 | 71 | 77 | 92 | 95 | 95 | **97 / 100** | 100 |
-| **Global** | **45** | 78 | 84 | 93 | 96 | 97 | **98 / 100** | 100 |
+| **Barreau du Québec** | 48 | 91 | 93 | 96 | 98 | 99 | **99 / 100** | 100 |
+| **Law Society of Ontario** | 42 | 77 | 92 | 95 | 95 | 97 | **99 / 100** | 100 |
+| **Global** | **45** | 84 | 93 | 96 | 97 | 98 | **99 / 100** | 100 |
+
+Le point qui manque n'est pas un artefact d'arrondi : il est tenu par **CH-12**
+(registre de conformité vivant, art. 7, 9, 15, 19 et 74-82 QC — prescription, dossiers
+fermés, registre des codes, originaux du client, cessation d'exercice). Tant qu'il est
+ouvert, ni le Québec ni l'Ontario ne sont à 100, et l'écrire serait faux.
 
 ### Pourquoi l'Ontario bouge peu
 
@@ -363,6 +368,58 @@ l'est pas : taux, fréquence, formulaire. SAFE assure le **suivi** d'un versemen
 constaté — période, montant, date, pièce — et ne calcule aucun montant. La table ne
 porte volontairement aucune colonne de taux : en ajouter une fabriquerait une règle
 que personne n'a vérifiée, et un cabinet verserait le chiffre obtenu.
+
+### 3.1 undecies — CH-11 : conservation, accès d'inspection, trousse
+
+| Réf. | Article | Obligation | Avant | Après |
+|---|---|---|---|---|
+| QC-16 | art. 29 | Accès en tout temps du syndic, des enquêteurs, du directeur de l'inspection | ❌ | ✅ |
+| QC-18 | art. 31 | Conservation 7 ans **à compter de la fermeture du dossier** | 🟡 | ✅ |
+| QC-19 | art. 32 | Conservation 7 ans **après la fin de l'exercice** | 🟡 | ✅ |
+| QC-20 | art. 33 | Reconstitution aux frais de l'avocat | ❌ | ✅ (trousse : produire au lieu de reconstituer) |
+| ON-42 | s. 23(1) | Conservation 6 ans | 🟡 | ✅ |
+| ON-43 | s. 23(2) | Conservation **10 ans** pour les par. 18(1)(2)(3)(8)(9)(10)(11) | ❌ | ✅ |
+| — | s. 23(3) | 10 ans pour les dossiers d'identification de la s. 20 | ❌ | ✅ |
+
+**Deux régimes qui ne se ressemblent pas.** Au Québec, la durée est la même — sept ans
+— mais le **point de départ** change : l'art. 31 part de la fermeture du dossier,
+l'art. 32 de la fin de l'exercice. En Ontario, le point de départ est unique mais la
+**durée** change : six ans, dix ans pour les paragraphes nommés par la s. 23(2).
+Aplatir l'un ou l'autre détruirait des pièces encore exigibles. Une purge à six ans en
+Ontario effacerait le journal du fidéicommis, qui en vaut dix.
+
+**La purge refuse par défaut.** Dossier non fermé, date de fermeture inconnue, fin
+d'exercice du cabinet non réglée : dans chacun de ces cas le moteur dit non. Se tromper
+en conservant coûte du stockage ; se tromper en détruisant est irréversible et
+constitue le manquement lui-même. Et `updatedAt` ne sert jamais de date de fermeture
+de substitution : ce serait dater un dossier sur la dernière fois que quelqu'un l'a
+touché.
+
+**La destruction elle-même n'est pas implémentée, et c'est délibéré.** Aucun cabinet
+servi par SAFE n'a de pièce arrivée à échéance : le produit est trop jeune. Écrire
+aujourd'hui du code de suppression que personne ne peut éprouver sur des données
+réelles créerait un risque irréversible pour un besoin qui n'existe pas encore. Ce qui
+est utile maintenant, c'est l'inverse : prouver qu'on conserve, et savoir jusqu'à quand.
+
+**L'inspecteur n'est pas un utilisateur du cabinet.** Ajouter `inspecteur` à l'enum des
+rôles aurait été le réflexe. Décision contraire, sur une base mesurée : le dépôt compte
+plus de 330 endroits qui consultent le rôle, et une partie des écritures ne vérifient
+que l'authentification. Un rôle « lecture seule » ne serait étanche qu'au prix d'un
+audit exhaustif de ces 330 sites, et le moindre oubli donnerait à un tiers extérieur le
+droit d'écrire dans la comptabilité d'un cabinet. L'accès est donc une session
+distincte, sans compte, sans rôle, sans chemin d'écriture. Le jeton n'est jamais
+conservé en clair, l'accès expire, chaque consultation est journalisée, et une session
+révoquée n'est pas supprimée — sinon son historique disparaîtrait avec elle.
+
+**La trousse nomme ce qui manque.** Elle rassemble registres, rapports mensuels de la
+période et journal des soldes débiteurs, chacun avec son empreinte SHA-256, et son
+manifeste **ouvre sur les pièces absentes**. Un manifeste qui commencerait par ce qui
+est produit laisserait croire à une trousse complète. Un registre indisponible
+n'interrompt pas la production : il y figure comme manquant, avec sa raison. Et le
+manifeste dit lui-même qu'il ne vaut pas attestation de conformité.
+
+*Ce qui n'est pas réglementaire, et le dit* : la durée de 30 jours d'un accès et les
+empreintes SHA-256 ne sont exigées par aucun article. Ce sont des moyens, choisis ici.
 
 ### 3.2 Défauts de code corrigés
 

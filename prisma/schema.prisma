@@ -132,6 +132,7 @@ model Cabinet {
   trustProperties      TrustProperty[]
   trustAnnualReports   TrustAnnualReport[]
   trustShortfalls      TrustShortfall[]
+  inspectionSessions   InspectionAccessSession[]
   interestRemittances  TrustInterestRemittance[]
 }
 
@@ -1874,6 +1875,75 @@ model ReferralFee {
 /// n'apparaîtrait nulle part si l'on ne regardait que les soldes de fin de mois — or
 /// c'est ce qu'un inspecteur cherche : non pas l'état à une date, mais ce qui s'est
 /// passé.
+/// Accès d'inspection : lecture seule, durée limitée, tout journalisé.
+///
+/// Art. 29 B-1 r.5 : les livres et registres sont accessibles en tout temps au syndic,
+/// à ses enquêteurs, au directeur de l'inspection professionnelle et à ses experts,
+/// sous réserve de leur confidentialité et de leur sécurité.
+///
+/// ⚠️ L'INSPECTEUR N'EST PAS UN `User`. Le dépôt compte plus de 330 endroits qui
+/// consultent le rôle, et une partie des écritures ne vérifient que l'authentification.
+/// Un rôle « lecture seule » ne serait étanche qu'au prix d'un audit exhaustif de ces
+/// 330 sites, et le moindre oubli donnerait à un tiers extérieur le droit d'écrire
+/// dans la comptabilité d'un cabinet. La session ne crée donc aucun compte, ne porte
+/// aucun rôle et n'emprunte aucun chemin d'écriture.
+///
+/// La durée de 30 jours par défaut ne vient d'aucun texte : c'est un choix, et il est
+/// déclaré comme tel dans `lib/compliance/inspection-access.ts`.
+model InspectionAccessSession {
+  id        String @id @default(cuid())
+  cabinetId String
+
+  /// Qui inspecte. Un accès anonyme donnerait un journal qui ne prouve rien.
+  inspectorName         String
+  inspectorOrganization String
+  /// Pourquoi. Le cabinet reste tenu au secret professionnel.
+  purpose               String
+
+  /// Le jeton n'est JAMAIS stocké en clair : seule son empreinte l'est.
+  tokenHash String @unique
+
+  /// Période que l'inspecteur peut consulter. Null = aucune borne demandée.
+  scopeFrom DateTime?
+  scopeTo   DateTime?
+
+  grantedAt      DateTime @default(now())
+  grantedByUserId String
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  revokedByUserId String?
+  revokedReason   String?
+
+  province  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet Cabinet                     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  reads   InspectionAccessRead[]
+
+  @@index([cabinetId])
+  @@index([cabinetId, expiresAt])
+}
+
+/// Une consultation, une ligne.
+///
+/// Sert le cabinet autant que l'inspecteur : c'est la seule façon de dire plus tard
+/// qui a vu quoi, et quand. Append-only par construction — aucune mise à jour, aucune
+/// suppression n'est prévue par le service.
+model InspectionAccessRead {
+  id        String   @id @default(cuid())
+  sessionId String
+  /// REGISTERS | MONTHLY_REPORTS | SUPPORTING_DOCUMENTS | ...
+  resource   String
+  resourceId String?
+  detail     String?
+  readAt     DateTime @default(now())
+
+  session InspectionAccessSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, readAt])
+}
+
 model TrustShortfall {
   id                 String   @id @default(cuid())
   cabinetId          String
