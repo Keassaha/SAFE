@@ -247,6 +247,33 @@ export interface CreateTrustCorrectionParams {
    ════════════════════════════════════════════════════════════════ */
 
 /** Enregistre un dépôt. Montant > 0, client et dossier obligatoires. */
+/**
+ * Détection du solde débiteur, déclenchée à l'écriture (CH-10).
+ *
+ * L'art. 60 impose de combler « SANS DÉLAI », la s. 14 exige des soldes suffisants
+ * « at all times ». Ne regarder qu'au moment de certifier le rapprochement laisserait
+ * un découvert vivre jusqu'à trois semaines.
+ *
+ * ⚠️ NE BLOQUE JAMAIS L'ÉCRITURE. Les garde-fous du CH-00 refusent déjà de CRÉER un
+ * découvert. Ceux qui existent malgré eux viennent d'ailleurs — reprise de données,
+ * écriture antérieure aux garde-fous, chèque retourné. Faire échouer une écriture
+ * légitime parce que la détection a planté transformerait un outil de surveillance en
+ * panne de caisse.
+ */
+async function detectShortfallsAfterWrite(
+  cabinetId: string,
+  trustBankAccountId: string | null | undefined,
+  now: Date,
+): Promise<void> {
+  try {
+    const { detectShortfalls } = await import("./trust-shortfall-service");
+    await detectShortfalls({ cabinetId, trustBankAccountId, now });
+  } catch {
+    // Silencieux par conception : voir le commentaire ci-dessus. L'écran de
+    // conformité relance la même détection et la rendra visible.
+  }
+}
+
 export async function createTrustDeposit(params: CreateTrustDepositParams): Promise<{ transactionId: string }> {
   const {
     cabinetId,
@@ -399,6 +426,8 @@ export async function createTrustDeposit(params: CreateTrustDepositParams): Prom
     performedBy: createdById ?? undefined,
     performedAt: now,
   });
+
+  await detectShortfallsAfterWrite(cabinetId, bankAccountId, now);
 
   return { transactionId: tx.id };
 }
@@ -714,6 +743,8 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
     performedAt: now,
   });
 
+  await detectShortfallsAfterWrite(cabinetId, bankAccountId, now);
+
   return { transactionId: tx.id };
 }
 
@@ -833,6 +864,8 @@ export async function createTrustCorrection(params: CreateTrustCorrectionParams)
     performedBy: createdById ?? undefined,
     performedAt: now,
   });
+
+  await detectShortfallsAfterWrite(cabinetId, bankAccountId, now);
 
   return { transactionId: tx.id };
 }

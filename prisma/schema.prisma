@@ -129,6 +129,10 @@ model Cabinet {
   trustSignatories     TrustSignatory[]
   ledgerTransfers      ClientLedgerTransfer[]
   referralFees         ReferralFee[]
+  trustProperties      TrustProperty[]
+  trustAnnualReports   TrustAnnualReport[]
+  trustShortfalls      TrustShortfall[]
+  interestRemittances  TrustInterestRemittance[]
 }
 
 /// Statut du permis d'exercice. Réf. By-Law 9 s. 2, 2.2, 2.3 (ON) ·
@@ -523,6 +527,8 @@ model Client {
   identityAttestations  IdentityAttestation[]
   trustBankAccounts     TrustBankAccount[]
   cashReceipts          CashReceipt[]
+  trustProperties       TrustProperty[]
+  trustShortfalls       TrustShortfall[]
   consentLogs           ConsentLog[]
   payments              Payment[]
   creditNotes           CreditNote[]
@@ -1819,6 +1825,276 @@ model ReferralFee {
   @@index([cabinetId, direction])
 }
 
+/// Autre bien en fidéicommis — un bien qui n'est pas de l'argent.
+///
+/// Art. 1(3) B-1 r.5 : « tout bien, autre qu'une somme d'argent, reçu par un avocat
+/// pour être affecté suivant les instructions du client ou d'une autre personne ».
+/// En pratique : titres, actions, testaments originaux, actes notariés, clés, bijoux
+/// détenus en garantie, chèques certifiés non déposés.
+///
+/// Art. 43 : registre PERMANENT tenu « dès réception ou remise ».
+/// s. 18(9) By-Law 9 : même registre, mais avec DEUX champs de plus — la valeur du
+/// bien et la personne qui le détenait immédiatement avant.
+///
+/// Conservation : 7 ans à compter de la fermeture du dossier au Québec (art. 31) ;
+/// DIX ans en Ontario, le registre des biens étant le paragraphe 9 de la s. 18, visé
+/// par la s. 23(2) et non par les six ans de la s. 23(1).
+/// Rapport comptable annuel — art. 42 B-1 r.5.
+///
+/// « Au moins une fois par an et dans les 30 jours suivant la réception d'une demande
+/// par le directeur de l'inspection professionnelle, l'avocat doit transmettre à ce
+/// dernier, en utilisant le formulaire prescrit par le Comité exécutif, un rapport
+/// comptable annuel couvrant la période de 12 mois identifiée dans la demande. »
+///
+/// ⚠️ QUÉBEC SEULEMENT. By-Law 9, lu intégralement, n'impose aucun rapport comptable
+/// annuel : ses obligations périodiques s'arrêtent à la comparaison mensuelle de la
+/// s. 18(8). Le « Lawyer Annual Report » du LSO existe par ailleurs, mais hors de
+/// By-Law 9 et hors du corpus vérifié — il n'est pas modélisé ici.
+///
+/// Deux blocs n'ont PAS d'équivalent au rapport mensuel :
+///   42(4) le total des recettes et des débours de CHAQUE MOIS de la période ;
+///   42(7) la liste des comptes fermés durant la période — obligation qui explique
+///         pourquoi un compte fermé n'est jamais supprimé.
+/// Incident de solde débiteur sur une carte-client.
+///
+/// Art. 60 B-1 r.5 : « L'avocat doit combler SANS DÉLAI tout solde débiteur en
+/// fidéicommis dans un dossier, QUELLE QU'EN SOIT LA RAISON. »
+/// s. 14 By-Law 9 : « a licensee shall AT ALL TIMES maintain sufficient balances on
+/// deposit in his or her trust accounts. »
+///
+/// Un solde débiteur n'est pas un écart comptable : ce sont les fonds d'un AUTRE
+/// client qui servent ce dossier. L'incident est donc consigné comme un événement
+/// daté, pas comme un état.
+///
+/// ⚠️ Aucun des deux textes ne chiffre de délai. `detectedAt` et `resolvedAt`
+/// mesurent l'ancienneté, mais aucune colonne ne porte d'échéance : inventer un
+/// seuil convertirait « sans délai » en une tolérance que le règlement ne donne pas.
+///
+/// L'incident RESTE après résolution. Un découvert survenu le 3 et comblé le 4
+/// n'apparaîtrait nulle part si l'on ne regardait que les soldes de fin de mois — or
+/// c'est ce qu'un inspecteur cherche : non pas l'état à une date, mais ce qui s'est
+/// passé.
+model TrustShortfall {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String?
+  clientId           String
+  dossierId          String?
+
+  /// Montant à combler, toujours positif.
+  amount     Float
+  detectedAt DateTime @default(now())
+  /// Solde de la carte-client au moment de la détection, pour l'historique.
+  balanceAtDetection Float
+
+  resolvedAt        DateTime?
+  /// CABINET_OPERATING | CLIENT_DEPOSIT | LEDGER_CORRECTION
+  remediationSource String?
+  /// Écriture de renflouement, quand elle existe.
+  remediationTransactionId String?
+  remediationNote          String?
+  resolvedById             String?
+
+  province  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  /// Les incidents OUVERTS sont ceux dont resolvedAt est nul : c'est la requête de
+  /// l'alerte et du tableau de conformité.
+  @@index([cabinetId, resolvedAt])
+  @@index([clientId])
+}
+
+/// Versement des intérêts d'un compte en fidéicommis.
+///
+/// Compte général : Fonds d'études juridiques du Barreau au Québec (art. 50,
+/// renvoyant à B-1, r. 10) · Law Foundation of Ontario en Ontario (Law Society Act,
+/// s. 57). Compte particulier : le client (art. 62).
+///
+/// ⚠️ INCERTITUDE ASSUMÉE DANS LA FORME DE CE MODÈLE. Ni B-1 r.10 ni la s. 57 n'ont
+/// été lus. Le BÉNÉFICIAIRE est certain, il découle des articles lus. La MÉCANIQUE
+/// ne l'est pas : taux, fréquence, qui calcule, quel formulaire.
+///
+/// Ce modèle ne porte donc AUCUN champ de calcul — pas de taux, pas d'échéance. Il
+/// consigne un versement constaté : période, montant, date, preuve. Ajouter un taux
+/// reviendrait à fabriquer une règle.
+model TrustInterestRemittance {
+  id                 String   @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+
+  periode     String // "YYYY-MM"
+  /// FONDS_ETUDES_JURIDIQUES | LAW_FOUNDATION_ONTARIO | CLIENT
+  beneficiary String
+  amount      Float
+
+  remittedAt         DateTime?
+  /// Art. 32 QC / s. 18(10) ON : une date sans pièce n'est qu'une affirmation.
+  proofDocumentId    String?
+  note               String?
+  recordedById       String?
+
+  province  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([trustBankAccountId, periode, beneficiary])
+  @@index([cabinetId, periode])
+  @@index([cabinetId, remittedAt])
+}
+
+model TrustAnnualReport {
+  id                 String  @id @default(cuid())
+  cabinetId          String
+  trustBankAccountId String
+
+  /// La période est identifiée DANS LA DEMANDE : ni l'année civile, ni forcément
+  /// l'exercice financier.
+  periodStart        String  // "YYYY-MM"
+  periodEnd          String  // "YYYY-MM"
+  /// Le délai de 30 jours court depuis cette date, pas depuis le calendrier.
+  requestReceivedAt  DateTime?
+
+  status             String  @default("draft") // draft | complete | certified
+
+  // ── Art. 42(5) — état comparatif à la fin de la période ───────────────────
+  journalBalance          Float
+  bankStatementBalance    Float
+  ledgerSumBalance        Float
+  outstandingChequesTotal Float @default(0)
+  depositsInTransitTotal  Float @default(0)
+  reconciledBalance       Float
+  ecartPeriode            Float @default(0)
+  ecartCartesClients      Float @default(0)
+  /// « La copie du relevé de l'institution financière pour le DERNIER MOIS de la
+  /// période doit être jointe au rapport. » Obligatoire pour certifier.
+  bankStatementDocumentId String?
+
+  /// Instantané figé à la certification (PR-5).
+  snapshotJson         String?
+  verifiedControlsJson String?
+  declarationText      String?
+  certifiedById        String?
+  certifiedAt          DateTime?
+  /// Date de transmission effective au directeur de l'inspection professionnelle.
+  submittedAt          DateTime?
+  submissionDocumentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+
+  monthlyTotals  TrustAnnualMonthlyTotal[]
+  closedAccounts TrustAnnualClosedAccount[]
+  ledgerSnapshot     TrustClientLedgerSnapshot[]
+  outstandingCheques TrustOutstandingChequeLine[]
+  depositsInTransit  TrustDepositInTransitLine[]
+
+  @@unique([trustBankAccountId, periodStart])
+  @@index([cabinetId, periodStart])
+  @@index([cabinetId, status])
+}
+
+/// Art. 42(4) — « le total des recettes et des débours au cours de CHAQUE MOIS de la
+/// période ». Douze lignes, là où l'art. 41(4) n'en demande qu'une.
+model TrustAnnualMonthlyTotal {
+  id                 String @id @default(cuid())
+  annualReportId     String
+  periode            String // "YYYY-MM"
+  totalReceipts      Float  @default(0)
+  totalDisbursements Float  @default(0)
+  /// Le rapport mensuel de ce mois est-il certifié ? Conditionne la certification
+  /// annuelle (art. 40 combiné à l'art. 42).
+  monthlyReportCertified Boolean @default(false)
+
+  annualReport TrustAnnualReport @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
+
+  @@unique([annualReportId, periode])
+  @@index([annualReportId])
+}
+
+/// Art. 42(7) — « la liste de chacun des comptes généraux et particuliers en
+/// fidéicommis qui ont été fermés au cours de la période ».
+///
+/// C'est cette obligation qui explique qu'un compte fermé ne soit jamais supprimé :
+/// il doit pouvoir figurer au rapport annuel de la période de sa fermeture.
+model TrustAnnualClosedAccount {
+  id                 String   @id @default(cuid())
+  annualReportId     String
+  trustBankAccountId String
+  accountType        String   // GENERAL | PARTICULIER
+  accountLabel       String
+  institutionName    String
+  accountNumberLast4 String
+  clientName         String?
+  closedAt           DateTime
+  closureReason      String?
+
+  annualReport TrustAnnualReport @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
+
+  @@index([annualReportId])
+}
+
+model TrustProperty {
+  id                   String   @id @default(cuid())
+  cabinetId            String
+  clientId             String
+  dossierId            String?
+
+  /// Art. 43 / s. 18(9) — description du bien.
+  description          String
+  /// « s'il y a lieu » : le texte le conditionne. Un bien peut n'en porter aucun.
+  identificationNumber String?
+  /// s. 18(9) ON seulement. B-1 r.5 ne l'exige pas.
+  estimatedValue       Float?
+
+  /// s. 18(9) ON seulement — « the person who had possession immediately before ».
+  receivedFromName     String?
+  receivedAt           DateTime
+
+  /// Art. 45 QC — lieu de garde, et tout changement doit être communiqué au client.
+  /// L'historique est conservé : un lieu écrasé fait perdre la trace du déplacement.
+  storageLocation      String?
+  storageHistoryJson   String?
+  storageNotifiedAt    DateTime?
+
+  /// Art. 44 QC — le bien vient d'un tiers : le client doit en être informé sans délai.
+  fromThirdParty       Boolean   @default(false)
+  clientNotifiedAt     DateTime?
+
+  /// Art. 46 QC — « un autre bien en fidéicommis doit être utilisé selon son
+  /// affectation ». Sans affectation consignée, l'obligation est invérifiable.
+  purpose              String?
+
+  /// Art. 43 / s. 18(9) — remise du bien.
+  releasedAt           DateTime?
+  releasedToName       String?
+  releaseSignatureDocumentId String?
+
+  /// Province du régime appliqué : les champs exigés ne sont pas les mêmes.
+  province             String
+  createdById          String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@index([cabinetId])
+  @@index([cabinetId, releasedAt])
+  @@index([clientId])
+  @@index([dossierId])
+}
+
 model CashReceipt {
   id            String   @id @default(cuid())
   cabinetId     String
@@ -1981,7 +2257,10 @@ model TrustMonthlyReport {
 /// rapport est incomplet quoi qu'on fasse.
 model TrustClientLedgerSnapshot {
   id            String    @id @default(cuid())
-  reportId      String
+  /// Rattachement au rapport MENSUEL (art. 41) ou ANNUEL (art. 42). Les deux
+  /// rapports exigent les mêmes listes : les dupliquer ferait diverger deux
+  /// définitions d'une même chose.
+  reportId      String?
   clientId      String
   clientName    String
   dossierId     String?
@@ -1989,9 +2268,12 @@ model TrustClientLedgerSnapshot {
   balance       Float
   lastEntryDate DateTime?
 
-  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  annualReportId String?
+  annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
   @@index([reportId])
+  @@index([annualReportId])
 }
 
 /// Art. 41(2) — « la liste des chèques en circulation à la fin du mois, en indiquant
@@ -1999,7 +2281,7 @@ model TrustClientLedgerSnapshot {
 /// et le numéro ou la désignation du dossier ».
 model TrustOutstandingChequeLine {
   id           String   @id @default(cuid())
-  reportId     String
+  reportId     String?
   chequeId     String?
   chequeNumber Int
   issueDate    DateTime
@@ -2011,9 +2293,12 @@ model TrustOutstandingChequeLine {
   /// bancaire, PAS une règle du Barreau.
   stale        Boolean  @default(false)
 
-  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  annualReportId String?
+  annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
   @@index([reportId])
+  @@index([annualReportId])
 }
 
 /// Art. 41(3) — « la liste des recettes en circulation à la fin du mois, en indiquant
@@ -2021,7 +2306,7 @@ model TrustOutstandingChequeLine {
 /// désignation du dossier ».
 model TrustDepositInTransitLine {
   id             String   @id @default(cuid())
-  reportId       String
+  reportId       String?
   transactionId  String?
   receivedDate   DateTime
   amount         Float
@@ -2029,9 +2314,12 @@ model TrustDepositInTransitLine {
   clientName     String?
   dossierRef     String?
 
-  report TrustMonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  annualReportId String?
+  annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
   @@index([reportId])
+  @@index([annualReportId])
 }
 
 /// s. 18(8) By-Law 9 — « together with THE REASONS for any differences between the
@@ -2201,6 +2489,8 @@ model TrustBankAccount {
   reconciliations TrustReconciliation[]
   cheques         TrustCheque[]
   monthlyReports  TrustMonthlyReport[]
+  annualReports   TrustAnnualReport[]
+  interestRemittances  TrustInterestRemittance[]
   transferRequisitions ElectronicTrustTransferRequisition[]
   signatories          TrustSignatory[]
 

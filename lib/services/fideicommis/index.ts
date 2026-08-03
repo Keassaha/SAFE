@@ -101,3 +101,37 @@ export {
   getMaxBalancePreviousFiscalYear,
   TransferComplianceError,
 } from "./electronic-transfer-service";
+
+export {
+  recordTrustProperty,
+  moveTrustProperty,
+  recordClientNotice,
+  releaseTrustProperty,
+  listTrustProperties,
+  getPendingPropertyNotices,
+  checkPropertiesBeforeDossierClosure,
+  getPropertyRetention,
+  getPropertyFormFields,
+  TrustPropertyError,
+} from "./trust-property-service";
+
+export {
+  generateAnnualReport,
+  certifyAnnualReport,
+  attachAnnualBankStatement,
+  markAnnualReportSubmitted,
+  listAnnualReports,
+  AnnualReportBlockedError,
+} from "./annual-report-service";
+
+export {
+  detectShortfalls,
+  getOpenShortfalls,
+  getShortfallsForPeriod,
+  recordRemediation,
+  recordInterestRemittance,
+  getInterestRemittances,
+  TrustShortfallError,
+  type DetectedShortfall,
+  type ShortfallStatus,
+} from "./trust-shortfall-service";

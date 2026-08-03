@@ -1,6 +1,6 @@
 # Matrice de conformité — état réel
 
-**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07
+**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07 à CH-10
 **Source** : [audit du 2026-07-30](AUDIT_REGLEMENTAIRE_INSPECTION_2026-07-30.md) · [programme](PROGRAMME_INSPECTION_READY.md)
 
 > Ce document est destiné à être montré, y compris à un prospect. Il ne contient
@@ -27,11 +27,11 @@ initial confondait les deux, et l'aurait fait manquer entièrement.
 Méthode identique aux trois mesures : chaque obligation pondérée par criticité
 (critique 4, majeur 3, moyen 2, mineur 1), notée 1,0 couverte · 0,5 partielle · 0 absente.
 
-| | Départ | CH-01 | CH-02 | CH-03 | CH-04 | CH-05 | Actuel (CH-07) | Cible |
+| | Départ | CH-04 | CH-05 | CH-07 | CH-08 | CH-09 | Actuel (CH-10) | Cible |
 |---|---|---|---|---|---|---|---|---|
-| **Barreau du Québec** | 48 | 67 | 74 | 80 | 85 | 91 | **93 / 100** | 100 |
-| **Law Society of Ontario** | 42 | 49 | 57 | 66 | 71 | 77 | **92 / 100** | 100 |
-| **Global** | **45** | 58 | 66 | 73 | 78 | 84 | **93 / 100** | 100 |
+| **Barreau du Québec** | 48 | 85 | 91 | 93 | 96 | 98 | **99 / 100** | 100 |
+| **Law Society of Ontario** | 42 | 71 | 77 | 92 | 95 | 95 | **97 / 100** | 100 |
+| **Global** | **45** | 78 | 84 | 93 | 96 | 97 | **98 / 100** | 100 |
 
 ### Pourquoi l'Ontario bouge peu
 
@@ -55,7 +55,7 @@ Deux raisons, toutes deux honnêtes :
 | QC-41 | B-1 r.5, art. 56 | Trois motifs de retrait permis, et rien d'autre | ❌ | ✅ |
 | QC-42 | B-1 r.5, art. 57 | Aucun retrait en espèces d'un compte général | ❌ | ✅ |
 | QC-44 | B-1 r.5, art. 59 | Jamais plus que le solde du dossier | ✅ | ✅ durci (verrou étendu au dépôt et à la correction) |
-| QC-45 | B-1 r.5, art. 60 | Aucun solde de carte-client débiteur | 🟡 | ✅ au niveau écriture (alerte active : CH-10) |
+| QC-45 | B-1 r.5, art. 60 | Aucun solde de carte-client débiteur | 🟡 | ✅ (garde-fou à l'écriture + détection et suivi : CH-10) |
 | ON-13 | By-Law 9, s. 9(1) | Cinq motifs de retrait, dont facturation **délivrée** | ❌ | ✅ |
 | QC-05 | B-1 r.5, art. 13-14 | Occupation, nature des activités, personnes autorisées, tiers | 🟡 | ✅ |
 | QC-09 | B-1 r.5, art. 20 | Vérification déclenchée par tout mouvement de fonds | 🟡 | ✅ |
@@ -261,6 +261,109 @@ contrôle porte désormais sur l'**objet**, que le texte exige.
 s. 20 (hypothèques en fiducie) et s. 24 (dossier prêteur). Ce sont des registres de
 pratique immobilière, à ouvrir quand un cabinet de ce type sera servi.
 
+### 3.1 octies — CH-08 : les autres biens en fidéicommis
+
+L'un des rares blocs **entièrement absents** de SAFE. Un « autre bien en
+fidéicommis » est, selon l'art. 1(3), « tout bien, autre qu'une somme d'argent, reçu
+par un avocat pour être affecté suivant les instructions du client » : titres,
+actions, testaments originaux, actes notariés, clés, bijoux détenus en garantie.
+
+| Réf. | Article | Obligation | Avant | Après |
+|---|---|---|---|---|
+| QC-29 | art. 43 | Registre permanent, inscrit dès réception ou remise | ❌ | ✅ |
+| QC-30 | art. 44 | Informer sans délai le client quand le bien vient d'un tiers | ❌ | ✅ |
+| QC-31 | art. 45 | Aviser du lieu de garde **et de tout changement** | ❌ | ✅ |
+| QC-32 | art. 46 | Affectation du bien | ❌ | ✅ |
+| ON-32 | s. 18(9) | Registre avec **valeur** et **détenteur précédent** | ❌ | ✅ |
+
+**Les deux régimes n'exigent pas la même chose.** L'Ontario ajoute la valeur du bien
+et la personne qui le détenait immédiatement avant ; le Québec ajoute le lieu de
+garde, l'affectation et l'information du client. Le service **n'écrit pas** les
+champs de l'autre régime : un registre québécois ne porte pas de colonnes
+ontariennes vides, et inversement.
+
+**L'historique des lieux est conservé.** Écraser l'emplacement ferait perdre la trace
+du déplacement, alors que l'art. 45 vise précisément « tout changement d'emplacement
+subséquent ». Un déplacement **rouvre** l'obligation d'aviser : la notification
+précédente portait sur l'ancien emplacement.
+
+**Une nuance de conservation attrapée.** En Ontario, le registre des biens est le
+paragraphe 9 de la s. 18, visé par la s. 23(2) — **dix ans**, et non les six ans de
+la s. 23(1). Purger à six ans détruirait un registre encore exigible.
+
+Le registre est ajouté au moteur d'impression : neuvième registre produisible.
+
+### 3.1 nonies — CH-09 : le rapport comptable annuel
+
+| Réf. | Article | Obligation | Avant | Après |
+|---|---|---|---|---|
+| QC-28 | art. 42 | **Rapport comptable annuel, sept blocs** | ❌ | ✅ |
+| — | art. 42(4) | Totaux de **chaque mois** de la période | ❌ | ✅ |
+| — | art. 42(7) | Liste des **comptes fermés** durant la période | ❌ | ✅ |
+
+**Québec seulement, et l'affirmation est bornée.** By-Law 9, lu intégralement,
+n'impose aucun rapport comptable annuel : ses obligations périodiques s'arrêtent à la
+comparaison mensuelle. Le service refuse de s'exécuter hors Québec.
+
+*Incertitude déclarée* : le LSO impose par ailleurs un « Lawyer Annual Report ». Cette
+obligation ne figure pas dans By-Law 9 et n'a pas été lue. Elle n'est donc pas
+modélisée, et rien ne prétend la couvrir.
+
+**Deux blocs sans équivalent au rapport mensuel.** L'art. 42(4) exige les totaux de
+**chaque mois** — douze couples, là où l'art. 41(4) n'en demande qu'un. L'art. 42(7)
+exige la liste des comptes fermés durant la période : c'est cette obligation qui
+explique qu'un compte fermé ne soit jamais supprimé du système.
+
+**Le délai part de la demande, pas du calendrier.** L'art. 42 dit « dans les 30 jours
+suivant la réception d'une demande ». Sans demande, il n'y a pas d'échéance —
+seulement l'obligation de rendre compte « au moins une fois par an ». Calculer une
+échéance en l'absence de demande inventerait un délai.
+
+**Réutilisation plutôt que duplication.** Les blocs 42(1), 42(2) et 42(3) exigent les
+mêmes listes que les art. 41(1) à 41(3). Les trois tables de lignes du rapport
+mensuel accueillent donc aussi le rapport annuel. Dupliquer ferait diverger deux
+définitions d'une même chose, et un inspecteur qui recoupe le mensuel et l'annuel
+trouverait deux vérités.
+
+### 3.1 decies — CH-10 : le solde débiteur et les intérêts
+
+| Réf. | Article | Obligation | Avant | Après |
+|---|---|---|---|---|
+| QC-45 | art. 59, 60 | Combler **sans délai** tout solde débiteur | 🟡 | ✅ |
+| ON-23 | s. 9(3), 14 | Soldes suffisants **en tout temps** | 🟡 | ✅ |
+| — | art. 50 / L.S.A. s. 57 | Intérêts du compte général au Fonds d'études juridiques / à la Law Foundation | ❌ | 🟡 (suivi, pas calcul) |
+| — | art. 62 | Intérêts du compte particulier au client | ❌ | ✅ |
+
+**Le problème que ce chantier corrige.** Un solde débiteur n'était vu qu'au moment de
+certifier le rapprochement mensuel. Un découvert survenu le 3 pouvait donc vivre
+jusqu'au 25 du mois suivant sans que personne ne le sache. L'art. 60 dit « sans
+délai » et la s. 14 dit « at all times » : détecter une fois par mois ne peut
+satisfaire ni l'un ni l'autre. La détection est désormais déclenchée **à l'écriture**.
+
+**Aucun délai chiffré n'a été inventé.** Ni l'art. 60 ni la s. 14 ne donnent de nombre
+de jours. Le module mesure et affiche l'ancienneté d'un découvert, mais ne la convertit
+jamais en verdict : afficher « conforme jusqu'au jour 5 » fabriquerait une tolérance
+que le règlement ne donne pas.
+
+**Un incident comblé reste visible.** Un découvert survenu le 3 et comblé le 4
+n'apparaîtrait nulle part si l'on ne regardait que les soldes de fin de mois. Or c'est
+précisément ce qu'un inspecteur cherche : non pas l'état à une date, mais ce qui s'est
+passé. Masquer un incident résolu présenterait une comptabilité plus propre qu'elle ne
+l'a été.
+
+**Le renflouement par le cabinet est justifié par écrit.** L'art. 52 limite ce qui peut
+entrer au compte général ; un dépôt de renflouement n'entre littéralement dans aucune
+de ses catégories, mais l'art. 60 l'impose. Les deux articles se lisent ensemble et le
+raisonnement est inscrit dans le code, parce qu'un inspecteur peut poser la question.
+
+*Incertitude déclarée, et elle explique le 🟡.* **Ni B-1 r.10 ni la s. 57 de la Law
+Society Act n'ont été lus.** Le bénéficiaire des intérêts découle des articles lus et
+est donc certain, et SAFE l'impose au lieu de le laisser saisir. La **mécanique** ne
+l'est pas : taux, fréquence, formulaire. SAFE assure le **suivi** d'un versement
+constaté — période, montant, date, pièce — et ne calcule aucun montant. La table ne
+porte volontairement aucune colonne de taux : en ajouter une fabriquerait une règle
+que personne n'a vérifiée, et un cabinet verserait le chiffre obtenu.
+
 ### 3.2 Défauts de code corrigés
 
 | Défaut | Ce qu'il permettait | État |
@@ -285,8 +388,6 @@ liste de ce qui manque n'est pas un état, c'est une affiche.
 
 | Réf. | Article | Obligation | Chantier | Semaine |
 |---|---|---|---|---|
-| QC-29 à 32 | art. 43-46 | Registre des autres biens en fidéicommis | CH-08 | S9-S10 |
-| QC-28 | art. 42 | Rapport comptable annuel | CH-09 | S13 |
 | QC-16 | art. 29 | Accès inspecteur, trousse d'inspection | CH-11 | S14-S15 |
 
 **Total** : 113 obligations et défauts cartographiés, chacun affecté à un chantier.
