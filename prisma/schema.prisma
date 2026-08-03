@@ -133,6 +133,7 @@ model Cabinet {
   trustAnnualReports   TrustAnnualReport[]
   trustShortfalls      TrustShortfall[]
   inspectionSessions   InspectionAccessSession[]
+  successionPlan       PracticeSuccessionPlan?
   interestRemittances  TrustInterestRemittance[]
 }
 
@@ -1890,6 +1891,42 @@ model ReferralFee {
 ///
 /// La durée de 30 jours par défaut ne vient d'aucun texte : c'est un choix, et il est
 /// déclaré comme tel dans `lib/compliance/inspection-access.ts`.
+/// Cessionnaire désigné en cas de décès ou d'inaptitude.
+///
+/// Art. 78 B-1 r.5. C'est l'obligation la plus facile à manquer du règlement : elle se
+/// tient à froid, souvent des années avant qu'elle ne serve, et rien ne la rappelle.
+/// Elle appartient donc au tableau de conformité COURANT, pas à une procédure de fin
+/// de vie.
+///
+/// Art. 75-76 : le jour venu, la cession se fait à un avocat EN EXERCICE, et deux avis
+/// écrits distincts sont dus — au syndic ET aux clients.
+///
+/// ⚠️ QUÉBEC SEULEMENT. Le LSO impose un plan de succession, relevé en recherche web
+/// mais jamais lu dans un texte officiel. Le modèle ne prétend pas le couvrir.
+model PracticeSuccessionPlan {
+  id        String @id @default(cuid())
+  cabinetId String @unique
+
+  /// Avocat en exercice à qui les dossiers, livres et registres seront cédés.
+  successorName        String
+  successorBarreauNo   String?
+  successorEmail       String?
+  successorPhone       String?
+  /// Le cessionnaire a-t-il accepté ? Un cessionnaire qui l'ignore n'en est pas un.
+  successorConfirmedAt DateTime?
+
+  /// Révision : l'art. 78 n'impose aucune périodicité. La date sert à montrer que le
+  /// plan est vivant, pas à déclarer une échéance que le texte ne pose pas.
+  lastReviewedAt DateTime?
+
+  notes     String?
+  province  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+}
+
 model InspectionAccessSession {
   id        String @id @default(cuid())
   cabinetId String
@@ -2921,6 +2958,24 @@ model Document {
   hash                      String? // intégrité
   uploadedById              String
   retentionJusqua           DateTime?
+
+  /// Art. 19 B-1 r.5 — original APPARTENANT AU CLIENT.
+  ///
+  /// « L'avocat ne peut détruire un document original appartenant au client sans son
+  /// autorisation, ou sans lui avoir donné la possibilité de le reprendre. »
+  ///
+  /// Deux portes de sortie, pas une : l'autorisation OU l'offre de reprise. N'admettre
+  /// que l'autorisation bloquerait un cabinet dont le client ne répond plus, et le
+  /// pousserait à détruire sans rien consigner.
+  ///
+  /// ⚠️ Aucune colonne de délai après l'offre : l'art. 19 n'en fixe pas. La date de
+  /// l'offre est conservée pour que l'avocat puisse justifier son jugement, pas pour
+  /// qu'un compteur décide à sa place.
+  isClientOriginal          Boolean   @default(false)
+  clientAuthorizedDestroyAt DateTime?
+  returnOfferedAt           DateTime?
+  originalNote              String?
+
   sectionKey                String? // section de cartable suggérée/confirmée
   classificationSubtype     String?
   classificationConfidence  Int?
@@ -3440,6 +3495,22 @@ model CalendarEvent {
   startTime   String? // HH:mm
   endTime     String? // HH:mm
   allDay      Boolean             @default(false)
+
+  /// Art. 7 B-1 r.5 — nature juridique de l'échéance.
+  ///
+  /// « L'avocat doit tenir un système à jour de rappel des dates de prescription et de
+  /// tout délai influant sur les recours. »
+  ///
+  /// PRESCRIPTION | PROCEDURE | CONTRACTUAL | INTERNAL. Le `type` existant dit à quoi
+  /// ressemble l'événement ; cette colonne dit ce qu'il coûte de le manquer. Une
+  /// prescription manquée éteint le droit du client : ce n'est pas un retard.
+  ///
+  /// ⚠️ SAISIE HUMAINE, JAMAIS DEVINÉE. Classer une échéance d'après son intitulé
+  /// afficherait un faux calme quand on se trompe dans un sens, et noierait les vraies
+  /// prescriptions sous des alertes critiques quand on se trompe dans l'autre. Tant que
+  /// la colonne est nulle, l'échéance est traitée comme un rappel interne.
+  deadlineKind String?
+
   location    String?
   clientId    String?
   dossierId   String?

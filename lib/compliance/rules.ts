@@ -70,15 +70,46 @@ export interface ComplianceRule {
   deadline?: string;
   /** Note de nuance (périmètre à confirmer, anomalie code, etc.). */
   note?: string;
+
+  /* ── Traçabilité (CH-12) ──────────────────────────────────────
+   *
+   * L'audit du 2026-07-30 a trouvé huit entrées fausses ou imprécises dans ce
+   * registre. Elles l'étaient parce qu'aucune entrée ne disait CONTRE QUOI elle avait
+   * été vérifiée, ni PAR QUEL code elle était appliquée. Une règle sans ces deux
+   * informations ne peut être ni défendue ni corrigée. */
+
+  /** Article exact du texte primaire. `null` quand la règle n'en a pas un unique. */
+  article?: string | null;
+  /**
+   * Date de vérification contre le TEXTE PRIMAIRE (pas contre une note interne).
+   * Absente = la règle n'a jamais été confrontée au texte officiel.
+   */
+  verifiedOn?: string;
+  /**
+   * Contrôle logiciel qui applique la règle : module et fonction. Absent = la règle
+   * est connue mais rien ne l'applique. C'est une information, pas un défaut.
+   */
+  controlId?: string;
 }
 
 /**
- * Flag de branchement (Phase 1). Défaut ÉTEINT : tant qu'il l'est, aucune surface de
- * production ne consomme ce module. Le module reste importable et testable.
+ * Flag de branchement. Défaut ALLUMÉ depuis CH-12 (2026-08-03).
+ *
+ * Il est resté éteint tant que le registre n'avait pas été confronté au texte primaire.
+ * L'audit du 2026-07-30 a montré qu'il avait raison de l'être : huit entrées étaient
+ * fausses ou imprécises, dont `CASH-01` qui omettait l'agrégation ontarienne et les
+ * six exceptions. Un registre faux affiché à un cabinet est pire qu'un registre absent :
+ * l'avocat s'y fie.
+ *
+ * Ces huit entrées sont corrigées, et la doctrine ADR-011 continue de filtrer :
+ * `getDisplayableRules` ne renvoie jamais une règle INCERTAIN ni une règle sans source.
+ *
+ * `COMPLIANCE_RULES_ENABLED=0` éteint toujours, pour pouvoir refermer sans déploiement
+ * si une erreur apparaissait en production.
  */
 export const COMPLIANCE_RULES_ENABLED =
-  process.env.COMPLIANCE_RULES_ENABLED === "1" ||
-  process.env.COMPLIANCE_RULES_ENABLED === "true";
+  process.env.COMPLIANCE_RULES_ENABLED !== "0" &&
+  process.env.COMPLIANCE_RULES_ENABLED !== "false";
 
 /**
  * Le registre. Encodage fidèle de REGISTRE_OBLIGATIONS.md v0.2.
@@ -106,8 +137,13 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     statement: {
       fr: "Registres : journal caisse (art. 38), cartes-clients (art. 39, 66), rapports mensuels (art. 40-41), autres biens (art. 43).",
       en: "Required records: cash journal (s. 38), client ledgers (s. 39, 66), monthly reports (s. 40-41), other property (s. 43)." },
-    source: "RECHERCHE_COMPTA §2 (l.65)",
-    note: "Art. 43 (biens non monétaires) non couvert par SAFE." },
+    article: "art. 38, 39, 40-41, 43-46, 66", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/registers.ts#getRegisters",
+    source: "RLRQ c. B-1, r. 5, art. 38, 39, 40, 41, 43 à 46, 66 (LegisQuébec, lu intégralement le 2026-07-30)",
+    // CORRIGÉE AU CH-12 : la note disait « art. 43 non couvert ». Le périmètre réel est
+    // plus large (art. 43 à 46 : registre, information du client, lieu de garde,
+    // affectation), et il est couvert depuis CH-08.
+    note: "Les art. 43 à 46 (autres biens en fidéicommis) sont couverts depuis CH-08." },
   { id: "TR-QC-05", domain: "fideicommis", jurisdiction: "QC", confidence: "CONFIRME",
     statement: {
       fr: "Rapprochement à trois voies : journal ↔ carte-client ↔ relevé bancaire.",
@@ -129,11 +165,17 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
       fr: "Intérêts du fidéicommis versés au Fonds d'études juridiques du Barreau (B-1, r. 10).",
       en: "Trust interest remitted to the Barreau's Fonds d'études juridiques (B-1, r. 10)." },
     source: "RECHERCHE_COMPTA §0 (l.17,72) ; CanLII rlrq-c-b-1-r-10" },
+  // CORRIGÉE AU CH-12. L'entrée disait « sans délai indu » et s'arrêtait là, omettant
+  // les trois conditions que l'art. 50 pose sur le compte lui-même. Un cabinet pouvait
+  // donc croire la règle satisfaite avec un dépôt rapide dans n'importe quel compte.
   { id: "TR-QC-09", domain: "fideicommis", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 50", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/trust-bank-account.ts#validateTrustBankAccount",
     statement: {
-      fr: "Dépôt des sommes reçues « sans délai indu » (pas de délai chiffré au Québec).",
-      en: "Funds received deposited without undue delay (no fixed number of days in Quebec)." },
-    source: "RECHERCHE_COMPTA §2 (l.69)" },
+      fr: "Dépôt « sans délai » après réception, dans une succursale québécoise d'une institution assurée ayant conclu une entente avec le Barreau (B-1, r. 10), sur un compte identifié « en fidéicommis » / « in trust ».",
+      en: "Deposit \"without delay\" after receipt, in a Quebec branch of an insured institution party to an agreement with the Barreau (B-1, r. 10), in an account identified \"en fidéicommis\" / \"in trust\"." },
+    source: "RLRQ c. B-1, r. 5, art. 50 (LegisQuébec, lu intégralement le 2026-07-30)",
+    note: "La liste des institutions ayant conclu l'entente n'a pas été obtenue (dépendance externe E-2). SAFE vérifie le libellé du compte et la succursale, pas l'entente." },
   { id: "TR-ON-01", domain: "fideicommis", jurisdiction: "ON", confidence: "CONFIRME",
     statement: {
       fr: "Comptabilité en fidéicommis régie par By-Law 9 (LSO).",
@@ -154,11 +196,19 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
       fr: "Intérêts des comptes groupés versés à la Law Foundation of Ontario (s. 57 Law Society Act).",
       en: "Pooled account interest remitted to the Law Foundation of Ontario (s. 57 Law Society Act)." },
     source: "RECHERCHE_COMPTA §2 (l.72)" },
+  // CORRIGÉE AU CH-12. L'entrée citait l'art. 1(3) comme une règle de délai général.
+  // C'est une PRÉSOMPTION, applicable seulement aux par. 9(1)(2)(3) et à l'art. 14.
+  // La règle de dépôt est la s. 7(1), et elle dit « immediately », pas « le jour
+  // ouvrable suivant ». La citation d'origine était à la fois plus permissive que le
+  // texte et attribuée au mauvais article.
   { id: "TR-ON-05", domain: "fideicommis", jurisdiction: "ON", confidence: "CONFIRME",
+    article: "s. 7(1)", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/trust-records.ts#evaluateDepositDelay",
     statement: {
-      fr: "Sommes reçues déposées au plus tard le jour ouvrable bancaire suivant (art. 1(3)).",
-      en: "Funds received deposited no later than the next banking day (s. 1(3))." },
-    source: "RECHERCHE_COMPTA §0 (l.22) ; LSO By-Law 9" },
+      fr: "Les sommes reçues en fiducie doivent être déposées IMMÉDIATEMENT au compte en fiducie (s. 7(1)).",
+      en: "Money received in trust shall be paid immediately into the trust account (s. 7(1))." },
+    source: "LSO By-Law 9, s. 7(1) (PDF officiel, lu intégralement le 2026-07-30)",
+    note: "L'art. 1(3) n'est pas une règle de délai : c'est une présomption limitée aux par. 9(1)(2)(3) et à l'art. 14." },
   { id: "TR-ON-06", domain: "fideicommis", jurisdiction: "ON", confidence: "CONFIRME",
     statement: {
       fr: "Plan de contingence écrit obligatoire (praticien seul : désigner un administrateur), révisé annuellement.",
@@ -166,42 +216,80 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     source: "LSO Mandatory Succession Planning ; OBA (recherche web 2026-07)",
     effectiveDate: "2025-01-01", deadline: "2026-03-31",
     note: "Déclaration via rapport annuel. Numéro « By-Law 8 » de la source interne à confirmer. Non capté par SAFE." },
-  { id: "TR-QC-11", domain: "fideicommis", jurisdiction: "QC", confidence: "INCERTAIN",
+  // REMPLACÉE AU CH-12. Le libellé « Rapport Annuel sur la Pratique (RAP) » n'apparaît
+  // nulle part dans B-1 r. 5. L'objet réel est le rapport comptable annuel de l'art. 42.
+  // Garder un identifiant pour un document qui n'existe pas sous ce nom aurait envoyé
+  // un cabinet chercher le mauvais formulaire.
+  { id: "TR-QC-11", domain: "fideicommis", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 42", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/annual-report.ts#getAnnualBlocks",
     statement: {
-      fr: "Rapport Annuel sur la Pratique (RAP) : contenu exact et délai de dépôt.",
-      en: "Annual Practice Report (RAP): exact content and filing deadline." },
-    source: "Non confirmé — voir QUESTIONS_BARREAU.md", openQuestion: "Q-BARREAU-02" },
-  { id: "TR-QC-12", domain: "fideicommis", jurisdiction: "QC", confidence: "INCERTAIN",
+      fr: "Rapport comptable annuel : au moins une fois par an, et dans les 30 jours d'une demande du directeur de l'inspection professionnelle, sur le formulaire prescrit, couvrant les 12 mois identifiés dans la demande.",
+      en: "Annual accounting report: at least once a year, and within 30 days of a request from the director of professional inspection, on the prescribed form, covering the 12 months identified in the request." },
+    source: "RLRQ c. B-1, r. 5, art. 42 (LegisQuébec, lu intégralement le 2026-07-30)",
+    note: "Le formulaire est prescrit par le Comité exécutif et n'a pas été obtenu (dépendance externe E-1)." },
+  // RECLASSÉE AU CH-12. La question est tranchée sur la foi du texte lu : B-1 r. 5 n'impose
+  // AUCUN audit CPA indépendant. Ce qu'il impose est le rapport comptable annuel de
+  // l'art. 42, signé par l'avocat lui-même.
+  //
+  // ⚠️ L'affirmation est bornée au règlement lu. D'autres instruments (assureur,
+  // conditions d'un prêteur, exigence contractuelle) peuvent l'exiger par ailleurs.
+  { id: "TR-QC-12", domain: "fideicommis", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 42", verifiedOn: "2026-07-30",
     statement: {
-      fr: "Vérification annuelle des comptes fiduciaires par un CPA indépendant : obligatoire ou non ?",
-      en: "Annual trust account audit by an independent CPA: mandatory or not?" },
-    source: "Non confirmé (absent du fact-check) — voir QUESTIONS_BARREAU.md", openQuestion: "Q-BARREAU-03" },
+      fr: "Aucun audit annuel par un CPA indépendant n'est imposé par B-1 r. 5. L'obligation est le rapport comptable annuel de l'art. 42, produit par l'avocat.",
+      en: "No annual independent CPA audit is required by B-1 r. 5. The obligation is the annual accounting report under s. 42, produced by the lawyer." },
+    source: "RLRQ c. B-1, r. 5, lu intégralement le 2026-07-30 — aucune disposition d'audit externe",
+    note: "Affirmation bornée à B-1 r. 5. D'autres instruments peuvent exiger une vérification externe." },
 
   // ── 2. Plafond d'espèces ──────────────────────────────────────
-  { id: "CASH-01", domain: "cash", jurisdiction: "ALL", confidence: "CONFIRME",
+  // CORRIGÉE AU CH-12 — c'était la plus grave. L'entrée était juste sur le seuil et
+  // fausse sur tout le reste, DANS LES DEUX SENS : elle bloquait ce qui est permis
+  // (les six exceptions) et laissait passer ce qui est interdit (l'agrégation
+  // ontarienne : trois dépôts de 3 000 $ sur le même dossier franchissent le seuil).
+  // Le mot « agrégé » était absent du registre ET du code.
+  { id: "CASH-QC-01", domain: "cash", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 69", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/cash.ts#evaluateCashAcceptance",
     statement: {
-      fr: "Règle « No Cash » : interdit d'accepter 7 500 $ ou plus en espèces pour un mandat.",
-      en: "\"No Cash\" rule: accepting $7,500 or more in cash for a matter is prohibited." },
-    source: "RECHERCHE_COMPTA §2 (l.71) ; trust-transaction-service.ts:16,72",
-    note: "Périmètre exact (exceptions, agrégation) à confirmer — voir Q-FED-02." },
+      fr: "Interdit de RECEVOIR EN FIDÉICOMMIS 7 500 $ ou plus en espèces pour un même mandat, sous réserve des six exceptions de l'art. 69.",
+      en: "Receiving IN TRUST $7,500 or more in cash for a single matter is prohibited, subject to the six exceptions in s. 69." },
+    source: "RLRQ c. B-1, r. 5, art. 69 (LegisQuébec, lu intégralement le 2026-07-30)" },
+  { id: "CASH-ON-01", domain: "cash", jurisdiction: "ON", confidence: "CONFIRME",
+    article: "s. 4(1)", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/cash.ts#evaluateCashAcceptance",
+    statement: {
+      fr: "Interdit de recevoir 7 500 $ ou plus en espèces, montant AGRÉGÉ par dossier client, sous réserve des exceptions de la s. 6.",
+      en: "Receiving $7,500 or more in cash is prohibited, AGGREGATED per client matter, subject to the exceptions in s. 6." },
+    source: "LSO By-Law 9, s. 4(1) et s. 6 (PDF officiel, lu intégralement le 2026-07-30)",
+    note: "L'agrégation est la différence de fond avec le Québec : elle est vérifiée à chaque dépôt depuis CH-05." },
+  // ENRICHIE AU CH-12. Le délai était exact, le contenu de la déclaration manquait :
+  // un cabinet qui envoie une déclaration nue au bon moment n'a pas satisfait l'art. 71.
   { id: "CASH-QC-02", domain: "cash", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 71", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/cash.ts#getCashDeclarationDuty",
     statement: {
-      fr: "Déclaration au Barreau des sommes reçues en espèces dans les 30 jours (art. 71).",
-      en: "Declaration to the Barreau of cash amounts received within 30 days (s. 71)." },
-    source: "RECHERCHE_COMPTA §2 (l.71)",
-    note: "Non implémenté dans SAFE." },
+      fr: "Déclaration au DIRECTEUR DE L'INSPECTION PROFESSIONNELLE dans les 30 jours, accompagnée d'une copie du reçu et de la mention du fondement (honoraires gagnés, débours engagés, ou cas de l'art. 69).",
+      en: "Declaration to the DIRECTOR OF PROFESSIONAL INSPECTION within 30 days, with a copy of the receipt and the stated basis (fees earned, disbursements incurred, or an s. 69 case)." },
+    source: "RLRQ c. B-1, r. 5, art. 71 (LegisQuébec, lu intégralement le 2026-07-30)" },
 
   // ── 3. Conservation / rétention ───────────────────────────────
+  // ENRICHIE AU CH-12. Les deux entrées disaient « 7 ans » sans dire à partir de quoi.
+  // Or les points de départ diffèrent, et confondre les deux fait purger trop tôt.
   { id: "RET-QC-01", domain: "retention", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 31", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/retention.ts#getRetentionRule",
     statement: {
-      fr: "Dossiers clients conservés 7 ans après la fermeture.",
-      en: "Client files retained 7 years after closing." },
-    source: "RECHERCHE_COMPTA §2 (l.68)" },
+      fr: "Livres et registres conservés 7 ans À COMPTER DE LA FERMETURE DU DOSSIER. Un dossier ouvert n'a pas commencé à courir.",
+      en: "Books and records retained 7 years FROM FILE CLOSURE. An open file has not started the clock." },
+    source: "RLRQ c. B-1, r. 5, art. 31 (LegisQuébec, lu intégralement le 2026-07-30)" },
   { id: "RET-QC-02", domain: "retention", jurisdiction: "QC", confidence: "CONFIRME",
+    article: "art. 32", verifiedOn: "2026-07-30",
+    controlId: "lib/compliance/retention.ts#getRetentionRule",
     statement: {
-      fr: "Rapports mensuels et copies de chèques fidéicommis conservés 7 ans après la fin de l'exercice.",
-      en: "Monthly reports and trust cheque copies retained 7 years after fiscal year-end." },
-    source: "RECHERCHE_COMPTA §2 (l.68)" },
+      fr: "Rapports mensuels, copies de chèques reçus en fidéicommis et TOUTES les pièces justificatives conservés 7 ans APRÈS LA FIN DE L'EXERCICE FINANCIER — point de départ différent de l'art. 31.",
+      en: "Monthly reports, copies of trust cheques received and ALL supporting documents retained 7 years AFTER FISCAL YEAR END — a different starting point from s. 31." },
+    source: "RLRQ c. B-1, r. 5, art. 32 (LegisQuébec, lu intégralement le 2026-07-30)" },
   { id: "RET-QC-03", domain: "retention", jurisdiction: "QC", confidence: "PARTIEL",
     statement: {
       fr: "Durées de conservation plus longues selon le domaine (immobilier, prescription, etc.).",

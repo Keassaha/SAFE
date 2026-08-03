@@ -1,6 +1,6 @@
 # Matrice de conformité — état réel
 
-**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07 à CH-11
+**Dernière mise à jour** : 2026-07-31, après les chantiers CH-00, CH-06, CH-01 à CH-05 et CH-07 à CH-12 — programme terminé
 **Source** : [audit du 2026-07-30](AUDIT_REGLEMENTAIRE_INSPECTION_2026-07-30.md) · [programme](PROGRAMME_INSPECTION_READY.md)
 
 > Ce document est destiné à être montré, y compris à un prospect. Il ne contient
@@ -27,16 +27,41 @@ initial confondait les deux, et l'aurait fait manquer entièrement.
 Méthode identique aux trois mesures : chaque obligation pondérée par criticité
 (critique 4, majeur 3, moyen 2, mineur 1), notée 1,0 couverte · 0,5 partielle · 0 absente.
 
-| | Départ | CH-05 | CH-07 | CH-08 | CH-09 | CH-10 | Actuel (CH-11) | Cible |
+| | Départ | CH-07 | CH-08 | CH-09 | CH-10 | CH-11 | Actuel (CH-12) | Cible |
 |---|---|---|---|---|---|---|---|---|
-| **Barreau du Québec** | 48 | 91 | 93 | 96 | 98 | 99 | **99 / 100** | 100 |
-| **Law Society of Ontario** | 42 | 77 | 92 | 95 | 95 | 97 | **99 / 100** | 100 |
-| **Global** | **45** | 84 | 93 | 96 | 97 | 98 | **99 / 100** | 100 |
+| **Barreau du Québec** | 48 | 93 | 96 | 98 | 99 | 99 | **100 / 100** | 100 |
+| **Law Society of Ontario** | 42 | 92 | 95 | 95 | 97 | 99 | **99 / 100** | 100 |
+| **Global** | **45** | 93 | 96 | 97 | 98 | 99 | **99 / 100** | 100 |
 
-Le point qui manque n'est pas un artefact d'arrondi : il est tenu par **CH-12**
-(registre de conformité vivant, art. 7, 9, 15, 19 et 74-82 QC — prescription, dossiers
-fermés, registre des codes, originaux du client, cessation d'exercice). Tant qu'il est
-ouvert, ni le Québec ni l'Ontario ne sont à 100, et l'écrire serait faux.
+### Ce que « 100 » veut dire au Québec, et ce qu'il ne veut pas dire
+
+Les treize chantiers du programme sont livrés, et **toutes les obligations de
+RLRQ c. B-1, r. 5 relevées par l'audit du 2026-07-30 sont couvertes**. C'est ce que
+mesure le 100 : les articles lus, encodés, testés et opposables.
+
+Ce que ce chiffre **ne dit pas** :
+
+- Il ne couvre que le corpus **lu** : B-1 r. 5, By-Law 9, By-Law 7.1 partie III. Le
+  Code de déontologie des avocats, B-1 r. 10, les Rules of Professional Conduct et les
+  Practice Management Guidelines n'ont pas été lus, et les règles qui en dépendent
+  restent marquées INCERTAIN dans le registre.
+- Huit dépendances externes restent ouvertes (E-1 à E-8) : formulaires prescrits par le
+  Comité exécutif, liste des institutions ayant conclu l'entente B-1 r. 10, validation du
+  Form 9A auprès du LSO Spot Audit.
+- **Le moteur est bâti, les écrans ne le sont pas.** Un cabinet ne voit encore presque
+  rien de ce qui a été construit. La conformité d'un logiciel n'est pas la conformité
+  d'un cabinet.
+
+**SAFE ne garantit toujours pas la conformité d'un cabinet, et ne le prétendra pas.**
+Ce chiffre mesure la couverture du produit, pas la pratique de l'avocat.
+
+### L'Ontario reste à 99, et l'écart est nommé
+
+By-Law 9 est intégralement couvert. Ce qui manque n'est pas dans By-Law 9 : la
+prescription, les originaux du client et la cession de pratique ont des équivalents
+ontariens **probables**, dans des instruments qui n'ont pas été lus. Les modéliser par
+symétrie avec le Québec aurait été la pire façon de servir un cabinet ontarien : il
+aurait suivi des règles québécoises en croyant suivre les siennes.
 
 ### Pourquoi l'Ontario bouge peu
 
@@ -420,6 +445,67 @@ manifeste dit lui-même qu'il ne vaut pas attestation de conformité.
 
 *Ce qui n'est pas réglementaire, et le dit* : la durée de 30 jours d'un accès et les
 empreintes SHA-256 ne sont exigées par aucun article. Ce sont des moyens, choisis ici.
+
+### 3.1 duodecies — CH-12 : registre vivant et cycle de vie du cabinet
+
+| Réf. | Article | Obligation | Avant | Après |
+|---|---|---|---|---|
+| QC-01 | art. 7 | Rappel des dates de **prescription** et de tout délai influant sur les recours | 🟡 | ✅ |
+| QC-03 | art. 9 | Liste des dossiers **fermés sur 7 ans** | 🟡 | ✅ |
+| QC-06 | art. 15 | **Registre des codes** si identification codifiée | 🟡 | ✅ |
+| QC-08 | art. 19 | Interdiction de détruire un **original du client** sans autorisation ni offre de reprise | ❌ | ✅ |
+| QC-59 | art. 75-76 | Cession à un avocat en exercice ; **avis écrit au syndic ET aux clients** | ❌ | ✅ |
+| QC-60 | art. 78 | **Cessionnaire désigné** en cas de décès ou d'inaptitude | ❌ | ✅ |
+| QC-61 | art. 82 | Conservation 7 ans des dossiers non repris | 🟡 | ✅ |
+| — | §0.3 audit | Les **8 entrées erronées** du registre interne | ❌ | ✅ corrigées et verrouillées par tests |
+
+**Le registre interne est allumé.** `COMPLIANCE_RULES_ENABLED` passe à ALLUMÉ par défaut.
+Il est resté éteint tant que le registre n'avait pas été confronté au texte primaire, et
+il avait raison de l'être : l'audit y a trouvé huit entrées fausses ou imprécises. Un
+registre faux affiché à un cabinet est pire qu'un registre absent, parce que l'avocat
+s'y fie. `COMPLIANCE_RULES_ENABLED=0` referme sans déploiement.
+
+**La plus grave des huit.** `CASH-01` était juste sur le seuil et fausse sur tout le
+reste, **dans les deux sens** : elle bloquait ce qui est permis (les six exceptions) et
+laissait passer ce qui est interdit (l'agrégation ontarienne — trois dépôts de 3 000 $
+sur le même dossier). Elle est scindée en `CASH-QC-01` (art. 69) et `CASH-ON-01`
+(s. 4(1), agrégé).
+
+**Deux autres méritent d'être nommées.** `TR-ON-05` citait l'art. 1(3) comme règle de
+délai : c'est une présomption limitée aux par. 9(1)(2)(3) et à l'art. 14, et la vraie
+règle — s. 7(1) — dit « immediately », pas « le jour ouvrable suivant ». La citation
+était donc à la fois mal attribuée et **plus permissive que le texte**. `TR-QC-11`
+désignait un « Rapport Annuel sur la Pratique (RAP) » qui n'existe nulle part dans le
+règlement : un cabinet serait allé chercher le mauvais formulaire.
+
+**Chaque règle porte désormais sa traçabilité** : article exact, date de confrontation
+au texte primaire, et identifiant du contrôle logiciel qui l'applique. Une règle sans
+ces informations ne peut être ni défendue ni corrigée, et c'est précisément pour cela
+que huit erreurs avaient pu survivre.
+
+**Ce que SAFE refuse de deviner.** La nature d'une échéance est **saisie**, jamais
+déduite de son intitulé : se tromper dans un sens afficherait un faux calme, et se
+tromper dans l'autre noierait les vraies prescriptions sous des alertes critiques. Tant
+que la nature n'est pas saisie, l'échéance est un rappel interne, sans effet juridique
+déclaré. Aucune reprise de données n'a été faite dans ce sens.
+
+**Une prescription dépassée reste affichée**, en permanence. C'est précisément le moment
+où le cabinet doit agir — aviser le client, aviser l'assureur. Un système qui la ferait
+disparaître le lendemain aiderait à l'oublier.
+
+**Deux portes de sortie à l'art. 19, pas une.** L'autorisation du client OU l'offre de
+reprise. N'admettre que l'autorisation bloquerait un cabinet dont le client ne répond
+plus, et le pousserait à détruire sans rien consigner. Et **aucun délai n'a été inventé
+après l'offre** : l'art. 19 n'en fixe pas, la date est conservée pour que l'avocat
+justifie son jugement, pas pour qu'un compteur décide à sa place.
+
+**Le garde-fou ne requalifie pas l'existant.** Un document déjà en base n'est pas
+rétroactivement déclaré « original du client » : cela bloquerait des suppressions
+légitimes sans que personne ne comprenne pourquoi, et la première réaction serait de
+contourner le garde-fou.
+
+*Ce qui n'est pas réglementaire, et le dit* : les préavis d'alerte (180, 90, 30, 7 jours)
+sont des choix de produit. L'art. 7 dit « à jour », il ne chiffre rien.
 
 ### 3.2 Défauts de code corrigés
 

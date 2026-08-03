@@ -131,8 +131,13 @@ export async function GET() {
   score = Math.max(0, score);
 
   // Obligations de conformité sourcées, province-aware (ADR-011).
-  // Sous flag COMPLIANCE_RULES_ENABLED (défaut éteint) : rien n'est renvoyé tant que
-  // le flag n'est pas activé, donc aucun changement de comportement en production.
+  //
+  // Le flag COMPLIANCE_RULES_ENABLED est ALLUMÉ par défaut depuis CH-12. Il est resté
+  // éteint tant que le registre n'avait pas été confronté au texte primaire, et il
+  // avait raison de l'être : l'audit du 2026-07-30 y a trouvé huit entrées fausses ou
+  // imprécises. Elles sont corrigées. `COMPLIANCE_RULES_ENABLED=0` referme sans
+  // déploiement si une erreur apparaissait.
+  //
   // getDisplayableRules exclut par construction tout INCERTAIN et toute règle sans source.
   const locale = localeForProvince(province);
   const obligations = COMPLIANCE_RULES_ENABLED
@@ -142,6 +147,11 @@ export async function GET() {
         statement: r.statement[locale],
         source: r.source,
         confidence: r.confidence,
+        // Traçabilité CH-12 : l'article exact et la date de confrontation au texte
+        // primaire. Un cabinet à qui l'on affiche une obligation doit pouvoir la lire
+        // à la source.
+        article: r.article ?? null,
+        verifiedOn: r.verifiedOn ?? null,
         deadline: r.deadline ?? null,
       }))
     : [];
