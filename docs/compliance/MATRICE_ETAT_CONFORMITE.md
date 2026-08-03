@@ -33,6 +33,13 @@ Méthode identique aux trois mesures : chaque obligation pondérée par criticit
 | **Law Society of Ontario** | 42 | 92 | 95 | 95 | 97 | 99 | **99 / 100** | 100 |
 | **Global** | **45** | 93 | 96 | 97 | 98 | 99 | **99 / 100** | 100 |
 
+> ⚠️ **Ce tableau mesure le moteur, pas le cabinet.** Une réévaluation du 2026-08-03
+> ([REEVALUATION_2026-08-03.md](REEVALUATION_2026-08-03.md)) montre qu'un seul service de
+> conformité sur douze possède un écran, et qu'un cabinet inspecté aujourd'hui ne pourrait
+> produire que **6 des 25 documents** du §16.2 de l'audit. La capacité réelle de production
+> est estimée à **≈ 40 / 100**, contre 99 pour la couverture du moteur. Lire les deux
+> chiffres ensemble.
+
 ### Ce que « 100 » veut dire au Québec, et ce qu'il ne veut pas dire
 
 Les treize chantiers du programme sont livrés, et **toutes les obligations de
