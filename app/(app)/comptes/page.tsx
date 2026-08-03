@@ -6,6 +6,7 @@ import { AddTransactionButton } from "@/components/fideicommis/AddTransactionBut
 import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
 export default async function ComptesPage() {
   const t = await getTranslations("accountingUi");
@@ -41,12 +42,22 @@ export default async function ComptesPage() {
         backHref={routes.facturation}
         backLabel={t("backToBilling")}
         action={
-          <AddTransactionButton
+          <div className="flex items-center gap-2">
+            {/* Le rapport mensuel est le premier document qu'un inspecteur demande.
+                Il vit à un clic de l'écran des comptes, pas dans un sous-menu. */}
+            <Link
+              href={routes.rapportMensuel}
+              className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
+            >
+              Rapport mensuel
+            </Link>
+            <AddTransactionButton
             canEdit={canEdit}
             cabinetId={cabinetId}
             clients={clients}
-            dossiers={dossiers}
-          />
+              dossiers={dossiers}
+            />
+          </div>
         }
       />
 

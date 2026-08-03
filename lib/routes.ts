@@ -60,6 +60,8 @@ export const routes = {
   employeeNouveau: "/employees/nouveau",
   employeeYearEnd: "/employees/year-end",
   comptes: "/comptes",
+  /// Rapport comptable mensuel — art. 41 B-1 r.5 / s. 18(8) By-Law 9.
+  rapportMensuel: "/comptes/rapport-mensuel",
   conformite: "/conformite",
   connexion: "/connexion",
   inscription: "/inscription",
