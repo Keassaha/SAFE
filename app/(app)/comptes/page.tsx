@@ -46,6 +46,12 @@ export default async function ComptesPage() {
             {/* Le rapport mensuel est le premier document qu'un inspecteur demande.
                 Il vit à un clic de l'écran des comptes, pas dans un sous-menu. */}
             <Link
+              href={routes.trousseInspection}
+              className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
+            >
+              Trousse d'inspection
+            </Link>
+            <Link
               href={routes.rapportMensuel}
               className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
             >

@@ -62,6 +62,8 @@ export const routes = {
   comptes: "/comptes",
   /// Rapport comptable mensuel — art. 41 B-1 r.5 / s. 18(8) By-Law 9.
   rapportMensuel: "/comptes/rapport-mensuel",
+  /// Trousse d'inspection — art. 29, 30, 33 B-1 r.5 / By-Law 9, par. 21(2).
+  trousseInspection: "/comptes/trousse-inspection",
   conformite: "/conformite",
   connexion: "/connexion",
   inscription: "/inscription",
