@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { Session } from "next-auth";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { MobileSidebar } from "@/components/layout/MobileSidebar";

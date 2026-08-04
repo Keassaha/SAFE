@@ -6,7 +6,7 @@ import {
   recordRemediationAction,
   refreshShortfallsAction,
   type ActionResult,
-} from "@/app/(app)/comptes/soldes-debiteurs/actions";
+} from "@/app/(app)/inspection/soldes-debiteurs/actions";
 import {
   BlockHeader,
   Disclosure,

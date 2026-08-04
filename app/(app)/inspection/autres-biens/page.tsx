@@ -68,8 +68,8 @@ export default async function AutresBiensPage() {
       <PageHeader
         title="Autres biens en fidéicommis"
         description="Ce que vous détenez pour un client et qui n'est pas de l'argent."
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <TrustPropertyScreen

@@ -1,36 +1,33 @@
 import React from "react";
 import { PALETTE } from "./theme";
-import { LogoMono } from "./primitives";
-import type { Variant } from "@/types/audit-report";
+import { Logo } from "./primitives";
+import { Eyebrow, DisplayTitle, Lede } from "./primitives";
 
 interface PageShellProps {
   children: React.ReactNode;
+  /** Numéro + nom de section, ex. « 02 · Ce que ça vous coûte ». */
+  eyebrow: string;
+  /** Titre de la page. */
+  title: React.ReactNode;
+  /** Une phrase qui dit ce que le lecteur va trouver ici. */
+  lede?: string;
+  /** Libellé repris en pied de page. */
   pageLabel: string;
   pageNum: string;
-  total?: string;
+  total: string;
   date?: string;
-  variant: Variant;
-  darkPage?: boolean;
 }
 
 export function PageShell({
   children,
+  eyebrow,
+  title,
+  lede,
   pageLabel,
   pageNum,
-  total = "06",
+  total,
   date,
-  variant,
-  darkPage = false,
 }: PageShellProps) {
-  const bgColor = darkPage ? PALETTE.forest : undefined;
-  const textColor = darkPage ? PALETTE.sage50 : PALETTE.moss2;
-  const lineColor = darkPage
-    ? "rgba(169,194,178,.15)"
-    : PALETTE.line;
-
-  // Halos uniquement en variante crème ; la variante blanche reste nette et sobre.
-  const showHalos = variant === "cream";
-
   return (
     <div
       className="audit-page"
@@ -38,69 +35,31 @@ export function PageShell({
         position: "relative",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: bgColor,
-        overflow: "hidden",
         boxSizing: "border-box",
-        padding: "40px 48px 32px",
+        padding: "44px 52px 34px",
       }}
     >
-      {/* Corner halos (crème uniquement) */}
-      {showHalos && (
-        <>
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "340px",
-              height: "340px",
-              background: `radial-gradient(circle, rgba(22,59,46,.16), transparent 68%)`,
-              filter: "blur(46px)",
-              pointerEvents: "none",
-              zIndex: 0,
-            }}
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: "340px",
-              height: "340px",
-              background: `radial-gradient(circle, rgba(169,119,42,.13), transparent 68%)`,
-              filter: "blur(46px)",
-              pointerEvents: "none",
-              zIndex: 0,
-            }}
-          />
-        </>
-      )}
-
-      {/* Header */}
+      {/* Entête */}
       <header
         style={{
-          position: "relative",
-          zIndex: 1,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingBottom: "12px",
-          borderBottom: `0.5px solid ${lineColor}`,
-          marginBottom: "28px",
+          paddingBottom: "10px",
+          borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
+          marginBottom: "26px",
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: textColor }}>
-          <LogoMono size={20} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: PALETTE.forest }}>
+          <Logo size={16} />
           <span
             style={{
               fontFamily: "var(--font-geist-mono, monospace)",
-              fontSize: "8.5px",
-              letterSpacing: "0.28em",
+              fontSize: "8px",
+              letterSpacing: "0.26em",
               textTransform: "uppercase",
-              color: darkPage ? PALETTE.sage : PALETTE.moss2,
+              color: PALETTE.inkFaint,
             }}
           >
             Confidentiel
@@ -111,7 +70,7 @@ export function PageShell({
             style={{
               fontFamily: "var(--font-geist-mono, monospace)",
               fontSize: "8px",
-              color: darkPage ? PALETTE.sage : PALETTE.moss2,
+              color: PALETTE.inkFaint,
               letterSpacing: "0.06em",
             }}
           >
@@ -120,11 +79,16 @@ export function PageShell({
         )}
       </header>
 
-      {/* Content */}
+      {/* Titre de section */}
+      <div style={{ flexShrink: 0, marginBottom: "22px" }}>
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <DisplayTitle size="lg">{title}</DisplayTitle>
+        {lede && <Lede>{lede}</Lede>}
+      </div>
+
+      {/* Contenu */}
       <div
         style={{
-          position: "relative",
-          zIndex: 1,
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -134,26 +98,23 @@ export function PageShell({
         {children}
       </div>
 
-      {/* Footer */}
+      {/* Pied */}
       <footer
         style={{
-          position: "relative",
-          zIndex: 1,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           paddingTop: "10px",
-          borderTop: `0.5px solid ${lineColor}`,
-          marginTop: "16px",
+          borderTop: `0.5px solid ${PALETTE.lineSoft}`,
+          marginTop: "18px",
           flexShrink: 0,
         }}
       >
         <span
           style={{
             fontFamily: "var(--font-geist-sans, sans-serif)",
-            fontSize: "8px",
-            color: darkPage ? PALETTE.sage : PALETTE.moss2,
-            letterSpacing: "0.04em",
+            fontSize: "8.5px",
+            color: PALETTE.inkFaint,
           }}
         >
           {pageLabel}
@@ -161,8 +122,8 @@ export function PageShell({
         <span
           style={{
             fontFamily: "var(--font-geist-mono, monospace)",
-            fontSize: "8px",
-            color: darkPage ? PALETTE.sage : PALETTE.moss2,
+            fontSize: "8.5px",
+            color: PALETTE.inkFaint,
             letterSpacing: "0.12em",
           }}
         >

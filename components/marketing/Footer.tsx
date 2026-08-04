@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 
 const footerLinks = {
   produit: [
@@ -27,8 +27,7 @@ export function Footer() {
               href="/"
               className="inline-flex items-center gap-2 mb-6 group transition-transform duration-300 hover:scale-[1.02]"
             >
-              <Logo size={22} accentColor="#FFFFFF" />
-              <span className="font-serif text-[17px] tracking-[-0.02em] text-white mt-0.5">Safe</span>
+              <SafeLogo size={19} tone="mono-light" />
             </Link>
             <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
               Facturation, fidéicommis et conformité au Barreau, automatisés.

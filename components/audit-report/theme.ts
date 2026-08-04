@@ -1,52 +1,66 @@
+/* Rapport d'audit SAFE — système à deux couleurs.
+ *
+ * Décision CEO 2026-07-28 : le document n'utilise que deux couleurs.
+ *   1. Vert forêt  #163B2E — texte, filets, aplats. Toutes ses nuances sont
+ *      obtenues par opacité sur le papier, jamais par une nouvelle teinte.
+ *   2. Or          #A9772A — réservé à ce qui porte une décision : montants
+ *      récupérables, tarif, jauge de gravité. Rien d'autre.
+ *
+ * Le papier et les filets sont des neutres dérivés du vert, donc pas des
+ * couleurs supplémentaires. Aucun rouge, aucun terracotta, aucun ambre pâle.
+ */
+
+const FOREST_RGB = "22, 59, 46";
+
+const forestAlpha = (a: number) => `rgba(${FOREST_RGB}, ${a})`;
+
 export const PALETTE = {
-  ink:      "#0B1F19",
-  forest:   "#102A21",
-  forest2:  "#163B2E",
-  moss:     "#587567",
-  moss2:    "#7A958A",
-  sage:     "#A9C2B2",
-  sage200:  "#C9DBCF",
-  sage100:  "#E2ECE4",
-  sage50:   "#EEF4EF",
-  gold:     "#A9772A",
-  goldSoft: "#C79A4E",
-  goldDark: "#DCB36A",
-  clay:     "#9B4A2D",
-  line:     "rgba(11,31,25,.13)",
-  lineSoft: "rgba(11,31,25,.07)",
+  /* ── Couleur 1 : vert forêt ────────────────────────────────────── */
+  forest: "#163B2E",
+  forestDeep: "#102A21",
+
+  ink: "#12281F",            // titres et valeurs
+  inkBody: forestAlpha(0.78), // texte courant
+  inkMuted: forestAlpha(0.62), // libellés, entêtes de colonnes
+  inkFaint: forestAlpha(0.5),  // pagination, sources
+
+  onForest: "#EDF2EE",             // texte sur aplat vert
+  onForestMuted: "rgba(237, 242, 238, 0.68)",
+  onForestFaint: "rgba(237, 242, 238, 0.45)",
+
+  /* ── Couleur 2 : or ────────────────────────────────────────────── */
+  gold: "#A9772A",
+  goldOnForest: "#D9AF63",
+
+  /* ── Neutres dérivés (papier, fonds, filets) ───────────────────── */
+  paper: "#FFFFFF",
+  fill: forestAlpha(0.04),
+  fillStrong: forestAlpha(0.08),
+  line: forestAlpha(0.16),
+  lineSoft: forestAlpha(0.09),
+  lineOnForest: "rgba(237, 242, 238, 0.18)",
 } as const;
 
 export const VARIANTS = {
   cream: {
-    pageBg:   "#F4EEE1",
-    card:     "#FBF6EC",
-    cardDeep: "#EBE2CF",
-    shadow:   "none",
-    haloGreenOpacity: ".16",
-    haloGoldOpacity:  ".13",
+    pageBg: "#F6F3EC",
+    card: forestAlpha(0.035),
+    shadow: "none",
   },
   white: {
-    pageBg:   "#FFFFFF",
-    card:     "#FFFFFF",
-    cardDeep: "#F4F2EC",
-    shadow:   "0 1px 2px rgba(11,31,25,.05)",
-    haloGreenOpacity: "0",
-    haloGoldOpacity:  "0",
+    pageBg: "#FFFFFF",
+    card: forestAlpha(0.035),
+    shadow: "none",
   },
 } as const;
 
 export type RiskLevel = "Critique" | "Élevé" | "Modéré" | "Faible";
 
-export const RISK_COLORS: Record<RiskLevel, { bg: string; text: string; dot: string }> = {
-  "Critique": { bg: "#F7E2DF", text: "#7A1F1F", dot: "#9B4A2D" },
-  "Élevé":    { bg: "#FBE8D9", text: "#7A3A14", dot: "#A94A14" },
-  "Modéré":   { bg: "#F7EED7", text: "#6B5010", dot: "#A9772A" },
-  "Faible":   { bg: "#E8F0EA", text: "#1F3A2E", dot: "#587567" },
-};
-
-export const SCORE_COLORS: Record<string, { text: string; arc: string }> = {
-  "Profil sain":      { text: "#163B2E", arc: "#587567" },
-  "Profil attentif":  { text: "#163B2E", arc: "#A9772A" },
-  "À corriger":       { text: "#6B5010", arc: "#C79A4E" },
-  "À sécuriser":      { text: "#7A1F1F", arc: "#9B4A2D" },
+/* Gravité : plus de couleur de sévérité. L'ordre de lecture, le libellé écrit
+ * et une jauge à quatre crans portent l'information. Le rang sert au tri. */
+export const RISK_RANK: Record<RiskLevel, number> = {
+  "Critique": 4,
+  "Élevé": 3,
+  "Modéré": 2,
+  "Faible": 1,
 };

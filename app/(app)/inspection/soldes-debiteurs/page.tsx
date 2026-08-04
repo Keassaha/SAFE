@@ -80,8 +80,8 @@ export default async function SoldesDebiteursPage() {
       <PageHeader
         title="Soldes débiteurs"
         description="Les cartes-clients dont le solde est passé sous zéro, et ce qui a été fait."
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <ShortfallsScreen

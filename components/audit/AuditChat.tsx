@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ChevronMark } from "@/components/branding/SafeLogo";
+import { SafeMark } from "@/components/branding/SafeLogo";
 import {
   Send,
   CheckCircle2,
@@ -2051,7 +2051,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
           <div className="max-w-2xl mx-auto flex items-center gap-3">
             {/* Logo SAFE */}
             <div className="w-10 h-10 rounded-xl bg-[var(--safe-text-title)] flex items-center justify-center shrink-0 ring-1 ring-white/5">
-              <ChevronMark size={26} tone="onBrand" title="SAFE" />
+              <SafeMark size={24} tone="onBrand" title="SAFE" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-base font-bold font-sans tracking-tight text-[var(--safe-text-title)] truncate">

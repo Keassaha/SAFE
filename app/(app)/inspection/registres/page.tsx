@@ -94,8 +94,8 @@ export default async function RegistresPage({
       <PageHeader
         title="Registres"
         description="Les livres que le règlement impose de tenir, prêts à imprimer."
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <RegistersScreen

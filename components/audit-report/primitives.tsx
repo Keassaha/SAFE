@@ -1,63 +1,25 @@
 import React from "react";
-import { PALETTE, RISK_COLORS, type RiskLevel } from "./theme";
+import { PALETTE, RISK_RANK, type RiskLevel } from "./theme";
+import { SafeMark } from "@/components/branding/SafeLogo";
 
-/* ── Paths exacts du logo SAFE (viewBox 0 0 24 24) ───────────────── */
-const LOGO_PATH_UPPER =
-  "M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z";
-const LOGO_PATH_LOWER =
-  "M 19.5,18.5 Q 20.5,20.5 18.5,20 L 11.5,20 Q 9.5,20.5 10.5,18.5 L 14,11.5 Q 15,9.5 16,11.5 Z";
-
-/* ── Logo mono ────────────────────────────────────────────────────── */
-export function LogoMono({ size = 28 }: { size?: number }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      aria-hidden="true"
-      style={{ display: "block", flexShrink: 0 }}
-    >
-      <path d={LOGO_PATH_UPPER} fill="currentColor" />
-      <path d={LOGO_PATH_LOWER} fill="currentColor" fillOpacity={0.55} />
-    </svg>
-  );
+/* ── Logo ─────────────────────────────────────────────────────────
+ * Le mark canonique, à la couleur du texte courant. Le rapport d'audit part
+ * chez la cliente : il ne doit jamais dériver de la marque du produit.     */
+export function Logo({ size = 28 }: { size?: number }) {
+  return <SafeMark size={size} tone="currentColor" />;
 }
 
-/* ── LogoDisplay (grande version couverture) ──────────────────────── */
-export function LogoDisplay({
-  size = 64,
-  tone = "light",
-}: {
-  size?: number;
-  tone?: "light" | "dark";
-}) {
-  const upper = tone === "dark" ? "#D4E8D9" : "#1C1C1C";
-  const lower = tone === "dark" ? "#FFFFFF" : "#1C1C1C";
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      aria-hidden="true"
-      style={{ display: "block" }}
-    >
-      <path d={LOGO_PATH_UPPER} fill={upper} />
-      <path d={LOGO_PATH_LOWER} fill={lower} fillOpacity={0.55} />
-    </svg>
-  );
-}
-
-/* ── Eyebrow ──────────────────────────────────────────────────────── */
-export function Eyebrow({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+/* ── Eyebrow (numéro + nom de section) ────────────────────────────── */
+export function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <p
       style={{
         fontFamily: "var(--font-geist-mono, monospace)",
         fontSize: "9px",
-        letterSpacing: "0.28em",
+        letterSpacing: "0.26em",
         textTransform: "uppercase",
-        color: dark ? PALETTE.goldDark : PALETTE.gold,
-        marginBottom: "10px",
+        color: PALETTE.gold,
+        margin: "0 0 8px",
         fontWeight: 500,
       }}
     >
@@ -66,24 +28,22 @@ export function Eyebrow({ children, dark = false }: { children: React.ReactNode;
   );
 }
 
-/* ── DisplayTitle ─────────────────────────────────────────────────── */
+/* ── Titre de section ─────────────────────────────────────────────── */
 export function DisplayTitle({
   children,
-  size = "xl",
-  dark = false,
+  size = "lg",
 }: {
   children: React.ReactNode;
   size?: "xl" | "lg" | "md";
-  dark?: boolean;
 }) {
-  const fs = size === "xl" ? "28px" : size === "lg" ? "22px" : "18px";
+  const fs = size === "xl" ? "30px" : size === "lg" ? "23px" : "18px";
   return (
     <h2
       style={{
         fontFamily: "var(--font-instrument-serif, Georgia, serif)",
         fontSize: fs,
         lineHeight: 1.15,
-        color: dark ? PALETTE.sage50 : PALETTE.ink,
+        color: PALETTE.ink,
         fontWeight: 400,
         margin: 0,
       }}
@@ -93,39 +53,46 @@ export function DisplayTitle({
   );
 }
 
-/* ── Italic accent within a title ────────────────────────────────── */
-export function Em({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+/* ── Chapeau : une phrase qui explique la page ────────────────────── */
+export function Lede({ children }: { children: React.ReactNode }) {
   return (
-    <em
+    <p
       style={{
-        fontStyle: "italic",
-        color: dark ? PALETTE.goldDark : PALETTE.forest2,
+        fontFamily: "var(--font-geist-sans, sans-serif)",
+        fontSize: "11.5px",
+        lineHeight: 1.6,
+        color: PALETTE.inkBody,
+        margin: "8px 0 0",
+        maxWidth: "560px",
       }}
     >
       {children}
-    </em>
+    </p>
   );
 }
 
-/* ── MonoLabel ────────────────────────────────────────────────────── */
+/* ── Italique d'accent dans un titre ──────────────────────────────── */
+export function Em({ children }: { children: React.ReactNode }) {
+  return <em style={{ fontStyle: "italic", color: PALETTE.forest }}>{children}</em>;
+}
+
+/* ── Libellé mono (entêtes de colonne, étiquettes) ────────────────── */
 export function MonoLabel({
   children,
-  dark = false,
-  small = false,
+  onDark = false,
 }: {
   children: React.ReactNode;
-  dark?: boolean;
-  small?: boolean;
+  onDark?: boolean;
 }) {
   return (
     <span
       style={{
         fontFamily: "var(--font-geist-mono, monospace)",
-        fontSize: small ? "8px" : "9px",
-        letterSpacing: "0.18em",
+        fontSize: "8px",
+        letterSpacing: "0.2em",
         textTransform: "uppercase",
-        color: dark ? PALETTE.sage200 : PALETTE.moss2,
-        fontWeight: 400,
+        color: onDark ? PALETTE.onForestMuted : PALETTE.inkMuted,
+        fontWeight: 500,
       }}
     >
       {children}
@@ -133,16 +100,15 @@ export function MonoLabel({
   );
 }
 
-/* ── SourceTag ────────────────────────────────────────────────────── */
+/* ── Source ───────────────────────────────────────────────────────── */
 export function SourceTag({ children }: { children: React.ReactNode }) {
   return (
     <span
       style={{
         fontFamily: "var(--font-geist-mono, monospace)",
         fontSize: "7.5px",
-        letterSpacing: "0.08em",
-        color: PALETTE.moss2,
-        opacity: 0.75,
+        letterSpacing: "0.06em",
+        color: PALETTE.inkFaint,
       }}
     >
       {children}
@@ -150,80 +116,107 @@ export function SourceTag({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ── RiskBadge ────────────────────────────────────────────────────── */
-export function RiskBadge({ niveau }: { niveau: RiskLevel }) {
-  const c = RISK_COLORS[niveau];
+/* ── Jauge de gravité ─────────────────────────────────────────────
+ * Remplace les pastilles de couleur. Quatre crans, remplis en or
+ * jusqu'au niveau atteint. Le libellé écrit reste la source de vérité,
+ * la jauge sert seulement au repérage rapide au balayage.            */
+export function GravityMeter({ niveau, dim = false }: { niveau: RiskLevel; dim?: boolean }) {
+  const filled = dim ? 0 : RISK_RANK[niveau];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+      <span
+        style={{
+          fontFamily: "var(--font-geist-mono, monospace)",
+          fontSize: "8px",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: !dim && filled >= 3 ? PALETTE.gold : PALETTE.inkMuted,
+          fontWeight: 500,
+        }}
+      >
+        {niveau}
+      </span>
+      <span style={{ display: "inline-flex", gap: "2px" }} aria-hidden="true">
+        {[1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            style={{
+              width: "10px",
+              height: "3px",
+              borderRadius: "1px",
+              backgroundColor: i <= filled ? PALETTE.gold : PALETTE.lineSoft,
+              display: "inline-block",
+            }}
+          />
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/* ── Statut d'obligation ──────────────────────────────────────────
+ * Deux états seulement, distingués par le remplissage et non par la
+ * teinte : couvert = plein vert, à surveiller = contour or.          */
+export function StatusPill({ statut }: { statut: "À surveiller" | "Couvert par SAFE" }) {
+  const isCovered = statut === "Couvert par SAFE";
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
-        backgroundColor: c.bg,
-        color: c.text,
         fontFamily: "var(--font-geist-mono, monospace)",
-        fontSize: "8px",
-        letterSpacing: "0.2em",
+        fontSize: "7.5px",
+        letterSpacing: "0.14em",
         textTransform: "uppercase",
         fontWeight: 500,
         padding: "3px 8px",
-        borderRadius: "4px",
+        borderRadius: "3px",
+        whiteSpace: "nowrap",
+        backgroundColor: isCovered ? PALETTE.fillStrong : "transparent",
+        border: isCovered ? "0.5px solid transparent" : `0.5px solid ${PALETTE.gold}`,
+        color: isCovered ? PALETTE.inkBody : PALETTE.gold,
       }}
     >
-      <span
-        style={{
-          width: 5,
-          height: 5,
-          borderRadius: "50%",
-          backgroundColor: c.dot,
-          display: "inline-block",
-          flexShrink: 0,
-        }}
-      />
-      {niveau}
+      {statut}
     </span>
   );
 }
 
-/* ── StatTile ─────────────────────────────────────────────────────── */
-export function StatTile({
+/* ── Chiffre clé ──────────────────────────────────────────────────── */
+export function KeyFigure({
   label,
   value,
   sub,
-  dark = false,
   accent = false,
+  onDark = false,
+  size = "md",
 }: {
   label: string;
   value: string;
   sub?: string;
-  dark?: boolean;
   accent?: boolean;
+  onDark?: boolean;
+  size?: "md" | "lg";
 }) {
+  const valueColor = accent
+    ? onDark
+      ? PALETTE.goldOnForest
+      : PALETTE.gold
+    : onDark
+    ? PALETTE.onForest
+    : PALETTE.ink;
+
   return (
     <div>
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono, monospace)",
-          fontSize: "8px",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: dark ? PALETTE.sage200 : PALETTE.moss2,
-          marginBottom: "4px",
-          fontWeight: 400,
-        }}
-      >
-        {label}
+      <p style={{ margin: "0 0 6px" }}>
+        <MonoLabel onDark={onDark}>{label}</MonoLabel>
       </p>
       <p
         style={{
           fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-          fontSize: "26px",
+          fontSize: size === "lg" ? "36px" : "26px",
           lineHeight: 1,
-          color: accent
-            ? PALETTE.goldDark
-            : dark
-            ? PALETTE.sage50
-            : PALETTE.ink,
+          color: valueColor,
           fontWeight: 400,
           margin: 0,
         }}
@@ -234,9 +227,10 @@ export function StatTile({
         <p
           style={{
             fontFamily: "var(--font-geist-sans, sans-serif)",
-            fontSize: "10px",
-            color: dark ? PALETTE.sage : PALETTE.moss,
-            marginTop: "2px",
+            fontSize: "9.5px",
+            lineHeight: 1.5,
+            color: onDark ? PALETTE.onForestMuted : PALETTE.inkMuted,
+            margin: "5px 0 0",
           }}
         >
           {sub}
@@ -246,134 +240,15 @@ export function StatTile({
   );
 }
 
-/* ── HalfGauge SVG ────────────────────────────────────────────────── */
-/* Schéma volontairement simple : un demi-arc + le score au centre.    */
-/* Le libellé et le sous-libellé sont rendus en HTML par la page, hors  */
-/* du SVG, pour éviter tout débordement du viewBox.                     */
-export function HalfGauge({
-  value,
-  max = 100,
-  arcColor,
-}: {
-  value: number;
-  max?: number;
-  arcColor: string;
-}) {
-  const CX = 120;
-  const CY = 120;
-  const R = 96;
-  const pct = Math.max(0, Math.min(1, value / max));
-
-  // Point de départ de l'arc (gauche, 180°)
-  const sx = CX - R;
-  const sy = CY;
-
-  // Point final à l'angle θ = π − π×pct (depuis l'axe x positif)
-  const theta = Math.PI - Math.PI * pct;
-  const ex = CX + R * Math.cos(theta);
-  const ey = CY - R * Math.sin(theta);
-
-  const bgPath = `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}`;
-  const fgPath =
-    pct <= 0
-      ? ""
-      : pct >= 1
-      ? bgPath
-      : `M ${sx} ${sy} A ${R} ${R} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
-
-  return (
-    <svg viewBox="0 0 240 150" style={{ width: "100%", maxWidth: "240px" }} aria-hidden="true">
-      {/* Arc de fond */}
-      <path d={bgPath} fill="none" stroke={PALETTE.sage100} strokeWidth="12" strokeLinecap="round" />
-
-      {/* Arc de progression */}
-      {fgPath && (
-        <path d={fgPath} fill="none" stroke={arcColor} strokeWidth="12" strokeLinecap="round" />
-      )}
-
-      {/* Point en bout d'arc */}
-      {pct > 0 && pct < 1 && (
-        <circle cx={ex.toFixed(2)} cy={ey.toFixed(2)} r="6" fill={arcColor} />
-      )}
-
-      {/* Score */}
-      <text
-        x={CX}
-        y={CY - 6}
-        textAnchor="middle"
-        style={{
-          fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-          fontSize: "44px",
-          fill: PALETTE.ink,
-          fontWeight: 400,
-        }}
-      >
-        {value}
-      </text>
-
-      {/* Suffixe /100 */}
-      <text
-        x={CX}
-        y={CY + 16}
-        textAnchor="middle"
-        style={{
-          fontFamily: "var(--font-geist-mono, monospace)",
-          fontSize: "10px",
-          fill: PALETTE.moss2,
-          letterSpacing: "0.1em",
-        }}
-      >
-        sur {max}
-      </text>
-    </svg>
-  );
-}
-
-/* ── Divider ──────────────────────────────────────────────────────── */
-export function Divider({ dark = false }: { dark?: boolean }) {
+/* ── Filet ────────────────────────────────────────────────────────── */
+export function Divider({ strong = false }: { strong?: boolean }) {
   return (
     <hr
       style={{
         border: "none",
-        borderTop: `0.5px solid ${dark ? "rgba(169,194,178,.2)" : PALETTE.line}`,
-        margin: "0",
+        borderTop: `0.5px solid ${strong ? PALETTE.line : PALETTE.lineSoft}`,
+        margin: 0,
       }}
     />
-  );
-}
-
-/* ── StatusPill ───────────────────────────────────────────────────── */
-export function StatusPill({ statut }: { statut: "À surveiller" | "Couvert par SAFE" }) {
-  const isCovered = statut === "Couvert par SAFE";
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        backgroundColor: isCovered ? "#E8F0EA" : "#F7EED7",
-        color: isCovered ? "#1F3A2E" : "#6B5010",
-        fontFamily: "var(--font-geist-mono, monospace)",
-        fontSize: "7.5px",
-        letterSpacing: "0.16em",
-        textTransform: "uppercase",
-        fontWeight: 500,
-        padding: "3px 8px",
-        borderRadius: "4px",
-        whiteSpace: "nowrap",
-      }}
-    >
-      <span
-        style={{
-          width: 4,
-          height: 4,
-          borderRadius: "50%",
-          backgroundColor: isCovered ? "#587567" : "#A9772A",
-          display: "inline-block",
-          flexShrink: 0,
-        }}
-      />
-      {statut}
-    </span>
   );
 }

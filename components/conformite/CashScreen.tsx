@@ -6,7 +6,7 @@ import type { CabinetProvince } from "@/lib/compliance/rules";
 import {
   markDeclarationSentAction,
   type ActionResult,
-} from "@/app/(app)/comptes/especes/actions";
+} from "@/app/(app)/inspection/especes/actions";
 import {
   BlockHeader,
   EmptyLine,

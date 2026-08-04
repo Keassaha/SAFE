@@ -7,7 +7,7 @@ import {
   recordNoticeAction,
   releasePropertyAction,
   type ActionResult,
-} from "@/app/(app)/comptes/autres-biens/actions";
+} from "@/app/(app)/inspection/autres-biens/actions";
 import {
   BlockHeader,
   Disclosure,

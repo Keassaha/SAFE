@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Lang } from "@/lib/onboarding/types";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 
 interface Props {
   onSelect: (lang: Lang) => void;
@@ -15,11 +16,9 @@ export default function LanguageSelect({ onSelect }: Props) {
       transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       className="flex flex-col items-center justify-center min-h-[70vh] px-4"
     >
-      {/* Logo */}
+      {/* Logo. Cet écran posait un « S » gras dans une pastille, pas la marque. */}
       <div className="mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-[var(--safe-accent)] flex items-center justify-center">
-          <span className="text-white text-2xl font-bold tracking-tight">S</span>
-        </div>
+        <SafeLogo size={40} markOnly plate alt="SAFE" />
       </div>
 
       {/* Title */}

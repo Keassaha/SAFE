@@ -373,10 +373,9 @@ export function Header({
           className="flex items-center gap-2.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
           aria-label={tMisc("logoHomeAria")}
         >
-          <SafeLogo markOnly variant="dark" noPulse size={20} />
-          <span className="hidden sm:block font-serif text-[17px] tracking-[0.04em] text-si-ink">
-            SAFE
-          </span>
+          {/* Verrou canonique. Cet entête recopiait le mot à la main, en serif et
+              avec le ton « fond sombre » sur un fond clair : voir IDENTITE_SAFE §4.8. */}
+          <SafeLogo size={20} alt="SAFE" wordClassName="hidden sm:block" />
         </Link>
 
         <span

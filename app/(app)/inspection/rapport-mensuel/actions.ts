@@ -24,7 +24,7 @@ import {
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
 
-const PATH = "/comptes/rapport-mensuel";
+const PATH = "/inspection/rapport-mensuel";
 
 async function requireTrustEditor() {
   const { cabinetId, userId, role } = await requireCabinetAndUser();

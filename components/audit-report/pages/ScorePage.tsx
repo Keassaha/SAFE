@@ -1,234 +1,270 @@
 import React from "react";
-import { PALETTE, SCORE_COLORS, RISK_COLORS, type RiskLevel } from "../theme";
+import { PALETTE, type RiskLevel } from "../theme";
 import { PageShell } from "../PageShell";
-import { Eyebrow, DisplayTitle, Em, HalfGauge, MonoLabel } from "../primitives";
+import { Em, KeyFigure, GravityMeter } from "../primitives";
 import { formatCAD, formatJours } from "@/lib/audit-report/format";
-import type { AuditReport, Variant } from "@/types/audit-report";
+import type { AuditReport } from "@/types/audit-report";
 
 interface Props {
   data: AuditReport;
-  variant: Variant;
+  sectionNum: string;
+  pageNum: string;
+  total: string;
 }
 
 const LEVELS: { key: keyof AuditReport["score"]["repartition"]; label: RiskLevel }[] = [
   { key: "critique", label: "Critique" },
-  { key: "eleve",    label: "Élevé" },
-  { key: "modere",   label: "Modéré" },
-  { key: "faible",   label: "Faible" },
+  { key: "eleve", label: "Élevé" },
+  { key: "modere", label: "Modéré" },
+  { key: "faible", label: "Faible" },
 ];
 
-export function ScorePage({ data, variant }: Props) {
+const INTERPRETATION: Record<string, string> = {
+  "Profil sain":
+    "Votre cabinet présente peu de risques critiques. Les points d'exposition identifiés sont traçables et corrigibles rapidement.",
+  "Profil attentif":
+    "Quelques points d'attention méritent une action dans les prochains mois pour éviter qu'ils ne s'aggravent.",
+  "À corriger":
+    "Plusieurs risques actifs réclament une attention soutenue. Sans action, ils peuvent affecter votre conformité et votre trésorerie.",
+  "À sécuriser":
+    "Des risques critiques sont identifiés. Une action rapide protège votre cabinet.",
+};
+
+export function ScorePage({ data, sectionNum, pageNum, total }: Props) {
   const { score, cout } = data;
-  const colors = SCORE_COLORS[score.libelle] ?? SCORE_COLORS["Profil sain"];
-  const total = Object.values(score.repartition).reduce((s, n) => s + n, 0);
-  const annuel = cout.annuel;
-  const delai = cout.delaiReglementDeclare;
+  const totalPoints = Object.values(score.repartition).reduce((s, n) => s + n, 0);
+  const ecartDelai = cout.delaiReglementDeclare - cout.delaiMoyenCanada;
 
   return (
     <PageShell
-      pageLabel="Score général"
-      pageNum="02"
+      eyebrow={`${sectionNum} · Ce que ça vous coûte`}
+      title={
+        <>
+          Le diagnostic en trois <Em>chiffres.</Em>
+        </>
+      }
+      lede="Ces trois chiffres viennent uniquement de vos réponses. Le détail du calcul est donné plus bas, sans arrondi favorable."
+      pageLabel="Ce que ça vous coûte"
+      pageNum={pageNum}
+      total={total}
       date={data.meta.date}
-      variant={variant}
     >
-      <Eyebrow>02 · Score général</Eyebrow>
-      <DisplayTitle size="lg">
-        Votre diagnostic en un coup <Em>d'oeil.</Em>
-      </DisplayTitle>
-
-      <div style={{ height: "20px" }} />
-
-      <div style={{ display: "flex", gap: "24px", flex: 1 }}>
-        {/* Left column: gauge + distribution */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Gauge */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-            <HalfGauge value={score.valeur} arcColor={colors.arc} />
-            <p
-              style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "15px",
-                fontStyle: "italic",
-                color: colors.arc,
-                margin: 0,
-              }}
-            >
-              {score.libelle}
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-geist-sans, sans-serif)",
-                fontSize: "9px",
-                color: PALETTE.moss2,
-                margin: 0,
-              }}
-            >
-              {total} point{total !== 1 ? "s" : ""} d'exposition identifié{total !== 1 ? "s" : ""}
-            </p>
-          </div>
-
-          {/* Distribution bars */}
-          <div>
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "12px" }}>
-              Répartition des risques
-            </p>
-            {LEVELS.map(({ key, label }) => {
-              const count = score.repartition[key];
-              const c = RISK_COLORS[label];
-              const pct = total > 0 ? (count / total) * 100 : 0;
-              return (
-                <div key={key} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-geist-sans, sans-serif)",
-                      fontSize: "10px",
-                      color: c.text,
-                      width: "62px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {label}
-                  </span>
-                  <div
-                    style={{
-                      flex: 1,
-                      height: "6px",
-                      backgroundColor: PALETTE.sage100,
-                      borderRadius: "3px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: "100%",
-                        width: `${pct}%`,
-                        backgroundColor: c.dot,
-                        borderRadius: "3px",
-                        minWidth: count > 0 ? "6px" : "0",
-                      }}
-                    />
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-geist-mono, monospace)",
-                      fontSize: "10px",
-                      color: c.text,
-                      width: "16px",
-                      textAlign: "right",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {count}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Interpretation */}
-          <div
-            style={{
-              backgroundColor: "var(--cream-card)",
-              border: `0.5px solid ${PALETTE.lineSoft}`,
-              borderRadius: "8px",
-              padding: "14px 16px",
-            }}
-          >
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "6px" }}>
-              Ce que ça signifie
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "10px", color: PALETTE.moss, lineHeight: 1.6 }}>
-              {score.libelle === "Profil sain"
-                ? "Votre cabinet présente peu de risques critiques. Les points d'exposition identifiés sont traçables et corrigibles rapidement."
-                : score.libelle === "Profil attentif"
-                ? "Quelques points d'attention méritent une action dans les prochains mois pour éviter qu'ils ne s'aggravent."
-                : score.libelle === "À corriger"
-                ? "Plusieurs risques actifs réclament une attention soutenue. Sans action, ils peuvent affecter votre conformité et votre trésorerie."
-                : "Des risques critiques sont identifiés. Une action rapide est recommandée pour protéger votre cabinet."}
-            </p>
-          </div>
+      {/* Bandeau des trois chiffres */}
+      <div
+        style={{
+          backgroundColor: PALETTE.forest,
+          borderRadius: "10px",
+          padding: "26px 30px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "30px",
+        }}
+      >
+        <div style={{ flex: 1.4 }}>
+          <KeyFigure
+            label="Valeur récupérable par an"
+            value={formatCAD(cout.annuel)}
+            sub={`soit ${formatCAD(cout.mensuel)} par mois, en valeur nette`}
+            accent
+            onDark
+            size="lg"
+          />
         </div>
+        <div style={{ width: "0.5px", alignSelf: "stretch", backgroundColor: PALETTE.lineOnForest }} />
+        <div style={{ flex: 1 }}>
+          <KeyFigure
+            label="Temps récupérable"
+            value={`${cout.heuresRecuperablesSemaine} h`}
+            sub="par semaine, sur vos tâches administratives"
+            onDark
+          />
+        </div>
+        <div style={{ width: "0.5px", alignSelf: "stretch", backgroundColor: PALETTE.lineOnForest }} />
+        <div style={{ flex: 1 }}>
+          <KeyFigure
+            label="Délai de règlement"
+            value={formatJours(cout.delaiReglementDeclare)}
+            sub={`${ecartDelai > 0 ? `${ecartDelai} jours de plus que` : "au niveau de"} la médiane canadienne (${cout.delaiMoyenCanada} j.)`}
+            onDark
+          />
+        </div>
+      </div>
 
-        {/* Right column: dark card with cost */}
-        <div
+      {/* Comment on arrive au chiffre */}
+      <div style={{ marginTop: "32px" }}>
+        <p
           style={{
-            width: "220px",
-            backgroundColor: PALETTE.forest,
-            borderRadius: "10px",
-            padding: "24px 20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-            flexShrink: 0,
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: "8px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: PALETTE.gold,
+            margin: "0 0 12px",
           }}
         >
-          <div>
-            <MonoLabel dark small>Valeur récupérable</MonoLabel>
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.1em", textTransform: "uppercase", color: PALETTE.sage, opacity: 0.7, marginTop: "2px", marginBottom: "8px" }}>
-              valeur nette estimée
-            </p>
-            <p
+          Comment nous arrivons à ce montant
+        </p>
+        <div style={{ borderTop: `0.5px solid ${PALETTE.line}` }}>
+          {[
+            {
+              etape: "Heures administratives déclarées",
+              detail: `${cout.heuresAdminDeclarees.min} à ${cout.heuresAdminDeclarees.max} h par semaine`,
+            },
+            {
+              etape: "Part récupérable avec SAFE",
+              detail: `${Math.round(cout.tauxRecuperation * 100)} %, soit ${cout.heuresRecuperablesSemaine} h par semaine`,
+            },
+            {
+              etape: "Taux horaire retenu",
+              detail: `${formatCAD(cout.tauxHoraire)} de l'heure, milieu de la fourchette que vous avez indiquée`,
+            },
+            {
+              etape: "Semaines facturables par an",
+              detail: `${cout.semainesFacturables} semaines, vacances et jours fériés déduits`,
+            },
+          ].map((l) => (
+            <div
+              key={l.etape}
               style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "34px",
-                lineHeight: 1,
-                color: PALETTE.goldDark,
-                fontWeight: 400,
-                margin: 0,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                gap: "20px",
+                padding: "11px 0",
+                borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
               }}
             >
-              {formatCAD(annuel)}
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", color: PALETTE.sage, marginTop: "4px" }}>
-              par an · {formatCAD(cout.mensuel)} / mois
-            </p>
-          </div>
-
-          <div style={{ borderTop: `0.5px solid rgba(169,194,178,.15)`, paddingTop: "16px" }}>
-            <MonoLabel dark small>Délai de règlement déclaré</MonoLabel>
-            <p
+              <span
+                style={{
+                  fontFamily: "var(--font-geist-sans, sans-serif)",
+                  fontSize: "11px",
+                  color: PALETTE.ink,
+                }}
+              >
+                {l.etape}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-geist-sans, sans-serif)",
+                  fontSize: "10.5px",
+                  color: PALETTE.inkMuted,
+                  textAlign: "right",
+                }}
+              >
+                {l.detail}
+              </span>
+            </div>
+          ))}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              gap: "20px",
+              padding: "11px 0 0",
+            }}
+          >
+            <span
               style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "28px",
-                lineHeight: 1,
-                color: PALETTE.sage50,
-                fontWeight: 400,
-                margin: "6px 0 2px",
+                fontFamily: "var(--font-geist-sans, sans-serif)",
+                fontSize: "11px",
+                color: PALETTE.ink,
+                fontWeight: 600,
               }}
             >
-              {formatJours(delai)}
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9px", color: PALETTE.sage }}>
-              vs {cout.delaiMoyenCanada} j. médiane CA
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7px", color: PALETTE.moss2, marginTop: "4px" }}>
-              {cout.delaiMoyenCanadaSource}
-            </p>
-          </div>
-
-          <div style={{ borderTop: `0.5px solid rgba(169,194,178,.15)`, paddingTop: "16px" }}>
-            <MonoLabel dark small>Heures récupérables</MonoLabel>
-            <p
+              Valeur récupérable par an
+            </span>
+            <span
               style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "28px",
-                lineHeight: 1,
-                color: PALETTE.sage50,
-                fontWeight: 400,
-                margin: "6px 0 2px",
+                fontFamily: "var(--font-geist-mono, monospace)",
+                fontSize: "12px",
+                color: PALETTE.gold,
+                fontWeight: 500,
               }}
             >
-              {cout.heuresRecuperablesSemaine} h
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9px", color: PALETTE.sage }}>
-              par semaine avec SAFE
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7px", color: PALETTE.moss2, marginTop: "4px" }}>
-              {cout.tauxRecuperation * 100} % des heures admin
-            </p>
+              {formatCAD(cout.annuel)}
+            </span>
           </div>
         </div>
       </div>
+
+      {/* Points d'exposition */}
+      <div style={{ marginTop: "36px" }}>
+        <p
+          style={{
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: "8px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: PALETTE.inkMuted,
+            margin: "0 0 12px",
+          }}
+        >
+          Points d'exposition identifiés · {totalPoints} au total
+        </p>
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          {LEVELS.map(({ key, label }) => {
+            const count = score.repartition[key];
+            const actif = count > 0;
+            return (
+              <div
+                key={key}
+                style={{
+                  flex: 1,
+                  border: `0.5px solid ${PALETTE.lineSoft}`,
+                  borderRadius: "6px",
+                  padding: "12px 14px",
+                  backgroundColor: actif ? PALETTE.fill : "transparent",
+                }}
+              >
+                <p style={{ margin: "0 0 8px" }}>
+                  <GravityMeter niveau={label} dim={!actif} />
+                </p>
+                <p
+                  style={{
+                    fontFamily: "var(--font-instrument-serif, Georgia, serif)",
+                    fontSize: "22px",
+                    lineHeight: 1,
+                    color: actif ? PALETTE.ink : PALETTE.inkFaint,
+                    margin: 0,
+                  }}
+                >
+                  {count}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <p
+          style={{
+            fontFamily: "var(--font-geist-sans, sans-serif)",
+            fontSize: "11px",
+            lineHeight: 1.65,
+            color: PALETTE.inkBody,
+            margin: "16px 0 0",
+            paddingLeft: "12px",
+            borderLeft: `2px solid ${PALETTE.gold}`,
+          }}
+        >
+          <strong style={{ color: PALETTE.ink, fontWeight: 600 }}>{score.libelle}.</strong>{" "}
+          {INTERPRETATION[score.libelle] ?? INTERPRETATION["Profil sain"]} Le détail de chaque
+          point figure à la section suivante.
+        </p>
+      </div>
+
+      <p
+        style={{
+          fontFamily: "var(--font-geist-mono, monospace)",
+          fontSize: "7.5px",
+          color: PALETTE.inkFaint,
+          margin: "auto 0 0",
+          paddingTop: "16px",
+        }}
+      >
+        Médiane canadienne de délai de règlement : {cout.delaiMoyenCanadaSource}
+      </p>
     </PageShell>
   );
 }

@@ -1,13 +1,16 @@
 "use client";
 
 /**
- * SAFE — Nouveau formulaire d'audit gratuit (v2)
- * Design : image fournie, palette crème + vert SAFE
+ * SAFE — Questionnaire du diagnostic.
+ * Design aligné sur le site public : albâtre + forêt, serif Instrument, mono.
+ * Grammaire reprise de l'accueil : rail de tirets qui nomme la section franchie,
+ * compteur d'avancement en coin, une question par palier, transitions lentes.
  */
 
 import { useMemo, useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogoMark } from "@/components/brand/Logo";
+import { SafeMark } from "@/components/branding/SafeLogo";
 import {
   QUESTIONS, SECTIONS, visibleQuestions, PROVINCES,
   type Question,
@@ -208,10 +211,11 @@ export function AuditForm({ lang }: AuditFormProps) {
   const isLastQuestion = currentIdx === totalSteps - 1 && currentIdx > 0;
 
   return (
-    <div className="min-h-screen audit-v2-bg py-12 px-4">
-      <div className="mx-auto w-full max-w-2xl">
-        <TopHeader />
+    <div className="min-h-screen audit-v2-bg px-4 pb-16 pt-24">
+      <TopHeader />
+      <SectionRail current={currentQuestion?.section ?? null} started={currentIdx > 0} />
 
+      <div className="mx-auto w-full max-w-2xl">
         <FounderCard lang={lang} />
 
         <div className="relative overflow-hidden">
@@ -220,14 +224,14 @@ export function AuditForm({ lang }: AuditFormProps) {
               key={currentIdx}
               custom={direction}
               variants={{
-                enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 48 : -48 }),
+                enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 30 : -30 }),
                 center: { opacity: 1, x: 0 },
-                exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -48 : 48 }),
+                exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -30 : 30 }),
               }}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
             >
               {currentIdx === 0 ? (
                 <IntroCard lang={lang} onStart={goNext} />
@@ -293,28 +297,43 @@ export function AuditForm({ lang }: AuditFormProps) {
           </div>
         )}
 
-        {/* Progression */}
-        <div className="mt-10 audit-v2-card">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">
+        {/* Avancement : un compteur discret plutôt qu'une grosse barre */}
+        <div
+          className="mt-10 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t pt-5"
+          style={{ borderColor: "rgba(31,42,36,0.08)" }}
+        >
+          <div className="flex items-baseline gap-3">
+            <motion.span
+              key={percent}
+              initial={{ opacity: 0.4 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="font-mono text-[30px] leading-none tabular-nums"
+              style={{ color: "#1F2A24" }}
+            >
+              {String(percent).padStart(2, "0")}
+              <span className="text-[15px]" style={{ color: "#7C877F" }}>&nbsp;%</span>
+            </motion.span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#7C877F" }}>
               {t.progression}
             </span>
-            <span className="text-[11px] text-neutral-500">
-              {t.minutesLeft(minutesLeft)}
-            </span>
           </div>
-          <div className="relative h-1.5 bg-neutral-200/60 rounded-full overflow-hidden">
-            <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--safe-green-800)] to-[var(--safe-green-600)] audit-v2-progress-shine overflow-hidden"
-              initial={{ width: 0 }}
-              animate={{ width: `${percent}%` }}
-              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            />
-          </div>
-          <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-500">
+
+          <div className="flex items-baseline gap-6 font-mono text-[11px] tracking-[0.05em]" style={{ color: "#5A665F" }}>
             <span>{t.stepOf(currentIdx + 1, totalSteps)}</span>
-            <span>{percent}%</span>
+            <span>{t.minutesLeft(minutesLeft)}</span>
           </div>
+        </div>
+
+        {/* Filet d'avancement, fin, sans dégradé ni brillance */}
+        <div className="mt-4 h-px w-full overflow-hidden" style={{ background: "rgba(31,42,36,0.08)" }}>
+          <motion.div
+            className="h-px origin-left"
+            style={{ background: "#12A150" }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: percent / 100 }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          />
         </div>
 
         <TrustStrip lang={lang} />
@@ -327,12 +346,48 @@ export function AuditForm({ lang }: AuditFormProps) {
 
 function TopHeader() {
   return (
-    <div className="flex items-center justify-between mb-10">
-      <LogoMark size={34} />
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-300/70 bg-white/60 backdrop-blur-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-[var(--safe-green-800)]" />
-        <span className="text-[11px] text-neutral-700 tracking-wide">Confidentiel</span>
-      </div>
+    <header
+      className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between px-6 sm:px-11"
+      style={{
+        background: "rgba(239,242,237,0.86)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        borderBottom: "1px solid rgba(31,42,36,0.08)",
+      }}
+    >
+      <Link href="/" className="flex items-center gap-2.5">
+        <SafeMark size={22} />
+        <span className="font-serif text-[21px]" style={{ color: "#1F2A24" }}>Safe</span>
+      </Link>
+      <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#7C877F" }}>
+        Confidentiel
+      </span>
+    </header>
+  );
+}
+
+/**
+ * Rail d'étapes : un tiret par section du questionnaire, à droite.
+ * La section en cours se nomme et s'allonge, les sections franchies restent vertes.
+ * Repère de lecture, jamais cliquable.
+ */
+function SectionRail({ current, started }: { current: string | null; started: boolean }) {
+  const idx = current ? SECTIONS.findIndex((s) => s.id === current) : -1;
+  return (
+    <div
+      className="audit-rail"
+      aria-hidden
+      style={{ opacity: started && idx >= 0 ? 1 : 0, transition: "opacity 800ms ease" }}
+    >
+      {SECTIONS.map((s, i) => (
+        <div
+          key={s.id}
+          className={`audit-rail-stop ${i === idx ? "audit-rail-stop--live" : ""} ${i < idx ? "audit-rail-stop--done" : ""}`}
+        >
+          <span className="audit-rail-label">{s.subtitle}</span>
+          <span className="audit-rail-dash" />
+        </div>
+      ))}
     </div>
   );
 }
@@ -340,32 +395,31 @@ function TopHeader() {
 function FounderCard({ lang }: { lang: Lang }) {
   const t = T[lang];
   return (
-    <div className="flex flex-col items-center text-center mb-10">
-      <div className="w-20 h-20 rounded-full bg-[#111] text-white flex items-center justify-center mb-4 shadow-lg shadow-black/10">
-        <span className="font-serif text-[22px] text-[var(--safe-green-100)]" style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}>
-          JT
+    <div className="mb-10">
+      <div className="flex items-center gap-4">
+        <span
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+          style={{ background: "#1F3A2E" }}
+        >
+          <span className="font-serif text-[16px]" style={{ color: "#EAF2EC" }}>JT</span>
         </span>
+        <div>
+          <p className="font-serif text-[24px] leading-none" style={{ color: "#1F2A24" }}>
+            {t.founderTitle}
+          </p>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#7C877F" }}>
+            {t.founderSub}
+          </p>
+        </div>
       </div>
-      <h1
-        className="text-[30px] leading-tight text-[#111] mb-1"
-        style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-      >
-        {t.founderTitle}
-      </h1>
-      <p className="text-[12px] text-neutral-500 tracking-wide mb-8">{t.founderSub}</p>
 
-      <div className="w-full h-px bg-neutral-200/80 mb-6" />
-
-      <div className="flex items-center justify-center gap-10">
+      <div className="mt-7 flex items-baseline gap-10 border-t pt-5" style={{ borderColor: "rgba(31,42,36,0.08)" }}>
         {t.stats.map((s) => (
-          <div key={s.l} className="text-center">
-            <div
-              className="text-[22px] text-[#111]"
-              style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-            >
+          <div key={s.l}>
+            <div className="font-mono text-[19px] tabular-nums leading-none" style={{ color: "#1F2A24" }}>
               {s.v}
             </div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mt-1">
+            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#7C877F" }}>
               {s.l}
             </div>
           </div>
@@ -379,26 +433,20 @@ function IntroCard({ lang, onStart }: { lang: Lang; onStart: () => void }) {
   const t = T[lang];
   return (
     <div className="audit-v2-card-lg">
-      <div className="flex gap-3 mb-2">
-        <div className="shrink-0 w-9 h-9 rounded-full bg-[#111] text-white flex items-center justify-center">
-          <span className="font-serif text-[12px] text-[var(--safe-green-100)]" style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}>JT</span>
-        </div>
-        <div className="flex-1">
-          <p className="text-[15px] text-[#111] leading-relaxed">
-            <span className="font-semibold">Bonjour.</span> {lang === "fr" ? t.hello.substring(9) : t.hello}
+      <p className="font-sans text-[16px] leading-[1.62]" style={{ color: "#1F2A24" }}>
+        <span className="font-serif text-[19px]">Bonjour.</span>{" "}
+        {lang === "fr" ? t.hello.substring(9) : t.hello}
+      </p>
+      {lang === "fr" && t.helloEn && (
+        <>
+          <div className="my-6 h-px" style={{ background: "rgba(31,42,36,0.08)" }} />
+          <p className="font-sans text-[13.5px] italic leading-[1.6]" style={{ color: "#5A665F" }}>
+            {t.helloEn}
           </p>
-          {lang === "fr" && t.helloEn && (
-            <>
-              <div className="my-5 h-px bg-neutral-200/70" />
-              <p className="text-[13px] text-neutral-500 leading-relaxed italic">
-                {t.helloEn}
-              </p>
-            </>
-          )}
-        </div>
-      </div>
+        </>
+      )}
 
-      <button onClick={onStart} className="audit-v2-btn-primary w-full mt-6 justify-center">
+      <button onClick={onStart} className="audit-v2-btn-primary mt-8 w-full justify-center">
         {lang === "fr" ? "Commencer le diagnostic" : "Start the diagnostic"} →
       </button>
     </div>
@@ -416,25 +464,29 @@ function QuestionCard({
 
   return (
     <div className="audit-v2-card-lg">
-      <div className="flex gap-3 mb-5">
-        <div className="shrink-0 w-9 h-9 rounded-full bg-[#111] text-white flex items-center justify-center">
-          <span className="font-serif text-[12px] text-[var(--safe-green-100)]" style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}>JT</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-2">
-            {t.question(index, total)} · {section?.title}
-          </div>
-          <h3
-            className="text-[22px] leading-snug text-[#111] mb-2"
-            style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-          >
-            {q.label}
-          </h3>
-          {q.help && <p className="text-[13px] text-neutral-500 leading-relaxed">{q.help}</p>}
-        </div>
+      {/* Une question à l'écran, annoncée par sa section : rien d'autre à lire */}
+      <div className="flex items-baseline justify-between gap-4">
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#12A150" }}>
+          {section?.subtitle}
+        </span>
+        <span className="font-mono text-[10px] tracking-[0.12em] tabular-nums" style={{ color: "#7C877F" }}>
+          {t.question(index, total)}
+        </span>
       </div>
 
-      <div className="mt-4">
+      <h3
+        className="mt-5 max-w-[30ch] font-serif text-[26px] leading-[1.14] sm:text-[30px]"
+        style={{ color: "#1F2A24", letterSpacing: "-0.014em" }}
+      >
+        {q.label}
+      </h3>
+      {q.help && (
+        <p className="mt-3 max-w-[52ch] font-sans text-[13.5px] leading-[1.6]" style={{ color: "#5A665F" }}>
+          {q.help}
+        </p>
+      )}
+
+      <div className="mt-8">
         <FieldRenderer q={q} value={value} onChange={onChange} lang={lang} />
       </div>
     </div>
@@ -517,23 +569,25 @@ function FieldRenderer({
       const v = typeof value === "number" ? value : 0;
       return (
         <div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
                 onClick={() => onChange(n)}
-                className={`w-11 h-11 rounded-md text-[14px] font-medium transition
-                  ${v === n
-                    ? "bg-[var(--safe-green-800)] text-white border-transparent"
-                    : "bg-white/70 border border-neutral-200 text-neutral-700 hover:border-neutral-400"}`}
+                className="h-11 w-11 rounded-[8px] border font-mono text-[14px] tabular-nums transition-colors duration-300"
+                style={
+                  v === n
+                    ? { background: "#1F3A2E", borderColor: "#1F3A2E", color: "#F4F7F3" }
+                    : { background: "#FFFFFF", borderColor: "rgba(31,42,36,0.10)", color: "#5A665F" }
+                }
               >
                 {n}
               </button>
             ))}
           </div>
-          <div className="mt-3 flex justify-between text-[11px] text-neutral-400">
-            <span>1 — très insatisfait</span>
-            <span>10 — parfait</span>
+          <div className="mt-3 flex justify-between font-sans text-[11.5px]" style={{ color: "#7C877F" }}>
+            <span>1 · très insatisfait</span>
+            <span>10 · parfait</span>
           </div>
         </div>
       );
@@ -673,7 +727,10 @@ function OptionButton({
 function TrustStrip({ lang }: { lang: Lang }) {
   const t = T[lang];
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-neutral-500">
+    <div
+      className="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 font-sans text-[11.5px]"
+      style={{ color: "#7C877F" }}
+    >
       <span className="flex items-center gap-2">
         <TrustIcon kind="lock" /> {t.ssl}
       </span>
@@ -698,28 +755,27 @@ function AuditSuccess({
   const fmt = (n: number) => `${n.toLocaleString("fr-CA")} $`;
 
   return (
-    <div className="min-h-screen audit-v2-bg py-12 px-4">
+    <div className="min-h-screen audit-v2-bg px-4 pb-16 pt-24">
+      <TopHeader />
       <div className="mx-auto w-full max-w-3xl">
-        <TopHeader />
-
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
             className="audit-v2-card-lg text-center"
           >
-            <div className="text-[11px] uppercase tracking-[0.3em] text-[var(--safe-green-800)] mb-6 font-medium">
+            <div className="mb-6 font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "#12A150" }}>
               Merci {nom}
             </div>
             <h1
-              className="text-[36px] leading-tight text-[#111] mb-4"
-              style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+              className="mb-5 font-serif text-[38px] leading-[1.08]"
+              style={{ color: "#1F2A24", letterSpacing: "-0.02em" }}
             >
               Votre rapport{" "}
-              <span className="italic text-[var(--safe-green-800)]">est prêt</span>.
+              <span className="italic" style={{ color: "#12A150" }}>est prêt</span>.
             </h1>
-            <p className="text-[14px] text-neutral-600 leading-relaxed max-w-xl mx-auto">
+            <p className="mx-auto max-w-xl font-sans text-[14.5px] leading-[1.62]" style={{ color: "#5A665F" }}>
               {lang === "fr"
                 ? `Nous venons de vous l'envoyer à ${contact.email}. Vous y trouverez la synthèse complète de vos réponses, le diagnostic, le devis comparatif et notre recommandation d'offre.`
                 : `We just sent it to ${contact.email}. It contains a full synthesis, diagnostic, benchmark quote and our tailored offer.`}
@@ -740,28 +796,24 @@ function AuditSuccess({
               </div>
             </div>
 
-            <div className="mt-8 audit-v2-offer">
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[var(--safe-green-100)] mb-2">
+            <div className="audit-v2-offer mt-8">
+              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#8EB69B" }}>
                 Offre recommandée
               </div>
-              <div
-                className="text-[28px] mb-1"
-                style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-              >
+              <div className="mb-1 font-serif text-[30px] leading-tight">
                 {reco.safeOffer.name}
               </div>
-              <div className="text-[12px] text-[var(--safe-green-100)] mb-4">
+              <div className="mb-5 font-sans text-[13px]" style={{ color: "#C4D4C9" }}>
                 {reco.safeOffer.tagline}
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-[13px] text-[var(--safe-green-100)] mr-1">À partir de</span>
-                <span
-                  className="text-[40px]"
-                  style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
-                >
+              <div className="flex flex-wrap items-baseline gap-x-3">
+                <span className="font-sans text-[13px]" style={{ color: "#C4D4C9" }}>À partir de</span>
+                <span className="font-mono text-[38px] tabular-nums leading-none">
                   {fmt(reco.safeOffer.monthly)}
                 </span>
-                <span className="text-[12px] text-[var(--safe-green-100)]">/ mois · {reco.safeOffer.seats}</span>
+                <span className="font-sans text-[12.5px]" style={{ color: "#C4D4C9" }}>
+                  / mois · {reco.safeOffer.seats}
+                </span>
               </div>
               <p className="mt-3 text-[11px] text-[var(--safe-green-100)]/70 leading-relaxed max-w-xs mx-auto">
                 L&apos;offre définitive sera confirmée lors de votre rencontre avec l&apos;équipe SAFE.
@@ -783,8 +835,8 @@ function AuditSuccess({
               </a>
             </div>
 
-            <div className="mt-8 text-[11px] text-neutral-400">
-              Référence : <span className="font-mono">{id}</span>
+            <div className="mt-8 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "#7C877F" }}>
+              Référence {id}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -799,99 +851,60 @@ function SectionCelebration({
 }: {
   title: string; num: number; lang: Lang;
 }) {
-  const label = lang === "fr" ? "Section complétée" : "Section completed";
-  const nextLabel = lang === "fr" ? "On passe à la suivante…" : "Moving to the next one…";
+  const label = lang === "fr" ? "Section franchie" : "Section cleared";
+  const nextLabel = lang === "fr" ? "On passe à la suivante." : "Moving to the next one.";
   const pad = String(num).padStart(2, "0");
 
+  /* Palier franchi : un aplat forêt, un tiret qui se trace, rien de plus. */
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-[70] flex items-center justify-center px-4"
-      style={{
-        background: "radial-gradient(ellipse at center, rgba(11,26,19,0.72) 0%, rgba(11,26,19,0.94) 70%)",
-        backdropFilter: "blur(6px)",
-      }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-[70] flex items-center justify-center px-6"
+      style={{ background: "rgba(20,38,31,0.96)" }}
       aria-live="polite"
       role="status"
     >
       <motion.div
-        initial={{ scale: 0.9, y: 10, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.96, y: -8, opacity: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-sm text-center"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md"
       >
-        {/* Check animé */}
-        <div className="relative mx-auto mb-6 w-[120px] h-[120px]">
-          {/* Anneaux pulsants */}
-          <motion.span
-            className="absolute inset-0 rounded-full"
-            style={{ border: "1.5px solid rgba(143,180,159,0.45)" }}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: [0.8, 1.5], opacity: [0.7, 0] }}
-            transition={{ duration: 1.4, ease: "easeOut", repeat: 1 }}
-          />
-          <motion.span
-            className="absolute inset-2 rounded-full"
-            style={{ border: "1.5px solid rgba(143,180,159,0.3)" }}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: [0.85, 1.35], opacity: [0.5, 0] }}
-            transition={{ duration: 1.4, ease: "easeOut", delay: 0.2, repeat: 1 }}
-          />
-
-          {/* Disque vert */}
-          <motion.div
-            className="absolute inset-[18px] rounded-full flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, var(--safe-green-700) 0%, var(--safe-green-900) 100%)",
-              boxShadow: "0 18px 48px -12px rgba(31,58,46,0.55), inset 0 1px 0 rgba(255,255,255,0.12)",
-            }}
-            initial={{ scale: 0.4, rotate: -20 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <svg width="44" height="44" viewBox="0 0 52 52" fill="none">
-              <motion.path
-                d="M13 27 L22 36 L39 18"
-                stroke="#EAF3EC"
-                strokeWidth="4.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.55, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </svg>
-          </motion.div>
+        <div className="flex items-baseline gap-4">
+          <span className="font-mono text-[11px] tracking-[0.16em]" style={{ color: "#8EB69B" }}>
+            {pad}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "#8EB69B" }}>
+            {label}
+          </span>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.35 }}
-          className="text-[10px] uppercase tracking-[0.3em] text-[var(--safe-green-100)] mb-3"
-        >
-          — {pad} · {label}
-        </motion.div>
+        <motion.span
+          aria-hidden
+          className="mt-5 block h-px origin-left"
+          style={{ background: "#12A150" }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        />
 
-        <motion.h3
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[28px] text-white leading-tight mb-2"
-          style={{ fontFamily: "var(--font-instrument-serif), Georgia, serif" }}
+        <h3
+          className="mt-6 font-serif text-[32px] leading-[1.12]"
+          style={{ color: "#F4F7F3", letterSpacing: "-0.018em" }}
         >
           {title}
-        </motion.h3>
+        </h3>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.75, duration: 0.4 }}
-          className="text-[13px] text-[var(--safe-green-100)]/80"
+          transition={{ delay: 0.7, duration: 0.55 }}
+          className="mt-3 font-sans text-[14px]"
+          style={{ color: "rgba(244,247,243,0.6)" }}
         >
           {nextLabel}
         </motion.p>

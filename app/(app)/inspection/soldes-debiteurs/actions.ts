@@ -21,7 +21,7 @@ import {
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const PATH = "/comptes/soldes-debiteurs";
+const PATH = "/inspection/soldes-debiteurs";
 
 const SOURCES: RemediationSource[] = [
   "CABINET_OPERATING",

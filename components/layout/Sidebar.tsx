@@ -3,7 +3,7 @@ import type { Session } from "next-auth";
 import { routes } from "@/lib/routes";
 import { SidebarBottomSection, SidebarNavList } from "@/components/layout/SidebarNav";
 import type { SidebarCounts } from "@/lib/services/sidebar-counts";
-import { LogoMark } from "@/components/brand/Logo";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 
 /**
  * Éditorial Chaleureux sidebar
@@ -44,7 +44,7 @@ export function Sidebar({
           className="inline-flex min-w-0 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-800)]/40"
           aria-label="SAFE — Tableau de bord"
         >
-          <LogoMark size={30} />
+          <SafeLogo size={21} />
         </Link>
 
         {/* Cabinet context pill (sand-50 bg, forest dot) */}

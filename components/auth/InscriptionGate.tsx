@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogoMark } from "@/components/brand/Logo";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 import { ArrowRight, Home } from "lucide-react";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
@@ -53,7 +53,7 @@ export function InscriptionGate() {
           transition={{ duration: 0.7, ease }}
           className="mb-10"
         >
-          <LogoMark size={32} />
+          <SafeLogo size={22} />
         </motion.div>
 
         <AnimatePresence mode="wait">

@@ -1,19 +1,15 @@
 import React from "react";
 import { PALETTE } from "../theme";
-import { LogoDisplay } from "../primitives";
-import type { AuditReport, Variant } from "@/types/audit-report";
+import { Logo } from "../primitives";
+import type { AuditReport } from "@/types/audit-report";
 
 interface Props {
   data: AuditReport;
-  variant: Variant;
+  /** Sommaire construit par AuditReport : donne au lecteur la carte du document. */
+  sommaire: { num: string; label: string }[];
 }
 
-const haloGreen = (v: Variant) =>
-  v === "cream" ? "rgba(22,59,46,.16)" : "rgba(22,59,46,.12)";
-const haloGold = (v: Variant) =>
-  v === "cream" ? "rgba(169,119,42,.13)" : "rgba(169,119,42,.10)";
-
-export function CoverPage({ data, variant }: Props) {
+export function CoverPage({ data, sommaire }: Props) {
   return (
     <div
       className="audit-page"
@@ -21,116 +17,173 @@ export function CoverPage({ data, variant }: Props) {
         position: "relative",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        overflow: "hidden",
         boxSizing: "border-box",
-        padding: "56px 60px 52px",
+        padding: "52px 56px 46px",
       }}
     >
-      {/* Halos (crème uniquement) */}
-      {variant === "cream" && (
-        <>
-          <div
-            aria-hidden="true"
+      {/* Bandeau haut */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", color: PALETTE.forest }}>
+          <Logo size={20} />
+          <span
             style={{
-              position: "absolute", top: 0, left: 0,
-              width: "400px", height: "400px",
-              background: `radial-gradient(circle, ${haloGreen(variant)}, transparent 68%)`,
-              filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
-            }}
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute", bottom: 0, right: 0,
-              width: "400px", height: "400px",
-              background: `radial-gradient(circle, ${haloGold(variant)}, transparent 68%)`,
-              filter: "blur(46px)", pointerEvents: "none", zIndex: 0,
-            }}
-          />
-        </>
-      )}
-
-      {/* Top: eyebrow + confidential */}
-      <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <p
-            style={{
-              fontFamily: "var(--font-geist-mono, monospace)",
-              fontSize: "9px",
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: PALETTE.gold,
-              marginBottom: "6px",
+              fontFamily: "var(--font-instrument-serif, Georgia, serif)",
+              /* Rapport mot / mark du verrou de marque : 20 × 1,15.
+                 Voir docs/brand/IDENTITE_SAFE.md §4.4. */
+              fontSize: "23px",
+              letterSpacing: "0.015em",
+              color: PALETTE.ink,
+              lineHeight: 1,
             }}
           >
-            Diagnostic de cabinet
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--font-geist-mono, monospace)",
-              fontSize: "8px",
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: PALETTE.moss2,
-            }}
-          >
-            {data.meta.confidentiel ? "Confidentiel" : ""}
-          </p>
+            SAFE
+          </span>
         </div>
         <p
           style={{
             fontFamily: "var(--font-geist-mono, monospace)",
             fontSize: "8px",
             letterSpacing: "0.1em",
-            color: PALETTE.moss2,
+            color: PALETTE.inkFaint,
             textAlign: "right",
+            margin: 0,
+            lineHeight: 1.7,
           }}
         >
           Réf. {data.meta.ref}
           <br />
           {data.meta.date}
+          {data.meta.confidentiel && (
+            <>
+              <br />
+              Confidentiel
+            </>
+          )}
         </p>
       </div>
 
-      {/* Center: main title */}
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 32px" }}>
+      {/* Bloc titre, aligné à gauche : on lit un document, pas une affiche.
+          Le vide est concentré au-dessus du titre plutôt que réparti, pour
+          garder une respiration franche au lieu de deux trous. */}
+      <div style={{ maxWidth: "620px", marginTop: "22%" }}>
+        <p
+          style={{
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: "9px",
+            letterSpacing: "0.3em",
+            textTransform: "uppercase",
+            color: PALETTE.gold,
+            margin: "0 0 18px",
+          }}
+        >
+          Diagnostic de cabinet
+        </p>
         <h1
           style={{
             fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-            fontSize: "42px",
-            lineHeight: 1.1,
+            fontSize: "44px",
+            lineHeight: 1.08,
             color: PALETTE.ink,
             fontWeight: 400,
-            margin: "0 0 24px",
+            margin: "0 0 20px",
           }}
         >
           Diagnostic de performance de votre{" "}
-          <em style={{ fontStyle: "italic", color: PALETTE.forest2 }}>cabinet.</em>
+          <em style={{ fontStyle: "italic", color: PALETTE.forest }}>cabinet.</em>
         </h1>
         <p
           style={{
             fontFamily: "var(--font-geist-sans, sans-serif)",
-            fontSize: "14px",
-            color: PALETTE.moss,
-            lineHeight: 1.6,
-            maxWidth: "440px",
-            margin: "0 auto",
+            fontSize: "13px",
+            color: PALETTE.ink,
+            margin: "0 0 14px",
+            fontWeight: 500,
           }}
         >
-          Préparé pour {data.cabinet.raisonSociale} · {data.cabinet.localisation}
+          Préparé pour {data.cabinet.raisonSociale}, {data.cabinet.localisation}
+        </p>
+        <p
+          style={{
+            fontFamily: "var(--font-geist-sans, sans-serif)",
+            fontSize: "12px",
+            lineHeight: 1.7,
+            color: PALETTE.inkBody,
+            margin: 0,
+            maxWidth: "520px",
+          }}
+        >
+          {data.butAudit}
         </p>
       </div>
 
-      {/* Bottom: cabinet name + SAFE logo */}
-      <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
+      {/* Sommaire + signature */}
+      <div
+        style={{
+          marginTop: "auto",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: "40px",
+        }}
+      >
+        <div style={{ flex: 1, maxWidth: "440px" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-geist-mono, monospace)",
+              fontSize: "8px",
+              letterSpacing: "0.24em",
+              textTransform: "uppercase",
+              color: PALETTE.inkMuted,
+              margin: "0 0 10px",
+            }}
+          >
+            Ce que contient ce document
+          </p>
+          <div style={{ borderTop: `0.5px solid ${PALETTE.line}` }}>
+            {sommaire.map((s) => (
+              <div
+                key={s.num}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "14px",
+                  padding: "7px 0",
+                  borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-geist-mono, monospace)",
+                    fontSize: "8.5px",
+                    color: PALETTE.gold,
+                    width: "18px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {s.num}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-geist-sans, sans-serif)",
+                    fontSize: "11px",
+                    color: PALETTE.inkBody,
+                  }}
+                >
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
           <p
             style={{
               fontFamily: "var(--font-geist-sans, sans-serif)",
               fontSize: "11px",
-              color: PALETTE.moss2,
-              marginBottom: "4px",
+              color: PALETTE.ink,
+              margin: "0 0 3px",
+              fontWeight: 500,
             }}
           >
             {data.cabinet.contact}
@@ -138,28 +191,13 @@ export function CoverPage({ data, variant }: Props) {
           <p
             style={{
               fontFamily: "var(--font-geist-sans, sans-serif)",
-              fontSize: "11px",
-              color: PALETTE.moss2,
+              fontSize: "10.5px",
+              color: PALETTE.inkMuted,
+              margin: 0,
             }}
           >
             {data.cabinet.localisation}
           </p>
-        </div>
-
-        {/* SAFE logo large */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <LogoDisplay size={52} />
-          <span
-            style={{
-              fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-              fontSize: "34px",
-              lineHeight: 1,
-              color: PALETTE.ink,
-              fontWeight: 400,
-            }}
-          >
-            Safe
-          </span>
         </div>
       </div>
     </div>

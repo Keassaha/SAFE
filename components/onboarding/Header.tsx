@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { SafeLogo } from '@/components/branding/SafeLogo';
 
 interface HeaderProps {
   variant?: 'marketing' | 'audit';
@@ -17,10 +18,8 @@ export function Header({ variant = 'marketing', subtitle }: HeaderProps) {
     <header className="bg-white border-b border-slate-200/60 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-md bg-forest-900 flex items-center justify-center">
-            <span className="text-forest-50 text-[13px] font-medium">S</span>
-          </div>
-          <span className="text-[15px] font-medium text-forest-900">SAFE</span>
+          {/* Cet entête dessinait un « S » dans un carré vert, pas la marque. */}
+          <SafeLogo size={20} alt="SAFE" />
           {subtitle && (
             <>
               <span className="ml-2 pl-3 border-l border-slate-200 text-xs text-slate-500">

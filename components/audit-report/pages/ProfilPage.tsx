@@ -1,8 +1,8 @@
 import React from "react";
 import { PALETTE } from "../theme";
 import { PageShell } from "../PageShell";
-import { Eyebrow, DisplayTitle, Em, Divider, MonoLabel } from "../primitives";
-import type { AuditReport, Variant } from "@/types/audit-report";
+import { Em } from "../primitives";
+import type { AuditReport } from "@/types/audit-report";
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -11,17 +11,17 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "baseline",
-        padding: "9px 0",
-        gap: "12px",
+        gap: "16px",
+        padding: "13px 0",
+        borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
       }}
     >
       <span
         style={{
           fontFamily: "var(--font-geist-sans, sans-serif)",
-          fontSize: "10px",
-          color: PALETTE.moss2,
+          fontSize: "10.5px",
+          color: PALETTE.inkMuted,
           flexShrink: 0,
-          width: "160px",
         }}
       >
         {label}
@@ -29,11 +29,10 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <span
         style={{
           fontFamily: "var(--font-geist-sans, sans-serif)",
-          fontSize: "11px",
+          fontSize: "11.5px",
           color: PALETTE.ink,
           fontWeight: 500,
           textAlign: "right",
-          flex: 1,
         }}
       >
         {value}
@@ -42,135 +41,148 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-interface Props {
-  data: AuditReport;
-  variant: Variant;
+function Bloc({ titre, children }: { titre: string; children: React.ReactNode }) {
+  return (
+    <div style={{ flex: 1 }}>
+      <p
+        style={{
+          fontFamily: "var(--font-geist-mono, monospace)",
+          fontSize: "8px",
+          letterSpacing: "0.22em",
+          textTransform: "uppercase",
+          color: PALETTE.inkMuted,
+          margin: "0 0 8px",
+        }}
+      >
+        {titre}
+      </p>
+      <div style={{ borderTop: `0.5px solid ${PALETTE.line}` }}>{children}</div>
+    </div>
+  );
 }
 
-export function ProfilPage({ data, variant }: Props) {
+interface Props {
+  data: AuditReport;
+  sectionNum: string;
+  pageNum: string;
+  total: string;
+}
+
+export function ProfilPage({ data, sectionNum, pageNum, total }: Props) {
   const c = data.cabinet;
 
   return (
     <PageShell
+      eyebrow={`${sectionNum} · Profil du cabinet`}
+      title={
+        <>
+          Ce sur quoi le diagnostic s'<Em>appuie.</Em>
+        </>
+      }
+      lede="Voici les réponses que vous nous avez données. Tout le reste du document en découle, donc si une ligne est inexacte, dites-le nous et le diagnostic est recalculé."
       pageLabel="Profil du cabinet"
-      pageNum="01"
+      pageNum={pageNum}
+      total={total}
       date={data.meta.date}
-      variant={variant}
     >
-      {/* Section header */}
-      <Eyebrow>01 · Profil du cabinet</Eyebrow>
-      <DisplayTitle size="lg">
-        Avec qui nous travaillons, et pourquoi cet <Em>audit.</Em>
-      </DisplayTitle>
+      {/* Deux colonnes de faits, pleine largeur */}
+      <div style={{ display: "flex", gap: "40px" }}>
+        <Bloc titre="Identification">
+          <InfoRow label="Raison sociale" value={c.raisonSociale} />
+          <InfoRow label="Contact" value={c.contact} />
+          <InfoRow label="Localisation" value={c.localisation} />
+          <InfoRow label="Forme juridique" value={c.formeJuridique} />
+          <InfoRow label="Domaines" value={c.domaines.join(", ")} />
+          <InfoRow label="Ancienneté" value={c.anciennete} />
+          <InfoRow
+            label="Utilisateurs prévus"
+            value={String(c.utilisateurs)}
+          />
+        </Bloc>
 
-      <div style={{ height: "20px" }} />
-
-      {/* Two-column layout */}
-      <div style={{ display: "flex", gap: "32px", flex: 1 }}>
-        {/* Left: cabinet info */}
-        <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "8px" }}>
-            Identification
-          </p>
-          <Divider />
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Raison sociale" value={c.raisonSociale} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Contact" value={c.contact} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Localisation" value={c.localisation} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Forme juridique" value={c.formeJuridique} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Domaines" value={c.domaines.join(", ")} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Ancienneté" value={c.anciennete} />
-          </div>
-
-          <div style={{ height: "20px" }} />
-
-          <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "8px" }}>
-            Pratique et outils
-          </p>
-          <Divider />
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Dossiers actifs" value={c.dossiersActifs} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Facturation" value={c.facturation} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Fidéicommis" value={c.fideicommis} />
-          </div>
-          <div style={{ borderBottom: `0.5px solid ${PALETTE.lineSoft}` }}>
-            <InfoRow label="Outil actuel" value={c.outilActuel} />
-          </div>
-          <div>
-            <InfoRow label="Satisfaction outil" value={`${c.satisfactionOutil} / 10`} />
-          </div>
-        </div>
-
-        {/* Right: objective + context card */}
-        <div style={{ width: "220px", display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div
-            style={{
-              backgroundColor: "var(--cream-card)",
-              border: `0.5px solid ${PALETTE.lineSoft}`,
-              borderRadius: "8px",
-              padding: "20px",
-              flex: 1,
-            }}
-          >
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.gold, marginBottom: "10px" }}>
-              Objectif de l'audit
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-geist-sans, sans-serif)",
-                fontSize: "10.5px",
-                lineHeight: 1.65,
-                color: PALETTE.moss,
-              }}
-            >
-              {data.butAudit}
-            </p>
-          </div>
-
-          {/* Utilisateurs stat */}
-          <div
-            style={{
-              backgroundColor: PALETTE.forest2,
-              borderRadius: "8px",
-              padding: "18px 20px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
-            <MonoLabel dark small>Utilisateurs SAFE</MonoLabel>
-            <p
-              style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "38px",
-                lineHeight: 1,
-                color: PALETTE.sage50,
-                fontWeight: 400,
-                margin: 0,
-              }}
-            >
-              {c.utilisateurs}
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9px", color: PALETTE.sage, margin: 0 }}>
-              {c.utilisateurs === 1 ? "utilisateur prévu" : "utilisateurs prévus"}
-            </p>
-          </div>
-        </div>
+        <Bloc titre="Pratique et outils">
+          <InfoRow label="Dossiers actifs" value={c.dossiersActifs} />
+          <InfoRow label="Facturation" value={c.facturation} />
+          <InfoRow label="Fidéicommis" value={c.fideicommis} />
+          <InfoRow label="Outil actuel" value={c.outilActuel} />
+          <InfoRow label="Satisfaction outil" value={`${c.satisfactionOutil} sur 10`} />
+          <InfoRow
+            label="Heures administratives"
+            value={`${data.cout.heuresAdminDeclarees.min} à ${data.cout.heuresAdminDeclarees.max} h / sem.`}
+          />
+          <InfoRow
+            label="Délai de règlement"
+            value={`${data.cout.delaiReglementDeclare} jours`}
+          />
+        </Bloc>
       </div>
+
+      {/* Ce que ces réponses signalent */}
+      {data.drivers.length > 0 && (
+        <div style={{ marginTop: "40px" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-geist-mono, monospace)",
+              fontSize: "8px",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: PALETTE.gold,
+              margin: "0 0 12px",
+            }}
+          >
+            Ce que ces réponses signalent
+          </p>
+          <div style={{ borderTop: `0.5px solid ${PALETTE.line}` }}>
+            {data.drivers.map((d, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "20px",
+                  padding: "16px 0",
+                  borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-instrument-serif, Georgia, serif)",
+                    fontSize: "15px",
+                    color: PALETTE.gold,
+                    width: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-geist-sans, sans-serif)",
+                    fontSize: "11.5px",
+                    color: PALETTE.ink,
+                    flex: 1,
+                    lineHeight: 1.45,
+                  }}
+                >
+                  {d.label}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-geist-sans, sans-serif)",
+                    fontSize: "10.5px",
+                    color: PALETTE.inkMuted,
+                    textAlign: "right",
+                    flexShrink: 0,
+                    width: "150px",
+                  }}
+                >
+                  {d.valeur}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

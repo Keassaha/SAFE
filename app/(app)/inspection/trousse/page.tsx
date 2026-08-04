@@ -68,8 +68,8 @@ export default async function TrousseInspectionPage({
       <PageHeader
         title="Trousse d'inspection"
         description="Tout ce qu'un inspecteur demande, rassemblé pour une période, avec ce qui manque nommé."
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <InspectionKitScreen

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
+import { MARK_GEOMETRY, SAFE_MARK_DEFAULT } from "@/components/brand/safe-mark";
 
 export const BG = "#EFF2ED";
 export const SURFACE = "#FBFCFA";
@@ -87,7 +88,7 @@ export function Nav() {
     >
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href={R.accueil} className="inline-flex items-center" style={{ color: INK }}>
-          <SafeLogo noPulse size={18} />
+          <SafeLogo size={19} />
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">
@@ -229,7 +230,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Link href={R.accueil} className="inline-flex items-center" style={{ color: "#F3F7F4" }}>
-            <SafeLogo noPulse variant="dark" size={18} />
+            <SafeLogo size={19} variant="dark" />
           </Link>
           <p className="mt-3 max-w-[32ch] font-sans text-[13px] leading-[1.55]" style={{ color: "#AAB7AF" }}>
             Votre fidéicommis à jour, vos dossiers en ordre, votre prochaine inspection sans
@@ -338,17 +339,12 @@ export function useScrollScrub(
   }, [zoneRef]);
 }
 
-/* Galet du mark SAFE, même géométrie que components/branding/SafeLogo.tsx. */
-const MARK_PATH =
-  "M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z";
-/* Centre visuel du galet dans le repère 24×24 et sa largeur nominale. */
-const MARK_CX = 9;
-const MARK_CY = 7.6;
-const MARK_W = 10.4;
+/* Fragment de la marque servie. Forme importée, jamais recopiée. */
+const FRAGMENT = MARK_GEOMETRY[SAFE_MARK_DEFAULT];
 const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgba(18,161,80,0.22)", "rgba(90,102,95,0.20)"];
 
 /**
- * Triangles du logo flottants, brassés par le curseur, même langage que le hero
+ * Fragments du logo flottants, brassés par le curseur, même langage que le hero
  * de l'accueil. Léger : ~11 pièces, dessin seulement quand le canvas est visible,
  * coupé en prefers-reduced-motion.
  */
@@ -382,7 +378,11 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
           : 0.71 + rnd() * 0.31,
       /* réparti sur la hauteur plutôt qu'au hasard : évite les paquets */
       fy: 0.04 + ((i + rnd() * 0.85) / nombre) * 0.9,
-      size: (petitEcran ? 20 : 38) + rnd() * (petitEcran ? 26 : 58),
+      /* Taille de référence, calée sur le galet. Une forme plus pleine pèse
+         davantage à surface égale : `fragmentWeight` la ramène au même calme. */
+      size:
+        ((petitEcran ? 20 : 38) + rnd() * (petitEcran ? 26 : 58)) *
+        FRAGMENT.fragmentWeight,
       rot: (rnd() - 0.5) * 1.1,
       /* un galet sur deux pointe vers le haut : les deux moitiés du mark */
       flip: rnd() > 0.45,
@@ -390,7 +390,7 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
       drift: rnd() * Math.PI * 2,
       ox: 0, oy: 0, vx: 0, vy: 0,
     }));
-    const markPath = new Path2D(MARK_PATH);
+    const markPath = new Path2D(FRAGMENT.fragmentPath);
 
     const pointer = { x: -9999, y: -9999, speed: 0 };
     const onMove = (e: PointerEvent) => {
@@ -441,9 +441,9 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
         ctx.translate(x, y);
         ctx.rotate(p.rot + p.ox * 0.002 + (p.flip ? Math.PI : 0));
         const breath = 1 + Math.sin(time * 0.0004 + p.drift) * 0.05;
-        const s = (p.size / MARK_W) * breath;
+        const s = (p.size / FRAGMENT.fragmentW) * breath;
         ctx.scale(s, s);
-        ctx.translate(-MARK_CX, -MARK_CY);
+        ctx.translate(-FRAGMENT.fragmentCx, -FRAGMENT.fragmentCy);
         ctx.globalAlpha = p.flip ? 0.6 : 1;
         ctx.fillStyle = MARK_TINTS[p.tint];
         ctx.fill(markPath);

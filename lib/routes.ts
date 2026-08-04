@@ -60,24 +60,20 @@ export const routes = {
   employeeNouveau: "/employees/nouveau",
   employeeYearEnd: "/employees/year-end",
   comptes: "/comptes",
-  /// Rapport comptable mensuel — art. 41 B-1 r.5 / s. 18(8) By-Law 9.
-  rapportMensuel: "/comptes/rapport-mensuel",
-  /// Trousse d'inspection — art. 29, 30, 33 B-1 r.5 / By-Law 9, par. 21(2).
-  trousseInspection: "/comptes/trousse-inspection",
-  /// Registres reglementaires imprimables — art. 30 QC / par. 21(2) ON.
-  registres: "/comptes/registres",
-  /// Soldes debiteurs — art. 59, 60 QC / s. 9(3), 14 ON.
-  soldesDebiteurs: "/comptes/soldes-debiteurs",
-  /// Rapport comptable annuel — art. 42 QC.
-  rapportAnnuel: "/comptes/rapport-annuel",
-  /// Especes : recus et declarations — art. 69 a 73 QC / s. 4-6, 19 ON.
-  especes: "/comptes/especes",
-  /// Autres biens en fideicommis — art. 43 a 46 QC / s. 18(9) ON.
-  autresBiens: "/comptes/autres-biens",
-  /// Cycle de vie du cabinet — art. 7, 9, 19, 78 QC.
-  cycleDeVie: "/conformite/cycle-de-vie",
-  /// Conservation et acces d'inspection — art. 29 a 33 QC / s. 21-23 ON.
-  conservation: "/conformite/conservation",
+  /// ── Section Inspection ────────────────────────────────────────────────
+  /// Tout ce qu'un inspecteur du Barreau ou du LSO demande, au meme endroit.
+  /// Ces ecrans vivaient sous /comptes, ce qui etait faux : quatre des neuf
+  /// registres et la trousse ne concernent pas le fideicommis.
+  inspection: "/inspection",
+  rapportMensuel: "/inspection/rapport-mensuel",
+  trousseInspection: "/inspection/trousse",
+  registres: "/inspection/registres",
+  soldesDebiteurs: "/inspection/soldes-debiteurs",
+  especes: "/inspection/especes",
+  autresBiens: "/inspection/autres-biens",
+  rapportAnnuel: "/inspection/rapport-annuel",
+  cycleDeVie: "/inspection/cycle-de-vie",
+  conservation: "/inspection/conservation",
   conformite: "/conformite",
   connexion: "/connexion",
   inscription: "/inscription",

@@ -20,7 +20,7 @@ import { markDeclarationSent } from "@/lib/services/fideicommis/cash-service";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const PATH = "/comptes/especes";
+const PATH = "/inspection/especes";
 
 export async function markDeclarationSentAction(formData: FormData): Promise<ActionResult> {
   try {

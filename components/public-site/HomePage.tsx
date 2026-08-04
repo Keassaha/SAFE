@@ -1,20 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpen,
   Check,
   Clock3,
-  FolderKanban,
   ReceiptText,
   Scale,
   ShieldCheck,
-  WalletCards,
 } from "lucide-react";
-import { SafeLogo } from "@/components/branding/SafeLogo";
 import {
   BG,
   EASE,
@@ -32,88 +30,6 @@ import {
   fadeUp,
 } from "./shared";
 
-const PRODUCT_LIST = [
-  {
-    id: "rapprochement",
-    category: "Fidéicommis",
-    title: "Rapprochement de juin",
-    context: "Écart de 500 $ · Mandat Lavoie",
-    status: "À vérifier",
-    action: "SAFE a isolé l’écart et conserve la certification en attente.",
-    color: "#A16B16",
-    background: "rgba(161,107,22,0.08)",
-    icon: WalletCards,
-  },
-  {
-    id: "facture",
-    category: "Facturation",
-    title: "Facture 2026-041",
-    context: "Succession Tremblay · 3 200 $",
-    status: "Prête à envoyer",
-    action: "Les heures approuvées et les débours sont déjà rattachés à la facture.",
-    color: GREEN,
-    background: "rgba(18,161,80,0.08)",
-    icon: ReceiptText,
-  },
-  {
-    id: "inventaire",
-    category: "Dossier",
-    title: "Inventaire successoral",
-    context: "Échéance · 30 juin",
-    status: "À valider",
-    action: "Le document, l’échéance et le responsable restent liés au même dossier.",
-    color: "#52635A",
-    background: "rgba(82,99,90,0.08)",
-    icon: FolderKanban,
-  },
-  {
-    id: "temps",
-    category: "Temps",
-    title: "6,5 h non facturées",
-    context: "Succession Tremblay",
-    status: "À facturer",
-    action: "Le temps saisi peut être transféré à la facture sans nouvelle saisie.",
-    color: GREEN,
-    background: "rgba(18,161,80,0.08)",
-    icon: Clock3,
-  },
-] as const;
-
-const DOSSIER_LINKS = [
-  {
-    id: "temps",
-    category: "Temps",
-    detail: "6,5 h approuvées",
-    value: "6,5 h",
-    status: "Prêtes à facturer",
-    tone: GREEN,
-  },
-  {
-    id: "facturation",
-    category: "Facturation",
-    detail: "Facture 2026-041",
-    value: "3 200 $",
-    status: "Prête à envoyer",
-    tone: GREEN,
-  },
-  {
-    id: "fiducie",
-    category: "Fidéicommis",
-    detail: "Avance détenue en fiducie",
-    value: "12 500 $",
-    status: "Rapprochée",
-    tone: VERIFIED,
-  },
-  {
-    id: "echeance",
-    category: "Échéance",
-    detail: "Inventaire successoral",
-    value: "30 juin",
-    status: "À valider",
-    tone: "#A16B16",
-  },
-] as const;
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <motion.p
@@ -126,134 +42,11 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProductListVisual() {
-  const [activeId, setActiveId] = useState<(typeof PRODUCT_LIST)[number]["id"]>("rapprochement");
-  const reduceMotion = useReducedMotion();
-  const active = PRODUCT_LIST.find((item) => item.id === activeId) ?? PRODUCT_LIST[0];
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    const timer = window.setInterval(() => {
-      setActiveId((current) => {
-        const index = PRODUCT_LIST.findIndex((item) => item.id === current);
-        return PRODUCT_LIST[(index + 1) % PRODUCT_LIST.length].id;
-      });
-    }, 3800);
-    return () => window.clearInterval(timer);
-  }, [reduceMotion]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE }}
-      className="overflow-hidden rounded-[13px] border"
-      style={{
-        background: "#FBFCFA",
-        borderColor: LINE,
-        boxShadow: "0 28px 70px -52px rgba(17,35,28,0.55)",
-      }}
-    >
-      <div className="flex h-12 items-center justify-between border-b px-4 sm:px-5" style={{ borderColor: LINE }}>
-        <div className="flex items-center gap-2.5">
-          <SafeLogo markOnly noPulse size={18} />
-          <span className="font-sans text-[12px]" style={{ color: INK }}>SAFE</span>
-        </div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.13em]" style={{ color: FAINT }}>
-          Aujourd’hui
-        </span>
-      </div>
-
-      <div className="px-4 pb-3 pt-5 sm:px-6">
-        <p className="font-serif text-[22px] font-normal" style={{ color: INK }}>À traiter maintenant</p>
-        <p className="mt-1 font-sans text-[11.5px]" style={{ color: FAINT }}>
-          4 éléments demandent votre attention
-        </p>
-      </div>
-
-      <div className="border-t" style={{ borderColor: LINE_SOFT }}>
-        {PRODUCT_LIST.map((item) => {
-          const Icon = item.icon;
-          const selected = active.id === item.id;
-
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveId(item.id)}
-              className="relative grid w-full grid-cols-[34px_1fr] gap-3 border-b px-4 py-3.5 text-left transition-colors sm:grid-cols-[34px_1fr_auto] sm:items-center sm:px-6"
-              style={{
-                background: selected ? "rgba(31,58,46,0.045)" : "transparent",
-                borderColor: LINE_SOFT,
-              }}
-              aria-pressed={selected}
-            >
-              {selected && (
-                <motion.span
-                  layoutId="product-list-selection"
-                  className="absolute inset-y-0 left-0 w-0.5"
-                  style={{ background: GREEN }}
-                  transition={{ duration: 0.28, ease: EASE }}
-                />
-              )}
-              <span
-                className="flex h-8 w-8 items-center justify-center rounded-[7px]"
-                style={{ background: item.background, color: item.color }}
-              >
-                <Icon size={15} strokeWidth={1.7} />
-              </span>
-              <span className="min-w-0">
-                <span className="block font-sans text-[10.5px]" style={{ color: FAINT }}>{item.category}</span>
-                <span className="mt-0.5 block truncate font-sans text-[13px]" style={{ color: INK }}>{item.title}</span>
-                <span className="mt-0.5 block truncate font-sans text-[11px] sm:hidden" style={{ color: MUTED }}>
-                  {item.context}
-                </span>
-              </span>
-              <span className="hidden items-center gap-5 sm:flex">
-                <span className="font-sans text-[11px]" style={{ color: MUTED }}>{item.context}</span>
-                <span
-                  className="rounded-full px-2 py-1 font-sans text-[10px]"
-                  style={{ background: item.background, color: item.color }}
-                >
-                  {item.status}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="min-h-[82px] px-4 py-4 sm:px-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active.id}
-            initial={reduceMotion ? false : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -3 }}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="flex items-start gap-2.5"
-          >
-            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: GREEN }} />
-            <p className="font-sans text-[11.5px] leading-[1.55]" style={{ color: MUTED }}>
-              {active.action}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-
 function Hero() {
   return (
-    <section className="relative overflow-hidden px-5 pb-24 pt-32 sm:px-6 sm:pt-40" style={{ background: BG }}>
-      <div
-        aria-hidden
-        className="absolute right-[-12%] top-24 h-[560px] w-[560px] rounded-full blur-[110px]"
-        style={{ background: "rgba(18,161,80,0.07)" }}
-      />
-      <div className="relative mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
-        <div className="relative z-10">
+    <section className="relative overflow-hidden px-5 pb-20 pt-32 sm:px-6 sm:pt-40 lg:pb-28" style={{ background: BG }}>
+      <div className="relative mx-auto max-w-[1240px]">
+        <div className="max-w-[820px]">
           <motion.p
             {...fadeUp(0)}
             className="font-mono text-[11px] uppercase tracking-[0.16em]"
@@ -263,7 +56,7 @@ function Hero() {
           </motion.p>
           <motion.h1
             {...fadeUp(0.06)}
-            className="mt-5 max-w-[11ch] font-serif text-[46px] font-normal leading-[0.99] sm:text-[62px] lg:text-[72px]"
+            className="mt-5 max-w-[14ch] font-serif text-[46px] font-normal leading-[0.99] sm:text-[62px] lg:text-[76px]"
             style={{ color: INK, letterSpacing: "-0.026em" }}
           >
             SAFE tient votre cabinet{" "}
@@ -273,7 +66,7 @@ function Hero() {
           </motion.h1>
           <motion.p
             {...fadeUp(0.12)}
-            className="mt-7 max-w-[46ch] font-sans text-[17px] leading-[1.62] sm:text-[18px]"
+            className="mt-7 max-w-[52ch] font-sans text-[17px] leading-[1.62] sm:text-[18px]"
             style={{ color: MUTED }}
           >
             Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même
@@ -299,14 +92,30 @@ function Hero() {
               Voir comment SAFE fonctionne
             </a>
           </motion.div>
-          <motion.p {...fadeUp(0.24)} className="mt-4 font-sans text-[12px]" style={{ color: FAINT }}>
-            Une lecture simple des actions qui demandent votre attention.
-          </motion.p>
         </div>
 
-        <motion.div {...fadeUp(0.12)} className="relative lg:pl-3">
-          <ProductListVisual />
+        <motion.div
+          {...fadeUp(0.22)}
+          className="mt-14 overflow-hidden rounded-[14px] border sm:mt-16"
+          style={{
+            background: SURFACE,
+            borderColor: LINE,
+            boxShadow: "0 40px 80px -44px rgba(11,31,25,0.5)",
+          }}
+        >
+          <Image
+            src="/images/linear-style/safe-dashboard-hybrid-production-concept-v5-official-logos.png"
+            alt="Tableau de bord SAFE : revenus encaissés, éléments à votre attention, journée du cabinet et état du fidéicommis sur un seul écran."
+            width={1589}
+            height={989}
+            priority
+            sizes="(max-width: 1280px) 100vw, 1240px"
+            className="h-auto w-full"
+          />
         </motion.div>
+        <motion.p {...fadeUp(0.28)} className="mt-5 font-sans text-[12.5px]" style={{ color: FAINT }}>
+          Une lecture simple des décisions qui demandent votre attention, dès l’ouverture.
+        </motion.p>
       </div>
     </section>
   );
@@ -333,115 +142,51 @@ function ProofStrip() {
   );
 }
 
-function SystemFigure() {
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <motion.div
-      {...fadeUp(0.08)}
-      className="w-full overflow-hidden rounded-[14px] border lg:max-w-[620px] lg:justify-self-end"
-      style={{
-        background: SURFACE,
-        borderColor: LINE,
-        boxShadow: "0 40px 80px -60px rgba(11,31,25,0.45)",
-      }}
-    >
-      <div
-        className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b px-5 py-4 sm:px-7 sm:py-5"
-        style={{ borderColor: LINE }}
-      >
-        <div>
-          <p className="font-sans text-[10.5px] uppercase tracking-[0.14em]" style={{ color: FAINT }}>
-            Dossier
-          </p>
-          <p className="mt-1 font-serif text-[22px] font-normal" style={{ color: INK }}>
-            Succession Tremblay
-          </p>
-        </div>
-        <span className="font-mono text-[11px]" style={{ color: FAINT }}>
-          2026-014 · Aaliyah Côté
-        </span>
-      </div>
-
-      <div className="relative px-5 pb-2 pt-1 sm:px-7">
-        <span
-          aria-hidden
-          className="absolute bottom-[30px] left-[24px] top-[10px] w-px sm:left-[32px]"
-          style={{ background: "rgba(18,161,80,0.22)" }}
-        />
-        {DOSSIER_LINKS.map((link, index) => (
-          <motion.div
-            key={link.id}
-            initial={reduceMotion ? false : { opacity: 0, x: 10 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.14 + index * 0.1, duration: 0.4, ease: EASE }}
-            className="relative grid grid-cols-[10px_1fr_auto] items-center gap-x-4 border-b py-4 last:border-0"
-            style={{ borderColor: LINE_SOFT }}
-          >
-            <span
-              className="h-2 w-2 rounded-full border-2"
-              style={{ background: SURFACE, borderColor: "rgba(18,161,80,0.55)" }}
-            />
-            <span className="min-w-0">
-              <span className="block font-sans text-[10.5px] uppercase tracking-[0.09em]" style={{ color: FAINT }}>
-                {link.category}
-              </span>
-              <span className="mt-0.5 block truncate font-sans text-[13.5px]" style={{ color: INK }}>
-                {link.detail}
-              </span>
-            </span>
-            <span className="text-right">
-              <span className="block font-mono text-[14px]" style={{ color: INK }}>
-                {link.value}
-              </span>
-              <span className="mt-0.5 block font-sans text-[11px]" style={{ color: link.tone }}>
-                {link.status}
-              </span>
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="border-t px-5 py-4 sm:px-7" style={{ borderColor: LINE }}>
-        <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
-          Quatre réalités, un seul dossier. Rien n’est recopié d’un fichier à l’autre.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
 function SystemSection() {
   return (
     <section id="systeme" className="scroll-mt-20 px-5 py-28 sm:px-6 lg:py-36" style={{ background: BG }}>
-      <div className="mx-auto grid max-w-[1180px] gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
-        <div>
-          <SectionLabel>Un système, pas une collection d’outils</SectionLabel>
-          <motion.h2
-            {...fadeUp(0.06)}
-            className="mt-5 max-w-[13ch] font-serif text-[36px] font-normal leading-[1.06] sm:text-[48px]"
-            style={{ color: INK, letterSpacing: "-0.02em" }}
-          >
-            Chaque action garde son contexte.
-          </motion.h2>
+      <div className="mx-auto max-w-[1240px]">
+        <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-end lg:gap-16">
+          <div>
+            <SectionLabel>Un système, pas une collection d’outils</SectionLabel>
+            <motion.h2
+              {...fadeUp(0.06)}
+              className="mt-5 max-w-[14ch] font-serif text-[36px] font-normal leading-[1.06] sm:text-[48px]"
+              style={{ color: INK, letterSpacing: "-0.02em" }}
+            >
+              Chaque action garde son contexte.
+            </motion.h2>
+          </div>
           <motion.p
             {...fadeUp(0.12)}
-            className="mt-6 max-w-[43ch] font-sans text-[16px] leading-[1.65]"
+            className="max-w-[52ch] font-sans text-[16px] leading-[1.65] lg:pb-2"
             style={{ color: MUTED }}
           >
             Un dossier ne vit pas séparément de son temps, de sa facture ou de ses fonds en
             fiducie. SAFE relie ces éléments pour que l’information circule sans être recopiée.
           </motion.p>
-          <motion.p
-            {...fadeUp(0.18)}
-            className="mt-5 max-w-[43ch] font-sans text-[14px] leading-[1.6]"
-            style={{ color: INK }}
-          >
-            Le contexte circule d’une action à la suivante sans être ressaisi.
-          </motion.p>
         </div>
-        <SystemFigure />
+
+        <motion.div
+          {...fadeUp(0.14)}
+          className="mt-12 overflow-hidden rounded-[14px] border sm:mt-14"
+          style={{
+            borderColor: LINE,
+            boxShadow: "0 40px 80px -44px rgba(11,31,25,0.5)",
+          }}
+        >
+          <Image
+            src="/images/linear-style/safe-dossier-command-center-v3-recessed-menu.png"
+            alt="Dossier Tremblay dans SAFE : flux de travail du dossier, temps saisi, facture préparée, fiducie rapprochée et échéance à venir, réunis sur le même écran."
+            width={1536}
+            height={1024}
+            sizes="(max-width: 1280px) 100vw, 1240px"
+            className="h-auto w-full"
+          />
+        </motion.div>
+        <motion.p {...fadeUp(0.2)} className="mt-5 font-sans text-[13px]" style={{ color: VERIFIED }}>
+          Le contexte circule d’une action à la suivante sans être ressaisi.
+        </motion.p>
       </div>
     </section>
   );

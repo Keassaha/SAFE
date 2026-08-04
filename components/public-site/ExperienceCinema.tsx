@@ -1368,7 +1368,7 @@ export default function ExperienceCinema() {
 
       <nav id="nav">
         <a className="brand" href="#top" aria-label="SAFE, retour au haut de la page">
-          <SafeLogo noPulse size={20} />
+          <SafeLogo size={20} />
         </a>
         <div className="links">
           <a href="/fonctionnalites">Fonctionnalités</a>
@@ -1836,7 +1836,7 @@ export default function ExperienceCinema() {
 
       <footer>
         <span className="fbrand">
-          <SafeLogo noPulse size={16} />
+          <SafeLogo size={17} />
           <span>Maquettes et captures sur données de démonstration</span>
         </span>
         <span className="flinks">

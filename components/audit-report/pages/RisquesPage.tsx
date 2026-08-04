@@ -1,109 +1,154 @@
 import React from "react";
 import { PALETTE } from "../theme";
 import { PageShell } from "../PageShell";
-import { Eyebrow, DisplayTitle, Em, RiskBadge, Divider } from "../primitives";
-import type { AuditReport, Variant } from "@/types/audit-report";
+import { Em, GravityMeter, SourceTag } from "../primitives";
+import type { AuditReport } from "@/types/audit-report";
 
 interface Props {
   data: AuditReport;
-  variant: Variant;
+  /** Sous-ensemble de risques rendu sur cette page. */
+  risques: AuditReport["risques"];
+  /** Rang du premier risque de la page, pour une numérotation continue. */
+  offset: number;
+  /** Numéro de la page de risques, quand ils débordent sur plusieurs pages. */
+  part?: { index: number; count: number };
+  sectionNum: string;
+  pageNum: string;
+  total: string;
 }
 
-export function RisquesPage({ data, variant }: Props) {
-  const { risques } = data;
+function Colonne({ titre, texte, accent = false }: { titre: string; texte: string; accent?: boolean }) {
+  return (
+    <div>
+      <p
+        style={{
+          fontFamily: "var(--font-geist-mono, monospace)",
+          fontSize: "7.5px",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: accent ? PALETTE.gold : PALETTE.inkMuted,
+          margin: "0 0 5px",
+        }}
+      >
+        {titre}
+      </p>
+      <p
+        style={{
+          fontFamily: "var(--font-geist-sans, sans-serif)",
+          fontSize: "10.5px",
+          color: PALETTE.inkBody,
+          lineHeight: 1.6,
+          margin: 0,
+        }}
+      >
+        {texte}
+      </p>
+    </div>
+  );
+}
+
+export function RisquesPage({ data, risques, offset, part, sectionNum, pageNum, total }: Props) {
+  const suite = part && part.index > 1;
 
   return (
     <PageShell
-      pageLabel="Analyse des risques"
-      pageNum="03"
+      eyebrow={`${sectionNum} · Points d'exposition${
+        part && part.count > 1 ? ` (${part.index} sur ${part.count})` : ""
+      }`}
+      title={
+        suite ? (
+          <>
+            Points d'exposition, <Em>suite.</Em>
+          </>
+        ) : (
+          <>
+            Ce qui vous expose, et ce qui le <Em>corrige.</Em>
+          </>
+        )
+      }
+      lede={
+        suite
+          ? undefined
+          : "Les points sont classés du plus grave au moins grave. Pour chacun : ce que vos réponses montrent, ce que ça produit, et ce que SAFE change."
+      }
+      pageLabel="Points d'exposition"
+      pageNum={pageNum}
+      total={total}
       date={data.meta.date}
-      variant={variant}
     >
-      <Eyebrow>03 · Analyse des risques</Eyebrow>
-      <DisplayTitle size="lg">
-        Les points d'exposition <Em>identifiés.</Em>
-      </DisplayTitle>
-
-      <div style={{ height: "20px" }} />
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", flex: 1 }}>
+      {/* Les points se répartissent sur la hauteur : une page de suite qui porte
+          deux points ne les laisse pas tassés en haut. */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: "18px",
+          justifyContent: "space-between",
+        }}
+      >
         {risques.map((r, i) => (
-          <div
-            key={i}
-            style={{
-              backgroundColor: "var(--cream-card)",
-              border: `0.5px solid ${PALETTE.lineSoft}`,
-              borderRadius: "8px",
-              padding: "14px 16px",
-              boxShadow: "var(--card-shadow)",
-            }}
-          >
-            {/* Header row */}
+          <div key={i}>
+            {/* Titre + gravité */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: "10px",
-                gap: "12px",
+                alignItems: "baseline",
+                gap: "16px",
+                paddingBottom: "9px",
+                borderBottom: `0.5px solid ${PALETTE.line}`,
               }}
             >
               <p
                 style={{
                   fontFamily: "var(--font-geist-sans, sans-serif)",
-                  fontSize: "11.5px",
+                  fontSize: "12.5px",
                   fontWeight: 600,
                   color: PALETTE.ink,
                   margin: 0,
+                  lineHeight: 1.3,
                   flex: 1,
-                  lineHeight: 1.35,
                 }}
               >
+                <span
+                  style={{
+                    fontFamily: "var(--font-geist-mono, monospace)",
+                    fontSize: "10px",
+                    color: PALETTE.inkFaint,
+                    marginRight: "10px",
+                    fontWeight: 400,
+                  }}
+                >
+                  {String(offset + i + 1).padStart(2, "0")}
+                </span>
                 {r.titre}
               </p>
-              <RiskBadge niveau={r.niveau} />
+              <GravityMeter niveau={r.niveau} />
             </div>
 
-            <Divider />
+            {/* Constat et impact à gauche, correction à droite */}
+            <div style={{ display: "flex", gap: "24px", marginTop: "11px", alignItems: "stretch" }}>
+              <div style={{ flex: 1.25, display: "flex", flexDirection: "column", gap: "10px" }}>
+                <Colonne titre="Ce que vos réponses montrent" texte={r.ceQueMontrent} />
+                <Colonne titre="Ce que ça produit" texte={r.impact} />
+              </div>
 
-            {/* Three columns */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: "12px",
-                marginTop: "10px",
-              }}
-            >
-              <div>
-                <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "4px" }}>
-                  Ce que vos réponses montrent
-                </p>
-                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", color: PALETTE.moss, lineHeight: 1.55, margin: 0 }}>
-                  {r.ceQueMontrent}
-                </p>
-              </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.moss2, marginBottom: "4px" }}>
-                  Impact
-                </p>
-                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", color: PALETTE.moss, lineHeight: 1.55, margin: 0 }}>
-                  {r.impact}
-                </p>
-              </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold, marginBottom: "4px" }}>
-                  Ce que SAFE corrige
-                </p>
-                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", color: PALETTE.moss, lineHeight: 1.55, margin: 0 }}>
-                  {r.ceQueSafeCorrige}
-                </p>
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: PALETTE.fill,
+                  borderLeft: `2px solid ${PALETTE.gold}`,
+                  borderRadius: "0 4px 4px 0",
+                  padding: "11px 14px",
+                }}
+              >
+                <Colonne titre="Ce que SAFE corrige" texte={r.ceQueSafeCorrige} accent />
               </div>
             </div>
 
-            {/* Source */}
-            <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "7px", color: PALETTE.moss2, opacity: 0.65, marginTop: "8px", borderTop: `0.5px solid ${PALETTE.lineSoft}`, paddingTop: "6px" }}>
-              Source : {r.source}
+            <p style={{ margin: "8px 0 0" }}>
+              <SourceTag>Source : {r.source}</SourceTag>
             </p>
           </div>
         ))}

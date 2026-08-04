@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Logo } from '../brand/Logo';
+import { SafeMark } from '@/components/branding/SafeLogo';
 
 type Quote = {
   text: React.ReactNode;
@@ -91,7 +91,7 @@ export function Testimonial() {
           transition={{ duration: 0.8, ease }}
           className="w-12 h-12 rounded-[9px] bg-white/[0.04] ring-1 ring-white/10 flex items-center justify-center mb-10"
         >
-          <Logo size={22} accentColor="#A9D3B6" />
+          <SafeMark size={24} tone="dark" />
         </motion.div>
 
         {/* Citation rotative */}

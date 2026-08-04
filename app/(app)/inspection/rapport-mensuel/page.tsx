@@ -83,8 +83,8 @@ export default async function RapportMensuelPage({
             ? "Les sept blocs de l'article 41 du Règlement sur la comptabilité en fidéicommis des avocats."
             : "The monthly comparison required by section 18(8) of By-Law 9."
         }
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <MonthlyReportScreen

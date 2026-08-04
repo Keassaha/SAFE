@@ -115,7 +115,7 @@ export function InspectionKitScreen({
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
             router.push(
-              `/comptes/trousse-inspection?from=${fd.get("from")}&to=${fd.get("to")}`,
+              `/inspection/trousse?from=${fd.get("from")}&to=${fd.get("to")}`,
             );
           }}
         >

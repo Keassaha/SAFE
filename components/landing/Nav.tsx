@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { LogoMark } from '../brand/Logo';
+import { SafeLogo } from '@/components/branding/SafeLogo';
 import { Button } from './ui/Button';
 
 export function Nav() {
@@ -8,7 +8,7 @@ export function Nav() {
     <nav className="fixed top-0 inset-x-0 h-[64px] px-[28px] bg-canvas border-b border-[0.5px] border-border flex items-center justify-between z-50">
       <div className="flex-shrink-0">
         <Link href="/">
-          <LogoMark size={28} />
+          <SafeLogo size={20} />
         </Link>
       </div>
 

@@ -21,7 +21,7 @@ import {
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const PATH = "/comptes/autres-biens";
+const PATH = "/inspection/autres-biens";
 
 async function guard() {
   const { cabinetId, userId, role } = await requireCabinetAndUser();

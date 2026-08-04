@@ -10,7 +10,7 @@ import {
   generateReportAction,
   recordDiscrepancyAction,
   type ActionResult,
-} from "@/app/(app)/comptes/rapport-mensuel/actions";
+} from "@/app/(app)/inspection/rapport-mensuel/actions";
 
 /**
  * Écran du rapport comptable mensuel — art. 41 B-1 r.5 / s. 18(8) By-Law 9.
@@ -288,7 +288,7 @@ export function MonthlyReportScreen({
                   <li key={r.id} className="border-b border-[var(--si-line)] last:border-b-0">
                     <button
                       type="button"
-                      onClick={() => router.push(`/comptes/rapport-mensuel?rapport=${r.id}`)}
+                      onClick={() => router.push(`/inspection/rapport-mensuel?rapport=${r.id}`)}
                       className={`flex w-full flex-col gap-1 px-3 py-2.5 text-left transition-colors ${
                         actif ? "bg-[#0B1F19]/[0.05]" : "hover:bg-[#0B1F19]/[0.03]"
                       }`}

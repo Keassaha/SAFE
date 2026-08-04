@@ -16,6 +16,7 @@
 
 import React, { useMemo, useState } from "react";
 import { INK, MUTED, FAINT, GREEN, VERIFIED, AMBER, LINE, LINE_SOFT, SURFACE } from "./shared";
+import { SafeBullet, SafeLogo } from "@/components/branding/SafeLogo";
 
 /* ────────────────────────────── Cadre commun ────────────────────────────── */
 
@@ -89,9 +90,9 @@ export function SafeWindow({
 export function IndiceEssai({ children }: { children: React.ReactNode }) {
   return (
     <p className="mt-3 flex items-start gap-2.5 font-sans text-[12.5px]" style={{ color: VERIFIED }}>
-      <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden className="mt-[3px] shrink-0">
-        <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill={GREEN} />
-      </svg>
+      <span className="mt-[5px] shrink-0" style={{ color: GREEN }}>
+        <SafeBullet size={11} />
+      </span>
       {children}
     </p>
   );
@@ -553,12 +554,8 @@ export function MockupAppComplete() {
           className="flex items-center gap-2 border-b px-3 py-2"
           style={{ borderColor: "rgba(255,255,255,0.08)", background: "#FBFCFA" }}
         >
-          <span className="flex items-center gap-1.5 pr-2">
-            <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden>
-              <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill="#1F3A2E" />
-              <path d="M 19.5,18.5 Q 20.5,20.5 18.5,20 L 11.5,20 Q 9.5,20.5 10.5,18.5 L 14,11.5 Q 15,9.5 16,11.5 Z" fill="#1F3A2E" opacity="0.55" />
-            </svg>
-            <span className="font-serif text-[13px]" style={{ color: INK }}>SAFE</span>
+          <span className="flex items-center pr-2">
+            <SafeLogo size={12} />
           </span>
           <span className="mock-mini hidden font-sans text-[10.5px] sm:inline" style={{ color: FAINT }}>
             Cabinet Nadeau

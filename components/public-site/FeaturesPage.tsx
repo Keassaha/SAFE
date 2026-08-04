@@ -10,6 +10,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { SafeBullet } from "@/components/branding/SafeLogo";
 import {
   INK, MUTED, FAINT, GREEN, VERIFIED, LINE, SURFACE, BG, EASE, R,
   PageShell, PageHeader,
@@ -152,9 +153,9 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
                   className="flex gap-3 font-sans text-[14.5px] leading-[1.55]"
                   style={{ color: INK }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden className="mt-[5px] shrink-0">
-                    <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill={GREEN} />
-                  </svg>
+                  <span className="mt-[7px] shrink-0" style={{ color: GREEN }}>
+                    <SafeBullet size={11} />
+                  </span>
                   {p}
                 </motion.li>
               ))}

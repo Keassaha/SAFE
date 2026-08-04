@@ -11,6 +11,7 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { SafeBullet } from "@/components/branding/SafeLogo";
 import {
   INK, MUTED, FAINT, GREEN, VERIFIED, LINE, LINE_SOFT, SURFACE, BG, EASE, R,
   PageShell, scenePhase, easeOutCubic, easeInOutQuad, useScrollScrub,
@@ -81,9 +82,9 @@ function ClasseurExcel() {
           />
         </div>
         <figcaption className="excel-hint mt-2 hidden items-center gap-2 font-sans text-[12px]" style={{ color: FAINT }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
-            <path d="M 4.5,5.5 Q 3.5,3.5 5.5,4 L 12.5,4 Q 14.5,3.5 13.5,5.5 L 10,12.5 Q 9,14.5 8,12.5 Z" fill={GREEN} />
-          </svg>
+          <span style={{ color: GREEN }}>
+            <SafeBullet size={11} />
+          </span>
           Faites glisser pour parcourir le classeur.
         </figcaption>
         <style>{`

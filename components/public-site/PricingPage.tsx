@@ -26,6 +26,10 @@ import {
   ScrollHint,
   type RailStop,
 } from "./shared";
+import { TARIFICATION } from "@/lib/tarification";
+
+/* Offre fondatrice v2 : source unique dans lib/tarification.ts. */
+const FOND = TARIFICATION.fondateurs;
 
 /* Étapes du rail de droite, mêmes repères que l'accueil. */
 const RAIL_STOPS: readonly RailStop[] = [
@@ -386,19 +390,52 @@ export default function TarificationPage() {
           </h2>
           <div className="mt-5 space-y-4 font-sans text-[15.5px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
             <p>
-              Nous ouvrons cinq places à des cabinets qui veulent utiliser SAFE et contribuer
-              directement à son amélioration.
+              Nous ouvrons {FOND.placesTotal} places à des cabinets qui veulent utiliser SAFE et
+              contribuer directement à son amélioration.
             </p>
             <p>
-              Votre première année est à tarif fondateur : 50 $ par mois pour une pratique solo,
-              100 $ par mois pour un cabinet en équipe, pendant 12 mois. Ensuite, le tarif
-              régulier s&apos;applique.
-            </p>
-            <p>
-              En retour, nous vous demandons une rétroaction franche sur ce qui fonctionne, ce qui
-              ralentit votre travail et ce qui doit être amélioré.
+              Vos {FOND.dureeMois} premiers mois sont à {FOND.premiereAnneeSolo} $ par mois pour une
+              pratique individuelle, {FOND.premiereAnneeCabinet} $ pour un cabinet avec adjointe.
+              Ensuite, votre tarif fondateur reste gelé à {FOND.apresSolo} $ ou {FOND.apresCabinet} $
+              tant que votre abonnement demeure actif. Votre coût ne double pas au treizième mois.
             </p>
           </div>
+
+          <ul className="mt-7 space-y-3 font-sans text-[15px] leading-[1.55]" style={{ color: "#EAF2EC" }}>
+            {[
+              "La mise en route est faite par nous : paramétrage, reprise de vos dossiers actifs et de vos soldes de fidéicommis, formation de votre adjointe.",
+              "Un atelier chaque semaine avec les autres cabinets fondateurs, et vos questions traitées là.",
+              "Aucun engagement de durée. Si dans les soixante premiers jours vous jugez que SAFE ne vous apporte rien, les mois payés vous sont remboursés.",
+              "Vos données restent les vôtres et s’exportent quand vous le voulez.",
+              "Avant de signer, vous recevez par écrit la liste de ce que SAFE ne fait pas encore.",
+            ].map((item) => (
+              <li key={item} className="flex gap-3">
+                <span aria-hidden style={{ color: "#8EB69B" }}>—</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-7 font-sans text-[15px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
+            En retour, nous demandons trente minutes par mois les trois premiers mois, puis une
+            fois par trimestre, pour que vous nous disiez ce qui bloque. Et quelques phrases de
+            votre part le jour où les résultats seront là.
+          </p>
+
+          <p className="mt-4 font-sans text-[14px] leading-[1.6]" style={{ color: "#8EB69B" }}>
+            Chaque mise en route est faite à la main, ce qui nous limite à{" "}
+            {FOND.miseEnRouteParMois} cabinets par mois. C’est pour cela qu’il y a{" "}
+            {FOND.placesTotal} places et pas trente.
+            {FOND.placesPrises > 0 && (
+              <>
+                {" "}
+                {FOND.placesPrises === 1
+                  ? `Une place sur ${FOND.placesTotal} est déjà prise.`
+                  : `${FOND.placesPrises} places sur ${FOND.placesTotal} sont déjà prises.`}
+              </>
+            )}
+          </p>
+
           <Link
             href={R.demo}
             className="mt-7 inline-flex h-11 items-center rounded-[8px] px-5 font-sans text-[15px] font-medium transition-transform duration-200 hover:-translate-y-0.5"

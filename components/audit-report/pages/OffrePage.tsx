@@ -1,334 +1,215 @@
 import React from "react";
 import { PALETTE } from "../theme";
 import { PageShell } from "../PageShell";
-import { Eyebrow, DisplayTitle, Em } from "../primitives";
+import { Em, KeyFigure } from "../primitives";
 import { formatCAD } from "@/lib/audit-report/format";
 import { TARIFICATION } from "@/lib/tarification";
-import type { AuditReport, Variant } from "@/types/audit-report";
+import type { AuditReport } from "@/types/audit-report";
 
 interface Props {
   data: AuditReport;
-  variant: Variant;
+  sectionNum: string;
+  pageNum: string;
+  total: string;
 }
 
-export function OffrePage({ data, variant }: Props) {
+export function OffrePage({ data, sectionNum, pageNum, total }: Props) {
   const { offre, etapes } = data;
-  const { placesTotal, dureeMois, premiereAnneeSolo, premiereAnneeCabinet } =
-    TARIFICATION.fondateurs;
-  const prixSolo = TARIFICATION.paliers.solo.prix;
-  const prixCabinet = TARIFICATION.paliers.cabinet.prix;
+  const {
+    placesTotal,
+    dureeMois,
+    premiereAnneeSolo,
+    premiereAnneeCabinet,
+    apresSolo,
+    apresCabinet,
+    garantieJours,
+  } = TARIFICATION.fondateurs;
+
+  const planRecommande = offre.plans.find((p) => p.recommande) ?? offre.plans[0];
+  const estSolo = planRecommande.nom === "Solo";
+  const prixFondateur = estSolo ? premiereAnneeSolo : premiereAnneeCabinet;
+  const prixGele = estSolo ? apresSolo : apresCabinet;
+  const autresPlans = offre.plans.filter((p) => p.nom !== planRecommande.nom);
 
   return (
     <PageShell
-      pageLabel="Notre offre"
-      pageNum="06"
+      eyebrow={`${sectionNum} · Votre offre`}
+      title={
+        <>
+          Commencez comme <Em>cabinet fondateur.</Em>
+        </>
+      }
+      lede={`Votre profil correspond au palier ${planRecommande.nom}. Voici ce qu'il vous coûte, ce qu'il contient, et ce qui se passe si ça ne vous convient pas.`}
+      pageLabel="Votre offre"
+      pageNum={pageNum}
+      total={total}
       date={data.meta.date}
-      variant={variant}
     >
-      <Eyebrow>06 · Votre offre</Eyebrow>
-      <DisplayTitle size="lg">
-        Commencez comme <Em>cabinet fondateur.</Em>
-      </DisplayTitle>
-
-      <div style={{ height: "8px" }} />
-
-      {/* Offre fondatrice (mise en avant) */}
+      {/* Le prix, une seule fois, sans ambiguïté */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "16px",
           backgroundColor: PALETTE.forest,
           borderRadius: "10px",
-          padding: "11px 16px",
-          marginBottom: "14px",
-          boxShadow: "0 4px 20px rgba(11,31,25,.18)",
+          padding: "24px 30px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "30px",
         }}
       >
-        <div style={{ maxWidth: "50%" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-geist-mono, monospace)",
-              fontSize: "7.5px",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: PALETTE.goldDark,
-              marginBottom: "5px",
-            }}
-          >
-            Offre fondatrice · {placesTotal} places
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-              fontSize: "17px",
-              color: PALETTE.sage50,
-              lineHeight: 1.15,
-              margin: "0 0 4px",
-            }}
-          >
-            Première année à tarif fondateur, pendant {dureeMois} mois.
+        <div style={{ flex: 1 }}>
+          <KeyFigure
+            label={`SAFE ${planRecommande.nom} · tarif fondateur`}
+            value={`${formatCAD(prixFondateur)} / mois`}
+            sub={`pendant ${dureeMois} mois, puis ${formatCAD(prixGele)} par mois, gelé aussi longtemps que vous restez`}
+            accent
+            onDark
+            size="lg"
+          />
+        </div>
+        <div style={{ width: "0.5px", alignSelf: "stretch", backgroundColor: PALETTE.lineOnForest }} />
+        <div style={{ flex: 0.9 }}>
+          <p style={{ margin: 0 }}>
+            <span
+              style={{
+                fontFamily: "var(--font-geist-mono, monospace)",
+                fontSize: "8px",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: PALETTE.goldOnForest,
+                fontWeight: 500,
+              }}
+            >
+              Offre fondatrice · {placesTotal} places
+            </span>
           </p>
           <p
             style={{
               fontFamily: "var(--font-geist-sans, sans-serif)",
-              fontSize: "8.5px",
-              color: PALETTE.sage,
-              lineHeight: 1.45,
-              margin: 0,
+              fontSize: "10.5px",
+              lineHeight: 1.6,
+              color: PALETTE.onForestMuted,
+              margin: "10px 0 0",
             }}
           >
-            Réservée aux {placesTotal} premiers cabinets partenaires. Conditions non
-            renouvelées une fois les places prises.
+            Réservée aux {placesTotal} premiers cabinets partenaires. La mise en route est faite
+            par nous. Aucun engagement de durée, vous partez avec vos données. Ces conditions ne
+            sont pas reconduites une fois les places prises.
           </p>
         </div>
+      </div>
 
-        <div style={{ display: "flex", gap: "14px", flexShrink: 0 }}>
-          <div style={{ textAlign: "right" }}>
+      {/* Ce qui est inclus */}
+      <div style={{ marginTop: "26px" }}>
+        <p
+          style={{
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: "8px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: PALETTE.gold,
+            margin: "0 0 12px",
+          }}
+        >
+          Ce qui est inclus
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            columnGap: "32px",
+            rowGap: "0",
+            borderTop: `0.5px solid ${PALETTE.line}`,
+          }}
+        >
+          {planRecommande.features.map((f, i) => (
             <p
+              key={i}
               style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "24px",
-                lineHeight: 1,
-                color: PALETTE.goldDark,
-                margin: "0 0 2px",
+                fontFamily: "var(--font-geist-sans, sans-serif)",
+                fontSize: "11px",
+                color: PALETTE.inkBody,
+                lineHeight: 1.45,
+                margin: 0,
+                padding: "9px 0",
+                borderBottom: `0.5px solid ${PALETTE.lineSoft}`,
               }}
             >
-              {premiereAnneeSolo} $
-              <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /mois</span>
+              {f}
             </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8px", color: PALETTE.sage }}>
-              Solo, 1re année, puis {prixSolo} $
-            </p>
-          </div>
-          <div style={{ borderLeft: `0.5px solid ${PALETTE.moss2}`, paddingLeft: "14px", textAlign: "right" }}>
-            <p
-              style={{
-                fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                fontSize: "24px",
-                lineHeight: 1,
-                color: PALETTE.sage50,
-                margin: "0 0 2px",
-              }}
-            >
-              {premiereAnneeCabinet} $
-              <span style={{ fontSize: "10px", fontFamily: "var(--font-geist-sans, sans-serif)", color: PALETTE.sage }}> /mois</span>
-            </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8px", color: PALETTE.sage }}>
-              Cabinet, 1re année, puis {prixCabinet} $
-            </p>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Prix réguliers */}
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono, monospace)",
-          fontSize: "7.5px",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: PALETTE.moss2,
-          marginBottom: "8px",
-        }}
-      >
-        Nos prix réguliers, après la phase fondatrice
-      </p>
-
-      {/* Plans */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-        {offre.plans.map((plan) => (
-          <div
-            key={plan.nom}
-            style={{
-              flex: 1,
-              backgroundColor: plan.recommande ? PALETTE.forest : "var(--cream-card)",
-              border: plan.recommande ? "none" : `0.5px solid ${PALETTE.lineSoft}`,
-              borderRadius: "10px",
-              padding: "13px 14px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              position: "relative",
-              boxShadow: plan.recommande
-                ? "0 4px 20px rgba(11,31,25,.18)"
-                : "var(--card-shadow)",
-            }}
-          >
-            {plan.recommande && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-10px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: PALETTE.goldDark,
-                  color: PALETTE.forest,
-                  fontFamily: "var(--font-geist-mono, monospace)",
-                  fontSize: "7.5px",
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                  padding: "3px 10px",
-                  borderRadius: "20px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Recommandé
-              </div>
-            )}
-
-            {/* Plan name */}
-            <div>
-              <p
-                style={{
-                  fontFamily: "var(--font-geist-mono, monospace)",
-                  fontSize: "8px",
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  color: plan.recommande ? PALETTE.sage : PALETTE.moss2,
-                  marginBottom: "4px",
-                }}
-              >
-                SAFE
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                  fontSize: "20px",
-                  color: plan.recommande ? PALETTE.sage50 : PALETTE.ink,
-                  fontWeight: 400,
-                  margin: 0,
-                  lineHeight: 1,
-                }}
-              >
-                {plan.nom}
-              </p>
-            </div>
-
-            {/* Price */}
-            <div>
-              {plan.prix !== null ? (
-                <>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                      fontSize: "30px",
-                      lineHeight: 1,
-                      color: plan.recommande ? PALETTE.goldDark : PALETTE.ink,
-                      fontWeight: 400,
-                      margin: "0 0 2px",
-                    }}
-                  >
-                    {formatCAD(plan.prix)}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-geist-sans, sans-serif)",
-                      fontSize: "9px",
-                      color: plan.recommande ? PALETTE.sage : PALETTE.moss2,
-                    }}
-                  >
-                    {plan.periode}
-                  </p>
-                </>
-              ) : (
-                <p
-                  style={{
-                    fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                    fontSize: "22px",
-                    fontStyle: "italic",
-                    color: plan.recommande ? PALETTE.goldDark : PALETTE.forest2,
-                    margin: 0,
-                  }}
-                >
-                  Sur mesure
-                </p>
-              )}
-            </div>
-
-            {/* Description */}
-            <p
-              style={{
-                fontFamily: "var(--font-geist-sans, sans-serif)",
-                fontSize: "9px",
-                color: plan.recommande ? PALETTE.sage : PALETTE.moss,
-                lineHeight: 1.55,
-                margin: 0,
-              }}
-            >
-              {plan.description}
-            </p>
-
-            {/* Features */}
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
-              {plan.features.map((f, j) => (
-                <li
-                  key={j}
-                  style={{
-                    display: "flex",
-                    gap: "6px",
-                    alignItems: "flex-start",
-                    fontFamily: "var(--font-geist-sans, sans-serif)",
-                    fontSize: "9px",
-                    color: plan.recommande ? PALETTE.sage : PALETTE.moss,
-                    lineHeight: 1.45,
-                  }}
-                >
-                  <span style={{ color: plan.recommande ? PALETTE.goldDark : PALETTE.gold, flexShrink: 0, marginTop: "1px" }}>✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      {/* Guarantees */}
-      <div style={{ display: "flex", gap: "10px" }}>
+      {/* Garanties */}
+      <div style={{ marginTop: "24px", display: "flex", gap: "26px" }}>
         {offre.garanties.map((g, i) => (
-          <div
-            key={i}
-            style={{
-              flex: 1,
-              padding: "10px 12px",
-              backgroundColor: "var(--cream-card)",
-              border: `0.5px solid ${PALETTE.lineSoft}`,
-              borderRadius: "6px",
-            }}
-          >
+          <div key={i} style={{ flex: 1, borderTop: `2px solid ${PALETTE.gold}`, paddingTop: "10px" }}>
             <p
               style={{
                 fontFamily: "var(--font-geist-sans, sans-serif)",
-                fontSize: "9.5px",
+                fontSize: "11px",
                 fontWeight: 600,
                 color: PALETTE.ink,
-                marginBottom: "4px",
+                margin: "0 0 4px",
               }}
             >
               {g.titre}
             </p>
-            <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9px", color: PALETTE.moss, lineHeight: 1.5, margin: 0 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-geist-sans, sans-serif)",
+                fontSize: "10px",
+                color: PALETTE.inkBody,
+                lineHeight: 1.55,
+                margin: 0,
+              }}
+            >
               {g.detail}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Prochaines étapes (bande compacte de clôture) */}
-      <div style={{ marginTop: "auto", paddingTop: "10px", borderTop: `0.5px solid ${PALETTE.lineSoft}` }}>
-        <p style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: PALETTE.gold, marginBottom: "12px" }}>
+      {/* Prix réguliers, en note : un fondateur ne les paie jamais */}
+      <p
+        style={{
+          fontFamily: "var(--font-geist-sans, sans-serif)",
+          fontSize: "9.5px",
+          color: PALETTE.inkMuted,
+          lineHeight: 1.6,
+          margin: "22px 0 0",
+        }}
+      >
+        Pour information, nos prix réguliers hors phase fondatrice :{" "}
+        {[planRecommande, ...autresPlans]
+          .map((p) => `${p.nom} ${p.prix !== null ? `${formatCAD(p.prix)} par mois` : "sur mesure"}`)
+          .join(", ")}
+        . Votre tarif fondateur reste gelé sous ces prix, et la garantie de remboursement court{" "}
+        {garantieJours} jours.
+      </p>
+
+      {/* Prochaines étapes */}
+      <div style={{ marginTop: "auto", paddingTop: "22px", borderTop: `0.5px solid ${PALETTE.line}` }}>
+        <p
+          style={{
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: "8px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: PALETTE.gold,
+            margin: "0 0 14px",
+          }}
+        >
           Prochaines étapes
         </p>
-        <div style={{ display: "flex", gap: "16px" }}>
+        <div style={{ display: "flex", gap: "24px" }}>
           {etapes.map((etape, i) => (
-            <div key={i} style={{ flex: 1, display: "flex", gap: "10px", alignItems: "flex-start" }}>
+            <div key={i} style={{ flex: 1, display: "flex", gap: "12px", alignItems: "flex-start" }}>
               <span
                 style={{
                   fontFamily: "var(--font-instrument-serif, Georgia, serif)",
-                  fontSize: "18px",
-                  color: PALETTE.sage,
+                  fontSize: "17px",
+                  color: PALETTE.gold,
                   lineHeight: 1,
                   flexShrink: 0,
                 }}
@@ -336,10 +217,26 @@ export function OffrePage({ data, variant }: Props) {
                 {i + 1}
               </span>
               <div>
-                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "9.5px", fontWeight: 600, color: PALETTE.ink, margin: "0 0 3px" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-geist-sans, sans-serif)",
+                    fontSize: "10.5px",
+                    fontWeight: 600,
+                    color: PALETTE.ink,
+                    margin: "0 0 4px",
+                  }}
+                >
                   {etape.titre}
                 </p>
-                <p style={{ fontFamily: "var(--font-geist-sans, sans-serif)", fontSize: "8.5px", color: PALETTE.moss, lineHeight: 1.5, margin: 0 }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-geist-sans, sans-serif)",
+                    fontSize: "9.5px",
+                    color: PALETTE.inkBody,
+                    lineHeight: 1.55,
+                    margin: 0,
+                  }}
+                >
                   {etape.description}
                 </p>
               </div>

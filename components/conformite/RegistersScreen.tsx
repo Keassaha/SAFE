@@ -74,7 +74,7 @@ export function RegistersScreen({
   function go(id: string, p: string | null) {
     const q = new URLSearchParams({ registre: id });
     if (p) q.set("periode", p);
-    router.push(`/comptes/registres?${q.toString()}`);
+    router.push(`/inspection/registres?${q.toString()}`);
   }
 
   const exportUrl = (format: "html" | "csv") => {

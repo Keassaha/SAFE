@@ -73,8 +73,8 @@ export default async function EspecesPage() {
       <PageHeader
         title="Espèces"
         description="Les sommes reçues en argent comptant, leurs reçus et les déclarations à transmettre."
-        backHref={routes.comptes}
-        backLabel="Retour aux comptes"
+        backHref={routes.inspection}
+        backLabel="Retour à l'inspection"
       />
 
       <CashScreen
