@@ -1328,7 +1328,26 @@ model Invoice {
   billingGroupKey        String?
   clientNote             String?
   internalNote           String?
+  /// Horodatage de l'envoi courriel effectué PAR SAFE. Jusqu'au 2026-08-03, il était
+  /// posé à l'émission sans qu'aucun envoi n'ait lieu : il ne prouvait donc rien.
+  /// Il n'est plus posé que par la route d'envoi réelle.
   sentAt                 DateTime?
+
+  /// Art. 56(2) B-1 r.5 / s. 9(1)3 By-Law 9 — TRANSMISSION au client.
+  ///
+  /// « pour lesquels la facturation a été ENVOYÉE » / « for which a billing has been
+  /// DELIVERED ». C'est cette date, et non l'émission, qui ouvre le droit de retirer
+  /// des honoraires du fidéicommis.
+  ///
+  /// Le canal dit si SAFE détient la PREUVE (envoi courriel depuis SAFE) ou seulement
+  /// la DÉCLARATION du cabinet (poste, main propre, autre courriel). Les deux sont
+  /// recevables : refuser la seconde serait du sur-blocage, et pousserait un cabinet
+  /// qui poste ses factures à contourner le garde-fou.
+  deliveredAt            DateTime?
+  /// EMAIL_SAFE | AUTRE_COURRIEL | POSTE | MAIN_PROPRE | PORTAIL_CLIENT | LEGACY_PRESUME
+  deliveryChannel        String?
+  deliveryDeclaredById   String?
+  deliveryNote           String?
   approvedAt             DateTime?
   approvedById           String?
   cancelledAt            DateTime?

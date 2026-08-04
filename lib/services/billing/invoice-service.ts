@@ -503,8 +503,15 @@ export async function issueInvoice(params: {
       data: {
         numero: officialNumero,
         invoiceStatus: "ISSUED",
+        // ⚠️ L'enum legacy `InvoiceStatut` n'a pas de valeur « emise » : « envoyee »
+        // reste donc l'état d'affichage d'une facture émise. C'est un abus de langage
+        // hérité, mais il ne pilote plus aucun contrôle réglementaire — c'est
+        // `deliveredAt` qui le fait désormais.
         statut: "envoyee",
-        sentAt: now,
+        // sentAt N'EST PLUS POSÉ ICI (CH-13). Il l'était au moment de l'émission, sans
+        // qu'aucun envoi n'ait lieu, et le garde-fou du retrait s'appuyait dessus : il
+        // vérifiait une date qui ne prouvait rien. Seule la route d'envoi réelle le
+        // pose maintenant, avec `deliveredAt` et son canal.
         approvedAt: now,
         approvedById: approvedById ?? undefined,
         validatedAt: now,
@@ -526,7 +533,7 @@ export async function issueInvoice(params: {
     entityType: "Invoice",
     entityId: invoiceId,
     action: "update",
-    newValues: { invoiceStatus: "ISSUED", sentAt: now },
+    newValues: { invoiceStatus: "ISSUED", issuedAt: now },
     performedBy: approvedById ?? undefined,
     performedAt: now,
   });

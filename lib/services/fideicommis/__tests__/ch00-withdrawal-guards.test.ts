@@ -24,7 +24,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 let invoiceRow: Record<string, unknown> | null;
 let trustBalance: number;
 let correctionTarget: { id: string } | null;
-const auditLogs: Array<{ reason?: string }> = [];
+// Le mock capture la charge ENTIÈRE : certains signalements passent par `metadata`,
+// d'autres par `newValues`. Ne garder qu'un champ rendrait des tests verts à tort.
+const auditLogs: Array<{ reason?: string; payload: Record<string, unknown> }> = [];
 
 const txClient = {
   $executeRaw: vi.fn(async () => 1),
@@ -68,8 +70,8 @@ const prismaMock = {
 
 vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/services/audit", () => ({
-  createAuditLog: vi.fn(async (p: { metadata?: { reason?: string } }) => {
-    auditLogs.push({ reason: p.metadata?.reason });
+  createAuditLog: vi.fn(async (p: { metadata?: { reason?: string } } & Record<string, unknown>) => {
+    auditLogs.push({ reason: p.metadata?.reason, payload: p as Record<string, unknown> });
   }),
 }));
 vi.mock("@/lib/services/billing/trust-service", () => ({
@@ -101,7 +103,10 @@ function conformingInvoice(overrides: Record<string, unknown> = {}) {
     paymentStatus: "UNPAID",
     dateEcheance: new Date("2026-07-15T00:00:00Z"),
     dateEmission: new Date("2026-06-01T00:00:00Z"),
-    sentAt: new Date("2026-06-02T00:00:00Z"),
+    // CH-13 : c'est la TRANSMISSION qui ouvre le retrait, plus l'ancien `sentAt`
+    // que l'émission posait elle-même.
+    deliveredAt: new Date("2026-06-02T00:00:00Z"),
+    deliveryChannel: "EMAIL_SAFE",
     balanceDue: 500,
     ...overrides,
   };
@@ -189,7 +194,7 @@ describe("CH-00 — interdictions de retrait", () => {
   it("REFUSE un retrait sur une facture jamais envoyée au client", async () => {
     // « la facturation a été envoyée » (art. 56(2)) / « a billing has been
     // delivered » (s. 9(1)3). Émise ne suffit pas.
-    invoiceRow = conformingInvoice({ sentAt: null });
+    invoiceRow = conformingInvoice({ deliveredAt: null, deliveryChannel: null });
     const { createTrustWithdrawal } = await import("../trust-transaction-service");
 
     await expect(
@@ -441,5 +446,129 @@ describe("CH-00 — chaque refus cite son article et propose une porte de sortie
         expect(e.toJSON().articleQC).toBe("art. 57");
       }
     }
+  });
+});
+
+/* ════════════════════════════════════════════════════════════════
+   CH-13 — la transmission, pas l'émission
+   ════════════════════════════════════════════════════════════════
+
+   Le garde-fou lisait `sentAt`, que `issueInvoice` posait au moment de l'émission :
+   il vérifiait une date qui ne prouvait rien. Ces tests verrouillent le contrat
+   corrigé, et surtout la porte de sortie — sans elle, un cabinet qui poste ses
+   factures contournerait le garde-fou.
+   ════════════════════════════════════════════════════════════════ */
+
+describe("CH-13 — transmission de la facture", () => {
+  it("ACCEPTE une transmission déclarée par le cabinet (poste)", async () => {
+    // Poster une facture, c'est l'envoyer au sens du règlement. Refuser serait du
+    // sur-blocage, et le sur-blocage pousse au contournement.
+    invoiceRow = conformingInvoice({
+      deliveredAt: new Date("2026-06-02T00:00:00Z"),
+      deliveryChannel: "POSTE",
+    });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).resolves.toBeDefined();
+  });
+
+  it("JOURNALISE qu'un retrait s'appuie sur une transmission non prouvée", async () => {
+    // L'inspecteur voudra distinguer ce que SAFE prouve de ce que le cabinet déclare.
+    invoiceRow = conformingInvoice({
+      deliveredAt: new Date("2026-06-02T00:00:00Z"),
+      deliveryChannel: "POSTE",
+    });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await createTrustWithdrawal({
+      ...base,
+      montant: 400,
+      motive: "HONORAIRES_DEBOURS_FACTURES",
+      factureId: "inv1",
+    });
+
+    const trace = auditLogs.find(
+      (l) => JSON.stringify(l).includes("withdrawal_on_unproven_delivery"),
+    );
+    expect(trace).toBeDefined();
+  });
+
+  it("NE JOURNALISE PAS de signalement quand SAFE a envoyé la facture", async () => {
+    invoiceRow = conformingInvoice({ deliveryChannel: "EMAIL_SAFE" });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await createTrustWithdrawal({
+      ...base,
+      montant: 400,
+      motive: "HONORAIRES_DEBOURS_FACTURES",
+      factureId: "inv1",
+    });
+
+    expect(
+      auditLogs.some((l) => JSON.stringify(l).includes("withdrawal_on_unproven_delivery")),
+    ).toBe(false);
+  });
+
+  it("LAISSE PASSER une transmission présumée, héritée d'avant le découplage", async () => {
+    // Bloquer rétroactivement priverait le cabinet de retraits légitimes sur la seule
+    // base d'un défaut logiciel qui n'est pas le sien.
+    invoiceRow = conformingInvoice({
+      deliveredAt: new Date("2026-05-01T00:00:00Z"),
+      deliveryChannel: "LEGACY_PRESUME",
+    });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).resolves.toBeDefined();
+  });
+
+  it("REFUSE une date de transmission sans canal", async () => {
+    // Sinon n'importe quelle date écrite en base rouvrirait le retrait.
+    invoiceRow = conformingInvoice({
+      deliveredAt: new Date("2026-06-02T00:00:00Z"),
+      deliveryChannel: null,
+    });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("REFUSE une transmission postérieure au retrait", async () => {
+    // On ne retire pas aujourd'hui en déclarant demain avoir transmis la semaine
+    // dernière : la chronologie est ce qui rend la déclaration vérifiable.
+    invoiceRow = conformingInvoice({
+      deliveredAt: new Date("2027-01-01T00:00:00Z"),
+      deliveryChannel: "POSTE",
+    });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).rejects.toThrow();
   });
 });

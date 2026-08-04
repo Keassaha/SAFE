@@ -32,6 +32,10 @@ import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
 import { getTrustBalance } from "./trust-balance-service";
 import { getOrCreateTrustAccount } from "@/lib/services/billing/trust-service";
+import {
+  evaluateDelivery,
+  isDeliveryBeforeWithdrawal,
+} from "@/lib/compliance/invoice-delivery";
 import { recalculateInvoiceTotals } from "@/lib/services/billing/invoice-service";
 import { createJournalEntry } from "@/lib/services/journal/journal-service";
 import { isInvoiceIssued } from "@/lib/billing/invoice-status";
@@ -464,7 +468,10 @@ async function validateInvoiceForWithdrawal(params: {
       paymentStatus: true,
       dateEcheance: true,
       dateEmission: true,
-      sentAt: true,
+      // CH-13 : la TRANSMISSION, pas l'émission. `sentAt` était posé à l'émission et
+      // ne prouvait rien ; c'est `deliveredAt` et son canal qui font foi.
+      deliveredAt: true,
+      deliveryChannel: true,
       balanceDue: true,
     },
   });
@@ -496,19 +503,65 @@ async function validateInvoiceForWithdrawal(params: {
     });
   }
 
-  // ... et ENVOYÉE. « la facturation a été envoyée » (QC) / « a billing has been
+  // ... et TRANSMISE. « la facturation a été envoyée » (QC) / « a billing has been
   // delivered » (ON). Une facture émise mais restée au cabinet ne satisfait ni l'un
   // ni l'autre.
-  if (!invoice.sentAt) {
+  //
+  // CH-13 : ce contrôle lisait `sentAt`, que l'émission posait elle-même. Il
+  // vérifiait donc une date qui ne prouvait rien. Il lit maintenant la transmission
+  // réelle, et accepte aussi bien l'envoi prouvé par SAFE que la transmission
+  // DÉCLARÉE par le cabinet — un cabinet qui poste ses factures les a bel et bien
+  // envoyées, et le lui refuser produirait du contournement.
+  const delivery = evaluateDelivery({
+    province,
+    deliveredAt: invoice.deliveredAt,
+    deliveryChannel: invoice.deliveryChannel,
+  });
+
+  if (!delivery.allowed) {
     await logBlockedAttempt({
       cabinetId,
       createdById,
       reason: "INVOICE_NOT_DELIVERED",
-      values: { factureId, numero: invoice.numero },
+      values: { factureId, numero: invoice.numero, reason: delivery.reasonFr },
     });
     throw new TrustComplianceError("INVOICE_NOT_DELIVERED", {
       province,
-      detail: `Facture ${invoice.numero} — aucune date d'envoi enregistrée.`,
+      detail: `Facture ${invoice.numero} — ${delivery.reasonFr} ${delivery.remedyFr}`,
+    });
+  }
+
+  // La transmission ne peut pas être postérieure au retrait qu'elle justifie.
+  if (
+    invoice.deliveredAt &&
+    !isDeliveryBeforeWithdrawal({
+      deliveredAt: invoice.deliveredAt,
+      withdrawalDate: dateTransaction,
+    })
+  ) {
+    throw new TrustComplianceError("INVOICE_DATED_AFTER_WITHDRAWAL", {
+      province,
+      detail: `La facture ${invoice.numero} a été transmise le ${invoice.deliveredAt.toISOString().slice(0, 10)}, après la date du retrait.`,
+    });
+  }
+
+  // Transmission recevable mais NON PROUVÉE : le retrait passe, et il est journalisé
+  // comme reposant sur une déclaration. C'est ce que l'inspecteur voudra distinguer.
+  if (!delivery.proven && delivery.flagFr) {
+    await createAuditLog({
+      cabinetId,
+      userId: createdById ?? undefined,
+      entityType: "Invoice",
+      entityId: factureId,
+      action: "view_sensitive",
+      newValues: {
+        type: "withdrawal_on_unproven_delivery",
+        numero: invoice.numero,
+        channel: invoice.deliveryChannel,
+        flag: delivery.flagFr,
+        reference: delivery.reference,
+      },
+      performedBy: createdById ?? undefined,
     });
   }
 

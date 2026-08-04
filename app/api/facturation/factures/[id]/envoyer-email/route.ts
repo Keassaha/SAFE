@@ -330,6 +330,22 @@ export async function POST(
     console.error("[invoice-send] Email send failed:", err);
   }
 
+  // CH-13 — l'envoi RÉEL est le seul canal dont SAFE détient la preuve. C'est ici,
+  // et nulle part ailleurs, que `deliveredAt` prend le canal EMAIL_SAFE.
+  // Un échec d'envoi ne transmet rien : la facture reste non transmise.
+  if (!sendError) {
+    const deliveredNow = new Date();
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        sentAt: deliveredNow,
+        deliveredAt: deliveredNow,
+        deliveryChannel: "EMAIL_SAFE",
+        deliveryDeclaredById: userId ?? null,
+      },
+    });
+  }
+
   await prisma.invoiceSendLog.create({
     data: {
       invoiceId: invoice.id,
