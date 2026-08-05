@@ -59,6 +59,19 @@ export async function createJournalEntry(
     }
   }
 
+  // ⚠️ COLONNE HISTORIQUE, NON AUTORITAIRE. Ce solde cumulé est faux dès qu'une
+  // écriture est antidatée dans la période ouverte : la ligne du 3 reprend le solde
+  // de celle du 10, et celle du 10 ne se recalcule pas.
+  //
+  // Il est impossible de le rendre correct dans une liste FILTRABLE, PAGINÉE et
+  // TRIABLE dans les deux sens : un solde courant sur un sous-ensemble ne veut rien
+  // dire, quel que soit le calcul.
+  //
+  // Personne ne le lit, et c'est voulu : les indicateurs passent par `kpi.ts` qui
+  // recalcule depuis les montants, et le solde courant réglementaire vit dans le
+  // REGISTRE (art. 38), où les lignes sont complètes, chronologiques et non filtrées.
+  // La colonne reste écrite pour ne pas laisser d'anciennes lignes incohérentes avec
+  // les nouvelles, mais elle ne doit JAMAIS être affichée.
   const lastEntry = await client.journalGeneralEntry.findFirst({
     where: { cabinetId: input.cabinetId },
     orderBy: [{ dateTransaction: "desc" }, { createdAt: "desc" }],
@@ -222,7 +235,6 @@ export async function getJournalEntries(
     categorie: e.categorie,
     montantEntree: e.montantEntree,
     montantSortie: e.montantSortie,
-    solde: e.solde,
     sourceModule: e.sourceModule,
     sourceId: e.sourceId,
     utilisateurId: e.utilisateurId,

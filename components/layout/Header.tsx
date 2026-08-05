@@ -22,6 +22,8 @@ import {
   Wrench,
   Briefcase,
   ClipboardCheck,
+  Sunrise,
+  ShieldCheck,
   Wallet,
   FileText,
   Building2,
@@ -92,10 +94,18 @@ const NAV: NavGroup[] = [
     icon: LayoutDashboard,
   },
   {
+    // « Aujourd'hui » est l'accueil de l'assistante. Il vivait dans le tiroir mobile
+    // seulement : au bureau, personne ne pouvait y arriver par le menu.
+    id: "aujourdhui",
+    labelKey: "navToday",
+    icon: Sunrise,
+    href: routes.aujourdhui,
+  },
+  {
     id: "pratique",
     labelKey: "navPractice",
     icon: Briefcase,
-    matchPrefixes: [routes.clients, routes.dossiers, routes.employees, routes.gestionLexTrack],
+    matchPrefixes: [routes.clients, routes.dossiers, routes.employees, routes.gestionLexTrack, routes.gestionAssistante, routes.mesHeures],
     children: [
       {
         labelKey: "navClients",
@@ -121,13 +131,26 @@ const NAV: NavGroup[] = [
         icon: Users,
         descriptionKey: "navEmployeesDesc",
       },
+      {
+        // File assistante et Mon temps existaient dans le tiroir mobile seul.
+        labelKey: "navAssistantQueue",
+        href: routes.gestionAssistante,
+        icon: ClipboardCheck,
+        descriptionKey: "navAssistantQueueDesc",
+      },
+      {
+        labelKey: "navMyHours",
+        href: routes.mesHeures,
+        icon: Clock,
+        descriptionKey: "navMyHoursDesc",
+      },
     ],
   },
   {
     id: "finances",
     labelKey: "navFinances",
     icon: Wallet,
-    matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes, routes.inspection],
+    matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes, routes.inspection, routes.conformite],
     children: [
       {
         labelKey: "navBilling",
@@ -153,6 +176,14 @@ const NAV: NavGroup[] = [
         href: routes.inspection,
         icon: ClipboardCheck,
         descriptionKey: "navInspectionDesc",
+      },
+      {
+        // Conformite existait dans le tiroir mobile et PAS ici : le tableau de bord
+        // de conformite etait donc inatteignable depuis un ordinateur.
+        labelKey: "navCompliance",
+        href: routes.conformite,
+        icon: ShieldCheck,
+        descriptionKey: "navComplianceDesc",
       },
       {
         labelKey: "navTimeFees",

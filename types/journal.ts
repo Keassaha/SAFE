@@ -60,7 +60,11 @@ export interface JournalEntryRow {
   categorie: string | null;
   montantEntree: number;
   montantSortie: number;
-  solde: number;
+  // `solde` a été RETIRÉ de cette ligne. La colonne existe encore en base, mais elle
+  // est fausse dès qu'une écriture est antidatée, et un solde courant n'a de toute
+  // façon aucun sens sur une liste filtrable, paginée et triable dans les deux sens.
+  // Le solde courant réglementaire vit dans le REGISTRE (art. 38), où les lignes sont
+  // complètes et chronologiques ; les indicateurs passent par `kpi.ts`.
   sourceModule: JournalSourceModule;
   sourceId: string | null;
   utilisateurId: string | null;
