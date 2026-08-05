@@ -3482,6 +3482,8 @@
     "navAccountingDesc": "General ledger and expenses",
     "navTrust": "Trust account",
     "navTrustDesc": "Trust accounts · B-1 r.5",
+    "navInspection": "Inspection",
+    "navInspectionDesc": "Monthly report, registers, kit and everything an inspector asks for",
     "navTimeFees": "Time & fees",
     "navTimeFeesDesc": "Timesheets to bill",
     "navTools": "Tools",

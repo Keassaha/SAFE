@@ -21,6 +21,7 @@ import {
   ChevronDown,
   Wrench,
   Briefcase,
+  ClipboardCheck,
   Wallet,
   FileText,
   Building2,
@@ -126,7 +127,7 @@ const NAV: NavGroup[] = [
     id: "finances",
     labelKey: "navFinances",
     icon: Wallet,
-    matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes],
+    matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes, routes.inspection],
     children: [
       {
         labelKey: "navBilling",
@@ -145,6 +146,13 @@ const NAV: NavGroup[] = [
         href: routes.comptes,
         icon: Wallet,
         descriptionKey: "navTrustDesc",
+      },
+      {
+        // Section Inspection : tout ce qu'un inspecteur demande, au meme endroit.
+        labelKey: "navInspection",
+        href: routes.inspection,
+        icon: ClipboardCheck,
+        descriptionKey: "navInspectionDesc",
       },
       {
         labelKey: "navTimeFees",
