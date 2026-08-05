@@ -3,14 +3,22 @@
 import { useTranslations } from "next-intl";
 import type { EmployeeRole } from "@prisma/client";
 import { RoleBadge } from "./RoleBadge";
-import {
-  RBAC_MODULES,
-  RBAC_ACTIONS,
-  ROLE_MODULE_PERMISSIONS,
-  EMPLOYEE_ROLE_LABELS,
-} from "@/lib/auth/rbac";
+import { EMPLOYEE_ROLE_LABELS } from "@/lib/auth/rbac";
+import { getEmployeeAccessSummary } from "@/lib/auth/effective-access";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import type { RBACModule, RBACAction } from "@/lib/auth/rbac";
+
+/**
+ * ⚠️ CET ONGLET AFFICHAIT DES PERMISSIONS QUE RIEN N'APPLIQUAIT.
+ *
+ * La grille venait de `ROLE_MODULE_PERMISSIONS`, une matrice dont la fonction `can()`
+ * n'est appelée nulle part dans l'application. Un stagiaire, qui ne peut pas se
+ * connecter du tout, s'y voyait attribuer des droits ; « Avocat responsable » et
+ * « Avocat » y montraient deux grilles pour un accès identique.
+ *
+ * La grille est désormais dérivée des VRAIES fonctions de garde (`permissions.ts`),
+ * celles que les pages appellent pour bloquer. Elle ne peut donc plus diverger de ce
+ * qui se passe réellement.
+ */
 
 interface EmployeeAccessTabProps {
   role: EmployeeRole;
@@ -26,8 +34,7 @@ export function EmployeeAccessTab({
   onRoleChange,
 }: EmployeeAccessTabProps) {
   const t = useTranslations("employees");
-  const permissions = ROLE_MODULE_PERMISSIONS[role];
-  if (!permissions) return null;
+  const acces = getEmployeeAccessSummary(role);
 
   return (
     <Card>
@@ -50,57 +57,56 @@ export function EmployeeAccessTab({
         </div>
 
         <div>
-          <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-3">
-            {t("permissionsByModule")}
+          <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-2">
+            Accès réel dans SAFE
           </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border border-si-line rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-si-surface/70 border-b border-si-line">
-                  <th className="text-left px-4 py-2 font-medium text-si-ink">{t("module")}</th>
-                  {RBAC_ACTIONS.map((action) => (
-                    <th
-                      key={action}
-                      className="text-center px-2 py-2 font-medium text-si-ink w-20"
-                    >
-                      {t(`permissions.${action}`)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {RBAC_MODULES.map((module) => {
-                  const actions = permissions[module] ?? [];
-                  return (
+          <p className="mb-3 max-w-2xl text-sm leading-relaxed text-si-muted">
+            {acces.messageFr}
+          </p>
+
+          {!acces.canSignIn ? null : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-si-line rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-si-surface/70 border-b border-si-line">
+                    <th className="text-left px-4 py-2 font-medium text-si-ink">Module</th>
+                    <th className="text-center px-2 py-2 font-medium text-si-ink w-24">Consulter</th>
+                    <th className="text-center px-2 py-2 font-medium text-si-ink w-24">Modifier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {acces.modules.map((m) => (
                     <tr
-                      key={module}
+                      key={m.module}
                       className="border-b border-si-line last:border-b-0 hover:bg-si-surface/30"
                     >
-                      <td className="px-4 py-2 font-medium text-si-ink">
-                        {t(`modules.${module}`)}
+                      <td className="px-4 py-2 text-si-ink">
+                        {m.labelFr}
+                        {m.noteFr && (
+                          <span className="mt-0.5 block text-xs text-si-muted">{m.noteFr}</span>
+                        )}
                       </td>
-                      {RBAC_ACTIONS.map((action) => {
-                        const allowed = actions.includes(action);
-                        return (
-                          <td key={action} className="text-center px-2 py-2">
-                            {allowed ? (
-                              <span className="text-si-verified" aria-label={t("allowed")}>
-                                ✓
-                              </span>
-                            ) : (
-                              <span className="text-si-muted/40" aria-label={t("notAllowed")}>
-                                —
-                              </span>
-                            )}
-                          </td>
-                        );
-                      })}
+                      {[m.view, m.edit].map((ok, k) => (
+                        <td key={k} className="text-center px-2 py-2">
+                          {ok ? (
+                            <span className="text-si-verified" aria-label="Autorisé">✓</span>
+                          ) : (
+                            <span className="text-si-muted/40" aria-label="Non autorisé">—</span>
+                          )}
+                        </td>
+                      ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <p className="mt-3 max-w-2xl text-xs leading-relaxed text-si-muted">
+            Ce tableau est calculé à partir des contrôles que SAFE applique réellement,
+            et non d'une description séparée. Si un contrôle change, ce tableau change
+            avec lui.
+          </p>
         </div>
 
         {canChangeRole && onRoleChange && (
