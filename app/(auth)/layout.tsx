@@ -1,4 +1,4 @@
-import { Logo } from "@/components/brand/Logo";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
@@ -13,8 +13,7 @@ export default async function AuthLayout({
       {/* En-tête simple pour l'authentification */}
       <div className="w-full flex justify-between items-center max-w-6xl mx-auto mb-16 px-4">
         <Link href="/" className="inline-flex items-center gap-2 transition-transform duration-300 hover:scale-[1.02]">
-          <Logo size={24} accentColor="#0A0A0A" />
-          <span className="font-serif text-[19px] tracking-[-0.02em] text-text-primary mt-0.5">Safe</span>
+          <SafeLogo size={20} tone="mono-dark" />
         </Link>
       </div>
 
