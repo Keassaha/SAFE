@@ -32,6 +32,7 @@ export type RegisterId =
   | "CLIENT_LEDGERS"
   | "PARTICULAR_ACCOUNT_LEDGERS"
   | "CHEQUE_REGISTER"
+  | "TRUST_PROPERTY_REGISTER"
   | "ADMIN_CASH_JOURNAL"
   | "FEES_BOOK"
   | "ACTIVE_MATTERS"
@@ -252,6 +253,55 @@ function chequeRegister(province: CabinetProvince): RegisterDefinition {
   };
 }
 
+/**
+ * Registre des autres biens en fidéicommis.
+ *
+ * Art. 43 QC / s. 18(9) ON. Les colonnes diffèrent réellement entre les deux
+ * régimes : l'Ontario exige la valeur et le détenteur précédent, le Québec le lieu
+ * de garde et l'affectation. On ne sert donc pas les mêmes colonnes des deux côtés.
+ */
+function trustPropertyRegister(province: CabinetProvince): RegisterDefinition {
+  const qc = province === "QC";
+  const reference = qc ? "art. 43" : "s. 18(9)";
+
+  const columns: RegisterColumn[] = [
+    { key: "description", labelFr: "Description du bien", labelEn: "Description", align: "left", reference },
+    { key: "identificationNumber", labelFr: "N° d'identification", labelEn: "Identification no.", align: "left", reference },
+    { key: "clientName", labelFr: "Client", labelEn: "Client", align: "left", reference },
+    { key: "dossierRef", labelFr: "Dossier", labelEn: "Matter", align: "left", reference: null },
+    { key: "receivedAt", labelFr: "Prise de possession", labelEn: "Possession taken", align: "left", reference },
+  ];
+
+  if (qc) {
+    columns.push(
+      { key: "storageLocation", labelFr: "Lieu de garde", labelEn: "Location", align: "left", reference: "art. 45" },
+      { key: "purpose", labelFr: "Affectation", labelEn: "Purpose", align: "left", reference: "art. 46" },
+    );
+  } else {
+    columns.push(
+      { key: "receivedFromName", labelFr: "Détenteur précédent", labelEn: "Previous possessor", align: "left", reference: "s. 18(9)" },
+      { key: "estimatedValue", labelFr: "Valeur", labelEn: "Value", align: "right", reference: "s. 18(9)", money: true },
+    );
+  }
+
+  columns.push(
+    { key: "releasedAt", labelFr: "Remise", labelEn: "Given away", align: "left", reference },
+    { key: "releasedToName", labelFr: "Remis à", labelEn: "Given to", align: "left", reference },
+  );
+
+  return {
+    id: "TRUST_PROPERTY_REGISTER",
+    titleFr: "Registre des autres biens en fidéicommis",
+    titleEn: "Valuable property record",
+    reference: qc ? "B-1 r.5, art. 43" : "By-Law 9, s. 18(9)",
+    appliesTo: BOTH,
+    noteFr: qc
+      ? "Inscription dès réception ou remise (art. 43). Le client doit être avisé du lieu de garde et de tout changement d'emplacement (art. 45)."
+      : "Property other than money held in trust for clients, with its value and previous possessor.",
+    columns,
+  };
+}
+
 function adminCashJournal(province: CabinetProvince): RegisterDefinition {
   const qc = province === "QC";
   return {
@@ -359,6 +409,7 @@ export function getRegisters(province: CabinetProvince): RegisterDefinition[] {
     clientLedgers(province),
     particularAccountLedgers(),
     chequeRegister(province),
+    trustPropertyRegister(province),
     adminCashJournal(province),
     feesBook(province),
     matterList("ACTIVE_MATTERS"),

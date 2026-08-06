@@ -118,6 +118,8 @@ async function loadRows(params: {
       return loadParticularLedgers(params);
     case "CHEQUE_REGISTER":
       return loadChequeRegister(params);
+    case "TRUST_PROPERTY_REGISTER":
+      return loadTrustPropertyRegister(params);
     case "ADMIN_CASH_JOURNAL":
       return loadAdminCashJournal(params);
     case "FEES_BOOK":
@@ -309,6 +311,48 @@ async function loadChequeRegister(params: {
     dossierRef: c.dossierId ? dossierRef(dossierById.get(c.dossierId)) : null,
     status: c.status,
     amount: c.amount,
+  }));
+}
+
+/** Art. 43 QC / s. 18(9) ON — registre des autres biens, détenus et remis. */
+async function loadTrustPropertyRegister(params: {
+  cabinetId: string;
+  bounds: { start: Date; end: Date } | null;
+}): Promise<RegisterRow[]> {
+  const properties = await prisma.trustProperty.findMany({
+    where: {
+      cabinetId: params.cabinetId,
+      // Le registre est PERMANENT (art. 43) : les biens remis y restent. Filtrer sur
+      // la période porte donc sur la prise de possession, pas sur la détention.
+      ...(params.bounds ? { receivedAt: dateFilter(params.bounds) } : {}),
+    },
+    orderBy: [{ receivedAt: "asc" }],
+    include: {
+      client: { select: { raisonSociale: true, prenom: true, nom: true } },
+    },
+  });
+
+  const dossierIds = [...new Set(properties.map((p) => p.dossierId).filter(Boolean) as string[])];
+  const dossiers = dossierIds.length
+    ? await prisma.dossier.findMany({
+        where: { id: { in: dossierIds } },
+        select: { id: true, numeroDossier: true, intitule: true },
+      })
+    : [];
+  const dossierById = new Map(dossiers.map((d) => [d.id, d]));
+
+  return properties.map((p) => ({
+    description: p.description,
+    identificationNumber: p.identificationNumber,
+    clientName: p.client ? clientDisplayName(p.client, "") : null,
+    dossierRef: p.dossierId ? dossierRef(dossierById.get(p.dossierId)) : null,
+    receivedAt: p.receivedAt,
+    storageLocation: p.storageLocation,
+    purpose: p.purpose,
+    receivedFromName: p.receivedFromName,
+    estimatedValue: p.estimatedValue,
+    releasedAt: p.releasedAt,
+    releasedToName: p.releasedToName,
   }));
 }
 

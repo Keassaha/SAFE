@@ -21,7 +21,11 @@ export const SITE_LEGAL_NAME = "SAFE Inc.";
 
 /** Image partagée par défaut (aperçu LinkedIn / réseaux). */
 export const DEFAULT_OG_IMAGE = "/safe-hero-dashboard.png";
-export const LOGO_PATH = "/safe-logo-concept-1.png";
+/**
+ * Logo carré des données structurées. Fabriqué par `npm run brand:assets` à
+ * partir de `components/brand/safe-mark.ts` : ne pas y substituer une capture.
+ */
+export const LOGO_PATH = "/safe-logo.png";
 
 const DEFAULT_DESCRIPTION =
   "Logiciel de gestion pour petits cabinets d'avocats au Québec : facturation, suivi du temps, forfaits et comptabilité en fiducie. Conforme au Barreau du Québec.";

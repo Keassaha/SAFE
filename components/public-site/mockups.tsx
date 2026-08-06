@@ -15,6 +15,7 @@
  */
 
 import React, { useMemo, useState } from "react";
+import { CASH_THRESHOLD_CAD } from "@/lib/compliance/cash";
 import { INK, MUTED, FAINT, GREEN, VERIFIED, AMBER, LINE, LINE_SOFT, SURFACE } from "./shared";
 import { SafeBullet, SafeLogo } from "@/components/branding/SafeLogo";
 
@@ -786,7 +787,12 @@ export function MockupDepotConforme() {
   const [tente, setTente] = useState(false);
 
   const valeur = parseFloat(montant.replace(/\s/g, "").replace(",", ".")) || 0;
-  const refuse = valeur > 7500;
+  // Le seuil vient du module de conformité, jamais recopié : cette maquette énonce
+  // publiquement une règle que SAFE prétend maîtriser.
+  //
+  // ⚠️ La comparaison était `> 7500`, donc un dépôt de 7 500 $ EXACTEMENT était
+  // présenté comme accepté. Le texte dit « 7 500 $ OU PLUS » : il est refusé.
+  const refuse = valeur >= CASH_THRESHOLD_CAD;
 
   return (
     <div>

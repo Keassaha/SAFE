@@ -16,13 +16,14 @@ import {
  */
 
 describe("Registres applicables par province", () => {
-  it("sert au Québec les huit registres du régime québécois", () => {
+  it("sert au Québec les neuf registres du régime québécois", () => {
     const ids = getRegisters("QC").map((r) => r.id);
     expect(ids).toEqual([
       "TRUST_CASH_JOURNAL",
       "CLIENT_LEDGERS",
       "PARTICULAR_ACCOUNT_LEDGERS",
       "CHEQUE_REGISTER",
+      "TRUST_PROPERTY_REGISTER",
       "ADMIN_CASH_JOURNAL",
       "FEES_BOOK",
       "ACTIVE_MATTERS",
@@ -171,6 +172,35 @@ describe("Colonnes réglementaires", () => {
   });
 });
 
+describe("Registre des autres biens (art. 43 / s. 18(9))", () => {
+  it("s'applique dans les deux provinces", () => {
+    expect(getRegister("TRUST_PROPERTY_REGISTER", "QC")).toBeDefined();
+    expect(getRegister("TRUST_PROPERTY_REGISTER", "ON")).toBeDefined();
+  });
+
+  it("porte au Québec le lieu de garde et l'affectation, PAS la valeur", () => {
+    const keys = getRegister("TRUST_PROPERTY_REGISTER", "QC")!.columns.map((c) => c.key);
+    expect(keys).toEqual(expect.arrayContaining(["storageLocation", "purpose"]));
+    expect(keys).not.toContain("estimatedValue");
+    expect(keys).not.toContain("receivedFromName");
+  });
+
+  it("porte en Ontario la valeur et le détenteur précédent, PAS le lieu de garde", () => {
+    // L'ecart entre les deux regimes est reel : l'aplatir produirait soit un
+    // registre incomplet, soit des colonnes inventees.
+    const keys = getRegister("TRUST_PROPERTY_REGISTER", "ON")!.columns.map((c) => c.key);
+    expect(keys).toEqual(expect.arrayContaining(["estimatedValue", "receivedFromName"]));
+    expect(keys).not.toContain("storageLocation");
+    expect(keys).not.toContain("purpose");
+  });
+
+  it("rattache le lieu de garde a l'art. 45 et l'affectation a l'art. 46", () => {
+    const cols = getRegister("TRUST_PROPERTY_REGISTER", "QC")!.columns;
+    expect(cols.find((c) => c.key === "storageLocation")!.reference).toBe("art. 45");
+    expect(cols.find((c) => c.key === "purpose")!.reference).toBe("art. 46");
+  });
+});
+
 describe("Liste des dossiers (art. 9)", () => {
   it("limite les dossiers fermés aux sept dernières années", () => {
     const closed = getRegister("CLOSED_MATTERS", "QC")!;
@@ -191,6 +221,7 @@ describe("Couverture", () => {
       "CLIENT_LEDGERS",
       "PARTICULAR_ACCOUNT_LEDGERS",
       "CHEQUE_REGISTER",
+      "TRUST_PROPERTY_REGISTER",
       "ADMIN_CASH_JOURNAL",
       "FEES_BOOK",
       "ACTIVE_MATTERS",

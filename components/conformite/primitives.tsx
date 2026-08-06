@@ -18,6 +18,7 @@
  */
 
 import { useState, type ReactNode } from "react";
+import { formatCurrency } from "@/lib/utils/format";
 
 /* ════════════════════════════════════════════════════════════════
    SURFACE
@@ -298,8 +299,16 @@ export function Disclosure({
    FORMATAGE
    ════════════════════════════════════════════════════════════════ */
 
+/**
+ * Montant.
+ *
+ * Délègue au formateur canonique du dépôt plutôt que d'en être une troisième
+ * implémentation. Il y en avait deux (`lib/format.ts`, mort, et `lib/utils/format.ts`,
+ * vivant) ; en ajouter une aurait garanti que les écrans de conformité affichent les
+ * montants autrement que le reste de l'application.
+ */
 export function money(n: number): string {
-  return `${n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
+  return formatCurrency(n);
 }
 
 /**

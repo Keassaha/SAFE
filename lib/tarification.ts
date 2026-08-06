@@ -3,12 +3,24 @@
 
 export const TARIFICATION = {
   fondateurs: {
+    // Offre v2, décision CEO 2026-07-27. Voir docs/marketing/ventes/OFFRE_FONDATRICE_v2.md.
+    // Le compteur affiché doit toujours être le vrai : ne jamais gonfler placesPrises.
     placesPrises: 1,
-    placesTotal: 5,
-    // Première année à tarif fondateur, puis tarif régulier (paliers ci-dessous).
+    placesTotal: 10,
+    // 12 mois à tarif fondateur, puis tarif fondateur gelé (apres*), pas le tarif régulier.
+    // C'est ce gel qui supprime le doublement du coût au 13e mois.
     dureeMois: 12,
     premiereAnneeSolo: 50,
-    premiereAnneeCabinet: 100,
+    premiereAnneeCabinet: 75,
+    apresSolo: 79,
+    apresCabinet: 119,
+    // Paiement annuel fondateur : 12 mois d'avance, un mois offert.
+    annuelSolo: 550,
+    annuelCabinet: 825,
+    // Remboursement des premiers mois si le cabinet juge que SAFE ne lui apporte rien.
+    garantieJours: 60,
+    // Capacité réelle de mise en route, qui fonde la rareté annoncée.
+    miseEnRouteParMois: 2,
   },
   paliers: {
     solo: {
@@ -108,11 +120,31 @@ export const FAQ_TARIFICATION = [
   {
     question: "L'offre fondatrice reviendra-t-elle un jour ?",
     answer:
-      "Non. L'offre fondatrice est strictement limitée à 5 cabinets. Une fois les 5 places prises, elle est définitivement fermée.",
+      "Non. L'offre fondatrice est limitée à 10 cabinets. Une fois les 10 places prises, elle est définitivement fermée.",
+  },
+  {
+    question: "Pourquoi seulement dix places ?",
+    answer:
+      "Parce que la mise en route de chaque cabinet est faite à la main, et qu'il n'est pas possible d'en faire plus de deux par mois sans bâcler. Dix cabinets représentent cinq mois de travail. Les places s'ouvrent donc au fur et à mesure, et le compteur affiché est le vrai.",
   },
   {
     question: "Comment fonctionne le tarif fondateur ?",
     answer:
-      "Votre première année d'abonnement est à tarif fondateur : 50 $ par mois pour une pratique solo, 100 $ par mois pour un cabinet en équipe, pendant 12 mois à partir de l'activation. Ensuite, le tarif régulier s'applique : 99 $ ou 149 $ par mois.",
+      "Vos douze premiers mois sont à 50 $ par mois pour une pratique individuelle et 75 $ par mois pour un cabinet avec adjointe. Ensuite, votre tarif fondateur reste gelé à 79 $ ou 119 $ par mois tant que votre abonnement demeure actif, au lieu des 99 $ ou 149 $ du tarif régulier. Votre coût ne double pas au treizième mois.",
+  },
+  {
+    question: "Qu'est-ce qui est fait par vous, et qu'est-ce qui reste à ma charge ?",
+    answer:
+      "La mise en route est faite par nous : paramétrage du cabinet, reprise de vos dossiers actifs, de vos clients et de vos soldes de fidéicommis, et la formation de votre adjointe, une séance en direct puis de courtes vidéos qu'elle reprend à son rythme. Vous n'avez pas de formulaires à remplir ni de données à ressaisir. Vous nous envoyez ce que vous avez, dans l'état où c'est. S'y ajoute un atelier hebdomadaire avec les autres cabinets fondateurs, où vos questions sont traitées.",
+  },
+  {
+    question: "Qu'est-ce qui se passe si je change d'avis ?",
+    answer:
+      "L'abonnement est mensuel, résiliable en tout temps, sans pénalité et sans justification à donner. Si dans les soixante premiers jours vous jugez que SAFE ne vous apporte rien, les mois payés vous sont remboursés. Vos données restent les vôtres et s'exportent quand vous le voulez, dans un format lisible.",
+  },
+  {
+    question: "Qu'est-ce que vous demandez en retour ?",
+    answer:
+      "Trente minutes par mois les trois premiers mois, puis une fois par trimestre, à date fixe, pour nous dire ce qui bloque. Votre nom et quelques phrases le jour où les résultats seront là, que vous relisez et que vous pouvez refuser de publier. Et deux présentations à des confrères dans les six premiers mois, si et seulement si vous êtes satisfait.",
   },
 ] as const;
