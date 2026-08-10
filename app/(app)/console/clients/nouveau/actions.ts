@@ -6,6 +6,19 @@ import { requireConsoleAccess, getSafeIncWorkspace } from "@/lib/safe-inc";
 import { isConsoleIntakeEnabled } from "@/lib/flags";
 import { computeFirmographicScore } from "@/lib/validations/crm-lead";
 import { buildRecommendation } from "@/lib/audit-gratuit/recommendation";
+import {
+  type Answers as SharedAnswers,
+  cleanOther,
+  mapLangue,
+  mapMode,
+  mapProvince,
+  mapTaille,
+  slugify,
+  splitName,
+  str,
+  uniqueSlug,
+  validUrl,
+} from "@/lib/crm/lead-from-audit";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -17,91 +30,11 @@ import type { Prisma } from "@prisma/client";
  * Doctrine + spec : docs/product/SPEC_INTAKE_CLIENT_CONSOLE.md
  */
 
-type Answers = Record<string, unknown>;
-
-// ── Helpers de mapping audit → Lead ──────────────────────────────────
-
-function str(v: unknown): string {
-  return typeof v === "string" ? v.trim() : "";
-}
-
-/** Nettoie une valeur radio-with-other ("other:Foo" → "Foo"). */
-function cleanOther(v: unknown): string {
-  const s = str(v);
-  return s.startsWith("other:") ? s.slice(6).trim() : s;
-}
-
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-async function uniqueSlug(base: string): Promise<string> {
-  let slug = base || "cabinet";
-  let suffix = 1;
-  while (await prisma.lead.findUnique({ where: { slug } })) {
-    suffix += 1;
-    slug = `${base}-${suffix}`;
-    if (suffix > 100) {
-      slug = `${base}-${Date.now()}`;
-      break;
-    }
-  }
-  return slug;
-}
-
-const PROVINCE_LEAD = new Set(["QC", "ON", "NB", "MB", "BC", "AB"]);
-function mapProvince(v: unknown): "QC" | "ON" | "NB" | "MB" | "BC" | "AB" | "AUTRE" {
-  const s = str(v).toUpperCase();
-  return (PROVINCE_LEAD.has(s) ? s : "AUTRE") as
-    | "QC" | "ON" | "NB" | "MB" | "BC" | "AB" | "AUTRE";
-}
-
-function mapLangue(v: unknown): "FR" | "EN" | "BILINGUE" {
-  const arr = Array.isArray(v) ? v.map((x) => str(x)) : [];
-  const fr = arr.includes("fr");
-  const en = arr.includes("en");
-  if (fr && en) return "BILINGUE";
-  if (en && !fr) return "EN";
-  return "FR";
-}
-
-function mapTaille(v: unknown): "SOLO" | "DEUX_CINQ" | "SIX_DIX" {
-  const s = cleanOther(v);
-  if (s === "1") return "SOLO";
-  return "DEUX_CINQ";
-}
-
-function mapMode(v: unknown): "HORAIRE" | "FORFAIT" | "MIXTE" | undefined {
-  const s = str(v);
-  if (s === "horaire") return "HORAIRE";
-  if (s === "forfait") return "FORFAIT";
-  if (s === "mixte") return "MIXTE";
-  return undefined; // "commission" ou vide → non renseigné
-}
-
-function splitName(full: string): { prenom: string; nom: string } {
-  const parts = full.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return { prenom: "", nom: "" };
-  if (parts.length === 1) return { prenom: parts[0], nom: "" };
-  return { prenom: parts[0], nom: parts.slice(1).join(" ") };
-}
-
-function validUrl(v: unknown): string | null {
-  const s = str(v);
-  if (!s) return null;
-  try {
-    // eslint-disable-next-line no-new
-    new URL(s.startsWith("http") ? s : `https://${s}`);
-    return s.startsWith("http") ? s : `https://${s}`;
-  } catch {
-    return null;
-  }
-}
+// Les helpers de mapping audit → Lead vivent dans `lib/crm/lead-from-audit.ts`,
+// partagés avec le rattachement automatique de `POST /api/audit-gratuit`. Une
+// seule définition : l'intake manuel et la voie automatique ne peuvent pas
+// diverger sur la façon de lire une réponse d'audit.
+type Answers = SharedAnswers;
 
 export type ImportableAudit = {
   id: string;
