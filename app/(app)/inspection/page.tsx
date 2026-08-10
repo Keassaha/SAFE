@@ -10,6 +10,14 @@ import { getOpenShortfalls } from "@/lib/services/fideicommis/trust-shortfall-se
 import { getPendingCashDeclarations } from "@/lib/services/fideicommis/cash-service";
 import { getPendingPropertyNotices } from "@/lib/services/fideicommis/trust-property-service";
 import { listMonthlyReports } from "@/lib/services/fideicommis/monthly-report-service";
+import { listAnnualReports } from "@/lib/services/fideicommis/annual-report-service";
+import {
+  getDeadlineAlerts,
+  getSuccessionStatus,
+} from "@/lib/services/compliance/practice-lifecycle-service";
+import { getFiscalYearEnd } from "@/lib/services/compliance/retention-service";
+import { listUndeliveredIssuedInvoices } from "@/lib/services/billing/invoice-delivery-service";
+import { getPendingCountersignatures } from "@/lib/services/fideicommis/electronic-transfer-service";
 import { Panel, Pill } from "@/components/conformite/primitives";
 
 /**
@@ -38,7 +46,6 @@ interface Porte {
   quoi: string;
   reference: string;
   alerte?: { texte: string; grave: boolean } | null;
-  aVenir?: boolean;
 }
 
 export default async function InspectionPage() {
@@ -57,15 +64,51 @@ export default async function InspectionPage() {
   // Les compteurs sont lus ici plutôt que dans chaque écran : une page d'accueil qui
   // n'affiche que des liens oblige à ouvrir les six pour savoir laquelle demande
   // quelque chose.
-  const [decouverts, declarations, avis, rapports] = await Promise.all([
-    getOpenShortfalls({ cabinetId }).catch(() => ({ openCount: 0 })),
-    getPendingCashDeclarations({ cabinetId }).catch(() => []),
-    getPendingPropertyNotices({ cabinetId }).catch(() => []),
-    listMonthlyReports(cabinetId).catch(() => []),
-  ]);
+  const [
+    decouverts,
+    declarations,
+    avis,
+    rapports,
+    annuels,
+    echeances,
+    plan,
+    exercice,
+    nonTransmisesRows,
+    contresignatures,
+  ] = await Promise.all([
+      getOpenShortfalls({ cabinetId }).catch(() => ({ openCount: 0 })),
+      getPendingCashDeclarations({ cabinetId }).catch(() => []),
+      getPendingPropertyNotices({ cabinetId }).catch(() => []),
+      listMonthlyReports(cabinetId).catch(() => []),
+      qc ? listAnnualReports(cabinetId).catch(() => []) : Promise.resolve([]),
+      qc ? getDeadlineAlerts({ cabinetId }).catch(() => []) : Promise.resolve([]),
+      qc ? getSuccessionStatus(cabinetId).catch(() => null) : Promise.resolve(null),
+      getFiscalYearEnd(cabinetId).catch(() => null),
+      listUndeliveredIssuedInvoices({ cabinetId }).catch(() => []),
+      // La s. 12 n'existe qu'en Ontario : ne rien interroger ailleurs évite de compter
+      // des contresignatures qu'aucun règlement n'exige du cabinet.
+      qc ? Promise.resolve([]) : getPendingCountersignatures({ cabinetId }).catch(() => []),
+    ]);
 
   const nonCertifies = rapports.filter((r) => !r.certifiedAt).length;
   const declarationsEnRetard = declarations.filter((d) => d.overdue).length;
+
+  // Le rapport annuel n'a d'échéance QUE si une demande du directeur a été reçue.
+  // Marquer « en retard » un cabinet sans demande inventerait un délai que l'art. 42
+  // ne pose pas.
+  const annuelsEnRetard = annuels.filter((r) => r.deadline?.overdue).length;
+  const annuelsNonCertifies = annuels.filter((r) => !r.certifiedAt).length;
+
+  // Seules les prescriptions dépassées remontent ici. Une échéance de procédure en
+  // retard se rattrape ; une prescription franchie éteint le droit du client, et c'est
+  // la seule qui mérite de crier depuis l'accueil.
+  const prescriptionsDepassees = echeances.filter(
+    (e) => e.kind === "PRESCRIPTION" && e.alert.overdue,
+  ).length;
+  const cessionnaire = plan?.hasPlan ?? true;
+  const exerciceRegle = exercice !== null;
+  const nonTransmises = nonTransmisesRows.length;
+  const contresignaturesEnRetard = contresignatures.filter((c) => c.overdue).length;
 
   const portes: Porte[] = [
     {
@@ -122,25 +165,64 @@ export default async function InspectionPage() {
       alerte: avis.length > 0 ? { texte: `${avis.length} avis à donner`, grave: false } : null,
     },
     {
+      href: routes.transmissionFactures,
+      titre: "Transmission des factures",
+      quoi: "Ce qui vous empêche de vous payer sur le fidéicommis.",
+      reference: qc ? "art. 56(2)" : "s. 9(1)3",
+      alerte:
+        nonTransmises > 0
+          ? { texte: `${nonTransmises} bloque${nonTransmises === 1 ? "" : "nt"} un retrait`, grave: true }
+          : null,
+    },
+    {
       href: routes.rapportAnnuel,
       titre: "Rapport annuel",
       quoi: "Les douze mois, sur demande du directeur de l'inspection.",
       reference: "art. 42",
-      aVenir: true,
+      alerte:
+        annuelsEnRetard > 0
+          ? { texte: `${annuelsEnRetard} en retard`, grave: true }
+          : annuels.length === 0
+            ? { texte: "aucun rapport produit", grave: false }
+            : annuelsNonCertifies > 0
+              ? { texte: `${annuelsNonCertifies} à certifier`, grave: false }
+              : null,
     },
     {
       href: routes.cycleDeVie,
       titre: "Cycle de vie du cabinet",
       quoi: "Prescriptions, dossiers fermés, cessionnaire désigné.",
       reference: "art. 7, 9, 19, 78",
-      aVenir: true,
+      alerte:
+        prescriptionsDepassees > 0
+          ? { texte: `${prescriptionsDepassees} prescription${prescriptionsDepassees === 1 ? "" : "s"} dépassée${prescriptionsDepassees === 1 ? "" : "s"}`, grave: true }
+          : !cessionnaire
+            ? { texte: "aucun cessionnaire", grave: true }
+            : null,
+    },
+    {
+      href: routes.virements,
+      titre: "Virements électroniques",
+      quoi: qc
+        ? "Les seules formes admises pour un retrait."
+        : "Form 9A, double contrôle, contresignature.",
+      reference: qc ? "art. 58" : "s. 10, 12",
+      alerte:
+        contresignaturesEnRetard > 0
+          ? {
+              texte: `${contresignaturesEnRetard} contresignature${contresignaturesEnRetard === 1 ? "" : "s"} en retard`,
+              grave: true,
+            }
+          : null,
     },
     {
       href: routes.conservation,
       titre: "Conservation",
       quoi: "Combien de temps garder quoi, et l'accès de l'inspecteur.",
       reference: qc ? "art. 29 à 33" : "s. 21 à 23",
-      aVenir: true,
+      // Sans fin d'exercice, aucune durée ancrée dessus ne se calcule. Ce n'est pas un
+      // détail de réglage : c'est ce qui rend tout le bloc conservation inopérant.
+      alerte: exerciceRegle ? null : { texte: "fin d'exercice non réglée", grave: true },
     },
   ];
 
@@ -176,30 +258,17 @@ export default async function InspectionPage() {
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibles.map((p) => (
           <li key={p.href}>
-            {p.aVenir ? (
-              <div className="h-full rounded-xl border border-dashed border-[var(--si-line)] bg-transparent p-4">
-                <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="text-sm font-medium text-[var(--si-muted)]">{p.titre}</h3>
-                  <Pill tone="info">à venir</Pill>
-                </div>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--si-muted)]">{p.quoi}</p>
-                <p className="mt-2 text-xs text-[var(--si-muted)]">{p.reference}</p>
+            <Link
+              href={p.href}
+              className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-[#0B1F19]/[0.03]"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="text-sm font-medium text-[var(--si-ink)]">{p.titre}</h3>
+                {p.alerte && <Pill tone={p.alerte.grave ? "action" : "info"}>{p.alerte.texte}</Pill>}
               </div>
-            ) : (
-              <Link
-                href={p.href}
-                className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-[#0B1F19]/[0.03]"
-              >
-                <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="text-sm font-medium text-[var(--si-ink)]">{p.titre}</h3>
-                  {p.alerte && (
-                    <Pill tone={p.alerte.grave ? "action" : "info"}>{p.alerte.texte}</Pill>
-                  )}
-                </div>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--si-muted)]">{p.quoi}</p>
-                <p className="mt-2 text-xs text-[var(--si-muted)]">{p.reference}</p>
-              </Link>
-            )}
+              <p className="mt-1 text-sm leading-relaxed text-[var(--si-muted)]">{p.quoi}</p>
+              <p className="mt-2 text-xs text-[var(--si-muted)]">{p.reference}</p>
+            </Link>
           </li>
         ))}
       </ul>

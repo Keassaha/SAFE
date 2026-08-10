@@ -18,6 +18,7 @@ import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
 import { getCabinetProvince } from "@/lib/cabinet/get-province";
 import { resolveProvince } from "@/lib/compliance/rules";
+import { clientDisplayName } from "@/lib/clients/normalize-name";
 import {
   evaluateDelivery,
   findMissingDeclarationFields,
@@ -141,6 +142,52 @@ export async function getInvoiceDeliveryStatus(params: {
     deliveredAt: invoice.deliveredAt,
     deliveryChannel: invoice.deliveryChannel,
   });
+}
+
+/**
+ * Factures ÉMISES dont la transmission n'est pas consignée.
+ *
+ * C'est la file d'attente réelle du garde-fou : tant qu'une facture y figure, aucun
+ * retrait ne peut s'appuyer sur elle. Les brouillons en sont exclus — ils n'ont rien
+ * à transmettre — et les factures annulées aussi.
+ */
+export async function listUndeliveredIssuedInvoices(params: {
+  cabinetId: string;
+}): Promise<
+  Array<{
+    id: string;
+    numero: string;
+    dateEmission: Date;
+    montantTotal: number;
+    clientName: string;
+    dossierRef: string | null;
+  }>
+> {
+  const rows = await prisma.invoice.findMany({
+    where: {
+      cabinetId: params.cabinetId,
+      deliveredAt: null,
+      invoiceStatus: { in: ["ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE"] },
+    },
+    select: {
+      id: true,
+      numero: true,
+      dateEmission: true,
+      montantTotal: true,
+      client: { select: { prenom: true, nom: true, raisonSociale: true } },
+      dossier: { select: { reference: true } },
+    },
+    orderBy: { dateEmission: "desc" },
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    numero: r.numero,
+    dateEmission: r.dateEmission,
+    montantTotal: r.montantTotal,
+    clientName: clientDisplayName(r.client ?? {}),
+    dossierRef: r.dossier?.reference ?? null,
+  }));
 }
 
 /**

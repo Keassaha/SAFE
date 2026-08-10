@@ -640,6 +640,54 @@ export async function markAnnualReportSubmitted(params: {
   });
 }
 
+/**
+ * Un rapport annuel et tout ce qu'il porte.
+ *
+ * Les blocages sont RECALCULÉS à la lecture plutôt que stockés : un mois certifié
+ * après coup doit débloquer l'écran sans qu'on ait à reproduire le rapport. Sur un
+ * rapport déjà certifié, la fonction renvoie l'unique blocage « déjà certifié », ce
+ * que l'écran n'affiche pas — l'état certifié se lit à la déclaration figée.
+ */
+export async function getAnnualReport(params: { cabinetId: string; annualReportId: string }) {
+  const report = await prisma.trustAnnualReport.findFirst({
+    where: { id: params.annualReportId, cabinetId: params.cabinetId },
+    include: {
+      trustBankAccount: { select: { accountLabel: true, accountNumberLast4: true } },
+      monthlyTotals: { orderBy: { periode: "asc" } },
+      closedAccounts: { orderBy: { closedAt: "asc" } },
+      ledgerSnapshot: true,
+      outstandingCheques: true,
+      depositsInTransit: true,
+    },
+  });
+  if (!report) return null;
+
+  const blockers = findAnnualCertificationBlockers({
+    bankStatementAttached: Boolean(report.bankStatementDocumentId),
+    uncertifiedMonths: report.monthlyTotals
+      .filter((m) => !m.monthlyReportCertified)
+      .map((m) => m.periode)
+      .sort(),
+    ecartPeriode: report.ecartPeriode,
+    ecartExplained: false,
+    negativeClientBalances: report.ledgerSnapshot.filter((l) => l.balance < -0.005).length,
+    alreadyCertified: report.status === "certified" || report.certifiedAt != null,
+  });
+
+  return {
+    report,
+    blocks: getAnnualBlocks(),
+    blockers,
+    deadline:
+      report.requestReceivedAt && !report.submittedAt
+        ? computeAnnualReportDeadline({
+            requestReceivedAt: report.requestReceivedAt,
+            now: new Date(),
+          })
+        : null,
+  };
+}
+
 /** Rapports annuels du cabinet, avec leur échéance quand une demande est en cours. */
 export async function listAnnualReports(cabinetId: string) {
   const reports = await prisma.trustAnnualReport.findMany({

@@ -227,15 +227,22 @@ export const inputClass =
 
 export const inputNumberClass = `${inputClass} text-right tabular-nums`;
 
-/** Action principale. Un seul par écran (méta-règle M2). */
+/**
+ * Action principale. Un seul par écran (méta-règle M2).
+ *
+ * `className` est AJOUTÉ, jamais écrasé : la forme `{...props} className="…"` place la
+ * classe du composant après celle de l'appelant et la supprime en silence. Une largeur
+ * ou une marge passée par un écran disparaissait sans erreur.
+ */
 export function PrimaryButton({
   children,
+  className = "",
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
-      className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028] disabled:opacity-50"
+      className={`rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028] disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -244,12 +251,13 @@ export function PrimaryButton({
 
 export function SecondaryButton({
   children,
+  className = "",
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
-      className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04] disabled:opacity-50"
+      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04] disabled:opacity-50 ${className}`}
     >
       {children}
     </button>

@@ -218,6 +218,14 @@ export interface DeadlineLine {
   reference: string | null;
   titre: string;
   kind: DeadlineKind;
+  /**
+   * La nature a-t-elle été SAISIE ?
+   *
+   * Sans ce drapeau, une échéance non qualifiée serait indiscernable d'un vrai rappel
+   * interne : l'écran afficherait le même calme dans les deux cas, alors que le second
+   * est un choix et le premier une donnée manquante.
+   */
+  qualified: boolean;
   dueAt: Date;
   alert: DeadlineAlert;
 }
@@ -258,14 +266,14 @@ export async function getDeadlineAlerts(params: {
   return events.map((e) => {
     // Une échéance non qualifiée est traitée comme un rappel interne, jamais devinée
     // depuis son intitulé.
-    const kind: DeadlineKind = KINDS.includes(e.deadlineKind as DeadlineKind)
-      ? (e.deadlineKind as DeadlineKind)
-      : "INTERNAL";
+    const qualified = KINDS.includes(e.deadlineKind as DeadlineKind);
+    const kind: DeadlineKind = qualified ? (e.deadlineKind as DeadlineKind) : "INTERNAL";
     return {
       dossierId: e.dossierId ?? "",
       reference: e.dossier?.reference ?? null,
       titre: e.title,
       kind,
+      qualified,
       dueAt: e.date,
       alert: evaluateDeadline({ kind, dueAt: e.date, now, province }),
     };
@@ -280,8 +288,12 @@ export interface SuccessionStatus {
   province: CabinetProvince;
   hasPlan: boolean;
   successorName: string | null;
+  successorBarreauNo: string | null;
+  successorEmail: string | null;
+  successorPhone: string | null;
   successorConfirmedAt: Date | null;
   lastReviewedAt: Date | null;
+  notes: string | null;
   /** Obligations permanentes non tenues. Vide = rien à faire aujourd'hui. */
   missing: CessationDuty[];
   /** Toutes les obligations, pour l'écran. */
@@ -303,8 +315,12 @@ export async function getSuccessionStatus(cabinetId: string): Promise<Succession
     province,
     hasPlan: Boolean(plan),
     successorName: plan?.successorName ?? null,
+    successorBarreauNo: plan?.successorBarreauNo ?? null,
+    successorEmail: plan?.successorEmail ?? null,
+    successorPhone: plan?.successorPhone ?? null,
     successorConfirmedAt: plan?.successorConfirmedAt ?? null,
     lastReviewedAt: plan?.lastReviewedAt ?? null,
+    notes: plan?.notes ?? null,
     missing: findMissingAnticipatoryDuties({
       province,
       hasDesignatedSuccessor: Boolean(plan),

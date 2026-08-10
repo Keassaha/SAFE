@@ -74,6 +74,8 @@ export const routes = {
   rapportAnnuel: "/inspection/rapport-annuel",
   cycleDeVie: "/inspection/cycle-de-vie",
   conservation: "/inspection/conservation",
+  transmissionFactures: "/inspection/transmission-factures",
+  virements: "/inspection/virements",
   conformite: "/conformite",
   connexion: "/connexion",
   inscription: "/inscription",
