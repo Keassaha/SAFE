@@ -33,12 +33,21 @@ Méthode identique aux trois mesures : chaque obligation pondérée par criticit
 | **Law Society of Ontario** | 42 | 92 | 95 | 95 | 97 | 99 | **99 / 100** | 100 |
 | **Global** | **45** | 93 | 96 | 97 | 98 | 99 | **99 / 100** | 100 |
 
-> ⚠️ **Ce tableau mesure le moteur, pas le cabinet.** Une réévaluation du 2026-08-03
-> ([REEVALUATION_2026-08-03.md](REEVALUATION_2026-08-03.md)) montre qu'un seul service de
-> conformité sur douze possède un écran, et qu'un cabinet inspecté aujourd'hui ne pourrait
-> produire que **6 des 25 documents** du §16.2 de l'audit. La capacité réelle de production
-> est estimée à **≈ 40 / 100**, contre 99 pour la couverture du moteur. Lire les deux
-> chiffres ensemble.
+> ⚠️ **Ce tableau mesure le moteur, pas le cabinet.** Il faut le lire avec la
+> [réévaluation du 2026-08-10](REEVALUATION_2026-08-10.md), qui recompte la capacité
+> RÉELLE de production :
+>
+> - **19 des 25 documents** du §16.2 sont producibles depuis un écran, contre 6 le
+>   3 août et 2 le 30 juillet. Les onze écrans vivent sous `/inspection`.
+> - **Mais ce 19 suppose un compte en fidéicommis déclaré, et aucun écran ne permet
+>   de le déclarer.** `openTrustBankAccount` n'est appelé que depuis un script de
+>   démonstration. Pour un cabinet neuf, le chiffre réel retombe autour de 6.
+> - **Rien n'est déployé** : la branche de travail est à 83 commits de `main`, qui ne
+>   contient aucun écran d'inspection.
+>
+> Un logiciel n'est jamais « réglementaire » : le règlement oblige l'avocate, pas
+> l'outil. Voir le §1 et le §6 de la réévaluation pour ce qui peut être affirmé à un
+> prospect sans transférer sa responsabilité professionnelle.
 
 ### Ce que « 100 » veut dire au Québec, et ce qu'il ne veut pas dire
 

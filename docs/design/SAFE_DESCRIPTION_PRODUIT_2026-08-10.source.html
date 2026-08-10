@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<title>SAFE — Description du produit</title>
+<style>
+/* ─────────── Fontes locales ─────────── */
+@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/.next/static/media/e6099e249fd938cc-s.p.woff2") format("woff2");}
+@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/.next/static/media/35f3de0ebb1cfc70-s.woff2") format("woff2");unicode-range:u+0100-02ba,u+1e00-1e9f,u+2020,u+20a0-20ab;}
+@font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/.next/static/media/9cc5b37ab1350db7-s.p.woff2") format("woff2");}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/node_modules/geist/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2");}
+@font-face{font-family:"Geist";font-style:normal;font-weight:500;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/node_modules/geist/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2");}
+@font-face{font-family:"Geist";font-style:normal;font-weight:600;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/node_modules/geist/dist/fonts/geist-sans/Geist-SemiBold.woff2") format("woff2");}
+@font-face{font-family:"Geist Mono";font-style:normal;font-weight:400;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/node_modules/geist/dist/fonts/geist-mono/GeistMono-Regular.woff2") format("woff2");}
+@font-face{font-family:"Geist Mono";font-style:normal;font-weight:500;src:url("file:///Users/Bookkeeping/SAAS%20-%20SAFE%2002/node_modules/geist/dist/fonts/geist-mono/GeistMono-Medium.woff2") format("woff2");}
+
+/* ─────────── Jetons du document ─────────── */
+:root{
+  --canvas:#EFF2ED;
+  --surface:#FFFFFF;
+  --ink:#1F2A24;
+  --body:#3A453E;
+  --muted:#5A665F;
+  --faint:#8A968F;
+  --forest:#0B1F19;
+  --forest-soft:#16312A;
+  --brand:#1F3A2E;
+  --verified:#2E7D5B;
+  --amber-ink:#835A10;
+  --danger-ink:#8F3529;
+  --line:rgba(31,42,36,0.13);
+  --line2:rgba(31,42,36,0.07);
+  --ivory:#FAFAF8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{
+  font-family:"Geist",system-ui,sans-serif;
+  font-size:9.6pt;line-height:1.55;color:var(--body);
+  letter-spacing:-0.006em;
+  background:#7d857f;
+}
+
+@page{size:A4;margin:0;}
+
+.page{
+  position:relative;
+  width:210mm;height:297mm;
+  padding:19mm 20mm 16mm 20mm;
+  background:var(--surface);
+  page-break-after:always;
+  overflow:hidden;
+}
+.page:last-child{page-break-after:auto;}
+
+/* ─────────── Pied de page ─────────── */
+.foot{
+  position:absolute;left:20mm;right:20mm;bottom:11mm;
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding-top:3mm;border-top:1px solid var(--line2);
+  font-size:7pt;color:var(--faint);letter-spacing:0.06em;text-transform:uppercase;
+}
+.foot .num{font-family:"Geist Mono",monospace;font-size:7.5pt;letter-spacing:0;color:var(--muted);}
+
+/* ─────────── Titres ─────────── */
+.eyebrow{
+  font-size:7.5pt;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--verified);font-weight:500;
+}
+.sec-num{font-family:"Geist Mono",monospace;font-size:7.5pt;letter-spacing:0.1em;color:var(--faint);}
+h1.doc{
+  font-family:"Instrument Serif",Georgia,serif;font-weight:400;
+  font-size:40pt;line-height:1.04;letter-spacing:-0.01em;color:var(--ivory);
+}
+h2{
+  font-family:"Instrument Serif",Georgia,serif;font-weight:400;
+  font-size:23pt;line-height:1.12;color:var(--ink);letter-spacing:-0.005em;
+  margin-top:2mm;
+}
+h3{
+  font-family:"Geist",sans-serif;font-weight:600;font-size:10.5pt;
+  color:var(--ink);letter-spacing:-0.01em;margin-bottom:1.6mm;
+}
+h4{
+  font-family:"Geist",sans-serif;font-weight:500;font-size:8pt;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:2mm;
+}
+.head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:1px solid var(--line);padding-bottom:3.5mm;margin-bottom:6mm;
+}
+.head .right{text-align:right;}
+p{margin-bottom:3mm;max-width:62em;}
+p.lead{font-size:11pt;line-height:1.5;color:var(--ink);}
+p.serif{
+  font-family:"Instrument Serif",Georgia,serif;font-size:13pt;line-height:1.35;
+  color:var(--ink);font-style:italic;
+}
+strong{font-weight:600;color:var(--ink);}
+em{font-style:italic;}
+.mono{font-family:"Geist Mono",monospace;font-variant-numeric:tabular-nums;font-size:8.6pt;}
+code{font-family:"Geist Mono",monospace;font-size:8.4pt;color:var(--forest-soft);
+  background:rgba(31,42,36,0.045);padding:0.4mm 1.2mm;border-radius:2px;}
+.small{font-size:8.4pt;color:var(--muted);}
+.tiny{font-size:7.6pt;color:var(--faint);line-height:1.45;}
+
+/* ─────────── Listes ─────────── */
+ul{list-style:none;margin-bottom:3.5mm;}
+li{position:relative;padding-left:4.5mm;margin-bottom:1.6mm;}
+li::before{
+  content:"";position:absolute;left:0;top:1.85mm;
+  width:1.5mm;height:1.5mm;background:var(--verified);
+}
+ul.plain li::before{background:var(--faint);width:1.1mm;height:1.1mm;top:2mm;}
+ol{list-style:none;counter-reset:o;margin-bottom:3.5mm;}
+ol li{counter-increment:o;padding-left:6mm;}
+ol li::before{
+  content:counter(o,decimal-leading-zero);background:none;
+  font-family:"Geist Mono",monospace;font-size:7.4pt;color:var(--faint);
+  top:0.2mm;width:auto;height:auto;
+}
+
+/* ─────────── Tableaux ─────────── */
+table{width:100%;border-collapse:collapse;margin-bottom:4mm;font-size:8.6pt;}
+th{
+  text-align:left;font-weight:500;font-size:7.4pt;letter-spacing:0.09em;
+  text-transform:uppercase;color:var(--muted);
+  padding:0 2.5mm 1.8mm 0;border-bottom:1px solid var(--line);
+  vertical-align:bottom;
+}
+td{
+  padding:2.1mm 2.5mm 2.1mm 0;border-bottom:1px solid var(--line2);
+  vertical-align:top;line-height:1.42;
+}
+th:last-child,td:last-child{padding-right:0;}
+td.num,th.num{text-align:right;font-family:"Geist Mono",monospace;
+  font-variant-numeric:tabular-nums;white-space:nowrap;}
+td.key{color:var(--ink);font-weight:500;white-space:nowrap;}
+tr.total td{border-bottom:none;}
+
+/* ─────────── Blocs ─────────── */
+.rule{height:1px;background:var(--line);margin:5mm 0;}
+.note{
+  border-left:2px solid var(--verified);padding:0.5mm 0 0.5mm 4mm;
+  margin:4mm 0;color:var(--muted);font-size:8.6pt;
+}
+.warn{border-left-color:var(--amber-ink);}
+.stop{border-left-color:var(--danger-ink);}
+.box{border:1px solid var(--line);padding:5mm;margin-bottom:4mm;}
+.box.forest{background:var(--forest);color:rgba(250,250,248,0.82);border:none;}
+.box.forest h3,.box.forest strong{color:var(--ivory);}
+.box.forest .eyebrow{color:#9FE3C2;}
+.box.tint{background:var(--canvas);border:none;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6mm;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;}
+.grid-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;margin-bottom:5mm;}
+.kpi{border-top:1px solid var(--ink);padding-top:2mm;}
+.kpi .v{font-family:"Geist Mono",monospace;font-size:15pt;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.1;}
+.kpi .l{font-size:7.4pt;color:var(--muted);letter-spacing:0.05em;
+  text-transform:uppercase;margin-top:1mm;}
+
+.arch{border-top:1px solid var(--line);padding-top:3mm;margin-bottom:4.5mm;}
+.arch .n{font-family:"Geist Mono",monospace;font-size:7.5pt;color:var(--faint);}
+.arch h3{margin:0.5mm 0 1.5mm 0;}
+.arch p{margin-bottom:1.5mm;font-size:8.6pt;}
+.arch .where{font-size:7.8pt;color:var(--faint);}
+
+.swatches{display:flex;gap:0;margin:2mm 0 4mm 0;}
+.sw{flex:1;height:14mm;position:relative;}
+.sw span{position:absolute;bottom:-6mm;left:0;font-family:"Geist Mono",monospace;
+  font-size:6.4pt;color:var(--muted);letter-spacing:0;}
+.sw-row{margin-bottom:9mm;}
+
+/* ─────────── Couverture ─────────── */
+.cover{
+  background:var(--forest);color:var(--ivory);
+  padding:24mm 22mm 18mm 22mm;display:flex;flex-direction:column;
+}
+.cover .mark{margin-bottom:auto;}
+.cover .meta{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-top:1px solid rgba(250,250,248,0.18);padding-top:4mm;margin-top:10mm;
+  font-size:7.6pt;letter-spacing:0.09em;text-transform:uppercase;
+  color:rgba(250,250,248,0.55);
+}
+.cover .sub{
+  font-size:11.5pt;line-height:1.5;color:rgba(250,250,248,0.72);
+  max-width:46em;margin-top:7mm;
+}
+.cover .kicker{
+  font-size:7.6pt;letter-spacing:0.16em;text-transform:uppercase;
+  color:#9FE3C2;margin-bottom:5mm;
+}
+
+/* ─────────── Sommaire ─────────── */
+.toc{margin-top:2mm;}
+.toc-row{
+  display:flex;align-items:baseline;gap:3mm;
+  padding:2.4mm 0;border-bottom:1px solid var(--line2);
+}
+.toc-row .n{font-family:"Geist Mono",monospace;font-size:7.6pt;color:var(--faint);width:8mm;}
+.toc-row .t{color:var(--ink);font-weight:500;font-size:9.4pt;}
+.toc-row .d{color:var(--muted);font-size:8.4pt;flex:1;}
+.toc-row .p{font-family:"Geist Mono",monospace;font-size:8pt;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ 1. COUVERTURE ══════════════════ -->
+<section class="page cover">
+  <div class="mark">
+    <svg width="62" height="62" viewBox="0 0 24 24" aria-label="SAFE">
+      <path d="M 2.4 0 H 13.8 V 11.4 H 9 V 24 H 2.4 A 2.4 2.4 0 0 1 0 21.6 V 2.4 A 2.4 2.4 0 0 1 2.4 0 Z" fill="#FAFAF8"/>
+      <path d="M 21.6 24 H 10.2 V 12.6 H 15 V 0 H 21.6 A 2.4 2.4 0 0 1 24 2.4 V 21.6 A 2.4 2.4 0 0 1 21.6 24 Z" fill="#2E7D5B"/>
+    </svg>
+    <div style="font-family:'Geist',sans-serif;font-size:9.5pt;font-weight:500;
+                letter-spacing:0.2em;color:var(--ivory);margin-top:6mm;">SAFE</div>
+  </div>
+
+  <div class="kicker">Document de référence</div>
+  <h1 class="doc">SAFE,<br>description<br>du produit</h1>
+  <p class="sub">
+    Ce que le logiciel est, qui s'en sert, ce qu'il contient et sous quelles contraintes
+    il travaille. Écrit pour servir de socle à la refonte du design system.
+  </p>
+
+  <div class="meta">
+    <span>SAFE Inc. · Montréal</span>
+    <span>Version 1.0 · 10 août 2026</span>
+  </div>
+</section>
+
+<!-- ══════════════════ 2. À QUOI SERT CE DOCUMENT ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 00</div>
+      <h2>À quoi sert ce document</h2>
+    </div>
+    <div class="right tiny">Version 1.0<br>10 août 2026</div>
+  </div>
+
+  <p class="lead">
+    Un design system ne se refait pas à partir d'une palette. Il se refait à partir de ce que
+    le produit doit faire tenir. Ce document décrit SAFE avec assez de précision pour qu'une
+    personne qui ne l'a jamais ouvert puisse concevoir pour lui.
+  </p>
+
+  <p>
+    Il réunit quatre choses : la nature du produit et de ses utilisateurs, l'inventaire réel de
+    ce qui est construit, les contraintes qui ne se négocient pas, et l'état mesuré du système
+    visuel actuel. Les chiffres cités viennent du dépôt lui-même, mesurés le 10 août 2026 sur la
+    branche <code>release/2026-06-11-compta-admin-derisier</code>. Ce ne sont pas des estimations.
+  </p>
+
+  <p>
+    Ce document ne propose pas de solution. Il ne dit pas quelle direction visuelle prendre.
+    Il pose la matière sur laquelle décider.
+  </p>
+
+  <div class="rule"></div>
+
+  <h4>Sommaire</h4>
+  <div class="toc">
+    <div class="toc-row"><span class="n">01</span><span class="t">Ce qu'est SAFE</span><span class="d">Catégorie, promesse, ce que le produit n'est pas</span><span class="p">3</span></div>
+    <div class="toc-row"><span class="n">02</span><span class="t">Qui l'utilise</span><span class="d">Deux personnes, quatre rôles, un contexte de travail</span><span class="p">5</span></div>
+    <div class="toc-row"><span class="n">03</span><span class="t">Ce que le produit contient</span><span class="d">Architecture d'information, modules, volumétrie</span><span class="p">6</span></div>
+    <div class="toc-row"><span class="n">04</span><span class="t">Les cinq archétypes d'écran</span><span class="d">La vraie unité de travail du design system</span><span class="p">8</span></div>
+    <div class="toc-row"><span class="n">05</span><span class="t">Les contraintes non négociables</span><span class="d">Réglementation, impression, bilingue, accessibilité</span><span class="p">10</span></div>
+    <div class="toc-row"><span class="n">06</span><span class="t">La marque</span><span class="d">Logo, couleur, typographie, voix</span><span class="p">11</span></div>
+    <div class="toc-row"><span class="n">07</span><span class="t">L'état du design system</span><span class="d">Ce qui existe, et les fractures mesurées</span><span class="p">13</span></div>
+    <div class="toc-row"><span class="n">08</span><span class="t">Ce qui est déjà tranché</span><span class="d">Les sept lois que la refonte doit conserver</span><span class="p">15</span></div>
+    <div class="toc-row"><span class="n">09</span><span class="t">Ce qui reste ouvert</span><span class="d">Les décisions que la refonte doit prendre</span><span class="p">16</span></div>
+    <div class="toc-row"><span class="n">10</span><span class="t">Glossaire métier</span><span class="d">Le vocabulaire du cabinet, pour concevoir juste</span><span class="p">17</span></div>
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">2</span></div>
+</section>
+
+<!-- ══════════════════ 3. CE QU'EST SAFE ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 01</div>
+      <h2>Ce qu'est SAFE</h2>
+    </div>
+    <div class="right tiny">Catégorie<br>et promesse</div>
+  </div>
+
+  <p class="serif">
+    SAFE est un logiciel de gestion de cabinet d'avocats, conçu au Québec, pour les cabinets
+    du Québec et de l'Ontario.
+  </p>
+
+  <p>
+    En une phrase : <strong>SAFE tient votre cabinet ensemble.</strong> Les dossiers, le temps,
+    la facturation, le fidéicommis et les obligations professionnelles cessent d'être cinq
+    systèmes séparés et partagent enfin le même contexte. Une heure saisie devient une ligne de
+    facture, une facture devient une créance, un encaissement touche le grand livre, et un
+    mouvement de fidéicommis remonte dans le registre soumis à l'inspection du Barreau.
+  </p>
+
+  <p>
+    En une phrase de plus : SAFE ne se contente pas de ranger, il <strong>regarde</strong>.
+    Il compare le relevé bancaire au registre du fidéicommis, il refuse un dépôt en espèces
+    au delà du plafond applicable en citant la règle, il bloque la certification d'un
+    rapprochement tant qu'un écart subsiste, et il signale les factures oubliées.
+  </p>
+
+  <div class="box tint">
+    <h4>La conséquence pour le design</h4>
+    <p style="margin-bottom:0;">
+      Le produit vend la confiance comptable. C'est une catégorie où l'apparence n'est pas un
+      habillage : elle est le premier signal de sérieux qu'une avocate reçoit, avant d'avoir
+      lu une seule ligne. Un chiffre mal composé coûte plus de crédibilité que dix écrans
+      quelconques.
+    </p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h3>Le genre d'application que c'est</h3>
+  <table>
+    <tr><td class="key" style="width:34mm;">Catégorie</td><td>Gestion de cabinet (<em>practice management</em>) avec comptabilité juridique et fidéicommis intégrés. Ce n'est pas un CRM, ce n'est pas un logiciel comptable générique.</td></tr>
+    <tr><td class="key">Registre</td><td>Un <strong>instrument</strong>, pas un tableau de bord. Registre éditorial et comptable : filets, chiffres tabulaires, texte posé. Ni outil de productivité ludique, ni portail d'entreprise.</td></tr>
+    <tr><td class="key">Forme</td><td>Application web. Next.js App Router, TypeScript, Prisma, Supabase, hébergement au Canada. Compagnon mobile envisagé en PWA, jamais en natif.</td></tr>
+    <tr><td class="key">Langues</td><td>Français québécois par défaut, anglais complet. Les deux doivent tenir dans la même maquette.</td></tr>
+    <tr><td class="key">Densité</td><td>Élevée et assumée. Un cabinet regarde des tableaux de transactions, pas des cartes illustrées.</td></tr>
+    <tr><td class="key">Séance type</td><td>Longue, interrompue, répétée tous les jours. Ce n'est pas une application qu'on ouvre une fois par mois.</td></tr>
+  </table>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">3</span></div>
+</section>
+
+<!-- ══════════════════ 4. CE QUE SAFE N'EST PAS ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 01</div>
+      <h2>Ce que SAFE n'est pas</h2>
+    </div>
+    <div class="right tiny">Les frontières<br>du produit</div>
+  </div>
+
+  <p>
+    Ces trois limites ne sont pas des précautions de communication. Elles décident du dessin.
+    Un système visuel qui les contredit rend le produit faux, même s'il est beau.
+  </p>
+
+  <div class="arch">
+    <div class="n">01</div>
+    <h3>SAFE ne garantit pas la conformité</h3>
+    <p>
+      Il soutient la tenue des registres, la vérification et la traçabilité. La responsabilité
+      professionnelle demeure celle du cabinet. Aucun écran ne peut afficher « vous êtes
+      conforme ». Il affiche ce qui est fait, ce qui manque, et depuis quand.
+    </p>
+  </div>
+
+  <div class="arch">
+    <div class="n">02</div>
+    <h3>SAFE ne remplace pas l'adjointe</h3>
+    <p>
+      Le produit n'automatise pas une personne, il lui retire la charge de mémoire. Le design ne
+      doit jamais suggérer un remplacement, ni parler à l'avocat par dessus la tête de
+      l'adjointe. Les deux voient le même écran.
+    </p>
+  </div>
+
+  <div class="arch">
+    <div class="n">03</div>
+    <h3>SAFE n'est pas un « assistant IA »</h3>
+    <p>
+      Le produit contient des capacités d'intelligence artificielle réelles, en production :
+      classification de documents, résumé de dossier, extraction de reçu, lecture d'une preuve
+      de paiement Interac. Elles se montrent par du <strong>travail préparé et vérifiable</strong>,
+      jamais par un badge, une étincelle ou une bulle de clavardage. L'IA se voit au résultat
+      posé sur le bureau, pas à l'étiquette.
+    </p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h3>Les signaux à ne jamais produire</h3>
+  <p>
+    Pour un public d'avocats, chacun de ces éléments coûte de la confiance immédiatement.
+    Ils sont interdits sur toutes les surfaces.
+  </p>
+  <div class="grid2">
+    <ul class="plain">
+      <li>Dégradé violet ou bleu néon</li>
+      <li>Orbes lumineuses, halos flottants</li>
+      <li>Verre dépoli employé comme décoration</li>
+      <li>Emojis en puces de liste</li>
+      <li>Badge « Powered by AI »</li>
+    </ul>
+    <ul class="plain">
+      <li>Bulle de clavardage générique</li>
+      <li>Composition entièrement centrée</li>
+      <li>Gris sur gris, contraste insuffisant</li>
+      <li>Faux avis, faux logos de clients</li>
+      <li>Structure « héros, trois cartes à icônes, bouton »</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    Le catalogue complet et tenu à jour vit dans <code>docs/design/DESIGN_HUMAIN.md</code>, §10.
+    Il sert de liste de contrôle avant de déclarer un écran terminé.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">4</span></div>
+</section>
+
+<!-- ══════════════════ 5. QUI L'UTILISE ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 02</div>
+      <h2>Qui l'utilise</h2>
+    </div>
+    <div class="right tiny">Deux personnes,<br>jamais une seule</div>
+  </div>
+
+  <p class="lead">
+    SAFE est utilisé par un duo. Toute la conception découle de là : deux personnes regardent
+    le même dossier avec des yeux différents, et le produit doit servir les deux sans choisir.
+  </p>
+
+  <div class="grid2" style="margin:5mm 0;">
+    <div class="box">
+      <div class="eyebrow">Utilisateur A</div>
+      <h3 style="margin-top:2mm;">L'avocat·e</h3>
+      <p class="small">
+        Voit le risque, l'argent et les échéances. Ouvre le produit par intermittence, souvent
+        pressé, souvent entre deux rendez-vous. Ne lira pas un tableau de bord de quinze
+        indicateurs.
+      </p>
+      <p class="small" style="margin-bottom:0;">
+        <strong>Ce que le design doit lui dire :</strong> rien ne vous échappe, et vous n'avez
+        pas à surveiller.
+      </p>
+    </div>
+    <div class="box">
+      <div class="eyebrow">Utilisateur B</div>
+      <h3 style="margin-top:2mm;">L'adjoint·e</h3>
+      <p class="small">
+        Prépare, classe, relance, saisit. C'est la personne qui passe des heures dans le
+        produit, qui connaît chaque écran, et dont la vitesse d'exécution est la vraie mesure
+        de qualité de l'interface.
+      </p>
+      <p class="small" style="margin-bottom:0;">
+        <strong>Ce que le design doit lui dire :</strong> votre travail devient visible, et
+        vous ne portez plus seule la mémoire du cabinet.
+      </p>
+    </div>
+  </div>
+
+  <div class="box forest">
+    <div class="eyebrow">Thèse maître</div>
+    <h3 style="margin-top:2mm;">Le copilote du copilote</h3>
+    <p style="margin-bottom:0;color:rgba(250,250,248,0.82);">
+      SAFE ne remplace pas l'assistant·e. L'assistant·e est le copilote de l'avocat, SAFE est
+      le copilote de l'assistant·e. L'adoption se fait par le bas : c'est l'adjoint·e qui
+      convainc l'avocat. Un écran conçu pour impressionner l'associé et pénible à opérer au
+      quotidien fait échouer la vente.
+    </p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h3>Les quatre rôles techniques</h3>
+  <p class="small">
+    Le produit filtre la navigation et les actions selon le rôle. Un même écran n'expose donc
+    pas les mêmes commandes selon la personne connectée.
+  </p>
+  <table>
+    <tr><td class="key" style="width:36mm;">admin_cabinet</td><td>Accès complet, y compris paramètres du cabinet, équipe, abonnement, verrouillage de période.</td></tr>
+    <tr><td class="key">avocat</td><td>Dossiers, clients, temps, facturation, fidéicommis, rapports. Approuve ce que l'adjointe prépare.</td></tr>
+    <tr><td class="key">assistante</td><td>Prépare et saisit. Voit sa file de travail, la navette, les documents, l'agenda. Certaines actions financières lui sont fermées.</td></tr>
+    <tr><td class="key">comptabilite</td><td>Journal, dépenses, rapprochement, taxes, paie. Ne voit pas nécessairement le fond des dossiers.</td></tr>
+  </table>
+
+  <div class="note">
+    Conséquence de design : la navigation est <strong>composée</strong>, pas statique. Un groupe
+    entier peut disparaître. Une maquette dessinée sur un seul rôle ment sur la densité réelle.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">5</span></div>
+</section>
+
+<!-- ══════════════════ 6. CE QUE LE PRODUIT CONTIENT ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 03</div>
+      <h2>Ce que le produit contient</h2>
+    </div>
+    <div class="right tiny">Volumétrie mesurée<br>10 août 2026</div>
+  </div>
+
+  <p class="lead">
+    L'ampleur est le premier fait à intégrer. Ce n'est pas une application de cinq écrans qu'on
+    reskin en une semaine. C'est un système métier profond, déjà construit.
+  </p>
+
+  <div class="grid-kpi">
+    <div class="kpi"><div class="v">124</div><div class="l">routes</div></div>
+    <div class="kpi"><div class="v">588</div><div class="l">fichiers d'écran</div></div>
+    <div class="kpi"><div class="v">402</div><div class="l">composants</div></div>
+    <div class="kpi"><div class="v">121</div><div class="l">modèles de données</div></div>
+  </div>
+
+  <p class="tiny" style="margin-top:-2mm;">
+    Routes : fichiers <code>page.tsx</code>. Fichiers d'écran : <code>.tsx</code> dans
+    <code>app/</code> et <code>components/</code>. Modèles : entités Prisma.
+  </p>
+
+  <div class="rule"></div>
+
+  <h3>L'architecture d'information</h3>
+  <p class="small">
+    La barre latérale expose deux entrées directes puis quatre groupes. Chaque groupe se déplie.
+    L'ordre est celui de la journée d'un cabinet, pas celui d'un organigramme.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th style="width:40mm;">Entrée</th><th>Contenu</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="key">Aujourd'hui</td><td>La file de travail du jour. Point d'entrée réel de l'adjointe.</td></tr>
+      <tr><td class="key">Tableau de bord</td><td>Vue de synthèse du cabinet. Point d'entrée réel de l'avocat.</td></tr>
+      <tr><td class="key">Cabinet</td><td>Clients · Dossiers · Agenda · File de l'assistante · Employés · Mes heures</td></tr>
+      <tr><td class="key">Finances</td><td>Facturation · Comptabilité · Comptes et fidéicommis · Inspection · Conformité · Temps</td></tr>
+      <tr><td class="key">Outils</td><td>Édition de documents · Rapports · Import</td></tr>
+      <tr><td class="key">Paramètres</td><td>Cabinet · Équipe · Facture · Envoi · Paiements · Conformité · Rétention · Abonnement</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Une <strong>console interne</strong> existe en parallèle, réservée à SAFE Inc. : leads,
+    pipeline, clients, support, audits, catalogue. Elle emprunte le même châssis visuel que
+    l'application cliente. Toute décision de design la concerne aussi.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">6</span></div>
+</section>
+
+<!-- ══════════════════ 7. LES MODULES ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 03</div>
+      <h2>Les modules, un par un</h2>
+    </div>
+    <div class="right tiny">Ce que chacun<br>porte réellement</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:32mm;">Module</th><th>Ce qu'il fait</th><th style="width:26mm;">Nature dominante</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="key">Clients</td><td>Registre des clients, fiches, vérification d'identité, co-clients et parties.</td><td>Registre + fiche</td></tr>
+      <tr><td class="key">Dossiers</td><td>Le cœur métier. Mandat, parties, pièces, procédures, jugements, correspondance, échéances, notes, tâches, clôture.</td><td>Fiche profonde</td></tr>
+      <tr><td class="key">Temps</td><td>Saisie des heures, fiches de temps, temps non facturé, minuteur.</td><td>Saisie répétitive</td></tr>
+      <tr><td class="key">Facturation</td><td>Création de facture, honoraires, débours, taxes, envoi, suivi, créances, notes de crédit, paiements, rentabilité.</td><td>Registre + document</td></tr>
+      <tr><td class="key">Comptabilité</td><td>Journal général, journal des dépenses, verrouillage de période, exports comptables externes.</td><td>Registre comptable</td></tr>
+      <tr><td class="key">Comptes</td><td>Fidéicommis et comptes généraux, transactions, chèques, rapprochement bancaire, rapports.</td><td>Décision</td></tr>
+      <tr><td class="key">Inspection</td><td>Trousse d'inspection du Barreau : registres, rapport mensuel, rapport annuel, espèces, virements, soldes débiteurs, conservation.</td><td>Document imprimable</td></tr>
+      <tr><td class="key">Conformité</td><td>État de préparation par domaine, obligations détectées, garde-fous.</td><td>Synthèse</td></tr>
+      <tr><td class="key">Édition</td><td>Atelier documentaire du dossier : dépôt, versions, modèles, bibliothèque, déplacement, finalisation.</td><td>Poste de travail</td></tr>
+      <tr><td class="key">Navette</td><td>Fil d'échange entre l'avocat et l'adjointe sur un dossier : renvoyer, approuver, prêt à réviser, résoudre.</td><td>Conversation</td></tr>
+      <tr><td class="key">Rapports</td><td>Rapports financiers et d'activité, exportables et imprimables.</td><td>Document imprimable</td></tr>
+      <tr><td class="key">Employés</td><td>Dossiers d'employés, périodes de paie, bulletins, fin d'année.</td><td>Registre + fiche</td></tr>
+      <tr><td class="key">Import</td><td>Reprise de données : téléversement, correspondance de colonnes, contrôle.</td><td>Assistant séquentiel</td></tr>
+      <tr><td class="key">Capture</td><td>Saisie rapide depuis n'importe où dans le produit.</td><td>Surface flottante</td></tr>
+      <tr><td class="key">Paramètres</td><td>Cabinet, équipe, gabarit de facture, envoi, paiements, payeurs tiers, rétention, abonnement.</td><td>Formulaires</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note warn">
+    Trois modules concentrent la difficulté de design : <strong>Dossiers</strong> (la fiche la
+    plus profonde du produit), <strong>Comptes</strong> (le rapprochement, où une erreur se paie
+    au Barreau) et <strong>Facturation</strong> (où un document destiné au client sort de
+    l'application). Un système visuel qui tient sur ces trois là tient partout.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">7</span></div>
+</section>
+
+<!-- ══════════════════ 8. ARCHÉTYPES 1 ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 04</div>
+      <h2>Les cinq archétypes d'écran</h2>
+    </div>
+    <div class="right tiny">L'unité de travail<br>du design system</div>
+  </div>
+
+  <p class="lead">
+    Cent vingt-quatre routes se ramènent à cinq formes. C'est à ce niveau que le système visuel
+    doit être défini, pas écran par écran.
+  </p>
+
+  <div class="arch">
+    <div class="n">Archétype 01</div>
+    <h3>Le registre</h3>
+    <p>
+      Un tableau dense, filtrable, trié, avec une barre de synthèse et parfois des groupes
+      collants. C'est la forme la plus fréquente du produit et celle qui décide de sa
+      crédibilité. Les colonnes portent des montants, des dates, des références et des statuts.
+    </p>
+    <p><strong>Ce qui doit primer :</strong> la lisibilité de la colonne de chiffres, la hauteur
+      de ligne constante, le filet qui sépare, l'absence d'ombre. Le statut porte une forme et un
+      mot, pas seulement une couleur.</p>
+    <p class="where">Clients · Dossiers · Factures · Transactions · Journal · Temps · Créances</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Archétype 02</div>
+    <h3>La fiche</h3>
+    <p>
+      Un objet unique, son en-tête d'identité, ses onglets ou sections, ses registres imbriqués
+      et son fil d'activité. La fiche de dossier est la plus lourde : mandat, parties, pièces,
+      procédures, échéances, notes, mouvements de fidéicommis, documents.
+    </p>
+    <p><strong>Ce qui doit primer :</strong> l'identité écrite en clair et jamais réduite à un
+      avatar, une hiérarchie stable entre l'en-tête et le corps, et un moyen de naviguer dans
+      une page longue sans se perdre.</p>
+    <p class="where">Fiche client · Fiche dossier · Facture · Fiche employé · Lead de la console</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Archétype 03</div>
+    <h3>Le poste de décision</h3>
+    <p>
+      Deux sources de vérité mises côte à côte, un écart à résoudre, une action irréversible au
+      bout. Le rapprochement bancaire en est l'exemple pur : le relevé d'un côté, le registre de
+      l'autre, et une certification qui reste bloquée tant qu'un écart subsiste.
+    </p>
+    <p><strong>Ce qui doit primer :</strong> une intention par écran, un seul bouton plein, la
+      cause de l'écart montrée et pas seulement son montant, et un état final qui se lit sans
+      ambiguïté. C'est ici que la surface la plus opaque du système est justifiée.</p>
+    <p class="where">Rapprochement · Certification de rapport · Approbation de paiement · Verrouillage de période</p>
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">8</span></div>
+</section>
+
+<!-- ══════════════════ 9. ARCHÉTYPES 2 ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 04</div>
+      <h2>Les cinq archétypes, suite</h2>
+    </div>
+    <div class="right tiny">Document<br>et séquence</div>
+  </div>
+
+  <div class="arch">
+    <div class="n">Archétype 04</div>
+    <h3>Le document imprimable</h3>
+    <p>
+      Une surface qui sort de l'application : la facture envoyée au client, le rapport mensuel
+      de fidéicommis, la trousse d'inspection, le rapport d'audit. Elle est lue sur papier, en
+      PDF, parfois en noir et blanc, parfois par un inspecteur du Barreau.
+    </p>
+    <p><strong>Ce qui doit primer :</strong> une composition de page, pas une composition
+      d'écran. Deux couleurs au maximum sur une facture. Aucun numéro de Barreau. Rien qui
+      dépende d'un survol, d'une couleur seule ou d'un état interactif.</p>
+    <p class="where">Facture · Rapport mensuel · Rapport annuel · Trousse d'inspection · Rapport d'audit</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Archétype 05</div>
+    <h3>L'assistant séquentiel</h3>
+    <p>
+      Une tâche découpée en étapes, avec une progression, un retour arrière possible et un
+      résultat à la fin. L'import de données, l'onboarding d'un cabinet, la création d'une
+      facture et la création d'un dossier suivent cette forme.
+    </p>
+    <p><strong>Ce qui doit primer :</strong> savoir où l'on est et combien il reste, une
+      validation en ligne qui n'accuse pas avant la fin de la saisie, un libellé toujours
+      visible au dessus du champ, et surtout le soin de <strong>l'écran final</strong>. Un
+      parcours se mémorise par son point le plus intense et par sa fin.</p>
+    <p class="where">Import · Onboarding · Nouvelle facture · Nouveau dossier · Nouveau client</p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h3>Ce que chaque archétype exige du système</h3>
+  <table>
+    <thead>
+      <tr><th style="width:38mm;">Archétype</th><th>Primitives qu'il consomme</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="key">Registre</td><td>Tableau, en-tête de colonne, pastille de statut, filtre, barre d'outils, barre de synthèse, état vide, squelette de chargement, pagination</td></tr>
+      <tr><td class="key">Fiche</td><td>En-tête d'objet, onglets, panneau, section, liste de métadonnées, fil d'activité, actions secondaires</td></tr>
+      <tr><td class="key">Poste de décision</td><td>Double panneau, ligne à apparier, alerte bloquante, surface focalisée, bouton d'action unique, confirmation</td></tr>
+      <tr><td class="key">Document</td><td>Grille de page, en-tête et pied, tableau de montants, totaux, bloc de signature, mentions légales</td></tr>
+      <tr><td class="key">Assistant</td><td>Indicateur d'étapes, champs et libellés, message de validation, résumé de fin, écran de succès</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Aucun de ces archétypes n'a besoin d'un carrousel, d'une illustration décorative, d'une
+    animation d'entrée ou d'une carte à icône. Le système peut être conçu sans eux.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">9</span></div>
+</section>
+
+<!-- ══════════════════ 10. CONTRAINTES ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 05</div>
+      <h2>Les contraintes non négociables</h2>
+    </div>
+    <div class="right tiny">Ce que le design<br>ne peut pas déplacer</div>
+  </div>
+
+  <h3>Réglementaires</h3>
+  <table>
+    <tr><td class="key" style="width:44mm;">Barreau du Québec</td><td>Règlement sur la comptabilité et les normes d'exercice professionnel des avocats (B-1, r.5).</td></tr>
+    <tr><td class="key">Law Society of Ontario</td><td>By-Law 9, comptes en fiducie et tenue de livres.</td></tr>
+    <tr><td class="key">Fidéicommis</td><td>L'argent du client ne transite jamais par un processeur de paiement. Séparation stricte d'avec les opérations, visible dans l'interface.</td></tr>
+    <tr><td class="key">Facture</td><td>Aucun numéro de Barreau. Deux couleurs au maximum. Numérotation sans trou.</td></tr>
+    <tr><td class="key">Espèces</td><td>Plafond de réception applicable, refusé par le produit en citant la règle.</td></tr>
+    <tr><td class="key">Données</td><td>Hébergement au Canada. Loi 25 et LPRPDE.</td></tr>
+  </table>
+
+  <h3 style="margin-top:5mm;">De conception</h3>
+  <table>
+    <tr>
+      <td class="key" style="width:44mm;">Le chiffre est sacré</td>
+      <td>Tout montant, solde, heure ou référence en mono tabulaire, aligné à droite, jamais tronqué, jamais approximé à l'affichage.</td>
+    </tr>
+    <tr>
+      <td class="key">Impression et noir et blanc</td>
+      <td>Une part réelle du produit finit sur papier ou dans un dossier d'inspection. Rien d'essentiel ne peut reposer sur une couleur, un survol ou un état interactif.</td>
+    </tr>
+    <tr>
+      <td class="key">Bilinguisme</td>
+      <td>Français et anglais complets. Les libellés français sont en moyenne plus longs. Aucune maquette ne peut supposer une largeur de texte fixe.</td>
+    </tr>
+    <tr>
+      <td class="key">Accessibilité</td>
+      <td>Contraste WCAG AA sur tout texte, y compris sur les fonds teintés. La couleur ne porte jamais seule une information. <code>prefers-reduced-motion</code> neutralise toute animation.</td>
+    </tr>
+    <tr>
+      <td class="key">Identité en clair</td>
+      <td>Client, partie adverse, juge, responsable. L'avatar complète le nom, il ne le remplace jamais. Confondre deux parties a des conséquences réelles.</td>
+    </tr>
+    <tr>
+      <td class="key">Vitesse</td>
+      <td>Premier rendu utile avant une seconde, réponse à un geste avant deux cents millisecondes. La vitesse est l'attribut premium le plus fiable, et le design ne doit pas la dépenser en effets.</td>
+    </tr>
+  </table>
+
+  <div class="note stop">
+    Une contrainte réglementaire enfreinte ne se corrige pas au prochain sprint : elle
+    apparaît dans un dossier d'inspection. C'est la raison pour laquelle le produit refuse
+    certaines actions plutôt que de les avertir.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">10</span></div>
+</section>
+
+<!-- ══════════════════ 11. LA MARQUE ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 06</div>
+      <h2>La marque</h2>
+    </div>
+    <div class="right tiny">Charte v1.0<br>3 août 2026</div>
+  </div>
+
+  <div style="display:flex;gap:10mm;align-items:flex-start;margin-bottom:5mm;">
+    <svg width="112" height="112" viewBox="0 0 24 24" style="flex:none;">
+      <path d="M 2.4 0 H 13.8 V 11.4 H 9 V 24 H 2.4 A 2.4 2.4 0 0 1 0 21.6 V 2.4 A 2.4 2.4 0 0 1 2.4 0 Z" fill="#1F3A2E"/>
+      <path d="M 21.6 24 H 10.2 V 12.6 H 15 V 0 H 21.6 A 2.4 2.4 0 0 1 24 2.4 V 21.6 A 2.4 2.4 0 0 1 21.6 24 Z" fill="#2E7D5B"/>
+    </svg>
+    <div>
+      <div class="eyebrow">Le symbole</div>
+      <h3 style="margin-top:2mm;">« L'Assemblage »</h3>
+      <p class="small">
+        Un carré unique, partagé par un joint orthogonal en gradins. Les deux pièces obtenues
+        sont rigoureusement identiques, tournées de cent quatre-vingts degrés l'une par rapport
+        à l'autre, et s'emboîtent sans le moindre jeu.
+      </p>
+      <p class="small" style="margin-bottom:0;">
+        Deux masses distinctes, un seul volume : c'est la séparation stricte du fidéicommis et
+        des opérations, et c'est aussi l'assemblage de la comptabilité, des dossiers et de la
+        conformité en un seul système. Le joint trace un S en creux. La lettre n'est jamais
+        dessinée. Aucun symbole juridique convenu, ni marteau, ni balance.
+      </p>
+    </div>
+  </div>
+
+  <table>
+    <tr><td class="key" style="width:40mm;">Géométrie</td><td>Grille de dix modules par dix, repère <span class="mono">viewBox 0 0 24 24</span>. Toute cote est une fraction simple du côté, ce qui garantit un redessin exact à toute échelle.</td></tr>
+    <tr><td class="key">Le joint</td><td>Évidé, jamais peint. Les deux pièces sont deux chemins distincts et c'est le fond qui passe entre elles. <strong>Le joint ne disparaît jamais</strong> : c'est la règle qui tient tout le reste.</td></tr>
+    <tr><td class="key">Bicolore</td><td>Pièce haute-gauche en encre principale, pièce basse-droite en seconde encre. Six tons servis : clair, sombre, sur marque, mono foncé, mono clair, couleur courante.</td></tr>
+    <tr><td class="key">Taille minimale</td><td><span class="mono">16 px</span> à l'écran, <span class="mono">6 mm</span> à l'impression. Sous vingt pixels, un dessin distinct prend le relais automatiquement.</td></tr>
+    <tr><td class="key">Zone de protection</td><td>Deux modules, soit un cinquième du côté, sur les quatre côtés.</td></tr>
+    <tr><td class="key">Verrou</td><td>Le mot <span class="mono">SAFE</span> en capitales, en Geist Sans, graisse 500, interlettrage <span class="mono">0.2em</span>. Jamais en serif.</td></tr>
+  </table>
+
+  <div class="note stop">
+    <strong>Règle dure du dépôt.</strong> Les formes du logo vivent uniquement dans
+    <code>components/brand/safe-mark.ts</code>. Ne jamais recopier un tracé ailleurs, et ne jamais
+    recomposer le verrou à la main. Les composants s'importent depuis
+    <code>@/components/branding/SafeLogo</code>. La page <code>/marque</code> sert de contrôle visuel.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">11</span></div>
+</section>
+
+<!-- ══════════════════ 12. COULEUR, TYPO, VOIX ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 06</div>
+      <h2>Couleur, typographie, voix</h2>
+    </div>
+    <div class="right tiny">Deux surfaces<br>qui coexistent</div>
+  </div>
+
+  <h3>Deux systèmes de couleur, non unifiés</h3>
+  <p class="small">
+    C'est le point de tension le plus important du document. SAFE porte aujourd'hui deux surfaces
+    de couleur différentes, et le chantier d'unification n'a jamais été tranché.
+  </p>
+
+  <div class="sw-row">
+    <h4>A · Site public et marque, clair verdâtre</h4>
+    <div class="swatches">
+      <div class="sw" style="background:#EFF2ED;border:1px solid var(--line);"><span>#EFF2ED</span></div>
+      <div class="sw" style="background:#FBFCFA;border:1px solid var(--line);"><span>#FBFCFA</span></div>
+      <div class="sw" style="background:#1F2A24;"><span>#1F2A24</span></div>
+      <div class="sw" style="background:#0B1F19;"><span>#0B1F19</span></div>
+      <div class="sw" style="background:#2E7D5B;"><span>#2E7D5B</span></div>
+      <div class="sw" style="background:#B07A1C;"><span>#B07A1C</span></div>
+    </div>
+  </div>
+
+  <div class="sw-row">
+    <h4>B · Intérieur de l'application, éditorial chaleureux</h4>
+    <div class="swatches">
+      <div class="sw" style="background:#F7F2E8;border:1px solid var(--line);"><span>#F7F2E8</span></div>
+      <div class="sw" style="background:#FCFAF4;border:1px solid var(--line);"><span>#FCFAF4</span></div>
+      <div class="sw" style="background:#E8DCC4;"><span>#E8DCC4</span></div>
+      <div class="sw" style="background:#0B0B0C;"><span>#0B0B0C</span></div>
+      <div class="sw" style="background:#1F3A2E;"><span>#1F3A2E</span></div>
+      <div class="sw" style="background:#F4A045;"><span>#F4A045</span></div>
+    </div>
+  </div>
+
+  <p class="small">
+    Le premier est un albâtre froid légèrement verdâtre, le second un ivoire chaud avec une barre
+    latérale sable. Les deux vivent dans le même fichier de jetons. La règle actuelle est de ne
+    pas les mélanger dans un même écran, ce qui est tenable pour un document et intenable pour
+    un produit. <strong>Le vert de marque, lui, ne change pas :</strong> forêt <span class="mono">#1F3A2E</span>.
+  </p>
+
+  <div class="rule"></div>
+
+  <h3>Typographie</h3>
+  <table>
+    <thead><tr><th style="width:38mm;">Rôle</th><th>Fonte</th><th style="width:30mm;">Règle</th></tr></thead>
+    <tbody>
+      <tr><td class="key">Titres, display</td><td>Instrument Serif</td><td>Jamais sous 20 px, une seule graisse</td></tr>
+      <tr><td class="key">Interface, corps</td><td>Geist Sans</td><td>Interlettrage <span class="mono">-0.008em</span></td></tr>
+      <tr><td class="key">Tout chiffre</td><td>Geist Mono</td><td><span class="mono">tabular-nums</span> obligatoire</td></tr>
+    </tbody>
+  </table>
+  <p class="small">
+    Instrument Serif ne paraît jamais dans un tableau, un bouton ou une pastille. Les étiquettes
+    de section sont en petites capitales espacées. Un paragraphe est plafonné à 65 caractères.
+  </p>
+
+  <div class="rule"></div>
+
+  <h3>La voix</h3>
+  <div class="grid2">
+    <ul class="plain">
+      <li>Français québécois, vouvoiement systématique</li>
+      <li>Calme, direct, noble. Aucun point d'exclamation</li>
+      <li>Jamais de tiret long en milieu de phrase</li>
+      <li>Verbes d'action en tête : valider, rapprocher, envoyer</li>
+    </ul>
+    <ul class="plain">
+      <li>Aucun jargon : ni plateforme, ni workflow, ni solution</li>
+      <li>On mène par l'état positif visé, jamais par la peur</li>
+      <li>La preuve avant la promesse</li>
+      <li>Le client est le héros, jamais le produit</li>
+    </ul>
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">12</span></div>
+</section>
+
+<!-- ══════════════════ 13. ÉTAT DU DS ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 07</div>
+      <h2>L'état du design system</h2>
+    </div>
+    <div class="right tiny">Ce qui existe<br>aujourd'hui</div>
+  </div>
+
+  <p class="lead">
+    Le système n'est pas absent. Il est écrit, documenté et partiellement appliqué. Le problème
+    n'est pas le vide, c'est la superposition.
+  </p>
+
+  <h3>La chaîne prévue</h3>
+  <p class="small">
+    Une seule source, deux consommateurs, puis les écrans. C'est la chaîne écrite dans la
+    doctrine, et elle est réellement câblée.
+  </p>
+
+  <div class="box tint">
+    <p class="mono" style="margin-bottom:0;font-size:9pt;color:var(--ink);">
+      lib/ds/tokens.ts &nbsp;→&nbsp; tailwind.config.ts &nbsp;+&nbsp; app/globals.css &nbsp;→&nbsp; composants &nbsp;→&nbsp; écrans
+    </p>
+  </div>
+
+  <h3 style="margin-top:5mm;">Ce qui est en place</h3>
+  <table>
+    <thead><tr><th style="width:52mm;">Élément</th><th>État</th><th class="num" style="width:22mm;">Mesure</th></tr></thead>
+    <tbody>
+      <tr><td class="key">lib/ds/tokens.ts</td><td>Source unique déclarée. Couleur, typo, rayon, ombre, profondeur, mouvement.</td><td class="num">450 l.</td></tr>
+      <tr><td class="key">tailwind.config.ts</td><td>Consomme les jetons, expose les classes.</td><td class="num">318 l.</td></tr>
+      <tr><td class="key">app/globals.css</td><td>Variables CSS, profondeur, utilitaires, et beaucoup d'héritage.</td><td class="num">2 086 l.</td></tr>
+      <tr><td class="key">components/ui</td><td>Trousse de base réellement adoptée : bouton, carte, tableau, modale, onglets, pastille, états vides et de chargement.</td><td class="num">26 exp.</td></tr>
+      <tr><td class="key">components/ds-safe</td><td>Seconde trousse, plus récente, restée marginale.</td><td class="num">18 exp.</td></tr>
+      <tr><td class="key">Documentation</td><td>Un référentiel opposable de 93 règles mesurables, une base de design humain, une doctrine de profondeur, un système d'interaction.</td><td class="num">4 doc.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Le référentiel <code>docs/design/SAFE_PREMIUM_DESIGN_STANDARD.md</code> est déjà auditable :
+    chaque règle porte un identifiant, un seuil mesurable, une méthode de vérification et une
+    gravité. La refonte n'a pas à réinventer la gouvernance, seulement à la faire tenir.
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">13</span></div>
+</section>
+
+<!-- ══════════════════ 14. LES FRACTURES ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 07</div>
+      <h2>Les fractures, mesurées</h2>
+    </div>
+    <div class="right tiny">Dépôt au<br>10 août 2026</div>
+  </div>
+
+  <p class="lead">
+    Six écarts entre le système écrit et le produit servi. Ils sont comptés, pas ressentis.
+  </p>
+
+  <div class="arch">
+    <div class="n">Fracture 01</div>
+    <h3>Trois vocabulaires de couleur cohabitent</h3>
+    <p>
+      Le fichier de jetons expose deux palettes complètes, <span class="mono">tokens</span>
+      (ivoire chaud) et <span class="mono">interfaceTokens</span> (albâtre verdâtre), et la
+      configuration Tailwind déclare <strong>36 espaces de couleur</strong> de premier niveau,
+      dont des reliquats nommés <span class="mono">primary</span>, <span class="mono">accent</span>,
+      <span class="mono">status</span> et <span class="mono">neutral</span>. La palette
+      <span class="mono">emerald</span> de Tailwind a été détournée vers le vert forêt pour
+      rattraper le code existant sans le modifier.
+    </p>
+    <p class="where">Effet : deux développeurs écrivent la même couleur de quatre façons, toutes correctes.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Fracture 02</div>
+    <h3>Les valeurs brutes n'ont jamais disparu</h3>
+    <table style="margin-top:2mm;margin-bottom:1mm;">
+      <tr><td>Occurrences hexadécimales écrites en dur dans les écrans</td><td class="num">949</td></tr>
+      <tr><td>Fichiers concernés, sur 588</td><td class="num">161</td></tr>
+      <tr><td>Classes de couleur Tailwind génériques (<span class="mono">gray</span>, <span class="mono">slate</span>, <span class="mono">red</span>…)</td><td class="num">1 326</td></tr>
+      <tr><td>Occurrences de <span class="mono">text-red-500</span>, alors que le rouge n'est pas une couleur d'échéance</td><td class="num">59</td></tr>
+    </table>
+    <p class="where">La loi « aucune valeur brute » est écrite, elle n'est pas outillée.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Fracture 03</div>
+    <h3>Le nouveau système n'a atteint qu'un vingtième du produit</h3>
+    <p>
+      Les jetons <span class="mono">si-*</span> sont employés dans <strong>21 fichiers sur 588</strong>,
+      pour 398 usages. Neuf sont exposés en variable CSS, les autres seulement en classe Tailwind :
+      deux chemins d'accès pour la même valeur.
+    </p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Fracture 04</div>
+    <h3>Les formes et les élévations débordent leur définition</h3>
+    <p>
+      La doctrine autorise quatre rôles de rayon et trois niveaux d'élévation. Le produit sert
+      <strong>six rayons</strong> (<span class="mono">lg</span> 425, <span class="mono">full</span> 335,
+      <span class="mono">md</span> 231, <span class="mono">xl</span> 192, <span class="mono">2xl</span> 69,
+      <span class="mono">3xl</span> 1) et <strong>cinq ombres</strong> distinctes.
+    </p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Fracture 05</div>
+    <h3>La feuille globale porte l'héritage du site vitrine</h3>
+    <p>
+      <span class="mono">globals.css</span> mélange le socle applicatif avec des dégradés animés,
+      un thème sombre étoilé, une texture de grain et des cartes de verre issus des pages
+      marketing. Ce sont précisément les signaux interdits à l'intérieur du produit.
+    </p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Fracture 06</div>
+    <h3>Deux trousses de composants, une seule adoptée</h3>
+    <p>
+      <span class="mono">components/ui</span> est importé par <strong>219 fichiers</strong>,
+      <span class="mono">components/ds-safe</span> par <strong>6</strong>. La seconde trousse
+      redéclare pourtant des primitives que la première expose déjà.
+    </p>
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">14</span></div>
+</section>
+
+<!-- ══════════════════ 15. CE QUI EST TRANCHÉ ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 08</div>
+      <h2>Ce qui est déjà tranché</h2>
+    </div>
+    <div class="right tiny">Sept lois<br>non négociables</div>
+  </div>
+
+  <p class="lead">
+    Ces sept lois priment sur toute autre règle. Une seule enfreinte suffit à faire échouer une
+    revue. La refonte peut tout redessiner, elle ne peut pas les contredire.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:10mm;">ID</th><th>La loi</th></tr></thead>
+    <tbody>
+      <tr><td class="key mono">L1</td><td><strong>Le chiffre est sacré.</strong> Tout montant, solde, heure ou référence est en mono tabulaire, aligné à droite, jamais tronqué, jamais masqué, jamais approximé à l'affichage.</td></tr>
+      <tr><td class="key mono">L2</td><td><strong>Une intention par écran.</strong> Une seule action principale, un seul bouton plein. Si tout est mis en avant, rien ne l'est.</td></tr>
+      <tr><td class="key mono">L3</td><td><strong>Rien ne bouge sans raison.</strong> Aucun mouvement décoratif, aucun mouvement continu, aucun déplacement au survol. Le mouvement gratuit dit « site vitrine », la retenue dit « instrument ».</td></tr>
+      <tr><td class="key mono">L4</td><td><strong>La couleur ne porte jamais seule une information.</strong> Un statut a une forme et un mot en plus de sa teinte. Daltonisme, impression, dossier d'inspection.</td></tr>
+      <tr><td class="key mono">L5</td><td><strong>Aucune valeur brute.</strong> Aucune hexadécimale, aucune famille générique, aucune durée écrite à la main dans un écran. Tout passe par un jeton.</td></tr>
+      <tr><td class="key mono">L6</td><td><strong>Le premier rendu utile arrive avant une seconde, la réponse à un geste avant deux cents millisecondes.</strong> La vitesse est l'attribut premium le plus fiable et le plus sous-investi.</td></tr>
+      <tr><td class="key mono">L7</td><td><strong>L'identité s'écrit en clair.</strong> Client, partie adverse, juge, responsable. L'avatar complète le nom, il ne le remplace jamais.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rule"></div>
+
+  <h3>Les six principes visuels qui en découlent</h3>
+  <ol>
+    <li><strong>La densité est une densité d'information, jamais une densité de formes.</strong> Retirer un élément prime sur en ajouter un.</li>
+    <li><strong>Les filets font le travail, pas les ombres.</strong> Le niveau posé est le cas par défaut de tout ce qui vit dans le flux.</li>
+    <li><strong>Le verre est réservé à ce qui flotte réellement</strong> et recouvre du contenu qui continue d'exister derrière. Jamais comme décoration.</li>
+    <li><strong>Le rayon plein est réservé à ce qui décrit, jamais à ce qui déclenche.</strong> C'est ce qui distingue au premier regard un état d'une action.</li>
+    <li><strong>Le vert est rare.</strong> C'est sa rareté qui le rend crédible. Le vert d'action et le vert de validation ne se remplacent jamais.</li>
+    <li><strong>Le rouge n'est pas une couleur d'échéance.</strong> Les échéances sont ambre. Le rouge est réservé au montant négatif et à l'erreur bloquante.</li>
+  </ol>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">15</span></div>
+</section>
+
+<!-- ══════════════════ 16. CE QUI RESTE OUVERT ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 09</div>
+      <h2>Ce qui reste ouvert</h2>
+    </div>
+    <div class="right tiny">Les décisions que<br>la refonte doit prendre</div>
+  </div>
+
+  <p class="lead">
+    Sept questions n'ont jamais été tranchées. Elles ne sont pas des détails d'exécution :
+    chacune change la forme du système.
+  </p>
+
+  <div class="arch">
+    <div class="n">Question 01</div>
+    <h3>Une surface de couleur ou deux ?</h3>
+    <p>L'albâtre verdâtre du site public et l'ivoire chaud de l'application coexistent. Les unifier veut dire renoncer à l'une des deux. Ne pas les unifier veut dire maintenir deux systèmes pour toujours.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 02</div>
+    <h3>Une trousse de composants ou deux ?</h3>
+    <p><code>components/ui</code> est adoptée, <code>components/ds-safe</code> ne l'est pas. Soit la seconde absorbe la première, soit elle disparaît. Les laisser vivre côte à côte est la situation actuelle et elle coûte à chaque écran.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 03</div>
+    <h3>Le mode sombre existe-t-il ?</h3>
+    <p>Il n'est pas configuré, et trois classes isolées le suggèrent sans le servir. Ce n'est pas une décision prise contre le mode sombre, c'est une décision jamais prise. Elle change la structure des jetons de fond en comble.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 04</div>
+    <h3>Quel sort pour le verre ?</h3>
+    <p>Un système de profondeur à trois plans est écrit et implémenté, avec repli opaque. Il est correct, il est coûteux, et il est en tension avec le registre « imprimerie » vers lequel la direction éditoriale pousse. Le garder, le réduire à un seul plan ou le retirer sont trois systèmes différents.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 05</div>
+    <h3>Comment le système devient-il opposable ?</h3>
+    <p>Les 949 valeurs brutes ne disparaîtront pas par discipline. Sans une vérification automatique au moment de la contribution, la refonte produira une troisième couche par dessus les deux existantes.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 06</div>
+    <h3>Le tactile est-il servi ?</h3>
+    <p>Une densité tactile est documentée, une PWA est envisagée, aucune n'est construite. Concevoir maintenant en supposant le bureau seul rend le passage au tactile plus coûteux plus tard.</p>
+  </div>
+
+  <div class="arch">
+    <div class="n">Question 07</div>
+    <h3>Les documents sortants suivent-ils le même système ?</h3>
+    <p>Facture, rapport mensuel et trousse d'inspection obéissent à des contraintes que l'écran n'a pas : deux couleurs, noir et blanc, papier. Ils méritent un sous-système déclaré plutôt qu'une exception tolérée.</p>
+  </div>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">16</span></div>
+</section>
+
+<!-- ══════════════════ 17. GLOSSAIRE ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 10</div>
+      <h2>Glossaire métier</h2>
+    </div>
+    <div class="right tiny">Le vocabulaire<br>du cabinet</div>
+  </div>
+
+  <p class="small">
+    Concevoir pour ce produit demande de comprendre ce que les mots désignent. Un écran de
+    rapprochement dessiné sans savoir ce qu'est un fidéicommis sera joli et faux.
+  </p>
+
+  <table>
+    <tr><td class="key" style="width:44mm;">Fidéicommis</td><td>Compte en fiducie où le cabinet détient de l'argent qui <strong>appartient au client</strong> : avance sur honoraires, montant reçu pour un tiers, fonds d'une transaction. Cet argent n'est pas celui du cabinet. Le mélanger avec les opérations est la faute professionnelle la plus grave en comptabilité juridique.</td></tr>
+    <tr><td class="key">Compte général</td><td>Le compte d'opération du cabinet. C'est là que va l'argent gagné, une fois facturé.</td></tr>
+    <tr><td class="key">Rapprochement</td><td>Opération périodique qui met le relevé bancaire face au registre interne et explique chaque écart. Tant qu'un écart subsiste, rien ne peut être certifié.</td></tr>
+    <tr><td class="key">Registre des clients</td><td>Le livre qui montre, client par client, ce que le cabinet détient pour lui en fidéicommis. Un solde débiteur y est une anomalie signalée.</td></tr>
+    <tr><td class="key">Débours</td><td>Somme avancée par le cabinet pour le compte du client : frais de greffe, huissier, expert. Se refacture, souvent sans marge, et suit un statut propre.</td></tr>
+    <tr><td class="key">Honoraires</td><td>Ce que le cabinet facture pour son travail. Au temps passé, au forfait, ou selon une entente.</td></tr>
+    <tr><td class="key">Temps non facturé</td><td>Les heures saisies qui n'ont pas encore rejoint une facture. C'est de l'argent en attente, et l'un des chiffres les plus regardés du produit.</td></tr>
+    <tr><td class="key">Créance</td><td>Facture émise et non encaissée. Le classement par âge (trente, soixante, quatre-vingt-dix jours) est un écran à part entière.</td></tr>
+    <tr><td class="key">Note de crédit</td><td>Correction officielle d'une facture déjà émise. On ne supprime pas une facture, on la crédite.</td></tr>
+    <tr><td class="key">Verrouillage de période</td><td>Fermeture comptable d'un mois : plus aucune écriture ne peut y être ajoutée ou modifiée. Action irréversible.</td></tr>
+    <tr><td class="key">Trousse d'inspection</td><td>L'ensemble des registres et rapports qu'un cabinet doit pouvoir présenter à l'inspection du Barreau. Le produit la génère.</td></tr>
+    <tr><td class="key">Navette</td><td>Le fil d'échange entre l'avocat et l'adjointe sur un dossier : renvoyer pour correction, marquer prêt à réviser, approuver, résoudre.</td></tr>
+    <tr><td class="key">Dossier</td><td>L'affaire. L'unité centrale du produit : un ou plusieurs clients, des parties adverses, un mandat, des pièces, des procédures, des échéances, du temps et de l'argent.</td></tr>
+    <tr><td class="key">Partie</td><td>Une personne impliquée dans un dossier sans être cliente du cabinet : partie adverse, témoin, avocat en face. Ne devient jamais une fiche client.</td></tr>
+  </table>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">17</span></div>
+</section>
+
+<!-- ══════════════════ 18. SOURCES ══════════════════ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="sec-num">— 10</div>
+      <h2>Où continuer</h2>
+    </div>
+    <div class="right tiny">Sources internes<br>du dépôt</div>
+  </div>
+
+  <p class="lead">
+    Ce document est un résumé. Chacune de ses affirmations a une source plus longue dans le
+    dépôt. Voici où aller selon la question.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:24mm;">Question</th><th>Fichier</th></tr></thead>
+    <tbody>
+      <tr><td class="key">La marque</td><td><code>docs/brand/IDENTITE_SAFE.md</code><br><span class="tiny">Source de vérité : ce qu'est SAFE, la voix, le style, la charte du logo.</span></td></tr>
+      <tr><td class="key">Le pack externe</td><td><code>docs/brand/SAFE_BRAND_CONTEXT.md</code><br><span class="tiny">Version autoportante à coller dans un assistant tiers.</span></td></tr>
+      <tr><td class="key">Les règles</td><td><code>docs/design/SAFE_PREMIUM_DESIGN_STANDARD.md</code><br><span class="tiny">Référentiel opposable : 7 lois, jetons, 93 règles mesurables, grille sur 100, procédure d'audit.</span></td></tr>
+      <tr><td class="key">L'anti-slop</td><td><code>docs/design/DESIGN_HUMAIN.md</code><br><span class="tiny">Base de conseils tirés de créateurs humains. Le §10 est la liste des tells à ne jamais produire.</span></td></tr>
+      <tr><td class="key">La profondeur</td><td><code>docs/design/SYSTEME_DE_PROFONDEUR_TROIS_PLANS.md</code></td></tr>
+      <tr><td class="key">L'interaction</td><td><code>docs/design/SYSTEME_INTERACTION_SAFE.md</code></td></tr>
+      <tr><td class="key">L'audit en cours</td><td><code>docs/design/AUDIT_INTERFACE_INTERIEURE_2026-07-24.md</code></td></tr>
+      <tr><td class="key">Les jetons</td><td><code>lib/ds/tokens.ts</code><br><span class="tiny">Source unique déclarée, consommée par Tailwind et par les variables CSS.</span></td></tr>
+      <tr><td class="key">Le logo</td><td><code>components/brand/safe-mark.ts</code><br><span class="tiny">Seule définition des formes. Page de contrôle : <code>/marque</code>.</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="rule"></div>
+
+  <div class="box forest">
+    <div class="eyebrow">En une phrase</div>
+    <p class="serif" style="color:var(--ivory);margin:3mm 0 0 0;font-style:normal;font-size:15pt;">
+      SAFE est un instrument de tenue de cabinet, dense, bilingue, imprimable et opposable,
+      utilisé chaque jour par un duo, dont la crédibilité se joue sur la façon dont un chiffre
+      est composé.
+    </p>
+  </div>
+
+  <p class="tiny" style="margin-top:6mm;">
+    Document établi le 10 août 2026 à partir du dépôt SAFE, branche
+    <code>release/2026-06-11-compta-admin-derisier</code>. Les mesures citées sont reproductibles.
+    Version 1.0.
+  </p>
+
+  <div class="foot"><span>SAFE · Description du produit</span><span class="num">18</span></div>
+</section>
+
+</body>
+</html>
