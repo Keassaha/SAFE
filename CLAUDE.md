@@ -117,11 +117,28 @@ Ces fichiers definissent les artefacts de sortie, les entites du modele et la st
 
 ---
 
+## Marque et logo
+
+Pour tout travail touchant le logo, le nom, la voix, l'identité visuelle ou la
+présentation de SAFE, lire AVANT de coder :
+
+- `docs/brand/IDENTITE_SAFE.md` — **source de vérité de la marque** : ce qu'est SAFE, le
+  genre d'application, la voix, le style visuel, la spécification du logo « L'Assemblage »
+  (charte graphique v1.0, 2026-08-03).
+- `docs/brand/SAFE_BRAND_CONTEXT.md` — pack autoportant à coller dans un assistant externe.
+
+Règle dure : **les formes du logo vivent uniquement dans `components/brand/safe-mark.ts`**.
+Ne jamais recopier un `path` de logo ailleurs. Les composants s'importent depuis
+`@/components/branding/SafeLogo`. La page `/marque` sert de contrôle visuel.
+
+---
+
 ## Base de connaissances design (sources humaines)
 
 Pour tout travail de design, UI, layout, page, écran ou composant, consulter AVANT de coder:
 
-- `docs/design/DESIGN_HUMAIN.md` — base hiérarchisée de conseils design tirés de créateurs humains (source de vérité, markdown portable).
+- `docs/design/SAFE_PREMIUM_DESIGN_STANDARD.md` — **référentiel opposable** : 7 lois non négociables, jetons, 93 règles auditables (PS-001 à PS-093) avec seuils mesurables, grille de notation sur 100, procédure d'audit exécutable, manifeste. Prime sur `DOCTRINE_INTERFACE_INTERIEUR.md`, qu'il absorbe.
+- `docs/design/DESIGN_HUMAIN.md` — base hiérarchisée de conseils design tirés de créateurs humains (source de vérité, markdown portable). §0 prime toujours.
 - `docs/design/sources/` — extractions par vidéo + catalogue.
 
 Objectif: produire des interfaces qui ressemblent a du travail humain de qualite, jamais a du design genere par IA. Les meta-regles (§0) et le catalogue anti-slop (§10) priment. Passer la checklist §10 avant de dire qu'un ecran est termine. Le skill Claude `design-humain` declenche l'ingestion d'une nouvelle video et l'application de la base.

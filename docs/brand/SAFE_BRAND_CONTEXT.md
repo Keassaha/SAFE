@@ -42,26 +42,40 @@ Stack : application web (Next.js). Une version mobile compagnon est envisagée (
 
 ## 4. Le logo actuel
 
-- **Nom interne** : « Le Chevron » (aussi appelé « Les Galets »).
-- **Forme** : deux galets/chevrons arrondis (courbes de Bézier) qui **convergent**. Le galet
-  supérieur pointe vers le bas (plein), le galet inférieur pointe vers le haut (même vert, à
-  55 % d'opacité). Lecture symbolique : une base humaine + une couche d'automatisation qui se
-  rejoignent. Dessiné en SVG inline, `viewBox 0 0 24 24`.
-- **Couleur de la marque** :
-  - sur fond clair : vert forêt `#1F3A2E`
-  - sur fond sombre : vert clair `#8FB49F`
-  - mono : encre `#1C1C1C` ou blanc `#FFFFFF`
-- **Pastille** qui entoure la marque : fond `#EEF5F0` (clair) ou `#0E2419` (sombre), coins
-  arrondis 10 px.
-- **Mot-symbole** : « SAFE » en **Instrument Serif** (serif éditorial), taille ~22 px,
-  interlettrage léger `0.01em`. Couleur `#111111` sur clair, `#E8F0EA` sur sombre.
-- **Fichiers de référence** : `components/branding/SafeLogo.tsx` (source vivante),
-  `public/safe-logo-fonce.svg` (géométrie de référence), et d'anciennes pistes en image :
-  `public/safe-logo-concept-1*.png`, `public/images/safe_logo_3d.*`,
-  `public/images/safe-mark-s.png` / `safe-mark-s-green.png`.
-- **Piste ouverte pour la réflexion** : le logo actuel est abstrait (galets/chevrons). Une
-  direction d'identité « gravure de presse fine » existe en parallèle (voir section 8) et
-  pourrait nourrir un logo plus signé (sceau, balance stylisée). À explorer.
+> Spécification complète et opposable : **[IDENTITE_SAFE.md §4](IDENTITE_SAFE.md)**.
+> Ce qui suit en est le résumé.
+
+- **Nom interne** : « L'Assemblage ». Charte graphique v1.0, elle remplace « Les Galets »
+  (servie du 2026-08-02 au 2026-08-03) et « La Voûte », toutes deux écartées.
+- **Forme** : un carré unique partagé par un joint orthogonal en gradins. Les deux pièces
+  obtenues sont rigoureusement identiques, tournées de 180° l'une par rapport à l'autre, et
+  s'emboîtent sans jeu. Le joint trace un **S en creux**, jamais dessiné. Lecture symbolique :
+  la séparation stricte du fidéicommis et des opérations, et l'assemblage de la comptabilité,
+  des dossiers, de la conformité et de l'automatisation en un seul système.
+- **Grille** : dix modules par dix. Côté 1,00 · première coupe 0,60 · seconde coupe 0,40 ·
+  gradin 0,50 · rayon 0,10 · joint 0,05. `viewBox 0 0 24 24`, donc 1 module = 2,4. Aucune
+  courbe libre, aucun angle arbitraire.
+- **Le joint est évidé, jamais peint.** Les deux pièces sont deux chemins distincts, c'est le
+  fond qui passe entre elles. **Le joint ne disparaît jamais** : c'est la règle dure.
+- **Marque bicolore.** Aucun dégradé, aucune opacité.
+  - sur fond clair : pièce A vert forêt `#1F3A2E`, pièce B vert émeraude `#2E7D5B`
+  - sur fond sombre ou vert de marque : pièce A blanc cassé `#FAFAF8`, pièce B `#2E7D5B`
+  - mono : les deux pièces en `#222222` ou en `#FAFAF8`
+- **Dessin ultra petite taille** : sous 20 px, rayon 0,07 et joint 0,09, sinon le joint se
+  bouche. La bascule est automatique.
+- **Mot-symbole** : « SAFE » en capitales, **grotesque** (Geist Sans), graisse 500,
+  interlettrage `0.2em`. Corps = côté du mark × 0,62, écart × 0,30. Jamais en serif : le
+  symbole est entièrement orthogonal.
+- **Plaque** (carré arrondi vert forêt, mark en inversée couleur à 60 % du côté) : icône
+  d'application seulement. Le symbole étant déjà un carré plein, la favicon, les navigations
+  et les pieds de page prennent le symbole nu.
+- **Zone de protection** : deux modules, soit un cinquième du côté, sur les quatre côtés.
+- **Fichiers de référence** : `components/brand/safe-mark.ts` (formes, encres et
+  métriques, source unique), `components/branding/SafeLogo.tsx` (composants),
+  `app/icon.svg` (favicon), `scripts/render-brand-assets.mjs` (`npm run brand:assets`,
+  fabrique les PNG en lisant la source), `/marque` (page de contrôle non indexée).
+- **Piste ouverte** : la direction d'identité « gravure de presse fine » (voir section 8)
+  reste à appliquer. L'Assemblage y est neutre, la marque étant abstraite.
 
 ## 5. Systèmes de couleurs
 
@@ -176,9 +190,9 @@ Repères de confiance honnêtes : « Conçu au Québec · Conforme B-1 r.5 · Do
 
 ## 12. Ce sur quoi je veux réfléchir avec vous
 
-**Logo.** Le logo actuel (galets/chevrons abstraits) est-il la bonne direction, ou faut-il un
-symbole plus signé et juridique (sceau, balance stylisée au trait) cohérent avec l'identité
-gravure ? Explorer des pistes qui restent lisibles en petit (favicon, app mobile) et en mono.
+**Logo.** Tranché : « L'Assemblage » (charte v1.0). La question ouverte est désormais la
+cohabitation avec l'identité gravure de la section 8, et la tenue du symbole sur les supports
+physiques encore non testés (gravure métal, broderie, embossage papier).
 
 **Présentation.** Comment rendre la landing distinctive et premium sans retomber dans le
 template SaaS : composition de page de titre, matière parchemin, filets gravés, une seule

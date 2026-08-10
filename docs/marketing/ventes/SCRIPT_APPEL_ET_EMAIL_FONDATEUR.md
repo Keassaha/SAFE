@@ -1,5 +1,14 @@
 # Script d'appel + courriel — offre fondatrice
 
+> ⚠️ **PÉRIMÉ depuis le 2026-07-30.** Ce document porte l'ancienne offre (5 places,
+> 12 mois gratuits, prix à vie). Utiliser
+> [SCRIPT_APPEL_ET_COURRIEL_v2.md](SCRIPT_APPEL_ET_COURRIEL_v2.md), qui porte l'offre
+> courante (10 places, 50 $ / 75 $, tarif gelé à 79 $ / 119 $) et ajoute la variante
+> ontarienne.
+>
+> Ce qui reste valable ici : le principe directeur de preuve visuelle ci-dessous, et la
+> logique générale du duo appel plus courriel.
+
 > **PRINCIPE DIRECTEUR (CEO 2026-07-02) : la preuve visuelle avant tout.** On n'affirme jamais que ça fonctionne, on le montre. Chaque étape du funnel monte d'un cran en preuve : l'appel annonce (« le projet fonctionne déjà »), le courriel prouve (vidéo 3 min sur un vrai dossier), l'appel fondateur démontre (démo live 20 min), le partenariat confirme (chiffres et témoignages des fondateurs). Aucun asset de vente sans preuve visuelle dedans.
 >
 > Duo appel + courriel pour contacter les cabinets ciblés (voir ICP_CABINET_SOLO_QC.md).

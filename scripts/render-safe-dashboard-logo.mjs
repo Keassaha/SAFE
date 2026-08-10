@@ -1,3 +1,9 @@
+/**
+ * Script d'archive : il incruste la marque dans une image de prototype déjà
+ * rendue. Il ne sert plus au produit et ne doit pas servir de référence.
+ * Les chemins ci-dessous sont une copie figée ; la marque vivante est dans
+ * components/brand/safe-mark.ts.
+ */
 import sharp from "sharp";
 
 const input =

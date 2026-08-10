@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SAFE · L'expérience 3D</title>
+<meta name="description" content="SAFE tient votre cabinet ensemble. Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même contexte." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #EFF2ED;
+    --surface: #FBFCFA;
+    --ink: #1F2A24;
+    --muted: #5A665F;
+    --faint: #7C877F;
+    --green: #12A150;
+    --forest: #1F3A2E;
+    --verified: #1F6A47;
+    --amber: #8A6A1E;
+    --line: rgba(31, 42, 36, 0.08);
+    --line-soft: rgba(31, 42, 36, 0.05);
+    --serif: "Instrument Serif", Georgia, serif;
+    --sans: "Geist", -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Canvas 3D fixe derrière tout ── */
+  #scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Zone de saisie du logo (drag) au hero */
+  #grab {
+    position: absolute;
+    right: 0;
+    top: 14vh;
+    width: 46vw;
+    height: 70vh;
+    z-index: 2;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  #grab.dragging { cursor: grabbing; }
+  @media (max-width: 900px) { #grab { display: none; } }
+
+  .content { position: relative; z-index: 1; }
+
+  /* ── Nav ── */
+  header {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 10;
+    background: rgba(239, 242, 237, 0.9);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  header nav {
+    max-width: 1240px;
+    margin: 0 auto;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .brand .mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: #EEF5F0;
+    box-shadow: inset 0 0 0 1px rgba(31, 58, 46, 0.12);
+    display: grid;
+    place-items: center;
+  }
+  .brand .word {
+    font-family: var(--serif);
+    font-size: 21px;
+    letter-spacing: 0.01em;
+  }
+  .brand .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+    margin-left: 6px;
+  }
+  @media (max-width: 640px) { .brand .tag { display: none; } }
+  header a.back {
+    font-size: 13.5px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 7px;
+    transition: background 0.2s;
+  }
+  header a.back:hover { background: rgba(0, 0, 0, 0.035); }
+
+  /* ── Sections ── */
+  section { padding: 0 24px; }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--green);
+  }
+
+  h1, h2, h3 { font-family: var(--serif); font-weight: 400; }
+
+  /* Hero */
+  #hero { padding-top: 152px; padding-bottom: 40px; min-height: 92vh; }
+  #hero h1 {
+    margin-top: 20px;
+    font-size: clamp(46px, 6.4vw, 82px);
+    line-height: 0.99;
+    letter-spacing: -0.026em;
+    max-width: 12ch;
+  }
+  #hero h1 em { font-style: italic; color: var(--green); }
+  #hero .sub {
+    margin-top: 28px;
+    max-width: 46ch;
+    font-size: 17.5px;
+    line-height: 1.62;
+    color: var(--muted);
+  }
+  #hero .hint {
+    margin-top: 56px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #hero .hint::before {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: var(--faint);
+    opacity: 0.6;
+  }
+  @media (min-width: 901px) {
+    #hero .col { max-width: 54%; }
+  }
+
+  .cta-row {
+    margin-top: 36px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 7px;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 14px 28px -18px rgba(18, 161, 80, 0.85);
+    transition: transform 0.2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn svg { transition: transform 0.2s ease; }
+  .btn:hover svg { transform: translateX(3px); }
+  .link-plain {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .link-plain:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* Bande de preuves */
+  #preuves {
+    border-block: 1px solid var(--line);
+    background: rgba(251, 252, 250, 0.82);
+    backdrop-filter: blur(6px);
+    padding-block: 20px;
+  }
+  #preuves .wrap {
+    max-width: 1180px;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  #preuves .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  #preuves .item svg { color: var(--green); flex-shrink: 0; }
+
+  /* Chapitres : la moitié texte alterne, l'autre moitié est laissée au canvas */
+  .chapter { padding-block: min(22vh, 200px); }
+  .chapter .half { max-width: 520px; }
+  @media (min-width: 901px) {
+    .chapter .half.right { margin-left: auto; }
+  }
+  .chapter h2 {
+    margin-top: 20px;
+    font-size: clamp(34px, 3.8vw, 48px);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    max-width: 15ch;
+  }
+  .chapter .body {
+    margin-top: 24px;
+    max-width: 48ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  .chapter .result {
+    margin-top: 28px;
+    padding-left: 16px;
+    border-left: 2px solid var(--green);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink);
+    max-width: 44ch;
+  }
+
+  /* Panneau lisible sur mobile (le 3D passe derrière) */
+  @media (max-width: 900px) {
+    .chapter .half {
+      background: rgba(239, 242, 237, 0.88);
+      backdrop-filter: blur(4px);
+      border-radius: 12px;
+      padding: 18px 16px;
+      margin-inline: -16px;
+    }
+    .chapter { padding-block: 16vh; }
+  }
+
+  /* Tarification + questions */
+  #tarifs { border-top: 1px solid var(--line); padding-block: min(18vh, 160px); background: rgba(239, 242, 237, 0.86); backdrop-filter: blur(6px); }
+  #tarifs .wrap { max-width: 1100px; }
+  #tarifs h2 { margin-top: 20px; font-size: clamp(34px, 3.6vw, 46px); line-height: 1.08; max-width: 14ch; }
+  #tarifs .intro { margin-top: 24px; max-width: 44ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
+  .plans { margin-top: 48px; max-width: 640px; }
+  .plan {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 26px;
+    border-bottom: 1px solid var(--line);
+  }
+  .plan:first-child { border-top: 1px solid var(--line); }
+  .plan .name { font-size: 15px; }
+  .plan .detail { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .plan .price { font-family: var(--mono); font-size: 25px; white-space: nowrap; }
+  .plan .price span { font-family: var(--sans); font-size: 11px; color: var(--faint); margin-left: 4px; }
+  #tarifs .note { margin-top: 20px; font-size: 12.5px; color: var(--faint); }
+
+  #questions { border-top: 1px solid var(--line); background: rgba(251, 252, 250, 0.92); backdrop-filter: blur(6px); padding-block: min(16vh, 150px); }
+  #questions .wrap { max-width: 1100px; }
+  #questions h2 { margin-top: 20px; font-size: clamp(32px, 3.6vw, 46px); line-height: 1.08; max-width: 16ch; }
+  .qa {
+    display: grid;
+    gap: 16px;
+    padding-block: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .qa:first-of-type { margin-top: 48px; }
+  @media (min-width: 768px) { .qa { grid-template-columns: 0.86fr 1.14fr; } }
+  .qa h3 { font-size: 20px; line-height: 1.35; }
+  .qa p { max-width: 58ch; font-size: 14px; line-height: 1.65; color: var(--muted); }
+
+  /* CTA final */
+  #final {
+    border-top: 1px solid var(--line);
+    padding-block: min(24vh, 220px);
+    text-align: center;
+  }
+  #final .wrap { max-width: 700px; }
+  #final h2 {
+    margin-top: 20px;
+    font-size: clamp(38px, 4.4vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  #final p {
+    margin: 24px auto 0;
+    max-width: 50ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  #final .cta-row { justify-content: center; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 28px 24px 40px;
+  }
+  footer .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12.5px;
+    color: var(--faint);
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* Apparition douce des blocs texte */
+  .fade {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fade.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .fade { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* Fallback sans WebGL : logo statique dans le hero */
+  #logo-fallback { display: none; }
+  body.no-webgl #logo-fallback {
+    display: block;
+    width: min(300px, 60vw);
+    margin-top: 48px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<header>
+  <nav>
+    <a class="brand" href="/">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M 2.4 0 H 13.8 V 11.4 H 9 V 24 H 2.4 A 2.4 2.4 0 0 1 0 21.6 V 2.4 A 2.4 2.4 0 0 1 2.4 0 Z" fill="#1F3A2E"/>
+          <path d="M 21.6 24 H 10.2 V 12.6 H 15 V 0 H 21.6 A 2.4 2.4 0 0 1 24 2.4 V 21.6 A 2.4 2.4 0 0 1 21.6 24 Z" fill="#2E7D5B"/>
+        </svg>
+      </span>
+      <span class="word">SAFE</span>
+      <span class="tag">Expérience 3D</span>
+    </a>
+    <a class="back" href="/">Retour au site</a>
+  </nav>
+</header>
+
+<div class="content">
+
+  <!-- ── Hero ─────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="wrap">
+      <div class="col">
+        <p class="label fade">SAFE · système de gestion pour cabinets d'avocats</p>
+        <h1 class="fade">SAFE tient votre cabinet <em>ensemble.</em></h1>
+        <p class="sub fade">
+          Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même
+          contexte. Vous voyez ce qui est à jour, ce qui attend et ce qui ne concorde pas.
+        </p>
+        <div class="cta-row fade">
+          <a class="btn" href="/audit-gratuit">
+            Faire le diagnostic
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a class="link-plain" href="#systeme">Voir comment SAFE fonctionne</a>
+        </div>
+        <svg id="logo-fallback" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M 2.4 0 H 13.8 V 11.4 H 9 V 24 H 2.4 A 2.4 2.4 0 0 1 0 21.6 V 2.4 A 2.4 2.4 0 0 1 2.4 0 Z" fill="#1F3A2E"/>
+          <path d="M 21.6 24 H 10.2 V 12.6 H 15 V 0 H 21.6 A 2.4 2.4 0 0 1 24 2.4 V 21.6 A 2.4 2.4 0 0 1 21.6 24 Z" fill="#2E7D5B"/>
+        </svg>
+        <p class="hint fade" id="drag-hint">Saisissez le logo et faites-le tourner</p>
+      </div>
+    </div>
+    <div id="grab"></div>
+  </section>
+
+  <!-- ── Bande de preuves ─────────────────────────────── -->
+  <section id="preuves">
+    <div class="wrap">
+      <div class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Conçu au Québec</span></div>
+      <div class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Données hébergées au Canada</span></div>
+      <div class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Pensé pour le fidéicommis</span></div>
+      <div class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Utilisé dans un vrai cabinet</span></div>
+    </div>
+  </section>
+
+  <!-- ── Chapitre 1 : le système ──────────────────────── -->
+  <section id="systeme" class="chapter" data-state="systeme">
+    <div class="wrap">
+      <div class="half">
+        <p class="label fade">Un système, pas une collection d'outils</p>
+        <h2 class="fade">Chaque action garde son contexte.</h2>
+        <p class="body fade">
+          Un dossier ne vit pas séparément de son temps, de sa facture ou de ses fonds en
+          fiducie. SAFE relie ces éléments pour que l'information circule sans être recopiée.
+        </p>
+        <p class="result fade">Le contexte circule d'une action à la suivante sans être ressaisi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Chapitre 2 : vérifier ────────────────────────── -->
+  <section id="verifier" class="chapter" data-state="verifier">
+    <div class="wrap">
+      <div class="half right">
+        <p class="label fade">Vérifier</p>
+        <h2 class="fade">L'écart apparaît avant l'inspection.</h2>
+        <p class="body fade">
+          SAFE compare le relevé bancaire, le registre du fidéicommis et les soldes par
+          dossier. Lorsqu'un montant ne concorde pas, le système le signale et empêche une
+          certification prématurée.
+        </p>
+        <p class="result fade">Vous corrigez une différence identifiée, pas un doute diffus.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Chapitre 3 : encaisser ───────────────────────── -->
+  <section id="encaisser" class="chapter" data-state="encaisser">
+    <div class="wrap">
+      <div class="half">
+        <p class="label fade">Encaisser</p>
+        <h2 class="fade">Le travail suit son chemin jusqu'au paiement.</h2>
+        <p class="body fade">
+          Les heures et les débours sont déjà rattachés au dossier. Ils peuvent remonter dans
+          la facture, puis rester visibles jusqu'à l'encaissement, sans reconstruire
+          l'historique.
+        </p>
+        <p class="result fade">Moins de ressaisie. Moins de travail réalisé qui reste oublié.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Chapitre 4 : collaborer ──────────────────────── -->
+  <section id="collaborer" class="chapter" data-state="collaborer">
+    <div class="wrap">
+      <div class="half right">
+        <p class="label fade">Collaborer</p>
+        <h2 class="fade">L'équipe prépare. L'avocat garde le jugement.</h2>
+        <p class="body fade">
+          La Navette rassemble les questions, les documents prêts et les éléments à valider.
+          L'adjointe sait ce qui avance. L'avocat retrouve les décisions qui demandent
+          réellement son attention.
+        </p>
+        <p class="result fade">SAFE soutient le copilote du cabinet sans se substituer à lui.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tarification ─────────────────────────────────── -->
+  <section id="tarifs" data-state="calme">
+    <div class="wrap">
+      <p class="label fade">Tarification</p>
+      <h2 class="fade">Simple dès le départ.</h2>
+      <p class="intro fade">
+        SAFE est utilisé dans le quotidien d'un cabinet indépendant. Les frictions observées
+        dans le vrai travail deviennent des améliorations du système.
+      </p>
+      <div class="plans fade">
+        <div class="plan">
+          <div>
+            <p class="name">Solo</p>
+            <p class="detail">Pour une pratique individuelle.</p>
+          </div>
+          <p class="price">99 $<span>/ mois</span></p>
+        </div>
+        <div class="plan">
+          <div>
+            <p class="name">Cabinet</p>
+            <p class="detail">Pour une petite équipe qui travaille ensemble.</p>
+          </div>
+          <p class="price">149 $<span>/ mois</span></p>
+        </div>
+      </div>
+      <p class="note fade">Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.</p>
+    </div>
+  </section>
+
+  <!-- ── Questions ────────────────────────────────────── -->
+  <section id="questions" data-state="calme">
+    <div class="wrap">
+      <p class="label fade">Avant de nous parler</p>
+      <h2 class="fade">Des réponses précises aux questions importantes.</h2>
+      <div class="qa fade">
+        <h3>SAFE garantit-il ma conformité ?</h3>
+        <p>Non. SAFE soutient la tenue, la vérification et la traçabilité. La responsabilité professionnelle demeure celle du cabinet.</p>
+      </div>
+      <div class="qa fade">
+        <h3>Est-ce que SAFE remplace mon adjointe ?</h3>
+        <p>Non. SAFE prépare, relie et signale. Votre équipe conserve le jugement et la connaissance du cabinet.</p>
+      </div>
+      <div class="qa fade">
+        <h3>À qui appartiennent mes données ?</h3>
+        <p>À votre cabinet. Les données sont hébergées au Canada et peuvent être exportées dans les formats offerts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA final ────────────────────────────────────── -->
+  <section id="final" data-state="final">
+    <div class="wrap">
+      <p class="label fade">La prochaine étape</p>
+      <h2 class="fade">Voyons si SAFE convient à votre façon de travailler.</h2>
+      <p class="fade">
+        Commencez par un diagnostic concret de votre cabinet. Vous décidez ensuite si une
+        démonstration mérite vingt minutes de votre temps.
+      </p>
+      <div class="cta-row fade">
+        <a class="btn" href="/audit-gratuit">
+          Faire le diagnostic
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a class="link-plain" href="/demo">Réserver une rencontre</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 SAFE Inc. · Conçu au Québec</span>
+      <a href="/">safecabinet.ca</a>
+    </div>
+  </footer>
+
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+
+/* ══════════════════════════════════════════════════════════
+   SAFE · Expérience 3D
+   Un seul acteur : le logo « Les Galets ». Les deux galets
+   racontent le récit de la page au fil du scroll.
+   ══════════════════════════════════════════════════════════ */
+
+const canvas = document.getElementById("scene");
+const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+} catch (e) {
+  document.body.classList.add("no-webgl");
+  canvas.remove();
+  document.getElementById("drag-hint").remove();
+  throw e;
+}
+
+const COL = {
+  bg: 0xeff2ed,
+  forest: 0x1f3a2e,
+  forestLight: 0x7c8d84,
+  green: 0x12a150,
+  amber: 0xc38a24,
+  satellite: 0x54685c,
+};
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(COL.bg);
+scene.fog = new THREE.Fog(COL.bg, 26, 46);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 0, 16);
+
+/* ── Lumières : douces, une seule clé, un rebond ── */
+scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d4c9, 1.15));
+const key = new THREE.DirectionalLight(0xffffff, 1.5);
+key.position.set(6, 9, 8);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xd8ecd8, 0.55);
+rim.position.set(-7, -3, -6);
+scene.add(rim);
+
+/* ── Géométrie du logo : extrusion des deux pièces de l'assemblage ── */
+const UPPER = "M 2.4 0 H 13.8 V 11.4 H 9 V 24 H 2.4 A 2.4 2.4 0 0 1 0 21.6 V 2.4 A 2.4 2.4 0 0 1 2.4 0 Z";
+const LOWER = "M 21.6 24 H 10.2 V 12.6 H 15 V 0 H 21.6 A 2.4 2.4 0 0 1 24 2.4 V 21.6 A 2.4 2.4 0 0 1 21.6 24 Z";
+
+function extrudeGalet(pathD, depth) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${pathD}"/></svg>`;
+  const parsed = new SVGLoader().parse(svg);
+  const shapes = SVGLoader.createShapes(parsed.paths[0]);
+  const geo = new THREE.ExtrudeGeometry(shapes, {
+    depth,
+    bevelEnabled: true,
+    bevelThickness: 0.32,
+    bevelSize: 0.26,
+    bevelSegments: 5,
+    curveSegments: 26,
+  });
+  // Centre du viewBox 24×24 → origine ; SVG a l'axe Y vers le bas → on retourne.
+  geo.translate(-12, -12, -depth / 2);
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI));
+  return geo;
+}
+
+const matDark = new THREE.MeshStandardMaterial({
+  color: COL.forest,
+  roughness: 0.42,
+  metalness: 0.08,
+});
+const matSoft = new THREE.MeshStandardMaterial({
+  color: 0x2e7d5b,
+  roughness: 0.5,
+  metalness: 0.05,
+});
+
+const DEPTH = 1.9;
+const galetUpper = new THREE.Mesh(extrudeGalet(UPPER, DEPTH), matDark);
+const galetLower = new THREE.Mesh(extrudeGalet(LOWER, DEPTH), matSoft);
+
+const logo = new THREE.Group();
+logo.add(galetUpper, galetLower);
+logo.scale.setScalar(0.23);
+scene.add(logo);
+
+/* ── Satellites : cinq petits galets = les cinq contextes ── */
+const SAT_COUNT = 5; // fidéicommis, dossiers, temps, facturation, conformité
+const satellites = [];
+const satGeo = extrudeGalet(UPPER, 1.4);
+for (let i = 0; i < SAT_COUNT; i++) {
+  const mat = new THREE.MeshStandardMaterial({
+    color: COL.satellite,
+    roughness: 0.55,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0,
+  });
+  const m = new THREE.Mesh(satGeo, mat);
+  m.scale.setScalar(0.038);
+  m.userData.phase = (i / SAT_COUNT) * Math.PI * 2;
+  m.visible = false;
+  scene.add(m);
+  satellites.push(m);
+}
+
+/* Liens fins satellites → cœur du logo */
+const links = satellites.map(() => {
+  const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  const l = new THREE.Line(
+    g,
+    new THREE.LineBasicMaterial({ color: COL.green, transparent: true, opacity: 0 })
+  );
+  l.visible = false;
+  scene.add(l);
+  return l;
+});
+
+/* Anneau d'alerte ambre (chapitre Vérifier) */
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(0.62, 0.02, 12, 48),
+  new THREE.MeshBasicMaterial({ color: COL.amber, transparent: true, opacity: 0 })
+);
+ring.visible = false;
+scene.add(ring);
+
+/* Galets d'arrière-plan, presque invisibles, pour la profondeur */
+const bgGalets = [];
+for (let i = 0; i < 6; i++) {
+  const mat = new THREE.MeshStandardMaterial({
+    color: COL.forestLight,
+    roughness: 0.9,
+    transparent: true,
+    opacity: 0.05,
+  });
+  const m = new THREE.Mesh(satGeo, mat);
+  const s = 0.28 + Math.sin(i * 3.7) * 0.1;
+  m.scale.setScalar(Math.abs(s));
+  m.position.set(
+    Math.sin(i * 2.1) * 16,
+    Math.cos(i * 1.7) * 9,
+    -14 - (i % 3) * 5
+  );
+  m.rotation.set(i, i * 0.7, 0);
+  scene.add(m);
+  bgGalets.push(m);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Chorégraphie au scroll
+   Chaque état décrit : position/échelle du logo, séparation
+   des galets, satellites, et modes spéciaux.
+   x en unités monde ; l'écran fait ~11 unités de large à z=0.
+   ══════════════════════════════════════════════════════════ */
+
+const isMobile = () => window.innerWidth <= 900;
+
+const STATES = {
+  hero:      { x: 3.6,  y: -0.4, scale: 1.0,  sep: 0,   sat: 0,   rotY: -0.35, orbit: 0,   mode: "hero" },
+  systeme:   { x: 3.4,  y: 0,    scale: 0.82, sep: 1,   sat: 1,   rotY: 0.25,  orbit: 3.1, mode: "systeme" },
+  verifier:  { x: -3.4, y: 0,    scale: 0.72, sep: 0.8, sat: 1,   rotY: 0.5,   orbit: 2.6, mode: "verifier" },
+  encaisser: { x: 3.4,  y: 0,    scale: 0.78, sep: 0.5, sat: 1,   rotY: -0.4,  orbit: 2.4, mode: "encaisser" },
+  collaborer:{ x: -3.4, y: 0,    scale: 0.85, sep: 1,   sat: 0,   rotY: 0.2,   orbit: 0,   mode: "collaborer" },
+  calme:     { x: 0,    y: 2.2,  scale: 0.4,  sep: 0,   sat: 0,   rotY: 0.15,  orbit: 0,   mode: "calme", far: true },
+  final:     { x: 0,    y: 3.6,  scale: 0.42, sep: 0,   sat: 0,   rotY: 0,     orbit: 0,   mode: "final" },
+};
+
+/* Ancrages : hero implicite + sections marquées data-state */
+let anchors = [];
+function measure() {
+  const list = [{ el: document.getElementById("hero"), state: "hero" }];
+  document.querySelectorAll("[data-state]").forEach((el) => {
+    list.push({ el, state: el.dataset.state });
+  });
+  anchors = list.map(({ el, state }) => ({
+    state,
+    // point où l'état est pleinement atteint : centre de la section à l'écran
+    at: el.offsetTop + el.offsetHeight * 0.5 - window.innerHeight * 0.5,
+  }));
+  anchors[0].at = 0;
+}
+
+function stateAtScroll(y) {
+  // interpolation entre l'ancre précédente et la suivante
+  let a = anchors[0], b = anchors[0];
+  for (let i = 0; i < anchors.length; i++) {
+    if (anchors[i].at <= y) { a = anchors[i]; b = anchors[Math.min(i + 1, anchors.length - 1)]; }
+  }
+  const span = Math.max(1, b.at - a.at);
+  const t = a === b ? 1 : THREE.MathUtils.clamp((y - a.at) / span, 0, 1);
+  const e = t * t * (3 - 2 * t); // smoothstep
+  const A = STATES[a.state], B = STATES[b.state];
+  const lerp = (k) => THREE.MathUtils.lerp(A[k], B[k], e);
+  return {
+    x: lerp("x"), y: lerp("y"), scale: lerp("scale"), sep: lerp("sep"),
+    sat: lerp("sat"), rotY: lerp("rotY"), orbit: lerp("orbit"),
+    modeA: A.mode, modeB: B.mode, blend: e,
+    // progression locale dans la section b (pour les modes spéciaux)
+    local: t,
+  };
+}
+
+/* ── Interaction : parallaxe + drag du logo au hero ── */
+const pointer = { x: 0, y: 0 };
+window.addEventListener("pointermove", (e) => {
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
+}, { passive: true });
+
+let dragVel = 0, dragSpin = 0, dragging = false, lastX = 0;
+const grab = document.getElementById("grab");
+if (grab) {
+  grab.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    lastX = e.clientX;
+    grab.classList.add("dragging");
+    grab.setPointerCapture(e.pointerId);
+  });
+  grab.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+    dragVel = dx * 0.008;
+    dragSpin += dragVel;
+  });
+  const end = () => { dragging = false; grab.classList.remove("dragging"); };
+  grab.addEventListener("pointerup", end);
+  grab.addEventListener("pointercancel", end);
+}
+
+/* ── Boucle ── */
+const clock = new THREE.Clock();
+const current = { x: 3.6, y: -0.4, scale: 1, sep: 0, sat: 0, rotY: -0.35, orbit: 0 };
+const damp = THREE.MathUtils.damp;
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+  const target = stateAtScroll(window.scrollY);
+
+  // amortissement vers l'état cible
+  const L = 6;
+  for (const k of ["x", "y", "scale", "sep", "sat", "rotY", "orbit"]) {
+    current[k] = damp(current[k], target[k], L, dt);
+  }
+
+  // inertie du drag : au relâchement, la vitesse résiduelle continue puis s'amortit
+  if (!dragging && Math.abs(dragVel) > 0.0001) {
+    dragSpin += dragVel;
+    dragVel = damp(dragVel, 0, 2.5, dt);
+  }
+
+  const mobile = isMobile();
+  const px = mobile ? 0 : current.x;
+  const pScale = mobile ? current.scale * 0.7 : current.scale;
+
+  logo.position.set(px, current.y, 0);
+  logo.scale.setScalar(0.34 * pScale);
+
+  const float = prefersReduced ? 0 : Math.sin(t * 0.8) * 0.12;
+  logo.position.y += float;
+
+  const idleSpin = prefersReduced ? 0 : t * 0.18;
+  logo.rotation.y = current.rotY + idleSpin * 0.35 + dragSpin;
+  logo.rotation.x = prefersReduced ? 0 : Math.sin(t * 0.5) * 0.05 - pointer.y * 0.06;
+  logo.rotation.z = 0;
+
+  // séparation des galets (le système relie ce qui est séparé)
+  const sep = current.sep;
+  galetUpper.position.set(-sep * 2.2, sep * 1.5, sep * 0.8);
+  galetLower.position.set(sep * 2.2, -sep * 1.5, -sep * 0.8);
+  galetUpper.rotation.z = sep * 0.18;
+  galetLower.rotation.z = -sep * 0.18;
+
+  // mode collaborer : les deux galets orbitent l'un autour de l'autre
+  const collabW =
+    (target.modeA === "collaborer" ? 1 - target.blend : 0) +
+    (target.modeB === "collaborer" ? target.blend : 0);
+  if (collabW > 0.001 && !prefersReduced) {
+    const a = t * 0.9;
+    const r = 1.6 * collabW * sep;
+    galetUpper.position.x += Math.cos(a) * r - 0;
+    galetUpper.position.y += Math.sin(a) * r * 0.5;
+    galetLower.position.x += Math.cos(a + Math.PI) * r;
+    galetLower.position.y += Math.sin(a + Math.PI) * r * 0.5;
+  }
+
+  // satellites
+  const satO = current.sat;
+  const verifW =
+    (target.modeA === "verifier" ? 1 - target.blend : 0) +
+    (target.modeB === "verifier" ? target.blend : 0);
+  const encW =
+    (target.modeA === "encaisser" ? 1 - target.blend : 0) +
+    (target.modeB === "encaisser" ? target.blend : 0);
+  // progression de correction dans Vérifier : l'écart se résorbe en lisant
+  const verifFix = target.modeB === "verifier" ? target.local
+    : target.modeA === "verifier" ? 1 : 0;
+
+  satellites.forEach((s, i) => {
+    const visible = satO > 0.02;
+    s.visible = visible;
+    links[i].visible = visible;
+    if (!visible) return;
+
+    const ph = s.userData.phase + (prefersReduced ? 0 : t * 0.35);
+    const R = current.orbit;
+    let sx = logo.position.x + Math.cos(ph) * R;
+    let sy = logo.position.y + Math.sin(ph) * R * 0.55;
+    let sz = Math.sin(ph * 1.3) * 1.2;
+
+    // Vérifier : le satellite 2 dérive hors de l'orbite puis revient
+    let col = COL.satellite;
+    if (i === 2 && verifW > 0.01) {
+      const drift = verifW * (1 - verifFix) * 2.2;
+      sx += Math.cos(ph) * drift;
+      sy += Math.sin(ph) * drift * 0.7 + drift * 0.4;
+      col = new THREE.Color(COL.amber).lerp(new THREE.Color(COL.green), verifFix).getHex();
+      ring.visible = true;
+      ring.position.set(sx, sy, sz);
+      ring.lookAt(camera.position);
+      const pulse = prefersReduced ? 1 : 1 + Math.sin(t * 4) * 0.08;
+      ring.scale.setScalar(pulse * Math.abs(s.scale.x) * 18);
+      ring.material.opacity = 0.75 * verifW * (1 - verifFix) * satO;
+    }
+    if (i === 2 && verifW <= 0.01) ring.visible = false;
+
+    // Encaisser : les satellites se mettent en file et coulent vers le galet clair
+    if (encW > 0.01 && !prefersReduced) {
+      const flow = ((i / SAT_COUNT) + t * 0.12) % 1;
+      const qx = logo.position.x - 4.5 + flow * 4.5;
+      const qy = logo.position.y + 2.6 - flow * 2.6;
+      sx = THREE.MathUtils.lerp(sx, qx, encW);
+      sy = THREE.MathUtils.lerp(sy, qy, encW);
+      sz = THREE.MathUtils.lerp(sz, 0, encW);
+      // absorbé en fin de course
+      const fade = flow > 0.85 ? 1 - (flow - 0.85) / 0.15 : 1;
+      s.material.opacity = 0.85 * satO * THREE.MathUtils.lerp(1, fade, encW);
+    } else {
+      s.material.opacity = 0.85 * satO;
+    }
+
+    s.material.color.setHex(typeof col === "number" ? col : COL.satellite);
+    s.position.set(sx, sy, sz);
+    // léger balancement, jamais par la tranche (le galet doit rester lisible)
+    s.rotation.y = Math.sin(ph * 0.7) * 0.55;
+    s.rotation.z = Math.sin(ph) * 0.3;
+
+    // lien vers le cœur
+    const lg = links[i].geometry;
+    lg.setFromPoints([new THREE.Vector3(sx, sy, sz), logo.position.clone()]);
+    links[i].material.opacity = 0.22 * satO * (encW > 0.01 ? 1 - encW : 1);
+  });
+
+  // dérive lente de l'arrière-plan
+  if (!prefersReduced) {
+    bgGalets.forEach((m, i) => {
+      m.rotation.y += dt * 0.05;
+      m.position.y += Math.sin(t * 0.2 + i) * 0.002;
+    });
+  }
+
+  // caméra : parallaxe discrète
+  const parX = prefersReduced ? 0 : pointer.x * 0.5;
+  const parY = prefersReduced ? 0 : -pointer.y * 0.35;
+  camera.position.x = damp(camera.position.x, parX, 4, dt);
+  camera.position.y = damp(camera.position.y, parY, 4, dt);
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+/* ── Apparition des blocs texte ── */
+const io = new IntersectionObserver(
+  (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("in")),
+  { rootMargin: "-60px" }
+);
+document.querySelectorAll(".fade").forEach((el) => io.observe(el));
+
+/* ── Redimensionnement ── */
+function resize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  measure();
+}
+window.addEventListener("resize", resize);
+
+measure();
+// re-mesure après chargement des polices (les hauteurs bougent)
+if (document.fonts?.ready) document.fonts.ready.then(measure);
+window.addEventListener("load", measure);
+
+frame();
+</script>
+</body>
+</html>

@@ -1,5 +1,11 @@
 # Fiche ICP — Cabinet solo québécois (préchauffage)
 
+> ⚠️ **PÉRIMÉ depuis le 2026-08-08. Remplacé par [ICP_JEUNE_CABINET_QC.md](ICP_JEUNE_CABINET_QC.md).**
+> Deux règles de ce document ne s'appliquent plus : l'ancienneté visée (5 à 20 ans est devenu
+> 0 à 8 ans depuis l'ouverture) et l'interdiction de convertir (levée le 2026-07-27).
+> Ce qui reste valable et a été repris : les domaines à fidéicommis, les anti-critères,
+> et l'entrée par l'adjointe. Conservé pour l'historique, ne pas utiliser pour cibler.
+
 > Profil client idéal pour le ciblage outbound de préchauffage.
 > Objectif phase actuelle (jusqu'au 2026-09-04) : conversations à valeur d'abord, capture d'insights, build-in-public. PAS de conversion.
 > Dernière mise à jour : 2026-06-26

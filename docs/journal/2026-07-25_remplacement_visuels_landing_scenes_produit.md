@@ -31,3 +31,18 @@ La landing n'utilisait aucune image bitmap : tous les visuels sont des compositi
 ## Idées à propager (content-bank)
 
 - Post possible : « Nous avons remplacé notre plus beau schéma par une fiche de dossier. Personne ne signe pour un diagramme. » (angle : montrer le produit, pas le concept).
+
+## Évolution (même journée, retour CEO)
+
+Le CEO a montré la section « Chaque action garde son contexte » et tranché : la carte DOM n'est pas assez belle. Le rendu recherché, c'est celui des maquettes app style Linear déjà générées (`public/images/linear-style/`).
+
+Décision appliquée, conforme à la grille narrative de `DIRECTION_LANDING_SAFE_INSPIREE_LINEAR_2026.md` (« scène produit sur toute la largeur ») :
+
+- **Hero restructuré en pattern Linear** : texte à gauche (titre serif 76px, sous-titre, CTA), puis fenêtre d'app pleine largeur (1240 px) en dessous : `safe-dashboard-hybrid-production-concept-v5-official-logos.png` (tableau de bord « Bonjour Sophie », KPIs, À votre attention, journée). Cadre filet + ombre forêt spec (`0 40px 80px -44px rgba(11,31,25,.5)`), next/image `priority`.
+- **Section système** : titre à gauche, explication à droite, scène pleine largeur `safe-dossier-command-center-v3-recessed-menu.png` (Dossier Tremblay, flux de travail, fiducie rapprochée, facture prête, échéance). Ligne de résultat sous la scène.
+- Supprimés : le panneau « À traiter maintenant » du hero (remplacé par le rendu riche) et la carte dossier DOM du matin.
+- Halo flou du hero supprimé au passage (discipline filets).
+
+Vérifié : tsc propre, images servies par l'optimiseur next/image (1280 px), hero + scène système confirmés au navigateur.
+
+À surveiller : sur mobile, recadrer les scènes plutôt que les réduire (règle responsive de la direction Linear), non traité aujourd'hui. Les rendus PNG montrent un concept légèrement en avance sur le produit réel ; la direction (« ne pas inventer une fausse interface plus avancée que le produit ») recommandera à terme de les remplacer par de vraies captures du re-skin en cours.
