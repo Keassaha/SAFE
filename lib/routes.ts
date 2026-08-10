@@ -65,6 +65,8 @@ export const routes = {
   /// Ces ecrans vivaient sous /comptes, ce qui etait faux : quatre des neuf
   /// registres et la trousse ne concernent pas le fideicommis.
   inspection: "/inspection",
+  /// La marche zero : sans compte declare, aucun autre ecran d'inspection ne sert.
+  comptesFiducie: "/inspection/comptes",
   rapportMensuel: "/inspection/rapport-mensuel",
   trousseInspection: "/inspection/trousse",
   registres: "/inspection/registres",

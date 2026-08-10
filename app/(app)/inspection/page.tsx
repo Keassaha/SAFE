@@ -18,6 +18,11 @@ import {
 import { getFiscalYearEnd } from "@/lib/services/compliance/retention-service";
 import { listUndeliveredIssuedInvoices } from "@/lib/services/billing/invoice-delivery-service";
 import { getPendingCountersignatures } from "@/lib/services/fideicommis/electronic-transfer-service";
+import { listTrustBankAccounts } from "@/lib/services/fideicommis/trust-bank-account-service";
+import {
+  getPostOpeningDuties,
+  type TrustBankAccountType,
+} from "@/lib/compliance/trust-bank-account";
 import { Panel, Pill } from "@/components/conformite/primitives";
 
 /**
@@ -75,6 +80,7 @@ export default async function InspectionPage() {
     exercice,
     nonTransmisesRows,
     contresignatures,
+    comptes,
   ] = await Promise.all([
       getOpenShortfalls({ cabinetId }).catch(() => ({ openCount: 0 })),
       getPendingCashDeclarations({ cabinetId }).catch(() => []),
@@ -88,7 +94,19 @@ export default async function InspectionPage() {
       // La s. 12 n'existe qu'en Ontario : ne rien interroger ailleurs évite de compter
       // des contresignatures qu'aucun règlement n'exige du cabinet.
       qc ? Promise.resolve([]) : getPendingCountersignatures({ cabinetId }).catch(() => []),
+      listTrustBankAccounts(cabinetId).catch(() => []),
     ]);
+
+  // Démarches de l'art. 51 et 64 encore dues, tous comptes ouverts confondus.
+  const demarchesDues = comptes.reduce(
+    (n, a) =>
+      n +
+      getPostOpeningDuties(province, a.type as TrustBankAccountType, {
+        regulatorNotifiedAt: a.regulatorNotifiedAt,
+        clientCopySentAt: a.clientCopySentAt,
+      }).filter((d) => !d.done).length,
+    0,
+  );
 
   const nonCertifies = rapports.filter((r) => !r.certifiedAt).length;
   const declarationsEnRetard = declarations.filter((d) => d.overdue).length;
@@ -111,6 +129,21 @@ export default async function InspectionPage() {
   const contresignaturesEnRetard = contresignatures.filter((c) => c.overdue).length;
 
   const portes: Porte[] = [
+    {
+      href: routes.comptesFiducie,
+      titre: "Comptes en fidéicommis",
+      quoi: "Déclarer vos comptes. Tout le reste en dépend.",
+      reference: qc ? "art. 50, 51, 62" : "s. 7, 8",
+      alerte:
+        comptes.length === 0
+          ? { texte: "aucun compte déclaré", grave: true }
+          : demarchesDues > 0
+            ? {
+                texte: `${demarchesDues} démarche${demarchesDues === 1 ? "" : "s"} à faire`,
+                grave: false,
+              }
+            : null,
+    },
     {
       href: routes.rapportMensuel,
       titre: "Rapport mensuel",
@@ -228,7 +261,16 @@ export default async function InspectionPage() {
 
   // Le rapport annuel et le cycle de vie sont québécois. Les proposer à un cabinet
   // ontarien lui ferait croire à une obligation qu'il n'a pas.
-  const visibles = portes.filter((p) => qc || !["Rapport annuel", "Cycle de vie du cabinet"].includes(p.titre));
+  const visibles = portes
+    .filter((p) => qc || !["Rapport annuel", "Cycle de vie du cabinet"].includes(p.titre))
+    // ── Sans compte déclaré, les autres alertes sont des CONSÉQUENCES ─────────
+    // « Aucun rapport produit » n'est pas un problème indépendant quand aucun
+    // rapport ne PEUT être produit. Quatre pastilles rouges le premier jour ne
+    // disent pas par où commencer, et une liste de reproches impossibles à lever
+    // apprend surtout à ignorer la couleur rouge.
+    .map((p) =>
+      comptes.length === 0 && p.href !== routes.comptesFiducie ? { ...p, alerte: null } : p,
+    );
 
   const alertesGraves = visibles.filter((p) => p.alerte?.grave).length;
 
@@ -243,16 +285,35 @@ export default async function InspectionPage() {
         }
       />
 
-      {alertesGraves > 0 && (
+      {comptes.length === 0 ? (
         <Panel tone="alert" className="p-4">
           <h2 className="text-base font-medium text-si-danger-ink">
-            {alertesGraves} point{alertesGraves === 1 ? "" : "s"} demande
-            {alertesGraves === 1 ? "" : "nt"} votre attention
+            Commencez par déclarer votre compte en fidéicommis
           </h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">
-            Ce sont les écrans marqués en rouge ci-dessous. Le reste peut attendre.
+          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[var(--si-ink)]">
+            Rien d&apos;autre n&apos;est possible avant : ni registre, ni rapport, ni mouvement de
+            fidéicommis. Les autres écrans ci-dessous sont en place et vous attendent, mais ils
+            resteront vides tant qu&apos;aucun compte n&apos;existe.
           </p>
+          <Link
+            href={routes.comptesFiducie}
+            className="mt-3 inline-block text-sm text-si-danger-ink underline"
+          >
+            Déclarer un compte
+          </Link>
         </Panel>
+      ) : (
+        alertesGraves > 0 && (
+          <Panel tone="alert" className="p-4">
+            <h2 className="text-base font-medium text-si-danger-ink">
+              {alertesGraves} point{alertesGraves === 1 ? "" : "s"} demande
+              {alertesGraves === 1 ? "" : "nt"} votre attention
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">
+              Ce sont les écrans marqués en rouge ci-dessous. Le reste peut attendre.
+            </p>
+          </Panel>
+        )
       )}
 
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

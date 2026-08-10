@@ -152,6 +152,106 @@ export async function openTrustBankAccount(params: OpenTrustBankAccountParams): 
 }
 
 /**
+ * Consigne une démarche post-ouverture accomplie.
+ *
+ * ⚠️ CE QUE CETTE FONCTION CORRIGE. `getPostOpeningDuties` LISAIT
+ * `regulatorNotifiedAt` et `clientCopySentAt` depuis le premier jour, mais rien au
+ * dépôt ne les ÉCRIVAIT. Les deux obligations de l'art. 51 et de l'art. 64 restaient
+ * donc « à faire » pour toujours, quoi que le cabinet accomplisse.
+ *
+ * C'est le motif que le programme combat partout : une exigence sans porte de sortie
+ * (PR-2). Une case qu'on ne peut jamais cocher finit par être ignorée, et l'écran
+ * entier avec elle.
+ *
+ * SAFE NE TRANSMET RIEN. Le formulaire est prescrit par le Barreau, SAFE ne l'a pas
+ * obtenu (dépendance E-1), et l'envoi est l'acte de l'avocate. La fonction consigne
+ * la date qu'elle déclare, et la pièce quand elle en joint une (PR-8).
+ */
+export async function recordPostOpeningDuty(params: {
+  cabinetId: string;
+  accountId: string;
+  duty: "REGULATOR_FORM_SENT" | "CLIENT_COPY_SENT";
+  at: Date;
+  documentId?: string | null;
+  userId: string;
+}): Promise<void> {
+  const account = await prisma.trustBankAccount.findFirst({
+    where: { id: params.accountId, cabinetId: params.cabinetId },
+    select: { id: true, type: true },
+  });
+  if (!account) throw new Error("Compte introuvable pour ce cabinet");
+
+  // L'art. 64 ne vise que le compte particulier : la copie au client n'existe pas
+  // pour un compte général, et l'accepter inventerait une obligation.
+  if (params.duty === "CLIENT_COPY_SENT" && account.type !== "PARTICULIER") {
+    throw new Error(
+      "La remise d'un exemplaire au client ne concerne que le compte particulier (B-1 r.5, art. 64).",
+    );
+  }
+
+  await prisma.trustBankAccount.update({
+    where: { id: account.id },
+    data:
+      params.duty === "REGULATOR_FORM_SENT"
+        ? {
+            regulatorNotifiedAt: params.at,
+            regulatorFormDocumentId: params.documentId ?? undefined,
+          }
+        : { clientCopySentAt: params.at },
+  });
+
+  await createAuditLog({
+    cabinetId: params.cabinetId,
+    userId: params.userId,
+    entityType: "TrustAccount",
+    entityId: account.id,
+    action: "update",
+    newValues: {
+      type: "trust_bank_account_duty",
+      duty: params.duty,
+      at: params.at.toISOString(),
+      reference: account.type === "PARTICULIER" ? "B-1 r.5, art. 64" : "B-1 r.5, art. 51",
+    },
+    performedBy: params.userId,
+    performedAt: new Date(),
+  });
+}
+
+/**
+ * Confirme après coup que l'institution a conclu l'entente B-1 r.10.
+ *
+ * L'information manque souvent le jour de l'ouverture : c'est une démarche de
+ * plusieurs jours auprès de la banque. La rendre bloquante empêcherait de saisir un
+ * compte qui existe déjà, ce qui pousserait à ne rien saisir du tout.
+ */
+export async function confirmBarreauAgreement(params: {
+  cabinetId: string;
+  accountId: string;
+  confirmed: boolean;
+  userId: string;
+}): Promise<void> {
+  await prisma.trustBankAccount.updateMany({
+    where: { id: params.accountId, cabinetId: params.cabinetId },
+    data: { barreauAgreementConfirmed: params.confirmed },
+  });
+
+  await createAuditLog({
+    cabinetId: params.cabinetId,
+    userId: params.userId,
+    entityType: "TrustAccount",
+    entityId: params.accountId,
+    action: "update",
+    newValues: {
+      type: "barreau_agreement",
+      confirmed: params.confirmed,
+      reference: "B-1 r.5, art. 50",
+    },
+    performedBy: params.userId,
+    performedAt: new Date(),
+  });
+}
+
+/**
  * Ferme un compte. Le compte n'est JAMAIS supprimé : l'art. 42(7) QC exige la liste
  * des comptes fermés durant la période au rapport annuel.
  *
