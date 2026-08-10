@@ -20,6 +20,7 @@ import { buildRecommendation } from "@/lib/audit-gratuit/recommendation";
 import { renderAuditReportPdf } from "@/lib/audit-gratuit/pdf";
 import { auditGratuitClientEmail } from "@/lib/email-templates/audit-gratuit-client";
 import { runConfigurationEngine } from "@/lib/configuration";
+import { attachAuditSubmissionToCrm } from "@/lib/crm/lead-from-audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -109,6 +110,21 @@ export async function POST(req: NextRequest) {
       status: "nouveau",
     },
   });
+
+  // Rattachement CRM — le prospect doit apparaître dans la Console immédiatement,
+  // avant même la génération du PDF (lente) et l'envoi des courriels (faillible).
+  // Strictement non bloquant : une soumission ne se perd jamais parce que le CRM
+  // a échoué. `attachAuditSubmissionToCrm` ne throw pas, le try est une ceinture.
+  try {
+    const crm = await attachAuditSubmissionToCrm(submission.id);
+    if (!crm.ok) {
+      console.error("[audit-gratuit] CRM attach failed:", crm.error);
+    } else {
+      console.log(`[audit-gratuit] CRM: ${crm.note} (lead ${crm.leadId})`);
+    }
+  } catch (e) {
+    console.error("[audit-gratuit] CRM attach threw:", e);
+  }
 
   // Génération du PDF
   let pdfBuffer: Buffer | null = null;
