@@ -4,7 +4,6 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
-import { Card, CardTitle } from "@/components/ds-safe/core";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
@@ -168,37 +167,42 @@ export default async function FacturationPage({
     lastReminderSentAt: inv.reminderLogs[0]?.sentAt ?? null,
   }));
 
+  const secondaryTools = [
+    { href: routes.facturationTempsNonFacture, title: t("toolUnbilledTime"), hint: t("toolUnbilledTimeHint") },
+    { href: routes.facturationFrais, title: t("toolDisbursements"), hint: t("toolDisbursementsHint") },
+    { href: routes.facturationCreancesAging, title: t("toolReceivablesAging"), hint: t("toolReceivablesAgingHint") },
+    { href: routes.facturationTaxes, title: t("toolTaxes"), hint: t("toolTaxesHint") },
+    { href: routes.facturationRentabilite, title: t("toolProfitability"), hint: t("toolProfitabilityHint") },
+  ];
+
   return (
     <div className="space-y-6">
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        {[
-          { href: routes.facturationTempsNonFacture, titre: "Temps non facturé", sous: "Revenus dormants" },
-          { href: routes.facturationFrais, titre: "Débours", sous: "À refacturer" },
-          { href: routes.facturationCreancesAging, titre: "Aging des créances", sous: "Impayés par ancienneté" },
-          { href: routes.facturationTaxes, titre: "TPS / TVQ", sous: "À remettre (estimation)" },
-          { href: routes.facturationRentabilite, titre: "Rentabilité", sous: "Marge par dossier" },
-        ].map((c) => (
-          <Link
-            key={c.href}
-            href={c.href}
-            className="rounded-xl border border-si-line bg-si-surface px-4 py-3 hover:bg-si-canvas transition-colors"
-          >
-            <p className="text-sm font-medium text-si-ink">{c.titre}</p>
-            <p className="text-xs text-si-muted mt-0.5">{c.sous} →</p>
-          </Link>
-        ))}
-      </div>
+      <nav aria-label={t("secondaryToolsLabel")} className="border-y border-si-line">
+        <ul className="grid grid-cols-1 divide-y divide-si-line bg-si-surface md:grid-cols-5 md:divide-x md:divide-y-0">
+          {secondaryTools.map((tool) => (
+            <li key={tool.href}>
+              <Link
+                href={tool.href}
+                className="flex min-h-16 flex-col justify-center px-4 py-3 transition-colors hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified"
+              >
+                <span className="text-sm font-medium text-si-ink">{tool.title}</span>
+                <span className="mt-0.5 text-xs text-si-muted">{tool.hint}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <section id="facturables" className="scroll-mt-24">
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
       </section>
 
-      <Card className="overflow-hidden">
+      <section className="overflow-hidden border-y border-si-line bg-si-surface">
         <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>{t("listTitle")}</CardTitle>
+          <h2 className="text-lg font-semibold text-si-ink">{t("listTitle")}</h2>
           <FacturationActions billingMode={billingMode} />
         </div>
         <div className="space-y-4 p-6">
@@ -229,7 +233,7 @@ export default async function FacturationPage({
             <FacturationTable invoices={rows} />
           )}
         </div>
-      </Card>
+      </section>
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { LogActivityForm } from "@/components/console/LogActivityForm";
 import { AddContactForm } from "@/components/console/AddContactForm";
+import { ComposerCourriel } from "@/components/console/ComposerCourriel";
+import { AssistantProspection } from "@/components/console/AssistantProspection";
 import { BandeauConversion } from "@/components/console/BandeauConversion";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
@@ -409,6 +411,7 @@ export default async function ConsoleClientDetailPage({
                           {contact.prenom} {contact.nom}
                           {contact.estDecideur && <span className="ml-2 inline-flex items-center rounded bg-si-forest/[0.06] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-forest">Décideur</span>}
                           {contact.estChampionInterne && <span className="ml-1 inline-flex items-center rounded bg-si-verified/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-verified">Champion</span>}
+                          {contact.doNotContact && <span className="ml-1 inline-flex items-center rounded bg-[#B84A3E]/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#B84A3E]">Désabonné</span>}
                         </div>
                         <div className="text-xs text-si-muted">
                           {ROLE_LABELS[contact.roleCrm] ?? contact.roleCrm}{contact.titre && ` · ${contact.titre}`}
@@ -422,7 +425,28 @@ export default async function ConsoleClientDetailPage({
                   ))}
                 </div>
               )}
+              <div className="mt-4 border-t border-si-line pt-4">
+                <ComposerCourriel
+                  leadId={lead.id}
+                  contacts={lead.contacts.map((c) => ({
+                    id: c.id,
+                    prenom: c.prenom,
+                    nom: c.nom,
+                    email: c.email,
+                    doNotContact: c.doNotContact,
+                    emailStatut: c.emailStatut,
+                  }))}
+                />
+              </div>
               <div className="mt-3"><AddContactForm leadId={lead.id} /></div>
+            </CardContent>
+          </Card>
+
+          {/* Assistant de prospection */}
+          <Card>
+            <CardContent className="px-6 py-5">
+              <SectionTitle>Assistant de prospection</SectionTitle>
+              <AssistantProspection leadId={lead.id} />
             </CardContent>
           </Card>
 

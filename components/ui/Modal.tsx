@@ -1,114 +1,125 @@
 "use client";
 
-import { useEffect, useRef, useCallback, type ReactNode } from "react";
+import React, { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { overlayVariants, panelVariants } from "@/lib/motion";
+import { Button } from "@/components/ui/Button";
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
-  /** Classe CSS pour la largeur du panneau (ex. max-w-2xl pour formulaires larges) */
+  /** Classe CSS de largeur, conservée pour la compatibilité des formulaires. */
   maxWidth?: string;
+  closeOnBackdrop?: boolean;
+  closeOnEscape?: boolean;
 }
 
-export function Modal({ open, onClose, title, children, maxWidth = "max-w-lg" }: ModalProps) {
+const FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  maxWidth = "max-w-lg",
+  closeOnBackdrop = true,
+  closeOnEscape = true,
+}: ModalProps) {
   const t = useTranslations("ui");
+  const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
-  const dragY = useMotionValue(0);
-  const dragOpacity = useTransform(dragY, [0, 300], [1, 0.2]);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (open) {
-      const onEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") onClose();
-      };
-      document.addEventListener("keydown", onEscape);
-      const prevOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.removeEventListener("keydown", onEscape);
-        document.body.style.overflow = prevOverflow;
-      };
-    }
-  }, [open, onClose]);
+    if (!open) return;
 
-  // Restore body scroll on unmount (e.g. navigation while modal open)
-  useEffect(() => {
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
-  const handleDragEnd = useCallback(
-    (_: unknown, info: PanInfo) => {
-      if (info.offset.y > 100 || info.velocity.y > 500) {
+    const focusTimer = window.requestAnimationFrame(() => {
+      const first = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+      (first ?? panelRef.current)?.focus();
+    });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && closeOnEscape) {
+        event.preventDefault();
         onClose();
+        return;
       }
-    },
-    [onClose]
-  );
+      if (event.key !== "Tab" || !panelRef.current) return;
 
-  const content = (
-    <AnimatePresence>
-      {open && (
-        <div
-          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-        >
-          <motion.div
-            variants={overlayVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={onClose}
-            aria-hidden
-          />
-          <motion.div
-            ref={panelRef}
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            // Mobile swipe-to-dismiss
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.6 }}
-            onDragEnd={handleDragEnd}
-            style={{ y: dragY, opacity: dragOpacity }}
-            className={`relative z-10 w-full ${maxWidth} bg-white shadow-xl border border-[var(--safe-neutral-border)] max-h-[95dvh] sm:max-h-[90vh] overflow-auto rounded-t-2xl sm:rounded-safe-md`}
-          >
-            {/* Mobile drag handle */}
-            <div className="sm:hidden flex justify-center pt-2 pb-0 sticky top-0 z-20 bg-white rounded-t-2xl">
-              <div className="w-10 h-1 rounded-full bg-gray-300" />
-            </div>
+      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        panelRef.current.focus();
+        return;
+      }
 
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--safe-neutral-border)] sticky top-0 sm:top-0 z-10 bg-white sm:rounded-t-safe-md rounded-t-2xl">
-              <h2 id="modal-title" className="text-base sm:text-lg font-semibold safe-text-title tracking-tight pr-2 truncate">
-                {title}
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] p-2 -mr-1 rounded-safe-sm transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label={t("close")}
-              >
-                <span className="text-xl leading-none">&times;</span>
-              </button>
-            </div>
-            <div className="p-4 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
-          </motion.div>
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusTimer);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [closeOnEscape, onClose, open]);
+
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+      {/* Voile : il recouvre tout le travail et l'éteint. Il ne présente pas
+          l'arrière-plan, il signale qu'il est hors d'atteinte. */}
+      <div
+        className="safe-scrim absolute inset-0"
+        onClick={closeOnBackdrop ? onClose : undefined}
+        aria-hidden
+      />
+      {/* Plan 3, niveau focus : le panneau recouvre le canvas et réclame une
+          décision. Le niveau focus est le plus opaque des trois verres, la
+          lisibilité du contenu prime sur l'effet de matière. */}
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className={`safe-glass-focus relative z-10 max-h-[95dvh] w-full overflow-auto rounded-t-xl border outline-none sm:max-h-[90vh] sm:rounded-xl ${maxWidth}`}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-si-line bg-[var(--glass-3-bg)] px-4 py-3 sm:px-6">
+          <h2 id={titleId} className="truncate pr-2 font-serif text-xl leading-tight text-si-ink">
+            {title}
+          </h2>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t("close")} className="-mr-2 shrink-0">
+            <X className="h-5 w-5" aria-hidden />
+          </Button>
         </div>
-      )}
-    </AnimatePresence>
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">{children}</div>
+      </div>
+    </div>,
+    document.body,
   );
-
-  if (typeof document === "undefined") return null;
-  return createPortal(content, document.body);
 }

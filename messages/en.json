@@ -763,6 +763,18 @@
     "followUp": "Follow-up",
     "deposits": "Deposits",
     "paidIssued": "Paid / issued",
+    "financialSummaryLabel": "Billing financial summary and filters",
+    "secondaryToolsLabel": "Billing analysis and registers",
+    "toolUnbilledTime": "Unbilled time",
+    "toolUnbilledTimeHint": "Dormant revenue",
+    "toolDisbursements": "Disbursements",
+    "toolDisbursementsHint": "To rebill",
+    "toolReceivablesAging": "Receivables aging",
+    "toolReceivablesAgingHint": "Outstanding by period",
+    "toolTaxes": "GST / QST",
+    "toolTaxesHint": "Estimated remittance",
+    "toolProfitability": "Profitability",
+    "toolProfitabilityHint": "Margin by matter",
     "billingTabs": "Billing tabs",
     "honorairesLabel": "Fees",
     "typeHonoraires": "Fees",
@@ -1014,7 +1026,13 @@
     "stExpiringSoon": "{count} expiring soon",
     "lblExpected": "Expected",
     "lblLast": "Last",
-    "viewReports": "View reports"
+    "viewReports": "View reports",
+    "verdictReady": "The firm is ready for an inspection.",
+    "verdictNotReady": "The firm is not ready for an inspection yet.",
+    "toTreatHeading": "What needs action",
+    "nothingToTreat": "Nothing needs action right now.",
+    "compliantHeading": "{count, plural, one {# domain already compliant} other {# domains already compliant}}",
+    "notApplicableHeading": "{count, plural, one {# domain not applicable} other {# domains not applicable}}"
   },
   "clients": {
     "registryTitle": "Client Registry",
@@ -1800,7 +1818,9 @@
     "weekThu": "Thu",
     "weekFri": "Fri",
     "weekSat": "Sat",
-    "weekSun": "Sun"
+    "weekSun": "Sun",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "import": {
     "editMapping": "Edit mapping",
@@ -1902,6 +1922,108 @@
     "selectOption": "— Select —",
     "templates": "templates"
   },
+  "trustBanner": {
+    "never": "never",
+    "cta": "Open reconciliation",
+    "qc": {
+      "never": {
+        "headline": "Trust account has never been reconciled",
+        "detail": "Regulation B-1, r. 5 requires a monthly three-way reconciliation. Period {expected} has not been certified."
+      },
+      "overdue": {
+        "headline": "Reconciliation overdue by {days, plural, one {# day} other {# days}}",
+        "detail": "Required period: {expected}. Last certified period: {last}. Resolve this to maintain Barreau du Québec compliance."
+      }
+    },
+    "on": {
+      "never": {
+        "headline": "Trust account has never been reconciled",
+        "detail": "Law Society of Ontario By-Law 9, s. 9.01 requires a monthly three-way reconciliation. Period {expected} has not been certified."
+      },
+      "overdue": {
+        "headline": "Reconciliation overdue by {days, plural, one {# day} other {# days}}",
+        "detail": "Required period: {expected}. Last certified period: {last}. Resolve this to maintain Law Society of Ontario compliance."
+      }
+    }
+  },
+  "trustReconciliationUi": {
+    "accessDenied": "You do not have access to this section.",
+    "titleQc": "Trust account reconciliation",
+    "titleOn": "Trust account reconciliation",
+    "description": "Compare the bank statement, SAFE register, and matter balances in accordance with {regulation}.",
+    "backQc": "Back to trust accounts",
+    "backOn": "Back to trust accounts",
+    "regulation": {
+      "qc": "Regulation B-1, r. 5",
+      "on": "Law Society of Ontario By-Law 9, s. 9.01"
+    },
+    "loading": "Loading the reconciliation…",
+    "loadErrorTitle": "Unable to load the reconciliation",
+    "loadErrorDescription": "No balances were changed. Check your connection, then load the reconciliation again.",
+    "retry": "Retry",
+    "status": {
+      "critical": "Overdue: {days} days since month-end",
+      "overdue": "Period {period} requires reconciliation",
+      "certified": "Period {period} certified",
+      "pending": "Period {period} awaiting reconciliation",
+      "lastCertified": "Last certified period: {period}"
+    },
+    "form": {
+      "title": "Reconciliation data",
+      "intro": "Enter the statement amounts. SAFE will recalculate the gap without changing accounting entries.",
+      "period": "Period",
+      "bankBalance": "Bank statement balance",
+      "outstandingCheques": "Outstanding cheques",
+      "depositsInTransit": "Deposits in transit",
+      "foundationInterestQc": "Barreau du Québec Foundation interest payable",
+      "foundationInterestOn": "Law Foundation of Ontario interest payable",
+      "notes": "Reconciliation notes",
+      "notesPlaceholder": "Explain an adjustment or a missing supporting document.",
+      "calculate": "Calculate reconciliation",
+      "calculating": "Calculating…",
+      "calculateError": "The calculation failed. No balances were changed.",
+      "retryCalculate": "Retry calculation"
+    },
+    "result": {
+      "title": "Result for period {period}",
+      "bankReconciled": "Reconciled bank balance",
+      "bankDetails": "Statement {bank} · Cheques {cheques} · Deposits {deposits}",
+      "safeRegister": "SAFE register",
+      "safeRegisterDesc": "Total recorded transactions",
+      "discrepancy": "Gap to resolve",
+      "balanced": "Balanced, ready to certify",
+      "mustBeZero": "The gap must be zero before certification.",
+      "foundationInterestQc": "Barreau du Québec Foundation interest: {amount}",
+      "foundationInterestOn": "Law Foundation of Ontario interest: {amount}",
+      "interestPaid": "Paid",
+      "interestPending": "Payable",
+      "certify": "Certify reconciliation",
+      "certifying": "Certifying…",
+      "certificationStatement": "I confirm that the bank statement, SAFE register, and matter balances agree for this period.",
+      "certificationError": "Certification failed. The reconciliation remains uncertified.",
+      "retryCertification": "Retry certification",
+      "certifiedBy": "Certified by {name} on {date}"
+    },
+    "history": {
+      "title": "Reconciliation history",
+      "period": "Period",
+      "bank": "Bank",
+      "register": "Register",
+      "discrepancy": "Gap",
+      "status": "Status",
+      "certifiedBy": "Certified by"
+    },
+    "empty": {
+      "title": "No reconciliations recorded",
+      "description": "Start by entering the bank statement balance for the expected period.",
+      "action": "Start reconciliation"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "complete": "Balanced, ready to certify",
+      "certified": "Certified"
+    }
+  },
   "temps": {
     "mixte": {
       "title": "Time & flat fees",
@@ -1991,6 +2113,8 @@
       }
     },
     "deleteEntry": "Delete this entry?",
+    "actions": "Entry actions",
+    "actionError": "The action could not be saved. Try again.",
     "noEntries": "No entries",
     "noTimeEntries": "No time entries",
     "billed": "Billed",
@@ -2033,6 +2157,7 @@
     "workingOn": "What are you working on?",
     "descriptionOptional": "Description (optional)",
     "startTimer": "Start",
+    "selectClientToStart": "Choose a client to start.",
     "addNewClient": "+ Register a new client",
     "businessNameRequired": "Business name required",
     "clientRegistered": "Client registered in the registry.",
@@ -2337,7 +2462,7 @@
     "detectedItems": "Detected items",
     "linesCount": "{count, plural, one {# line} other {# lines}}",
     "autoLoadedItems": "Unbilled tasks, fees, disbursements and discounts are loaded automatically.",
-    "noExistingItems": "No existing items to bill. You can create the invoice from scratch.",
+    "noExistingItems": "No existing items to bill. You can add a line manually.",
     "billedTasks": "Billed tasks",
     "invoiceLines": "Invoice lines",
     "selectPresetTaskHint": "Select a preset task and the amount fills in automatically.",
@@ -2370,6 +2495,9 @@
     "discountGranted": "Discount granted",
     "subtotal": "Subtotal",
     "total": "Total",
+    "alreadyPaid": "Already paid",
+    "invoiceSummaryLabel": "Invoice financial summary",
+    "invoiceDocumentLabel": "Invoice document",
     "noteToClient": "Note to client",
     "optionalMessagePlaceholder": "Optional message shown on the invoice…",
     "livePreview": "Live preview",
@@ -2434,6 +2562,9 @@
     "refundCancel": "Cancel",
     "refundConfirm": "Record the request",
     "refundError": "Recording failed. Try again.",
+    "paymentsLoadError": "Payments could not be loaded.",
+    "creditsLoadError": "Credit balances could not be loaded.",
+    "retry": "Try again",
     "noPayments": "No payments.",
     "invoice": "Invoice",
     "allocated": "Allocated",
@@ -2529,6 +2660,16 @@
     "selectAtLeastOneItem": "Select at least one time entry, disbursement or task.",
     "sendInvoiceTitle": "Send invoice",
     "sendInvoiceBody": "The invoice will be emailed to the client as a PDF attachment.",
+    "sendDialogIntro": "You can edit the subject and message before sending. The invoice PDF is attached automatically.",
+    "subject": "Subject",
+    "message": "Message",
+    "paymentInstructions": "Payment instructions",
+    "paymentInstructionsPlaceholder": "Payment methods, contact details and invoice number reminder…",
+    "paymentInstructionsHint": "These instructions appear in a separate section at the bottom of the email.",
+    "confirmCancelDraft": "Cancel this invoice draft? This action cannot be undone.",
+    "confirmCloseSendDialog": "Close without sending? Your changes will be lost.",
+    "actionInProgress": "Action in progress…",
+    "documentsLoadError": "The file documents could not be loaded.",
     "attachOtherDocs": "Attach other documents from the file?",
     "noAttachableDocs": "No file documents to attach.",
     "draftBadge": "Draft",
@@ -2731,7 +2872,10 @@
     "activeTab": "Active ({count})",
     "archivedTab": "Archived (billed) ({count})",
     "emptyTitle": "No time entries",
-    "emptyDescription": "Start the timer or add a time entry manually."
+    "emptyDescription": "Start the timer or add a time entry manually.",
+    "loadErrorTitle": "Unable to load the timesheet",
+    "loadErrorDescription": "Your entries were not changed. Check your connection, then load the page again.",
+    "retry": "Retry"
   },
   "clientsUi": {
     "newClientTitle": "New client",
@@ -3709,5 +3853,26 @@
     "deleteRule": "Delete",
     "createError": "Could not create the rule.",
     "learnedBadge": "Learned"
+  },
+  "loadingUi": {
+    "accounts": "Loading trust accounts…",
+    "management": "Loading management…",
+    "journal": "Loading journal…",
+    "tools": "Loading tools…",
+    "reports": "Loading reports…",
+    "settings": "Loading settings…",
+    "timesheet": "Loading timesheet…"
+  },
+  "alertCenter": {
+    "title": "Firm obligations",
+    "subtitle": "{count, plural, one {# obligation needs your attention} other {# obligations need your attention}}",
+    "empty": "Nothing needs your attention.",
+    "triggerEmpty": "Firm obligations, none pending",
+    "triggerWithCount": "Firm obligations, {count, plural, one {# pending} other {# pending}}",
+    "period": "Period {period}",
+    "severity": {
+      "critique": "Critical",
+      "attention": "To handle"
+    }
   }
 }

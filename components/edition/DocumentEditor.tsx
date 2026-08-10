@@ -370,6 +370,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           <button
             onClick={save}
             disabled={isSaving}
+            aria-label={t("save")}
             className="p-2 rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
             title={t("save")}
           >

@@ -283,7 +283,7 @@ function UploadCard({
           </p>
         </div>
         {(status === "confirmed" || status === "error") && (
-          <button onClick={onRemove} className="p-1 rounded hover:bg-black/5">
+          <button onClick={onRemove} aria-label={t("close")} className="p-1 rounded hover:bg-black/5">
             <X className="w-4 h-4 text-[var(--safe-text-secondary)]" />
           </button>
         )}

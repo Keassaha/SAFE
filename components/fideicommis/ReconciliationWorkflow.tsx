@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Figure } from "@/components/ui/Figure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/Card";
+import { useLocale, useTranslations } from "next-intl";
+import { AlertTriangle, CheckCircle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import { QueryErrorState } from "@/components/ui/QueryErrorState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCurrency } from "@/lib/utils/format";
-import { CheckCircle, AlertTriangle, Shield } from "lucide-react";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
-import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface Reconciliation {
   id: string;
@@ -42,16 +44,21 @@ interface ReconciliationResponse {
   status: ReconciliationStatus;
 }
 
+const panelClass = "rounded-lg border border-si-line bg-si-surface";
+
 export function ReconciliationWorkflow() {
   const queryClient = useQueryClient();
-  const copy = getTrustRegulatorCopy(useCabinetProvince());
+  const t = useTranslations("trustReconciliationUi");
+  const locale = useLocale();
+  const isQuebec = (useCabinetProvince() ?? "").toUpperCase() === "QC";
+  const formatMoney = (amount: number) => formatCurrency(amount, "CAD", locale);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["reconciliation", "list"],
     queryFn: async () => {
-      const res = await fetch("/api/fideicommis/reconciliation");
-      if (!res.ok) throw new Error("Error loading reconciliations");
-      return res.json() as Promise<ReconciliationResponse>;
+      const response = await fetch("/api/fideicommis/reconciliation");
+      if (!response.ok) throw new Error(t("loadErrorTitle"));
+      return response.json() as Promise<ReconciliationResponse>;
     },
   });
 
@@ -64,25 +71,27 @@ export function ReconciliationWorkflow() {
     notes: "",
   });
 
-  // Set default period to expected period
-  useState(() => {
-    if (data?.status.expectedPeriode && !formData.periode) {
-      setFormData((prev) => ({ ...prev, periode: data.status.expectedPeriode }));
-    }
-  });
+  useEffect(() => {
+    if (!data?.status.expectedPeriode) return;
+    setFormData((previous) =>
+      previous.periode
+        ? previous
+        : { ...previous, periode: data.status.expectedPeriode }
+    );
+  }, [data?.status.expectedPeriode]);
 
   const createMutation = useMutation({
     mutationFn: async (payload: Record<string, unknown>) => {
-      const res = await fetch("/api/fideicommis/reconciliation", {
+      const response = await fetch("/api/fideicommis/reconciliation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Error creating reconciliation");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t("form.calculateError"));
       }
-      return res.json();
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliation"] });
@@ -91,325 +100,407 @@ export function ReconciliationWorkflow() {
 
   const certifyMutation = useMutation({
     mutationFn: async (reconciliationId: string) => {
-      const res = await fetch("/api/fideicommis/reconciliation", {
+      const response = await fetch("/api/fideicommis/reconciliation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "certify", reconciliationId }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Error certifying reconciliation");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t("result.certificationError"));
       }
-      return res.json();
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliation"] });
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate({
-      periode: formData.periode || data?.status.expectedPeriode,
-      soldeBancaire: parseFloat(formData.soldeBancaire) || 0,
-      chequesEnCirculation: parseFloat(formData.chequesEnCirculation) || 0,
-      depotsEnTransit: parseFloat(formData.depotsEnTransit) || 0,
-      interetsLFO: parseFloat(formData.interetsLFO) || 0,
-      notes: formData.notes || null,
-    });
-  };
+  const getFormPayload = () => ({
+    periode: formData.periode || data?.status.expectedPeriode,
+    soldeBancaire: parseFloat(formData.soldeBancaire) || 0,
+    chequesEnCirculation: parseFloat(formData.chequesEnCirculation) || 0,
+    depotsEnTransit: parseFloat(formData.depotsEnTransit) || 0,
+    interetsLFO: parseFloat(formData.interetsLFO) || 0,
+    notes: formData.notes || null,
+  });
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[1, 2].map((i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="h-24 bg-neutral-100 animate-pulse rounded" />
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-5" role="status" aria-live="polite">
+        <div className="h-[58px] rounded-lg border border-si-line bg-si-surface" />
+        <div className={`${panelClass} p-6`}>
+          <div className="h-6 w-64 max-w-full rounded bg-si-line2" />
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="h-[62px] rounded-md bg-si-line2" />
+            ))}
+          </div>
+          <div className="mt-5 h-10 w-48 rounded-md bg-si-line2" />
+        </div>
+        <span className="sr-only">{t("loading")}</span>
       </div>
     );
   }
 
-  const currentPeriode = data?.status.expectedPeriode || "";
-  const existingForPeriod = data?.reconciliations.find((r) => r.periode === currentPeriode);
+  if (isError) {
+    return (
+      <QueryErrorState
+        title={t("loadErrorTitle")}
+        description={t("loadErrorDescription")}
+        retryLabel={t("retry")}
+        onRetry={() => void refetch()}
+        retrying={isFetching}
+      />
+    );
+  }
+
+  const currentPeriod = data?.status.expectedPeriode || "";
+  const current = data?.reconciliations.find(
+    (reconciliation) => reconciliation.periode === currentPeriod
+  );
+  const canCertify = Boolean(
+    current && current.status !== "certified" && current.ecart === 0
+  );
+  const statusLabel = (status: string) => {
+    if (status === "certified") return t("statuses.certified");
+    if (status === "complete") return t("statuses.complete");
+    if (status === "draft") return t("statuses.draft");
+    return status;
+  };
 
   return (
     <div className="space-y-6">
-      {/* Status banner */}
       {data?.status && (
-        <Card className={
-          data.status.critical ? "border-red-300 bg-red-50/50" :
-          data.status.overdue ? "border-amber-200 bg-amber-50/50" :
-          "border-green-200 bg-green-50/50"
-        }>
-          <CardContent className="p-4 flex items-center gap-3">
-            {data.status.critical ? (
-              <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
-            ) : data.status.overdue ? (
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-            ) : (
-              <Shield className="w-5 h-5 text-green-600 shrink-0" />
-            )}
-            <div>
-              <p className="text-sm font-medium">
-                {copy.isQuebec
-                  ? data.status.critical
-                    ? `EN RETARD : ${data.status.daysSinceMonthEnd} jours depuis la fin du mois`
-                    : data.status.overdue
-                    ? `À faire : période ${data.status.expectedPeriode}`
-                    : data.status.lastCertifiedPeriode === data.status.expectedPeriode
-                    ? `Période ${data.status.expectedPeriode} certifiée`
-                    : `Période ${data.status.expectedPeriode} à rapprocher`
-                  : data.status.critical
-                  ? `OVERDUE: ${data.status.daysSinceMonthEnd} days since month-end (By-Law 9 limit: 25 days)`
-                  : data.status.overdue
-                  ? `Due soon: ${25 - data.status.daysSinceMonthEnd} days remaining`
+        <section
+          className={`flex items-start gap-3 border-l-2 px-4 py-3 ${
+            data.status.critical
+              ? "border-status-error bg-status-error-bg"
+              : data.status.overdue
+                ? "border-si-amber bg-si-amber/[0.08]"
+                : "border-si-verified bg-si-verified/[0.06]"
+          }`}
+          aria-label={t("history.status")}
+        >
+          {data.status.critical || data.status.overdue ? (
+            <AlertTriangle
+              className={`mt-0.5 h-4 w-4 shrink-0 ${
+                data.status.critical ? "text-status-error" : "text-si-amber-ink"
+              }`}
+              aria-hidden="true"
+            />
+          ) : (
+            <Shield className="mt-0.5 h-4 w-4 shrink-0 text-si-verified" aria-hidden="true" />
+          )}
+          <div>
+            <p className="text-sm font-medium text-si-ink">
+              {data.status.critical
+                ? t("status.critical", { days: data.status.daysSinceMonthEnd })
+                : data.status.overdue
+                  ? t("status.overdue", { period: data.status.expectedPeriode })
                   : data.status.lastCertifiedPeriode === data.status.expectedPeriode
-                  ? `Period ${data.status.expectedPeriode} certified`
-                  : `Period ${data.status.expectedPeriode} pending reconciliation`
-                }
+                    ? t("status.certified", { period: data.status.expectedPeriode })
+                    : t("status.pending", { period: data.status.expectedPeriode })}
+            </p>
+            {data.status.lastCertifiedPeriode && (
+              <p className="mt-0.5 text-xs text-si-muted">
+                {t("status.lastCertified", { period: data.status.lastCertifiedPeriode })}
               </p>
-              {data.status.lastCertifiedPeriode && (
-                <p className="text-xs opacity-75">
-                  {copy.isQuebec ? "Dernière certifiée" : "Last certified"}: {data.status.lastCertifiedPeriode}
+            )}
+          </div>
+        </section>
+      )}
+
+      {current && (
+        <section className={panelClass} aria-labelledby="reconciliation-result-title">
+          <div className="flex flex-col gap-3 border-b border-si-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="reconciliation-result-title" className="text-base font-semibold text-si-ink">
+              {t("result.title", { period: current.periode })}
+            </h2>
+            <StatusBadge
+              label={statusLabel(current.status)}
+              variant={
+                current.status === "certified"
+                  ? "success"
+                  : current.ecart === 0
+                    ? "warning"
+                    : "error"
+              }
+            />
+          </div>
+
+          <div className="grid md:grid-cols-3">
+            <div className="border-b border-si-line p-5 md:border-b-0 md:border-r">
+              <p className="text-sm font-medium text-si-muted">{t("result.bankReconciled")}</p>
+              <p className="mt-2 text-right">
+                <Figure taille="secondaire">{formatMoney(current.soldeRapproche)}</Figure>
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-si-muted">
+                {t("result.bankDetails", {
+                  bank: formatMoney(current.soldeBancaire),
+                  cheques: formatMoney(current.chequesEnCirculation),
+                  deposits: formatMoney(current.depotsEnTransit),
+                })}
+              </p>
+            </div>
+            <div className="border-b border-si-line p-5 md:border-b-0 md:border-r">
+              <p className="text-sm font-medium text-si-muted">{t("result.safeRegister")}</p>
+              <p className="mt-2 text-right">
+                <Figure taille="secondaire">{formatMoney(current.soldeRegistre)}</Figure>
+              </p>
+              <p className="mt-2 text-xs text-si-muted">{t("result.safeRegisterDesc")}</p>
+            </div>
+            <div className="p-5">
+              <p className="text-sm font-medium text-si-muted">{t("result.discrepancy")}</p>
+              <p className="mt-2 text-right">
+                <Figure taille="secondaire" teinte={current.ecart === 0 ? "confirme" : "attention"}>
+                  {formatMoney(current.ecart)}
+                </Figure>
+              </p>
+              <p className="mt-2 text-xs text-si-muted">
+                {current.ecart === 0 ? t("result.balanced") : t("result.mustBeZero")}
+              </p>
+            </div>
+          </div>
+
+          {(current.interetsLFO > 0 || canCertify || current.status === "certified") && (
+            <div className="border-t border-si-line px-5 py-4">
+              {current.interetsLFO > 0 && (
+                <p className="mb-3 text-sm text-si-muted">
+                  {t(
+                    isQuebec ? "result.foundationInterestQc" : "result.foundationInterestOn",
+                    { amount: formatMoney(current.interetsLFO) }
+                  )}{" "}
+                  · {current.interetsPayesAt ? t("result.interestPaid") : t("result.interestPending")}
                 </p>
               )}
+              {canCertify && (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Button
+                    variant="primary"
+                    onClick={() => certifyMutation.mutate(current.id)}
+                    disabled={certifyMutation.isPending}
+                  >
+                    <CheckCircle className="h-4 w-4" aria-hidden="true" />
+                    {certifyMutation.isPending ? t("result.certifying") : t("result.certify")}
+                  </Button>
+                  <p className="max-w-2xl text-xs leading-relaxed text-si-muted">
+                    {t("result.certificationStatement")}
+                  </p>
+                </div>
+              )}
+              {current.status === "certified" && current.certifiedBy && (
+                <p className="flex items-center gap-2 text-sm text-si-verified">
+                  <CheckCircle className="h-4 w-4" aria-hidden="true" />
+                  {t("result.certifiedBy", {
+                    name: current.certifiedBy.nom,
+                    date: current.certifiedAt
+                      ? new Date(current.certifiedAt).toLocaleDateString(
+                          locale === "fr" ? "fr-CA" : "en-CA"
+                        )
+                      : "",
+                  })}
+                </p>
+              )}
+              {certifyMutation.isError && (
+                <MutationError
+                  message={
+                    certifyMutation.error instanceof Error
+                      ? certifyMutation.error.message
+                      : t("result.certificationError")
+                  }
+                  retryLabel={t("result.retryCertification")}
+                  onRetry={() => certifyMutation.mutate(current.id)}
+                />
+              )}
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </section>
       )}
 
-      {/* Reconciliation form */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            {copy.reconciliationHeading} — {currentPeriode || copy.reconcileNewPeriod}
-          </h3>
-          <p className="text-sm text-neutral-500 mb-6">
-            {copy.reconcileFormIntro}
-          </p>
+      <section className={`${panelClass} p-5 sm:p-6`} aria-labelledby="reconciliation-form-title">
+        <h2 id="reconciliation-form-title" className="text-base font-semibold text-si-ink">
+          {t("form.title")}
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-si-muted">{t("form.intro")}</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label={copy.reconcileFieldPeriod}
-                value={formData.periode || currentPeriode}
-                onChange={(e) => setFormData({ ...formData, periode: e.target.value })}
-                placeholder="2026-04"
-              />
-              <Input
-                label={copy.reconcileFieldBankStatementBalance}
-                type="number"
-                step="0.01"
-                value={formData.soldeBancaire}
-                onChange={(e) => setFormData({ ...formData, soldeBancaire: e.target.value })}
-                placeholder="0.00"
-              />
-              <Input
-                label={copy.reconcileFieldOutstandingCheques}
-                type="number"
-                step="0.01"
-                value={formData.chequesEnCirculation}
-                onChange={(e) => setFormData({ ...formData, chequesEnCirculation: e.target.value })}
-                placeholder="0.00"
-              />
-              <Input
-                label={copy.reconcileFieldDepositsInTransit}
-                type="number"
-                step="0.01"
-                value={formData.depotsEnTransit}
-                onChange={(e) => setFormData({ ...formData, depotsEnTransit: e.target.value })}
-                placeholder="0.00"
-              />
-              <Input
-                label={copy.reconcileFieldFoundationInterestPayable}
-                type="number"
-                step="0.01"
-                value={formData.interetsLFO}
-                onChange={(e) => setFormData({ ...formData, interetsLFO: e.target.value })}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {copy.reconcileFieldNotes}
-              </label>
-              <textarea
-                className="w-full h-20 px-3 py-2 rounded-safe border border-neutral-border bg-white/90 text-sm focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder={copy.reconcileNotesPlaceholder}
-              />
-            </div>
-            <Button type="submit" variant="primary" disabled={createMutation.isPending}>
-              {createMutation.isPending ? copy.reconcileCalculating : copy.reconcileCalculate}
-            </Button>
-            {createMutation.isError && (
-              <p className="text-sm text-status-error">
-                {createMutation.error instanceof Error ? createMutation.error.message : "Error"}
-              </p>
-            )}
-          </form>
-        </CardContent>
-      </Card>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            createMutation.mutate(getFormPayload());
+          }}
+          className="mt-5 space-y-5"
+        >
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Input
+              id="reconciliation-period"
+              label={t("form.period")}
+              value={formData.periode || currentPeriod}
+              onChange={(event) => setFormData({ ...formData, periode: event.target.value })}
+              placeholder="2026-04"
+            />
+            <Input
+              label={t("form.bankBalance")}
+              type="number"
+              step="0.01"
+              value={formData.soldeBancaire}
+              onChange={(event) => setFormData({ ...formData, soldeBancaire: event.target.value })}
+              placeholder="0.00"
+            />
+            <Input
+              label={t("form.outstandingCheques")}
+              type="number"
+              step="0.01"
+              value={formData.chequesEnCirculation}
+              onChange={(event) => setFormData({ ...formData, chequesEnCirculation: event.target.value })}
+              placeholder="0.00"
+            />
+            <Input
+              label={t("form.depositsInTransit")}
+              type="number"
+              step="0.01"
+              value={formData.depotsEnTransit}
+              onChange={(event) => setFormData({ ...formData, depotsEnTransit: event.target.value })}
+              placeholder="0.00"
+            />
+            <Input
+              label={isQuebec ? t("form.foundationInterestQc") : t("form.foundationInterestOn")}
+              type="number"
+              step="0.01"
+              value={formData.interetsLFO}
+              onChange={(event) => setFormData({ ...formData, interetsLFO: event.target.value })}
+              placeholder="0.00"
+            />
+          </div>
+          <div>
+            <label htmlFor="reconciliation-notes" className="mb-1 block text-sm font-medium text-si-ink">
+              {t("form.notes")}
+            </label>
+            <textarea
+              id="reconciliation-notes"
+              className="h-20 w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink outline-none transition-colors placeholder:text-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20"
+              value={formData.notes}
+              onChange={(event) => setFormData({ ...formData, notes: event.target.value })}
+              placeholder={t("form.notesPlaceholder")}
+            />
+          </div>
+          <Button
+            type="submit"
+            variant={canCertify ? "secondary" : "primary"}
+            disabled={createMutation.isPending}
+          >
+            {createMutation.isPending ? t("form.calculating") : t("form.calculate")}
+          </Button>
+          {createMutation.isError && (
+            <MutationError
+              message={
+                createMutation.error instanceof Error
+                  ? createMutation.error.message
+                  : t("form.calculateError")
+              }
+              retryLabel={t("form.retryCalculate")}
+              onRetry={() => createMutation.mutate(getFormPayload())}
+            />
+          )}
+        </form>
+      </section>
 
-      {/* Results — show if existing reconciliation for period */}
-      {existingForPeriod && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                {copy.reconcileResult} — {existingForPeriod.periode}
-              </h3>
-              <StatusBadge
-                label={existingForPeriod.status}
-                variant={
-                  existingForPeriod.status === "certified" ? "success" :
-                  existingForPeriod.ecart === 0 ? "warning" : "error"
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="p-4 rounded-safe bg-blue-50 border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium mb-1">{copy.reconcileBankReconciled}</p>
-                <p className="text-lg font-semibold tabular-nums">
-                  {formatCurrency(existingForPeriod.soldeRapproche)}
-                </p>
-                <p className="text-xs text-blue-500 mt-1">
-                  {copy.reconcileBankLabel} {formatCurrency(existingForPeriod.soldeBancaire)}
-                  {existingForPeriod.chequesEnCirculation > 0 && `${copy.reconcileChequesLabel}${formatCurrency(existingForPeriod.chequesEnCirculation)}`}
-                  {existingForPeriod.depotsEnTransit > 0 && `${copy.reconcileTransitLabel}${formatCurrency(existingForPeriod.depotsEnTransit)}`}
-                </p>
-              </div>
-              <div className="p-4 rounded-safe bg-green-50 border border-green-200">
-                <p className="text-xs text-green-600 font-medium mb-1">{copy.reconcileSafeRegister}</p>
-                <p className="text-lg font-semibold tabular-nums">
-                  {formatCurrency(existingForPeriod.soldeRegistre)}
-                </p>
-                <p className="text-xs text-green-500 mt-1">
-                  {copy.reconcileSafeRegisterDesc}
-                </p>
-              </div>
-              <div className={`p-4 rounded-safe border ${
-                existingForPeriod.ecart === 0
-                  ? "bg-green-50 border-green-200"
-                  : "bg-red-50 border-red-300"
-              }`}>
-                <p className={`text-xs font-medium mb-1 ${
-                  existingForPeriod.ecart === 0 ? "text-green-600" : "text-red-600"
-                }`}>
-                  {copy.reconcileDiscrepancy}
-                </p>
-                <p className={`text-lg font-semibold tabular-nums ${
-                  existingForPeriod.ecart === 0 ? "text-green-700" : "text-red-700"
-                }`}>
-                  {formatCurrency(existingForPeriod.ecart)}
-                </p>
-                <p className={`text-xs mt-1 ${
-                  existingForPeriod.ecart === 0 ? "text-green-500" : "text-red-500"
-                }`}>
-                  {existingForPeriod.ecart === 0 ? copy.reconcileBalancedReady : copy.reconcileMustBeZero}
-                </p>
-              </div>
-            </div>
-
-            {existingForPeriod.interetsLFO > 0 && (
-              <p className="text-sm text-neutral-500 mb-4">
-                {copy.reconcileFoundationInterestInline} {formatCurrency(existingForPeriod.interetsLFO)}
-                {existingForPeriod.interetsPayesAt ? copy.reconcilePaidSuffix : copy.reconcilePendingSuffix}
-              </p>
-            )}
-
-            {/* Certify button */}
-            {existingForPeriod.status !== "certified" && existingForPeriod.ecart === 0 && (
-              <div className="flex items-center gap-4 pt-4 border-t">
-                <Button
-                  variant="primary"
-                  onClick={() => certifyMutation.mutate(existingForPeriod.id)}
-                  disabled={certifyMutation.isPending}
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  {certifyMutation.isPending
-                    ? copy.isQuebec ? "Certification..." : "Certifying..."
-                    : copy.isQuebec ? "Certifier le rapprochement" : "Certify Reconciliation"}
-                </Button>
-                <p className="text-xs text-neutral-500">
-                  {copy.certificationStatement}
-                </p>
-              </div>
-            )}
-
-            {existingForPeriod.status === "certified" && existingForPeriod.certifiedBy && (
-              <div className="flex items-center gap-2 pt-4 border-t text-sm text-green-700">
-                <CheckCircle className="w-4 h-4" />
-                {copy.reconcileCertifiedBy(
-                  existingForPeriod.certifiedBy.nom,
-                  existingForPeriod.certifiedAt
-                    ? new Date(existingForPeriod.certifiedAt).toLocaleDateString("en-CA")
-                    : ""
-                )}
-              </div>
-            )}
-
-            {certifyMutation.isError && (
-              <p className="text-sm text-status-error mt-2">
-                {certifyMutation.error instanceof Error ? certifyMutation.error.message : "Error"}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* History */}
-      {data?.reconciliations && data.reconciliations.length > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">{copy.reconcileHistoryTitle}</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left">
-                    <th className="pb-2 font-medium">{copy.reconcileColPeriod}</th>
-                    <th className="pb-2 font-medium">{copy.reconcileColBank}</th>
-                    <th className="pb-2 font-medium">{copy.reconcileColRegister}</th>
-                    <th className="pb-2 font-medium">{copy.reconcileColDiscrepancy}</th>
-                    <th className="pb-2 font-medium">{copy.reconcileColStatus}</th>
-                    <th className="pb-2 font-medium">{copy.reconcileColCertifiedBy}</th>
+      {data?.reconciliations && data.reconciliations.length > 0 ? (
+        <section className={panelClass} aria-labelledby="reconciliation-history-title">
+          <h2 id="reconciliation-history-title" className="px-5 py-4 text-base font-semibold text-si-ink">
+            {t("history.title")}
+          </h2>
+          <div className="overflow-x-auto border-t border-si-line">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead>
+                <tr className="border-b border-si-line text-left text-si-muted">
+                  <th className="px-5 py-3 font-medium">{t("history.period")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("history.bank")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("history.register")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("history.discrepancy")}</th>
+                  <th className="px-4 py-3 font-medium">{t("history.status")}</th>
+                  <th className="px-5 py-3 font-medium">{t("history.certifiedBy")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.reconciliations.map((reconciliation) => (
+                  <tr key={reconciliation.id} className="border-b border-si-line last:border-b-0">
+                    <td className="px-5 py-3 font-mono font-medium tabular-nums text-si-ink">
+                      {reconciliation.periode}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono tabular-nums">
+                      {formatMoney(reconciliation.soldeRapproche)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono tabular-nums">
+                      {formatMoney(reconciliation.soldeRegistre)}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-right font-mono font-medium tabular-nums ${
+                        reconciliation.ecart === 0 ? "text-si-verified" : "text-status-error"
+                      }`}
+                    >
+                      {formatMoney(reconciliation.ecart)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge
+                        label={statusLabel(reconciliation.status)}
+                        variant={
+                          reconciliation.status === "certified"
+                            ? "success"
+                            : reconciliation.ecart === 0
+                              ? "warning"
+                              : "error"
+                        }
+                      />
+                    </td>
+                    <td className="px-5 py-3 text-si-muted">
+                      {reconciliation.certifiedBy?.nom || "—"}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {data.reconciliations.map((r) => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="py-2 font-medium">{r.periode}</td>
-                      <td className="py-2 tabular-nums">{formatCurrency(r.soldeRapproche)}</td>
-                      <td className="py-2 tabular-nums">{formatCurrency(r.soldeRegistre)}</td>
-                      <td className={`py-2 tabular-nums ${r.ecart !== 0 ? "text-red-600 font-medium" : "text-green-600"}`}>
-                        {formatCurrency(r.ecart)}
-                      </td>
-                      <td className="py-2">
-                        <StatusBadge
-                          label={r.status}
-                          variant={
-                            r.status === "certified" ? "success" :
-                            r.ecart === 0 ? "warning" : "error"
-                          }
-                        />
-                      </td>
-                      <td className="py-2 text-neutral-500">
-                        {r.certifiedBy?.nom || "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : (
+        <section className={`${panelClass} p-6`}>
+          <EmptyState
+            title={t("empty.title")}
+            description={t("empty.description")}
+            action={
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => document.getElementById("reconciliation-period")?.focus()}
+              >
+                {t("empty.action")}
+              </Button>
+            }
+          />
+        </section>
       )}
+    </div>
+  );
+}
+
+function MutationError({
+  message,
+  retryLabel,
+  onRetry,
+}: {
+  message: string;
+  retryLabel: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div
+      className="flex flex-col gap-3 border-l-2 border-status-error pl-3 sm:flex-row sm:items-center sm:justify-between"
+      role="alert"
+    >
+      <p className="text-sm text-status-error">{message}</p>
+      <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
+        {retryLabel}
+      </Button>
     </div>
   );
 }

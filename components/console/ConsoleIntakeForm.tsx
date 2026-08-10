@@ -407,7 +407,9 @@ export function ConsoleIntakeForm({ imports = [] }: { imports?: ImportableAudit[
         </div>
       )}
 
-      <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-2xl border border-si-line bg-si-surface/95 px-5 py-4 backdrop-blur">
+      {/* Plan 3, niveau elevated : la barre d'action flotte au-dessus du
+          formulaire et en recouvre les champs pendant la saisie. */}
+      <div className="safe-glass-elevated sticky bottom-4 flex items-center justify-between gap-4 rounded-xl border px-5 py-4">
         <p className="text-sm text-si-muted">
           <span className="font-mono tabular-nums text-si-ink">{answeredRequired}</span> / {totalRequired} champs requis remplis
         </p>

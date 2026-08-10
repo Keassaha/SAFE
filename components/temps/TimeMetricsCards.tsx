@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -20,6 +20,7 @@ export function TimeMetricsCards({
   loading,
 }: TimeMetricsCardsProps) {
   const t = useTranslations("gestionCompUi");
+  const locale = useLocale();
   const cards = [
     {
       title: t("metricThisWeek"),
@@ -33,7 +34,7 @@ export function TimeMetricsCards({
     },
     {
       title: t("metricUnbilled"),
-      value: formatCurrency(nonFactureMontant),
+      value: formatCurrency(nonFactureMontant, "CAD", locale),
       sub: t("metricAmountToBill"),
     },
     {
@@ -64,8 +65,8 @@ export function TimeMetricsCards({
           className="min-w-0 border-b border-r border-si-line2 px-4 py-3"
         >
           <p className="truncate text-[11px] font-medium text-si-muted">{title}</p>
-          <p className="mt-1 truncate font-mono text-xl font-medium tabular-nums text-si-ink">{value}</p>
-          {sub && <p className="mt-1 truncate text-xs text-si-muted">{sub}</p>}
+          <p className="mt-1 truncate text-right font-mono text-xl font-medium tabular-nums text-si-ink">{value}</p>
+          {sub && <p className="mt-1 truncate text-right text-xs text-si-muted">{sub}</p>}
         </div>
       ))}
     </div>

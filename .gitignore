@@ -23,3 +23,6 @@ uploads/
 # Copies flottantes a conserver hors repo
 .agents/Delivery Syst/
 SAFE Inc./
+
+# Brouillons locaux (HTML de travail, PDF generes a la main). Rien de reproductible.
+tmp/

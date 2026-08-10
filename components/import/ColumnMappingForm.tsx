@@ -31,7 +31,7 @@ export function ColumnMappingForm({
                 onChange={(e) => onChange(field, e.target.value || null)}
                 className="
                   h-9 px-3 rounded-[var(--safe-radius-default)] border border-[var(--safe-neutral-border)]
-                  bg-white/90 backdrop-blur-sm text-sm safe-text-title
+                  bg-white text-sm safe-text-title
                   focus:ring-2 focus:ring-[var(--safe-green-600)]/20 focus:border-[var(--safe-green-600)] outline-none
                   transition-all
                 "

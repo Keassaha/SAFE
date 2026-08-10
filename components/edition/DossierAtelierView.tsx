@@ -320,7 +320,8 @@ function DocumentRow({
         {allDossiers.length > 1 && (
           <button
             onClick={(e) => { e.preventDefault(); setShowMove(true); }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] shrink-0"
+            aria-label={t("moveToAnotherMatter")}
+            className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] shrink-0"
             title={t("moveToAnotherMatter")}
           >
             <FolderOpen className="w-4 h-4" />
@@ -332,7 +333,8 @@ function DocumentRow({
           <button
             onClick={(e) => { e.preventDefault(); markFinal(); }}
             disabled={markingFinal}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-green-600 shrink-0 disabled:opacity-50"
+            aria-label={t("markFinal")}
+            className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity p-1.5 rounded hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:text-green-600 shrink-0 disabled:opacity-50"
             title={t("markFinal")}
           >
             <CheckCircle className="w-4 h-4" />

@@ -36,6 +36,8 @@ import { useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import { GlobalTimer } from "@/components/temps/GlobalTimer";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
+import { AlertCenter } from "@/components/layout/AlertCenter";
+import type { TrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -54,6 +56,10 @@ interface HeaderProps {
   activeNavIds?: string[] | null;
   role?: string;
   isSafeInc?: boolean;
+  /** Obligations ouvertes du cabinet, présentées par le centre d'alertes. */
+  trustStatus?: TrustReconciliationStatus | null;
+  /** Pilote la réglementation citée, jamais la langue de l'interface. */
+  province?: string | null;
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -325,6 +331,8 @@ export function Header({
   onOpenMobileNav,
   billingMode,
   isSafeInc,
+  trustStatus,
+  province,
 }: HeaderProps) {
   const t = useTranslations("shell.header");
   const tMisc = useTranslations("miscUi");
@@ -390,9 +398,11 @@ export function Header({
   }, [pathname]);
 
   return (
+    // Plan 3, niveau subtle : la barre supérieure surplombe le canvas et son
+    // défilement. Le travail continue d'exister derrière elle et doit rester
+    // perceptible, ce que seul le verre exprime honnêtement.
     <header
-      className="shrink-0 flex items-center justify-between px-4 md:px-6 gap-4 h-16 border-b-[0.5px] bg-si-surface/95 backdrop-blur-sm z-30 relative"
-      style={{ borderBottomColor: "var(--si-line)" }}
+      className="safe-glass-subtle shrink-0 flex items-center justify-between px-4 md:px-6 gap-4 h-16 border-b-[0.5px] z-30 relative"
     >
       {/* ── LEFT: Mobile menu + Logo + Cabinet ───────────────── */}
       <div className="flex items-center gap-4 min-w-0">
@@ -585,6 +595,8 @@ export function Header({
             ⌘K
           </kbd>
         </div>
+
+        <AlertCenter status={trustStatus ?? null} province={province ?? null} />
 
         <div className="safe-topbar-locale scale-90 origin-right">
           <LocaleSwitcher />

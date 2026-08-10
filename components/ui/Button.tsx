@@ -1,61 +1,150 @@
 "use client";
 
-import { ButtonHTMLAttributes, forwardRef } from "react";
+import React, { forwardRef, useId, type ButtonHTMLAttributes } from "react";
+import { LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "ghost" | "destructive" | "tertiary" | "soft" | "danger" | "landing-primary" | "landing-secondary" | "outlined" | "dark" | "dark-ghost";
-type Size = "default" | "sm" | "lg";
+type Variant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "destructive"
+  | "tertiary"
+  | "soft"
+  | "danger"
+  | "landing-primary"
+  | "landing-secondary"
+  | "outlined"
+  | "dark"
+  | "dark-ghost"
+  | "glass";
+type Size = "default" | "sm" | "lg" | "icon";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
+  loading?: boolean;
+  loadingLabel?: string;
+  disabledReason?: string;
 }
 
 const variants: Record<Variant, string> = {
-  primary: "bg-si-forest text-si-surface hover:brightness-95",
-  secondary: "border border-si-line bg-transparent text-si-ink hover:bg-si-line2",
-  ghost: "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink",
-  destructive: "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg",
+  primary:
+    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+  secondary:
+    "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
+  ghost:
+    "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink active:bg-si-line aria-pressed:bg-si-line",
+  destructive:
+    "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg active:bg-status-error-bg aria-pressed:bg-status-error-bg",
 
-  // LEGACY ALIASES (Mapped to DS variants)
-  tertiary: "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink",
-  soft: "border border-si-line bg-si-canvas text-si-ink hover:bg-si-line2",
-  danger: "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg",
-  "landing-primary": "bg-slate-900 text-white rounded-full hover:bg-slate-800",
-  "landing-secondary": "bg-transparent text-slate-900 border border-slate-300 rounded-full hover:bg-slate-50",
-  outlined: "border border-si-line bg-transparent text-si-ink hover:bg-si-line2",
-  dark: "bg-si-forest text-si-surface hover:brightness-95",
-  "dark-ghost": "border border-si-surface/20 bg-transparent text-si-surface hover:bg-si-surface/10",
+  // Alias maintenus pour les écrans existants. Ils convergent vers les 4 niveaux d'action.
+  tertiary:
+    "border border-transparent bg-transparent text-si-muted hover:bg-si-line2 hover:text-si-ink active:bg-si-line aria-pressed:bg-si-line",
+  soft:
+    "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
+  danger:
+    "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg active:bg-status-error-bg aria-pressed:bg-status-error-bg",
+  "landing-primary":
+    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+  "landing-secondary":
+    "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
+  outlined:
+    "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
+  dark:
+    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+  "dark-ghost":
+    "border border-si-surface/25 bg-transparent text-si-surface hover:bg-si-surface/10 active:bg-si-surface/15 aria-pressed:bg-si-surface/15",
+
+  /**
+   * Verre, niveau subtle du système de profondeur.
+   *
+   * Réservé aux boutons POSÉS SUR une surface qui flotte ou sur une image :
+   * barre collante, superposition, contrôles au-dessus d'un aperçu. Le verre
+   * exprime une superposition réelle, il n'est pas un habillage.
+   *
+   * L'action principale d'un écran de travail reste `primary`, pleine et mate :
+   * une décision ne se lit pas à travers une vitre. Voir
+   * docs/design/SYSTEME_DE_PROFONDEUR_TROIS_PLANS.md §2.
+   *
+   * La classe porte la teinte, le flou, le filet et le repli opaque. Aucune
+   * valeur littérale ici.
+   */
+  glass:
+    "safe-glass-subtle border text-si-ink hover:bg-si-surface active:bg-si-line2 aria-pressed:bg-si-line2",
 };
 
 const sizes: Record<Size, string> = {
-  default: "h-[38px] px-[16px]",
-  sm: "h-[32px] px-[12px] text-[13px]",
-  lg: "h-[44px] px-[24px]",
+  default: "min-h-11 px-4",
+  sm: "min-h-9 px-3 text-xs",
+  lg: "min-h-11 px-6 text-sm",
+  icon: "h-11 w-11 p-0",
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
-  variant = "primary",
-  size = "default",
-  className = "",
-  children,
-  ...props
-}, ref) => {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = "primary",
+    size = "default",
+    className,
+    children,
+    loading = false,
+    loadingLabel = "Chargement en cours",
+    disabledReason,
+    disabled,
+    title,
+    "aria-describedby": ariaDescribedBy,
+    ...props
+  },
+  ref,
+) {
+  const reasonId = useId();
+  const isDisabled = disabled || loading;
+  const describedBy = [ariaDescribedBy, isDisabled && disabledReason ? reasonId : null]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
   return (
-    <button
-      ref={ref}
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-md font-sans text-[13px] font-medium tracking-[-0.008em] transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-si-forest/35 focus-visible:outline-offset-[-2px]",
-        "disabled:cursor-default disabled:opacity-45",
-        variants[variant],
-        sizes[size],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
+    <>
+      <button
+        ref={ref}
+        className={cn(
+          "inline-flex items-center justify-center gap-2 rounded-md font-sans text-sm font-medium tracking-tight",
+          "transition-colors duration-normal ease-safe motion-reduce:transition-none",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified focus-visible:ring-offset-2 focus-visible:ring-offset-si-surface",
+          "disabled:cursor-not-allowed disabled:opacity-45",
+          variants[variant],
+          sizes[size],
+          className,
+        )}
+        disabled={isDisabled}
+        aria-busy={loading || undefined}
+        aria-describedby={describedBy}
+        data-state={loading ? "loading" : isDisabled ? "disabled" : "ready"}
+        title={title ?? (isDisabled ? disabledReason : undefined)}
+        {...props}
+      >
+        {/* Hors chargement, `children` est rendu tel quel. L'envelopper dans un
+            `<span>` unique cassait tous les boutons à icône : la normalisation
+            de Tailwind pose `svg { display: block }`, donc à l'intérieur d'une
+            enveloppe commune l'icône occupait sa propre ligne et le libellé la
+            suivante. Rendus directement, icône et libellé redeviennent deux
+            enfants de flexbox, alignés par `items-center` et espacés par `gap-2`. */}
+        {loading ? (
+          <>
+            <LoaderCircle className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden />
+            <span>{loadingLabel}</span>
+          </>
+        ) : (
+          children
+        )}
+      </button>
+      {isDisabled && disabledReason ? (
+        <span id={reasonId} className="sr-only">
+          {disabledReason}
+        </span>
+      ) : null}
+    </>
   );
 });
+
 Button.displayName = "Button";

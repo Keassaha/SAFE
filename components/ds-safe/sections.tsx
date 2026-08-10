@@ -16,8 +16,8 @@ export type Kpi = { label: string; value: string };
 export type Obligation = { title: string; detail: string; status: string; state: "ok" | "warn" };
 
 const dotClass: Record<string, string> = {
-  ok: "bg-[#5FCF9C] shadow-[0_0_0_4px_rgba(95,207,156,0.18)]",
-  warn: "bg-[#E3A94A] shadow-[0_0_0_4px_rgba(227,169,74,0.18)]",
+  ok: "bg-si-verified-dot ring-4 ring-si-verified/20",
+  warn: "bg-si-amber ring-4 ring-si-amber/20",
 };
 
 /* Bandeau de conformité */
@@ -115,8 +115,8 @@ export function TrustCard({
   return (
     <div className="relative overflow-hidden bg-si-forest text-si-surface rounded-2xl px-[26px] py-6">
       <div className="absolute -left-[50px] -bottom-[70px] w-[200px] h-[200px] glow-verified" />
-      <span className="relative z-10 inline-flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-wider bg-si-verified/25 text-[#9FE3C2] px-2.5 py-[5px] rounded-full mb-3.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#5FCF9C]" />
+      <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-si-verified-on-forest">
+        <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />
         {badge}
       </span>
       <div className="relative z-10 text-xs opacity-75">{label}</div>

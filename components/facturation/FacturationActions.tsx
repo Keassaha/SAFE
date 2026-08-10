@@ -50,7 +50,7 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
   const closeMenu = () => setMenuOpen(false);
 
   const menuItemClass =
-    "flex items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors";
+    "flex min-h-11 items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified";
 
   return (
     <div className="flex items-center gap-2">
@@ -68,10 +68,12 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
           <ChevronDown className={`h-3 w-3 transition-transform ${menuOpen ? "rotate-180" : ""}`} aria-hidden />
         </Button>
 
+        {/* Plan 3, niveau elevated : le menu se déploie par-dessus la liste des
+            factures, qui reste perceptible derrière lui. */}
         {menuOpen && (
           <div
             role="menu"
-            className="absolute right-0 mt-2 w-64 rounded-xl bg-si-surface border border-si-line shadow-lg z-20 py-1 animate-fade-in"
+            className="safe-glass-elevated absolute right-0 z-20 mt-2 w-64 rounded-lg border py-1"
           >
             <Link href={routes.facturationNotesCredit} className={menuItemClass} onClick={closeMenu} role="menuitem">
               <FileMinus className="h-4 w-4 text-si-muted/50" aria-hidden />

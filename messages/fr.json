@@ -763,6 +763,18 @@
     "followUp": "Suivi",
     "deposits": "Dépôts",
     "paidIssued": "Payées / émises",
+    "financialSummaryLabel": "Résumé financier et filtres de facturation",
+    "secondaryToolsLabel": "Analyses et registres de facturation",
+    "toolUnbilledTime": "Temps non facturé",
+    "toolUnbilledTimeHint": "Revenus dormants",
+    "toolDisbursements": "Débours",
+    "toolDisbursementsHint": "À refacturer",
+    "toolReceivablesAging": "Ancienneté des créances",
+    "toolReceivablesAgingHint": "Impayés par période",
+    "toolTaxes": "TPS / TVQ",
+    "toolTaxesHint": "Estimation à remettre",
+    "toolProfitability": "Rentabilité",
+    "toolProfitabilityHint": "Marge par dossier",
     "billingTabs": "Onglets facturation",
     "honorairesLabel": "Honoraires",
     "typeHonoraires": "Honoraires",
@@ -1014,7 +1026,13 @@
     "stExpiringSoon": "{count} bientôt expiré(s)",
     "lblExpected": "Attendu",
     "lblLast": "Dernier",
-    "viewReports": "Voir les rapports"
+    "viewReports": "Voir les rapports",
+    "verdictReady": "Le cabinet est prêt pour une inspection.",
+    "verdictNotReady": "Le cabinet n’est pas encore prêt pour une inspection.",
+    "toTreatHeading": "Ce qui demande une action",
+    "nothingToTreat": "Rien ne demande d’action pour le moment.",
+    "compliantHeading": "{count, plural, one {# domaine déjà conforme} other {# domaines déjà conformes}}",
+    "notApplicableHeading": "{count, plural, one {# domaine non applicable} other {# domaines non applicables}}"
   },
   "clients": {
     "registryTitle": "Registre des Clients",
@@ -1800,7 +1818,9 @@
     "weekThu": "Jeu",
     "weekFri": "Ven",
     "weekSat": "Sam",
-    "weekSun": "Dim"
+    "weekSun": "Dim",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant"
   },
   "import": {
     "editMapping": "Modifier le mapping",
@@ -1902,6 +1922,108 @@
     "selectOption": "— Sélectionner —",
     "templates": "modèles"
   },
+  "trustBanner": {
+    "never": "jamais",
+    "cta": "Ouvrir le rapprochement",
+    "qc": {
+      "never": {
+        "headline": "Compte en fidéicommis jamais rapproché",
+        "detail": "Le règlement B-1, r. 5 exige un rapprochement mensuel à trois voies. La période {expected} n'a pas été certifiée."
+      },
+      "overdue": {
+        "headline": "Rapprochement en retard de {days, plural, one {# jour} other {# jours}}",
+        "detail": "Période requise : {expected}. Dernière période certifiée : {last}. Régularisez la situation pour maintenir la conformité au Barreau du Québec."
+      }
+    },
+    "on": {
+      "never": {
+        "headline": "Compte en fiducie jamais rapproché",
+        "detail": "Le Règlement administratif no 9 de l'Ordre des avocats de l'Ontario, art. 9.01, exige un rapprochement mensuel à trois voies. La période {expected} n'a pas été certifiée."
+      },
+      "overdue": {
+        "headline": "Rapprochement en retard de {days, plural, one {# jour} other {# jours}}",
+        "detail": "Période requise : {expected}. Dernière période certifiée : {last}. Régularisez la situation pour maintenir la conformité à l'Ordre des avocats de l'Ontario."
+      }
+    }
+  },
+  "trustReconciliationUi": {
+    "accessDenied": "Vous n'avez pas accès à cette section.",
+    "titleQc": "Rapprochement du fidéicommis",
+    "titleOn": "Rapprochement du compte en fiducie",
+    "description": "Comparez le relevé bancaire, le registre SAFE et les soldes par dossier conformément à {regulation}.",
+    "backQc": "Retour aux comptes en fidéicommis",
+    "backOn": "Retour aux comptes en fiducie",
+    "regulation": {
+      "qc": "B-1, r. 5",
+      "on": "l'article 9.01 du Règlement administratif no 9"
+    },
+    "loading": "Chargement du rapprochement en cours…",
+    "loadErrorTitle": "Impossible de charger le rapprochement",
+    "loadErrorDescription": "Aucun solde n'a été modifié. Vérifiez votre connexion, puis relancez le chargement.",
+    "retry": "Réessayer",
+    "status": {
+      "critical": "En retard : {days} jours depuis la fin du mois",
+      "overdue": "Période {period} à rapprocher",
+      "certified": "Période {period} certifiée",
+      "pending": "Période {period} en attente de rapprochement",
+      "lastCertified": "Dernière période certifiée : {period}"
+    },
+    "form": {
+      "title": "Données de rapprochement",
+      "intro": "Saisissez les montants du relevé. SAFE recalculera l'écart sans modifier les écritures comptables.",
+      "period": "Période",
+      "bankBalance": "Solde du relevé bancaire",
+      "outstandingCheques": "Chèques en circulation",
+      "depositsInTransit": "Dépôts en transit",
+      "foundationInterestQc": "Intérêts de la Fondation du Barreau à verser",
+      "foundationInterestOn": "Intérêts de la Fondation du droit de l'Ontario à verser",
+      "notes": "Notes de rapprochement",
+      "notesPlaceholder": "Expliquez un ajustement ou une pièce justificative manquante.",
+      "calculate": "Calculer le rapprochement",
+      "calculating": "Calcul en cours…",
+      "calculateError": "Le calcul a échoué. Aucun solde n'a été modifié.",
+      "retryCalculate": "Relancer le calcul"
+    },
+    "result": {
+      "title": "Résultat de la période {period}",
+      "bankReconciled": "Solde bancaire rapproché",
+      "bankDetails": "Relevé {bank} · Chèques {cheques} · Dépôts {deposits}",
+      "safeRegister": "Registre SAFE",
+      "safeRegisterDesc": "Total des mouvements comptabilisés",
+      "discrepancy": "Écart à résoudre",
+      "balanced": "Équilibré, prêt à certifier",
+      "mustBeZero": "L'écart doit être nul avant la certification.",
+      "foundationInterestQc": "Intérêts de la Fondation du Barreau : {amount}",
+      "foundationInterestOn": "Intérêts de la Fondation du droit de l'Ontario : {amount}",
+      "interestPaid": "Versés",
+      "interestPending": "À verser",
+      "certify": "Certifier le rapprochement",
+      "certifying": "Certification en cours…",
+      "certificationStatement": "Je confirme que le relevé bancaire, le registre SAFE et les soldes par dossier concordent pour cette période.",
+      "certificationError": "La certification a échoué. Le rapprochement demeure non certifié.",
+      "retryCertification": "Réessayer la certification",
+      "certifiedBy": "Certifié par {name} le {date}"
+    },
+    "history": {
+      "title": "Historique des rapprochements",
+      "period": "Période",
+      "bank": "Banque",
+      "register": "Registre",
+      "discrepancy": "Écart",
+      "status": "Statut",
+      "certifiedBy": "Certifié par"
+    },
+    "empty": {
+      "title": "Aucun rapprochement enregistré",
+      "description": "Commencez par saisir le solde du relevé bancaire pour la période attendue.",
+      "action": "Commencer le rapprochement"
+    },
+    "statuses": {
+      "draft": "Brouillon",
+      "complete": "Équilibré, à certifier",
+      "certified": "Certifié"
+    }
+  },
   "temps": {
     "mixte": {
       "title": "Temps & forfaits",
@@ -1991,6 +2113,8 @@
       }
     },
     "deleteEntry": "Supprimer cette entrée ?",
+    "actions": "Actions de l'entrée",
+    "actionError": "L'action n'a pas pu être enregistrée. Réessayez.",
     "noEntries": "Aucune entrée",
     "noTimeEntries": "Aucune entrée de temps",
     "billed": "Facturée",
@@ -2033,6 +2157,7 @@
     "workingOn": "Sur quoi travaillez-vous ?",
     "descriptionOptional": "Description (optionnel)",
     "startTimer": "Démarrer",
+    "selectClientToStart": "Choisissez un client pour démarrer.",
     "addNewClient": "+ Inscrire un nouveau client",
     "businessNameRequired": "Raison sociale requise",
     "clientRegistered": "Client enregistré dans le registre.",
@@ -2337,7 +2462,7 @@
     "detectedItems": "Éléments détectés",
     "linesCount": "{count, plural, one {# ligne} other {# lignes}}",
     "autoLoadedItems": "Les tâches, honoraires, débours et rabais non facturés sont chargés automatiquement.",
-    "noExistingItems": "Aucun élément existant à facturer. Vous pouvez créer la facture from scratch.",
+    "noExistingItems": "Aucun élément existant à facturer. Vous pouvez ajouter une ligne manuellement.",
     "billedTasks": "Tâches facturées",
     "invoiceLines": "Lignes de facturation",
     "selectPresetTaskHint": "Sélectionnez une tâche préenregistrée — le montant se remplit automatiquement.",
@@ -2370,6 +2495,9 @@
     "discountGranted": "Rabais accordé",
     "subtotal": "Sous-total",
     "total": "Total",
+    "alreadyPaid": "Déjà payé",
+    "invoiceSummaryLabel": "Résumé financier de la facture",
+    "invoiceDocumentLabel": "Document de facture",
     "noteToClient": "Note au client",
     "optionalMessagePlaceholder": "Message optionnel visible sur la facture…",
     "livePreview": "Aperçu en direct",
@@ -2434,6 +2562,9 @@
     "refundCancel": "Annuler",
     "refundConfirm": "Enregistrer la demande",
     "refundError": "L'enregistrement a échoué. Réessayez.",
+    "paymentsLoadError": "Les paiements n’ont pas pu être chargés.",
+    "creditsLoadError": "Les soldes créditeurs n’ont pas pu être chargés.",
+    "retry": "Réessayer",
     "noPayments": "Aucun paiement.",
     "invoice": "Facture",
     "allocated": "Alloué",
@@ -2529,6 +2660,16 @@
     "selectAtLeastOneItem": "Sélectionnez au moins une fiche de temps, un débours ou une tâche.",
     "sendInvoiceTitle": "Envoyer la facture",
     "sendInvoiceBody": "La facture sera envoyée au client par courriel, en pièce jointe PDF.",
+    "sendDialogIntro": "Vous pouvez corriger l’objet et le message avant l’envoi. La facture PDF est jointe automatiquement.",
+    "subject": "Objet",
+    "message": "Message",
+    "paymentInstructions": "Instructions de paiement",
+    "paymentInstructionsPlaceholder": "Modes de paiement, coordonnées et rappel du numéro de facture…",
+    "paymentInstructionsHint": "Ces instructions apparaissent dans une section distincte au bas du courriel.",
+    "confirmCancelDraft": "Annuler ce brouillon de facture ? Cette action ne peut pas être annulée.",
+    "confirmCloseSendDialog": "Fermer sans envoyer ? Vos modifications seront perdues.",
+    "actionInProgress": "Action en cours…",
+    "documentsLoadError": "Les documents du dossier n’ont pas pu être chargés.",
     "attachOtherDocs": "Joindre d’autres documents du dossier ?",
     "noAttachableDocs": "Aucun document du dossier à joindre.",
     "draftBadge": "Brouillon",
@@ -2731,7 +2872,10 @@
     "activeTab": "Actives ({count})",
     "archivedTab": "Archives (facturées) ({count})",
     "emptyTitle": "Aucune entrée de temps",
-    "emptyDescription": "Démarrez le chronomètre ou ajoutez une entrée manuellement."
+    "emptyDescription": "Démarrez le chronomètre ou ajoutez une entrée manuellement.",
+    "loadErrorTitle": "Impossible de charger la fiche de temps",
+    "loadErrorDescription": "Vos entrées n’ont pas été modifiées. Vérifiez votre connexion, puis relancez le chargement.",
+    "retry": "Réessayer"
   },
   "clientsUi": {
     "newClientTitle": "Nouveau client",
@@ -3709,5 +3853,26 @@
     "deleteRule": "Supprimer",
     "createError": "Impossible de créer la règle.",
     "learnedBadge": "Apprise"
+  },
+  "loadingUi": {
+    "accounts": "Chargement des comptes en fidéicommis en cours…",
+    "management": "Chargement de la gestion en cours…",
+    "journal": "Chargement du journal en cours…",
+    "tools": "Chargement des outils en cours…",
+    "reports": "Chargement des rapports en cours…",
+    "settings": "Chargement des paramètres en cours…",
+    "timesheet": "Chargement de la fiche de temps en cours…"
+  },
+  "alertCenter": {
+    "title": "Obligations du cabinet",
+    "subtitle": "{count, plural, one {# obligation demande votre attention} other {# obligations demandent votre attention}}",
+    "empty": "Rien ne demande votre attention.",
+    "triggerEmpty": "Obligations du cabinet, aucune en attente",
+    "triggerWithCount": "Obligations du cabinet, {count, plural, one {# en attente} other {# en attente}}",
+    "period": "Période {period}",
+    "severity": {
+      "critique": "Critique",
+      "attention": "À traiter"
+    }
   }
 }

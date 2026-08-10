@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Figure } from "@/components/ui/Figure";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
-import { Plus, Package, Clock, Layers } from "lucide-react";
+import { Plus, Package, Clock } from "lucide-react";
 import { TempsPageClient } from "./TempsPageClient";
 import { RegistreTachesPage } from "./RegistreTachesPage";
 import { AjoutEntreeChooser } from "@/components/temps/AjoutEntreeChooser";
@@ -52,11 +52,9 @@ interface TempsMixteViewProps {
   overview: MixteOverviewData;
 }
 
-const money = new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD" });
-const dateFmt = new Intl.DateTimeFormat("fr-CA", { day: "2-digit", month: "short" });
-
 export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: TempsMixteViewProps) {
   const t = useTranslations("temps.mixte");
+  const locale = useLocale();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [chooserOpen, setChooserOpen] = useState(false);
@@ -94,6 +92,14 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
 
   const totalMontant = overview.tempsMontant + overview.forfaitMontant;
   const totalCount = overview.tempsCount + overview.forfaitCount;
+  const money = new Intl.NumberFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+    style: "currency",
+    currency: "CAD",
+  });
+  const dateFmt = new Intl.DateTimeFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+    day: "2-digit",
+    month: "short",
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -112,33 +118,31 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
         {/* ── Vue d'ensemble ── */}
         <TabsContent value="overview">
           <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <SummaryCard
-                icon={<Clock className="w-5 h-5" />}
+            <div className="grid border-y border-si-line bg-si-surface sm:grid-cols-3">
+              <SummaryMetric
                 label={t("cards.timeUnbilled")}
                 count={t("cards.entries", { count: overview.tempsCount })}
                 amount={money.format(overview.tempsMontant)}
               />
-              <SummaryCard
-                icon={<Package className="w-5 h-5" />}
+              <SummaryMetric
                 label={t("cards.forfaitsToBill")}
                 count={t("cards.tasks", { count: overview.forfaitCount })}
                 amount={money.format(overview.forfaitMontant)}
               />
-              <SummaryCard
-                icon={<Layers className="w-5 h-5" />}
+              <SummaryMetric
                 label={t("cards.totalToBill")}
                 count={t("cards.items", { count: totalCount })}
                 amount={money.format(totalMontant)}
-                highlight
               />
             </div>
 
-            <Card>
-              <CardHeader title={t("recent.title")} />
-              <CardContent className="p-0">
+            <section className="border-y border-si-line bg-si-surface" aria-labelledby="recent-activity-title">
+              <h2 id="recent-activity-title" className="px-4 py-3 text-sm font-semibold text-si-ink">
+                {t("recent.title")}
+              </h2>
+              <div className="border-t border-si-line">
                 {overview.recent.length === 0 ? (
-                  <div className="p-8 text-center text-sm text-si-muted">
+                  <div className="px-4 py-8 text-center text-sm text-si-muted">
                     {t("recent.empty")}
                   </div>
                 ) : (
@@ -149,13 +153,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                         className="flex items-center justify-between gap-3 px-4 py-3"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <span
-                            className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                              item.type === "forfait"
-                                ? "bg-si-amber/[0.13] text-si-amber-ink"
-                                : "bg-si-forest/[0.06] text-si-forest"
-                            }`}
-                          >
+                          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-si-muted">
                             {item.type === "forfait" ? (
                               <Package className="w-3 h-3" />
                             ) : (
@@ -169,7 +167,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                           <span className="text-xs text-si-muted">
                             {dateFmt.format(new Date(item.date))}
                           </span>
-                          <span className="text-sm font-medium text-si-ink tabular-nums">
+                          <span className="font-mono text-sm font-medium tabular-nums text-si-ink">
                             {money.format(item.montant)}
                           </span>
                         </div>
@@ -177,8 +175,8 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                     ))}
                   </ul>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </div>
         </TabsContent>
 
@@ -189,6 +187,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
             userId={userId}
             role={role}
             hideAddButton
+            hideHeader
             addModalOpen={horaireAddOpen}
             onAddModalOpenChange={setHoraireAddOpen}
             onAddSuccess={handleEntrySaved}
@@ -216,31 +215,22 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
   );
 }
 
-function SummaryCard({
-  icon,
+function SummaryMetric({
   label,
   count,
   amount,
-  highlight = false,
 }: {
-  icon: React.ReactNode;
   label: string;
   count: string;
   amount: string;
-  highlight?: boolean;
 }) {
   return (
-    <Card className={highlight ? "border-si-forest" : undefined}>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-sm text-si-muted">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-si-verified/10 text-si-verified">
-            {icon}
-          </span>
-          {label}
-        </div>
-        <div className="mt-3 text-2xl font-semibold text-si-ink tabular-nums">{amount}</div>
-        <div className="mt-1 text-xs text-si-muted">{count}</div>
-      </CardContent>
-    </Card>
+    <div className="border-b border-si-line2 px-4 py-3 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0">
+      <p className="text-xs font-medium text-si-muted">{label}</p>
+      <p className="mt-2 text-right">
+        <Figure taille="secondaire">{amount}</Figure>
+      </p>
+      <p className="mt-1 text-right text-xs text-si-muted">{count}</p>
+    </div>
   );
 }

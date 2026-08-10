@@ -145,7 +145,7 @@ function formatClientAddress(client: NonNullable<InvoiceCleanProps["client"]>): 
   return lines;
 }
 
-const kicker = "text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400";
+const kicker = "text-[10px] font-semibold uppercase tracking-[0.18em] text-si-muted";
 
 export function InvoiceTemplateClean({
   numero,
@@ -175,40 +175,40 @@ export function InvoiceTemplateClean({
 
   return (
     <article
-      className={`bg-white text-neutral-800 ${className}`}
+      className={`bg-si-surface text-si-ink ${className}`}
       style={{ fontFamily: "var(--font-sans)", fontSize: "13px" }}
     >
-      {/* ── Top accent bar ── */}
-      <div className="h-1.5 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500" />
+      {/* Une seule couleur d'accent sur le document. */}
+      <div className="h-1 bg-si-forest" />
 
       {/* ── Hero: FACTURE kicker + invoice number + dates ── */}
       <div className="px-10 pt-9 pb-7">
         <div className="flex justify-between items-start gap-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-600">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-si-verified">
                 {t.invoiceKicker}
               </p>
               {isDraft && (
-                <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[9px] font-bold uppercase tracking-[0.14em]">
+                <span className="rounded border border-si-line bg-si-canvas px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-si-muted">
                   {t.draftBadge}
                 </span>
               )}
             </div>
-            <p className="font-bold text-neutral-900 text-[26px] tracking-tight mt-1.5 tabular-nums leading-none">
+            <p className="mt-1.5 font-mono text-[26px] font-bold leading-none tracking-tight tabular-nums text-si-ink">
               {numero || "—"}
             </p>
           </div>
           <div className="text-right space-y-2.5 shrink-0">
             <div>
               <p className={kicker}>{t.issuedOn}</p>
-              <p className="text-neutral-800 text-[12.5px] mt-0.5 font-semibold tabular-nums">
+              <p className="mt-0.5 font-mono text-[12.5px] font-semibold tabular-nums text-si-ink">
                 {fmtDate(dateEmission)}
               </p>
             </div>
             <div>
               <p className={kicker}>{t.dueDate}</p>
-              <p className="text-neutral-800 text-[12.5px] mt-0.5 font-semibold tabular-nums">
+              <p className="mt-0.5 font-mono text-[12.5px] font-semibold tabular-nums text-si-ink">
                 {fmtDate(dateEcheance)}
               </p>
             </div>
@@ -220,18 +220,18 @@ export function InvoiceTemplateClean({
       <div className="px-10 pb-6">
         <div className="grid grid-cols-2 gap-4">
           {/* Issuer */}
-          <div className="p-4 rounded-xl bg-neutral-50/80 border border-neutral-100">
+          <div className="border-t border-si-line pt-4">
             <p className={`${kicker} mb-2`}>{t.issuedBy}</p>
-            <p className="font-bold text-neutral-900 text-[13.5px] leading-tight">
+            <p className="text-[13.5px] font-bold leading-tight text-si-ink">
               {cabinet?.nom ?? t.cabinetFallback}
             </p>
             {cabinet?.adresse && (
-              <p className="text-neutral-500 text-[11.5px] mt-1.5 leading-relaxed whitespace-pre-line">
+              <p className="mt-1.5 whitespace-pre-line text-[11.5px] leading-relaxed text-si-muted">
                 {cabinet.adresse}
               </p>
             )}
             {(cabinet?.telephone || cabinet?.email) && (
-              <div className="mt-1.5 space-y-0.5 text-[11.5px] text-neutral-500">
+              <div className="mt-1.5 space-y-0.5 text-[11.5px] text-si-muted">
                 {cabinet?.telephone && <p>{cabinet.telephone}</p>}
                 {cabinet?.email && <p className="truncate">{cabinet.email}</p>}
               </div>
@@ -239,39 +239,39 @@ export function InvoiceTemplateClean({
           </div>
 
           {/* Recipient */}
-          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-100/70">
-            <p className={`${kicker} text-emerald-700 mb-2`}>{t.billedTo}</p>
+          <div className="border-t border-si-forest pt-4">
+            <p className={`${kicker} mb-2 text-si-verified`}>{t.billedTo}</p>
             {client ? (
               <>
-                <p className="font-bold text-neutral-900 text-[13.5px] leading-tight">
+                <p className="text-[13.5px] font-bold leading-tight text-si-ink">
                   {clientDisplayName(client, t.noClient)}
                 </p>
                 <div className="mt-1.5 space-y-0.5">
                   {formatClientAddress(client).map((line, i) => (
-                    <p key={i} className="text-neutral-500 text-[11.5px] leading-relaxed">
+                    <p key={i} className="text-[11.5px] leading-relaxed text-si-muted">
                       {line}
                     </p>
                   ))}
                 </div>
                 {(client.telephone || client.email) && (
-                  <div className="mt-1.5 space-y-0.5 text-[11.5px] text-neutral-500">
+                  <div className="mt-1.5 space-y-0.5 text-[11.5px] text-si-muted">
                     {client.telephone && <p>{client.telephone}</p>}
                     {client.email && <p className="truncate">{client.email}</p>}
                   </div>
                 )}
               </>
             ) : (
-              <p className="text-neutral-300 italic text-[12px]">{t.noClient}</p>
+              <p className="text-[12px] italic text-si-muted">{t.noClient}</p>
             )}
           </div>
         </div>
 
         {dossier && (
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/[0.03] border border-neutral-100">
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-neutral-400">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-md border border-si-line px-3 py-1.5">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-si-muted">
               {t.matter}
             </span>
-            <span className="text-neutral-700 text-[12px] font-medium">
+            <span className="text-[12px] font-medium text-si-ink">
               {dossier.numeroDossier ? `${dossier.numeroDossier} — ` : ""}
               {dossier.intitule}
             </span>
@@ -281,16 +281,16 @@ export function InvoiceTemplateClean({
 
       {/* ── Line items table ── */}
       <div className="px-10 pb-5">
-        <div className="rounded-xl overflow-hidden border border-neutral-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className="overflow-hidden border-y border-si-line">
           {/* Header */}
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-5 bg-neutral-900 text-white px-5 py-3">
-            <p className="font-semibold text-[10.5px] uppercase tracking-[0.16em] text-neutral-300 min-w-[80px]">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-5 bg-si-canvas px-5 py-3 text-si-ink">
+            <p className="min-w-[80px] text-[10.5px] font-semibold uppercase tracking-[0.16em] text-si-muted">
               {t.colDate}
             </p>
             <p className="font-semibold text-[10.5px] uppercase tracking-[0.16em]">
               {t.colDescription}
             </p>
-            <p className="font-semibold text-[10.5px] uppercase tracking-[0.16em] text-right min-w-[80px]">
+            <p className="min-w-[80px] text-right text-[10.5px] font-semibold uppercase tracking-[0.16em]">
               {t.colAmount}
             </p>
           </div>
@@ -301,21 +301,14 @@ export function InvoiceTemplateClean({
               items.map((item, i) => {
                 const isRabais = item.type === "rabais";
                 const isFrais = item.type === "frais_administratifs";
-                const rowBg = isRabais
-                  ? "bg-emerald-50/50"
-                  : isFrais
-                    ? "bg-amber-50/40"
-                    : i % 2 === 1
-                      ? "bg-neutral-50/40"
-                      : "bg-white";
                 return (
                   <div
                     key={item.id}
                     className={`grid grid-cols-[auto_1fr_auto] items-start gap-5 px-5 py-3.5 ${
-                      i !== items.length - 1 ? "border-b border-neutral-100" : ""
-                    } ${rowBg}`}
+                      i !== items.length - 1 ? "border-b border-si-line" : ""
+                    }`}
                   >
-                    <p className="text-neutral-500 text-[11.5px] tabular-nums whitespace-nowrap min-w-[80px] pt-0.5">
+                    <p className="min-w-[80px] whitespace-nowrap pt-0.5 font-mono text-[11.5px] tabular-nums text-si-muted">
                       {item.date ? fmtDate(item.date) : "—"}
                     </p>
                     <div className="min-w-0">
@@ -324,19 +317,19 @@ export function InvoiceTemplateClean({
                           <span
                             className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-[0.08em] ${
                               isRabais
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "bg-amber-100 text-amber-700"
+                                ? "border border-si-line bg-si-canvas text-si-verified"
+                                : "border border-si-line bg-si-canvas text-si-muted"
                             }`}
                           >
                             {isRabais ? t.rabaisLabel : t.fraisLabel}
                           </span>
                         )}
-                        <p className="text-neutral-800 text-[12.5px] leading-snug flex-1 min-w-0">
+                        <p className="min-w-0 flex-1 text-[12.5px] leading-snug text-si-ink">
                           {item.description || "—"}
                         </p>
                         {item.responsableInitiales && (
                           <span
-                            className="shrink-0 inline-flex items-center justify-center min-w-[28px] h-[20px] px-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-[9px] font-bold text-emerald-700 tracking-wide tabular-nums"
+                            className="inline-flex h-5 min-w-[28px] shrink-0 items-center justify-center rounded-md border border-si-line bg-si-canvas px-1.5 text-[9px] font-bold tracking-wide tabular-nums text-si-verified"
                             title={item.responsable ?? undefined}
                           >
                             {item.responsableInitiales}
@@ -344,7 +337,7 @@ export function InvoiceTemplateClean({
                         )}
                       </div>
                       {(item.responsable || (item.hours != null && item.hours > 0)) && (
-                        <p className="text-neutral-400 text-[10.5px] mt-1 font-medium flex items-center gap-1.5 flex-wrap">
+                        <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[10.5px] font-medium text-si-muted">
                           {item.hours != null && item.hours > 0 && (
                             <span>
                               {item.hours}h × {item.rate != null ? fmtMoney(item.rate) : "—"}/h
@@ -352,7 +345,7 @@ export function InvoiceTemplateClean({
                           )}
                           {item.responsable && (
                             <>
-                              {item.hours != null && item.hours > 0 && <span className="text-neutral-200">·</span>}
+                              {item.hours != null && item.hours > 0 && <span className="text-si-line">·</span>}
                               <span>{t.by} {item.responsable}</span>
                             </>
                           )}
@@ -360,8 +353,8 @@ export function InvoiceTemplateClean({
                       )}
                     </div>
                     <p
-                      className={`font-semibold tabular-nums text-[13px] whitespace-nowrap text-right min-w-[80px] ${
-                        isRabais ? "text-emerald-700" : "text-neutral-900"
+                      className={`min-w-[80px] whitespace-nowrap text-right font-mono text-[13px] font-semibold tabular-nums ${
+                        isRabais ? "text-si-verified" : "text-si-ink"
                       }`}
                     >
                       {fmtMoney(item.amount)}
@@ -370,7 +363,7 @@ export function InvoiceTemplateClean({
                 );
               })
             ) : (
-              <div className="py-8 text-neutral-300 italic text-[12px] text-center">
+              <div className="py-8 text-center text-[12px] italic text-si-muted">
                 {t.noLines}
               </div>
             )}
@@ -383,68 +376,68 @@ export function InvoiceTemplateClean({
         <div className="flex justify-end">
           <div className="w-full sm:w-[58%] space-y-1">
             {totalFrais > 0 && (
-              <div className="flex justify-between text-amber-700 text-[12px] py-1">
+              <div className="flex justify-between py-1 text-[12px] text-si-muted">
                 <span>{t.totalFrais}</span>
-                <span className="tabular-nums font-medium">+{fmtMoney(totalFrais)}</span>
+                <span className="font-mono font-medium tabular-nums">+{fmtMoney(totalFrais)}</span>
               </div>
             )}
             {totalRabais > 0 && (
-              <div className="flex justify-between text-emerald-700 text-[12px] py-1">
+              <div className="flex justify-between py-1 text-[12px] text-si-verified">
                 <span>{t.totalRabais}</span>
-                <span className="tabular-nums font-medium">−{fmtMoney(totalRabais)}</span>
+                <span className="font-mono font-medium tabular-nums">−{fmtMoney(totalRabais)}</span>
               </div>
             )}
             {subtotalTaxable > 0 && (
-              <div className="flex justify-between text-neutral-500 text-[12px] py-1 border-t border-neutral-100/60 pt-1.5 mt-0.5">
+              <div className="mt-0.5 flex justify-between border-t border-si-line py-1 pt-1.5 text-[12px] text-si-muted">
                 <span>{t.subtotal}</span>
-                <span className="tabular-nums font-medium">
+                <span className="font-mono font-medium tabular-nums">
                   {fmtMoney(subtotalTaxable)}
                 </span>
               </div>
             )}
             {hst > 0 ? (
-              <div className="flex justify-between text-neutral-500 text-[12px] py-1">
+              <div className="flex justify-between py-1 text-[12px] text-si-muted">
                 <span>{t.hst}</span>
-                <span className="tabular-nums font-medium">{fmtMoney(hst)}</span>
+                <span className="font-mono font-medium tabular-nums">{fmtMoney(hst)}</span>
               </div>
             ) : (
               <>
                 {tps > 0 && (
-                  <div className="flex justify-between text-neutral-500 text-[12px] py-1">
+                  <div className="flex justify-between py-1 text-[12px] text-si-muted">
                     <span>{t.gst}</span>
-                    <span className="tabular-nums font-medium">{fmtMoney(tps)}</span>
+                    <span className="font-mono font-medium tabular-nums">{fmtMoney(tps)}</span>
                   </div>
                 )}
                 {tvq > 0 && (
-                  <div className="flex justify-between text-neutral-500 text-[12px] py-1">
+                  <div className="flex justify-between py-1 text-[12px] text-si-muted">
                     <span>{t.qst}</span>
-                    <span className="tabular-nums font-medium">{fmtMoney(tvq)}</span>
+                    <span className="font-mono font-medium tabular-nums">{fmtMoney(tvq)}</span>
                   </div>
                 )}
               </>
             )}
 
-            {/* Total — hero tile */}
-            <div className="mt-3 flex justify-between items-baseline gap-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white px-4 py-3.5 shadow-lg shadow-emerald-500/25">
+            {/* Le total se distingue par un filet, jamais par une tuile colorée. */}
+            <div className="mt-3 flex items-baseline justify-between gap-3 border-t-2 border-si-forest px-1 py-3.5 text-si-ink">
               <span className="font-bold text-[11.5px] uppercase tracking-[0.14em] whitespace-nowrap">
                 {t.total}
               </span>
-              <span className="font-bold text-[19px] tabular-nums tracking-tight whitespace-nowrap">
+              <span className="whitespace-nowrap font-mono text-[19px] font-bold tracking-tight tabular-nums">
                 {fmtMoney(montantTotal)}
               </span>
             </div>
 
             {montantPaye > 0 && (
               <>
-                <div className="flex justify-between text-neutral-500 text-[12px] pt-2">
+                <div className="flex justify-between pt-2 text-[12px] text-si-muted">
                   <span>{t.alreadyPaid}</span>
-                  <span className="tabular-nums font-medium">
+                  <span className="font-mono font-medium tabular-nums">
                     −{fmtMoney(montantPaye)}
                   </span>
                 </div>
-                <div className="flex justify-between text-emerald-700 text-[13px] font-bold pt-0.5 border-t border-emerald-100 mt-1">
+                <div className="mt-1 flex justify-between border-t border-si-line pt-0.5 text-[13px] font-bold text-si-ink">
                   <span className="pt-1.5">{t.balanceDue}</span>
-                  <span className="tabular-nums pt-1.5">{fmtMoney(balanceDue)}</span>
+                  <span className="pt-1.5 font-mono tabular-nums">{fmtMoney(balanceDue)}</span>
                 </div>
               </>
             )}
@@ -455,9 +448,9 @@ export function InvoiceTemplateClean({
       {/* ── Message to client ── */}
       {clientNote && (
         <div className="px-10 pb-6">
-          <div className="p-4 rounded-xl bg-neutral-50 border-l-2 border-emerald-400">
+          <div className="border-l-2 border-si-forest bg-si-canvas p-4">
             <p className={`${kicker} mb-1.5`}>{t.message}</p>
-            <p className="text-neutral-600 text-[12px] leading-relaxed italic">
+            <p className="text-[12px] italic leading-relaxed text-si-muted">
               {clientNote}
             </p>
           </div>
@@ -465,15 +458,15 @@ export function InvoiceTemplateClean({
       )}
 
       {/* ── Footer: Payment + Thanks ── */}
-      <div className="bg-neutral-50/70 border-t border-neutral-100 px-10 py-5 flex justify-between items-center gap-6">
+      <div className="flex items-center justify-between gap-6 border-t border-si-line bg-si-canvas px-10 py-5">
         <div className="min-w-0">
           <p className={kicker}>{t.payment}</p>
-          <p className="text-neutral-600 text-[12px] mt-1 leading-relaxed">
+          <p className="mt-1 text-[12px] leading-relaxed text-si-muted">
             {t.paymentInstruction}{" "}
-            <span className="font-semibold text-neutral-800">{cabinet?.nom ?? "—"}</span>
+            <span className="font-semibold text-si-ink">{cabinet?.nom ?? "—"}</span>
           </p>
         </div>
-        <p className="text-neutral-400 text-[11px] italic whitespace-nowrap">
+        <p className="whitespace-nowrap text-[11px] italic text-si-muted">
           {t.thanks}
         </p>
       </div>

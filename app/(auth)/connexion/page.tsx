@@ -178,11 +178,6 @@ function AuthPageContent() {
         </button>
       </div>
 
-      {dbConfigError && (
-        <div className="mb-4 rounded-safe border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {dbConfigError}
-        </div>
-      )}
       {success && (
         <div className="mb-4 rounded-safe border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {success}
@@ -353,6 +348,22 @@ function AuthPageContent() {
             {loading ? t("creating") : t("createFirmButton")}
           </Button>
         </form>
+      )}
+
+      {/* Avis d'infrastructure. Il est posé en fin de carte, et non au-dessus du
+          formulaire, parce qu'il arrive tard : la vérification est volontairement
+          faite depuis le navigateur pour qu'une base injoignable ne bloque jamais
+          le rendu de la page de connexion. Au-dessus des champs, son apparition
+          décalait tout le formulaire vers le bas, sous le curseur ou le doigt,
+          alors que la personne saisissait déjà. C'était l'unique décalage de mise
+          en page mesuré sur cette route. */}
+      {dbConfigError && (
+        <div
+          role="status"
+          className="mt-6 rounded-safe border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+          {dbConfigError}
+        </div>
       )}
     </div>
   );

@@ -23,7 +23,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { ChevronMark } from "@/components/branding/SafeLogo";
+import { SafeMark } from "@/components/branding/SafeLogo";
 import styles from "./safe-linear-visual.module.css";
 
 const navGroups = [
@@ -126,13 +126,13 @@ export default function SafeLinearVisualPage() {
 
             <div className={styles.brandWatermark} aria-hidden="true">
               <span className={styles.embossHighlight}>
-                <ChevronMark size={360} tone="mono-light" animate={false} />
+                <SafeMark size={360} tone="mono-light" />
               </span>
               <span className={styles.embossShadow}>
-                <ChevronMark size={360} tone="light" animate={false} />
+                <SafeMark size={360} tone="light" />
               </span>
               <span className={styles.embossFace}>
-                <ChevronMark size={360} tone="light" animate={false} />
+                <SafeMark size={360} tone="light" />
               </span>
             </div>
 

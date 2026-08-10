@@ -232,10 +232,10 @@ export function SafetrackCalendar({
                 ? newEventButton
                 : null}
             <div className="flex items-center gap-0.5 ml-2">
-              <button type="button" onClick={prevMonth} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+              <button type="button" onClick={prevMonth} aria-label={tg("previousMonth")} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
               <button type="button" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); setSelectedDay(now.getDate()); }} className="px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 rounded-safe-sm transition-colors">{tg("todayShort")}</button>
               <span className="text-sm font-medium text-neutral-900 min-w-[130px] text-center">{MONTH_NAMES[month]} {year}</span>
-              <button type="button" onClick={nextMonth} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+              <button type="button" onClick={nextMonth} aria-label={tg("nextMonth")} className="p-1.5 rounded-safe-sm hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
         </div>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!--
+    Favicon SAFE. Marque « L'Assemblage », dessin ultra petite taille : à 16 px
+    dans un onglet, le rayon et le joint de référence se bouchent.
+    Géométrie identique à components/brand/safe-mark.ts (rayon 0,07, joint 0,09).
+    Toute retouche se fait d'abord là-bas. Spécification : docs/brand/IDENTITE_SAFE.md
+
+    Le joint est évidé, pas peint : sur l'onglet clair comme sur l'onglet sombre
+    d'un navigateur, il reste lisible sans avoir à le recolorer.
+  -->
+  <path d="M 1.68 0 H 13.32 V 10.92 H 8.52 V 24 H 1.68 A 1.68 1.68 0 0 1 0 22.32 V 1.68 A 1.68 1.68 0 0 1 1.68 0 Z" fill="#1F3A2E"/>
+  <path d="M 22.32 24 H 10.68 V 13.08 H 15.48 V 0 H 22.32 A 1.68 1.68 0 0 1 24 1.68 V 22.32 A 1.68 1.68 0 0 1 22.32 24 Z" fill="#2E7D5B"/>
+</svg>

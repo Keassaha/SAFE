@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronMark } from "@/components/branding/SafeLogo";
+import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
 import {
   BG, SURFACE, INK, MUTED, FAINT, GREEN, VERIFIED, LINE, LINE_SOFT, R,
   Footer, PaperDrift, ScrollHint, SceneRail,
@@ -91,8 +91,7 @@ function EnteteDiagnostic() {
       }}
     >
       <Link href={R.accueil} className="flex items-center gap-2.5">
-        <ChevronMark size={22} animate={false} />
-        <span className="font-serif text-[21px]" style={{ color: INK }}>Safe</span>
+        <SafeLogo size={20} />
       </Link>
 
       <div className="hidden items-center gap-[26px] lg:flex">

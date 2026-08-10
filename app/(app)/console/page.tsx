@@ -3,7 +3,9 @@ import type { StageLead, TypeActivity } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSafeIncWorkspace } from "@/lib/safe-inc";
 import { PLANS, type PlanKey } from "@/lib/stripe";
+import { calculerActionsCles } from "@/lib/services/crm/prochaine-action";
 import { Card, CardContent } from "@/components/ui/Card";
+import { TourDeControle } from "@/components/console/TourDeControle";
 
 /** Montant en dollars canadiens, sans décimales (tableau de bord). */
 function money(n: number): string {
@@ -193,8 +195,9 @@ export default async function ConsolePage() {
   const inactiveCutoff = new Date(today.getTime() - 5 * DAY_MS);
   const weekCutoff = new Date(today.getTime() - 7 * DAY_MS);
 
-  const [liveCabinets, hotPipeline, weekActivities, pilote, priorityLeads, recentActivities] =
+  const [actionsCles, liveCabinets, hotPipeline, weekActivities, pilote, priorityLeads, recentActivities] =
     await Promise.all([
+      calculerActionsCles(workspace.id, { maintenant: today, limite: 5 }),
       prisma.lead.count({
         where: { workspaceId: workspace.id, stageLead: "LIVE" },
       }),
@@ -320,6 +323,21 @@ export default async function ConsolePage() {
 
   return (
     <div className="space-y-6">
+      {/* ── ZONE 0 — Tour de contrôle ───────────────────────────── */}
+      {/* Placée avant l'ancre : ce qu'il faut faire passe avant où on en est. */}
+      <TourDeControle
+        actions={actionsCles.map((a) => ({
+          cle: a.cle,
+          source: a.source,
+          leadId: a.leadId,
+          titre: a.titre,
+          cible: a.cible,
+          pourquoi: a.pourquoi,
+          href: a.href,
+          retardJours: a.retardJours,
+        }))}
+      />
+
       {/* ── ZONE 1 — Ancre ──────────────────────────────────────── */}
       <section className={`rounded-2xl border ${progress.border} bg-si-surface px-5 py-4`}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

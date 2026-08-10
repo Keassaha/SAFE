@@ -1,71 +1,73 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import type { TrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 
 type Props = {
   status: TrustReconciliationStatus;
   /**
-   * Province du cabinet (ex. "QC", "ON"). Pilote la réglementation citée et la
-   * langue de la bannière. QC → Règlement B-1, r.5 (Barreau du Québec), en
-   * français. Toute autre valeur (ou absente) → LSO By-Law 9 (Ontario), en
-   * anglais — comportement historique inchangé.
+   * Province du cabinet (ex. "QC", "ON"). Pilote uniquement la réglementation
+   * citée. La langue de l'interface suit la locale active.
    */
   province?: string | null;
 };
 
 /**
- * Persistent banner shown at the top of every app page when the cabinet
- * is overdue on its monthly trust account reconciliation.
+ * ⚠️ REMPLACÉ. Plus aucun écran ne monte ce composant.
  *
- * Hidden when:
- * - status === null (no trust activity at all)
- * - !status.isOverdue
+ * Ce bandeau rouge pleine largeur occupait le haut de chaque page tant qu'un
+ * rapprochement restait en retard. Il ne se refermait pas, et il reléguait au
+ * second plan l'objectif de la page en cours. Un outil de travail qui vit en
+ * état d'alerte permanent finit par n'alerter plus de rien.
  *
- * Visual: red banner with one-click action to start reconciliation.
- * Wording adapts whether the cabinet has never reconciled vs occasionally late.
+ * L'obligation n'a pas disparu : elle est présentée par
+ * `components/layout/AlertCenter.tsx`, un point d'entrée discret dans l'en-tête
+ * qui porte le nombre d'obligations ouvertes et les liste au calme.
+ *
+ * Conservé le temps d'un cycle, au cas où le bandeau serait redemandé. À
+ * supprimer ensuite, avec les clés `trustBanner` s'il ne reste plus rien qui
+ * les emploie (le centre d'alertes les réutilise aujourd'hui).
  */
 export function TrustReconciliationBanner({ status, province }: Props) {
+  const t = useTranslations("trustBanner");
+  const locale = useLocale();
+  const pathname = usePathname();
+
   if (!status.isOverdue) return null;
 
   const isQuebec = (province ?? "").toUpperCase() === "QC";
-
-  const headline = isQuebec
-    ? status.hasNeverReconciled
-      ? "URGENT — Compte en fidéicommis jamais rapproché"
-      : `Rapprochement du fidéicommis en retard — ${status.daysOverdue} jour${status.daysOverdue > 1 ? "s" : ""} après l'échéance (B-1, r.5)`
-    : status.hasNeverReconciled
-      ? "URGENT — Trust account never reconciled"
-      : `Trust reconciliation overdue — ${status.daysOverdue} day${status.daysOverdue > 1 ? "s" : ""} past LSO By-Law 9 deadline`;
-
-  const detail = isQuebec
-    ? status.hasNeverReconciled
-      ? `Le Règlement sur la comptabilité et les normes d'exercice professionnel des avocats (B-1, r.5) exige un rapprochement mensuel à trois voies. La période attendue (${status.expectedPeriode}) n'a pas été certifiée. Un manquement peut exposer le cabinet à des sanctions du Barreau du Québec.`
-      : `Période requise : ${status.expectedPeriode}. Dernière certifiée : ${status.lastCertifiedPeriode ?? "jamais"}. À régulariser sans délai pour rester conforme au Barreau du Québec.`
-    : status.hasNeverReconciled
-      ? `LSO By-Law 9 sec. 9.01 requires monthly 3-way reconciliation within 25 days of period end. The expected period (${status.expectedPeriode}) has not been certified. Failure to comply exposes the firm to administrative suspension.`
-      : `Required period: ${status.expectedPeriode}. Last certified: ${status.lastCertifiedPeriode ?? "never"}. Resolve immediately to maintain LSO compliance.`;
-
-  const ctaLabel = isQuebec ? "Rapprocher maintenant" : "Reconcile Now";
+  const jurisdiction = isQuebec ? "qc" : "on";
+  const state = status.hasNeverReconciled ? "never" : "overdue";
+  const headline = t(`${jurisdiction}.${state}.headline`, { days: status.daysOverdue });
+  const detail = t(`${jurisdiction}.${state}.detail`, {
+    expected: status.expectedPeriode,
+    last: status.lastCertifiedPeriode ?? t("never"),
+  });
+  const isCurrentPage = pathname === "/comptes/rapprochement";
 
   return (
-    <div className="bg-red-50 border-b border-red-200 px-4 py-3">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className="bg-red-100 p-1.5 rounded-full shrink-0">
-            <AlertTriangle className="w-4 h-4 text-red-600" />
-          </div>
+    <div className="border-b border-status-error/20 bg-status-error-bg px-4 py-3" role="status">
+      <div className="mx-auto flex max-w-7xl items-start justify-between gap-4 md:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-status-error" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="text-red-800 font-semibold text-sm leading-tight">{headline}</p>
-            <p className="text-red-700 text-xs mt-1 leading-snug">{detail}</p>
+            <p className="text-sm font-semibold leading-tight text-status-error">{headline}</p>
+            <p className="mt-1 hidden text-xs leading-snug text-si-muted sm:block">{detail}</p>
           </div>
         </div>
-        <Link
-          href="/comptes/rapprochement"
-          className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded-md text-sm transition-colors flex items-center gap-1.5 shadow-sm"
-        >
-          {ctaLabel}
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        {!isCurrentPage && (
+          <Link
+            href="/comptes/rapprochement"
+            hrefLang={locale}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border border-status-error/30 px-3 text-sm font-medium text-status-error transition-colors hover:bg-status-error/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+          >
+            {t("cta")}
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        )}
       </div>
     </div>
   );

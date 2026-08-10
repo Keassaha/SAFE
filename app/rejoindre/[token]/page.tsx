@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 
 type InviteInfo = {
   email: string;
@@ -103,11 +104,8 @@ export default function RejoindrePage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
-              <span className="text-white text-xs font-bold">S</span>
-            </div>
-            <span className="font-semibold text-gray-900">Safe</span>
+          <div className="inline-flex items-center mb-6">
+            <SafeLogo size={20} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
             Rejoignez {invite?.cabinetNom}

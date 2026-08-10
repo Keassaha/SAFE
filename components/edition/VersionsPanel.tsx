@@ -136,6 +136,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
           </div>
           <button
             onClick={onClose}
+            aria-label={t("close")}
             className="p-1.5 rounded-lg hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] transition-colors"
           >
             <X className="w-4 h-4" />

@@ -72,7 +72,9 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    // Voile modal partagé : même traitement que toutes les surfaces qui
+    // mettent le travail hors d'atteinte.
+    <div className="safe-scrim fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* En-tête */}
         <div className="flex items-center justify-between p-5 border-b border-[var(--safe-neutral-border)]">
@@ -85,7 +87,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
               <p className="text-sm text-[var(--safe-text-secondary)]">{doc.titre}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[var(--safe-neutral-bg)]">
+          <button onClick={onClose} aria-label={t("close")} className="p-1.5 rounded-lg hover:bg-[var(--safe-neutral-bg)]">
             <X className="w-4 h-4 text-[var(--safe-text-secondary)]" />
           </button>
         </div>

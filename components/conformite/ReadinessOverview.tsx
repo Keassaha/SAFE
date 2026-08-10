@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertTriangle, AlertCircle, MinusCircle, ShieldCheck } from "lucide-react";
 import { routes } from "@/lib/routes";
 import type { ReadinessReport, ReadinessDomainId, ReadinessState, DomainResult } from "@/lib/admin/readiness";
+import { Figure } from "@/components/ui/Figure";
 
 /**
  * Vue conformité pleine page, orientée cabinet (étape 3 du plan de différenciation).
@@ -82,11 +83,11 @@ const STATE_STYLE: Record<ReadinessState, StateStyle> = {
   },
   blocking: {
     labelKey: "stateBlocking",
-    dot: "bg-[#B84A3E]",
-    chipBg: "bg-[#B84A3E]/10 border-[#B84A3E]/30",
-    chipText: "text-[#B84A3E]",
+    dot: "bg-status-error",
+    chipBg: "bg-status-error-bg border-status-error/30",
+    chipText: "text-status-error",
     Icon: AlertCircle,
-    iconColor: "text-[#B84A3E]",
+    iconColor: "text-status-error",
   },
   not_applicable: {
     labelKey: "stateNotApplicable",
@@ -112,87 +113,106 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
   const td = await getTranslations("parametres");
 
   const scoreColor =
-    report.score >= 80 ? "text-si-verified" : report.score >= 50 ? "text-si-amber-ink" : "text-[#B84A3E]";
-  const ringColor = scoreColor;
+    report.score >= 80 ? "text-si-verified" : report.score >= 50 ? "text-si-amber-ink" : "text-status-error";
 
-  const compliant = report.counts.complete;
-  const toTreat =
-    report.counts.blocking + report.counts.to_complete + report.counts.warning;
-
-  const domains: DomainResult[] = [...report.domains].sort(
+  const domaines: DomainResult[] = [...report.domains].sort(
     (a, b) => STATE_ORDER[a.state] - STATE_ORDER[b.state]
   );
+  const aTraiter = domaines.filter((d) => d.state !== "complete" && d.state !== "not_applicable");
+  const conformes = domaines.filter((d) => d.state === "complete");
+  const nonApplicables = domaines.filter((d) => d.state === "not_applicable");
+  const pret = aTraiter.length === 0;
 
   return (
     <div className="space-y-6">
-      {/* En-tête : score « prêt pour l'inspection » */}
-      <div className="rounded-[var(--safe-radius-lg)] border-2 border-si-line bg-si-surface p-6 flex items-center gap-6">
-        <div className={`text-5xl font-bold tabular-nums ${scoreColor}`}>{report.score}%</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className={`w-5 h-5 ${scoreColor}`} aria-hidden />
-            <h2 className="text-lg font-semibold text-si-ink">{t("readyTitle")}</h2>
-          </div>
+      {/* Une seule question en tête : le cabinet est-il en règle. Le score la
+          précise, il ne la remplace pas. L'anneau qui redoublait le chiffre a
+          été retiré : deux représentations de la même valeur ne renseignent
+          pas deux fois. */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg border border-si-line bg-si-surface p-6">
+        <ShieldCheck className={`h-6 w-6 shrink-0 ${scoreColor}`} aria-hidden />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold leading-tight text-si-ink">
+            {pret ? t("verdictReady") : t("verdictNotReady")}
+          </h2>
           <p className="mt-1 text-sm text-si-muted">
-            {t("summary", { compliant, toTreat })}
+            {t("summary", { compliant: conformes.length, toTreat: aTraiter.length })}
           </p>
         </div>
-        <div className="relative w-16 h-16 shrink-0" aria-hidden>
-          <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-si-muted/25" />
-            <circle
-              cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4"
-              strokeDasharray={`${(report.score / 100) * 176} 176`}
-              strokeLinecap="round"
-              className={ringColor}
-            />
-          </svg>
-        </div>
+        <p className="shrink-0 text-right">
+          <Figure taille="principale" teinte={report.score >= 80 ? "confirme" : "attention"}>
+            {report.score} %
+          </Figure>
+          <span className="mt-0.5 block text-xs text-si-muted">{t("readyTitle")}</span>
+        </p>
       </div>
 
-      {/* Grille des 14 domaines */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {domains.map((d) => {
-          const style = STATE_STYLE[d.state];
-          const Icon = style.Icon;
-          const actionable = d.state !== "complete" && d.state !== "not_applicable";
-          return (
-            <div
-              key={d.domain}
-              className="rounded-[var(--safe-radius-lg)] border border-si-line bg-si-surface p-4 flex flex-col gap-2"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Icon className={`w-4 h-4 shrink-0 ${style.iconColor}`} aria-hidden />
-                  <h3 className="text-sm font-semibold text-si-ink truncate">
-                    {td(DOMAIN_TITLE_KEY[d.domain])}
-                  </h3>
+      {/* Ce qui demande une action, et rien d'autre. Une ligne par obligation,
+          pas une grille de tuiles identiques : la grille présentait les
+          quatorze domaines au même poids, y compris ceux déjà en règle. */}
+      <section>
+        <h3 className="text-sm font-semibold text-si-ink">{t("toTreatHeading")}</h3>
+        {aTraiter.length === 0 ? (
+          <p className="mt-3 rounded-lg border border-si-line bg-si-surface px-4 py-5 text-sm text-si-muted">
+            {t("nothingToTreat")}
+          </p>
+        ) : (
+          <ul className="mt-3 divide-y divide-si-line rounded-lg border border-si-line bg-si-surface">
+            {aTraiter.map((d) => {
+              const style = STATE_STYLE[d.state];
+              const Icon = style.Icon;
+              return (
+                <li key={d.domain} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-4 py-3.5">
+                  <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${style.iconColor}`} aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-sm font-medium text-si-ink">{td(DOMAIN_TITLE_KEY[d.domain])}</h4>
+                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${style.chipBg} ${style.chipText}`}>
+                        {t(style.labelKey)}
+                      </span>
+                    </div>
+                    {d.action || d.evidence ? (
+                      <p className="mt-1 text-xs leading-relaxed text-si-muted">{d.action ?? d.evidence}</p>
+                    ) : null}
+                  </div>
+                  <Link
+                    href={DOMAIN_ROUTE[d.domain]}
+                    className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-si-verified transition-colors hover:text-si-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+                  >
+                    {t("fix")}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* Le reste ne demande rien. Il reste consultable, il ne s'impose plus. */}
+      {conformes.length > 0 ? (
+        <details className="rounded-lg border border-si-line bg-si-surface">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-si-ink marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified">
+            {t("compliantHeading", { count: conformes.length })}
+          </summary>
+          <ul className="divide-y divide-si-line border-t border-si-line">
+            {conformes.map((d) => (
+              <li key={d.domain} className="flex items-start gap-3 px-4 py-2.5">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-si-verified" aria-hidden />
+                <div className="min-w-0">
+                  <p className="text-sm text-si-ink">{td(DOMAIN_TITLE_KEY[d.domain])}</p>
+                  {d.evidence ? <p className="mt-0.5 text-xs text-si-muted">{d.evidence}</p> : null}
                 </div>
-                <span
-                  className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${style.chipBg} ${style.chipText}`}
-                >
-                  {t(style.labelKey)}
-                </span>
-              </div>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
 
-              {(d.evidence || d.action) && (
-                <p className="text-xs text-si-muted leading-snug">
-                  {actionable ? d.action ?? d.evidence : d.evidence}
-                </p>
-              )}
-
-              {actionable && (
-                <Link
-                  href={DOMAIN_ROUTE[d.domain]}
-                  className="mt-auto text-xs font-medium text-si-forest hover:underline"
-                >
-                  {t("fix")}
-                </Link>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {nonApplicables.length > 0 ? (
+        <p className="text-xs text-si-muted">
+          {t("notApplicableHeading", { count: nonApplicables.length })}
+        </p>
+      ) : null}
     </div>
   );
 }

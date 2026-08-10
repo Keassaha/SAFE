@@ -53,14 +53,18 @@ export function MobileSidebar({
 
   return (
     <div className="fixed inset-0 z-[100] lg:hidden" role="dialog" aria-modal="true" aria-label={t("menuTitle")}>
+      {/* Voile : le tiroir met le travail hors d'atteinte, le voile le dit. */}
       <button
         type="button"
-        className="absolute inset-0 bg-[var(--zinc-950)]/40 backdrop-blur-sm"
+        className="safe-scrim absolute inset-0"
         aria-label={t("closeMenu")}
         onClick={onClose}
       />
+      {/* Plan 3, opaque et élevé. Le tiroir recouvre le canvas, mais la
+          navigation n'a pas besoin que le travail reste perceptible derrière
+          elle : la doctrine impose alors l'ombre plutôt que le flou. */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-[min(100vw-3rem,280px)] flex flex-col shadow-2xl border-r animate-mobile-drawer-in pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]"
+        className="absolute left-0 top-0 bottom-0 w-[min(100vw-3rem,280px)] flex flex-col shadow-glass-elevated border-r animate-mobile-drawer-in pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]"
         style={{
           background: "var(--sand-300)",
           borderRightColor: "var(--sand-400)",

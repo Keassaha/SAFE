@@ -80,18 +80,16 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
 
   return (
     <div className="bg-si-surface border border-si-line p-6">
-      <h3 className="text-base font-semibold text-si-ink flex items-center gap-2 tracking-tight">
+      <h2 className="text-base font-semibold text-si-ink flex items-center gap-2 tracking-tight">
         <Play className="w-4 h-4" aria-hidden />
         {t("quickEntry")}
-      </h3>
+      </h2>
       <p className="text-sm text-si-muted mt-1 mb-4">
         {t("quickEntryDesc")}
       </p>
       <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-si-verified/10 flex items-center justify-center">
-            <Clock className="w-6 h-6 text-si-verified" aria-hidden />
-          </div>
+          <Clock className="h-5 w-5 shrink-0 text-si-verified" aria-hidden />
           <div>
             <p className="text-2xl font-mono font-bold text-si-ink tabular-nums">
               {formatTimerElapsed(timer.elapsedSeconds)}
@@ -146,7 +144,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={clientId}
                 onChange={(e) => handleClientChange(e.target.value)}
                 disabled={isLoading}
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -163,7 +161,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={dossierId}
                 onChange={(e) => setDossierId(e.target.value)}
                 disabled={!clientId || isLoading}
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               >
                 <option value="">
                   {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
@@ -184,18 +182,18 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 placeholder={t("descriptionOptional")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-si-line text-sm"
+                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               />
             </div>
-            <Button
-              type="button"
-              onClick={handleStart}
-              disabled={!canStart}
-              className="shrink-0"
-            >
-              <Play className="w-4 h-4 mr-2 inline" />
-              {t("startTimer")}
-            </Button>
+            <div className="shrink-0">
+              <Button type="button" onClick={handleStart} disabled={!canStart}>
+                <Play className="mr-2 inline h-4 w-4" />
+                {t("startTimer")}
+              </Button>
+              {!clientId && (
+                <p className="mt-1 max-w-40 text-xs text-si-muted">{t("selectClientToStart")}</p>
+              )}
+            </div>
           </>
         )}
       </div>

@@ -246,8 +246,10 @@ export default async function DossierDetailPage({
 
   return (
     <div className="space-y-0">
-      {/* En-tête dossier — Liquid Glass clair, hiérarchie claire, actions à droite */}
-      <header className="sticky top-0 z-10 border-b border-si-line bg-si-surface/75 backdrop-blur-md px-6 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      {/* En-tête dossier. Plan 3, niveau subtle : la barre reste en place et
+          recouvre le contenu du dossier pendant le défilement. Le contexte
+          doit rester perceptible derrière, d'où le verre plutôt qu'un aplat. */}
+      <header className="safe-glass-subtle sticky top-0 z-10 border-b px-6 py-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-3">

@@ -3,6 +3,7 @@
 // Route JETABLE — démo de direction : en-tête forêt récurrent + formulaire
 // (polices cohérentes, focus vert au clic). À supprimer après validation.
 import { Card, CardTitle, CardSubtitle, Badge } from "@/components/ds-safe/core";
+import { Button } from "@/components/ui/Button";
 import { PageHero, HeroButtonPrimary, HeroButtonGhost } from "@/components/ds-safe/page-hero";
 import { Field, Input, Select, Textarea, AmountInput, SegmentedControl } from "@/components/ds-safe/form";
 
@@ -70,8 +71,8 @@ export default function FormsPreviewPage() {
           <aside className="space-y-5">
             <div className="relative overflow-hidden rounded-2xl bg-si-forest text-si-surface px-6 py-[22px]">
               <div aria-hidden className="absolute -left-12 -bottom-16 w-48 h-48 glow-verified" />
-              <span className="relative z-10 inline-flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-wider bg-si-verified/25 text-[#9FE3C2] px-2.5 py-[5px] rounded-full mb-3.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#5FCF9C]" />
+              <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-si-verified-on-forest">
+                <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />
                 Fidéicommis
               </span>
               <div className="relative z-10 text-xs opacity-75">Provision à recevoir</div>
@@ -95,12 +96,12 @@ export default function FormsPreviewPage() {
         <div className="flex items-center gap-3 rounded-2xl border border-si-line bg-si-surface px-6 py-4">
           <div className="text-xs text-si-muted">Le dossier pourra être modifié après sa création.</div>
           <div className="ml-auto flex items-center gap-3">
-            <button className="rounded-lg border border-si-line px-4 py-2 text-sm font-medium text-si-muted hover:bg-si-canvas">
+            <Button variant="ghost">
               Annuler
-            </button>
-            <button className="rounded-lg bg-si-forest px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft">
+            </Button>
+            <Button>
               Créer le dossier
-            </button>
+            </Button>
           </div>
         </div>
 

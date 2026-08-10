@@ -9,8 +9,9 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { TimeEntryStatut } from "@prisma/client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface TimeEntryRow {
   id: string;
@@ -35,20 +36,18 @@ interface TimeEntryRow {
 function formatDuree(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  return m > 0 ? `${h}h${m}` : `${h}h`;
+  if (h === 0) return `${m} min`;
+  return m > 0 ? `${h} h ${String(m).padStart(2, "0")}` : `${h} h`;
 }
 
-function StatutBadge({ billingStatus }: { billingStatus: string | null }) {
+function BillingStatus({ billingStatus }: { billingStatus: string | null }) {
   const t = useTranslations("temps");
   const isFacture = billingStatus === "BILLED";
-  const label = isFacture ? t("billed") : t("notBilled");
-  const className = isFacture
-    ? "bg-si-verified/10 text-si-verified"
-    : "bg-[#B84A3E]/10 text-[#B84A3E]";
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${className}`}>
-      {label}
-    </span>
+    <StatusBadge
+      label={isFacture ? t("billed") : t("notBilled")}
+      variant={isFacture ? "success" : "warning"}
+    />
   );
 }
 
@@ -73,6 +72,7 @@ export function TimeEntriesTable({
 }) {
   const t = useTranslations("temps");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const [editId, setEditId] = useState<string | null>(null);
   const [menuId, setMenuId] = useState<string | null>(null);
   const updateMutation = useUpdateTimeEntry(cabinetId);
@@ -97,91 +97,105 @@ export function TimeEntriesTable({
 
   return (
     <>
+      {(updateMutation.isError || deleteMutation.isError) && (
+        <div className="mx-4 mt-4 border-l-2 border-status-error pl-3" role="alert">
+          <p className="text-sm text-status-error">{t("actionError")}</p>
+        </div>
+      )}
       <div className="overflow-x-auto">
-        <table className="min-w-full">
+        <table className="min-w-[960px] w-full">
           <thead>
             <tr className="border-b border-si-line">
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("date")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("client")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("dossier")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("description")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("duration")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("rate")}</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase">{tc("amount")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{t("lawyer")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase">{tc("status")}</th>
-              <th className="px-4 py-3 w-10" aria-label="Actions" />
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("date")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("dossier")}</th>
+              <th className="w-full px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("description")}</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted">{t("duration")}</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted">{tc("amount")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{t("lawyer")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("status")}</th>
+              <th className="w-14 px-2 py-3" aria-label={t("actions")} />
             </tr>
           </thead>
           <tbody>
             {entries.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-sm text-si-muted">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-si-muted">
                   {t("noEntries")}
                 </td>
               </tr>
             ) : (
-              entries.map((entry, i) => (
+              entries.map((entry) => (
                 <tr
                   key={entry.id}
-                  className={`border-b border-si-line/80 hover:bg-si-verified/10 ${
-                    i % 2 === 1 ? "bg-si-canvas/30" : ""
+                  className={`border-b border-si-line/80 hover:bg-si-canvas/60 ${
+                    menuId === entry.id ? "bg-si-canvas/60" : ""
                   }`}
                 >
-                  <td className="px-4 py-3 text-sm whitespace-nowrap">{formatDate(entry.date)}</td>
-                  <td className="px-4 py-3 text-sm">
-                    {entry.dossier?.client
-                    ? clientDisplayName(entry.dossier.client)
-                    : entry.client
-                    ? clientDisplayName(entry.client)
-                    : "—"}
+                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    {formatDate(entry.date, locale)}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {entry.dossier ? (
-                      <Link
-                        href={routes.dossier(entry.dossier.id)}
-                        className="text-si-verified hover:underline"
-                      >
-                        {entry.dossier.numeroDossier ?? entry.dossier.reference ?? "—"}
-                      </Link>
+                      <div className="min-w-[150px]">
+                        <Link
+                          href={routes.dossier(entry.dossier.id)}
+                          className="font-medium text-si-verified hover:underline"
+                        >
+                          {entry.dossier.numeroDossier ?? entry.dossier.reference ?? "—"}
+                        </Link>
+                        <p className="mt-0.5 max-w-[180px] truncate text-xs text-si-muted">
+                          {clientDisplayName(entry.dossier.client)}
+                        </p>
+                      </div>
                     ) : (
-                      <span className="text-si-muted">{t("noMatter")}</span>
+                      <div className="min-w-[150px]">
+                        <span className="text-si-muted">{t("noMatter")}</span>
+                        {entry.client && (
+                          <p className="mt-0.5 max-w-[180px] truncate text-xs text-si-muted">
+                            {clientDisplayName(entry.client)}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm max-w-[180px] truncate" title={entry.description ?? ""}>
+                  <td className="max-w-[360px] px-4 py-3 text-sm" title={entry.description ?? ""}>
+                    <p className="line-clamp-2 leading-snug">
                     {entry.description ?? "—"}
+                    </p>
                   </td>
-                  <td className="px-4 py-3 text-sm whitespace-nowrap">{formatDuree(entry.dureeMinutes)}</td>
-                  <td className="px-4 py-3 text-sm whitespace-nowrap">{formatCurrency(entry.tauxHoraire)}/h</td>
-                  <td className="px-4 py-3 text-sm font-medium text-right tabular-nums">{formatCurrency(entry.montant)}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="w-7 h-7 rounded-full bg-si-canvas flex items-center justify-center text-xs font-medium shrink-0">
-                        {entry.user.nom.slice(0, 2).toUpperCase()}
-                      </span>
-                      {entry.user.nom}
-                    </span>
+                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-sm tabular-nums">
+                    {formatDuree(entry.dureeMinutes)}
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
+                    <p className="font-mono font-medium tabular-nums">
+                      {formatCurrency(entry.montant, "CAD", locale)}
+                    </p>
+                    <p className="mt-0.5 font-mono text-xs tabular-nums text-si-muted">
+                      {formatCurrency(entry.tauxHoraire, "CAD", locale)}/h
+                    </p>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-sm">{entry.user.nom}</td>
                   <td className="px-4 py-3">
-                    <StatutBadge billingStatus={entry.billingStatus ?? null} />
+                    <BillingStatus billingStatus={entry.billingStatus ?? null} />
                   </td>
-                  <td className="px-4 py-3 relative">
+                  <td className="relative px-2 py-2">
                     {canEdit(entry) && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center justify-end">
                         <button
                           type="button"
                           onClick={() => setMenuId(menuId === entry.id ? null : entry.id)}
-                          className="p-1 rounded hover:bg-si-canvas"
-                          aria-label="Actions"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-md hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+                          aria-label={t("actions")}
+                          aria-expanded={menuId === entry.id}
                         >
-                          <MoreVertical className="w-4 h-4" />
+                          <MoreVertical className="h-4 w-4" />
                         </button>
                         {menuId === entry.id && (
-                          <div className="absolute right-0 top-full mt-1 py-1 bg-si-surface border rounded-lg shadow-lg z-10 min-w-[140px]">
+                          <div className="absolute right-2 top-full z-20 mt-1 min-w-[160px] rounded-lg border border-si-line bg-si-surface py-1 ring-1 ring-si-line/40">
                             <button
                               type="button"
                               onClick={() => { setEditId(entry.id); setMenuId(null); }}
-                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-si-canvas"
+                              className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-si-canvas"
                             >
                               <Pencil className="w-4 h-4" /> {tc("edit")}
                             </button>
@@ -189,7 +203,7 @@ export function TimeEntriesTable({
                               <button
                                 type="button"
                                 onClick={() => handleValidate(entry)}
-                                className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-si-canvas"
+                                className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-si-canvas"
                               >
                                 <Check className="w-4 h-4" /> {t("markValidated")}
                               </button>
@@ -197,7 +211,7 @@ export function TimeEntriesTable({
                             <button
                               type="button"
                               onClick={() => handleDelete(entry)}
-                              className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-[#B84A3E]/10 text-[#B84A3E]"
+                              className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm text-status-error hover:bg-status-error-bg"
                             >
                               <Trash2 className="w-4 h-4" /> {tc("delete")}
                             </button>

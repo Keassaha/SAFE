@@ -457,6 +457,7 @@ function ClientRowActions({
         <form action={archiveClient.bind(null, clientId)} className="inline">
           <button
             type="submit"
+            aria-label={t("archive")}
             className="inline-flex p-2 rounded-lg text-si-muted hover:bg-si-amber/10 hover:text-si-amber transition-colors"
             title={t("archive")}
           >

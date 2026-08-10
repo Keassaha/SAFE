@@ -162,7 +162,9 @@ export function RapportsView({
         </div>
 
         {filtersOpen && (
-          <div className="no-print p-4 rounded-lg border border-si-line bg-si-surface/60 backdrop-blur-sm">
+          /* Plan 2 : ce panneau de filtres vit dans le flux et ne recouvre
+             rien. Il reste mat, le filet suffit à le détacher du canvas. */
+          <div className="no-print p-4 rounded-lg border border-si-line bg-si-surface">
             <RapportsFilters
               clients={payload.clients}
               avocats={payload.avocats}

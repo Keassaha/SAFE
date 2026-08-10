@@ -69,7 +69,9 @@ export function MoveDocumentDialog({
   const target = dossiers.find((d) => d.id === selectedId);
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    // Voile modal partagé : même traitement que toutes les surfaces qui
+    // mettent le travail hors d'atteinte.
+    <div className="safe-scrim fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[var(--safe-neutral-border)]">
@@ -82,7 +84,7 @@ export function MoveDocumentDialog({
               <p className="text-xs text-[var(--safe-text-secondary)] truncate max-w-[240px]">{documentTitre}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[var(--safe-neutral-bg)]">
+          <button onClick={onClose} aria-label={t("close")} className="p-1.5 rounded-lg hover:bg-[var(--safe-neutral-bg)]">
             <X className="w-4 h-4 text-[var(--safe-text-secondary)]" />
           </button>
         </div>

@@ -51,14 +51,18 @@ export function FacturePreviewActions({
   const [showSend, setShowSend] = useState(false);
   const [docs, setDocs] = useState<AttachableDoc[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [docsError, setDocsError] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [paymentInstructions, setPaymentInstructions] = useState("");
+  const [isSendDirty, setIsSendDirty] = useState(false);
 
   const openSendDialog = async () => {
     setShowSend(true);
     setSelected(new Set());
+    setDocsError(false);
+    setIsSendDirty(false);
     setLoadingDocs(true);
     try {
       const res = await fetch(`/api/facturation/factures/${invoiceId}/envoyer-email`);
@@ -71,9 +75,16 @@ export function FacturePreviewActions({
       }
     } catch {
       setDocs([]);
+      setDocsError(true);
     } finally {
       setLoadingDocs(false);
     }
+  };
+
+  const closeSendDialog = () => {
+    if (isSendDirty && !window.confirm(t("confirmCloseSendDialog"))) return;
+    setShowSend(false);
+    setIsSendDirty(false);
   };
 
   const confirmSend = async () => {
@@ -95,18 +106,21 @@ export function FacturePreviewActions({
     }
   };
 
-  const toggle = (id: string) =>
+  const toggle = (id: string) => {
+    setIsSendDirty(true);
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
+  };
 
   const runAction = async (
     action: "valider" | "envoyer-email" | "annuler",
     successMessage: string
   ) => {
+    if (action === "annuler" && !window.confirm(t("confirmCancelDraft"))) return;
     try {
       setPendingAction(action);
       await postInvoiceAction(invoiceId, action);
@@ -124,11 +138,11 @@ export function FacturePreviewActions({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <Link
         href={`/api/facturation/factures/${invoiceId}/pdf`}
         target="_blank"
-        className="inline-flex h-[38px] items-center justify-center gap-1.5 rounded-md border border-si-forest/40 px-4 text-[14px] font-medium text-si-verified transition-base hover:bg-si-canvas"
+        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-si-line px-4 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
       >
         <ExternalLink className="h-4 w-4" />
         {t("viewPdf")}
@@ -158,7 +172,7 @@ export function FacturePreviewActions({
       {isDraft ? (
         <Button
           variant="ghost"
-          className="gap-2 text-[#A32D2D] hover:bg-[#FCEBEB]"
+          className="gap-2 text-status-error hover:bg-status-error-bg"
           disabled={pendingAction != null}
           onClick={() => runAction("annuler", t("toastDraftCancelled"))}
         >
@@ -166,52 +180,75 @@ export function FacturePreviewActions({
           {t("cancelDraft")}
         </Button>
       ) : null}
+      {pendingAction ? (
+        <span className="sr-only" role="status" aria-live="polite">
+          {t("actionInProgress")}
+        </span>
+      ) : null}
 
       {showSend ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowSend(false)}>
-          <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-2xl bg-si-surface shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Le voile et le panneau sont FRÈRES, jamais imbriqués. Un élément
+              qui porte un `backdrop-filter` devient racine d'arrière-plan pour
+              sa descendance : posé à l'intérieur du voile, le panneau ne
+              floutait plus la page, seulement le voile lui-même. */}
+          <div className="safe-scrim absolute inset-0" aria-hidden />
+          {/* Plan 3, niveau focus : l'envoi d'une facture à un client est une
+              décision. Le focus est le plus opaque des trois verres, la
+              lisibilité du destinataire et du montant prime sur la matière. */}
+          <div
+            className="safe-glass-focus relative z-10 flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="send-invoice-title"
+          >
             <div className="flex items-center justify-between border-b border-si-line px-5 py-3">
-              <h3 className="text-[15px] font-semibold text-si-ink">{t("sendInvoiceTitle")}</h3>
-              <button type="button" onClick={() => setShowSend(false)} className="text-si-muted/50 hover:text-si-ink" aria-label="Fermer">
-                <X className="h-4 w-4" />
+              <h3 id="send-invoice-title" className="text-base font-semibold text-si-ink">{t("sendInvoiceTitle")}</h3>
+              <button
+                type="button"
+                onClick={closeSendDialog}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink"
+                aria-label={t("close")}
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="overflow-y-auto px-5 py-4">
-              <p className="text-sm text-si-muted">Vous pouvez corriger l&apos;objet et le message avant l&apos;envoi. La facture PDF est jointe automatiquement.</p>
+              <p className="text-sm leading-6 text-si-muted">{t("sendDialogIntro")}</p>
 
-              {/* Objet */}
               <div className="mt-4">
-                <label className="mb-1 block text-[12px] font-medium text-si-muted">Objet</label>
+                <label htmlFor="invoice-email-subject" className="mb-1.5 block text-xs font-medium text-si-muted">{t("subject")}</label>
                 <input
+                  id="invoice-email-subject"
                   type="text"
                   value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                  onChange={(e) => { setSubject(e.target.value); setIsSendDirty(true); }}
+                  className="min-h-11 w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
                 />
               </div>
 
-              {/* Message */}
               <div className="mt-3">
-                <label className="mb-1 block text-[12px] font-medium text-si-muted">Message</label>
+                <label htmlFor="invoice-email-message" className="mb-1.5 block text-xs font-medium text-si-muted">{t("message")}</label>
                 <textarea
+                  id="invoice-email-message"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => { setMessage(e.target.value); setIsSendDirty(true); }}
                   rows={7}
-                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                  className="w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
                 />
               </div>
 
-              {/* Instructions de paiement */}
               <div className="mt-3">
-                <label className="mb-1 block text-[12px] font-medium text-si-muted">Instructions de paiement</label>
+                <label htmlFor="invoice-payment-instructions" className="mb-1.5 block text-xs font-medium text-si-muted">{t("paymentInstructions")}</label>
                 <textarea
+                  id="invoice-payment-instructions"
                   value={paymentInstructions}
-                  onChange={(e) => setPaymentInstructions(e.target.value)}
+                  onChange={(e) => { setPaymentInstructions(e.target.value); setIsSendDirty(true); }}
                   rows={5}
-                  placeholder="Modes de paiement, coordonnées, rappel du n° de facture…"
-                  className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink placeholder:text-si-muted/60 focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
+                  placeholder={t("paymentInstructionsPlaceholder")}
+                  className="w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink placeholder:text-si-muted/60 focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
                 />
-                <p className="mt-1 text-[11px] text-si-muted">Affichées dans un encadré distinct au bas du courriel.</p>
+                <p className="mt-1 text-xs text-si-muted">{t("paymentInstructionsHint")}</p>
               </div>
 
               <div className="mt-4">
@@ -223,6 +260,8 @@ export function FacturePreviewActions({
                   <div className="flex items-center gap-2 py-3 text-sm text-si-muted/50">
                     <Loader2 className="h-4 w-4 animate-spin" /> {t("loading")}
                   </div>
+                ) : docsError ? (
+                  <p className="py-2 text-xs text-status-error" role="alert">{t("documentsLoadError")}</p>
                 ) : docs.length === 0 ? (
                   <p className="py-2 text-xs text-si-muted/50">{t("noAttachableDocs")}</p>
                 ) : (
@@ -233,7 +272,7 @@ export function FacturePreviewActions({
                           <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} className="accent-si-forest" />
                           <span className="flex-1 truncate text-si-ink">{d.titre}</span>
                           {d.statut === "brouillon" ? (
-                            <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: "#F5E6C8", color: "#8B6B1F" }}>
+                            <span className="border-l-2 border-status-warning pl-2 text-[10px] font-semibold text-status-warning">
                               {t("draftBadge")}
                             </span>
                           ) : null}
@@ -244,9 +283,7 @@ export function FacturePreviewActions({
                 )}
               </div>
               <div className="mt-4 flex items-center justify-end gap-2">
-                <button type="button" onClick={() => setShowSend(false)} className="rounded-lg border border-si-line px-4 py-2 text-sm font-medium text-si-muted">
-                  {t("cancel")}
-                </button>
+                <Button type="button" variant="secondary" onClick={closeSendDialog}>{t("cancel")}</Button>
                 <Button variant="primary" className="gap-2" disabled={pendingAction != null} onClick={confirmSend}>
                   {pendingAction != null ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
                   {selected.size > 0 ? t("sendWithCount", { n: selected.size }) : t("sendByEmail")}

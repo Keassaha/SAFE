@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils/format";
-import {
-  DollarSign,
-  Send,
-  FileCheck,
-  AlertCircle,
-  Percent,
-} from "lucide-react";
+import { MetricTile } from "@/components/ui/Figure";
 
 export interface FacturationMainKpisData {
   facturablesCount: number;
@@ -27,134 +21,92 @@ interface FacturationMainKpisProps {
   kpis: FacturationMainKpisData;
 }
 
-const CARD_BASE =
-  "relative overflow-hidden rounded-2xl border border-si-line bg-si-surface transition-all hover:shadow-si-card hover:border-si-forest/30";
-
-const CARD_ACTIVE =
-  "ring-2 ring-si-forest/30 border-si-forest/40";
-
 /**
- * Unified KPI strip. Each tile is a clickable filter on the current page:
- * updates the ?statut= URL param to drive the main invoice table filter.
- * No sub-page navigation — stays in the unified view.
+ * Registre synthétique. Chaque métrique filtre la table sans transformer
+ * cinq chiffres de pilotage en cinq cartes concurrentes.
  */
 export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
   const searchParams = useSearchParams();
-  const tFacturation = useTranslations("facturation");
+  const locale = useLocale();
+  const t = useTranslations("facturation");
   const currentStatut = searchParams.get("statut") ?? "";
 
-  /** Build /facturation URL with a specific statut filter */
   const linkWithStatut = (statut: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (statut) params.set("statut", statut);
     else params.delete("statut");
-    const qs = params.toString();
-    return qs ? `/facturation?${qs}` : "/facturation";
+    const query = params.toString();
+    return query ? `/facturation?${query}` : "/facturation";
   };
 
-  const CARDS: {
-    key: keyof FacturationMainKpisData;
-    label: string;
-    icon: typeof DollarSign;
-    valueColor: string;
-    href: string;
-    statutFilter: string;
-    getValue: (k: FacturationMainKpisData) => string;
-    getSub?: (k: FacturationMainKpisData) => string;
-    subPrefixKey?: string;
-  }[] = [
+  const metrics = [
     {
-      key: "facturablesSum",
-      label: tFacturation("billable"),
-      icon: DollarSign,
-      valueColor: "text-si-verified",
+      key: "billable",
+      label: t("billable"),
+      value: String(kpis.facturablesCount),
+      detail: formatCurrency(kpis.facturablesSum, "CAD", locale),
       href: "/facturation#facturables",
-      statutFilter: "", // ancre interne vers la section "Facturables par client"
-      getValue: (k) => `${k.facturablesCount}`,
-      getSub: (k) => formatCurrency(k.facturablesSum),
-      subPrefixKey: "amountLabel",
+      filter: "",
     },
     {
-      key: "verificationCount",
-      label: tFacturation("verification"),
-      icon: FileCheck,
-      valueColor: "text-si-amber-ink",
+      key: "verification",
+      label: t("verification"),
+      value: String(kpis.verificationCount),
+      detail: t("pendingApproval"),
       href: linkWithStatut("brouillon"),
-      statutFilter: "brouillon",
-      getValue: (k) => `${k.verificationCount}`,
-      getSub: () => tFacturation("pendingApproval"),
+      filter: "brouillon",
     },
     {
-      key: "envoyeesSum",
-      label: tFacturation("sent"),
-      icon: Send,
-      valueColor: "text-si-ink",
+      key: "sent",
+      label: t("sent"),
+      value: String(kpis.envoyeesCount),
+      detail: formatCurrency(kpis.envoyeesSum, "CAD", locale),
       href: linkWithStatut("envoyee"),
-      statutFilter: "envoyee",
-      getValue: (k) => `${k.envoyeesCount}`,
-      getSub: (k) => formatCurrency(k.envoyeesSum),
+      filter: "envoyee",
     },
     {
-      key: "enRetardSum",
-      label: tFacturation("overdue"),
-      icon: AlertCircle,
-      valueColor: "text-[#B84A3E]",
+      key: "overdue",
+      label: t("overdue"),
+      value: String(kpis.enRetardCount),
+      detail: formatCurrency(kpis.enRetardSum, "CAD", locale),
       href: linkWithStatut("en_retard"),
-      statutFilter: "en_retard",
-      getValue: (k) => `${k.enRetardCount}`,
-      getSub: (k) => formatCurrency(k.enRetardSum),
+      filter: "en_retard",
+      attention: true,
     },
     {
-      key: "tauxEncaissement",
-      label: tFacturation("collectionRate"),
-      icon: Percent,
-      valueColor: "text-si-ink",
+      key: "collection",
+      label: t("collectionRate"),
+      value: typeof kpis.tauxEncaissement === "number" ? `${kpis.tauxEncaissement} %` : "—",
+      detail: t("paidIssued"),
       href: linkWithStatut(""),
-      statutFilter: "",
-      getValue: (k) =>
-        typeof k.tauxEncaissement === "number" ? `${k.tauxEncaissement} %` : "—",
-      getSub: () => tFacturation("paidIssued"),
+      filter: "",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      {CARDS.map((card) => {
-        const Icon = card.icon;
-        const isActive =
-          card.statutFilter !== "" && currentStatut === card.statutFilter;
-        return (
-          <Link
-            key={card.key}
-            href={card.href}
-            className={`${CARD_BASE} ${isActive ? CARD_ACTIVE : ""}`}
-            aria-pressed={isActive || undefined}
-          >
-            <div className="pt-4 pb-4 px-4 flex items-start justify-between gap-3">
-              <div className="space-y-1 min-w-0">
-                <p className="text-xs font-medium text-si-muted uppercase tracking-wide">
-                  {card.label}
-                </p>
-                <p
-                  className={`font-mono text-xl md:text-2xl font-bold tracking-tight truncate ${card.valueColor}`}
-                >
-                  {card.getValue(kpis)}
-                </p>
-                {card.getSub && (
-                  <p className="text-xs text-si-muted">
-                    {card.subPrefixKey
-                      ? `${tFacturation(card.subPrefixKey)} : ${card.getSub(kpis)}`
-                      : card.getSub(kpis)}
-                  </p>
-                )}
-              </div>
-              <div className="p-2 rounded-[10px] bg-si-forest/[0.06] text-si-forest shrink-0">
-                <Icon className="h-5 w-5" aria-hidden />
-              </div>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
+    <section aria-label={t("financialSummaryLabel")} className="border-y border-si-line">
+      <div className="grid grid-cols-2 divide-x divide-y divide-si-line sm:grid-cols-5 sm:divide-y-0">
+        {metrics.map((metric, index) => {
+          const isActive = metric.filter !== "" && currentStatut === metric.filter;
+          return (
+            <Link
+              key={metric.key}
+              href={metric.href}
+              className={`min-w-0 px-4 py-3 transition-colors hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified ${
+                isActive ? "bg-si-canvas" : "bg-si-surface"
+              } ${index === metrics.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <MetricTile
+                label={metric.label}
+                value={metric.value}
+                hint={metric.detail}
+                teinte={metric.attention ? "attention" : "neutre"}
+              />
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }

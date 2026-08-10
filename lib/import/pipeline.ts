@@ -1,6 +1,5 @@
 import { parseExcelBuffer } from "./parsers/excel";
 import { parseCsvText } from "./parsers/csv";
-import { parsePdfBuffer } from "./parsers/pdf";
 import { classifyDocument } from "./classify";
 import { detectColumns, getFieldLabels } from "./detect-columns";
 import { normalizeClientRow } from "./normalizers/client";
@@ -46,6 +45,12 @@ export async function parseFile(
   }
   if (ext === "pdf") {
     if (typeof buffer === "string") throw new Error("Un relevé PDF nécessite un fichier binaire.");
+    // Import différé, et non statique. Ce parseur s'appuie sur le SDK Anthropic
+    // et ne s'exécute que côté serveur, via l'action `analyzeStatementPdf` : le
+    // navigateur n'atteint jamais cette branche. Un import statique le faisait
+    // pourtant entrer dans le chemin critique de /import, `pipeline` étant
+    // importé par un composant client. Le différer l'en sort entièrement.
+    const { parsePdfBuffer } = await import("./parsers/pdf");
     return parsePdfBuffer(buffer, fileName);
   }
   throw new Error(`Format non supporté : .${ext}. Formats acceptés : .xlsx, .csv, .txt, .pdf`);

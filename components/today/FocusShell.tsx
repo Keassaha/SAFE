@@ -17,7 +17,11 @@ export function FocusShell({ children }: { children: ReactNode }) {
       <button
         type="button"
         onClick={() => setFocus((f) => !f)}
-        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold shadow-lg"
+        /* Le widget d'aide est global et occupe déjà le coin inférieur droit.
+           Le mode focus ne concerne que cette page : il se range au-dessus de
+           lui plutôt que de le recouvrir. Les deux restaient superposés et
+           l'un masquait l'autre. */
+        className="fixed bottom-[4.75rem] right-5 z-50 inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold shadow-lg"
         style={
           focus
             ? { backgroundColor: "#1F3A2E", color: "#fff" }

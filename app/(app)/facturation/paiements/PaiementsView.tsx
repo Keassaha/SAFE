@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -11,7 +10,6 @@ import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud, Paperclip, Users } from "lucide-react";
-import { fadeInUp, useSafeMotion } from "@/lib/motion";
 import { Modal } from "@/components/ui/Modal";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
@@ -55,7 +53,7 @@ type PaymentRow = {
 
 export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
   const t = useTranslations("billingUi");
-  const { reduceMotion } = useSafeMotion();
+  const locale = useLocale();
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -73,7 +71,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [refundError, setRefundError] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError: paymentsError, refetch: refetchPayments } = useQuery({
     queryKey: ["facturation", "paiements"],
     queryFn: async () => {
       const res = await fetch("/api/facturation/paiements");
@@ -92,7 +90,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     enabled: formModalOpen || allocationModalOpen || importModalOpen,
   });
 
-  const { data: surData, refetch: refetchSurpaiements } = useQuery({
+  const { data: surData, isError: creditsError, refetch: refetchSurpaiements } = useQuery({
     queryKey: ["facturation", "surpaiements"],
     queryFn: async () => {
       const res = await fetch("/api/facturation/surpaiements");
@@ -101,6 +99,8 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     },
   });
   const creditClients = (surData?.clients ?? []) as ClientCreditBalance[];
+  const money = (amount: number) => formatCurrency(amount, "CAD", locale);
+  const displayDate = (date: string) => formatDate(date, locale);
 
   const payments = (data?.payments ?? []) as PaymentRow[];
   // Paiements orphelins : argent reçu mais non encore alloué à une facture.
@@ -150,18 +150,20 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
     if (!refundClient) return;
     setRefundSubmitting(true);
     setRefundError(null);
-    const res = await fetch("/api/facturation/surpaiements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clientId: refundClient.clientId, note: refundNote || undefined }),
-    });
-    setRefundSubmitting(false);
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/facturation/surpaiements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: refundClient.clientId, note: refundNote || undefined }),
+      });
+      if (!res.ok) throw new Error("Refund request failed");
       setRefundClient(null);
       setRefundNote("");
       await refetchSurpaiements();
-    } else {
+    } catch {
       setRefundError(t("refundError"));
+    } finally {
+      setRefundSubmitting(false);
     }
   }
 
@@ -207,19 +209,25 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
       </div>
 
       {unallocatedPayments.length > 0 && (
-        <div className="flex items-start gap-3 rounded-2xl border border-si-amber/30 bg-si-amber/[0.08] p-4">
+        <div className="flex items-start gap-3 border-l-2 border-status-warning bg-status-warning-bg p-4" role="status">
           <AlertCircle className="h-5 w-5 shrink-0 text-si-amber-ink mt-0.5" aria-hidden />
           <div>
             <p className="text-sm font-medium text-si-amber-ink">{t("unallocatedAlertTitle")}</p>
             <p className="mt-0.5 text-xs text-si-muted">
               {t("unallocatedAlertSub", {
                 count: unallocatedPayments.length,
-                amount: formatCurrency(unallocatedTotal),
+                amount: money(unallocatedTotal),
               })}
             </p>
           </div>
         </div>
       )}
+
+      {creditsError ? (
+        <p className="border-l-2 border-status-error bg-status-error-bg px-4 py-3 text-sm text-status-error" role="alert">
+          {t("creditsLoadError")}
+        </p>
+      ) : null}
 
       {creditClients.length > 0 && (
         <Card>
@@ -230,7 +238,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
               {creditClients.map((c) => (
                 <li key={c.clientId} className="flex items-center justify-between gap-3 py-2.5">
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-si-amber/[0.13] text-si-amber-ink">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center text-si-amber-ink">
                       <Coins className="h-4 w-4" aria-hidden />
                     </span>
                     <div className="min-w-0">
@@ -238,13 +246,13 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                       <p className="text-xs text-si-muted">
                         {t("creditBalanceLabel")} :{" "}
                         <span className="font-mono tabular-nums text-si-amber-ink">
-                          {formatCurrency(c.creditBalance)}
+                          {money(c.creditBalance)}
                         </span>
                       </p>
                     </div>
                   </div>
                   {c.refundRequested ? (
-                    <span className="shrink-0 rounded-full bg-si-amber/[0.13] px-2.5 py-1 text-xs font-medium text-si-amber-ink">
+                    <span className="shrink-0 border-l-2 border-status-warning pl-2 text-xs font-medium text-status-warning">
                       {t("refundRequestedBadge")}
                     </span>
                   ) : (
@@ -272,19 +280,21 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
         <CardHeader title={t("recentPayments")} />
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
+            <div className="flex justify-center gap-2 py-12 text-sm text-si-muted" role="status">
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              {t("loading")}
+            </div>
+          ) : paymentsError ? (
+            <div className="py-10 text-center" role="alert">
+              <p className="text-sm text-status-error">{t("paymentsLoadError")}</p>
+              <Button type="button" variant="secondary" className="mt-3" onClick={() => void refetchPayments()}>
+                {t("retry")}
+              </Button>
             </div>
           ) : payments.length === 0 ? (
             <p className="text-si-muted py-8 text-center">{t("noPayments")}</p>
           ) : (
-            <motion.div
-              className="overflow-x-auto"
-              variants={reduceMotion ? undefined : fadeInUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            >
+            <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-si-line bg-si-canvas">
@@ -301,12 +311,12 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                 <tbody>
                   {payments.map((p) => (
                     <tr key={p.id} className="border-b border-si-line hover:bg-si-canvas/60 transition-colors">
-                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{formatDate(p.datePaiement)}</td>
+                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{displayDate(p.datePaiement)}</td>
 	                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{clientLabel(p.client)}</td>
                       <td className="py-2.5 px-3 text-[13px] font-mono text-si-ink">{p.invoice?.numero ?? "—"}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{formatCurrency(p.montant)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-verified">{formatCurrency(p.allocatedAmount)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{formatCurrency(p.unallocatedAmount)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{money(p.montant)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-verified">{money(p.allocatedAmount)}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{money(p.unallocatedAmount)}</td>
                       <td className="py-2.5 px-3">
                         <StatusBadge
                           label={t(ALLOCATION_STATUS_LABEL_KEYS[p.allocationStatus as AllocationStatusKey])}
@@ -320,7 +330,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                               href={`/api/facturation/paiements/${p.id}/preuve`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center rounded-lg p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
                               aria-label={t("viewProof")}
                               title={t("viewProof")}
                             >
@@ -331,7 +341,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                             href={`/api/documents/payment-receipt/${p.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center rounded-lg p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
                             aria-label={t("viewReceipt")}
                             title={t("viewReceipt")}
                           >
@@ -363,7 +373,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                   ))}
                 </tbody>
               </table>
-            </motion.div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -421,7 +431,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
             <p className="text-sm text-si-ink">
               {refundClient.label} :{" "}
               <span className="font-mono tabular-nums text-si-amber-ink">
-                {formatCurrency(refundClient.creditBalance)}
+                {money(refundClient.creditBalance)}
               </span>
             </p>
           )}

@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -19,6 +18,7 @@ import { TimeFiltersBar } from "@/components/temps/TimeFiltersBar";
 import { TimeEntriesTable } from "@/components/temps/TimeEntriesTable";
 import { WeekGrid } from "@/components/temps/WeekGrid";
 import { TimeEntryFormModal } from "@/components/temps/TimeEntryFormModal";
+import { QueryErrorState } from "@/components/ui/QueryErrorState";
 import type { TimeEntryFilters } from "@/types/temps";
 import type { UserRole } from "@prisma/client";
 
@@ -28,6 +28,8 @@ interface TempsPageClientProps {
   role: UserRole;
   /** Masque le bouton « Nouvelle entrée » quand imbriqué dans TempsMixteView (le chooser gère l'ajout). */
   hideAddButton?: boolean;
+  /** Masque l'en-tête quand la vue est imbriquée sous les onglets mixtes. */
+  hideHeader?: boolean;
   /** Ouverture contrôlée du modal d'ajout. Si fourni, prime sur l'état interne. */
   addModalOpen?: boolean;
   onAddModalOpenChange?: (open: boolean) => void;
@@ -39,6 +41,7 @@ export function TempsPageClient({
   userId,
   role,
   hideAddButton = false,
+  hideHeader = false,
   addModalOpen: controlledAddOpen,
   onAddModalOpenChange,
   onAddSuccess,
@@ -64,16 +67,32 @@ export function TempsPageClient({
     return f;
   }, [filters, showAllEntries, role, userId]);
 
-  const { data: tempsData, isLoading, refetch } = useTimeEntries(cabinetId, effectiveFilters);
+  const {
+    data: tempsData,
+    isLoading,
+    isError: isEntriesError,
+    isFetching: isEntriesFetching,
+    refetch,
+  } = useTimeEntries(cabinetId, effectiveFilters);
   const entries = tempsData?.entries ?? [];
   const activeCount = tempsData?.activeCount ?? 0;
   const archivedCount = tempsData?.archivedCount ?? 0;
-  const { data: context } = useTempsContext(cabinetId);
+  const {
+    data: context,
+    isError: isContextError,
+    isFetching: isContextFetching,
+    refetch: refetchContext,
+  } = useTempsContext(cabinetId);
   const clients = context?.clients ?? [];
   const dossiers = context?.dossiers ?? [];
   const users = context?.users ?? [];
 
   const canViewAll = canViewAllTimeEntries(role);
+  const hasLoadingError = isEntriesError || isContextError;
+
+  const retryLoading = () => {
+    void Promise.all([refetch(), refetchContext()]);
+  };
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -110,49 +129,53 @@ export function TempsPageClient({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <PageHeader
-        variant="dashboard"
-        title={t("timesheetTitle")}
-        description={t("timesheetSubtitle")}
-        action={
-          <>
-            <Link href={routes.facturationHonoraires}>
-              <Button variant="secondary">
-                {t("feesToBill")}
-              </Button>
-            </Link>
-            {!hideAddButton && (
-              <Button
-                variant="primary"
-                onClick={() => setAddModalOpen(true)}
-              >
-                {t("newEntry")}
-              </Button>
-            )}
-          </>
-        }
-      />
-
-      <SaisieRapideBlock cabinetId={cabinetId} currentUserId={userId} />
-
-      <TimeMetricsCards
-        semaineHeures={semaineHeures}
-        moisHeures={moisHeures}
-        nonFactureMontant={nonFactureMontant}
-        tauxFacturablePercent={tauxFacturablePercent}
-        loading={isLoading}
-      />
-
-      <Card>
-        <CardHeader
-          title={t("entriesHistory")}
+      {!hideHeader && (
+        <PageHeader
+          variant="dashboard"
+          title={t("timesheetTitle")}
+          description={t("timesheetSubtitle")}
           action={
-            <div className="flex items-center gap-2 text-sm text-si-muted">
-              <span>{t("entriesCount", { count: entries.length })}</span>
-            </div>
+            <>
+              <Link href={routes.facturationHonoraires}>
+                <Button variant="secondary">{t("feesToBill")}</Button>
+              </Link>
+              {!hideAddButton && (
+                <Button variant="primary" onClick={() => setAddModalOpen(true)}>
+                  {t("newEntry")}
+                </Button>
+              )}
+            </>
           }
         />
-        <CardContent className="p-0">
+      )}
+
+      {hasLoadingError ? (
+        <QueryErrorState
+          title={t("loadErrorTitle")}
+          description={t("loadErrorDescription")}
+          retryLabel={t("retry")}
+          onRetry={retryLoading}
+          retrying={isEntriesFetching || isContextFetching}
+        />
+      ) : (
+        <>
+          <SaisieRapideBlock cabinetId={cabinetId} currentUserId={userId} />
+
+          <TimeMetricsCards
+            semaineHeures={semaineHeures}
+            moisHeures={moisHeures}
+            nonFactureMontant={nonFactureMontant}
+            tauxFacturablePercent={tauxFacturablePercent}
+            loading={isLoading}
+          />
+
+          <section className="border-y border-si-line bg-si-surface" aria-labelledby="time-history-title">
+            <div className="flex items-center justify-between px-4 py-3">
+              <h2 id="time-history-title" className="text-sm font-semibold text-si-ink">
+                {t("entriesHistory")}
+              </h2>
+              <span className="text-sm text-si-muted">{t("entriesCount", { count: entries.length })}</span>
+            </div>
           <div className="flex border-b border-si-line px-4 gap-1">
             <button
               type="button"
@@ -199,7 +222,9 @@ export function TempsPageClient({
               title={t("emptyTitle")}
               description={t("emptyDescription")}
               action={
-                <Button onClick={() => setAddModalOpen(true)}>{t("newEntry")}</Button>
+                hideAddButton ? undefined : (
+                  <Button onClick={() => setAddModalOpen(true)}>{t("newEntry")}</Button>
+                )
               }
             />
           ) : viewMode === "week" ? (
@@ -228,23 +253,24 @@ export function TempsPageClient({
               onRefresh={() => refetch()}
             />
           )}
-        </CardContent>
-      </Card>
+          </section>
 
-      <TimeEntryFormModal
-        open={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        cabinetId={cabinetId}
-        currentUserId={userId}
-        clients={clients}
-        dossiers={dossiers}
-        users={users}
-        onSuccess={() => {
-          setAddModalOpen(false);
-          refetch();
-          onAddSuccess?.();
-        }}
-      />
+          <TimeEntryFormModal
+            open={addModalOpen}
+            onClose={() => setAddModalOpen(false)}
+            cabinetId={cabinetId}
+            currentUserId={userId}
+            clients={clients}
+            dossiers={dossiers}
+            users={users}
+            onSuccess={() => {
+              setAddModalOpen(false);
+              refetch();
+              onAddSuccess?.();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

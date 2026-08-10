@@ -130,13 +130,14 @@ export function EventFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      {/* Voile modal partagé. */}
+      <div className="safe-scrim fixed inset-0" onClick={onClose} />
       <div className="relative w-full max-w-lg rounded-xl-md bg-si-surface shadow-2xl border border-si-line max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-si-line">
           <h2 className="text-lg font-semibold text-si-ink tracking-tight">
             {isEdit ? tg("editEvent") : tg("newEvent")}
           </h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted/50 hover:text-si-ink transition-colors">
+          <button type="button" onClick={onClose} aria-label={tc("close")} className="p-1.5 rounded-lg hover:bg-si-canvas text-si-muted/50 hover:text-si-ink transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>

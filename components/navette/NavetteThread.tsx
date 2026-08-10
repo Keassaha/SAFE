@@ -230,7 +230,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
           onChange={(e) => setText(e.target.value)}
           rows={1}
           placeholder={mode === "sentback" ? t("sendBackPlaceholder") : t("composePlaceholder")}
-          className="min-h-[40px] flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-si-ink outline-none"
+          className="min-h-[40px] flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-si-ink outline-none focus-visible:ring-2 focus-visible:ring-si-verified focus-visible:ring-offset-1"
         />
         <button
           type="button"

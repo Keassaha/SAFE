@@ -1,48 +1,90 @@
-import type { InputHTMLAttributes, forwardRef } from "react";
-import React from "react";
+"use client";
+
+import React, { forwardRef, useId, type InputHTMLAttributes } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+type InputStatus = "default" | "success" | "warning" | "error";
+
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
+  status?: InputStatus;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ 
-  label, 
-  error, 
-  className = "", 
-  ...props 
-}, ref) => {
+const statusClasses: Record<InputStatus, string> = {
+  default: "border-si-line focus:border-si-verified focus:ring-si-verified/25",
+  success: "border-status-success focus:border-status-success focus:ring-status-success/20",
+  warning: "border-status-warning focus:border-status-warning focus:ring-status-warning/20",
+  error: "border-status-error focus:border-status-error focus:ring-status-error/20",
+};
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    label,
+    error,
+    hint,
+    status = "default",
+    className,
+    id,
+    disabled,
+    "aria-describedby": ariaDescribedBy,
+    ...props
+  },
+  ref,
+) {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const resolvedStatus = error ? "error" : status;
+  const message = error ?? hint;
+  const messageId = message ? `${inputId}-message` : undefined;
+  const describedBy = [ariaDescribedBy, messageId].filter(Boolean).join(" ") || undefined;
+
   return (
     <div className="w-full">
-      {label && (
-        <label className="block text-[12px] font-medium text-si-muted mb-[6px] font-sans">
+      {label ? (
+        <label htmlFor={inputId} className="mb-1.5 block font-sans text-xs font-medium text-si-muted">
           {label}
         </label>
-      )}
+      ) : null}
       <input
         ref={ref}
+        id={inputId}
+        disabled={disabled}
+        aria-invalid={resolvedStatus === "error" || undefined}
+        aria-describedby={describedBy}
+        data-status={resolvedStatus}
         className={cn(
-          "w-full h-[38px] px-[12px] rounded-[10px] font-sans text-[14px]",
-          "bg-si-surface border text-si-ink placeholder:text-si-muted/70",
-          "outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition-all duration-200",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-          error ? "border-danger text-danger focus:border-danger focus:ring-0" : "border-si-line",
-          className
+          "min-h-11 w-full rounded-md border bg-si-surface px-3 font-sans text-sm text-si-ink",
+          "placeholder:text-si-muted/70 outline-none transition-[border-color,box-shadow,background-color] duration-normal ease-safe motion-reduce:transition-none",
+          "focus:ring-2 disabled:cursor-not-allowed disabled:bg-si-line2 disabled:opacity-60",
+          statusClasses[resolvedStatus],
+          className,
         )}
         {...props}
       />
-      {error && (
-        <p className="mt-[6px] flex items-center text-[12px] text-danger font-sans">
-          <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          {error}
+      {message ? (
+        <p
+          id={messageId}
+          className={cn(
+            "mt-1.5 flex items-center gap-1.5 font-sans text-xs",
+            resolvedStatus === "error" && "text-status-error",
+            resolvedStatus === "warning" && "text-status-warning",
+            resolvedStatus === "success" && "text-status-success",
+            resolvedStatus === "default" && "text-si-muted",
+          )}
+        >
+          {resolvedStatus === "error" || resolvedStatus === "warning" ? (
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          ) : resolvedStatus === "success" ? (
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          ) : null}
+          {message}
         </p>
-      )}
+      ) : null}
     </div>
   );
 });
+
 Input.displayName = "Input";

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
 import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
 import { requireCabinetAndUser } from "@/lib/auth/session";
@@ -10,6 +10,9 @@ import { routes } from "@/lib/routes";
 import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-presented-invoice";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { FacturePreviewActions } from "./FacturePreviewActions";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 
 function toIsoDate(value: string | Date) {
   return new Date(value).toISOString();
@@ -33,6 +36,9 @@ function statusLabel(
   statut: string,
   t: (key: string) => string
 ) {
+  if (statut === "en_retard") return t("statusOverdue");
+  if (statut === "payee") return t("statusPaid");
+  if (statut === "partiellement_payee") return t("statusPartiallyPaid");
   switch (invoiceStatus) {
     case "DRAFT":
       return t("statusDraft");
@@ -59,6 +65,7 @@ export default async function FacturePreviewPage({
   params: Promise<{ id: string }>;
 }) {
   const t = await getTranslations("billingUi");
+  const locale = await getLocale();
   const { cabinetId } = await requireCabinetAndUser();
   const { id } = await params;
   const invoice = await loadPresentedInvoiceForCabinet(id, cabinetId);
@@ -80,10 +87,25 @@ export default async function FacturePreviewPage({
   }));
 
   const clientName = presentClientDisplayName(invoice.client);
+  const derivedStatut = deriveLegacyStatut({
+    invoiceStatus: invoice.invoiceStatus,
+    paymentStatus: invoice.paymentStatus,
+    dateEcheance: invoice.dateEcheance,
+  });
+  const visibleStatus = statusLabel(invoice.invoiceStatus, derivedStatut, t);
+  const statusVariant =
+    derivedStatut === "en_retard"
+      ? "error"
+      : derivedStatut === "payee"
+        ? "success"
+        : invoice.invoiceStatus === "DRAFT" || invoice.invoiceStatus == null
+          ? "warning"
+          : "neutral";
+  const money = (amount: number) => formatCurrency(amount, "CAD", locale);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <header className="flex flex-col gap-4 rounded-xl border border-si-line bg-si-surface p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:py-8">
+      <header className="flex flex-col gap-4 border-b border-si-line pb-5 md:flex-row md:items-end md:justify-between">
         <div>
           <Link
             href={routes.facturation}
@@ -92,18 +114,14 @@ export default async function FacturePreviewPage({
             <ArrowLeft className="h-4 w-4" />
             {t("backToInvoices")}
           </Link>
-          <div className="mt-4 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-si-canvas text-si-verified">
-              <FileText className="h-5 w-5" />
-            </span>
-            <div>
+          <div className="mt-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-semibold tracking-tight text-si-ink">
                 {t("invoicePreviewTitle", { numero: displayInvoiceNumero(invoice.numero) })}
               </h1>
-              <p className="mt-1 text-sm text-si-muted">
-                {clientName} · {statusLabel(invoice.invoiceStatus, invoice.statut, t)}
-              </p>
+              <StatusBadge label={visibleStatus} variant={statusVariant} />
             </div>
+            <p className="mt-1 text-sm text-si-muted">{clientName}</p>
           </div>
         </div>
         <FacturePreviewActions
@@ -112,8 +130,27 @@ export default async function FacturePreviewPage({
         />
       </header>
 
-      <section className="rounded-xl border border-si-line bg-si-canvas p-4 shadow-sm md:p-8">
-        <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl border border-white/70 bg-si-surface shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+      <section className="grid grid-cols-2 border-y border-si-line bg-si-surface md:grid-cols-4" aria-label={t("invoiceSummaryLabel")}>
+        {[
+          [t("total"), money(invoice.totals.montantTotal)],
+          [t("alreadyPaid"), money(invoice.totals.montantPaye)],
+          [t("balanceDue"), money(invoice.totals.balanceDue)],
+          [t("dueDate"), formatDate(invoice.dateEcheance, locale)],
+        ].map(([label, value], index) => (
+          <div
+            key={label}
+            className={`px-4 py-3 ${index % 2 === 0 ? "border-r" : ""} border-si-line md:border-r md:last:border-r-0`}
+          >
+            <p className="text-xs font-medium text-si-muted">{label}</p>
+            <p className="mt-1 text-right font-mono text-lg font-semibold tabular-nums text-si-ink">
+              {value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      <section className="border border-si-line bg-si-canvas p-3 sm:p-6 md:p-8" aria-label={t("invoiceDocumentLabel")}>
+        <div className="mx-auto max-w-[860px] overflow-hidden border border-si-line bg-si-surface">
           <InvoiceTemplateClean
             numero={displayInvoiceNumero(invoice.numero)}
             dateEmission={invoice.dateEmission.toISOString()}

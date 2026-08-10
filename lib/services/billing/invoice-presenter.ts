@@ -165,7 +165,8 @@ export interface PresentedInvoice {
   dateEmission: Date;
   dateEcheance: Date;
   statut: string;
-  invoiceStatus: string | null;
+  invoiceStatus: Invoice["invoiceStatus"];
+  paymentStatus: Invoice["paymentStatus"];
   currency: string;
   cabinet: PresentedCabinet | null;
   client: PresentedClient | null;
@@ -408,6 +409,7 @@ export function presentInvoice(
     dateEcheance: invoice.dateEcheance,
     statut: invoice.statut,
     invoiceStatus: invoice.invoiceStatus ?? null,
+    paymentStatus: invoice.paymentStatus ?? null,
     currency: invoice.currency ?? "CAD",
     cabinet: invoice.cabinet
       ? {

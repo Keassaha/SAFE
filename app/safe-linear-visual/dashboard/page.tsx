@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { ChevronMark } from "@/components/branding/SafeLogo";
+import { SafeMark } from "@/components/branding/SafeLogo";
 import styles from "../safe-linear-visual.module.css";
 
 const attention = [
@@ -80,7 +80,7 @@ export default function SafePrincipalDashboardPage() {
         <aside className={styles.sidebar}>
           <div className={styles.dashboardBrand}>
             <span>
-              <ChevronMark size={22} tone="light" animate={false} />
+              <SafeMark size={22} tone="light" />
             </span>
             <div>
               <strong>SAFE</strong>
@@ -139,13 +139,13 @@ export default function SafePrincipalDashboardPage() {
           <div className={styles.dashboardCanvas}>
             <div className={styles.dashboardEngraved} aria-hidden="true">
               <span className={styles.embossHighlight}>
-                <ChevronMark size={430} tone="mono-light" animate={false} />
+                <SafeMark size={430} tone="mono-light" />
               </span>
               <span className={styles.embossShadow}>
-                <ChevronMark size={430} tone="light" animate={false} />
+                <SafeMark size={430} tone="light" />
               </span>
               <span className={styles.embossFace}>
-                <ChevronMark size={430} tone="light" animate={false} />
+                <SafeMark size={430} tone="light" />
               </span>
             </div>
 

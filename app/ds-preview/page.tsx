@@ -1,4 +1,6 @@
-import { Button, Badge, Pill, Logo } from "@/components/ds-safe/core";
+import { SafeLogo } from "@/components/branding/SafeLogo";
+import { DesignSystemSpecimen } from "@/components/ds-safe/DesignSystemSpecimen";
+import { Button } from "@/components/ui/Button";
 import {
   ComplianceStrip,
   PriorityCard,
@@ -8,10 +10,8 @@ import {
 } from "@/components/ds-safe/sections";
 
 /**
- * Page de démonstration du design system safe-interface (variante froide albâtre),
- * porté sous le namespace `si-*`. Sert à VOIR le système rendu dans la vraie app
- * sans toucher aux écrans de production. Le re-habillage des écrans réels se fera
- * ensuite, écran par écran. Route publique (hors auth), comme /style-guide.
+ * Spécimen public du design system SAFE. Il monte les mêmes primitives que les
+ * écrans de production afin de rendre toute divergence visible immédiatement.
  */
 export const dynamic = "force-static";
 
@@ -21,7 +21,7 @@ export default function DsPreviewPage() {
       <div className="max-w-content mx-auto px-8 py-10">
         {/* En-tête */}
         <div className="flex items-center gap-3 mb-8">
-          <Logo size={40} />
+          <SafeLogo size={30} alt="SAFE" />
           <div>
             <div className="font-serif text-[26px] leading-none text-si-ink">SAFE</div>
             <div className="text-[10px] text-si-muted tracking-wide mt-1">
@@ -94,20 +94,7 @@ export default function DsPreviewPage() {
           />
         </div>
 
-        {/* Composants de base */}
-        <div className="mt-10 border-t border-si-line pt-6">
-          <div className="font-mono text-[11px] tracking-[1.4px] uppercase text-si-muted mb-4">
-            Composants de base
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <Button>Bouton principal</Button>
-            <Button variant="ghost">Bouton secondaire</Button>
-            <Badge tone="ok">Conforme</Badge>
-            <Badge tone="warn">À valider</Badge>
-            <Pill>Fidéicommis protégé</Pill>
-            <Logo size={28} />
-          </div>
-        </div>
+        <DesignSystemSpecimen />
       </div>
     </div>
   );
