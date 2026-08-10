@@ -194,6 +194,75 @@ export const shadows = {
   xl: "0 16px 32px -8px rgba(11, 11, 12, 0.08), 0 8px 12px -4px rgba(11, 11, 12, 0.04)",
 } as const;
 
+/* ─────────────────────── Profondeur ─────────────────────── */
+
+/**
+ * Système de profondeur SAFE, trois plans.
+ * Doctrine : docs/design/SYSTEME_DE_PROFONDEUR_TROIS_PLANS.md
+ *
+ * Règle centrale — les surfaces structurelles (plan 1) et de contenu (plan 2)
+ * restent mates. Le verre est réservé au plan 3 : ce qui flotte, recouvre du
+ * contenu qui continue d'exister derrière, ou réclame momentanément l'attention.
+ * L'adjacence n'est pas une superposition : une sidebar collée au canvas est mate,
+ * la même en tiroir mobile prend du verre.
+ *
+ * Trois niveaux au maximum (PS-006c). `focus` est le plus OPAQUE des trois :
+ * il porte des montants et des décisions irréversibles, la lisibilité prime
+ * sur l'effet. Un seul `focus` visible à la fois (PS-006f).
+ *
+ * Chaque niveau expose un `opaque` : c'est le repli servi aux navigateurs sans
+ * `backdrop-filter` et aux personnes qui demandent moins de transparence
+ * (PS-006d). La hiérarchie tient alors sur l'ombre et le filet seuls.
+ */
+export const depth = {
+  /** Barre supérieure collante, contrôles secondaires réellement superposés. */
+  subtle: {
+    surface: "rgba(251, 252, 250, 0.72)",
+    opaque: "#F7F9F6",
+    blur: "blur(14px) saturate(1.25)",
+    line: "rgba(31, 42, 36, 0.10)",
+    lip: "rgba(255, 255, 255, 0.55)",
+    shadow: "none",
+  },
+  /** Composeur, popovers, menus, palette de commandes, tiroir mobile. */
+  elevated: {
+    surface: "rgba(251, 252, 250, 0.84)",
+    opaque: "#FBFCFA",
+    blur: "blur(24px) saturate(1.5)",
+    line: "rgba(31, 42, 36, 0.13)",
+    lip: "rgba(255, 255, 255, 0.70)",
+    shadow: "0 18px 36px -20px rgba(11, 31, 25, 0.50)",
+  },
+  /** Approbation, envoi, panneau qui réclame l'attention. */
+  focus: {
+    surface: "rgba(252, 253, 251, 0.95)",
+    opaque: "#FDFEFC",
+    blur: "blur(30px) saturate(1.6)",
+    line: "rgba(31, 42, 36, 0.16)",
+    lip: "rgba(255, 255, 255, 0.80)",
+    shadow: "0 30px 64px -28px rgba(11, 31, 25, 0.62)",
+  },
+  /**
+   * Voile des surfaces modales. Ce n'est pas un quatrième verre : le voile
+   * éteint l'arrière-plan, il ne le présente pas. Flou volontairement faible,
+   * il signale l'inaccessibilité sans coûter une passe de rendu par image.
+   */
+  scrim: {
+    surface: "rgba(11, 31, 25, 0.44)",
+    blur: "blur(3px)",
+  },
+  /**
+   * Fond atmosphérique (§5). Flouter un aplat parfaitement uni ne produit
+   * aucune information : il n'y a rien à flouter. Amplitude faible, jamais
+   * perceptible comme « un dégradé », couleurs de marque uniquement.
+   */
+  atmosphere: {
+    base: "#EFF2ED",
+    forest: "rgba(45, 107, 71, 0.07)",
+    warm: "rgba(198, 178, 140, 0.14)",
+  },
+} as const;
+
 /* ─────────────────────── Motion ─────────────────────── */
 
 export const motion = {
@@ -201,12 +270,80 @@ export const motion = {
     fast: "120ms",
     normal: "180ms",
     slow: "260ms",
+    progress: "720ms",
   },
   easing: {
     DEFAULT: "cubic-bezier(0.16, 1, 0.3, 1)",
-    out: "cubic-bezier(0.33, 1, 0.68, 1)",
-    in: "cubic-bezier(0.32, 0, 0.67, 0)",
   },
+} as const;
+
+/**
+ * Contrat de compatibilité de l'interface actuellement déployée.
+ * Tailwind le consomme directement afin d'éviter une seconde source de jetons.
+ */
+export const interfaceTokens = {
+  color: {
+    forest: {
+      50: "#F0F9F4", 100: "#DCEFE3", 200: "#C8E6D3", 300: "#A3D4B3",
+      400: "#5FA87E", 500: "#5FA87E", 600: "#2D6B47", 700: "#2D6B47",
+      800: "#1A2E2A", 900: "#1A2E2A",
+    },
+    amber: { 50: "#FEF6E7", 200: "#FAC775", 500: "#BA7517", 700: "#854F0B", 900: "#412402" },
+    slate: {
+      50: "#FAFAF8", 100: "#F1EFE8", 200: "#E5E3DA", 300: "#D3D1C7",
+      400: "#B4B2A9", 500: "#888780", 600: "#5F5E5A", 700: "#444441",
+      800: "#2C2C2A", 950: "#18181A",
+    },
+    semantic: {
+      success: { bg: "#EAF3DE", border: "#3B6D11", text: "#173404" },
+      warning: { bg: "#FAEEDA", border: "#854F0B", text: "#412402" },
+      danger: { bg: "#FCEBEB", border: "#A32D2D", text: "#501313" },
+      info: { bg: "#E6F1FB", border: "#185FA5", text: "#042C53" },
+    },
+    interface: {
+      canvas: "#EFF2ED", surface: "#FBFCFA", surface2: "#E7ECE5",
+      border: "#DCE0DA", borderStrong: "#C4CABE", ink: "#1F2A24",
+      body: "#3A453E", muted: "#5A665F", subtle: "#7A857E",
+      forest: "#0B1F19", forestSoft: "#16312A", verified: "#2E7D5B",
+      amber: "#B07A1C", amberInk: "#835A10",
+      /* Danger. La palette `interface` n'en avait pas, et les écrans de
+       * conformité l'ont révélé en l'inventant à la main dans une trentaine
+       * d'endroits. `danger` porte les fonds et les filets, `dangerInk` le
+       * texte : comme pour amber, la variante foncée existe pour tenir le
+       * contraste WCAG AA sur canvas et sur le tint de danger lui-même. */
+      danger: "#B84A3E", dangerInk: "#8F3529",
+      line: "rgba(31,42,36,0.10)", lineSubtle: "rgba(31,42,36,0.06)",
+      verifiedOnForest: "#9FE3C2", verifiedDot: "#5FCF9C",
+    },
+  },
+  fontFamily: typography.fontFamily,
+  fontSize: { micro: "11px", small: "12px", body: "14px", h3: "16px", h2: "22px", h1: "32px" },
+  fontWeight: typography.fontWeight,
+  lineHeight: { tight: "1.1", snug: "1.3", normal: "1.4", relaxed: "1.6" },
+  radius,
+  shadow: {
+    ...shadows,
+    focus: "0 0 0 3px rgba(45, 107, 71, 0.15)",
+    menu: "0 4px 12px rgba(24, 24, 26, 0.08)",
+    modal: "0 16px 48px rgba(24, 24, 26, 0.16)",
+    card: "0 18px 40px -32px rgba(31, 42, 36, 0.40)",
+    // Ombres du système de profondeur, une par niveau de verre.
+    "glass-elevated": depth.elevated.shadow,
+    "glass-focus": depth.focus.shadow,
+  },
+  /**
+   * Rayons de flou nommés d'après les trois plans. `glass` et `strong` sont
+   * conservés comme alias des usages antérieurs à la migration du lot 5.
+   */
+  blur: {
+    subtle: "14px",
+    elevated: "24px",
+    focus: "30px",
+    glass: "24px",
+    strong: "30px",
+  },
+  depth,
+  motion,
 } as const;
 
 /* ─────────────────────── Semantic tokens ─────────────────────── */

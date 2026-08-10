@@ -114,7 +114,7 @@ export function ShortfallsScreen({
             Aucune carte-client en découvert
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-muted)]">
-            Chaque carte-client est vérifiée séparément, jamais l'ensemble : un compte à
+            Chaque carte-client est vérifiée séparément, jamais l&apos;ensemble : un compte à
             moins 200 $ compensé par un autre à plus 200 $ donnerait un total sain et
             masquerait exactement ce que le règlement vise.
           </p>
@@ -132,17 +132,17 @@ export function ShortfallsScreen({
         </Panel>
       ) : (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             {openCount} carte{openCount === 1 ? "" : "s"}-client{openCount === 1 ? "" : "s"} en
             découvert, {money(totalOpen)} à combler
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">
-            Un solde débiteur n'est pas un écart comptable : ce sont les fonds d'un autre
+            Un solde débiteur n&apos;est pas un écart comptable : ce sont les fonds d&apos;un autre
             client qui servent ce dossier. {open[0]?.remedyFr}
           </p>
           {!statutoryDeadlineExists && (
             <p className="mt-2 max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-              Le règlement ne fixe aucun nombre de jours. L'ancienneté est affichée pour
+              Le règlement ne fixe aucun nombre de jours. L&apos;ancienneté est affichée pour
               vous situer, pas comme un délai qui vous serait accordé.
             </p>
           )}
@@ -168,7 +168,7 @@ export function ShortfallsScreen({
               </span>,
               day(l.detectedAt),
               l.daysOpen === null ? "—" : `${l.daysOpen} j`,
-              <span key="m" className="text-[#8F3529]">
+              <span key="m" className="text-si-danger-ink">
                 {money(l.amount)}
               </span>,
               canEdit ? (
@@ -192,7 +192,7 @@ export function ShortfallsScreen({
             >
               <input type="hidden" name="shortfallId" value={comblant} />
               <h4 className="text-sm font-medium text-[var(--si-ink)]">
-                D'où viennent les fonds qui comblent ce découvert ?
+                D&apos;où viennent les fonds qui comblent ce découvert ?
               </h4>
 
               <div className="space-y-2">
@@ -221,7 +221,7 @@ export function ShortfallsScreen({
               </Field>
 
               <p className="max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-                Ceci consigne le comblement. Le dépôt lui-même se saisit depuis l'écran des
+                Ceci consigne le comblement. Le dépôt lui-même se saisit depuis l&apos;écran des
                 comptes, avec ses propres contrôles : les réunir contournerait ces contrôles.
               </p>
 
@@ -239,7 +239,7 @@ export function ShortfallsScreen({
         meta={`${history.length} incident${history.length === 1 ? "" : "s"}`}
       >
         {history.length === 0 ? (
-          <EmptyLine>Aucun découvert n'a été constaté sur la période.</EmptyLine>
+          <EmptyLine>Aucun découvert n&apos;a été constaté sur la période.</EmptyLine>
         ) : (
           <Table
             head={["Client et dossier", "Constaté le", "Comblé le", "Délai", "Source", "Montant"]}
@@ -259,15 +259,15 @@ export function ShortfallsScreen({
         )}
         <p className="border-t border-[var(--si-line)] px-4 py-3 text-xs leading-relaxed text-[var(--si-muted)]">
           Un incident comblé reste inscrit. Un découvert survenu le 3 et comblé le 4
-          n'apparaîtrait nulle part si l'on ne regardait que les soldes de fin de mois, et
-          c'est précisément ce qu'un inspecteur cherche.
+          n&apos;apparaîtrait nulle part si l&apos;on ne regardait que les soldes de fin de mois, et
+          c&apos;est précisément ce qu&apos;un inspecteur cherche.
         </p>
       </Disclosure>
 
       {openCount > 0 && (
         <p className="max-w-3xl text-xs leading-relaxed text-[var(--si-muted)]">
           <Pill tone="info">note</Pill> Le dépôt de renflouement par le cabinet est
-          légitime : l'obligation de combler prime sur la limitation de ce qui peut entrer
+          légitime : l&apos;obligation de combler prime sur la limitation de ce qui peut entrer
           au compte général.
         </p>
       )}

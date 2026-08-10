@@ -15,6 +15,152 @@
   --si-muted: #5A665F;
   --si-line: rgba(31, 42, 36, 0.10);
   --si-forest: #0B1F19;
+  --si-forest-soft: #16312A;
+  --si-danger: #B84A3E;
+  --si-danger-ink: #8F3529;
+  --safe-motion-fast: 120ms;
+  --safe-motion-normal: 180ms;
+  --safe-motion-slow: 260ms;
+  --safe-motion-progress: 720ms;
+  --safe-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Système de profondeur, trois plans ─────────────────────────────────
+     Doctrine : docs/design/SYSTEME_DE_PROFONDEUR_TROIS_PLANS.md
+     Source de vérité : lib/ds/tokens.ts → `depth`.
+
+     Les plans 1 (structure) et 2 (contenu) restent MATS. Le verre appartient
+     au plan 3 : ce qui flotte, recouvre du contenu qui continue d'exister
+     derrière, ou réclame momentanément l'attention. Trois niveaux au
+     maximum (PS-006c) ; le niveau focus est le plus opaque des trois. */
+  --glass-1-bg: rgba(251, 252, 250, 0.72);
+  --glass-1-blur: blur(14px) saturate(1.25);
+  --glass-1-line: rgba(31, 42, 36, 0.10);
+  --glass-1-lip: rgba(255, 255, 255, 0.55);
+  --glass-1-shadow: none;
+
+  --glass-2-bg: rgba(251, 252, 250, 0.84);
+  /* Surface pleine du niveau, servie aux replis et au traitement opaque élevé. */
+  --glass-2-opaque: #fbfcfa;
+  --glass-2-blur: blur(24px) saturate(1.5);
+  --glass-2-line: rgba(31, 42, 36, 0.13);
+  --glass-2-lip: rgba(255, 255, 255, 0.7);
+  --glass-2-shadow: 0 18px 36px -20px rgba(11, 31, 25, 0.5);
+
+  --glass-3-bg: rgba(252, 253, 251, 0.95);
+  --glass-3-blur: blur(30px) saturate(1.6);
+  --glass-3-line: rgba(31, 42, 36, 0.16);
+  --glass-3-lip: rgba(255, 255, 255, 0.8);
+  --glass-3-shadow: 0 30px 64px -28px rgba(11, 31, 25, 0.62);
+
+  /* Voile modal : il éteint l'arrière-plan, il ne le présente pas. */
+  --glass-scrim-bg: rgba(11, 31, 25, 0.44);
+  --glass-scrim-blur: blur(3px);
+
+  /* Fond atmosphérique (§5) : sans lui, flouter un aplat uni ne produit
+     aucune information. Amplitude faible, couleurs de marque uniquement. */
+  --atm-base: #EFF2ED;
+  --atm-forest: rgba(45, 107, 71, 0.07);
+  --atm-warm: rgba(198, 178, 140, 0.14);
+}
+
+/* Repli opaque obligatoire (PS-006d). Si le navigateur ne sait pas flouter,
+   ou si la personne a demandé moins de transparence, le verre devient une
+   surface pleine. La hiérarchie tient alors sur l'ombre et le filet seuls.
+
+   La condition ne teste QUE la propriété standard, celle que la feuille servie
+   déclare. Un navigateur qui n'accepterait que l'ancienne variante WebKit,
+   Safari 17 et antérieurs, recevrait sinon une surface translucide jamais
+   floutée : la dégradation serait indéterminée. Ici elle est franche. */
+@supports not (backdrop-filter: blur(2px)) {
+  :root {
+    --glass-1-bg: #f7f9f6;
+    --glass-2-bg: #fbfcfa;
+    --glass-3-bg: #fdfefc;
+    --glass-scrim-bg: rgba(11, 31, 25, 0.62);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-1-bg: #f7f9f6;
+    --glass-2-bg: #fbfcfa;
+    --glass-3-bg: #fdfefc;
+    --glass-1-blur: none;
+    --glass-2-blur: none;
+    --glass-3-blur: none;
+    --glass-scrim-bg: rgba(11, 31, 25, 0.62);
+    --glass-scrim-blur: none;
+  }
+}
+
+/* ── Les trois surfaces du plan 3 ───────────────────────────────────────
+   Un seul endroit porte le `backdrop-filter`, la teinte de surface, le filet,
+   la lèvre lumineuse et l'ombre. Les composants ne déclarent plus de valeur
+   de flou littérale (PS-006c).
+
+   Ne pas redéclarer `-webkit-backdrop-filter` ici : le transformeur CSS
+   fusionne les deux propriétés et ne conserve que la dernière écrite, ce qui
+   supprimait la propriété standard du CSS servi. Le préfixe est ajouté par le
+   pipeline.
+
+   Contrainte de contraste (PS-006e), mesurée sur l'encre #1F2A24 et le texte
+   secondaire #5A665F. Sur le canvas clair, les trois niveaux tiennent
+   largement (14,1:1 et 5,7:1 au minimum). Sur un fond SOMBRE en revanche, le
+   texte secondaire tombe à 3,2:1 en subtle et 4,2:1 en elevated : ces deux
+   niveaux ne doivent jamais être posés au-dessus d'une région sombre. Sur un
+   fond sombre, seul le niveau focus reste conforme. */
+.safe-glass-subtle {
+  background-color: var(--glass-1-bg);
+  backdrop-filter: var(--glass-1-blur);
+  border-color: var(--glass-1-line);
+  box-shadow: inset 0 1px 0 var(--glass-1-lip);
+}
+
+.safe-glass-elevated {
+  background-color: var(--glass-2-bg);
+  backdrop-filter: var(--glass-2-blur);
+  border-color: var(--glass-2-line);
+  box-shadow: var(--glass-2-shadow), inset 0 1px 0 var(--glass-2-lip);
+}
+
+.safe-glass-focus {
+  background-color: var(--glass-3-bg);
+  backdrop-filter: var(--glass-3-blur);
+  border-color: var(--glass-3-line);
+  box-shadow: var(--glass-3-shadow), inset 0 1px 0 var(--glass-3-lip);
+}
+
+.safe-scrim {
+  background-color: var(--glass-scrim-bg);
+  backdrop-filter: var(--glass-scrim-blur);
+}
+
+/* Plan 3, opaque et élevé.
+   Quatrième traitement du plan flottant, prévu par la table de décision de la
+   doctrine : la surface recouvre du contenu, mais ce contenu n'a pas besoin de
+   rester perceptible. On garde alors l'ombre et le filet, on retire le flou.
+
+   C'est aussi la seule issue correcte quand la surface flottante est un
+   DESCENDANT d'une surface déjà vitrée. Un élément qui porte un
+   `backdrop-filter` devient racine d'arrière-plan pour sa descendance : le
+   `backdrop-filter` d'un enfant n'échantillonne alors plus la page, seulement
+   son parent. Le verre imbriqué ne floute rien et ne laisse qu'une couche
+   translucide à travers laquelle le contenu de la page reste net et illisible. */
+.safe-elevated-opaque {
+  background-color: var(--glass-2-opaque, #fbfcfa);
+  border-color: var(--glass-2-line);
+  box-shadow: var(--glass-2-shadow), inset 0 1px 0 var(--glass-2-lip);
+}
+
+/* Fond atmosphérique du canvas applicatif. Sa seule fonction est de rendre
+   le verre lisible comme matière : il ne doit jamais se lire comme un
+   dégradé décoratif. Aucun violet, aucun indigo, aucun bleu générique. */
+.safe-atmosphere {
+  background-color: var(--atm-base);
+  background-image:
+    radial-gradient(1100px 720px at 4% -8%, var(--atm-forest), transparent 62%),
+    radial-gradient(900px 620px at 102% 108%, var(--atm-warm), transparent 60%);
+  background-attachment: fixed;
 }
 
 /* ── Safari & mobile GPU perf ── */
@@ -35,9 +181,18 @@
 
 /* ── Mobile touch UX ── */
 @media (hover: none) and (pointer: coarse) {
-  /* Larger tap targets on touch devices */
-  button, a, [role="tab"], [role="button"] {
+  /* Cibles tactiles. La densité serrée de l'interface de bureau, 41 px de
+     hauteur de contrôle, est un choix assumé pour un outil professionnel
+     utilisé toute la journée à la souris. Au doigt, elle devient inconfortable.
+     Les champs de saisie étaient jusqu'ici exclus de cet élargissement : ils
+     restaient à 41 px sur téléphone alors que les boutons voisins passaient à
+     44 px. Ils sont désormais traités comme les autres contrôles. */
+  button, a, [role="tab"], [role="button"],
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+  select, textarea {
     min-height: 44px;
+  }
+  button, a, [role="tab"], [role="button"] {
     min-width: 44px;
   }
   /* Prevent text-size adjust on orientation change */
@@ -205,12 +360,12 @@
   --safe-status-overdue: #8B8680;    /* sand.600 */
 
   /* Radius */
-  --safe-radius-sm: 8px;
-  --safe-radius-default: 12px;
-  --safe-radius-md: 16px;
-  --safe-radius-lg: 20px;
-  --safe-radius-xl: 24px;
-  --safe-radius-2xl: 28px;
+  --safe-radius-sm: 4px;
+  --safe-radius-default: 6px;
+  --safe-radius-md: 6px;
+  --safe-radius-lg: 8px;
+  --safe-radius-xl: 12px;
+  --safe-radius-2xl: 16px;
   --safe-radius-full: 9999px;
 
   /* Shadows — Éditorial: near-invisible, border-first */
@@ -425,8 +580,11 @@
   border: 1px solid #d0ddd6;
   box-shadow: 0 1px 3px rgba(26, 46, 40, 0.06), 0 4px 16px rgba(26, 46, 40, 0.04);
   color: var(--safe-text-title);
+  /* Plan 2 : ces cartes vivent dans le flux et ne recouvrent rien, elles
+     restent mates. Ne pas redéclarer la variante WebKit ici : le
+     transformeur CSS fusionne les deux propriétés et ne garde que la
+     dernière écrite, ce qui supprimait silencieusement cette neutralisation. */
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
 }
 
 /* Sidebar */
@@ -953,6 +1111,31 @@
   }
   .safe-landing-glow::before {
     animation: none !important;
+  }
+
+  /* Garde générale. Les règles ci-dessus ne visaient que des classes du site
+     public : l'intérieur de l'application animait donc ses squelettes, ses
+     indicateurs et ses transitions quelle que soit la préférence exprimée.
+
+     On ne supprime pas l'animation, on la ramène à une durée imperceptible :
+     les fins d'animation continuent d'être émises, donc les composants qui
+     attendent `animationend` pour se démonter ne restent pas bloqués.
+
+     L'information portée par le mouvement ne disparaît pas pour autant. Un
+     bouton en cours d'enregistrement conserve son libellé et son `aria-busy`,
+     un squelette conserve sa forme : le mouvement n'était qu'un renfort. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
   }
 }
 

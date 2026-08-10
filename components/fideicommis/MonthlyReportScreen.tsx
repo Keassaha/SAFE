@@ -153,8 +153,8 @@ function monthLabel(periode: string): string {
  */
 function Pill({ tone, children }: { tone: "action" | "info" | "done"; children: React.ReactNode }) {
   const styles = {
-    action: "bg-[#B84A3E]/10 text-[#8F3529] border-transparent",
-    done: "bg-[#0B1F19]/[0.06] text-[var(--si-forest)] border-transparent",
+    action: "bg-si-danger/10 text-si-danger-ink border-transparent",
+    done: "bg-si-forest/[0.06] text-[var(--si-forest)] border-transparent",
     info: "border-[var(--si-line)] text-[var(--si-muted)]",
   }[tone];
   return (
@@ -247,12 +247,12 @@ export function MonthlyReportScreen({
     return (
       <Panel className="p-6">
         <h2 className="text-base font-medium text-[var(--si-ink)]">
-          Aucun compte en fidéicommis n'est enregistré
+          Aucun compte en fidéicommis n&apos;est enregistré
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-[var(--si-muted)]">
-          Le rapport mensuel se produit pour un compte donné. L'art. 36 impose des livres
+          Le rapport mensuel se produit pour un compte donné. L&apos;art. 36 impose des livres
           distincts pour chaque compte général en fidéicommis : SAFE ne peut donc pas
-          produire un rapport tant qu'aucun compte n'est déclaré.
+          produire un rapport tant qu&apos;aucun compte n&apos;est déclaré.
         </p>
       </Panel>
     );
@@ -266,7 +266,7 @@ export function MonthlyReportScreen({
           <button
             type="button"
             onClick={() => setShowGenerate((v) => !v)}
-            className="w-full rounded-lg border border-[var(--si-line)] bg-[var(--si-surface)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
+            className="w-full rounded-lg border border-[var(--si-line)] bg-[var(--si-surface)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04]"
           >
             Produire un rapport
           </button>
@@ -290,7 +290,7 @@ export function MonthlyReportScreen({
                       type="button"
                       onClick={() => router.push(`/inspection/rapport-mensuel?rapport=${r.id}`)}
                       className={`flex w-full flex-col gap-1 px-3 py-2.5 text-left transition-colors ${
-                        actif ? "bg-[#0B1F19]/[0.05]" : "hover:bg-[#0B1F19]/[0.03]"
+                        actif ? "bg-si-forest/[0.05]" : "hover:bg-si-forest/[0.03]"
                       }`}
                     >
                       <span className="text-sm text-[var(--si-ink)]">{monthLabel(r.periode)}</span>
@@ -316,7 +316,7 @@ export function MonthlyReportScreen({
         {error && (
           <div
             role="alert"
-            className="rounded-lg border border-[#B84A3E]/30 bg-[#B84A3E]/[0.06] px-4 py-3 text-sm text-[#8F3529]"
+            className="rounded-lg border border-si-danger/30 bg-si-danger/[0.06] px-4 py-3 text-sm text-si-danger-ink"
           >
             {error}
           </div>
@@ -373,7 +373,7 @@ export function MonthlyReportScreen({
 
               <p className="max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
                 Le solde du relevé est la seule donnée que SAFE ne possède pas. La déduire du
-                journal rendrait la comparaison circulaire, et l'écart serait nul par
+                journal rendrait la comparaison circulaire, et l&apos;écart serait nul par
                 construction.
               </p>
 
@@ -412,7 +412,7 @@ export function MonthlyReportScreen({
                 <button
                   type="submit"
                   disabled={pending}
-                  className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028] disabled:opacity-50"
+                  className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft disabled:opacity-50"
                 >
                   {pending ? "Production en cours" : "Produire le rapport"}
                 </button>
@@ -435,7 +435,7 @@ export function MonthlyReportScreen({
             <Panel className="p-6">
               <h2 className="text-base font-medium text-[var(--si-ink)]">Aucun rapport produit</h2>
               <p className="mt-2 max-w-2xl text-sm text-[var(--si-muted)]">
-                C'est le premier document qu'un inspecteur demande.
+                C&apos;est le premier document qu&apos;un inspecteur demande.
               </p>
             </Panel>
           )
@@ -515,8 +515,8 @@ export function MonthlyReportScreen({
                 </dl>
 
                 <p className="mt-4 max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-                  Un écart n'est pas interdit. Le texte exige un état comparatif et le motif de
-                  toute différence : un écart motivé est conforme, un écart silencieux ne l'est
+                  Un écart n&apos;est pas interdit. Le texte exige un état comparatif et le motif de
+                  toute différence : un écart motivé est conforme, un écart silencieux ne l&apos;est
                   pas.
                 </p>
 
@@ -596,7 +596,7 @@ export function MonthlyReportScreen({
                       )}
                     </span>,
                     day(l.lastEntryDate),
-                    <span key="b" className={l.balance < -EPSILON ? "text-[#8F3529]" : undefined}>
+                    <span key="b" className={l.balance < -EPSILON ? "text-si-danger-ink" : undefined}>
                       {money(l.balance)} $
                     </span>,
                   ])}
@@ -681,7 +681,7 @@ export function MonthlyReportScreen({
                 ) : (
                   <p className="max-w-2xl text-sm text-[var(--si-muted)]">
                     Aucun relevé rattaché. Un rapport sans relevé ne compare rien, et la
-                    certification est bloquée tant qu'il manque.
+                    certification est bloquée tant qu&apos;il manque.
                   </p>
                 )}
 
@@ -706,7 +706,7 @@ export function MonthlyReportScreen({
                     <button
                       type="submit"
                       disabled={pending}
-                      className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04] disabled:opacity-50"
+                      className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04] disabled:opacity-50"
                     >
                       Rattacher
                     </button>
@@ -720,7 +720,7 @@ export function MonthlyReportScreen({
               <Panel className="p-4">
                 <h3 className="text-sm font-medium text-[var(--si-ink)]">Certifier ce rapport</h3>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-muted)]">
-                  L'attestation est produite à partir des contrôles réellement exécutés, et le
+                  L&apos;attestation est produite à partir des contrôles réellement exécutés, et le
                   rapport est figé : un recalcul ultérieur ne réécrira pas un rapport signé.
                   Si un élément manque, SAFE refuse et vous dira lequel.
                 </p>
@@ -729,7 +729,7 @@ export function MonthlyReportScreen({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028] disabled:opacity-50"
+                    className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft disabled:opacity-50"
                   >
                     {pending ? "Certification en cours" : "Certifier le rapport"}
                   </button>
@@ -764,7 +764,7 @@ function Compare({
       </dt>
       <dd
         className={`shrink-0 text-sm tabular-nums ${
-          flag ? "text-[#8F3529]" : strong ? "font-medium text-[var(--si-ink)]" : "text-[var(--si-ink)]"
+          flag ? "text-si-danger-ink" : strong ? "font-medium text-[var(--si-ink)]" : "text-[var(--si-ink)]"
         }`}
       >
         {money(value)} $
@@ -811,7 +811,7 @@ function Table({
           {rows.map((r, i) => (
             <tr
               key={i}
-              className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-[#0B1F19]/[0.02]"
+              className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-si-forest/[0.02]"
             >
               {r.map((cell, j) => (
                 <td
@@ -883,7 +883,7 @@ function DiscrepancyForms({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04] disabled:opacity-50"
+            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04] disabled:opacity-50"
           >
             Consigner
           </button>

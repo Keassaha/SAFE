@@ -136,7 +136,7 @@ export function LifecycleScreen({
           <div className="min-w-0">
             <h2
               className={`text-base font-medium ${
-                succession.missing.length > 0 ? "text-[#8F3529]" : "text-[var(--si-ink)]"
+                succession.missing.length > 0 ? "text-si-danger-ink" : "text-[var(--si-ink)]"
               }`}
             >
               {succession.hasPlan
@@ -465,7 +465,7 @@ function Section({
     <div className="border-b border-[var(--si-line)] last:border-b-0">
       <h4
         className={`px-4 pb-1 pt-3 text-xs font-medium uppercase tracking-wide ${
-          grave ? "text-[#8F3529]" : "text-[var(--si-muted)]"
+          grave ? "text-si-danger-ink" : "text-[var(--si-muted)]"
         }`}
       >
         {titre}
@@ -483,7 +483,7 @@ function Section({
               )}
               <p
                 className={`mt-0.5 text-xs leading-relaxed ${
-                  d.alert.severity === "CRITICAL" ? "text-[#8F3529]" : "text-[var(--si-muted)]"
+                  d.alert.severity === "CRITICAL" ? "text-si-danger-ink" : "text-[var(--si-muted)]"
                 }`}
               >
                 {d.alert.messageFr}

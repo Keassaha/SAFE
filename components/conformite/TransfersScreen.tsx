@@ -121,7 +121,7 @@ export function TransfersScreen({
       {/* ── Ce qui est en retard ────────────────────────────────── */}
       {enRetard.length > 0 && (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             {enRetard.length === 1
               ? "Une contresignature est en retard"
               : `${enRetard.length} contresignatures sont en retard`}
@@ -132,7 +132,7 @@ export function TransfersScreen({
           </p>
           <ul className="mt-3">
             {enRetard.map((r) => (
-              <li key={r.id} className="border-t border-[#B84A3E]/15 py-2 text-sm first:border-t-0">
+              <li key={r.id} className="border-t border-si-danger/15 py-2 text-sm first:border-t-0">
                 <span className="text-[var(--si-ink)]">{r.clientName}</span>
                 <span className="text-[var(--si-muted)]">
                   {" "}

@@ -38,7 +38,7 @@ export default async function TrousseInspectionPage({
   if (!canViewBillingTrust(role as UserRole)) {
     return (
       <div className="p-6">
-        <p className="text-[#B84A3E]">Vous n'avez pas accès à la comptabilité en fidéicommis.</p>
+        <p className="text-si-danger-ink">Vous n&apos;avez pas accès à la comptabilité en fidéicommis.</p>
       </div>
     );
   }

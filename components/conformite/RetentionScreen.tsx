@@ -139,7 +139,7 @@ export function RetentionScreen({
       {/* ── La fin d'exercice ───────────────────────────────────── */}
       {blockedFr ? (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             La fin de l&apos;exercice financier n&apos;est pas réglée
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">{blockedFr}</p>

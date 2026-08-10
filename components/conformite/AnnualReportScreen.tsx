@@ -182,7 +182,7 @@ export function AnnualReportScreen({
                     type="button"
                     onClick={() => router.push(`/inspection/rapport-annuel?rapport=${r.id}`)}
                     className={`flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors ${
-                      detail?.id === r.id ? "bg-[#0B1F19]/[0.05]" : "hover:bg-[#0B1F19]/[0.03]"
+                      detail?.id === r.id ? "bg-si-forest/[0.05]" : "hover:bg-si-forest/[0.03]"
                     }`}
                   >
                     <span className="text-sm text-[var(--si-ink)]">
@@ -308,7 +308,7 @@ export function AnnualReportScreen({
             {/* ── Ce qui bloque ────────────────────────────────────── */}
             {blockers.length > 0 && !certified && (
               <Panel tone="alert" className="p-4">
-                <h3 className="text-base font-medium text-[#8F3529]">
+                <h3 className="text-base font-medium text-si-danger-ink">
                   {blockers.length === 1
                     ? "Un point empêche la certification"
                     : `${blockers.length} points empêchent la certification`}
@@ -317,7 +317,7 @@ export function AnnualReportScreen({
                   {blockers.map((b) => (
                     <li
                       key={b.code}
-                      className="border-t border-[#B84A3E]/15 py-2.5 text-sm first:border-t-0 first:pt-0"
+                      className="border-t border-si-danger/15 py-2.5 text-sm first:border-t-0 first:pt-0"
                     >
                       <span className="text-[var(--si-ink)]">{b.messageFr}</span>
                       <span className="text-[var(--si-muted)]"> · {b.reference}</span>
@@ -396,7 +396,7 @@ export function AnnualReportScreen({
                     <dt className="min-w-0 text-sm text-[var(--si-muted)]">{label}</dt>
                     <dd
                       className={`shrink-0 text-sm tabular-nums ${
-                        flag ? "text-[#8F3529]" : "text-[var(--si-ink)]"
+                        flag ? "text-si-danger-ink" : "text-[var(--si-ink)]"
                       }`}
                     >
                       {money(valeur)}

@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { tokens } from "./lib/design-tokens";
+import { interfaceTokens as tokens } from "./lib/ds/tokens";
 import colors from "tailwindcss/colors";
 
 /**
@@ -31,15 +31,15 @@ const config: Config = {
     extend: {
       colors: {
         /* ─── NEW: Brand (forest green) — canonical accent ─── */
-        canvas: '#EFF2ED',
-        surface: '#FBFCFA',
-        'surface-2': '#E7ECE5',
-        border: '#DCE0DA',
-        'border-strong': '#C4CABE',
-        'text-subtle': '#7A857E',
-        'text-muted': '#5A665F',
-        'text-body': '#3A453E',
-        'text-primary': '#1F2A24',
+        canvas: tokens.color.interface.canvas,
+        surface: tokens.color.interface.surface,
+        'surface-2': tokens.color.interface.surface2,
+        border: tokens.color.interface.border,
+        'border-strong': tokens.color.interface.borderStrong,
+        'text-subtle': tokens.color.interface.subtle,
+        'text-muted': tokens.color.interface.muted,
+        'text-body': tokens.color.interface.body,
+        'text-primary': tokens.color.interface.ink,
         
         forest: {
           DEFAULT: tokens.color.forest[700],
@@ -142,20 +142,26 @@ const config: Config = {
          * (docs/propositions/safe-interface/tailwind.config.ts) sans toucher
          * aux tokens existants. Sert au socle + à la page de démonstration.
          * La bascule des écrans réels se fera ensuite, écran par écran. */
-        "si-forest": { DEFAULT: "#0B1F19", soft: "#16312A" },
-        "si-canvas": "#EFF2ED",
-        "si-surface": "#FBFCFA",
-        "si-ink": "#1F2A24",
-        "si-muted": "#5A665F",
-        "si-verified": "#2E7D5B",
-        "si-amber": "#B07A1C",
+        "si-forest": { DEFAULT: tokens.color.interface.forest, soft: tokens.color.interface.forestSoft },
+        "si-canvas": tokens.color.interface.canvas,
+        "si-surface": tokens.color.interface.surface,
+        "si-ink": tokens.color.interface.ink,
+        "si-muted": tokens.color.interface.muted,
+        "si-verified": tokens.color.interface.verified,
+        "si-verified-on-forest": tokens.color.interface.verifiedOnForest,
+        "si-verified-dot": tokens.color.interface.verifiedDot,
+        "si-amber": tokens.color.interface.amber,
         /* Variante foncée pour le TEXTE amber (WCAG AA, >=4.5:1). Vérifiée sur
          * les 3 fonds documentés du DS, y compris le pire cas : le tint
          * bg-si-amber/[0.13] composé sur si-canvas (#EFF2ED) -> ~4.72:1. Le
          * #B07A1C reste réservé au fond/à la pastille (contraste non requis). */
-        "si-amber-ink": "#835A10",
-        "si-line": "rgba(31,42,36,0.10)",
-        "si-line2": "rgba(31,42,36,0.06)",
+        "si-amber-ink": tokens.color.interface.amberInk,
+        /* Danger. `si-danger` pour les fonds et les filets, `si-danger-ink`
+         * pour le texte : le premier ne tient pas le contraste AA sur canvas. */
+        "si-danger": tokens.color.interface.danger,
+        "si-danger-ink": tokens.color.interface.dangerInk,
+        "si-line": tokens.color.interface.line,
+        "si-line2": tokens.color.interface.lineSubtle,
       },
 
       fontFamily: {
@@ -216,16 +222,18 @@ const config: Config = {
 
       borderRadius: {
         sm: tokens.radius.sm,
-        md: tokens.radius.md,
-        lg: tokens.radius.lg,
-        xl: tokens.radius.xl,
+        DEFAULT: tokens.radius.DEFAULT,
+        md: tokens.radius.DEFAULT,
+        lg: tokens.radius.md,
+        xl: tokens.radius.lg,
+        "2xl": tokens.radius.xl,
         full: tokens.radius.full,
         /* Legacy --safe-radius-* — kept for backwards compat */
-        safe: tokens.radius.md,
+        safe: tokens.radius.DEFAULT,
         "safe-sm": tokens.radius.sm,
-        "safe-md": tokens.radius.md,
-        "safe-lg": tokens.radius.lg,
-        "safe-xl": tokens.radius.xl,
+        "safe-md": tokens.radius.DEFAULT,
+        "safe-lg": tokens.radius.md,
+        "safe-xl": tokens.radius.lg,
         "safe-2xl": tokens.radius.xl,
       },
 
@@ -238,12 +246,24 @@ const config: Config = {
         md: "var(--safe-shadow-md)",
         lg: "var(--safe-shadow-lg)",
         /* Ombre de carte du design safe-interface (namespace si-*) */
-        "si-card": "0 18px 40px -32px rgba(31,42,36,0.40)",
+        "si-card": tokens.shadow.card,
+        /* Système de profondeur : une ombre par niveau de verre. */
+        "glass-elevated": tokens.shadow["glass-elevated"],
+        "glass-focus": tokens.shadow["glass-focus"],
       },
 
+      /**
+       * Rayons de flou du système de profondeur. Préférer les classes
+       * `.safe-glass-subtle|elevated|focus` de globals.css, qui portent la
+       * surface, le filet et l'ombre du même niveau, ainsi que les replis
+       * opaques. Ces utilitaires ne servent qu'aux cas isolés.
+       */
       backdropBlur: {
-        glass: "14px",
-        "glass-strong": "20px",
+        subtle: tokens.blur.subtle,
+        elevated: tokens.blur.elevated,
+        focus: tokens.blur.focus,
+        glass: tokens.blur.glass,
+        "glass-strong": tokens.blur.strong,
       },
 
       backgroundImage: {
@@ -252,16 +272,16 @@ const config: Config = {
       },
 
       transitionDuration: {
-        fast: tokens.transition.fast.split(' ')[0],
-        normal: tokens.transition.base.split(' ')[0],
-        slow: tokens.transition.slow.split(' ')[0],
+        fast: tokens.motion.duration.fast,
+        normal: tokens.motion.duration.normal,
+        slow: tokens.motion.duration.slow,
       },
 
       transitionTimingFunction: {
-        safe: "cubic-bezier(0.4, 0, 0.2, 1)",
-        smooth: "ease-out",
-        "ds-out": "ease-out",
-        "ds-in": "ease-in",
+        safe: tokens.motion.easing.DEFAULT,
+        smooth: tokens.motion.easing.DEFAULT,
+        "ds-out": tokens.motion.easing.DEFAULT,
+        "ds-in": tokens.motion.easing.DEFAULT,
       },
 
       keyframes: {
@@ -277,6 +297,7 @@ const config: Config = {
       },
 
       animation: {
+        spin: `spin ${tokens.motion.duration.progress} linear infinite`,
         "mobile-drawer-in": "mobile-drawer-in 0.2s ease-out forwards",
         "fade-in": "fade-in 0.25s ease-out",
         "page-enter": "page-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",

@@ -53,7 +53,7 @@ export default async function InspectionPage() {
   if (!canViewBillingTrust(role as UserRole)) {
     return (
       <div className="p-6">
-        <p className="text-[#B84A3E]">Vous n'avez pas accès aux écrans d'inspection.</p>
+        <p className="text-si-danger-ink">Vous n&apos;avez pas accès aux écrans d&apos;inspection.</p>
       </div>
     );
   }
@@ -245,7 +245,7 @@ export default async function InspectionPage() {
 
       {alertesGraves > 0 && (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             {alertesGraves} point{alertesGraves === 1 ? "" : "s"} demande
             {alertesGraves === 1 ? "" : "nt"} votre attention
           </h2>
@@ -260,7 +260,7 @@ export default async function InspectionPage() {
           <li key={p.href}>
             <Link
               href={p.href}
-              className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-[#0B1F19]/[0.03]"
+              className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-si-forest/[0.03]"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="text-sm font-medium text-[var(--si-ink)]">{p.titre}</h3>
@@ -279,11 +279,11 @@ export default async function InspectionPage() {
         </h2>
         <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[var(--si-muted)]">
           Ils rassemblent et produisent ce que le règlement exige, et ils nomment ce qui
-          manque. Ils ne certifient pas que votre cabinet est conforme : c'est le contenu de
-          vos livres qui le décide, et c'est vous qui signez.
+          manque. Ils ne certifient pas que votre cabinet est conforme : c&apos;est le contenu de
+          vos livres qui le décide, et c&apos;est vous qui signez.
         </p>
         <p className="mt-2 text-xs text-[var(--si-muted)]">
-          Pour l'état d'ensemble du cabinet, voir{" "}
+          Pour l&apos;état d&apos;ensemble du cabinet, voir{" "}
           <Link href={routes.conformite} className="underline">
             Conformité
           </Link>

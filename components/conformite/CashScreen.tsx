@@ -109,15 +109,15 @@ export function CashScreen({ province, canEdit, threshold, receipts, pending }: 
         <Panel tone={enRetard.length > 0 ? "alert" : "neutral"} className="p-4">
           <h2
             className={`text-base font-medium ${
-              enRetard.length > 0 ? "text-[#8F3529]" : "text-[var(--si-ink)]"
+              enRetard.length > 0 ? "text-si-danger-ink" : "text-[var(--si-ink)]"
             }`}
           >
             {pending.length} déclaration{pending.length === 1 ? "" : "s"} à transmettre
             {enRetard.length > 0 && `, dont ${enRetard.length} en retard`}
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">
-            La déclaration va au directeur de l'inspection professionnelle, accompagnée d'une
-            copie du reçu et de la mention du fondement de l'encaissement.
+            La déclaration va au directeur de l&apos;inspection professionnelle, accompagnée d&apos;une
+            copie du reçu et de la mention du fondement de l&apos;encaissement.
           </p>
 
           <ul className="mt-3">
@@ -150,7 +150,7 @@ export function CashScreen({ province, canEdit, threshold, receipts, pending }: 
                     <input type="hidden" name="receiptId" value={p.id} />
                     <label className="block">
                       <span className="text-xs text-[var(--si-muted)]">
-                        Date à laquelle vous l'avez transmise
+                        Date à laquelle vous l&apos;avez transmise
                       </span>
                       <input type="date" name="sentAt" required className={inputClass} />
                     </label>
@@ -164,8 +164,8 @@ export function CashScreen({ province, canEdit, threshold, receipts, pending }: 
           </ul>
 
           <p className="mt-3 max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-            SAFE n'envoie pas la déclaration à votre place : c'est un acte professionnel qui
-            vous appartient. Il suit l'échéance et consigne la date que vous inscrivez.
+            SAFE n&apos;envoie pas la déclaration à votre place : c&apos;est un acte professionnel qui
+            vous appartient. Il suit l&apos;échéance et consigne la date que vous inscrivez.
           </p>
         </Panel>
       )}
@@ -229,8 +229,8 @@ export function CashScreen({ province, canEdit, threshold, receipts, pending }: 
             <>
               Au Québec, le seuil de {money(threshold)} vise ce qui est reçu{" "}
               <strong className="font-medium text-[var(--si-ink)]">en fidéicommis</strong> pour un
-              même mandat, sous réserve des six exceptions de l'article 69, dont l'avance
-              d'honoraires ou de débours.
+              même mandat, sous réserve des six exceptions de l&apos;article 69, dont l&apos;avance
+              d&apos;honoraires ou de débours.
             </>
           ) : (
             <>
@@ -242,7 +242,7 @@ export function CashScreen({ province, canEdit, threshold, receipts, pending }: 
           )}
         </p>
         <p className="mt-2 max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-          Une exception invoquée n'est pas un contournement : elle est prévue par le texte,
+          Une exception invoquée n&apos;est pas un contournement : elle est prévue par le texte,
           elle doit être motivée, et elle reste inscrite au reçu.
         </p>
       </Panel>

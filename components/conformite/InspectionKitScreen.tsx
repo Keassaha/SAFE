@@ -74,7 +74,7 @@ function Panel({
 }) {
   const toneClasses =
     tone === "alert"
-      ? "border-[#B84A3E]/30 bg-[#B84A3E]/[0.05]"
+      ? "border-si-danger/30 bg-si-danger/[0.05]"
       : "border-[var(--si-line)] bg-[var(--si-surface)]";
   return <section className={`rounded-xl border ${toneClasses} ${className}`}>{children}</section>;
 }
@@ -139,12 +139,12 @@ export function InspectionKitScreen({
           </label>
           <button
             type="submit"
-            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
+            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04]"
           >
             Recalculer
           </button>
           <p className="w-full text-xs text-[var(--si-muted)] sm:w-auto sm:flex-1">
-            Douze mois par défaut : c'est la fenêtre qu'un inspecteur demande.
+            Douze mois par défaut : c&apos;est la fenêtre qu&apos;un inspecteur demande.
           </p>
         </form>
       </Panel>
@@ -152,19 +152,19 @@ export function InspectionKitScreen({
       {/* ── Ce qui manque, en tête ─────────────────────────────── */}
       {missingCount > 0 ? (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             {missingCount} {missingCount === 1 ? "pièce manquante" : "pièces manquantes"} ou
             incomplète{missingCount === 1 ? "" : "s"}
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">
             La trousse reste téléchargeable, et son manifeste porte cette liste. Vous
-            choisissez de la remettre en l'état ou de compléter d'abord.
+            choisissez de la remettre en l&apos;état ou de compléter d&apos;abord.
           </p>
           <ul className="mt-3">
             {missing.map((i) => (
               <li
                 key={i.filename}
-                className="border-t border-[#B84A3E]/15 py-2.5 text-sm first:border-t-0 first:pt-0"
+                className="border-t border-si-danger/15 py-2.5 text-sm first:border-t-0 first:pt-0"
               >
                 <span className="text-[var(--si-ink)]">{i.titleFr}</span>
                 <span className="text-[var(--si-muted)]"> · {i.reference}</span>
@@ -180,7 +180,7 @@ export function InspectionKitScreen({
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-muted)]">
             Cela ne vaut pas attestation de conformité. La trousse constate la présence des
-            pièces, pas l'exactitude de leur contenu.
+            pièces, pas l&apos;exactitude de leur contenu.
           </p>
         </Panel>
       )}
@@ -199,7 +199,7 @@ export function InspectionKitScreen({
           </div>
           <a
             href={downloadUrl}
-            className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028]"
+            className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft"
           >
             Télécharger
           </a>
@@ -236,7 +236,7 @@ export function InspectionKitScreen({
                 {list.map((i) => (
                   <tr
                     key={i.filename}
-                    className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-[#0B1F19]/[0.02]"
+                    className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-si-forest/[0.02]"
                   >
                     <td className="max-w-0 px-4 py-3 text-[var(--si-ink)]">
                       <span className="block truncate">
@@ -263,7 +263,7 @@ export function InspectionKitScreen({
         <button
           type="button"
           onClick={() => setShowManifest((v) => !v)}
-          className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-[#0B1F19]/[0.02]"
+          className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-forest/[0.02]"
         >
           <span className="text-sm font-medium text-[var(--si-ink)]">
             {showManifest ? "Masquer le manifeste" : "Voir le manifeste"}
@@ -295,7 +295,7 @@ export function InspectionKitScreen({
           </ul>
           {province === "ON" && (
             <p className="mt-3 max-w-2xl text-xs leading-relaxed text-[var(--si-muted)]">
-              La clause d'accès de l'article 29 québécois n'a pas d'équivalent identifié dans
+              La clause d&apos;accès de l&apos;article 29 québécois n&apos;a pas d&apos;équivalent identifié dans
               By-Law 9. SAFE ne prétend donc pas la couvrir en Ontario.
             </p>
           )}
@@ -303,8 +303,8 @@ export function InspectionKitScreen({
       )}
 
       <p className="max-w-3xl text-xs leading-relaxed text-[var(--si-muted)]">
-        Les empreintes SHA-256 permettent de vérifier qu'une pièce transmise n'a pas été
-        modifiée depuis sa production. Elles ne sont exigées par aucun article : c'est un
+        Les empreintes SHA-256 permettent de vérifier qu&apos;une pièce transmise n&apos;a pas été
+        modifiée depuis sa production. Elles ne sont exigées par aucun article : c&apos;est un
         moyen, choisi ici, de rendre la trousse vérifiable.
       </p>
     </div>

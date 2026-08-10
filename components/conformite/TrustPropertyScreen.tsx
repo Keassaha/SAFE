@@ -109,14 +109,14 @@ export function TrustPropertyScreen({
       {/* ── Les avis dus au client ─────────────────────────────── */}
       {notices.length > 0 && (
         <Panel tone="alert" className="p-4">
-          <h2 className="text-base font-medium text-[#8F3529]">
+          <h2 className="text-base font-medium text-si-danger-ink">
             {notices.length} avis à donner au client
           </h2>
           <ul className="mt-3">
             {notices.map((n) => (
               <li
                 key={`${n.propertyId}-${n.kind}`}
-                className="border-t border-[#B84A3E]/15 py-3 first:border-t-0 first:pt-0"
+                className="border-t border-si-danger/15 py-3 first:border-t-0 first:pt-0"
               >
                 <div className="text-sm text-[var(--si-ink)]">
                   {n.description}
@@ -157,7 +157,7 @@ export function TrustPropertyScreen({
         />
         {held.length === 0 ? (
           <EmptyLine>
-            Aucun bien détenu. Le registre vise ce qui n'est pas de l'argent : titres,
+            Aucun bien détenu. Le registre vise ce qui n&apos;est pas de l&apos;argent : titres,
             testaments originaux, clés, actes, chèques certifiés non déposés.
           </EmptyLine>
         ) : (
@@ -178,7 +178,7 @@ export function TrustPropertyScreen({
                   <span className="text-[var(--si-muted)]"> · {p.clientName}</span>
                   {p.fromThirdParty && (
                     <span className="ml-2 align-middle">
-                      <Pill tone="info">reçu d'un tiers</Pill>
+                      <Pill tone="info">reçu d&apos;un tiers</Pill>
                     </span>
                   )}
                 </span>,
@@ -236,7 +236,7 @@ export function TrustPropertyScreen({
       {/* ── Les biens remis ────────────────────────────────────── */}
       <Disclosure label="Biens déjà remis" meta={`${released.length}`}>
         {released.length === 0 ? (
-          <EmptyLine>Aucun bien n'a encore été remis.</EmptyLine>
+          <EmptyLine>Aucun bien n&apos;a encore été remis.</EmptyLine>
         ) : (
           <Table
             head={["Bien et client", "Reçu le", "Remis le", "Remis à"]}

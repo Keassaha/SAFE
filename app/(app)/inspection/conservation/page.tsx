@@ -40,7 +40,7 @@ export default async function ConservationPage() {
   if (!canViewBillingTrust(role as UserRole)) {
     return (
       <div className="p-6">
-        <p className="text-[#B84A3E]">Vous n&apos;avez pas accès aux écrans d&apos;inspection.</p>
+        <p className="text-si-danger-ink">Vous n&apos;avez pas accès aux écrans d&apos;inspection.</p>
       </div>
     );
   }

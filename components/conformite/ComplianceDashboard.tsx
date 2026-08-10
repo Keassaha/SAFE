@@ -117,11 +117,11 @@ export function ComplianceDashboard() {
 
   const scoreColor =
     data.scoreVariant === "success" ? "text-si-verified" :
-    data.scoreVariant === "warning" ? "text-si-amber-ink" : "text-[#B84A3E]";
+    data.scoreVariant === "warning" ? "text-si-amber-ink" : "text-si-danger-ink";
 
   const scoreBg =
     data.scoreVariant === "success" ? "bg-si-verified/10 border-si-verified/30" :
-    data.scoreVariant === "warning" ? "bg-si-amber/[0.13] border-si-amber/30" : "bg-[#B84A3E]/10 border-[#B84A3E]/30";
+    data.scoreVariant === "warning" ? "bg-si-amber/[0.13] border-si-amber/30" : "bg-si-danger/10 border-si-danger/30";
 
   const scoreLabel = data.score >= 80 ? t("opCompliant") : data.score >= 60 ? t("opAtRisk") : t("opNonCompliant");
 
@@ -173,19 +173,19 @@ export function ComplianceDashboard() {
           {data.issues.map((issue) => (
             <Link key={issue.id} href={issue.href}>
               <Card className={`cursor-pointer hover:shadow-md transition-shadow border ${
-                issue.severity === "error" ? "border-[#B84A3E]/30 bg-[#B84A3E]/10" : "border-si-amber/30 bg-si-amber/[0.13]"
+                issue.severity === "error" ? "border-si-danger/30 bg-si-danger/10" : "border-si-amber/30 bg-si-amber/[0.13]"
               }`}>
                 <CardContent className="p-3 flex items-center gap-3">
                   <AlertTriangle className={`w-4 h-4 shrink-0 ${
-                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
+                    issue.severity === "error" ? "text-si-danger-ink" : "text-si-amber-ink"
                   }`} />
                   <span className={`text-sm font-medium flex-1 ${
-                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
+                    issue.severity === "error" ? "text-si-danger-ink" : "text-si-amber-ink"
                   }`}>
                     {issueLabel(t, issue)}
                   </span>
                   <span className={`text-sm font-bold tabular-nums ${
-                    issue.severity === "error" ? "text-[#B84A3E]" : "text-si-amber-ink"
+                    issue.severity === "error" ? "text-si-danger-ink" : "text-si-amber-ink"
                   }`}>
                     {issue.count}
                   </span>

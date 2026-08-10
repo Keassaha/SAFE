@@ -45,7 +45,7 @@ export async function TrustDetailPanel({
         : t("stReconUpToDate");
   const reconTone =
     detail.reconciliationStatus === "critical"
-      ? "text-[#B84A3E]"
+      ? "text-si-danger-ink"
       : detail.reconciliationStatus === "overdue"
         ? "text-si-amber-ink"
         : "text-si-verified";
@@ -78,7 +78,7 @@ export async function TrustDetailPanel({
                 <span className="text-sm text-si-ink truncate">{l.label}</span>
                 <span
                   className={`text-sm font-medium tabular-nums shrink-0 ${
-                    l.balance < 0 ? "text-[#B84A3E]" : "text-si-ink"
+                    l.balance < 0 ? "text-si-danger-ink" : "text-si-ink"
                   }`}
                 >
                   {money(l.balance)}

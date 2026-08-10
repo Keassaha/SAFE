@@ -102,7 +102,7 @@ export function RegistersScreen({
                     type="button"
                     onClick={() => go(r.id, periode)}
                     className={`flex w-full flex-col gap-0.5 px-3 py-2.5 text-left transition-colors ${
-                      actif ? "bg-[#0B1F19]/[0.05]" : "hover:bg-[#0B1F19]/[0.03]"
+                      actif ? "bg-si-forest/[0.05]" : "hover:bg-si-forest/[0.03]"
                     }`}
                   >
                     <span className="text-sm text-[var(--si-ink)]">{r.titleFr}</span>
@@ -132,18 +132,18 @@ export function RegistersScreen({
             <SecondaryButton type="submit">Afficher</SecondaryButton>
             {periode && (
               <SecondaryButton type="button" onClick={() => go(selectedId, null)}>
-                Tout l'historique
+                Tout l&apos;historique
               </SecondaryButton>
             )}
             <p className="w-full text-xs text-[var(--si-muted)] sm:w-auto sm:flex-1">
-              Sans mois précisé, le registre couvre tout l'historique du cabinet.
+              Sans mois précisé, le registre couvre tout l&apos;historique du cabinet.
             </p>
           </form>
         </Panel>
 
         {error && (
           <Panel tone="alert" className="p-4">
-            <h2 className="text-base font-medium text-[#8F3529]">Ce registre n'est pas produit</h2>
+            <h2 className="text-base font-medium text-si-danger-ink">Ce registre n&apos;est pas produit</h2>
             <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--si-ink)]">{error}</p>
           </Panel>
         )}
@@ -161,13 +161,13 @@ export function RegistersScreen({
                       href={exportUrl("html")}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded-lg bg-[var(--si-forest)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#123028]"
+                      className="rounded-lg bg-[var(--si-forest)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-si-forest-soft"
                     >
                       Imprimer
                     </a>
                     <a
                       href={exportUrl("csv")}
-                      className="rounded-lg border border-[var(--si-line)] px-3 py-1.5 text-xs text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04]"
+                      className="rounded-lg border border-[var(--si-line)] px-3 py-1.5 text-xs text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04]"
                     >
                       CSV
                     </a>
@@ -241,7 +241,7 @@ export function RegistersScreen({
                 ))}
               </ul>
               <p className="border-t border-[var(--si-line)] px-4 py-3 text-xs leading-relaxed text-[var(--si-muted)]">
-                Une colonne sans article n'est pas exigée par le règlement : elle est là pour
+                Une colonne sans article n&apos;est pas exigée par le règlement : elle est là pour
                 vous aider à lire. Les autres portent la disposition qui les impose.
               </p>
             </Panel>
@@ -249,8 +249,8 @@ export function RegistersScreen({
         )}
 
         <p className="max-w-3xl text-xs leading-relaxed text-[var(--si-muted)]">
-          L'empreinte permet de vérifier qu'une copie remise n'a pas été modifiée depuis sa
-          production. Elle n'est exigée par aucun article : c'est un moyen, choisi ici, de
+          L&apos;empreinte permet de vérifier qu&apos;une copie remise n&apos;a pas été modifiée depuis sa
+          production. Elle n&apos;est exigée par aucun article : c&apos;est un moyen, choisi ici, de
           rendre le registre vérifiable.
         </p>
       </div>

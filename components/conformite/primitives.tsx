@@ -42,7 +42,7 @@ export function Panel({
 }) {
   const toneClasses =
     tone === "alert"
-      ? "border-[#B84A3E]/30 bg-[#B84A3E]/[0.05]"
+      ? "border-si-danger/30 bg-si-danger/[0.05]"
       : "border-[var(--si-line)] bg-[var(--si-surface)]";
   return <section className={`rounded-xl border ${toneClasses} ${className}`}>{children}</section>;
 }
@@ -105,8 +105,8 @@ export type PillTone = "action" | "info" | "done";
  */
 export function Pill({ tone, children }: { tone: PillTone; children: ReactNode }) {
   const styles = {
-    action: "bg-[#B84A3E]/10 text-[#8F3529] border-transparent",
-    done: "bg-[#0B1F19]/[0.06] text-[var(--si-forest)] border-transparent",
+    action: "bg-si-danger/10 text-si-danger-ink border-transparent",
+    done: "bg-si-forest/[0.06] text-[var(--si-forest)] border-transparent",
     info: "border-[var(--si-line)] text-[var(--si-muted)]",
   }[tone];
   return (
@@ -122,7 +122,7 @@ export function ErrorBanner({ children }: { children: ReactNode }) {
   return (
     <div
       role="alert"
-      className="rounded-lg border border-[#B84A3E]/30 bg-[#B84A3E]/[0.06] px-4 py-3 text-sm text-[#8F3529]"
+      className="rounded-lg border border-si-danger/30 bg-si-danger/[0.06] px-4 py-3 text-sm text-si-danger-ink"
     >
       {children}
     </div>
@@ -178,7 +178,7 @@ export function Table({
           {rows.map((r, i) => (
             <tr
               key={i}
-              className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-[#0B1F19]/[0.02]"
+              className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-si-forest/[0.02]"
             >
               {r.map((cell, j) => (
                 <td
@@ -242,7 +242,7 @@ export function PrimaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#123028] disabled:opacity-50 ${className}`}
+      className={`rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -257,7 +257,7 @@ export function SecondaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-[#0B1F19]/[0.04] disabled:opacity-50 ${className}`}
+      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04] disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -293,7 +293,7 @@ export function Disclosure({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-[#0B1F19]/[0.02]"
+        className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-forest/[0.02]"
       >
         <span className="text-sm font-medium text-[var(--si-ink)]">{label}</span>
         {meta && <span className="shrink-0 text-xs text-[var(--si-muted)]">{meta}</span>}
