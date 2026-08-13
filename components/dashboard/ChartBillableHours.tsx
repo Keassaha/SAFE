@@ -53,7 +53,7 @@ export function ChartBillableHours({
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-bold safe-text-metric">
+          <span className="text-lg font-medium safe-text-metric">
             {Math.round(billedPercent)}%
           </span>
         </div>

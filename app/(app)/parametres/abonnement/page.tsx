@@ -29,7 +29,7 @@ export default async function AbonnementPage() {
   });
 
   return (
-    <div className="max-w-4xl space-y-6 animate-fade-in">
+    <div className="max-w-4xl space-y-6">
       <PageHeader
         title={t("subscriptionPageTitle")}
         description={t("subscriptionPageDescription")}

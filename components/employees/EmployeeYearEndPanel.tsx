@@ -93,7 +93,7 @@ export function EmployeeYearEndPanel({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-si-muted/50" />
-          <span className="text-[13px] font-semibold text-si-ink">
+          <span className="text-[13px] font-medium text-si-ink">
             Informations fin d&apos;année
           </span>
         </div>
@@ -117,7 +117,7 @@ export function EmployeeYearEndPanel({
             </p>
             <div className="mt-1 flex items-center gap-1.5">
               <span
-                className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${currentMeta.color}`}
+                className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${currentMeta.color}`}
               >
                 {currentMeta.badge}
               </span>

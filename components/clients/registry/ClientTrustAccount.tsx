@@ -34,7 +34,7 @@ export function ClientTrustAccount({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm text-si-muted">{t("trustBalance")}</span>
-          <span className="text-lg font-semibold text-si-ink">
+          <span className="text-lg font-medium text-si-ink">
             {formatCurrency(balance, "CAD", locale)}
           </span>
         </div>

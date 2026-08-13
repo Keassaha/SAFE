@@ -47,7 +47,7 @@ export default async function CabinetSettingsPage({
   const successBanner = params.success === "updated" ? t("cabinetEditSuccess") : null;
 
   return (
-    <div className="max-w-3xl space-y-6 animate-fade-in">
+    <div className="max-w-3xl space-y-6">
       <PageHeader
         title={t("cabinetEditTitle")}
         description={t("cabinetEditDescription")}
@@ -117,7 +117,7 @@ export default async function CabinetSettingsPage({
 
             <div className="pt-4 border-t border-si-line/60">
               <div className="mb-3">
-                <h4 className="text-sm font-semibold text-si-ink">{t("cabinetTaxNumbersSection")}</h4>
+                <h4 className="text-sm font-medium text-si-ink">{t("cabinetTaxNumbersSection")}</h4>
                 <p className="text-xs text-si-muted mt-1">{t("cabinetTaxNumbersHint")}</p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">

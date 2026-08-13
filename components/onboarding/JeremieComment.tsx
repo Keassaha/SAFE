@@ -34,7 +34,7 @@ export default function JeremieComment({ step, lang }: Props) {
     >
       {/* Avatar */}
       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--safe-accent)] flex items-center justify-center shadow-sm">
-        <span className="text-white text-sm font-bold">JT</span>
+        <span className="text-white text-sm font-medium">JT</span>
       </div>
 
       {/* Bubble */}

@@ -2,14 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MoreVertical, Pencil, Trash2, Check } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Pencil, Trash2, Check } from "lucide-react";
+import { RowMenu, rowMenuItemClass, rowMenuItemDangerClass } from "@/components/ui/RowMenu";
 import { routes } from "@/lib/routes";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import {
+  registreCellClass,
+  registreCellMutedClass,
+  registreCellNumClass,
+  registreHeadCellClass,
+  registreHeadRowClass,
+  registreRowClass,
+  RegistrePlainHeader,
+  rangeeOuvrable,
+} from "@/components/ui/registre";
 import type { TimeEntryStatut } from "@prisma/client";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -74,7 +84,6 @@ export function TimeEntriesTable({
   const tc = useTranslations("common");
   const locale = useLocale();
   const [editId, setEditId] = useState<string | null>(null);
-  const [menuId, setMenuId] = useState<string | null>(null);
   const updateMutation = useUpdateTimeEntry(cabinetId);
   const deleteMutation = useDeleteTimeEntry(cabinetId);
 
@@ -84,36 +93,35 @@ export function TimeEntriesTable({
   const handleValidate = (entry: TimeEntryRow) => {
     updateMutation.mutate(
       { id: entry.id, statut: "valide" },
-      { onSuccess: () => { setMenuId(null); onRefresh(); } }
+      { onSuccess: onRefresh },
     );
   };
 
   const handleDelete = (entry: TimeEntryRow) => {
     if (!confirm(t("deleteEntry"))) return;
-    deleteMutation.mutate(entry.id, {
-      onSuccess: () => { setMenuId(null); onRefresh(); },
-    });
+    deleteMutation.mutate(entry.id, { onSuccess: onRefresh });
   };
 
   return (
     <>
       {(updateMutation.isError || deleteMutation.isError) && (
-        <div className="mx-4 mt-4 border-l-2 border-status-error pl-3" role="alert">
-          <p className="text-sm text-status-error">{t("actionError")}</p>
+        <div className="mx-4 mt-4 border-l-2 border-si-danger pl-3" role="alert">
+          <p className="text-sm text-si-danger-ink">{t("actionError")}</p>
         </div>
       )}
       <div className="overflow-x-auto">
         <table className="min-w-[960px] w-full">
           <thead>
-            <tr className="border-b border-si-line">
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("date")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("dossier")}</th>
-              <th className="w-full px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("description")}</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted">{t("duration")}</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-si-muted">{tc("amount")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{t("lawyer")}</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-si-muted">{tc("status")}</th>
-              <th className="w-14 px-2 py-3" aria-label={t("actions")} />
+            <tr className={registreHeadRowClass}>
+              <th className={registreHeadCellClass}><RegistrePlainHeader label={tc("date")} /></th>
+              <th className={registreHeadCellClass}><RegistrePlainHeader label={tc("dossier")} /></th>
+              <th className={`w-full ${registreHeadCellClass}`}><RegistrePlainHeader label={tc("description")} /></th>
+              <th className={`${registreHeadCellClass} text-right`}><RegistrePlainHeader label={t("duration")} align="right" /></th>
+              <th className={`${registreHeadCellClass} text-right`}><RegistrePlainHeader label={tc("amount")} align="right" /></th>
+              <th className={registreHeadCellClass}><RegistrePlainHeader label={t("lawyer")} /></th>
+              <th className={registreHeadCellClass}><RegistrePlainHeader label={tc("status")} /></th>
+              {/* Colonne de contrôle : jamais de libellé (L4). */}
+              <th className="w-12 px-3 py-2.5" aria-label={t("actions")} />
             </tr>
           </thead>
           <tbody>
@@ -127,14 +135,13 @@ export function TimeEntriesTable({
               entries.map((entry) => (
                 <tr
                   key={entry.id}
-                  className={`border-b border-si-line/80 hover:bg-si-canvas/60 ${
-                    menuId === entry.id ? "bg-si-canvas/60" : ""
-                  }`}
+                  className={`${registreRowClass} ${canEdit(entry) ? "cursor-pointer" : ""}`}
+                  onClick={canEdit(entry) ? rangeeOuvrable(() => setEditId(entry.id)) : undefined}
                 >
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                  <td className={`whitespace-nowrap ${registreCellMutedClass}`}>
                     {formatDate(entry.date, locale)}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className={registreCellClass}>
                     {entry.dossier ? (
                       <div className="min-w-[150px]">
                         <Link
@@ -158,10 +165,24 @@ export function TimeEntriesTable({
                       </div>
                     )}
                   </td>
+                  {/* La description porte l'ouverture au clavier : la rangée
+                      entière est cliquable à la souris, mais une `<tr>` ne se
+                      tabule pas. Un vrai bouton, donc, plutôt qu'un
+                      `tabIndex` posé sur la ligne (WCAG 2.1.1). */}
                   <td className="max-w-[360px] px-4 py-3 text-sm" title={entry.description ?? ""}>
-                    <p className="line-clamp-2 leading-snug">
-                    {entry.description ?? "—"}
-                    </p>
+                    {canEdit(entry) ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditId(entry.id)}
+                        className="block w-full rounded-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
+                      >
+                        <span className="line-clamp-2 leading-snug">
+                          {entry.description ?? "—"}
+                        </span>
+                      </button>
+                    ) : (
+                      <p className="line-clamp-2 leading-snug">{entry.description ?? "—"}</p>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-sm tabular-nums">
                     {formatDuree(entry.dureeMinutes)}
@@ -174,49 +195,44 @@ export function TimeEntriesTable({
                       {formatCurrency(entry.tauxHoraire, "CAD", locale)}/h
                     </p>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">{entry.user.nom}</td>
+                  <td className={`whitespace-nowrap ${registreCellMutedClass}`}>{entry.user.nom}</td>
                   <td className="px-4 py-3">
                     <BillingStatus billingStatus={entry.billingStatus ?? null} />
                   </td>
-                  <td className="relative px-2 py-2">
+                  {/* Le menu vit dans un portail en position fixe : ce tableau
+                      défile dans un `overflow-x-auto`, qui force `overflow-y`
+                      à `auto` et rognait le menu sur les dernières lignes. */}
+                  <td className="px-3 py-2.5 text-right align-middle">
                     {canEdit(entry) && (
                       <div className="flex items-center justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setMenuId(menuId === entry.id ? null : entry.id)}
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-md hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
-                          aria-label={t("actions")}
-                          aria-expanded={menuId === entry.id}
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                        {menuId === entry.id && (
-                          <div className="absolute right-2 top-full z-20 mt-1 min-w-[160px] rounded-lg border border-si-line bg-si-surface py-1 ring-1 ring-si-line/40">
+                        <RowMenu label={t("actions")} describedBy={entry.description ?? undefined}>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => setEditId(entry.id)}
+                            className={rowMenuItemClass}
+                          >
+                            <Pencil className="h-4 w-4" aria-hidden /> {tc("edit")}
+                          </button>
+                          {entry.statut !== "valide" && (
                             <button
                               type="button"
-                              onClick={() => { setEditId(entry.id); setMenuId(null); }}
-                              className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-si-canvas"
+                              role="menuitem"
+                              onClick={() => handleValidate(entry)}
+                              className={rowMenuItemClass}
                             >
-                              <Pencil className="w-4 h-4" /> {tc("edit")}
+                              <Check className="h-4 w-4" aria-hidden /> {t("markValidated")}
                             </button>
-                            {entry.statut !== "valide" && (
-                              <button
-                                type="button"
-                                onClick={() => handleValidate(entry)}
-                                className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-si-canvas"
-                              >
-                                <Check className="w-4 h-4" /> {t("markValidated")}
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(entry)}
-                              className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left text-sm text-status-error hover:bg-status-error-bg"
-                            >
-                              <Trash2 className="w-4 h-4" /> {tc("delete")}
-                            </button>
-                          </div>
-                        )}
+                          )}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => handleDelete(entry)}
+                            className={rowMenuItemDangerClass}
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden /> {tc("delete")}
+                          </button>
+                        </RowMenu>
                       </div>
                     )}
                   </td>

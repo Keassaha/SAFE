@@ -64,7 +64,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
             {displayInvoiceNumero(invoice.numero)}
           </span>
           {showRetardBadge && (
-            <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-[#B84A3E] text-white whitespace-nowrap">
+            <span className="text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded bg-[#B84A3E] text-white whitespace-nowrap">
               {t("overdue")}
             </span>
           )}
@@ -73,7 +73,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
 
       <div className="flex justify-between items-baseline pt-1 border-t border-current border-opacity-10">
         <span className="text-xs text-si-muted">{t("totalLabel")}</span>
-        <span className="text-sm font-semibold text-si-ink">
+        <span className="text-sm font-medium text-si-ink">
           {formatCurrency(invoice.montantTotal)}
         </span>
       </div>
@@ -81,7 +81,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       {invoice.balanceDue > 0 && (status === "envoyee" || status === "en_retard") && (
         <div className="flex justify-between items-baseline text-xs">
           <span className="text-si-muted">{t("balanceDueLabel")}</span>
-          <span className={`font-semibold ${status === "en_retard" ? "text-[#B84A3E]" : "text-si-ink"}`}>
+          <span className={`font-medium ${status === "en_retard" ? "text-[#B84A3E]" : "text-si-ink"}`}>
             {formatCurrency(invoice.balanceDue)}
           </span>
         </div>

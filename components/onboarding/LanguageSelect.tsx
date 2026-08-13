@@ -22,7 +22,7 @@ export default function LanguageSelect({ onSelect }: Props) {
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl md:text-4xl font-bold text-[var(--safe-darkest)] mb-3 text-center">
+      <h1 className="text-3xl md:text-4xl font-medium text-[var(--safe-darkest)] mb-3 text-center">
         Bonjour / Hello
       </h1>
       <p className="text-[var(--safe-text-muted)] text-base md:text-lg mb-10 text-center max-w-md">
@@ -33,7 +33,7 @@ export default function LanguageSelect({ onSelect }: Props) {
       <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
         <button
           onClick={() => onSelect("fr")}
-          className="flex-1 py-4 px-8 rounded-xl text-lg font-semibold
+          className="flex-1 py-4 px-8 rounded-xl text-lg font-medium
                      bg-[var(--safe-accent)] text-white
                      hover:bg-[var(--safe-green-800)] active:scale-[0.98]
                      transition-all duration-200 shadow-md hover:shadow-lg"
@@ -42,7 +42,7 @@ export default function LanguageSelect({ onSelect }: Props) {
         </button>
         <button
           onClick={() => onSelect("en")}
-          className="flex-1 py-4 px-8 rounded-xl text-lg font-semibold
+          className="flex-1 py-4 px-8 rounded-xl text-lg font-medium
                      border-2 border-[var(--safe-accent)] text-[var(--safe-accent)]
                      hover:bg-[var(--safe-accent)] hover:text-white active:scale-[0.98]
                      transition-all duration-200"

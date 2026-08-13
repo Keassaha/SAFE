@@ -56,7 +56,7 @@ export async function AdminReadinessStrip({ report }: { report: ReadinessReport 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-si-ink">{t("readinessTitle")}</span>
-          <span className={`text-sm font-semibold tabular-nums ${scoreColor}`}>
+          <span className={`text-sm font-medium tabular-nums ${scoreColor}`}>
             {t("readinessScore", { score: report.score })}
           </span>
         </div>

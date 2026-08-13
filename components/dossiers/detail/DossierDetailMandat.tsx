@@ -75,7 +75,7 @@ export function DossierDetailMandat({ dossierId }: { dossierId: string }) {
             <FileSignature className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-si-ink">{t("mandateSectionTitle")}</h3>
+            <h3 className="text-sm font-medium text-si-ink">{t("mandateSectionTitle")}</h3>
             <p className="mt-1 text-sm text-si-muted">{t("mandateSectionDesc")}</p>
           </div>
         </div>

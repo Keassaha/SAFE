@@ -12,6 +12,7 @@ import {
   canRecordPayments,
   canValidateTimeEntry,
   canViewAuditLog,
+  canViewBilling,
   canViewBillingTrust,
   canViewClients,
   canViewComptabilite,
@@ -118,13 +119,13 @@ export function getEffectiveAccess(role: UserRole): ModuleAccess[] {
     {
       module: "facturation",
       labelFr: "Facturation",
-      view: canManageInvoices(role),
+      view: canViewBilling(role),
       edit: canManageInvoices(role),
     },
     {
       module: "paiements",
       labelFr: "Paiements",
-      view: canManageInvoices(role),
+      view: canViewBilling(role),
       edit: canRecordPayments(role),
     },
     {

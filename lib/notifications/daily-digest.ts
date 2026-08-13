@@ -152,7 +152,10 @@ export function digestSubject(d: DigestData, locale: DigestLocale): string {
   return bits.length ? `${base} · ${bits.join(" · ")}` : base;
 }
 
-const FOREST = "#1F3A2E";
+/* Valeur littérale, pas une variable CSS : un client de courriel et un
+ * moteur PDF n'ont pas de contexte de cascade, `var()` y rend transparent.
+ * À tenir manuellement en phase avec `si-forest` de lib/ds/palettes.ts. */
+const FOREST = "#16202B";
 const INK = "#18181B";
 const BODY = "#3F3F46";
 const MUTED = "#71717A";

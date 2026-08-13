@@ -69,7 +69,7 @@ export default async function EspecesPage() {
   const refDossier = new Map(dossiers.map((d) => [d.id, d.numeroDossier ?? d.intitule]));
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Espèces"
         description="Les sommes reçues en argent comptant, leurs reçus et les déclarations à transmettre."

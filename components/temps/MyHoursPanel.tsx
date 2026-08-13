@@ -42,9 +42,9 @@ interface Props {
 
 const TONE: Record<string, { fg: string; bg: string }> = {
   warn: { fg: "#8B6B1F", bg: "#F5E6C8" },
-  succ: { fg: "#1F3A2E", bg: "#D4E8D9" },
+  succ: { fg: "var(--si-forest)", bg: "#D4E8D9" },
   err: { fg: "#8A3A2D", bg: "#F3D8D2" },
-  brand: { fg: "#1F3A2E", bg: "#EEF5F0" },
+  brand: { fg: "var(--si-forest)", bg: "#EEF5F0" },
 };
 
 function toneFor(s: EmployeeHoursStatus): keyof typeof TONE {
@@ -150,7 +150,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
       <div className="rounded-2xl border border-si-line bg-si-surface p-5">
         <div className="mb-3 flex items-center gap-2">
           <Clock className="h-4 w-4 text-si-muted" aria-hidden />
-          <h3 className="text-[15px] font-semibold text-si-ink">{t("submitTitle")}</h3>
+          <h3 className="text-[15px] font-medium text-si-ink">{t("submitTitle")}</h3>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
@@ -206,8 +206,8 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
             type="button"
             disabled={pending}
             onClick={submit}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-            style={{ backgroundColor: "#1F3A2E" }}
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            style={{ backgroundColor: "var(--si-forest)" }}
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" aria-hidden />}
             {t("submit")}
@@ -219,7 +219,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
       {/* Historique */}
       <div className="rounded-2xl border border-si-line bg-si-surface">
         <div className="px-5 pt-4 pb-2">
-          <h3 className="text-[15px] font-semibold text-si-ink">{t("historyTitle")}</h3>
+          <h3 className="text-[15px] font-medium text-si-ink">{t("historyTitle")}</h3>
         </div>
         {data.entries.length === 0 ? (
           <p className="px-5 pb-5 pt-2 text-sm text-si-muted/50">{t("historyEmpty")}</p>
@@ -232,7 +232,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
                   <span className="w-24 shrink-0 text-sm font-medium text-si-ink">{fmtDate(e.date)}</span>
                   <span className="w-16 shrink-0 text-sm tabular-nums text-si-ink">{e.hours} h</span>
                   <span
-                    className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium"
                     style={{ backgroundColor: tone.bg, color: tone.fg }}
                   >
                     <StatusIcon status={e.status} />
@@ -252,7 +252,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
                       disabled={pending}
                       onClick={() => withdraw(e.id)}
                       title={t("withdraw")}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-si-line px-2.5 py-1.5 text-xs font-semibold text-si-muted hover:text-si-ink disabled:opacity-50"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-si-line px-2.5 py-1.5 text-xs font-medium text-si-muted hover:text-si-ink disabled:opacity-50"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden /> {t("withdraw")}
                     </button>
@@ -281,10 +281,10 @@ function SummaryCard({
   const c = TONE[tone];
   return (
     <div className="rounded-xl border border-si-line bg-si-surface p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: c.fg }}>
+      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: c.fg }}>
         {label}
       </div>
-      <div className="mt-1 text-xl font-bold text-si-ink tabular-nums">{value}</div>
+      <div className="mt-1 text-xl font-medium text-si-ink tabular-nums">{value}</div>
       <div className="mt-0.5 text-[11px] text-si-muted/50">{hint}</div>
     </div>
   );

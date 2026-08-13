@@ -157,7 +157,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
     });
 
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6">
         {/* Le titre était en text-white sans conteneur foncé, donc illisible sur le
             fond clair. On reprend l'en-tête compact commun aux autres écrans. */}
         <PageHeader

@@ -11,7 +11,7 @@ import {
   type EmployeeSortOrder,
 } from "@/lib/employees/query";
 import { deriveEmployeeAccess } from "@/lib/employees/access";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { RegistreBarreOutils, RegistreFeuille } from "@/components/ui/registre";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -116,7 +116,7 @@ export default async function EmployeesPage({
   const canPayroll = canManagePayroll(userRole);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("managementTitle")}
         description={t("managementDesc")}
@@ -143,46 +143,41 @@ export default async function EmployeesPage({
         byRoleCount={roleCount.length}
       />
 
-      <Card>
-        <CardHeader
-          title={t("employeeList")}
-          action={
-            <div className="flex flex-wrap items-center gap-3">
-              <EmployeeSearchBar />
-              <EmployeeFilters />
-            </div>
-          }
+      {/* Même feuille que les registres clients et dossiers. Le titre
+          « Liste des employés » a sauté : la page s'appelle déjà Employés. */}
+      <RegistreFeuille ariaLabel={t("employeeList")}>
+        <RegistreBarreOutils
+          recherche={<EmployeeSearchBar />}
+          filtres={<EmployeeFilters />}
         />
-        <CardContent className="p-0">
-          {rows.length === 0 ? (
-            <EmptyState
-              title={t("noEmployees")}
-              description={t("addEmployeeOrFilter")}
-              action={
-                canCreate ? (
-                  <Link href={routes.employeeNouveau}>
-                    <Button>{t("newEmployee")}</Button>
-                  </Link>
-                ) : undefined
-              }
+        {rows.length === 0 ? (
+          <EmptyState
+            title={t("noEmployees")}
+            description={t("addEmployeeOrFilter")}
+            action={
+              canCreate ? (
+                <Link href={routes.employeeNouveau}>
+                  <Button>{t("newEmployee")}</Button>
+                </Link>
+              ) : undefined
+            }
+          />
+        ) : (
+          <>
+            <EmployeeTable
+              employees={rows}
+              canEdit={canEdit}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
             />
-          ) : (
-            <>
-              <EmployeeTable
-                employees={rows}
-                canEdit={canEdit}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-              />
-              <EmployeePagination
-                totalCount={totalCount}
-                currentPage={page}
-                pageSize={EMPLOYEE_LIST_PAGE_SIZE}
-              />
-            </>
-          )}
-        </CardContent>
-      </Card>
+            <EmployeePagination
+              totalCount={totalCount}
+              currentPage={page}
+              pageSize={EMPLOYEE_LIST_PAGE_SIZE}
+            />
+          </>
+        )}
+      </RegistreFeuille>
     </div>
   );
 }

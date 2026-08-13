@@ -111,7 +111,7 @@ export default async function ConsoleSupportPage() {
                 </thead>
                 <tbody className="divide-y divide-si-line">
                   {tickets.map((t) => (
-                    <tr key={t.id} className="hover:bg-si-canvas/60">
+                    <tr key={t.id} className="safe-zoom-rang ">
                       <td className="px-4 py-3">
                         <Link href={`/console/support/${t.id}`} className="flex items-center gap-2 font-medium text-si-ink hover:text-si-verified">
                           {prioriteDot(t.priorite)}

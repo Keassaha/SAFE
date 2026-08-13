@@ -10,7 +10,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
 
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-2">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-2">
         {T("step8Title", lang)}
       </h2>
 
@@ -23,7 +23,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-[var(--safe-accent)] flex items-center justify-center">
-            <span className="text-white text-sm font-bold">JT</span>
+            <span className="text-white text-sm font-medium">JT</span>
           </div>
           <p className="text-sm font-medium text-[var(--safe-sage)]">Jérémie Tiahou</p>
         </div>
@@ -40,7 +40,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
         className="border border-[var(--safe-neutral-border)] rounded-2xl overflow-hidden"
       >
         <div className="bg-[var(--safe-lightest)] px-6 py-3 border-b border-[var(--safe-neutral-border)]">
-          <h3 className="text-sm font-semibold text-[var(--safe-darkest)]">
+          <h3 className="text-sm font-medium text-[var(--safe-darkest)]">
             {T("valueTable", lang)}
           </h3>
         </div>
@@ -54,13 +54,13 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
               className="flex justify-between items-center px-6 py-3"
             >
               <span className="text-sm text-[var(--safe-darkest)]">{item.label[lang]}</span>
-              <span className="text-sm font-semibold text-[var(--safe-darkest)]">{item.amount} $</span>
+              <span className="text-sm font-medium text-[var(--safe-darkest)]">{item.amount} $</span>
             </motion.div>
           ))}
         </div>
         <div className="bg-[var(--safe-accent)] text-white flex justify-between items-center px-6 py-4">
-          <span className="font-semibold">{T("totalValue", lang)}</span>
-          <span className="text-xl font-bold">{result.totalValue} $</span>
+          <span className="font-medium">{T("totalValue", lang)}</span>
+          <span className="text-xl font-medium">{result.totalValue} $</span>
         </div>
       </motion.div>
 
@@ -75,11 +75,11 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
         <div className="inline-flex items-baseline gap-1 bg-[var(--safe-lightest)] border-2 border-[var(--safe-accent)] rounded-2xl px-8 py-4">
           <span className="text-lg font-medium text-[var(--safe-darkest)]">{result.plan.name[lang]}</span>
           <span className="mx-2 text-[var(--safe-text-muted)]">—</span>
-          <span className="text-4xl font-bold text-[var(--safe-accent)]">{result.plan.price}$</span>
+          <span className="text-4xl font-medium text-[var(--safe-accent)]">{result.plan.price}$</span>
           <span className="text-sm text-[var(--safe-text-muted)]">{T("perMonth", lang)}</span>
         </div>
         <p className="mt-4 text-sm font-medium text-[var(--safe-darkest)]">{T("noSetupFees", lang)}</p>
-        <p className="mt-1 text-xs text-[var(--safe-accent)] font-semibold">{T("founderOffer", lang)}</p>
+        <p className="mt-1 text-xs text-[var(--safe-accent)] font-medium">{T("founderOffer", lang)}</p>
       </motion.div>
 
       {/* ── Section 4 : Prise de rendez-vous ── */}
@@ -89,7 +89,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
         transition={{ delay: 1, duration: 0.5 }}
         className="bg-white border border-[var(--safe-neutral-border)] rounded-2xl p-6"
       >
-        <h3 className="text-lg font-bold text-[var(--safe-darkest)] mb-5">
+        <h3 className="text-lg font-medium text-[var(--safe-darkest)] mb-5">
           {T("bookCall", lang)}
         </h3>
 

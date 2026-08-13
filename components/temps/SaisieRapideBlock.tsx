@@ -80,7 +80,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
 
   return (
     <div className="bg-si-surface border border-si-line p-6">
-      <h2 className="text-base font-semibold text-si-ink flex items-center gap-2 tracking-tight">
+      <h2 className="text-base font-medium text-si-ink flex items-center gap-2 tracking-tight">
         <Play className="w-4 h-4" aria-hidden />
         {t("quickEntry")}
       </h2>
@@ -91,7 +91,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
         <div className="flex items-center gap-3">
           <Clock className="h-5 w-5 shrink-0 text-si-verified" aria-hidden />
           <div>
-            <p className="text-2xl font-mono font-bold text-si-ink tabular-nums">
+            <p className="text-2xl font-mono font-medium text-si-ink tabular-nums">
               {formatTimerElapsed(timer.elapsedSeconds)}
             </p>
             <p className="text-xs text-si-muted">

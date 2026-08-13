@@ -23,7 +23,7 @@ export default async function BriefingPage() {
   const ras = summary.nbCritiques === 0 && summary.nbAvertissements === 0 && finance.aFacturer === 0 && finance.creancesEnRetard === 0;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Briefing du jour"
         description="Ce qui demande votre attention aujourd'hui — sécurité, conformité et argent, en un coup d'œil."
@@ -43,13 +43,13 @@ export default async function BriefingPage() {
         <Card className={summary.nbCritiques > 0 ? "border-[#B84A3E]/40 bg-[#B84A3E]/10 hover:bg-[#B84A3E]/10" : "hover:bg-si-canvas"}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold flex items-center gap-1.5">
+              <h2 className="text-sm font-medium flex items-center gap-1.5">
                 <ShieldAlert className="w-4 h-4 text-emerald-700" /> Sécurité &amp; conformité
               </h2>
               <span className="text-xs text-emerald-700">Tableau de sécurité →</span>
             </div>
             <div className="flex flex-wrap gap-4 text-sm">
-              <span className={summary.nbCritiques > 0 ? "text-[#B84A3E] font-semibold" : "text-si-muted"}>
+              <span className={summary.nbCritiques > 0 ? "text-[#B84A3E] font-medium" : "text-si-muted"}>
                 {summary.nbCritiques} critique{summary.nbCritiques > 1 ? "s" : ""}
               </span>
               <span className={summary.nbAvertissements > 0 ? "text-si-amber-ink" : "text-si-muted"}>
@@ -85,18 +85,18 @@ export default async function BriefingPage() {
       {/* Finance */}
       <Card>
         <CardContent className="p-4">
-          <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
+          <h2 className="text-sm font-medium flex items-center gap-1.5 mb-3">
             <DollarSign className="w-4 h-4 text-emerald-700" /> Argent à récupérer
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link href={routes.facturationTempsNonFacture} className="rounded-md border border-si-line p-3 hover:bg-si-canvas">
               <p className="text-xs text-si-muted flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Temps non facturé</p>
-              <p className="text-lg font-semibold tabular-nums text-emerald-700">{formatCurrency(finance.aFacturer)}</p>
+              <p className="text-lg font-medium tabular-nums text-emerald-700">{formatCurrency(finance.aFacturer)}</p>
               {finance.dormant > 0 && <p className="text-xs text-si-amber-ink">dont {formatCurrency(finance.dormant)} dormant</p>}
             </Link>
             <Link href={routes.facturationCreancesAging} className="rounded-md border border-si-line p-3 hover:bg-si-canvas">
               <p className="text-xs text-si-muted">Créances en retard</p>
-              <p className="text-lg font-semibold tabular-nums text-[#B84A3E]">{formatCurrency(finance.creancesEnRetard)}</p>
+              <p className="text-lg font-medium tabular-nums text-[#B84A3E]">{formatCurrency(finance.creancesEnRetard)}</p>
               <p className="text-xs text-si-muted">sur {formatCurrency(finance.creancesTotal)} dûs</p>
             </Link>
             <div className="rounded-md border border-si-line p-3">

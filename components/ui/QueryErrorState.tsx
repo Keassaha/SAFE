@@ -36,7 +36,7 @@ export function QueryErrorState({
             aria-hidden
           />
           <div>
-            <p className="text-sm font-semibold text-si-ink">{title}</p>
+            <p className="text-sm font-medium text-si-ink">{title}</p>
             <p className="mt-1 max-w-[65ch] text-sm text-si-muted">
               {description}
             </p>

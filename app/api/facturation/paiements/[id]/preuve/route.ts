@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canViewBilling } from "@/lib/auth/permissions";
 import { readDocumentObject } from "@/lib/services/document";
 import type { UserRole } from "@prisma/client";
 
@@ -29,7 +29,9 @@ function getSessionData() {
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const data = await getSessionData();
   if (!data) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  if (!canManageInvoices(data.role)) {
+  // Pièce jointe d'un paiement déjà visible dans la table : elle suit le droit
+  // de lecture, pas celui d'écriture. Sinon le lecteur voit une icône qui 403.
+  if (!canViewBilling(data.role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 

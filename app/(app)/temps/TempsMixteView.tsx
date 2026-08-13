@@ -102,7 +102,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <TabsList>
@@ -137,7 +137,7 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
             </div>
 
             <section className="border-y border-si-line bg-si-surface" aria-labelledby="recent-activity-title">
-              <h2 id="recent-activity-title" className="px-4 py-3 text-sm font-semibold text-si-ink">
+              <h2 id="recent-activity-title" className="px-4 py-3 text-sm font-medium text-si-ink">
                 {t("recent.title")}
               </h2>
               <div className="border-t border-si-line">

@@ -295,7 +295,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
         <div className="p-3 rounded-safe bg-neutral-50 border flex items-center justify-between">
           <span className="text-sm text-neutral-500">{t("amountToBill")}</span>
           <div className="text-right">
-            <span className="text-lg font-bold tabular-nums">{formatCurrency(montantFinal)}</span>
+            <span className="text-lg font-medium tabular-nums">{formatCurrency(montantFinal)}</span>
             {rabaisNum > 0 && (
               <span className="flex items-center gap-1 text-xs text-green-600 justify-end">
                 <Tag className="w-3 h-3" /> {t("discountPreview", { amount: formatCurrency(rabaisNum) })}

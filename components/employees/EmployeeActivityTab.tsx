@@ -47,10 +47,7 @@ export function EmployeeActivityTab({ activities }: EmployeeActivityTabProps) {
               </thead>
               <tbody>
                 {activities.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-si-line hover:bg-si-surface/30"
-                  >
+                  <tr key={row.id} className="safe-zoom-rang border-b border-si-line " >
                     <td className="px-4 py-3 text-si-muted whitespace-nowrap">
                       {row.performedAt ? formatDate(row.performedAt) : "—"}
                     </td>

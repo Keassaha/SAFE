@@ -35,7 +35,7 @@ export function DashboardSpendingCard({
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title tracking-tight">
+          <h3 className="text-sm font-medium safe-text-title tracking-tight">
             {td("spendingOverview")}
           </h3>
           <p className="text-xs safe-text-secondary mt-0.5">
@@ -51,7 +51,7 @@ export function DashboardSpendingCard({
         </Link>
       </div>
       <div className="mb-4">
-        <span className="text-xl md:text-2xl font-bold safe-text-metric">
+        <span className="text-xl md:text-2xl font-medium safe-text-metric">
           {encaisse}
         </span>
         <span className="text-sm safe-text-secondary"> / {objectifOuTotal}</span>
@@ -92,7 +92,7 @@ export function DashboardSpendingCard({
             <span className="text-xs safe-text-secondary">{td("collectedLabel")}</span>
           </div>
         </div>
-        <span className="text-sm font-bold safe-text-metric">
+        <span className="text-sm font-medium safe-text-metric">
           {Math.min(100, Math.round(percentEncaisse))}%
         </span>
       </div>

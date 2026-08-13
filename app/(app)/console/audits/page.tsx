@@ -163,7 +163,7 @@ export default async function ConsoleAuditsPage() {
           {/* Alertes */}
           {alertes.length > 0 && (
             <div>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
+              <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-si-muted">
                 Alertes ({alertes.length})
               </h2>
               <div className="space-y-2">
@@ -199,7 +199,7 @@ export default async function ConsoleAuditsPage() {
 
           {/* Table complète */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
+            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-si-muted">
               Tous les cabinets clients
             </h2>
             <Card>
@@ -217,7 +217,7 @@ export default async function ConsoleAuditsPage() {
                     </thead>
                     <tbody className="divide-y divide-si-line">
                       {rows.map((r) => (
-                        <tr key={r.cabinetId} className="hover:bg-si-canvas/60">
+                        <tr key={r.cabinetId} className="safe-zoom-rang ">
                           <td className="px-4 py-3">
                             <Link
                               href={`/console/leads/${r.leadId}`}
@@ -230,7 +230,7 @@ export default async function ConsoleAuditsPage() {
                           <td className="px-4 py-3 text-si-muted">{r.raison}</td>
                           <td
                             className={`px-4 py-3 text-right tabular-nums ${
-                              r.trustBalance < 0 ? "font-semibold text-[#B84A3E]" : "text-si-ink"
+                              r.trustBalance < 0 ? "font-medium text-[#B84A3E]" : "text-si-ink"
                             }`}
                           >
                             {r.hasActivity ? money(r.trustBalance) : "—"}
@@ -279,7 +279,7 @@ function KpiCard({
     <Card>
       <CardContent className="px-6 py-5">
         <p className="text-xs uppercase tracking-wide text-si-muted">{label}</p>
-        <p className={`mt-2 text-3xl font-semibold tabular-nums ${valueClass}`}>
+        <p className={`mt-2 text-3xl font-medium tabular-nums ${valueClass}`}>
           {value}
         </p>
       </CardContent>

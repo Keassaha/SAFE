@@ -30,7 +30,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+    "safe-action-degrade text-si-surface active:opacity-95 aria-pressed:opacity-95",
   secondary:
     "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
   ghost:
@@ -46,13 +46,13 @@ const variants: Record<Variant, string> = {
   danger:
     "border border-transparent bg-transparent text-status-error hover:bg-status-error-bg active:bg-status-error-bg aria-pressed:bg-status-error-bg",
   "landing-primary":
-    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+    "safe-action-degrade text-si-surface active:opacity-95 aria-pressed:opacity-95",
   "landing-secondary":
     "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
   outlined:
     "border border-si-line bg-si-surface text-si-ink hover:bg-si-line2 active:bg-si-line aria-pressed:bg-si-line",
   dark:
-    "bg-si-forest text-si-surface hover:bg-si-forest-soft active:bg-si-forest-soft aria-pressed:bg-si-forest-soft",
+    "safe-action-degrade text-si-surface active:opacity-95 aria-pressed:opacity-95",
   "dark-ghost":
     "border border-si-surface/25 bg-transparent text-si-surface hover:bg-si-surface/10 active:bg-si-surface/15 aria-pressed:bg-si-surface/15",
 

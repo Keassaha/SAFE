@@ -64,7 +64,7 @@ export default async function VirementsPage() {
 
   if (!regime.applies) {
     return (
-      <div className="animate-fade-in space-y-6">
+      <div className="space-y-6">
         {header}
         <Panel className="p-6">
           <h2 className="text-base font-medium text-[var(--si-ink)]">
@@ -129,7 +129,7 @@ export default async function VirementsPage() {
   ]);
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="space-y-6">
       {header}
 
       <TransfersScreen

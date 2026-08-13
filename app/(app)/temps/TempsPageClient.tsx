@@ -19,6 +19,7 @@ import { TimeEntriesTable } from "@/components/temps/TimeEntriesTable";
 import { WeekGrid } from "@/components/temps/WeekGrid";
 import { TimeEntryFormModal } from "@/components/temps/TimeEntryFormModal";
 import { QueryErrorState } from "@/components/ui/QueryErrorState";
+import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
 import type { TimeEntryFilters } from "@/types/temps";
 import type { UserRole } from "@prisma/client";
 
@@ -47,6 +48,7 @@ export function TempsPageClient({
   onAddSuccess,
 }: TempsPageClientProps) {
   const t = useTranslations("mattersUi");
+  const tc = useTranslations("common");
   const [filters, setFilters] = useState<TimeEntryFilters>({});
   const [viewMode, setViewMode] = useState<"list" | "week">("list");
   const [showAllEntries, setShowAllEntries] = useState(true);
@@ -58,6 +60,7 @@ export function TempsPageClient({
     if (controlledAddOpen === undefined) setInternalAddOpen(open);
   };
   const [weekOffset, setWeekOffset] = useState(0);
+  const [page, setPage] = useState(1);
 
   const effectiveFilters: TimeEntryFilters = useMemo(() => {
     const f = { ...filters };
@@ -121,14 +124,35 @@ export function TempsPageClient({
   const semaineHeures = semaineEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
   const moisHeures = moisEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
 
+  /**
+   * Historique paginé par 20, comme le registre clients.
+   *
+   * L'écran rendait la totalité des entrées d'un coup : sur un cabinet qui
+   * travaille, cela fait des centaines de rangées à parcourir au défilement
+   * pour atteindre la plus ancienne, sans jamais savoir où l'on en est.
+   *
+   * La tranche ne concerne QUE le tableau. Les quatre cartes du haut — semaine,
+   * mois, non facturé, taux facturable — continuent de compter sur la totalité
+   * des entrées : un total qui ne porterait que sur la page affichée serait
+   * faux.
+   *
+   * `pageSure` borne la page au nombre réel de pages : un filtre qui raccourcit
+   * la liste alors qu'on est en page 4 afficherait sinon du vide.
+   */
+  const totalPages = Math.max(1, Math.ceil(entriesWithDate.length / REGISTRE_TAILLE_PAGE));
+  const pageSure = Math.min(page, totalPages);
+  const debut = (pageSure - 1) * REGISTRE_TAILLE_PAGE;
+  const entriesPage = entriesWithDate.slice(debut, debut + REGISTRE_TAILLE_PAGE);
+
   const activeTab = filters.facture === true ? "facture" : "active";
   const setActiveTab = (tab: string) => {
+    setPage(1);
     if (tab === "facture") setFilters((f) => ({ ...f, facture: true }));
     else setFilters((f) => ({ ...f, facture: undefined }));
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {!hideHeader && (
         <PageHeader
           variant="dashboard"
@@ -171,7 +195,7 @@ export function TempsPageClient({
 
           <section className="border-y border-si-line bg-si-surface" aria-labelledby="time-history-title">
             <div className="flex items-center justify-between px-4 py-3">
-              <h2 id="time-history-title" className="text-sm font-semibold text-si-ink">
+              <h2 id="time-history-title" className="text-sm font-medium text-si-ink">
                 {t("entriesHistory")}
               </h2>
               <span className="text-sm text-si-muted">{t("entriesCount", { count: entries.length })}</span>
@@ -202,7 +226,10 @@ export function TempsPageClient({
           </div>
           <TimeFiltersBar
             filters={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={(f) => {
+              setPage(1);
+              setFilters(f);
+            }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             showAllEntries={showAllEntries}
@@ -242,16 +269,31 @@ export function TempsPageClient({
               />
             </div>
           ) : (
-            <TimeEntriesTable
-              entries={entriesWithDate}
-              cabinetId={cabinetId}
-              currentUserId={userId}
-              clients={clients}
-              dossiers={dossiers}
-              users={users}
-              canEditAll={canViewAll}
-              onRefresh={() => refetch()}
-            />
+            <>
+              <TimeEntriesTable
+                entries={entriesPage}
+                cabinetId={cabinetId}
+                currentUserId={userId}
+                clients={clients}
+                dossiers={dossiers}
+                users={users}
+                canEditAll={canViewAll}
+                onRefresh={() => refetch()}
+              />
+              <RegistrePagination
+                totalCount={entriesWithDate.length}
+                currentPage={pageSure}
+                resume={t("paginationRange", {
+                  start: debut + 1,
+                  end: Math.min(debut + REGISTRE_TAILLE_PAGE, entriesWithDate.length),
+                  total: entriesWithDate.length,
+                })}
+                labelPage={t("paginationPage", { current: pageSure, total: totalPages })}
+                labelPrecedent={tc("previous")}
+                labelSuivant={tc("next")}
+                onPageChange={setPage}
+              />
+            </>
           )}
           </section>
 

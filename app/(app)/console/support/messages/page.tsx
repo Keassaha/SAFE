@@ -69,7 +69,7 @@ export default async function ConsoleMessagesPage() {
                       </div>
                     </div>
                     {c._count.messages > 0 && (
-                      <span className="shrink-0 rounded-full bg-si-verified px-2 py-0.5 text-[11px] font-semibold text-si-surface">
+                      <span className="shrink-0 rounded-full bg-si-verified px-2 py-0.5 text-[11px] font-medium text-si-surface">
                         {c._count.messages}
                       </span>
                     )}

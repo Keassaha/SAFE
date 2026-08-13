@@ -30,14 +30,14 @@ export default function EditorTestPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">{tx("editorTestHeading")}</h1>
+      <h1 className="text-2xl font-medium mb-2">{tx("editorTestHeading")}</h1>
       <p className="text-sm text-zinc-600 mb-4">{tx("editorTestIntro")}</p>
 
       <div className="bg-white border border-zinc-300 rounded-lg shadow-sm">
         <EditorContent editor={editor} />
       </div>
 
-      <h2 className="text-sm font-semibold mt-6 mb-2">{tx("editorTestKeyLogTitle")}</h2>
+      <h2 className="text-sm font-medium mt-6 mb-2">{tx("editorTestKeyLogTitle")}</h2>
       <pre className="text-xs bg-zinc-900 text-zinc-100 p-3 rounded-lg overflow-auto max-h-48">
         {keyLog.length === 0 ? tx("editorTestKeyLogEmpty") : keyLog.join("\n")}
       </pre>

@@ -47,7 +47,7 @@ export function FintracChecklist({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className={`w-4 h-4 ${isUrgent ? "text-[#B84A3E]" : verified ? "text-si-verified" : "text-si-amber-ink"}`} />
-            <h4 className="text-sm font-semibold">
+            <h4 className="text-sm font-medium">
               FINTRAC Identity Verification
             </h4>
           </div>

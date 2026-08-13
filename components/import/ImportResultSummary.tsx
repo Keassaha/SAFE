@@ -24,7 +24,7 @@ export function ImportResultSummary({
   const allSuccess = result.created > 0 && result.errors.length === 0;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div
         className={`flex items-center gap-3 px-5 py-4 rounded-[var(--safe-radius-lg)] border ${
           allSuccess
@@ -82,8 +82,8 @@ export function ImportResultSummary({
               <table className="w-full text-left">
                 <thead className="table-header sticky top-0 z-10">
                   <tr>
-                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("lineColumn")}</th>
-                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("messageColumn")}</th>
+                    <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">{t("lineColumn")}</th>
+                    <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">{t("messageColumn")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,7 +128,7 @@ function MetricCard({
 
   return (
     <div className="flex flex-col items-center gap-1 px-4 py-4 rounded-[var(--safe-radius-lg)] bg-white/70 border border-[var(--safe-neutral-border)]/60">
-      <span className={`text-2xl font-bold ${colorClass}`}>{value.toLocaleString()}</span>
+      <span className={`text-2xl font-medium ${colorClass}`}>{value.toLocaleString()}</span>
       <span className="text-xs safe-text-secondary">{label}</span>
     </div>
   );

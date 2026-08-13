@@ -25,7 +25,12 @@ export function PageHeader({
   backHref,
   backLabel,
   breadcrumbs,
-  variant = "default",
+  /* La variante par défaut était la grande carte verte. 63 écrans sur 76 ne
+     précisent pas de variante : ils l'héritaient donc sans l'avoir choisie.
+     Le défaut devient l'en-tête posé sur la surface de travail, conforme au
+     §7.3 du référentiel. Les écrans qui veulent encore la carte verte doivent
+     désormais l'écrire, ce qui est le bon sens d'un défaut. */
+  variant = "dashboard",
 }: PageHeaderProps) {
   const t = useTranslations("ui");
 

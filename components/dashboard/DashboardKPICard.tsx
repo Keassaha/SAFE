@@ -42,12 +42,14 @@ export function DashboardKPICard({
   const styles = ACCENT_STYLES[accent] ?? ACCENT_STYLES.emerald;
 
   const heroCard = isHero
-    ? "bg-si-forest text-si-surface"
+    ? "safe-action-degrade text-si-surface"
     : "bg-si-surface border border-si-line";
 
   return (
     <motion.div
-      className={`overflow-hidden p-5 md:p-6 rounded-2xl ${heroCard} ${className}`}
+      /* `safe-carte-chiffre` : la carte devient le conteneur de référence du
+         montant, qui s'ajuste à elle au lieu de la déborder. */
+      className={`safe-carte-chiffre safe-zoom overflow-hidden rounded-[14px] p-5 md:p-6 ${heroCard} ${className}`}
       whileHover={{
         y: -4,
         boxShadow: "0 12px 32px rgba(31, 42, 36, 0.12)",
@@ -70,7 +72,14 @@ export function DashboardKPICard({
         )}
       </div>
 
-      <p className={`font-mono text-3xl md:text-4xl font-bold tracking-tight tabular-nums ${isHero ? "text-si-surface" : "text-si-ink"}`}>
+      {/* `title` : même si le corps descend au plancher, le montant complet
+          reste récupérable au survol. */}
+      <p
+        title={value}
+        className={`safe-chiffre font-mono font-medium tracking-tight tabular-nums ${
+          isHero ? "text-si-surface" : "text-si-ink"
+        }`}
+      >
         {value}
       </p>
 
@@ -82,7 +91,7 @@ export function DashboardKPICard({
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           {trend != null && (
             <span
-              className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full ${
+              className={`inline-flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full ${
                 trendUp
                   ? isHero ? "bg-si-verified/25 text-[#9FE3C2]" : "bg-si-verified/10 text-si-verified"
                   : trendDown

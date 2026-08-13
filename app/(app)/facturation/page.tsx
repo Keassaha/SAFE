@@ -202,7 +202,7 @@ export default async function FacturationPage({
 
       <section className="overflow-hidden border-y border-si-line bg-si-surface">
         <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-si-ink">{t("listTitle")}</h2>
+          <h2 className="text-lg font-medium text-si-ink">{t("listTitle")}</h2>
           <FacturationActions billingMode={billingMode} />
         </div>
         <div className="space-y-4 p-6">

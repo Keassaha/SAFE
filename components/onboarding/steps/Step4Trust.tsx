@@ -8,7 +8,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-6">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-6">
         {T("step4Title", lang)}
       </h2>
 
@@ -20,7 +20,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-2 gap-3">
           {(["yes", "no"] as const).map((val) => (
             <button key={val} type="button" onClick={() => setData({ hasTrustAccount: val })}
-              className={`py-4 rounded-xl border text-sm font-semibold transition-all duration-200
+              className={`py-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.hasTrustAccount === val
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -41,7 +41,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
             <div className="grid grid-cols-3 gap-2">
               {(["1", "2", "3+"] as const).map((val) => (
                 <button key={val} type="button" onClick={() => setData({ trustAccountCount: val })}
-                  className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-200
+                  className={`py-3 rounded-xl border text-sm font-medium transition-all duration-200
                     ${data.trustAccountCount === val
                       ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                       : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

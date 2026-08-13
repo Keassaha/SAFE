@@ -48,10 +48,10 @@ export function Compliance() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-medium text-gold-400 uppercase tracking-widest mb-3">
             Conformit&eacute;
           </p>
-          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-medium text-white leading-tight tracking-[-0.04em]">
             Con&ccedil;u pour le Barreau.
             <br />
             <span className="text-white/60">Pas adapt&eacute; apr&egrave;s coup.</span>
@@ -79,7 +79,7 @@ export function Compliance() {
                 <div className="w-14 h-14 rounded-safe-md bg-green-700/15 flex items-center justify-center mb-4">
                   <Icon className="w-7 h-7 text-green-700" />
                 </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-1 tracking-tight">{badge.title}</h3>
+                <h3 className="text-xl font-medium text-neutral-900 mb-1 tracking-tight">{badge.title}</h3>
                 <p className="text-xs text-green-700 font-medium mb-3">{badge.subtitle}</p>
                 <p className="text-sm text-neutral-600 leading-relaxed">{badge.description}</p>
               </motion.div>

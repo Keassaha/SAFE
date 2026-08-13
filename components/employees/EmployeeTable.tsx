@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Eye, Pencil, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { routes } from "@/lib/routes";
-import { Button } from "@/components/ui/Button";
+import { RowMenu, rowMenuItemClass } from "@/components/ui/RowMenu";
+import {
+  RegistrePlainHeader,
+  RegistreSortHeader,
+  registreCellMutedClass,
+  registreHeadCellClass,
+  registreHeadRowClass,
+  registreLienClass,
+  registreRowClass,
+  rangeeOuvrable,
+} from "@/components/ui/registre";
 import { RoleBadge } from "./RoleBadge";
 import type { EmployeeRole } from "@prisma/client";
 import type { EmployeeStatus } from "@prisma/client";
@@ -74,30 +84,35 @@ function formatDate(d: Date): string {
   }).format(new Date(d));
 }
 
-function SortHeader({
-  label,
-  field,
-  currentSortBy,
-  currentSortOrder,
-  getSortUrl,
+/** Menu d'actions d'une rangée d'employé. Même objet que clients et dossiers. */
+function EmployeeRowMenu({
+  employeeId,
+  employeeName,
+  canEdit,
 }: {
-  label: string;
-  field: EmployeeSortField;
-  currentSortBy: EmployeeSortField;
-  currentSortOrder: EmployeeSortOrder;
-  getSortUrl: (sortBy: EmployeeSortField, sortOrder: EmployeeSortOrder) => string;
+  employeeId: string;
+  employeeName: string;
+  canEdit: boolean;
 }) {
-  const isActive = currentSortBy === field;
-  const nextOrder = isActive && currentSortOrder === "asc" ? "desc" : "asc";
-  const Icon = isActive ? (currentSortOrder === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  const tc = useTranslations("common");
+
   return (
-    <Link
-      href={getSortUrl(field, isActive ? nextOrder : "asc")}
-      className="inline-flex items-center gap-1 text-xs font-medium text-si-muted uppercase tracking-wider hover:text-si-forest"
-    >
-      {label}
-      <Icon className="w-3.5 h-3.5" />
-    </Link>
+    <RowMenu label={tc("actions")} describedBy={employeeName}>
+      <Link href={routes.employee(employeeId)} role="menuitem" className={rowMenuItemClass}>
+        <Eye className="h-4 w-4 shrink-0 text-si-muted" aria-hidden />
+        {tc("view")}
+      </Link>
+      {canEdit && (
+        <Link
+          href={`${routes.employee(employeeId)}?edit=1`}
+          role="menuitem"
+          className={rowMenuItemClass}
+        >
+          <Pencil className="h-4 w-4 shrink-0 text-si-muted" aria-hidden />
+          {tc("edit")}
+        </Link>
+      )}
+    </RowMenu>
   );
 }
 
@@ -110,6 +125,7 @@ export function EmployeeTable({
   const t = useTranslations("employees");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   function getSortUrl(sortByField: EmployeeSortField, order: EmployeeSortOrder) {
     const next = new URLSearchParams(searchParams.toString());
@@ -120,124 +136,183 @@ export function EmployeeTable({
 
   const statusLabel = (s: EmployeeStatus) => (s === "active" ? tc("active") : tc("inactive"));
 
+  function accessBadge(row: EmployeeRow) {
+    return (
+      <span
+        title={t(ACCESS_BADGE[row.access].hintKey)}
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${ACCESS_BADGE[row.access].className}`}
+      >
+        {t(ACCESS_BADGE[row.access].labelKey)}
+      </span>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm" role="table">
-        <thead>
-          <tr className="border-b border-si-line bg-si-canvas/60">
-            <th className="px-4 py-3 font-medium text-si-muted">
-              <SortHeader
-                label={t("tableHeaderName")}
-                field="fullName"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderEmail")}</th>
-            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderTitle")}</th>
-            <th className="px-4 py-3 font-medium text-si-muted">
-              <SortHeader
-                label={t("tableHeaderRole")}
-                field="role"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 font-medium text-si-muted">
-              <SortHeader
-                label={t("tableHeaderHourlyRate")}
-                field="hourlyRate"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 font-medium text-si-muted">
-              <SortHeader
-                label={t("tableHeaderStatus")}
-                field="status"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 font-medium text-si-muted">{t("tableHeaderAccess")}</th>
-            <th className="px-4 py-3 font-medium text-si-muted">
-              <SortHeader
-                label={t("tableHeaderHireDate")}
-                field="hireDate"
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-                getSortUrl={getSortUrl}
-              />
-            </th>
-            <th className="px-4 py-3 font-medium text-si-muted w-28">{t("tableHeaderActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b border-si-line hover:bg-si-surface/30 transition-colors"
-            >
-              <td className="px-4 py-3">
-                <Link
-                  href={routes.employee(row.id)}
-                  className="font-medium text-si-forest hover:underline"
-                >
+    <>
+      {/* ── Vue mobile : la rangée devient une fiche empilée ── */}
+      <div className="divide-y divide-si-line2 md:hidden">
+        {employees.map((row) => (
+          <Link
+            key={row.id}
+            href={routes.employee(row.id)}
+            className="safe-zoom-rang block px-4 py-3"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[14px] font-medium leading-5 text-si-ink">
                   {row.fullName}
-                </Link>
-              </td>
-              <td className="px-4 py-3 text-si-muted">{row.email}</td>
-              <td className="px-4 py-3 text-si-muted">{row.jobTitle ?? "—"}</td>
-              <td className="px-4 py-3">
-                <RoleBadge role={row.role} />
-              </td>
-              <td className="px-4 py-3 tabular-nums">{formatCurrency(row.hourlyRate)}</td>
-              <td className="px-4 py-3">
-                <span
-                  className={
-                    row.status === "active"
-                      ? "text-si-verified font-medium"
-                      : "text-si-muted"
-                  }
-                >
-                  {statusLabel(row.status)}
                 </span>
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  title={t(ACCESS_BADGE[row.access].hintKey)}
-                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${ACCESS_BADGE[row.access].className}`}
-                >
-                  {t(ACCESS_BADGE[row.access].labelKey)}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-si-muted">{formatDate(row.hireDate)}</td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Link href={routes.employee(row.id)}>
-                    <Button variant="tertiary" type="button" className="!p-1.5">
-                      <Eye className="w-4 h-4" aria-hidden />
-                      <span className="sr-only">{tc("view")}</span>
-                    </Button>
-                  </Link>
-                  {canEdit && (
-                    <Link href={`${routes.employee(row.id)}?edit=1`}>
-                      <Button variant="tertiary" type="button" className="!p-1.5">
-                        <Pencil className="w-4 h-4" aria-hidden />
-                        <span className="sr-only">{tc("edit")}</span>
-                      </Button>
-                    </Link>
+                <span className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-[12px] leading-[17px] text-si-muted">
+                  {row.jobTitle && (
+                    <>
+                      <span className="shrink-0">{row.jobTitle}</span>
+                      <span className="text-si-subtle" aria-hidden>
+                        ·
+                      </span>
+                    </>
                   )}
-                </div>
-              </td>
+                  <span className="truncate">{row.email}</span>
+                </span>
+              </span>
+              <RoleBadge role={row.role} />
+            </div>
+            <div className="mt-2 flex items-baseline gap-4 text-[12px] text-si-muted">
+              <span className="font-mono tabular-nums text-si-ink">
+                {formatCurrency(row.hourlyRate)}
+              </span>
+              {accessBadge(row)}
+              <span className="ml-auto">{formatDate(row.hireDate)}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Vue bureau : registre ──
+          Même grammaire que clients et dossiers : filets horizontaux seuls,
+          en-têtes de 12 px, zoom souple comme unique marque de survol. */}
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full min-w-[980px] border-collapse" role="table">
+          <thead>
+            <tr className={registreHeadRowClass}>
+              <th scope="col" className={registreHeadCellClass}>
+                <RegistreSortHeader
+                  label={t("tableHeaderName")}
+                  field="fullName"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th scope="col" className={registreHeadCellClass}>
+                <RegistrePlainHeader label={t("tableHeaderEmail")} />
+              </th>
+              <th scope="col" className={`w-[150px] ${registreHeadCellClass}`}>
+                <RegistrePlainHeader label={t("tableHeaderTitle")} />
+              </th>
+              <th scope="col" className={`w-[128px] ${registreHeadCellClass}`}>
+                <RegistreSortHeader
+                  label={t("tableHeaderRole")}
+                  field="role"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th scope="col" className={`w-[120px] ${registreHeadCellClass} text-right`}>
+                <RegistreSortHeader
+                  label={t("tableHeaderHourlyRate")}
+                  field="hourlyRate"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                  align="right"
+                />
+              </th>
+              <th scope="col" className={`w-[96px] ${registreHeadCellClass}`}>
+                <RegistreSortHeader
+                  label={t("tableHeaderStatus")}
+                  field="status"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                />
+              </th>
+              <th scope="col" className={`w-[132px] ${registreHeadCellClass}`}>
+                <RegistrePlainHeader label={t("tableHeaderAccess")} />
+              </th>
+              <th scope="col" className={`w-[128px] ${registreHeadCellClass} text-right`}>
+                <RegistreSortHeader
+                  label={t("tableHeaderHireDate")}
+                  field="hireDate"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  getSortUrl={getSortUrl}
+                  align="right"
+                />
+              </th>
+              {/* Colonne de contrôle : jamais de libellé */}
+              <th scope="col" className="w-[48px] px-3 py-2.5" />
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {employees.map((row) => (
+              <tr
+                key={row.id}
+                className={`${registreRowClass} cursor-pointer`}
+                onClick={rangeeOuvrable(() => router.push(routes.employee(row.id)))}
+              >
+                <td className="max-w-0 px-3 py-2.5 align-middle">
+                  <Link
+                    href={routes.employee(row.id)}
+                    className={registreLienClass}
+                    title={row.fullName}
+                  >
+                    {row.fullName}
+                  </Link>
+                </td>
+                <td className="max-w-0 px-3 py-2.5 align-middle">
+                  <a
+                    href={`mailto:${row.email}`}
+                    className="block truncate text-[13px] text-si-muted underline-offset-2 transition-colors hover:text-si-ink hover:underline"
+                    title={row.email}
+                  >
+                    {row.email}
+                  </a>
+                </td>
+                <td className={registreCellMutedClass}>{row.jobTitle ?? "—"}</td>
+                <td className="px-3 py-2.5 align-middle">
+                  <RoleBadge role={row.role} />
+                </td>
+                <td className="px-3 py-2.5 text-right align-middle font-mono text-[13px] tabular-nums text-si-ink">
+                  {formatCurrency(row.hourlyRate)}
+                </td>
+                <td className="px-3 py-2.5 align-middle text-[13px]">
+                  <span
+                    className={
+                      row.status === "active"
+                        ? "font-medium text-si-verified"
+                        : "text-si-muted"
+                    }
+                  >
+                    {statusLabel(row.status)}
+                  </span>
+                </td>
+                <td className="px-3 py-2.5 align-middle">{accessBadge(row)}</td>
+                <td className="px-3 py-2.5 text-right align-middle text-[12px] text-si-muted">
+                  {formatDate(row.hireDate)}
+                </td>
+                <td className="px-3 py-2.5 text-right align-middle">
+                  <EmployeeRowMenu
+                    employeeId={row.id}
+                    employeeName={row.fullName}
+                    canEdit={canEdit}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

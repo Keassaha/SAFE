@@ -78,7 +78,7 @@ export function WeekGrid({
           </button>
         </div>
         <p className="text-sm text-si-muted">
-          {t("weekTotalLabel")} <span className="font-semibold text-si-ink tabular-nums">{formatDuree(weekTotalMinutes)}</span>
+          {t("weekTotalLabel")} <span className="font-medium text-si-ink tabular-nums">{formatDuree(weekTotalMinutes)}</span>
         </p>
       </div>
       <div className="grid grid-cols-7 gap-2">
@@ -90,7 +90,7 @@ export function WeekGrid({
             <p className="text-xs font-medium text-si-muted mb-2">
               {formatDate(date)}
             </p>
-            <p className="text-lg font-bold text-si-ink mb-2">
+            <p className="text-lg font-medium text-si-ink mb-2">
               {formatDuree(total)}
             </p>
             <ul className="space-y-1 text-sm">

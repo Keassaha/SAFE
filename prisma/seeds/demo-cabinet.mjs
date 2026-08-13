@@ -32,7 +32,9 @@ if (PASSWORD.length < 12) {
   process.exit(1);
 }
 
-const CABINET_NOM = "Cabinet Démo SAFE";
+// Sans accent, volontairement : la connexion exige le nom EXACT du cabinet,
+// et un « é » à taper dans un champ de démonstration est un piège inutile.
+const CABINET_NOM = "Cabinet Demo";
 
 async function upsertUser(cabinetId, email, nom, role, passwordHash) {
   const existing = await prisma.user.findFirst({ where: { email } });

@@ -95,7 +95,7 @@ export function DashboardHeroCard({
       <div className="flex items-center gap-2 mt-6">
         <Link
           href="/rapports"
-          className="flex-1 flex flex-col items-center gap-1.5 py-2 rounded-md transition-colors text-xs font-semibold"
+          className="flex-1 flex flex-col items-center gap-1.5 py-2 rounded-md transition-colors text-xs font-medium"
           style={{
             background: "var(--sand-100)",
             border: "1px solid var(--sand-300)",
@@ -108,7 +108,7 @@ export function DashboardHeroCard({
         </Link>
         <Link
           href="/temps"
-          className="flex-1 flex flex-col items-center gap-1.5 py-2 rounded-md transition-colors text-xs font-semibold"
+          className="flex-1 flex flex-col items-center gap-1.5 py-2 rounded-md transition-colors text-xs font-medium"
           style={{
             background: "var(--sand-100)",
             border: "1px solid var(--sand-300)",

@@ -9,7 +9,7 @@ import { EASE, INK, MUTED, FAINT, SURFACE, GREEN, LINE, HAIR, VERIFIED, AMBER, S
 const ROWS = [
   { dossier: "Succession Tremblay", statut: "Facturé", statutBg: "rgba(31,42,36,0.06)", statutColor: "#4A534B", aRecevoir: "3 200 $", aRecevoirColor: INK, fiducie: "12 000 $", fiducieColor: INK },
   { dossier: "Divorce Gagnon", statut: "À relancer", statutBg: "rgba(176,122,28,0.12)", statutColor: AMBER, aRecevoir: "1 850 $", aRecevoirColor: AMBER, fiducie: "—", fiducieColor: "#B8BDB7" },
-  { dossier: "Achat Rivière", statut: "Payé", statutBg: "rgba(18,161,80,0.12)", statutColor: VERIFIED, aRecevoir: "0 $", aRecevoirColor: "#B8BDB7", fiducie: "8 500 $", fiducieColor: INK },
+  { dossier: "Achat Rivière", statut: "Payé", statutBg: "rgb(var(--si-forest-rgb) / 0.12)", statutColor: VERIFIED, aRecevoir: "0 $", aRecevoirColor: "#B8BDB7", fiducie: "8 500 $", fiducieColor: INK },
 ];
 
 const up = (delay: number) => ({
@@ -50,7 +50,7 @@ export function HeroPreview() {
           <motion.div {...up(0.3)} className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               href="/audit-gratuit"
-              className="inline-flex h-10 items-center rounded-[8px] px-5 font-sans text-[14px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+              className="safe-zoom inline-flex h-10 items-center rounded-[8px] px-5 font-sans text-[14px] font-medium transition-transform duration-200"
               style={{ background: INK, color: SURFACE }}
             >
               Faire mon audit gratuit
@@ -74,7 +74,7 @@ export function HeroPreview() {
           style={{ background: SURFACE, border: `1px solid ${LINE}`, boxShadow: SCENE_SHADOW }}
         >
           <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: `1px solid ${LINE}` }}>
-            <span className="font-sans text-[14px] font-semibold" style={{ color: INK }}>
+            <span className="font-sans text-[14px] font-medium" style={{ color: INK }}>
               Dossiers actifs
             </span>
             <span className="font-sans text-[12px]" style={{ color: FAINT }}>
@@ -137,7 +137,7 @@ export function HeroPreview() {
               animate={reduce ? undefined : { scale: 1 }}
               transition={{ duration: 0.4, delay: 1.5, ease: EASE }}
               className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-              style={{ background: "rgba(18,161,80,0.13)" }}
+              style={{ background: "rgb(var(--si-forest-rgb) / 0.13)" }}
             >
               <CheckDraw delay={1.6} />
             </motion.span>

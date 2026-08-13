@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import { interfaceTokens as tokens } from "./lib/ds/tokens";
+import { ECHELLE_ACTION, ECHELLE_VALIDE } from "./lib/ds/palettes";
 import colors from "tailwindcss/colors";
 
 /**
@@ -20,6 +21,47 @@ import colors from "tailwindcss/colors";
  *   • Fonts: Geist Sans + Geist Mono + Instrument Serif (italic éditorial).
  *     Loaded via next/font in app/layout.tsx.
  */
+/**
+ * Couleur pilotée par variable CSS.
+ *
+ * Les jetons `si-*` ne portent plus de valeur littérale : ils lisent
+ * `--si-<clé>-rgb`, émis par <PaletteStyles /> depuis `lib/ds/palettes.ts`.
+ * Changer `data-palette` sur <html> rebascule donc l'application entière.
+ *
+ * La forme fonction est nécessaire pour que les 825 modificateurs d'opacité
+ * déjà écrits dans les écrans (`bg-si-verified/10`, `text-si-muted/50`)
+ * continuent de composer correctement.
+ */
+type FonctionCouleur = { opacityValue?: string; opacityVariable?: string };
+
+/**
+ * Tailwind accepte les couleurs-fonctions à l'exécution, mais ses types ne
+ * décrivent que `string | RecursiveKeyValuePair`. Le cast est le prix d'entrée
+ * documenté du procédé, il est confiné à ces deux fabriques.
+ */
+const commeCouleur = (fn: (arg: FonctionCouleur) => string) => fn as unknown as string;
+
+const siColor = (cle: string) =>
+  commeCouleur(({ opacityValue }) =>
+    opacityValue === undefined
+      ? `rgb(var(--si-${cle}-rgb))`
+      : `rgb(var(--si-${cle}-rgb) / ${opacityValue})`,
+  );
+
+/**
+ * Filets : une encre + une opacité par défaut, pas une couleur à part.
+ * Sans modificateur, la classe rend l'opacité de la palette (`--si-line-a`).
+ * Avec modificateur (`border-si-line/60`), c'est le modificateur qui gagne —
+ * exactement le comportement de la valeur `rgba()` littérale qu'ils
+ * remplacent.
+ */
+const siLine = (variableAlpha: string) =>
+  commeCouleur(({ opacityValue, opacityVariable }) =>
+    opacityValue === undefined || opacityVariable !== undefined
+      ? `rgb(var(--si-line-ink-rgb) / var(${variableAlpha}))`
+      : `rgb(var(--si-line-ink-rgb) / ${opacityValue})`,
+  );
+
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -30,33 +72,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /* ─── NEW: Brand (forest green) — canonical accent ─── */
-        canvas: tokens.color.interface.canvas,
-        surface: tokens.color.interface.surface,
-        'surface-2': tokens.color.interface.surface2,
-        border: tokens.color.interface.border,
-        'border-strong': tokens.color.interface.borderStrong,
-        'text-subtle': tokens.color.interface.subtle,
-        'text-muted': tokens.color.interface.muted,
-        'text-body': tokens.color.interface.body,
-        'text-primary': tokens.color.interface.ink,
-        
+        /* ─── NEW: Brand (forest green) — canonical accent ───
+         * Mêmes variables que le namespace `si-*` : ces alias suivent donc la
+         * palette active au lieu de rester figés sur une valeur littérale. */
+        canvas: siColor("canvas"),
+        surface: siColor("surface"),
+        'surface-2': siColor("surface2"),
+        border: siColor("border"),
+        'border-strong': siColor("border-strong"),
+        'text-subtle': siColor("subtle"),
+        'text-muted': siColor("muted"),
+        'text-body': siColor("body"),
+        'text-primary': siColor("ink"),
+
+        /* Vocabulaires en retrait. Ils ne décrivent plus une teinte, ils
+         * pointent vers la rampe qui porte leur rôle. Voir les commentaires
+         * de `ECHELLE_ACTION` dans lib/ds/palettes.ts. */
         forest: {
-          DEFAULT: tokens.color.forest[700],
-          ...tokens.color.forest,
-          // Clés manquantes dans le token de base — alias vers les valeurs proches
-          400: tokens.color.forest[500],
-          600: tokens.color.forest[700],
-          800: tokens.color.forest[900],
+          DEFAULT: ECHELLE_ACTION[700],
+          ...ECHELLE_ACTION,
         },
         amber: {
           DEFAULT: tokens.color.amber[500],
           ...tokens.color.amber,
         },
-        slate: {
-          DEFAULT: tokens.color.slate[500],
-          ...tokens.color.slate,
-        },
+        /* `slate` servait des neutres CHAUDS (#FAFAF8, #F1EFE8) sous une
+         * interface froide : c'est ce qui faisait tirer certaines pages vers
+         * l'ivoire. Il rejoint la rampe froide. */
+        slate: { DEFAULT: ECHELLE_ACTION[500], ...ECHELLE_ACTION },
         success: {
           DEFAULT: tokens.color.semantic.success.bg,
           ...tokens.color.semantic.success
@@ -74,32 +117,21 @@ const config: Config = {
           ...tokens.color.semantic.info
         },
 
-        /* ─── REBIND: Legacy mapped properly ─── */
-        emerald: {
-          ...tokens.color.forest,
-        },
-        primary: {
-          50: tokens.color.slate[50],
-          100: tokens.color.slate[100],
-          200: tokens.color.forest[200],
-          300: tokens.color.forest[300],
-          400: tokens.color.forest[500],
-          500: tokens.color.forest[500],
-          600: tokens.color.forest[700],
-          700: tokens.color.forest[700],
-          800: tokens.color.forest[900],
-          900: tokens.color.forest[900],
-          DEFAULT: tokens.color.forest[700],
-        },
-        accent: {
-          50: tokens.color.forest[50],
-          100: tokens.color.forest[100],
-          400: tokens.color.forest[500],
-          500: tokens.color.forest[700],
-          600: tokens.color.forest[700],
-          700: tokens.color.forest[900],
-          DEFAULT: tokens.color.forest[700],
-        },
+        /* ─── Vocabulaires en retrait ───
+         *
+         * `emerald` et `green` gardent une teinte : ils portent le plus souvent
+         * un sens (bandeau de succès, montant rapproché), qu'un achromatique
+         * effacerait. Ils convergent vers le seul vert du système, celui de la
+         * validation.
+         *
+         * `green` n'était pas déclaré du tout : ses 118 usages retombaient sur
+         * le vert vif par défaut de Tailwind, étranger à la palette.
+         *
+         * `primary` et `accent` désignent l'action : ils suivent la rampe froide. */
+        emerald: { DEFAULT: ECHELLE_VALIDE[500], ...ECHELLE_VALIDE },
+        green: { DEFAULT: ECHELLE_VALIDE[500], ...ECHELLE_VALIDE },
+        primary: { DEFAULT: ECHELLE_ACTION[700], ...ECHELLE_ACTION },
+        accent: { DEFAULT: ECHELLE_ACTION[700], ...ECHELLE_ACTION },
 
         /* ─── REBUILT: Neutrals now fully zinc ─── */
         neutral: {
@@ -133,35 +165,39 @@ const config: Config = {
           overdue: "var(--safe-status-overdue)",
         },
 
-        /* ─── Zinc: explicit — lets DS components write `bg-zinc-*` safely.
-         * Tailwind ships zinc by default; this namespace pins our source. */
-        zinc: colors.zinc,
+        /* `zinc` restait la famille par défaut de Tailwind, soit une troisième
+         * teinte de gris à côté du canvas et de `slate`. Il rejoint la rampe
+         * neutre : une seule échelle de gris dans le produit. */
+        zinc: { DEFAULT: ECHELLE_ACTION[500], ...ECHELLE_ACTION },
 
         /* ─── Design system safe-interface (variante froide albâtre) ───
          * Namespace `si-*` ADDITIF : porté tel quel depuis le design fourni
          * (docs/propositions/safe-interface/tailwind.config.ts) sans toucher
          * aux tokens existants. Sert au socle + à la page de démonstration.
          * La bascule des écrans réels se fera ensuite, écran par écran. */
-        "si-forest": { DEFAULT: tokens.color.interface.forest, soft: tokens.color.interface.forestSoft },
-        "si-canvas": tokens.color.interface.canvas,
-        "si-surface": tokens.color.interface.surface,
-        "si-ink": tokens.color.interface.ink,
-        "si-muted": tokens.color.interface.muted,
-        "si-verified": tokens.color.interface.verified,
-        "si-verified-on-forest": tokens.color.interface.verifiedOnForest,
-        "si-verified-dot": tokens.color.interface.verifiedDot,
-        "si-amber": tokens.color.interface.amber,
+        "si-forest": { DEFAULT: siColor("forest"), soft: siColor("forest-soft") },
+        "si-canvas": siColor("canvas"),
+        "si-surface": siColor("surface"),
+        "si-surface2": siColor("surface2"),
+        "si-body": siColor("body"),
+        "si-subtle": siColor("subtle"),
+        "si-ink": siColor("ink"),
+        "si-muted": siColor("muted"),
+        "si-verified": siColor("verified"),
+        "si-verified-on-forest": siColor("verified-on-forest"),
+        "si-verified-dot": siColor("verified-dot"),
+        "si-amber": siColor("amber"),
         /* Variante foncée pour le TEXTE amber (WCAG AA, >=4.5:1). Vérifiée sur
          * les 3 fonds documentés du DS, y compris le pire cas : le tint
          * bg-si-amber/[0.13] composé sur si-canvas (#EFF2ED) -> ~4.72:1. Le
          * #B07A1C reste réservé au fond/à la pastille (contraste non requis). */
-        "si-amber-ink": tokens.color.interface.amberInk,
+        "si-amber-ink": siColor("amber-ink"),
         /* Danger. `si-danger` pour les fonds et les filets, `si-danger-ink`
          * pour le texte : le premier ne tient pas le contraste AA sur canvas. */
-        "si-danger": tokens.color.interface.danger,
-        "si-danger-ink": tokens.color.interface.dangerInk,
-        "si-line": tokens.color.interface.line,
-        "si-line2": tokens.color.interface.lineSubtle,
+        "si-danger": siColor("danger"),
+        "si-danger-ink": siColor("danger-ink"),
+        "si-line": siLine("--si-line-a"),
+        "si-line2": siLine("--si-line2-a"),
       },
 
       fontFamily: {

@@ -76,10 +76,7 @@ export function EmployeeAccessTab({
                 </thead>
                 <tbody>
                   {acces.modules.map((m) => (
-                    <tr
-                      key={m.module}
-                      className="border-b border-si-line last:border-b-0 hover:bg-si-surface/30"
-                    >
+                    <tr key={m.module} className="safe-zoom-rang border-b border-si-line last:border-b-0 " >
                       <td className="px-4 py-2 text-si-ink">
                         {m.labelFr}
                         {m.noteFr && (

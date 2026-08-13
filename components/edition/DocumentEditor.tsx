@@ -340,7 +340,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             value={titre}
             onChange={(e) => setTitre(e.target.value)}
             onBlur={save}
-            className="font-semibold text-[var(--safe-text-title)] bg-transparent border-none outline-none focus:bg-[var(--safe-neutral-bg)] rounded px-1 truncate max-w-[200px]"
+            className="font-medium text-[var(--safe-text-title)] bg-transparent border-none outline-none focus:bg-[var(--safe-neutral-bg)] rounded px-1 truncate max-w-[200px]"
           />
         </div>
 
@@ -553,8 +553,8 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               await save();
               setShowSendDialog(true);
             }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
-            style={{ backgroundColor: "#1F3A2E" }}
+            className="flex items-center gap-1.5 text-xs font-medium text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
+            style={{ backgroundColor: "var(--si-forest)" }}
           >
             <SendHorizontal className="w-3.5 h-3.5" />
             {t("sendToClient")}

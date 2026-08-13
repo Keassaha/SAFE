@@ -189,7 +189,7 @@ export default function OnboardingForm() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="text-lg font-semibold text-[var(--safe-darkest)] mb-2">
+          <p className="text-lg font-medium text-[var(--safe-darkest)] mb-2">
             {T("thankYou", lang)}
           </p>
         </motion.div>
@@ -235,7 +235,7 @@ export default function OnboardingForm() {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="px-8 py-2.5 rounded-xl text-sm font-semibold
+                      className="px-8 py-2.5 rounded-xl text-sm font-medium
                                  bg-[var(--safe-accent)] text-white
                                  hover:bg-[var(--safe-green-800)] active:scale-[0.98]
                                  transition-all duration-200 shadow-md hover:shadow-lg"
@@ -247,7 +247,7 @@ export default function OnboardingForm() {
                       type="button"
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="px-8 py-3 rounded-xl text-sm font-semibold
+                      className="px-8 py-3 rounded-xl text-sm font-medium
                                  bg-[var(--safe-accent)] text-white
                                  hover:bg-[var(--safe-green-800)] active:scale-[0.98]
                                  transition-all duration-200 shadow-md hover:shadow-lg

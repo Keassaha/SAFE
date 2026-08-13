@@ -7,14 +7,27 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, FileMinus, ArrowLeft } from "lucide-react";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 
 interface FacturationNotesCreditViewProps {
   cabinetId: string;
 }
 
+type NoteDeCredit = {
+  id: string;
+  creditNoteNumber: string;
+  creditDate: string;
+  invoiceId: string;
+  totalCredit: number;
+  appliedAmount: number;
+  remainingAmount: number;
+  status: string;
+};
+
 export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCreditViewProps) {
   const t = useTranslations("billingUi");
-  const { data, isLoading } = useQuery({
+  const tc = useTranslations("common");
+  const { data, isLoading } = useQuery<{ creditNotes: NoteDeCredit[] }>({
     queryKey: ["facturation", "notes-credit"],
     queryFn: async () => {
       const res = await fetch("/api/facturation/credit-notes");
@@ -23,20 +36,25 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
     },
   });
 
-  const notes = data?.creditNotes ?? [];
+  const notes: NoteDeCredit[] = data?.creditNotes ?? [];
+  // Paginé par 20, comme tous les registres du produit.
+  const pageNotes = usePaginationLocale(notes);
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+      {/* En-tête posé sur la surface de travail. Il portait un dégradé sombre
+          peint à la main, hors palette : c'est exactement la « grande carte
+          employée comme en-tête de page » que la direction retire. */}
+      <header className="pb-1">
         <Link
           href={routes.facturation}
-          className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
+          className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
           {t("backToOverview")}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("creditNotes")}</h1>
-        <p className="mt-1 text-white/80 text-sm">
+        <h1 className="font-serif text-[32px] leading-tight tracking-tight text-si-ink">{t("creditNotes")}</h1>
+        <p className="mt-2 max-w-[65ch] text-sm text-si-muted">
           {t("creditNotesSubtitle")}
         </p>
       </header>
@@ -65,8 +83,8 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
                   </tr>
                 </thead>
                 <tbody>
-                  {notes.map((n: { id: string; creditNoteNumber: string; creditDate: string; invoiceId: string; totalCredit: number; appliedAmount: number; remainingAmount: number; status: string }) => (
-                    <tr key={n.id} className="border-b border-si-line hover:bg-si-canvas/80">
+                  {pageNotes.tranche.map((n) => (
+                    <tr key={n.id} className="safe-zoom-rang border-b border-si-line ">
                       <td className="py-2 px-3 font-medium">{n.creditNoteNumber}</td>
                       <td className="py-2 px-3">{formatDate(n.creditDate)}</td>
                       <td className="py-2 px-3">{n.invoiceId}</td>
@@ -78,6 +96,22 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
                   ))}
                 </tbody>
               </table>
+              <RegistrePagination
+                totalCount={pageNotes.total}
+                currentPage={pageNotes.page}
+                resume={tc("paginationRange", {
+                  start: pageNotes.debut + 1,
+                  end: pageNotes.fin,
+                  total: pageNotes.total,
+                })}
+                labelPage={tc("paginationPage", {
+                  current: pageNotes.page,
+                  total: pageNotes.totalPages,
+                })}
+                labelPrecedent={tc("previous")}
+                labelSuivant={tc("next")}
+                onPageChange={pageNotes.setPage}
+              />
             </div>
           )}
         </CardContent>

@@ -116,7 +116,7 @@ export default async function FacturePreviewPage({
           </Link>
           <div className="mt-3">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-si-ink">
+              <h1 className="text-2xl font-medium tracking-tight text-si-ink">
                 {t("invoicePreviewTitle", { numero: displayInvoiceNumero(invoice.numero) })}
               </h1>
               <StatusBadge label={visibleStatus} variant={statusVariant} />
@@ -142,7 +142,7 @@ export default async function FacturePreviewPage({
             className={`px-4 py-3 ${index % 2 === 0 ? "border-r" : ""} border-si-line md:border-r md:last:border-r-0`}
           >
             <p className="text-xs font-medium text-si-muted">{label}</p>
-            <p className="mt-1 text-right font-mono text-lg font-semibold tabular-nums text-si-ink">
+            <p className="mt-1 text-right font-mono text-lg font-medium tabular-nums text-si-ink">
               {value}
             </p>
           </div>

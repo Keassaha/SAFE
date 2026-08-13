@@ -17,5 +17,5 @@ export function PageTransition({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="min-h-full w-full animate-fade-in">{children}</div>;
+  return <div className="min-h-full w-full">{children}</div>;
 }

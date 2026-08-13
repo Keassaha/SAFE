@@ -70,12 +70,12 @@ export default async function ConformitePage() {
     const t = await getTranslations("conformite");
     const trustDetail = await buildTrustDetail(cabinetId, province);
     return (
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <PageHeader title={copy.complianceTitle} description={copy.complianceDesc} />
           <a
             href="/api/conformite/dossier-inspection"
-            className="inline-flex shrink-0 items-center gap-2 rounded-[var(--safe-radius)] bg-si-forest px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex shrink-0 items-center gap-2 rounded-[var(--safe-radius)] safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             {t("generateInspectionBundle")}
           </a>
@@ -87,7 +87,7 @@ export default async function ConformitePage() {
 
         <section className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-si-ink">{t("operationalHeading")}</h2>
+            <h2 className="text-base font-medium text-si-ink">{t("operationalHeading")}</h2>
             <p className="text-sm text-si-muted">{t("operationalSubtitle")}</p>
           </div>
           <ComplianceDashboard />
@@ -98,7 +98,7 @@ export default async function ConformitePage() {
 
   // Comportement historique (flag off ou snapshot indisponible).
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader title={copy.complianceTitle} description={copy.complianceDesc} />
       <ComplianceDashboard />
     </div>

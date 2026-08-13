@@ -31,10 +31,10 @@
   --faint: #8a968f;
 
   /* ---- Accent et statuts (un accent, trois statuts) ---------------------- */
-  --forest: #0b1f19;
+  --forest: var(--si-forest);
   --forest-soft: #16312a;
   --action: #216a49;
-  --verified: #2e7d5b;
+  --verified: var(--si-verified);
   --amber-ink: #835a10;
   --amber-wash: rgba(176, 122, 28, 0.12);
   --alert: #9b2c2c;

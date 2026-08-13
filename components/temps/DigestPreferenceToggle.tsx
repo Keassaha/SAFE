@@ -10,7 +10,7 @@ interface Props {
   enabled: boolean;
 }
 
-const FOREST = "#1F3A2E";
+const FOREST = "var(--si-forest)";
 
 /** Bascule on/off du digest courriel quotidien (N7b — notifications calmes). */
 export function DigestPreferenceToggle({ enabled: initial }: Props) {
@@ -41,7 +41,7 @@ export function DigestPreferenceToggle({ enabled: initial }: Props) {
           <BellOff className="h-4 w-4 text-si-muted/50" aria-hidden />
         )}
         <div>
-          <div className="text-sm font-semibold text-si-ink">{t("title")}</div>
+          <div className="text-sm font-medium text-si-ink">{t("title")}</div>
           <div className="text-xs text-si-muted">{enabled ? t("onHint") : t("offHint")}</div>
         </div>
       </div>

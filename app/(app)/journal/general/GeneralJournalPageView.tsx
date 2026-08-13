@@ -22,11 +22,14 @@ import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark,
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import { MovementsTable } from "@/components/comptabilite/MovementsTable";
+import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
 import type { ManualJournalContext } from "./actions";
 
 type JournalViewMode = "readable" | "expert";
 
-const PAGE_SIZE = 50;
+// Le journal se pagine côté serveur, mais à la même taille que les autres
+// registres du produit : une seule règle à retenir pour le cabinet.
+const PAGE_SIZE = REGISTRE_TAILLE_PAGE;
 const TRANSACTION_TYPE_OPTIONS: { value: JournalTransactionType; label: string }[] = (
   Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS) as [JournalTransactionType, string][]
 ).map(([value, label]) => ({ value, label }));
@@ -46,12 +49,16 @@ function endOfMonth(d: Date): Date {
 export function GeneralJournalPageView({
   initialKpis,
   embedded = false,
+  canWrite = true,
 }: {
   initialKpis: JournalKpiData;
   /** Intégré dans la page Comptabilité : masque les KPI (déjà affichés en haut de page). */
   embedded?: boolean;
+  /** Tenir le journal. En lecture seule, la saisie disparaît ; l'export reste. */
+  canWrite?: boolean;
 }) {
   const t = useTranslations("accountingUi");
+  const tc = useTranslations("common");
   const { reduceMotion } = useSafeMotion();
   const now = new Date();
   const [kpis, setKpis] = useState<JournalKpiData>(initialKpis);
@@ -185,20 +192,42 @@ export function GeneralJournalPageView({
   }, [embedded]);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+  // La tranche vient du serveur : le pied la décrit à partir de la page courante.
+  const debut = (page - 1) * PAGE_SIZE;
+  const pagination = (
+    <RegistrePagination
+      totalCount={totalCount}
+      currentPage={page}
+      resume={tc("paginationRange", {
+        start: totalCount === 0 ? 0 : debut + 1,
+        end: Math.min(debut + PAGE_SIZE, totalCount),
+        total: totalCount,
+      })}
+      labelPage={tc("paginationPage", { current: page, total: totalPages })}
+      labelPrecedent={tc("previous")}
+      labelSuivant={tc("next")}
+      onPageChange={setPage}
+    />
+  );
   const manualDossiers = manualContext?.dossiers.filter((dossier) => !manualClientId || dossier.clientId === manualClientId) ?? [];
   const defaultDirection = defaultDirectionFor(manualType);
   const invoiceBalanceThisMonth = kpis.totalFacture - kpis.totalEncaisse;
 
   const actionButtons = (
     <>
-      <Button
-        type="button"
-        variant="primary"
-        onClick={openManualEntry}
-      >
-        <Plus className="w-4 h-4" aria-hidden />
-        <span className="ml-2">{t("newEntry")}</span>
-      </Button>
+      {/* La saisie ne s'affiche qu'à qui peut écrire : le serveur refuse de
+          toute façon (`app/(app)/journal/general/actions.ts`), autant ne pas
+          proposer un bouton qui finit en message d'erreur. */}
+      {canWrite && (
+        <Button
+          type="button"
+          variant="primary"
+          onClick={openManualEntry}
+        >
+          <Plus className="w-4 h-4" aria-hidden />
+          <span className="ml-2">{t("newEntry")}</span>
+        </Button>
+      )}
       <Button
         type="button"
         variant="secondary"
@@ -459,7 +488,10 @@ export function GeneralJournalPageView({
               <input
                 type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPage(1);
+                }}
                 className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
@@ -470,7 +502,10 @@ export function GeneralJournalPageView({
               <input
                 type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPage(1);
+                }}
                 className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
@@ -480,7 +515,10 @@ export function GeneralJournalPageView({
               </label>
               <select
                 value={typeTransaction}
-                onChange={(e) => setTypeTransaction(e.target.value)}
+                onChange={(e) => {
+                  setTypeTransaction(e.target.value);
+                  setPage(1);
+                }}
                 className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("allTypes")}</option>
@@ -499,7 +537,10 @@ export function GeneralJournalPageView({
                 type="search"
                 placeholder={t("searchPlaceholder")}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
@@ -556,29 +597,7 @@ export function GeneralJournalPageView({
               >
                 <MovementsTable entries={entries} />
               </motion.div>
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-si-line">
-                  <p className="text-sm text-si-muted">{t("pageOf", { page, totalPages })}</p>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
-                    >
-                      {t("previous")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page >= totalPages}
-                    >
-                      {t("next")}
-                    </Button>
-                  </div>
-                </div>
-              )}
+              {pagination}
             </>
           ) : (
             <>
@@ -634,10 +653,7 @@ export function GeneralJournalPageView({
                     entries.map((e) => {
                       const display = displayJournalAmounts(e);
                       return (
-                        <tr
-                          key={e.id}
-                          className="border-b-[0.5px] border-si-line hover:bg-si-canvas/60 transition-colors"
-                        >
+                        <tr key={e.id} className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors" >
                           <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                             {formatDate(e.dateTransaction)}
                           </td>
@@ -669,31 +685,7 @@ export function GeneralJournalPageView({
                 </tbody>
               </table>
               </motion.div>
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-si-line">
-                  <p className="text-sm text-si-muted">
-                    {t("pageOf", { page, totalPages })}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
-                    >
-                      {t("previous")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page >= totalPages}
-                    >
-                      {t("next")}
-                    </Button>
-                  </div>
-                </div>
-              )}
+              {pagination}
             </>
           )}
         </CardContent>

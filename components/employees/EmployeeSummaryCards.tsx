@@ -77,14 +77,14 @@ export function EmployeeSummaryCards({
         <motion.div
           key={title}
           variants={itemVariants}
-          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-card-hover hover:-translate-y-0.5"
+          className="safe-zoom bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-si-muted uppercase tracking-widest">
+              <p className="text-xs font-medium text-si-muted uppercase tracking-widest">
                 {title}
               </p>
-              <p className="mt-1.5 text-2xl font-bold text-si-ink tracking-tight tabular-nums">
+              <p className="mt-1.5 text-2xl font-medium text-si-ink tracking-tight tabular-nums">
                 {value}
               </p>
               {sub && (

@@ -53,7 +53,7 @@ export default async function TempsPage() {
     ]);
 
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6">
         <PageHeader title={t("title")} description={t("description")} />
         <RegistreTachesPage dossiers={dossiers} />
       </div>
@@ -126,7 +126,7 @@ export default async function TempsPage() {
       .slice(0, 10);
 
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6">
         <PageHeader title={t("title")} description={t("description")} />
         <TempsMixteView
           cabinetId={cabinetId}

@@ -3,6 +3,33 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { EditionDashboard } from "@/components/edition/EditionDashboard";
 
+/**
+ * Titres de civilité à retirer avant de saluer quelqu'un par son prénom.
+ * `nom` vaut « Me Camille Roy » pour une avocate : prendre le premier mot
+ * affichait « Bonjour Me. », ce qui n'est le prénom de personne.
+ */
+const CIVILITES = new Set([
+  "me",
+  "me.",
+  "mtre",
+  "mtre.",
+  "maitre",
+  "maître",
+  "m.",
+  "mme",
+  "mme.",
+  "dr",
+  "dr.",
+  "dre",
+  "dre.",
+]);
+
+function prenomUsuel(nomComplet: string | null | undefined): string {
+  const jetons = (nomComplet ?? "").trim().split(/\s+/).filter(Boolean);
+  const sansCivilite = jetons.filter((j) => !CIVILITES.has(j.toLowerCase()));
+  return sansCivilite[0] ?? jetons[0] ?? "Maître";
+}
+
 export default async function EditionPage() {
   const session = await requireCabinetAndUser();
   if (!session) notFound();
@@ -77,6 +104,9 @@ export default async function EditionPage() {
         id: true,
         intitule: true,
         numeroDossier: true,
+        // `clientId` alimente la création de document : l'API la réclame, et
+        // sans lui l'accueil ne pouvait pas créer, seulement lister.
+        clientId: true,
         client: { select: { raisonSociale: true } },
         _count: { select: { richDocuments: { where: { isArchived: false } } } },
       },
@@ -114,11 +144,12 @@ export default async function EditionPage() {
         dossierIntitule: s.dossier?.intitule ?? null,
         clientNom: s.client?.raisonSociale ?? null,
       }))}
-      userName={(user?.nom ?? "Maître").split(" ")[0]}
+      userName={prenomUsuel(user?.nom)}
       dossiers={activeDossiers.map((d) => ({
         id: d.id,
         intitule: d.intitule,
         numeroDossier: d.numeroDossier,
+        clientId: d.clientId,
         clientNom: d.client?.raisonSociale ?? null,
         docsCount: d._count.richDocuments,
       }))}

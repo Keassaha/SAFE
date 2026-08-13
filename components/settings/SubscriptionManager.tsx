@@ -78,7 +78,7 @@ export function SubscriptionManager({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold safe-text-title">{t("subscriptionHeader")}</h2>
+          <h2 className="text-lg font-medium safe-text-title">{t("subscriptionHeader")}</h2>
           <p className="text-sm safe-text-secondary mt-1">
             {t("subscriptionCurrentPlan")} :{" "}
             <strong className="capitalize safe-text-title">{PLANS[currentKey].name}</strong>
@@ -140,21 +140,21 @@ export function SubscriptionManager({
               }`}
             >
               {isRecommended && (
-                <span className="absolute -top-2.5 left-5 rounded-full bg-forest px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
+                <span className="absolute -top-2.5 left-5 rounded-full bg-forest px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white shadow-sm">
                   {t("subscriptionRecommended")}
                 </span>
               )}
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-semibold safe-text-title">{plan.name}</h3>
+                <h3 className="font-medium safe-text-title">{plan.name}</h3>
                 {isCurrent && (
-                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-status-success bg-status-success/10 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-status-success bg-status-success/10 px-2 py-0.5 rounded-full shrink-0">
                     {t("subscriptionCurrent")}
                   </span>
                 )}
               </div>
               <p className="text-xs safe-text-secondary mt-0.5">{taglines[key]}</p>
               <p className="mt-3 flex items-baseline gap-1">
-                <span className="text-3xl font-bold safe-text-metric tabular-nums">{monthly}</span>
+                <span className="text-3xl font-medium safe-text-metric tabular-nums">{monthly}</span>
                 <span className="text-sm font-normal safe-text-secondary">
                   /{tc("perMonthShort")}
                 </span>

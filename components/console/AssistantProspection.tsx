@@ -123,7 +123,7 @@ export function AssistantProspection({ leadId }: { leadId: string }) {
 
           {analyse.incertitudes.length > 0 && (
             <div className="mt-4 border-t border-si-line pt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-si-muted">
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
                 Ce que l&apos;assistant ne sait pas
               </p>
               <ul className="mt-2 space-y-1">

@@ -1,11 +1,11 @@
 import { requirePageAccess } from "@/lib/auth/page-guard";
-import { canViewComptabilite } from "@/lib/auth/permissions";
+import { canManageExpenseJournal, canViewComptabilite } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { ensureExpenseCategories } from "./actions";
 import { ExpenseJournalPageView } from "./ExpenseJournalPageView";
 
 export default async function JournalDepensesPage() {
-  const { cabinetId } = await requirePageAccess(canViewComptabilite);
+  const { cabinetId, role } = await requirePageAccess(canViewComptabilite);
   await ensureExpenseCategories(cabinetId);
 
   const now = new Date();
@@ -149,6 +149,7 @@ export default async function JournalDepensesPage() {
       sessions={sessions}
       categories={categories}
       transactions={transactions}
+      canWrite={canManageExpenseJournal(role)}
     />
   );
 }

@@ -37,7 +37,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
+          <h3 className="text-base font-medium text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <AlertTriangle className="w-4 h-4 text-red-500" />
             {t("outstanding.title")}
           </h3>
@@ -63,19 +63,19 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b-2 border-[var(--safe-neutral-border)]">
-                <th className="text-left py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-left py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {tUi("client")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.balance")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.firstInvoice")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.days")}
                 </th>
-                <th className="text-center py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-center py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("outstanding.aging")}
                 </th>
               </tr>
@@ -98,7 +98,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
                         {row.clientName}
                       </Link>
                     </td>
-                    <td className="py-2 px-2 text-right font-bold text-red-600">
+                    <td className="py-2 px-2 text-right font-medium text-red-600">
                       {formatCurrency(row.balanceDue, "CAD", locale)}
                     </td>
                     <td className="py-2 px-2 text-right text-[var(--safe-text-muted)]">
@@ -108,7 +108,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
                       {row.daysSinceFirstInvoice} j
                     </td>
                     <td className="py-2 px-2 text-center">
-                      <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
+                      <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
                         {row.agingCategory}
                       </span>
                     </td>

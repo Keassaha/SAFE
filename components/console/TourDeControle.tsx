@@ -94,7 +94,7 @@ export function TourDeControle({ actions }: { actions: ActionCleVue[] }) {
       <div className="grid lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* ── L'action ─────────────────────────────────────────────── */}
         <div className="px-6 py-6 lg:px-8 lg:py-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-si-muted">
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
             Prochaine action clé
           </p>
 
@@ -211,7 +211,7 @@ export function TourDeControle({ actions }: { actions: ActionCleVue[] }) {
 
         {/* ── La file ──────────────────────────────────────────────── */}
         <aside className="border-t border-si-line bg-si-canvas px-6 py-5 lg:border-l lg:border-t-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-si-muted">
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
             Ensuite
           </p>
           {suite.length === 0 ? (

@@ -940,10 +940,12 @@ export default async function TableauDeBordPage() {
     : [];
 
   return (
-    <div className="space-y-5">
-      {glanceRows.length > 0 ? <LawyerGlance rows={glanceRows} /> : null}
-      {/* Design safe-interface. Repli : remplacer DashboardViewSafe par DashboardView. */}
-      <DashboardViewSafe payload={payload} />
-    </div>
+    /* La Navette n'ouvre plus l'écran : elle est passée en quatrième position,
+       après la décision du jour, l'état réglementaire et les chiffres du mois.
+       Elle dit ce que quelqu'un attend de vous, pas ce que vous devez décider. */
+    <DashboardViewSafe
+      payload={payload}
+      glance={glanceRows.length > 0 ? <LawyerGlance rows={glanceRows} /> : null}
+    />
   );
 }

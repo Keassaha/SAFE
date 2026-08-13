@@ -12,6 +12,7 @@ import { useFacturationHonoraires } from "@/lib/hooks/useFacturation";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
 import type { FacturationHonorairesQueryInput } from "@/lib/validations/facturation";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { Search, Eye, FileText, FilePlus2, Loader2, ArrowLeft } from "lucide-react";
 
 const ICON_BTN_BASE =
@@ -20,7 +21,7 @@ const ICON_BTN_OUTLINE =
   "border border-si-forest/30 text-si-verified bg-si-surface hover:bg-si-canvas";
 const ICON_BTN_GHOST =
   "border border-transparent text-si-verified hover:bg-si-canvas";
-const ICON_BTN_PRIMARY = "bg-si-forest text-si-surface hover:opacity-90";
+const ICON_BTN_PRIMARY = "safe-action-degrade text-si-surface hover:opacity-90";
 
 interface HonorairesAFacturerViewProps {
   cabinetId: string;
@@ -32,6 +33,7 @@ interface HonorairesAFacturerViewProps {
 export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: HonorairesAFacturerViewProps) {
   const router = useRouter();
   const t = useTranslations("billingUi");
+  const tc = useTranslations("common");
   const [filters, setFilters] = useState<FacturationHonorairesQueryInput>({});
   const [searchQ, setSearchQ] = useState("");
 
@@ -48,28 +50,36 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
   const dossiers = context?.dossiers ?? [];
   const users = context?.users ?? [];
 
+  // Paginé par 20, comme tous les registres du produit. Tout changement de
+  // filtre ramène en page 1 : rester en page 3 d'une liste qui vient de se
+  // raccourcir ne montre rien d'utile.
+  const pageRows = usePaginationLocale(rows);
+
   const handlePreparerFacture = (clientId: string) => {
     router.push(`${routes.facturationFactureNouvelle}?clientId=${encodeURIComponent(clientId)}`);
   };
 
   return (
     <div className="space-y-6">
+      {/* En-tête posé sur la surface de travail. Il portait un dégradé sombre
+          peint à la main, hors palette : c'est exactement la « grande carte
+          employée comme en-tête de page » que la direction retire. */}
       {!embedded && (
-        <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+        <header className="pb-1">
           <Link
             href={routes.facturation}
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
+            className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
           >
             <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
             {t("backToOverview")}
           </Link>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{t("feesToBill")}</h1>
-              <p className="mt-1 text-white/80 text-sm">
+              <h1 className="font-serif text-[32px] leading-tight tracking-tight text-si-ink">{t("feesToBill")}</h1>
+              <p className="mt-2 max-w-[65ch] text-sm text-si-muted">
                 {t("feesToBillSubtitle")}
               </p>
-              <p className="mt-1 text-white/70 text-xs">
+              <p className="mt-1 max-w-[65ch] text-xs text-si-subtle">
                 {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
               </p>
             </div>
@@ -77,7 +87,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <Link href={routes.temps}>
                 <Button
                   variant="secondary"
-                  className="bg-si-surface/20 text-white border-white/30 hover:bg-si-surface/30"
+                  className="bg-si-surface text-si-ink border-white/30 hover:bg-si-surface/30"
                 >
                   {t("timesheet")}
                 </Button>
@@ -97,7 +107,10 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                 type="search"
                 placeholder={t("searchClientPlaceholder")}
                 value={searchQ}
-                onChange={(e) => setSearchQ(e.target.value)}
+                onChange={(e) => {
+                  setSearchQ(e.target.value);
+                  pageRows.setPage(1);
+                }}
                 className="flex-1 rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
@@ -105,9 +118,10 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <label className="text-sm text-si-muted">{t("lawyer")}</label>
               <select
                 value={filters.userId ?? ""}
-                onChange={(e) =>
-                  setFilters((f) => ({ ...f, userId: e.target.value || undefined }))
-                }
+                onChange={(e) => {
+                  setFilters((f) => ({ ...f, userId: e.target.value || undefined }));
+                  pageRows.setPage(1);
+                }}
                 className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[160px]"
               >
                 <option value="">{t("all")}</option>
@@ -122,9 +136,10 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <label className="text-sm text-si-muted">{t("matter")}</label>
               <select
                 value={filters.dossierId ?? ""}
-                onChange={(e) =>
-                  setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }))
-                }
+                onChange={(e) => {
+                  setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }));
+                  pageRows.setPage(1);
+                }}
                 className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[200px]"
               >
                 <option value="">{t("all")}</option>
@@ -140,12 +155,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <input
                 type="date"
                 value={filters.dateFrom ? String(filters.dateFrom).slice(0, 10) : ""}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFilters((f) => ({
                     ...f,
                     dateFrom: e.target.value ? new Date(e.target.value) : undefined,
-                  }))
-                }
+                  }));
+                  pageRows.setPage(1);
+                }}
                 className="rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
@@ -154,12 +170,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
               <input
                 type="date"
                 value={filters.dateTo ? String(filters.dateTo).slice(0, 10) : ""}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFilters((f) => ({
                     ...f,
                     dateTo: e.target.value ? new Date(e.target.value) : undefined,
-                  }))
-                }
+                  }));
+                  pageRows.setPage(1);
+                }}
                 className="rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
@@ -196,15 +213,12 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row) => {
+                  {pageRows.tranche.map((row) => {
                     const selectableCount =
                       row.timeEntryIds.length + row.expenseIds.length + row.registreTacheIds.length;
                     const firstDraftInvoiceId = row.draftInvoiceIds?.[0] ?? null;
                     return (
-                    <tr
-                      key={row.clientId}
-                      className="border-b border-si-line hover:bg-si-canvas/80"
-                    >
+                    <tr key={row.clientId} className="safe-zoom-rang border-b border-si-line " >
                       <td className="py-3 px-3 font-medium">{row.clientName}</td>
                       <td className="py-3 px-3 text-right">{row.count}</td>
                       <td className="py-3 px-3 text-right">
@@ -271,6 +285,22 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   })}
                 </tbody>
               </table>
+              <RegistrePagination
+                totalCount={pageRows.total}
+                currentPage={pageRows.page}
+                resume={tc("paginationRange", {
+                  start: pageRows.debut + 1,
+                  end: pageRows.fin,
+                  total: pageRows.total,
+                })}
+                labelPage={tc("paginationPage", {
+                  current: pageRows.page,
+                  total: pageRows.totalPages,
+                })}
+                labelPrecedent={tc("previous")}
+                labelSuivant={tc("next")}
+                onPageChange={pageRows.setPage}
+              />
             </div>
           )}
         </CardContent>

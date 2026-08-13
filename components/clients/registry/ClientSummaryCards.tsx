@@ -1,10 +1,6 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { motion } from "framer-motion";
-import { Users, UserCheck, FolderOpen, DollarSign } from "lucide-react";
-import { useSafeMotion } from "@/lib/motion";
-import { staggerContainer, staggerItem, staggerContainerReduced, staggerItemReduced } from "@/lib/motion";
 import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
@@ -15,6 +11,15 @@ interface ClientSummaryCardsProps {
   unbilledAmount: number;
 }
 
+/**
+ * Barre de synthèse du registre clients.
+ *
+ * Ce n'était pas une barre : c'étaient quatre cartes à icône qui se soulevaient
+ * au survol et entraient en cascade. Elles poussaient la liste sous la ligne de
+ * flottaison alors que la liste EST la page (refonte §9.1). Les quatre mesures
+ * sont conservées, leur poids visuel ne l'est pas : plus de cadre, plus
+ * d'icône, plus de mouvement. La respiration vient de l'espace et d'un filet.
+ */
 export function ClientSummaryCards({
   totalClients,
   activeClients,
@@ -26,74 +31,59 @@ export function ClientSummaryCards({
   const intlLocale = toIntlLocale(locale);
   const activePercent = totalClients > 0 ? Math.round((activeClients / totalClients) * 100) : 0;
 
-  const cards = [
+  const mesures = [
     {
-      title: t("totalClients"),
-      value: totalClients.toLocaleString(intlLocale),
-      icon: Users,
-      sub: null as string | null,
-      subTone: "muted" as const,
+      label: t("totalClients"),
+      valeur: totalClients.toLocaleString(intlLocale),
+      appoint: null as string | null,
+      appointVerifie: false,
     },
     {
-      title: t("activeClients"),
-      value: activeClients.toLocaleString(intlLocale),
-      icon: UserCheck,
-      sub: `${activePercent}% ${t("ofTotal")}`,
-      subTone: "verified" as const,
+      label: t("activeClients"),
+      valeur: activeClients.toLocaleString(intlLocale),
+      appoint: `${activePercent} %`,
+      appointVerifie: true,
     },
     {
-      title: t("activeMatters"),
-      value: activeCasesCount.toLocaleString(intlLocale),
-      icon: FolderOpen,
-      sub: t("distributedOver", { count: activeCasesCount }),
-      subTone: "muted" as const,
+      label: t("activeMatters"),
+      valeur: activeCasesCount.toLocaleString(intlLocale),
+      appoint: null,
+      appointVerifie: false,
     },
     {
-      title: t("unbilledAmount"),
-      value: formatCurrency(unbilledAmount, "CAD", locale),
-      icon: DollarSign,
-      sub: null as string | null,
-      subTone: "muted" as const,
+      label: t("unbilledAmount"),
+      valeur: formatCurrency(unbilledAmount, "CAD", locale),
+      appoint: null,
+      appointVerifie: false,
     },
   ];
 
-  const { reduceMotion } = useSafeMotion();
-  const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
-  const itemVariants = reduceMotion ? staggerItemReduced : staggerItem;
-
   return (
-    <motion.div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {cards.map(({ title, value, icon: Icon, sub, subTone }) => (
-        <motion.div
-          key={title}
-          variants={itemVariants}
-          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-si-card hover:-translate-y-0.5"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
-                {title}
-              </p>
-              <p className="mt-2 font-mono text-[26px] leading-none text-si-ink tabular-nums">
-                {value}
-              </p>
-              {sub && (
-                <p className={`mt-2 text-[12px] ${subTone === "verified" ? "text-si-verified" : "text-si-muted"}`}>
-                  {sub}
-                </p>
-              )}
-            </div>
-            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-forest/[0.06] text-si-forest">
-              <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden />
-            </div>
-          </div>
-        </motion.div>
+    /* Une seule colonne sous 400 px : à deux colonnes, un montant à sept
+       chiffres pousse la page en défilement horizontal (MB3, reflow 320 px). */
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12">
+      {mesures.map(({ label, valeur, appoint, appointVerifie }) => (
+        <div key={label} className="min-w-0">
+          <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
+            {label}
+          </dt>
+          <dd className="mt-1.5 flex items-baseline gap-2">
+            {/* 18 px sous `sm` : « 1 325 636,55 $ » ne tient pas en 22 px dans
+                une demi-colonne de 375 px, et un montant qui déborde de la
+                page est pire qu'un montant plus petit. */}
+            <span className="font-mono text-[18px] leading-[24px] font-medium text-si-ink tabular-nums sm:text-[22px] sm:leading-[26px]">
+              {valeur}
+            </span>
+            {appoint && (
+              <span
+                className={`text-[12px] ${appointVerifie ? "text-si-verified" : "text-si-muted"}`}
+              >
+                {appoint}
+              </span>
+            )}
+          </dd>
+        </div>
       ))}
-    </motion.div>
+    </dl>
   );
 }

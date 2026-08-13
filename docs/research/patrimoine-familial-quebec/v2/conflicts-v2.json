@@ -1,0 +1,32 @@
+[
+  {
+    "id": "C-001",
+    "topic": "JuriFamille coverage",
+    "status": "SOURCE_CONFLICT",
+    "canonical_position": "Public site confirms support calculations; third-party training suggests PF/SA/PUP; demo required."
+  },
+  {
+    "id": "C-002",
+    "topic": "Superior Court Excel",
+    "status": "RESEARCH_INCOMPLETE",
+    "canonical_position": "Existence reported; mandatory character not confirmed."
+  },
+  {
+    "id": "C-003",
+    "topic": "Negative values",
+    "status": "RESEARCH_INCOMPLETE",
+    "canonical_position": "No automatic zero floor or aggregation before professional review."
+  },
+  {
+    "id": "C-004",
+    "topic": "Corporate or trust-held residence",
+    "status": "RESEARCH_INCOMPLETE",
+    "canonical_position": "Analyze ownership and right of use; no categorical inclusion or exclusion."
+  },
+  {
+    "id": "C-005",
+    "topic": "Market gap",
+    "status": "SOURCE_CONFLICT",
+    "canonical_position": "Calculation market is occupied; audit/integration gap remains a hypothesis."
+  }
+]

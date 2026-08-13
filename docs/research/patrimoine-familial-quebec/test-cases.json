@@ -1,0 +1,362 @@
+[
+  {
+    "test_case_id": "TC-001",
+    "title": "Residence acquise apres mariage",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-002",
+    "title": "Residence possedee avant mariage sans dette",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-003",
+    "title": "Residence initiale avec dette et plus-value",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-004",
+    "title": "Donation comme mise de fonds",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-005",
+    "title": "Succession utilisee pour amelioration",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-006",
+    "title": "Remploi dans une seconde residence",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-007",
+    "title": "Remplois successifs",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-008",
+    "title": "Remploi avec preuve manquante",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-009",
+    "title": "Refinancement familial",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-010",
+    "title": "Refinancement mixte",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-011",
+    "title": "Dette garantie non reliee",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-012",
+    "title": "Copropriete inegale",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-013",
+    "title": "Chalet familial",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-014",
+    "title": "Immeuble locatif partiellement occupe",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-015",
+    "title": "Vehicule au nom d'une entreprise",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-016",
+    "title": "REER avant et pendant mariage",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-017",
+    "title": "Pension a cotisations determinees",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-018",
+    "title": "Pension a prestations determinees sans releve",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-019",
+    "title": "RRQ et renonciation",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-020",
+    "title": "Valeur nette negative",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-021",
+    "title": "Alienation dans l'annee",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-022",
+    "title": "Demande de partage inegal",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-023",
+    "title": "Deces et prestation survivant",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-024",
+    "title": "PUP automatique",
+    "domain": "PUP",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-025",
+    "title": "PUP volontaire",
+    "domain": "PUP",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-026",
+    "title": "PUP retrait dans 90 jours",
+    "domain": "PUP",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-027",
+    "title": "PUP bien exclu par acte",
+    "domain": "PUP",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-028",
+    "title": "Bien en fiducie",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-029",
+    "title": "Bien etranger",
+    "domain": "PF",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  },
+  {
+    "test_case_id": "TC-030",
+    "title": "Transfert direct REER versus retrait",
+    "domain": "TAX",
+    "status": "DESIGN_COMPLETE_EXPECTED_RESULT_REVIEW_REQUIRED",
+    "expected_controls": [
+      "source_traceability",
+      "dated_values",
+      "human_review"
+    ],
+    "expected_result": "manual professional baseline required before production"
+  }
+]

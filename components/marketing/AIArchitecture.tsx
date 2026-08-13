@@ -100,7 +100,7 @@ function AgentNode({
             <Icon className={`w-5 h-5 ${iconColor}`} />
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white font-sans mb-1">{label}</h4>
+            <h4 className="text-sm font-medium text-white font-sans mb-1">{label}</h4>
             <p className="text-xs text-white/50 font-sans leading-relaxed">{description}</p>
           </div>
         </div>
@@ -204,7 +204,7 @@ export function AIArchitecture() {
                   <Workflow className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white font-sans">Orchestrateur SAFE</h3>
+                  <h3 className="text-lg font-medium text-white font-sans">Orchestrateur SAFE</h3>
                   <p className="text-xs text-emerald-400/70 font-sans">Moteur central de décision</p>
                 </div>
                 {/* Live indicator */}
@@ -229,7 +229,7 @@ export function AIArchitecture() {
                     transition={{ delay: 0.4 + i * 0.15 }}
                     className="text-center py-2 rounded-safe-sm bg-white/[0.03] border border-white/[0.06]"
                   >
-                    <div className="text-[10px] uppercase tracking-wider text-white/40 font-sans font-semibold">{step}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-white/40 font-sans font-medium">{step}</div>
                   </motion.div>
                 ))}
               </div>
@@ -318,10 +318,10 @@ export function AIArchitecture() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-baseline justify-between mb-2">
-                    <h4 className="text-base font-bold text-white font-sans">
+                    <h4 className="text-base font-medium text-white font-sans">
                       {principle.title}
                     </h4>
-                    <span className="text-xs font-bold text-emerald-400 font-sans ml-3">
+                    <span className="text-xs font-medium text-emerald-400 font-sans ml-3">
                       {principle.stat}{" "}
                       <span className="text-white/30 font-normal">{principle.statLabel}</span>
                     </span>
@@ -342,7 +342,7 @@ export function AIArchitecture() {
             >
               <a
                 href="/fonctionnalites"
-                className="group inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 font-sans transition-colors duration-300"
+                className="group inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 font-sans transition-colors duration-300"
               >
                 Découvrir les modules IA
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

@@ -92,7 +92,7 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
           <p className="text-xs font-medium uppercase tracking-wide text-si-muted">
             {modeLabel(mode)}
           </p>
-          <h3 className="mt-1 text-base font-semibold text-si-ink">
+          <h3 className="mt-1 text-base font-medium text-si-ink">
             {t("proceduresStructuredEntries")}
           </h3>
           <p className="mt-1 text-sm text-si-muted">

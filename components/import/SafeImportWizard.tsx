@@ -161,7 +161,7 @@ export function SafeImportWizard() {
   const currentStepIndex = STEPS.findIndex((s) => s.id === step || (step === "importing" && s.id === "preview"));
 
   return (
-    <div className="space-y-8 pb-12 animate-fade-in">
+    <div className="space-y-8 pb-12">
       <PageHeader
         title={t("safeImportTitle")}
         description={t("safeImportDescription")}
@@ -407,7 +407,7 @@ function AccountingBreakdownPanel({
             className="flex flex-col items-center gap-1 px-3 py-3 rounded-[var(--safe-radius-lg)] bg-white/70 border border-[var(--safe-neutral-border)]/60"
           >
             <span
-              className={`text-2xl font-bold ${
+              className={`text-2xl font-medium ${
                 it.tone === "success"
                   ? "text-[var(--safe-status-success)]"
                   : it.tone === "warning"

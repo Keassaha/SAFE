@@ -221,7 +221,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
         <LifeBuoy className="h-4 w-4 text-si-forest" />
         Aide
         {totalUnread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-si-forest px-1 text-[11px] font-semibold text-white">
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full safe-action-degrade px-1 text-[11px] font-medium text-white">
             {totalUnread}
           </span>
         )}
@@ -232,7 +232,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
   return (
     <div className="fixed bottom-5 right-5 z-40 flex h-[70vh] max-h-[600px] w-[380px] max-w-[calc(100vw-2rem)] flex-col rounded-xl border border-zinc-200 bg-white shadow-2xl">
       <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900">
+        <div className="flex items-center gap-2 text-sm font-medium text-zinc-900">
           {view === "thread" ? (
             <button onClick={() => { setView("list"); setActive(null); }} className="text-zinc-500 hover:text-zinc-800">
               <ArrowLeft className="h-4 w-4" />
@@ -289,7 +289,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-medium text-zinc-900">{c.sujet}</span>
                     {c.unread > 0 && (
-                      <span className="shrink-0 rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      <span className="shrink-0 rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
                         {c.unread}
                       </span>
                     )}

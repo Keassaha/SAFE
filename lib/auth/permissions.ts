@@ -16,7 +16,13 @@ export function canManageCabinetSettings(role: UserRole): boolean {
   return role === "admin_cabinet";
 }
 
-/** Accès complet au registre client (création, édition, archivage). */
+/**
+ * Accès complet au registre client : création, édition, **archivage**.
+ *
+ * L'avocat n'y est pas ajouté avec la création. Archiver un client touche à la
+ * conservation des dossiers, et rien dans la demande ne portait là-dessus.
+ * À ouvrir séparément si le besoin se présente.
+ */
 export function canManageClients(role: UserRole): boolean {
   return ["admin_cabinet", "assistante"].includes(role);
 }
@@ -36,9 +42,15 @@ export function canEditClients(role: UserRole): boolean {
   return ["admin_cabinet", "avocat"].includes(role);
 }
 
-/** Créer un nouveau client. Admin + Assistante. */
+/**
+ * Créer un nouveau client. Admin + Assistante + Avocat.
+ *
+ * L'avocat en était exclu, cohérent avec un cabinet où l'adjointe fait
+ * l'intake. Intenable pour un praticien seul : il ne pouvait ouvrir aucun
+ * dossier client dans son propre cabinet. Décision CEO 2026-08-11.
+ */
 export function canCreateClients(role: UserRole): boolean {
-  return ["admin_cabinet", "assistante"].includes(role);
+  return ["admin_cabinet", "assistante", "avocat"].includes(role);
 }
 
 /** Éditer uniquement les infos de contact (assistante). */
@@ -65,7 +77,9 @@ export function canCertifyComplianceReport(role: UserRole): boolean {
 }
 
 export function canManageDossiers(role: UserRole): boolean {
-  return ["admin_cabinet", "assistante"].includes(role);
+  /* L'avocat ouvre ses propres dossiers. L'exclure supposait une adjointe,
+     hypothèse fausse pour un praticien seul. Déc. CEO 2026-08-11. */
+  return ["admin_cabinet", "assistante", "avocat"].includes(role);
 }
 
 /**
@@ -128,6 +142,26 @@ export function canManageInvoices(role: UserRole): boolean {
   return ["admin_cabinet", "assistante", "comptabilite"].includes(role);
 }
 
+/**
+ * LIRE la facturation : suivi post-émission, débours, paiements, factures en
+ * vérification, notes de crédit. Distinct de `canManageInvoices`, qui reste le
+ * droit d'écrire (émettre, encaisser, rembourser, créer un débours).
+ *
+ * Le mur d'avant n'en était pas un. L'avocat ouvrait déjà `/facturation`, la
+ * liste des factures et les honoraires (aucune garde de rôle), plus l'âge des
+ * créances, la rentabilité, les taxes et le temps non facturé
+ * (`canViewBillingTrust`, qui l'admet). Cinq pages seulement le rebondissaient,
+ * par accident de garde et non par frontière choisie : il voyait la liste des
+ * factures mais pas le pipeline qui affiche les mêmes factures.
+ *
+ * Prolonge la décision CEO du 2026-08-12 sur la comptabilité (voir
+ * `canViewComptabilite`) : lire n'est pas tenir. La liste reste explicite, un
+ * rôle futur non listé est refusé.
+ */
+export function canViewBilling(role: UserRole): boolean {
+  return ["admin_cabinet", "assistante", "comptabilite", "avocat"].includes(role);
+}
+
 /** Valider une facture (brouillon → validée) : admin, comptabilité, ou avocat responsable du dossier. */
 export function canValidateInvoice(
   role: UserRole,
@@ -156,15 +190,29 @@ export function canViewReports(role: UserRole): boolean {
 
 /** Journal des dépenses (import relevé, catégorisation, validation). */
 export function canManageExpenseJournal(role: UserRole): boolean {
-  return ["admin_cabinet", "comptabilite", "assistante"].includes(role);
+  /* L'avocat en était exclu. Il ne pouvait donc ni saisir une écriture
+     manuelle, ni importer un reçu, ni enregistrer un paiement dans son propre
+     cabinet. Tenable avec une adjointe ou un comptable, faux pour un solo.
+     Déc. CEO 2026-08-12. */
+  return ["admin_cabinet", "comptabilite", "assistante", "avocat"].includes(role);
 }
 
 /**
  * Accès au module Comptabilité (journal général, dépenses, paiements).
- * Identique au prédicat de navigation, pour que page et menu restent cohérents.
+ *
+ * L'avocat y est admis depuis la décision CEO du 2026-08-12. Le lui refuser ne
+ * cachait rien : son tableau de bord affiche déjà facturé, encaissé, à recevoir
+ * et le solde en fidéicommis. Ça ouvrait seulement une porte de menu qui le
+ * renvoyait au tableau de bord. Dans un cabinet solo, c'est d'ailleurs lui qui
+ * tient les livres.
+ *
+ * Les quatre rôles du cabinet passent donc, mais la liste reste explicite : un
+ * rôle inconnu ou futur (stagiaire, lecture seule) est refusé, jamais admis par
+ * défaut. L'écriture, elle, garde ses propres gardes
+ * (`canManageExpenseJournal`, `canManageInvoices`).
  */
 export function canViewComptabilite(role: UserRole): boolean {
-  return canManageExpenseJournal(role) || canManageInvoices(role);
+  return ["admin_cabinet", "comptabilite", "assistante", "avocat"].includes(role);
 }
 
 // --- Module A: Documents ---

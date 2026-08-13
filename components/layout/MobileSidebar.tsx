@@ -80,14 +80,14 @@ export function MobileSidebar({
             onClick={onClose}
           >
             <span
-              className="flex w-8 h-8 shrink-0 items-center justify-center rounded-md text-[13px] font-bold tracking-tight"
+              className="flex w-8 h-8 shrink-0 items-center justify-center rounded-md text-[13px] font-medium tracking-tight"
               style={{ background: "var(--zinc-950)", color: "var(--sand-100)" }}
               aria-hidden
             >
               S
             </span>
             <span
-              className="text-[17px] font-semibold tracking-tight leading-none"
+              className="text-[17px] font-medium tracking-tight leading-none"
               style={{ color: "var(--zinc-950)" }}
             >
               Safe

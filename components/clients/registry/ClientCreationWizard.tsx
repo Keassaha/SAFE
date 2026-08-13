@@ -688,7 +688,7 @@ function ConflictCheckBanner({
       <div className="flex items-start gap-2">
         <AlertTriangle className={`w-4 h-4 mt-0.5 ${iconCls}`} />
         <div className="flex-1 space-y-1">
-          <div className="font-semibold">{t(`conflictStatus_${result.status}`)}</div>
+          <div className="font-medium">{t(`conflictStatus_${result.status}`)}</div>
           <div className="text-xs text-si-muted">
             {t("conflictCheckMeta", { query: result.query, time: formatTime(result.checkedAt) })}
           </div>

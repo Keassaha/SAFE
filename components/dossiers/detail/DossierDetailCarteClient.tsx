@@ -18,7 +18,7 @@ export function DossierDetailCarteClient({ dossierId }: { dossierId: string }) {
   return (
     <div className="rounded-xl-md border border-white/10 bg-si-surface/95 p-6 shadow-xl backdrop-blur sm:p-8">
       <div className="mb-6 border-b border-si-line pb-5">
-        <h2 className="text-lg font-bold tracking-tight text-si-ink">
+        <h2 className="text-lg font-medium tracking-tight text-si-ink">
           {t("clientCardTitle")}
         </h2>
         <p className="mt-1 text-sm text-si-muted">

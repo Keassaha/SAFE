@@ -104,7 +104,7 @@ function LeadCard({
       <div className="flex items-start justify-between gap-2">
         <Link
           href={`/console/clients/${lead.id}`}
-          className="line-clamp-2 text-xs font-semibold text-si-ink hover:text-si-verified"
+          className="line-clamp-2 text-xs font-medium text-si-ink hover:text-si-verified"
           draggable={false}
         >
           {lead.raisonSociale}
@@ -165,7 +165,7 @@ function PhaseColumn({
       }`}
     >
       <div className="flex items-center justify-between border-b border-si-line px-3 py-2.5">
-        <span className="text-sm font-semibold text-si-ink">{phase.phase}</span>
+        <span className="text-sm font-medium text-si-ink">{phase.phase}</span>
         <span className="rounded-full bg-si-surface px-2 py-0.5 text-xs tabular-nums text-si-muted">
           {leads.length}
         </span>
@@ -195,7 +195,7 @@ function ListView({ phases, leadsByPhase }: { phases: PhaseConfig[]; leadsByPhas
         return (
           <section key={phase.key}>
             <div className="mb-2 flex items-baseline gap-2">
-              <h2 className="text-sm font-semibold text-si-ink">{phase.phase}</h2>
+              <h2 className="text-sm font-medium text-si-ink">{phase.phase}</h2>
               <span className="text-xs text-si-muted">{leads.length}</span>
             </div>
             {leads.length === 0 ? (
@@ -211,7 +211,7 @@ function ListView({ phases, leadsByPhase }: { phases: PhaseConfig[]; leadsByPhas
                         href={`/console/clients/${lead.id}`}
                         className="flex items-center gap-3 px-4 py-3 transition hover:bg-si-canvas/60"
                       >
-                        <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                        <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                           lead.score >= 70 ? "bg-si-verified/10 text-si-verified"
                           : lead.score >= 40 ? "bg-si-amber/[0.13] text-si-amber-ink"
                           : "bg-si-canvas text-si-muted"}`}>
@@ -219,7 +219,7 @@ function ListView({ phases, leadsByPhase }: { phases: PhaseConfig[]; leadsByPhas
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="truncate text-sm font-semibold text-si-ink">{lead.raisonSociale}</span>
+                            <span className="truncate text-sm font-medium text-si-ink">{lead.raisonSociale}</span>
                             <span className="shrink-0 rounded bg-si-canvas px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-muted">
                               {STAGE_LABEL[lead.stageLead]}
                             </span>

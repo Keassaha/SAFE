@@ -140,7 +140,7 @@ export default async function ConsoleClientsPage() {
                   </thead>
                   <tbody className="divide-y divide-si-line">
                     {rows.map((r) => (
-                      <tr key={r.leadId} className="hover:bg-si-canvas/60">
+                      <tr key={r.leadId} className="safe-zoom-rang ">
                         <td className="px-4 py-3">
                           <Link href={`/console/clients/${r.leadId}`} className="font-medium text-si-ink hover:text-si-verified">
                             {r.nom}
@@ -201,7 +201,7 @@ function KpiCard({
     <Card>
       <CardContent className="px-6 py-5">
         <p className="text-xs uppercase tracking-wide text-si-muted">{label}</p>
-        <p className={`mt-2 text-3xl font-semibold tabular-nums ${valueClass}`}>{value}</p>
+        <p className={`mt-2 text-3xl font-medium tabular-nums ${valueClass}`}>{value}</p>
       </CardContent>
     </Card>
   );

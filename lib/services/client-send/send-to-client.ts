@@ -37,7 +37,10 @@ function escapeHtml(v: string): string {
   return v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-const FOREST = "#1F3A2E";
+/* Valeur littérale, pas une variable CSS : un client de courriel et un
+ * moteur PDF n'ont pas de contexte de cascade, `var()` y rend transparent.
+ * À tenir manuellement en phase avec `si-forest` de lib/ds/palettes.ts. */
+const FOREST = "#16202B";
 const BODY = "#3F3F46";
 const BORDER = "#E4E4E7";
 

@@ -86,7 +86,7 @@ export default async function ComptesFiduciePage() {
   const nomClient = new Map(clients.map((c) => [c.id, clientDisplayName(c)]));
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Comptes en fidéicommis"
         description={

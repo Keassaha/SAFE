@@ -47,7 +47,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-6">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-6">
         {T("step3Title", lang)}
       </h2>
 
@@ -173,7 +173,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
           <p className="text-sm font-medium text-[var(--safe-darkest)]">
             {T("taxesApplicable", lang)}
           </p>
-          <p className="text-sm text-[var(--safe-accent)] font-semibold mt-1">{taxDisplay}</p>
+          <p className="text-sm text-[var(--safe-accent)] font-medium mt-1">{taxDisplay}</p>
           <p className="text-xs text-[var(--safe-text-muted)] mt-1">{T("taxesAuto", lang)}</p>
         </div>
       )}

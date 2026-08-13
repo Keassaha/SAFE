@@ -86,12 +86,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
             const hasPayment = percent > 0;
             const hasReminder = inv.lastReminderDay != null || inv.lastReminderSentAt != null;
             return (
-              <tr
-                key={inv.id}
-                className={`border-b border-si-line/80 transition-colors hover:bg-si-canvas ${
-                  i % 2 === 1 ? "bg-si-canvas/40" : ""
-                }`}
-              >
+              <tr key={inv.id} className={`border-b border-si-line/80 transition-colors ${ i % 2 === 1 ? "bg-si-canvas/40" : "" }`} >
                 <td className="px-4 py-3">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}

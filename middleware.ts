@@ -85,6 +85,23 @@ export default async function middleware(request: NextRequest, event: NextFetchE
   // Rediriger les utilisateurs connectés qui visitent /connexion ou /inscription vers le dashboard
   const authPages = ["/connexion", "/inscription"];
   if (authPages.includes(req.nextUrl.pathname)) {
+    /**
+     * Sauf si un layout protégé vient de nous renvoyer ici.
+     *
+     * Le rappel `jwt` révoque une session dont le compte a disparu (base
+     * réinitialisée, employé désactivé, mot de passe réinitialisé), mais le
+     * drapeau `revoked` ne redescend pas dans le cookie du navigateur. Ce
+     * middleware ne lit que le jeton brut : il le trouve déchiffrable, croit
+     * l'utilisateur connecté et le renvoie au tableau de bord, qui le renvoie
+     * au formulaire. Boucle infinie, sans porte de sortie puisque le
+     * formulaire lui-même rebondit.
+     *
+     * Le marqueur posé par le layout coupe la boucle et purge le cookie mort.
+     */
+    if (req.nextUrl.searchParams.get("session") === "expiree") {
+      const res = NextResponse.next({ request: { headers: requestHeaders } });
+      return attachSessionCookieDeletes(res);
+    }
     const secret = nextAuthSecret();
     if (secret) {
       const token = await getToken({ req, secret });

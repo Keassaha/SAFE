@@ -5,6 +5,7 @@ import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { registreChampClass } from "@/components/ui/registre";
 
 const SEARCH_PARAM = "q";
 const DEBOUNCE_MS = 400;
@@ -58,10 +59,10 @@ export function DossierSearchBar() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 min-w-0 max-w-md">
+    <form onSubmit={handleSubmit} className="min-w-0 flex-1">
       <div className="relative">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-si-muted pointer-events-none"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-si-muted"
           aria-hidden
         />
         <input
@@ -70,7 +71,7 @@ export function DossierSearchBar() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={t("searchPlaceholder")}
-          className="w-full h-10 pl-9 pr-4 rounded-lg border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none transition-all text-sm"
+          className={`w-full pl-9 pr-4 placeholder:text-si-muted ${registreChampClass}`}
           aria-label={t("searchLabel")}
         />
         {isPending && (

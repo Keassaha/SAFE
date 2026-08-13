@@ -13,7 +13,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
   const t = useTranslations("reportsUi");
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-si-ink flex items-center gap-2 tracking-tight">
+      <h3 className="text-sm font-medium text-si-ink flex items-center gap-2 tracking-tight">
         <Receipt className="w-4 h-4" aria-hidden />
         {t("taxesCollected")}
       </h3>
@@ -22,7 +22,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
           <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-1">
             {t("tpsCollected")}
           </p>
-          <p className="text-xl font-bold text-si-ink tabular-nums">
+          <p className="text-xl font-medium text-si-ink tabular-nums">
             {formatCurrency(data.tpsCollectee)}
           </p>
         </div>
@@ -30,7 +30,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
           <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-1">
             {t("tvqCollected")}
           </p>
-          <p className="text-xl font-bold text-si-ink tabular-nums">
+          <p className="text-xl font-medium text-si-ink tabular-nums">
             {formatCurrency(data.tvqCollectee)}
           </p>
         </div>
@@ -38,7 +38,7 @@ export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
           <p className="text-xs font-medium text-si-muted uppercase tracking-wider mb-1">
             {t("totalTaxes")}
           </p>
-          <p className="text-xl font-bold text-si-ink tabular-nums">
+          <p className="text-xl font-medium text-si-ink tabular-nums">
             {formatCurrency(data.total)}
           </p>
         </div>

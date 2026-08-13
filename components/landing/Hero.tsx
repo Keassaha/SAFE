@@ -14,7 +14,10 @@ const SURFACE = "#FBFCFA";
 const INK = "#141A16";
 const MUTED = "#5A665F";
 const FAINT = "#7C877F";
-const GREEN = "#12A150";
+/* L'accent de la vitrine suit désormais l'action de l'application.
+ * Il valait #12A150, un vert vif étranger à la palette, déclaré deux fois.
+ * Source unique : `si-forest` dans lib/ds/palettes.ts. */
+const GREEN = "var(--si-forest)";
 const LINE = "rgba(31,42,36,0.08)";
 
 const EASE = [0.2, 0, 0, 1] as const;
@@ -43,8 +46,8 @@ const ROWS = [
   {
     dossier: "Achat Rivière",
     statut: "Payé",
-    statutBg: "rgba(18,161,80,0.12)",
-    statutColor: "#1F6A47",
+    statutBg: "rgb(var(--si-forest-rgb) / 0.12)",
+    statutColor: "var(--si-verified)",
     aRecevoir: "0 $",
     aRecevoirColor: "#B8BDB7",
     fiducie: "8 500 $",
@@ -126,7 +129,7 @@ export function Hero() {
           className="flex items-center justify-between px-5 py-3.5"
           style={{ borderBottom: `1px solid ${LINE}` }}
         >
-          <span className="font-sans text-[14px] font-semibold" style={{ color: INK }}>
+          <span className="font-sans text-[14px] font-medium" style={{ color: INK }}>
             Dossiers actifs
           </span>
           <span className="font-sans text-[12px]" style={{ color: FAINT }}>
@@ -202,7 +205,7 @@ export function Hero() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.4, delay: 1.55, ease: EASE }}
             className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-            style={{ background: "rgba(18,161,80,0.13)" }}
+            style={{ background: "rgb(var(--si-forest-rgb) / 0.13)" }}
             aria-hidden
           >
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
@@ -217,7 +220,7 @@ export function Hero() {
           </motion.span>
           <span className="flex-1 font-sans text-[12.5px]" style={{ color: "#3A423B" }}>
             L&apos;assistant a rapproché le fidéicommis de juin.{" "}
-            <span className="font-medium" style={{ color: "#1F6A47" }}>
+            <span className="font-medium" style={{ color: "var(--si-verified)" }}>
               0 écart.
             </span>{" "}
             Vous validez.

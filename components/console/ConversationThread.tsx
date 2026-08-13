@@ -190,7 +190,7 @@ export function ConversationThread({
       {showConvert && (
         <Card>
           <form onSubmit={handleConvert} className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-si-muted">Nouveau billet</h3>
+            <h3 className="text-sm font-medium uppercase tracking-wide text-si-muted">Nouveau billet</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1 block text-xs font-medium text-si-muted">Type</label>

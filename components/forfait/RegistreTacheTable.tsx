@@ -81,7 +81,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold">{t("tableTitle")}</h3>
+          <h3 className="text-sm font-medium">{t("tableTitle")}</h3>
           {unbilledTaches.length > 0 && dossierId && (
             <div className="flex items-center gap-3">
               <span className="text-sm text-neutral-500">
@@ -126,7 +126,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
                     : "warning";
 
                   return (
-                    <tr key={task.id} className="border-b last:border-0 hover:bg-neutral-50">
+                    <tr key={task.id} className="safe-zoom-rang border-b last:border-0 ">
                       <td className="py-2 text-neutral-500 whitespace-nowrap">
                         {new Date(task.date).toLocaleDateString(dateLocale)}
                       </td>

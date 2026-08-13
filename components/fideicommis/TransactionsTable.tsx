@@ -111,7 +111,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
               </thead>
               <tbody>
                 {transactions.map((t) => (
-                  <tr key={t.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
+                  <tr key={t.id} className="safe-zoom-rang border-b border-neutral-100 ">
                     <td className="py-2 px-3">{formatDate(t.date)}</td>
                     <td className="py-2 px-3">{t.client ? clientDisplayName(t.client) : "—"}</td>
                     <td className="py-2 px-3">

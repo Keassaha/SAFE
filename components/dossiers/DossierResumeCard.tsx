@@ -80,12 +80,12 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
     >
       {/* En-tête */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-si-muted/50">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted/50">
           {t.title}
         </h2>
         {caughtUp ? (
           <span
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
             style={{ backgroundColor: ACCENT_SOFT, color: ACCENT }}
           >
             <CheckCircle2 className="h-3.5 w-3.5" aria-hidden /> {t.caughtUp}
@@ -105,26 +105,26 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
       {hasAlerts ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {resume.counts.blockingIssues > 0 ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FBEDED] px-3 py-1.5 text-[13px] font-semibold text-[#9B2C2C]">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FBEDED] px-3 py-1.5 text-[13px] font-medium text-[#9B2C2C]">
               <AlertTriangle className="h-4 w-4" aria-hidden />
               {plural(resume.counts.blockingIssues, t.blocking)}
             </span>
           ) : resume.counts.criticalMissing > 0 ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FCF3E6] px-3 py-1.5 text-[13px] font-semibold text-[#B45309]">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FCF3E6] px-3 py-1.5 text-[13px] font-medium text-[#B45309]">
               <AlertTriangle className="h-4 w-4" aria-hidden />
               {plural(resume.counts.criticalMissing, t.critical)}
             </span>
           ) : null}
 
           {resume.counts.overdueTasks > 0 ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FBEDED] px-3 py-1.5 text-[13px] font-semibold text-[#9B2C2C]">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FBEDED] px-3 py-1.5 text-[13px] font-medium text-[#9B2C2C]">
               {plural(resume.counts.overdueTasks, t.overdue)}
             </span>
           ) : null}
 
           {d && soon ? (
             <span
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium"
               style={{ backgroundColor: countdownColors.bg, color: countdownColors.fg }}
             >
               <Clock className="h-4 w-4" aria-hidden />
@@ -145,19 +145,19 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
         >
           <div className="min-w-0">
             <div
-              className="text-[11px] font-bold uppercase tracking-[0.1em]"
+              className="text-[11px] font-medium uppercase tracking-[0.1em]"
               style={{ color: ACCENT }}
             >
               {t.nextAction}
             </div>
-            <div className="mt-0.5 text-[15px] font-semibold text-si-ink">
+            <div className="mt-0.5 text-[15px] font-medium text-si-ink">
               {resume.nextAction}
             </div>
           </div>
           {nextActionHref ? (
             <Link
               href={nextActionHref}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-bold text-white"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
               style={{ backgroundColor: ACCENT }}
             >
               {t.doItNow}

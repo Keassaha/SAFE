@@ -31,7 +31,7 @@ export function AjoutEntreeChooser({ open, onClose, onChoose }: AjoutEntreeChoos
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-si-verified/10 text-si-verified group-hover:bg-si-verified/10">
             <Package className="w-5 h-5" />
           </span>
-          <span className="font-semibold text-si-ink">{t("forfaitTitle")}</span>
+          <span className="font-medium text-si-ink">{t("forfaitTitle")}</span>
           <span className="text-xs text-si-muted">{t("forfaitDesc")}</span>
         </button>
 
@@ -43,7 +43,7 @@ export function AjoutEntreeChooser({ open, onClose, onChoose }: AjoutEntreeChoos
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-si-verified/10 text-si-verified group-hover:bg-si-verified/10">
             <Clock className="w-5 h-5" />
           </span>
-          <span className="font-semibold text-si-ink">{t("horaireTitle")}</span>
+          <span className="font-medium text-si-ink">{t("horaireTitle")}</span>
           <span className="text-xs text-si-muted">{t("horaireDesc")}</span>
         </button>
       </div>

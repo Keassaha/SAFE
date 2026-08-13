@@ -122,7 +122,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
             type="button"
             disabled={isPending}
             onClick={() => run({ ids: selectedIds, action: "archive" })}
-            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-si-forest text-white hover:bg-si-forest/90 text-sm font-medium transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg safe-action-degrade text-white hover:bg-si-forest/90 text-sm font-medium transition-colors disabled:opacity-50"
           >
             <Check className="h-4 w-4" aria-hidden />
             {t("bulkArchiveConfirmYes")}

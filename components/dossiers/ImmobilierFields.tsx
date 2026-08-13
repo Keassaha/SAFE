@@ -35,7 +35,7 @@ export function ImmobilierFields({
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center gap-2 text-si-ink">
           <Home className="w-4 h-4" />
-          <h4 className="text-sm font-semibold">Real Estate — Transaction Details</h4>
+          <h4 className="text-sm font-medium">Real Estate — Transaction Details</h4>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

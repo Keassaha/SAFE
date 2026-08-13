@@ -138,7 +138,7 @@ export function LSOReportGenerator({
       {canGenerate && (
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5" />
             {copy.reportGeneratorTitle}
           </h3>
@@ -187,7 +187,7 @@ export function LSOReportGenerator({
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold">
+                <h3 className="text-lg font-medium">
                   {copy.reportStatementTitle} — {preview.cabinetName}
                 </h3>
                 <p className="text-sm text-neutral-500">
@@ -210,25 +210,25 @@ export function LSOReportGenerator({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="p-3 rounded-safe bg-neutral-50 border">
                 <p className="text-xs text-neutral-500">{copy.reportOpeningBalance}</p>
-                <p className="text-lg font-semibold tabular-nums">
+                <p className="text-lg font-medium tabular-nums">
                   {formatCurrency(preview.soldeOuverture)}
                 </p>
               </div>
               <div className="p-3 rounded-safe bg-green-50 border border-green-200">
                 <p className="text-xs text-green-600">{copy.reportTotalDeposits}</p>
-                <p className="text-lg font-semibold tabular-nums text-green-700">
+                <p className="text-lg font-medium tabular-nums text-green-700">
                   {formatCurrency(preview.totalDeposits)}
                 </p>
               </div>
               <div className="p-3 rounded-safe bg-amber-50 border border-amber-200">
                 <p className="text-xs text-amber-600">{copy.reportTotalWithdrawals}</p>
-                <p className="text-lg font-semibold tabular-nums text-amber-700">
+                <p className="text-lg font-medium tabular-nums text-amber-700">
                   {formatCurrency(preview.totalWithdrawals)}
                 </p>
               </div>
               <div className="p-3 rounded-safe bg-blue-50 border border-blue-200">
                 <p className="text-xs text-blue-600">{copy.reportClosingBalance}</p>
-                <p className="text-lg font-semibold tabular-nums text-blue-700">
+                <p className="text-lg font-medium tabular-nums text-blue-700">
                   {formatCurrency(preview.soldeFermeture)}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export function LSOReportGenerator({
             {/* Active trust accounts (Barreau annual requirement) */}
             <div className="mb-6 p-3 rounded-safe bg-neutral-50 border inline-block">
               <p className="text-xs text-neutral-500">Comptes fidéicommis actifs</p>
-              <p className="text-lg font-semibold tabular-nums">{preview.nbActiveTrustAccounts}</p>
+              <p className="text-lg font-medium tabular-nums">{preview.nbActiveTrustAccounts}</p>
             </div>
 
             {/* Annual: 12 monthly reconciliations confirmation */}
@@ -249,7 +249,7 @@ export function LSOReportGenerator({
                     : "bg-red-50 border-red-200"
                 }`}
               >
-                <h4 className="text-sm font-semibold mb-2">
+                <h4 className="text-sm font-medium mb-2">
                   Rapprochements mensuels de l&apos;exercice (12 mois)
                 </h4>
                 {preview.annualReconciliations.allCertified ? (
@@ -285,7 +285,7 @@ export function LSOReportGenerator({
             {/* Reconciliation status */}
             {preview.reconciliation && (
               <div className="mb-6 p-4 rounded-safe bg-neutral-50 border">
-                <h4 className="text-sm font-semibold mb-2">{copy.threeWayReconciliation}</h4>
+                <h4 className="text-sm font-medium mb-2">{copy.threeWayReconciliation}</h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-neutral-500">{copy.reportBankBalance}</p>
@@ -325,7 +325,7 @@ export function LSOReportGenerator({
             )}
 
             {/* Transaction journal */}
-            <h4 className="text-sm font-semibold mb-2">
+            <h4 className="text-sm font-medium mb-2">
               {copy.reportTransactionJournal(preview.nbTransactions)}
             </h4>
             <div className="overflow-x-auto max-h-96">
@@ -378,7 +378,7 @@ export function LSOReportGenerator({
       {savedReports?.reports && savedReports.reports.length > 0 && (
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">{copy.reportSavedTitle}</h3>
+            <h3 className="text-lg font-medium mb-4">{copy.reportSavedTitle}</h3>
             {certifyError && (
               <p className="mb-3 text-sm text-status-error">{certifyError}</p>
             )}

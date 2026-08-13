@@ -1,0 +1,232 @@
+[
+  {
+    "rule_id": "PF-001",
+    "title": "Composition PF",
+    "engine": "PF",
+    "authority": "414-415",
+    "research_status": "SOURCE_CONFIRMED",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-002",
+    "title": "Dettes qualifiees",
+    "engine": "PF",
+    "authority": "416-417",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-003",
+    "title": "Date et valeur marchande",
+    "engine": "PF",
+    "authority": "417",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-004",
+    "title": "Deduction bien au mariage",
+    "engine": "PF",
+    "authority": "418",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-005",
+    "title": "Apport donation/succession",
+    "engine": "PF",
+    "authority": "418",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-006",
+    "title": "Remploi",
+    "engine": "PF",
+    "authority": "418 al. 3",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-007",
+    "title": "Execution et attribution",
+    "engine": "PF",
+    "authority": "419-420",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-008",
+    "title": "Alienation/diversion",
+    "engine": "PF",
+    "authority": "421",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-009",
+    "title": "Partage inegal",
+    "engine": "PF",
+    "authority": "422",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-010",
+    "title": "Renonciation",
+    "engine": "PF",
+    "authority": "423-424",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PF-011",
+    "title": "Retraite et RRQ",
+    "engine": "PF",
+    "authority": "425-426",
+    "research_status": "EXTERNAL_VALUE_REQUIRED",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "SA-001",
+    "title": "Classification propres/acquets",
+    "engine": "SA",
+    "authority": "448-460",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "SA-002",
+    "title": "Recompenses et rapports",
+    "engine": "SA",
+    "authority": "461-480",
+    "research_status": "RESEARCH_INCOMPLETE",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "SA-003",
+    "title": "Partage masse acquets",
+    "engine": "SA",
+    "authority": "481-484",
+    "research_status": "RESEARCH_INCOMPLETE",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "ART-001",
+    "title": "Articulation PF vers SA",
+    "engine": "ORCHESTRATION",
+    "authority": "414-426; 448-484",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-001",
+    "title": "Formation union parentale",
+    "engine": "PUP",
+    "authority": "521.20-521.28",
+    "research_status": "SOURCE_CONFIRMED",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-002",
+    "title": "Composition PUP",
+    "engine": "PUP",
+    "authority": "521.29-521.30",
+    "research_status": "SOURCE_CONFIRMED",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-003",
+    "title": "Modification et retrait",
+    "engine": "PUP",
+    "authority": "521.31-521.33",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-004",
+    "title": "Valeur nette",
+    "engine": "PUP",
+    "authority": "521.34-521.35",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-005",
+    "title": "Deductions PUP",
+    "engine": "PUP",
+    "authority": "521.36",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "PUP-006",
+    "title": "Execution et pouvoirs",
+    "engine": "PUP",
+    "authority": "521.37-521.42",
+    "research_status": "HUMAN_DECISION_ONLY",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "TAX-001",
+    "title": "Transfert immobilisation",
+    "engine": "TAX",
+    "authority": "LIR 73",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  },
+  {
+    "rule_id": "TAX-002",
+    "title": "Transfert regime enregistre",
+    "engine": "TAX",
+    "authority": "LIR 146(16)",
+    "research_status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-12"
+  }
+]

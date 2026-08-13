@@ -172,14 +172,14 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
                   aria-hidden
                 />
                 <span
-                  className="text-xs font-semibold"
+                  className="text-xs font-medium"
                   style={{ color: tone.text }}
                 >
                   {stage.label}
                 </span>
               </div>
               <p
-                className="text-2xl font-bold tabular-nums"
+                className="text-2xl font-medium tabular-nums"
                 style={{ color: tone.text, letterSpacing: "-0.01em" }}
               >
                 {stage.count}

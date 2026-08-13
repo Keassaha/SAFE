@@ -152,7 +152,7 @@ export function BriefcaseSidebar({
 
   return (
     <div className="flex h-full w-full flex-col border-b border-si-line bg-si-canvas/50 p-4 lg:w-64 lg:border-b-0 lg:border-r lg:overflow-y-auto">
-      <h2 className="mb-4 text-sm font-semibold text-si-ink">{t("briefcaseTitle")}</h2>
+      <h2 className="mb-4 text-sm font-medium text-si-ink">{t("briefcaseTitle")}</h2>
 
       <nav className="space-y-1">
         {runtimeSections.map((section) => {
@@ -174,7 +174,7 @@ export function BriefcaseSidebar({
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{section.label}</span>
                 {section.items.length > 0 && (
-                  <span className="ml-auto shrink-0 rounded-full bg-si-canvas px-1.5 py-0.5 text-[10px] font-semibold text-si-muted">
+                  <span className="ml-auto shrink-0 rounded-full bg-si-canvas px-1.5 py-0.5 text-[10px] font-medium text-si-muted">
                     {section.items.length}
                   </span>
                 )}
@@ -200,7 +200,7 @@ export function BriefcaseSidebar({
                         <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-current" />
                         <span className="truncate">{item.title}</span>
                         {item.isRequired && (
-                          <span className="ml-auto shrink-0 text-xs font-semibold text-[#B84A3E]">*</span>
+                          <span className="ml-auto shrink-0 text-xs font-medium text-[#B84A3E]">*</span>
                         )}
                       </button>
                     ))

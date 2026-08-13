@@ -262,7 +262,7 @@ export default async function DossierDetailPage({
               <span className="text-si-muted/50">·</span>
               <span className="text-sm text-si-muted truncate">{clientName}</span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-si-ink sm:text-2xl">
+            <h1 className="text-xl font-medium tracking-tight text-si-ink sm:text-2xl">
               {numeroDossier} — {dossier.intitule}
             </h1>
             <div className="flex flex-wrap items-center gap-2">
@@ -272,7 +272,7 @@ export default async function DossierDetailPage({
                 </span>
               )}
               <span
-                className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold ${
+                className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium ${
                   dossier.statut === "actif" || dossier.statut === "ouvert"
                     ? "bg-emerald-50 border border-emerald-200/70 text-emerald-700"
                     : "bg-si-canvas border border-si-line/60 text-si-muted"
@@ -303,7 +303,7 @@ export default async function DossierDetailPage({
             </Link>
             <Link
               href={`${routes.dossier(id)}?edit=1`}
-              className="inline-flex items-center rounded-lg bg-si-forest px-4 py-2 text-sm font-semibold text-white hover:bg-si-forest-soft transition-colors shadow-md shadow-si-card"
+              className="inline-flex items-center rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors shadow-md shadow-si-card"
             >
               {t("editMatter")}
             </Link>
@@ -317,7 +317,7 @@ export default async function DossierDetailPage({
       {multiPartiesEnabled && dossierParties.some((p) => !p.estPrincipal) && (
         <section className="px-6 pt-5 bg-si-surface">
           <div className="rounded-2xl border border-si-line bg-si-surface p-4">
-            <h2 className="mb-3 text-sm font-semibold text-si-ink">{t("dossierPeople")}</h2>
+            <h2 className="mb-3 text-sm font-medium text-si-ink">{t("dossierPeople")}</h2>
             <ul className="space-y-2">
               {dossierParties.map((p) => {
                 const isExterne = p.nature === "partie_externe";
@@ -408,14 +408,14 @@ export default async function DossierDetailPage({
       <section className="px-6 py-5 border-b border-si-line bg-si-surface">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-sm font-semibold text-si-ink">Documents rédigés</h2>
+            <h2 className="text-sm font-medium text-si-ink">Documents rédigés</h2>
             <p className="text-xs text-si-muted mt-0.5">
               Documents créés depuis l&apos;éditeur · liés à ce dossier
             </p>
           </div>
           <Link
             href={`/edition/${id}`}
-            className="inline-flex items-center gap-1.5 rounded-md bg-si-forest hover:bg-si-forest-soft text-white px-3 py-1.5 text-xs font-medium transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md safe-action-degrade text-white px-3 py-1.5 text-xs font-medium transition-colors"
           >
             + Nouveau / Atelier
           </Link>

@@ -1,0 +1,115 @@
+{
+ "genere_le": "2026-08-12",
+ "incertitudes": [
+  {
+   "id": "U-001",
+   "objet": "Aucune jurisprudence vérifiée",
+   "importance": "critique",
+   "risque": "Les qualifications conditionnelles (résidence secondaire, véhicule mixte, société/fiducie) restent arbitraires",
+   "recherche_effectuee": "CanLII tenté, 403 sur toutes les requêtes",
+   "source_manquante": "CanLII, SOQUIJ, La Référence",
+   "professionnel": "avocat en droit de la famille",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-002",
+   "objet": "Règle de non-duplication patrimoine familial / société d'acquêts",
+   "importance": "critique",
+   "risque": "Double comptage silencieux d'un même bien dans deux régimes",
+   "recherche_effectuee": "Texte des art. 414-426 et 448-484 lu; aucune disposition unique n'énonce l'ordre des opérations",
+   "source_manquante": "doctrine, jurisprudence, pratique notariale",
+   "professionnel": "avocat, notaire",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-003",
+   "objet": "Formule d'égalisation par moitié de l'écart",
+   "importance": "critique",
+   "risque": "Le résultat central du calculateur repose sur une formule dérivée",
+   "recherche_effectuee": "art. 416 lu; énonce le partage à parts égales sans expliciter la mécanique de créance",
+   "source_manquante": "formulaire officiel de la Cour supérieure, doctrine",
+   "professionnel": "avocat",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-004",
+   "objet": "Caractère obligatoire et format des formulaires de la Cour supérieure",
+   "importance": "elevee",
+   "risque": "Le produit pourrait générer le mauvais livrable",
+   "recherche_effectuee": "Barreau de Montréal confirme l'existence des formulaires; coursuperieureduquebec.ca bloqué (403)",
+   "source_manquante": "directive de la juge en chef, fichiers .xls",
+   "professionnel": "avocat, greffe",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-005",
+   "objet": "Articulation Retraite Québec / régime d'union parentale",
+   "importance": "elevee",
+   "risque": "Conseil erroné sur le partage des gains RRQ",
+   "recherche_effectuee": "Pages Retraite Québec lues; elles énoncent que les conjoints de fait ne sont pas touchés par le patrimoine familial",
+   "source_manquante": "position à jour de Retraite Québec post-30 juin 2025",
+   "professionnel": "Retraite Québec",
+   "bloque_developpement": false
+  },
+  {
+   "id": "U-006",
+   "objet": "Fiscalité (impôt latent, roulement, résidence principale)",
+   "importance": "critique",
+   "risque": "Écart entre valeur partagée et valeur réellement reçue",
+   "recherche_effectuee": "repérage du T2220 uniquement",
+   "source_manquante": "LIR, Loi sur les impôts (QC), folios ARC, Revenu Québec",
+   "professionnel": "fiscaliste, CPA",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-007",
+   "objet": "Calcul des récompenses en société d'acquêts",
+   "importance": "elevee",
+   "risque": "Moteur acquêts incomplet",
+   "recherche_effectuee": "art. 478, 480, 481 lus; art. 475-477 non modélisés",
+   "source_manquante": "doctrine notariale",
+   "professionnel": "notaire",
+   "bloque_developpement": true
+  },
+  {
+   "id": "U-008",
+   "objet": "Résidence détenue par une société ou une fiducie",
+   "importance": "moyenne",
+   "risque": "Faux négatifs sur des patrimoines importants",
+   "recherche_effectuee": "art. 415 lu: vise le bien dont un époux est propriétaire",
+   "source_manquante": "jurisprudence",
+   "professionnel": "avocat, fiscaliste",
+   "bloque_developpement": false
+  },
+  {
+   "id": "U-009",
+   "objet": "Biens hors Québec, conflits de lois",
+   "importance": "moyenne",
+   "risque": "Périmètre mal fermé",
+   "recherche_effectuee": "aucune",
+   "source_manquante": "Livre dixième C.c.Q., doctrine",
+   "professionnel": "avocat",
+   "bloque_developpement": false
+  },
+  {
+   "id": "U-010",
+   "objet": "Modifications législatives postérieures au 1er avril 2026",
+   "importance": "moyenne",
+   "risque": "Droit périmé",
+   "recherche_effectuee": "consolidation officielle datée du 1er avril 2026",
+   "source_manquante": "lois annuelles 2026 postérieures",
+   "professionnel": "avocat",
+   "bloque_developpement": false
+  },
+  {
+   "id": "U-011",
+   "objet": "Couverture réelle des concurrents (union parentale, acquêts)",
+   "importance": "elevee",
+   "risque": "Positionnement fondé sur une fenêtre de marché inexistante",
+   "recherche_effectuee": "sites officiels lus; contradiction avec un catalogue de formation annonçant JuriFamille 2.0 sur les trois régimes",
+   "source_manquante": "démonstration produit, documentation utilisateur",
+   "professionnel": "—",
+   "bloque_developpement": false
+  }
+ ]
+}

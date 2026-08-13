@@ -27,7 +27,7 @@ export default async function MesHeuresPage() {
   // Aucune fiche employé liée (ex. compte avocate/admin sans fiche) → message clair.
   if (!employee) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6">
         <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
         <DigestPreferenceToggle enabled={digestEnabled} />
         <EmptyState title={t("noEmployeeTitle")} description={t("noEmployeeBody")} />
@@ -67,7 +67,7 @@ export default async function MesHeuresPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
       <MyHoursPanel data={data} matters={matters} locale={locale} today={today} />
       <DigestPreferenceToggle enabled={digestEnabled} />

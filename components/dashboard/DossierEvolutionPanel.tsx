@@ -66,7 +66,7 @@ function DossierCard({ dossier, locale }: { dossier: DossierEvolutionItem; local
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
+          <h4 className="text-sm font-medium text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
             {dossier.intitule}
           </h4>
           <p className="text-xs text-gray-500 truncate mt-0.5">{dossier.clientName}</p>
@@ -78,7 +78,7 @@ function DossierCard({ dossier, locale }: { dossier: DossierEvolutionItem; local
         <div className="mb-3">
           <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
             <span>{t("progress")}</span>
-            <span className="font-semibold text-[var(--safe-text-title)]">{progress}%</span>
+            <span className="font-medium text-[var(--safe-text-title)]">{progress}%</span>
           </div>
           <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
@@ -154,10 +154,10 @@ function BoardView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; loc
         return (
           <div key={col.key}>
             <div className="flex items-center gap-2 mb-3">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <h4 className="text-xs font-medium uppercase tracking-wider text-gray-400">
                 {col.label}
               </h4>
-              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
                 {items.length}
               </span>
             </div>
@@ -199,7 +199,7 @@ function TimelineView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; 
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-semibold text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
+                      <h4 className="text-sm font-medium text-[var(--safe-text-title)] truncate group-hover:text-emerald-800 transition-colors tracking-tight">
                         {d.intitule}
                       </h4>
                     </div>
@@ -245,7 +245,7 @@ function TimelineView({ dossiers, locale }: { dossiers: DossierEvolutionItem[]; 
                             strokeDasharray={`${progress}, 100`}
                           />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[var(--safe-text-title)]">
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-[var(--safe-text-title)]">
                           {progress}%
                         </span>
                       </div>
@@ -277,10 +277,10 @@ export function DossierEvolutionPanel({ dossiers }: Props) {
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">
           <Layers className="w-5 h-5 text-emerald-600" />
-          <h3 className="text-sm font-semibold safe-text-title tracking-tight">
+          <h3 className="text-sm font-medium safe-text-title tracking-tight">
             {t("matterProgression")}
           </h3>
-          <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+          <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
             {dossiers.length}
           </span>
         </div>

@@ -27,7 +27,7 @@ export function Footer() {
               href="/"
               className="inline-flex items-center gap-2 mb-6 group transition-transform duration-300 hover:scale-[1.02]"
             >
-              <SafeLogo size={19} tone="mono-light" />
+              <SafeLogo size={19} tone="dark" />
             </Link>
             <p className="text-sm text-[var(--safe-text-muted)] leading-relaxed max-w-xs font-sans">
               Facturation, fidéicommis et conformité au Barreau, automatisés.
@@ -37,7 +37,7 @@ export function Footer() {
 
           {/* Produit */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
+            <h4 className="text-sm font-medium text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
               Produit
             </h4>
             <ul className="space-y-3.5">
@@ -67,7 +67,7 @@ export function Footer() {
 
           {/* Légal & Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
+            <h4 className="text-sm font-medium text-[var(--safe-white)] uppercase tracking-wider mb-6 font-sans">
               Légal & Contact
             </h4>
             <ul className="space-y-3.5">

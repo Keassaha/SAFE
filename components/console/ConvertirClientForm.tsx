@@ -118,7 +118,7 @@ export function ConvertirClientForm({
       </section>
 
       <section className="rounded-xl border border-si-line bg-si-canvas px-6 py-5">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-si-muted">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
           Ce qui sera créé
         </h2>
         <ul className="mt-3 space-y-1.5 text-sm text-si-ink">

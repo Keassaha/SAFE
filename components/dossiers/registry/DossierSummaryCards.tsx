@@ -106,7 +106,7 @@ export function DossierSummaryCards({
         <motion.div
           key={title}
           variants={itemVariants}
-          className="bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out hover:shadow-si-card hover:-translate-y-0.5"
+          className="safe-zoom bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">

@@ -80,7 +80,7 @@ export function NewLeadForm() {
 
       {/* Identité */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-si-muted">
           Identité
         </h2>
         <div>
@@ -134,7 +134,7 @@ export function NewLeadForm() {
 
       {/* Caractéristiques */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-si-muted">
           Caractéristiques du cabinet
         </h2>
         <div className="grid grid-cols-2 gap-4">
@@ -197,7 +197,7 @@ export function NewLeadForm() {
 
       {/* Acquisition */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-si-muted">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-si-muted">
           Acquisition
         </h2>
         <div>

@@ -275,7 +275,7 @@ export default async function InspectionPage() {
   const alertesGraves = visibles.filter((p) => p.alerte?.grave).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Inspection"
         description={

@@ -7,6 +7,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { PaletteStyles } from "@/components/ds/PaletteStyles";
 
 import { authOptions } from "@/lib/auth";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
@@ -78,7 +79,11 @@ export default async function RootLayout({
       lang={locale}
       className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
     >
-      <body className="min-h-screen font-sans bg-slate-50 text-slate-800 antialiased selection:bg-forest-100 selection:text-forest-600">
+      {/* Le fond de secours du document suit le canevas de la palette. Il servait
+          un blanc chaud sous une interface froide, visible partout où une page
+          ne peint pas son propre fond. */}
+      <body className="min-h-screen bg-canvas font-sans text-text-body antialiased selection:bg-si-forest/15 selection:text-si-forest">
+        <PaletteStyles />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider session={session ?? null}>
             <MotionProvider>{children}</MotionProvider>

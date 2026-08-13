@@ -51,10 +51,10 @@ export function PreviewTable({
         <table className="w-full text-left">
           <thead className="table-header sticky top-0 z-10">
             <tr>
-              <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider">#</th>
-              <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider">{t("statusHeader")}</th>
+              <th className="px-3 py-2 text-xs font-medium uppercase tracking-wider">#</th>
+              <th className="px-3 py-2 text-xs font-medium uppercase tracking-wider">{t("statusHeader")}</th>
               {fields.map((f) => (
-                <th key={f} className="px-3 py-2 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
+                <th key={f} className="px-3 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap">
                   {fieldLabels[f]}
                 </th>
               ))}
@@ -88,7 +88,7 @@ export function PreviewTable({
                       )}
                       {showSummaryBadge && row.isSummaryRow && (
                         <span
-                          className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--safe-neutral-bg)] safe-text-secondary"
+                          className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-[var(--safe-neutral-bg)] safe-text-secondary"
                           title="Ligne de total / sous-total / report — exclue de l'écriture"
                         >
                           synthèse
@@ -96,7 +96,7 @@ export function PreviewTable({
                       )}
                       {showSummaryBadge && row.warnings.some((w) => w.startsWith("Doublon")) && (
                         <span
-                          className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--safe-status-warning-bg)] text-[var(--safe-status-warning)]"
+                          className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-[var(--safe-status-warning-bg)] text-[var(--safe-status-warning)]"
                           title="Doublon probable dans le lot"
                         >
                           doublon

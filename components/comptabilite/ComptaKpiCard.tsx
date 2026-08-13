@@ -59,7 +59,7 @@ export function ComptaKpiCard({
     <motion.div
       variants={reduceMotion ? staggerItemReduced : staggerItem}
       whileHover={{ y: -1, boxShadow: "0 8px 24px rgba(26,46,40,0.10)" }}
-      className={`bg-si-surface border-[0.5px] border-si-line rounded-2xl p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
+      className={`safe-carte-chiffre bg-si-surface border-[0.5px] border-si-line rounded-2xl p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
     >
       {/* Top row */}
       <div className="flex items-start justify-between gap-2">
@@ -72,7 +72,7 @@ export function ComptaKpiCard({
       </div>
 
       {/* Value */}
-      <div className={`mt-3 font-mono text-[24px] font-semibold tabular-nums leading-none ${styles.valueColor}`}>
+      <div className={`safe-chiffre mt-3 font-mono font-medium tabular-nums ${styles.valueColor}`}>
         {animated ? (
           format === "currency" ? (
             <AnimatedNumber value={value} decimals={2} suffix={"\u00a0$"} />

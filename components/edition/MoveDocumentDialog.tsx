@@ -80,7 +80,7 @@ export function MoveDocumentDialog({
               <FolderOpen className="w-4 h-4 text-[var(--safe-primary)]" />
             </div>
             <div>
-              <p className="font-semibold text-[var(--safe-text-title)] text-sm">{t("moveDocumentTitle")}</p>
+              <p className="font-medium text-[var(--safe-text-title)] text-sm">{t("moveDocumentTitle")}</p>
               <p className="text-xs text-[var(--safe-text-secondary)] truncate max-w-[240px]">{documentTitre}</p>
             </div>
           </div>

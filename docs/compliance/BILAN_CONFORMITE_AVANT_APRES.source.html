@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>SAFE — Bilan de conformité, avant et après</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   Système à DEUX COULEURS du rapport d'audit (décision CEO 2026-07-28).
+   Repris tel quel depuis components/audit-report/theme.ts.
+
+     1. Vert forêt #163B2E — texte, filets, aplats. Toutes ses nuances viennent
+        de l'OPACITÉ sur le papier, jamais d'une nouvelle teinte.
+     2. Or #A9772A — réservé à ce qui porte une décision : numéro de section,
+        chiffre d'arrivée, jauge de gravité. Rien d'autre.
+
+   Interdits par la refonte, donc absents ici : rouge, terracotta, ambre pâle,
+   fonds de pastilles de risque, dégradés, ombres portées, icônes décoratives.
+
+   GRAVITÉ SANS CODE COULEUR : les domaines portent leur libellé écrit et une
+   jauge à quatre crans. La couleur ne dit jamais la sévérité.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --forest: #163B2E;
+  --forest-deep: #102A21;
+
+  --ink: #12281F;                        /* titres et valeurs */
+  --ink-body: rgba(22, 59, 46, 0.78);    /* texte courant */
+  --ink-muted: rgba(22, 59, 46, 0.62);   /* libellés, entêtes de colonnes */
+  --ink-faint: rgba(22, 59, 46, 0.50);   /* pagination, sources */
+
+  --on-forest: #EDF2EE;
+  --on-forest-muted: rgba(237, 242, 238, 0.68);
+  --on-forest-faint: rgba(237, 242, 238, 0.45);
+
+  --gold: #A9772A;
+  --gold-on-forest: #D9AF63;
+
+  --paper: #FFFFFF;
+  --fill: rgba(22, 59, 46, 0.04);
+  --fill-strong: rgba(22, 59, 46, 0.08);
+  --line: rgba(22, 59, 46, 0.16);
+  --line-soft: rgba(22, 59, 46, 0.09);
+  --line-on-forest: rgba(237, 242, 238, 0.18);
+
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: "Geist Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@page { size: A4; margin: 16mm; }
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-body);
+  background: var(--paper);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Étiquette mono, or : numéro et nom de section ────────────────────── */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+.eyebrow-muted { color: var(--ink-muted); }
+
+/* ── Titres : serif, graisse normale. Jamais de gras appuyé ──────────── */
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; color: var(--ink); margin: 0; }
+h1 { font-size: 34px; line-height: 1.12; letter-spacing: -0.005em; }
+h2 { font-size: 23px; line-height: 1.15; }
+h3 { font-size: 15px; line-height: 1.25; }
+em { font-style: italic; color: var(--forest); }
+
+p { margin: 0 0 9px; max-width: 640px; }
+.lede { font-size: 11.5px; line-height: 1.6; color: var(--ink-body); max-width: 560px; }
+.faint { color: var(--ink-faint); font-size: 9.5px; }
+
+/* ── Couverture : alignée à gauche. On lit un document, pas une affiche ── */
+.cover { page-break-after: always; display: flex; flex-direction: column; min-height: 245mm; }
+.cover-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.wordmark { display: flex; align-items: center; gap: 10px; color: var(--forest); }
+.wordmark .mot {
+  font-family: var(--serif);
+  font-size: 23px;          /* 20 × 1,15 — verrou de marque, IDENTITE_SAFE.md §4.4 */
+  letter-spacing: 0.015em;
+  line-height: 1;
+  color: var(--ink);
+}
+.cover-ref {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  text-align: right;
+  line-height: 1.7;
+  margin: 0;
+}
+/* Le vide est concentré AU-DESSUS du titre plutôt que réparti : une
+   respiration franche vaut mieux que deux trous. */
+.cover-title { max-width: 620px; margin-top: auto; }
+.cover-title h1 { margin-bottom: 14px; }
+.cover-sommaire { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line); }
+.cover-sommaire ol { list-style: none; margin: 0; padding: 0; column-count: 2; column-gap: 28px; }
+.cover-sommaire li {
+  display: flex; gap: 10px; padding: 3px 0; font-size: 10px; color: var(--ink-body);
+  break-inside: avoid;
+}
+.cover-sommaire .num { font-family: var(--mono); font-size: 8.5px; color: var(--gold); padding-top: 1px; }
+
+/* ── Sections ─────────────────────────────────────────────────────────── */
+section { page-break-inside: auto; }
+.section-head { margin: 26px 0 12px; page-break-after: avoid; }
+.section-head:first-of-type { margin-top: 0; }
+
+/* ── Bandeau de chiffres clés ─────────────────────────────────────────── */
+.chiffres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 14px 0 18px;
+  border-top: 1px solid var(--forest); border-bottom: 1px solid var(--line); }
+.chiffre { padding: 12px 14px 13px; border-right: 1px solid var(--line-soft); }
+.chiffre:last-child { border-right: none; }
+.chiffre .etiquette {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-muted); line-height: 1.5; margin-bottom: 7px; display: block;
+}
+.chiffre .valeur { font-family: var(--serif); font-size: 30px; line-height: 1; color: var(--gold); }
+.chiffre .depart { font-family: var(--sans); font-size: 12px; color: var(--ink-faint); }
+.chiffre .precision { font-size: 9px; color: var(--ink-faint); line-height: 1.45; margin-top: 6px; }
+
+/* ── Tableaux : filets horizontaux seulement ──────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin: 10px 0 16px; }
+thead th {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-muted); font-weight: 500; text-align: left; vertical-align: bottom;
+  padding: 0 10px 6px 0; border-bottom: 1px solid var(--forest);
+}
+thead th:last-child { padding-right: 0; }
+thead { display: table-header-group; }
+tbody tr { page-break-inside: avoid; }
+tbody td {
+  padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line-soft);
+  vertical-align: top; line-height: 1.5;
+}
+tbody td:last-child { padding-right: 0; }
+.art { font-family: var(--mono); font-size: 8.5px; color: var(--ink); white-space: nowrap; letter-spacing: 0.02em; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.avant { color: var(--ink-muted); }
+.apres { color: var(--ink); }
+.valeur-cle { color: var(--gold); }
+
+/* ── Jauge de gravité : quatre crans, pas de code couleur ─────────────── */
+.gravite { white-space: nowrap; }
+.gravite .mot {
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-muted); display: block; margin-bottom: 4px;
+}
+.jauge { display: flex; gap: 2px; }
+.cran { width: 9px; height: 3px; background: var(--line); }
+.cran.plein { background: var(--gold); }
+
+/* ── Aplat vert : un seul par document, pour la conclusion ────────────── */
+.aplat {
+  background: var(--forest); color: var(--on-forest);
+  padding: 18px 22px; margin: 18px 0; page-break-inside: avoid;
+}
+.aplat h3 { color: var(--on-forest); }
+.aplat p { color: var(--on-forest-muted); max-width: 100%; }
+.aplat p:last-child { margin-bottom: 0; }
+.aplat strong { color: var(--on-forest); font-weight: 500; }
+.aplat .eyebrow { color: var(--gold-on-forest); }
+
+/* ── Encadré léger : remplissage à 4 %, jamais une teinte nouvelle ────── */
+.encadre {
+  background: var(--fill); padding: 14px 18px; margin: 14px 0;
+  border-left: 2px solid var(--gold); page-break-inside: avoid;
+}
+.encadre h3 { margin-bottom: 6px; }
+.encadre p:last-child { margin-bottom: 0; }
+
+.citation {
+  font-family: var(--serif); font-size: 14px; line-height: 1.45; color: var(--ink);
+  max-width: 560px; margin: 0 0 8px;
+}
+
+.saut { page-break-before: always; }
+
+footer {
+  margin-top: 22px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 9px; color: var(--ink-faint); line-height: 1.55;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ COUVERTURE ═══════════════ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="wordmark"><!--SAFE_MARK--><span class="mot">SAFE</span></div>
+    <p class="cover-ref">
+      Réf. CONF-2026-08-10<br>
+      10 août 2026<br>
+      Document public
+    </p>
+  </div>
+
+  <div class="cover-title">
+    <p class="eyebrow">Bilan de conformité réglementaire</p>
+    <h1>Ce que SAFE ne pouvait pas produire,<br>et ce qu'il produit <em>aujourd'hui</em></h1>
+    <p class="lede">
+      Le 30 juillet 2026, nous avons demandé un audit à charge de notre propre logiciel,
+      contre trois règlements lus intégralement. Résultat : 45 sur 100, et l'incapacité de
+      produire le document central d'une inspection. Ce bilan met côte à côte l'état d'alors
+      et celui d'aujourd'hui, obligation par obligation, avec son article en regard.
+    </p>
+  </div>
+
+  <div class="cover-sommaire">
+    <p class="eyebrow eyebrow-muted">Ce que contient ce document</p>
+    <ol>
+      <li><span class="num">01</span><span>Le résultat en quatre chiffres</span></li>
+      <li><span class="num">02</span><span>Les cinq défauts qui commandaient le reste</span></li>
+      <li><span class="num">03</span><span>Avant et après, domaine par domaine</span></li>
+      <li><span class="num">04</span><span>La progression, chantier par chantier</span></li>
+      <li><span class="num">05</span><span>Ce qui reste ouvert</span></li>
+      <li><span class="num">06</span><span>Ce que nous ne prétendons pas</span></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════ 01 ═══════════════ -->
+<section>
+  <div class="section-head">
+    <p class="eyebrow">01 — Le résultat</p>
+    <h2>Quatre chiffres, et ce qu'ils recouvrent</h2>
+  </div>
+
+  <div class="chiffres">
+    <div class="chiffre">
+      <span class="etiquette">Couverture Québec</span>
+      <span class="depart">48 →</span> <span class="valeur">100</span>
+      <p class="precision">Obligations relevées de B-1, r. 5</p>
+    </div>
+    <div class="chiffre">
+      <span class="etiquette">Couverture Ontario</span>
+      <span class="depart">42 →</span> <span class="valeur">99</span>
+      <p class="precision">By-Law 9 et By-Law 7.1 partie III</p>
+    </div>
+    <div class="chiffre">
+      <span class="etiquette">Obligations absentes</span>
+      <span class="depart">71 →</span> <span class="valeur">3</span>
+      <p class="precision">Les trois restantes sont assumées, section 05</p>
+    </div>
+    <div class="chiffre">
+      <span class="etiquette">Documents d'inspection produisibles</span>
+      <span class="depart">2 →</span> <span class="valeur">19</span>
+      <p class="precision">Sur les 25 qu'un inspecteur demande</p>
+    </div>
+  </div>
+
+  <p>
+    Au départ, sur <strong>105 obligations</strong> cartographiées, chacune avec son article :
+    8 couvertes, 26 partielles, <strong>71 absentes</strong>. Parmi elles, 27 sont cotées
+    critiques et 43 majeures. Une obligation critique est celle dont le manquement se
+    sanctionne, pas celle qui gêne.
+  </p>
+
+  <div class="encadre">
+    <h3>La phrase qui a déclenché le chantier</h3>
+    <p class="citation">
+      « SAFE possède un moteur comptable fidéicommis solide, mais ne peut produire aucun des
+      deux livrables réglementaires qui font l'objet de l'inspection. Un inspecteur qui arrive
+      demain repart avec un constat. »
+    </p>
+    <p class="faint">Audit du 30 juillet 2026, section 1.1.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ 02 ═══════════════ -->
+<section>
+  <div class="section-head">
+    <p class="eyebrow">02 — Les défauts critiques</p>
+    <h2>Cinq points commandaient tout le reste</h2>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:23%">Le défaut, au 30 juillet</th>
+        <th style="width:12%">La loi</th>
+        <th style="width:10%">Gravité</th>
+        <th style="width:27%">Pourquoi cela compte</th>
+        <th style="width:28%">Aujourd'hui</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="avant">Le rapport comptable mensuel n'était pas produisible. Les chèques en circulation étaient <em>deux nombres saisis à la main</em>, sans aucune ligne.</td>
+        <td class="art">QC art. 41<br>ON s. 18(8)</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">C'est la première pièce qu'un inspecteur demande. Sept blocs, dont quatre listes ligne par ligne.</td>
+        <td class="apres">Produit et certifiable, avec ses sept blocs et ses listes complètes. La certification reste bloquée tant qu'un écart n'est pas expliqué.</td>
+      </tr>
+      <tr>
+        <td class="avant">SAFE ne modélisait pas le compte bancaire. Un cabinet à deux comptes mélangeait deux banques dans un seul écart.</td>
+        <td class="art">QC art. 36<br>ON s. 7(5)</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">L'article 36 impose des livres distincts par compte général. Le rapprochement était faux par construction.</td>
+        <td class="apres">Compte bancaire modélisé et déclarable à l'écran, avec ses comptes particuliers et ses comptes fermés conservés.</td>
+      </tr>
+      <tr>
+        <td class="avant">Un retrait pouvait payer une <em>facture encore au brouillon</em>.</td>
+        <td class="art">QC art. 56(2)<br>ON s. 9(1)3</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Le texte n'autorise le retrait que pour une facturation envoyée. C'est le scénario type du détournement involontaire.</td>
+        <td class="apres">Retrait bloqué tant que la transmission n'est pas consignée. Une porte de sortie existe pour les factures postées ou remises en main propre, marquée comme déclaration et jamais comme preuve.</td>
+      </tr>
+      <tr>
+        <td class="avant">La règle des espèces bloquait ce qui est permis et laissait passer ce qui est interdit. Trois dépôts de 3 000 $ passaient.</td>
+        <td class="art">QC art. 69-73<br>ON s. 4(1), 6</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">L'agrégation par dossier de la s. 4(1) était ignorée, et les six exceptions n'étaient pas modélisées.</td>
+        <td class="apres">Seuil agrégé par dossier, six exceptions modélisées, reçu en double, déclaration au directeur dans les 30 jours, remboursement en espèces.</td>
+      </tr>
+      <tr>
+        <td class="avant">Le <em>retrait en espèces</em> était proposé dans l'interface.</td>
+        <td class="art">QC art. 57</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">L'article l'interdit formellement, sous la seule réserve de l'article 72.</td>
+        <td class="apres">Retiré de l'interface et bloqué au service.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════ 03 ═══════════════ -->
+<section class="saut">
+  <div class="section-head">
+    <p class="eyebrow">03 — Avant et après</p>
+    <h2>Domaine par domaine, avec son article</h2>
+    <p class="lede">
+      La gravité se lit à la jauge et au mot écrit, jamais à une couleur. Quatre crans pour
+      une obligation critique, trois pour une obligation majeure, deux pour un écart de tenue.
+    </p>
+  </div>
+
+  <h3>Québec — Règlement sur la comptabilité et les normes d'exercice professionnel des avocats</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:9%">Articles</th>
+        <th style="width:20%">Domaine</th>
+        <th style="width:10%">Gravité</th>
+        <th style="width:29%">Au 30 juillet</th>
+        <th style="width:32%">Au 10 août</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="art">7 à 19</td>
+        <td class="apres">Tenue des dossiers, prescriptions, originaux du client</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Calendrier sans délai de prescription typé. Aucune liste des dossiers fermés sur sept ans. Aucune notion d'original appartenant au client.</td>
+        <td class="apres">Échéances qualifiées par nature, prescription dépassée signalée en permanence. Liste des dossiers fermés produite. Original du client protégé, avec les deux portes de sortie de l'article 19.</td>
+      </tr>
+      <tr>
+        <td class="art">20 à 27</td>
+        <td class="apres">Vérification d'identité du client</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">La vérification existait mais n'était <em>jamais déclenchée</em> par un mouvement de fonds. Aucun blocage. Aucun registre des détenteurs de 25 % et plus.</td>
+        <td class="apres">Vérification déclenchée par le mouvement de fonds, avec interrupteur daté. Bénéficiaires effectifs, exemptions et attestation de répondant modélisés.</td>
+      </tr>
+      <tr>
+        <td class="art">28 à 34</td>
+        <td class="apres">Conservation, accès de l'inspecteur, forme des registres</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Aucun mode d'accès inspecteur. Aucun export de registre équivalent au papier. Aucune rétention appliquée aux registres comptables eux-mêmes.</td>
+        <td class="apres">Durées de conservation par catégorie avec leur article, registre des accès accordés, et neuf registres imprimables à tout moment.</td>
+      </tr>
+      <tr>
+        <td class="art">35 à 42</td>
+        <td class="apres">Comptabilité en fidéicommis, rapports mensuel et annuel</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Rapport mensuel non produisible. Rapport annuel absent. Pas de livres distincts par compte.</td>
+        <td class="apres">Les deux rapports produits et certifiables. L'annuel porte ses deux blocs propres : les totaux de chaque mois, et les comptes fermés durant la période.</td>
+      </tr>
+      <tr>
+        <td class="art">43 à 46</td>
+        <td class="apres">Autres biens détenus en fidéicommis</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Bloc entièrement absent. Testaments, titres, actes notariés, clés : rien n'était registré.</td>
+        <td class="apres">Registre complet, avec le lieu de garde, son historique, et l'avis au client à chaque changement d'emplacement.</td>
+      </tr>
+      <tr>
+        <td class="art">47 à 61</td>
+        <td class="apres">Réception et retrait d'argent, registre des chèques</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Retrait sur facture au brouillon. Retrait en espèces offert. Aucun registre des chèques ni numérotation consécutive.</td>
+        <td class="apres">Retrait conditionné à la transmission. Espèces bloquées. Registre des chèques avec numérotation sans trou et détection des chèques périmés.</td>
+      </tr>
+      <tr>
+        <td class="art">62 à 68</td>
+        <td class="apres">Comptes particuliers en fidéicommis</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Notion absente.</td>
+        <td class="apres">Compte particulier déclarable et rattaché à son client, avec la remise du formulaire au client et le virement du solde au compte général à la fermeture.</td>
+      </tr>
+      <tr>
+        <td class="art">69 à 73</td>
+        <td class="apres">Montants en espèces</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Règle fausse dans les deux sens. Aucun reçu, aucune déclaration, aucune conversion de devise.</td>
+        <td class="apres">Chaîne complète : seuil agrégé, exceptions, reçu en double signé, déclaration dans les 30 jours, conversion au taux de midi de la Banque du Canada.</td>
+      </tr>
+      <tr>
+        <td class="art">74 à 82</td>
+        <td class="apres">Cessation d'exercice</td>
+        <td class="gravite"><span class="mot">Modéré</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i><i class="cran"></i></span></td>
+        <td class="avant">Absent.</td>
+        <td class="apres">Cessionnaire désigné, obligation rappelée à froid, et les trois devoirs du jour venu listés pour qu'ils ne se découvrent pas ce jour-là.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:22px">Ontario — By-Law 9 et By-Law 7.1, partie III</h3>
+
+  <div class="encadre">
+    <h3>Une correction de périmètre qui aurait tout fait manquer</h3>
+    <p>
+      L'audit initial cherchait les règles d'identification du client dans le By-Law 9.
+      <strong>Elles n'y sont pas.</strong> Elles vivent dans un règlement distinct, le
+      By-Law 7.1, partie III. Sans cette correction, tout le volet ontarien de
+      l'identification aurait été déclaré conforme alors qu'il n'était pas même cartographié.
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:9%">Sections</th>
+        <th style="width:20%">Domaine</th>
+        <th style="width:10%">Gravité</th>
+        <th style="width:29%">Au 30 juillet</th>
+        <th style="width:32%">Au 10 août</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="art">s. 4, 6, 19</td>
+        <td class="apres">Espèces et agrégation par dossier</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">L'agrégation de la s. 4(1) était ignorée : trois dépôts de 3 000 $ sur un même dossier passaient sans alerte.</td>
+        <td class="apres">Agrégation appliquée par dossier, exceptions modélisées, déclaration produite.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 7, 8</td>
+        <td class="apres">Comptes en fiducie, plusieurs comptes admis</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Un seul compte implicite.</td>
+        <td class="apres">Plusieurs comptes déclarables, chacun avec ses propres livres.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 9(1)3</td>
+        <td class="apres">Retrait pour une facturation délivrée</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Le statut de la facture n'était jamais vérifié.</td>
+        <td class="apres">Transmission exigée, avec sa porte de sortie déclarée.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 11</td>
+        <td class="apres">Registre des chèques</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Absent.</td>
+        <td class="apres">Registre complet, numérotation consécutive vérifiée.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 12</td>
+        <td class="apres">Virements électroniques : Form 9A, double contrôle, contresignature</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Entièrement absent. C'est l'appareil le plus lourd du régime ontarien.</td>
+        <td class="apres">Réquisition Form 9A signée avant toute saisie, double contrôle à deux personnes, confirmation à six éléments, contresignature au jour bancaire suivant. <strong>Fermé aux cabinets québécois</strong>, parce que B-1 r. 5 n'a aucun équivalent.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 18(1) à (11)</td>
+        <td class="apres">Onze registres obligatoires</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Objet, payeur et bénéficiaire absents des écritures. Aucun registre des autres biens. Aucun journal des virements entre cartes-clients.</td>
+        <td class="apres">Les onze champs portés par l'écriture, et les registres correspondants imprimables.</td>
+      </tr>
+      <tr>
+        <td class="art">s. 21 à 23</td>
+        <td class="apres">Conservation, six ans et dix ans</td>
+        <td class="gravite"><span class="mot">Majeur</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran"></i></span></td>
+        <td class="avant">Aucune distinction entre les durées.</td>
+        <td class="apres">Les sept paragraphes qui valent dix ans sont écrits tels quels, jamais résumés en « registres importants ».</td>
+      </tr>
+      <tr>
+        <td class="art">By-Law 7.1<br>s. 20 à 24</td>
+        <td class="apres">Identification et vérification du client</td>
+        <td class="gravite"><span class="mot">Critique</span><span class="jauge"><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i><i class="cran plein"></i></span></td>
+        <td class="avant">Cherché dans le mauvais règlement, donc non cartographié.</td>
+        <td class="apres">Régime ontarien distinct du québécois, modélisé séparément.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════ 04 ═══════════════ -->
+<section>
+  <div class="section-head">
+    <p class="eyebrow">04 — La progression</p>
+    <h2>Treize chantiers, chacun avec ses tests</h2>
+    <p class="lede">
+      Du 30 juillet au 4 août. Chaque étape ferme un bloc d'articles. Aucun score n'a été
+      relevé sans que le code correspondant soit écrit et couvert.
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36%">Étape</th>
+        <th style="width:16%">Ce qu'elle ferme</th>
+        <th class="num" style="width:16%">Québec</th>
+        <th class="num" style="width:16%">Ontario</th>
+        <th class="num" style="width:16%">Global</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="avant">Audit initial</td><td class="art">—</td>
+        <td class="num avant">48</td><td class="num avant">42</td><td class="num avant">45</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-00 à CH-07 · garde-fous, identité, comptes, journal, rapport mensuel, registres, espèces, Ontario</td>
+        <td class="art">Le socle</td>
+        <td class="num apres">93</td><td class="num apres">92</td><td class="num apres">93</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-08 · autres biens en fidéicommis</td>
+        <td class="art">art. 43-46<br>s. 18(9)</td>
+        <td class="num apres">96</td><td class="num apres">95</td><td class="num apres">96</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-09 · rapport comptable annuel</td>
+        <td class="art">art. 42</td>
+        <td class="num apres">98</td><td class="num apres">95</td><td class="num apres">97</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-10 · solde débiteur et intérêts</td>
+        <td class="art">art. 59-60<br>s. 9(3), 14</td>
+        <td class="num apres">99</td><td class="num apres">97</td><td class="num apres">98</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-11 · conservation et accès d'inspection</td>
+        <td class="art">art. 29-33<br>s. 21-23</td>
+        <td class="num apres">99</td><td class="num apres">99</td><td class="num apres">99</td>
+      </tr>
+      <tr>
+        <td class="apres">CH-12 et CH-13 · cycle de vie du cabinet, transmission de facture</td>
+        <td class="art">art. 7, 9, 19, 78<br>art. 56(2)</td>
+        <td class="num valeur-cle">100</td><td class="num valeur-cle">99</td><td class="num valeur-cle">99</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="encadre">
+    <h3>Puis un retournement, le 3 août</h3>
+    <p>
+      Le moteur était complet, et un cabinet ne voyait presque rien. Sur les 25 documents
+      qu'un inspecteur demande, six seulement étaient produisibles : les seize autres
+      existaient en base, testés, et hors de portée de l'avocate.
+    </p>
+    <p>
+      Douze écrans ont été construits entre le 4 et le 10 août. Le dernier est celui qui
+      débloque tous les autres : <strong>la déclaration du compte en fidéicommis lui-même</strong>.
+      Le code pour l'ouvrir existait depuis des mois et n'était appelé que par un script
+      interne. Sans lui, un cabinet nouvellement inscrit restait à six documents.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ 05 ═══════════════ -->
+<section>
+  <div class="section-head">
+    <p class="eyebrow">05 — Ce qui reste ouvert</p>
+    <h2>Un bilan qui ne montre que les cases cochées ne se vérifie pas</h2>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:26%">Point ouvert</th>
+        <th style="width:16%">Source</th>
+        <th style="width:58%">Pourquoi il est assumé</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="apres">Grand livre hypothécaire</td>
+        <td class="art">ON s. 20</td>
+        <td class="avant">Aucun cabinet servi ne fait d'immobilier ontarien. Le construire serait bâtir contre une hypothèse plutôt que contre un besoin.</td>
+      </tr>
+      <tr>
+        <td class="apres">Fonds de clôture immobilière, Form 9B et 9C</td>
+        <td class="art">ON s. 13</td>
+        <td class="avant">Même raison.</td>
+      </tr>
+      <tr>
+        <td class="apres">Blocage sur statut de permis suspendu ou failli</td>
+        <td class="art">ON s. 2, 2.2, 2.3</td>
+        <td class="avant">Même raison.</td>
+      </tr>
+      <tr>
+        <td class="apres">Huit dépendances externes</td>
+        <td class="art">art. 41, 42, 51, 64</td>
+        <td class="avant">Les formulaires prescrits par le Comité exécutif du Barreau n'ont pas été obtenus, ni la liste des institutions ayant conclu l'entente B-1 r. 10. <strong>SAFE ne transmet donc rien</strong> : il consigne que l'avocate l'a fait, avec sa date.</td>
+      </tr>
+      <tr>
+        <td class="apres">Corpus partiellement lu</td>
+        <td class="art">—</td>
+        <td class="avant">Le Code de déontologie, le B-1 r. 10, les Rules of Professional Conduct et les Practice Management Guidelines n'ont pas été lus. Les règles qui en dépendent restent marquées <em>incertain</em> dans notre registre. Elles ne sont pas devinées.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════ 06 ═══════════════ -->
+<section>
+  <div class="aplat">
+    <p class="eyebrow">06 — Ce que nous ne prétendons pas</p>
+    <h3 style="font-size:19px;margin-bottom:10px">Un logiciel n'est jamais conforme à la place d'une avocate</h3>
+    <p>
+      Le règlement n'oblige pas le logiciel. Il oblige l'avocate. C'est elle qui tient les
+      livres, elle qui certifie le rapport, elle qui répond au directeur de l'inspection
+      professionnelle. Aucun outil ne prend cette responsabilité à sa place, et celui qui le
+      prétend vend surtout un sentiment de calme.
+    </p>
+    <p>
+      Ce que SAFE fait, et ce sur quoi nous nous engageons : <strong>produire en quelques
+      secondes ce qui prendrait deux jours à reconstituer</strong>, et refuser les gestes qui
+      mettent le cabinet en défaut. La signature reste la vôtre.
+    </p>
+  </div>
+
+  <footer>
+    Sources : audit réglementaire du 30 juillet 2026, matrice d'état de conformité,
+    réévaluations des 3 et 10 août 2026. Chaque affirmation de ce bilan est adossée à une
+    vérification dans le code, avec son fichier. Les documents complets sont disponibles sur
+    demande.
+  </footer>
+</section>
+
+</body>
+</html>

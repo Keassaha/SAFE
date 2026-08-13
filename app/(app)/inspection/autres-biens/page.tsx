@@ -64,7 +64,7 @@ export default async function AutresBiensPage() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Autres biens en fidéicommis"
         description="Ce que vous détenez pour un client et qui n'est pas de l'argent."

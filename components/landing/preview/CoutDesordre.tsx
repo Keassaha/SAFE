@@ -40,7 +40,7 @@ export function CoutDesordre() {
         <div className="md:col-span-7">
           <SceneFrame>
             <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: `1px solid ${LINE}` }}>
-              <span className="font-sans text-[14px] font-semibold" style={{ color: INK }}>
+              <span className="font-sans text-[14px] font-medium" style={{ color: INK }}>
                 Ce qui attend, ce mois-ci
               </span>
               <span className="font-mono text-[12px]" style={{ color: FAINT }}>

@@ -1,0 +1,315 @@
+[
+  {
+    "rule_id": "PF-001",
+    "title": "Composition du patrimoine familial",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Qualifier chaque bien selon sa nature, son usage, la propriete et la periode.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-002",
+    "title": "Dettes qualifiees",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Soustraire seulement les dettes d'acquisition, amelioration, entretien ou conservation prouvees.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-003",
+    "title": "Date d'evaluation",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Utiliser la date legale applicable ou une date ordonnee par le tribunal.",
+    "status": "HUMAN_REVIEW",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-004",
+    "title": "Bien possede au mariage",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Deduction de la valeur nette initiale et de la plus-value proportionnelle.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-005",
+    "title": "Apport donation ou succession",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001",
+      "SRC-013"
+    ],
+    "logic": "Deduction de l'apport prouve et de la plus-value proportionnelle.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-006",
+    "title": "Remploi",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Reporter la deduction sur un autre bien admissible avec chaine de tracabilite.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-007",
+    "title": "Alienation ou diversion",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Signaler au juriste; aucune compensation automatique.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-008",
+    "title": "Partage inegal",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Pouvoir judiciaire, jamais calcule automatiquement.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-009",
+    "title": "Renonciation",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Exiger forme, moment et preuve d'inscription applicables.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PF-010",
+    "title": "Retraite",
+    "jurisdiction": "QC",
+    "domain": "PF",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001",
+      "SRC-004",
+      "SRC-005"
+    ],
+    "logic": "Importer un releve officiel et appliquer les regles de l'administrateur.",
+    "status": "EXTERNAL_VALUE",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-001",
+    "title": "Composition du patrimoine d'union parentale",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001",
+      "SRC-003"
+    ],
+    "logic": "Moteur distinct visant residences, meubles et vehicules familiaux.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-002",
+    "title": "Modification ou exclusion",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001",
+      "SRC-003"
+    ],
+    "logic": "Exiger l'acte et sa date d'effet.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-003",
+    "title": "Retrait",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001",
+      "SRC-003"
+    ],
+    "logic": "Controler commun accord, acte et delai de 90 jours.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-004",
+    "title": "Valeur nette PUP",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Valeur marchande moins dettes qualifiees a l'ouverture du droit.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-005",
+    "title": "Deductions PUP",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Appliquer les sources d'apports propres a l'art. 521.36.",
+    "status": "REVIEW_REQUIRED",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "PUP-006",
+    "title": "Partage inegal PUP",
+    "jurisdiction": "QC",
+    "domain": "PUP",
+    "effective_from": "2025-06-30",
+    "effective_to": null,
+    "source_ids": [
+      "SRC-001"
+    ],
+    "logic": "Pouvoir judiciaire; produire seulement un signal.",
+    "status": "HUMAN_ONLY",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "TAX-001",
+    "title": "Transfert d'immobilisation",
+    "jurisdiction": "CA/QC",
+    "domain": "TAX",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-007",
+      "SRC-008"
+    ],
+    "logic": "Distinguer roulement, choix JVM, bien amortissable et attribution.",
+    "status": "TAX_REVIEW",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "TAX-002",
+    "title": "Transfert direct regime enregistre",
+    "jurisdiction": "CA/QC",
+    "domain": "TAX",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-009",
+      "SRC-010"
+    ],
+    "logic": "Exiger transfert direct et ordonnance ou entente admissible.",
+    "status": "TAX_REVIEW",
+    "confidence": "medium",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "rule_id": "RET-001",
+    "title": "Valeur officielle des droits",
+    "jurisdiction": "QC",
+    "domain": "RETIREMENT",
+    "effective_from": null,
+    "effective_to": null,
+    "source_ids": [
+      "SRC-004",
+      "SRC-005"
+    ],
+    "logic": "Bloquer le calcul si le releve requis manque.",
+    "status": "EXTERNAL_VALUE",
+    "confidence": "high",
+    "human_review_required": true,
+    "last_verified_at": "2026-08-11"
+  }
+]

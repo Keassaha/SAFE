@@ -107,7 +107,7 @@ function SectionTitle({
   return (
     <div className="mb-3 flex items-end justify-between gap-3">
       <div className="min-w-0">
-        <h2 className="text-base font-semibold tracking-tight safe-text-title">{title}</h2>
+        <h2 className="text-base font-medium tracking-tight safe-text-title">{title}</h2>
         {subtitle && <p className="mt-0.5 text-xs leading-5 safe-text-secondary">{subtitle}</p>}
       </div>
       {action}
@@ -526,7 +526,7 @@ function ActionList({
               <CheckCircle2 className="h-5 w-5" aria-hidden />
             </span>
             <div>
-              <p className="text-sm font-semibold safe-text-title">{t("allClear")}</p>
+              <p className="text-sm font-medium safe-text-title">{t("allClear")}</p>
               <p className="text-xs safe-text-secondary">{t("allClearSub")}</p>
             </div>
           </div>
@@ -546,7 +546,7 @@ function ActionList({
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="truncate text-sm font-semibold safe-text-title">{item.title}</p>
+                    <p className="truncate text-sm font-medium safe-text-title">{item.title}</p>
                     <span className="truncate text-xs safe-text-secondary">{item.context}</span>
                   </div>
                   <p className="mt-0.5 line-clamp-1 text-xs safe-text-secondary">{item.reason}</p>
@@ -580,7 +580,7 @@ function PipelineBoard({
           className="flex min-h-[190px] flex-col rounded-lg border border-si-line bg-si-surface p-3"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="truncate text-sm font-semibold safe-text-title">{column.title}</h3>
+            <h3 className="truncate text-sm font-medium safe-text-title">{column.title}</h3>
             <span className="rounded-full bg-si-line2 px-2 py-1 font-mono text-xs font-medium tabular-nums text-si-ink">
               {column.count}
             </span>
@@ -597,7 +597,7 @@ function PipelineBoard({
                   href={item.href}
                   className="rounded-md border border-si-line px-3 py-2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
                 >
-                  <p className="truncate text-xs font-semibold safe-text-title">{item.label}</p>
+                  <p className="truncate text-xs font-medium safe-text-title">{item.label}</p>
                   {item.sub && <p className="mt-0.5 truncate text-[11px] safe-text-secondary">{item.sub}</p>}
                 </Link>
               ))
@@ -696,7 +696,7 @@ function SixMonthChart({
   return (
     <div className="rounded-lg border border-si-line bg-si-surface p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold safe-text-title">{t("chartTitle")}</h3>
+        <h3 className="text-sm font-medium safe-text-title">{t("chartTitle")}</h3>
         <LinkLabel href={routes.rapports}>{t("reports")}</LinkLabel>
       </div>
       <svg viewBox="0 0 100 100" className="h-44 w-full" preserveAspectRatio="none" aria-hidden>
@@ -747,7 +747,7 @@ export function DashboardView({ payload }: DashboardViewProps) {
   const healthCards = buildHealthCards(payload, trustRisk, totalOutstanding, totalClients, t);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}

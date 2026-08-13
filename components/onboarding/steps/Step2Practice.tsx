@@ -39,7 +39,7 @@ export default function Step2Practice({ data, setData, lang, errors }: StepProps
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-6">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-6">
         {T("step2Title", lang)}
       </h2>
 

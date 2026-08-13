@@ -45,7 +45,7 @@ export function ROICalculator() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--safe-warm)] mb-4 font-sans"
+            className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--safe-warm)] mb-4 font-sans"
           >
             Calculez votre perte
           </motion.p>
@@ -54,7 +54,7 @@ export function ROICalculator() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--safe-white)] leading-[1.1] tracking-tight"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl font-medium text-[var(--safe-white)] leading-[1.1] tracking-tight"
           >
             Combien d&apos;heures perdez-vous{" "}
             <span className="italic text-[var(--safe-sage)]">en admin ?</span>
@@ -89,7 +89,7 @@ export function ROICalculator() {
             <div className="w-10 h-10 rounded-2xl bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20 flex items-center justify-center">
               <Calculator className="w-5 h-5 text-[var(--safe-sage)]" aria-hidden />
             </div>
-            <h3 className="text-lg font-semibold text-[var(--safe-white)] font-sans tracking-tight">
+            <h3 className="text-lg font-medium text-[var(--safe-white)] font-sans tracking-tight">
               Simulateur d&apos;heures perdues
             </h3>
           </div>
@@ -102,7 +102,7 @@ export function ROICalculator() {
                   <Users className="w-4 h-4" aria-hidden />
                   Avocats dans le cabinet
                 </span>
-                <span className="text-2xl font-bold text-[var(--safe-white)] tabular-nums">
+                <span className="text-2xl font-medium text-[var(--safe-white)] tabular-nums">
                   {lawyers}
                 </span>
               </label>
@@ -128,7 +128,7 @@ export function ROICalculator() {
                   <Clock className="w-4 h-4" aria-hidden />
                   Heures admin / semaine par avocat
                 </span>
-                <span className="text-2xl font-bold text-[var(--safe-white)] tabular-nums">
+                <span className="text-2xl font-medium text-[var(--safe-white)] tabular-nums">
                   {hoursPerWeek}&nbsp;h
                 </span>
               </label>
@@ -151,11 +151,11 @@ export function ROICalculator() {
 
           {/* Result */}
           <div className="mt-10 pt-8 border-t border-[rgba(142,182,155,0.12)] text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--safe-text-muted)] font-sans mb-4">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--safe-text-muted)] font-sans mb-4">
               Votre perte annuelle
             </p>
             <p
-              className="font-sans font-bold tracking-tight leading-[1.05]"
+              className="font-sans font-medium tracking-tight leading-[1.05]"
               style={{
                 fontSize: "clamp(36px, 6vw, 56px)",
                 backgroundImage:
@@ -169,7 +169,7 @@ export function ROICalculator() {
             </p>
             <p className="mt-3 text-base sm:text-lg text-[var(--safe-text-muted)] font-sans">
               soit{" "}
-              <span className="font-bold text-[var(--safe-warm)]">
+              <span className="font-medium text-[var(--safe-warm)]">
                 {formatDollars(annualCost)}&nbsp;$
               </span>{" "}
               de facturation perdue chaque ann&eacute;e.

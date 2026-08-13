@@ -1,23 +1,30 @@
 import Link from "next/link";
-import { FileText, FolderOpen, Sparkles, ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Clock, FileText, FolderOpen, FolderPlus, Sparkles } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { Button } from "@/components/ui/Button";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge, type StatusVariant } from "@/components/ui/StatusBadge";
+import { NewDocumentModal } from "@/components/edition/NewDocumentModal";
 
-// Palette calée sur les tokens si-* du design system, pour que l'édition ait la
-// même couleur que les autres écrans. L'accent était #4f46e5, l'indigo générique
-// SaaS (tell anti-slop A1), remplacé par le vert forêt de la marque.
-const V1 = {
-  bg: "#EFF2ED", // si-canvas
-  bgAlt: "#FBFCFA", // si-surface
-  border: "rgba(31,42,36,0.10)", // si-line
-  text: "#1F2A24", // si-ink
-  textMid: "#5A665F", // si-muted
-  textDim: "#98A19A", // si-muted, plus clair
-  accent: "#0B1F19", // si-forest
-  accentSoft: "#E6EEE9", // vert forêt très pâle
-  accentText: "#0B1F19", // si-forest
-  success: "#2E7D5B", // si-verified
-  warn: "#835A10", // si-amber-ink (lisible, AA)
-};
+/**
+ * Accueil de l'atelier d'édition.
+ *
+ * Cet écran vivait hors du produit : une palette `V1` figée en hexadécimales
+ * recopiées à la main, tout le style en attributs `style`, un `margin: -1.5rem`
+ * pour repeindre son propre fond par-dessus la coquille, et un titre en Geist
+ * 26 px là où toute l'application titre en Instrument Serif 32 px. D'où les
+ * deux constats du CEO : « je vois deux couleurs » et « les polices ne matchent
+ * pas celles des autres pages ».
+ *
+ * Les deux couleurs venaient de la même cause. La palette du produit est
+ * pilotable depuis `lib/ds/palettes.ts` ; les hexadécimales recopiées ici ne
+ * bougeaient plus avec elle, et le fond peint par la page dérivait du canvas
+ * servi par la coquille. Il n'y a plus une seule valeur de couleur dans ce
+ * fichier : uniquement des jetons `si-*`.
+ *
+ * La structure est celle des registres : en-tête de page, barre de synthèse,
+ * puis les listes. Toute rangée cliquable porte le zoom souple.
+ */
 
 interface RecentDoc {
   id: string;
@@ -44,6 +51,7 @@ interface DossierItem {
   id: string;
   intitule: string;
   numeroDossier: string | null;
+  clientId: string;
   clientNom: string | null;
   docsCount: number;
 }
@@ -68,6 +76,16 @@ const STATUT_LABEL: Record<string, string> = {
   archive: "Archivé",
 };
 
+/**
+ * « Brouillon » appelle un geste, il prend l'ambre. « Final » est un état
+ * atteint, il prend le vert. « Archivé » ne demande rien, il reste neutre.
+ */
+const STATUT_VARIANT: Record<string, StatusVariant> = {
+  brouillon: "warning",
+  final: "success",
+  archive: "neutral",
+};
+
 const TYPE_LABEL: Record<string, string> = {
   note: "Note",
   lettre: "Lettre",
@@ -76,6 +94,13 @@ const TYPE_LABEL: Record<string, string> = {
   requete: "Requête",
   autre: "Document",
 };
+
+/** Étiquette de section. Même petite capitale que la barre de synthèse. */
+const LABEL_SECTION = "text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted";
+
+/** Lien discret de fin de section : « Tout voir ». */
+const LIEN_SECTION =
+  "safe-zoom-menu inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[12px] text-si-muted hover:text-si-ink";
 
 function formatRelative(iso: string): string {
   const date = new Date(iso);
@@ -92,12 +117,107 @@ function formatRelative(iso: string): string {
 }
 
 function formatDate(): string {
-  const d = new Date();
-  return d.toLocaleDateString("fr-CA", {
+  return new Date().toLocaleDateString("fr-CA", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
+}
+
+/**
+ * Barre de synthèse. Même objet que celle du registre clients : pas de cadre,
+ * pas d'icône, pas de mouvement. Quatre mesures, un filet, de l'espace. Les
+ * quatre cartes encadrées qui vivaient ici poussaient les listes sous la ligne
+ * de flottaison alors que les listes SONT la page.
+ */
+function BarreSynthese({ stats }: { stats: Props["stats"] }) {
+  const mesures: {
+    label: string;
+    valeur: string;
+    /** Unité collée au chiffre. En sans, jamais en mono : `tabular-nums`
+        réserve à chaque glyphe la largeur d'un chiffre, et un « h » composé de
+        cette manière flotte à deux espaces de son nombre. */
+    unite: string | null;
+    appoint: string | null;
+    appel: boolean;
+  }[] = [
+    {
+      label: "Documents",
+      valeur: String(stats.totalDocs),
+      unite: null,
+      appoint: stats.docsThisWeek > 0 ? `+${stats.docsThisWeek} cette semaine` : null,
+      appel: false,
+    },
+    {
+      label: "Brouillons",
+      valeur: String(stats.drafts),
+      unite: null,
+      appoint: stats.drafts > 0 ? "à relire" : null,
+      appel: stats.drafts > 0,
+    },
+    {
+      label: "Finalisés",
+      valeur: String(stats.finalDocs),
+      unite: null,
+      appoint: null,
+      appel: false,
+    },
+    {
+      label: "Temps ce mois",
+      valeur: String(stats.hoursThisMonth),
+      unite: "h",
+      appoint: null,
+      appel: false,
+    },
+  ];
+
+  return (
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12">
+      {mesures.map(({ label, valeur, unite, appoint, appel }) => (
+        <div key={label} className="min-w-0">
+          <dt className={LABEL_SECTION}>{label}</dt>
+          <dd className="mt-1.5 flex items-baseline gap-2">
+            <span className="font-mono text-[18px] font-medium leading-[24px] tabular-nums text-si-ink sm:text-[22px] sm:leading-[26px]">
+              {valeur}
+              {unite && <span className="ml-1 font-sans text-[14px] text-si-muted">{unite}</span>}
+            </span>
+            {appoint && (
+              <span className={`text-[12px] ${appel ? "text-si-amber-ink" : "text-si-muted"}`}>
+                {appoint}
+              </span>
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** En-tête d'une colonne de liste : étiquette à gauche, échappatoire à droite. */
+function EnteteSection({
+  titre,
+  lienHref,
+  lienLabel,
+}: {
+  titre: string;
+  lienHref?: string;
+  lienLabel?: string;
+}) {
+  return (
+    /* Hauteur fixée : une section avec « Tout voir » est plus haute qu'une
+       section sans, et les deux colonnes ne démarraient plus sur la même
+       ligne. Dans une grille à deux colonnes, l'alignement des feuilles est ce
+       qui se voit en premier. */
+    <div className="mb-2.5 flex h-6 items-center justify-between gap-3">
+      <h2 className={LABEL_SECTION}>{titre}</h2>
+      {lienHref && lienLabel && (
+        <Link href={lienHref} className={LIEN_SECTION}>
+          {lienLabel}
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+        </Link>
+      )}
+    </div>
+  );
 }
 
 export function EditionDashboard({ stats, recent, activeSessions, userName, dossiers }: Props) {
@@ -106,454 +226,209 @@ export function EditionDashboard({ stats, recent, activeSessions, userName, doss
       ? "Aucun brouillon en attente."
       : `Vous avez ${stats.drafts} brouillon${stats.drafts > 1 ? "s" : ""} à relire.`;
 
-  const kpis = [
-    {
-      label: "Documents",
-      value: String(stats.totalDocs),
-      detail: stats.docsThisWeek > 0 ? `+${stats.docsThisWeek} cette semaine` : "Aucun cette semaine",
-    },
-    {
-      label: "Brouillons",
-      value: String(stats.drafts),
-      detail: stats.drafts > 0 ? "À relire / finaliser" : "Tout est final",
-    },
-    {
-      label: "Finalisés",
-      value: String(stats.finalDocs),
-      detail: "Documents prêts",
-    },
-    {
-      label: "Temps ce mois",
-      value: `${stats.hoursThisMonth} h`,
-      detail: "Sessions de rédaction",
-    },
-  ];
+  /* Les dossiers alimentent deux choses : la liste d'appoint et le choix de
+     dossier à la création. Un document appartient toujours à un dossier. */
+  const choixDossiers = dossiers.map((d) => ({
+    id: d.id,
+    intitule: d.intitule,
+    clientId: d.clientId,
+    clientNom: d.clientNom,
+    numeroDossier: d.numeroDossier,
+  }));
+
+  const suggestions = [
+    stats.drafts > 0
+      ? `Relire et finaliser ${stats.drafts} brouillon${stats.drafts > 1 ? "s" : ""}`
+      : null,
+    activeSessions.length > 0
+      ? `Reprendre la session sur « ${activeSessions[0].docTitre ?? "document"} »`
+      : null,
+    stats.totalDocs === 0 ? "Créer votre premier document depuis la Bibliothèque" : null,
+    "Vérifier la cohérence des derniers contrats avec l'IA",
+  ].filter((s): s is string => Boolean(s));
 
   return (
-    <div
-      className="font-sans"
-      style={{
-        background: V1.bg,
-        color: V1.text,
-        fontFamily: '"Geist", -apple-system, system-ui, sans-serif',
-        minHeight: "calc(100vh - 80px)",
-        margin: "-1.5rem",
-        padding: "32px 40px",
-      }}
-    >
-      <div className="mx-auto max-w-[1280px]">
-        <div
-          style={{
-            fontSize: 11,
-            color: V1.textDim,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            marginBottom: 6,
-          }}
-        >
-          {formatDate()}
-        </div>
-        <div className="flex items-start justify-between gap-4 mb-7">
-          <div>
-            <h1
-              style={{
-                fontSize: 26,
-                fontWeight: 600,
-                letterSpacing: "-0.02em",
-                margin: 0,
-              }}
-            >
-              Bonjour {userName}.
-            </h1>
-            <p style={{ color: V1.textMid, margin: "4px 0 0", fontSize: 14 }}>
-              {draftsLine}
-            </p>
-          </div>
-          <Link
-            href={routes.editionBibliotheque}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              background: V1.text,
-              color: V1.bgAlt,
-              padding: "8px 14px",
-              borderRadius: 6,
-              fontSize: 13,
-              fontWeight: 500,
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <FolderOpen className="w-4 h-4" strokeWidth={1.8} />
-            Voir la bibliothèque
-          </Link>
-        </div>
+    <div className="space-y-6">
+      {/* Le même en-tête que Clients et Dossiers : Instrument Serif 32 px sur la
+          surface de travail. La date rejoint la ligne de contexte au lieu de
+          former un troisième élément au-dessus du titre. */}
+      <PageHeader
+        variant="dashboard"
+        title={`Bonjour ${userName}.`}
+        description={`${formatDate()} · ${draftsLine}`}
+        /* Une seule intention par écran, donc un seul bouton plein : écrire.
+           La bibliothèque est une consultation, elle passe en second niveau. */
+        action={
+          <>
+            <Link href={routes.editionBibliotheque}>
+              <Button type="button" variant="secondary">
+                <FolderOpen className="mr-2 inline-block h-4 w-4" aria-hidden />
+                Voir la bibliothèque
+              </Button>
+            </Link>
+            <NewDocumentModal dossiers={choixDossiers} />
+          </>
+        }
+      />
 
-        {/* KPI cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-          {kpis.map((s, i) => (
-            <div
-              key={i}
-              style={{
-                border: `1px solid ${V1.border}`,
-                borderRadius: 8,
-                padding: 14,
-                background: V1.bgAlt,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 11,
-                  color: V1.textDim,
-                  marginBottom: 4,
-                  fontWeight: 500,
-                }}
-              >
-                {s.label}
-              </div>
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: 600,
-                  letterSpacing: "-0.02em",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {s.value}
-              </div>
-              <div style={{ fontSize: 11, color: V1.textMid, marginTop: 4 }}>
-                {s.detail}
-              </div>
-            </div>
-          ))}
-        </div>
+      <BarreSynthese stats={stats} />
 
-        {/* Active sessions banner */}
-        {activeSessions.length > 0 && (
-          <div
-            style={{
-              background: V1.accentSoft,
-              border: `1px solid ${V1.accent}`,
-              borderRadius: 8,
-              padding: "10px 14px",
-              marginBottom: 24,
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              color: V1.accentText,
-              fontSize: 13,
-            }}
-          >
-            <Clock className="w-4 h-4" strokeWidth={1.8} />
-            <span>
-              {activeSessions.length} session{activeSessions.length > 1 ? "s" : ""} en cours
-            </span>
-            {activeSessions[0].docId && activeSessions[0].dossierId && (
-              <Link
-                href={routes.editionDocument(activeSessions[0].dossierId, activeSessions[0].docId)}
-                style={{
-                  marginLeft: "auto",
-                  color: V1.accent,
-                  fontWeight: 500,
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                Reprendre <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
-              </Link>
+      {activeSessions.length > 0 && (
+        /* Bandeau d'information, pas d'alerte. Il ne prend pas la couleur
+           d'action : depuis la bascule de palette du 2026-08-11, `si-forest`
+           est l'encre noire et la couleur est réservée aux états. Peindre ce
+           bandeau avec le jeton d'action le ferait virer au vert le jour où
+           l'accent serait restauré, sans qu'il ait rien changé de son sens.
+
+           Même rayon que `safe-feuille` : deux arrondis différents sur un même
+           écran se voient. */
+        <div className="flex flex-wrap items-center gap-3 rounded-[14px] border border-si-line bg-si-surface2 px-4 py-2.5">
+          <Clock className="h-4 w-4 shrink-0 text-si-muted" strokeWidth={1.8} aria-hidden />
+          <span className="text-[13px] text-si-body">
+            {activeSessions.length} session{activeSessions.length > 1 ? "s" : ""} de rédaction en
+            cours
+            {activeSessions[0].docTitre && (
+              <span className="text-si-muted"> · {activeSessions[0].docTitre}</span>
+            )}
+          </span>
+          {activeSessions[0].docId && activeSessions[0].dossierId && (
+            <Link
+              href={routes.editionDocument(activeSessions[0].dossierId, activeSessions[0].docId)}
+              className="ml-auto"
+            >
+              <Button type="button" variant="secondary" size="sm">
+                Reprendre
+                <ArrowRight className="ml-1.5 inline-block h-3.5 w-3.5" aria-hidden />
+              </Button>
+            </Link>
+          )}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
+        {/* ── Documents récents ── */}
+        <section aria-labelledby="edition-recents">
+          <EnteteSection
+            titre="Documents récents"
+            lienHref={routes.editionBibliotheque}
+            lienLabel="Tout voir"
+          />
+          <div className="safe-feuille overflow-hidden">
+            {recent.length === 0 ? (
+              /* Un état vide qui ne propose rien laisse la personne chercher
+                 le bouton ailleurs. Il porte donc l'action qu'il décrit. */
+              <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+                <p className="text-sm text-si-muted">Aucun document pour le moment.</p>
+                <NewDocumentModal
+                  dossiers={choixDossiers}
+                  label="Créer un document"
+                  variant="secondary"
+                />
+              </div>
+            ) : (
+              <div className="divide-y divide-si-line2">
+                {recent.map((r) => (
+                  <Link
+                    key={r.id}
+                    href={routes.editionDocument(r.dossierId, r.id)}
+                    className="safe-zoom-rang flex items-center gap-3 px-4 py-3"
+                  >
+                    <FileText
+                      className="h-4 w-4 shrink-0 text-si-muted"
+                      strokeWidth={1.6}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] font-medium leading-5 text-si-ink">
+                        {r.titre}
+                      </span>
+                      <span className="mt-0.5 block truncate text-[12px] leading-[17px] text-si-muted">
+                        {[TYPE_LABEL[r.type] ?? r.type, r.clientNom, formatRelative(r.updatedAt)]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+                    <StatusBadge
+                      label={STATUT_LABEL[r.statut] ?? r.statut}
+                      variant={STATUT_VARIANT[r.statut] ?? "neutral"}
+                    />
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
-        )}
+        </section>
 
-        {/* Two-column: recent docs + AI suggestions */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5">
-          <div>
-            <div className="flex items-center mb-3">
-              <div style={{ fontSize: 13, fontWeight: 600 }}>Documents récents</div>
-              <Link
-                href={routes.editionBibliotheque}
-                style={{
-                  marginLeft: "auto",
-                  fontSize: 12,
-                  color: V1.textMid,
-                  textDecoration: "none",
-                }}
-              >
-                Tout voir →
-              </Link>
+        {/* ── Colonne d'appoint ── */}
+        <div className="space-y-6">
+          <section aria-labelledby="edition-ia">
+            <EnteteSection titre="Assistant IA" />
+            <div className="safe-feuille p-4">
+              <div className="mb-3 flex items-center gap-2">
+                {/* Décoratif, donc achromatique : la couleur ne sert qu'aux
+                    états. Même raison que le bandeau de session. */}
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-si-surface2 text-si-muted">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                </span>
+                <span className="text-[13px] font-medium text-si-ink">Suggestions du jour</span>
+              </div>
+              <ul className="space-y-2.5">
+                {suggestions.map((s) => (
+                  <li key={s} className="flex items-start gap-2.5 text-[13px] text-si-body">
+                    <span
+                      className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-si-subtle"
+                      aria-hidden
+                    />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div
-              style={{
-                border: `1px solid ${V1.border}`,
-                borderRadius: 8,
-                background: V1.bgAlt,
-                overflow: "hidden",
-              }}
-            >
-              {recent.length === 0 ? (
-                <div
-                  style={{
-                    padding: "32px 20px",
-                    textAlign: "center",
-                    color: V1.textDim,
-                    fontSize: 13,
-                  }}
-                >
-                  Aucun document pour le moment.
+          </section>
+
+          <section aria-labelledby="edition-dossiers">
+            <EnteteSection titre="Mes dossiers" lienHref={routes.dossiers} lienLabel="Tous voir" />
+            <div className="safe-feuille overflow-hidden">
+              {dossiers.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 px-6 py-8 text-center">
+                  <p className="text-sm text-si-muted">Aucun dossier actif.</p>
+                  <Link href={routes.dossierNouveau()}>
+                    <Button type="button" variant="secondary">
+                      <FolderPlus className="mr-2 inline-block h-4 w-4" aria-hidden />
+                      Créer un dossier
+                    </Button>
+                  </Link>
                 </div>
               ) : (
-                recent.map((r, i) => {
-                  const statusColor =
-                    r.statut === "final"
-                      ? V1.success
-                      : r.statut === "brouillon"
-                      ? V1.warn
-                      : V1.textMid;
-                  const subtitle = [
-                    TYPE_LABEL[r.type] ?? r.type,
-                    r.clientNom,
-                    formatRelative(r.updatedAt),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ");
-                  return (
-                    <Link
-                      key={r.id}
-                      href={routes.editionDocument(r.dossierId, r.id)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        padding: "11px 14px",
-                        borderTop: i > 0 ? `1px solid ${V1.border}` : "none",
-                        textDecoration: "none",
-                        color: V1.text,
-                      }}
-                    >
-                      <FileText
-                        className="shrink-0"
-                        style={{ color: V1.textDim, width: 16, height: 16 }}
-                        strokeWidth={1.6}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {r.titre}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 11.5,
-                            color: V1.textDim,
-                            marginTop: 2,
-                          }}
-                        >
-                          {subtitle}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          padding: "2px 8px",
-                          borderRadius: 20,
-                          border: `1px solid ${V1.border}`,
-                          color: statusColor,
-                          background: V1.bg,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {STATUT_LABEL[r.statut] ?? r.statut}
-                      </div>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
-              Assistant IA
-            </div>
-            <div
-              style={{
-                border: `1px solid ${V1.border}`,
-                borderRadius: 8,
-                background: V1.bgAlt,
-                padding: 14,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 10,
-                }}
-              >
-                <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    background: V1.accentSoft,
-                    color: V1.accent,
-                    display: "grid",
-                    placeItems: "center",
-                  }}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-                <div style={{ fontSize: 12.5, fontWeight: 500 }}>
-                  Suggestions du jour
-                </div>
-              </div>
-              {[
-                stats.drafts > 0
-                  ? `Relire et finaliser ${stats.drafts} brouillon${stats.drafts > 1 ? "s" : ""}`
-                  : null,
-                activeSessions.length > 0
-                  ? `Reprendre la session sur « ${activeSessions[0].docTitre ?? "document"} »`
-                  : null,
-                stats.totalDocs === 0
-                  ? "Créer votre premier document depuis la Bibliothèque"
-                  : null,
-                "Vérifier la cohérence des derniers contrats avec l'IA",
-              ]
-                .filter((s): s is string => Boolean(s))
-                .map((s, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "10px 0",
-                      borderTop: i > 0 ? `1px dashed ${V1.border}` : "none",
-                      fontSize: 12.5,
-                      color: V1.textMid,
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 8,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 4,
-                        height: 4,
-                        borderRadius: "50%",
-                        background: V1.accent,
-                        marginTop: 7,
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div>{s}</div>
-                  </div>
-                ))}
-            </div>
-
-            <div className="mt-4">
-              <div className="flex items-center mb-3">
-                <div style={{ fontSize: 13, fontWeight: 600 }}>
-                  Mes dossiers
-                </div>
-                <Link
-                  href={routes.dossiers}
-                  style={{
-                    marginLeft: "auto",
-                    fontSize: 12,
-                    color: V1.textMid,
-                    textDecoration: "none",
-                  }}
-                >
-                  Tous voir →
-                </Link>
-              </div>
-              <div
-                style={{
-                  border: `1px solid ${V1.border}`,
-                  borderRadius: 8,
-                  background: V1.bgAlt,
-                  overflow: "hidden",
-                }}
-              >
-                {dossiers.length === 0 ? (
-                  <div
-                    style={{
-                      padding: "24px 16px",
-                      textAlign: "center",
-                      color: V1.textDim,
-                      fontSize: 12.5,
-                    }}
-                  >
-                    Aucun dossier actif. <Link href={routes.dossierNouveau()} style={{ color: V1.accent, textDecoration: "none" }}>Créer un dossier</Link>
-                  </div>
-                ) : (
-                  dossiers.map((d, i) => (
+                <div className="divide-y divide-si-line2">
+                  {dossiers.map((d) => (
                     <Link
                       key={d.id}
                       href={routes.editionDossier(d.id)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        padding: "10px 14px",
-                        fontSize: 12.5,
-                        color: V1.text,
-                        textDecoration: "none",
-                        borderTop: i > 0 ? `1px solid ${V1.border}` : "none",
-                      }}
+                      className="safe-zoom-rang flex items-center gap-3 px-4 py-2.5"
                     >
                       <FolderOpen
-                        style={{ color: V1.textDim, width: 15, height: 15, flexShrink: 0 }}
+                        className="h-4 w-4 shrink-0 text-si-muted"
                         strokeWidth={1.6}
+                        aria-hidden
                       />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          style={{
-                            fontWeight: 500,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-medium leading-5 text-si-ink">
                           {d.intitule}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color: V1.textDim,
-                            marginTop: 1,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
+                        </span>
+                        <span className="block truncate text-[11.5px] leading-4 text-si-muted">
                           {d.clientNom ?? d.numeroDossier}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: V1.textDim,
-                          fontVariantNumeric: "tabular-nums",
-                          flexShrink: 0,
-                        }}
-                      >
+                        </span>
+                      </span>
+                      <span className="shrink-0 font-mono text-[11.5px] tabular-nums text-si-muted">
                         {d.docsCount} {d.docsCount > 1 ? "docs" : "doc"}
-                      </div>
+                      </span>
                     </Link>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

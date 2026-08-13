@@ -156,7 +156,7 @@ export function FeaturesDetailed() {
       {/* ── Hero ── */}
       <section className="mx-auto max-w-[1180px] px-6 pt-16 pb-10 sm:pt-24">
         <motion.div initial="hidden" animate="visible" variants={reveal} className="max-w-3xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-forest-700 mb-4">
+          <p className="text-[12px] font-medium uppercase tracking-[0.14em] text-forest-700 mb-4">
             Fonctionnalités
           </p>
           <h1 className="font-serif text-[40px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-text-primary">
@@ -204,7 +204,7 @@ export function FeaturesDetailed() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-forest-700/[0.08] text-forest-700">
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
-                  <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-forest-700">
+                  <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-forest-700">
                     {f.num} · {f.kicker}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ export function FeaturesDetailed() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-forest-700/[0.08] text-forest-700">
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                <p className="mt-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-forest-700">
+                <p className="mt-4 text-[12px] font-medium uppercase tracking-[0.12em] text-forest-700">
                   {c.kicker}
                 </p>
                 <h3 className="mt-1.5 font-serif text-[21px] leading-[1.2] tracking-[-0.01em] text-text-primary">

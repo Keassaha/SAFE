@@ -1398,11 +1398,11 @@ export default function OnboardingChat() {
         {/* Header */}
         <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md px-4 py-3">
           <div className="max-w-2xl mx-auto flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0">
               JT
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold font-sans tracking-tight text-[var(--safe-text-title)]">
+              <h1 className="text-lg font-medium font-sans tracking-tight text-[var(--safe-text-title)]">
                 {lang === "fr" ? "Votre offre personnalisée" : "Your personalized offer"}
               </h1>
               <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
@@ -1417,7 +1417,7 @@ export default function OnboardingChat() {
             {/* Jérémie’s message */}
             <div className="audit-slide-up">
               <div className="flex items-start gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0">
                   JT
                 </div>
                 <div className="max-w-[80%] rounded-safe-md rounded-bl-md bg-[var(--safe-text-title)] text-[var(--safe-white)] border border-[var(--safe-text-title)]/10 px-4 py-3 text-sm font-sans leading-relaxed whitespace-pre-line">
@@ -1432,7 +1432,7 @@ export default function OnboardingChat() {
             <div className="audit-result-card rounded-safe-md border border-red-200 bg-red-50/50 p-6 audit-slide-up" style={{ animationDelay: "0.1s" }}>
               <div className="flex items-center gap-2 mb-4">
                 <AlertTriangle className="w-5 h-5 text-red-500" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
+                <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">
                   {lang === "fr" ? "Ce que vous perdez chaque mois sans SAFE" : "What you lose every month without SAFE"}
                 </h3>
               </div>
@@ -1459,15 +1459,15 @@ export default function OnboardingChat() {
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between py-2 border-b border-red-200/50 last:border-0">
                     <span className="text-sm text-[var(--safe-text-secondary)] font-sans">{lang === "fr" ? item.fr : item.en}</span>
-                    <span className="text-sm font-semibold text-red-600 font-sans whitespace-nowrap ml-3">{item.cost}</span>
+                    <span className="text-sm font-medium text-red-600 font-sans whitespace-nowrap ml-3">{item.cost}</span>
                   </div>
                 ))}
               </div>
               <div className="mt-4 pt-3 border-t border-red-200/50 flex items-center justify-between">
-                <span className="text-sm font-bold text-[var(--safe-text-title)] font-sans">
+                <span className="text-sm font-medium text-[var(--safe-text-title)] font-sans">
                   {lang === "fr" ? "Coût estimé de l’inaction" : "Estimated cost of inaction"}
                 </span>
-                <span className="text-lg font-bold text-red-600 font-sans">
+                <span className="text-lg font-medium text-red-600 font-sans">
                   {lang === "fr" ? "2 000 $ — 5 500 $/mois" : "$2,000 — $5,500/month"}
                 </span>
               </div>
@@ -1477,7 +1477,7 @@ export default function OnboardingChat() {
             <div className="audit-result-card rounded-safe-md border border-[var(--safe-sage)]/30 bg-white/60 p-6 audit-slide-up" style={{ animationDelay: "0.2s" }}>
               <div className="flex items-center gap-2 mb-4">
                 <Gift className="w-5 h-5 text-[var(--safe-text-secondary)]" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
+                <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">
                   {lang === "fr" ? "Ce que SAFE configure pour vous" : "What SAFE sets up for you"}
                 </h3>
               </div>
@@ -1495,7 +1495,7 @@ export default function OnboardingChat() {
                         {item.label[lang]}
                       </span>
                     </div>
-                    <span className="text-sm font-semibold text-[var(--safe-text-title)] font-sans whitespace-nowrap ml-3">
+                    <span className="text-sm font-medium text-[var(--safe-text-title)] font-sans whitespace-nowrap ml-3">
                       {item.amount.toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $
                     </span>
                   </div>
@@ -1505,10 +1505,10 @@ export default function OnboardingChat() {
               {/* Total crossed out */}
               <div className="mt-4 pt-4 border-t-2 border-[var(--safe-sage)]/30">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-[var(--safe-text-title)] font-sans">
+                  <span className="text-sm font-medium text-[var(--safe-text-title)] font-sans">
                     {lang === "fr" ? "Valeur totale de la configuration" : "Total configuration value"}
                   </span>
-                  <span className="text-xl font-bold text-red-400 font-sans line-through">
+                  <span className="text-xl font-medium text-red-400 font-sans line-through">
                     {calculationResult.totalValue.toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $
                   </span>
                 </div>
@@ -1519,7 +1519,7 @@ export default function OnboardingChat() {
             <div className="audit-result-card rounded-safe-md border border-[var(--safe-accent)]/30 bg-[var(--safe-accent)]/5 p-6 audit-slide-up" style={{ animationDelay: "0.35s" }}>
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-5 h-5 text-[var(--safe-accent)]" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
+                <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">
                   {lang === "fr" ? "Bonus inclus — Offre Fondateur" : "Included bonuses — Founder Offer"}
                 </h3>
               </div>
@@ -1557,10 +1557,10 @@ export default function OnboardingChat() {
                     <span className="flex-1 text-sm text-[var(--safe-text-secondary)] font-sans">
                       {lang === "fr" ? bonus.fr : bonus.en}
                     </span>
-                    <span className="text-sm font-semibold text-[var(--safe-accent)] font-sans line-through opacity-60">
+                    <span className="text-sm font-medium text-[var(--safe-accent)] font-sans line-through opacity-60">
                       {bonus.value}
                     </span>
-                    <span className="text-xs font-bold text-green-600 font-sans uppercase">
+                    <span className="text-xs font-medium text-green-600 font-sans uppercase">
                       {lang === "fr" ? "GRATUIT" : "FREE"}
                     </span>
                   </div>
@@ -1573,7 +1573,7 @@ export default function OnboardingChat() {
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5 text-[var(--safe-text-secondary)]" />
-                  <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
+                  <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">
                     {lang === "fr" ? "SAFE vs la concurrence" : "SAFE vs the competition"}
                   </h3>
                 </div>
@@ -1597,14 +1597,14 @@ export default function OnboardingChat() {
               <div className="bg-[var(--safe-accent)]/10 px-6 py-4 border-t border-[var(--safe-accent)]/20">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-sm font-bold text-[var(--safe-text-title)] font-sans">SAFE</span>
+                    <span className="text-sm font-medium text-[var(--safe-text-title)] font-sans">SAFE</span>
                     <p className="text-xs text-[var(--safe-accent)] font-sans font-medium">
                       {lang === "fr"
                         ? "Tout inclus. Conçu pour le Barreau canadien."
                         : "All-inclusive. Built for the Canadian Bar."}
                     </p>
                   </div>
-                  <span className="text-lg font-bold text-[var(--safe-accent)] font-sans">
+                  <span className="text-lg font-medium text-[var(--safe-accent)] font-sans">
                     {calculationResult.plan.price === 0
                       ? (lang === "fr" ? "Sur devis" : "Custom quote")
                       : `${calculationResult.plan.price}$/${lang === "fr" ? "mois" : "month"}`}
@@ -1621,13 +1621,13 @@ export default function OnboardingChat() {
                 </p>
                 {calculationResult.plan.price === 0 ? (
                   <div className="mb-1">
-                    <span className="text-4xl font-bold text-[var(--safe-white)] font-sans">
+                    <span className="text-4xl font-medium text-[var(--safe-white)] font-sans">
                       {lang === "fr" ? "Sur devis" : "Custom quote"}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-baseline justify-center gap-1 mb-1">
-                    <span className="text-5xl font-bold text-[var(--safe-white)] font-sans">
+                    <span className="text-5xl font-medium text-[var(--safe-white)] font-sans">
                       {calculationResult.plan.price}$
                     </span>
                     <span className="text-lg text-[var(--safe-sage)] font-sans">
@@ -1674,7 +1674,7 @@ export default function OnboardingChat() {
                 <div className="rounded-safe bg-white/10 border border-white/15 p-4 mb-4">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-green-400" />
-                    <span className="text-sm font-bold text-[var(--safe-white)] font-sans">
+                    <span className="text-sm font-medium text-[var(--safe-white)] font-sans">
                       {calculationResult.plan.price === 0
                         ? (lang === "fr" ? "Garantie Conformité — 90 jours" : "90-Day Compliance Guarantee")
                         : (lang === "fr" ? "Garantie Satisfait ou Remboursé — 30 jours" : "30-Day Money-Back Guarantee")}
@@ -1706,13 +1706,13 @@ export default function OnboardingChat() {
             <div className="audit-result-card rounded-safe-md border border-green-200 bg-green-50/50 p-6 audit-slide-up" style={{ animationDelay: "0.65s" }}>
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-5 h-5 text-green-600" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">
+                <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">
                   {lang === "fr" ? "Votre économie nette" : "Your net savings"}
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-safe bg-white/70 border border-green-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-green-600 font-sans">
+                  <p className="text-2xl font-medium text-green-600 font-sans">
                     {lang === "fr" ? "10-15h" : "10-15h"}
                   </p>
                   <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
@@ -1720,7 +1720,7 @@ export default function OnboardingChat() {
                   </p>
                 </div>
                 <div className="rounded-safe bg-white/70 border border-green-200 p-4 text-center">
-                  <p className="text-2xl font-bold text-green-600 font-sans">
+                  <p className="text-2xl font-medium text-green-600 font-sans">
                     {calculationResult.plan.price === 0
                       ? "+6 000 $"
                       : `+${((calculationResult.plan.price === 99 ? 2500 : calculationResult.plan.price === 149 ? 4000 : 6000) - calculationResult.plan.price).toLocaleString(lang === "fr" ? "fr-CA" : "en-CA")} $`}
@@ -1747,7 +1747,7 @@ export default function OnboardingChat() {
                 <button
                   onClick={handleFinalSubmit}
                   disabled={submitting}
-                  className="group flex items-center justify-center gap-2 w-full py-4 rounded-safe-md bg-[var(--safe-accent)] text-[var(--safe-white)] font-semibold text-base font-sans hover:bg-[var(--safe-accent)]/90 hover:shadow-xl hover:shadow-[var(--safe-accent)]/20 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="group flex items-center justify-center gap-2 w-full py-4 rounded-safe-md bg-[var(--safe-accent)] text-[var(--safe-white)] font-medium text-base font-sans hover:bg-[var(--safe-accent)]/90 hover:shadow-xl hover:shadow-[var(--safe-accent)]/20 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
@@ -1773,7 +1773,7 @@ export default function OnboardingChat() {
             ) : (
               <div className="rounded-safe-md border border-green-200 bg-green-50 p-6 text-center audit-slide-up" style={{ animationDelay: "0.1s" }}>
                 <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-3" />
-                <h3 className="text-lg font-bold font-sans text-[var(--safe-text-title)] mb-2">
+                <h3 className="text-lg font-medium font-sans text-[var(--safe-text-title)] mb-2">
                   {lang === "fr" ? "Bienvenue dans SAFE !" : "Welcome to SAFE!"}
                 </h3>
                 <p className="text-sm text-[var(--safe-text-secondary)] font-sans leading-relaxed mb-3">
@@ -1811,11 +1811,11 @@ export default function OnboardingChat() {
       {/* Header */}
       <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 ring-2 ring-[var(--safe-accent)]/20">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0 ring-2 ring-[var(--safe-accent)]/20">
             JT
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémie Tiahou</h1>
+            <h1 className="text-lg font-medium font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémie Tiahou</h1>
             <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
               {isTyping ? (
                 <span className="text-[var(--safe-text-secondary)] font-medium">
@@ -1915,7 +1915,7 @@ export default function OnboardingChat() {
                 className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} audit-msg-appear`}
               >
                 {msg.sender === "host" && (
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 mr-2 mt-1">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0 mr-2 mt-1">
                     JT
                   </div>
                 )}
@@ -2066,7 +2066,7 @@ export default function OnboardingChat() {
                       {multiSelect.length > 0 && (
                         <button
                           onClick={() => handleMultiConfirm(msg.questionKey!, msg.options!)}
-                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-semibold font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
+                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
                         >
                           {lang === "en" ? `Confirm (${multiSelect.length})` : `Confirmer (${multiSelect.length})`}
                           <ChevronRight className="w-4 h-4" />
@@ -2096,7 +2096,7 @@ export default function OnboardingChat() {
                         <button
                           onClick={() => handleOpenSubmit(msg.questionKey!)}
                           disabled={!openText.trim()}
-                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-semibold font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Send className="w-4 h-4" />
                           {lang === "en" ? "Send" : "Envoyer"}
@@ -2131,7 +2131,7 @@ export default function OnboardingChat() {
                       <button
                         onClick={() => handleEmailSubmit(msg.questionKey!)}
                         disabled={!openText.trim()}
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-semibold font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Send className="w-4 h-4" />
                         {lang === "en" ? "Send" : "Envoyer"}
@@ -2195,7 +2195,7 @@ export default function OnboardingChat() {
                               onClick={() => setContactForm((f) => ({ ...f, preferredTime: time.value }))}
                               className={`flex-1 py-2 rounded-safe text-xs font-sans transition-all duration-200 border ${
                                 contactForm.preferredTime === time.value
-                                  ? "border-[var(--safe-text-secondary)]/40 bg-[var(--safe-text-secondary)]/15 text-[var(--safe-text-title)] font-semibold"
+                                  ? "border-[var(--safe-text-secondary)]/40 bg-[var(--safe-text-secondary)]/15 text-[var(--safe-text-title)] font-medium"
                                   : "border-[var(--safe-sage)]/30 bg-white/60 text-[var(--safe-text-secondary)] hover:bg-[var(--safe-text-secondary)]/10"
                               }`}
                             >
@@ -2216,7 +2216,7 @@ export default function OnboardingChat() {
                       </div>
                       <button
                         type="submit"
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-semibold text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         {lang === "en" ? "See my personalized offer" : "Voir mon offre personnalisée"}
@@ -2232,7 +2232,7 @@ export default function OnboardingChat() {
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex items-start gap-2 audit-msg-appear">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-accent)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0">
                 JT
               </div>
               <div className="rounded-safe-md rounded-bl-md bg-[var(--safe-text-title)] border border-[var(--safe-text-title)]/10 px-4 py-3">

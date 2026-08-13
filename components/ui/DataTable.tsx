@@ -98,10 +98,7 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {data.map((row) => (
-              <tr
-                key={keyExtractor(row)}
-                className="h-11 border-b border-si-line2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
-              >
+              <tr key={keyExtractor(row)} className="safe-zoom-rang h-11 border-b border-si-line2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] " >
                 {columns.map((col) => (
                   <td
                     key={col.key}

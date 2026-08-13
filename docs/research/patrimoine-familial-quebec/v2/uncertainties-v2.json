@@ -1,0 +1,44 @@
+[
+  {
+    "id": "U-001",
+    "topic": "PF-SA non-duplication",
+    "severity": "critical",
+    "blocking": true
+  },
+  {
+    "id": "U-002",
+    "topic": "Mixed debts and refinancing",
+    "severity": "critical",
+    "blocking": true
+  },
+  {
+    "id": "U-003",
+    "topic": "Negative values",
+    "severity": "critical",
+    "blocking": true
+  },
+  {
+    "id": "U-004",
+    "topic": "Latent tax",
+    "severity": "critical",
+    "blocking": true
+  },
+  {
+    "id": "U-005",
+    "topic": "Trust/corporation rights of use",
+    "severity": "high",
+    "blocking": true
+  },
+  {
+    "id": "U-006",
+    "topic": "Complete SA formulas",
+    "severity": "critical",
+    "blocking": true
+  },
+  {
+    "id": "U-007",
+    "topic": "Competitor verification",
+    "severity": "medium",
+    "blocking": false
+  }
+]

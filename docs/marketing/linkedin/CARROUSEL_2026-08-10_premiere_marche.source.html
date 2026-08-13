@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>SAFE — On a demandé un audit à charge de notre propre logiciel</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   Carrousel LinkedIn — système à deux couleurs du rapport d'audit
+   (décision CEO 2026-07-28), repris de components/audit-report/theme.ts.
+
+   Format 1080 × 1350 px, soit 4:5. C'est le rapport qui occupe le plus de
+   hauteur dans un fil LinkedIn sur téléphone, donc celui qui se lit le
+   mieux au pouce.
+
+   UNE IDÉE PAR PAGE. Un document LinkedIn se balaie, il ne se lit pas.
+   Tout ce qui demande de zoomer est perdu.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --forest: #163B2E;
+  --ink: #12281F;
+  --ink-body: rgba(22, 59, 46, 0.78);
+  --ink-muted: rgba(22, 59, 46, 0.62);
+  --ink-faint: rgba(22, 59, 46, 0.50);
+  --on-forest: #EDF2EE;
+  --on-forest-muted: rgba(237, 242, 238, 0.72);
+  --gold: #A9772A;
+  --gold-on-forest: #D9AF63;
+  --paper: #FFFFFF;
+  --fill: rgba(22, 59, 46, 0.05);
+  --line: rgba(22, 59, 46, 0.16);
+  --line-soft: rgba(22, 59, 46, 0.10);
+  --line-on-forest: rgba(237, 242, 238, 0.20);
+
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: "Geist Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@page { size: 1080px 1350px; margin: 0; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: var(--sans); background: var(--paper); -webkit-font-smoothing: antialiased; }
+
+.slide {
+  width: 1080px;
+  height: 1350px;
+  padding: 96px 92px 84px;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink-body);
+  page-break-after: always;
+  position: relative;
+  overflow: hidden;
+}
+.slide:last-child { page-break-after: auto; }
+
+/* Slides à l'aplat vert : ouverture, bascule, conclusion. Jamais plus. */
+.slide.vert { background: var(--forest); color: var(--on-forest-muted); }
+.slide.vert .eyebrow { color: var(--gold-on-forest); }
+.slide.vert h1, .slide.vert h2, .slide.vert .gros { color: var(--on-forest); }
+.slide.vert .pied { color: rgba(237, 242, 238, 0.45); border-color: var(--line-on-forest); }
+.slide.vert strong { color: var(--on-forest); font-weight: 500; }
+
+/* ── Entête ─────────────────────────────────────────────────── */
+.entete { display: flex; align-items: center; gap: 16px; color: var(--forest); }
+.slide.vert .entete { color: var(--on-forest); }
+.entete .mot {
+  font-family: var(--serif); font-size: 41px; line-height: 1;
+  letter-spacing: 0.015em; color: var(--ink);
+}
+.slide.vert .entete .mot { color: var(--on-forest); }
+
+.eyebrow {
+  font-family: var(--mono); font-size: 17px; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--gold); font-weight: 500;
+}
+
+/* ── Corps ──────────────────────────────────────────────────── */
+.corps { margin: auto 0; }            /* pages de contenu : centré verticalement */
+.slide.bas .corps { margin: auto 0 0; } /* couverture et clôture : ancré en bas */
+
+h1 { font-family: var(--serif); font-weight: 400; font-size: 82px; line-height: 1.06;
+     color: var(--ink); letter-spacing: -0.015em; }
+h2 { font-family: var(--serif); font-weight: 400; font-size: 60px; line-height: 1.12;
+     color: var(--ink); letter-spacing: -0.01em; }
+em { font-style: italic; }
+
+p { font-size: 28px; line-height: 1.55; max-width: 840px; }
+p + p { margin-top: 22px; }
+.grand { font-size: 34px; line-height: 1.5; }
+.petit { font-size: 24px; line-height: 1.5; color: var(--ink-muted); }
+
+.gros { font-family: var(--serif); font-size: 210px; line-height: 0.9; color: var(--gold);
+        letter-spacing: -0.03em; }
+.gros .petitgros { font-size: 90px; color: var(--ink-faint); }
+.slide.vert .gros { color: var(--gold-on-forest); }
+
+/* ── Listes ─────────────────────────────────────────────────── */
+ul { list-style: none; }
+li { border-top: 1px solid var(--line-soft); padding: 26px 0; }
+li:last-child { border-bottom: 1px solid var(--line-soft); }
+.slide.vert li { border-color: var(--line-on-forest); }
+li .quoi { font-size: 30px; line-height: 1.4; color: var(--ink); display: block; }
+.slide.vert li .quoi { color: var(--on-forest); }
+li .art { font-family: var(--mono); font-size: 18px; color: var(--gold);
+          letter-spacing: 0.04em; display: block; margin-top: 10px; }
+
+/* ── Avant / après ──────────────────────────────────────────── */
+.duo { display: flex; gap: 0; border-top: 1px solid var(--line); }
+.duo > div { flex: 1; padding: 34px 0 0; }
+.duo > div + div { border-left: 1px solid var(--line-soft); padding-left: 44px; }
+.duo .etiquette { font-family: var(--mono); font-size: 16px; letter-spacing: 0.18em;
+                  text-transform: uppercase; color: var(--ink-muted); display: block;
+                  margin-bottom: 18px; }
+.duo .chiffre { font-family: var(--serif); font-size: 120px; line-height: 0.9;
+                letter-spacing: -0.02em; }
+.duo .avant .chiffre { color: var(--ink-faint); }
+.duo .apres .chiffre { color: var(--gold); }
+.duo .sur { font-size: 26px; color: var(--ink-muted); }
+.duo .precision { font-size: 21px; color: var(--ink-muted); margin-top: 14px; line-height: 1.4; }
+
+/* ── Pied de page ───────────────────────────────────────────── */
+.pied {
+  margin-top: auto; padding-top: 30px; border-top: 1px solid var(--line-soft);
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 16px; letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+.corps + .pied { margin-top: 56px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ 1 · OUVERTURE ═══ -->
+<div class="slide vert bas">
+  <div class="entete"><!--SAFE_MARK--><span class="mot">SAFE</span></div>
+  <div class="corps">
+    <p class="eyebrow" style="margin-bottom:30px">Bilan de conformité</p>
+    <h1>Un moteur peut cocher<br>100 sur 100<br>et rester <em>inutilisable</em>.</h1>
+    <p class="grand" style="margin-top:40px">On vient de l'apprendre chez nous.</p>
+  </div>
+  <div class="pied"><span>Balayez →</span><span>01</span></div>
+</div>
+
+<!-- ═══ 2 · CE QU'ON A FAIT ═══ -->
+<div class="slide">
+  <p class="eyebrow">Le 30 juillet</p>
+  <div class="corps">
+    <h2>On a demandé un audit<br>à charge de notre<br>propre logiciel.</h2>
+    <p class="grand" style="margin-top:44px">
+      Trois règlements lus en entier. Pas leurs résumés.
+    </p>
+    <ul style="margin-top:44px">
+      <li><span class="quoi">Comptabilité des avocats du Québec</span><span class="art">RLRQ c. B-1, r. 5 · articles 1 à 87</span></li>
+      <li><span class="quoi">Financial Transactions and Records</span><span class="art">LSO By-Law 9</span></li>
+      <li><span class="quoi">Identification du client</span><span class="art">LSO By-Law 7.1, partie III</span></li>
+    </ul>
+  </div>
+  <div class="pied"><span>105 obligations cartographiées</span><span>02</span></div>
+</div>
+
+<!-- ═══ 3 · LE RÉSULTAT ═══ -->
+<div class="slide">
+  <p class="eyebrow">Le résultat</p>
+  <div class="corps">
+    <div class="gros">45<span class="petitgros"> / 100</span></div>
+    <p class="grand" style="margin-top:50px">
+      Et l'incapacité de produire le document que l'inspecteur demande en premier.
+    </p>
+    <p class="petit" style="margin-top:26px">
+      Sur 105 obligations : 8 couvertes, 26 à moitié, <strong>71 absentes</strong>.
+    </p>
+  </div>
+  <div class="pied"><span>Audit du 30 juillet 2026</span><span>03</span></div>
+</div>
+
+<!-- ═══ 4 · LES DÉFAUTS ═══ -->
+<div class="slide">
+  <p class="eyebrow">Trois exemples</p>
+  <div class="corps">
+    <h2 style="margin-bottom:44px">Ce que ça voulait dire<br>concrètement.</h2>
+    <ul>
+      <li>
+        <span class="quoi">Une facture encore au brouillon permettait de sortir de l'argent du compte en fidéicommis.</span>
+        <span class="art">art. 56(2) QC · s. 9(1)3 ON</span>
+      </li>
+      <li>
+        <span class="quoi">Le rapport comptable mensuel n'était pas produisible. Les chèques en circulation étaient deux nombres saisis à la main.</span>
+        <span class="art">art. 41 QC · s. 18(8) ON</span>
+      </li>
+      <li>
+        <span class="quoi">Le retrait en espèces était proposé dans l'écran. Le règlement l'interdit.</span>
+        <span class="art">art. 57 QC</span>
+      </li>
+    </ul>
+  </div>
+  <div class="pied"><span>27 obligations cotées critiques</span><span>04</span></div>
+</div>
+
+<!-- ═══ 5 · LA CORRECTION ═══ -->
+<div class="slide">
+  <p class="eyebrow">Onze jours plus tard</p>
+  <div class="corps">
+    <div class="duo">
+      <div class="avant">
+        <span class="etiquette">Au 30 juillet</span>
+        <span class="chiffre">45</span><span class="sur"> / 100</span>
+        <p class="precision">Moteur solide, livrables absents</p>
+      </div>
+      <div class="apres">
+        <span class="etiquette">Aujourd'hui</span>
+        <span class="chiffre">99</span><span class="sur"> / 100</span>
+        <p class="precision">100 au Québec, 99 en Ontario</p>
+      </div>
+    </div>
+    <p class="grand" style="margin-top:56px">
+      Treize chantiers. Chaque règle reliée à son article et au code qui l'applique.
+    </p>
+    <p class="petit" style="margin-top:22px">1 439 tests automatisés.</p>
+  </div>
+  <div class="pied"><span>Il reste 3 obligations ouvertes, assumées</span><span>05</span></div>
+</div>
+
+<!-- ═══ 6 · LE RETOURNEMENT ═══ -->
+<div class="slide vert">
+  <p class="eyebrow">Puis une question toute bête</p>
+  <div class="corps">
+    <h2>Qu'est-ce qu'un cabinet<br>qui vient de s'inscrire<br>peut réellement faire ?</h2>
+    <p class="grand" style="margin-top:56px"><strong>Presque rien.</strong></p>
+    <p style="margin-top:34px">
+      Le rapport mensuel affichait une seule phrase : « Aucun compte en fidéicommis
+      n'est enregistré. » Le rapport annuel, la même. Les registres étaient vides.
+    </p>
+  </div>
+  <div class="pied"><span></span><span>06</span></div>
+</div>
+
+<!-- ═══ 7 · LA PREMIÈRE MARCHE ═══ -->
+<div class="slide">
+  <p class="eyebrow">Le défaut</p>
+  <div class="corps">
+    <h2>Il manquait<br>la première marche.</h2>
+    <p class="grand" style="margin-top:44px">
+      Déclarer le compte en fidéicommis lui-même.
+    </p>
+    <p style="margin-top:32px">
+      Le code existait depuis des mois. Aucun écran ne l'appelait, seulement un script
+      interne. Nos cabinets d'essai avaient tous été configurés à la main, alors le
+      défaut était devenu invisible pour nous.
+    </p>
+    <p style="margin-top:26px">
+      C'est corrigé, et ça part en ligne cette semaine.
+    </p>
+  </div>
+  <div class="pied"><span></span><span>07</span></div>
+</div>
+
+<!-- ═══ 8 · LA LEÇON ═══ -->
+<div class="slide vert">
+  <p class="eyebrow">Ce qu'on ne prétendra jamais</p>
+  <div class="corps">
+    <h2>Un logiciel n'est jamais<br>conforme à la place<br>d'une avocate.</h2>
+    <p style="margin-top:48px">
+      Le règlement ne s'adresse pas à un outil. Il s'adresse à vous. C'est vous qui tenez
+      les livres, vous qui certifiez le rapport, vous qui répondez au directeur de
+      l'inspection professionnelle.
+    </p>
+    <p>
+      Aucun outil ne prend cette responsabilité. <strong>Celui qui le prétend vous vend
+      surtout un sentiment de calme.</strong>
+    </p>
+  </div>
+  <div class="pied"><span></span><span>08</span></div>
+</div>
+
+<!-- ═══ 9 · LA QUESTION UTILE ═══ -->
+<div class="slide">
+  <p class="eyebrow">La question qui sert</p>
+  <div class="corps">
+    <h2>Devant n'importe quel outil,<br>y compris le nôtre :</h2>
+    <p class="grand" style="margin-top:48px; color:var(--ink)">
+      Est-ce que je peux ouvrir l'écran aujourd'hui, et voir la pièce ?
+    </p>
+    <p class="petit" style="margin-top:40px">
+      Pas le score affiché sur la page de vente. La pièce.
+    </p>
+    <div class="entete" style="margin-top:72px"><!--SAFE_MARK--><span class="mot">SAFE</span></div>
+    <p class="petit" style="margin-top:18px">
+      La liste complète des 105 obligations, avec leur article et leur état réel,
+      est publique. Le lien est en commentaire.
+    </p>
+  </div>
+  <div class="pied"><span>safecabinet.ca</span><span>09</span></div>
+</div>
+
+</body>
+</html>

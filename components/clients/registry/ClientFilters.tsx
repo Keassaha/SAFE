@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { RefreshCw } from "lucide-react";
+import { registreSelectClass } from "@/components/ui/registre";
 
 const PARAMS = {
   status: "status",
@@ -45,11 +46,10 @@ export function ClientFilters() {
     });
   }
 
-  const selectClass =
-    "h-10 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none";
+  const selectClass = registreSelectClass;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2">
       <select
         aria-label={t("filterByStatus")}
         value={searchParams.get(PARAMS.status) ?? ""}
@@ -78,8 +78,9 @@ export function ClientFilters() {
         type="button"
         onClick={handleRefresh}
         disabled={isPending}
-        className="p-2 rounded-lg border border-si-line bg-si-surface text-si-muted hover:text-si-forest hover:bg-si-canvas transition-colors disabled:opacity-50"
+        className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-forest disabled:opacity-50"
         aria-label={t("refresh")}
+        title={t("refresh")}
       >
         <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
       </button>

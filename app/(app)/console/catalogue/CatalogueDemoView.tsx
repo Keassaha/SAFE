@@ -45,7 +45,7 @@ function StatusBadge({ status }: { status: "ga" | "beta" | "custom" }) {
   };
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${map[status]}`}
+      className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase ${map[status]}`}
     >
       {status}
     </span>
@@ -102,13 +102,13 @@ export function CatalogueDemoView() {
       {/* ── Colonne gauche : le menu COMPOSÉ (le résultat) ──────────────── */}
       <div className="space-y-3">
         <div className="rounded-lg border border-si-line bg-si-surface p-3">
-          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-si-muted">
+          <p className="mb-2 px-1 text-xs font-medium uppercase tracking-wide text-si-muted">
             Menu du cabinet (composé)
           </p>
           <nav className="space-y-3">
             {composed.menu.map((group) => (
               <div key={group.id}>
-                <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-si-muted">
+                <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-wide text-si-muted">
                   {group.label}
                 </p>
                 <ul className="space-y-0.5">
@@ -133,7 +133,7 @@ export function CatalogueDemoView() {
 
         {composed.missingDependencies.length > 0 && (
           <div className="rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 p-3 text-xs text-[#B84A3E]">
-            <p className="font-semibold">Dépendances manquantes</p>
+            <p className="font-medium">Dépendances manquantes</p>
             <ul className="mt-1 list-disc pl-4">
               {composed.missingDependencies.map((d) => (
                 <li key={d.toolId}>
@@ -146,7 +146,7 @@ export function CatalogueDemoView() {
 
         {composed.injections.length > 0 && (
           <div className="rounded-md border border-si-line bg-si-canvas p-3 text-xs text-si-ink">
-            <p className="font-semibold text-si-muted">
+            <p className="font-medium text-si-muted">
               Widgets / actions injectés (hors menu)
             </p>
             <ul className="mt-1 space-y-1">
@@ -183,7 +183,7 @@ export function CatalogueDemoView() {
         </div>
 
         <div className="rounded-lg border border-si-line bg-si-surface">
-          <div className="border-b border-si-line px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-si-muted">
+          <div className="border-b border-si-line px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-si-muted">
             Bibliothèque interne ({CATALOG.length} outils) — cochez pour activer
           </div>
           <ul className="divide-y divide-si-line">
@@ -262,7 +262,7 @@ export function CatalogueDemoView() {
         </div>
 
         <details className="rounded-lg border border-si-line bg-si-canvas">
-          <summary className="cursor-pointer px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-si-muted">
+          <summary className="cursor-pointer px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-si-muted">
             Manifeste d'activation (ce que la Console générerait)
           </summary>
           <pre className="overflow-x-auto px-4 pb-4 text-xs text-si-ink">

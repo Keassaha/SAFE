@@ -94,7 +94,7 @@ export default async function ConservationPage() {
   const fy = status.fiscalYearEnd;
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Conservation"
         description={

@@ -214,7 +214,7 @@ export function ReconciliationWorkflow() {
       {current && (
         <section className={panelClass} aria-labelledby="reconciliation-result-title">
           <div className="flex flex-col gap-3 border-b border-si-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 id="reconciliation-result-title" className="text-base font-semibold text-si-ink">
+            <h2 id="reconciliation-result-title" className="text-base font-medium text-si-ink">
               {t("result.title", { period: current.periode })}
             </h2>
             <StatusBadge
@@ -319,7 +319,7 @@ export function ReconciliationWorkflow() {
       )}
 
       <section className={`${panelClass} p-5 sm:p-6`} aria-labelledby="reconciliation-form-title">
-        <h2 id="reconciliation-form-title" className="text-base font-semibold text-si-ink">
+        <h2 id="reconciliation-form-title" className="text-base font-medium text-si-ink">
           {t("form.title")}
         </h2>
         <p className="mt-1 max-w-3xl text-sm text-si-muted">{t("form.intro")}</p>
@@ -407,7 +407,7 @@ export function ReconciliationWorkflow() {
 
       {data?.reconciliations && data.reconciliations.length > 0 ? (
         <section className={panelClass} aria-labelledby="reconciliation-history-title">
-          <h2 id="reconciliation-history-title" className="px-5 py-4 text-base font-semibold text-si-ink">
+          <h2 id="reconciliation-history-title" className="px-5 py-4 text-base font-medium text-si-ink">
             {t("history.title")}
           </h2>
           <div className="overflow-x-auto border-t border-si-line">

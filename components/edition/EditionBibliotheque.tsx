@@ -97,7 +97,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
       style={{
         background: V1.bg,
         color: V1.text,
-        fontFamily: '"Geist", -apple-system, system-ui, sans-serif',
+        fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
         minHeight: "calc(100vh - 80px)",
         margin: "-1.5rem",
         padding: "28px 40px",
@@ -294,7 +294,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                           fontWeight: 700,
                           color: "#333",
                           marginBottom: 4,
-                          fontFamily: "Georgia, serif",
+                          fontFamily: "var(--font-instrument-serif), Georgia, serif",
                           overflow: "hidden",
                           whiteSpace: "nowrap",
                           textOverflow: "ellipsis",

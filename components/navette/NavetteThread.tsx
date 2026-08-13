@@ -39,8 +39,8 @@ interface Props {
 const TONE: Record<string, { fg: string; bg: string }> = {
   err: { fg: "#8A3A2D", bg: "#F3D8D2" },
   warn: { fg: "#8B6B1F", bg: "#F5E6C8" },
-  succ: { fg: "#1F3A2E", bg: "#D4E8D9" },
-  brand: { fg: "#1F3A2E", bg: "#EEF5F0" },
+  succ: { fg: "var(--si-forest)", bg: "#D4E8D9" },
+  brand: { fg: "var(--si-forest)", bg: "#EEF5F0" },
   muted: { fg: "#71717A", bg: "#FAFAFA" },
 };
 
@@ -132,7 +132,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
     <div className="rounded-2xl border border-si-line bg-si-surface">
       {/* En-tête */}
       <div className="flex items-center gap-2 px-5 pt-4 pb-2">
-        <h3 className="text-[15px] font-semibold text-si-ink">{t("title")}</h3>
+        <h3 className="text-[15px] font-medium text-si-ink">{t("title")}</h3>
         <span className="text-xs text-si-muted">· {t("subtitle")}</span>
       </div>
 
@@ -153,11 +153,11 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: tone.fg }}>
+                    <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: tone.fg }}>
                       {typeLabel(r.type)}
                     </span>
                     {r.dueDate ? (
-                      <span className="text-[11px] font-semibold" style={{ color: TONE.warn.fg }}>
+                      <span className="text-[11px] font-medium" style={{ color: TONE.warn.fg }}>
                         {t("due")} {fmtDate(r.dueDate)}
                       </span>
                     ) : null}
@@ -174,7 +174,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
                       type="button"
                       disabled={pending}
                       onClick={() => run(() => resolveNavetteAction(r.id, dossierId))}
-                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-si-line bg-si-surface px-3 py-1.5 text-xs font-semibold text-si-muted"
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-si-line bg-si-surface px-3 py-1.5 text-xs font-medium text-si-muted"
                     >
                       {t("markAddressed")}
                     </button>
@@ -194,8 +194,8 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
               type="button"
               disabled={pending}
               onClick={() => run(() => approveMatterAction({ dossierId }))}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
-              style={{ backgroundColor: "#1F3A2E" }}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+              style={{ backgroundColor: "var(--si-forest)" }}
             >
               <Check className="h-3.5 w-3.5" aria-hidden /> {t("approve")}
             </button>
@@ -203,7 +203,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
               type="button"
               disabled={pending}
               onClick={() => setMode(mode === "sentback" ? "message" : "sentback")}
-              className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold"
+              className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
               style={mode === "sentback" ? { backgroundColor: TONE.err.bg, color: TONE.err.fg, borderColor: TONE.err.bg } : { borderColor: "#D4D4D8", color: "#71717A" }}
             >
               <CornerUpLeft className="h-3.5 w-3.5" aria-hidden /> {t("sendBack")}
@@ -215,8 +215,8 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
             type="button"
             disabled={pending}
             onClick={() => run(() => markReadyForReviewAction({ dossierId }))}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold"
-            style={{ borderColor: "#CDE0D4", backgroundColor: "#EEF5F0", color: "#1F3A2E" }}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
+            style={{ borderColor: "#CDE0D4", backgroundColor: "#EEF5F0", color: "var(--si-forest)" }}
           >
             <Send className="h-3.5 w-3.5" aria-hidden /> {t("markReady")}
           </button>
@@ -236,8 +236,8 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
           type="button"
           disabled={pending || !text.trim()}
           onClick={onSend}
-          className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          style={{ backgroundColor: mode === "sentback" ? TONE.err.fg : "#1F3A2E" }}
+          className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          style={{ backgroundColor: mode === "sentback" ? TONE.err.fg : "var(--si-forest)" }}
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" aria-hidden />}
           {mode === "sentback" ? t("sendBack") : t("send")}

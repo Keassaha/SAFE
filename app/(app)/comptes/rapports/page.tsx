@@ -24,7 +24,7 @@ export default async function TrustReportsPage() {
   const copy = getTrustRegulatorCopy(await getCabinetProvince(cabinetId));
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={copy.trustReportsTitle}
         description={copy.trustReportsDesc}

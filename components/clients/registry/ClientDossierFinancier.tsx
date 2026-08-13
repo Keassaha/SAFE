@@ -96,7 +96,7 @@ export function ClientDossierFinancier({
             <p className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {title}
             </p>
-            <p className="mt-1 text-xl font-semibold text-si-ink">
+            <p className="mt-1 text-xl font-medium text-si-ink">
               {value}
             </p>
             {sub && (
@@ -260,10 +260,7 @@ export function ClientDossierFinancier({
                 </thead>
                 <tbody>
                   {invoices.map((inv) => (
-                    <tr
-                      key={inv.id}
-                      className="border-b border-si-line last:border-0 hover:bg-si-canvas/50"
-                    >
+                    <tr key={inv.id} className="safe-zoom-rang border-b border-si-line last:border-0 " >
                       <td className="py-2 px-3 font-medium text-si-ink">
                         {displayInvoiceNumero(inv.numero)}
                       </td>

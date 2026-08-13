@@ -9,8 +9,18 @@ export function Card({ children, className, elevated = false, ...props }: CardPr
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-si-line bg-si-surface text-si-ink",
-        elevated && "shadow-si-card",
+        /* Feuille : la surface qui porte un contenu, détachée du canvas.
+         * Le rayon passe de 8 à 14 px et l'ombre devient permanente, au lieu
+         * d'être réservée à `elevated`. Sur un canvas gris franc, une carte
+         * blanche sans ombre flotte sans se poser. Une seule ombre, longue et
+         * basse, doublée d'un liseré d'un pixel : deux niveaux d'ombre empilés
+         * font du carton, pas de la profondeur.
+         * Ce composant est monté dans 98 fichiers : c'est ici que « arrondi,
+         * en relief, avec des ombres » se décide, pas page par page. */
+        "overflow-hidden rounded-[14px] border border-si-line bg-si-surface text-si-ink",
+        "shadow-[0_1px_2px_rgb(var(--si-line-ink-rgb)/0.04),0_18px_40px_-28px_rgb(var(--si-line-ink-rgb)/0.30)]",
+        elevated &&
+          "shadow-[0_1px_2px_rgb(var(--si-line-ink-rgb)/0.05),0_26px_56px_-30px_rgb(var(--si-line-ink-rgb)/0.38)]",
         className,
       )}
       {...props}

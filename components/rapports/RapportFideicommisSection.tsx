@@ -34,7 +34,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-si-ink flex items-center gap-2 tracking-tight">
+      <h3 className="text-sm font-medium text-si-ink flex items-center gap-2 tracking-tight">
         <Landmark className="w-4 h-4" aria-hidden />
         {t("trustReportTitle")}
       </h3>
@@ -52,7 +52,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
                 </span>
                 <Icon className="w-5 h-5 text-si-muted" aria-hidden />
               </div>
-              <p className="text-xl font-bold text-si-ink tabular-nums">{c.value}</p>
+              <p className="text-xl font-medium text-si-ink tabular-nums">{c.value}</p>
             </div>
           );
         })}

@@ -137,7 +137,7 @@ function SectionCard({
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-si-forest/10 text-si-forest">
           {icon}
         </span>
-        <h2 className="text-base font-semibold text-si-ink tracking-tight">{title}</h2>
+        <h2 className="text-base font-medium text-si-ink tracking-tight">{title}</h2>
         {badge ? <StatusBadge label={badge} variant={badgeVariant ?? "neutral"} /> : null}
       </div>
       <CardContent className="flex-1 flex flex-col">
@@ -147,7 +147,7 @@ function SectionCard({
           {primaryHref && primaryLabel && !primaryDisabled ? (
             <Link
               href={primaryHref}
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[#1F3A2E] hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-[#1F3A2E] hover:underline"
             >
               {primaryLabel}
               <ChevronRight className="h-4 w-4" aria-hidden />
@@ -294,7 +294,7 @@ export default async function ParametresPage() {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")} />
 
       {readiness && <AdminReadinessStrip report={readiness} />}

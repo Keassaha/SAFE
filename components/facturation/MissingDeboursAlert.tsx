@@ -48,7 +48,7 @@ export function MissingDeboursAlert({ dossierId, dossierType, sousType }: Missin
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-2">
           <AlertTriangle className={`w-4 h-4 ${requiredMissing.length > 0 ? "text-[#B84A3E]" : "text-si-amber-ink"}`} />
-          <h4 className="text-sm font-semibold">
+          <h4 className="text-sm font-medium">
             {data.missing.length} typical disbursement{data.missing.length > 1 ? "s" : ""} not yet recorded
           </h4>
           {totalEstimate > 0 && (

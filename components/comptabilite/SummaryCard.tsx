@@ -81,7 +81,7 @@ export function SummaryCard({
   return (
     <Link
       href={href}
-      className={`group flex flex-col rounded-2xl border ${tn.card} ${tn.hover} p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-si-card ${className}`}
+      className={`safe-carte-chiffre group flex flex-col rounded-2xl border ${tn.card} ${tn.hover} p-5 transition-all duration-200 ${className}`}
     >
       <div className="flex items-start justify-between gap-2">
         <span className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${tn.iconBg}`}>
@@ -93,14 +93,14 @@ export function SummaryCard({
       </div>
 
       <p className="mt-3 text-[13px] font-medium text-si-ink">{title}</p>
-      <p className="mt-1 font-mono text-[26px] font-semibold leading-none tabular-nums text-si-ink">
+      <p className="safe-chiffre mt-1 font-mono font-medium tabular-nums text-si-ink">
         {formatCurrency(amount)}
       </p>
       <p className="mt-2 text-[12px] leading-snug text-si-muted">{explanation}</p>
 
       <span className="mt-4 inline-flex items-center gap-1 text-[12px] font-medium text-si-forest">
         {linkLabel}
-        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+        <ArrowRight className="safe-zoom h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </span>
     </Link>
   );

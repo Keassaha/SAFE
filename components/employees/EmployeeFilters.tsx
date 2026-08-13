@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { EmployeeRole, EmployeeStatus } from "@prisma/client";
 import { EMPLOYEE_ROLE_LABELS } from "@/lib/auth/rbac";
+import { registreSelectClass } from "@/components/ui/registre";
 
 const STATUS_OPTIONS: { value: EmployeeStatus; labelKey: string }[] = [
   { value: "active", labelKey: "statusActive" },
@@ -43,7 +44,7 @@ export function EmployeeFilters() {
           const v = e.target.value as EmployeeStatus | "";
           window.location.href = buildUrl({ status: v || null });
         }}
-        className="rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
+        className={registreSelectClass}
         aria-label={t("filterByStatus")}
       >
         <option value="">{t("allStatuses")}</option>
@@ -59,7 +60,7 @@ export function EmployeeFilters() {
           const v = e.target.value as EmployeeRole | "";
           window.location.href = buildUrl({ role: v || null });
         }}
-        className="rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
+        className={registreSelectClass}
         aria-label={t("filterByRole")}
       >
         <option value="">{t("allRoles")}</option>

@@ -8,7 +8,6 @@ import type { ClientSortField, ClientSortOrder } from "@/lib/clients/query";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Card, CardTitle } from "@/components/ds-safe/core";
 import { canCreateClients, canEditClients, canManageClients, canViewClients } from "@/lib/auth/permissions";
 import { ClientSummaryCards } from "@/components/clients/registry/ClientSummaryCards";
 import { ClientSearchBar } from "@/components/clients/registry/ClientSearchBar";
@@ -18,6 +17,7 @@ import { ClientPagination } from "@/components/clients/registry/ClientPagination
 import { ClientSuccessBanner } from "@/components/clients/registry/ClientSuccessBanner";
 import { ClientCreateModal } from "@/components/clients/registry/ClientCreateModal";
 import { ClientQuickCreateModal } from "@/components/clients/registry/ClientQuickCreateModal";
+import { RegistreBarreOutils, RegistreFeuille } from "@/components/ui/registre";
 import type { ClientRow } from "@/components/clients/registry/ClientTable";
 import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -139,9 +139,12 @@ export default async function ClientsPage({
     }).toString();
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <ClientSuccessBanner />
+      {/* `dashboard` : l'en-tête vit sur la surface de travail au lieu d'être
+          une grande carte verte. Le registre commence dans la première vue. */}
       <PageHeader
+        variant="dashboard"
         title={t("registryTitle")}
         description={t("manageClientsDesc")}
         action={
@@ -169,14 +172,11 @@ export default async function ClientsPage({
         unbilledAmount={unbilledAmount}
       />
 
-      <Card className="overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>{t("clientList")}</CardTitle>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <ClientSearchBar />
-            <ClientFilters />
-          </div>
-        </div>
+      {/* La liste passe sur une feuille : surface blanche, filet, une ombre
+          longue. Le canvas gris la porte au lieu de la contenir, et la barre
+          d'outils appartient visiblement au même objet que le tableau. */}
+      <RegistreFeuille ariaLabel={t("clientList")}>
+        <RegistreBarreOutils recherche={<ClientSearchBar />} filtres={<ClientFilters />} />
         {rows.length === 0 ? (
           <EmptyState
             title={t("noClients")}
@@ -203,7 +203,7 @@ export default async function ClientsPage({
             />
           </>
         )}
-      </Card>
+      </RegistreFeuille>
     </div>
   );
 }

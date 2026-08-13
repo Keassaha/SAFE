@@ -130,13 +130,13 @@ export function ComplianceDashboard() {
       {/* Score card */}
       <Card className={`border-2 ${scoreBg}`}>
         <CardContent className="p-6 flex items-center gap-6">
-          <div className={`text-5xl font-bold tabular-nums ${scoreColor}`}>
+          <div className={`text-5xl font-medium tabular-nums ${scoreColor}`}>
             {data.score}%
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <Shield className={`w-5 h-5 ${scoreColor}`} />
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-lg font-medium">
                 {t("opScoreTitle")}
               </h2>
               <StatusBadge label={scoreLabel} variant={data.scoreVariant} />
@@ -184,7 +184,7 @@ export function ComplianceDashboard() {
                   }`}>
                     {issueLabel(t, issue)}
                   </span>
-                  <span className={`text-sm font-bold tabular-nums ${
+                  <span className={`text-sm font-medium tabular-nums ${
                     issue.severity === "error" ? "text-si-danger-ink" : "text-si-amber-ink"
                   }`}>
                     {issue.count}
@@ -205,7 +205,7 @@ export function ComplianceDashboard() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <Scale className="w-4 h-4 text-si-ink" />
-                <h4 className="text-sm font-semibold">{copy.trustReconciliationTitle}</h4>
+                <h4 className="text-sm font-medium">{copy.trustReconciliationTitle}</h4>
               </div>
               <StatusBadge
                 label={
@@ -230,7 +230,7 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">{t("wFintracTitle")}</h4>
+              <h4 className="text-sm font-medium">{t("wFintracTitle")}</h4>
             </div>
             {data.counts.dossiersWithoutFintrac === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
@@ -250,7 +250,7 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">{t("wConflictsTitle")}</h4>
+              <h4 className="text-sm font-medium">{t("wConflictsTitle")}</h4>
             </div>
             {data.counts.unresolvedConflicts === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
@@ -270,7 +270,7 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">{t("wMandatesTitle")}</h4>
+              <h4 className="text-sm font-medium">{t("wMandatesTitle")}</h4>
             </div>
             {data.counts.dossiersWithoutMandate === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
@@ -290,7 +290,7 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-si-ink" />
-              <h4 className="text-sm font-semibold">{t("wDocsTitle")}</h4>
+              <h4 className="text-sm font-medium">{t("wDocsTitle")}</h4>
             </div>
             {data.counts.expiredDocuments === 0 && data.counts.expiringSoonDocuments === 0 ? (
               <div className="flex items-center gap-1 text-si-verified text-sm">
@@ -315,7 +315,7 @@ export function ComplianceDashboard() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-si-ink" />
-                <h4 className="text-sm font-semibold">{copy.complianceReportsButton}</h4>
+                <h4 className="text-sm font-medium">{copy.complianceReportsButton}</h4>
               </div>
               <p className="text-sm text-si-muted">
                 {copy.reportGeneratorDesc}
@@ -338,7 +338,7 @@ export function ComplianceDashboard() {
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center gap-2">
               <Scale className="w-4 h-4 text-si-ink" />
-              <h3 className="text-sm font-semibold">{oc.heading}</h3>
+              <h3 className="text-sm font-medium">{oc.heading}</h3>
               <span className="text-xs text-si-muted">
                 {copy.isQuebec ? "Barreau du Québec" : "Law Society of Ontario"}
               </span>
@@ -350,7 +350,7 @@ export function ComplianceDashboard() {
               }, {}),
             ).map(([domain, rules]) => (
               <div key={domain} className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-si-muted">
+                <h4 className="text-xs font-medium uppercase tracking-wide text-si-muted">
                   {OBLIGATION_DOMAIN_LABELS[domain]?.[lang] ?? domain}
                 </h4>
                 <ul className="space-y-2">

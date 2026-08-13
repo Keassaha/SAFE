@@ -75,11 +75,11 @@ function Hero() {
           <motion.div {...fadeUp(0.18)} className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <Link
               href={R.diagnostic}
-              className="inline-flex h-11 items-center gap-2 rounded-[7px] px-5 font-sans text-[14px] font-medium transition-all duration-200 hover:-translate-y-0.5"
+              className="safe-zoom inline-flex h-11 items-center gap-2 rounded-[7px] px-5 font-sans text-[14px] font-medium transition-all duration-200"
               style={{
                 background: GREEN,
                 color: "#fff",
-                boxShadow: "0 14px 28px -18px rgba(18,161,80,0.85)",
+                boxShadow: "0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85)",
               }}
             >
               Faire le diagnostic <ArrowRight size={15} />
@@ -282,7 +282,7 @@ function BillingFlowFigure() {
         <motion.span
           aria-hidden
           className="absolute bottom-8 left-[17px] top-6 w-px origin-top"
-          style={{ background: "rgba(18,161,80,0.3)" }}
+          style={{ background: "rgb(var(--si-forest-rgb) / 0.3)" }}
           initial={{ scaleY: 0 }}
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
@@ -303,8 +303,8 @@ function BillingFlowFigure() {
               <span
                 className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border"
                 style={{
-                  background: step.done ? "rgba(18,161,80,0.1)" : "#F7FAF7",
-                  borderColor: step.done ? "rgba(18,161,80,0.45)" : "rgba(18,161,80,0.22)",
+                  background: step.done ? "rgb(var(--si-forest-rgb) / 0.1)" : "#F7FAF7",
+                  borderColor: step.done ? "rgb(var(--si-forest-rgb) / 0.45)" : "rgb(var(--si-forest-rgb) / 0.22)",
                   color: step.done ? VERIFIED : GREEN,
                 }}
               >
@@ -358,7 +358,7 @@ function ReviewFigure() {
             style={{ borderColor: LINE_SOFT }}
           >
             <span
-              className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125"
+              className="safe-zoom mt-1 h-2.5 w-2.5 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125"
               style={{ background: card.tone }}
             />
             <span className="min-w-0">
@@ -368,7 +368,7 @@ function ReviewFigure() {
               <span className="mt-1 block font-sans text-[13px]" style={{ color: INK }}>{card.title}</span>
               <span className="mt-1 block font-sans text-[11.5px]" style={{ color: FAINT }}>Aaliyah Côté · Dossier 2026-001</span>
             </span>
-            <ArrowRight size={14} className="ml-auto mt-3 shrink-0 transition-transform duration-300 group-hover:translate-x-1" style={{ color: FAINT }} />
+            <ArrowRight size={14} className="safe-zoom ml-auto mt-3 shrink-0 transition-transform duration-300 group-hover:translate-x-1" style={{ color: FAINT }} />
           </motion.div>
         ))}
       </div>
@@ -583,7 +583,7 @@ function FinalCta() {
         <motion.div {...fadeUp(0.18)} className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href={R.diagnostic}
-            className="inline-flex h-11 items-center gap-2 rounded-[7px] px-6 font-sans text-[14px] font-medium transition-transform hover:-translate-y-0.5"
+            className="safe-zoom inline-flex h-11 items-center gap-2 rounded-[7px] px-6 font-sans text-[14px] font-medium transition-transform"
             style={{ background: GREEN, color: "#fff" }}
           >
             Faire le diagnostic <ArrowRight size={15} />

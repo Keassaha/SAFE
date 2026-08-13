@@ -77,7 +77,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
     <div className="flex gap-6 min-h-[600px]">
       {/* Sidebar — liste des clients */}
       <aside className="w-64 shrink-0 space-y-1">
-        <p className="text-xs font-semibold text-[var(--safe-text-secondary)] uppercase tracking-wide px-2 mb-3">
+        <p className="text-xs font-medium text-[var(--safe-text-secondary)] uppercase tracking-wide px-2 mb-3">
           {t("clientsCount", { count: clients.length })}
         </p>
         {clients.map((client) => (
@@ -91,7 +91,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
             }`}
           >
             <span
-              className={`text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+              className={`text-sm font-medium w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                 selectedClientId === client.id
                   ? "bg-white/20 text-white"
                   : "bg-[var(--safe-neutral-border)] text-[var(--safe-text-secondary)]"
@@ -150,7 +150,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
           <>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-[var(--safe-text-title)]">
+                <h2 className="text-lg font-medium text-[var(--safe-text-title)]">
                   {clientDisplayName(selectedClient)}
                 </h2>
                 <p className="text-sm text-[var(--safe-text-secondary)]">
@@ -210,7 +210,7 @@ function FolderCard({
   return (
     <Link
       href={`/edition/${dossier.id}`}
-      className={`group block rounded-lg border-2 ${colors.bg} ${colors.border} shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 overflow-hidden`}
+      className={`group block rounded-lg border-2 ${colors.bg} ${colors.border} shadow-sm transition-all duration-200 overflow-hidden`}
     >
       {/* Onglet de la chemise */}
       <div className={`h-2 ${colors.tab} w-1/2 rounded-b-sm mx-4`} />
@@ -220,7 +220,7 @@ function FolderCard({
         {/* En-tête */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[var(--safe-text-title)] text-sm leading-tight truncate">
+            <p className="font-medium text-[var(--safe-text-title)] text-sm leading-tight truncate">
               {dossier.intitule}
             </p>
             {dossier.numeroDossier && (

@@ -30,7 +30,7 @@ export function DashboardTransactionsList({
   return (
     <div className="card-glass overflow-hidden p-4 md:p-5 border-l-4 border-l-emerald-500">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
+        <h3 className="text-sm font-medium safe-text-title flex items-center gap-1.5 tracking-tight">
           <CircleDollarSign className="w-4 h-4 text-emerald-600" aria-hidden />
           {t("transactions")}
         </h3>
@@ -63,7 +63,7 @@ export function DashboardTransactionsList({
                   <p className="text-xs safe-text-secondary">{tx.date}</p>
                 </div>
                 <span
-                  className={`text-sm font-semibold shrink-0 ${
+                  className={`text-sm font-medium shrink-0 ${
                     isPositive ? "text-emerald-600" : "text-red-600"
                   }`}
                 >

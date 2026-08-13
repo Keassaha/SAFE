@@ -128,7 +128,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
             <FolderOpen className="w-6 h-6 text-[var(--safe-primary)]" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[var(--safe-text-title)]">
+            <h1 className="text-xl font-medium text-[var(--safe-text-title)]">
               {dossier.intitule}
             </h1>
             <p className="text-sm text-[var(--safe-text-secondary)]">
@@ -388,7 +388,7 @@ function NewDocPopover({
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-[var(--safe-neutral-border)] p-4 z-50 space-y-3">
-          <p className="text-sm font-semibold text-[var(--safe-text-title)]">
+          <p className="text-sm font-medium text-[var(--safe-text-title)]">
             {t("newDocument")}
           </p>
 

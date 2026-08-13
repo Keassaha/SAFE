@@ -1,7 +1,9 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { requireCabinetId, requireCabinetAndUser } from "@/lib/auth/session";
+import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canManageExpenseJournal } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { DEFAULT_EXPENSE_CATEGORIES } from "@/lib/expense-journal/constants";
 import { suggestCategoryFromRules, learnCategorizationRule, isExpenseTransaction } from "@/lib/expense-journal/categorization-rules";
 import { normalizeSupplier } from "@/lib/expense-journal/normalize-supplier";
@@ -18,6 +20,27 @@ export type ImportResult = {
   toValidate: number;
   errors?: string[];
 };
+
+/**
+ * Tenir le journal des dépenses : import de relevé, catégorisation, validation,
+ * correction, mise à l'écart.
+ *
+ * Ces actions ne vérifiaient qu'une session. Elles étaient protégées par
+ * ricochet : seule la page pouvait les déclencher, et la page refusait les
+ * autres rôles. Depuis que l'avocat peut LIRE la comptabilité (décision CEO
+ * 2026-08-12), ce ricochet ne suffit plus, sinon ouvrir la lecture ouvrirait
+ * l'écriture avec elle. Le mur est donc ici, où il aurait toujours dû être.
+ *
+ * Aucun changement pour les rôles qui tenaient déjà le journal : admin,
+ * comptabilité et assistante passent, comme avant.
+ */
+async function requireExpenseJournalWriter() {
+  const session = await requireCabinetAndUser();
+  if (!canManageExpenseJournal(session.role as UserRole)) {
+    throw new Error("Accès refusé : tenir le journal des dépenses demande un rôle d'administration ou de comptabilité.");
+  }
+  return session;
+}
 
 /**
  * Assure que les catégories système existent pour le cabinet.
@@ -51,7 +74,7 @@ export async function importBankStatement(
   fileName: string,
   csvText: string
 ): Promise<ImportResult> {
-  const { cabinetId, userId } = await requireCabinetAndUser();
+  const { cabinetId, userId } = await requireExpenseJournalWriter();
   const startTime = Date.now();
   await ensureExpenseCategories(cabinetId);
 
@@ -160,7 +183,7 @@ export type ValidateTransactionInput = {
 export async function validateImportedTransaction(
   input: ValidateTransactionInput
 ): Promise<{ success: boolean; cabinetExpenseId?: string; error?: string }> {
-  const { cabinetId, userId } = await requireCabinetAndUser();
+  const { cabinetId, userId } = await requireExpenseJournalWriter();
 
   const tx = await prisma.bankImportTransaction.findFirst({
     where: { id: input.transactionId, cabinetId },
@@ -290,7 +313,7 @@ export async function editCabinetExpense(
   expenseId: string,
   patch: EditCabinetExpenseInput,
 ): Promise<EditCabinetExpenseResult> {
-  const { cabinetId, userId } = await requireCabinetAndUser();
+  const { cabinetId, userId } = await requireExpenseJournalWriter();
 
   const before = await prisma.cabinetExpense.findFirst({
     where: { id: expenseId, cabinetId },
@@ -372,7 +395,7 @@ export async function bulkApplyCategory(input: BulkApplyInput): Promise<{
   validated: number;
   errors: string[];
 }> {
-  const { cabinetId, userId } = await requireCabinetAndUser();
+  const { cabinetId, userId } = await requireExpenseJournalWriter();
   const errors: string[] = [];
   let validated = 0;
 
@@ -413,7 +436,7 @@ export async function bulkApplyCategory(input: BulkApplyInput): Promise<{
 export async function ignoreTransactions(
   transactionIds: string[]
 ): Promise<{ success: boolean; count: number }> {
-  await requireCabinetId();
+  await requireExpenseJournalWriter();
   const result = await prisma.bankImportTransaction.updateMany({
     where: { id: { in: transactionIds } },
     data: { status: "ignored" },

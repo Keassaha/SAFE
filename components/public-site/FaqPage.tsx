@@ -60,7 +60,7 @@ export default function FaqPage() {
         <div className="mx-auto max-w-2xl">
           {FAQ.map((item, i) => (
             <motion.div key={item.q} {...fadeUp(0.04)} className="py-8" style={{ borderTop: i === 0 ? "none" : `1px solid ${LINE}` }}>
-              <h2 className="font-sans text-[18px] font-semibold leading-[1.3]" style={{ color: INK }}>
+              <h2 className="font-sans text-[18px] font-medium leading-[1.3]" style={{ color: INK }}>
                 {item.q}
               </h2>
               <div className="mt-3 space-y-3 font-sans text-[15.5px] leading-[1.6]" style={{ color: MUTED }}>

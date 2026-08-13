@@ -1,0 +1,72 @@
+[
+  {
+    "formula_id": "F-001",
+    "name": "Valeur nette d'un bien",
+    "expression": "market_value - qualified_debt",
+    "rule_ids": [
+      "PF-002",
+      "PUP-004"
+    ],
+    "rounding": "currency_2",
+    "production_status": "REVIEW_REQUIRED"
+  },
+  {
+    "formula_id": "F-002",
+    "name": "Plus-value deductible - bien initial",
+    "expression": "appreciation * initial_net_value / initial_gross_value",
+    "rule_ids": [
+      "PF-004",
+      "PUP-005"
+    ],
+    "preconditions": [
+      "initial_gross_value > 0",
+      "dated valuation",
+      "proof of ownership"
+    ],
+    "rounding": "calculation_4_output_2",
+    "production_status": "REVIEW_REQUIRED"
+  },
+  {
+    "formula_id": "F-003",
+    "name": "Plus-value deductible - apport",
+    "expression": "appreciation_since_contribution * contribution / gross_value_at_contribution",
+    "rule_ids": [
+      "PF-005",
+      "PUP-005"
+    ],
+    "preconditions": [
+      "gross_value_at_contribution > 0",
+      "traceable contribution"
+    ],
+    "rounding": "calculation_4_output_2",
+    "production_status": "REVIEW_REQUIRED"
+  },
+  {
+    "formula_id": "F-004",
+    "name": "Valeur partageable par conjoint",
+    "expression": "net_family_value - admissible_deductions",
+    "rule_ids": [
+      "PF-002",
+      "PF-004",
+      "PF-005",
+      "PF-006"
+    ],
+    "rounding": "currency_2",
+    "production_status": "REVIEW_REQUIRED"
+  },
+  {
+    "formula_id": "F-005",
+    "name": "Creance theorique egalitaire",
+    "expression": "(shareable_value_A - shareable_value_B) / 2",
+    "rule_ids": [
+      "PF-001",
+      "PF-002"
+    ],
+    "preconditions": [
+      "no judicial unequal division",
+      "all assets and debts validated"
+    ],
+    "rounding": "currency_2",
+    "production_status": "REVIEW_REQUIRED"
+  }
+]

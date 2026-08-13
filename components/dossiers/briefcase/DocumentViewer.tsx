@@ -76,7 +76,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
       <div className="flex flex-1 flex-col bg-si-surface p-6 lg:border-l lg:border-si-line">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-si-ink">{t("documentNotFound")}</h2>
+            <h2 className="text-lg font-medium text-si-ink">{t("documentNotFound")}</h2>
           </div>
           <button
             onClick={() => onEdit(itemId)}
@@ -110,7 +110,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
     <div className="flex flex-1 flex-col bg-si-surface p-6 lg:border-l lg:border-si-line overflow-y-auto">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-si-ink">{title}</h2>
+          <h2 className="text-lg font-medium text-si-ink">{title}</h2>
           <p className="mt-1 text-sm text-si-muted">{t("typeLabel", { type: docType })}</p>
           <p className="mt-1 text-xs text-si-muted">
             {t("createdOn", { date: new Date(document.createdAt).toLocaleDateString("fr-CA") })}
@@ -168,7 +168,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
               href={`/api/documents/download/${document.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-si-forest px-4 py-2 text-sm font-medium text-white hover:bg-si-forest-soft transition-colors"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors"
             >
               <Download className="h-4 w-4" />
               {t("downloadFile")}

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { requirePageAccess } from "@/lib/auth/page-guard";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -12,7 +12,8 @@ import type { DeboursStatut } from "@prisma/client";
 
 export default async function FacturationFraisPage() {
   const t = await getTranslations("billingUi");
-  const { cabinetId } = await requirePageAccess(canManageInvoices);
+  const { cabinetId, role } = await requirePageAccess(canViewBilling);
+  const canWrite = canManageInvoices(role);
 
   const [debours, deboursARefacturer, deboursNonRembourses, clients, dossiers] = await Promise.all([
     prisma.deboursDossier.findMany({
@@ -79,10 +80,12 @@ export default async function FacturationFraisPage() {
         backHref={routes.facturation}
         backLabel={t("backToBilling")}
         action={
-          <FacturationFraisActions
-            clients={clients}
-            dossiers={dossiers}
-          />
+          canWrite ? (
+            <FacturationFraisActions
+              clients={clients}
+              dossiers={dossiers}
+            />
+          ) : undefined
         }
       />
 
@@ -90,7 +93,7 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsToRebill")} />
           <CardContent>
-            <p className="text-2xl font-semibold text-si-forest">
+            <p className="text-2xl font-medium text-si-forest">
               {formatCurrency(totalARefacturer)}
             </p>
             <p className="text-sm text-si-muted mt-1">
@@ -101,7 +104,7 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsUnreimbursed")} />
           <CardContent>
-            <p className="text-2xl font-semibold text-si-forest">
+            <p className="text-2xl font-medium text-si-forest">
               {formatCurrency(totalNonRembourses)}
             </p>
             <p className="text-sm text-si-muted mt-1">
@@ -115,7 +118,8 @@ export default async function FacturationFraisPage() {
         <CardContent>
           {debours.length === 0 ? (
             <p className="text-sm text-si-muted py-4">
-              {t("noDisbursements")}
+              {/* Sans le bouton, le message qui invite à cliquer dessus ment. */}
+              {canWrite ? t("noDisbursements") : t("noDisbursementsReadOnly")}
             </p>
           ) : (
             <div className="overflow-x-auto">

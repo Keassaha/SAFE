@@ -60,7 +60,7 @@ function ResetPasswordContent() {
   if (!token) {
     return (
       <div className="text-center space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-text-primary">
+        <h2 className="text-xl font-medium text-neutral-text-primary">
           {t("invalidLinkTitle")}
         </h2>
         <p className="text-sm text-neutral-muted">
@@ -75,7 +75,7 @@ function ResetPasswordContent() {
 
   return success ? (
     <div className="text-center space-y-4">
-      <h2 className="text-xl font-semibold text-neutral-text-primary">
+      <h2 className="text-xl font-medium text-neutral-text-primary">
         {t("passwordChangedTitle")}
       </h2>
       <p className="text-sm text-neutral-muted">
@@ -87,7 +87,7 @@ function ResetPasswordContent() {
     </div>
   ) : (
     <>
-      <h2 className="text-xl font-semibold text-neutral-text-primary mb-2">
+      <h2 className="text-xl font-medium text-neutral-text-primary mb-2">
         {t("newPasswordTitle")}
       </h2>
       <p className="text-sm text-neutral-muted mb-6">

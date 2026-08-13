@@ -31,7 +31,7 @@ export function StartTimerButton({
 
   if (running) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-si-muted/50">
+      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-si-muted/50">
         <Timer className="h-4 w-4" aria-hidden /> {t("running")}
       </span>
     );
@@ -39,14 +39,14 @@ export function StartTimerButton({
 
   const style =
     variant === "solid"
-      ? { backgroundColor: "#1F3A2E", color: "#fff", border: "none" }
-      : { backgroundColor: "#fff", color: "#1F3A2E", border: "1px solid #CDE0D4" };
+      ? { backgroundColor: "var(--si-forest)", color: "#fff", border: "none" }
+      : { backgroundColor: "#fff", color: "var(--si-forest)", border: "1px solid #CDE0D4" };
 
   return (
     <button
       type="button"
       onClick={() => start({ clientId, clientLabel, dossierId, dossierLabel, description })}
-      className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold"
+      className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium"
       style={style}
     >
       <Play className="h-4 w-4" aria-hidden /> {t("start")}

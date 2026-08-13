@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
 const inputClass =
-  "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-forest-600 focus:ring-1 focus:ring-forest-600 font-sans";
+  "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-forest focus:ring-1 focus:ring-si-forest/40 font-sans";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("authUi");

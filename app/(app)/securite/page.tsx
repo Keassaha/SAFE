@@ -37,7 +37,7 @@ export default async function SecuritePage() {
   const tout = summary.nbCritiques === 0 && summary.nbAvertissements === 0;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Tableau de sécurité"
         description="Ce qui demande votre attention pour rester conforme et protégé : fidéicommis, échéances légales et conformité client."
@@ -49,7 +49,7 @@ export default async function SecuritePage() {
           <CardContent className="p-4 flex items-center gap-3">
             <ShieldAlert className={`w-6 h-6 ${summary.nbCritiques > 0 ? "text-[#B84A3E]" : "text-si-muted/50"}`} />
             <div>
-              <p className="text-2xl font-bold tabular-nums">{summary.nbCritiques}</p>
+              <p className="text-2xl font-medium tabular-nums">{summary.nbCritiques}</p>
               <p className="text-xs text-si-muted">Critique{summary.nbCritiques > 1 ? "s" : ""}</p>
             </div>
           </CardContent>
@@ -58,7 +58,7 @@ export default async function SecuritePage() {
           <CardContent className="p-4 flex items-center gap-3">
             <AlertTriangle className={`w-6 h-6 ${summary.nbAvertissements > 0 ? "text-si-amber-ink" : "text-si-muted/50"}`} />
             <div>
-              <p className="text-2xl font-bold tabular-nums">{summary.nbAvertissements}</p>
+              <p className="text-2xl font-medium tabular-nums">{summary.nbAvertissements}</p>
               <p className="text-xs text-si-muted">Avertissement{summary.nbAvertissements > 1 ? "s" : ""}</p>
             </div>
           </CardContent>
@@ -78,7 +78,7 @@ export default async function SecuritePage() {
 
       {/* Fidéicommis */}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-si-ink flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
           <ShieldAlert className="w-4 h-4 text-emerald-700" /> Fidéicommis
         </h2>
         {fideicommis.rapprochementEnRetard && (
@@ -118,7 +118,7 @@ export default async function SecuritePage() {
 
       {/* Échéances légales */}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-si-ink flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
           <CalendarClock className="w-4 h-4 text-emerald-700" /> Échéances légales
         </h2>
         {echeances.ircc.length === 0 && echeances.appels.length === 0 ? (
@@ -146,7 +146,7 @@ export default async function SecuritePage() {
 
       {/* Documents qui expirent */}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-si-ink flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
           <FileClock className="w-4 h-4 text-emerald-700" /> Documents qui expirent
         </h2>
         {echeances.documentsExpirant.length === 0 ? (
@@ -174,7 +174,7 @@ export default async function SecuritePage() {
 
       {/* Conformité client */}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-si-ink flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
           <UserCheck className="w-4 h-4 text-emerald-700" /> Conformité client
         </h2>
         {(() => {

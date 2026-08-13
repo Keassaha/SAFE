@@ -101,7 +101,7 @@ export function AlertCenter({ status, province }: AlertCenterProps) {
           // Le compte est un chiffre, pas une pastille muette : il se lit,
           // il s'annonce, et il ne repose pas sur la seule couleur.
           <span
-            className={`absolute -right-0.5 -top-0.5 inline-flex min-w-[17px] justify-center rounded-full px-1 font-mono text-[10px] font-semibold leading-[17px] tabular-nums text-white ${
+            className={`absolute -right-0.5 -top-0.5 inline-flex min-w-[17px] justify-center rounded-full px-1 font-mono text-[10px] font-medium leading-[17px] tabular-nums text-white ${
               critique ? "bg-status-error" : "bg-si-amber"
             }`}
           >
@@ -133,7 +133,7 @@ export function AlertCenter({ status, province }: AlertCenterProps) {
           className="safe-elevated-opaque fixed inset-x-4 top-16 z-40 rounded-lg border sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-96"
         >
           <div className="border-b border-si-line px-4 py-3">
-            <p className="text-sm font-semibold text-si-ink">{t("title")}</p>
+            <p className="text-sm font-medium text-si-ink">{t("title")}</p>
             <p className="mt-0.5 text-xs text-si-muted">
               {total > 0 ? t("subtitle", { count: total }) : t("empty")}
             </p>
@@ -145,7 +145,7 @@ export function AlertCenter({ status, province }: AlertCenterProps) {
                 <li key={o.id} className="px-4 py-3">
                   <div className="flex items-start gap-2">
                     <span
-                      className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-caps ${
+                      className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-caps ${
                         o.gravite === "critique"
                           ? "bg-status-error-bg text-status-error"
                           : "bg-si-amber/10 text-si-amber-ink"

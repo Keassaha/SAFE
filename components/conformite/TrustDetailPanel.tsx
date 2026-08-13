@@ -58,9 +58,9 @@ export async function TrustDetailPanel({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Scale className="w-4 h-4 text-si-ink" aria-hidden />
-          <h3 className="text-sm font-semibold text-si-ink">{t("trustDetailTitle")}</h3>
+          <h3 className="text-sm font-medium text-si-ink">{t("trustDetailTitle")}</h3>
         </div>
-        <span className="text-sm font-bold tabular-nums text-si-ink">{money(detail.total)}</span>
+        <span className="text-sm font-medium tabular-nums text-si-ink">{money(detail.total)}</span>
       </div>
 
       <div className="flex items-center gap-2 text-xs">

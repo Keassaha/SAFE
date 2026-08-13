@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ActionsSection } from "@/components/comptabilite/ActionsSection";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
@@ -15,6 +16,7 @@ import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
 import type { ClientCreditBalance } from "@/lib/services/billing/overpayment-service";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 
 type AllocationStatusKey = "UNALLOCATED" | "PARTIALLY_ALLOCATED" | "ALLOCATED" | "REVERSED";
 
@@ -36,6 +38,13 @@ interface FacturationPaiementsViewProps {
   cabinetId: string;
   /** Masque le lien "Retour à la vue d'ensemble" quand la vue est intégrée dans /comptabilite */
   embeddedInComptabilite?: boolean;
+  /**
+   * Droit d'écrire (`canManageInvoices`). À `false`, la vue reste complète en
+   * lecture mais ne propose aucune action : ni saisie, ni import de preuve, ni
+   * allocation, ni demande de remboursement. L'avocat lit les encaissements
+   * depuis `canViewBilling` sans pouvoir les toucher.
+   */
+  canWrite?: boolean;
 }
 
 type PaymentRow = {
@@ -51,8 +60,13 @@ type PaymentRow = {
   preuveStorageKey?: string | null;
 };
 
-export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: FacturationPaiementsViewProps) {
+export function FacturationPaiementsView({
+  cabinetId,
+  embeddedInComptabilite,
+  canWrite = true,
+}: FacturationPaiementsViewProps) {
   const t = useTranslations("billingUi");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -103,6 +117,8 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
   const displayDate = (date: string) => formatDate(date, locale);
 
   const payments = (data?.payments ?? []) as PaymentRow[];
+  // Paginé par 20, comme tous les registres du produit.
+  const pagePaiements = usePaginationLocale(payments);
   // Paiements orphelins : argent reçu mais non encore alloué à une facture.
   const unallocatedPayments = payments.filter(
     (p) => p.unallocatedAmount > 0 && p.allocationStatus !== "REVERSED",
@@ -178,6 +194,9 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           {t("backToOverview")}
         </Link>
       )}
+      {/* Barre d'actions entière : le lien « payeurs tiers » mène lui aussi à une
+          page gardée par `canManageInvoices`, il rebondirait sans ce filtre. */}
+      {canWrite && (
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href={routes.parametresPayeursTiers}
@@ -186,27 +205,28 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           <Users className="w-4 h-4 shrink-0" aria-hidden />
           {t("managePayers")}
         </Link>
-        <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => setImportModalOpen(true)}
-          className="shrink-0"
-        >
-          <UploadCloud className="w-4 h-4 mr-2" aria-hidden />
-          {t("importProof")}
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={openCreate}
-          className="shrink-0"
-        >
-          <Plus className="w-4 h-4 mr-2" aria-hidden />
-          {t("newPayment")}
-        </Button>
-        </div>
+        <ActionsSection embarque={embeddedInComptabilite} className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setImportModalOpen(true)}
+            className="shrink-0"
+          >
+            <UploadCloud className="w-4 h-4 mr-2" aria-hidden />
+            {t("importProof")}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={openCreate}
+            className="shrink-0"
+          >
+            <Plus className="w-4 h-4 mr-2" aria-hidden />
+            {t("newPayment")}
+          </Button>
+        </ActionsSection>
       </div>
+      )}
 
       {unallocatedPayments.length > 0 && (
         <div className="flex items-start gap-3 border-l-2 border-status-warning bg-status-warning-bg p-4" role="status">
@@ -255,7 +275,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                     <span className="shrink-0 border-l-2 border-status-warning pl-2 text-xs font-medium text-status-warning">
                       {t("refundRequestedBadge")}
                     </span>
-                  ) : (
+                  ) : canWrite ? (
                     <Button
                       type="button"
                       variant="tertiary"
@@ -268,7 +288,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                     >
                       {t("requestRefund")}
                     </Button>
-                  )}
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -309,8 +329,8 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.map((p) => (
-                    <tr key={p.id} className="border-b border-si-line hover:bg-si-canvas/60 transition-colors">
+                  {pagePaiements.tranche.map((p) => (
+                    <tr key={p.id} className="safe-zoom-rang border-b border-si-line transition-colors">
                       <td className="py-2.5 px-3 text-[13px] text-si-ink">{displayDate(p.datePaiement)}</td>
 	                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{clientLabel(p.client)}</td>
                       <td className="py-2.5 px-3 text-[13px] font-mono text-si-ink">{p.invoice?.numero ?? "—"}</td>
@@ -347,6 +367,7 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                           >
                             <FileText className="w-4 h-4" aria-hidden />
                           </a>
+                          {canWrite && (
                           <Button
                             type="button"
                             variant="tertiary"
@@ -356,7 +377,8 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          {canAllocate(p) && (
+                          )}
+                          {canWrite && canAllocate(p) && (
                             <Button
                               type="button"
                               variant="tertiary"
@@ -373,11 +395,33 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
                   ))}
                 </tbody>
               </table>
+              <RegistrePagination
+                totalCount={pagePaiements.total}
+                currentPage={pagePaiements.page}
+                resume={tc("paginationRange", {
+                  start: pagePaiements.debut + 1,
+                  end: pagePaiements.fin,
+                  total: pagePaiements.total,
+                })}
+                labelPage={tc("paginationPage", {
+                  current: pagePaiements.page,
+                  total: pagePaiements.totalPages,
+                })}
+                labelPrecedent={tc("previous")}
+                labelSuivant={tc("next")}
+                onPageChange={pagePaiements.setPage}
+              />
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Sans droit d'écriture, plus rien ne peut ouvrir ces modales : on ne les
+          monte pas. Effet de bord voulu, la requête de contexte
+          (`/api/facturation/paiements/context`) n'est jamais déclenchée, et cette
+          route reste donc fermée à la lecture seule. */}
+      {canWrite && (
+      <>
       <PaiementFormModal
         open={formModalOpen}
         onClose={() => {
@@ -462,6 +506,8 @@ export function FacturationPaiementsView({ cabinetId, embeddedInComptabilite }: 
           </div>
         </div>
       </Modal>
+      </>
+      )}
     </div>
   );
 }

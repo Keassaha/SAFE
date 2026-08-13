@@ -46,7 +46,7 @@ export function DashboardActivityFeed({
   return (
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-teal-500">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
+        <h3 className="text-sm font-medium safe-text-title flex items-center gap-1.5 tracking-tight">
           <Pin className="w-4 h-4 text-teal-600" aria-hidden />
           {t("recentActivity")}
         </h3>

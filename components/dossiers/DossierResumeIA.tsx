@@ -26,7 +26,7 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
   return (
     <div>
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-si-muted mb-1">{title}</h4>
+      <h4 className="text-xs font-medium uppercase tracking-wide text-si-muted mb-1">{title}</h4>
       <ul className="list-disc pl-5 space-y-0.5 text-sm text-si-ink">
         {items.map((it, i) => (
           <li key={i}>{it}</li>
@@ -68,7 +68,7 @@ export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierRe
     <section className="px-6 py-5 border-b border-si-line bg-si-surface">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h2 className="text-sm font-semibold text-si-ink flex items-center gap-1.5">
+          <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-emerald-600" />
             Résumé IA du dossier
           </h2>
@@ -104,7 +104,7 @@ export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierRe
 
           {summary.etatAvancement && (
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-si-muted mb-1">
+              <h4 className="text-xs font-medium uppercase tracking-wide text-si-muted mb-1">
                 État d&apos;avancement
               </h4>
               <p className="text-sm text-si-ink">{summary.etatAvancement}</p>
@@ -115,7 +115,7 @@ export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierRe
 
           {summary.echeances.length > 0 && (
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-si-muted mb-1">Échéances</h4>
+              <h4 className="text-xs font-medium uppercase tracking-wide text-si-muted mb-1">Échéances</h4>
               <ul className="list-disc pl-5 space-y-0.5 text-sm text-si-ink">
                 {summary.echeances.map((e, i) => (
                   <li key={i}>

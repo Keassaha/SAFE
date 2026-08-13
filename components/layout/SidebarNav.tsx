@@ -297,7 +297,7 @@ function NavLink({
       />
       <span
         className={`flex-1 min-w-0 truncate text-[13.5px] leading-none ${
-          isActive ? "font-semibold" : "font-medium"
+          isActive ? "font-medium" : "font-medium"
         }`}
         style={{
           color: isActive && isSubItem ? "var(--brand-800)" : "var(--zinc-950)",
@@ -307,7 +307,7 @@ function NavLink({
       </span>
       {typeof count === "number" && count > 0 && (
         <span
-          className="shrink-0 text-[12px] font-semibold tabular-nums leading-none"
+          className="shrink-0 text-[12px] font-medium tabular-nums leading-none"
           style={{ color: "var(--brand-800)" }}
         >
           {count}
@@ -326,11 +326,12 @@ function NavLink({
     </>
   );
 
+  // Le survol soulève l'entrée au lieu de la peindre en sable : même marque
+  // que les menus, les onglets et les rangées de registre.
   const baseClasses = [
-    "group relative flex items-center gap-2.5 rounded-md transition-colors duration-150 cursor-pointer",
+    "safe-zoom-menu group relative flex items-center gap-2.5 rounded-md cursor-pointer",
     isSubItem ? "ml-6 pl-3 py-1.5 pr-2.5" : "pl-3 pr-2.5 py-2",
     showActivePill ? "bg-white" : "",
-    !isActive ? "hover:bg-[var(--sand-50)]" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -554,10 +555,10 @@ export function SidebarBottomSection({
       <Link
         href={routes.parametres}
         onClick={() => onNavigate?.()}
-        className="flex items-center gap-2.5 px-2 py-2 rounded-md transition-colors duration-150 hover:bg-[var(--sand-50)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40"
+        className="safe-zoom-menu flex items-center gap-2.5 px-2 py-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40"
       >
         <span
-          className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold"
+          className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium"
           style={{ background: "var(--brand-800)", color: "#FFFFFF" }}
           aria-hidden
         >
@@ -565,7 +566,7 @@ export function SidebarBottomSection({
         </span>
         <div className="min-w-0 flex-1">
           <span
-            className="block text-[13px] font-semibold leading-tight truncate"
+            className="block text-[13px] font-medium leading-tight truncate"
             style={{ color: "var(--zinc-950)" }}
           >
             {displayName}

@@ -127,7 +127,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--safe-neutral-border)]">
           <div>
-            <h2 className="font-semibold text-[var(--safe-text-title)] text-sm">
+            <h2 className="font-medium text-[var(--safe-text-title)] text-sm">
               {t("versionHistory")}
             </h2>
             <p className="text-xs text-[var(--safe-text-secondary)] mt-0.5">
@@ -227,7 +227,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                     <div className="flex-1 min-w-0">
                       {/* Version number + label */}
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono font-bold text-[var(--safe-text-title)]">
+                        <span className="text-xs font-mono font-medium text-[var(--safe-text-title)]">
                           v{version.versionNumber}
                         </span>
                         {index === 0 && (

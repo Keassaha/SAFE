@@ -76,14 +76,14 @@ export function QuickCapture() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3">
-          <span className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">{t("title")}</span>
+          <span className="text-[13px] font-medium uppercase tracking-wider text-neutral-400">{t("title")}</span>
           <button onClick={() => setOpen(false)} className="ml-auto text-neutral-400 hover:text-neutral-600" aria-label="Close">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {done ? (
-          <div className="flex items-center gap-2 px-4 py-6 text-sm font-semibold" style={{ color: "#1F3A2E" }}>
+          <div className="flex items-center gap-2 px-4 py-6 text-sm font-medium" style={{ color: "var(--si-forest)" }}>
             <Check className="h-5 w-5" /> {t("added")}
           </div>
         ) : !selected ? (
@@ -120,10 +120,10 @@ export function QuickCapture() {
         ) : (
           <div className="p-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: "#EEF5F0", color: "#1F3A2E" }}>
+              <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium" style={{ backgroundColor: "#EEF5F0", color: "var(--si-forest)" }}>
                 <FolderOpen className="h-3.5 w-3.5" /> {selected.label}
               </span>
-              <button onClick={() => setSelected(null)} className="text-xs font-semibold text-neutral-400 hover:text-neutral-600">{t("change")}</button>
+              <button onClick={() => setSelected(null)} className="text-xs font-medium text-neutral-400 hover:text-neutral-600">{t("change")}</button>
             </div>
             <input
               ref={titleRef}
@@ -136,8 +136,8 @@ export function QuickCapture() {
             <button
               onClick={submit}
               disabled={pending || !title.trim()}
-              className="mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
-              style={{ backgroundColor: "#1F3A2E" }}
+              className="mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              style={{ backgroundColor: "var(--si-forest)" }}
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {t("addTask")}
             </button>

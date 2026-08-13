@@ -31,7 +31,7 @@ export default function DemoPage() {
       <style dangerouslySetInnerHTML={{ __html: `
         .demo-input:focus {
           border-color: ${GREEN} !important;
-          box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.12);
+          box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12);
         }
       ` }} />
       <section className="px-6 pb-24" style={{ background: BG }}>
@@ -78,7 +78,7 @@ export default function DemoPage() {
                   <input
                     type={c.type}
                     placeholder={c.placeholder}
-                    className="demo-input mt-1.5 h-11 w-full rounded-[8px] px-3.5 font-sans text-[14.5px] outline-none transition-shadow"
+                    className="safe-zoom demo-input mt-1.5 h-11 w-full rounded-[8px] px-3.5 font-sans text-[14.5px] outline-none transition-shadow"
                     style={{ background: "#fff", border: `1px solid ${LINE}`, color: INK }}
                   />
                 </label>
@@ -86,7 +86,7 @@ export default function DemoPage() {
             </div>
             <button
               type="submit"
-              className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-[8px] font-sans text-[15px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+              className="safe-zoom mt-6 inline-flex h-11 w-full items-center justify-center rounded-[8px] font-sans text-[15px] font-medium transition-transform duration-200"
               style={{ background: GREEN, color: "#fff" }}
             >
               Choisir un moment

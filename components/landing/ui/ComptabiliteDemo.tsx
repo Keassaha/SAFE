@@ -46,7 +46,7 @@ export function ComptabiliteDemo() {
         {POSTES.map((p) => (
           <div key={p.label} className="rounded-xl border border-[0.5px] border-border bg-canvas px-3.5 py-2.5">
             <p className="text-[11px] text-text-subtle">{p.label}</p>
-            <p className={`mt-0.5 font-mono text-[15px] font-semibold tabular-nums ${p.ton}`}>{p.valeur}</p>
+            <p className={`mt-0.5 font-mono text-[15px] font-medium tabular-nums ${p.ton}`}>{p.valeur}</p>
           </div>
         ))}
       </div>

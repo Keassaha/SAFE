@@ -64,7 +64,7 @@ function KpiCard({
   return (
     <Card className="border border-si-line bg-si-surface shadow-sm">
       <CardContent className="px-5 py-4">
-        <p className="text-3xl font-semibold tracking-tight text-si-ink">{value}</p>
+        <p className="text-3xl font-medium tracking-tight text-si-ink">{value}</p>
         <p className="mt-2 text-sm font-medium text-si-ink">{label}</p>
         <p className="mt-1 text-xs leading-5 text-si-muted">{helper}</p>
       </CardContent>
@@ -87,7 +87,7 @@ function SectionTitle({
         <Icon className="h-4 w-4" strokeWidth={1.8} />
       </span>
       <div>
-        <h2 className="text-base font-semibold tracking-tight text-si-ink">{title}</h2>
+        <h2 className="text-base font-medium tracking-tight text-si-ink">{title}</h2>
         <p className="mt-0.5 text-sm leading-5 text-si-muted">{subtitle}</p>
       </div>
     </div>
@@ -220,7 +220,7 @@ export default async function SafeLeadPage() {
                         <h3 className="font-medium text-si-ink group-hover:text-si-verified">
                           {lead.raisonSociale}
                         </h3>
-                        <span className={`rounded border px-2 py-0.5 text-xs font-semibold tabular-nums ${scoreTone(lead.score)}`}>
+                        <span className={`rounded border px-2 py-0.5 text-xs font-medium tabular-nums ${scoreTone(lead.score)}`}>
                           {lead.score}
                         </span>
                       </div>
@@ -261,7 +261,7 @@ export default async function SafeLeadPage() {
                     <span className="text-sm font-medium text-si-ink">
                       {SOURCE_LABELS[source.sourceLead] ?? source.sourceLead}
                     </span>
-                    <span className="rounded bg-si-surface px-2 py-0.5 text-xs font-semibold text-si-ink shadow-sm">
+                    <span className="rounded bg-si-surface px-2 py-0.5 text-xs font-medium text-si-ink shadow-sm">
                       {source._count._all}
                     </span>
                   </div>
@@ -279,15 +279,15 @@ export default async function SafeLeadPage() {
               />
               <div className="grid gap-3">
                 <div className="rounded-md border border-si-amber/20 bg-si-amber/[0.13] px-3 py-3">
-                  <p className="text-sm font-semibold text-si-amber-ink">{staleHotLeads} relance{staleHotLeads > 1 ? "s" : ""} chaude{staleHotLeads > 1 ? "s" : ""}</p>
+                  <p className="text-sm font-medium text-si-amber-ink">{staleHotLeads} relance{staleHotLeads > 1 ? "s" : ""} chaude{staleHotLeads > 1 ? "s" : ""}</p>
                   <p className="mt-1 text-xs leading-5 text-si-amber-ink">Score 60+ sans activité récente depuis 14 jours.</p>
                 </div>
                 <div className="rounded-md border border-si-verified/20 bg-si-verified/10 px-3 py-3">
-                  <p className="text-sm font-semibold text-si-verified">{activitiesThisWeek} activité{activitiesThisWeek > 1 ? "s" : ""} cette semaine</p>
+                  <p className="text-sm font-medium text-si-verified">{activitiesThisWeek} activité{activitiesThisWeek > 1 ? "s" : ""} cette semaine</p>
                   <p className="mt-1 text-xs leading-5 text-si-verified">Interactions CRM reliées aux leads SAFE Inc.</p>
                 </div>
                 <div className="rounded-md border border-si-forest/15 bg-si-forest/[0.06] px-3 py-3">
-                  <p className="text-sm font-semibold text-si-forest">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
+                  <p className="text-sm font-medium text-si-forest">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
                   <p className="mt-1 text-xs leading-5 text-si-forest">Actifs qui peuvent déclencher une qualification.</p>
                 </div>
               </div>
@@ -310,7 +310,7 @@ export default async function SafeLeadPage() {
               ["Prochaine action", "Chaque lead chaud doit avoir une relance, une invitation audit ou une consultation à planifier."],
             ].map(([title, text]) => (
               <div key={title} className="rounded-md border border-si-line bg-si-canvas px-4 py-4">
-                <h3 className="text-sm font-semibold text-si-ink">{title}</h3>
+                <h3 className="text-sm font-medium text-si-ink">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-si-muted">{text}</p>
               </div>
             ))}

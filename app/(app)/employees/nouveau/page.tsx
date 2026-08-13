@@ -26,7 +26,7 @@ export default async function NouveauEmployePage() {
   const t = await getTranslations("settingsUi");
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("newEmployeeTitle")}
         description={t("newEmployeeDescription")}

@@ -260,7 +260,7 @@ export default async function ClientDetailPage({
   const canEditClient = canEditClients(role as UserRole);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={
           client.typeClient === "personne_physique" && (client.prenom || client.nom)
@@ -280,7 +280,7 @@ export default async function ClientDetailPage({
             {canEditClient && !showForm && (
               <Link
                 href={`${routes.client(id)}?edit=1`}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-surface/25 bg-si-surface/10 text-si-surface text-sm font-medium transition-colors hover:bg-si-surface/20"
+                className="safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2"
               >
                 <Pencil className="w-4 h-4" />
                 {tc("edit")}
@@ -289,10 +289,10 @@ export default async function ClientDetailPage({
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
                 client.status === "actif"
-                  ? "bg-si-verified/20 text-[#9FE3C2]"
+                  ? "bg-si-verified/12 text-si-verified ring-1 ring-inset ring-si-verified/25"
                   : client.status === "inactif"
-                    ? "bg-si-amber/25 text-[#F0D9A8]"
-                    : "bg-si-surface/15 text-si-surface/70"
+                    ? "bg-si-amber/12 text-si-amber-ink ring-1 ring-inset ring-si-amber/30"
+                    : "bg-si-line2 text-si-muted"
               }`}
             >
               {client.status === "actif"
@@ -304,7 +304,7 @@ export default async function ClientDetailPage({
             {dossiers.length > 0 && (
               <Link
                 href={routes.dossiers + `?clientId=${id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-si-surface/10 px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-si-surface/20 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+                className="safe-zoom inline-flex items-center gap-1.5 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
               >
                 {t("viewFullMatter")}
                 <ExternalLink className="w-3.5 h-3.5" />

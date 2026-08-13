@@ -203,7 +203,7 @@ export function FacturePreviewActions({
             aria-labelledby="send-invoice-title"
           >
             <div className="flex items-center justify-between border-b border-si-line px-5 py-3">
-              <h3 id="send-invoice-title" className="text-base font-semibold text-si-ink">{t("sendInvoiceTitle")}</h3>
+              <h3 id="send-invoice-title" className="text-base font-medium text-si-ink">{t("sendInvoiceTitle")}</h3>
               <button
                 type="button"
                 onClick={closeSendDialog}
@@ -272,7 +272,7 @@ export function FacturePreviewActions({
                           <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} className="accent-si-forest" />
                           <span className="flex-1 truncate text-si-ink">{d.titre}</span>
                           {d.statut === "brouillon" ? (
-                            <span className="border-l-2 border-status-warning pl-2 text-[10px] font-semibold text-status-warning">
+                            <span className="border-l-2 border-status-warning pl-2 text-[10px] font-medium text-status-warning">
                               {t("draftBadge")}
                             </span>
                           ) : null}

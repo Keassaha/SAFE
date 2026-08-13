@@ -135,7 +135,7 @@ export default async function EmployeeDetailPage({
       : null;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={employee.fullName}
         description={employee.jobTitle ?? undefined}

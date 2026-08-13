@@ -53,7 +53,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
           </div>
           <div>
             <p className="text-sm text-neutral-muted font-medium">{tf("totalTrustBalance")}</p>
-            <p className="text-xl font-semibold text-right tabular-nums">
+            <p className="text-xl font-medium text-right tabular-nums">
               {formatCurrency(data.soldeTotal)}
             </p>
           </div>
@@ -66,7 +66,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
           </div>
           <div>
             <p className="text-sm text-neutral-muted font-medium">{tf("monthlyDeposits")}</p>
-            <p className="text-xl font-semibold text-right tabular-nums text-green-700">
+            <p className="text-xl font-medium text-right tabular-nums text-green-700">
               {formatCurrency(data.depotsMois)}
             </p>
           </div>
@@ -79,7 +79,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
           </div>
           <div>
             <p className="text-sm text-neutral-muted font-medium">{tf("monthlyWithdrawals")}</p>
-            <p className="text-xl font-semibold text-right tabular-nums text-amber-700">
+            <p className="text-xl font-medium text-right tabular-nums text-amber-700">
               {formatCurrency(data.retraitsMois)}
             </p>
           </div>
@@ -92,7 +92,7 @@ export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
           </div>
           <div>
             <p className="text-sm text-neutral-muted font-medium">{tf("mattersWithProvision")}</p>
-            <p className="text-xl font-semibold text-right tabular-nums">
+            <p className="text-xl font-medium text-right tabular-nums">
               {data.nbDossiersAvecProvision}
             </p>
           </div>

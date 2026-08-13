@@ -24,7 +24,14 @@ export default async function AppLayout({
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    redirect("/connexion");
+    /* `session=expiree` n'est pas décoratif : il casse une boucle de
+       redirection. Le rappel `jwt` révoque la session quand le compte n'existe
+       plus (base réinitialisée, employé désactivé), mais le drapeau ne
+       redescend pas dans le cookie du navigateur. Le middleware, qui ne lit que
+       le jeton brut, croit donc l'utilisateur connecté et le renvoie du
+       formulaire vers le tableau de bord, qui le renvoie au formulaire.
+       Le marqueur dit au middleware de laisser passer et de purger le cookie. */
+    redirect("/connexion?session=expiree");
   }
 
   const role = (session.user as { role?: string }).role ?? "avocat";

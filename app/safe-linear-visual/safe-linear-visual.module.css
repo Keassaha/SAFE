@@ -4,7 +4,7 @@
   --line: #e1e4df;
   --sidebar: #f0f2ef;
   --canvas: #fbfcfa;
-  --forest: #1f3a2e;
+  --forest: var(--si-forest);
   --sage: #d4e8d9;
   min-height: 100vh;
   background:
@@ -705,7 +705,7 @@
 }
 
 .executiveNumbers .resultNumber strong {
-  color: #1f3a2e;
+  color: var(--si-forest);
 }
 
 .attentionPanel,
@@ -796,7 +796,7 @@
 
 .signal.green {
   background: #e6f0e8;
-  color: #1f3a2e;
+  color: var(--si-forest);
 }
 
 .attentionList p,
@@ -880,8 +880,8 @@
 }
 
 .timeline .currentPoint {
-  border-color: #1f3a2e;
-  background: #1f3a2e;
+  border-color: var(--si-forest);
+  background: var(--si-forest);
   box-shadow: 0 0 0 4px #e6f0e8;
 }
 
@@ -1004,7 +1004,7 @@
 }
 
 .trustMetric strong {
-  color: #1f3a2e;
+  color: var(--si-forest);
   font-family: var(--font-geist-sans), sans-serif;
   font-size: 14px;
   font-weight: 650;

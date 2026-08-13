@@ -101,10 +101,10 @@ export function RapportsView({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-left ${
+                className={`safe-zoom w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left ${
                   isActive
-                    ? "bg-gradient-to-r from-[#051F20] to-[#163832] text-white shadow-md"
-                    : "text-si-muted hover:bg-si-canvas hover:text-si-ink"
+                    ? "safe-action-degrade text-si-surface"
+                    : "text-si-muted hover:bg-si-surface2 hover:text-si-ink"
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" aria-hidden />
@@ -144,7 +144,7 @@ export function RapportsView({
             <button
               type="button"
               onClick={() => setFiltersOpen(!filtersOpen)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-si-line bg-si-surface text-sm font-medium text-si-muted hover:text-si-ink transition-colors"
+              className="safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink"
             >
               <SlidersHorizontal className="w-4 h-4" />
               {tc("filters")}
@@ -153,7 +153,7 @@ export function RapportsView({
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#051F20] to-[#163832] text-white text-sm font-medium shadow-sm hover:opacity-95 transition-opacity"
+              className="safe-zoom safe-action-degrade inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-si-surface"
             >
               <Download className="w-4 h-4" />
               {tr("downloadPdf")}
@@ -193,7 +193,7 @@ export function RapportsView({
                 )}
                 <div className="min-w-0">
                   {cabinet.nom && (
-                    <div className="text-lg font-semibold text-si-ink">{cabinet.nom}</div>
+                    <div className="text-lg font-medium text-si-ink">{cabinet.nom}</div>
                   )}
                   {cabinet.adresse && (
                     <div className="text-xs text-si-muted mt-0.5">{cabinet.adresse}</div>

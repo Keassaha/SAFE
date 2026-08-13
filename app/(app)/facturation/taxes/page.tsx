@@ -17,7 +17,7 @@ function TaxCard({ titre, line }: { titre: string; line: TaxLine }) {
   return (
     <Card>
       <CardContent className="p-4 space-y-1">
-        <h3 className="text-sm font-semibold text-si-ink">{titre}</h3>
+        <h3 className="text-sm font-medium text-si-ink">{titre}</h3>
         <div className="flex justify-between text-sm">
           <span className="text-si-muted">Perçue (ventes)</span>
           <span className="tabular-nums">{formatCurrency(line.percue)}</span>
@@ -30,7 +30,7 @@ function TaxCard({ titre, line }: { titre: string; line: TaxLine }) {
           <span className="text-si-muted">− Crédits sur intrants</span>
           <span className="tabular-nums">{formatCurrency(line.creditsIntrants)}</span>
         </div>
-        <div className="flex justify-between text-base font-semibold border-t border-si-line pt-1 mt-1">
+        <div className="flex justify-between text-base font-medium border-t border-si-line pt-1 mt-1">
           <span>À remettre</span>
           <span className={`tabular-nums ${line.aRemettre < 0 ? "text-emerald-700" : "text-si-ink"}`}>
             {formatCurrency(line.aRemettre)}
@@ -59,7 +59,7 @@ export default async function TaxesPage({
   const report = await getTaxRemittance(cabinetId, { from, to });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="TPS / TVQ à remettre"
         description="Estimation à faire valider par votre comptable. Calculée à partir des factures émises, notes de crédit et dépenses validées."
@@ -80,7 +80,7 @@ export default async function TaxesPage({
               <input type="date" name="to" defaultValue={report.periode.to}
                 className="h-9 px-2 rounded border border-si-line bg-si-surface text-sm" />
             </label>
-            <button type="submit" className="h-9 px-4 rounded-lg bg-si-forest text-si-surface text-sm font-medium hover:opacity-90">
+            <button type="submit" className="h-9 px-4 rounded-lg safe-action-degrade text-si-surface text-sm font-medium hover:opacity-90">
               Appliquer
             </button>
             <span className="text-xs text-si-muted self-center">
@@ -98,7 +98,7 @@ export default async function TaxesPage({
       <Card>
         <CardContent className="p-4 flex items-center justify-between">
           <span className="text-sm font-medium">Total à remettre (TPS + TVQ)</span>
-          <span className="text-xl font-bold tabular-nums">{formatCurrency(report.totalARemettre)}</span>
+          <span className="text-xl font-medium tabular-nums">{formatCurrency(report.totalARemettre)}</span>
         </CardContent>
       </Card>
 

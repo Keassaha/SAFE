@@ -54,7 +54,7 @@ export function TrustReconciliationBanner({ status, province }: Props) {
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-status-error" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold leading-tight text-status-error">{headline}</p>
+            <p className="text-sm font-medium leading-tight text-status-error">{headline}</p>
             <p className="mt-1 hidden text-xs leading-snug text-si-muted sm:block">{detail}</p>
           </div>
         </div>

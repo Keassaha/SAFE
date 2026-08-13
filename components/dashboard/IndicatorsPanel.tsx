@@ -61,7 +61,7 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
 
   return (
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-6 md:p-7">
-      <h3 className="text-base font-bold text-neutral-800 mb-5 flex items-center gap-2.5 tracking-tight">
+      <h3 className="text-base font-medium text-neutral-800 mb-5 flex items-center gap-2.5 tracking-tight">
         <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
           <Landmark className="w-4 h-4 text-emerald-600" />
         </div>
@@ -81,7 +81,7 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
                   <Icon className={`w-4 h-4 ${item.color}`} />
                 </div>
               </div>
-              <p className={`text-xl font-bold ${item.color} tabular-nums`}>{item.value}</p>
+              <p className={`text-xl font-medium ${item.color} tabular-nums`}>{item.value}</p>
               <p className="text-[11px] font-medium text-neutral-500 mt-1 leading-tight">
                 {item.label}
               </p>
@@ -99,16 +99,16 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
           <div className="w-8 h-8 rounded-lg bg-white/80 flex items-center justify-center shadow-sm">
             <Landmark className="w-4 h-4 text-emerald-600" />
           </div>
-          <span className="text-sm font-semibold text-emerald-800">
+          <span className="text-sm font-medium text-emerald-800">
             {t("indicators.activeTrust")}
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-lg font-bold text-emerald-700 tabular-nums">
+          <span className="text-lg font-medium text-emerald-700 tabular-nums">
             {indicators.activeTrustAccounts}
           </span>
           {soldeFideicommis && (
-            <span className="text-sm font-semibold text-emerald-600 tabular-nums bg-white/60 px-3 py-1 rounded-lg">
+            <span className="text-sm font-medium text-emerald-600 tabular-nums bg-white/60 px-3 py-1 rounded-lg">
               {soldeFideicommis}
             </span>
           )}

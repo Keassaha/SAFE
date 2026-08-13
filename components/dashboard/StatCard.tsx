@@ -30,7 +30,7 @@ export function StatCard({
     <div className={`safe-glass-panel overflow-hidden p-5 md:p-6 ${className}`}>
       <div className="flex items-start justify-between gap-2 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-neutral-text-primary tracking-tight">{title}</h3>
+          <h3 className="text-sm font-medium text-neutral-text-primary tracking-tight">{title}</h3>
           {subtitle && (
             <p className="text-xs text-neutral-muted mt-0.5">{subtitle}</p>
           )}
@@ -42,7 +42,7 @@ export function StatCard({
           </div>
         )}
       </div>
-      <p className="text-2xl md:text-3xl font-semibold text-neutral-text-primary tracking-tight">
+      <p className="text-2xl md:text-3xl font-medium text-neutral-text-primary tracking-tight">
         {value}
       </p>
       {valueLabel && (

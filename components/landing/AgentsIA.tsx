@@ -93,7 +93,7 @@ export function AgentsIA() {
             <Sparkles className="w-3 h-3" />
             Intelligence artificielle
           </div>
-          <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-white leading-tight tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl sm:text-4xl font-medium text-white leading-tight tracking-[-0.04em]">
             Vos deux assistants IA.
             <br />
             <span className="text-white/60">Form&eacute;s sur votre r&eacute;alit&eacute;.</span>
@@ -128,7 +128,7 @@ export function AgentsIA() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`text-xl font-semibold tracking-tight ${colors.nameTitle}`}>{agent.name}</h3>
+                        <h3 className={`text-xl font-medium tracking-tight ${colors.nameTitle}`}>{agent.name}</h3>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors.badge}`}>
                           {agent.role}
                         </span>
@@ -170,7 +170,7 @@ export function AgentsIA() {
                           }`}
                         >
                           {msg.role === "agent" && (
-                            <span className={`font-semibold text-xs block mb-1 ${colors.label}`}>
+                            <span className={`font-medium text-xs block mb-1 ${colors.label}`}>
                               {agent.name}
                             </span>
                           )}

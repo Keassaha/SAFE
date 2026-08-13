@@ -135,7 +135,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
               {tab.label}
               {tab.count > 0 && (
                 <span
-                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  className="text-xs font-medium px-1.5 py-0.5 rounded-md"
                   style={{
                     background: isActive ? "var(--brand-800)" : "var(--sand-200)",
                     color: isActive ? "var(--sand-50)" : "var(--sand-700)",
@@ -200,7 +200,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                             {task.titre}
                           </p>
                           <span
-                            className="text-xs font-semibold px-2 py-0.5 rounded-md shrink-0"
+                            className="text-xs font-medium px-2 py-0.5 rounded-md shrink-0"
                             style={{ background: prio.bg, color: prio.text }}
                           >
                             {priorityLabels[
@@ -303,7 +303,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
                             {event.titre}
                           </p>
                           <span
-                            className="text-xs font-semibold px-2 py-0.5 rounded-md shrink-0"
+                            className="text-xs font-medium px-2 py-0.5 rounded-md shrink-0"
                             style={{
                               background: "var(--safe-status-success-bg)",
                               color: "var(--safe-status-success)",

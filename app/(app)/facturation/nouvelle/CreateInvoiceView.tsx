@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { routes } from "@/lib/routes";
 import { useLocale, useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -190,7 +192,7 @@ function uid() {
 
 const card = "rounded-lg border border-si-line bg-si-surface";
 
-const sectionTitle = "text-sm font-semibold text-si-ink";
+const sectionTitle = "text-sm font-medium text-si-ink";
 
 const selectBase =
   "h-11 w-full appearance-none rounded-md border border-si-line bg-si-surface px-3 pr-9 text-sm text-si-ink outline-none transition-colors hover:border-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
@@ -776,17 +778,16 @@ export function CreateInvoiceView({
       <div className="safe-glass-subtle sticky top-0 z-30 border-b">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+            <Link
+              href={routes.facturation}
+              className="safe-zoom inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-si-muted hover:bg-si-surface2 hover:text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
               aria-label={t("invoices")}
             >
               <ArrowLeft size={17} aria-hidden="true" />
-            </button>
+            </Link>
             <div className="min-w-0">
               <p className="text-xs text-si-muted">{t("invoices")}</p>
-              <h1 className="truncate text-lg font-semibold tracking-tight text-si-ink">
+              <h1 className="truncate text-lg font-medium tracking-tight text-si-ink">
                 {t("newInvoice")}
               </h1>
             </div>
@@ -795,7 +796,7 @@ export function CreateInvoiceView({
           <div className="flex items-center justify-end gap-2">
             <Button
               variant="secondary"
-              onClick={() => router.back()}
+              onClick={() => router.push(routes.facturation)}
               disabled={isSubmitting}
             >
               {t("cancel")}
@@ -855,7 +856,7 @@ export function CreateInvoiceView({
                     aria-readonly="true"
                     title={t("currencyLockedTitle")}
                   >
-                    <span className="font-semibold">CAD</span>
+                    <span className="font-medium">CAD</span>
                     <span className="text-xs text-si-muted/50">{t("canadianDollar")}</span>
                   </div>
                 </div>
@@ -879,7 +880,7 @@ export function CreateInvoiceView({
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
                 <div className="col-span-2">
                   <span className="text-si-muted/50 text-xs">{t("firm")}</span>
-                  <p className="font-semibold text-si-ink mt-0.5">
+                  <p className="font-medium text-si-ink mt-0.5">
                     {cabinet.nom}
                   </p>
                 </div>
@@ -1027,7 +1028,7 @@ export function CreateInvoiceView({
                 <div className="mt-4 rounded-lg border border-si-line bg-si-canvas/50 text-sm">
                   {/* 1. Client name (always first) */}
                   <div className="px-4 pt-4">
-                    <p className="font-semibold text-si-ink text-base leading-tight">
+                    <p className="font-medium text-si-ink text-base leading-tight">
                       {clientDisplayName(selectedClient)}
                     </p>
                   </div>
@@ -1084,10 +1085,10 @@ export function CreateInvoiceView({
               {selectedClient && (
                 <div className="mt-4 rounded-lg border border-si-line bg-si-surface p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold text-si-muted uppercase tracking-[0.08em]">
+                    <p className="text-xs font-medium text-si-muted uppercase tracking-[0.08em]">
                       {t("detectedItems")}
                     </p>
-                    <span className="font-mono text-xs font-semibold tabular-nums text-si-verified">
+                    <span className="font-mono text-xs font-medium tabular-nums text-si-verified">
                       {t("linesCount", { count: billablesForSelectedClient.length })}
                     </span>
                   </div>
@@ -1187,7 +1188,7 @@ export function CreateInvoiceView({
                         </div>
                         {line.responsableNom && (
                           <span
-                            className="inline-flex h-5 min-w-[26px] shrink-0 items-center justify-center rounded-md border border-si-line bg-si-canvas px-1.5 text-[9px] font-bold tracking-wide text-si-verified"
+                            className="inline-flex h-5 min-w-[26px] shrink-0 items-center justify-center rounded-md border border-si-line bg-si-canvas px-1.5 text-[9px] font-medium tracking-wide text-si-verified"
                             title={line.responsableNom}
                           >
                             {initialsOf(line.responsableNom)}
@@ -1210,9 +1211,9 @@ export function CreateInvoiceView({
                           <button
                             type="button"
                             onClick={() => setLineMode(line.id, "forfait")}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
+                            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
                               showForfait
-                                ? "bg-si-forest text-white"
+                                ? "safe-action-degrade text-white"
                                 : "text-si-muted hover:text-si-ink"
                             }`}
                           >
@@ -1221,9 +1222,9 @@ export function CreateInvoiceView({
                           <button
                             type="button"
                             onClick={() => setLineMode(line.id, "honoraires")}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
+                            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
                               !showForfait
-                                ? "bg-si-forest text-white"
+                                ? "safe-action-degrade text-white"
                                 : "text-si-muted hover:text-si-ink"
                             }`}
                           >
@@ -1273,7 +1274,7 @@ export function CreateInvoiceView({
                           </label>
                           <div className="relative">
                             {isRabais && (
-                              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-bold text-si-verified">
+                              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-medium text-si-verified">
                                 −
                               </span>
                             )}
@@ -1287,7 +1288,7 @@ export function CreateInvoiceView({
                                   amount: parseFloat(e.target.value) || 0,
                                 })
                               }
-                              className={`${lineInput} text-right font-semibold ${isRabais ? "pl-7" : ""}`}
+                              className={`${lineInput} text-right font-medium ${isRabais ? "pl-7" : ""}`}
                             />
                           </div>
                           <label className="mt-1.5 flex items-center gap-1.5 text-[10px] text-si-muted/50">
@@ -1401,7 +1402,7 @@ export function CreateInvoiceView({
                               amount: parseFloat(e.target.value) || 0,
                             })
                           }
-                          className={`${lineInput} text-right font-semibold ${line.sourceType !== "manual" ? "bg-si-canvas text-si-muted" : ""}`}
+                          className={`${lineInput} text-right font-medium ${line.sourceType !== "manual" ? "bg-si-canvas text-si-muted" : ""}`}
                         />
                       </div>
                       <div className="col-span-1 flex justify-end">
@@ -1493,7 +1494,7 @@ export function CreateInvoiceView({
                         <label className="block text-[11px] text-si-muted/50 font-medium mb-1">
                           {t("amount")}
                         </label>
-                        <p className="h-10 flex items-center justify-end text-sm font-bold text-si-ink tabular-nums">
+                        <p className="h-10 flex items-center justify-end text-sm font-medium text-si-ink tabular-nums">
                           {formatMoney(line.amount)}
                         </p>
                       </div>
@@ -1551,7 +1552,7 @@ export function CreateInvoiceView({
                     </div>
                   </>
                 )}
-                <div className="flex justify-between font-bold text-si-ink text-base pt-3 border-t border-si-line">
+                <div className="flex justify-between font-medium text-si-ink text-base pt-3 border-t border-si-line">
                   <span>{t("total")}</span>
                   <span className="font-mono tabular-nums">{formatMoney(totals.total)}</span>
                 </div>
@@ -1579,7 +1580,7 @@ export function CreateInvoiceView({
           <div className="mb-3 grid grid-cols-2 border-y border-si-line bg-si-surface">
             <div className="border-r border-si-line px-4 py-3">
               <p className="text-xs text-si-muted">{t("total")}</p>
-              <p className="mt-1 text-right font-mono text-xl font-semibold tabular-nums text-si-ink">
+              <p className="mt-1 text-right font-mono text-xl font-medium tabular-nums text-si-ink">
                 {formatMoney(totals.total)}
               </p>
             </div>

@@ -58,7 +58,7 @@ export function TrustAlertsPanel() {
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-2">
           <AlertTriangle className={`w-5 h-5 shrink-0 ${summary.nbCritiques > 0 ? "text-red-600" : "text-amber-600"}`} aria-hidden />
-          <h3 className="text-sm font-semibold text-neutral-text-primary">Surveillance fidéicommis</h3>
+          <h3 className="text-sm font-medium text-neutral-text-primary">Surveillance fidéicommis</h3>
         </div>
 
         {ecartRapprochement && (

@@ -19,7 +19,7 @@ export function MonthlyComparisonTable({ rows }: MonthlyComparisonTableProps) {
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
+          <h3 className="text-base font-medium text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <BarChart2 className="w-4 h-4 text-emerald-600" />
             {t("monthlyComparison.title")}
           </h3>
@@ -33,22 +33,22 @@ export function MonthlyComparisonTable({ rows }: MonthlyComparisonTableProps) {
         <table className="w-full text-sm" role="table">
           <thead>
             <tr className="border-b-2 border-[var(--safe-neutral-border)]">
-              <th className="text-left py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-left py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 {t("monthlyComparison.month")}
               </th>
-              <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 {t("monthlyComparison.invoiced")}
               </th>
-              <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 {t("monthlyComparison.collected")}
               </th>
-              <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 {t("monthlyComparison.gap")}
               </th>
-              <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 {t("monthlyComparison.rate")}
               </th>
-              <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+              <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                 Delta
               </th>
             </tr>
@@ -69,7 +69,7 @@ export function MonthlyComparisonTable({ rows }: MonthlyComparisonTableProps) {
                 </td>
                 <td className="py-2 px-2 text-right">
                   <span
-                    className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
                       row.rate >= 80
                         ? "bg-emerald-50 text-emerald-700"
                         : row.rate >= 50

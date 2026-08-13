@@ -142,7 +142,7 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-4">
             <Globe className="w-4 h-4 text-si-ink" />
-            <h4 className="text-sm font-semibold">IRCC Workflow</h4>
+            <h4 className="text-sm font-medium">IRCC Workflow</h4>
             {data.workflow.irccNumDossier && (
               <span className="text-xs text-si-muted ml-auto">
                 IRCC# {data.workflow.irccNumDossier}
@@ -169,8 +169,8 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
                   {isCompleted ? (
                     <CheckCircle className="w-3 h-3" />
                   ) : (
-                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold
-                      ${isCurrent ? "bg-si-forest text-white" : "bg-si-canvas text-si-muted"}`}>
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-medium
+                      ${isCurrent ? "safe-action-degrade text-white" : "bg-si-canvas text-si-muted"}`}>
                       {step.icon}
                     </span>
                   )}

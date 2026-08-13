@@ -72,13 +72,13 @@ function FolderCardPreview({
   const color = colors[type as keyof typeof colors];
   return (
     <div
-      className={`rounded-lg border-2 ${color.bg} ${color.border} shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 overflow-hidden`}
+      className={`rounded-lg border-2 ${color.bg} ${color.border} shadow-sm transition-all duration-200 overflow-hidden`}
     >
       <div className={`h-2 ${color.tab} w-1/2 rounded-b-sm mx-4`} />
       <div className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 text-sm leading-tight">{label}</p>
+            <p className="font-medium text-gray-900 text-sm leading-tight">{label}</p>
             <p className="text-xs text-gray-500 mt-0.5">#2024-{type.substring(0, 3).toUpperCase()}</p>
           </div>
           <FolderOpen className={`w-5 h-5 shrink-0 ${color.icon}`} />
@@ -110,7 +110,7 @@ export function ColorSchemePreview() {
   return (
     <div className="w-full bg-white py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">
+        <h1 className="text-3xl font-medium text-center mb-2 text-gray-900">
           {t("colorSchemeTitle")}
         </h1>
         <p className="text-center text-gray-600 mb-12">
@@ -120,7 +120,7 @@ export function ColorSchemePreview() {
         <div className="space-y-16">
           {Object.entries(SCHEMES).map(([key, scheme]) => (
             <div key={key} className="border-b border-gray-200 pb-12 last:border-b-0">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-1">{t(scheme.nameKey)}</h2>
+              <h2 className="text-2xl font-medium text-gray-900 mb-1">{t(scheme.nameKey)}</h2>
               <p className="text-sm text-gray-600 mb-6">
                 {key === "current" && t("schemeCurrentDesc")}
                 {key === "slate" && t("schemeSlateDesc")}
@@ -143,7 +143,7 @@ export function ColorSchemePreview() {
         </div>
 
         <div className="mt-12 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">{t("recommendation")}</h3>
+          <h3 className="font-medium text-blue-900 mb-2">{t("recommendation")}</h3>
           <p className="text-sm text-blue-800">
             {t.rich("recommendationText", {
               strong: (chunks) => <strong>{chunks}</strong>,

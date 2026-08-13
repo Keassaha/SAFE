@@ -83,7 +83,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="font-semibold text-[var(--safe-text-title)]">{t("workDone")}</p>
+              <p className="font-medium text-[var(--safe-text-title)]">{t("workDone")}</p>
               <p className="text-sm text-[var(--safe-text-secondary)]">{doc.titre}</p>
             </div>
           </div>
@@ -98,12 +98,12 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-[var(--safe-neutral-bg)] rounded-xl p-4 text-center">
               <Clock className="w-5 h-5 text-[var(--safe-primary)] mx-auto mb-1" />
-              <p className="text-xl font-bold text-[var(--safe-text-title)]">{dureeLabel}</p>
+              <p className="text-xl font-medium text-[var(--safe-text-title)]">{dureeLabel}</p>
               <p className="text-xs text-[var(--safe-text-secondary)]">{t("workDuration")}</p>
             </div>
             <div className="bg-green-50 rounded-xl p-4 text-center">
               <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
-              <p className="text-xl font-bold text-green-700">{montant} $</p>
+              <p className="text-xl font-medium text-green-700">{montant} $</p>
               <p className="text-xs text-green-600">{t("billableAmount")}</p>
             </div>
           </div>

@@ -63,7 +63,7 @@ function KpiCard({
             {card.label}
           </p>
           <p
-            className={`text-xl md:text-2xl font-bold tracking-tight truncate ${card.valueColor}`}
+            className={`text-xl md:text-2xl font-medium tracking-tight truncate ${card.valueColor}`}
           >
             {card.getValue(kpis)}
           </p>
@@ -158,7 +158,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
   return (
     <div className="space-y-5">
       <section>
-        <h2 className="text-sm font-semibold text-si-muted uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-medium text-si-muted uppercase tracking-wider mb-3">
           {tf("monthSummary")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -175,7 +175,7 @@ export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisP
         </div>
       </section>
       <section>
-        <h2 className="text-sm font-semibold text-si-muted uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-medium text-si-muted uppercase tracking-wider mb-3">
           {tf("toWatch")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 max-w-2xl">

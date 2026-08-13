@@ -90,7 +90,7 @@ export default async function RegistresPage({
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Registres"
         description="Les livres que le règlement impose de tenir, prêts à imprimer."

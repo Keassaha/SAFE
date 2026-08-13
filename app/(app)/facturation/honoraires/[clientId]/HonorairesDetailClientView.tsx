@@ -12,6 +12,7 @@ import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
 import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
 import { applyTaxes, toInvoiceTaxColumns, toDisplayTaxes, getDefaultTaxConfig } from "@/lib/billing/taxes";
 import type { CabinetTaxConfig } from "@/lib/billing/types";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 
 interface HonorairesDetailClientViewProps {
@@ -22,6 +23,7 @@ interface HonorairesDetailClientViewProps {
 export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailClientViewProps) {
   const router = useRouter();
   const t = useTranslations("billingUi");
+  const tc = useTranslations("common");
   const { data, isLoading } = useFacturationHonorairesDetail(clientId);
   void role;
 
@@ -144,6 +146,14 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
     return lines;
   }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds]);
 
+  // Paginés par 20, comme tous les registres du produit. Les totaux, les cases
+  // « tout cocher » et le calcul de la facture continuent de porter sur les
+  // listes entières : seule la rangée affichée change.
+  const pageDraft = usePaginationLocale(draftLines);
+  const pageEntries = usePaginationLocale(entries);
+  const pageExpenses = usePaginationLocale(expenses);
+  const pageTaches = usePaginationLocale(registreTaches);
+
   const toggleEntry = (id: string) => {
     if (entries.find((entry) => entry.id === id)?.isDrafted) return;
     setSelectedEntryIds((prev) => {
@@ -218,19 +228,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl bg-gradient-to-r from-[#051F20] via-[#0B2B26] to-[#163832] text-white p-6 shadow-lg">
+      {/* En-tête posé sur la surface de travail. Il portait un dégradé sombre
+          peint à la main, hors palette : c'est exactement la « grande carte
+          employée comme en-tête de page » que la direction retire. */}
+      <header className="pb-1">
         <Link
           href={routes.facturationHonoraires}
-          className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-3"
+          className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("backToFeesToBill")}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("detailFor", { client: clientName })}</h1>
-        <p className="mt-1 text-white/80 text-sm">
+        <h1 className="font-serif text-[32px] leading-tight tracking-tight text-si-ink">{t("detailFor", { client: clientName })}</h1>
+        <p className="mt-2 max-w-[65ch] text-sm text-si-muted">
           {t("checkLinesToInclude")}
         </p>
-        <p className="mt-1 text-white/70 text-xs">
+        <p className="mt-1 max-w-[65ch] text-xs text-si-subtle">
           {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
         </p>
       </header>
@@ -250,7 +263,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <p className="text-xs uppercase tracking-wider text-si-muted font-medium">
                     {t("draftNotIssued")}
                   </p>
-                  <p className="text-lg font-semibold text-si-ink mt-0.5">{clientName}</p>
+                  <p className="text-lg font-medium text-si-ink mt-0.5">{clientName}</p>
                   <p className="text-sm text-si-muted mt-1">
                     {t("plannedIssueDate")} {formatDate(new Date())}
                   </p>
@@ -266,7 +279,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                     </tr>
                   </thead>
                   <tbody>
-                    {draftLines.map((line) => (
+                    {pageDraft.tranche.map((line) => (
                       <tr key={line.id} className="border-b border-si-line">
                         <td className="py-2 px-4 text-si-muted">{formatDate(line.date)}</td>
                         <td className={line.type === "rabais" ? "py-2 px-4 text-emerald-700" : "py-2 px-4"}>
@@ -279,6 +292,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                     ))}
                   </tbody>
                 </table>
+                <RegistrePagination
+                  totalCount={pageDraft.total}
+                  currentPage={pageDraft.page}
+                  resume={tc("paginationRange", {
+                    start: pageDraft.debut + 1,
+                    end: pageDraft.fin,
+                    total: pageDraft.total,
+                  })}
+                  labelPage={tc("paginationPage", {
+                    current: pageDraft.page,
+                    total: pageDraft.totalPages,
+                  })}
+                  labelPrecedent={tc("previous")}
+                  labelSuivant={tc("next")}
+                  onPageChange={pageDraft.setPage}
+                />
               </div>
               <div className="px-6 py-4 border-t border-si-line bg-si-canvas/80 space-y-1.5">
                 <div className="flex justify-between text-sm">
@@ -322,7 +351,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                     </div>
                   </>
                 )}
-                <div className="flex justify-between font-semibold pt-2 mt-2 border-t border-si-line">
+                <div className="flex justify-between font-medium pt-2 mt-2 border-t border-si-line">
                   <span>{t("totalToBill")}</span>
                   <span>{formatCurrency(totalTTC)}</span>
                 </div>
@@ -397,11 +426,8 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         </tr>
                       </thead>
                       <tbody>
-                        {entries.map((e) => (
-                          <tr
-                            key={e.id}
-                            className="border-b border-si-line hover:bg-si-canvas/80"
-                          >
+                        {pageEntries.tranche.map((e) => (
+                          <tr key={e.id} className="safe-zoom-rang border-b border-si-line " >
                             <td className="py-2 px-3">
                               <input
                                 type="checkbox"
@@ -434,6 +460,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         ))}
                       </tbody>
                     </table>
+                    <RegistrePagination
+                      totalCount={pageEntries.total}
+                      currentPage={pageEntries.page}
+                      resume={tc("paginationRange", {
+                        start: pageEntries.debut + 1,
+                        end: pageEntries.fin,
+                        total: pageEntries.total,
+                      })}
+                      labelPage={tc("paginationPage", {
+                        current: pageEntries.page,
+                        total: pageEntries.totalPages,
+                      })}
+                      labelPrecedent={tc("previous")}
+                      labelSuivant={tc("next")}
+                      onPageChange={pageEntries.setPage}
+                    />
                   </div>
                 </>
               )}
@@ -460,11 +502,8 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         </tr>
                       </thead>
                       <tbody>
-                        {expenses.map((e) => (
-                          <tr
-                            key={e.id}
-                            className="border-b border-si-line hover:bg-si-canvas/80"
-                          >
+                        {pageExpenses.tranche.map((e) => (
+                          <tr key={e.id} className="safe-zoom-rang border-b border-si-line " >
                             <td className="py-2 px-3">
                               <input
                                 type="checkbox"
@@ -490,6 +529,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         ))}
                       </tbody>
                     </table>
+                    <RegistrePagination
+                      totalCount={pageExpenses.total}
+                      currentPage={pageExpenses.page}
+                      resume={tc("paginationRange", {
+                        start: pageExpenses.debut + 1,
+                        end: pageExpenses.fin,
+                        total: pageExpenses.total,
+                      })}
+                      labelPage={tc("paginationPage", {
+                        current: pageExpenses.page,
+                        total: pageExpenses.totalPages,
+                      })}
+                      labelPrecedent={tc("previous")}
+                      labelSuivant={tc("next")}
+                      onPageChange={pageExpenses.setPage}
+                    />
                   </div>
                 </>
               )}
@@ -519,11 +574,8 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         </tr>
                       </thead>
                       <tbody>
-                        {registreTaches.map((tache) => (
-                          <tr
-                            key={tache.id}
-                            className="border-b border-si-line hover:bg-si-canvas/80"
-                          >
+                        {pageTaches.tranche.map((tache) => (
+                          <tr key={tache.id} className="safe-zoom-rang border-b border-si-line " >
                             <td className="py-2 px-3">
                               <input
                                 type="checkbox"
@@ -559,6 +611,22 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                         ))}
                       </tbody>
                     </table>
+                    <RegistrePagination
+                      totalCount={pageTaches.total}
+                      currentPage={pageTaches.page}
+                      resume={tc("paginationRange", {
+                        start: pageTaches.debut + 1,
+                        end: pageTaches.fin,
+                        total: pageTaches.total,
+                      })}
+                      labelPage={tc("paginationPage", {
+                        current: pageTaches.page,
+                        total: pageTaches.totalPages,
+                      })}
+                      labelPrecedent={tc("previous")}
+                      labelSuivant={tc("next")}
+                      onPageChange={pageTaches.setPage}
+                    />
                   </div>
                 </>
               )}

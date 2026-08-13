@@ -94,7 +94,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <FileText className="w-4 h-4 text-si-ink" />
-            <h4 className="text-sm font-semibold text-si-ink">
+            <h4 className="text-sm font-medium text-si-ink">
               {t("irccDocuments")}
             </h4>
             <span className="ml-auto text-xs text-si-muted">

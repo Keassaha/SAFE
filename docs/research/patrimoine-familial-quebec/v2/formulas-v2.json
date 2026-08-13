@@ -1,0 +1,43 @@
+[
+  {
+    "formula_id": "F-001",
+    "name": "Net value",
+    "expression": "sum(market_values) - sum(qualified_debts)",
+    "status": "READY_FOR_PRO_REVIEW",
+    "production_status": "BLOCKED_FOR_PRODUCTION"
+  },
+  {
+    "formula_id": "F-002",
+    "name": "Initial property appreciation deduction",
+    "expression": "appreciation * initial_net_value / initial_market_value",
+    "status": "READY_FOR_PRO_REVIEW",
+    "guards": [
+      "initial_market_value > 0",
+      "same legal valuation basis",
+      "qualified debts only"
+    ],
+    "production_status": "BLOCKED_FOR_PRODUCTION"
+  },
+  {
+    "formula_id": "F-003",
+    "name": "Contribution appreciation deduction",
+    "expression": "appreciation_since_contribution * admissible_contribution / market_value_at_contribution",
+    "status": "READY_FOR_PRO_REVIEW",
+    "guards": [
+      "market_value_at_contribution > 0",
+      "complete tracing"
+    ],
+    "production_status": "BLOCKED_FOR_PRODUCTION"
+  },
+  {
+    "formula_id": "F-004",
+    "name": "Theoretical equalization claim",
+    "expression": "(shareable_A - shareable_B) / 2",
+    "status": "READY_FOR_PRO_REVIEW",
+    "guards": [
+      "no judicial override",
+      "all inputs approved"
+    ],
+    "production_status": "BLOCKED_FOR_PRODUCTION"
+  }
+]

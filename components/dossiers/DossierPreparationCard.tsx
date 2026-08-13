@@ -81,7 +81,7 @@ export function DossierPreparationCard({
         <div className="flex items-center gap-3 mb-4">
           <Icon className={`w-6 h-6 ${tone}`} aria-hidden />
           <div className="flex-1 min-w-0">
-            <div className={`text-base font-semibold ${tone}`}>
+            <div className={`text-base font-medium ${tone}`}>
               {PREPARATION_STATE_LABELS[status.state]}
             </div>
             {status.nextAction && (
@@ -159,7 +159,7 @@ function MissingItemRow({ item, ctx, canSelfAssign, dossierId }: MissingItemRowP
 
   const badge = (
     <span
-      className={`shrink-0 text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded ${SEVERITY_TONE[item.severity]}`}
+      className={`shrink-0 text-[10px] uppercase tracking-wider font-medium px-1.5 py-0.5 rounded ${SEVERITY_TONE[item.severity]}`}
     >
       {SEVERITY_LABELS[item.severity]}
     </span>

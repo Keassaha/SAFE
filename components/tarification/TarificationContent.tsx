@@ -35,7 +35,7 @@ function GradientOrb({
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[11px] font-sans uppercase tracking-[0.18em] text-emerald-700 font-semibold block mb-4">
+    <span className="text-[11px] font-sans uppercase tracking-[0.18em] text-emerald-700 font-medium block mb-4">
       {children}
     </span>
   );
@@ -199,11 +199,11 @@ function OffreFondatrice() {
           className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-950 bg-[linear-gradient(145deg,#163327_0%,#0f241b_48%,#07130f_100%)] text-white shadow-[0_30px_90px_-52px_rgba(7,19,15,0.85)]"
         >
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-200 via-white to-emerald-300" />
-          <span className="inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-semibold px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
+          <span className="inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-medium px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
             <Sparkles className="h-3 w-3" aria-hidden="true" />
             Le choix des fondateurs
           </span>
-          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-100/75 mb-3">
+          <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-emerald-100/75 mb-3">
             Pratique solo
           </p>
           <div className="flex items-end gap-2">
@@ -229,7 +229,7 @@ function OffreFondatrice() {
           variants={fadeUp}
           className="relative overflow-hidden rounded-2xl p-7 sm:p-9 flex flex-col border border-emerald-900/10 bg-white/80 shadow-[0_18px_60px_-48px_rgba(31,58,46,0.48)] hover:border-emerald-900/20 hover:bg-white transition-all"
         >
-          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-emerald-800 mb-3">
+          <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-emerald-800 mb-3">
             Cabinet en équipe
           </p>
           <div className="flex items-end gap-2">
@@ -312,7 +312,7 @@ function PartenariatFondateur() {
             <div className="relative mb-5 inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 font-serif text-[14px]">
               {p.num}
             </div>
-            <h3 className="relative font-sans font-semibold text-[16px] text-zinc-900 mb-3 leading-[1.3]">
+            <h3 className="relative font-sans font-medium text-[16px] text-zinc-900 mb-3 leading-[1.3]">
               {p.titre}
             </h3>
             <p className="relative text-[13.5px] text-zinc-600 font-sans leading-[1.65]">
@@ -524,13 +524,13 @@ function PaliersGrid() {
           >
             {p.highlight && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-200 via-white to-emerald-300" />}
             {p.badge && (
-              <span className="relative inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-semibold px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
+              <span className="relative inline-flex self-start mb-5 items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] font-medium px-3 py-1 rounded-full bg-white/12 text-white border border-white/20 backdrop-blur-sm">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 {p.badge}
               </span>
             )}
             <p
-              className={`relative mb-3 text-[11px] uppercase tracking-[0.14em] font-semibold ${
+              className={`relative mb-3 text-[11px] uppercase tracking-[0.14em] font-medium ${
                 p.highlight ? "text-emerald-100/75" : "text-emerald-800"
               }`}
             >
@@ -545,7 +545,7 @@ function PaliersGrid() {
             </h3>
             <div className="relative mb-5 rounded-xl border border-current/10 bg-white/[0.055] p-5">
               <p
-                className={`mb-2 text-[11px] uppercase tracking-[0.14em] font-semibold ${
+                className={`mb-2 text-[11px] uppercase tracking-[0.14em] font-medium ${
                   p.highlight ? "text-white/55" : "text-zinc-500"
                 }`}
               >
@@ -727,7 +727,7 @@ function TripleGarantie() {
             <div className="relative mb-5 inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 font-serif text-[14px]">
               {g.num}
             </div>
-            <h3 className="relative font-sans font-semibold text-[16px] text-zinc-900 mb-3 leading-[1.3]">
+            <h3 className="relative font-sans font-medium text-[16px] text-zinc-900 mb-3 leading-[1.3]">
               {g.titre}
             </h3>
             <p className="relative text-[13px] text-zinc-600 font-sans leading-[1.65]">
@@ -744,13 +744,13 @@ function TripleGarantie() {
         transition={{ duration: 0.6, ease }}
         className="mt-10 mx-auto max-w-3xl text-center"
       >
-        <p className="text-[12px] uppercase tracking-[0.18em] text-emerald-700 font-semibold mb-3">
+        <p className="text-[12px] uppercase tracking-[0.18em] text-emerald-700 font-medium mb-3">
           Notre engagement de mise en service
         </p>
         <p className="text-[14.5px] text-zinc-600 leading-[1.8]">
-          <span className="font-semibold text-zinc-900">Jour 1</span> — première facture
-          envoyée. <span className="font-semibold text-zinc-900">Jour 3</span> — premier
-          dossier numérisé. <span className="font-semibold text-zinc-900">Jour 7</span> —
+          <span className="font-medium text-zinc-900">Jour 1</span> — première facture
+          envoyée. <span className="font-medium text-zinc-900">Jour 3</span> — premier
+          dossier numérisé. <span className="font-medium text-zinc-900">Jour 7</span> —
           première heure de gain mesurée.
         </p>
       </motion.div>

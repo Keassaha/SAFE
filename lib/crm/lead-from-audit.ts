@@ -101,9 +101,9 @@ export function validUrl(v: unknown): string | null {
   const s = str(v);
   if (!s) return null;
   try {
-    // eslint-disable-next-line no-new
-    new URL(s.startsWith("http") ? s : `https://${s}`);
-    return s.startsWith("http") ? s : `https://${s}`;
+    const normalized = s.startsWith("http") ? s : `https://${s}`;
+    new URL(normalized); // valide l'URL, la valeur retournée est la forme normalisée
+    return normalized;
   } catch {
     return null;
   }

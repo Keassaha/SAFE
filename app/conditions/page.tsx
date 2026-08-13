@@ -14,7 +14,7 @@ export default function ConditionsPage() {
       <Navbar />
       <main className="section-morning min-h-screen pt-32 pb-20">
         <div className="mx-auto max-w-3xl px-6 lg:px-10">
-          <h1 className="font-sans text-3xl sm:text-4xl font-bold text-[var(--safe-darkest)] mb-2 tracking-tight">
+          <h1 className="font-sans text-3xl sm:text-4xl font-medium text-[var(--safe-darkest)] mb-2 tracking-tight">
             Conditions d&apos;utilisation
           </h1>
           <p className="text-sm text-[var(--safe-text-muted)] font-sans mb-10">
@@ -23,7 +23,7 @@ export default function ConditionsPage() {
 
           <div className="prose prose-neutral max-w-none font-sans text-[var(--safe-dark)] leading-relaxed space-y-8">
             <section>
-              <h2 className="text-xl font-semibold mb-3">1. Parties et acceptation</h2>
+              <h2 className="text-xl font-medium mb-3">1. Parties et acceptation</h2>
               <p>
                 Les présentes conditions générales d&apos;utilisation (les « <strong>Conditions</strong> ») s&apos;appliquent
                 à l&apos;accès au site public <strong>safecabinet.ca</strong> et à l&apos;utilisation de la plateforme
@@ -44,7 +44,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">2. Autorité de lier le cabinet</h2>
+              <h2 className="text-xl font-medium mb-3">2. Autorité de lier le cabinet</h2>
               <p>
                 La personne qui accepte les présentes Conditions au nom du Client déclare disposer de
                 l&apos;<strong>autorité requise</strong> pour engager juridiquement son cabinet. À défaut, elle ne doit
@@ -54,7 +54,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">3. Description du service</h2>
+              <h2 className="text-xl font-medium mb-3">3. Description du service</h2>
               <p>
                 SAFE est une plateforme infonuagique de gestion administrative pour cabinets d&apos;avocats. Elle
                 comprend, dans des proportions susceptibles d&apos;évoluer&nbsp;:
@@ -75,7 +75,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">4. SAFE n&apos;est pas un service de conseil</h2>
+              <h2 className="text-xl font-medium mb-3">4. SAFE n&apos;est pas un service de conseil</h2>
               <p>
                 SAFE est un <strong>outil technologique</strong>. <strong>SAFE ne fournit aucun conseil juridique,
                 fiscal, comptable, déontologique ou réglementaire</strong>. Les libellés, modèles, suggestions de
@@ -92,7 +92,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">5. Éligibilité, comptes et rôles</h2>
+              <h2 className="text-xl font-medium mb-3">5. Éligibilité, comptes et rôles</h2>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
                   L&apos;utilisation de la Plateforme est réservée aux <strong>professionnels du droit</strong>{" "}
@@ -116,7 +116,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">6. Obligations du Client</h2>
+              <h2 className="text-xl font-medium mb-3">6. Obligations du Client</h2>
               <p>Le Client demeure exclusivement responsable&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
@@ -149,7 +149,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">7. Mode <em>append-only</em> de la comptabilité et du fidéicommis</h2>
+              <h2 className="text-xl font-medium mb-3">7. Mode <em>append-only</em> de la comptabilité et du fidéicommis</h2>
               <p>
                 Le journal général, le journal de fidéicommis et l&apos;historique de facturation fonctionnent en mode
                 <strong> append-only</strong>&nbsp;: les écritures, transactions et factures validées ne peuvent être
@@ -163,7 +163,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">8. Usages interdits</h2>
+              <h2 className="text-xl font-medium mb-3">8. Usages interdits</h2>
               <p>Le Client et ses Utilisateurs s&apos;engagent à ne pas&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>contourner les contrôles d&apos;accès, le système de rôles ou le cloisonnement multi-cabinet&nbsp;;</li>
@@ -181,7 +181,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">9. Propriété et utilisation des données du Client</h2>
+              <h2 className="text-xl font-medium mb-3">9. Propriété et utilisation des données du Client</h2>
               <p>
                 Le Client conserve la <strong>pleine propriété</strong> des données qu&apos;il dépose dans la
                 Plateforme (dossiers, écritures, transactions, factures, documents, registres). SAFE ne revendique
@@ -205,7 +205,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">10. Propriété intellectuelle de la Plateforme</h2>
+              <h2 className="text-xl font-medium mb-3">10. Propriété intellectuelle de la Plateforme</h2>
               <p>
                 La Plateforme, son code, son interface, ses gabarits, ses identifiants visuels, ses bases de
                 connaissance et sa documentation sont la propriété exclusive de SAFE et sont protégés par les lois
@@ -226,7 +226,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">11. Services tiers et sous-traitants</h2>
+              <h2 className="text-xl font-medium mb-3">11. Services tiers et sous-traitants</h2>
               <p>
                 Pour fournir le service, SAFE recourt à des sous-traitants techniques (notamment hébergement
                 applicatif, base de données, traitement des paiements, courriel transactionnel, modèles
@@ -242,7 +242,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">12. Disponibilité, maintenance et incidents</h2>
+              <h2 className="text-xl font-medium mb-3">12. Disponibilité, maintenance et incidents</h2>
               <p>
                 SAFE déploie des efforts commercialement raisonnables pour offrir un service stable et sécurisé sur
                 une infrastructure infonuagique située au Canada. <strong>Aucun engagement chiffré de
@@ -262,7 +262,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">13. Tarifs, taxes et paiement</h2>
+              <h2 className="text-xl font-medium mb-3">13. Tarifs, taxes et paiement</h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Les frais d&apos;abonnement sont indiqués dans le bon de commande ou dans la grille tarifaire en vigueur.</li>
                 <li>
@@ -284,7 +284,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">14. Durée, résiliation et suspension</h2>
+              <h2 className="text-xl font-medium mb-3">14. Durée, résiliation et suspension</h2>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
                   L&apos;abonnement est consenti pour la durée prévue au bon de commande, et reconduit tacitement par
@@ -316,7 +316,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">15. Garanties limitées</h2>
+              <h2 className="text-xl font-medium mb-3">15. Garanties limitées</h2>
               <p>
                 SAFE garantit que la Plateforme est fournie avec un soin professionnel raisonnable, conforme à la
                 description du service publiée et au cadre légal applicable.
@@ -334,7 +334,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">16. Limitation de responsabilité</h2>
+              <h2 className="text-xl font-medium mb-3">16. Limitation de responsabilité</h2>
               <p>Dans toute la mesure permise par la loi&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
@@ -361,7 +361,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">17. Indemnisation par le Client</h2>
+              <h2 className="text-xl font-medium mb-3">17. Indemnisation par le Client</h2>
               <p>
                 Le Client s&apos;engage à indemniser SAFE et à la tenir indemne de toute réclamation, plainte,
                 procédure ou condamnation introduite par un tiers (incluant les clients du Client, ses anciens
@@ -379,7 +379,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">18. Force majeure</h2>
+              <h2 className="text-xl font-medium mb-3">18. Force majeure</h2>
               <p>
                 Aucune des parties ne sera responsable d&apos;un manquement résultant d&apos;un événement de force
                 majeure, incluant notamment&nbsp;: défaillance d&apos;un fournisseur d&apos;infrastructure
@@ -391,7 +391,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">19. Confidentialité</h2>
+              <h2 className="text-xl font-medium mb-3">19. Confidentialité</h2>
               <p>
                 Chaque partie s&apos;engage à préserver la confidentialité des informations qu&apos;elle reçoit de
                 l&apos;autre dans le cadre de l&apos;utilisation de la Plateforme. Les modalités de traitement des
@@ -401,7 +401,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">20. Cession</h2>
+              <h2 className="text-xl font-medium mb-3">20. Cession</h2>
               <p>
                 Le Client ne peut céder ni transférer ses droits et obligations au titre des présentes sans
                 l&apos;accord écrit préalable de SAFE. SAFE peut céder ses droits et obligations à un successeur en
@@ -411,7 +411,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">21. Modifications des Conditions</h2>
+              <h2 className="text-xl font-medium mb-3">21. Modifications des Conditions</h2>
               <p>
                 SAFE peut faire évoluer les présentes Conditions pour refléter l&apos;évolution du service, du cadre
                 légal ou de ses sous-traitants. Toute modification substantielle est notifiée au Client par courriel
@@ -424,7 +424,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">22. Divers</h2>
+              <h2 className="text-xl font-medium mb-3">22. Divers</h2>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
                   <strong>Indépendance des stipulations</strong>&nbsp;: si une disposition des présentes est jugée
@@ -447,7 +447,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">23. Droit applicable et juridiction</h2>
+              <h2 className="text-xl font-medium mb-3">23. Droit applicable et juridiction</h2>
               <p>
                 Les présentes Conditions sont régies par les lois applicables dans la <strong>province de Québec</strong>{" "}
                 et les lois fédérales du Canada qui s&apos;y appliquent, à l&apos;exclusion de leurs règles de conflit
@@ -457,7 +457,7 @@ export default function ConditionsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">24. Contact</h2>
+              <h2 className="text-xl font-medium mb-3">24. Contact</h2>
               <p>
                 Pour toute question relative aux présentes Conditions, à l&apos;abonnement, à un incident ou à
                 l&apos;exercice des droits prévus à la politique de confidentialité&nbsp;:

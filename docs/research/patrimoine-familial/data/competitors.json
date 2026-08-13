@@ -1,0 +1,72 @@
+{
+ "genere_le": "2026-08-12",
+ "avertissement": "Aucune fonctionnalité inférée d'une page marketing. Les champs non vérifiables sont laissés explicites.",
+ "concurrents": [
+  {
+   "nom": "JuriFamille",
+   "entreprise": "Corporation de services du Barreau du Québec",
+   "url": "https://jurifamille.com/",
+   "marche_cible": "professionnels du droit familial",
+   "territoire": "Québec",
+   "langue": "fr",
+   "prix": "non public (page de tarification existante)",
+   "type_calcul": "pensions alimentaires (Annexe I, Formulaire III) selon le site officiel",
+   "patrimoine_familial": "NON MENTIONNÉ sur le site officiel",
+   "societe_acquets": "NON MENTIONNÉ sur le site officiel",
+   "union_parentale": "NON MENTIONNÉ sur le site officiel",
+   "contradiction": "Un catalogue de formation professionnelle (AMFQ) annonce un atelier « JuriFamille 2.0 — Calculs du partage : patrimoine familial, société d'acquêts et patrimoine d'union parentale ». Non résolu.",
+   "acces_restreint": "membres du Barreau, magistrature, médiateurs accrédités",
+   "acces_gratuit": "annoncé gratuit dans les bibliothèques du CAIJ (non vérifié directement)",
+   "forces": [
+    "adossé au Barreau",
+    "gratuité annoncée via CAIJ",
+    "légitimité institutionnelle"
+   ],
+   "faiblesses": [
+    "périmètre affiché limité aux pensions alimentaires"
+   ],
+   "non_verifiable": [
+    "fréquence de mise à jour",
+    "capacité d'audit",
+    "export",
+    "collaboration",
+    "sécurité",
+    "hébergement des données",
+    "prix"
+   ],
+   "date_verification": "2026-08-12"
+  },
+  {
+   "nom": "AliForm",
+   "entreprise": "Juris Concept, division de PG Solutions inc.",
+   "url": "https://jurisconcept.ca/fr/aliform/",
+   "marche_cible": "avocats, parajuristes, notaires, médiateurs, juges",
+   "territoire": "Québec",
+   "langue": "fr",
+   "prix": "non public",
+   "type_calcul": "pensions alimentaires + partage du patrimoine familial + médiation",
+   "patrimoine_familial": "ANNONCÉ sur la page produit",
+   "societe_acquets": "non mentionné",
+   "union_parentale": "non mentionné",
+   "acces_gratuit": "annoncé gratuit dans les bibliothèques du CAIJ (non vérifié directement)",
+   "note": "Acquis par Juris Concept le 6 septembre 2024",
+   "forces": [
+    "couvre explicitement le patrimoine familial",
+    "base de jurisprudence annotée"
+   ],
+   "faiblesses": [
+    "couverture acquêts et union parentale non annoncée"
+   ],
+   "non_verifiable": [
+    "fréquence de mise à jour",
+    "capacité d'audit",
+    "export",
+    "collaboration",
+    "sécurité",
+    "hébergement des données",
+    "prix"
+   ],
+   "date_verification": "2026-08-12"
+  }
+ ]
+}

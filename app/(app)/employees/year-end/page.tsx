@@ -31,7 +31,7 @@ export default async function YearEndPage({
   const years = availableYears.length > 0 ? availableYears : [currentYear];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Récapitulatif de fin d'année"
         description="Feuillets T4 / T4A — document à remettre à votre comptable"

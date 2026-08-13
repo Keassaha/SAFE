@@ -20,7 +20,7 @@ export default async function ReconciliationPage() {
   const copy = getTrustRegulatorCopy(await getCabinetProvince(cabinetId));
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={copy.isQuebec ? t("titleQc") : t("titleOn")}
         description={t("description", {

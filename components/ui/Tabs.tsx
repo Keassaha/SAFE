@@ -66,10 +66,13 @@ export function TabsTrigger({ value, children, className = "", ...props }: TabsT
       tabIndex={isSelected ? 0 : -1}
       data-state={isSelected ? "active" : "inactive"}
       onClick={() => onValueChange(value)}
-      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-safe-sm px-3 sm:px-4 py-2 text-sm font-medium transition-colors snap-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-h-[36px] ${
+      /* Un onglet est une sélection : il porte donc le zoom souple comme tout
+         le reste. Le fond clair reste réservé à l'onglet réellement actif, le
+         survol ne peint plus de rectangle blanchâtre. */
+      className={`safe-zoom-menu inline-flex min-h-[36px] snap-start items-center justify-center gap-2 whitespace-nowrap rounded-safe-sm px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:px-4 ${
         isSelected
           ? "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-title)] shadow-sm"
-          : "hover:bg-white/60 hover:text-[var(--safe-text-title)]"
+          : "hover:text-[var(--safe-text-title)]"
       } ${className}`}
       {...props}
     >

@@ -108,7 +108,7 @@ function FeatureCard({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, delay: 0.1 + index * 0.1, ease }}
       whileHover="hover"
-      className="group relative flex flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)] hover:-translate-y-1"
+      className="group relative flex flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)]"
     >
       {/* Halo radial vert */}
       <motion.span
@@ -143,7 +143,7 @@ function FeatureCard({
         </motion.span>
         <motion.span
           className="text-[11px] font-sans uppercase tracking-[0.12em] text-text-muted mt-2.5"
-          variants={{ hover: { color: "#1F3A2E" } }}
+          variants={{ hover: { color: "var(--si-forest)" } }}
           transition={{ duration: 0.4 }}
         >
           {feature.kicker}
@@ -211,7 +211,7 @@ export function AnimatedCard({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, delay: 0.1 + index * 0.1, ease }}
       whileHover="hover"
-      className="group relative flex min-h-[330px] flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)] hover:-translate-y-1"
+      className="group relative flex min-h-[330px] flex-col p-7 bg-surface border border-[0.5px] border-border rounded-[10px] overflow-hidden transition-[border-color,box-shadow,transform] duration-500 hover:border-forest-600/50 hover:shadow-[0_30px_80px_-40px_rgba(31,58,46,0.35)]"
     >
       {/* Halo radial vert qui s'étend au hover */}
       <motion.span
@@ -241,7 +241,7 @@ export function AnimatedCard({
           className={`text-[11px] font-sans uppercase tracking-[0.12em] ${
             kickerColor ?? "text-text-muted"
           }`}
-          variants={{ hover: { color: "#1F3A2E" } }}
+          variants={{ hover: { color: "var(--si-forest)" } }}
           transition={{ duration: 0.4 }}
         >
           {kicker}

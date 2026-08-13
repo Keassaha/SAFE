@@ -19,12 +19,12 @@ export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h3 className="text-sm font-semibold text-si-ink flex items-center gap-2 tracking-tight">
+        <h3 className="text-sm font-medium text-si-ink flex items-center gap-2 tracking-tight">
           <BarChart2 className="w-4 h-4" aria-hidden />
           {t("invoiceAgingTitle")}
         </h3>
         <p className="text-sm text-si-muted">
-          {t("totalReceivable")} <span className="font-semibold text-si-ink">{formatCurrency(total)}</span>
+          {t("totalReceivable")} <span className="font-medium text-si-ink">{formatCurrency(total)}</span>
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -44,7 +44,7 @@ export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
                 </span>
               )}
             </div>
-            <p className="text-lg font-bold text-si-ink tabular-nums">
+            <p className="text-lg font-medium text-si-ink tabular-nums">
               {formatCurrency(bucket.montant)}
             </p>
             <div className="mt-2 h-2 rounded-full bg-si-canvas overflow-hidden">

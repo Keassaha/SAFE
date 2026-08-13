@@ -24,17 +24,17 @@ export default function LandingComboTestPage() {
         </Link>
 
         <div className="hidden items-center gap-8 text-sm font-medium md:flex">
-          <a href="#journee" className="transition-opacity hover:opacity-60">
+          <a href="#journee" className="safe-zoom transition-opacity hover:opacity-60">
             Une journée avec SAFE
           </a>
-          <a href="#methode" className="transition-opacity hover:opacity-60">
+          <a href="#methode" className="safe-zoom transition-opacity hover:opacity-60">
             Notre méthode
           </a>
         </div>
 
         <Link
           href="/audit-gratuit"
-          className="rounded-full bg-[#153f31] px-5 py-3 text-sm font-semibold text-[#fffaf0] transition-transform hover:-translate-y-0.5"
+          className="safe-zoom rounded-full bg-[#153f31] px-5 py-3 text-sm font-medium text-[#fffaf0] transition-transform"
         >
           Voir mon cabinet autrement
         </Link>
@@ -42,7 +42,7 @@ export default function LandingComboTestPage() {
 
       <section className="relative mx-auto grid min-h-[760px] max-w-[1440px] items-center gap-6 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-[0.78fr_1.22fr] lg:px-12 lg:pb-24 lg:pt-8">
         <div className="relative z-10 max-w-[620px]">
-          <p className="mb-6 inline-flex rotate-[-2deg] items-center rounded-full bg-[#efb34d] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#17362b]">
+          <p className="mb-6 inline-flex rotate-[-2deg] items-center rounded-full bg-[#efb34d] px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[#17362b]">
             Conçu au Québec pour les cabinets d’ici
           </p>
           <h1 className="font-serif text-[clamp(4.2rem,8vw,8.4rem)] leading-[0.78] tracking-[-0.055em]">
@@ -56,11 +56,11 @@ export default function LandingComboTestPage() {
           <div className="mt-9 flex flex-wrap items-center gap-5">
             <Link
               href="/audit-gratuit"
-              className="group inline-flex items-center gap-3 rounded-full bg-[#102b21] px-7 py-4 font-semibold text-[#fffaf0] transition-transform hover:-translate-y-0.5"
+              className="safe-zoom group inline-flex items-center gap-3 rounded-full bg-[#102b21] px-7 py-4 font-medium text-[#fffaf0] transition-transform"
             >
               Faire le point gratuitement
               <ArrowRight
-                className="size-4 transition-transform group-hover:translate-x-1"
+                className="safe-zoom size-4 transition-transform group-hover:translate-x-1"
                 aria-hidden="true"
               />
             </Link>
@@ -84,7 +84,7 @@ export default function LandingComboTestPage() {
             className="relative h-auto w-full mix-blend-multiply"
           />
           <div className="absolute bottom-[4%] left-[8%] hidden -rotate-3 rounded-2xl border-2 border-[#17362b] bg-[#fff8e9] px-5 py-4 shadow-[5px_5px_0_#17362b] sm:block">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#c7644f]">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#c7644f]">
               Aujourd’hui
             </p>
             <p className="mt-1 font-serif text-2xl">Tout est à sa place.</p>
@@ -96,7 +96,7 @@ export default function LandingComboTestPage() {
         <div className="mx-auto max-w-[1240px]">
           <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#efb34d]">
+              <p className="text-xs font-medium uppercase tracking-[0.15em] text-[#efb34d]">
                 Mardi, 9 h 12
               </p>
               <h2 className="mt-5 max-w-[9ch] font-serif text-5xl leading-[0.95] tracking-[-0.035em] sm:text-7xl">
@@ -135,7 +135,7 @@ export default function LandingComboTestPage() {
           aria-hidden="true"
         />
         <div className="relative mx-auto max-w-[1240px]">
-          <p className="text-xs font-bold uppercase tracking-[0.15em]">
+          <p className="text-xs font-medium uppercase tracking-[0.15em]">
             La différence SAFE
           </p>
           <div className="mt-6 grid gap-12 lg:grid-cols-[1fr_0.8fr] lg:items-end">
@@ -175,7 +175,7 @@ export default function LandingComboTestPage() {
       <section className="bg-[#c7644f] px-5 py-24 text-[#fff8e9] sm:px-8 lg:py-32">
         <div className="mx-auto flex max-w-[1240px] flex-col items-start justify-between gap-10 lg:flex-row lg:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#f8dca9]">
+            <p className="text-xs font-medium uppercase tracking-[0.15em] text-[#f8dca9]">
               Et si le problème n’était pas votre équipe ?
             </p>
             <h2 className="mt-5 max-w-[11ch] font-serif text-5xl leading-[0.94] tracking-[-0.035em] sm:text-7xl">
@@ -184,11 +184,11 @@ export default function LandingComboTestPage() {
           </div>
           <Link
             href="/audit-gratuit"
-            className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-[#fff8e9] px-7 py-4 font-semibold text-[#17362b] transition-transform hover:-translate-y-0.5"
+            className="safe-zoom group inline-flex shrink-0 items-center gap-3 rounded-full bg-[#fff8e9] px-7 py-4 font-medium text-[#17362b] transition-transform"
           >
             Commencer l’audit
             <ArrowRight
-              className="size-4 transition-transform group-hover:translate-x-1"
+              className="safe-zoom size-4 transition-transform group-hover:translate-x-1"
               aria-hidden="true"
             />
           </Link>

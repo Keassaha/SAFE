@@ -22,7 +22,7 @@ export function DossierDetailSection({
     <div className="rounded-lg border border-si-line bg-si-surface p-6 space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-si-ink">{label}</h3>
+          <h3 className="text-sm font-medium text-si-ink">{label}</h3>
           {description && (
             <p className="text-xs text-si-muted">{description}</p>
           )}

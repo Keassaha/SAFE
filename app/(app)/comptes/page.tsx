@@ -35,7 +35,7 @@ export default async function ComptesPage() {
   const canEdit = canEditBillingTrust(role as "admin_cabinet" | "avocat" | "assistante" | "comptabilite");
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("trustAccountsTitle")}
         description={t("trustAccountsDescription")}

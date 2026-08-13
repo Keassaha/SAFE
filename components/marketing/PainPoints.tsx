@@ -155,7 +155,7 @@ function PainCard({
             transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 180, damping: 20 }}
             className={`px-3 py-1.5 rounded-safe ${item.accent.statBg} border ${item.accent.border}`}
           >
-            <span className={`text-sm font-bold font-sans ${item.accent.statText}`}>
+            <span className={`text-sm font-medium font-sans ${item.accent.statText}`}>
               {item.stat}
             </span>
             <span className="text-xs text-white/40 font-sans ml-1.5">
@@ -164,7 +164,7 @@ function PainCard({
           </motion.div>
         </div>
 
-        <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+        <h3 className="text-xl font-medium text-[var(--safe-white)] mb-3 font-sans tracking-tight">
           {item.title}
         </h3>
 
@@ -192,7 +192,7 @@ export function PainPoints() {
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
         {/* Header */}
         <div className="text-center mb-12 sm:mb-16">
-          <p className="text-sm font-sans font-semibold uppercase tracking-widest text-red-400/80 mb-4">
+          <p className="text-sm font-sans font-medium uppercase tracking-widest text-red-400/80 mb-4">
             Ce qui vous ralentit
           </p>
           <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl text-[var(--safe-white)] mb-6 leading-tight tracking-tight">

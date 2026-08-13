@@ -44,7 +44,7 @@ export function AuditLogList({
         </thead>
         <tbody>
           {items.map((log) => (
-            <tr key={log.id} className="border-b border-neutral-borderSubtle hover:bg-neutral-surface/50">
+            <tr key={log.id} className="safe-zoom-rang border-b border-neutral-borderSubtle ">
               <td className="px-4 py-2 text-neutral-muted">{formatDate(log.createdAt)}</td>
               <td className="px-4 py-2">
                 <span className="font-medium">{log.entityType}</span> {log.entityId.slice(0, 8)}…

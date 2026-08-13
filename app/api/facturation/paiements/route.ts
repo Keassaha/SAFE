@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { createPaymentSchema } from "@/lib/validations/facturation";
 import { createPayment } from "@/lib/services/billing/payment-allocation-service";
 import type { UserRole } from "@prisma/client";
@@ -24,7 +24,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const { cabinetId, role } = data;
-  if (!canManageInvoices(role)) {
+  // Lecture : `canViewBilling`. L'écriture (POST) garde `canManageInvoices`.
+  if (!canViewBilling(role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 

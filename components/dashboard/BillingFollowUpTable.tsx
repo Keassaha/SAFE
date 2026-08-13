@@ -41,7 +41,7 @@ export function BillingFollowUpTable({
     <div className="card-glass overflow-hidden p-5 md:p-6 border-l-4 border-l-amber-500">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
+          <h3 className="text-sm font-medium safe-text-title flex items-center gap-1.5 tracking-tight">
             <ClipboardList className="w-4 h-4 text-amber-600" aria-hidden />
             {t("billingFollowUpTitle")}
           </h3>

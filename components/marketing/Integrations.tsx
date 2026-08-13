@@ -110,7 +110,7 @@ export function Integrations() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-4 font-sans"
+            className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-4 font-sans"
           >
             Int&eacute;grations
           </motion.p>
@@ -119,7 +119,7 @@ export function Integrations() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--safe-white)] leading-[1.1] tracking-tight mb-5"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl font-medium text-[var(--safe-white)] leading-[1.1] tracking-tight mb-5"
           >
             S&apos;int&egrave;gre avec{" "}
             <span className="italic text-[var(--safe-sage)]">vos outils</span>.

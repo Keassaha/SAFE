@@ -151,7 +151,7 @@ function EnteteDiagnostic() {
                     key={l.href}
                     href={l.href}
                     onClick={() => setMenuOpen(false)}
-                    className="block rounded-[8px] px-4 py-2.5 font-sans text-[13px] transition-colors duration-300 hover:bg-[rgba(18,161,80,0.06)]"
+                    className="block rounded-[8px] px-4 py-2.5 font-sans text-[13px] transition-colors duration-300 hover:bg-[rgb(var(--si-forest-rgb) / 0.06)]"
                     style={{ color: MUTED }}
                   >
                     {l.label}
@@ -317,9 +317,9 @@ function FeuilleRapport() {
       <div
         data-reco
         className="mt-6 rounded-[9px] px-5 py-4"
-        style={{ background: "#1F3A2E", color: "#F4F7F3", opacity: 0 }}
+        style={{ background: "var(--si-forest)", color: "#F4F7F3", opacity: 0 }}
       >
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "#9FD5B4" }}>
+        <p className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--si-verified-on-forest)" }}>
           Recommandation
         </p>
         <p className="mt-2 font-sans text-[13.5px] leading-[1.55]">
@@ -525,7 +525,7 @@ function SectionDepart({ onStart }: { onStart: (lang: Lang) => void }) {
               onClick={() => onStart(l)}
               className="rounded-[12px] border p-6 text-left transition-colors duration-300"
               style={{ background: SURFACE, borderColor: LINE }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(18,161,80,0.45)"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgb(var(--si-forest-rgb) / 0.45)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}
             >
               <span className="block font-serif text-[34px] leading-none" style={{ color: INK }}>

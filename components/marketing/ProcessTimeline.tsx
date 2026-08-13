@@ -146,7 +146,7 @@ function StepCard({ step, idx }: { step: (typeof STEPS)[number]; idx: number }) 
             transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 180, damping: 20 }}
             className={`px-3 py-1 rounded-full ${step.accent.bg} border ${step.accent.border}`}
           >
-            <span className={`text-xs font-bold font-sans ${step.accent.icon}`}>
+            <span className={`text-xs font-medium font-sans ${step.accent.icon}`}>
               {step.number}
             </span>
             <span className="text-[10px] text-white/50 font-sans ml-1.5">
@@ -156,7 +156,7 @@ function StepCard({ step, idx }: { step: (typeof STEPS)[number]; idx: number }) 
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+        <h3 className="text-lg font-medium text-[var(--safe-white)] mb-3 font-sans tracking-tight">
           {step.title}
         </h3>
 
@@ -297,7 +297,7 @@ export function ProcessTimeline() {
                       }}
                     >
                       <span
-                        className={`text-xs font-bold font-sans transition-colors duration-500 ${
+                        className={`text-xs font-medium font-sans transition-colors duration-500 ${
                           active
                             ? step.accent.icon
                             : "text-[var(--safe-text-muted)]/60"

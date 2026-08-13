@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import { AlertCircle, DollarSign, FileText, Link2 } from "lucide-react";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 
 export type SuiviInvoiceRow = {
   id: string;
@@ -27,6 +28,9 @@ interface SuiviInvoicesViewProps {
 
 export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
   const t = useTranslations("billingUi");
+  const tc = useTranslations("common");
+  // Paginé par 20, comme tous les registres du produit.
+  const pageFactures = usePaginationLocale(invoices);
   if (invoices.length === 0) {
     return (
       <p className="text-sm text-si-muted py-8 text-center">
@@ -51,15 +55,10 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
           </tr>
         </thead>
         <tbody>
-          {invoices.map((inv) => {
+          {pageFactures.tranche.map((inv) => {
             const isOverdue = inv.statut === "en_retard";
             return (
-              <tr
-                key={inv.id}
-                className={`border-b border-si-line hover:bg-si-canvas/80 ${
-                  isOverdue ? "bg-[#B84A3E]/10" : ""
-                }`}
-              >
+              <tr key={inv.id} className={`border-b border-si-line ${ isOverdue ? "bg-[#B84A3E]/10" : "" }`} >
                 <td className="py-2 px-3 font-medium">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
@@ -130,6 +129,22 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
           })}
         </tbody>
       </table>
+      <RegistrePagination
+        totalCount={pageFactures.total}
+        currentPage={pageFactures.page}
+        resume={tc("paginationRange", {
+          start: pageFactures.debut + 1,
+          end: pageFactures.fin,
+          total: pageFactures.total,
+        })}
+        labelPage={tc("paginationPage", {
+          current: pageFactures.page,
+          total: pageFactures.totalPages,
+        })}
+        labelPrecedent={tc("previous")}
+        labelSuivant={tc("next")}
+        onPageChange={pageFactures.setPage}
+      />
     </div>
   );
 }

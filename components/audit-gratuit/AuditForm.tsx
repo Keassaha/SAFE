@@ -329,7 +329,7 @@ export function AuditForm({ lang }: AuditFormProps) {
         <div className="mt-4 h-px w-full overflow-hidden" style={{ background: "rgba(31,42,36,0.08)" }}>
           <motion.div
             className="h-px origin-left"
-            style={{ background: "#12A150" }}
+            style={{ background: "var(--si-forest)" }}
             initial={{ scaleX: 0 }}
             animate={{ scaleX: percent / 100 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
@@ -399,7 +399,7 @@ function FounderCard({ lang }: { lang: Lang }) {
       <div className="flex items-center gap-4">
         <span
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-          style={{ background: "#1F3A2E" }}
+          style={{ background: "var(--si-forest)" }}
         >
           <span className="font-serif text-[16px]" style={{ color: "#EAF2EC" }}>JT</span>
         </span>
@@ -466,7 +466,7 @@ function QuestionCard({
     <div className="audit-v2-card-lg">
       {/* Une question à l'écran, annoncée par sa section : rien d'autre à lire */}
       <div className="flex items-baseline justify-between gap-4">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#12A150" }}>
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--si-forest)" }}>
           {section?.subtitle}
         </span>
         <span className="font-mono text-[10px] tracking-[0.12em] tabular-nums" style={{ color: "#7C877F" }}>
@@ -577,7 +577,7 @@ function FieldRenderer({
                 className="h-11 w-11 rounded-[8px] border font-mono text-[14px] tabular-nums transition-colors duration-300"
                 style={
                   v === n
-                    ? { background: "#1F3A2E", borderColor: "#1F3A2E", color: "#F4F7F3" }
+                    ? { background: "var(--si-forest)", borderColor: "var(--si-forest)", color: "#F4F7F3" }
                     : { background: "#FFFFFF", borderColor: "rgba(31,42,36,0.10)", color: "#5A665F" }
                 }
               >
@@ -765,7 +765,7 @@ function AuditSuccess({
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
             className="audit-v2-card-lg text-center"
           >
-            <div className="mb-6 font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "#12A150" }}>
+            <div className="mb-6 font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--si-forest)" }}>
               Merci {nom}
             </div>
             <h1
@@ -773,7 +773,7 @@ function AuditSuccess({
               style={{ color: "#1F2A24", letterSpacing: "-0.02em" }}
             >
               Votre rapport{" "}
-              <span className="italic" style={{ color: "#12A150" }}>est prêt</span>.
+              <span className="italic" style={{ color: "var(--si-forest)" }}>est prêt</span>.
             </h1>
             <p className="mx-auto max-w-xl font-sans text-[14.5px] leading-[1.62]" style={{ color: "#5A665F" }}>
               {lang === "fr"
@@ -797,7 +797,7 @@ function AuditSuccess({
             </div>
 
             <div className="audit-v2-offer mt-8">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "#8EB69B" }}>
+              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
                 Offre recommandée
               </div>
               <div className="mb-1 font-serif text-[30px] leading-tight">
@@ -875,10 +875,10 @@ function SectionCelebration({
         className="w-full max-w-md"
       >
         <div className="flex items-baseline gap-4">
-          <span className="font-mono text-[11px] tracking-[0.16em]" style={{ color: "#8EB69B" }}>
+          <span className="font-mono text-[11px] tracking-[0.16em]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             {pad}
           </span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "#8EB69B" }}>
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             {label}
           </span>
         </div>
@@ -886,7 +886,7 @@ function SectionCelebration({
         <motion.span
           aria-hidden
           className="mt-5 block h-px origin-left"
-          style={{ background: "#12A150" }}
+          style={{ background: "var(--si-forest)" }}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}

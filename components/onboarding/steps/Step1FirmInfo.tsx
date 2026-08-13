@@ -9,7 +9,7 @@ export default function Step1FirmInfo({ data, setData, lang, errors }: StepProps
 
   return (
     <div className="space-y-5 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-6">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-6">
         {label("step1Title")}
       </h2>
 

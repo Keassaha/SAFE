@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requirePageAccess } from "@/lib/auth/page-guard";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -13,7 +13,7 @@ import { FileText, ChevronRight } from "lucide-react";
 
 export default async function FacturationVerificationPage() {
   const t = await getTranslations("billingUi");
-  const { cabinetId } = await requirePageAccess(canManageInvoices);
+  const { cabinetId } = await requirePageAccess(canViewBilling);
 
   const invoices = await prisma.invoice.findMany({
     where: {
@@ -62,7 +62,7 @@ export default async function FacturationVerificationPage() {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-semibold text-si-ink">
+                      <p className="font-medium text-si-ink">
                         {formatCurrency(inv.montantTotal)}
                       </p>
                       <p className="text-xs text-si-muted">

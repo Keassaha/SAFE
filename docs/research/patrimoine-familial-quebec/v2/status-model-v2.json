@@ -1,0 +1,9 @@
+{
+  "SOURCE_CONFIRMED": "Texte ou exigence confirme, non approuve pour le logiciel",
+  "READY_FOR_PRO_REVIEW": "Modelisation prete pour revue professionnelle",
+  "HUMAN_DECISION_ONLY": "Decision non automatisable",
+  "EXTERNAL_VALUE_REQUIRED": "Valeur officielle ou experte exigee",
+  "RESEARCH_INCOMPLETE": "Recherche supplementaire requise",
+  "SOURCE_CONFLICT": "Contradiction non resolue",
+  "BLOCKED_FOR_PRODUCTION": "Usage client interdit"
+}

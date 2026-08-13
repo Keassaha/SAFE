@@ -83,7 +83,7 @@ function formatDateTime(d: Date | null | undefined): string {
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 70 ? "bg-si-verified/10 text-si-verified"
     : score >= 40 ? "bg-si-amber/[0.13] text-si-amber-ink" : "bg-si-canvas text-si-ink";
-  return <span className={`inline-flex items-center rounded px-2.5 py-1 text-sm font-semibold ${color}`}>Score {score}</span>;
+  return <span className={`inline-flex items-center rounded px-2.5 py-1 text-sm font-medium ${color}`}>Score {score}</span>;
 }
 function StageBadge({ stage }: { stage: string }) {
   const isLive = stage === "LIVE" || stage === "AMBASSADOR";
@@ -102,7 +102,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">{children}</h2>;
+  return <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-si-muted">{children}</h2>;
 }
 
 /** Parse JSON sûr → objet plat. */
@@ -237,7 +237,7 @@ export default async function ConsoleClientDetailPage({
                 <>
                   <div className="flex items-baseline justify-between">
                     <span className="text-sm text-si-muted">Score d'audit</span>
-                    <span className="text-2xl font-semibold text-si-verified">
+                    <span className="text-2xl font-medium text-si-verified">
                       {lead.auditSubmission.scoreGlobal ?? "—"}
                       <span className="text-sm text-si-muted"> / 100</span>
                     </span>
@@ -274,7 +274,7 @@ export default async function ConsoleClientDetailPage({
                 <div className="flex justify-between"><span className="text-si-muted">Firmographique</span><span className="tabular-nums">{lead.scoreFirmographique} / 40</span></div>
                 <div className="flex justify-between"><span className="text-si-muted">Engagement</span><span className="tabular-nums">{lead.scoreEngagement} / 40</span></div>
                 <div className="flex justify-between"><span className="text-si-muted">Enrichissement</span><span className="tabular-nums">{lead.scoreEnrichissement} / 20</span></div>
-                <div className="mt-2 flex justify-between border-t border-si-line pt-2 font-semibold"><span>Total</span><span className="tabular-nums">{lead.score} / 100</span></div>
+                <div className="mt-2 flex justify-between border-t border-si-line pt-2 font-medium"><span>Total</span><span className="tabular-nums">{lead.score} / 100</span></div>
               </div>
             </CardContent>
           </Card>

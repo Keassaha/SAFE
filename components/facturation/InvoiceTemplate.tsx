@@ -119,10 +119,10 @@ export function InvoiceTemplate({
         <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-neutral-600/20 to-transparent" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-[var(--safe-green-100)] text-xs font-semibold uppercase tracking-widest mb-1">
+            <p className="text-[var(--safe-green-100)] text-xs font-medium uppercase tracking-widest mb-1">
               {tf("invoice")}
             </p>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight">
               {numero}
             </h1>
             {dossier && (
@@ -154,10 +154,10 @@ export function InvoiceTemplate({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 py-5 sm:px-8 sm:py-6 border-b border-[var(--safe-neutral-border)]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--safe-green-700)] mb-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--safe-green-700)] mb-2">
             {tf("issuer")}
           </p>
-          <p className="font-semibold text-[var(--safe-text-title)]">
+          <p className="font-medium text-[var(--safe-text-title)]">
             {cabinet?.nom ?? "Cabinet"}
           </p>
           {/* NB: numéro du Barreau volontairement omis — donnée confidentielle */}
@@ -175,10 +175,10 @@ export function InvoiceTemplate({
           )}
         </div>
         <div className="md:text-right">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--safe-green-700)] mb-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--safe-green-700)] mb-2">
             {tf("billedTo")}
           </p>
-          <p className="font-semibold text-[var(--safe-text-title)]">
+          <p className="font-medium text-[var(--safe-text-title)]">
             {client ? clientDisplayName(client, tc("client")) : tc("client")}
           </p>
           {client && formatClientAddress(client).length > 0 && (
@@ -195,22 +195,22 @@ export function InvoiceTemplate({
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="border-b-2 border-[var(--safe-green-600)]">
-              <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+              <th className="text-left py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tf("dateTask")}
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+              <th className="text-left py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tc("description")}
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)] hidden sm:table-cell">
+              <th className="text-left py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)] hidden sm:table-cell">
                 {tc("type")}
               </th>
-              <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+              <th className="text-right py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tf("hours")}
               </th>
-              <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+              <th className="text-right py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tf("rate")}
               </th>
-              <th className="text-right py-3 px-3 font-semibold text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
+              <th className="text-right py-3 px-3 font-medium text-[var(--safe-green-800)] bg-[var(--safe-green-50)]">
                 {tc("total")}
               </th>
             </tr>
@@ -303,7 +303,7 @@ export function InvoiceTemplate({
               <span className="tabular-nums">{formatCurrency(deboursNonTaxableTotal)}</span>
             </div>
           )}
-          <div className="flex justify-between font-semibold text-[var(--safe-green-800)] pt-2 border-t border-[var(--safe-neutral-border)]">
+          <div className="flex justify-between font-medium text-[var(--safe-green-800)] pt-2 border-t border-[var(--safe-neutral-border)]">
             <span>{tc("total")}</span>
             <span className="tabular-nums text-lg">{formatCurrency(montantTotal)}</span>
           </div>
@@ -314,7 +314,7 @@ export function InvoiceTemplate({
             </div>
           )}
           {(balanceDue > 0 || (montantPaye > 0 && balanceDue === 0)) && (
-            <div className="flex justify-between font-semibold text-[var(--safe-text-title)] pt-1">
+            <div className="flex justify-between font-medium text-[var(--safe-text-title)] pt-1">
               <span>{tf("balanceDue")}</span>
               <span
                 className={`tabular-nums ${balanceDue > 0 ? "text-[var(--safe-green-700)]" : "text-[var(--safe-status-success)]"}`}

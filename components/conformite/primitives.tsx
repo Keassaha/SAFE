@@ -176,10 +176,7 @@ export function Table({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr
-              key={i}
-              className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-si-forest/[0.02]"
-            >
+            <tr key={i} className="safe-zoom-rang border-b border-[var(--si-line)] transition-colors last:border-b-0 " >
               {r.map((cell, j) => (
                 <td
                   key={j}

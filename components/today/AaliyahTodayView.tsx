@@ -68,13 +68,17 @@ export interface AaliyahTodayData {
   weekReady: number;
 }
 
-const ACCENT = "#1F3A2E";
+const ACCENT = "var(--si-forest)";
+/* Cette vue portait sa propre palette en hexadécimal : six couleurs héritées
+   d'une génération antérieure, donc six écarts avec le reste du produit. Elles
+   pointent maintenant vers les jetons. L'urgence garde sa teinte, le reste
+   redevient neutre. */
 const TONE = {
-  err: { fg: "#8A3A2D", bg: "#F3D8D2" },
-  warn: { fg: "#8B6B1F", bg: "#F5E6C8" },
-  succ: { fg: "#1F3A2E", bg: "#D4E8D9" },
-  brand: { fg: "#1F3A2E", bg: "#EEF5F0" },
-  muted: { fg: "#71717A", bg: "#FAFAFA" },
+  err: { fg: "var(--si-danger-ink)", bg: "rgb(var(--si-danger-rgb) / 0.12)" },
+  warn: { fg: "var(--si-amber-ink)", bg: "rgb(var(--si-amber-rgb) / 0.12)" },
+  succ: { fg: "var(--si-verified)", bg: "rgb(var(--si-verified-rgb) / 0.12)" },
+  brand: { fg: "var(--si-ink)", bg: "var(--si-surface2)" },
+  muted: { fg: "var(--si-muted)", bg: "var(--si-surface2)" },
 } as const;
 
 function dayTone(days: number | null): keyof typeof TONE {
@@ -120,18 +124,18 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
       {/* Greeting + calm */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+          <h1 className="font-serif text-[32px] leading-tight tracking-tight text-si-ink">
             {t("greeting", { name: data.firstName })}
           </h1>
           <span
-            className="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold"
+            className="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
             style={{ backgroundColor: data.omissions === 0 ? TONE.succ.bg : TONE.warn.bg, color: data.omissions === 0 ? TONE.succ.fg : TONE.warn.fg }}
           >
             <CheckCircle2 className="h-4 w-4" aria-hidden />
             {data.omissions === 0 ? t("nothingSlips") : t("itemsOverdue", { n: data.omissions })}
           </span>
         </div>
-        <div className="text-sm text-neutral-500">{data.dateLabel} · {t("activeMatters", { n: data.activeMatters })}</div>
+        <div className="text-sm text-si-muted">{data.dateLabel} · {t("activeMatters", { n: data.activeMatters })}</div>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.5fr_1fr] items-start">
@@ -139,20 +143,20 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
         <div className="space-y-5">
           {/* Next action */}
           {data.nextAction ? (
-            <div className="rounded-2xl border p-5" style={{ borderColor: "#CDE0D4", backgroundColor: TONE.brand.bg }}>
-              <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>{t("yourNextAction")}</div>
-              <div className="mt-1.5 text-xl font-bold text-neutral-900">{data.nextAction.text}</div>
-              <div className="mt-1 text-sm text-neutral-600">{data.nextAction.matterLabel}</div>
+            <div className="rounded-2xl border p-5" style={{ borderColor: "rgb(var(--si-verified-rgb) / 0.22)", backgroundColor: TONE.brand.bg }}>
+              <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: ACCENT }}>{t("yourNextAction")}</div>
+              <div className="mt-1.5 text-xl font-medium text-si-ink">{data.nextAction.text}</div>
+              <div className="mt-1 text-sm text-si-body">{data.nextAction.matterLabel}</div>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 {data.nextAction.countdownDays != null ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold"
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium"
                     style={{ backgroundColor: TONE[dayTone(data.nextAction.countdownDays)].bg, color: TONE[dayTone(data.nextAction.countdownDays)].fg }}>
                     <Clock className="h-4 w-4" aria-hidden />
                     {data.nextAction.countdownLabel ? `${data.nextAction.countdownLabel} · ` : ""}{cd(data.nextAction.countdownDays)}
                   </span>
                 ) : null}
                 <Link href={`/dossiers/${data.nextAction.dossierId}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold text-white"
+                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium text-white"
                   style={{ backgroundColor: ACCENT }}>
                   {t("doItNow")} <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
@@ -168,35 +172,35 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500">
+            <div className="safe-feuille p-5 text-sm text-si-muted">
               {t("noNextAction")}
             </div>
           )}
 
           {/* Navette — needs you */}
-          <div className="today-dimmable rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="today-dimmable rounded-2xl border border-si-line bg-si-surface p-5">
             <div className="flex items-center gap-2">
-              <h2 className="text-[15px] font-semibold text-neutral-900">{t("navetteTitle")}</h2>
-              <span className="text-xs text-neutral-500">· {t("needsYou")}</span>
+              <h2 className="text-[15px] font-medium text-si-ink">{t("navetteTitle")}</h2>
+              <span className="text-xs text-si-muted">· {t("needsYou")}</span>
             </div>
             {data.inbox.length === 0 ? (
-              <p className="mt-3 text-sm text-neutral-400">{t("navetteEmpty")}</p>
+              <p className="mt-3 text-sm text-si-subtle">{t("navetteEmpty")}</p>
             ) : (
               <div className="mt-2">
                 {data.inbox.map((m) => {
                   const tone = TONE[inboxTone(m.type)];
                   return (
                     <Link key={m.id} href={`/dossiers/${m.dossierId}`}
-                      className="flex items-start gap-3 border-t border-neutral-100 py-3 first:border-t-0 hover:bg-neutral-50 -mx-2 px-2 rounded-lg">
+                      className="safe-zoom-rang flex items-start gap-3 border-t border-si-line2 py-3 first:border-t-0 -mx-2 px-2 rounded-lg">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: tone.bg, color: tone.fg }}>
                         <InboxIcon type={m.type} />
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs font-semibold text-neutral-600">{m.matterLabel}</span>
+                          <span className="rounded-md border border-si-line bg-si-surface2 px-2 py-0.5 text-xs font-medium text-si-body">{m.matterLabel}</span>
                         </div>
-                        {m.body ? <div className="mt-1 truncate text-sm text-neutral-700">{m.body}</div> : null}
-                        <div className="mt-0.5 text-xs text-neutral-400">{m.authorName ?? "—"}</div>
+                        {m.body ? <div className="mt-1 truncate text-sm text-si-body">{m.body}</div> : null}
+                        <div className="mt-0.5 text-xs text-si-subtle">{m.authorName ?? "—"}</div>
                       </div>
                     </Link>
                   );
@@ -206,26 +210,26 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
           </div>
 
           {/* Today's focus */}
-          <div className="today-dimmable rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="today-dimmable rounded-2xl border border-si-line bg-si-surface p-5">
             <div className="flex items-center justify-between">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{t("todaysFocus")}</div>
-              <Link href="/dossiers" className="text-[13px] font-semibold" style={{ color: ACCENT }}>{t("openMyMatters")}</Link>
+              <div className="text-[11px] font-medium uppercase tracking-wider text-si-subtle">{t("todaysFocus")}</div>
+              <Link href="/dossiers" className="text-[13px] font-medium" style={{ color: ACCENT }}>{t("openMyMatters")}</Link>
             </div>
             {data.focus.length === 0 ? (
-              <p className="mt-3 text-sm text-neutral-400">{t("focusEmpty")}</p>
+              <p className="mt-3 text-sm text-si-subtle">{t("focusEmpty")}</p>
             ) : (
               data.focus.map((f) => (
                 <Link key={f.id} href={`/dossiers/${f.dossierId}`}
-                  className="flex items-center gap-3 border-t border-neutral-100 py-3 first:border-t-0">
-                  <span className="h-[18px] w-[18px] shrink-0 rounded-md border-[1.5px] border-neutral-300" />
+                  className="safe-zoom-rang flex items-center gap-3 border-t border-si-line2 py-3 first:border-t-0 -mx-2 px-2 rounded-lg">
+                  <span className="h-[18px] w-[18px] shrink-0 rounded-md border-[1.5px] border-si-border-strong" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14.5px] font-semibold text-neutral-900">{f.title}</div>
-                    <div className="text-xs text-neutral-400">{f.matterLabel}</div>
+                    <div className="text-[14.5px] font-medium text-si-ink">{f.title}</div>
+                    <div className="text-xs text-si-subtle">{f.matterLabel}</div>
                   </div>
                   {f.overdue ? (
-                    <span className="rounded-lg px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: TONE.err.bg, color: TONE.err.fg }}>{t("overdue")}</span>
+                    <span className="rounded-lg px-2.5 py-1 text-xs font-medium" style={{ backgroundColor: TONE.err.bg, color: TONE.err.fg }}>{t("overdue")}</span>
                   ) : f.daysUntil != null ? (
-                    <span className="rounded-lg px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: TONE[dayTone(f.daysUntil)].bg, color: TONE[dayTone(f.daysUntil)].fg }}>{cd(f.daysUntil)}</span>
+                    <span className="rounded-lg px-2.5 py-1 text-xs font-medium" style={{ backgroundColor: TONE[dayTone(f.daysUntil)].bg, color: TONE[dayTone(f.daysUntil)].fg }}>{cd(f.daysUntil)}</span>
                   ) : null}
                 </Link>
               ))
@@ -236,40 +240,40 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
         {/* RAIL */}
         <div className="today-dimmable space-y-5">
           {/* Deadlines */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <h3 className="mb-3 flex items-center gap-2 text-[13px] font-bold text-neutral-900"><Clock className="h-4 w-4 text-neutral-500" aria-hidden /> {t("deadlines")}</h3>
-            {data.deadlines.length === 0 ? <p className="text-sm text-neutral-400">{t("deadlinesEmpty")}</p> :
+          <div className="safe-feuille p-5">
+            <h3 className="mb-3 flex items-center gap-2 text-[13px] font-medium text-si-ink"><Clock className="h-4 w-4 text-si-muted" aria-hidden /> {t("deadlines")}</h3>
+            {data.deadlines.length === 0 ? <p className="text-sm text-si-subtle">{t("deadlinesEmpty")}</p> :
               data.deadlines.map((d) => (
-                <Link key={`${d.dossierId}-${d.label}`} href={`/dossiers/${d.dossierId}`} className="flex items-center gap-3 border-t border-neutral-100 py-2.5 first:border-t-0">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neutral-50 text-neutral-500">
+                <Link key={`${d.dossierId}-${d.label}`} href={`/dossiers/${d.dossierId}`} className="safe-zoom-rang flex items-center gap-3 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-si-surface2 text-si-muted">
                     {d.daysUntil <= 2 ? <AlertTriangle className="h-4 w-4" aria-hidden /> : <Clock className="h-4 w-4" aria-hidden />}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13.5px] font-semibold text-neutral-900 truncate">{d.label}</div>
-                    <div className="text-xs text-neutral-400 truncate">{d.matterLabel}</div>
+                    <div className="text-[13.5px] font-medium text-si-ink truncate">{d.label}</div>
+                    <div className="text-xs text-si-subtle truncate">{d.matterLabel}</div>
                   </div>
-                  <span className="text-[11.5px] font-bold" style={{ color: TONE[dayTone(d.daysUntil)].fg }}>{cd(d.daysUntil)}</span>
+                  <span className="text-[11.5px] font-medium" style={{ color: TONE[dayTone(d.daysUntil)].fg }}>{cd(d.daysUntil)}</span>
                 </Link>
               ))}
           </div>
 
           {/* Awaiting client */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <h3 className="mb-3 flex items-center gap-2 text-[13px] font-bold text-neutral-900"><Clock className="h-4 w-4 text-neutral-500" aria-hidden /> {t("awaitingClient")}</h3>
-            {data.awaiting.length === 0 ? <p className="text-sm text-neutral-400">{t("awaitingEmpty")}</p> :
+          <div className="safe-feuille p-5">
+            <h3 className="mb-3 flex items-center gap-2 text-[13px] font-medium text-si-ink"><Clock className="h-4 w-4 text-si-muted" aria-hidden /> {t("awaitingClient")}</h3>
+            {data.awaiting.length === 0 ? <p className="text-sm text-si-subtle">{t("awaitingEmpty")}</p> :
               data.awaiting.map((a) => (
-                <Link key={a.dossierId} href={`/dossiers/${a.dossierId}`} className="flex items-center justify-between gap-2 border-t border-neutral-100 py-2.5 first:border-t-0 text-[13.5px] text-neutral-900">
-                  <span className="min-w-0"><span className="block truncate font-medium">{a.matterLabel}</span><span className="text-xs text-neutral-400">{a.clientName}</span></span>
+                <Link key={a.dossierId} href={`/dossiers/${a.dossierId}`} className="safe-zoom-rang flex items-center justify-between gap-2 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg text-[13.5px] text-si-ink">
+                  <span className="min-w-0"><span className="block truncate font-medium">{a.matterLabel}</span><span className="text-xs text-si-subtle">{a.clientName}</span></span>
                 </Link>
               ))}
           </div>
 
           {/* Recognition */}
-          <div className="rounded-2xl border border-neutral-200 p-5" style={{ background: "linear-gradient(180deg,#F4FAF6,#FFFFFF)" }}>
-            <h3 className="mb-2 flex items-center gap-2 text-[13px] font-bold text-neutral-900"><Award className="h-4 w-4 text-neutral-500" aria-hidden /> {t("yourWeek")}</h3>
+          <div className="safe-feuille p-5">
+            <h3 className="mb-2 flex items-center gap-2 text-[13px] font-medium text-si-ink"><Award className="h-4 w-4 text-si-muted" aria-hidden /> {t("yourWeek")}</h3>
             <div className="flex gap-5">
-              <div><b className="block text-lg text-neutral-900">{data.weekReady}</b><span className="text-xs text-neutral-500">{t("mattersReady")}</span></div>
-              <div><b className="block text-lg text-neutral-900">{data.omissions}</b><span className="text-xs text-neutral-500">{t("omissionsLabel")}</span></div>
+              <div><b className="block text-lg text-si-ink">{data.weekReady}</b><span className="text-xs text-si-muted">{t("mattersReady")}</span></div>
+              <div><b className="block text-lg text-si-ink">{data.omissions}</b><span className="text-xs text-si-muted">{t("omissionsLabel")}</span></div>
             </div>
           </div>
         </div>

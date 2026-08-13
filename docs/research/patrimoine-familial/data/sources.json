@@ -1,0 +1,170 @@
+{
+ "genere_le": "2026-08-12",
+ "sources": [
+  {
+   "source_id": "SRC-001",
+   "titre": "Code civil du Québec, RLRQ c CCQ-1991",
+   "organisme": "Éditeur officiel du Québec / Les Publications du Québec",
+   "type": "loi",
+   "niveau_autorite": 1,
+   "juridiction": "QC",
+   "date_contenu": "à jour au 1er avril 2026",
+   "valeur_officielle": true,
+   "url": "https://www.legisquebec.gouv.qc.ca/fr/document/lc/CCQ-1991",
+   "consulte_le": "2026-08-11/2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [
+    "PF-001",
+    "PF-002",
+    "PF-003",
+    "PF-004",
+    "PF-005",
+    "PF-006",
+    "PF-007",
+    "PF-008",
+    "PF-009",
+    "UP-001",
+    "UP-002",
+    "UP-003",
+    "UP-004",
+    "UP-005",
+    "SA-001",
+    "SA-002",
+    "SA-003"
+   ],
+   "resume": "Source primaire des trois régimes. 118 articles extraits en verbatim.",
+   "notes_perennite": "Accès automatisé filtré par agent; requiert un client navigateur."
+  },
+  {
+   "source_id": "SRC-002",
+   "titre": "Le partage des revenus de travail du RRQ — personnes mariées ou en union civile",
+   "organisme": "Retraite Québec",
+   "type": "page gouvernementale",
+   "niveau_autorite": 2,
+   "juridiction": "QC",
+   "date_contenu": null,
+   "url": "https://www.retraitequebec.gouv.qc.ca/fr/union-separation/partage/Pages/mariage-rrq.aspx",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [
+    "RRQ-001",
+    "RRQ-002"
+   ],
+   "resume": "Période de partage en années complètes; aucun versement d'argent."
+  },
+  {
+   "source_id": "SRC-003",
+   "titre": "Le partage des revenus de travail du RRQ — personnes en union de fait",
+   "organisme": "Retraite Québec",
+   "type": "page gouvernementale",
+   "niveau_autorite": 2,
+   "juridiction": "QC",
+   "date_contenu": null,
+   "url": "https://www.retraitequebec.gouv.qc.ca/fr/union-separation/partage/Pages/union-fait-rrq.aspx",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [
+    "RRQ-003"
+   ],
+   "resume": "Partage non automatique, demande conjointe, 3 conditions cumulatives.",
+   "notes_perennite": "Articulation avec l'union parentale non confirmée."
+  },
+  {
+   "source_id": "SRC-004",
+   "titre": "Boîte à outils pour l'avocat familialiste",
+   "organisme": "Barreau de Montréal",
+   "type": "guide professionnel",
+   "niveau_autorite": 3,
+   "juridiction": "QC",
+   "date_contenu": "février 2023",
+   "url": "https://www.barreaudemontreal.qc.ca/wp-content/uploads/cs-fam_boiteoutils.pdf",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [
+    "FORM-001"
+   ],
+   "resume": "Liste les formulaires « Calcul de l'état du patrimoine familial » et « Calcul de l'état de la société d'acquêts »."
+  },
+  {
+   "source_id": "SRC-005",
+   "titre": "JuriFamille — site officiel",
+   "organisme": "Corporation de services du Barreau du Québec",
+   "type": "site commercial",
+   "niveau_autorite": 5,
+   "juridiction": "QC",
+   "date_contenu": null,
+   "url": "https://jurifamille.com/",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [],
+   "resume": "Décrit un logiciel de pensions alimentaires uniquement."
+  },
+  {
+   "source_id": "SRC-006",
+   "titre": "AliForm — page produit",
+   "organisme": "Juris Concept (division de PG Solutions inc.)",
+   "type": "site commercial",
+   "niveau_autorite": 5,
+   "juridiction": "QC",
+   "date_contenu": "acquisition 2024-09-06",
+   "url": "https://jurisconcept.ca/fr/aliform/",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "actif",
+   "statut_validation": "verifie",
+   "regles_appuyees": [],
+   "resume": "Annonce le calcul du partage du patrimoine familial."
+  },
+  {
+   "source_id": "SRC-007",
+   "titre": "Formulaire T2220",
+   "organisme": "Agence du revenu du Canada",
+   "type": "formulaire fiscal",
+   "niveau_autorite": 2,
+   "juridiction": "CA",
+   "date_contenu": null,
+   "url": "https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/formulaires/t2220.html",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "non verifie",
+   "statut_validation": "a_confirmer",
+   "regles_appuyees": [
+    "FISC-002"
+   ],
+   "resume": "Transfert direct REER/FERR/RPAC/RPD entre ex-conjoints. NON LU INTÉGRALEMENT."
+  },
+  {
+   "source_id": "SRC-X01",
+   "titre": "Cour supérieure du Québec — division de Montréal",
+   "organisme": "Cour supérieure du Québec",
+   "type": "site institutionnel",
+   "niveau_autorite": 1,
+   "juridiction": "QC",
+   "date_contenu": null,
+   "url": "https://coursuperieureduquebec.ca/division-de-montreal/formulaires",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "BLOQUE_403",
+   "statut_validation": "inaccessible",
+   "regles_appuyees": [],
+   "resume": "INACCESSIBLE. Formulaires .xls et directive non obtenus."
+  },
+  {
+   "source_id": "SRC-X02",
+   "titre": "CanLII",
+   "organisme": "Institut canadien d'information juridique",
+   "type": "base jurisprudentielle",
+   "niveau_autorite": 2,
+   "juridiction": "CA",
+   "date_contenu": null,
+   "url": "https://www.canlii.org/",
+   "consulte_le": "2026-08-12",
+   "statut_lien": "BLOQUE_403",
+   "statut_validation": "inaccessible",
+   "regles_appuyees": [],
+   "resume": "INACCESSIBLE. Aucune jurisprudence vérifiée."
+  }
+ ]
+}

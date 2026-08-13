@@ -76,7 +76,7 @@ export default async function SoldesDebiteursPage() {
     }));
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Soldes débiteurs"
         description="Les cartes-clients dont le solde est passé sous zéro, et ce qui a été fait."

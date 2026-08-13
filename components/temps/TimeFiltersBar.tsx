@@ -67,7 +67,7 @@ export function TimeFiltersBar({
               onClick={() => setDateRange(p.from, p.to)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
                 filters.dateFrom === p.from && filters.dateTo === p.to
-                  ? "bg-si-forest text-white"
+                  ? "safe-action-degrade text-white"
                   : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
               }`}
             >
@@ -101,7 +101,7 @@ export function TimeFiltersBar({
             type="button"
             onClick={() => onShowAllEntriesChange(true)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-              showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
+              showAllEntries ? "safe-action-degrade text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
             }`}
           >
             {t("allEntries")}
@@ -111,7 +111,7 @@ export function TimeFiltersBar({
               type="button"
               onClick={() => onShowAllEntriesChange(false)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                !showAllEntries ? "bg-si-forest text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
+                !showAllEntries ? "safe-action-degrade text-white" : "bg-si-canvas text-si-ink hover:bg-si-muted/15"
               }`}
             >
               {t("myEntries")}

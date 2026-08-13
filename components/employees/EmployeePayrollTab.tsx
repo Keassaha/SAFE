@@ -135,10 +135,7 @@ export function EmployeePayrollTab({
               </thead>
               <tbody>
                 {payslips.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-si-line hover:bg-si-surface/30"
-                  >
+                  <tr key={row.id} className="safe-zoom-rang border-b border-si-line " >
                     <td className="px-4 py-3">{formatDate(row.periodStart)}</td>
                     <td className="px-4 py-3">{formatDate(row.periodEnd)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{row.hoursWorked}</td>

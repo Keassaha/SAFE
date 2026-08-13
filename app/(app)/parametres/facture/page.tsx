@@ -39,7 +39,7 @@ export default async function InvoiceAppearancePage() {
   const t = await getTranslations("settingsUi");
 
   return (
-    <div className="max-w-6xl space-y-6 animate-fade-in">
+    <div className="max-w-6xl space-y-6">
       <PageHeader
         title={t("invoiceAppearanceTitle")}
         description={t("invoiceAppearanceDescription")}

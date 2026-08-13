@@ -131,13 +131,13 @@ export function TestimonialSlider() {
                     {t.initials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-[var(--safe-white)] font-semibold font-sans text-sm tracking-tight">
+                    <h4 className="text-[var(--safe-white)] font-medium font-sans text-sm tracking-tight">
                       {t.name}
                     </h4>
                     <p className="text-xs text-[var(--safe-text-muted)] font-sans truncate">
                       {t.title}
                     </p>
-                    <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20 text-[10px] font-semibold tracking-wide text-[var(--safe-sage)] font-sans">
+                    <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20 text-[10px] font-medium tracking-wide text-[var(--safe-sage)] font-sans">
                       <BadgeCheck className="w-3 h-3" aria-hidden />
                       V&eacute;rifi&eacute; Barreau du Qu&eacute;bec
                     </span>

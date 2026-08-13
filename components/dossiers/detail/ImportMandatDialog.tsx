@@ -70,7 +70,7 @@ export function ImportMandatDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
-          <h3 className="text-base font-semibold text-si-ink">{t("mandateImportTitle")}</h3>
+          <h3 className="text-base font-medium text-si-ink">{t("mandateImportTitle")}</h3>
           <button onClick={onClose} className="rounded-md p-1 text-si-muted hover:bg-si-line/40" aria-label="Fermer">
             <X className="h-4 w-4" />
           </button>

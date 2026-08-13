@@ -9,7 +9,7 @@ export default function StyleGuidePage() {
     <div className="min-h-screen bg-neutral-page">
       {/* Top bar — design system preview */}
       <header className="safe-glass-topbar sticky top-0 z-10 border-b border-neutral-border/50 h-14 flex items-center justify-between px-6">
-        <Link href="/" className="text-lg font-semibold text-primary-800">
+        <Link href="/" className="text-lg font-medium text-primary-800">
           SAFE
         </Link>
         <nav className="flex items-center gap-4">
@@ -24,7 +24,7 @@ export default function StyleGuidePage() {
 
       <main className="max-w-5xl mx-auto px-6 py-12 space-y-16">
         <section>
-          <h1 className="text-3xl font-bold text-neutral-text-primary tracking-tight mb-2">
+          <h1 className="text-3xl font-medium text-neutral-text-primary tracking-tight mb-2">
             SAFE Design System
           </h1>
           <p className="text-neutral-muted text-lg">
@@ -34,7 +34,7 @@ export default function StyleGuidePage() {
 
         {/* Buttons — Design system: Primary (1 par section), Secondary (outline), Tertiary (texte) */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Boutons
           </h2>
           <p className="text-sm text-neutral-muted">
@@ -50,7 +50,7 @@ export default function StyleGuidePage() {
 
         {/* Inputs */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Champs de formulaire
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -114,13 +114,13 @@ export default function StyleGuidePage() {
 
         {/* Cards */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Cartes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="rounded-safe-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-border">
-                <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">Standard</h3>
+                <h3 className="text-lg font-medium text-neutral-text-primary tracking-tight">Standard</h3>
               </div>
               <div className="p-6">
                 <p className="text-neutral-muted text-sm">
@@ -130,7 +130,7 @@ export default function StyleGuidePage() {
             </div>
             <div className="rounded-safe-md safe-glass-panel border border-white/40 overflow-hidden">
               <div className="px-6 py-4 border-b border-neutral-border/50">
-                <h3 className="text-lg font-semibold text-neutral-text-primary tracking-tight">Glass</h3>
+                <h3 className="text-lg font-medium text-neutral-text-primary tracking-tight">Glass</h3>
               </div>
               <div className="p-6">
                 <p className="text-neutral-muted text-sm">
@@ -141,7 +141,7 @@ export default function StyleGuidePage() {
             <div className="rounded-safe-md bg-white/80 backdrop-blur-md border border-white/50 shadow-md overflow-hidden">
               <div className="p-6">
                 <p className="text-sm font-medium text-neutral-muted mb-1">KPI</p>
-                <p className="text-2xl font-semibold text-primary-800">124</p>
+                <p className="text-2xl font-medium text-primary-800">124</p>
                 <p className="text-neutral-muted text-sm mt-1">Clients</p>
               </div>
             </div>
@@ -150,13 +150,13 @@ export default function StyleGuidePage() {
 
         {/* Sidebar + Topbar preview */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Barre latérale & barre supérieure
           </h2>
           <div className="flex rounded-safe-lg overflow-hidden shadow-lg border border-neutral-border">
             <aside className="w-sidebar min-h-[280px] safe-glass-sidebar bg-gradient-to-b from-primary-900 via-primary-800 to-primary-700 flex flex-col py-4">
               <div className="px-4 pb-4 border-b border-white/10">
-                <span className="text-lg font-semibold text-white">SAFE</span>
+                <span className="text-lg font-medium text-white">SAFE</span>
               </div>
               <nav className="flex-1 p-2 space-y-1 mt-2">
                 {["Dashboard", "Clients", "Cases", "Time Tracking", "Invoices"].map((label, i) => (
@@ -206,7 +206,7 @@ export default function StyleGuidePage() {
 
         {/* Tables */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Tableaux
           </h2>
           <div className="rounded-safe-lg overflow-hidden border border-neutral-border bg-white shadow-sm">
@@ -231,12 +231,7 @@ export default function StyleGuidePage() {
                     { client: "Cabinet Lefebvre", dossier: "Contrat 2024", montant: "1 200 $" },
                     { client: "Société ABC", dossier: "Litige commercial", montant: "5 800 $" },
                   ].map((row, i) => (
-                    <tr
-                      key={i}
-                      className={`hover:bg-neutral-surface transition-colors ${
-                        i % 2 === 1 ? "bg-neutral-surface/50" : ""
-                      }`}
-                    >
+                    <tr key={i} className={` transition-colors ${ i % 2 === 1 ? "bg-neutral-surface/50" : "" }`} >
                       <td className="px-4 py-3 text-sm text-neutral-text-primary">{row.client}</td>
                       <td className="px-4 py-3 text-sm text-neutral-text-secondary">{row.dossier}</td>
                       <td className="px-4 py-3 text-sm font-medium text-neutral-text-primary">{row.montant}</td>
@@ -250,7 +245,7 @@ export default function StyleGuidePage() {
 
         {/* Badges */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Badges & statuts
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -274,7 +269,7 @@ export default function StyleGuidePage() {
 
         {/* Charts placeholders */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Graphiques (placeholders)
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -303,12 +298,12 @@ export default function StyleGuidePage() {
 
         {/* Onboarding components */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Onboarding
           </h2>
           <div className="rounded-safe-lg overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50/30 p-8 md:p-12">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-neutral-text-primary mb-2 tracking-tight">
+              <h3 className="text-2xl font-medium text-neutral-text-primary mb-2 tracking-tight">
                 Welcome to SAFE
               </h3>
               <p className="text-neutral-muted max-w-xl mx-auto">
@@ -329,7 +324,7 @@ export default function StyleGuidePage() {
                     <card.Icon className="w-6 h-6" aria-hidden />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary-800 tracking-tight">{card.title}</h4>
+                    <h4 className="font-medium text-primary-800 tracking-tight">{card.title}</h4>
                     <p className="text-sm text-neutral-muted mt-1">{card.desc}</p>
                   </div>
                   <span className="ml-auto w-5 h-5 rounded-full bg-accent-400 flex items-center justify-center text-white" aria-hidden>
@@ -353,13 +348,13 @@ export default function StyleGuidePage() {
 
         {/* Hero card (Trust balance style) */}
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
+          <h2 className="text-xl font-medium text-neutral-text-primary border-b border-neutral-border pb-2 tracking-tight">
             Carte héro (Trust Balance)
           </h2>
           <div className="rounded-safe-lg overflow-hidden safe-glass-panel bg-gradient-hero-trust border border-white/20 min-h-[140px] flex flex-col justify-between p-6">
             <div>
               <p className="text-white/90 text-sm font-medium">Trust Balance</p>
-              <p className="text-3xl font-bold text-white mt-1">9 245,50 $</p>
+              <p className="text-3xl font-medium text-white mt-1">9 245,50 $</p>
             </div>
             <div className="flex gap-3 mt-4">
               <button

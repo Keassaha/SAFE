@@ -153,13 +153,13 @@ function StatCard({
             transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 180, damping: 20 }}
             className={`px-3 py-1.5 rounded-safe ${item.accent.statBg} border ${item.accent.border}`}
           >
-            <span className={`text-sm font-bold font-sans ${item.accent.statText}`}>
+            <span className={`text-sm font-medium font-sans ${item.accent.statText}`}>
               {item.stat}
             </span>
           </motion.div>
         </div>
 
-        <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+        <h3 className="text-xl font-medium text-[var(--safe-white)] mb-3 font-sans tracking-tight">
           {item.title}
         </h3>
 
@@ -188,7 +188,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-5 font-sans"
+            className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-5 font-sans"
           >
             Comment ça fonctionne
           </motion.p>
@@ -198,7 +198,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.05 }}
-            className="font-sans text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+            className="font-sans text-4xl sm:text-5xl md:text-6xl font-medium text-white mb-6 leading-[1.1] tracking-tight"
           >
             On cerne votre réalité. On bâtit{" "}
             <span className="italic text-[var(--safe-sage)]">votre solution.</span>

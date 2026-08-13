@@ -61,7 +61,7 @@ export default async function NouveauClientPage({
     : undefined;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={duplicateClient ? t("duplicateClientTitle") : t("newClientTitle")}
         description={
@@ -74,7 +74,7 @@ export default async function NouveauClientPage({
       />
       {blockedDuplicate && (
         <div className="rounded-safe border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <p className="font-semibold">
+          <p className="font-medium">
             {t("similarClientExists", { name: formatClientDisplayName(blockedDuplicate) })}
           </p>
           <p className="mt-1">
@@ -82,7 +82,7 @@ export default async function NouveauClientPage({
           </p>
           <Link
             href={`/clients/${blockedDuplicate.id}`}
-            className="mt-2 inline-flex items-center font-semibold text-amber-900 underline underline-offset-2"
+            className="mt-2 inline-flex items-center font-medium text-amber-900 underline underline-offset-2"
           >
             {t("openExistingRecord")}
           </Link>

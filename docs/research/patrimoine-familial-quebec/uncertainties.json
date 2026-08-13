@@ -1,0 +1,37 @@
+[
+  {
+    "uncertainty_id": "U-001",
+    "topic": "Impot latent",
+    "risk": "high",
+    "blocking": true,
+    "professional": "tax specialist and family lawyer"
+  },
+  {
+    "uncertainty_id": "U-002",
+    "topic": "Fiducie ou societe conferant l'usage",
+    "risk": "high",
+    "blocking": true,
+    "professional": "family lawyer"
+  },
+  {
+    "uncertainty_id": "U-003",
+    "topic": "Dettes mixtes",
+    "risk": "high",
+    "blocking": true,
+    "professional": "family lawyer and CPA"
+  },
+  {
+    "uncertainty_id": "U-004",
+    "topic": "Transposition de jurisprudence PF vers PUP",
+    "risk": "high",
+    "blocking": true,
+    "professional": "family lawyer/notary"
+  },
+  {
+    "uncertainty_id": "U-005",
+    "topic": "Valeur actuarielle sans releve",
+    "risk": "critical",
+    "blocking": true,
+    "professional": "actuary/plan administrator"
+  }
+]

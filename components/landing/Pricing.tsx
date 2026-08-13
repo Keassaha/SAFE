@@ -62,10 +62,10 @@ export function Pricing() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="font-sans text-sm font-semibold text-gold-400 uppercase tracking-widest mb-3">
+          <p className="font-sans text-sm font-medium text-gold-400 uppercase tracking-widest mb-3">
             Tarifs
           </p>
-          <h2 className="font-sans text-3xl md:text-4xl font-semibold text-white mb-4 tracking-[-0.04em]">
+          <h2 className="font-sans text-3xl md:text-4xl font-medium text-white mb-4 tracking-[-0.04em]">
             Tarifs simples et transparents
           </h2>
           <p className="font-sans text-lg text-white/60 max-w-2xl mx-auto">
@@ -88,16 +88,16 @@ export function Pricing() {
               }`}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-600 text-white text-xs font-medium px-3 py-1 rounded-full">
                   Populaire
                 </span>
               )}
 
-              <h3 className="text-xl font-semibold text-white mb-2 tracking-tight">{plan.name}</h3>
+              <h3 className="text-xl font-medium text-white mb-2 tracking-tight">{plan.name}</h3>
               <p className="text-sm text-white/50 mb-6">{plan.description}</p>
 
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">
+                <span className="text-4xl font-medium text-white">
                   {plan.price === "Sur devis" ? plan.price : `${plan.price} $`}
                 </span>
                 {plan.price === "Sur devis" ? null : (

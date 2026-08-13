@@ -58,7 +58,7 @@ export default async function RapportsPage({
   ]);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="no-print">
         <PageHeader
           title={t("reportsTitle")}

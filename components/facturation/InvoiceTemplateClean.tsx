@@ -145,7 +145,7 @@ function formatClientAddress(client: NonNullable<InvoiceCleanProps["client"]>): 
   return lines;
 }
 
-const kicker = "text-[10px] font-semibold uppercase tracking-[0.18em] text-si-muted";
+const kicker = "text-[10px] font-medium uppercase tracking-[0.18em] text-si-muted";
 
 export function InvoiceTemplateClean({
   numero,
@@ -186,29 +186,29 @@ export function InvoiceTemplateClean({
         <div className="flex justify-between items-start gap-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-si-verified">
+              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-si-verified">
                 {t.invoiceKicker}
               </p>
               {isDraft && (
-                <span className="rounded border border-si-line bg-si-canvas px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-si-muted">
+                <span className="rounded border border-si-line bg-si-canvas px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-si-muted">
                   {t.draftBadge}
                 </span>
               )}
             </div>
-            <p className="mt-1.5 font-mono text-[26px] font-bold leading-none tracking-tight tabular-nums text-si-ink">
+            <p className="mt-1.5 font-mono text-[26px] font-medium leading-none tracking-tight tabular-nums text-si-ink">
               {numero || "—"}
             </p>
           </div>
           <div className="text-right space-y-2.5 shrink-0">
             <div>
               <p className={kicker}>{t.issuedOn}</p>
-              <p className="mt-0.5 font-mono text-[12.5px] font-semibold tabular-nums text-si-ink">
+              <p className="mt-0.5 font-mono text-[12.5px] font-medium tabular-nums text-si-ink">
                 {fmtDate(dateEmission)}
               </p>
             </div>
             <div>
               <p className={kicker}>{t.dueDate}</p>
-              <p className="mt-0.5 font-mono text-[12.5px] font-semibold tabular-nums text-si-ink">
+              <p className="mt-0.5 font-mono text-[12.5px] font-medium tabular-nums text-si-ink">
                 {fmtDate(dateEcheance)}
               </p>
             </div>
@@ -222,7 +222,7 @@ export function InvoiceTemplateClean({
           {/* Issuer */}
           <div className="border-t border-si-line pt-4">
             <p className={`${kicker} mb-2`}>{t.issuedBy}</p>
-            <p className="text-[13.5px] font-bold leading-tight text-si-ink">
+            <p className="text-[13.5px] font-medium leading-tight text-si-ink">
               {cabinet?.nom ?? t.cabinetFallback}
             </p>
             {cabinet?.adresse && (
@@ -243,7 +243,7 @@ export function InvoiceTemplateClean({
             <p className={`${kicker} mb-2 text-si-verified`}>{t.billedTo}</p>
             {client ? (
               <>
-                <p className="text-[13.5px] font-bold leading-tight text-si-ink">
+                <p className="text-[13.5px] font-medium leading-tight text-si-ink">
                   {clientDisplayName(client, t.noClient)}
                 </p>
                 <div className="mt-1.5 space-y-0.5">
@@ -268,7 +268,7 @@ export function InvoiceTemplateClean({
 
         {dossier && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-md border border-si-line px-3 py-1.5">
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-si-muted">
+            <span className="text-[9.5px] font-medium uppercase tracking-[0.16em] text-si-muted">
               {t.matter}
             </span>
             <span className="text-[12px] font-medium text-si-ink">
@@ -284,13 +284,13 @@ export function InvoiceTemplateClean({
         <div className="overflow-hidden border-y border-si-line">
           {/* Header */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-5 bg-si-canvas px-5 py-3 text-si-ink">
-            <p className="min-w-[80px] text-[10.5px] font-semibold uppercase tracking-[0.16em] text-si-muted">
+            <p className="min-w-[80px] text-[10.5px] font-medium uppercase tracking-[0.16em] text-si-muted">
               {t.colDate}
             </p>
-            <p className="font-semibold text-[10.5px] uppercase tracking-[0.16em]">
+            <p className="font-medium text-[10.5px] uppercase tracking-[0.16em]">
               {t.colDescription}
             </p>
-            <p className="min-w-[80px] text-right text-[10.5px] font-semibold uppercase tracking-[0.16em]">
+            <p className="min-w-[80px] text-right text-[10.5px] font-medium uppercase tracking-[0.16em]">
               {t.colAmount}
             </p>
           </div>
@@ -315,7 +315,7 @@ export function InvoiceTemplateClean({
                       <div className="flex items-start gap-2">
                         {(isRabais || isFrais) && (
                           <span
-                            className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-[0.08em] ${
+                            className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-medium uppercase tracking-[0.08em] ${
                               isRabais
                                 ? "border border-si-line bg-si-canvas text-si-verified"
                                 : "border border-si-line bg-si-canvas text-si-muted"
@@ -329,7 +329,7 @@ export function InvoiceTemplateClean({
                         </p>
                         {item.responsableInitiales && (
                           <span
-                            className="inline-flex h-5 min-w-[28px] shrink-0 items-center justify-center rounded-md border border-si-line bg-si-canvas px-1.5 text-[9px] font-bold tracking-wide tabular-nums text-si-verified"
+                            className="inline-flex h-5 min-w-[28px] shrink-0 items-center justify-center rounded-md border border-si-line bg-si-canvas px-1.5 text-[9px] font-medium tracking-wide tabular-nums text-si-verified"
                             title={item.responsable ?? undefined}
                           >
                             {item.responsableInitiales}
@@ -353,7 +353,7 @@ export function InvoiceTemplateClean({
                       )}
                     </div>
                     <p
-                      className={`min-w-[80px] whitespace-nowrap text-right font-mono text-[13px] font-semibold tabular-nums ${
+                      className={`min-w-[80px] whitespace-nowrap text-right font-mono text-[13px] font-medium tabular-nums ${
                         isRabais ? "text-si-verified" : "text-si-ink"
                       }`}
                     >
@@ -419,10 +419,10 @@ export function InvoiceTemplateClean({
 
             {/* Le total se distingue par un filet, jamais par une tuile colorée. */}
             <div className="mt-3 flex items-baseline justify-between gap-3 border-t-2 border-si-forest px-1 py-3.5 text-si-ink">
-              <span className="font-bold text-[11.5px] uppercase tracking-[0.14em] whitespace-nowrap">
+              <span className="font-medium text-[11.5px] uppercase tracking-[0.14em] whitespace-nowrap">
                 {t.total}
               </span>
-              <span className="whitespace-nowrap font-mono text-[19px] font-bold tracking-tight tabular-nums">
+              <span className="whitespace-nowrap font-mono text-[19px] font-medium tracking-tight tabular-nums">
                 {fmtMoney(montantTotal)}
               </span>
             </div>
@@ -435,7 +435,7 @@ export function InvoiceTemplateClean({
                     −{fmtMoney(montantPaye)}
                   </span>
                 </div>
-                <div className="mt-1 flex justify-between border-t border-si-line pt-0.5 text-[13px] font-bold text-si-ink">
+                <div className="mt-1 flex justify-between border-t border-si-line pt-0.5 text-[13px] font-medium text-si-ink">
                   <span className="pt-1.5">{t.balanceDue}</span>
                   <span className="pt-1.5 font-mono tabular-nums">{fmtMoney(balanceDue)}</span>
                 </div>
@@ -463,7 +463,7 @@ export function InvoiceTemplateClean({
           <p className={kicker}>{t.payment}</p>
           <p className="mt-1 text-[12px] leading-relaxed text-si-muted">
             {t.paymentInstruction}{" "}
-            <span className="font-semibold text-si-ink">{cabinet?.nom ?? "—"}</span>
+            <span className="font-medium text-si-ink">{cabinet?.nom ?? "—"}</span>
           </p>
         </div>
         <p className="whitespace-nowrap text-[11px] italic text-si-muted">

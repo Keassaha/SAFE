@@ -89,7 +89,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-si-ink" />
-          <h4 className="text-sm font-semibold">Stage-Based Billing (B4)</h4>
+          <h4 className="text-sm font-medium">Stage-Based Billing (B4)</h4>
         </div>
 
         {!hasStages ? (
@@ -109,7 +109,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
             <div className="space-y-2">
               {customStages.map((stage, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-si-canvas text-si-ink flex items-center justify-center text-xs font-bold">
+                  <span className="w-6 h-6 rounded-full bg-si-canvas text-si-ink flex items-center justify-center text-xs font-medium">
                     {i + 1}
                   </span>
                   <input
@@ -165,7 +165,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                   "border-si-line"
                 }`}
               >
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
                   stage.statut === "invoiced" ? "bg-si-verified/10 text-si-verified" :
                   stage.statut === "ready" ? "bg-si-verified/10 text-si-verified" :
                   "bg-si-canvas text-si-muted"

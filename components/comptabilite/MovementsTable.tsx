@@ -87,10 +87,7 @@ export function MovementsTable({ entries }: { entries: JournalEntryRow[] }) {
           {entries.map((e) => {
             const m = describeMovement(e);
             return (
-              <tr
-                key={e.id}
-                className="border-b-[0.5px] border-si-line hover:bg-si-canvas/60 transition-colors"
-              >
+              <tr key={e.id} className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors" >
                 <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                   {formatDate(e.dateTransaction)}
                 </td>

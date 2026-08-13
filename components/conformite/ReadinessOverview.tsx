@@ -132,7 +132,7 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg border border-si-line bg-si-surface p-6">
         <ShieldCheck className={`h-6 w-6 shrink-0 ${scoreColor}`} aria-hidden />
         <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-semibold leading-tight text-si-ink">
+          <h2 className="text-lg font-medium leading-tight text-si-ink">
             {pret ? t("verdictReady") : t("verdictNotReady")}
           </h2>
           <p className="mt-1 text-sm text-si-muted">
@@ -151,18 +151,21 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
           pas une grille de tuiles identiques : la grille présentait les
           quatorze domaines au même poids, y compris ceux déjà en règle. */}
       <section>
-        <h3 className="text-sm font-semibold text-si-ink">{t("toTreatHeading")}</h3>
+        <h3 className="text-sm font-medium text-si-ink">{t("toTreatHeading")}</h3>
         {aTraiter.length === 0 ? (
-          <p className="mt-3 rounded-lg border border-si-line bg-si-surface px-4 py-5 text-sm text-si-muted">
+          <p className="safe-feuille mt-3 px-5 py-6 text-sm text-si-muted">
             {t("nothingToTreat")}
           </p>
         ) : (
-          <ul className="mt-3 divide-y divide-si-line rounded-lg border border-si-line bg-si-surface">
+          <ul className="safe-feuille mt-3 divide-y divide-si-line2 overflow-hidden">
             {aTraiter.map((d) => {
               const style = STATE_STYLE[d.state];
               const Icon = style.Icon;
               return (
-                <li key={d.domain} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-4 py-3.5">
+                <li
+                  key={d.domain}
+                  className="safe-zoom-rang flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-4"
+                >
                   <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${style.iconColor}`} aria-hidden />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -177,7 +180,7 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
                   </div>
                   <Link
                     href={DOMAIN_ROUTE[d.domain]}
-                    className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-si-verified transition-colors hover:text-si-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+                    className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-si-ink underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
                   >
                     {t("fix")}
                   </Link>
@@ -190,13 +193,13 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
 
       {/* Le reste ne demande rien. Il reste consultable, il ne s'impose plus. */}
       {conformes.length > 0 ? (
-        <details className="rounded-lg border border-si-line bg-si-surface">
+        <details className="safe-feuille overflow-hidden">
           <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-si-ink marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified">
             {t("compliantHeading", { count: conformes.length })}
           </summary>
-          <ul className="divide-y divide-si-line border-t border-si-line">
+          <ul className="divide-y divide-si-line2 border-t border-si-line">
             {conformes.map((d) => (
-              <li key={d.domain} className="flex items-start gap-3 px-4 py-2.5">
+              <li key={d.domain} className="safe-zoom-rang flex items-start gap-3 px-5 py-3">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-si-verified" aria-hidden />
                 <div className="min-w-0">
                   <p className="text-sm text-si-ink">{td(DOMAIN_TITLE_KEY[d.domain])}</p>

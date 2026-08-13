@@ -9,20 +9,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
+import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
 
 const CSS = `
   .xc {
-    --bg: #EFF2ED;
-    --surface: #FBFCFA;
-    --ink: #1F2A24;
-    --muted: #5A665F;
-    --faint: #7C877F;
-    --green: #12A150;
-    --forest: #1F3A2E;
-    --verified: #1F6A47;
-    --amber: #8A6A1E;
-    --line: rgba(31, 42, 36, 0.08);
-    --line-soft: rgba(31, 42, 36, 0.05);
+    /* Thème de la vitrine. Il déclarait ses propres couleurs, restées sur
+       l'ancienne palette verte, ce qui faisait diverger l'accueil du produit.
+       Chaque variable pointe maintenant vers la palette. Les noms sont
+       conservés : les 1 800 lignes de règles en dessous s'en servent. */
+    --bg: var(--si-canvas);
+    --surface: var(--si-surface);
+    --ink: var(--si-ink);
+    --muted: var(--si-muted);
+    --faint: var(--si-subtle);
+    --green: var(--si-forest);
+    --forest: var(--si-forest);
+    --verified: var(--si-verified);
+    --amber: var(--si-amber-ink);
+    --line: var(--si-line);
+    --line-soft: var(--si-line2);
     --serif: var(--font-instrument-serif), Georgia, serif;
     --sans: var(--font-geist-sans), -apple-system, "Segoe UI", sans-serif;
     --mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -44,43 +49,83 @@ const CSS = `
     color: var(--green);
   }
 
+  /* Barre flottante en verre. Détachée du bord, arrondie, claire.
+     Le verre dit qu'elle passe AU-DESSUS des scènes qui défilent (P10), et sa
+     clarté permet au logo de garder sa teinte de charte. Repli opaque plus bas
+     pour les navigateurs sans backdrop-filter et pour les personnes qui
+     réduisent la transparence. */
   .xc #nav {
     position: fixed;
-    inset: 0 0 auto 0;
+    top: 14px;
+    left: max(12px, 3vw);
+    right: max(12px, 3vw);
     z-index: 60;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 18px;
-    padding: 0 min(4vw, 44px);
-    height: 60px;
-    background: rgba(239, 242, 237, 0.86);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 0 10px 0 18px;
+    height: 56px;
+    border-radius: 12px;
+    background: rgb(var(--si-surface-rgb) / 0.82);
+    backdrop-filter: blur(18px) saturate(1.35);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    border: 1px solid rgb(var(--si-line-ink-rgb) / 0.10);
+    box-shadow: 0 16px 36px -26px rgb(var(--si-line-ink-rgb) / 0.45);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .xc #nav { background: var(--si-surface); }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .xc #nav { background: var(--si-surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }
   .xc #nav .brand {
     display: inline-flex;
     align-items: center;
-    color: var(--ink);
+    color: var(--si-ink);
   }
-  .xc #nav .links { display: flex; gap: 26px; font-size: 13px; color: var(--muted); }
-  .xc #nav .links a:hover { color: var(--ink); }
-  .xc #nav .navright { display: flex; align-items: center; gap: 18px; }
-  .xc #nav .signin { font-size: 13px; color: var(--muted); }
-  .xc #nav .signin:hover { color: var(--ink); }
+  .xc #nav .links { display: flex; gap: 4px; font-size: 13px; }
+  .xc #nav .links a {
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--si-muted);
+    transition: color 140ms ease, background-color 140ms ease;
+  }
+  .xc #nav .links a:hover { color: var(--si-ink); background: rgb(var(--si-line-ink-rgb) / 0.05); }
+  .xc #nav .navright { display: flex; align-items: center; gap: 6px; }
+  .xc #nav .signin {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--si-muted);
+    transition: color 140ms ease;
+  }
+  .xc #nav .signin:hover { color: var(--si-ink); }
+  /* Une seule action pleine dans la barre, en noir. */
   .xc #nav .cta {
     display: inline-flex;
     align-items: center;
-    height: 34px;
+    height: 36px;
     padding: 0 16px;
-    border-radius: 7px;
-    background: var(--green);
-    color: #fff;
+    border-radius: 8px;
+    background: var(--si-forest);
+    color: var(--si-surface);
     font-size: 13px;
     font-weight: 500;
+    transition: background-color 140ms ease;
   }
+  .xc #nav .cta:hover { background: var(--si-forest-soft); }
 
+  /* Le rail indiquait où l'on se trouve sans permettre d'y aller : quatre
+     jalons inertes, retirés du clavier et des lecteurs d'écran, sur une page
+     de près de quatorze mille pixels. Un repère qui connaît la structure de la
+     page doit servir à la parcourir. Il devient donc une vraie navigation :
+     ancres natives, donc fonctionnelle sans script et au clavier.
+
+     Invisible, il passe aussi en visibility hidden : un lien qu'on ne voit pas
+     ne doit pas pouvoir recevoir le focus. */
   .xc #rail {
     position: fixed;
     right: 22px;
@@ -89,17 +134,26 @@ const CSS = `
     z-index: 40;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 4px;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0s linear 0.8s;
     pointer-events: none;
   }
-  .xc #rail.on { opacity: 1; }
+  .xc #rail.on {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.8s ease, visibility 0s;
+  }
   .xc #rail .stop {
     display: flex;
     align-items: center;
     gap: 8px;
     justify-content: flex-end;
+    /* la cible tactile fait au moins 24 px de haut, le tiret reste fin */
+    padding: 7px 0 7px 14px;
+    border-radius: 6px;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.12em;
@@ -117,10 +171,18 @@ const CSS = `
   }
   .xc #rail .stop.live span { opacity: 1; color: var(--muted); }
   .xc #rail .stop.live i { width: 26px; background: var(--green); opacity: 1; }
+  /* Viser un jalon dit son nom avant qu'on ait cliqué : sans cela, on
+     choisirait entre quatre tirets identiques. */
+  .xc #rail .stop:hover span,
+  .xc #rail .stop:focus-visible span { opacity: 1; color: var(--muted); }
+  .xc #rail .stop:hover i,
+  .xc #rail .stop:focus-visible i { width: 20px; opacity: 0.85; }
 
   .xc .pinzone { position: relative; }
   .xc .pinzone .pin {
     position: sticky;
+    /* repère du marqueur de chapitre */
+    isolation: isolate;
     top: 0;
     height: 100vh;
     height: 100svh;
@@ -129,15 +191,286 @@ const CSS = `
 
   .xc #zone-hero { height: 420vh; }
   .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .xc #hero-shot {
+  /* ── L'application, vivante ────────────────────────────────────────────────
+     Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
+     ne suit ni la palette, ni les libellés, ni les chiffres du produit, et on
+     s'en aperçoit des mois plus tard.
+
+     C'est maintenant du DOM réel, navigable : la barre de menu ouvre ses
+     sous-menus et change d'écran. Le contenu est dessiné dans une boîte
+     logique fixe de 1000x563, puis mise à l'échelle par transform. C'est le
+     même espace de coordonnées que le canvas d'assemblage, donc les papiers
+     se rangent exactement là où les blocs apparaissent, et la typographie
+     reste nette à toutes les tailles au lieu d'être rééchantillonnée.
+
+     Les chiffres sont ceux du Cabinet Demo (Me Camille Roy) relevés en base,
+     pas des montants inventés. */
+  .xc #hero-app {
     position: absolute;
+    width: 1000px;
+    height: 563px;
+    transform-origin: top left;
     opacity: 0;
     border-radius: 14px;
-    box-shadow: 0 46px 90px -46px rgba(11, 31, 25, 0.55);
+    box-shadow: 0 46px 90px -46px rgb(var(--si-line-ink-rgb) / 0.55);
     border: 1px solid var(--line);
-    object-fit: cover;
-    will-change: opacity;
+    background: var(--si-canvas);
+    overflow: hidden;
+    will-change: opacity, transform;
+    /* Inerte pendant l'assemblage : on n'attrape pas un menu qui vole encore.
+       La classe .live est posée par le script une fois le cadre stabilisé. */
+    pointer-events: none;
+    font-size: 13px;
+    color: var(--si-ink);
+    text-align: left;
   }
+  .xc #hero-app.live { pointer-events: auto; }
+
+  /* Barre de navigation du produit */
+  .xc #hero-app .ha-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 46px;
+    padding: 0 14px;
+    background: var(--si-surface);
+    border-bottom: 1px solid var(--si-line);
+  }
+  .xc #hero-app .ha-brand {
+    display: flex; align-items: center; gap: 7px;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+  }
+  /* La pastille porte le vert de la marque, pas le --si-forest : celui-ci vaut
+     #1A1A1A dans la palette courante, ce qui donnerait un logo noir. */
+  .xc #hero-app .ha-brand .mark {
+    width: 17px; height: 17px; border-radius: 5px;
+    background: var(--si-brand-green);
+  }
+  .xc #hero-app .ha-cab {
+    font-size: 12px; color: var(--si-muted);
+    padding-left: 13px; border-left: 1px solid var(--si-line);
+    white-space: nowrap;
+  }
+  .xc #hero-app .ha-menu { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
+  .xc #hero-app .ha-item {
+    position: relative;
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    color: var(--si-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  /* Le survol est porté par .safe-zoom-menu (app/globals.css), la grammaire
+     canonique du produit : l'élévation dit « sélectionnable », jamais un aplat.
+     On ne redéfinit surtout pas :hover ici, un sélecteur avec #id l'emporterait
+     sur la classe globale et la vitrine se remettrait à diverger du produit. */
+  .xc #hero-app .ha-item:hover { color: var(--si-ink); }
+  .xc #hero-app .ha-item.on {
+    color: var(--si-ink);
+    background: var(--si-surface);
+    box-shadow: inset 0 0 0 1px var(--si-line);
+    font-weight: 500;
+  }
+  .xc #hero-app .ha-item .car {
+    width: 7px; height: 7px;
+    border-right: 1.4px solid currentColor;
+    border-bottom: 1.4px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 160ms ease;
+  }
+  .xc #hero-app .ha-item.open .car { transform: translateY(1px) rotate(-135deg); }
+  .xc #hero-app .ha-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .xc #hero-app .ha-search {
+    display: flex; align-items: center;
+    width: 154px; height: 26px;
+    padding: 0 9px;
+    border: 1px solid var(--si-line);
+    border-radius: 7px;
+    font-size: 11.5px;
+    color: var(--si-subtle);
+    background: var(--si-surface);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .xc #hero-app .ha-lang {
+    display: flex; border: 1px solid var(--si-line); border-radius: 7px; overflow: hidden;
+    font-size: 11px;
+  }
+  .xc #hero-app .ha-lang span { padding: 4px 7px; color: var(--si-muted); }
+  .xc #hero-app .ha-lang span.on { background: var(--si-forest); color: var(--si-surface); }
+  .xc #hero-app .ha-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--si-forest); color: var(--si-surface);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 600;
+  }
+
+  /* Sous-menu déroulant */
+  .xc #hero-app .ha-drop {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 186px;
+    padding: 5px;
+    background: var(--si-surface);
+    border: 1px solid var(--si-line);
+    border-radius: 10px;
+    box-shadow: 0 18px 38px -20px rgb(var(--si-line-ink-rgb) / 0.45);
+    display: none;
+    z-index: 20;
+  }
+  .xc #hero-app .ha-item.open .ha-drop { display: block; }
+  .xc #hero-app .ha-drop b {
+    display: block;
+    padding: 5px 9px 6px;
+    font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--si-subtle);
+  }
+  .xc #hero-app .ha-drop a {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 9px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    color: var(--si-ink);
+    cursor: pointer;
+  }
+  /* Entrée listée mais sans écran dans l'extrait. Elle ne se soulève pas :
+     « ce qui se soulève doit s'ouvrir » (components/ui/rangee-ouvrable.ts).
+     Promettre un geste inexistant apprend à l'œil à se méfier de l'animation. */
+  .xc #hero-app .ha-drop a.inerte { color: var(--si-subtle); cursor: default; }
+
+  /* Bandeau d'état */
+  .xc #hero-app .ha-strip {
+    display: flex; align-items: center; gap: 20px;
+    height: 32px; padding: 0 16px;
+    background: var(--si-forest);
+    color: var(--si-surface);
+    font-size: 11.5px;
+  }
+  .xc #hero-app .ha-strip .s { display: flex; align-items: center; gap: 6px; opacity: 0.92; }
+  .xc #hero-app .ha-strip .s i {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--si-verified-on-forest);
+  }
+  .xc #hero-app .ha-strip .s.warn i { background: var(--si-amber-on-forest, #E0B54A); }
+  .xc #hero-app .ha-strip .s b { font-weight: 600; }
+  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--mono); font-size: 10.5px; }
+
+  /* Corps */
+  .xc #hero-app .ha-body { padding: 14px 16px; }
+  .xc #hero-app .ha-screen { display: none; }
+  .xc #hero-app .ha-screen.on { display: block; }
+  .xc #hero-app .ha-card {
+    background: var(--si-surface);
+    border: 1px solid var(--si-line);
+    border-radius: 12px;
+    padding: 13px 14px;
+  }
+  .xc #hero-app .ha-kicker {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: 0.17em; text-transform: uppercase;
+    color: var(--si-subtle);
+  }
+  .xc #hero-app .ha-h {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 21px; line-height: 1.1; margin-top: 5px;
+    letter-spacing: -0.015em;
+  }
+  .xc #hero-app .ha-tiles {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 11px;
+  }
+  .xc #hero-app .ha-tile {
+    background: var(--si-forest);
+    color: var(--si-surface);
+    border-radius: 10px;
+    padding: 9px 11px 11px;
+    cursor: pointer;
+  }
+  .xc #hero-app .ha-tile .lab {
+    font-family: var(--mono);
+    font-size: 8.5px; letter-spacing: 0.15em; text-transform: uppercase;
+    opacity: 0.72;
+  }
+  .xc #hero-app .ha-tile .sub { font-size: 10.5px; opacity: 0.66; margin-top: 6px; }
+  .xc #hero-app .ha-tile .val {
+    font-family: var(--mono);
+    font-size: 17px; letter-spacing: -0.02em; margin-top: 2px;
+  }
+  .xc #hero-app .ha-tile.amber .val { color: var(--si-amber-on-forest, #E7C36A); }
+  .xc #hero-app .ha-cols {
+    display: grid; grid-template-columns: 1.42fr 1fr; gap: 11px; margin-top: 11px;
+  }
+  .xc #hero-app .ha-act {
+    display: inline-flex; align-items: center;
+    height: 30px; padding: 0 13px;
+    border-radius: 8px;
+    background: var(--si-forest); color: var(--si-surface);
+    font-size: 12px; font-weight: 500;
+    margin-top: 11px;
+    cursor: pointer;
+  }
+  .xc #hero-app .ha-kv {
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 4.5px 0;
+    border-bottom: 1px solid var(--si-line2);
+    font-size: 12px;
+  }
+  .xc #hero-app .ha-kv:last-child { border-bottom: 0; }
+  .xc #hero-app .ha-kv .k { color: var(--si-muted); }
+  .xc #hero-app .ha-kv .v { font-family: var(--mono); font-size: 11.5px; }
+  .xc #hero-app .ha-ptitle { font-size: 12.5px; font-weight: 600; margin-bottom: 7px; }
+  .xc #hero-app .ha-mini { font-size: 11px; color: var(--si-muted); margin-top: 3px; }
+
+  /* Registre (écrans Facturation / Comptes) */
+  .xc #hero-app table.ha-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .xc #hero-app .ha-tbl th {
+    text-align: left; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--si-subtle); font-weight: 600;
+    padding: 0 8px 7px; border-bottom: 1px solid var(--si-line);
+  }
+  .xc #hero-app .ha-tbl td { padding: 7px 8px; border-bottom: 1px solid var(--si-line2); }
+  .xc #hero-app .ha-tbl td.num { font-family: var(--mono); font-size: 11.5px; text-align: right; }
+  .xc #hero-app .ha-tbl tr:last-child td { border-bottom: 0; }
+  .xc #hero-app .ha-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px; border-radius: 999px;
+    font-size: 10px;
+    background: rgb(var(--si-forest-rgb) / 0.09); color: var(--si-verified);
+  }
+  /* Aging : cinq tranches d'ancienneté, lues d'un coup d'œil. */
+  .xc #hero-app .ha-aging { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .xc #hero-app .ha-aging .ag {
+    border: 1px solid var(--si-line);
+    border-radius: 9px;
+    padding: 8px 10px;
+  }
+  .xc #hero-app .ha-aging .l {
+    display: block;
+    font-family: var(--mono);
+    font-size: 8.5px; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--si-subtle);
+  }
+  .xc #hero-app .ha-aging .m {
+    display: block; margin-top: 5px;
+    font-family: var(--mono); font-size: 12.5px;
+  }
+  /* Au-delà de 30 jours, le montant passe à l'encre d'alerte : c'est là que la
+     relance devient prioritaire. */
+  .xc #hero-app .ha-aging .m.chaud { color: var(--si-amber-ink); }
+
+  .xc #hero-app .ha-tag.late { background: rgb(184 74 62 / 0.10); color: #B84A3E; }
+  .xc #hero-app .ha-tag.part { background: rgb(138 106 30 / 0.12); color: var(--si-amber-ink); }
+  /* Décor : jamais cliquable. Ces blocs sont déclarés APRÈS #hero-app, donc ils
+     peignent par-dessus, et opacity 0 ne retire rien du test de collision.
+     Une fois le titre estompé, il continuait d'avaler les clics destinés au
+     menu de l'application : le menu paraissait mort alors qu'il écoutait. */
+  .xc #hero-canvas,
+  .xc #hero-copy,
+  .xc.anime #hero-caption,
+  .xc #hero-hint { pointer-events: none; }
   .xc #hero-copy {
     position: absolute;
     left: 0; right: 0;
@@ -147,6 +480,26 @@ const CSS = `
     margin: 0 auto;
     will-change: transform, opacity;
   }
+  /* ── Lignes légèrement irrégulières, côté éditorial ──────────────────────
+     Une serif de titrage se pose mal sur une grille parfaite : chaque bloc
+     démarre au même pixel, la colonne devient un mur, et la lettre a l'air
+     posée sur une règle plutôt qu'écrite.
+
+     Trois écarts, très légers, aucun décoratif :
+
+     1. Alignement OPTIQUE du titre. Le « S » d'une Instrument Serif porte un
+        approche latérale : aligné au pixel, il paraît rentré par rapport au
+        paragraphe. Un retrait de 0,055em le remet d'aplomb à l'œil.
+     2. Largeurs de lecture qui varient légèrement d'un bloc à l'autre, au
+        lieu d'une mesure unique. Le bord droit cesse d'être un mur.
+     3. Décalages horizontaux minuscules entre l'exergue, le titre et le
+        chapeau. Deux à six pixels : on ne les voit pas, on les sent.
+
+     Cette liberté s'arrête à l'éditorial. Dans les registres et les
+     rapprochements, l'alignement sert à VÉRIFIER des chiffres : la grille y
+     reste rigoureuse (DESIGN_HUMAIN §11, « anti-grille vs précision
+     opérationnelle »). */
+  .xc #hero-copy .kicker { margin-left: 2px; }
   .xc #hero-copy h1 {
     margin-top: 20px;
     font-family: var(--serif);
@@ -154,15 +507,67 @@ const CSS = `
     font-size: clamp(44px, 7.4vw, 92px);
     line-height: 0.99;
     letter-spacing: -0.026em;
-    max-width: 14ch;
+    max-width: 13.4ch;
+    /* Compense l'approche latérale de la capitale, pas un décalage arbitraire. */
+    margin-left: -0.055em;
   }
-  .xc #hero-copy h1 em { font-style: italic; color: var(--green); }
+    /* Le mot mis en valeur porte exactement le vert du logo, pas l'encre
+     de l'action ni le vert de validation. */
+  .xc #hero-copy h1 em { font-style: italic; color: var(--si-brand-green); }
   .xc #hero-copy p.lede {
-    margin-top: 26px;
-    max-width: 52ch;
+    margin-top: 30px;
+    margin-left: 6px;
+    max-width: 49ch;
     font-size: clamp(15px, 1.35vw, 18px);
     line-height: 1.62;
     color: var(--muted);
+  }
+  /* L'action du premier écran.
+
+     Le hero n'en portait aucune : la seule façon d'engager quoi que ce soit
+     depuis la première vue était le bouton de la barre de navigation, qui est
+     un ustensile de site, pas la proposition de la page. Une page qui ouvre
+     sur une promesse doit dire dans la même respiration ce qu'on peut en
+     faire (DIRECTION_LANDING §6.01, DESIGN_HUMAIN M2).
+
+     Le bloc rétablit pointer-events : #hero-copy est neutralisé en entier
+     pour ne pas avaler les clics destinés à l'application, et l'action est le
+     seul élément du titre qui doit rester saisissable. Le script la retire du
+     test de collision dès que le titre s'estompe. */
+  .xc #hero-copy .hero-actions {
+    margin-top: 36px;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    pointer-events: auto;
+  }
+  .xc #hero-copy .hero-second {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    color: var(--muted);
+    transition: color 140ms ease;
+  }
+  .xc #hero-copy .hero-second i {
+    display: block;
+    width: 14px; height: 1.5px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.5;
+    transition: width 180ms ease, opacity 180ms ease;
+  }
+  .xc #hero-copy .hero-second:hover { color: var(--ink); }
+  .xc #hero-copy .hero-second:hover i { width: 22px; opacity: 1; }
+  /* Réassurance factuelle, reprise mot pour mot de la page de diagnostic.
+     Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
+  .xc #hero-copy .hero-reassure {
+    margin-top: 15px;
+    margin-left: 6px;
+    font-size: 12.5px;
+    color: var(--faint);
   }
   .xc #hero-hint {
     position: absolute;
@@ -211,211 +616,25 @@ const CSS = `
   .xc #preuves i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
   .xc .strip { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 
-  .xc #systeme { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
-  .xc #systeme .inner { max-width: 1240px; margin: 0 auto; }
-  .xc #systeme .head { display: grid; gap: 22px; grid-template-columns: 1fr 0.9fr; align-items: end; }
-  .xc #systeme h2 {
-    margin-top: 16px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(32px, 3.6vw, 48px);
-    line-height: 1.06;
-    letter-spacing: -0.02em;
-    max-width: 14ch;
-  }
-  .xc #systeme .head p { max-width: 52ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
-  .xc #systeme .shot {
-    margin-top: 52px;
-    transform: translateY(36px) scale(0.985);
-    opacity: 0;
-    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
-  }
-  .xc #systeme .shot.seen { transform: none; opacity: 1; }
-  .xc #systeme .after { margin-top: 18px; font-size: 13px; color: var(--verified); }
 
-  .xc #demo {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 40px 80px -44px rgba(11, 31, 25, 0.5);
-    overflow: hidden;
-  }
-  .xc #demo .bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: var(--forest);
-    color: #E9EFE9;
-    font-size: 12.5px;
-  }
-  .xc #demo .bar .crumb { display: flex; align-items: center; gap: 8px; }
-  .xc #demo .bar .crumb b { font-weight: 500; }
-  .xc #demo .bar .crumb .sep { opacity: 0.45; }
-  .xc #demo .bar .hint {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #9FD5B4;
-  }
-  .xc #demo .stage { position: relative; min-height: 470px; }
-  .xc #demo .screen {
-    position: absolute;
-    inset: 0;
-    padding: 24px 26px;
-    opacity: 0;
-    transform: translateX(26px);
-    pointer-events: none;
-    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto;
-  }
-  .xc #demo .screen.on { opacity: 1; transform: none; pointer-events: auto; }
-  .xc #demo .screen.off-left { transform: translateX(-26px); }
+  /* ── Les quatre postes ──────────────────────────────────────────────────
+     Pas de maquette d'application ici. La section parle d'un écart de
+     personnel, pas d'un écran : la montrer sous forme d'écran affaiblirait
+     le propos et ferait doublon avec le hero, qui porte déjà le vrai produit.
 
-  .xc #demo h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; }
-  .xc #demo .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
-    padding: 3px 10px;
-    font-size: 11px;
-    background: rgba(18, 161, 80, 0.1);
-    color: var(--verified);
-  }
-  .xc #demo .pill.gray { background: rgba(31, 42, 36, 0.06); color: var(--muted); }
-  .xc #demo .pill i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+     Chaque carte tient trois niveaux de voix : le poste en petites capitales
+     mono (le vocabulaire du grand cabinet), la question en serif (la voix de
+     l'avocat), la réponse en sans (celle du produit). */
 
-  .xc #demo .client-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 26px; }
-  .xc #demo .panel { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: #fff; }
-  .xc #demo .panel + .panel { margin-top: 14px; }
-  .xc #demo .panel .ptitle {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--faint);
-  }
-  .xc #demo .id-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
-  .xc #demo .kv { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
-  .xc #demo .kv:last-child { border-bottom: 0; }
-  .xc #demo .kv .k { color: var(--muted); }
-  .xc #demo .kv .v { text-align: right; color: var(--ink); }
-  .xc #demo .kv .v.num { font-family: var(--mono); }
-  .xc #demo .dossier-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px 12px;
-    padding: 13px 14px;
-    margin: 0 -14px;
-    border-radius: 9px;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
+
+
   /* la ligne ouvrable se signale : bord vert, fond teinté, léger relief */
-  .xc #demo .dossier-row[data-goto] {
-    border: 1px solid rgba(18, 161, 80, 0.4);
-    background: rgba(18, 161, 80, 0.05);
-    margin: 6px -14px;
-  }
-  .xc #demo .dossier-row[data-goto]:hover {
-    background: rgba(18, 161, 80, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 0 12px 26px -18px rgba(11, 31, 25, 0.5);
-  }
-  .xc #demo .dossier-row:hover { background: rgba(18, 161, 80, 0.06); }
   /* le libellé d'action devient un bouton plein, impossible à rater */
-  .xc #demo .dossier-row[data-goto] .go {
-    background: var(--green);
-    color: #fff;
-    border-radius: 999px;
-    padding: 7px 14px;
-    font-weight: 500;
-    transition: transform 0.2s ease;
-  }
-  .xc #demo .dossier-row[data-goto]:hover .go { transform: translateX(2px); }
-  .xc #demo .bar .hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .xc #demo .bar .hint::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #9FD5B4;
-    animation: xcpulse 1.8s ease-in-out infinite;
-  }
   @keyframes xcpulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.35; transform: scale(1.5); }
   }
-  .xc #demo .dossier-row .num { font-family: var(--mono); font-size: 12px; color: var(--faint); }
-  .xc #demo .dossier-row .titre { font-size: 13.5px; color: var(--ink); }
-  .xc #demo .dossier-row .go {
-    grid-row: span 2;
-    align-self: center;
-    font-size: 12.5px;
-    color: var(--green);
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .xc #demo .dossier-row.closed { cursor: default; }
-  .xc #demo .dossier-row.closed:hover { background: transparent; }
-  .xc #demo .dossier-row.closed .titre { color: var(--muted); }
 
-  .xc #demo .doss-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
-  .xc #demo .back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12.5px;
-    color: var(--muted);
-    cursor: pointer;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 5px 12px;
-    background: #fff;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-  .xc #demo .back:hover { color: var(--ink); border-color: rgba(31, 42, 36, 0.2); }
-  .xc #demo .doss-head .who { margin-left: auto; font-size: 12px; color: var(--faint); }
-  .xc #demo .tabs { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .xc #demo .tab {
-    padding: 9px 14px;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: color 0.2s ease;
-  }
-  .xc #demo .tab:hover { color: var(--ink); }
-  .xc #demo .tab.on { color: var(--ink); border-bottom-color: var(--green); }
-  .xc #demo .tabpane { display: none; padding-top: 16px; }
-  .xc #demo .tabpane.on { display: block; }
-  .xc #demo .apercu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .xc #demo .stat { border: 1px solid var(--line); border-radius: 10px; padding: 13px 15px; background: #fff; }
-  .xc #demo .stat .lbl { font-size: 11.5px; color: var(--faint); }
-  .xc #demo .stat .val { margin-top: 3px; font-size: 15px; color: var(--ink); }
-  .xc #demo .stat .val.num { font-family: var(--mono); }
-  .xc #demo table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .xc #demo th {
-    text-align: left;
-    font-weight: 500;
-    font-size: 11.5px;
-    color: var(--faint);
-    padding: 6px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .xc #demo th.num, .xc #demo td.num { text-align: right; font-family: var(--mono); }
-  .xc #demo td { padding: 10px 0; border-bottom: 1px solid var(--line-soft); color: var(--ink); vertical-align: top; }
-  .xc #demo td .sub { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
-  .xc #demo tr.total td { border-bottom: 0; font-weight: 500; }
-  .xc #demo .note { margin-top: 12px; font-size: 12px; color: var(--verified); }
 
   .xc .story .pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
   .xc .story .grid {
@@ -453,184 +672,939 @@ const CSS = `
     max-width: 44ch;
   }
 
-  .xc #zone-verifier { height: 340vh; }
-  .xc #zone-encaisser { height: 360vh; }
-  .xc #zone-collaborer { height: 340vh; }
 
-  .xc #rapprochement {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 26px 28px;
-    box-shadow: 0 30px 60px -38px rgba(11, 31, 25, 0.5);
+  /* ── Chapitres de la narration ─────────────────────────────────────────────
+     Promesse et synthèse sont des respirations : rien à l'écran que du texte,
+     centré, avec beaucoup de vide autour. Elles ne portent aucune interface,
+     c'est ce qui leur donne leur poids. */
+  /* Courses raccourcies : la promesse a perdu son chapeau et « Simple » sa
+     démonstration. Une zone qui garde sa longueur alors que son contenu a
+     maigri devient un couloir vide qu'il faut traverser au défilement. */
+  .xc #zone-promesse { height: 120vh; }
+  /* Trois arguments qui se rangent l'un après l'autre, chacun avec son écran :
+     la course tient le même rythme que « Fiable », à un temps de moins. */
+  .xc #zone-simple { height: 320vh; }
+  .xc #zone-synthese { height: 150vh; }
+
+  .xc .pr-pin, .xc .sy-pin {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    padding: 0 min(6vw, 84px);
   }
-  .xc #rapprochement .head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 15px;
-  }
-  .xc #rapprochement .head span:first-child { font-size: 13.5px; }
-  .xc #rapprochement .head span:last-child { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .xc #rapprochement .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--line-soft);
-    will-change: transform, opacity;
-  }
-  .xc #rapprochement .row .lbl { font-size: 13.5px; color: var(--muted); }
-  .xc #rapprochement .row .amt { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 14px; }
-  .xc #rapprochement .row .amt i {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-  }
-  .xc #rapprochement .row.gap .amt { color: #9A6712; }
-  .xc #rapprochement .row.gap .amt i { background: #C38A24; box-shadow: 0 0 0 5px rgba(195, 138, 36, 0.10); }
-  .xc #rapprochement .row.gap.ok .amt { color: var(--ink); }
-  .xc #rapprochement .row.gap.ok .amt i { background: var(--green); box-shadow: none; }
-  .xc #rapprochement .banners { position: relative; margin-top: 18px; min-height: 46px; }
-  .xc #rapprochement .banner {
-    position: absolute;
-    inset: 0 0 auto 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    border-radius: 9px;
-    padding: 12px 15px;
-    font-size: 12px;
-    line-height: 1.5;
+  .xc.anime .pr-main {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(38px, 6.2vw, 76px);
+    line-height: 1.04;
+    letter-spacing: -0.026em;
+    max-width: 16ch;
     opacity: 0;
     will-change: opacity, transform;
   }
-  .xc #rapprochement .banner.warn { background: rgba(195, 138, 36, 0.08); color: #72531B; }
-  .xc #rapprochement .banner.okay { background: rgba(18, 161, 80, 0.09); color: var(--verified); }
-  .xc #rapprochement .banner i {
-    flex: none;
-    width: 7px; height: 7px;
-    margin-top: 5px;
-    border-radius: 50%;
-    background: currentColor;
+
+  /* Chute de chapitre : la phrase qui referme chaque pilier. Même famille que
+     les titres, plus petite, en encre pleine. C'est le point final du
+     raisonnement, pas une quatrième preuve. Elle se rapproche des points : le
+     grand écart d'avant la détachait de ce qu'elle conclut. */
+  .xc.anime .ch-chute {
+    margin-top: 14px;
+    opacity: 0;
+    will-change: opacity, transform;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(17px, 1.9vw, 24px);
+    line-height: 1.3;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
   }
 
-  .xc #facture-wrap { position: relative; }
-  .xc #facture {
-    background: #fff;
+  /* Seconde ligne de la promesse. Elle portait le même corps que la première :
+     deux lignes de même poids, donc aucune ne dominait. Elle passe à un peu
+     plus de la moitié, garde la serif et la teinte atténuée. La promesse se
+     lit maintenant en deux temps, l'affirmation puis sa condition. */
+  .xc .pr-suite { color: var(--muted); }
+  /* Même spécificité que la règle de .pr-main plus haut, et déclarée après :
+     sans cela, le corps de la première ligne l'emporterait et la seconde
+     resterait aussi grosse qu'elle. */
+  .xc.anime .pr-suite {
+    margin-top: 14px;
+    font-size: clamp(21px, 2.9vw, 38px);
+    line-height: 1.16;
+    letter-spacing: -0.018em;
+    max-width: 26ch;
+  }
+
+  /* Masque de révélation. Le texte est translaté sous une arête invisible et
+     remonte à sa place : il ne surgit pas à plat, il entre. C'est le geste le
+     plus discret qui donne l'impression de soin, et il ne coûte qu'un
+     overflow plus une translation. */
+  .xc .masque { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .xc .masque > * { display: block; will-change: transform, opacity; }
+
+  /* Marqueur de chapitre.
+
+     Le mot traversait l'écran en gros plan par-dessus la démonstration, puis
+     s'effaçait. On lisait donc un mot géant posé sur une carte de chiffres, et
+     le repère avait disparu au moment précis où le texte qu'il annonce
+     arrivait. Il ouvre maintenant le chapitre à sa place, au-dessus du titre,
+     et il reste. Le léger zoom d'entrée est conservé : c'est lui qui donne la
+     sensation d'entrer dans un point plutôt que de tourner une page. */
+  .xc .ch-mark {
+    display: block;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 4.2vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.028em;
+    color: var(--si-ink);
+    transform-origin: left center;
+  }
+  .xc .ch-mark + .kicker { display: block; margin-top: 16px; }
+  .xc.anime .ch-mark { opacity: 0; will-change: opacity, transform; }
+
+  /* Chapitre à deux volets : le propos à gauche, la démonstration à droite. */
+  .xc .ch-pin {
+    display: grid;
+    align-content: center;
+    padding: 0 min(6vw, 84px);
+  }
+  /* Le chapitre « Simple » démontre par un émulateur du cabinet : les trois
+     arguments à gauche, une fenêtre de SAFE à droite qui bascule d'un écran à
+     l'autre selon l'argument en cours (décision CEO du 13 août 2026). */
+  .xc #zone-simple .ch-pin {
+    grid-template-columns: 0.94fr 1.06fr;
+    gap: clamp(24px, 3.4vw, 56px);
+    align-items: center;
+  }
+  .xc #zone-simple .ch-copy { min-width: 0; }
+  .xc .ch-copy h2 {
+    margin-top: 10px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 3.6vw, 46px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 17ch;
+  }
+  /* Les arguments de « Simple » : la progression cumulative de « Fiable ».
+
+     C'était un accordéon de trois surfaces qu'on ouvrait et refermait. On
+     revenait donc en arrière pour relire, et un argument déjà lu pouvait se
+     refermer sous les yeux. Un argument arrive maintenant en grand, se réduit
+     en point numéroté pendant que le suivant prend sa place, et rien ne
+     disparaît. À la fin, les trois sont là dans l'ordre où on les a lus.
+
+     Grammaire volontairement identique à celle de « Fiable », dupliquée plutôt
+     que partagée : les deux chapitres n'ont ni les mêmes tailles ni les mêmes
+     rythmes, et « Fiable » ne doit pas bouger quand on règle « Simple ».
+
+     La réduction agit sur la taille du texte, jamais sur une échelle : une
+     mise à l'échelle rendrait la lettre molle pendant toute la course. */
+  .xc .si-narration { margin-top: clamp(20px, 2.4vw, 30px); }
+  .xc.anime .si-narration { min-height: 322px; display: grid; align-content: start; }
+  .xc .si-args { display: grid; list-style: none; }
+  .xc .si-arg {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    column-gap: 0;
+    align-items: baseline;
+  }
+  .xc.anime .si-arg {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 320ms ease,
+      grid-template-columns 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      column-gap 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      padding 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .si-arg.avant { max-height: 250px; opacity: 1; padding: 13px 0; }
+  .xc.anime .si-arg.range {
+    max-height: 150px;
+    opacity: 1;
+    grid-template-columns: 26px 1fr;
+    column-gap: 14px;
+    padding: 9px 0;
+  }
+  .xc .si-arg .n {
+    grid-row: span 2;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--si-brand-green);
+  }
+  .xc.anime .si-arg .n { opacity: 0; transition: opacity 300ms ease; }
+  .xc.anime .si-arg.range .n { opacity: 1; }
+  .xc .si-arg .t {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(26px, 2.9vw, 38px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--si-ink);
+    max-width: 15ch;
+    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1), max-width 400ms ease;
+  }
+  .xc .si-arg .d {
+    margin-top: 10px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(15px, 1.5vw, 17.5px);
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 42ch;
+    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Rangé : le titre descend au corps d'un point de liste, sa justification
+     reste lisible mais passe en second. */
+  .xc.anime .si-arg.range .t {
+    font-size: clamp(18px, 1.8vw, 22px);
+    max-width: 30ch;
+  }
+  .xc.anime .si-arg.range .d {
+    margin-top: 2px;
+    font-size: clamp(13.5px, 1.15vw, 15px);
+  }
+
+  /* ── L'émulateur du cabinet ───────────────────────────────────────────────
+     Une fenêtre de SAFE posée à côté des arguments du chapitre « Simple ».
+     Elle ne bouge pas : c'est son écran qui change quand l'argument change,
+     au défilement puis au clic. Chaque écran est un extrait réel du Cabinet
+     Demo, avec les chiffres relevés en base. Jamais une vue plus avancée que
+     le produit.
+
+     Hauteur fixe : trois écrans de hauteurs différentes qui se remplacent
+     feraient sauter la colonne à chaque bascule. */
+  .xc .ch-stage { position: relative; display: grid; place-items: center; }
+  .xc .em-fenetre {
+    width: 100%;
+    max-width: 520px;
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 30px 32px 26px;
-    box-shadow: 0 30px 60px -38px rgba(11, 31, 25, 0.5);
-    position: relative;
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 28px 60px -40px rgb(var(--si-line-ink-rgb) / 0.4);
     overflow: hidden;
   }
-  .xc #facture .fhead { display: flex; justify-content: space-between; align-items: baseline; }
-  .xc #facture .fhead .t { font-family: var(--serif); font-size: 25px; }
-  .xc #facture .fhead .d { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .xc #facture .fsub {
+  .xc .em-barre {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 14px;
+    background: var(--si-forest);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--si-surface);
+  }
+  .xc .em-barre i {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--si-amber-on-forest, #E0B54A);
+  }
+  .xc .em-barre .em-ou { margin-left: auto; opacity: 0.66; }
+  .xc .em-corps { position: relative; height: 318px; }
+  .xc .em-ecran {
+    position: absolute;
+    inset: 0;
+    padding: 18px 18px 14px;
+    opacity: 0;
+    transform: translateY(7px);
+    transition: opacity 240ms ease, transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .xc .em-ecran.on { opacity: 1; transform: none; pointer-events: auto; }
+  .xc .em-kicker {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--si-amber-ink);
+  }
+  .xc .em-h {
+    margin-top: 9px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(18px, 1.7vw, 22px);
+    line-height: 1.16;
+    letter-spacing: -0.015em;
+  }
+  .xc .em-mini {
+    margin-top: 9px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 40ch;
+  }
+  .xc .em-tiles {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .xc .em-tile {
+    padding: 10px 12px 11px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--si-canvas);
+  }
+  .xc .em-tile .lab {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .xc .em-tile .sub { margin-top: 6px; font-size: 11px; color: var(--muted); }
+  /* Le chiffre est sacré : mono tabulaire, jamais tronqué. */
+  .xc .em-tile .val {
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 14.5px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .xc .em-tile.amber .val { color: var(--si-amber-ink); }
+  .xc .em-kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-top: 1px solid var(--line-soft);
+    font-size: 12.5px;
+  }
+  .xc .em-kv .v {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .xc .em-act {
+    display: inline-flex;
+    align-items: center;
+    height: 29px;
+    margin-top: 13px;
+    padding: 0 13px;
+    border-radius: 7px;
+    background: var(--si-forest);
+    color: var(--si-surface);
+    font-size: 12px;
+  }
+  .xc .em-sous {
+    margin-top: 13px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  /* Écran « saisi une fois » : la même heure, à sa source puis sur la facture.
+     Le trait vertical dit que rien n'a été retapé entre les deux. */
+  .xc .em-bloc {
+    margin-top: 9px;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--si-canvas);
+  }
+  .xc .em-bloc .t { font-size: 13px; }
+  .xc .em-bloc .s { margin-top: 4px; font-size: 11.5px; color: var(--muted); }
+  .xc .em-ligne {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px solid var(--line-soft);
+    font-size: 12.5px;
+  }
+  .xc .em-ligne .m {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .xc .em-relie {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .xc .em-relie i {
+    display: block;
+    width: 1px;
+    height: 18px;
+    background: var(--si-brand-green);
+    opacity: 0.5;
+  }
+
+  /* Synthèse. */
+  /* Synthèse. Elle referme le récit depuis que la section « pour qui » a été
+     retirée. Fond blanc comme les trois piliers qu'elle résume ; la
+     tarification qui suit revient au canevas, et ce changement de surface
+     marque le passage du récit à l'offre.
+
+     Un cran plus petite qu'avant : elle conclut, elle ne rivalise plus avec
+     les titres de chapitre. */
+  .xc #zone-synthese, .xc #zone-synthese .pin { background: var(--si-surface); }
+  .xc.anime .sy-line {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(23px, 2.8vw, 36px);
+    line-height: 1.26; letter-spacing: -0.018em;
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+  .xc.anime .sy-end { margin-top: 34px; opacity: 0; will-change: opacity, transform; }
+  .xc .sy-claim { font-size: clamp(14px, 1.4vw, 16.5px); color: var(--muted); max-width: 36ch; margin: 0 auto; }
+  .xc .sy-cta { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .xc #zone-fiable { height: 400vh; }
+  .xc #zone-complet { height: 420vh; }
+
+  /* ── Chapitre COMPLET ─────────────────────────────────────────────────────
+     Même langage que « Fiable » : un message arrive en grand, se réduit et
+     prend sa place dans une liste qui se construit. Deux différences voulues.
+     La démonstration passe à gauche, parce qu'ici on suit un dossier et qu'on
+     le regarde avancer avant de lire ce qu'on en conclut. Et le texte du point
+     n'est pas celui du message : le bloc porte les deux et bascule de l'un à
+     l'autre pendant qu'il rétrécit, ancré au même coin.
+
+     Ce qui a été retiré : le jeton noir flottant qui portait le montant, et la
+     ligne verticale du parcours. Les montants vivent maintenant sur
+     l'opération qui les produit. */
+  /* « Complet » revient au canevas (décision CEO du 13 août 2026). La page
+     alterne alors franchement d'un chapitre à l'autre : Simple sur canevas,
+     Fiable sur blanc, Complet sur canevas, la synthèse sur blanc, puis la
+     tarification à nouveau sur canevas. */
+  .xc .co-pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
+  .xc .co-grid {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: clamp(30px, 4.6vw, 76px);
+    align-items: center;
+  }
+  .xc .co-copy { min-width: 0; }
+  .xc .co-copy h2 {
+    margin-top: 14px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(27px, 3vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    max-width: 18ch;
+  }
+  .xc .co-intro {
+    margin-top: 14px;
+    font-size: clamp(13.5px, 1.15vw, 15.5px);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 46ch;
+  }
+
+  /* Le parcours qui se construit. */
+  .xc .co-narration { margin-top: clamp(18px, 2.2vw, 28px); }
+  .xc.anime .co-narration { min-height: 300px; display: grid; align-content: start; }
+  .xc .co-args { display: grid; list-style: none; }
+  .xc .co-arg { display: grid; align-items: start; }
+  .xc.anime .co-arg {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 300ms ease,
+      padding 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .co-arg.avant { max-height: 210px; opacity: 1; padding: 12px 0; }
+  .xc.anime .co-arg.range { max-height: 150px; opacity: 1; padding: 8px 0; }
+  /* Les deux formes partagent la même cellule : le point apparaît exactement
+     là où le message commençait. C'est ce point d'ancrage commun qui fait lire
+     une transformation plutôt qu'un remplacement. */
+  .xc .co-grand, .xc .co-point { grid-area: 1 / 1; }
+  .xc .co-grand { display: block; }
+  .xc .co-grand .g1 {
+    display: block;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 23px);
+    line-height: 1.24;
+    letter-spacing: -0.012em;
+    color: var(--muted);
+    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc .co-grand .g2 {
+    display: block;
     margin-top: 6px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--line);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(26px, 2.9vw, 38px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--si-ink);
+    max-width: 16ch;
+    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .co-grand { transition: opacity 260ms ease; }
+  /* En se rangeant, le message rétrécit pendant qu'il s'efface : le regard
+     descend avec lui au lieu de le voir disparaître sur place. */
+  .xc.anime .co-arg.range .co-grand { opacity: 0; }
+  .xc.anime .co-arg.range .co-grand .g1 { font-size: 15px; }
+  .xc.anime .co-arg.range .co-grand .g2 { font-size: 16px; }
+  .xc .co-point {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    column-gap: 14px;
+    row-gap: 3px;
+    align-items: baseline;
+  }
+  .xc.anime .co-point { opacity: 0; transition: opacity 320ms ease 100ms; }
+  .xc.anime .co-arg.range .co-point { opacity: 1; }
+  .xc .co-point .n {
+    grid-row: span 2;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--si-brand-green);
+  }
+  .xc .co-point .t {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 22px);
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    color: var(--si-ink);
+  }
+  .xc .co-point .d {
+    font-size: clamp(13px, 1.1vw, 14.5px);
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .xc .co-fin {
+    margin-top: 22px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(16px, 1.5vw, 20px);
+    line-height: 1.32;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
+    max-width: 34ch;
+  }
+  .xc .co-fin .co-comptable {
+    display: block;
+    margin-top: 9px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 42ch;
+  }
+  .xc.anime .co-fin { opacity: 0; transition: opacity 400ms ease; }
+  .xc.anime .co-fin.on { opacity: 1; }
+
+  /* La démonstration du parcours. Même surface que celle de « Fiable » :
+     un écran réel, une profondeur très légère, aucune bordure. */
+  .xc .co-stage { min-width: 0; }
+  /* La surface s'inverse avec la section. Sur le blanc de « Fiable », l'écran
+     prend le canevas ; sur le canevas de « Complet », il prend le blanc. Mesuré
+     après le passage au gris : l'écran et son fond avaient exactement la même
+     teinte, la fenêtre ne se détachait plus que par son ombre. */
+  .xc .co-ecran {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 22px 22px;
+    border-radius: 14px;
+    background: var(--si-surface);
+    box-shadow: 0 26px 56px -46px rgb(var(--si-line-ink-rgb) / 0.42);
+  }
+  .xc .co-ou {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  /* Réservée sur la plus haute des trois vues, mesurée à 375 px : une valeur
+     plus courte laissait la fin du parcours déborder hors de la surface. */
+  .xc .co-vue-zone { position: relative; min-height: 384px; }
+  .xc .co-vue { margin-top: 15px; }
+  .xc.anime .co-vue {
+    position: absolute;
+    inset: 15px 0 auto 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 320ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .xc.anime .co-vue.on { opacity: 1; transform: none; pointer-events: auto; }
+  /* Le domaine de pratique : c'est lui qui décide de tout le reste, donc il se
+     lit en premier et porte le vert de marque. */
+  .xc .co-domaine { display: grid; gap: 3px; }
+  .xc .co-domaine .lb {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  /* Mesuré sur le canevas : le vert du logo tombait à 4,26 pour 19 px, sous le
+     seuil AA. Le vert de validation passe à 5,88 et dit la même chose ici, le
+     domaine étant une donnée confirmée du dossier. */
+  .xc .co-domaine .vl {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(19px, 1.9vw, 24px);
+    line-height: 1.15;
+    letter-spacing: -0.014em;
+    color: var(--verified);
+    transition: opacity 240ms ease;
+  }
+  .xc .co-sous {
+    margin-top: 13px;
     font-size: 12.5px;
     color: var(--muted);
   }
-  .xc #facture .fline {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--line-soft);
-    font-size: 13px;
-    will-change: transform, opacity;
+  .xc .co-liste { margin-top: 9px; display: grid; }
+  .xc .co-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 14px;
+    row-gap: 2px;
+    padding: 9px 0;
   }
-  .xc #facture .fline .desc { color: var(--ink); }
-  .xc #facture .fline .sub { display: block; margin-top: 2px; font-size: 11.5px; color: var(--faint); }
-  .xc #facture .fline .amt { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
-  .xc #facture .ftotals { margin-top: 14px; margin-left: auto; max-width: 300px; }
-  .xc #facture .trow { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12.5px; color: var(--muted); }
-  .xc #facture .trow .amt { font-family: var(--mono); color: var(--ink); }
-  .xc #facture .trow.grand {
-    margin-top: 8px;
-    padding-top: 11px;
-    border-top: 1px solid var(--line);
-    font-size: 14px;
-    color: var(--ink);
-  }
-  .xc #facture .trow.grand .amt { font-size: 17px; }
-  .xc #facture .stamp {
-    position: absolute;
-    left: 34px;
-    bottom: 46px;
-    padding: 7px 16px;
-    border: 2px solid var(--green);
-    border-radius: 8px;
-    color: var(--green);
+  .xc .co-item .t { font-size: 13.5px; color: var(--si-ink); }
+  .xc .co-item .s { grid-column: 1; font-size: 11.5px; color: var(--muted); }
+  /* Le montant vit sur l'opération qui le produit, plus dans un bloc à part. */
+  .xc .co-item .m {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
     font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transform: rotate(-8deg) scale(1.6);
-    opacity: 0;
-    will-change: transform, opacity;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--si-ink);
   }
-  .xc .chip {
-    position: absolute;
-    display: inline-flex;
-    align-items: center;
+  .xc.anime .co-item {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 340ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .co-item.on { opacity: 1; transform: none; }
+  /* La confirmation porte une marque en plus de sa couleur : le vert ne dit
+     jamais seul qu'une chose est réglée. */
+  .xc .co-dit {
+    display: flex;
+    align-items: baseline;
     gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 7px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--verified);
+    max-width: 40ch;
+  }
+  .xc .co-dit .marque { font-size: 11px; }
+  .xc.anime .co-dit { opacity: 0; transition: opacity 380ms ease; }
+  .xc.anime .co-dit.on { opacity: 1; }
+
+  /* ── Chapitre FIABLE ──────────────────────────────────────────────────────
+     Section blanche, éditoriale, sans un seul cadre. La hiérarchie tient à
+     trois choses : la taille, l'espace et le contraste. Le vert n'apparaît que
+     sur les numéros, les états actifs et les confirmations.
+
+     Le fond porte le blanc de la marque (--si-surface, l'albâtre du produit),
+     pas un blanc pur inventé pour l'occasion. */
+  .xc #zone-fiable, .xc #zone-fiable .pin { background: var(--si-surface); }
+  .xc .fi-pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
+  .xc .fi-grid {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.94fr 1.06fr;
+    gap: clamp(32px, 5vw, 84px);
+    align-items: center;
+  }
+  .xc .fi-copy { min-width: 0; }
+  .xc .fi-copy h2 {
+    margin-top: 16px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(28px, 3.1vw, 42px);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    max-width: 20ch;
+  }
+
+  /* Un seul jeu de trois arguments, qui changent de rang au lieu de se
+     remplacer.
+
+     Chacun arrive en grand, occupe l'écran le temps de sa démonstration, puis
+     se range en point numéroté pendant que le suivant arrive en grand sous
+     lui. À la fin, les trois sont là, empilés, dans l'ordre où on les a lus.
+     La version précédente les faisait apparaître puis disparaître avant de
+     tous les rappeler d'un coup : on relisait au lieu de se souvenir.
+
+     La réduction agit sur la taille du texte, jamais sur une échelle : une
+     mise à l'échelle rendrait la lettre molle pendant toute la course. */
+  /* Le titre et la liste finale appartiennent au même raisonnement. Leur
+     proximité évite qu'un grand vide coupe la conclusion en deux. */
+  .xc .fi-narration { margin-top: clamp(12px, 1.5vw, 18px); }
+  .xc.anime .fi-narration {
+    min-height: 316px;
+    display: grid;
+    align-content: start;
+    gap: 0;
+  }
+  .xc .fi-args { display: grid; list-style: none; }
+  .xc .fi-arg {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    column-gap: 0;
+    align-items: baseline;
+  }
+  .xc.anime .fi-arg {
+    /* Pas encore venu : aucune place prise, rien à lire. */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 480ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 340ms ease,
+      grid-template-columns 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      column-gap 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      padding 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* En avant : la phrase d'accent occupe la colonne. */
+  .xc.anime .fi-arg.avant {
+    max-height: 260px;
+    opacity: 1;
+    padding: 14px 0;
+  }
+  /* À partir du deuxième argument, on laisse d'abord le précédent commencer
+     à se ranger. Le récit fait donc bien : grand, réduction en point, puis
+     prochain argument en grand. Les deux gestes ne se superposent pas. */
+  .xc.anime .fi-arg.avant.apres-range {
+    transition-delay: 260ms;
+  }
+  /* Rangé : le numéro prend sa colonne, le texte redescend d'un cran. */
+  .xc.anime .fi-arg.range {
+    max-height: 160px;
+    opacity: 1;
+    grid-template-columns: 26px 1fr;
+    column-gap: 14px;
+    padding: 9px 0;
+  }
+  /* Le seul vert de la colonne : discret, en mono, sur la ligne du titre. */
+  .xc .fi-arg .n {
+    grid-row: span 2;
     font-family: var(--mono);
     font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--si-brand-green);
+  }
+  .xc.anime .fi-arg .n { opacity: 0; transition: opacity 300ms ease; }
+  .xc.anime .fi-arg.range .n { opacity: 1; }
+  .xc .fi-arg .e1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(19px, 1.9vw, 24px);
+    line-height: 1.24;
+    letter-spacing: -0.012em;
     color: var(--muted);
-    box-shadow: 0 14px 28px -18px rgba(11, 31, 25, 0.4);
-    white-space: nowrap;
-    will-change: transform, opacity;
-    opacity: 0;
+    transition: font-size 420ms cubic-bezier(0.16, 1, 0.3, 1), color 320ms ease;
   }
-  .xc .chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  /* La seconde phrase porte l'accent : c'est elle qui dit le bénéfice. */
+  .xc .fi-arg .e2 {
+    margin-top: 7px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(27px, 3vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--si-ink);
+    max-width: 17ch;
+    transition:
+      font-size 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 320ms ease,
+      margin-top 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* L'argument courant est une seule proposition forte. Ses deux fragments
+     ont la même présence typographique, même s'ils retrouvent deux niveaux
+     distincts une fois rangés dans la liste. */
+  .xc.anime .fi-arg.avant .e1,
+  .xc.anime .fi-arg.avant .e2 {
+    font-size: clamp(27px, 3vw, 40px);
+    line-height: 1.1;
+    color: var(--si-ink);
+  }
+  .xc.anime .fi-arg.avant .e2 { margin-top: 2px; }
+  /* Rangé, la hiérarchie s'inverse : la première phrase devient le titre du
+     point, la seconde sa justification. Le contenu ne change pas, il change
+     de rang. */
+  .xc.anime .fi-arg.range .e1 {
+    font-size: clamp(18px, 1.8vw, 22px);
+    color: var(--si-ink);
+  }
+  .xc.anime .fi-arg.range .e2 {
+    margin-top: 2px;
+    font-size: clamp(13.5px, 1.15vw, 15px);
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 40ch;
+  }
 
-  .xc #navette { position: relative; height: min(58vh, 460px); }
-  .xc .nav-card {
-    position: absolute;
-    left: 8%;
-    width: min(72%, 330px);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px 16px;
-    box-shadow: 0 22px 44px -30px rgba(11, 31, 25, 0.45);
-    will-change: transform, opacity;
+  /* La démonstration. Seule surface de la section : elle représente un écran
+     réel, donc une profondeur très légère, portée par la teinte du canevas et
+     une ombre diffuse. Aucune bordure. */
+  .xc .fi-stage { min-width: 0; }
+  .xc .fi-ecran {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    margin-left: auto;
+    padding: 22px 24px 24px;
+    border-radius: 14px;
+    background: var(--si-canvas);
+    box-shadow: 0 26px 56px -46px rgb(var(--si-line-ink-rgb) / 0.42);
   }
-  .xc .nav-card .tag {
+  /* Mesuré sur le canevas : la teinte atténuée tombait à 3,03 pour 9,5 px,
+     sous le seuil AA. Ce libellé dit où l'on se trouve, ce n'est pas de la
+     décoration : il passe à l'encre secondaire (4,78). */
+  .xc .fi-ou {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  /* Hauteur réservée : quatre vues de hauteurs différentes qui se remplacent
+     feraient sauter la colonne à chaque étape. */
+  .xc .fi-vue-zone { position: relative; min-height: 236px; }
+  .xc .fi-vue { margin-top: 16px; }
+  .xc.anime .fi-vue {
+    position: absolute;
+    inset: 16px 0 auto 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 340ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    will-change: opacity, transform;
+  }
+  .xc.anime .fi-vue.on { opacity: 1; transform: none; pointer-events: auto; }
+  /* Une source de chiffre : un libellé, un montant. Pas de filet entre les
+     deux, l'alignement suffit à les relier. */
+  .xc .fi-src {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 11px 0;
+  }
+  .xc .fi-src .l { font-size: 13.5px; color: var(--muted); }
+  .xc .fi-src .m {
+    font-family: var(--mono);
+    font-size: 14.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--si-ink);
+  }
+  .xc .fi-src .m.vert { color: var(--verified); }
+  .xc.anime .fi-src[data-src] {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 360ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .fi-src[data-src].on { opacity: 1; transform: none; }
+  /* La phrase qui dit ce que les chiffres viennent de prouver. */
+  .xc .fi-dit {
+    margin-top: 14px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 40ch;
+  }
+  .xc .fi-dit.vert { color: var(--verified); }
+  .xc.anime .fi-dit { opacity: 0; transition: opacity 400ms ease; }
+  .xc.anime .fi-dit.on { opacity: 1; }
+  /* Mini-chronologie : deux entrées datées, reliées par le seul trait de la
+     section, qui n'est pas décoratif puisqu'il porte la continuité. */
+  .xc .fi-temps {
+    position: relative;
+    padding: 10px 0 10px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: 4px;
+    column-gap: 14px;
+    align-items: baseline;
+  }
+  .xc .fi-temps::before {
+    content: "";
+    position: absolute;
+    left: 3px; top: 17px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--si-subtle);
+  }
+  .xc .fi-temps + .fi-temps::after {
+    content: "";
+    position: absolute;
+    left: 5px; top: -8px; height: 25px;
+    width: 1px;
+    background: rgb(var(--si-line-ink-rgb) / 0.14);
+  }
+  /* Même correction : une date est une information, elle doit se lire. */
+  .xc .fi-temps .h {
+    grid-column: 1 / -1;
     font-family: var(--mono);
     font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
   }
-  .xc .nav-card .txt { display: block; margin-top: 5px; font-size: 13px; color: var(--ink); }
-  .xc .nav-card .who { display: block; margin-top: 4px; font-size: 11.5px; color: var(--faint); }
-  .xc #decision {
-    position: absolute;
-    right: 0;
-    top: 68%;
-    width: min(58%, 300px);
-    background: var(--forest);
-    color: #F4F7F3;
-    border-radius: 12px;
-    padding: 16px 18px;
-    box-shadow: 0 30px 60px -34px rgba(11, 31, 25, 0.7);
-    will-change: transform, opacity;
+  .xc .fi-temps .t { font-size: 13px; color: var(--si-ink); }
+  .xc .fi-temps .m {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
   }
-  .xc #decision .tag { color: #9FD5B4; display: block; }
+  .xc .fi-temps .m.vert { color: var(--verified); }
+  .xc .fi-temps[data-temps="1"]::before { background: var(--si-brand-green); }
+  .xc.anime .fi-temps {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 360ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc.anime .fi-temps.on { opacity: 1; transform: none; }
+  .xc .fi-op { font-size: 13px; color: var(--si-ink); }
+  /* Le refus. Texte exact du produit, en ambre : c'est un arrêt, pas une
+     erreur du cabinet. */
+  .xc .fi-refus {
+    margin-top: 14px;
+    padding-left: 16px;
+    border-left: 2px solid var(--si-amber-ink);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--si-amber-ink);
+    max-width: 42ch;
+  }
+  .xc.anime .fi-refus { opacity: 0; transition: opacity 400ms ease; }
+  .xc.anime .fi-refus.on { opacity: 1; }
+
+
   /* sans display block, « Pour l'avocat » et le titre se collaient */
-  .xc #decision .txt { color: #F4F7F3; font-size: 13.5px; display: block; margin-top: 5px; }
-  .xc #decision .sub { margin-top: 8px; font-size: 11.5px; color: rgba(244, 247, 243, 0.62); line-height: 1.5; }
 
   .xc section.flat { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
   .xc section.flat .inner { max-width: 1100px; margin: 0 auto; }
@@ -701,11 +1675,25 @@ const CSS = `
     color: #fff;
     font-size: 14px;
     font-weight: 500;
-    box-shadow: 0 14px 28px -18px rgba(18, 161, 80, 0.85);
+    box-shadow: 0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85);
     transition: transform 0.2s ease;
   }
   .xc .btn:hover { transform: translateY(-2px); }
-  .xc .btn.ghost { background: transparent; color: var(--ink); box-shadow: none; }
+  /* Le bouton second n'avait ni fond, ni bord, ni ombre : rien ne disait qu'on
+     pouvait cliquer, sinon sa position à côté du bouton plein. Un filet suffit
+     à le rendre saisissable sans lui donner le poids d'une action principale
+     (DESIGN_HUMAIN P6 : un contrôle explique son usage par ses signifiants). */
+  .xc .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+    box-shadow: none;
+    border: 1px solid var(--line);
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .xc .btn.ghost:hover {
+    border-color: rgb(var(--si-line-ink-rgb) / 0.22);
+    background: rgb(var(--si-line-ink-rgb) / 0.03);
+  }
 
   .xc footer {
     padding: 34px min(6vw, 84px) 44px;
@@ -731,7 +1719,7 @@ const CSS = `
     background: transparent;
     border: 0;
     cursor: pointer;
-    color: var(--ink);
+    color: var(--si-ink);
   }
   .xc #burger span { display: block; width: 19px; }
   .xc #burger i {
@@ -751,19 +1739,22 @@ const CSS = `
     inset: 0;
     z-index: 55;
     border: 0;
-    background: rgba(11, 31, 25, 0.4);
+    background: rgb(var(--si-ink-rgb) / 0.45);
     animation: xcFade 0.25s ease;
   }
   .xc #menu-mobile {
     position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
+    top: 78px;
+    left: max(12px, 3vw);
+    right: max(12px, 3vw);
     z-index: 60;
-    padding: 6px min(6vw, 44px) 26px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--line);
-    box-shadow: 0 24px 48px -28px rgba(11, 31, 25, 0.45);
+    padding: 4px 18px 20px;
+    border-radius: 12px;
+    background: rgb(var(--si-surface-rgb) / 0.94);
+    backdrop-filter: blur(18px) saturate(1.35);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    border: 1px solid rgb(var(--si-line-ink-rgb) / 0.10);
+    box-shadow: 0 16px 36px -26px rgb(var(--si-line-ink-rgb) / 0.45);
     animation: xcSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .xc #menu-mobile a {
@@ -773,29 +1764,34 @@ const CSS = `
     min-height: 56px;
     border-bottom: 1px solid var(--line);
     font-size: 17px;
-    color: var(--ink);
+    color: var(--si-ink);
   }
-  .xc #menu-mobile a span { color: var(--faint); }
+  .xc #menu-mobile a span { color: var(--si-subtle); }
+  /* Deux colonnes égales donnaient autant de place à « Connexion » qu'à
+     l'action principale, et coupaient son libellé en deux sur les petits
+     téléphones. La connexion prend ce qu'il lui faut, le diagnostic prend le
+     reste. */
   .xc #menu-mobile .mm-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: auto 1fr;
     gap: 12px;
     margin-top: 20px;
   }
   .xc #menu-mobile .mm-actions a {
     justify-content: center;
     min-height: 48px;
+    padding: 0 16px;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface);
     font-size: 15px;
   }
-  /* sélecteur aussi spécifique que la règle générique juste au-dessus, sinon le
-     fond vert du bouton était écrasé et le libellé blanc devenait invisible */
+  /* Sélecteur aussi spécifique que la règle générique juste au-dessus, sinon le
+     fond du bouton serait écrasé. Sur le panneau noir, l'action s'inverse. */
   .xc #menu-mobile .mm-actions a.mm-cta {
-    background: var(--green);
-    border-color: var(--green);
-    color: #fff;
+    background: var(--si-forest);
+    border-color: var(--si-forest);
+    color: var(--si-surface);
     font-weight: 500;
   }
   @keyframes xcFade { from { opacity: 0; } to { opacity: 1; } }
@@ -804,17 +1800,16 @@ const CSS = `
 
   @media (max-width: 860px) {
     .xc #rail, .xc #nav .links, .xc #nav .signin, .xc #nav .cta { display: none; }
+    .xc #nav { padding-right: 6px; }
     .xc #burger { display: inline-flex; }
     .xc #nav { justify-content: space-between; }
-    /* rien sous 11 px au doigt : les libellés de la maquette et l'indice de défilement */
-    .xc #demo .panel .ptitle,
-    .xc #demo .bar .hint,
+    /* rien sous 11 px au doigt */
     .xc #hero-hint { font-size: 11px; }
-    .xc #demo .dossier-row .num,
-    .xc #demo .kv,
-    .xc #demo .dossier-row .titre { font-size: 12.5px; }
-    .xc #demo .dossier-row .go { min-height: 44px; display: inline-flex; align-items: center; }
-    .xc .nav-card .tag, .xc #decision .tag { font-size: 11px; }
+    /* Au téléphone, la barre de navigation range son action dans le menu : le
+       bloc du titre porte alors la seule action visible de la première vue. On
+       resserre pour qu'il tienne au-dessus du cadre qui s'assemble. */
+    .xc #hero-copy .hero-actions { margin-top: 26px; gap: 16px; }
+    .xc #hero-copy .hero-reassure { margin-top: 12px; font-size: 12px; }
     /* Bande de preuves : au pouce, elle défile en boucle au lieu de tasser
        quatre libellés sur deux rangs. */
     .xc #preuves {
@@ -836,25 +1831,10 @@ const CSS = `
     }
     .xc .pv-track.clone { display: flex; }
     .xc #preuves span { padding: 0 18px; }
-    .xc #systeme .head { grid-template-columns: 1fr; align-items: start; }
-    .xc #demo .client-grid { grid-template-columns: 1fr; }
     /* Les écrans de la maquette sont superposés en absolu au large. Au
        téléphone, 979 px de contenu se retrouvaient enfermés dans 560 px avec un
        défilement interne invisible : la fiche cliente était coupée en plein
        milieu. On les remet dans le flux, l'écran actif donne sa hauteur. */
-    .xc #demo .stage { min-height: 0; }
-    .xc #demo .screen {
-      position: static;
-      display: none;
-      opacity: 1;
-      transform: none;
-      overflow: visible;
-      padding: 20px 16px;
-      transition: none;
-    }
-    .xc #demo .screen.on { display: block; }
-    .xc #demo .apercu-grid { grid-template-columns: 1fr; }
-    .xc #demo .bar .hint { display: none; }
     /* Chaque scène est épinglée sur un écran de haut. Au téléphone, le texte
        plus la maquette dépassaient cette hauteur et le bas de la scène était
        tranché. On resserre l'ensemble pour que tout tienne d'un coup d'oeil. */
@@ -868,72 +1848,288 @@ const CSS = `
     .xc .story h2 { margin-top: 12px; font-size: 27px; }
     .xc .story p.body { margin-top: 13px; font-size: 14px; line-height: 1.55; }
     .xc .story p.result { margin-top: 15px; font-size: 13px; line-height: 1.5; }
-    .xc .chip { display: none; }
     /* on réserve une bande sous le total : le cachet s'y pose au lieu de barrer
        les montants */
-    .xc #facture { padding: 18px 15px 58px; }
-    .xc #facture .fhead .t { font-size: 21px; }
-    .xc #facture .fsub { padding-bottom: 11px; }
-    .xc #facture .fline { padding: 9px 0; }
-    .xc #facture .ftotals { margin-top: 10px; }
-    .xc #facture .trow { padding: 3px 0; }
     /* le cachet est incliné : sa boîte dépasse le bord bas de la carte, qui
        rogne les coins. On le remonte dans la bande réservée. */
-    .xc #facture .stamp { left: 16px; bottom: 30px; }
     /* La carte « Pour l'avocat » chevauchait les cartes de la Navette et sortait
        de l'écran. Au téléphone, elle se range dessous, pleine largeur. */
-    .xc #navette { height: 396px; }
-    .xc .nav-card { padding: 11px 14px; }
-    .xc .nav-card { left: 0; width: 100%; }
-    .xc #decision {
-      top: auto;
-      bottom: 0;
-      right: auto;
-      left: 0;
-      width: 100%;
-    }
     .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
     /* Au pouce, chaque scène doit se lire vite : on raccourcit la course
        plutôt que de faire défiler seize écrans. */
     .xc #zone-hero { height: 250vh; }
-    .xc #zone-verifier, .xc #zone-encaisser { height: 200vh; }
-    .xc #zone-collaborer { height: 190vh; }
+    .xc #zone-promesse { height: 130vh; }
+    .xc #zone-simple { height: 290vh; }
+    .xc #zone-complet { height: 340vh; }
+    /* « Fiable » au pouce : une colonne, le moment en cours puis l'écran qui le
+       prouve juste en dessous. Comme un seul moment est affiché à la fois,
+       l'argument précède toujours immédiatement son état produit. */
+    .xc #zone-fiable { height: 340vh; }
+    /* La barre de navigation flotte au-dessus de la scène : sans ce dégagement,
+       elle recouvrait le nom du chapitre. */
+    .xc .fi-pin { padding-top: 82px; }
+    .xc .fi-grid { grid-template-columns: 1fr; gap: 18px; }
+    .xc .fi-copy h2 { font-size: 25px; margin-top: 12px; max-width: none; }
+    .xc .fi-narration { margin-top: 18px; }
+    .xc.anime .fi-narration { min-height: 172px; }
+    .xc .fi-arg .e1 { font-size: 16px; }
+    .xc .fi-arg .e2 { font-size: 24px; max-width: none; }
+    .xc.anime .fi-arg.range .e1 { font-size: 16px; }
+    .xc.anime .fi-arg.range .e2 { font-size: 13px; }
+    .xc.anime .fi-arg.avant { max-height: 200px; padding: 10px 0; }
+    .xc.anime .fi-arg.range { max-height: 120px; padding: 7px 0; grid-template-columns: 22px 1fr; column-gap: 10px; }
+    .xc .fi-ecran { max-width: none; margin-left: 0; padding: 15px 16px 16px; }
+    .xc .fi-vue-zone { min-height: 190px; }
+    .xc .fi-src { padding: 9px 0; }
+    .xc .fi-src .l { font-size: 12.5px; }
+    .xc .fi-src .m { font-size: 13.5px; }
+    .xc .fi-dit, .xc .fi-refus { font-size: 12px; }
+    .xc #zone-synthese { height: 160vh; }
+    /* Au pouce, les chapitres à deux volets s'empilent et la démonstration
+       passe sous le propos : on lit d'abord de quoi il s'agit. */
+    .xc #zone-simple .ch-pin { grid-template-columns: 1fr; gap: 20px; }
+    .xc .em-ecran { padding: 14px 15px 12px; }
+    .xc .em-tiles { margin-top: 11px; gap: 6px; }
+    .xc .ch-chute { margin-top: 16px; }
+    .xc .ch-mark { font-size: 32px; }
+    .xc .ch-mark + .kicker { margin-top: 12px; }
+    .xc .ch-copy h2 { font-size: 27px; }
+    /* « Simple » abandonne l'épinglage au pouce, comme « Complet ».
+
+       Un argument en grand occupe 172 px là où une fiche d'accordéon fermée en
+       prenait 60 : la colonne de texte a doublé de hauteur avec la progression
+       cumulative. Mesuré à 375 x 812, la fenêtre du cabinet passait 35 px sous
+       le pli au troisième argument, et bien davantage sur un écran court. Les
+       faire tenir voudrait dire rogner l'écran de démonstration.
+
+       Le chapitre défile donc normalement : les trois arguments sont
+       directement à leur forme finale et les trois écrans se lisent à la
+       suite. La progression animée reste sur ordinateur et tablette large. */
+    .xc #zone-simple { height: auto; }
+    .xc #zone-simple .pin { position: relative; height: auto; min-height: 0; }
+    .xc #zone-simple .ch-pin { align-content: start; padding: 92px min(6vw, 84px) 80px; }
+    .xc.anime #zone-simple .si-narration { min-height: 0; }
+    .xc.anime #zone-simple .si-arg {
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      grid-template-columns: 22px 1fr;
+      column-gap: 10px;
+      padding: 9px 0;
+    }
+    .xc.anime #zone-simple .si-arg .n { opacity: 1; }
+    .xc.anime #zone-simple .si-arg .t { font-size: 17px; max-width: 30ch; }
+    .xc.anime #zone-simple .si-arg .d { margin-top: 2px; font-size: 13px; }
+    .xc.anime #zone-simple .em-corps { height: auto; }
+    .xc.anime #zone-simple .em-ecran {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+    .xc .si-narration { margin-top: 16px; }
+    .xc .si-arg .t { font-size: 23px; max-width: none; }
+    .xc .si-arg .d { margin-top: 8px; font-size: 14px; max-width: none; }
+    .xc.anime .si-arg.range .t { font-size: 17px; }
+    .xc.anime .si-arg.range .d { font-size: 13px; }
+    .xc.anime .si-arg.avant { max-height: 190px; padding: 9px 0; }
+    .xc.anime .si-arg.range { max-height: 120px; padding: 6px 0; grid-template-columns: 22px 1fr; column-gap: 10px; }
+    /* « Complet » au pouce : une colonne, le message en cours puis l'écran du
+       parcours juste dessous, comme dans « Fiable ». */
+    /* « Complet » abandonne l'épinglage au pouce.
+
+       Mesuré à 375 x 812 : le titre, l'introduction, les trois moments, leur
+       conclusion et un écran de parcours à cinq opérations demandent 926 px de
+       hauteur. Les faire tenir dans un écran voudrait dire couper des
+       opérations ou rendre les libellés illisibles. La spécification autorise
+       à renoncer au sticky quand il nuit à la lecture : le chapitre défile
+       donc normalement, les trois moments sont directement à leur forme
+       finale, et le parcours se lit en entier sous eux. */
+    .xc #zone-complet { height: auto; }
+    .xc #zone-complet .pin { position: relative; height: auto; min-height: 0; }
+    .xc .co-pin { padding: 96px min(6vw, 84px) 84px; }
+    .xc.anime #zone-complet .co-narration { min-height: 0; }
+    .xc.anime #zone-complet .co-arg {
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      padding: 10px 0;
+    }
+    .xc.anime #zone-complet .co-grand { display: none; }
+    .xc.anime #zone-complet .co-point { opacity: 1; }
+    .xc.anime #zone-complet .co-fin { opacity: 1; }
+    .xc.anime #zone-complet .co-vue-zone { min-height: 0; }
+    .xc.anime #zone-complet .co-vue {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      margin-top: 22px;
+    }
+    .xc.anime #zone-complet .co-item,
+    .xc.anime #zone-complet .co-dit { opacity: 1; transform: none; }
+    .xc .co-grid { grid-template-columns: 1fr; gap: 16px; }
+    .xc .co-stage { order: 2; }
+    .xc .co-copy { order: 1; }
+    .xc .co-copy h2 { font-size: 23px; margin-top: 10px; max-width: none; }
+    .xc .co-intro { margin-top: 8px; font-size: 12.5px; line-height: 1.5; max-width: none; }
+    .xc .co-narration { margin-top: 12px; }
+    .xc.anime .co-narration { min-height: 132px; }
+    .xc .co-grand .g1 { font-size: 15px; }
+    .xc .co-grand .g2 { font-size: 22px; max-width: none; }
+    .xc.anime .co-arg.avant { max-height: 150px; padding: 7px 0; }
+    .xc.anime .co-arg.range { max-height: 104px; padding: 5px 0; }
+    .xc .co-point { grid-template-columns: 22px 1fr; column-gap: 10px; }
+    .xc .co-point .t { font-size: 16.5px; }
+    .xc .co-point .d { font-size: 12.5px; }
+    .xc .co-fin { margin-top: 14px; font-size: 15px; }
+    .xc .co-ecran { max-width: none; padding: 12px 14px 14px; }
+    /* Réservée sur la plus haute des vues en colonne étroite, mesurée à 361 px. */
+    .xc .co-vue-zone { min-height: 366px; }
+    .xc .co-sous { margin-top: 10px; }
+    .xc .co-item { padding: 6px 0; }
+    .xc .co-item .t { font-size: 12.5px; }
+    .xc .co-item .s { font-size: 11px; }
+    .xc .co-item .m { font-size: 12.5px; }
+    .xc .sy-cta { flex-direction: column; align-items: stretch; }
     .xc section.flat { padding: clamp(56px, 8vh, 96px) min(6vw, 84px); }
-    .xc #systeme { padding: clamp(56px, 8vh, 96px) min(6vw, 84px); }
-    .xc #systeme .shot { margin-top: 32px; }
   }
 
   /* Écrans courts (iPhone SE, mini, ou barre d'adresse déployée) : la scène
      épinglée dispose de moins de 740 px de haut. On resserre encore, sinon le
      dernier paragraphe passe sous le pli et disparaît. */
   @media (max-width: 860px) and (max-height: 740px) {
+    /* « Fiable » empile un argument en grand, deux rangés et l'écran de
+       démonstration. Sous 740 px de haut, cet empilement passait tout juste :
+       on resserre plutôt que de laisser le bas de l'écran se faire rogner. */
+    .xc .fi-pin { padding-top: 74px; }
+    .xc .fi-copy h2 { font-size: 22px; }
+    .xc.anime .fi-narration { min-height: 150px; }
+    .xc .fi-arg .e2 { font-size: 21px; }
+    .xc.anime .fi-arg.avant { max-height: 170px; padding: 7px 0; }
+    .xc.anime .fi-arg.range { max-height: 104px; padding: 5px 0; }
+    .xc .fi-vue-zone { min-height: 172px; }
+    .xc .fi-src { padding: 7px 0; }
+    /* Même resserrement pour « Complet », dont l'écran porte cinq opérations. */
+    .xc .co-pin { padding-top: 74px; }
+    .xc .co-copy h2 { font-size: 21px; }
+    .xc .co-intro { font-size: 12.5px; }
+    .xc.anime .co-narration { min-height: 142px; }
+    .xc .co-grand .g2 { font-size: 20px; }
+    .xc.anime .co-arg.avant { max-height: 150px; padding: 6px 0; }
+    .xc.anime .co-arg.range { max-height: 104px; padding: 4px 0; }
+    .xc .co-vue-zone { min-height: 196px; }
+    .xc .co-item { padding: 5px 0; }
     .xc .story .pin { padding-top: 0; }
     .xc .story .grid, .xc .story.reverse .grid { gap: 10px; }
     .xc .story h2 { font-size: 24px; margin-top: 6px; }
     .xc .story p.body { margin-top: 8px; }
     .xc .story p.result { margin-top: 6px; padding-left: 12px; }
-    .xc #facture { padding: 13px 14px 34px; }
-    .xc #facture .fhead .t { font-size: 19px; }
-    .xc #facture .fsub { padding-bottom: 9px; }
-    .xc #facture .fline { padding: 7px 0; }
-    .xc #facture .trow { padding: 2px 0; }
-    .xc #facture .stamp { left: 14px; bottom: 31px; }
-    .xc #navette { height: 352px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .xc #zone-hero, .xc #zone-verifier, .xc #zone-encaisser, .xc #zone-collaborer { height: auto; }
+    /* On cible la CLASSE et non chaque identifiant : ajouter un chapitre ne
+       doit pas pouvoir laisser trois écrans de vide à quelqu'un qui a désactivé
+       les animations. Sans cette règle, la zone garde sa course de défilement
+       alors que son contenu ne bouge plus. */
+    .xc .pinzone { height: auto !important; }
     .xc .pinzone .pin { position: relative; height: auto; min-height: 100vh; }
     .xc #hero-hint { display: none; }
-    .xc #systeme .shot { transform: none; opacity: 1; transition: none; }
     /* pas de défilement automatique : la bande se parcourt au doigt */
     .xc .pv-track { animation: none; }
     .xc #preuves { overflow-x: auto; }
+
+    /* « Fiable » raconte en quatre temps. Sans mouvement, il n'y a plus de
+       temps : les trois arguments se lisent à la suite, à leur taille rangée,
+       et les quatre états du logiciel s'empilent sous eux. Sans cela, le
+       script figerait la scène à son dernier temps et les arguments non
+       encore venus resteraient sans hauteur, donc invisibles. */
+    .xc.anime #zone-fiable .fi-narration { min-height: 0; }
+    .xc.anime #zone-fiable .fi-arg {
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      grid-template-columns: 26px 1fr;
+      column-gap: 14px;
+      padding: 11px 0;
+    }
+    .xc.anime #zone-fiable .fi-arg .n { opacity: 1; }
+    .xc.anime #zone-fiable .fi-arg .e1 { font-size: clamp(18px, 1.8vw, 22px); color: var(--si-ink); }
+    .xc.anime #zone-fiable .fi-arg .e2 {
+      margin-top: 2px;
+      font-size: clamp(13.5px, 1.15vw, 15px);
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 40ch;
+    }
+    .xc.anime #zone-fiable .fi-vue-zone { min-height: 0; }
+    .xc.anime #zone-fiable .fi-vue {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      margin-top: 24px;
+    }
+    /* « Simple » suit la même règle que « Fiable » : sans mouvement, les trois
+       arguments sont déjà à leur forme finale, numéro et justification
+       compris, et les trois écrans du cabinet s'empilent sous eux. */
+    .xc.anime #zone-simple .si-narration { min-height: 0; }
+    .xc.anime #zone-simple .si-arg {
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      grid-template-columns: 26px 1fr;
+      column-gap: 14px;
+      padding: 11px 0;
+    }
+    .xc.anime #zone-simple .si-arg .n { opacity: 1; }
+    .xc.anime #zone-simple .si-arg .t { font-size: clamp(18px, 1.8vw, 22px); max-width: 30ch; }
+    .xc.anime #zone-simple .si-arg .d { margin-top: 2px; font-size: clamp(13.5px, 1.15vw, 15px); }
+    .xc.anime #zone-simple .em-corps { height: auto; }
+    .xc.anime #zone-simple .em-ecran {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+
+    /* « Complet » suit la même règle : sans mouvement, les trois moments sont
+       déjà à leur forme finale et le parcours s'affiche en entier. */
+    .xc.anime #zone-complet .co-narration { min-height: 0; }
+    .xc.anime #zone-complet .co-arg {
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      padding: 10px 0;
+    }
+    /* Le message disparaît au profit du point : garder les deux superposés
+       sans animation les rendrait illisibles l'un sur l'autre. */
+    .xc.anime #zone-complet .co-grand { display: none; }
+    .xc.anime #zone-complet .co-point { opacity: 1; }
+    .xc.anime #zone-complet .co-fin { opacity: 1; }
+    .xc.anime #zone-complet .co-vue-zone { min-height: 0; }
+    .xc.anime #zone-complet .co-vue {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      margin-top: 22px;
+    }
+    .xc.anime #zone-complet .co-item,
+    .xc.anime #zone-complet .co-dit { opacity: 1; transform: none; }
+    .xc.anime #zone-fiable .fi-src[data-src],
+    .xc.anime #zone-fiable .fi-temps,
+    .xc.anime #zone-fiable .fi-dit,
+    .xc.anime #zone-fiable .fi-refus { opacity: 1; transform: none; }
   }
 `;
 
 function runExperience(root: HTMLElement): () => void {
   const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Le script est là : on autorise les états de départ masqués. Tant que cette
+     classe n'est pas posée, tout le texte s'affiche normalement. */
+  root.classList.add("anime");
 
   const COL = {
     bg: "#EFF2ED", surface: "#FBFCFA", line: "rgba(31,42,36,0.08)",
@@ -985,10 +2181,30 @@ function runExperience(root: HTMLElement): () => void {
   /* ── Scène 1 ── */
   const heroZone = $("zone-hero");
   const heroCanvas = $("hero-canvas") as HTMLCanvasElement;
-  const heroShot = $("hero-shot");
+  const heroShot = $("hero-app");
   const heroCopy = $("hero-copy");
   const heroCaption = $("hero-caption");
   const heroHint = $("hero-hint");
+
+  /* Format du cadre.
+
+     Il était en 16:10 (1000x625). Or la légende occupe le bas de l'écran, donc
+     c'est TOUJOURS la hauteur qui borne la taille du cadre, jamais la largeur :
+     mesuré sur six résolutions, de 1280x720 à 2560x1440, l'image plafonnait à
+     62-64 % de la largeur quel que soit le facteur de largeur demandé.
+
+     En 16:9, à budget vertical identique, la largeur devient la contrainte
+     active sur tous les écrans courants et l'image passe à ~88 % de la largeur,
+     comme une vraie fenêtre d'application posée sur la page.
+
+     Les facteurs se lisent directement : `frameH = H * 0.78` et, quand la
+     largeur borne, `frameW = W * 0.88`. */
+  const FRAME_W = 1000;
+  const FRAME_H = 563;
+  /* Les cibles ci-dessous sont décrites dans l'espace 1000x625 d'origine. On
+     les ramène au nouveau format par un facteur unique : plus sûr que de
+     réécrire trente coordonnées à la main. */
+  const TARGET_VS = FRAME_H / 625;
 
   function dashboardTargets() {
     const t: Array<{ x: number; y: number; w: number; h: number }> = [];
@@ -1004,7 +2220,7 @@ function runExperience(root: HTMLElement): () => void {
     t.push({ x: 188, y: 474, w: 496, h: 26 });
     t.push({ x: 188, y: 512, w: 496, h: 26 });
     t.push({ x: 700, y: 474, w: 276, h: 64 });
-    return t;
+    return t.map((c) => ({ ...c, y: c.y * TARGET_VS, h: c.h * TARGET_VS }));
   }
 
   const rnd = mulberry32(20260725);
@@ -1033,15 +2249,32 @@ function runExperience(root: HTMLElement): () => void {
     const ctx = f.ctx, W = f.w, H = f.h;
     ctx.clearRect(0, 0, W, H);
 
-    let scale = Math.min(W * 0.78 / 1000, H * 0.62 / 625);
-    if (W < 860) scale = Math.min(W * 0.92 / 1000, H * 0.5 / 625);
-    const frameW = 1000 * scale, frameH = 625 * scale;
+    /* 88 % de largeur, 78 % de hauteur, la plus contraignante des deux gagne :
+       le cadre ne déborde donc jamais. Le 0.78 est calibré pour que son bord
+       bas s'arrête au-dessus de #hero-caption (bottom: 5.5vh) — il reste 11 à
+       30 px de marge de 1194x670 à 2560x1440. */
+    let scale = Math.min(W * 0.88 / FRAME_W, H * 0.78 / FRAME_H);
+    if (W < 860) scale = Math.min(W * 0.92 / FRAME_W, H * 0.5 / FRAME_H);
+    const frameW = FRAME_W * scale, frameH = FRAME_H * scale;
     const fx = (W - frameW) / 2;
-    const fy = lerp(H * 0.58, (H - frameH) / 2 + H * 0.03, phase(p, 0.35, 0.85));
+    /* Cadre plus haut qu'avant : la poussée vers le bas passe de 3 % à 1,5 %
+       pour conserver la marge sous le bord bas. */
+    /* Minutage de la scène.
 
-    const assemble = easeInOut(phase(p, 0.22, 0.82));
+       L'assemblage occupait la quasi-totalité du défilement : l'application
+       n'était entièrement révélée qu'à p = 0.92 et ne devenait cliquable qu'à
+       p = 0.95, soit 16vh de défilement avant que l'épinglage ne lâche. On
+       voyait donc un tableau de bord fini, on cliquait, rien ne répondait.
 
-    const frameA = phase(p, 0.55, 0.85);
+       Tout le montage se termine maintenant vers p = 0.58. Le reste de la
+       scène, environ 128vh, est une plage de repos : le cadre ne bouge plus,
+       et c'est là qu'on se sert du menu. Un décor qui invite au clic doit
+       laisser le temps de cliquer. */
+    const fy = lerp(H * 0.58, (H - frameH) / 2 + H * 0.015, phase(p, 0.20, 0.52));
+
+    const assemble = easeInOut(phase(p, 0.12, 0.50));
+
+    const frameA = phase(p, 0.32, 0.54);
     if (frameA > 0) {
       ctx.save();
       ctx.globalAlpha = frameA;
@@ -1109,187 +2342,447 @@ function runExperience(root: HTMLElement): () => void {
       ctx.restore();
     });
 
-    const shotA = phase(p, 0.72, 0.92);
+    /* L'extrait est dessiné dans sa boîte logique 1000x563 puis mis à
+       l'échelle : la typographie reste nette au lieu d'être rééchantillonnée
+       comme l'était la capture. */
+    const shotA = phase(p, 0.44, 0.58);
     heroShot.style.left = fx + "px";
     heroShot.style.top = fy + "px";
-    heroShot.style.width = frameW + "px";
-    heroShot.style.height = frameH + "px";
-    heroShot.style.borderRadius = (14 * scale) + "px";
+    heroShot.style.transform = "scale(" + scale + ")";
+    heroShot.style.borderRadius = (14 / scale) + "px";
     heroShot.style.opacity = String(easeInOut(shotA));
+    /* Cliquable dès que le fondu est terminé (0.58), pas plus tard : le seuil
+       précédent laissait voir une application finie mais inerte. */
+    heroShot.classList.toggle("live", p > 0.59);
 
-    const lift = easeInOut(phase(p, 0.3, 0.7));
+    const lift = easeInOut(phase(p, 0.18, 0.44));
+    const copyA = 1 - phase(p, 0.24, 0.46);
     heroCopy.style.transform = "translateY(" + (-lift * 9) + "vh)";
-    heroCopy.style.opacity = String(1 - phase(p, 0.4, 0.72));
-    heroCaption.style.opacity = String(phase(p, 0.9, 0.99));
-    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.9, 0.99)) * 12) + "px)";
+    heroCopy.style.opacity = String(copyA);
+    /* Le titre porte désormais une action, donc une zone saisissable. Estompée,
+       elle intercepterait les clics destinés au menu de l'application, comme le
+       faisait le titre lui-même avant d'être neutralisé. */
+    heroCopy.style.visibility = copyA > 0.2 ? "visible" : "hidden";
+    heroCaption.style.opacity = String(phase(p, 0.56, 0.64));
+    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.56, 0.64)) * 12) + "px)";
     heroHint.style.opacity = String(p < 0.04 ? 1 : 0);
   }
 
-  /* ── Scène 2 · Vérifier ── */
-  const verZone = $("zone-verifier");
-  const vrows = $$("#rapprochement .row");
-  const vgapRow = $("vrow-gap");
-  const vgapAmt = $("vgap-amt");
-  const vwarn = $("vbanner-warn");
-  const vokay = $("vbanner-okay");
+  /* Hero sans mouvement.
 
-  function drawVerifier(p: number) {
-    vrows.forEach((row, i) => {
-      const a = easeOutCubic(phase(p, 0.03 + i * 0.09, 0.22 + i * 0.09));
-      row.style.opacity = String(a);
-      row.style.transform = "translateX(" + ((1 - a) * 18) + "px)";
-    });
+     La scène du haut est la seule dont l'état final ne contient pas son propre
+     texte : à p = 1, le titre a fini de s'estomper pour laisser l'application
+     seule à l'écran. Or les autres chapitres sont figés à p = 1 quand les
+     animations sont désactivées. Résultat, une personne qui a coché « réduire
+     les animations » arrivait sur une page dont le titre, la promesse et
+     l'action étaient invisibles.
 
-    const correct = easeInOut(phase(p, 0.58, 0.78));
-    vgapAmt.textContent = fmt(20500 + 500 * correct);
-    vgapRow.classList.toggle("ok", correct >= 1);
+     Sans mouvement, la scène ne se joue pas : elle se lit. L'assemblage
+     disparaît (immobile, ce n'est qu'un tas de rectangles), le titre reste en
+     place et l'application se pose dessous, à une échelle qui la garde lisible.
+     La zone grandit pour les contenir tous les deux. */
+  function poserHeroStatique() {
+    const pin = heroZone.querySelector<HTMLElement>(".pin")!;
+    const W = pin.clientWidth;
+    const marge = Math.min(W * 0.06, 84);
 
-    /* la bannière d'écart s'efface pendant que le montant se corrige : sinon on
-       lit « écart de 500 $ » au-dessus de trois soldes déjà concordants */
-    const warnA = phase(p, 0.3, 0.38) * (1 - phase(p, 0.58, 0.7));
-    vwarn.style.opacity = String(warnA);
-    vwarn.style.transform = "translateY(" + ((1 - phase(p, 0.3, 0.38)) * 10) + "px)";
+    heroCanvas.style.display = "none";
+    heroCopy.style.opacity = "1";
+    heroCopy.style.transform = "none";
+    heroCopy.style.visibility = "visible";
 
-    const okA = phase(p, 0.8, 0.9);
-    vokay.style.opacity = String(okA);
-    vokay.style.transform = "translateY(" + ((1 - okA) * 10) + "px)";
+    const scale = Math.min((W - marge * 2) / FRAME_W, 1);
+    const haut = heroCopy.offsetTop + heroCopy.offsetHeight + 52;
+    heroShot.style.left = ((W - FRAME_W * scale) / 2) + "px";
+    heroShot.style.top = haut + "px";
+    heroShot.style.transform = "scale(" + scale + ")";
+    heroShot.style.borderRadius = (14 / scale) + "px";
+    heroShot.style.opacity = "1";
+    heroShot.classList.add("live");
+
+    heroCaption.style.opacity = "1";
+    heroCaption.style.transform = "none";
+    heroHint.style.opacity = "0";
+    pin.style.minHeight = (haut + FRAME_H * scale + 108) + "px";
   }
 
-  /* ── Scène 3 · Encaisser ── */
-  const encZone = $("zone-encaisser");
-  const flines = $$("#facture .fline");
-  const chips = $$("#facture-wrap .chip");
-  const fSub = $("f-sub");
-  const fTps = $("f-tps");
-  const fTvq = $("f-tvq");
-  const fTotal = $("f-total");
-  const fStamp = $("f-stamp");
-  const LINE_AMOUNTS = [2925, 195, 80];
-
-  function drawEncaisser(p: number) {
-    let landed = 0;
-    flines.forEach((line, i) => {
-      const t = phase(p, 0.06 + i * 0.13, 0.3 + i * 0.13);
-      const fly = easeInOut(t);
-
-      const chip = chips[i];
-      if (chip) {
-        const lineTop = line.offsetTop;
-        chip.style.top = (lineTop + 10) + "px";
-        chip.style.right = lerp(-46, 30, fly) + "px";
-        chip.style.transform = "translateY(" + ((1 - fly) * -34) + "px)";
-        chip.style.opacity = String(t <= 0 ? 0 : t >= 1 ? 0 : Math.min(1, t * 4));
-      }
-      const mat = phase(t, 0.75, 1);
-      line.style.opacity = String(0.25 + mat * 0.75);
-      line.style.transform = "translateX(" + ((1 - mat) * 10) + "px)";
-      landed += LINE_AMOUNTS[i] * mat;
-    });
-
-    const sub = landed;
-    const taxes = easeInOut(phase(p, 0.56, 0.74));
-    const tps = sub * 0.05 * taxes;
-    const tvq = sub * 0.09975 * taxes;
-    const totalReveal = easeInOut(phase(p, 0.62, 0.8));
-    fSub.textContent = fmt(sub);
-    fTps.textContent = fmt(tps);
-    fTvq.textContent = fmt(tvq);
-    fTotal.textContent = fmt((sub + tps + tvq) * totalReveal);
-
-    const st = easeOutCubic(phase(p, 0.86, 0.96));
-    fStamp.style.opacity = String(st);
-    fStamp.style.transform = "rotate(-8deg) scale(" + lerp(1.6, 1, st) + ")";
+  /**
+   * Montée sous masque. L'élément part sous son arête et remonte à sa place.
+   * `decalage` en pourcentage de sa propre hauteur. L'opacité prend un peu
+   * d'avance pour que le texte ne paraisse jamais sale pendant la course.
+   */
+  function monter(el: HTMLElement, t: number, decalage = 105) {
+    const e = easeOutCubic(clamp01(t));
+    el.style.transform = "translateY(" + ((1 - e) * decalage) + "%)";
+    el.style.opacity = String(clamp01(t * 1.6));
   }
 
-  /* ── Scène 4 · Collaborer ── */
-  const colZone = $("zone-collaborer");
-  const navCards = $$(".nav-card");
-  const decision = $("decision");
-  const cardScatter = [
-    { x: -60, y: -30, r: -7 },
-    { x: 70, y: 40, r: 5 },
-    { x: -30, y: 120, r: -4 },
+  /* Chutes de chapitre. Elles n'arrivent qu'une fois le dernier argument
+     déplié : sinon on conclut un raisonnement que le visiteur lit encore. */
+  /* Ciblées par leur chapitre, pas par leur rang : « Fiable » n'a plus de
+     chute depuis sa refonte, et un index décalé aurait animé la mauvaise. */
+  const chuteSimple = root.querySelector<HTMLElement>("#zone-simple .ch-chute")!;
+
+  function chute(el: HTMLElement, t: number) {
+    if (!el) return;
+    const e = easeOutCubic(clamp01(t));
+    el.style.opacity = String(e);
+    el.style.transform = "translateY(" + ((1 - e) * 14) + "px)";
+  }
+
+  /* Marqueurs de chapitre : « Simple », « Fiable », « Complet ». */
+  const markSimple = $$('[data-mark="simple"]')[0];
+  const markFiable = $$('[data-mark="fiable"]')[0];
+  const markComplet = $$('[data-mark="complet"]')[0];
+
+  /**
+   * Ouvre un chapitre par son nom. Le mot monte de quelques pixels en
+   * s'agrandissant très légèrement, puis se pose. Il ne repart pas : c'est le
+   * titre du chapitre, pas une transition.
+   */
+  function marqueur(el: HTMLElement, p: number) {
+    /* Jamais depuis zéro. C'est le titre du chapitre : arriver dessus par le
+       rail, ou juste après le plan précédent, ne doit pas donner un écran où
+       il manque son nom. Il entre à 0,4 et se pose. */
+    const e = easeOutCubic(phase(p, 0, 0.14));
+    el.style.opacity = String(0.4 + 0.6 * e);
+    el.style.transform =
+      "translateY(" + ((1 - e) * 14) + "px) scale(" + lerp(1.06, 1, e) + ")";
+  }
+
+  /* ── Chapitre 1 · La promesse ──
+     Le chapeau qui suivait la promesse a été retiré (décision CEO du 13 août
+     2026) : la phrase se suffit, et la scène ne porte plus que deux temps. */
+  const prMain = $("pr-1");
+  const prSuite = $("pr-2");
+
+  function drawPromesse(p: number) {
+    /* Deux temps nets, séparés par un silence. La seconde ligne ne commence
+       qu'une fois la première entièrement posée. */
+    monter(prMain, phase(p, 0.12, 0.56));
+    monter(prSuite, phase(p, 0.40, 0.80));
+  }
+
+  /* ── Chapitre 2 · Simple ──
+     L'accordéon a été remplacé par la progression cumulative de « Fiable » :
+     un argument arrive en grand, se réduit en point numéroté pendant que le
+     suivant arrive, et rien ne disparaît. Les trois écrans du cabinet suivent
+     l'argument en cours. */
+  const siArgs = $$("#zone-simple .si-arg");
+  const emEcrans = $$("#zone-simple .em-ecran");
+  const emOu = $("em-ou");
+  /* Le nom de l'écran dans le bandeau : on doit savoir où l'on se trouve dans
+     le logiciel, pas seulement ce qu'on y voit. */
+  const EM_OU = ["Tableau de bord", "Tableau de bord", "Temps"];
+  const SI_BORNES = [0, 0.3, 0.6, 1];
+  let siTempsCourant = -1;
+
+  function poserSimpleTemps(t: number) {
+    if (t === siTempsCourant) return;
+    siTempsCourant = t;
+    siArgs.forEach((el, i) => {
+      el.classList.toggle("range", i < t);
+      el.classList.toggle("avant", i === t);
+    });
+    /* Le dernier temps range le troisième argument, mais l'écran ne recule
+       pas : il reste sur la preuve qu'on vient de lire. */
+    const vue = Math.min(t, 2);
+    emEcrans.forEach((ec, k) => ec.classList.toggle("on", k === vue));
+    emOu.textContent = EM_OU[vue] || "";
+  }
+
+  function drawSimple(p: number) {
+    marqueur(markSimple, p);
+
+    let t = 0;
+    while (t < 2 && p >= SI_BORNES[t + 1]) t++;
+    /* Passé ce seuil, les trois points sont posés et la chute peut conclure. */
+    const fini = p > 0.88;
+    poserSimpleTemps(fini ? 3 : t);
+    chute(chuteSimple, phase(p, 0.9, 0.98));
+  }
+
+  /* ── Chapitre 3 · Fiable ──
+     Quatre temps sur la course : trois moments racontés, puis la synthèse qui
+     les rassemble. Chaque moment a sa vue dans l'écran de droite, et la
+     quatrième vue ramène le rapprochement à la concordance : la démonstration
+     se termine en ordre, pas sur un refus. */
+  const fiableZone = $("zone-fiable");
+  const fiArgs = $$("#zone-fiable .fi-arg");
+  const fiVues = $$("#zone-fiable .fi-vue");
+  const fiOu = $("fi-ou");
+  const fiSrcs = $$("#zone-fiable .fi-src[data-src]");
+  const fiTemps = $$("#zone-fiable .fi-temps");
+  const fiDit0 = $("fi-dit-0");
+  const fiDit1 = $("fi-dit-1");
+  const fiDit3 = $("fi-dit-3");
+  const fiRefus = $("fi-refus");
+
+  /* Où l'on se trouve dans le logiciel, temps par temps. */
+  const FI_OU = [
+    "Rapprochement · juin 2026",
+    "Journal du dossier · juin 2026",
+    "Retrait · fidéicommis",
+    "Rapprochement · juin 2026",
   ];
+  const FI_BORNES = [0, 0.26, 0.52, 0.76, 1];
+  let fiTempsCourant = -1;
 
-  function drawCollaborer(p: number) {
-    navCards.forEach((card, i) => {
-      const settle = easeOutCubic(phase(p, 0.05 + i * 0.12, 0.45 + i * 0.12));
-      const sc = cardScatter[i];
-      /* cartes plus rapprochées au téléphone : sinon la carte « Pour l'avocat »
-         se retrouve sous la ligne de flottaison */
-      const restY = i * (window.innerWidth < 860 ? 88 : 100);
-      const x = lerp(sc.x, 0, settle);
-      const y = lerp(sc.y + restY, restY, settle);
-      const r = lerp(sc.r, 0, settle);
-      card.style.transform = "translate(" + x + "px," + y + "px) rotate(" + r + "deg)";
-      card.style.opacity = String(0.25 + settle * 0.75);
+  function poserFiableTemps(t: number) {
+    if (t === fiTempsCourant) return;
+    fiTempsCourant = t;
+    /* Ce qui a déjà été démontré est rangé, ce qui se démontre est en grand,
+       ce qui vient ne prend pas encore de place. Au dernier temps, les trois
+       sont rangés : la synthèse n'est pas un nouveau bloc, c'est l'état final
+       des arguments eux-mêmes. */
+    fiArgs.forEach((el, i) => {
+      el.classList.toggle("range", i < t);
+      el.classList.toggle("avant", i === t);
+      el.classList.toggle("apres-range", i === t && t > 0);
     });
-    const dec = easeOutCubic(phase(p, 0.62, 0.9));
-    decision.style.opacity = String(dec);
-    decision.style.transform = "translateX(" + ((1 - dec) * 36) + "px)";
+    fiVues.forEach((el, i) => el.classList.toggle("on", i === t));
+    fiOu.textContent = FI_OU[t] || "";
   }
 
-  /* ── Maquette navigable ── */
-  const demo = $("demo");
-  const screenClient = $("screen-client");
-  const screenDossier = $("screen-dossier");
-  const demoCrumb = $("demo-crumb");
+  function drawFiable(p: number) {
+    marqueur(markFiable, p);
 
-  function showScreen(name: string) {
-    const toDossier = name === "dossier";
-    screenClient.classList.toggle("on", !toDossier);
-    screenClient.classList.toggle("off-left", toDossier);
-    screenDossier.classList.toggle("on", toDossier);
-    demoCrumb.textContent = toDossier
-      ? "Clients / Marie-Claude Tremblay / Dossier 2026-014"
-      : "Clients / Marie-Claude Tremblay";
+    let t = 0;
+    while (t < 3 && p >= FI_BORNES[t + 1]) t++;
+    poserFiableTemps(t);
+    /* Progression à l'intérieur du temps courant : c'est elle qui fait entrer
+       les lignes une à une plutôt que d'un bloc. */
+    const q = phase(p, FI_BORNES[t], FI_BORNES[t + 1]);
+
+    /* Trois sources qui se posent l'une après l'autre : on comprend qu'elles
+       viennent d'endroits différents avant de constater qu'elles disent la
+       même chose. */
+    fiSrcs.forEach((el, i) => el.classList.toggle("on", t > 0 || q > 0.05 + i * 0.15));
+    fiDit0.classList.toggle("on", t > 0 || q > 0.62);
+
+    fiTemps.forEach((el, i) => el.classList.toggle("on", t > 1 || (t === 1 && q > 0.05 + i * 0.28)));
+    fiDit1.classList.toggle("on", t > 1 || (t === 1 && q > 0.66));
+
+    /* Le refus arrive après les deux montants : on voit ce qui est demandé,
+       puis pourquoi le système s'y oppose. */
+    fiRefus.classList.toggle("on", t > 2 || (t === 2 && q > 0.34));
+    fiDit3.classList.toggle("on", t === 3 && q > 0.14);
   }
 
-  const onDemoClick = (e: Event) => {
+  /* ── Chapitre 4 · Complet ──
+     Un dossier, du premier écran à la dernière écriture. Trois moments qui se
+     rangent comme dans « Fiable », mais un rythme un peu plus continu : les
+     temps s'enchaînent sans marge morte, parce qu'ils racontent un parcours et
+     non trois garanties séparées. */
+  const completZone = $("zone-complet");
+  const coArgs = $$("#zone-complet .co-arg");
+  const coVues = $$("#zone-complet .co-vue");
+  const coOu = $("co-ou");
+  const coFin = $("co-fin");
+  const coCartable = $$("#co-cartable .co-item");
+  const coOps = $$('#zone-complet [data-op]');
+  const coFins = $$('#zone-complet [data-fin]');
+  const coDit = $("co-dit");
+  const coDomaineNom = $("co-domaine-nom");
+  const coSous = $("co-sous");
+  const coCart1 = $("co-cart-1");
+  const coCart2 = $("co-cart-2");
+  const coCart3 = $("co-cart-3");
+  const coCart3s = $("co-cart-3s");
+
+  const CO_OU = ["Nouveau dossier", "Dossier en cours", "Fin de dossier"];
+  const CO_BORNES = [0, 0.34, 0.66, 1];
+  let coTempsCourant = -1;
+
+  /* Deux cartables réels, tirés de `lib/dossiers/cartable-templates`. Le second
+     ne sert pas à faire défiler des exemples : il montre que ce sont les
+     sections elles-mêmes qui changent avec le domaine, pas juste une étiquette.
+     Le mandat ne bouge pas, il est commun aux deux. */
+  const CO_DOMAINES = [
+    {
+      nom: "Droit de la famille",
+      s1: "Pièces Madame (P-)",
+      s2: "Pièces Monsieur (D-)",
+      s3: "Procédures",
+      s3source: "C.p.c. art. 109 et s.",
+    },
+    {
+      nom: "Litige civil",
+      s1: "Phase préjudiciaire",
+      s2: "Pièces demanderesse (P-)",
+      s3: "Pièces défenderesse (D-)",
+      s3source: "Règl. Cour Qc art. 13",
+    },
+  ];
+  let coDomaineCourant = -1;
+
+  function poserDomaine(i: number) {
+    if (i === coDomaineCourant) return;
+    coDomaineCourant = i;
+    const d = CO_DOMAINES[i];
+    coDomaineNom.textContent = d.nom;
+    coCart1.textContent = d.s1;
+    coCart2.textContent = d.s2;
+    coCart3.textContent = d.s3;
+    coCart3s.textContent = d.s3source;
+    coSous.textContent =
+      i === 0 ? "Cartable monté automatiquement" : "Autre domaine, autre cartable";
+  }
+
+  function poserCompletTemps(t: number) {
+    if (t === coTempsCourant) return;
+    coTempsCourant = t;
+    coArgs.forEach((el, i) => {
+      el.classList.toggle("range", i < t);
+      el.classList.toggle("avant", i === t);
+    });
+    coVues.forEach((el, i) => el.classList.toggle("on", i === Math.min(t, 2)));
+    coOu.textContent = CO_OU[Math.min(t, 2)] || "";
+  }
+
+  function drawComplet(p: number) {
+    marqueur(markComplet, p);
+
+    let t = 0;
+    while (t < 2 && p >= CO_BORNES[t + 1]) t++;
+    /* Le dernier quart range le troisième moment : les trois points sont alors
+       posés, et la conclusion arrive. */
+    const fini = p > 0.9;
+    poserCompletTemps(fini ? 3 : t);
+    const q = phase(p, CO_BORNES[t], CO_BORNES[t + 1]);
+
+    /* Le cartable se monte section par section, puis le domaine bascule : on
+       voit d'abord que la structure arrive seule, ensuite qu'elle dépend du
+       domaine. */
+    coCartable.forEach((el, i) => el.classList.toggle("on", t > 0 || q > 0.08 + i * 0.11));
+    poserDomaine(t === 0 && q > 0.72 ? 1 : 0);
+
+    coOps.forEach((el, i) => el.classList.toggle("on", t > 1 || (t === 1 && q > 0.04 + i * 0.15)));
+    coFins.forEach((el, i) => el.classList.toggle("on", t > 1 && q > 0.04 + i * 0.13));
+    coDit.classList.toggle("on", t === 2 && q > 0.74);
+    coFin.classList.toggle("on", fini);
+  }
+
+  /* ── Synthèse ── */
+  const syLines = $$("#zone-synthese .sy-line");
+  const syEnd = $("sy-end");
+
+  function drawSynthese(p: number) {
+    syLines.forEach((line, i) => monter(line, phase(p, 0.08 + i * 0.15, 0.3 + i * 0.15)));
+    const e = easeOutCubic(phase(p, 0.62, 0.82));
+    syEnd.style.opacity = String(e);
+    syEnd.style.transform = "translateY(" + ((1 - e) * 14) + "px)";
+  }
+
+  /* La maquette navigable « fiche client → dossier » a été retirée : la page
+     portait deux extraits d'application qui ne se ressemblaient pas, l'un avec
+     les vraies données du cabinet, l'autre avec une cliente inventée. La
+     section « arrière-boutique » ne montre plus d'écran du tout, donc son
+     câblage (data-goto / data-tab) n'a plus d'objet. */
+
+  /* ── Extrait navigable du hero ──────────────────────────────────────────
+     Délégation sur des attributs data.
+     Deux gestes seulement, ce sont ceux d'une vraie barre de menu :
+       - cliquer un menu ouvre ou ferme son tiroir (un seul à la fois) ;
+       - cliquer une entrée qui porte un écran bascule le corps. */
+  const heroApp = $("hero-app");
+
+  function closeHeroMenus() {
+    heroApp.querySelectorAll(".ha-item.open").forEach((el) => {
+      el.classList.remove("open");
+      el.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function showHeroScreen(name: string) {
+    heroApp.querySelectorAll("[data-ha-pane]").forEach((pn) =>
+      pn.classList.toggle("on", pn.getAttribute("data-ha-pane") === name)
+    );
+    /* L'onglet actif suit l'écran : « Tableau de bord » se surligne seul, les
+       autres écrans vivent sous le menu qui les contient. */
+    const parentMenu: Record<string, string> = {
+      dash: "dash", clients: "pratique", facturation: "finances", comptes: "finances",
+    };
+    heroApp.querySelectorAll(".ha-item").forEach((it) =>
+      it.classList.toggle("on", it.getAttribute("data-ha-menu") === parentMenu[name])
+    );
+    closeHeroMenus();
+  }
+
+  const onHeroAppClick = (e: Event) => {
     const target = e.target as HTMLElement;
-    const go = target.closest("[data-goto]");
-    if (go) { showScreen(go.getAttribute("data-goto")!); return; }
-    const tab = target.closest("[data-tab]");
-    if (tab) {
-      const name = tab.getAttribute("data-tab");
-      demo.querySelectorAll(".tab").forEach((t) => t.classList.toggle("on", t === tab));
-      demo.querySelectorAll(".tabpane").forEach((pn) =>
-        pn.classList.toggle("on", pn.getAttribute("data-pane") === name)
-      );
+
+    /* Entrée listée sans écran : on ne fait rien, et surtout on ne laisse pas
+       le clic remonter jusqu'au menu, qui refermerait le tiroir sous les doigts
+       de quelqu'un en train de le lire. */
+    if (target.closest(".ha-drop a.inerte")) { e.preventDefault(); return; }
+
+    // Une entrée de tiroir (ou un bouton d'action) qui porte un écran.
+    const toScreen = target.closest("[data-ha-screen]");
+    if (toScreen && !toScreen.hasAttribute("data-ha-menu")) {
+      e.preventDefault();
+      showHeroScreen(toScreen.getAttribute("data-ha-screen")!);
+      return;
     }
+
+    // Un menu de la barre.
+    const item = target.closest(".ha-item") as HTMLElement | null;
+    if (item) {
+      e.preventDefault();
+      const ouvrable = item.querySelector(".ha-drop");
+      if (!ouvrable) {
+        const direct = item.getAttribute("data-ha-screen");
+        if (direct) showHeroScreen(direct);
+        else closeHeroMenus();
+        return;
+      }
+      const etait = item.classList.contains("open");
+      closeHeroMenus();
+      if (!etait) {
+        item.classList.add("open");
+        item.setAttribute("aria-expanded", "true");
+      }
+      return;
+    }
+
+    closeHeroMenus();
   };
-  const onDemoKey = (e: KeyboardEvent) => {
+
+  const onHeroAppKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") { closeHeroMenus(); return; }
     if (e.key !== "Enter" && e.key !== " ") return;
-    const go = (e.target as HTMLElement).closest("[data-goto]");
-    if (go) { e.preventDefault(); showScreen(go.getAttribute("data-goto")!); }
+    const el = (e.target as HTMLElement).closest("[data-ha-screen], .ha-item");
+    if (!el) return;
+    e.preventDefault();
+    onHeroAppClick(e);
   };
-  demo.addEventListener("click", onDemoClick);
-  demo.addEventListener("keydown", onDemoKey);
 
-  /* ── Révélation de la section Le système ── */
-  const systemeShot = $("systeme-shot");
-  let io: IntersectionObserver | null = null;
-  if ("IntersectionObserver" in window && !REDUCED) {
-    io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) { systemeShot.classList.add("seen"); io?.disconnect(); }
-      });
-    }, { threshold: 0.25 });
-    io.observe(systemeShot);
-  } else {
-    systemeShot.classList.add("seen");
-  }
+  heroApp.addEventListener("click", onHeroAppClick);
+  heroApp.addEventListener("keydown", onHeroAppKey);
+  /* Cliquer ailleurs dans la page referme le tiroir, comme partout. */
+  const onDocClickHero = (e: Event) => {
+    if (!heroApp.contains(e.target as Node)) closeHeroMenus();
+  };
+  document.addEventListener("click", onDocClickHero);
 
-  /* ── Rail ── */
+  /* ── Chapitres ────────────────────────────────────────────────────────────
+     La page raconte désormais une promesse et trois piliers. Le rail ne jalonne
+     que les quatre moments qui portent un argument : la promesse et la synthèse
+     sont des respirations, pas des étapes, et n'y figurent donc pas. */
   const rail = $("rail");
   const railStops: Record<string, HTMLElement> = {
     hero: rail.querySelector('[data-rail="hero"]')!,
-    verifier: rail.querySelector('[data-rail="verifier"]')!,
-    encaisser: rail.querySelector('[data-rail="encaisser"]')!,
-    collaborer: rail.querySelector('[data-rail="collaborer"]')!,
+    simple: rail.querySelector('[data-rail="simple"]')!,
+    fiable: rail.querySelector('[data-rail="fiable"]')!,
+    complet: rail.querySelector('[data-rail="complet"]')!,
   };
   const zones: Record<string, HTMLElement> = {
-    hero: heroZone, verifier: verZone, encaisser: encZone, collaborer: colZone,
+    hero: heroZone,
+    promesse: $("zone-promesse"),
+    simple: $("zone-simple"),
+    fiable: fiableZone,
+    complet: completZone,
+    synthese: $("zone-synthese"),
   };
   function zoneVisible(el: HTMLElement) {
     const r = el.getBoundingClientRect();
@@ -1297,52 +2790,124 @@ function runExperience(root: HTMLElement): () => void {
   }
   function updateRail() {
     let anyLive = false;
-    Object.keys(zones).forEach((key) => {
+    /* On parcourt les JALONS, pas les zones : toutes les zones n'en ont pas un. */
+    Object.keys(railStops).forEach((key) => {
       const live = zoneVisible(zones[key]);
       railStops[key].classList.toggle("live", live);
+      /* Le jalon courant se dit aussi, il ne se montre pas seulement : la
+         longueur du tiret et sa couleur ne portent pas l'information à elles
+         seules (DESIGN_HUMAIN C3). */
+      if (live) railStops[key].setAttribute("aria-current", "true");
+      else railStops[key].removeAttribute("aria-current");
       if (live) anyLive = true;
     });
     rail.classList.toggle("on", anyLive);
   }
 
   /* ── Boucle ── */
-  const shown: Record<string, number> = { hero: 0, verifier: 0, encaisser: 0, collaborer: 0 };
+  const shown: Record<string, number> = {
+    hero: 0, promesse: 0, simple: 0, fiable: 0, complet: 0, synthese: 0,
+  };
   let rafId = 0;
+  let vivante = false;
+  /* Images consécutives sans aucune scène proche. La boucle ne s'endort qu'au
+     bout de plusieurs, et tout défilement remet le compteur à zéro. Une
+     condition instantanée suffisait en théorie, mais l'événement de défilement
+     et l'image suivante tombent dans le même tour de boucle : la demande de
+     réveil pouvait arriver juste avant l'image qui décidait de dormir, et se
+     perdre. La boucle mourait alors au milieu de la page. */
+  let repos = 0;
 
   function frame(time: number) {
-    const SMOOTH = REDUCED ? 1 : 0.16;
     const vh = window.innerHeight;
     const near: Record<string, boolean> = {};
+    let proche = false;
     Object.keys(shown).forEach((k) => {
       const r = zones[k].getBoundingClientRect();
       // ne dessiner que les scènes proches du viewport : c'est ce qui garde le défilement fluide
       near[k] = r.bottom > -300 && r.top < vh + 300;
+      if (near[k]) proche = true;
       const total = r.height - vh;
       const target = total <= 0 ? 1 : clamp01(-r.top / total);
-      shown[k] += (target - shown[k]) * SMOOTH;
+      /* Les scènes hors de vue rejoignent leur cible sans lissage. C'est ce qui
+         permet d'endormir la boucle sans jamais figer une scène à mi-course :
+         au retour, elle est déjà dans le bon état. */
+      shown[k] = near[k] ? shown[k] + (target - shown[k]) * 0.16 : target;
       if (Math.abs(target - shown[k]) < 0.0005) shown[k] = target;
     });
 
-    if (REDUCED) {
-      shown.hero = 1; shown.verifier = 1; shown.encaisser = 1; shown.collaborer = 1;
-    }
-
     if (near.hero) drawHero(shown.hero, time);
-    if (near.verifier) drawVerifier(shown.verifier);
-    if (near.encaisser) drawEncaisser(shown.encaisser);
-    if (near.collaborer) drawCollaborer(shown.collaborer);
+    if (near.promesse) drawPromesse(shown.promesse);
+    if (near.simple) drawSimple(shown.simple);
+    if (near.fiable) drawFiable(shown.fiable);
+    if (near.complet) drawComplet(shown.complet);
+    if (near.synthese) drawSynthese(shown.synthese);
     updateRail();
 
+    /* La boucle ne s'arrêtait jamais : six mesures de position par image, pour
+       toute la durée de la visite, y compris dans le bas de page (tarifs,
+       questions, appel final) où plus rien n'est animé. Elle s'endort quand
+       aucune scène n'est restée proche pendant une poignée d'images, et le
+       défilement la réveille. La performance est une décision de design
+       (DESIGN_HUMAIN M7). */
+    repos = proche ? 0 : repos + 1;
+    if (repos > 10) { vivante = false; return; }
     rafId = requestAnimationFrame(frame);
   }
-  rafId = requestAnimationFrame(frame);
+
+  function reveiller() {
+    repos = 0;
+    if (vivante) return;
+    vivante = true;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  /* Le rail se met à jour même quand la boucle dort : il reste le repère de
+     position du lecteur, et une image par événement de défilement suffit. */
+  let railPlanifie = false;
+  function suivreRail() {
+    if (railPlanifie) return;
+    railPlanifie = true;
+    requestAnimationFrame(() => { railPlanifie = false; updateRail(); });
+  }
+
+  /* Sans mouvement, aucune boucle du tout : chaque chapitre est posé une fois à
+     son état final. Un nouveau calcul au redimensionnement suffit. */
+  function poserStatique() {
+    poserHeroStatique();
+    drawPromesse(1);
+    drawSimple(1);
+    drawFiable(1);
+    drawComplet(1);
+    drawSynthese(1);
+    updateRail();
+  }
+
+  if (REDUCED) {
+    poserStatique();
+    /* La hauteur du titre décide de la place de l'application : mesurée avant
+       le chargement des polices, elle serait trop courte et les deux se
+       chevaucheraient. */
+    document.fonts?.ready.then(poserStatique).catch(() => {});
+    window.addEventListener("resize", poserStatique);
+    window.addEventListener("scroll", suivreRail, { passive: true });
+  } else {
+    reveiller();
+    window.addEventListener("scroll", reveiller, { passive: true });
+    window.addEventListener("resize", reveiller, { passive: true });
+  }
 
   return () => {
     cancelAnimationFrame(rafId);
+    root.classList.remove("anime");
     window.removeEventListener("pointermove", onPointerMove);
-    demo.removeEventListener("click", onDemoClick);
-    demo.removeEventListener("keydown", onDemoKey);
-    io?.disconnect();
+    window.removeEventListener("scroll", reveiller);
+    window.removeEventListener("resize", reveiller);
+    window.removeEventListener("resize", poserStatique);
+    window.removeEventListener("scroll", suivreRail);
+    heroApp.removeEventListener("click", onHeroAppClick);
+    heroApp.removeEventListener("keydown", onHeroAppKey);
+    document.removeEventListener("click", onDocClickHero);
   };
 }
 
@@ -1353,6 +2918,9 @@ const PREUVES = [
   "Utilisé dans un vrai cabinet",
 ];
 
+/* Les états de départ à opacité nulle ne s'appliquent QUE si le script tourne.
+   Sans lui, tout le texte reste lisible : une animation révèle un contenu qui
+   serait là de toute façon, elle ne doit jamais être ce qui le fait exister. */
 export default function ExperienceCinema() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [menuOuvert, setMenuOuvert] = useState(false);
@@ -1417,29 +2985,27 @@ export default function ExperienceCinema() {
             ))}
             <div className="mm-actions">
               <a className="mm-ghost" href="/connexion">Connexion</a>
-              <a className="mm-cta" href="/audit-gratuit">Diagnostic</a>
+              <a className="mm-cta" href="/audit-gratuit">Faire le diagnostic</a>
             </div>
           </div>
         </>
       ) : null}
 
-      <div id="rail" aria-hidden="true">
-        <div className="stop" data-rail="hero"><span>Assembler</span><i /></div>
-        <div className="stop" data-rail="verifier"><span>Vérifier</span><i /></div>
-        <div className="stop" data-rail="encaisser"><span>Encaisser</span><i /></div>
-        <div className="stop" data-rail="collaborer"><span>Collaborer</span><i /></div>
-      </div>
+      <nav id="rail" aria-label="Chapitres de la page">
+        <a className="stop" data-rail="hero" href="#zone-hero"><span>Assembler</span><i aria-hidden /></a>
+        <a className="stop" data-rail="simple" href="#zone-simple"><span>Simple</span><i aria-hidden /></a>
+        <a className="stop" data-rail="fiable" href="#zone-fiable"><span>Fiable</span><i aria-hidden /></a>
+        <a className="stop" data-rail="complet" href="#zone-complet"><span>Complet</span><i aria-hidden /></a>
+      </nav>
 
       {/* Scène 1 · L'assemblage → vraie capture */}
       <div className="pinzone" id="zone-hero">
         <div className="pin" id="top">
           <canvas id="hero-canvas" />
-          {/* eslint-disable-next-line @next/next/no-img-element -- position pilotée au pixel par le canvas */}
-          <img
-            id="hero-shot"
-            src="/experience-assets/app-tableau-de-bord.jpg"
-            alt="Tableau de bord SAFE réel : facturation, encaissements, créances et fidéicommis du cabinet, en langage simple."
-          />
+          {/* L'assemblage débouche sur l'application elle-même, navigable, et
+             non sur une capture figée. Position et échelle pilotées au pixel
+             par le canvas (drawHero). */}
+          <HeroLiveApp />
           <div id="hero-copy">
             <p className="kicker">SAFE · système de gestion pour cabinets d&apos;avocats</p>
             <h1>SAFE tient votre cabinet <em>ensemble.</em></h1>
@@ -1447,9 +3013,19 @@ export default function ExperienceCinema() {
               Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même
               contexte. Vous voyez ce qui est à jour, ce qui attend et ce qui ne concorde pas.
             </p>
+            <div className="hero-actions">
+              <a className="btn" href="/audit-gratuit">Faire le diagnostic</a>
+              <a className="hero-second" href="/fonctionnalites">
+                Voir ce que fait SAFE<i aria-hidden />
+              </a>
+            </div>
+            <p className="hero-reassure">Gratuit, sans carte de crédit. Rapport sous 24 h.</p>
           </div>
+          {/* La légende disait « capture réelle ». Ce n'en est plus une : le
+             cadre contient l'application elle-même. Annoncer une image quand
+             on peut cliquer dedans priverait le visiteur du geste. */}
           <p id="hero-caption">
-            Capture réelle de SAFE. Une lecture simple des décisions qui demandent votre attention, dès l&apos;ouverture.
+            SAFE, en vrai. Ouvrez un menu et circulez : c&apos;est l&apos;application, pas une capture.
           </p>
           <p id="hero-hint">Faites défiler</p>
         </div>
@@ -1469,297 +3045,458 @@ export default function ExperienceCinema() {
         </div>
       </div>
 
-      {/* Le système */}
-      <section id="systeme">
-        <div className="inner">
-          <div className="head">
-            <div>
-              <p className="kicker">Un système, pas une collection d&apos;outils</p>
-              <h2>Chaque action garde son contexte.</h2>
-            </div>
-            <p>
-              Un dossier ne vit pas séparément de son temps, de sa facture ou de ses fonds en
-              fiducie. SAFE relie ces éléments pour que l&apos;information circule sans être recopiée.
-            </p>
-          </div>
-          <div className="shot" id="systeme-shot">
-            <div id="demo">
-              <div className="bar">
-                <span className="crumb"><b>SAFE</b><span className="sep">·</span><span id="demo-crumb">Clients / Marie-Claude Tremblay</span></span>
-                <span className="hint">Maquette · cliquez pour explorer</span>
-              </div>
-              <div className="stage">
-
-                <div className="screen on" id="screen-client">
-                  <div className="client-grid">
-                    <div>
-                      <div className="panel">
-                        <p className="ptitle">Fiche client</p>
-                        <div className="id-row">
-                          <h3>Marie-Claude Tremblay</h3>
-                          <span className="pill"><i />Active</span>
-                        </div>
-                        <div style={{ marginTop: 10 }}>
-                          <div className="kv"><span className="k">Type</span><span className="v">Particulier · liquidatrice</span></div>
-                          <div className="kv"><span className="k">Courriel</span><span className="v">mc.tremblay@exemple.ca</span></div>
-                          <div className="kv"><span className="k">Téléphone</span><span className="v">418 555-0142</span></div>
-                          <div className="kv"><span className="k">Ville</span><span className="v">Lévis (Québec)</span></div>
-                          <div className="kv"><span className="k">Cliente depuis</span><span className="v">2024</span></div>
-                        </div>
-                      </div>
-                      <div className="panel">
-                        <p className="ptitle">Soldes</p>
-                        <div className="kv"><span className="k">À recevoir</span><span className="v num">0,00 $</span></div>
-                        <div className="kv"><span className="k">En fiducie</span><span className="v num">2 225,00 $</span></div>
-                        <div className="kv"><span className="k">Dernier paiement</span><span className="v num">3 679,20 $ · 14 juin</span></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="panel">
-                        <p className="ptitle">Dossiers de la cliente</p>
-                        <div className="dossier-row" data-goto="dossier" role="button" tabIndex={0}>
-                          <span className="num">2026-014 · Succession</span>
-                          <span className="go">Ouvrir →</span>
-                          <span className="titre">Succession Tremblay</span>
-                        </div>
-                        <div className="dossier-row closed">
-                          <span className="num">2024-032 · Immobilier</span>
-                          <span className="pill gray" style={{ alignSelf: "center" }}><i />Clôturé</span>
-                          <span className="titre">Vente d&apos;un immeuble locatif</span>
-                        </div>
-                      </div>
-                      <div className="panel">
-                        <p className="ptitle">Activité récente</p>
-                        <div className="kv"><span className="k">14 juin</span><span className="v">Paiement reçu · Facture 2026-041</span></div>
-                        <div className="kv"><span className="k">2 juin</span><span className="v">Facture 2026-041 envoyée</span></div>
-                        <div className="kv"><span className="k">28 mai</span><span className="v">6,5 h approuvées</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="screen" id="screen-dossier">
-                  <div className="doss-head">
-                    <span className="back" data-goto="client" role="button" tabIndex={0}>← Fiche client</span>
-                    <h3>Dossier 2026-014 · Succession Tremblay</h3>
-                    <span className="pill"><i />Actif</span>
-                    <span className="who">Responsable : Me A. Côté</span>
-                  </div>
-                  <div className="tabs">
-                    <span className="tab on" data-tab="apercu">Aperçu</span>
-                    <span className="tab" data-tab="temps">Temps</span>
-                    <span className="tab" data-tab="facturation">Facturation</span>
-                    <span className="tab" data-tab="fiducie">Fiducie</span>
-                    <span className="tab" data-tab="documents">Documents</span>
-                  </div>
-
-                  <div className="tabpane on" data-pane="apercu">
-                    <div className="apercu-grid">
-                      <div className="stat"><p className="lbl">Type</p><p className="val">Succession · vérification de testament</p></div>
-                      <div className="stat"><p className="lbl">Ouvert le</p><p className="val">8 mai 2026</p></div>
-                      <div className="stat"><p className="lbl">Temps au dossier</p><p className="val num">6,5 h</p></div>
-                      <div className="stat"><p className="lbl">Prochaine échéance</p><p className="val">30 juin · Production de l&apos;inventaire</p></div>
-                    </div>
-                    <p className="note">Temps, facture, fiducie et documents vivent dans le même dossier. Parcourez les onglets.</p>
-                  </div>
-
-                  <div className="tabpane" data-pane="temps">
-                    <table>
-                      <tbody>
-                        <tr><th>Date</th><th>Description</th><th className="num">Durée</th></tr>
-                        <tr><td>12 mai</td><td>Rédaction de la requête en vérification</td><td className="num">2,1 h</td></tr>
-                        <tr><td>15 mai</td><td>Appel avec la liquidatrice</td><td className="num">0,8 h</td></tr>
-                        <tr><td>21 mai</td><td>Préparation de l&apos;inventaire préliminaire</td><td className="num">2,4 h</td></tr>
-                        <tr><td>28 mai</td><td>Révision et corrections</td><td className="num">1,2 h</td></tr>
-                        <tr className="total"><td /><td>Total approuvé</td><td className="num">6,5 h</td></tr>
-                      </tbody>
-                    </table>
-                    <p className="note">Ces heures ont remonté dans la facture 2026-041 sans ressaisie.</p>
-                  </div>
-
-                  <div className="tabpane" data-pane="facturation">
-                    <table>
-                      <tbody>
-                        <tr><th>Facture 2026-041 · 2 juin</th><th className="num">Montant</th></tr>
-                        <tr><td>Honoraires professionnels<span className="sub">6,5 h approuvées · mai 2026</span></td><td className="num">2 925,00 $</td></tr>
-                        <tr><td>Débours · Frais de greffe</td><td className="num">195,00 $</td></tr>
-                        <tr><td>Débours · Signification par huissier</td><td className="num">80,00 $</td></tr>
-                        <tr><td>TPS et TVQ</td><td className="num">479,20 $</td></tr>
-                        <tr className="total"><td>Total · payée le 14 juin</td><td className="num">3 679,20 $</td></tr>
-                      </tbody>
-                    </table>
-                    <p className="note">Chaque ligne conserve le dossier et la cliente d&apos;origine.</p>
-                  </div>
-
-                  <div className="tabpane" data-pane="fiducie">
-                    <table>
-                      <tbody>
-                        <tr><th>Mouvement</th><th className="num">Montant</th></tr>
-                        <tr><td>5 mai · Avance reçue de la cliente</td><td className="num">2 500,00 $</td></tr>
-                        <tr><td>12 mai · Frais de greffe payés du compte</td><td className="num">-195,00 $</td></tr>
-                        <tr><td>21 mai · Huissier payé du compte</td><td className="num">-80,00 $</td></tr>
-                        <tr className="total"><td>Solde en fiducie</td><td className="num">2 225,00 $</td></tr>
-                      </tbody>
-                    </table>
-                    <p className="note">Argent de la cliente, séparé du cabinet. Jamais un revenu.</p>
-                  </div>
-
-                  <div className="tabpane" data-pane="documents">
-                    <table>
-                      <tbody>
-                        <tr><th>Document</th><th className="num">Statut</th></tr>
-                        <tr><td>Requête en vérification de testament<span className="sub">Déposée au greffe · 12 mai</span></td><td className="num"><span className="pill"><i />Déposée</span></td></tr>
-                        <tr><td>Inventaire préliminaire<span className="sub">Préparé par l&apos;adjointe · 21 mai</span></td><td className="num"><span className="pill gray"><i />En révision</span></td></tr>
-                        <tr><td>Correspondance du greffe<span className="sub">Classée au dossier · 26 mai</span></td><td className="num"><span className="pill"><i />Classée</span></td></tr>
-                      </tbody>
-                    </table>
-                    <p className="note">Chaque document est rangé dans son dossier, avec son statut.</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-          <p className="after">
-            Ouvrez le dossier, parcourez les onglets. Maquette manipulable, données
-            fictives : le contexte circule d&apos;une action à la suivante sans être ressaisi.
-          </p>
+      {/* Chapitre 1 · La promesse ─────────────────────────────────────────
+         Rien d'autre à l'écran. La promesse a besoin de vide autour d'elle
+         pour peser, et l'application ne doit pas encore reparaître : le
+         visiteur vient de la quitter, on le laisse sur la phrase. */}
+      <div className="pinzone" id="zone-promesse">
+        <div className="pin pr-pin">
+          <span className="masque"><span className="pr-main" id="pr-1">Bâtissez votre succès professionnel</span></span>
+          <span className="masque"><span className="pr-main pr-suite" id="pr-2">sur un système simple, fiable et complet.</span></span>
         </div>
-      </section>
+      </div>
 
-      {/* Scène 2 · Vérifier */}
-      <div className="pinzone story" id="zone-verifier">
-        <div className="pin">
-          <div className="grid">
-            <div className="copy">
-              <p className="kicker">Vérifier</p>
-              <h2>L&apos;écart apparaît avant l&apos;inspection.</h2>
-              <p className="body">
-                SAFE compare le relevé bancaire, le registre du fidéicommis et les soldes par
-                dossier. Lorsqu&apos;un montant ne concorde pas, le système le signale et empêche une
-                certification prématurée.
-              </p>
-              <p className="result">Vous corrigez une différence identifiée, pas un doute diffus.</p>
+      {/* Chapitre 2 · Simple ───────────────────────────────────────────────
+         La carte de factures qui occupait la moitié droite a été retirée
+         (décision CEO du 13 août 2026). Le chapitre qui parle de simplicité
+         ne montre plus qu'une chose à la fois : son propos. */}
+      <div className="pinzone" id="zone-simple">
+        <div className="pin ch-pin">
+          <div className="ch-copy">
+            {/* Le marqueur ouvre le chapitre à sa place, au-dessus du titre, et
+                il reste. Il traversait l'écran en gros plan puis s'effaçait. */}
+            <p className="ch-mark" data-mark="simple">Simple</p>
+            <p className="kicker">Pilier 1 sur 3</p>
+            <h2>La gestion de votre cabinet, sans la complexité comptable.</h2>
+            {/* Trois arguments qui changent de rang, comme dans « Fiable ».
+                L'accordéon a disparu : plus rien ne s'ouvre ni ne se ferme, un
+                argument arrive en grand puis se range en point numéroté
+                pendant que le suivant prend sa place. */}
+            <div className="si-narration">
+              <ol className="si-args">
+                <li className="si-arg" data-siarg="0">
+                  <span className="n" aria-hidden>01</span>
+                  <p className="t">Vos chiffres, en langage clair.</p>
+                  <p className="d">
+                    Comprenez votre cabinet sans naviguer entre débits, crédits et jargon
+                    comptable.
+                  </p>
+                </li>
+                <li className="si-arg" data-siarg="1">
+                  <span className="n" aria-hidden>02</span>
+                  <p className="t">Une prochaine action claire.</p>
+                  <p className="d">
+                    SAFE fait ressortir ce qui mérite votre attention, sans surcharger votre
+                    écran.
+                  </p>
+                </li>
+                <li className="si-arg" data-siarg="2">
+                  <span className="n" aria-hidden>03</span>
+                  <p className="t">Saisi une fois. Utilisé partout.</p>
+                  <p className="d">
+                    Du temps travaillé à la facture, puis au paiement et aux rapports.
+                  </p>
+                </li>
+              </ol>
+              <p className="ch-chute">Moins de gestion. Plus de pratique.</p>
             </div>
-            <div id="rapprochement">
-              <div className="head">
-                <span>Rapprochement à trois voies</span>
-                <span>JUIN 2026</span>
+          </div>
+
+          {/* L'émulateur. Trois écrans du Cabinet Demo, un par argument. Le
+              défilement les fait défiler, puis le clic sur un argument prend
+              la main. Les chiffres sont ceux relevés en base, et l'heure de
+              consultation porte le même montant que la chaîne du chapitre
+              « Complet » : 1 h 30 à 450 $ l'heure. */}
+          <div className="ch-stage">
+            <div className="em-fenetre">
+              <div className="em-barre">
+                <i aria-hidden />Cabinet Demo
+                <span className="em-ou" id="em-ou">Tableau de bord</span>
               </div>
-              <div className="row" data-vrow="0">
-                <span className="lbl">Solde bancaire</span>
-                <span className="amt">21 000,00 $ <i /></span>
-              </div>
-              <div className="row" data-vrow="1">
-                <span className="lbl">Registre du fidéicommis</span>
-                <span className="amt">21 000,00 $ <i /></span>
-              </div>
-              <div className="row gap" data-vrow="2" id="vrow-gap">
-                <span className="lbl">Soldes par dossier</span>
-                <span className="amt"><span id="vgap-amt">20 500,00 $</span> <i /></span>
-              </div>
-              <div className="banners">
-                <div className="banner warn" id="vbanner-warn">
-                  <i /><span>Écart de 500 $. La certification reste bloquée jusqu&apos;à la correction.</span>
+              <div className="em-corps">
+                <div className="em-ecran on" data-em="0">
+                  <p className="em-kicker">Lecture rapide</p>
+                  <p className="em-h">Vos chiffres, en langage simple</p>
+                  <div className="em-tiles">
+                    <div className="em-tile">
+                      <p className="lab">Facturation</p><p className="sub">Facturé</p>
+                      <p className="val">87 115,20 $</p>
+                    </div>
+                    <div className="em-tile">
+                      <p className="lab">Encaissements</p><p className="sub">Encaissé</p>
+                      <p className="val">49 055,00 $</p>
+                    </div>
+                    <div className="em-tile amber">
+                      <p className="lab">Créances</p><p className="sub">Reste à recevoir</p>
+                      <p className="val">38 060,20 $</p>
+                    </div>
+                    <div className="em-tile">
+                      <p className="lab">Fidéicommis</p><p className="sub">Fidéicommis client</p>
+                      <p className="val">0,00 $</p>
+                    </div>
+                  </div>
+                  <p className="em-sous">Ni débit, ni crédit à l&apos;écran</p>
                 </div>
-                <div className="banner okay" id="vbanner-okay">
-                  <i /><span>Concordance. Les trois soldes s&apos;accordent, la certification peut être produite.</span>
+
+                <div className="em-ecran" data-em="1">
+                  <p className="em-kicker">À traiter maintenant</p>
+                  <p className="em-h">Dix-sept factures attendent un paiement</p>
+                  <p className="em-mini">
+                    Onze sont en retard. Le rapprochement du fidéicommis n&apos;a pas encore été
+                    fait ce mois-ci.
+                  </p>
+                  <span className="em-act">Voir les créances</span>
+                  <p className="em-sous">Ensuite</p>
+                  <div className="em-kv">
+                    <span>Rapprocher le fidéicommis</span><span className="v">Ce mois</span>
+                  </div>
+                  <div className="em-kv">
+                    <span>Relancer Pelletier · 2026-002</span><span className="v">5 533,18 $</span>
+                  </div>
+                </div>
+
+                <div className="em-ecran" data-em="2">
+                  <p className="em-kicker">Temps</p>
+                  <p className="em-h">Saisie une fois, portée toute seule</p>
+                  <div className="em-bloc">
+                    <p className="t">Consultation · 1 h 30</p>
+                    <p className="s">Me Camille Roy · 450 $ l&apos;heure</p>
+                  </div>
+                  <div className="em-relie"><i aria-hidden />Sans ressaisie</div>
+                  <div className="em-bloc">
+                    <p className="t">Facture 2026-031</p>
+                    <div className="em-ligne">
+                      <span>Honoraires professionnels · 1 h 30</span>
+                      <span className="m">675,00 $</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Chapitre 3 · Fiable ───────────────────────────────────────────────
+         Section blanche et éditoriale. Aucune carte, aucun cadre, aucun filet
+         décoratif : la hiérarchie tient à la typographie, à l'espace et au
+         contraste. Trois moments racontés l'un après l'autre pendant le
+         défilement, chacun prouvé dans l'interface à droite, puis les trois
+         rassemblés dans une synthèse ouverte.
 
-      {/* Scène 3 · Encaisser */}
-      <div className="pinzone story reverse" id="zone-encaisser">
-        <div className="pin">
-          <div className="grid">
-            <div id="facture-wrap">
-              <div id="facture">
-                <div className="fhead">
-                  <span className="t">Facture 2026-041</span>
-                  <span className="d">2 JUIN 2026</span>
-                </div>
-                <p className="fsub">Succession Tremblay · Dossier 2026-014</p>
-                <div className="fline" data-frow="0">
-                  <span className="desc">Honoraires professionnels<span className="sub">6,5 h approuvées · mai 2026</span></span>
-                  <span className="amt">2 925,00 $</span>
-                </div>
-                <div className="fline" data-frow="1">
-                  <span className="desc">Débours · Frais de greffe<span className="sub">Rattaché au dossier le 12 mai</span></span>
-                  <span className="amt">195,00 $</span>
-                </div>
-                <div className="fline" data-frow="2">
-                  <span className="desc">Débours · Signification par huissier<span className="sub">Rattaché au dossier le 21 mai</span></span>
-                  <span className="amt">80,00 $</span>
-                </div>
-                <div className="ftotals">
-                  <div className="trow"><span>Sous-total</span><span className="amt" id="f-sub">0,00 $</span></div>
-                  <div className="trow"><span>TPS (5 %)</span><span className="amt" id="f-tps">0,00 $</span></div>
-                  <div className="trow"><span>TVQ (9,975 %)</span><span className="amt" id="f-tvq">0,00 $</span></div>
-                  <div className="trow grand"><span>Total</span><span className="amt" id="f-total">0,00 $</span></div>
-                </div>
-                <div className="stamp" id="f-stamp">Payée · 14 juin</div>
+         Les refus affichés ne sont pas inventés pour la vitrine : ce sont les
+         messages exacts de `lib/services/fideicommis/errors.ts`. */}
+      <div className="pinzone fiable-blanc" id="zone-fiable">
+        <div className="pin fi-pin">
+          <div className="fi-grid">
+            <div className="fi-copy">
+              <p className="ch-mark" data-mark="fiable">Fiable</p>
+              <p className="kicker">Pilier 2 sur 3</p>
+              <h2>Des contrôles intégrés là où ils comptent.</h2>
+
+              {/* Trois arguments qui changent de rang, jamais remplacés.
+                  Le courant est en grand ; ceux qui l'ont précédé sont rangés
+                  au-dessus, numérotés. Le numéro est masqué à la voix de
+                  synthèse : le rang est déjà porté par la liste ordonnée. */}
+              <div className="fi-narration">
+                <ol className="fi-args">
+                  <li className="fi-arg" data-arg="0">
+                    <span className="n" aria-hidden>01</span>
+                    <p className="e1">Vos chiffres restent cohérents.</p>
+                    <p className="e2">Partout où vous les consultez.</p>
+                  </li>
+                  <li className="fi-arg" data-arg="1">
+                    <span className="n" aria-hidden>02</span>
+                    <p className="e1">Chaque correction laisse une trace.</p>
+                    <p className="e2">Rien d&apos;important ne disparaît.</p>
+                  </li>
+                  <li className="fi-arg" data-arg="2">
+                    <span className="n" aria-hidden>03</span>
+                    <p className="e1">Les incohérences sont détectées.</p>
+                    <p className="e2">Avant qu&apos;elles deviennent un problème.</p>
+                  </li>
+                </ol>
               </div>
-              <div className="chip" data-chip="0"><i />Temps approuvé · 6,5 h</div>
-              <div className="chip" data-chip="1"><i />Frais de greffe · 195 $</div>
-              <div className="chip" data-chip="2"><i />Huissier · 80 $</div>
             </div>
-            <div className="copy">
-              <p className="kicker">Encaisser</p>
-              <h2>Le travail suit son chemin jusqu&apos;au paiement.</h2>
-              <p className="body">
-                Les heures et les débours sont déjà rattachés au dossier. Ils peuvent remonter
-                dans la facture, puis rester visibles jusqu&apos;à l&apos;encaissement, sans reconstruire
-                l&apos;historique.
+
+            {/* La démonstration. Seule surface de la section : elle représente
+                un vrai écran, donc elle a droit à une profondeur très légère,
+                portée par la teinte du canevas plutôt que par une bordure. */}
+            <div className="fi-stage">
+              <div className="fi-ecran">
+                <p className="fi-ou" id="fi-ou">Rapprochement · juin 2026</p>
+
+                <div className="fi-vue-zone">
+                <div className="fi-vue on" data-fivue="0">
+                  <div className="fi-src" data-src="0">
+                    <span className="l">Solde bancaire</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <div className="fi-src" data-src="1">
+                    <span className="l">Registre du fidéicommis</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <div className="fi-src" data-src="2">
+                    <span className="l">Soldes par dossier</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <p className="fi-dit" id="fi-dit-0">Trois sources, un seul montant.</p>
+                </div>
+
+                <div className="fi-vue" data-fivue="1">
+                  <div className="fi-temps" data-temps="0">
+                    <span className="h">14 juin · 09 h 12</span>
+                    <span className="t">Écart constaté sur le dossier 2026-011</span>
+                    <span className="m">− 500,00 $</span>
+                  </div>
+                  <div className="fi-temps" data-temps="1">
+                    <span className="h">14 juin · 09 h 41</span>
+                    <span className="t">Écriture de correction · dossier 2026-011</span>
+                    <span className="m vert">+ 500,00 $</span>
+                  </div>
+                  <p className="fi-dit" id="fi-dit-1">
+                    L&apos;écriture d&apos;origine reste au journal. La correction s&apos;ajoute
+                    en dessous, datée.
+                  </p>
+                </div>
+
+                <div className="fi-vue" data-fivue="2">
+                  <p className="fi-op">Retrait demandé · dossier 2026-011</p>
+                  <div className="fi-src">
+                    <span className="l">Montant du retrait</span>
+                    <span className="m">1 200,00 $</span>
+                  </div>
+                  <div className="fi-src">
+                    <span className="l">Solde détenu pour ce dossier</span>
+                    <span className="m">850,00 $</span>
+                  </div>
+                  <p className="fi-refus" id="fi-refus">
+                    Solde en fidéicommis insuffisant pour ce dossier. Un retrait ne peut
+                    jamais dépasser le solde détenu pour ce dossier.
+                  </p>
+                </div>
+
+                <div className="fi-vue" data-fivue="3">
+                  <div className="fi-src">
+                    <span className="l">Solde bancaire</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <div className="fi-src">
+                    <span className="l">Registre du fidéicommis</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <div className="fi-src">
+                    <span className="l">Soldes par dossier</span>
+                    <span className="m">21 000,00 $</span>
+                  </div>
+                  <p className="fi-dit vert" id="fi-dit-3">
+                    Concordance. La certification peut être produite.
+                  </p>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Chapitre 4 · Complet ──────────────────────────────────────────────
+         Surtout pas six cartes côte à côte. Une seule information entre dans
+         le système et le traverse : la même heure de consultation devient
+         ligne de facture, puis paiement, puis mouvement de fidéicommis, puis
+         écriture, puis chiffre de rapport. Le montant se transforme sous les
+         yeux, la continuité se voit au lieu de se lire. */}
+      <div className="pinzone" id="zone-complet">
+        <div className="pin co-pin">
+          <div className="co-grid">
+            {/* La démonstration passe à gauche : on suit un dossier, donc on le
+                voit avancer avant de lire ce qu'on en conclut. Les sections de
+                cartable et leurs sources viennent de
+                `lib/dossiers/cartable-templates`, ce sont celles que le produit
+                monte réellement à l'ouverture. */}
+            <div className="co-stage">
+              <div className="co-ecran">
+                <p className="co-ou" id="co-ou">Nouveau dossier</p>
+
+                <div className="co-vue-zone">
+                <div className="co-vue on" data-covue="0">
+                  <p className="co-domaine">
+                    <span className="lb">Domaine de pratique</span>
+                    <span className="vl" id="co-domaine-nom">Droit de la famille</span>
+                  </p>
+                  <p className="co-sous" id="co-sous">Cartable monté automatiquement</p>
+                  <div className="co-liste" id="co-cartable">
+                    <div className="co-item" data-cart="0">
+                      <span className="t">Mandat et engagement</span>
+                      <span className="s">RCNEPA art. 15-16</span>
+                    </div>
+                    <div className="co-item" data-cart="1">
+                      <span className="t" id="co-cart-1">Pièces Madame (P-)</span>
+                      <span className="s">Règl. Cour Qc art. 13</span>
+                    </div>
+                    <div className="co-item" data-cart="2">
+                      <span className="t" id="co-cart-2">Pièces Monsieur (D-)</span>
+                      <span className="s">Règl. Cour Qc art. 13</span>
+                    </div>
+                    <div className="co-item" data-cart="3">
+                      <span className="t" id="co-cart-3">Procédures</span>
+                      <span className="s" id="co-cart-3s">C.p.c. art. 109 et s.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="co-vue" data-covue="1">
+                  <p className="co-sous">Dossier Pelletier · 2026-002</p>
+                  <div className="co-liste">
+                    <div className="co-item" data-op="0">
+                      <span className="t">Échéance inscrite</span>
+                      <span className="s">Protocole de l&apos;instance · 12 juin</span>
+                    </div>
+                    <div className="co-item" data-op="1">
+                      <span className="t">Temps consigné</span>
+                      <span className="s">Consultation · 1 h 30</span>
+                      <span className="m">675,00 $</span>
+                    </div>
+                    <div className="co-item" data-op="2">
+                      <span className="t">Document déposé</span>
+                      <span className="s">Pièce P-4 · rangée au cartable</span>
+                    </div>
+                    <div className="co-item" data-op="3">
+                      <span className="t">Débours inscrit</span>
+                      <span className="s">Frais de greffe</span>
+                      <span className="m">195,00 $</span>
+                    </div>
+                    <div className="co-item" data-op="4">
+                      <span className="t">Facture préparée</span>
+                      <span className="s">2026-031 · rien à ressaisir</span>
+                      <span className="m">870,00 $</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="co-vue" data-covue="2">
+                  <p className="co-sous">Ce que le dossier a produit</p>
+                  <div className="co-liste">
+                    <div className="co-item" data-fin="0">
+                      <span className="t">Facture 2026-031</span>
+                      <span className="s">Envoyée au client</span>
+                      <span className="m">675,00 $</span>
+                    </div>
+                    <div className="co-item" data-fin="1">
+                      <span className="t">Paiement reçu</span>
+                      <span className="s">Virement Interac</span>
+                      <span className="m">776,36 $</span>
+                    </div>
+                    <div className="co-item" data-fin="2">
+                      <span className="t">Débours réglés</span>
+                      <span className="s">Du compte client</span>
+                      <span className="m">195,00 $</span>
+                    </div>
+                    <div className="co-item" data-fin="3">
+                      <span className="t">Écriture au grand livre</span>
+                      <span className="s">Datée et protégée</span>
+                    </div>
+                    <div className="co-item" data-fin="4">
+                      <span className="t">Revenus et taxes</span>
+                      <span className="s">À jour, sans ressaisie</span>
+                    </div>
+                  </div>
+                  <p className="co-dit" id="co-dit">
+                    <span className="marque" aria-hidden>✓</span>
+                    Le dossier est clos. Les rapports du cabinet sont à jour.
+                  </p>
+                </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="co-copy">
+              <p className="ch-mark" data-mark="complet">Complet</p>
+              <p className="kicker">Pilier 3 sur 3</p>
+              <h2>De l&apos;ouverture du dossier jusqu&apos;aux rapports.</h2>
+              <p className="co-intro">
+                SAFE adapte chaque étape à votre domaine de pratique, puis relie le travail
+                juridique, l&apos;administration et la comptabilité dans un même système.
               </p>
-              <p className="result">Moins de ressaisie. Moins de travail réalisé qui reste oublié.</p>
+
+              {/* Même grammaire que « Fiable » : le message se réduit et prend
+                  sa place dans le parcours. Ici le texte du point n'est pas
+                  celui du grand message, donc le bloc porte les deux et bascule
+                  de l'un à l'autre pendant qu'il rétrécit et se déplace. */}
+              <div className="co-narration">
+                <ol className="co-args">
+                  <li className="co-arg" data-coarg="0">
+                    <span className="co-grand">
+                      <span className="g1">Le bon cadre,</span>
+                      <span className="g2">dès l&apos;ouverture.</span>
+                    </span>
+                    <span className="co-point">
+                      <span className="n" aria-hidden>01</span>
+                      <span className="t">Une ouverture adaptée</span>
+                      <span className="d">Le bon cartable et les bonnes informations dès le départ.</span>
+                    </span>
+                  </li>
+                  <li className="co-arg" data-coarg="1">
+                    <span className="co-grand">
+                      <span className="g1">Le dossier avance.</span>
+                      <span className="g2">Chaque opération suit.</span>
+                    </span>
+                    <span className="co-point">
+                      <span className="n" aria-hidden>02</span>
+                      <span className="t">Un parcours relié</span>
+                      <span className="d">Le travail juridique et l&apos;administration avancent ensemble.</span>
+                    </span>
+                  </li>
+                  <li className="co-arg" data-coarg="2">
+                    <span className="co-grand">
+                      <span className="g1">Le dossier se termine.</span>
+                      <span className="g2">Le cabinet reste à jour.</span>
+                    </span>
+                    <span className="co-point">
+                      <span className="n" aria-hidden>03</span>
+                      <span className="t">Une vision complète</span>
+                      <span className="d">Les finances et les rapports suivent le dossier jusqu&apos;à sa conclusion.</span>
+                    </span>
+                  </li>
+                </ol>
+                <p className="co-fin" id="co-fin">
+                  Un parcours adapté à votre pratique. Un cabinet relié de bout en bout.
+                  <span className="co-comptable">
+                    Votre comptable conserve sa place. SAFE lui fournit une information mieux
+                    structurée.
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scène 4 · Collaborer */}
-      <div className="pinzone story" id="zone-collaborer">
-        <div className="pin">
-          <div className="grid">
-            <div className="copy">
-              <p className="kicker">Collaborer</p>
-              <h2>L&apos;équipe prépare. L&apos;avocat garde le jugement.</h2>
-              <p className="body">
-                La Navette rassemble les questions, les documents prêts et les éléments à
-                valider. L&apos;adjointe sait ce qui avance. L&apos;avocat retrouve les décisions qui
-                demandent réellement son attention.
-              </p>
-              <p className="result">SAFE soutient le copilote du cabinet sans se substituer à lui.</p>
-            </div>
-            <div id="navette">
-              <div className="nav-card" data-card="0">
-                <span className="tag" style={{ color: "#A06C16" }}>Question</span>
-                <span className="txt">Confirmer la date de signature</span>
-                <span className="who">Aaliyah Côté · Dossier 2026-001</span>
-              </div>
-              <div className="nav-card" data-card="1">
-                <span className="tag" style={{ color: "var(--muted)" }}>Document prêt</span>
-                <span className="txt">Projet de requête en révision</span>
-                <span className="who">Aaliyah Côté · Dossier 2026-001</span>
-              </div>
-              <div className="nav-card" data-card="2">
-                <span className="tag" style={{ color: "var(--verified)" }}>Prêt pour revue</span>
-                <span className="txt">Requête prête à valider</span>
-                <span className="who">Aaliyah Côté · Dossier 2026-001</span>
-              </div>
-              <div id="decision">
-                <span className="tag">Pour l&apos;avocat</span>
-                <span className="txt">Requête prête à valider</span>
-                <p className="sub">Une décision, préparée par l&apos;équipe, au moment où elle compte.</p>
-              </div>
+      {/* Synthèse ──────────────────────────────────────────────────────────
+         La section « Conçu pour les petits cabinets » a été retirée (décision
+         CEO du 13 août 2026) : la démonstration terminée, c'est la synthèse qui
+         referme le récit, sans détour par un dernier argument.
+
+         Fond blanc, comme les trois piliers qui la précèdent. La tarification
+         qui suit reprend le canevas : le changement de surface marque le
+         passage du récit à l'offre. */}
+      <div className="pinzone" id="zone-synthese">
+        <div className="pin sy-pin">
+          <span className="masque"><span className="sy-line" data-syline="0">Simple à utiliser.</span></span>
+          <span className="masque"><span className="sy-line" data-syline="1">Fiable au quotidien.</span></span>
+          <span className="masque"><span className="sy-line" data-syline="2">Complet pour évoluer.</span></span>
+          <div className="sy-end" id="sy-end">
+            <p className="sy-claim">Bâtissez votre cabinet sur de meilleures fondations.</p>
+            {/* L'action pleine menait vers une page de contenu pendant que le
+                diagnostic, seule prochaine étape réelle du parcours, était
+                relégué en bouton fantôme. La synthèse referme la démonstration :
+                c'est l'endroit de la page où l'engagement coûte le moins, il ne
+                peut pas porter la hiérarchie inversée. */}
+            <div className="sy-cta">
+              <a className="btn" href="/audit-gratuit">Faire le diagnostic</a>
+              <a className="btn ghost" href="/fonctionnalites">Voir ce que fait SAFE</a>
             </div>
           </div>
         </div>
       </div>
-
       {/* Tarification */}
       <section className="flat" id="tarifs">
         <div className="inner">

@@ -95,12 +95,7 @@ export function ExpensesJournalTable({
               </thead>
               <tbody>
                 {filtered.map((tx) => (
-                  <tr
-                    key={tx.id}
-                    className={`border-b border-[var(--safe-neutral-border)]/40 hover:bg-white/5 cursor-pointer transition-colors ${
-                      selectedId === tx.id ? "bg-white/10" : ""
-                    }`}
-                    onClick={() => onSelectTransaction(selectedId === tx.id ? null : tx.id)}
+                  <tr key={tx.id} className={`border-b border-[var(--safe-neutral-border)]/40 cursor-pointer transition-colors ${ selectedId === tx.id ? "bg-white/10" : "" }`} onClick={() => onSelectTransaction(selectedId === tx.id ? null : tx.id)}
                   >
                     <td className="py-2 px-4 text-[var(--safe-text-title)] whitespace-nowrap">
                       {formatDate(tx.date)}

@@ -48,7 +48,7 @@ export function Hero() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2.5">
               <BadgeCheck className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-semibold font-sans tracking-wide">
+              <span className="text-sm font-medium font-sans tracking-wide">
                 Conforme Barreau du Qu&eacute;bec
               </span>
             </span>
@@ -69,7 +69,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.1, ease }}
-            className="font-sans font-bold text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[5.75rem] leading-[1.04] tracking-[-0.03em] text-[var(--safe-white)] mb-8 sm:mb-10"
+            className="font-sans font-medium text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[5.75rem] leading-[1.04] tracking-[-0.03em] text-[var(--safe-white)] mb-8 sm:mb-10"
           >
             Votre cabinet,{" "}
             <span className="italic text-[var(--safe-sage)]">simplifi&eacute;.</span>

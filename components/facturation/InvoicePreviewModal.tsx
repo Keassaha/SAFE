@@ -112,25 +112,25 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
         <div className="grid grid-cols-2 gap-4 pb-4 border-b">
           <div>
             <p className="text-xs text-si-muted mb-1">{t("client")}</p>
-            <p className="font-semibold text-si-ink">
+            <p className="font-medium text-si-ink">
               {clientDisplayName(invoice.client, t("noClient"))}
             </p>
           </div>
           {invoice.dossier && (
             <div>
               <p className="text-xs text-si-muted mb-1">{t("matter")}</p>
-              <p className="font-semibold text-si-ink">{invoice.dossier.intitule}</p>
+              <p className="font-medium text-si-ink">{invoice.dossier.intitule}</p>
             </div>
           )}
           <div>
             <p className="text-xs text-si-muted mb-1">{t("issueDate")}</p>
-            <p className="font-semibold text-si-ink">
+            <p className="font-medium text-si-ink">
               {formatDate(invoice.dateEmission)}
             </p>
           </div>
           <div>
             <p className="text-xs text-si-muted mb-1">{t("dueDate")}</p>
-            <p className="font-semibold text-si-ink">
+            <p className="font-medium text-si-ink">
               {formatDate(invoice.dateEcheance)}
             </p>
           </div>
@@ -140,14 +140,14 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
         <div className="space-y-2 py-4 border-b">
           <div className="flex justify-between text-sm">
             <span className="text-si-muted">{t("totalAmountLabel")}</span>
-            <span className="font-semibold text-si-ink">
+            <span className="font-medium text-si-ink">
               {formatCurrency(invoice.montantTotal)}
             </span>
           </div>
           {invoice.balanceDue > 0 && (
             <div className="flex justify-between text-sm">
               <span className="text-si-muted">{t("remainingToPay")}</span>
-              <span className="font-semibold text-orange-600">
+              <span className="font-medium text-orange-600">
                 {formatCurrency(invoice.balanceDue)}
               </span>
             </div>
@@ -156,7 +156,7 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
 
         {/* Line Items Summary */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-si-ink">{t("invoiceLines")}</h4>
+          <h4 className="text-sm font-medium text-si-ink">{t("invoiceLines")}</h4>
           <div className="text-xs text-si-muted space-y-1">
             <p>{t("invoiceLineCount", { count: invoice.invoiceLines.length })}</p>
           </div>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { getClientCreditBalances } from "@/lib/services/billing/overpayment-service";
 import { createAuditLog } from "@/lib/services/audit";
 import type { UserRole } from "@prisma/client";
@@ -21,7 +21,9 @@ async function getSessionData() {
 export async function GET() {
   const data = await getSessionData();
   if (!data) return new NextResponse("Unauthorized", { status: 401 });
-  if (!canManageInvoices(data.role)) {
+  // Lecture : `canViewBilling`. Demander le remboursement (POST) reste sous
+  // `canManageInvoices`.
+  if (!canViewBilling(data.role)) {
     return new NextResponse("Insufficient permissions", { status: 403 });
   }
   const clients = await getClientCreditBalances(data.cabinetId);

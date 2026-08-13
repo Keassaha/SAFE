@@ -75,7 +75,7 @@ export default async function RapportMensuelPage({
       : [];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Rapport comptable mensuel"
         description={

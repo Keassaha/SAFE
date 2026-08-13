@@ -34,7 +34,7 @@ export function CtaFinalPreview() {
         <motion.div {...fadeUp(0.15)} className="mt-9 flex flex-wrap items-center gap-4">
           <Link
             href="/audit-gratuit"
-            className="inline-flex h-11 items-center rounded-[8px] px-6 font-sans text-[15px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+            className="safe-zoom inline-flex h-11 items-center rounded-[8px] px-6 font-sans text-[15px] font-medium transition-transform duration-200"
             style={{ background: INK, color: SURFACE }}
           >
             Faire mon audit gratuit &rarr;

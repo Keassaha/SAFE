@@ -86,7 +86,7 @@ export function NavetteDemo() {
           className="mt-5 rounded-xl border border-[0.5px] border-border bg-canvas p-4"
         >
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-forest-700/[0.1] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-forest-800">
+            <span className="rounded-md bg-forest-700/[0.1] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-forest-800">
               Prêt pour revue
             </span>
             <span className="font-mono text-[12px] text-text-subtle">2026-001</span>
@@ -148,7 +148,7 @@ export function NavetteDemo() {
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
-              <path d="M4 2l14 7.5-6 1.5-2.5 6L4 2z" fill="#1F3A2E" stroke="#FFFFFF" strokeWidth="1.4" strokeLinejoin="round" />
+              <path d="M4 2l14 7.5-6 1.5-2.5 6L4 2z" fill="var(--si-forest)" stroke="#FFFFFF" strokeWidth="1.4" strokeLinejoin="round" />
             </svg>
           </motion.div>
         )}

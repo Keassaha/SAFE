@@ -417,7 +417,7 @@ export function ConsoleIntakeForm({ imports = [] }: { imports?: ImportableAudit[
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
-          className="rounded-xl bg-si-forest px-6 py-3 text-sm font-medium text-si-surface transition hover:bg-si-forest-soft disabled:opacity-60"
+          className="rounded-xl safe-action-degrade px-6 py-3 text-sm font-medium text-si-surface transition disabled:opacity-60"
         >
           {submitting ? "Création…" : "Créer le client"}
         </button>

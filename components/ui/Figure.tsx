@@ -21,8 +21,8 @@ type Taille = "principale" | "secondaire" | "mention";
 type Teinte = "neutre" | "attention" | "confirme" | "discret";
 
 const tailles: Record<Taille, string> = {
-  principale: "text-2xl font-semibold leading-tight",
-  secondaire: "text-xl font-semibold leading-tight",
+  principale: "text-2xl font-medium leading-tight",
+  secondaire: "text-xl font-medium leading-tight",
   mention: "text-xs font-medium leading-snug",
 };
 

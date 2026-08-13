@@ -13,16 +13,39 @@ import { Menu, X } from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { MARK_GEOMETRY, SAFE_MARK_DEFAULT } from "@/components/brand/safe-mark";
 
-export const BG = "#EFF2ED";
-export const SURFACE = "#FBFCFA";
-export const INK = "#1F2A24";
-export const MUTED = "#5A665F";
-export const FAINT = "#7C877F";
-export const GREEN = "#12A150";
-export const VERIFIED = "#1F6A47";
-export const AMBER = "#8A6A1E";
-export const LINE = "rgba(31,42,36,0.08)";
-export const LINE_SOFT = "rgba(31,42,36,0.05)";
+export const BG = "var(--si-canvas)";
+export const SURFACE = "var(--si-surface)";
+export const INK = "var(--si-ink)";
+export const MUTED = "var(--si-muted)";
+export const FAINT = "var(--si-subtle)";
+/* L'accent de la vitrine suit désormais l'action de l'application.
+ * Il valait #12A150, un vert vif étranger à la palette, déclaré deux fois.
+ * Source unique : `si-forest` dans lib/ds/palettes.ts. */
+export const GREEN = "var(--si-forest)";
+export const VERIFIED = "var(--si-verified)";
+export const AMBER = "var(--si-amber-ink)";
+export const LINE = "var(--si-line)";
+export const LINE_SOFT = "var(--si-line2)";
+
+/* Barre de navigation flottante, en verre.
+ *
+ * Le verre est ici justifié au sens de P10 : la barre passe AU-DESSUS du
+ * contenu pendant tout le défilement, et le contenu doit rester perceptible
+ * derrière elle. C'est une relation spatiale, pas un habillage.
+ *
+ * Elle est claire, et c'est le but : le logo garde sa teinte de charte, le
+ * duo forêt et émeraude, qui disparaîtrait sur un fond noir.
+ *
+ * Opacité 0,82 : assez pour que l'encre tienne au-dessus des scènes les plus
+ * sombres de l'accueil, assez peu pour qu'on devine le contenu défiler. */
+export const BARRE = "rgb(var(--si-surface-rgb) / 0.82)";
+export const BARRE_OPAQUE = "var(--si-surface)";
+export const BARRE_FLOU = "blur(18px) saturate(1.35)";
+export const BARRE_FILET = "rgb(var(--si-line-ink-rgb) / 0.10)";
+export const BARRE_TEXTE = "var(--si-muted)";
+export const BARRE_TEXTE_FORT = "var(--si-ink)";
+export const BARRE_SURVOL = "rgb(var(--si-line-ink-rgb) / 0.05)";
+export const BARRE_OMBRE = "0 16px 36px -26px rgb(var(--si-line-ink-rgb) / 0.45)";
 
 export const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -73,21 +96,30 @@ export function Nav() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: "rgba(11,31,25,0.4)" }}
+          style={{ background: "rgb(var(--si-ink-rgb) / 0.45)" }}
         />
       )}
     </AnimatePresence>
-    <header
-      className="fixed inset-x-0 top-0 z-50"
-      style={{
-        background: "rgba(239,242,237,0.92)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        borderBottom: `1px solid ${LINE}`,
-      }}
-    >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href={R.accueil} className="inline-flex items-center" style={{ color: INK }}>
+    {/* Barre flottante.
+       Elle ne colle plus au bord : un retrait la détache et une ombre unique
+       dit qu'elle passe AU-DESSUS du contenu. Le fond est plein, pas du verre :
+       une barre qui reste lisible pendant tout le défilement vaut mieux qu'une
+       barre à travers laquelle on devine la page (P10). */}
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
+      <nav
+        className="safe-barre-verre mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 rounded-xl border pl-4 pr-2 sm:pl-5 sm:pr-3"
+        /* Le flou est en ligne, pas dans la feuille : le minifieur CSS retire
+           la propriété non préfixée et ne laisse que `-webkit-`, sans effet sur
+           les navigateurs actuels. Le style en ligne ne passe pas par lui. */
+        style={{
+          borderColor: BARRE_FILET,
+          boxShadow: BARRE_OMBRE,
+          backdropFilter: BARRE_FLOU,
+          WebkitBackdropFilter: BARRE_FLOU,
+        }}
+      >
+        <Link href={R.accueil} className="inline-flex items-center">
+          {/* Ton de charte par défaut : forêt et émeraude, sur verre clair. */}
           <SafeLogo size={19} />
         </Link>
 
@@ -96,22 +128,40 @@ export function Nav() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-[7px] px-3 py-2 font-sans text-[13.5px] transition-colors hover:bg-black/[0.035]"
-              style={{ color: MUTED }}
+              className="rounded-[8px] px-3 py-2 font-sans text-[13.5px] transition-colors"
+              style={{ color: BARRE_TEXTE }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = BARRE_TEXTE_FORT;
+                e.currentTarget.style.background = BARRE_SURVOL;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = BARRE_TEXTE;
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/connexion" className="px-2 py-2 font-sans text-[13.5px]" style={{ color: MUTED }}>
+        <div className="hidden items-center gap-2 lg:flex">
+          <Link
+            href="/connexion"
+            className="rounded-[8px] px-3 py-2 font-sans text-[13.5px] transition-colors"
+            style={{ color: BARRE_TEXTE }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = BARRE_TEXTE_FORT; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = BARRE_TEXTE; }}
+          >
             Connexion
           </Link>
+          {/* L'action s'inverse : sur une barre noire, c'est le clair qui
+             avance. Une seule action pleine dans la barre. */}
           <Link
             href={R.diagnostic}
-            className="inline-flex h-9 items-center rounded-[7px] px-4 font-sans text-[13.5px] font-medium transition-colors hover:bg-[#0e8f47]"
-            style={{ background: GREEN, color: "#fff" }}
+            className="inline-flex h-9 items-center rounded-[8px] px-4 font-sans text-[13.5px] font-medium transition-colors"
+            style={{ background: "var(--si-forest)", color: "var(--si-surface)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--si-forest-soft)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "var(--si-forest)"; }}
           >
             Faire le diagnostic
           </Link>
@@ -120,8 +170,8 @@ export function Nav() {
         <button
           type="button"
           onClick={() => setMobileOpen((open) => !open)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-[7px] lg:hidden"
-          style={{ color: INK }}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-[8px] lg:hidden"
+          style={{ color: BARRE_TEXTE_FORT }}
           aria-label={mobileOpen ? "Fermer la navigation" : "Ouvrir la navigation"}
           aria-expanded={mobileOpen}
         >
@@ -139,14 +189,15 @@ export function Nav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.32, ease: EASE }}
-              className="relative z-50 border-t px-6 pb-7 pt-2 lg:hidden"
+              className="safe-barre-verre relative z-50 mx-auto mt-2 max-w-6xl rounded-xl border px-5 pb-5 pt-1 lg:hidden"
               style={{
-                borderColor: LINE,
-                background: BG,
-                boxShadow: "0 24px 48px -28px rgba(11,31,25,0.45)",
+                borderColor: BARRE_FILET,
+                boxShadow: BARRE_OMBRE,
+                backdropFilter: BARRE_FLOU,
+                WebkitBackdropFilter: BARRE_FLOU,
               }}
             >
-              <div className="mx-auto max-w-6xl">
+              <div>
                 {links.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -158,10 +209,10 @@ export function Nav() {
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
                       className="flex min-h-14 items-center justify-between border-b font-sans text-[17px]"
-                      style={{ color: INK, borderColor: LINE }}
+                      style={{ color: BARRE_TEXTE_FORT, borderColor: "var(--si-line2)" }}
                     >
                       {link.label}
-                      <span aria-hidden style={{ color: FAINT }}>›</span>
+                      <span aria-hidden style={{ color: "var(--si-subtle)" }}>›</span>
                     </Link>
                   </motion.div>
                 ))}
@@ -175,7 +226,7 @@ export function Nav() {
                     href="/connexion"
                     onClick={() => setMobileOpen(false)}
                     className="inline-flex h-12 items-center justify-center rounded-[8px] border font-sans text-[15px]"
-                    style={{ color: INK, borderColor: LINE, background: SURFACE }}
+                    style={{ color: BARRE_TEXTE_FORT, borderColor: "var(--si-line)", background: "var(--si-surface)" }}
                   >
                     Connexion
                   </Link>
@@ -183,7 +234,7 @@ export function Nav() {
                     href={R.diagnostic}
                     onClick={() => setMobileOpen(false)}
                     className="inline-flex h-12 items-center justify-center rounded-[8px] font-sans text-[15px] font-medium"
-                    style={{ background: GREEN, color: "#fff" }}
+                    style={{ background: "var(--si-forest)", color: "var(--si-surface)" }}
                   >
                     Diagnostic
                   </Link>
@@ -341,7 +392,7 @@ export function useScrollScrub(
 
 /* Fragment de la marque servie. Forme importée, jamais recopiée. */
 const FRAGMENT = MARK_GEOMETRY[SAFE_MARK_DEFAULT];
-const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgba(18,161,80,0.22)", "rgba(90,102,95,0.20)"];
+const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgb(var(--si-forest-rgb) / 0.22)", "rgba(90,102,95,0.20)"];
 
 /**
  * Fragments du logo flottants, brassés par le curseur, même langage que le hero

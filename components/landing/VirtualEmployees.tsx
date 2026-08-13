@@ -105,7 +105,7 @@ export function VirtualEmployees() {
 /*  Le fil à plomb reste vertical, les plateaux restent droits. */
 /* ──────────────────────────────────────────────────────────── */
 
-const FOREST = "#1F3A2E";
+const FOREST = "var(--si-forest)";
 const PIVOT_X = 160;
 const PIVOT_Y = 158;
 

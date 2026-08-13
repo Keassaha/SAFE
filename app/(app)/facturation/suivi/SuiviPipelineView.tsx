@@ -31,7 +31,7 @@ export function SuiviPipelineView({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Envoyées : factures émises actives + payées (historique du pipeline) */}
         <div className="rounded-lg border border-si-line bg-si-canvas p-4">
-          <h3 className="font-semibold text-si-ink mb-4">
+          <h3 className="font-medium text-si-ink mb-4">
             {t("statusSent")}
             <span className="ml-2 text-sm font-normal text-si-muted">
               ({envoyees.length})
@@ -57,7 +57,7 @@ export function SuiviPipelineView({
 
         {/* En retard : dérivé de dateEcheance < now sur factures émises non payées */}
         <div className="rounded-lg border border-si-line bg-si-canvas p-4">
-          <h3 className="font-semibold text-si-ink mb-4">
+          <h3 className="font-medium text-si-ink mb-4">
             {t("statusOverdue")}
             <span className="ml-2 text-sm font-normal text-si-muted">
               ({enRetard.length})

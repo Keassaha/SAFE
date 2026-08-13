@@ -7,17 +7,10 @@
   background: radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%);
 }
 
-/* Variables CSS du design safe-interface (utilisables dans les classes arbitraires). */
+/* Les variables `--si-*` ne vivent plus ici.
+ * Source unique : lib/ds/palettes.ts → <PaletteStyles /> (layout racine).
+ * Les redéclarer dans cette feuille rendrait la palette non pilotable. */
 :root {
-  --si-canvas: #EFF2ED;
-  --si-surface: #FBFCFA;
-  --si-ink: #1F2A24;
-  --si-muted: #5A665F;
-  --si-line: rgba(31, 42, 36, 0.10);
-  --si-forest: #0B1F19;
-  --si-forest-soft: #16312A;
-  --si-danger: #B84A3E;
-  --si-danger-ink: #8F3529;
   --safe-motion-fast: 120ms;
   --safe-motion-normal: 180ms;
   --safe-motion-slow: 260ms;
@@ -152,15 +145,18 @@
   box-shadow: var(--glass-2-shadow), inset 0 1px 0 var(--glass-2-lip);
 }
 
-/* Fond atmosphérique du canvas applicatif. Sa seule fonction est de rendre
-   le verre lisible comme matière : il ne doit jamais se lire comme un
-   dégradé décoratif. Aucun violet, aucun indigo, aucun bleu générique. */
+/* Fond du canvas applicatif.
+ *
+ * Il portait deux dégradés radiaux, un vert forêt en haut à gauche et un
+ * beige chaud en bas à droite, sur une base #EFF2ED qui n'appartenait plus à
+ * la palette. Trois teintes de blanc coexistaient donc à l'écran, ce que le
+ * CEO a décrit comme « deux couches, un fond verdâtre et un fond bleuâtre ».
+ *
+ * Un seul aplat désormais, celui de la vitrine. Le verre n'a plus de dégradé
+ * pour se donner de la matière : il la prend du contenu qui défile dessous,
+ * ce qui est sa justification réelle. */
 .safe-atmosphere {
-  background-color: var(--atm-base);
-  background-image:
-    radial-gradient(1100px 720px at 4% -8%, var(--atm-forest), transparent 62%),
-    radial-gradient(900px 620px at 102% 108%, var(--atm-warm), transparent 60%);
-  background-attachment: fixed;
+  background-color: var(--si-canvas);
 }
 
 /* ── Safari & mobile GPU perf ── */
@@ -242,12 +238,12 @@
   --brand-50:  #EEF5F0;
   --brand-100: #D4E8D9;
   --brand-200: #B8D6C0;
-  --brand-300: #8EB69B;
+  --brand-300: rgb(var(--si-surface-rgb) / 0.72);
   --brand-400: #5A8F7B;
   --brand-500: #3D6B5A;
   --brand-600: #2B4A3E;
   --brand-700: #234539;
-  --brand-800: #1F3A2E; /* ← canonical brand (forest deep) */
+  --brand-800: var(--si-forest); /* ← canonical brand (forest deep) */
   --brand-900: #162B20;
   --brand-950: #0E2419;
   --brand:     var(--brand-800);
@@ -286,11 +282,11 @@
   --warm-gold: #F4A045;
 
   /* SAFE V2 Marketing Palette */
-  --safe-darkest: #0b1f19;     /* Fonds principaux, hero */
+  --safe-darkest: var(--si-forest);     /* Fonds principaux, hero */
   --safe-dark: #0B2B26;        /* Navigation, sidebar, footer */
   --safe-mid-dark: #163832;    /* Cartes, sections secondaires */
   --safe-accent: #235347;      /* Accents, hover, boutons primaires */
-  --safe-sage: #8EB69B;        /* Boutons secondaires, tags, badges */
+  --safe-sage: rgb(var(--si-surface-rgb) / 0.72);        /* Boutons secondaires, tags, badges */
   --safe-lightest: #DAF1DE;    /* Surfaces, inputs, fonds clairs */
   --safe-white: #F8FDF9;       /* Texte sur fond sombre, fond page */
   /* NB: --safe-text-muted est (re)défini plus bas dans la hiérarchie texte (slate-500). */
@@ -305,7 +301,7 @@
    *  ─────────────────────────────────────────────────────────── */
   --safe-green-950: #0E2419; /* brand.950 */
   --safe-green-900: #162B20; /* brand.900 */
-  --safe-green-800: #1F3A2E; /* brand.800 — CANONICAL ACCENT */
+  --safe-green-800: var(--si-forest); /* brand.800 — CANONICAL ACCENT */
   --safe-green-700: #234539; /* brand.700 */
   --safe-green-600: #2B4A3E; /* brand.600 */
   --safe-green-100: #D4E8D9; /* brand.100 */
@@ -320,17 +316,17 @@
 
   /* Neutrals — rebinded to zinc scale (Minimal Monochrome) */
   --safe-neutral-950: #09090B; /* zinc-950 — sidebar/hero/CTA */
-  --safe-neutral-900: #18181B; /* zinc-900 — titres */
+  --safe-neutral-900: var(--si-ink);
   --safe-neutral-800: #27272A; /* zinc-800 — surfaces inverses élevées */
-  --safe-neutral-700: #3F3F46; /* zinc-700 — corps */
-  --safe-neutral-500: #71717A; /* zinc-500 — muted */
+  --safe-neutral-700: var(--si-body);
+  --safe-neutral-500: var(--si-muted);
   --safe-neutral-400: #A1A1AA; /* zinc-400 — hints on dark */
-  --safe-neutral-300: #D4D4D8; /* zinc-300 — borders strong */
+  --safe-neutral-300: var(--si-border-strong);
   --safe-neutral-200: #E4E4E7; /* zinc-200 — borders default */
-  --safe-neutral-100: #F4F4F5; /* zinc-100 — surfaces alt */
+  --safe-neutral-100: var(--si-surface2);
   --safe-neutral-50:  #FAFAFA; /* zinc-50  — surfaces subtle */
-  --safe-neutral-border: #DCE0DA;
-  --safe-neutral-bg: #FBFCFA;
+  --safe-neutral-border: var(--si-border);
+  --safe-neutral-bg: var(--si-surface);
 
   /* Text hierarchy — zinc scale (Minimal Monochrome) */
   --safe-text-title: #1F2A24;      /* zinc-900 — titres, headers, KPI */
@@ -341,23 +337,28 @@
   --safe-text-inverse-muted: #A1A1AA; /* zinc-400 — muted sur fond sombre */
 
   /* Charts — brand forest, neutral grid */
-  --safe-chart-primary: #1F3A2E;   /* brand.800 */
+  --safe-chart-primary: var(--si-forest);
   --safe-chart-secondary: #3D6B5A; /* brand.500 */
   --safe-chart-grid: rgba(11, 11, 12, 0.05);
 
   /* Icons — zinc-800 default, brand accent */
   --safe-icon-default: #27272A;
-  --safe-icon-accent: #1F3A2E;
+  --safe-icon-accent: var(--si-forest);
 
-  /* Status — semantic pills (WCAG AA on warm), aligned with lib/ds/tokens.ts */
-  --safe-status-success: #1F3A2E;    /* success.pillText */
+  /* Status — jetons hérités, branchés sur la palette.
+     Contrat de la paire : `*-bg` est un fond dilué, `*` est le texte posé
+     dessus. Toute inversion (fond plein, texte clair) rend `text-status-*`
+     illisible partout où il sert seul, sur une surface blanche.
+     L'urgence garde sa couleur (déc. CEO 2026-08-11, retour sur « noir et
+     vert seulement ») : la teinte reste réservée à ce qui appelle un geste. */
+  --safe-status-success: var(--si-verified);
   --safe-status-success-bg: #D4E8D9; /* success.pillBg */
-  --safe-status-warning: #8B6B1F;    /* warning.pillText */
-  --safe-status-warning-bg: #F5E6C8; /* warning.pillBg */
-  --safe-status-error: #8A3A2D;      /* danger.pillText */
-  --safe-status-error-bg: #F3D8D2;   /* danger.pillBg  */
-  --safe-status-info: #1F3A2E;       /* brand.800 (info unified with brand) */
-  --safe-status-overdue: #8B8680;    /* sand.600 */
+  --safe-status-warning: var(--si-amber-ink);
+  --safe-status-warning-bg: rgb(var(--si-amber-rgb) / 0.12);
+  --safe-status-error: var(--si-danger-ink);
+  --safe-status-error-bg: rgb(var(--si-danger-rgb) / 0.10);
+  --safe-status-info: var(--si-forest);
+  --safe-status-overdue: var(--si-amber-ink);
 
   /* Radius */
   --safe-radius-sm: 4px;
@@ -399,9 +400,9 @@
   --safe-primary-600: var(--safe-green-600);
   --safe-primary-100: var(--safe-green-100);
   --safe-primary-50: var(--safe-green-50);
-  --safe-neutral-page: #EFF2ED;        /* sand-100 — ivoire chaud (Éditorial canvas) */
-  --safe-neutral-surface: #FBFCFA;     /* sand-50  — crème très léger (cards) */
-  --safe-neutral-elevated: #FFFFFF;    /* blanc pur (cards élevées) */
+  --safe-neutral-page: var(--si-canvas);
+  --safe-neutral-surface: var(--si-surface);
+  --safe-neutral-elevated: var(--si-surface);
   --safe-neutral-text-primary: var(--safe-text-title);
   --safe-neutral-text-secondary: var(--safe-text-secondary);
   --safe-neutral-muted: var(--safe-text-secondary);
@@ -491,7 +492,7 @@
   background: transparent;
   --safe-white: #F8FDF9;
   --safe-text-muted: #6B8F7B;
-  --safe-sage: #8EB69B;
+  --safe-sage: rgb(var(--si-surface-rgb) / 0.72);
 }
 
 /* Dark cards inherit unified palette */
@@ -504,7 +505,7 @@
 .section-night .card-dark {
   --safe-white: #F8FDF9;
   --safe-text-muted: #6B8F7B;
-  --safe-sage: #8EB69B;
+  --safe-sage: rgb(var(--si-surface-rgb) / 0.72);
 }
 
 /* Grain texture unified across tiers */
@@ -1591,7 +1592,7 @@
 .audit-dark-mode {
   --safe-white: #0C120E;
   --safe-text-title: #F8FDF9;
-  --safe-text-secondary: #8EB69B;
+  --safe-text-secondary: rgb(var(--si-surface-rgb) / 0.72);
 }
 .audit-dark-mode header {
   background: rgba(5, 31, 32, 0.92) !important;
@@ -1824,7 +1825,7 @@
     180deg,
     #3D6B5A 0%,
     #5A8F7B 35%,
-    #8EB69B 70%,
+    rgb(var(--si-surface-rgb) / 0.72) 70%,
     #D4A574 100%
   );
   box-shadow: 0 0 24px rgba(212, 165, 116, 0.2);
@@ -1893,8 +1894,8 @@
 .audit-v2-input:focus,
 .audit-v2-textarea:focus {
   outline: none;
-  border-color: #12A150;
-  box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.10);
+  border-color: var(--si-forest);
+  box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.10);
 }
 .audit-v2-textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
 
@@ -1918,13 +1919,13 @@
 }
 /* Survol d'une option non retenue : le filet se teinte, rien ne saute */
 .audit-v2-option:not(.audit-v2-option--active):hover {
-  border-color: rgba(18, 161, 80, 0.45);
+  border-color: rgb(var(--si-forest-rgb) / 0.45);
   background: #FFFFFF;
 }
 /* Option retenue : vert forêt calme, pas le vert d'accent du bouton */
 .audit-v2-option--active {
-  background: #1F3A2E;
-  border-color: #1F3A2E;
+  background: var(--si-forest);
+  border-color: var(--si-forest);
   color: #F4F7F3;
   box-shadow: 0 18px 34px -24px rgba(11, 31, 25, 0.7);
 }
@@ -1961,7 +1962,7 @@
 
 .audit-v2-btn-primary {
   display: inline-flex; align-items: center; gap: 10px;
-  background: #12A150;
+  background: var(--si-forest);
   color: #FFFFFF;
   padding: 0 24px;
   height: 44px;
@@ -1969,7 +1970,7 @@
   font-size: 14px;
   font-weight: 500;
   transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1), background .28s ease;
-  box-shadow: 0 14px 28px -18px rgba(18, 161, 80, 0.85);
+  box-shadow: 0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85);
 }
 .audit-v2-btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
 .audit-v2-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -2046,9 +2047,9 @@
   transition: width .65s cubic-bezier(0.16, 1, 0.3, 1), background .65s ease, opacity .65s ease;
 }
 /* étape franchie : le tiret reste vert, plus court que l'étape en cours */
-.audit-rail-stop--done .audit-rail-dash { background: #12A150; opacity: 0.55; }
+.audit-rail-stop--done .audit-rail-dash { background: var(--si-forest); opacity: 0.55; }
 .audit-rail-stop--live .audit-rail-label { opacity: 1; }
-.audit-rail-stop--live .audit-rail-dash { width: 26px; background: #12A150; opacity: 1; }
+.audit-rail-stop--live .audit-rail-dash { width: 26px; background: var(--si-forest); opacity: 1; }
 
 @media (max-width: 1100px) { .audit-rail { display: none; } }
 
@@ -2084,3 +2085,214 @@
 
 /* Dashboard Today — mode focus : masque les sections secondaires (.today-dimmable). */
 [data-today-focus="on"] .today-dimmable { display: none; }
+
+/* ── Barre de navigation en verre (vitrine) ─────────────────────────────────
+   Le verre exprime que la barre passe AU-DESSUS du contenu pendant tout le
+   défilement (P10). Deux replis obligatoires : navigateur sans
+   `backdrop-filter`, et personnes qui réduisent la transparence au niveau du
+   système. Dans les deux cas la barre devient opaque, jamais illisible. */
+.safe-barre-verre {
+  background: rgb(var(--si-surface-rgb) / 0.82);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .safe-barre-verre { background: var(--si-surface); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .safe-barre-verre {
+    background: var(--si-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+
+/* ── Zoom souple des surfaces sélectionnables ───────────────────────────────
+   Une mise à l'échelle rééchantillonne le texte : au-delà de 1 %, un libellé
+   de 13 px devient visiblement mou. L'échelle reste donc à 1,006, sous le
+   seuil de perception du flou, et c'est l'ÉLÉVATION qui porte la sensation :
+   la surface se soulève d'un pixel et son ombre s'ouvre.
+
+   `.safe-zoom`      surfaces autonomes : cartes, tuiles, blocs cliquables.
+   `.safe-zoom-rang` rangées de tableau. Pas d'échelle du tout : une `<tr>`
+                     transformée décale ses bordures et fait vibrer la grille.
+                     L'ombre et le fond suffisent, l'alignement est sacré dans
+                     un registre. */
+.safe-zoom {
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms ease;
+  will-change: transform;
+}
+.safe-zoom:hover,
+.safe-zoom:focus-visible {
+  transform: scale(1.006) translateY(-1px);
+  box-shadow: 0 12px 26px -18px rgb(var(--si-line-ink-rgb) / 0.34);
+}
+.safe-zoom:active {
+  transform: scale(1.002) translateY(0);
+  transition-duration: 90ms;
+}
+
+/* Rangée de registre. Pas de sélecteur : ni filet d'encre à gauche, ni fond
+   plein. Ces deux marques disent « sélectionné », or rien ne l'est encore : on
+   survole. Seul le zoom parle, et il reste sous le seuil du flou.
+
+   `transform-origin: center` et `position: relative` : la rangée grandit par
+   son milieu et son ombre passe au-dessus de ses voisines. */
+.safe-zoom-rang {
+  position: relative;
+  transform-origin: center;
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.safe-zoom-rang:hover,
+.safe-zoom-rang:focus-within {
+  z-index: 1;
+  transform: scale(1.005);
+  box-shadow: 0 10px 24px -18px rgb(var(--si-line-ink-rgb) / 0.30);
+}
+
+/* Rangée cochée. Une sélection n'est pas un survol : elle dure. Elle reste
+   donc soulevée en permanence, un cran plus haut que le survol, sans fond
+   teinté. Le fond plein disait « sélectionné » en peignant la rangée en gris ;
+   le relief le dit en la sortant du plan. La case cochée porte l'état pour
+   l'assistive tech et pour qui ne perçoit pas l'ombre. */
+.safe-zoom-rang[data-selectionne="true"],
+.safe-zoom-rang:has([aria-expanded="true"]) {
+  z-index: 1;
+  transform: scale(1.006);
+  box-shadow: 0 12px 26px -18px rgb(var(--si-line-ink-rgb) / 0.38);
+}
+
+/* ── Zoom souple des entrées de menu, d'onglet et de navigation ──────────────
+   Même geste que `.safe-zoom`, calibré pour une rangée courte : l'échelle peut
+   monter à 1,02 sans que le libellé s'empâte, parce qu'un item de menu est
+   court et qu'on le survole une fraction de seconde. La règle absolue reste :
+   c'est l'élévation qui dit « sélectionnable », jamais un aplat gris.
+
+   Le conteneur doit avoir un peu de rembourrage horizontal (`px-1.5`), sinon
+   l'item grandit dans un bord `overflow-hidden` et se fait rogner. */
+.safe-zoom-menu {
+  position: relative;
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 160ms ease,
+    color 160ms ease;
+}
+.safe-zoom-menu:hover,
+.safe-zoom-menu:focus-visible,
+.safe-zoom-menu:focus-within {
+  z-index: 1;
+  transform: scale(1.02) translateY(-1px);
+  box-shadow: 0 10px 20px -14px rgb(var(--si-line-ink-rgb) / 0.34);
+}
+.safe-zoom-menu:active {
+  transform: scale(1.006) translateY(0);
+  transition-duration: 90ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .safe-zoom,
+  .safe-zoom-rang,
+  .safe-zoom-menu {
+    transition: background-color 120ms ease;
+  }
+  .safe-zoom:hover,
+  .safe-zoom:focus-visible,
+  .safe-zoom:active,
+  .safe-zoom-rang:hover,
+  .safe-zoom-rang:focus-within,
+  .safe-zoom-rang[data-selectionne="true"],
+  .safe-zoom-rang:has([aria-expanded="true"]),
+  .safe-zoom-menu:hover,
+  .safe-zoom-menu:focus-visible,
+  .safe-zoom-menu:focus-within,
+  .safe-zoom-menu:active {
+    transform: none;
+  }
+  /* Sans mouvement, il faut bien que le survol se voie : le fond prend le
+     relais, discrètement. */
+  .safe-zoom-rang:hover,
+  .safe-zoom-rang:focus-within,
+  .safe-zoom-menu:hover,
+  .safe-zoom-menu:focus-visible,
+  .safe-zoom-menu:focus-within {
+    background-color: var(--si-surface2);
+  }
+  .safe-zoom-rang[data-selectionne="true"],
+  .safe-zoom-rang:has([aria-expanded="true"]) {
+    background-color: var(--si-surface2);
+  }
+}
+
+/* ── Chiffre de carte : il s'adapte à sa carte, il ne déborde jamais ────────
+   Un montant est composé en mono avec `tabular-nums` : chaque glyphe occupe la
+   largeur d'un chiffre, séparateurs et symbole compris. « 47 077,20 $ » fait
+   onze glyphes, donc environ 238 px à 36 px de corps — dans une carte dont la
+   zone de texte fait 172 px, le « $ » passait sous le `overflow-hidden` et
+   disparaissait. Un montant amputé de son symbole n'est pas un défaut
+   d'esthétique : c'est un chiffre faux à l'écran.
+
+   Le corps se mesure donc sur la CARTE et non sur la fenêtre : `cqw` vaut 1 %
+   de la largeur du conteneur. La carte se déclare conteneur, le chiffre s'y
+   ajuste, et le plancher de 18 px garantit qu'il reste lisible même dans une
+   colonne étroite.
+
+   `formatCurrency` en fr-CA sépare les milliers par une espace insécable
+   étroite : la chaîne ne peut pas se couper. Réduire le corps est le seul
+   levier ; il n'y a pas de repli par le retour à la ligne. */
+.safe-carte-chiffre {
+  container-type: inline-size;
+}
+.safe-chiffre {
+  font-size: clamp(18px, 9cqw, 30px);
+  line-height: 1.1;
+}
+/* Variante des tuiles porteuses, plus larges : même mécanique, plafond plus
+   haut, parce qu'un montant mis en avant doit rester grand tant qu'il tient. */
+.safe-chiffre-porteur {
+  font-size: clamp(22px, 11cqw, 38px);
+  line-height: 1.05;
+}
+
+/* Navigateur sans requête de conteneur : un corps fixe, choisi pour que le pire
+   montant réaliste tienne encore. */
+@supports not (container-type: inline-size) {
+  .safe-chiffre {
+    font-size: 24px;
+  }
+  .safe-chiffre-porteur {
+    font-size: 28px;
+  }
+}
+
+/* Feuille : la surface blanche qui porte une liste, détachée du canvas.
+   Une ombre unique et longue, jamais deux niveaux empilés. */
+.safe-feuille {
+  background: var(--si-surface);
+  border: 1px solid var(--si-line);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgb(var(--si-line-ink-rgb) / 0.04),
+    0 18px 40px -28px rgb(var(--si-line-ink-rgb) / 0.30);
+}
+
+
+/* ── Action principale : dégradé encre → vert forêt ─────────────────────────
+   Retenu par le CEO sur le bouton « Télécharger en PDF » des rapports, puis
+   généralisé : partout où une action était un aplat noir, elle glisse
+   maintenant vers le vert de marque. Une seule déclaration, 139 boutons.
+   Le survol éclaircit les deux extrémités du même écart, pour que le geste se
+   sente sans que la couleur change de nature. */
+.safe-action-degrade {
+  background-image: linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%);
+  background-color: var(--si-ink);
+}
+.safe-action-degrade:hover {
+  background-image: linear-gradient(135deg, var(--si-forest-soft) 0%, #1E4638 100%);
+}

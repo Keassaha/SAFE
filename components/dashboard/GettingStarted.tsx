@@ -87,7 +87,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
                     <Circle className="h-3 w-3 text-si-muted/50" strokeWidth={2} />
                   )}
                 </span>
-                <span className={`flex-1 text-sm ${done ? "font-medium" : "font-semibold"}`}>
+                <span className={`flex-1 text-sm ${done ? "font-medium" : "font-medium"}`}>
                   {t(labelKey)}
                 </span>
                 <ArrowRight className="h-4 w-4 shrink-0 text-si-muted" strokeWidth={1.5} aria-hidden />

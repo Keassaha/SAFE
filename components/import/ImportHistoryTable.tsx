@@ -157,15 +157,15 @@ export function ImportHistoryTable() {
             <table className="w-full text-left">
               <thead className="table-header">
                 <tr>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("dateColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("fileColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">{t("typeColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider hidden md:table-cell">{t("sourceColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider">{t("statusColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden sm:table-cell">{t("linesColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden md:table-cell">{t("createdColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("errorsColumn")}</th>
-                  <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-right hidden lg:table-cell">{t("durationColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">{t("dateColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">{t("fileColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">{t("typeColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider hidden md:table-cell">{t("sourceColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">{t("statusColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-right hidden sm:table-cell">{t("linesColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-right hidden md:table-cell">{t("createdColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-right hidden lg:table-cell">{t("errorsColumn")}</th>
+                  <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-right hidden lg:table-cell">{t("durationColumn")}</th>
                   <th className="px-4 py-2 w-10" />
                 </tr>
               </thead>
@@ -252,12 +252,7 @@ function HistoryRow({
   };
   return (
     <>
-      <tr
-        className={`border-t border-[var(--safe-neutral-border)]/40 hover:bg-[var(--safe-green-50)]/30 transition-colors cursor-pointer ${
-          isExpanded ? "bg-[var(--safe-green-50)]/20" : ""
-        }`}
-        onClick={onToggle}
-      >
+      <tr className={`border-t border-[var(--safe-neutral-border)]/40 (--safe-green-50)]/30 transition-colors cursor-pointer ${ isExpanded ? "bg-[var(--safe-green-50)]/20" : "" }`} onClick={onToggle} >
         <td className="px-4 py-3 text-xs safe-text-secondary whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 opacity-50" />
@@ -318,8 +313,8 @@ function HistoryRow({
               <table className="w-full text-left">
                 <thead>
                   <tr>
-                    <th className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider safe-text-secondary w-16">{t("lineColumn")}</th>
-                    <th className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider safe-text-secondary">{t("errorMessage")}</th>
+                    <th className="px-3 py-1.5 text-xs font-medium uppercase tracking-wider safe-text-secondary w-16">{t("lineColumn")}</th>
+                    <th className="px-3 py-1.5 text-xs font-medium uppercase tracking-wider safe-text-secondary">{t("errorMessage")}</th>
                   </tr>
                 </thead>
                 <tbody>

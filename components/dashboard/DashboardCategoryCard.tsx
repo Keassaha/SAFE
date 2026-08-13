@@ -37,7 +37,7 @@ export function DashboardCategoryCard({
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title tracking-tight">{resolvedTitle}</h3>
+          <h3 className="text-sm font-medium safe-text-title tracking-tight">{resolvedTitle}</h3>
           <p className="text-xs safe-text-secondary mt-0.5">{resolvedSubtitle}</p>
         </div>
         <Link

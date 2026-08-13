@@ -129,8 +129,8 @@ function StepCard({
           className="relative w-[40px] h-[40px] rounded-full bg-surface border border-border flex items-center justify-center shadow-sm"
           variants={{
             hover: {
-              backgroundColor: "#1F3A2E",
-              borderColor: "#1F3A2E",
+              backgroundColor: "var(--si-forest)",
+              borderColor: "var(--si-forest)",
             },
           }}
           transition={{ duration: 0.4, ease }}

@@ -141,7 +141,7 @@ export function DashboardCalendar({
   return (
     <div className="card-glass overflow-hidden">
       <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-200/50">
-        <h3 className="text-sm font-semibold safe-text-title flex items-center gap-1.5 tracking-tight">
+        <h3 className="text-sm font-medium safe-text-title flex items-center gap-1.5 tracking-tight">
           <Calendar className="w-4 h-4 text-emerald-600" aria-hidden />
           {monthLabel}
         </h3>
@@ -170,7 +170,7 @@ export function DashboardCalendar({
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="text-xs font-semibold uppercase tracking-wider text-gray-400 py-1"
+              className="text-xs font-medium uppercase tracking-wider text-gray-400 py-1"
             >
               {label}
             </div>
@@ -234,7 +234,7 @@ export function DashboardCalendar({
 
       {selectedDay != null && (
         <div className="border-t border-gray-200/50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-2">
             {isCurrentMonth && selectedDay === today
               ? td("today")
               : new Intl.DateTimeFormat(intlLocale, {

@@ -21,7 +21,7 @@ export default async function RentabilitePage() {
   const { totals, dossiers } = await getDossierProfitability(cabinetId);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Rentabilité par dossier"
         description="Marge brute = facturé HT − débours payés par le cabinet. N'inclut pas le coût du temps (non suivi)."
@@ -32,21 +32,21 @@ export default async function RentabilitePage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4">
           <p className="text-xs text-si-muted">Facturé HT</p>
-          <p className="text-xl font-semibold tabular-nums">{formatCurrency(totals.factureHT)}</p>
+          <p className="text-xl font-medium tabular-nums">{formatCurrency(totals.factureHT)}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-si-muted">Débours payés</p>
-          <p className="text-xl font-semibold tabular-nums">{formatCurrency(totals.coutsDirects)}</p>
+          <p className="text-xl font-medium tabular-nums">{formatCurrency(totals.coutsDirects)}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-si-muted">Marge brute</p>
-          <p className={`text-xl font-semibold tabular-nums ${totals.margeBrute < 0 ? "text-[#B84A3E]" : "text-emerald-700"}`}>
+          <p className={`text-xl font-medium tabular-nums ${totals.margeBrute < 0 ? "text-[#B84A3E]" : "text-emerald-700"}`}>
             {formatCurrency(totals.margeBrute)}
           </p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-si-muted">Dossiers</p>
-          <p className="text-xl font-semibold tabular-nums">{totals.nbDossiers}</p>
+          <p className="text-xl font-medium tabular-nums">{totals.nbDossiers}</p>
         </CardContent></Card>
       </div>
 
@@ -69,7 +69,7 @@ export default async function RentabilitePage() {
                 </thead>
                 <tbody>
                   {dossiers.map((d) => (
-                    <tr key={d.dossierId} className="border-b border-si-line hover:bg-si-canvas/70">
+                    <tr key={d.dossierId} className="safe-zoom-rang border-b border-si-line ">
                       <td className="py-2.5 px-4">
                         <Link href={routes.dossier(d.dossierId)} className="text-emerald-700 hover:underline">
                           {d.numeroDossier ? `${d.numeroDossier} — ` : ""}{d.intitule}
@@ -78,7 +78,7 @@ export default async function RentabilitePage() {
                       <td className="py-2.5 px-4">{d.clientNom}</td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{formatCurrency(d.factureHT)}</td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{formatCurrency(d.coutsDirects)}</td>
-                      <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${d.margeBrute < 0 ? "text-[#B84A3E]" : ""}`}>
+                      <td className={`py-2.5 px-4 text-right tabular-nums font-medium ${d.margeBrute < 0 ? "text-[#B84A3E]" : ""}`}>
                         {formatCurrency(d.margeBrute)}
                       </td>
                       <td className="py-2.5 px-4 text-right tabular-nums">{pct(d.margePct)}</td>

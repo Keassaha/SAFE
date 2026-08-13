@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 
 function getSessionData() {
@@ -21,7 +21,9 @@ export async function GET() {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const { cabinetId, role } = data;
-  if (!canManageInvoices(role)) {
+  // Lecture : `canViewBilling`. Émettre une note de crédit (POST) reste sous
+  // `canManageInvoices`.
+  if (!canViewBilling(role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 

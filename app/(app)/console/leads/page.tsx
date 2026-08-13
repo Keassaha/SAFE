@@ -122,10 +122,7 @@ export default async function ConsoleLeadsPage() {
                 </thead>
                 <tbody className="divide-y divide-si-line">
                   {leads.map((lead) => (
-                    <tr
-                      key={lead.id}
-                      className="cursor-pointer transition hover:bg-si-canvas/60"
-                    >
+                    <tr key={lead.id} className="safe-zoom-rang cursor-pointer transition " >
                       <td className="px-4 py-3">
                         <Link
                           href={`/console/leads/${lead.id}`}

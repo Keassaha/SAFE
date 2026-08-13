@@ -64,17 +64,17 @@ export function SafeWindow({
       <StylesMaquettesMobiles />
       <div
         className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-5"
-        style={{ background: "#1F3A2E", color: "#E9EFE9" }}
+        style={{ background: "var(--si-forest)", color: "#E9EFE9" }}
       >
         <span className="flex items-center gap-2 font-sans text-[12px]">
           <b className="font-medium">SAFE</b>
           <span style={{ opacity: 0.45 }}>·</span>
           {fil}
         </span>
-        <span className="mock-mini flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "#9FD5B4" }}>
+        <span className="mock-mini flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "var(--si-verified-on-forest)" }}>
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full" style={{ background: "#9FD5B4", opacity: 0.6 }} />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "#9FD5B4" }} />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full" style={{ background: "var(--si-verified-on-forest)", opacity: 0.6 }} />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "var(--si-verified-on-forest)" }} />
           </span>
           {indice}
         </span>
@@ -219,7 +219,7 @@ export function MockupFicheDeTemps() {
             style={{ borderColor: LINE, background: "#fff" }}
           >
             <span
-              className="font-mono text-[19px] tabular-nums transition-colors"
+              className="safe-zoom font-mono text-[19px] tabular-nums transition-colors"
               style={{ color: enMarche ? GREEN : INK }}
             >
               {horloge}
@@ -227,7 +227,7 @@ export function MockupFicheDeTemps() {
             <button
               type="button"
               onClick={() => setEnMarche((v) => !v)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-[7px] px-3 font-sans text-[12px] font-medium transition-colors"
+              className="safe-zoom inline-flex h-8 items-center gap-1.5 rounded-[7px] px-3 font-sans text-[12px] font-medium transition-colors"
               style={
                 enMarche
                   ? { background: "rgba(31,42,36,0.07)", color: INK }
@@ -249,7 +249,7 @@ export function MockupFicheDeTemps() {
               type="button"
               onClick={verserLeChrono}
               disabled={secondes < 1}
-              className="inline-flex h-8 items-center rounded-[7px] border px-3 font-sans text-[12px] transition-colors disabled:opacity-40"
+              className="safe-zoom inline-flex h-8 items-center rounded-[7px] border px-3 font-sans text-[12px] transition-colors disabled:opacity-40"
               style={{ borderColor: LINE, color: MUTED, background: "#fff" }}
             >
               Verser dans l&apos;entrée
@@ -260,7 +260,7 @@ export function MockupFicheDeTemps() {
           </div>
 
           {/* Saisie */}
-          <form onSubmit={ajouter} className="mt-2.5 rounded-[10px] border p-3" style={{ borderColor: "rgba(18,161,80,0.3)", background: "rgba(18,161,80,0.04)" }}>
+          <form onSubmit={ajouter} className="mt-2.5 rounded-[10px] border p-3" style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.3)", background: "rgb(var(--si-forest-rgb) / 0.04)" }}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>
                 Ajouter une entrée
@@ -272,8 +272,8 @@ export function MockupFicheDeTemps() {
                     key={m}
                     type="button"
                     onClick={() => setMode(m)}
-                    className="rounded-[5px] px-2.5 py-1 font-sans text-[11px] capitalize transition-colors"
-                    style={mode === m ? { background: "#1F3A2E", color: "#fff" } : { color: MUTED }}
+                    className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] capitalize transition-colors"
+                    style={mode === m ? { background: "var(--si-forest)", color: "#fff" } : { color: MUTED }}
                   >
                     {m}
                   </button>
@@ -323,7 +323,7 @@ export function MockupFicheDeTemps() {
               )}
               <button
                 type="submit"
-                className="h-9 whitespace-nowrap rounded-[7px] px-4 font-sans text-[13px] font-medium transition-transform hover:-translate-y-px"
+                className="safe-zoom h-9 whitespace-nowrap rounded-[7px] px-4 font-sans text-[13px] font-medium transition-transform"
                 style={{ background: GREEN, color: "#fff" }}
               >
                 Ajouter
@@ -366,15 +366,15 @@ export function MockupFicheDeTemps() {
               <button
                 type="button"
                 onClick={facturer}
-                className="inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium transition-colors"
-                style={{ borderColor: "rgba(18,161,80,0.4)", color: VERIFIED, background: "#fff" }}
+                className="safe-zoom inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium transition-colors"
+                style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
               >
                 Préparer la facture →
               </button>
             ) : (
               <span
                 className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
-                style={{ background: "rgba(18,161,80,0.1)", color: VERIFIED }}
+                style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
               >
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} />
                 Facture préparée à partir de {money(nonFacture)} de temps. Aucune ressaisie.
@@ -397,7 +397,7 @@ export function MockupFicheDeTemps() {
       </IndiceEssai>
       <style>{`
         @keyframes mockIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-        .mock-input:focus { border-color: ${GREEN} !important; box-shadow: 0 0 0 3px rgba(18,161,80,0.12); }
+        .mock-input:focus { border-color: ${GREEN} !important; box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12); }
       `}</style>
     </div>
   );
@@ -456,9 +456,9 @@ export function MockupTableauDeBord() {
                   key={c.cle}
                   type="button"
                   onClick={() => setActive(on ? null : c.cle)}
-                  className="rounded-[10px] p-3 text-left transition-all duration-200 hover:-translate-y-0.5"
+                  className="safe-zoom rounded-[10px] p-3 text-left transition-all duration-200"
                   style={{
-                    background: on ? "#16301F" : "#1F3A2E",
+                    background: on ? "#16301F" : "var(--si-forest)",
                     color: "#EAF2EC",
                     boxShadow: on ? "0 16px 32px -18px rgba(11,31,25,0.7)" : "none",
                     outline: on ? `2px solid ${GREEN}` : "2px solid transparent",
@@ -467,7 +467,7 @@ export function MockupTableauDeBord() {
                   <span className="flex items-center gap-1.5">
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: estFid && !rapproche ? "#D9A63C" : "#7FD0A0" }}
+                      style={{ background: estFid && !rapproche ? "var(--si-amber)" : "var(--si-verified-on-forest)" }}
                     />
                     <span className="mock-mini font-mono text-[8.5px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.7)" }}>
                       {c.label}
@@ -483,7 +483,7 @@ export function MockupTableauDeBord() {
 
           {/* Panneau de détail, ouvert au clic */}
           <div
-            className="mt-3 overflow-hidden rounded-[9px] border transition-all duration-300"
+            className="safe-zoom mt-3 overflow-hidden rounded-[9px] border transition-all duration-300"
             style={{
               borderColor: carte ? LINE : "transparent",
               background: carte ? "#fff" : "transparent",
@@ -552,7 +552,9 @@ export function MockupAppComplete() {
         <StylesMaquettesMobiles />
         {/* Barre de menu de l'application */}
         <div
-          className="flex items-center gap-2 border-b px-3 py-2"
+          /* Sous 375 px, le menu passe sous le logo : sans cela la barre force
+             une largeur minimale qui déborde la page (reflow 320 px). */
+          className="flex items-center gap-2 border-b px-3 py-2 max-[374px]:flex-wrap"
           style={{ borderColor: "rgba(255,255,255,0.08)", background: "#FBFCFA" }}
         >
           <span className="flex items-center pr-2">
@@ -569,7 +571,7 @@ export function MockupAppComplete() {
                   key={m.cle}
                   type="button"
                   onClick={() => setVue(m.cle)}
-                  className="rounded-[6px] px-2.5 py-1.5 font-sans text-[11.5px] transition-colors"
+                  className="safe-zoom rounded-[6px] px-2.5 py-1.5 font-sans text-[11.5px] transition-colors"
                   style={{
                     color: on ? INK : MUTED,
                     background: on ? "rgba(31,42,36,0.06)" : "transparent",
@@ -585,7 +587,7 @@ export function MockupAppComplete() {
         {/* Bandeau d'état */}
         <div
           className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2"
-          style={{ background: "#1F3A2E", color: "#E4EDE6" }}
+          style={{ background: "var(--si-forest)", color: "#E4EDE6" }}
         >
           {[
             ["Dossiers actifs", "12"],
@@ -595,7 +597,7 @@ export function MockupAppComplete() {
             <span key={k} className="mock-mini flex items-center gap-1.5 font-sans text-[10.5px]">
               <span
                 className="h-1.5 w-1.5 rounded-full"
-                style={{ background: i === 2 && !rapproche ? "#D9A63C" : "#7FD0A0" }}
+                style={{ background: i === 2 && !rapproche ? "var(--si-amber)" : "var(--si-verified-on-forest)" }}
               />
               {k}
               <b className="font-medium">{v}</b>
@@ -617,10 +619,10 @@ export function MockupAppComplete() {
                   ["À recevoir", "2 260,00 $", "3 factures"],
                   ["Heures du mois", "128,75 h", "+8 %"],
                 ].map(([l, v, s]) => (
-                  <div key={l} className="min-w-0 rounded-[9px] p-2.5" style={{ background: "#1F3A2E", color: "#EAF2EC" }}>
+                  <div key={l} className="min-w-0 rounded-[9px] p-2.5" style={{ background: "var(--si-forest)", color: "#EAF2EC" }}>
                     <p className="mock-mini truncate font-mono text-[8px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.65)" }}>{l}</p>
                     <p className="mt-1.5 truncate font-mono text-[14px] tabular-nums">{v}</p>
-                    <p className="mock-mini mt-0.5 truncate font-sans text-[9px]" style={{ color: "#7FD0A0" }}>{s}</p>
+                    <p className="mock-mini mt-0.5 truncate font-sans text-[9px]" style={{ color: "var(--si-verified-on-forest)" }}>{s}</p>
                   </div>
                 ))}
               </div>
@@ -650,7 +652,7 @@ export function MockupAppComplete() {
                     type="button"
                     onClick={() => setEnvoyee(true)}
                     className="mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[11.5px] font-medium"
-                    style={{ background: envoyee ? "rgba(18,161,80,0.12)" : GREEN, color: envoyee ? VERIFIED : "#fff" }}
+                    style={{ background: envoyee ? "rgb(var(--si-forest-rgb) / 0.12)" : GREEN, color: envoyee ? VERIFIED : "#fff" }}
                   >
                     {envoyee ? "Rappels envoyés aux trois clients" : "Envoyer les rappels"}
                   </button>
@@ -761,7 +763,7 @@ export function MockupAppComplete() {
                     </button>
                   </div>
                 ) : (
-                  <p className="rounded-[8px] px-3 py-2.5 font-sans text-[11px]" style={{ background: "rgba(18,161,80,0.1)", color: VERIFIED }}>
+                  <p className="rounded-[8px] px-3 py-2.5 font-sans text-[11px]" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}>
                     Concordance. La certification peut être produite.
                   </p>
                 )}
@@ -844,7 +846,7 @@ export function MockupDepotConforme() {
                 </p>
               </div>
             ) : (
-              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgba(18,161,80,0.1)" }}>
+              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
                 <p className="font-sans text-[12.5px] font-medium" style={{ color: VERIFIED }}>
                   Dépôt enregistré
                 </p>
@@ -899,7 +901,7 @@ export function MockupEnvoiFacture() {
                 return (
                   <div
                     key={e[0]}
-                    className="flex items-center justify-between border-b py-2 transition-all duration-500"
+                    className="safe-zoom flex items-center justify-between border-b py-2 transition-all duration-500"
                     style={{
                       borderColor: LINE_SOFT,
                       opacity: visible ? 1 : 0.2,
@@ -909,7 +911,7 @@ export function MockupEnvoiFacture() {
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-500"
+                        className="safe-zoom h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-500"
                         style={{ background: visible ? GREEN : "rgba(124,135,127,0.4)" }}
                       />
                       <span className="truncate font-sans text-[12.5px]" style={{ color: INK }}>{e[0]}</span>
@@ -938,7 +940,7 @@ export function MockupEnvoiFacture() {
               <div className="flex flex-wrap items-center gap-3">
                 <span
                   className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
-                  style={{ background: "rgba(18,161,80,0.1)", color: VERIFIED }}
+                  style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} />
                   {etape === 1
@@ -1038,8 +1040,8 @@ export function MockupCartable() {
                 key={s[0]}
                 className="flex items-center justify-between rounded-[7px] border px-3 py-2"
                 style={{
-                  borderColor: depose && i === 1 ? "rgba(18,161,80,0.45)" : LINE_SOFT,
-                  background: depose && i === 1 ? "rgba(18,161,80,0.06)" : "#fff",
+                  borderColor: depose && i === 1 ? "rgb(var(--si-forest-rgb) / 0.45)" : LINE_SOFT,
+                  background: depose && i === 1 ? "rgb(var(--si-forest-rgb) / 0.06)" : "#fff",
                   animation: `mockIn 0.45s cubic-bezier(0.16,1,0.3,1) ${i * 55}ms both`,
                 }}
               >
@@ -1062,7 +1064,7 @@ export function MockupCartable() {
                 type="button"
                 onClick={() => setDepose(true)}
                 className="inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium"
-                style={{ borderColor: "rgba(18,161,80,0.4)", color: VERIFIED, background: "#fff" }}
+                style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
               >
                 Déposer une pièce
               </button>
@@ -1106,7 +1108,7 @@ export function MockupRapprochement() {
               <span className="flex items-center gap-2 font-mono text-[13px]" style={{ color: ok ? INK : "#9A6712" }}>
                 {money(val)}
                 <span
-                  className="h-2 w-2 rounded-full transition-all"
+                  className="safe-zoom h-2 w-2 rounded-full transition-all"
                   style={{
                     background: ok ? GREEN : "#C38A24",
                     boxShadow: ok ? "none" : "0 0 0 4px rgba(195,138,36,0.12)",
@@ -1131,7 +1133,7 @@ export function MockupRapprochement() {
                 </button>
               </div>
             ) : (
-              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgba(18,161,80,0.1)" }}>
+              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
                 <p className="font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
                   Concordance. Les trois soldes s&apos;accordent, la certification peut être produite.
                 </p>
@@ -1204,10 +1206,10 @@ export function MockupDossier() {
                 <button
                   type="button"
                   onClick={() => setEcran("dossier")}
-                  className="group mt-2 flex w-full items-center justify-between gap-3 rounded-[9px] border p-3 text-left transition-all duration-200 hover:-translate-y-0.5"
+                  className="safe-zoom group mt-2 flex w-full items-center justify-between gap-3 rounded-[9px] border p-3 text-left transition-all duration-200"
                   style={{
-                    borderColor: "rgba(18,161,80,0.4)",
-                    background: "rgba(18,161,80,0.05)",
+                    borderColor: "rgb(var(--si-forest-rgb) / 0.4)",
+                    background: "rgb(var(--si-forest-rgb) / 0.05)",
                     boxShadow: "0 10px 24px -18px rgba(11,31,25,0.5)",
                   }}
                 >
@@ -1216,7 +1218,7 @@ export function MockupDossier() {
                     <span className="mt-0.5 block font-sans text-[13.5px]" style={{ color: INK }}>Succession Tremblay</span>
                   </span>
                   <span
-                    className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
+                    className="safe-zoom shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
                     style={{ background: GREEN, color: "#fff" }}
                   >
                     Ouvrir →
@@ -1239,7 +1241,7 @@ export function MockupDossier() {
                 <button
                   type="button"
                   onClick={() => { setEcran("client"); setOnglet("apercu"); }}
-                  className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-sans text-[12px] transition-colors"
+                  className="safe-zoom inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-sans text-[12px] transition-colors"
                   style={{ borderColor: LINE, color: MUTED, background: "#fff" }}
                 >
                   ← Fiche client
@@ -1257,7 +1259,7 @@ export function MockupDossier() {
                       key={o.cle}
                       type="button"
                       onClick={() => setOnglet(o.cle)}
-                      className="-mb-px px-3 py-2 font-sans text-[12.5px] transition-colors"
+                      className="safe-zoom -mb-px px-3 py-2 font-sans text-[12.5px] transition-colors"
                       style={{
                         color: on ? INK : MUTED,
                         borderBottom: `2px solid ${on ? GREEN : "transparent"}`,

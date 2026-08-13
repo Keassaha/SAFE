@@ -88,21 +88,44 @@ function SceneFraisClairs() {
           <p className="text-center font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>
             Ce que vous ne verrez pas ici
           </p>
-          <div ref={stage} className="relative mx-auto mt-8 h-[440px] w-full sm:h-[520px]">
+          {/* Éparpillement sur écran large, empilement en dessous.
+              La dispersion dit « des frais partout » ; en colonne étroite elle
+              dit surtout n'importe quoi. Mesuré à 375 px : trois paires de
+              pastilles se recouvraient et deux passaient à la ligne. Un
+              chevauchement se lit comme un défaut, pas comme une intention.
+
+              L'empilement garde le propos : les frais se posent un à un, se
+              rayent un à un, puis disparaissent. Même chorégraphie, lue de
+              haut en bas au lieu d'être lue en désordre.
+
+              Bascule à 768 px et non à 640 : mesuré à 640, deux pastilles
+              passaient encore sur trois lignes, et la barre de rature ne
+              traverse qu'une ligne. `md:whitespace-nowrap` interdit la coupure
+              une fois la dispersion active — un frais se lit d'un trait.
+
+              Position et rotation passent par des variables CSS pour ne
+              s'appliquer qu'à partir du point de bascule : un style en ligne
+              ne sait pas répondre à une requête de média. */}
+          <div
+            ref={stage}
+            className="relative mx-auto mt-8 flex w-full flex-col items-center gap-3 md:block md:h-[520px]"
+          >
             {FRAIS.map((f) => (
               <div
                 key={f.label}
                 data-frais
-                className="absolute inline-flex items-center rounded-full border bg-white px-7 py-3.5 font-sans text-[15px] sm:text-[17px]"
-                style={{
-                  left: `${f.x}%`,
-                  top: `${f.y}%`,
-                  rotate: `${f.r}deg`,
-                  borderColor: LINE,
-                  color: MUTED,
-                  boxShadow: "0 16px 32px -20px rgba(11,31,25,0.4)",
-                  opacity: 0,
-                }}
+                className="relative inline-flex max-w-full items-center justify-center rounded-full border bg-white px-5 py-3 text-center font-sans text-[14px] sm:text-[15px] md:absolute md:left-[var(--fx)] md:top-[var(--fy)] md:max-w-none md:whitespace-nowrap md:px-7 md:py-3.5 md:text-[17px] md:[rotate:var(--fr)]"
+                style={
+                  {
+                    "--fx": `${f.x}%`,
+                    "--fy": `${f.y}%`,
+                    "--fr": `${f.r}deg`,
+                    borderColor: LINE,
+                    color: MUTED,
+                    boxShadow: "0 16px 32px -20px rgba(11,31,25,0.4)",
+                    opacity: 0,
+                  } as React.CSSProperties
+                }
               >
                 {f.label}
                 <span
@@ -115,17 +138,17 @@ function SceneFraisClairs() {
             ))}
             <div
               data-prix
-              className="absolute left-1/2 top-1/2 w-[min(92%,460px)] rounded-[18px] border bg-white p-10 text-center"
+              className="absolute left-1/2 top-1/2 w-[min(96%,460px)] rounded-[18px] border bg-white p-7 text-center md:w-[min(92%,460px)] md:p-10"
               style={{
-                borderColor: "rgba(18,161,80,0.35)",
+                borderColor: "rgb(var(--si-forest-rgb) / 0.35)",
                 boxShadow: "0 40px 80px -44px rgba(11,31,25,0.55)",
                 opacity: 0,
                 transform: "translate(-50%, -50%)",
               }}
             >
               <p className="font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: GREEN }}>Un prix clair</p>
-              <p className="mt-4 font-mono text-[64px] leading-none tabular-nums" style={{ color: INK }}>
-                99 $<span className="font-sans text-[17px]" style={{ color: MUTED }}> / mois</span>
+              <p className="mt-4 font-mono text-[46px] leading-none tabular-nums md:text-[64px]" style={{ color: INK }}>
+                99 $<span className="font-sans text-[15px] md:text-[17px]" style={{ color: MUTED }}> / mois</span>
               </p>
               <p className="mt-3 font-sans text-[13.5px] leading-[1.55]" style={{ color: MUTED }}>
                 Configuration initiale comprise. Rien à ajouter pour travailler.
@@ -292,7 +315,7 @@ export default function TarificationPage() {
               className="flex flex-col rounded-[16px] p-7"
               style={{
                 background: SURFACE,
-                border: `1px solid ${f.accent ? "rgba(18,161,80,0.35)" : LINE}`,
+                border: `1px solid ${f.accent ? "rgb(var(--si-forest-rgb) / 0.35)" : LINE}`,
                 boxShadow: f.accent ? "0 30px 60px -40px rgba(11,31,25,0.4)" : "none",
               }}
             >
@@ -316,7 +339,7 @@ export default function TarificationPage() {
               <div className="mt-6">
                 <Link
                   href={R.diagnostic}
-                  className="inline-flex h-10 items-center rounded-[8px] px-4 font-sans text-[14px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+                  className="safe-zoom inline-flex h-10 items-center rounded-[8px] px-4 font-sans text-[14px] font-medium transition-transform duration-200"
                   style={
                     f.accent
                       ? { background: GREEN, color: "#fff" }
@@ -382,7 +405,7 @@ export default function TarificationPage() {
           className="mx-auto max-w-3xl rounded-[18px] p-8 sm:p-10"
           style={{ background: "#14261F", color: "#EAF2EC" }}
         >
-          <span className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: "#8EB69B" }}>
+          <span className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             Cabinets fondateurs
           </span>
           <h2 className="mt-4 max-w-[22ch] font-serif text-[28px] leading-[1.15] sm:text-[36px]" style={{ letterSpacing: "-0.015em" }}>
@@ -410,7 +433,7 @@ export default function TarificationPage() {
               "Avant de signer, vous recevez par écrit la liste de ce que SAFE ne fait pas encore.",
             ].map((item) => (
               <li key={item} className="flex gap-3">
-                <span aria-hidden style={{ color: "#8EB69B" }}>—</span>
+                <span aria-hidden style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>—</span>
                 <span>{item}</span>
               </li>
             ))}
@@ -422,7 +445,7 @@ export default function TarificationPage() {
             votre part le jour où les résultats seront là.
           </p>
 
-          <p className="mt-4 font-sans text-[14px] leading-[1.6]" style={{ color: "#8EB69B" }}>
+          <p className="mt-4 font-sans text-[14px] leading-[1.6]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             Chaque mise en route est faite à la main, ce qui nous limite à{" "}
             {FOND.miseEnRouteParMois} cabinets par mois. C’est pour cela qu’il y a{" "}
             {FOND.placesTotal} places et pas trente.
@@ -438,7 +461,7 @@ export default function TarificationPage() {
 
           <Link
             href={R.demo}
-            className="mt-7 inline-flex h-11 items-center rounded-[8px] px-5 font-sans text-[15px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+            className="safe-zoom mt-7 inline-flex h-11 items-center rounded-[8px] px-5 font-sans text-[15px] font-medium transition-transform duration-200"
             style={{ background: GREEN, color: "#fff" }}
           >
             Vérifier s’il reste une place
@@ -460,7 +483,7 @@ export default function TarificationPage() {
           <div className="mt-12 space-y-8">
             {QUESTIONS.map((item, i) => (
               <motion.div key={item.q} {...fadeUp(0.06 + i * 0.05)} className="pt-6" style={{ borderTop: `1px solid ${LINE}` }}>
-                <h3 className="font-sans text-[16px] font-semibold" style={{ color: INK }}>
+                <h3 className="font-sans text-[16px] font-medium" style={{ color: INK }}>
                   {item.q}
                 </h3>
                 <p className="mt-2 font-sans text-[15px] leading-[1.6]" style={{ color: MUTED }}>

@@ -104,7 +104,7 @@ export function ConflictCheckWidget({ dossierId, clientId, clientName }: Conflic
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className={`w-4 h-4 ${hasUnresolvedConflict ? "text-[#B84A3E]" : "text-si-verified"}`} />
-            <h4 className="text-sm font-semibold">Conflict of Interest Check</h4>
+            <h4 className="text-sm font-medium">Conflict of Interest Check</h4>
           </div>
           {latestCheck && (
             <StatusBadge

@@ -78,7 +78,7 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileCheck className="w-4 h-4 text-si-ink" />
-            <h4 className="text-sm font-semibold">Document Expiry Tracker (D8)</h4>
+            <h4 className="text-sm font-medium">Document Expiry Tracker (D8)</h4>
           </div>
           <Button variant="secondary" onClick={() => setShowAdd(!showAdd)}>
             <Plus className="w-3 h-3" />

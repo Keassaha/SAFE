@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { signOutClient } from "@/lib/auth/sign-out-client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,6 +33,16 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { UserRole } from "@prisma/client";
+import {
+  canViewAssistantQueue,
+  canViewBillingTrust,
+  canViewClients,
+  canViewComptabilite,
+  canViewDossiers,
+  canViewEmployees,
+  canViewReports,
+} from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { GlobalTimer } from "@/components/temps/GlobalTimer";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
@@ -66,6 +76,15 @@ interface HeaderProps {
  *  Nav spec — groupes éditoriaux
  *  ─────────────────────────────────────────────────────────── */
 
+/**
+ * `show` : le menu ne propose que des portes qui s'ouvrent.
+ *
+ * La garde de page reste seule juge (« le menu cache, il ne protège pas »),
+ * mais afficher une entrée que le rôle ne peut pas ouvrir produisait un aller
+ * simple vers le tableau de bord. Chaque prédicat reprend donc EXACTEMENT la
+ * garde de la page visée ; une entrée sans `show` mène à une page ouverte à
+ * tous les rôles connectés.
+ */
 type NavChild = {
   labelKey?: string;
   label?: string; // Libellé littéral (mode consultant, sans i18n)
@@ -73,6 +92,7 @@ type NavChild = {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   descriptionKey?: string;
   description?: string; // Description littérale (mode consultant)
+  show?: (role: UserRole) => boolean;
 };
 
 type NavGroup =
@@ -82,6 +102,7 @@ type NavGroup =
       label?: string;
       href: string;
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+      show?: (role: UserRole) => boolean;
     }
   | {
       id: string;
@@ -90,7 +111,25 @@ type NavGroup =
       icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
       children: NavChild[];
       matchPrefixes: string[];
+      show?: (role: UserRole) => boolean;
     };
+
+/**
+ * Retire du menu les entrées que le rôle ne peut pas ouvrir, et le groupe qui
+ * n'a plus rien à proposer. Le menu latéral mobile filtre déjà de son côté
+ * (`SidebarNav`) : sur ordinateur, cette barre est la seule navigation, elle
+ * doit donc dire la même chose.
+ */
+function filterNavByRole(groups: NavGroup[], role: UserRole): NavGroup[] {
+  return groups
+    .filter((group) => group.show?.(role) ?? true)
+    .map((group) =>
+      "children" in group
+        ? { ...group, children: group.children.filter((child) => child.show?.(role) ?? true) }
+        : group,
+    )
+    .filter((group) => !("children" in group) || group.children.length > 0);
+}
 
 const NAV: NavGroup[] = [
   {
@@ -118,12 +157,14 @@ const NAV: NavGroup[] = [
         href: routes.clients,
         icon: Users,
         descriptionKey: "navClientsDesc",
+        show: canViewClients,
       },
       {
         labelKey: "navMatters",
         href: routes.dossiers,
         icon: FolderOpen,
         descriptionKey: "navMattersDesc",
+        show: canViewDossiers,
       },
       {
         labelKey: "navAgenda",
@@ -136,6 +177,7 @@ const NAV: NavGroup[] = [
         href: routes.employees,
         icon: Users,
         descriptionKey: "navEmployeesDesc",
+        show: canViewEmployees,
       },
       {
         // File assistante et Mon temps existaient dans le tiroir mobile seul.
@@ -143,6 +185,7 @@ const NAV: NavGroup[] = [
         href: routes.gestionAssistante,
         icon: ClipboardCheck,
         descriptionKey: "navAssistantQueueDesc",
+        show: canViewAssistantQueue,
       },
       {
         labelKey: "navMyHours",
@@ -169,12 +212,14 @@ const NAV: NavGroup[] = [
         href: routes.comptabilite,
         icon: BookOpen,
         descriptionKey: "navAccountingDesc",
+        show: canViewComptabilite,
       },
       {
         labelKey: "navTrust",
         href: routes.comptes,
         icon: Wallet,
         descriptionKey: "navTrustDesc",
+        show: canViewBillingTrust,
       },
       {
         // Section Inspection : tout ce qu'un inspecteur demande, au meme endroit.
@@ -182,6 +227,7 @@ const NAV: NavGroup[] = [
         href: routes.inspection,
         icon: ClipboardCheck,
         descriptionKey: "navInspectionDesc",
+        show: canViewBillingTrust,
       },
       {
         // Conformite existait dans le tiroir mobile et PAS ici : le tableau de bord
@@ -220,6 +266,7 @@ const NAV: NavGroup[] = [
         href: routes.rapports,
         icon: BarChart3,
         descriptionKey: "navReportsDesc",
+        show: canViewReports,
       },
       {
         labelKey: "navSafeImport",
@@ -330,6 +377,7 @@ export function Header({
   cabinetId,
   onOpenMobileNav,
   billingMode,
+  role,
   isSafeInc,
   trustStatus,
   province,
@@ -338,8 +386,13 @@ export function Header({
   const tMisc = useTranslations("miscUi");
   const pathname = usePathname();
 
+  // Même repli que le layout applicatif quand la session ne porte pas de rôle.
+  const effectiveRole = (role ?? "avocat") as UserRole;
   // Mode consultant (SAFE Inc.) : menu unifié au lieu du menu cabinet.
-  const navGroups = isSafeInc ? CONSULTANT_NAV : NAV;
+  // Puis retrait des entrées que le rôle ne peut pas ouvrir : sur ordinateur
+  // cette barre est la seule navigation, et une entrée refusée par la garde de
+  // page se soldait par un aller simple vers le tableau de bord.
+  const navGroups = filterNavByRole(isSafeInc ? CONSULTANT_NAV : NAV, effectiveRole);
   // Résout le libellé : littéral (consultant) ou clé i18n (cabinet).
   const navLabel = (o: { label?: string; labelKey?: string }) =>
     o.label ?? (o.labelKey ? tMisc(o.labelKey) : "");
@@ -351,6 +404,87 @@ export function Header({
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Entrée survolée.
+   *
+   * Ne sert plus qu'à ouvrir le bon panneau déroulant. La pastille grise qui
+   * suivait le curseur a été retirée : elle se lisait comme une sélection
+   * alors que rien n'était sélectionné. Le zoom suffit à dire où est le doigt.
+   */
+  const [, setSurvole] = useState<string | null>(null);
+
+  /**
+   * Loupe de navigation.
+   *
+   * Chaque entrée grossit selon sa distance au curseur, suivant une courbe
+   * en cloche. L'entrée sous le pointeur atteint son amplitude maximale, ses
+   * voisines la reprennent en s'atténuant, et l'ensemble se soulève très
+   * légèrement. Le résultat n'est pas un survol qui s'allume : c'est une
+   * surface qui se déforme sous le doigt.
+   *
+   * Trois précautions :
+   * - les styles sont écrits directement dans le DOM depuis une boucle
+   *   d'animation, jamais par un rendu React : une position de souris ne
+   *   déclenche pas soixante rendus par seconde ;
+   * - l'amplitude reste basse (1,14) et le rayon large (150 px), sinon la
+   *   barre gondole au lieu de respirer ;
+   * - `prefers-reduced-motion` neutralise tout, sans casser la navigation.
+   */
+  const trameRef = useRef<number | null>(null);
+  const souriseRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const AMPLITUDE = 0.10;
+    const RAYON = 170;
+
+    const peindre = () => {
+      trameRef.current = null;
+      const entrees = nav.querySelectorAll<HTMLElement>("[data-nav-item]");
+      const x = souriseRef.current;
+      entrees.forEach((entree) => {
+        if (x === null) {
+          entree.style.transform = "";
+          return;
+        }
+        const r = entree.getBoundingClientRect();
+        const centre = r.left + r.width / 2 - nav.getBoundingClientRect().left;
+        const d = (centre - x) / RAYON;
+        const cloche = Math.exp(-d * d);
+        const echelle = 1 + AMPLITUDE * cloche;
+        entree.style.transform = `scale(${echelle.toFixed(3)}) translateY(${(-2 * cloche).toFixed(2)}px)`;
+      });
+    };
+
+    const demander = () => {
+      if (trameRef.current === null) trameRef.current = requestAnimationFrame(peindre);
+    };
+
+    const surDeplacement = (e: PointerEvent) => {
+      souriseRef.current = e.clientX - nav.getBoundingClientRect().left;
+      demander();
+    };
+    const surSortie = () => {
+      souriseRef.current = null;
+      // `pointerleave` est natif et fiable, là où le `onMouseLeave` de React
+      // repose sur une synthèse à partir de `mouseout` qui ne se déclenche pas
+      // dans tous les cas.
+      setSurvole(null);
+      demander();
+    };
+
+    nav.addEventListener("pointermove", surDeplacement);
+    nav.addEventListener("pointerleave", surSortie);
+    return () => {
+      nav.removeEventListener("pointermove", surDeplacement);
+      nav.removeEventListener("pointerleave", surSortie);
+      if (trameRef.current !== null) cancelAnimationFrame(trameRef.current);
+    };
+  }, []);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // ⌘K focuses search
@@ -401,16 +535,29 @@ export function Header({
     // Plan 3, niveau subtle : la barre supérieure surplombe le canvas et son
     // défilement. Le travail continue d'exister derrière elle et doit rester
     // perceptible, ce que seul le verre exprime honnêtement.
-    <header
-      className="safe-glass-subtle shrink-0 flex items-center justify-between px-4 md:px-6 gap-4 h-16 border-b-[0.5px] z-30 relative"
-    >
+    <header className="shrink-0 px-3 pt-3 sm:px-5 sm:pt-4 z-30 relative">
+      {/* Barre flottante, en verre.
+         Elle ne touche plus les bords et ne barre plus l'écran : un retrait la
+         détache, une ombre unique dit qu'elle passe au-dessus du travail, et
+         le verre laisse deviner le contenu qui défile dessous. C'est la seule
+         justification du verre (P10) : exprimer une superposition réelle. */}
+      <div
+        className="mx-auto flex h-14 w-full max-w-[1320px] items-center justify-between gap-3 rounded-xl border px-3 sm:px-4"
+        style={{
+          background: "rgb(var(--si-surface-rgb) / 0.72)",
+          backdropFilter: "blur(20px) saturate(1.4)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+          borderColor: "rgb(var(--si-line-ink-rgb) / 0.09)",
+          boxShadow: "0 14px 34px -22px rgb(var(--si-line-ink-rgb) / 0.42)",
+        }}
+      >
       {/* ── LEFT: Mobile menu + Logo + Cabinet ───────────────── */}
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex shrink-0 items-center gap-3">
         {onOpenMobileNav ? (
           <button
             type="button"
             onClick={onOpenMobileNav}
-            className="shrink-0 lg:hidden p-1.5 -ml-1.5 rounded-md hover:bg-[var(--si-canvas)] transition-colors"
+            className="safe-zoom-menu shrink-0 lg:hidden p-1.5 -ml-1.5 rounded-md"
             aria-label={t("openMenu")}
           >
             <Menu className="w-5 h-5 text-text-body" strokeWidth={1.75} />
@@ -440,8 +587,9 @@ export function Header({
       {/* ── CENTER: Navigation groups with dropdowns ─────────── */}
       <nav
         ref={navRef}
-        className="flex-1 hidden lg:flex items-center justify-center gap-1"
+        className="relative hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex"
         aria-label={tMisc("mainNavigationAria")}
+        onMouseLeave={() => setSurvole(null)}
       >
         {navGroups.map((group) => {
           const active = isGroupActive(group, pathname);
@@ -453,15 +601,22 @@ export function Header({
               <Link
                 key={group.id}
                 href={group.href}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[13px] font-sans font-medium transition-colors ${
-                  active
-                    ? "bg-[var(--si-canvas)] text-text-primary"
-                    : "text-text-muted hover:text-text-primary hover:bg-si-canvas/60"
+                data-nav-item={group.id}
+                data-actif={active}
+                aria-label={navLabel(group)}
+                title={navLabel(group)}
+                onMouseEnter={() => setSurvole(group.id)}
+                onFocus={() => setSurvole(group.id)}
+                onBlur={() => setSurvole(null)}
+                className={`relative z-10 inline-flex origin-bottom items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                  active ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {navLabel(group)}
+                {/* Sous 1280 px, six libellés ne tiennent pas sans écraser la
+                    marque. L'icône porte alors seule, le nom accessible reste. */}
+                <span className="hidden xl:inline">{navLabel(group)}</span>
               </Link>
             );
           }
@@ -469,21 +624,30 @@ export function Header({
           // Dropdown group
           const isOpen = openGroupId === group.id;
           return (
-            <div key={group.id} className="relative">
+            <div key={group.id} className="relative z-10">
               <button
                 type="button"
+                data-nav-item={group.id}
+                data-actif={active || isOpen}
+                aria-label={navLabel(group)}
+                title={navLabel(group)}
                 onClick={() => setOpenGroupId(isOpen ? null : group.id)}
-                onMouseEnter={() => setOpenGroupId(group.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[13px] font-sans font-medium transition-colors ${
-                  active || isOpen
-                    ? "bg-[var(--si-canvas)] text-text-primary"
-                    : "text-text-muted hover:text-text-primary hover:bg-si-canvas/60"
+                onMouseEnter={() => {
+                  setOpenGroupId(group.id);
+                  setSurvole(group.id);
+                }}
+                onFocus={() => setSurvole(group.id)}
+                onBlur={() => setSurvole(null)}
+                className={`inline-flex origin-bottom items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                  active || isOpen ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
-                {navLabel(group)}
+                {/* Sous 1280 px, six libellés ne tiennent pas sans écraser la
+                    marque. L'icône porte alors seule, le nom accessible reste. */}
+                <span className="hidden xl:inline">{navLabel(group)}</span>
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -499,10 +663,11 @@ export function Header({
               <AnimatePresence>
                 {isOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ originY: 0, originX: 0.5 }}
                     role="menu"
                     onMouseLeave={() => setOpenGroupId(null)}
                     className="absolute left-1/2 -translate-x-1/2 mt-2 w-[320px] bg-surface border border-[0.5px] border-border rounded-[10px] shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)] overflow-hidden"
@@ -516,7 +681,10 @@ export function Header({
                         {navLabel(group)}
                       </span>
                     </div>
-                    <ul role="list" className="pb-2">
+                    {/* `px-1.5` : les entrées s'insèrent au lieu de border le
+                        panneau. Sans ce retrait, le zoom souple les ferait
+                        grandir dans le bord `overflow-hidden` et se rogner. */}
+                    <ul role="list" className="px-1.5 pb-2">
                       {group.children.map((child) => {
                         const ChildIcon = child.icon;
                         const childActive = isChildActive(
@@ -528,17 +696,19 @@ export function Header({
                             <Link
                               href={child.href}
                               role="menuitem"
-                              className={`group flex items-start gap-3 px-4 py-2.5 transition-colors ${
-                                childActive
-                                  ? "bg-si-forest/5"
-                                  : "hover:bg-[var(--si-canvas)]"
+                              /* Le survol ne peint plus un rectangle gris : il
+                                 soulève l'entrée. Le fond teinté ne sert plus
+                                 qu'à dire « vous êtes ici », ce qui est un état
+                                 et non un survol. */
+                              className={`safe-zoom-menu group flex items-start gap-3 rounded-lg px-2.5 py-2.5 ${
+                                childActive ? "bg-si-forest/5" : ""
                               }`}
                               onClick={() => setOpenGroupId(null)}
                             >
                               <span
                                 className={`shrink-0 mt-0.5 w-7 h-7 rounded-[7px] flex items-center justify-center border border-[0.5px] transition-colors ${
                                   childActive
-                                    ? "bg-si-forest border-si-forest text-white"
+                                    ? "safe-action-degrade border-si-forest text-white"
                                     : "bg-[var(--si-canvas)] border-border text-si-forest group-hover:bg-si-forest/10 group-hover:border-si-forest/30"
                                 }`}
                               >
@@ -579,7 +749,7 @@ export function Header({
 
       {/* ── RIGHT: Search, Locale, Timer, User menu ──────────── */}
       <div className="flex items-center gap-2 lg:gap-3 shrink-0">
-        <div className="relative hidden md:block w-44 lg:w-56">
+        <div className="relative hidden md:block w-40 xl:w-52">
           <Search
             className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-si-muted"
             strokeWidth={1.75}
@@ -598,9 +768,6 @@ export function Header({
 
         <AlertCenter status={trustStatus ?? null} province={province ?? null} />
 
-        <div className="safe-topbar-locale scale-90 origin-right">
-          <LocaleSwitcher />
-        </div>
 
         {billingMode !== "forfait" && (
           <div className="scale-90 origin-right">
@@ -616,7 +783,7 @@ export function Header({
           <button
             type="button"
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="w-[32px] h-[32px] rounded-full bg-si-forest flex items-center justify-center text-white text-[12px] font-semibold hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+            className="w-[32px] h-[32px] rounded-full safe-action-degrade flex items-center justify-center text-white text-[12px] font-medium hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
             aria-label={displayName}
             aria-haspopup="menu"
             aria-expanded={userMenuOpen}
@@ -627,10 +794,11 @@ export function Header({
           <AnimatePresence>
             {userMenuOpen && (
               <motion.div
-                initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                initial={{ opacity: 0, y: -6, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                style={{ originY: 0, originX: 1 }}
                 role="menu"
                 className="absolute right-0 mt-2 w-64 bg-surface border border-[0.5px] border-border rounded-[10px] shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)] overflow-hidden z-50"
               >
@@ -648,12 +816,22 @@ export function Header({
                   )}
                 </div>
 
-                <div className="py-1.5">
+                {/* La langue vivait dans la barre, deux boutons permanents pour
+                    un réglage qu'on change une fois. Elle rejoint le compte, où
+                    l'on va déjà chercher ce genre de préférence. */}
+                <div className="flex items-center justify-between gap-3 border-b border-[0.5px] border-border/70 px-4 py-2.5">
+                  <span className="text-[13px] font-sans text-text-body">
+                    {tMisc("language")}
+                  </span>
+                  <LocaleSwitcher />
+                </div>
+
+                <div className="px-1.5 py-1.5">
                   <Link
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--si-canvas)] hover:text-text-primary transition-colors"
+                    className="safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
                   >
                     <Settings className="w-4 h-4" strokeWidth={1.75} />
                     {t("settings")}
@@ -662,14 +840,14 @@ export function Header({
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-text-body hover:bg-[var(--si-canvas)] hover:text-text-primary transition-colors"
+                    className="safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
                   >
                     <UserIcon className="w-4 h-4" strokeWidth={1.75} />
                     {tMisc("myProfile")}
                   </Link>
                 </div>
 
-                <div className="border-t border-[0.5px] border-border/70 py-1.5">
+                <div className="border-t border-[0.5px] border-border/70 px-1.5 py-1.5">
                   <button
                     type="button"
                     role="menuitem"
@@ -677,7 +855,7 @@ export function Header({
                       setUserMenuOpen(false);
                       void signOutClient("/");
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-[13px] font-sans text-[#B84A3E] hover:bg-[#B84A3E]/5 transition-colors"
+                    className="safe-zoom-menu flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-[#B84A3E]"
                   >
                     <LogOut className="w-4 h-4" strokeWidth={1.75} />
                     {t("signOut")}
@@ -687,6 +865,7 @@ export function Header({
             )}
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </header>
   );

@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/debours";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { Pencil, Trash2, FileText } from "lucide-react";
 
 export type DeboursDossierRow = {
@@ -46,7 +47,10 @@ export function DossierDebours({
 
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // Paginé par 20, comme tous les registres du produit.
+  const pageDebours = usePaginationLocale(debours);
 
+  // Les deux totaux portent sur tout le registre, jamais sur la page affichée.
   const totalRefacturable = debours
     .filter((d) => d.refacturable && !d.factureId)
     .reduce((s, d) => s + d.montant, 0);
@@ -157,7 +161,7 @@ export function DossierDebours({
                 </tr>
               </thead>
               <tbody>
-                {debours.map((d) => (
+                {pageDebours.tranche.map((d) => (
                   <tr key={d.id} className="border-b border-si-line/70">
                     <td className="py-2 pr-2">{formatDate(d.date)}</td>
                     <td className="py-2 pr-2">
@@ -217,6 +221,22 @@ export function DossierDebours({
                 ))}
               </tbody>
             </table>
+            <RegistrePagination
+              totalCount={pageDebours.total}
+              currentPage={pageDebours.page}
+              resume={tc("paginationRange", {
+                start: pageDebours.debut + 1,
+                end: pageDebours.fin,
+                total: pageDebours.total,
+              })}
+              labelPage={tc("paginationPage", {
+                current: pageDebours.page,
+                total: pageDebours.totalPages,
+              })}
+              labelPrecedent={tc("previous")}
+              labelSuivant={tc("next")}
+              onPageChange={pageDebours.setPage}
+            />
           </div>
         )}
 

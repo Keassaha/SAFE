@@ -5,7 +5,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canViewBilling } from "@/lib/auth/permissions";
 import { PaymentReceiptPDF, type PaymentReceiptData } from "@/components/pdf/PaymentReceiptPDF";
 import type { UserRole } from "@prisma/client";
 
@@ -25,7 +25,8 @@ export async function GET(
   const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
   const role = (session.user as { role?: string }).role as UserRole;
   if (!cabinetId) return new NextResponse("Cabinet not found", { status: 403 });
-  if (!canManageInvoices(role)) return new NextResponse("Insufficient permissions", { status: 403 });
+  // Reçu d'un paiement déjà visible dans la table : droit de lecture.
+  if (!canViewBilling(role)) return new NextResponse("Insufficient permissions", { status: 403 });
 
   const { paymentId } = await params;
   const url = new URL(request.url);

@@ -1545,7 +1545,7 @@ function ScoreGauge({ score, size = 160 }: { score: number; size?: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-[var(--safe-text-title)] font-sans">{displayScore}</span>
+        <span className="text-3xl font-medium text-[var(--safe-text-title)] font-sans">{displayScore}</span>
         <span className="text-xs text-[var(--safe-text-secondary)] font-sans">/100</span>
       </div>
     </div>
@@ -2054,7 +2054,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
               <SafeMark size={24} tone="onBrand" title="SAFE" />
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-base font-bold font-sans tracking-tight text-[var(--safe-text-title)] truncate">
+              <h1 className="text-base font-medium font-sans tracking-tight text-[var(--safe-text-title)] truncate">
                 Rapport d&apos;audit · {responses.contact_firm || responses.contact_name || "Cabinet"}
               </h1>
               <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
@@ -2079,7 +2079,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                 {displayScore >= 75 ? "🏆" : displayScore >= 55 ? "📊" : "🔍"}
               </div>
               <div>
-                <p className="text-sm font-bold text-[var(--safe-white)] font-sans">
+                <p className="text-sm font-medium text-[var(--safe-white)] font-sans">
                   {displayScore >= 75
                     ? "Félicitations — votre cabinet affiche un excellent niveau de maturité !"
                     : displayScore >= 55
@@ -2097,16 +2097,16 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
               <div className="flex items-start gap-6">
                 <div className="text-center">
                   <ScoreGauge score={computed.pain_score} />
-                  <span className={`text-sm font-semibold font-sans mt-2 block ${maturityColors[computed.maturity_level] || "text-[var(--safe-text-title)]"}`}>
+                  <span className={`text-sm font-medium font-sans mt-2 block ${maturityColors[computed.maturity_level] || "text-[var(--safe-text-title)]"}`}>
                     {computed.maturity_level}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold font-sans mb-2 text-[var(--safe-text-title)] tracking-tight">Sommaire de votre cabinet</h2>
+                  <h2 className="text-lg font-medium font-sans mb-2 text-[var(--safe-text-title)] tracking-tight">Sommaire de votre cabinet</h2>
                   <p className="text-sm text-[var(--safe-text-secondary)] font-sans leading-relaxed">{computed.overall_summary}</p>
                   {computed.strengths.length > 0 && (
                     <div className="mt-3 p-3 rounded-safe bg-green-50 border border-green-200">
-                      <p className="text-xs font-semibold text-green-700 font-sans mb-1">Points forts identifiés</p>
+                      <p className="text-xs font-medium text-green-700 font-sans mb-1">Points forts identifiés</p>
                       {computed.strengths.map((str, i) => (
                         <p key={i} className="text-xs text-green-700 font-sans">✓ {str}</p>
                       ))}
@@ -2118,7 +2118,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
 
             {/* Section scores overview */}
             <div className="audit-result-card rounded-safe-md border border-[var(--safe-sage)]/30 bg-white/60 p-6 audit-slide-up" style={{ animationDelay: "0.1s" }}>
-              <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] mb-4 tracking-tight">Diagnostic par section</h3>
+              <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] mb-4 tracking-tight">Diagnostic par section</h3>
               <div className="space-y-3">
                 {computed.sections.map((sec) => (
                   <div key={sec.title} className="flex items-center gap-3">
@@ -2132,7 +2132,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                         }}
                       />
                     </div>
-                    <span className="w-14 text-right text-sm font-bold font-sans" style={{ color: sec.status === "excellent" ? "#16A34A" : sec.status === "bon" ? "#436850" : sec.status === "attention" ? "#EA580C" : "#DC2626" }}>
+                    <span className="w-14 text-right text-sm font-medium font-sans" style={{ color: sec.status === "excellent" ? "#16A34A" : sec.status === "bon" ? "#436850" : sec.status === "attention" ? "#EA580C" : "#DC2626" }}>
                       {sec.score}/100
                     </span>
                   </div>
@@ -2147,9 +2147,9 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <FileText className="w-5 h-5 text-[var(--safe-text-secondary)]" />
-                      <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">{sec.title}</h3>
+                      <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">{sec.title}</h3>
                     </div>
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold font-sans border ${statusColors[sec.status]}`}>
+                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium font-sans border ${statusColors[sec.status]}`}>
                       {statusIcons[sec.status]}
                       {statusLabels[sec.status]} — {sec.score}/100
                     </span>
@@ -2157,7 +2157,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
 
                   {/* Findings */}
                   <div className="mb-4">
-                    <p className="text-xs font-semibold text-[var(--safe-text-title)] font-sans mb-2 uppercase tracking-wide">Constats</p>
+                    <p className="text-xs font-medium text-[var(--safe-text-title)] font-sans mb-2 uppercase tracking-wide">Constats</p>
                     <div className="space-y-2">
                       {sec.findings.map((f, i) => (
                         <p key={i} className="text-sm text-[var(--safe-text-secondary)] font-sans leading-relaxed pl-4 border-l-2 border-[var(--safe-sage)]/40">
@@ -2170,12 +2170,12 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                   {/* Recommendations */}
                   {sec.recommendations.length > 0 && (
                     <div className="mb-4">
-                      <p className="text-xs font-semibold text-[var(--safe-text-title)] font-sans mb-2 uppercase tracking-wide">Recommandations</p>
+                      <p className="text-xs font-medium text-[var(--safe-text-title)] font-sans mb-2 uppercase tracking-wide">Recommandations</p>
                       <div className="space-y-2">
                         {sec.recommendations.map((r, i) => (
                           <div key={i} className="flex items-start gap-2 p-3 rounded-safe bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20">
                             <div className="w-5 h-5 rounded-full bg-[var(--safe-text-title)] flex items-center justify-center shrink-0 mt-0.5">
-                              <span className="text-xs font-bold text-[var(--safe-white)]">{i + 1}</span>
+                              <span className="text-xs font-medium text-[var(--safe-white)]">{i + 1}</span>
                             </div>
                             <p className="text-sm text-[var(--safe-text-secondary)] font-sans">{r}</p>
                           </div>
@@ -2187,7 +2187,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
 
                 {/* How SAFE helps */}
                 <div className="bg-[var(--safe-text-title)] px-6 py-4">
-                  <p className="text-xs font-semibold text-[var(--safe-sage)] font-sans mb-1 uppercase tracking-wider">Comment SAFE peut vous aider</p>
+                  <p className="text-xs font-medium text-[var(--safe-sage)] font-sans mb-1 uppercase tracking-wider">Comment SAFE peut vous aider</p>
                   <p className="text-sm text-[var(--safe-white)] font-sans leading-relaxed">{sec.safeHelp}</p>
                 </div>
               </div>
@@ -2197,17 +2197,17 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="audit-result-card rounded-safe-md border border-[var(--safe-text-title)]/15 bg-[var(--safe-text-title)] p-6 audit-slide-up" style={{ animationDelay: "0.6s" }}>
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="w-5 h-5 text-[var(--safe-white)]" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-white)] tracking-tight">Impact financier estimé</h3>
+                <h3 className="text-base font-medium font-sans text-[var(--safe-white)] tracking-tight">Impact financier estimé</h3>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="rounded-safe bg-white/10 p-4 text-center">
-                  <p className="text-2xl font-bold text-[var(--safe-white)] font-sans">
+                  <p className="text-2xl font-medium text-[var(--safe-white)] font-sans">
                     {computed.estimated_monthly_loss.toLocaleString("fr-CA")} $
                   </p>
                   <p className="text-xs text-[var(--safe-sage)] font-sans">Perte mensuelle</p>
                 </div>
                 <div className="rounded-safe bg-white/10 p-4 text-center">
-                  <p className="text-2xl font-bold text-red-400 font-sans">
+                  <p className="text-2xl font-medium text-red-400 font-sans">
                     {computed.estimated_annual_loss.toLocaleString("fr-CA")} $
                   </p>
                   <p className="text-xs text-[var(--safe-sage)] font-sans">Perte annuelle</p>
@@ -2216,9 +2216,9 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
               <div className="rounded-safe bg-white/10 border border-white/10 p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm text-[var(--safe-sage)] font-sans">Récupération potentielle avec SAFE</p>
-                  <span className="text-sm font-bold text-green-400 font-sans">~70%</span>
+                  <span className="text-sm font-medium text-green-400 font-sans">~70%</span>
                 </div>
-                <p className="text-2xl font-bold text-green-400 font-sans">
+                <p className="text-2xl font-medium text-green-400 font-sans">
                   +{computed.potential_recovery.toLocaleString("fr-CA")} $ <span className="text-sm font-normal text-[var(--safe-sage)]">/an</span>
                 </p>
               </div>
@@ -2228,14 +2228,14 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="grid grid-cols-2 gap-3 audit-slide-up" style={{ animationDelay: "0.7s" }}>
               <div className="rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 p-4 text-center">
                 <Clock className="w-5 h-5 text-[var(--safe-text-secondary)] mx-auto mb-2" />
-                <p className="text-lg font-bold font-sans text-[var(--safe-text-title)]">
+                <p className="text-lg font-medium font-sans text-[var(--safe-text-title)]">
                   {responses.weekly_admin_hours === "moins_2h" ? "< 2h" : responses.weekly_admin_hours === "2_5h" ? "2-5h" : responses.weekly_admin_hours === "5_10h" ? "5-10h" : "10h+"}
                 </p>
                 <p className="text-xs text-[var(--safe-text-secondary)] font-sans">heures admin/sem.</p>
               </div>
               <div className="rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 p-4 text-center">
                 <Shield className="w-5 h-5 text-[var(--safe-text-secondary)] mx-auto mb-2" />
-                <p className="text-lg font-bold font-sans text-[var(--safe-text-title)]">
+                <p className="text-lg font-medium font-sans text-[var(--safe-text-title)]">
                   {responses.bar_inspection_confidence || "?"}/5
                 </p>
                 <p className="text-xs text-[var(--safe-text-secondary)] font-sans">confiance Barreau</p>
@@ -2246,16 +2246,16 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="audit-result-card rounded-safe-md border border-[var(--safe-sage)]/30 bg-white/60 p-6 audit-slide-up" style={{ animationDelay: "0.8s" }}>
               <div className="flex items-center gap-2 mb-4">
                 <Target className="w-5 h-5 text-[var(--safe-text-secondary)]" />
-                <h3 className="text-base font-bold font-sans text-[var(--safe-text-title)] tracking-tight">Plan d&apos;action recommandé</h3>
+                <h3 className="text-base font-medium font-sans text-[var(--safe-text-title)] tracking-tight">Plan d&apos;action recommandé</h3>
               </div>
               <div className="space-y-3">
                 {computed.priority_recommendations.map((rec, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 rounded-safe bg-[var(--safe-sage)]/10 border border-[var(--safe-sage)]/20">
                     <div className="w-7 h-7 rounded-full bg-[var(--safe-text-title)] flex items-center justify-center shrink-0">
-                      <span className="text-xs font-bold text-[var(--safe-white)]">{i + 1}</span>
+                      <span className="text-xs font-medium text-[var(--safe-white)]">{i + 1}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[var(--safe-text-title)] font-sans">{rec}</p>
+                      <p className="text-sm font-medium text-[var(--safe-text-title)] font-sans">{rec}</p>
                       <p className="text-xs text-[var(--safe-text-secondary)] font-sans mt-0.5">
                         {i === 0 ? "Priorité immédiate — impact rapide sur votre quotidien" : i === 1 ? "Deuxième priorité — consolide vos gains" : "Troisième priorité — optimise l'ensemble"}
                       </p>
@@ -2269,7 +2269,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="space-y-3 audit-slide-up" style={{ animationDelay: "0.9s" }}>
               <button
                 onClick={handleDownloadPDF}
-                className="group flex items-center justify-center gap-2 w-full py-4 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-semibold text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300"
+                className="group flex items-center justify-center gap-2 w-full py-4 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300"
               >
                 <Download className="w-4 h-4" />
                 Télécharger le rapport complet (PDF)
@@ -2306,11 +2306,11 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
       {/* Header */}
       <header className="shrink-0 z-10 border-b border-[var(--safe-sage)]/30 bg-[var(--safe-white)]/95 backdrop-blur-md">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 ring-2 ring-[var(--safe-text-secondary)]/20">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0 ring-2 ring-[var(--safe-text-secondary)]/20">
             J
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémie — SAFE</h1>
+            <h1 className="text-lg font-medium font-sans tracking-tight truncate text-[var(--safe-text-title)]">Jérémie — SAFE</h1>
             <p className="text-xs text-[var(--safe-text-secondary)] font-sans">
               {isTyping ? (
                 <span className="text-[var(--safe-text-secondary)] font-medium">écrit...</span>
@@ -2380,7 +2380,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                 className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} audit-msg-appear`}
               >
                 {msg.sender === "auditor" && (
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0 mr-2 mt-1">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0 mr-2 mt-1">
                     J
                   </div>
                 )}
@@ -2480,7 +2480,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                       {multiSelect.length > 0 && (
                         <button
                           onClick={() => handleMultiConfirm(msg.questionKey!, msg.options!)}
-                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-semibold font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
+                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
                         >
                           Confirmer ({multiSelect.length})
                           <ChevronRight className="w-4 h-4" />
@@ -2543,7 +2543,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                         <button
                           onClick={() => handleOpenSubmit(msg.questionKey!)}
                           disabled={!openText.trim()}
-                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-semibold font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Send className="w-4 h-4" />
                           Envoyer
@@ -2605,7 +2605,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                       </div>
                       <button
                         type="submit"
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-semibold text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Voir mon rapport d&apos;audit
@@ -2634,7 +2634,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex items-start gap-2 audit-msg-appear">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-bold text-[var(--safe-white)] shrink-0">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--safe-text-secondary)] to-[var(--safe-text-title)] flex items-center justify-center text-xs font-medium text-[var(--safe-white)] shrink-0">
                 J
               </div>
               <div className="rounded-safe-md rounded-bl-md bg-[var(--safe-text-title)] border border-[var(--safe-text-title)]/10 px-4 py-3">
@@ -2652,7 +2652,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="flex justify-center mt-4 audit-options-appear">
               <button
                 onClick={handleStart}
-                className="group px-8 py-3 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-semibold text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center gap-2"
+                className="group px-8 py-3 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center gap-2"
               >
                 <Zap className="w-4 h-4" />
                 Oui, commençons !

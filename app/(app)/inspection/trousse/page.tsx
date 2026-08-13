@@ -64,7 +64,7 @@ export default async function TrousseInspectionPage({
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Trousse d'inspection"
         description="Tout ce qu'un inspecteur demande, rassemblé pour une période, avec ce qui manque nommé."

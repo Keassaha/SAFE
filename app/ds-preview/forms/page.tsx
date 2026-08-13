@@ -69,7 +69,7 @@ export default function FormsPreviewPage() {
 
           {/* Colonne latérale : carte forêt (la même signature) */}
           <aside className="space-y-5">
-            <div className="relative overflow-hidden rounded-2xl bg-si-forest text-si-surface px-6 py-[22px]">
+            <div className="relative overflow-hidden rounded-2xl safe-action-degrade text-si-surface px-6 py-[22px]">
               <div aria-hidden className="absolute -left-12 -bottom-16 w-48 h-48 glow-verified" />
               <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-si-verified-on-forest">
                 <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />

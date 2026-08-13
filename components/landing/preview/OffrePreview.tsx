@@ -63,7 +63,7 @@ export function OffrePreview() {
           </div>
           <Link
             href="/audit-gratuit"
-            className="mt-8 inline-flex h-10 w-fit items-center rounded-[8px] px-5 font-sans text-[14px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
+            className="safe-zoom mt-8 inline-flex h-10 w-fit items-center rounded-[8px] px-5 font-sans text-[14px] font-medium transition-transform duration-200"
             style={{ background: INK, color: SURFACE }}
           >
             Faire mon audit gratuit &rarr;

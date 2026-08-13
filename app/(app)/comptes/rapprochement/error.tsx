@@ -21,7 +21,7 @@ export default function RapprochementError({
       className="mx-auto flex min-h-[50vh] max-w-xl items-center px-4 py-12"
     >
       <div className="w-full border-l-2 border-status-error pl-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-status-error">
+        <p className="text-xs font-medium uppercase tracking-[0.12em] text-status-error">
           Rapprochement indisponible
         </p>
         <h1 id="rapprochement-error-title" className="mt-2 font-serif text-2xl text-si-ink">
@@ -33,7 +33,7 @@ export default function RapprochementError({
         <button
           type="button"
           onClick={reset}
-          className="mt-5 h-10 rounded-md bg-si-forest px-4 text-sm font-medium text-si-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-si-forest/40"
+          className="mt-5 h-10 rounded-md safe-action-degrade px-4 text-sm font-medium text-si-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-si-forest/40"
         >
           Réessayer
         </button>

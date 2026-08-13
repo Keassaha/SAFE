@@ -87,11 +87,11 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <Link
             key={d.id}
             href={d.href}
-            className="group flex items-center gap-3 rounded-xl border border-si-line bg-si-surface p-3 shadow-sm transition-all hover:shadow-md hover:border-si-line hover:-translate-y-0.5"
+            className="safe-zoom group flex items-center gap-3 rounded-xl border border-si-line bg-si-surface p-3 shadow-sm transition-all hover:border-si-line"
           >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-si-forest">
+                <span className="text-xs font-medium uppercase tracking-wider text-si-forest">
                   {d.numeroDossier ?? d.reference ?? d.id.slice(0, 8)}
                 </span>
                 {d.type && (
@@ -100,7 +100,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
                   </span>
                 )}
               </div>
-              <p className="text-sm font-semibold text-si-ink truncate leading-tight">
+              <p className="text-sm font-medium text-si-ink truncate leading-tight">
                 {d.intitule}
               </p>
               {d.clientName && (
@@ -113,11 +113,11 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
                 {/* Progress bar */}
                 <div className="flex-1 h-1.5 rounded-full bg-si-canvas overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all"
+                    className="safe-zoom h-full rounded-full bg-emerald-500 transition-all"
                     style={{ width: `${d.progressPct}%` }}
                   />
                 </div>
-                <span className="text-xs font-bold tabular-nums text-si-muted shrink-0">
+                <span className="text-xs font-medium tabular-nums text-si-muted shrink-0">
                   {d.progressPct}%
                 </span>
               </div>
@@ -135,7 +135,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               </div>
             </div>
 
-            <ArrowRight className="w-4 h-4 text-si-muted/40 group-hover:text-si-forest transition-colors shrink-0" />
+            <ArrowRight className="safe-zoom w-4 h-4 text-si-muted/40 group-hover:text-si-forest transition-colors shrink-0" />
           </Link>
         ))}
       </div>
@@ -152,7 +152,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-si-muted hover:text-si-ink transition-colors px-4 py-2 rounded-md hover:bg-si-canvas"
+            className="safe-zoom inline-flex items-center gap-1.5 text-xs font-medium text-si-muted hover:text-si-ink transition-colors px-4 py-2 rounded-md hover:bg-si-canvas"
           >
             {expanded ? (
               <>{t("showLess")} <ChevronUp className="w-3.5 h-3.5" /></>

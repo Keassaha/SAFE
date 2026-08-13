@@ -93,7 +93,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-si-ink" />
-            <h4 className="text-sm font-semibold">Background Declaration (D7)</h4>
+            <h4 className="text-sm font-medium">Background Declaration (D7)</h4>
           </div>
           {isCompleted && (
             <StatusBadge

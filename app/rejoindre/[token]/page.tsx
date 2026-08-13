@@ -78,7 +78,7 @@ export default function RejoindrePage() {
           <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-500 text-xl">✕</span>
           </div>
-          <h1 className="text-lg font-semibold text-gray-900 mb-2">Invitation invalide</h1>
+          <h1 className="text-lg font-medium text-gray-900 mb-2">Invitation invalide</h1>
           <p className="text-sm text-gray-500">{error}</p>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function RejoindrePage() {
           <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-green-500 text-xl">✓</span>
           </div>
-          <h1 className="text-lg font-semibold text-gray-900 mb-2">Compte créé</h1>
+          <h1 className="text-lg font-medium text-gray-900 mb-2">Compte créé</h1>
           <p className="text-sm text-gray-500">Redirection vers la connexion…</p>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function RejoindrePage() {
           <div className="inline-flex items-center mb-6">
             <SafeLogo size={20} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <h1 className="text-2xl font-medium text-gray-900 mb-1">
             Rejoignez {invite?.cabinetNom}
           </h1>
           <p className="text-sm text-gray-500">

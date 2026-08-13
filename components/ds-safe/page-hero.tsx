@@ -28,7 +28,7 @@ export function PageHero({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl bg-si-forest text-si-surface px-7 py-6",
+        "relative overflow-hidden rounded-2xl safe-action-degrade text-si-surface px-7 py-6",
         className,
       )}
     >

@@ -1,5 +1,5 @@
 import { requirePageAccess } from "@/lib/auth/page-guard";
-import { canManageInvoices } from "@/lib/auth/permissions";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -11,7 +11,8 @@ import { SuiviPipelineView } from "./SuiviPipelineView";
 import { whereInvoiceIssuedActive, whereInvoiceOverdue } from "@/lib/billing/invoice-status";
 
 export default async function FacturationSuiviPage() {
-  const { cabinetId } = await requirePageAccess(canManageInvoices);
+  const { cabinetId, role } = await requirePageAccess(canViewBilling);
+  const canWrite = canManageInvoices(role);
   const t = await getTranslations("facturation");
 
   // Cette page est dédiée au suivi POST-émission (envoyées, en retard, encaissement).
@@ -42,17 +43,19 @@ export default async function FacturationSuiviPage() {
   ]);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("billingAndFollowUp")}
         description={t("billingDescription")}
         action={
-          <Link href={routes.facturationFactureNouvelle}>
-            <Button variant="primary" type="button">
-              <Plus className="w-4 h-4 mr-2 inline-block" aria-hidden />
-              {t("newInvoice")}
-            </Button>
-          </Link>
+          canWrite ? (
+            <Link href={routes.facturationFactureNouvelle}>
+              <Button variant="primary" type="button">
+                <Plus className="w-4 h-4 mr-2 inline-block" aria-hidden />
+                {t("newInvoice")}
+              </Button>
+            </Link>
+          ) : undefined
         }
       />
 

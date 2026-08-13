@@ -38,7 +38,7 @@ export default async function PaiementsPage({
       : "not_connected";
 
   return (
-    <div className="max-w-4xl space-y-6 animate-fade-in">
+    <div className="max-w-4xl space-y-6">
       <PageHeader
         title={t("paymentsPageTitle")}
         description={t("paymentsPageDescription")}

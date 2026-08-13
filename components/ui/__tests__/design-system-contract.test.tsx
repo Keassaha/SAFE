@@ -58,10 +58,21 @@ describe("contrat du design system SAFE", () => {
     expect(field).toContain('id="client-message"');
   });
 
-  it("réserve les grands rayons aux statuts et aux superpositions", () => {
+  /**
+   * Le rayon dit le rôle, et un seul rôle par valeur.
+   *
+   * La carte valait 8 px, comme un panneau posé dans le flux. Elle est devenue
+   * une FEUILLE : une surface qui porte un contenu et se détache d'un canvas
+   * gris franc, donc 14 px et une ombre permanente (déc. CEO 2026-08-11).
+   * Le contrat suit la décision au lieu de la bloquer, mais il continue
+   * d'interdire l'arbitraire : pas de rayon d'élévation sur une carte, et la
+   * pastille reste pleine.
+   */
+  it("réserve chaque rayon à un rôle, et un seul", () => {
     const card = renderToStaticMarkup(<Card>Contenu</Card>);
-    expect(card).toContain("rounded-lg");
+    expect(card).toContain("rounded-[14px]");
     expect(card).not.toContain("rounded-2xl");
+    expect(card).toContain("shadow-[");
 
     const badge = renderToStaticMarkup(<StatusBadge label="Information" variant="info" />);
     expect(badge).toContain("rounded-full");

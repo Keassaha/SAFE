@@ -210,7 +210,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
           <div className="flex items-start gap-3 rounded-xl border border-[#B84A3E]/30 bg-[#B84A3E]/[0.06] px-4 py-4">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#B84A3E]" aria-hidden />
             <div>
-              <p className="text-sm font-semibold text-[#B84A3E]">{t("duplicateTitle")}</p>
+              <p className="text-sm font-medium text-[#B84A3E]">{t("duplicateTitle")}</p>
               <p className="mt-1 text-sm text-si-ink">
                 {duplicate?.matchedBy === "hash" ? t("duplicateByFile") : t("duplicateByReference")}
               </p>
@@ -239,7 +239,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
           <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${conf?.badge}`}>
             <ConfIcon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
             <div className="min-w-0">
-              <p className="text-sm font-semibold">{conf ? t(conf.key) : ""}</p>
+              <p className="text-sm font-medium">{conf ? t(conf.key) : ""}</p>
               {match.reasons.length > 0 && (
                 <ul className="mt-1 space-y-0.5 text-xs opacity-90">
                   {match.reasons.map((r, i) => (

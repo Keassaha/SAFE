@@ -234,10 +234,7 @@ export function InspectionKitScreen({
               </thead>
               <tbody>
                 {list.map((i) => (
-                  <tr
-                    key={i.filename}
-                    className="border-b border-[var(--si-line)] transition-colors last:border-b-0 hover:bg-si-forest/[0.02]"
-                  >
+                  <tr key={i.filename} className="safe-zoom-rang border-b border-[var(--si-line)] transition-colors last:border-b-0 " >
                     <td className="max-w-0 px-4 py-3 text-[var(--si-ink)]">
                       <span className="block truncate">
                         {i.titleFr}

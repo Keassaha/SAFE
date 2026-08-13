@@ -80,7 +80,7 @@ export function ForfaitServiceTable() {
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold">Fee Schedule</h3>
+          <h3 className="text-sm font-medium">Fee Schedule</h3>
           <Button variant="secondary" onClick={() => setShowAdd(!showAdd)}>
             <Plus className="w-3 h-3" /> Add Service
           </Button>
@@ -132,7 +132,7 @@ export function ForfaitServiceTable() {
             </thead>
             <tbody>
               {services.map(s => (
-                <tr key={s.id} className="border-b last:border-0 hover:bg-neutral-50">
+                <tr key={s.id} className="safe-zoom-rang border-b last:border-0 ">
                   <td className="py-2 font-mono text-xs text-neutral-500">{s.code}</td>
                   <td className="py-2 font-medium">{s.nom}</td>
                   <td className="py-2 text-xs text-neutral-500">{s.categorie ?? "—"}</td>

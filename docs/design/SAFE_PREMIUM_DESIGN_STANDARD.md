@@ -253,6 +253,39 @@ Aucune autre durée, aucune autre courbe. Aucun mouvement au delà de 260 ms.
 | Barre de synthèse | `36px` |
 | Cible tactile minimale | `44px` |
 
+### 2.8 Zoom souple — la marque de ce qui se sélectionne
+
+Décision CEO du 2026-08-11. **Partout où quelque chose se sélectionne dans SAFE,
+la surface se soulève.** Elle ne se peint pas en gris, elle ne prend pas de filet
+d'encre à gauche, elle ne s'allume pas : elle grandit d'un cheveu et son ombre
+s'ouvre. C'est le geste signature du produit, et il n'en existe qu'un.
+
+| Classe | Surfaces | Échelle | Élévation |
+|---|---|---:|---|
+| `.safe-zoom` | cartes, tuiles, blocs cliquables | `1.006` + `-1px` | `0 12px 26px -18px` |
+| `.safe-zoom-rang` | rangées de registre | `1.005` | `0 10px 24px -18px` |
+| `.safe-zoom-menu` | menus, onglets, navigation, listes déroulantes | `1.02` + `-1px` | `0 10px 20px -14px` |
+
+Trois contraintes non négociables :
+
+1. **L'échelle reste sous le seuil du flou.** Une mise à l'échelle rééchantillonne
+   le texte. Au-delà de 1 % sur un libellé de 13 px, la donnée devient molle : sur
+   une rangée de registre, c'est l'élévation qui porte la sensation, pas la taille.
+   Une entrée de menu, courte et survolée une fraction de seconde, tolère 2 %.
+2. **La rangée de tableau ne se transforme jamais au-delà de son alignement.**
+   `transform-origin: center` et `position: relative`, sans quoi les bordures se
+   décalent et la grille vibre.
+3. **Le conteneur doit laisser respirer.** Un menu en `overflow-hidden` rogne
+   l'entrée qui grandit : ses éléments s'insèrent (`px-1.5`), ils ne bordent pas
+   la paroi.
+
+État **coché** et état **menu ouvert** : même soulèvement, mais permanent. Une
+sélection dure, un survol passe. La case cochée reste le porteur accessible de
+l'état ; l'ombre ne fait que le rendre lisible d'un coup d'œil.
+
+`prefers-reduced-motion: reduce` neutralise toute la mécanique et rend la main au
+fond `--si-surface2` : sans mouvement, il faut bien que le survol se voie.
+
 ---
 
 ## §3 — Règles auditables
@@ -315,8 +348,9 @@ fin du lot · **m** mineur, à inscrire au journal.
 | PS-040 | Durées uniquement dans les trois jetons §2.6 | 100 % | grep des durées littérales | M |
 | PS-041 | Courbe unique | 1 | grep `cubic-bezier` | M |
 | PS-042 | Aucun mouvement continu | 0 `animate-(pulse\|bounce\|ping\|spin)` hors indicateur de progression réelle | grep | M |
-| PS-043 | Aucun déplacement ni agrandissement au survol | 0 `hover:(translate\|scale)` | grep | M |
+| PS-043 | Aucun agrandissement au survol écrit à la main. Le seul mouvement de survol du produit est le zoom souple (§2.8) | 0 `hover:(translate\|scale)` en classe utilitaire | grep | M |
 | PS-044 | `prefers-reduced-motion` respecté | présent et testé | test navigateur | B |
+| PS-045 | Toute surface sélectionnable porte le zoom souple, aucune n'est peinte en gris au survol | 0 `hover:bg-*` sur rangée de registre, entrée de menu, onglet, entrée de navigation | grep | M |
 
 ### 3.6 Couleur et accessibilité (L4)
 

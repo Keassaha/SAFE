@@ -14,7 +14,7 @@ export default function ConfidentialitePage() {
       <Navbar />
       <main className="section-morning min-h-screen pt-32 pb-20">
         <div className="mx-auto max-w-3xl px-6 lg:px-10">
-          <h1 className="font-sans text-3xl sm:text-4xl font-bold text-[var(--safe-darkest)] mb-2 tracking-tight">
+          <h1 className="font-sans text-3xl sm:text-4xl font-medium text-[var(--safe-darkest)] mb-2 tracking-tight">
             Politique de confidentialité
           </h1>
           <p className="text-sm text-[var(--safe-text-muted)] font-sans mb-10">
@@ -23,7 +23,7 @@ export default function ConfidentialitePage() {
 
           <div className="prose prose-neutral max-w-none font-sans text-[var(--safe-dark)] leading-relaxed space-y-8">
             <section>
-              <h2 className="text-xl font-semibold mb-3">1. Entité responsable et portée du document</h2>
+              <h2 className="text-xl font-medium mb-3">1. Entité responsable et portée du document</h2>
               <p>
                 La présente politique est publiée par <strong>SAFE Cabinet inc.</strong> (« SAFE », « nous »), société
                 constituée au Québec, dont le siège est à Montréal. Elle décrit la manière dont nous traitons les
@@ -51,7 +51,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">2. Renseignements collectés sur le site public</h2>
+              <h2 className="text-xl font-medium mb-3">2. Renseignements collectés sur le site public</h2>
               <p>Lorsque vous interagissez avec safecabinet.ca, nous pouvons recueillir&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
@@ -77,7 +77,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">3. Renseignements traités dans la plateforme SAFE</h2>
+              <h2 className="text-xl font-medium mb-3">3. Renseignements traités dans la plateforme SAFE</h2>
               <p>
                 Lorsqu&apos;un cabinet client utilise la plateforme, SAFE héberge et traite, pour son compte, les
                 renseignements qu&apos;il y dépose&nbsp;: identité des avocats et du personnel, identité et coordonnées
@@ -101,7 +101,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">4. Finalités du traitement</h2>
+              <h2 className="text-xl font-medium mb-3">4. Finalités du traitement</h2>
               <p>Les renseignements sont utilisés pour&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>fournir, maintenir et améliorer la plateforme et le service client&nbsp;;</li>
@@ -122,7 +122,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">5. Sous-traitants et destinataires</h2>
+              <h2 className="text-xl font-medium mb-3">5. Sous-traitants et destinataires</h2>
               <p>
                 Pour fournir le service, nous faisons appel à un nombre limité de sous-traitants spécialisés. Chacun est
                 lié par un contrat conforme à la Loi 25 et n&apos;agit qu&apos;à notre instruction&nbsp;:
@@ -153,7 +153,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section id="securite" className="scroll-mt-32">
-              <h2 className="text-xl font-semibold mb-3">6. Localisation et sécurité des données</h2>
+              <h2 className="text-xl font-medium mb-3">6. Localisation et sécurité des données</h2>
               <p>
                 Les données de la plateforme sont hébergées sur une infrastructure cloud située <strong>au
                 Canada</strong>. Certains sous-traitants peuvent occasionnellement traiter des données techniques
@@ -173,7 +173,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">7. Durées de conservation</h2>
+              <h2 className="text-xl font-medium mb-3">7. Durées de conservation</h2>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li>
                   <strong>Données de la plateforme</strong> : pendant toute la durée de l&apos;abonnement, puis 90 jours
@@ -195,7 +195,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">8. Vos droits</h2>
+              <h2 className="text-xl font-medium mb-3">8. Vos droits</h2>
               <p>Conformément à la Loi 25, vous disposez des droits suivants&nbsp;:</p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
                 <li><strong>Droit d&apos;accès</strong> à vos renseignements personnels.</li>
@@ -221,7 +221,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">9. Témoins (cookies) et technologies similaires</h2>
+              <h2 className="text-xl font-medium mb-3">9. Témoins (cookies) et technologies similaires</h2>
               <p>
                 Le site public utilise un nombre limité de témoins&nbsp;: témoins strictement nécessaires (session,
                 sécurité) qui ne requièrent pas de consentement, et, le cas échéant, témoins de mesure d&apos;audience
@@ -231,7 +231,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">10. Incidents de confidentialité</h2>
+              <h2 className="text-xl font-medium mb-3">10. Incidents de confidentialité</h2>
               <p>
                 Conformément à l&apos;article 3.5 de la Loi 25, en cas d&apos;incident de confidentialité présentant un
                 risque sérieux de préjudice, nous&nbsp;:
@@ -248,7 +248,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">11. Responsable de la protection des renseignements personnels</h2>
+              <h2 className="text-xl font-medium mb-3">11. Responsable de la protection des renseignements personnels</h2>
               <p>
                 Conformément à la Loi 25, un responsable de la protection des renseignements personnels (RPRP) est
                 désigné chez SAFE&nbsp;:
@@ -269,7 +269,7 @@ export default function ConfidentialitePage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">12. Modifications</h2>
+              <h2 className="text-xl font-medium mb-3">12. Modifications</h2>
               <p>
                 Nous pouvons modifier cette politique pour refléter une évolution du service, du cadre légal ou de nos
                 sous-traitants. Toute modification substantielle est communiquée aux cabinets clients par courriel au

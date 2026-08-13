@@ -1,0 +1,523 @@
+// Catalogue de règles — KB patrimoine familial (Québec)
+// Généré le 2026-08-12 · Version 1.0 · PARTIEL
+//
+// STATUTS : PROD_READY = assez solide pour être soumis à validation (jamais « approuvé »)
+//           REVIEW_REQUIRED = interprétation professionnelle nécessaire
+//           INCOMPLETE = données ou sources manquantes
+//           CONFLICT = sources contradictoires
+//
+// Aucune règle de ce fichier ne doit servir en production avant signature d'un
+// professionnel québécois compétent. human_review_required est à true partout.
+
+meta:
+  version: "1.0"
+  genere_le: "2026-08-12"
+  juridiction: "QC"
+  source_primaire: "SRC-001"
+  a_jour_au: "2026-04-01"
+  avertissement: >
+    Le corpus législatif a été extrait en verbatim officiel. Les formules marquées
+    derivation: derivee ne sont PAS énoncées telles quelles dans un article; elles
+    en découlent et doivent être confirmées.
+
+regles:
+
+  # ---------------------------------------------------------------- PATRIMOINE FAMILIAL
+  - rule_id: PF-001
+    title: Constitution du patrimoine familial par le mariage
+    regime: patrimoine_familial
+    domain: champ_application
+    legal_authority: "C.c.Q., art. 414"
+    source_ids: [SRC-001]
+    effective_from: "1994-01-01"
+    effective_to: null
+    description: >
+      Le mariage emporte constitution d'un patrimoine familial, sans égard à celui des
+      deux époux qui détient un droit de propriété sur les biens.
+    conditions: ["union.type in [mariage, union_civile]"]
+    inputs: [{name: union_type, type: enum}]
+    outputs: [{name: patrimoine_familial_applicable, type: boolean}]
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Le patrimoine familial se superpose au régime matrimonial; il ne le remplace pas."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-002
+    title: Composition du patrimoine familial
+    regime: patrimoine_familial
+    domain: classification
+    legal_authority: "C.c.Q., art. 415"
+    source_ids: [SRC-001]
+    effective_from: "2014-07-01"
+    description: >
+      Résidences de la famille ou droits d'usage; meubles les garnissant et servant au
+      ménage; véhicules automobiles utilisés pour les déplacements de la famille; droits
+      accumulés durant le mariage au titre d'un régime de retraite; gains inscrits au RRQ
+      ou programmes équivalents.
+    exclusions:
+      - "Biens échus par succession ou donation, avant ou pendant le mariage"
+      - "Si dissolution par décès : gains RRQ et droits de retraite régis par une loi
+         accordant au survivant des prestations de décès"
+    inputs: [{name: biens, type: list}]
+    outputs: [{name: partition, type: "enum[inclus,exclu]"}]
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    exemples_positifs: ["REER au nom d'un époux, accumulé durant le mariage", "CRI issu d'un transfert"]
+    contre_exemples: ["CELI", "immeuble locatif", "actions d'entreprise", "compte bancaire"]
+    cas_limites: ["résidence secondaire", "véhicule à usage mixte famille/entreprise",
+                  "résidence détenue par une société ou une fiducie"]
+    warnings: ["Un bien exclu du patrimoine familial peut être un acquêt — voir ART-001."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-003
+    title: Valeur nette du patrimoine familial et date d'évaluation
+    regime: patrimoine_familial
+    domain: evaluation
+    legal_authority: "C.c.Q., art. 417"
+    source_ids: [SRC-001]
+    description: >
+      Valeur des biens moins les dettes contractées pour leur acquisition, amélioration,
+      entretien ou conservation, à la date du décès ou de l'introduction de l'instance.
+      Les biens sont évalués à leur VALEUR MARCHANDE. Le tribunal peut retenir la date de
+      cessation de la vie commune, sur demande.
+    inputs:
+      - {name: valeur_marchande_biens, type: money, unit: CAD, nature: brut}
+      - {name: dettes_rattachees, type: money, unit: CAD, nature: brut}
+      - {name: date_evaluation, type: date}
+    calculation: "valeur_marchande_biens - dettes_rattachees"
+    rounding: {mode: half_up, decimals: 2}
+    outputs: [{name: valeur_nette_pf, type: money, unit: CAD, nature: net}]
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "Seules les dettes RATTACHÉES à un bien du patrimoine sont déductibles."
+      - "La date par défaut n'est pas la cessation de vie commune; celle-ci exige une décision du tribunal."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-004
+    title: Déduction du bien possédé au moment du mariage, avec quote-part de plus-value
+    regime: patrimoine_familial
+    domain: deduction
+    legal_authority: "C.c.Q., art. 418 al. 1 et 2"
+    source_ids: [SRC-001]
+    inputs:
+      - {name: VN_mariage, type: money, unit: CAD, nature: net}
+      - {name: VB_mariage, type: money, unit: CAD, nature: brut}
+      - {name: VB_evaluation, type: money, unit: CAD, nature: brut}
+    calculation: "VN_mariage + (VN_mariage / VB_mariage) * (VB_evaluation - VB_mariage)"
+    rounding: {mode: half_up, decimals: 2}
+    outputs: [{name: deduction, type: money, unit: CAD, nature: net}]
+    exceptions: ["VB_mariage == 0 : division par zéro, exiger une saisie ou bloquer"]
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["La plus-value se calcule sur la valeur BRUTE, pas sur la valeur nette."]
+    contre_exemples: ["Bien acquis après le mariage : utiliser PF-005"]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-005
+    title: Déduction de l'apport provenant d'une succession ou d'une donation
+    regime: patrimoine_familial
+    domain: deduction
+    legal_authority: "C.c.Q., art. 418 al. 1 et 2"
+    source_ids: [SRC-001]
+    conditions: ["apport.source in [succession, donation, remploi_de_ceux_ci]"]
+    inputs:
+      - {name: VAL_apport, type: money, unit: CAD, nature: net}
+      - {name: VB_au_moment_apport, type: money, unit: CAD, nature: brut}
+      - {name: VB_evaluation, type: money, unit: CAD, nature: brut}
+    calculation: "VAL_apport + (VAL_apport / VB_au_moment_apport) * (VB_evaluation - VB_au_moment_apport)"
+    rounding: {mode: half_up, decimals: 2}
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "En patrimoine familial, SEULS la succession, la donation et leur remploi ouvrent
+         cette déduction. La liste est plus large en union parentale — voir UP-004."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-006
+    title: Créance de partage (égalisation)
+    regime: patrimoine_familial
+    domain: partage
+    legal_authority: "C.c.Q., art. 416"
+    source_ids: [SRC-001]
+    calculation: "abs(valeur_partageable_epoux1 - valeur_partageable_epoux2) / 2"
+    rounding: {mode: half_up, decimals: 2}
+    derivation: derivee
+    status: REVIEW_REQUIRED
+    confidence: moyenne
+    human_review_required: true
+    warnings:
+      - "L'art. 416 énonce le partage à parts égales sans expliciter la mécanique de
+         créance. Formule à confirmer par l'avocat validateur avant production."
+    uncertainty_ids: [U-003]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-007
+    title: Aliénation dans l'année précédant l'ouverture du droit au partage
+    regime: patrimoine_familial
+    domain: anti_evitement
+    legal_authority: "C.c.Q., art. 421"
+    source_ids: [SRC-001]
+    description: >
+      Bien aliéné ou diverti dans l'année précédant le décès ou l'introduction de
+      l'instance et non remplacé : paiement compensatoire possible. Au-delà d'un an,
+      il faut établir l'intention de diminuer la part de l'autre époux.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Le tribunal PEUT ordonner; ce n'est pas automatique. Ne pas calculer d'office."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-008
+    title: Dérogation judiciaire au partage égal
+    regime: patrimoine_familial
+    domain: partage
+    legal_authority: "C.c.Q., art. 422"
+    source_ids: [SRC-001]
+    description: >
+      Le tribunal peut déroger au partage égal, et décider qu'il n'y aura aucun partage
+      des gains RRQ, en cas d'injustice, compte tenu notamment de la brève durée du
+      mariage, de la dilapidation ou de la mauvaise foi.
+    derivation: confirmee
+    status: REVIEW_REQUIRED
+    confidence: haute
+    human_review_required: true
+    warnings: ["NE JAMAIS AUTOMATISER. Décision judiciaire discrétionnaire."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-009
+    title: Interdiction de renonciation anticipée (ordre public)
+    regime: patrimoine_familial
+    domain: garde_fou
+    legal_authority: "C.c.Q., art. 423"
+    source_ids: [SRC-001]
+    description: >
+      Les époux ne peuvent renoncer, par contrat de mariage ou autrement, à leurs droits
+      dans le patrimoine familial. La renonciation n'est possible qu'à compter du décès ou
+      du jugement, par acte notarié en minute ou déclaration judiciaire, et doit être
+      inscrite au RDPRM. À défaut d'inscription dans un an à compter de l'ouverture du
+      droit au partage, l'époux renonçant est réputé avoir accepté.
+    calculation: "if date_renonciation < date_jugement_ou_deces: REJETER"
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "Règle d'ordre public : NON CONFIGURABLE. Message bloquant, pas un avertissement."
+      - "Alerter à l'approche du délai d'un an d'inscription au RDPRM."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: PF-010
+    title: Garde-fous du partage des droits de retraite
+    regime: patrimoine_familial
+    domain: retraite
+    legal_authority: "C.c.Q., art. 426"
+    source_ids: [SRC-001]
+    effective_from: "2002-06-13"
+    description: >
+      Le partage ne peut priver le titulaire original de plus de la moitié de la valeur
+      totale des droits accumulés avant ou pendant le mariage, ni conférer au bénéficiaire
+      plus de droits que n'en possède le titulaire en vertu de son régime.
+    calculation: "part_cedee <= 0.5 * valeur_totale_droits_accumules"
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "Plafond impératif à coder comme contrainte dure."
+      - "La valeur d'un régime à prestations déterminées doit être SAISIE, pas calculée."
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- UNION PARENTALE
+  - rule_id: UP-001
+    title: Formation automatique de l'union parentale
+    regime: union_parentale
+    domain: champ_application
+    legal_authority: "C.c.Q., art. 521.20"
+    source_ids: [SRC-001]
+    description: >
+      L'union parentale se forme dès que des conjoints de fait deviennent les parents d'un
+      même enfant, ou lorsque les parents d'un même enfant deviennent conjoints de fait.
+      Conjoints de fait : deux personnes qui font vie commune et se présentent publiquement
+      comme un couple, SANS ÉGARD À LA DURÉE de leur vie commune.
+    exclusions: ["ascendant, descendant, frère ou sœur"]
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Aucune durée minimale de vie commune n'est requise."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: UP-002
+    title: Composition du patrimoine d'union parentale — exclusion de la retraite et du RRQ
+    regime: union_parentale
+    domain: classification
+    legal_authority: "C.c.Q., art. 521.30"
+    source_ids: [SRC-001]
+    description: >
+      Uniquement : résidences de la famille ou droits d'usage, meubles du ménage,
+      véhicules automobiles utilisés pour les déplacements de la famille.
+    exclusions:
+      - "Biens échus par succession ou donation, avant ou pendant l'union"
+      - "Biens du conjoint mineur, jusqu'à sa majorité"
+      - "TOUT droit de retraite et TOUT gain inscrit au RRQ"
+    calculation: "if regime == union_parentale and bien.type in [retraite, RRQ]: EXCLURE + ALERTER"
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "ÉCART MAJEUR avec le patrimoine familial. Coder la même composition pour les deux
+         régimes produit une erreur systématique."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: UP-003
+    title: Retrait conventionnel et effet rétroactif de 90 jours
+    regime: union_parentale
+    domain: champ_application
+    legal_authority: "C.c.Q., art. 521.33"
+    source_ids: [SRC-001]
+    description: >
+      Les conjoints peuvent se retirer d'un commun accord de l'application du chapitre, par
+      acte notarié en minute à peine de nullité absolue. Si le retrait est constaté dans les
+      90 jours du début de l'union, le patrimoine est réputé n'avoir JAMAIS été constitué.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Contraste avec PF-009 : en union parentale, le retrait anticipé est permis."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: UP-004
+    title: Déductions en union parentale — quatre sources d'apport
+    regime: union_parentale
+    domain: deduction
+    legal_authority: "C.c.Q., art. 521.36"
+    source_ids: [SRC-001]
+    description: >
+      Déduction du bien détenu au moment de son inclusion (et non au moment du mariage),
+      plus l'apport provenant de : 1° biens accumulés avant la constitution du patrimoine;
+      2° biens du conjoint mineur accumulés avant sa majorité; 3° biens échus par succession
+      ou donation; 4° FRUITS ET REVENUS provenant des biens visés aux paragraphes 1° à 3°.
+    calculation: "VN_inclusion + (VN_inclusion / VB_inclusion) * plus_value_pendant_appartenance"
+    rounding: {mode: half_up, decimals: 2}
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "Base temporelle différente du patrimoine familial : « au moment où il y est
+         inclus », pas « au moment du mariage »."
+      - "Liste d'apports PLUS LARGE qu'en patrimoine familial."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: UP-005
+    title: Bien exclu par convention — valeur figée au moment de l'exclusion
+    regime: union_parentale
+    domain: anti_evitement
+    legal_authority: "C.c.Q., art. 521.35 al. 2"
+    source_ids: [SRC-001]
+    description: >
+      La valeur nette du patrimoine comprend également la valeur nette du bien exclu par
+      les conjoints, établie AU MOMENT DE L'EXCLUSION.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Garde-fou anti-évitement : exclure un bien ne le sort pas du calcul."]
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- SOCIÉTÉ D'ACQUÊTS
+  - rule_id: SA-001
+    title: Régime légal supplétif et prise d'effet
+    regime: societe_acquets
+    domain: champ_application
+    legal_authority: "C.c.Q., art. 432 et 433"
+    source_ids: [SRC-001]
+    description: >
+      Les époux sans contrat de mariage sont soumis à la société d'acquêts. Le régime prend
+      effet du jour de la célébration du mariage; on ne peut stipuler une autre date.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    last_verified_at: "2026-08-12"
+
+  - rule_id: SA-002
+    title: Présomption d'acquêt et présomption d'indivision
+    regime: societe_acquets
+    domain: classification
+    legal_authority: "C.c.Q., art. 459 et 460"
+    source_ids: [SRC-001]
+    description: >
+      Tout bien est présumé acquêt à moins qu'il ne soit établi qu'il est un propre. Le bien
+      dont un époux ne peut prouver le caractère est présumé appartenir aux deux
+      indivisément, à chacun pour moitié.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings: ["Le défaut de preuve a un effet juridique : ne jamais laisser un bien « non qualifié » silencieux."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: SA-003
+    title: Bien acquis avec propres et acquêts — règle de la moitié
+    regime: societe_acquets
+    domain: classification
+    legal_authority: "C.c.Q., art. 451"
+    source_ids: [SRC-001]
+    description: >
+      Le bien acquis avec des propres et des acquêts est propre à charge de récompense si la
+      valeur des propres employés est supérieure à la moitié du coût total d'acquisition;
+      sinon il est acquêt à charge de récompense. Même règle pour l'assurance vie et les
+      pensions de retraite.
+    calculation: "propre si valeur_propres_employes > 0.5 * cout_total_acquisition"
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    last_verified_at: "2026-08-12"
+
+  - rule_id: SA-004
+    title: Calcul complet des récompenses
+    regime: societe_acquets
+    domain: recompenses
+    legal_authority: "C.c.Q., art. 475 à 480"
+    source_ids: [SRC-001]
+    status: INCOMPLETE
+    derivation: non_modelisee
+    confidence: faible
+    human_review_required: true
+    uncertainty_ids: [U-007]
+    warnings: ["NON MODÉLISÉ dans cette version. Interdiction d'usage en production."]
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- ARTICULATION
+  - rule_id: ART-001
+    title: Non-duplication entre patrimoine familial et société d'acquêts
+    regime: articulation
+    domain: garde_fou
+    legal_authority: "Dérivée de la structure des art. 414 et 448 et s. C.c.Q."
+    source_ids: [SRC-001]
+    description: >
+      Tout bien partagé au titre du patrimoine familial doit être retiré de la masse des
+      acquêts avant la qualification propre/acquêt, sous peine de double comptage.
+    status: REVIEW_REQUIRED
+    derivation: derivee
+    confidence: moyenne
+    human_review_required: true
+    uncertainty_ids: [U-002]
+    warnings:
+      - "RÈGLE LA PLUS IMPORTANTE À FAIRE VALIDER. Aucune disposition unique ne l'énonce."
+      - "Une erreur ici est silencieuse : rien ne plante, le total est simplement faux."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: ART-002
+    title: Exclusivité des régimes selon le type d'union
+    regime: articulation
+    domain: champ_application
+    legal_authority: "C.c.Q., art. 414, 432, 521.20, 521.22"
+    source_ids: [SRC-001]
+    description: >
+      Mariage sans contrat : patrimoine familial + société d'acquêts. Mariage en séparation
+      de biens : patrimoine familial seul. Conjoints de fait avec enfant commun : union
+      parentale seule. Conjoints de fait sans enfant commun : aucun patrimoine conjugal légal.
+      L'union parentale prend fin par le mariage des conjoints (art. 521.22).
+    derivation: derivee
+    status: REVIEW_REQUIRED
+    confidence: moyenne
+    human_review_required: true
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- RRQ
+  - rule_id: RRQ-001
+    title: Période de partage des gains RRQ — mariés et unis civilement
+    regime: patrimoine_familial
+    domain: retraite
+    legal_authority: "C.c.Q., art. 415 et 425"
+    source_ids: [SRC-001, SRC-002]
+    description: >
+      La période s'établit toujours en ANNÉES COMPLÈTES. Elle débute le 1er janvier de
+      l'année du mariage ou de l'union civile et se termine le 31 décembre de l'année
+      précédant soit la fin de la vie commune si le jugement le précise, soit le dépôt à la
+      cour de la demande.
+    derivation: confirmee
+    confidence: haute
+    human_review_required: true
+    warnings:
+      - "AUCUNE SOMME D'ARGENT N'EST VERSÉE. Ce sont les revenus inscrits qui sont modifiés."
+      - "Le partage est exécuté par Retraite Québec, pas par le calculateur."
+    last_verified_at: "2026-08-12"
+
+  - rule_id: RRQ-003
+    title: Partage des gains RRQ — conjoints de fait
+    regime: union_parentale
+    domain: retraite
+    legal_authority: "Retraite Québec (page officielle)"
+    source_ids: [SRC-003]
+    description: >
+      Partage non automatique, sur demande conjointe. Trois conditions cumulatives : vie
+      maritale d'au moins 3 ans, ou d'au moins 1 an si un enfant est né ou à naître de
+      l'union ou adopté; séparation depuis au moins 12 mois; aucun des conjoints n'était
+      marié ou uni civilement avec un tiers lors de la séparation.
+    status: REVIEW_REQUIRED
+    derivation: confirmee
+    confidence: moyenne
+    human_review_required: true
+    uncertainty_ids: [U-005]
+    warnings:
+      - "Articulation avec le régime d'union parentale NON CONFIRMÉE. La page consultée
+         énonce que les conjoints de fait ne sont pas touchés par le patrimoine familial."
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- FISCALITÉ
+  - rule_id: FISC-001
+    title: Distinction valeur juridique partageable / valeur après impôt
+    regime: transverse
+    domain: fiscalite
+    legal_authority: null
+    source_ids: []
+    status: INCOMPLETE
+    derivation: non_modelisee
+    confidence: faible
+    human_review_required: true
+    uncertainty_ids: [U-006]
+    description: >
+      Le C.c.Q. parle de valeur marchande, pas de valeur nette d'impôt. Tout champ monétaire
+      du schéma doit porter un attribut explicite brut | net | apres_impot.
+    warnings: ["INTERDICTION D'USAGE EN PRODUCTION. Aucune position fiscale n'a été vérifiée."]
+    last_verified_at: "2026-08-12"
+
+  - rule_id: FISC-002
+    title: Transfert de REER/FERR/RPAC/RPD entre ex-conjoints (T2220)
+    regime: transverse
+    domain: fiscalite
+    legal_authority: "à vérifier dans la Loi de l'impôt sur le revenu"
+    source_ids: [SRC-007]
+    status: INCOMPLETE
+    derivation: non_modelisee
+    confidence: faible
+    human_review_required: true
+    uncertainty_ids: [U-006]
+    description: >
+      Transfert direct repéré via le formulaire T2220 de l'ARC, en vertu d'un décret, d'une
+      ordonnance, d'un jugement ou d'un accord écrit de séparation relatif au partage des
+      biens. Formulaire NON LU INTÉGRALEMENT.
+    warnings: ["Conditions et dispositions législatives non vérifiées."]
+    last_verified_at: "2026-08-12"
+
+  # ---------------------------------------------------------------- FORMULAIRES
+  - rule_id: FORM-001
+    title: Formulaires de la Cour supérieure — format imposé
+    regime: transverse
+    domain: procedure
+    legal_authority: "Directive de la juge en chef (non obtenue)"
+    source_ids: [SRC-004, SRC-X01]
+    status: REVIEW_REQUIRED
+    derivation: partiellement_confirmee
+    confidence: moyenne
+    human_review_required: true
+    uncertainty_ids: [U-004]
+    description: >
+      La Cour supérieure publie « Calcul de l'état du patrimoine familial » et « Calcul de
+      l'état de la société d'acquêts ». Existence confirmée par le Barreau de Montréal.
+      Format .xls et caractère obligatoire NON confirmés par source primaire : le domaine
+      de la Cour supérieure bloque tout accès automatisé.
+    warnings:
+      - "IMPACT PRODUIT : si le format est imposé, le livrable attendu est ce fichier,
+         pas un PDF maison."

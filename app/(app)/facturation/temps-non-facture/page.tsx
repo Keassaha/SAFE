@@ -23,7 +23,7 @@ export default async function TempsNonFacturePage() {
   const { totals, parTranche, dossiers } = report;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title="Temps non facturé"
         description="Détecteur de revenus dormants : temps facturable jamais porté sur une facture. Chiffres exacts (aucune estimation)."
@@ -36,7 +36,7 @@ export default async function TempsNonFacturePage() {
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-si-muted">À facturer (total)</p>
-            <p className="text-2xl font-semibold tabular-nums text-emerald-700">
+            <p className="text-2xl font-medium tabular-nums text-emerald-700">
               {formatCurrency(totals.montantTotal)}
             </p>
             <p className="text-xs text-si-muted mt-1">
@@ -50,7 +50,7 @@ export default async function TempsNonFacturePage() {
             <p className="text-xs text-si-muted flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5 text-si-amber-ink" /> Dormant (&gt; {DORMANT_DAYS} j)
             </p>
-            <p className="text-2xl font-semibold tabular-nums text-si-amber-ink">
+            <p className="text-2xl font-medium tabular-nums text-si-amber-ink">
               {formatCurrency(totals.montantDormant)}
             </p>
             <p className="text-xs text-si-muted mt-1">
@@ -63,7 +63,7 @@ export default async function TempsNonFacturePage() {
             <p className="text-xs text-si-muted flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" /> Fiche la plus ancienne
             </p>
-            <p className="text-2xl font-semibold tabular-nums">
+            <p className="text-2xl font-medium tabular-nums">
               {totals.ageMaxJours > 0 ? `${totals.ageMaxJours} j` : "—"}
             </p>
             <p className="text-xs text-si-muted mt-1">
@@ -106,10 +106,7 @@ export default async function TempsNonFacturePage() {
                 </thead>
                 <tbody>
                   {dossiers.map((d) => (
-                    <tr
-                      key={d.dossierId ?? d.clientId ?? d.clientNom}
-                      className="border-b border-si-line hover:bg-si-canvas/70"
-                    >
+                    <tr key={d.dossierId ?? d.clientId ?? d.clientNom} className="safe-zoom-rang border-b border-si-line " >
                       <td className="py-2.5 px-4">
                         {d.numeroDossier ? `${d.numeroDossier} — ` : ""}
                         {d.dossierIntitule}
@@ -121,7 +118,7 @@ export default async function TempsNonFacturePage() {
                           {d.ageMaxJours} j
                         </span>
                       </td>
-                      <td className="py-2.5 px-4 text-right tabular-nums font-semibold">
+                      <td className="py-2.5 px-4 text-right tabular-nums font-medium">
                         {formatCurrency(d.montant)}
                       </td>
                       <td className="py-2.5 px-4 text-right">

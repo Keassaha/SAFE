@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
+  canManageInvoices,
+  canViewBilling,
   canViewReports,
   canViewComptabilite,
   canManageCabinetSettings,
@@ -16,11 +18,36 @@ describe("P0 sécurité — gardes financières et de gestion", () => {
     expect(canViewReports("lecture_seule" as UserRole)).toBe(false);
   });
 
-  it("canViewComptabilite : admin, comptabilité, assistante oui ; avocat NON (cohérent avec la nav)", () => {
-    expect(canViewComptabilite("admin_cabinet")).toBe(true);
-    expect(canViewComptabilite("comptabilite")).toBe(true);
-    expect(canViewComptabilite("assistante")).toBe(true);
-    expect(canViewComptabilite("avocat")).toBe(false);
+  it("canViewComptabilite : les 4 rôles du cabinet oui (décision CEO 2026-08-12) ; un rôle inconnu NON", () => {
+    expect(ALL_ROLES.every((r) => canViewComptabilite(r))).toBe(true);
+    // L'avocat y est entré le 2026-08-12 : son tableau de bord affiche déjà les
+    // mêmes chiffres, le refus n'ouvrait qu'une porte de menu qui le renvoyait
+    // au tableau de bord. L'écriture reste gardée ailleurs.
+    expect(canViewComptabilite("avocat")).toBe(true);
+    // La liste reste explicite : pas de blanc-seing pour un rôle futur.
+    expect(canViewComptabilite("stagiaire" as UserRole)).toBe(false);
+    expect(canViewComptabilite("lecture_seule" as UserRole)).toBe(false);
+  });
+
+  it("canViewBilling : les 4 rôles du cabinet lisent ; un rôle inconnu NON", () => {
+    expect(ALL_ROLES.every((r) => canViewBilling(r))).toBe(true);
+    // L'avocat lit le suivi, les débours et les paiements : son tableau de bord
+    // les affiche déjà en chiffres, les liens ne rebondissent plus.
+    expect(canViewBilling("avocat")).toBe(true);
+    expect(canViewBilling("stagiaire" as UserRole)).toBe(false);
+    expect(canViewBilling("lecture_seule" as UserRole)).toBe(false);
+  });
+
+  it("lire n'est pas facturer : l'avocat lit, il n'écrit pas", () => {
+    expect(canManageInvoices("avocat")).toBe(false);
+  });
+
+  it("qui écrit peut lire : `canManageInvoices` reste inclus dans `canViewBilling`", () => {
+    // Invariant de sécurité : un droit d'écriture sans droit de lecture
+    // signalerait que les deux gardes ont divergé.
+    for (const role of ALL_ROLES) {
+      if (canManageInvoices(role)) expect(canViewBilling(role), role).toBe(true);
+    }
   });
 
   it("canManageCabinetSettings : admin SEUL (garde portail Stripe + Console)", () => {

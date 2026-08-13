@@ -127,11 +127,11 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
               <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-verified/10 text-si-verified border border-si-verified/30">
                 <BookOpen className="w-5 h-5" />
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-si-forest text-white text-[10px] font-semibold tracking-wide uppercase">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full safe-action-degrade text-white text-[10px] font-medium tracking-wide uppercase">
                 {t("recommended")}
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-si-ink mb-1">{t("fromRegister")}</h3>
+            <h3 className="text-sm font-medium text-si-ink mb-1">{t("fromRegister")}</h3>
             <p className="text-xs text-si-muted leading-snug">
               {t("fromRegisterDescription")}
             </p>
@@ -150,7 +150,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                 <Pencil className="w-5 h-5" />
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-si-ink mb-1">{t("fromScratch")}</h3>
+            <h3 className="text-sm font-medium text-si-ink mb-1">{t("fromScratch")}</h3>
             <p className="text-xs text-si-muted leading-snug">
               {t("fromScratchDescription")}
             </p>
@@ -220,7 +220,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                         {t("unbilledTaskCount", { count: d.taskCount })}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold tabular-nums">{formatCurrency(d.totalUnbilled)}</span>
+                    <span className="text-sm font-medium tabular-nums">{formatCurrency(d.totalUnbilled)}</span>
                   </label>
                 ))}
               </div>

@@ -158,7 +158,7 @@ function KpiCard({
   return (
     <Card>
       <CardContent className="px-5 py-4">
-        <p className={`font-mono text-[28px] font-semibold tabular-nums leading-none tracking-tight ${valueClass}`}>{value}</p>
+        <p className={`font-mono text-[28px] font-medium tabular-nums leading-none tracking-tight ${valueClass}`}>{value}</p>
         <p className="mt-3 text-sm font-medium text-si-ink">{label}</p>
         <p className="mt-1 text-xs leading-5 text-si-muted">{subtext}</p>
       </CardContent>
@@ -176,7 +176,7 @@ function StageBadge({ stage }: { stage: StageLead }) {
 
 function ScoreBadge({ score }: { score: number }) {
   return (
-    <span className={`inline-flex min-w-10 justify-center rounded-md border px-2 py-1 font-mono text-xs font-semibold tabular-nums ${scoreTone(score)}`}>
+    <span className={`inline-flex min-w-10 justify-center rounded-md border px-2 py-1 font-mono text-xs font-medium tabular-nums ${scoreTone(score)}`}>
       {score}
     </span>
   );
@@ -503,7 +503,7 @@ export default async function ConsolePage() {
                     >
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-si-ink">{lead.raisonSociale}</p>
+                          <p className="truncate text-sm font-medium text-si-ink">{lead.raisonSociale}</p>
                           <StageBadge stage={lead.stageLead} />
                           <ScoreBadge score={lead.score} />
                         </div>

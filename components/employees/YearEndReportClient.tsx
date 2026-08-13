@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FileDown, AlertCircle, CheckCircle2, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import type { YearEndSummary, YearEndEmployeeSummary } from "@/lib/payroll/year-end-service";
 
 interface YearEndReportClientProps {
@@ -21,8 +23,12 @@ function fmt(n: number): string {
 }
 
 function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
+  const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
   const isT4 = emp.employmentType === "employee";
+  // Paginé par 20, comme tous les registres du produit. Les totaux du pied de
+  // tableau restent ceux de l'année entière.
+  const pagePayslips = usePaginationLocale(emp.payslips);
 
   return (
     <div className="rounded-xl border border-si-line bg-si-surface overflow-hidden">
@@ -35,9 +41,9 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
         <UserCircle2 className="h-9 w-9 flex-shrink-0 text-si-muted/40" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-[14px] text-si-ink">{emp.fullName}</span>
+            <span className="font-medium text-[14px] text-si-ink">{emp.fullName}</span>
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
                 isT4
                   ? "bg-si-verified/10 text-si-verified"
                   : "bg-si-amber/[0.13] text-si-amber-ink"
@@ -61,7 +67,7 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
         <div className="hidden sm:flex items-center gap-6 flex-shrink-0 text-right">
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Brut</p>
-            <p className="text-[13px] font-semibold text-si-ink">{fmt(emp.totalGross)}</p>
+            <p className="text-[13px] font-medium text-si-ink">{fmt(emp.totalGross)}</p>
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Retenues</p>
@@ -69,7 +75,7 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Net versé</p>
-            <p className="text-[13px] font-semibold text-si-verified">{fmt(emp.totalNet)}</p>
+            <p className="text-[13px] font-medium text-si-verified">{fmt(emp.totalNet)}</p>
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Périodes</p>
@@ -103,11 +109,8 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
               </tr>
             </thead>
             <tbody>
-              {emp.payslips.map((ps) => (
-                <tr
-                  key={ps.payslipId}
-                  className="border-b border-si-line hover:bg-si-canvas"
-                >
+              {pagePayslips.tranche.map((ps) => (
+                <tr key={ps.payslipId} className="safe-zoom-rang border-b border-si-line " >
                   <td className="py-1.5 text-si-ink">{ps.periodLabel}</td>
                   <td className="py-1.5 text-right text-si-muted">
                     {new Date(ps.paymentDate).toLocaleDateString("fr-CA", {
@@ -124,14 +127,14 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
                   </td>
                   <td className="py-1.5 text-right text-si-ink">{fmt(ps.grossPay)}</td>
                   <td className="py-1.5 text-right text-si-muted">{fmt(ps.deductions)}</td>
-                  <td className="py-1.5 text-right font-semibold text-si-verified">
+                  <td className="py-1.5 text-right font-medium text-si-verified">
                     {fmt(ps.netPay)}
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-si-line bg-si-canvas font-semibold text-[12px]">
+              <tr className="border-t-2 border-si-line bg-si-canvas font-medium text-[12px]">
                 <td className="pt-2 pb-1 text-si-muted">
                   Total {emp.payslipCount} paiement{emp.payslipCount > 1 ? "s" : ""}
                 </td>
@@ -148,6 +151,22 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
               </tr>
             </tfoot>
           </table>
+          <RegistrePagination
+            totalCount={pagePayslips.total}
+            currentPage={pagePayslips.page}
+            resume={tc("paginationRange", {
+              start: pagePayslips.debut + 1,
+              end: pagePayslips.fin,
+              total: pagePayslips.total,
+            })}
+            labelPage={tc("paginationPage", {
+              current: pagePayslips.page,
+              total: pagePayslips.totalPages,
+            })}
+            labelPrecedent={tc("previous")}
+            labelSuivant={tc("next")}
+            onPageChange={pagePayslips.setPage}
+          />
         </div>
       )}
     </div>
@@ -160,9 +179,15 @@ export function YearEndReportClient({
   selectedYear,
 }: YearEndReportClientProps) {
   const router = useRouter();
+  const tc = useTranslations("common");
   const [downloading, setDownloading] = useState(false);
+  // Paginé par 20, comme tous les registres du produit. Les quatre tuiles de
+  // synthèse et l'export PDF portent sur l'année entière, pas sur la page.
+  const pageEmployes = usePaginationLocale(summary.employees);
 
   const handleYearChange = (y: string) => {
+    // Changer d'année change la liste : on revient en page 1.
+    pageEmployes.setPage(1);
     router.push(`/employees/year-end?year=${y}`);
   };
 
@@ -227,7 +252,7 @@ export function YearEndReportClient({
         <div className="flex items-start gap-2 rounded-xl border border-si-amber/30 bg-si-amber/[0.13] px-4 py-3">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-si-amber-ink" />
           <div className="text-[13px] text-si-amber-ink">
-            <span className="font-semibold">
+            <span className="font-medium">
               {missingNas.length} employé{missingNas.length > 1 ? "s" : ""} sans NAS :
             </span>{" "}
             {missingNas.map((e) => e.fullName).join(", ")}.{" "}
@@ -261,10 +286,26 @@ export function YearEndReportClient({
 
           {/* Liste des employés */}
           <div className="space-y-3">
-            {summary.employees.map((emp) => (
+            {pageEmployes.tranche.map((emp) => (
               <EmployeeRow key={emp.employeeId} emp={emp} />
             ))}
           </div>
+          <RegistrePagination
+            totalCount={pageEmployes.total}
+            currentPage={pageEmployes.page}
+            resume={tc("paginationRange", {
+              start: pageEmployes.debut + 1,
+              end: pageEmployes.fin,
+              total: pageEmployes.total,
+            })}
+            labelPage={tc("paginationPage", {
+              current: pageEmployes.page,
+              total: pageEmployes.totalPages,
+            })}
+            labelPrecedent={tc("previous")}
+            labelSuivant={tc("next")}
+            onPageChange={pageEmployes.setPage}
+          />
 
           {/* Note de bas de page */}
           <div className="flex items-start gap-2 rounded-xl border border-si-line bg-si-canvas px-4 py-3">
@@ -310,7 +351,7 @@ function StatCard({
     >
       <p className="text-[11px] font-medium uppercase tracking-wide text-si-muted/50">{label}</p>
       <p
-        className={`mt-1 text-[18px] font-bold ${
+        className={`mt-1 text-[18px] font-medium ${
           highlight ? "text-si-verified" : "text-si-ink"
         }`}
       >

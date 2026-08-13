@@ -68,7 +68,7 @@ export function FactureDemo() {
               <FileText className="h-4 w-4" strokeWidth={2} />
               Facture 2026-002 créée
             </span>
-            <span className="font-mono text-[14px] font-semibold text-forest-800 tabular-nums">3 150,00 $</span>
+            <span className="font-mono text-[14px] font-medium text-forest-800 tabular-nums">3 150,00 $</span>
           </motion.div>
         ) : (
           <span

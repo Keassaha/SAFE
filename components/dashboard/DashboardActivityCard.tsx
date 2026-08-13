@@ -32,11 +32,11 @@ export function DashboardActivityCard({
     <div className="card-glass overflow-hidden p-5 md:p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold safe-text-title tracking-tight">
+          <h3 className="text-sm font-medium safe-text-title tracking-tight">
             {tUi("encashmentActivity")}
           </h3>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xl md:text-2xl font-bold safe-text-metric">
+            <span className="text-xl md:text-2xl font-medium safe-text-metric">
               {totalValue}
             </span>
             <span className="text-sm safe-text-secondary">{totalLabel}</span>

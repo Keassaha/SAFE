@@ -94,7 +94,7 @@ export default async function TicketDetailPage({
       {/* Répondre + statut */}
       <Card>
         <CardContent className="px-6 py-5">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-si-muted">
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-si-muted">
             Répondre
           </h2>
           <TicketReplyForm ticketId={ticket.id} currentStatut={ticket.statut} />

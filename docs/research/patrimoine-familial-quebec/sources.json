@@ -1,0 +1,149 @@
+[
+  {
+    "source_id": "SRC-001",
+    "title": "Code civil du Quebec",
+    "authority": "Editeur officiel du Quebec",
+    "level": 1,
+    "jurisdiction": "QC",
+    "url": "https://www.legisquebec.gouv.qc.ca/fr/pdf/lc/CCQ-1991.pdf",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "PF-001",
+      "PF-002",
+      "PF-003",
+      "PF-004",
+      "PF-005",
+      "PF-006",
+      "PF-007",
+      "PF-008",
+      "PF-009",
+      "PF-010",
+      "PUP-001",
+      "PUP-002",
+      "PUP-003",
+      "PUP-004",
+      "PUP-005",
+      "PUP-006"
+    ]
+  },
+  {
+    "source_id": "SRC-003",
+    "title": "Patrimoine d'union parentale",
+    "authority": "Gouvernement du Quebec",
+    "level": 2,
+    "jurisdiction": "QC",
+    "url": "https://www.quebec.ca/famille-et-soutien-aux-personnes/mariage-union/effets-union-parentale/patrimoine-union-parentale",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "PUP-001",
+      "PUP-002",
+      "PUP-003"
+    ]
+  },
+  {
+    "source_id": "SRC-004",
+    "title": "Evaluation des droits",
+    "authority": "Retraite Quebec",
+    "level": 2,
+    "jurisdiction": "QC",
+    "url": "https://www.retraitequebec.gouv.qc.ca/fr/professionnels-et-employeurs/professionnels-concernes-regimes-retraite/partage-droits-rcr-et-rver/evaluation-droits",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "PF-010",
+      "RET-001"
+    ]
+  },
+  {
+    "source_id": "SRC-005",
+    "title": "Partage des droits",
+    "authority": "Retraite Quebec",
+    "level": 2,
+    "jurisdiction": "QC",
+    "url": "https://www.retraitequebec.gouv.qc.ca/fr/professionnels-et-employeurs/professionnels-concernes-regimes-retraite/partage-droits-rcr-et-rver/partage-droits",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "PF-010",
+      "RET-001"
+    ]
+  },
+  {
+    "source_id": "SRC-007",
+    "title": "Loi de l'impot sur le revenu, article 73",
+    "authority": "Justice Canada",
+    "level": 1,
+    "jurisdiction": "CA",
+    "url": "https://laws-lois.justice.gc.ca/fra/lois/I-3.3/section-73.html",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "TAX-001"
+    ]
+  },
+  {
+    "source_id": "SRC-008",
+    "title": "Transferts d'immobilisations",
+    "authority": "Agence du revenu du Canada",
+    "level": 2,
+    "jurisdiction": "CA",
+    "url": "https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/revenu-personnel/ligne-12700-gains-capital/transferts-immobilisations.html",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "TAX-001"
+    ]
+  },
+  {
+    "source_id": "SRC-009",
+    "title": "Formulaire T2220",
+    "authority": "Agence du revenu du Canada",
+    "level": 2,
+    "jurisdiction": "CA",
+    "url": "https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/formulaires/t2220.html",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "TAX-002"
+    ]
+  },
+  {
+    "source_id": "SRC-010",
+    "title": "Transfert REER, FERR ou RPAC/RVER",
+    "authority": "Revenu Quebec",
+    "level": 2,
+    "jurisdiction": "QC",
+    "url": "https://www.revenuquebec.ca/fr/citoyens/votre-situation/separation-ou-divorce/transfert-de-fonds-detenus-dans-un-reer-un-ferr-ou-un-rpacrver/",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "TAX-002"
+    ]
+  },
+  {
+    "source_id": "SRC-013",
+    "title": "Droit de la famille - 163076, 2016 QCCA 2040",
+    "authority": "Cour d'appel du Quebec",
+    "level": 1,
+    "jurisdiction": "QC",
+    "url": "https://www.canlii.org/w/canlii/2017CanLIIDocs4115.pdf",
+    "last_verified_at": "2026-08-11",
+    "supports": [
+      "PF-005"
+    ]
+  },
+  {
+    "source_id": "SRC-014",
+    "title": "AliForm et PatriForm",
+    "authority": "Juris Concept",
+    "level": 5,
+    "jurisdiction": "QC",
+    "url": "https://jurisconcept.ca/fr/aliform/",
+    "last_verified_at": "2026-08-11",
+    "supports": []
+  },
+  {
+    "source_id": "SRC-015",
+    "title": "Acces a AliForm dans l'Espace CAIJ",
+    "authority": "CAIJ",
+    "level": 3,
+    "jurisdiction": "QC",
+    "url": "https://www.caij.qc.ca/nouvelles/acces-a-aliform-maintenant-offert-dans-lespace-caij/",
+    "last_verified_at": "2026-08-11",
+    "supports": []
+  }
+]

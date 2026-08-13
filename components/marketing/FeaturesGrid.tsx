@@ -122,7 +122,7 @@ function OutcomeCard({
   }
 
   const isExternal = feat.cta.href.startsWith("http");
-  const ctaClasses = `inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-full text-sm font-semibold font-sans ${feat.accent.statText} bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.18)] transition-all duration-300`;
+  const ctaClasses = `inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-full text-sm font-medium font-sans ${feat.accent.statText} bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.18)] transition-all duration-300`;
 
   return (
     <motion.div
@@ -182,13 +182,13 @@ function OutcomeCard({
             transition={{ delay: 0.5 + idx * 0.1, type: "spring", stiffness: 180, damping: 20 }}
             className={`px-3 py-1.5 rounded-safe ${feat.accent.statBg} border ${feat.accent.border}`}
           >
-            <span className={`text-sm font-bold font-sans ${feat.accent.statText}`}>
+            <span className={`text-sm font-medium font-sans ${feat.accent.statText}`}>
               {feat.stat}
             </span>
           </motion.div>
         </div>
 
-        <h3 className="text-xl font-bold text-[var(--safe-white)] mb-3 font-sans tracking-tight">
+        <h3 className="text-xl font-medium text-[var(--safe-white)] mb-3 font-sans tracking-tight">
           {feat.title}
         </h3>
 
@@ -234,7 +234,7 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-5 font-sans"
+            className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--safe-sage)] mb-5 font-sans"
           >
             Ce que SAFE change concrètement
           </motion.p>
@@ -244,7 +244,7 @@ export function FeaturesGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.05 }}
-            className="font-sans text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+            className="font-sans text-4xl sm:text-5xl md:text-6xl font-medium text-white mb-6 leading-[1.1] tracking-tight"
           >
             Les résultats, pas{" "}
             <span className="italic text-[var(--safe-sage)]">les fonctionnalités.</span>
@@ -285,7 +285,7 @@ export function FeaturesGrid() {
         >
           <Link
             href="/fonctionnalites"
-            className="group inline-flex items-center gap-3 px-8 py-4 text-sm sm:text-base font-semibold rounded-full font-sans text-white bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.22)] hover:shadow-lg hover:shadow-white/5 transition-all duration-400"
+            className="group inline-flex items-center gap-3 px-8 py-4 text-sm sm:text-base font-medium rounded-full font-sans text-white bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.22)] hover:shadow-lg hover:shadow-white/5 transition-all duration-400"
           >
             Voir toutes les fonctionnalités
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

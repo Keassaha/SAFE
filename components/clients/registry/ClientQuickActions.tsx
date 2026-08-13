@@ -13,6 +13,11 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Phone, Mail, Download, MoreHorizontal } from "lucide-react";
+import {
+  computeMenuPosition as calculerPosition,
+  MENU_WIDTH_PX,
+  type MenuPosition,
+} from "@/components/ui/menu-position";
 
 interface ClientQuickActionsProps {
   email: string | null;
@@ -21,39 +26,10 @@ interface ClientQuickActionsProps {
   canExport?: boolean;
 }
 
-const MENU_WIDTH_PX = 224; // matches w-56
-const VIEWPORT_MARGIN = 8;
-
-export type MenuPosition = { left: number; top: number; placement: "below" | "above" };
-
-export function computeMenuPosition(
-  triggerRect: { top: number; bottom: number; left: number; right: number },
-  menuHeight: number,
-  viewport?: { width: number; height: number }
-): MenuPosition {
-  const viewportW = viewport?.width ?? (typeof window !== "undefined" ? window.innerWidth : 1024);
-  const viewportH = viewport?.height ?? (typeof window !== "undefined" ? window.innerHeight : 768);
-
-  // Right-align with trigger by default (Actions sits in the right action row).
-  let left = triggerRect.right - MENU_WIDTH_PX;
-  if (left < VIEWPORT_MARGIN) left = Math.max(VIEWPORT_MARGIN, triggerRect.left);
-  if (left + MENU_WIDTH_PX > viewportW - VIEWPORT_MARGIN) {
-    left = viewportW - MENU_WIDTH_PX - VIEWPORT_MARGIN;
-  }
-
-  let top = triggerRect.bottom + 8;
-  let placement: MenuPosition["placement"] = "below";
-  if (menuHeight > 0 && top + menuHeight > viewportH - VIEWPORT_MARGIN) {
-    const flippedTop = triggerRect.top - menuHeight - 8;
-    if (flippedTop > VIEWPORT_MARGIN) {
-      top = flippedTop;
-      placement = "above";
-    } else {
-      top = Math.max(VIEWPORT_MARGIN, viewportH - menuHeight - VIEWPORT_MARGIN);
-    }
-  }
-  return { left, top, placement };
-}
+/* Le calcul de position vit désormais dans `components/ui/menu-position.ts`,
+ * partagé avec le menu de ligne du registre. Réexporté ici : c'est le chemin
+ * d'import de la suite de tests existante. */
+export { computeMenuPosition, type MenuPosition } from "@/components/ui/menu-position";
 
 export function ClientQuickActions({
   email,
@@ -84,7 +60,7 @@ export function ClientQuickActions({
     const r = triggerRef.current.getBoundingClientRect();
     const menuHeight = menuRef.current?.offsetHeight ?? 0;
     setPosition(
-      computeMenuPosition(
+      calculerPosition(
         { top: r.top, bottom: r.bottom, left: r.left, right: r.right },
         menuHeight
       )
@@ -245,7 +221,7 @@ export function ClientQuickActions({
             }
           }
         }}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-muted text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5 hover:bg-si-canvas hover:border-si-line hover:shadow-md active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified/40"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-muted text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:bg-si-canvas hover:border-si-line active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified/40"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}

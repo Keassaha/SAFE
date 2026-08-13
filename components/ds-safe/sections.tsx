@@ -29,7 +29,7 @@ export function ComplianceStrip({
   rightNote: string;
 }) {
   return (
-    <div className="relative overflow-hidden flex items-center gap-[22px] bg-si-forest text-si-surface rounded-2xl px-[22px] py-[13px] mb-5">
+    <div className="relative overflow-hidden flex items-center gap-[22px] safe-action-degrade text-si-surface rounded-2xl px-[22px] py-[13px] mb-5">
       <div className="absolute -right-[50px] -top-[70px] w-[230px] h-[230px] glow-verified" />
       {items.map((it, i) => (
         <div key={it.label} className="contents">
@@ -113,7 +113,7 @@ export function TrustCard({
   caption: string;
 }) {
   return (
-    <div className="relative overflow-hidden bg-si-forest text-si-surface rounded-2xl px-[26px] py-6">
+    <div className="relative overflow-hidden safe-action-degrade text-si-surface rounded-2xl px-[26px] py-6">
       <div className="absolute -left-[50px] -bottom-[70px] w-[200px] h-[200px] glow-verified" />
       <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-si-verified-on-forest">
         <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />
@@ -165,7 +165,7 @@ export function Obligations({ items }: { items: Obligation[] }) {
           >
             <div
               className={cn(
-                "w-6 h-6 rounded-[7px] shrink-0 grid place-items-center text-[13px] font-semibold",
+                "w-6 h-6 rounded-[7px] shrink-0 grid place-items-center text-[13px] font-medium",
                 o.state === "ok" ? "bg-si-verified/10 text-si-verified" : "bg-si-amber/[0.13] text-si-amber-ink"
               )}
             >

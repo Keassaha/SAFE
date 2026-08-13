@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Card, CardTitle } from "@/components/ds-safe/core";
+import { RegistreBarreOutils, RegistreFeuille } from "@/components/ui/registre";
 import {
   buildDossierListWhere,
   getDossierListOrderBy,
@@ -173,7 +173,7 @@ export default async function DossiersPage({
   const exportHref = `/api/dossiers/export?${exportParams.toString()}`;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <PageHeader
         title={t("title")}
         description={t("manageMattersDesc")}
@@ -209,14 +209,15 @@ export default async function DossiersPage({
         actesUrgents={actesUrgentsCount}
         actesTermines={actesTermines}
       />
-      <Card className="overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>{t("matterList")}</CardTitle>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <DossierSearchBar />
-            <DossierFilters clients={clients} canViewTrust={canViewTrust} />
-          </div>
-        </div>
+      {/* La liste passe sur une feuille, comme le registre clients. Le titre
+          « Liste des dossiers » a sauté : posé au-dessus d'une liste de
+          dossiers, sur une page qui s'appelle Dossiers, il disait trois fois la
+          même chose et volait la largeur de la recherche. */}
+      <RegistreFeuille ariaLabel={t("matterList")}>
+        <RegistreBarreOutils
+          recherche={<DossierSearchBar />}
+          filtres={<DossierFilters clients={clients} canViewTrust={canViewTrust} />}
+        />
         {dossiers.length === 0 ? (
           <EmptyState
             title={t("noMatters")}
@@ -253,7 +254,7 @@ export default async function DossiersPage({
             />
           </>
         )}
-      </Card>
+      </RegistreFeuille>
     </div>
   );
 }

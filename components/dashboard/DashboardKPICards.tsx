@@ -50,7 +50,7 @@ function KPICard({ title, value, subtitle, trend, trendLabel, icon, gradient, ic
 
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-2 mb-3">
-          <p className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${
+          <p className={`text-[11px] font-medium uppercase tracking-[0.08em] ${
             isHero ? "text-white/70" : "text-neutral-400"
           }`}>
             {title}
@@ -64,7 +64,7 @@ function KPICard({ title, value, subtitle, trend, trendLabel, icon, gradient, ic
           </div>
         </div>
 
-        <p className={`text-2xl md:text-3xl font-bold tracking-tight tabular-nums ${
+        <p className={`text-2xl md:text-3xl font-medium tracking-tight tabular-nums ${
           isHero ? "text-white" : "text-neutral-800"
         }`}>
           {value}
@@ -79,7 +79,7 @@ function KPICard({ title, value, subtitle, trend, trendLabel, icon, gradient, ic
         {trend != null && (
           <div className="flex items-center gap-2 mt-3">
             <span
-              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
+              className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full ${
                 trendUp
                   ? isHero ? "bg-white/15 text-emerald-100" : "bg-emerald-50 text-emerald-600"
                   : trendDown

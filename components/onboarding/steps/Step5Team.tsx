@@ -27,7 +27,7 @@ const TECH_LEVELS = [
 export default function Step5Team({ data, setData, lang, errors }: StepProps) {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-[var(--safe-darkest)] mb-6">
+      <h2 className="text-xl font-medium text-[var(--safe-darkest)] mb-6">
         {T("step5Title", lang)}
       </h2>
 
@@ -63,7 +63,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-4 gap-2">
           {["1", "2", "3-5", "6-15"].map((val) => (
             <button key={val} type="button" onClick={() => setData({ totalUsers: val })}
-              className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-200
+              className={`py-3 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.totalUsers === val
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

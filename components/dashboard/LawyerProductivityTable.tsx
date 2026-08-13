@@ -24,7 +24,7 @@ export function LawyerProductivityTable({
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.04)] p-5 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-base font-semibold text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
+          <h3 className="text-base font-medium text-[var(--safe-text-title)] flex items-center gap-2 tracking-tight">
             <Users className="w-4 h-4 text-blue-600" />
             {t("performance.title")}
           </h3>
@@ -50,19 +50,19 @@ export function LawyerProductivityTable({
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b-2 border-[var(--safe-neutral-border)]">
-                <th className="text-left py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-left py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("performance.lawyer")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("performance.hours")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("performance.amount")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("performance.billableHours")}
                 </th>
-                <th className="text-right py-2 px-2 font-semibold text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
+                <th className="text-right py-2 px-2 font-medium text-[var(--safe-text-title)] text-xs uppercase tracking-wider">
                   {t("performance.billingRate")}
                 </th>
               </tr>
@@ -81,7 +81,7 @@ export function LawyerProductivityTable({
                   <td className="py-2 px-2 text-right text-[var(--safe-text-secondary)]">{row.billableHours.toFixed(1)} h</td>
                   <td className="py-2 px-2 text-right">
                     <span
-                      className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
                         row.billingRate >= 80
                           ? "bg-emerald-50 text-emerald-700"
                           : row.billingRate >= 50

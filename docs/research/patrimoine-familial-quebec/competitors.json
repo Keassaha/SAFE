@@ -1,0 +1,73 @@
+[
+  {
+    "competitor_id": "CMP-001",
+    "name": "AliForm / PatriForm",
+    "territory": "Quebec",
+    "audience": "family-law professionals",
+    "verified_features": [
+      "family patrimony calculation",
+      "support calculations",
+      "annotated jurisprudence"
+    ],
+    "unknowns": [
+      "API",
+      "machine-readable export",
+      "PUP support",
+      "hosting",
+      "audit granularity"
+    ],
+    "source_ids": [
+      "SRC-014",
+      "SRC-015"
+    ],
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "competitor_id": "CMP-002",
+    "name": "Formulaires AFQ",
+    "territory": "Quebec",
+    "audience": "professionals",
+    "verified_features": [
+      "family patrimony worksheet",
+      "partnership of acquests worksheet"
+    ],
+    "unknowns": [
+      "automation",
+      "collaboration",
+      "audit",
+      "security"
+    ],
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "competitor_id": "CMP-003",
+    "name": "Jurifamille",
+    "territory": "Quebec",
+    "audience": "authorized family-law professionals",
+    "verified_features": [
+      "support calculations",
+      "tax scenarios",
+      "annual updates"
+    ],
+    "unknowns": [
+      "family patrimony engine"
+    ],
+    "last_verified_at": "2026-08-11"
+  },
+  {
+    "competitor_id": "CMP-004",
+    "name": "SimpleEquity",
+    "territory": "Canada",
+    "audience": "family-law professionals",
+    "verified_features": [
+      "financial disclosure",
+      "property division scenarios",
+      "collaboration"
+    ],
+    "unknowns": [
+      "Quebec PF rules",
+      "PUP rules"
+    ],
+    "last_verified_at": "2026-08-11"
+  }
+]

@@ -113,7 +113,7 @@ export function DossierDetailTabs({ dossierId, statutDossier, sections }: Dossie
               <TabsTrigger
                 key={section.sectionKey}
                 value={section.sectionKey}
-                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink transition-colors lg:px-4 lg:py-3 data-[state=active]:bg-si-forest data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-600/20 data-[state=inactive]:hover:bg-si-canvas data-[state=inactive]:hover:text-si-ink"
+                className="!justify-start flex w-full min-w-0 items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink transition-colors lg:px-4 lg:py-3 data-[state=active]:safe-action-degrade data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-600/20 data-[state=inactive]:hover:bg-si-canvas data-[state=inactive]:hover:text-si-ink"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center lg:h-9 lg:w-9">
                   <Icon className="h-4 w-4" />

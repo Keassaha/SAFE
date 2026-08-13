@@ -147,7 +147,7 @@ export function HonorairesView({
                     <div className="space-y-2 py-2 border-t border-b border-current border-opacity-10">
                       <div className="flex justify-between items-baseline text-sm">
                         <span className="text-si-muted">{tb("accumulatedAmount")}</span>
-                        <span className="font-semibold text-si-ink">
+                        <span className="font-medium text-si-ink">
                           {formatCurrency(client.totalAmount)}
                         </span>
                       </div>

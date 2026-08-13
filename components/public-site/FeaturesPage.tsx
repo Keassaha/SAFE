@@ -124,7 +124,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7, ease: EASE }}
-          className={s.inverse ? "lg:order-2" : ""}
+          className={`min-w-0 ${s.inverse ? "lg:order-2" : ""}`}
         >
           <p className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: GREEN }}>
             <span style={{ color: FAINT }}>{String(index + 1).padStart(2, "0")}</span>
@@ -168,7 +168,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ delay: 0.1, duration: 0.75, ease: EASE }}
-          className={s.inverse ? "lg:order-1" : ""}
+          className={`min-w-0 ${s.inverse ? "lg:order-1" : ""}`}
         >
           {s.visuel}
         </motion.div>
@@ -193,7 +193,7 @@ export default function FonctionnalitesPage() {
             <a
               key={s.cle}
               href={`#${s.cle}`}
-              className="inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 py-2 font-sans text-[13px] transition-colors hover:bg-black/[0.03] sm:min-h-0 sm:px-3.5 sm:py-1.5 sm:text-[12.5px]"
+              className="safe-zoom inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 py-2 font-sans text-[13px] transition-colors hover:bg-black/[0.03] sm:min-h-0 sm:px-3.5 sm:py-1.5 sm:text-[12.5px]"
               style={{ borderColor: LINE, color: MUTED }}
             >
               <span className="font-mono text-[11px]" style={{ color: FAINT }}>{String(i + 1).padStart(2, "0")}</span>
@@ -247,8 +247,8 @@ export default function FonctionnalitesPage() {
           <div className="mt-10 flex flex-wrap items-center gap-5">
             <Link
               href={R.diagnostic}
-              className="inline-flex h-11 items-center rounded-[7px] px-6 font-sans text-[14px] font-medium transition-transform duration-200 hover:-translate-y-0.5"
-              style={{ background: GREEN, color: "#fff", boxShadow: "0 14px 28px -18px rgba(18,161,80,0.85)" }}
+              className="safe-zoom inline-flex h-11 items-center rounded-[7px] px-6 font-sans text-[14px] font-medium transition-transform duration-200"
+              style={{ background: GREEN, color: "#fff", boxShadow: "0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85)" }}
             >
               Faire le diagnostic
             </Link>

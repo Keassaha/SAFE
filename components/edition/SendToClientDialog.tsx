@@ -11,7 +11,7 @@ interface Props {
   onSent?: () => void;
 }
 
-const FOREST = "#1F3A2E";
+const FOREST = "var(--si-forest)";
 const WARN = { fg: "#8B6B1F", bg: "#F5E6C8" };
 const ERR = "#8A3A2D";
 
@@ -101,7 +101,7 @@ export function SendToClientDialog({ documentId, onClose, onSent }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3">
-          <h3 className="text-[15px] font-semibold text-neutral-900">{L("Envoyer au client", "Send to client")}</h3>
+          <h3 className="text-[15px] font-medium text-neutral-900">{L("Envoyer au client", "Send to client")}</h3>
           <button type="button" onClick={onClose} className="text-neutral-400 hover:text-neutral-700" aria-label="Fermer">
             <X className="h-4 w-4" />
           </button>
@@ -165,7 +165,7 @@ export function SendToClientDialog({ documentId, onClose, onSent }: Props) {
                 type="button"
                 disabled={pending || ok}
                 onClick={submit}
-                className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                 style={{ backgroundColor: FOREST }}
               >
                 {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

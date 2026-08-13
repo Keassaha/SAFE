@@ -1,5 +1,9 @@
 import { requirePageAccess } from "@/lib/auth/page-guard";
-import { canViewComptabilite } from "@/lib/auth/permissions";
+import {
+  canManageExpenseJournal,
+  canManageInvoices,
+  canViewComptabilite,
+} from "@/lib/auth/permissions";
 import { calculateJournalBalance } from "@/lib/services/journal";
 import { prisma } from "@/lib/db";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
@@ -7,7 +11,13 @@ import { ensureExpenseCategories } from "@/app/(app)/journal/depenses/actions";
 import { ComptabilitePageView } from "./ComptabilitePageView";
 
 export default async function ComptabilitePage() {
-  const { cabinetId } = await requirePageAccess(canViewComptabilite);
+  const { cabinetId, role } = await requirePageAccess(canViewComptabilite);
+
+  // Voir les livres n'est pas les tenir. L'avocat lit la page depuis la décision
+  // CEO du 2026-08-12 ; l'écriture et les paiements gardent leurs propres droits,
+  // et la page n'affiche que ce que le rôle peut réellement faire.
+  const canWriteJournal = canManageExpenseJournal(role);
+  const canSeePayments = canManageInvoices(role);
 
   const [journalKpis, expenseData, isSafeInc] = await Promise.all([
     calculateJournalBalance(cabinetId),
@@ -21,6 +31,8 @@ export default async function ComptabilitePage() {
       initialJournalKpis={journalKpis}
       expenseData={expenseData}
       isSafeInc={isSafeInc}
+      canWriteJournal={canWriteJournal}
+      canSeePayments={canSeePayments}
     />
   );
 }
