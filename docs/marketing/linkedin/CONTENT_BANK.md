@@ -91,6 +91,38 @@ L'angle : le Barreau de l'Ontario publie un tableau qui dit que 26,7 % des avoca
 
 ---
 
+## Idée capturée — « Une page entière de notre logiciel était inatteignable depuis un ordinateur »
+
+Statut : réserve non utilisée de la semaine du 10 août, versée ici le 2026-08-13. À développer au format 4 sections.
+
+L'angle : sur téléphone, la page s'ouvrait normalement. Le menu du bureau et le tiroir du mobile sont écrits dans deux fichiers différents, et ils avaient divergé sur quatre destinations, dont le tableau de bord de conformité du cabinet. La fonction existait, elle était testée, elle marchait, et le cabinet ne pouvait pas y arriver. Du point de vue de l'avocate, une fonction qu'on ne peut pas atteindre n'existe pas. Réponse retenue : les quatre entrées ajoutées, plus un test qui fait échouer toute la suite si les deux listes s'écartent à nouveau. C'est la troisième fois en une semaine que le même défaut revient sous un autre visage : un seuil recopié, une grille de droits recopiée, un menu recopié. À chaque fois, les deux copies étaient d'accord le premier jour.
+
+---
+
+## Idée capturée — « On a été enfermé dehors par notre propre serrure »
+
+Statut : réserve du calendrier du 14 août, capturée le 2026-08-13. Source : journal du 10 août. À développer au format 4 sections.
+
+L'angle : une session dont le compte a disparu tournait en rond. La page protégée renvoyait vers la connexion, la connexion renvoyait vers la page protégée. Deux gardes lisaient la même session à deux endroits différents et n'y voyaient pas la même chose. La personne n'était pas déconnectée, elle était enfermée, sans porte de sortie. En production, ça se déclenche quand on désactive un employé ou qu'on réinitialise un mot de passe pendant qu'il est connecté. Transposition pour un cabinet : le jour où quelqu'un quitte, retirer un accès et enfermer quelqu'un ne sont pas la même chose, et on ne s'en aperçoit qu'en essayant.
+
+---
+
+## Idée capturée — « Une personne qui avait coché "réduire les animations" arrivait sur une page blanche »
+
+Statut : réserve du calendrier du 14 août, capturée le 2026-08-13. Source : journal du 13 août. À développer au format 4 sections.
+
+L'angle : la page d'accueil s'anime au défilement. Quand le visiteur demande à son système de réduire les animations, chaque scène est posée directement à son état final, et l'état final du premier écran est celui où le titre a fini de s'effacer. Le titre, la promesse et le bouton étaient donc à opacité zéro pour ces personnes. Le commentaire du fichier promettait l'inverse. Le réglage existe pour les gens sujets aux vertiges et aux migraines, et on leur servait une page vide. Ton posé, aucune dramatisation : c'est un défaut d'accessibilité trouvé et corrigé, pas une faute morale.
+
+---
+
+## Idée capturée — « Deux fichiers dormaient hors du dépôt, et deux écrans auraient planté au premier cabinet »
+
+Statut : réserve du calendrier du 14 août, capturée le 2026-08-13. Source : journal du 10 août. À développer au format 4 sections.
+
+L'angle : deux migrations de base de données n'étaient pas suivies. Sur une installation neuve, les tables qu'elles créent n'auraient pas existé, et les deux écrans qui les lisent auraient planté à l'ouverture. Le point intéressant n'est pas l'oubli, c'est la catégorie de défaut : celui-ci ne se voit pas à la compilation, il attend le premier vrai utilisateur. Transposable à un cabinet : la procédure qui marche chez vous parce que vous connaissez l'astuce, et qui casse le jour où quelqu'un d'autre l'exécute pour la première fois.
+
+---
+
 ## Idée capturée — « Elle reçoit en français, rédige en français, plaide en français. Puis elle ouvre ses livres en anglais. »
 
 Statut : idée capturée le 2026-07-26 pendant la recherche sur la clientèle franco-ontarienne. À développer au format 4 sections.

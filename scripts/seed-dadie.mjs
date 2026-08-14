@@ -207,6 +207,11 @@ const CABINET_CONFIG = {
       "Coordonnées bancaires du compte en fidéicommis",
       "Grille tarifaire d'aide juridique (CSJ) et modalités de reddition",
       "Numéro de membre du Barreau (jamais affiché sur facture)",
+      // Rien ne se conserve « pendant N ans » sans savoir quand l'exercice se
+      // ferme : la durée de conservation se compte à partir de là. Une entreprise
+      // individuelle ferme presque toujours au 31 décembre, mais presque toujours
+      // n'est pas une déclaration, et personne d'autre que lui ne peut la faire.
+      "Fin d'exercice financier (aucun cabinet n'en a encore déclaré une)",
     ],
   },
 };
@@ -807,6 +812,37 @@ async function upsertTimeEntries(adminId) {
 }
 
 async function upsertTrust(adminId) {
+  // Le compte BANCAIRE d'abord. Depuis CH-01, une écriture de fidéicommis
+  // appartient à un compte déclaré, et les onze écrans d'inspection restent
+  // muets tant qu'aucun compte n'existe : « Aucun compte en fidéicommis n'est
+  // enregistré. » La reprise de l'existant de la migration ch01 avait couvert
+  // les cabinets d'avant ; celui-ci est né après, il est donc passé à côté.
+  //
+  // On n'invente NI institution NI numéro, exactement comme cette reprise : un
+  // faux numéro dans un rapport réglementaire (art. 41(6), 42(6)) serait pire
+  // que l'absence de compte. Le libellé porte la mention exigée par l'art. 50
+  // al. 2 et annonce lui-même ce qui reste à saisir.
+  const bankAccount = await prisma.trustBankAccount.upsert({
+    where: { id: "dadie-trust-bank-general" },
+    create: {
+      id: "dadie-trust-bank-general",
+      cabinetId: CABINET_ID,
+      type: "GENERAL",
+      accountLabel: "Compte général en fidéicommis (coordonnées à compléter)",
+      institutionName: "À compléter",
+      accountNumber: "À compléter",
+      accountNumberLast4: "0000",
+      branchProvince: "QC",
+      currency: "CAD",
+      interestBeneficiary: "FONDS_ETUDES_JURIDIQUES",
+      barreauAgreementConfirmed: false,
+      openedAt: new Date("2026-06-03"),
+    },
+    // Rien n'est réécrit : dès qu'il saisit son institution, son numéro ou
+    // confirme l'entente B-1 r.10, une relance du script effacerait sa saisie.
+    update: {},
+  });
+
   // Provision modeste : il déclare un usage « peu » du fidéicommis.
   const account = await prisma.trustAccount.upsert({
     where: {
@@ -830,6 +866,7 @@ async function upsertTrust(adminId) {
   const txData = {
     cabinetId: CABINET_ID,
     trustAccountId: account.id,
+    trustBankAccountId: bankAccount.id,
     clientId: "dadie-client-lemay",
     dossierId: "dadie-dossier-famille",
     date: new Date("2026-06-03"),
@@ -854,6 +891,19 @@ async function upsertTrust(adminId) {
       allowTrustPayments: true,
       lastTrustTransactionDate: new Date("2026-06-03"),
     },
+  });
+
+  // Le solde du compte bancaire est un cache d'affichage : il se dérive du
+  // registre, qui reste l'autorité (PR-1). On le recalcule au lieu de l'écrire
+  // en dur, pour qu'une démonstration qui ajoute un mouvement ne soit pas
+  // contredite par une relance du script.
+  const agg = await prisma.trustTransaction.aggregate({
+    where: { cabinetId: CABINET_ID, trustBankAccountId: bankAccount.id },
+    _sum: { amount: true },
+  });
+  await prisma.trustBankAccount.update({
+    where: { id: bankAccount.id },
+    data: { currentBalance: round2(agg._sum.amount ?? 0) },
   });
 }
 
@@ -893,6 +943,97 @@ async function upsertConformite(adminId) {
   }
 }
 
+// ---- CRM (console SAFE Inc.) ------------------------------------------------
+//
+// Le lead existe depuis la soumission de l'audit, créé par lib/crm/lead-from-audit.
+// Ce module fait ce qu'un mapping automatique ne peut pas faire : les réponses
+// libres du formulaire n'ont pas de colonne, et le découpage prénom / nom se
+// trompe sur un nom composé. Ce qui est su avec certitude est posé ici.
+//
+// CE QU'ON NE FAIT PAS : le convertir. `Lead.cabinetId` et `convertedAt` sont
+// les marqueurs du client signé, et /console/clients ne liste que ces lignes.
+// Me Dadié n'a rien signé, son espace est une démonstration. Écrire ces deux
+// champs remplirait le pipeline d'un client qui n'existe pas, et un pipeline
+// auquel on ne peut plus se fier ne sert plus à rien. La conversion réelle
+// passera par lib/services/crm/conversion.ts, depuis l'écran, à la signature.
+
+const CRM_NOTE_MARQUEUR = "Espace de démonstration :";
+
+const CRM_NOTE = [
+  `${CRM_NOTE_MARQUEUR} cabinet ${CABINET_ID}, monté le 2026-08-10 depuis cet audit.`,
+  `Facturation horaire ${TAUX_HORAIRE} $/h, sans couche assistante. Aucun accès envoyé par courriel.`,
+  "Territoire déclaré « Gatineau , Ottawa » : configuré au Barreau du Québec, la province déclarée étant QC. À confirmer s'il exerce aussi en Ontario.",
+].join("\n");
+
+async function syncCrmLead() {
+  const lead = await prisma.lead.findUnique({
+    where: { id: AUDIT.leadId },
+    select: { id: true, notesPrivees: true, cabinetId: true, convertedAt: true },
+  });
+
+  if (!lead) {
+    console.log(`Lead CRM ${AUDIT.leadId} introuvable — CRM non touché.`);
+    return null;
+  }
+
+  const notes = (lead.notesPrivees ?? "").includes(CRM_NOTE_MARQUEUR)
+    ? lead.notesPrivees
+    : [lead.notesPrivees, CRM_NOTE].filter(Boolean).join("\n\n");
+
+  await prisma.lead.update({
+    where: { id: lead.id },
+    data: {
+      // Le formulaire a laissé passer des espaces parasites, et la fiche du
+      // cabinet porte déjà le nom propre. Deux orthographes du même cabinet
+      // dans deux écrans, c'est un doublon qui attend son heure.
+      raisonSociale: AUDIT.cabinet.nom,
+      ville: "Gatineau",
+      regionBarreau: "Outaouais",
+      // Le formulaire recueille les domaines en texte libre : ils restaient en
+      // notes, donc invisibles au filtrage et au scoring firmographique.
+      domainesPratique: AUDIT.practice.domaines,
+      nbAvocatsEstime: AUDIT.team.userCount,
+      nbAdjointsEstime: 0,
+      logicielActuel: AUDIT.team.outilActuel,
+      // Solo sans adjointe : il décide seul, il n'y a pas de champion interne à
+      // convaincre avant lui. L'adoption bottom-up n'a personne par qui monter.
+      modeleAdoption: "TOP_DOWN",
+      notesPrivees: notes,
+      dateDerniereActivite: new Date(),
+      // volumeFacturation reste vide : l'audit ne le demande pas, et un chiffre
+      // d'affaires deviné vaut moins qu'une case vide qu'on saura remplir.
+    },
+  });
+
+  // « Agboko » n'est pas son prénom seul et « Jean-Jacques Dadié » n'est pas son
+  // nom : splitName coupe au premier espace, ce qui casse tout nom composé.
+  await prisma.leadContact.updateMany({
+    where: { leadId: lead.id, email: ADMIN_EMAIL },
+    data: { prenom: "Agboko Jean-Jacques", nom: "Dadié" },
+  });
+
+  // Identifiant fixe : le fil d'activité ne doit pas gagner une ligne de plus à
+  // chaque relance du script.
+  const activite = {
+    leadId: lead.id,
+    type: "NOTE",
+    direction: "INTERNAL",
+    sujet: "Espace de démonstration complété",
+    contenu: [
+      `Cabinet ${CABINET_ID} configuré de bout en bout : clients, dossiers, heures, factures, débours, conflits.`,
+      "Compte général en fidéicommis déclaré, coordonnées bancaires à compléter par l'avocat.",
+      "Aucun courriel envoyé, les accès se remettent de vive voix.",
+    ].join("\n"),
+  };
+  await prisma.activity.upsert({
+    where: { id: "dadie-activity-espace-complete" },
+    create: { id: "dadie-activity-espace-complete", ...activite },
+    update: activite,
+  });
+
+  return lead;
+}
+
 function heuresNonFacturees() {
   return TIME_ENTRIES.filter((t) => !t.invoiceId && !t.aideJuridique);
 }
@@ -908,6 +1049,8 @@ function logPlan() {
   console.log(`Offre:          SAFE Solo fondatrice 50 $/mois (rapport annonçait 99 $)`);
   console.log(`Facturation:    HORAIRE ${TAUX_HORAIRE} $/h · TPS/TVQ`);
   console.log(`Fidéicommis:    actif (usage faible) · RCNEPA`);
+  console.log(`  compte général déclaré, coordonnées bancaires « à compléter »`);
+  console.log(`CRM:            lead ${AUDIT.leadId} complété, PAS converti (aucune signature)`);
   console.log(`Aide juridique: RÉGULIÈRE · registres séparés · grille CSJ à configurer`);
   console.log(`Récupérable:    ${r.valeurRecuperableAnnuelle}$/an · ${r.heuresRecuperablesParSemaine} h/sem`);
   console.log(`Clients:        ${CLIENTS.length} · Dossiers: ${DOSSIERS.length} · Factures: ${INVOICES.length}`);
@@ -940,6 +1083,30 @@ async function logSummary() {
       prisma.deboursType.count({ where: { cabinetId: CABINET_ID } }),
     ]);
 
+  const [trustBank, lead] = await Promise.all([
+    prisma.trustBankAccount.findFirst({
+      where: { cabinetId: CABINET_ID, closedAt: null },
+      select: {
+        accountLabel: true,
+        institutionName: true,
+        currentBalance: true,
+        barreauAgreementConfirmed: true,
+        regulatorNotifiedAt: true,
+      },
+    }),
+    prisma.lead.findUnique({
+      where: { id: AUDIT.leadId },
+      select: {
+        raisonSociale: true,
+        stageLead: true,
+        statutLead: true,
+        score: true,
+        cabinetId: true,
+        domainesPratique: true,
+      },
+    }),
+  ]);
+
   const aFacturer = entries.filter((e) => e.billingStatus === "READY_TO_BILL");
   const heuresAF = round2(aFacturer.reduce((s, e) => s + (e.durationHours ?? 0), 0));
   const montantAF = round2(aFacturer.reduce((s, e) => s + (e.montant ?? 0), 0));
@@ -952,7 +1119,26 @@ async function logSummary() {
   console.log(`Offre:          SAFE Solo fondatrice 50 $/mois pendant 12 mois`);
   console.log(`Facturation:    horaire ${TAUX_HORAIRE} $/h · TPS/TVQ`);
   console.log(`Fidéicommis:    ${trustTx} mouvement(s) · RCNEPA`);
+  if (trustBank) {
+    console.log(`  ${trustBank.accountLabel}`);
+    console.log(
+      `  institution ${trustBank.institutionName} · solde ${trustBank.currentBalance} $ · ` +
+        `entente B-1 r.10 ${trustBank.barreauAgreementConfirmed ? "confirmée" : "à confirmer"} · ` +
+        `formulaire art. 51 ${trustBank.regulatorNotifiedAt ? "transmis" : "à transmettre"}`,
+    );
+  } else {
+    console.log(`  AUCUN compte déclaré — les écrans d'inspection resteront muets`);
+  }
   console.log(`Conformité:     ${conflicts} vérification(s) de conflit · ${debours} types de débours`);
+  if (lead) {
+    console.log(
+      `CRM:            ${lead.raisonSociale} · ${lead.stageLead}/${lead.statutLead} · score ${lead.score}`,
+    );
+    console.log(
+      `  domaines ${lead.domainesPratique.join(", ") || "—"} · ` +
+        `${lead.cabinetId ? "converti en client" : "non converti (aucune signature)"}`,
+    );
+  }
   console.log(`Clients:        ${clients} · Dossiers: ${dossiers}`);
   console.log(`Heures:         ${entries.length} entrées`);
   console.log(`Factures:`);
@@ -1011,6 +1197,13 @@ async function main() {
 
   await upsertConformite(admin.id);
   console.log("Éléments de conformité upsertés");
+
+  const lead = await syncCrmLead();
+  console.log(
+    lead
+      ? "Lead CRM complété (toujours au stade audit : aucune signature, aucune conversion)"
+      : "Lead CRM introuvable — rien de fait côté console",
+  );
 
   await logSummary();
 }
