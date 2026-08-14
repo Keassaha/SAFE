@@ -368,6 +368,23 @@ function isChildActive(href: string, pathname: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/**
+ * Forme compacte d'un nom pour la barre du haut.
+ *
+ * Un nom complet avec titre (« Me Agboko Jean-Jacques Dadié ») ne tient jamais
+ * dans une largeur de barre de navigation, et une coupure au milieu d'un prénom
+ * (« Jean-Jac… ») se lit comme un accident plutôt qu'une mise en forme. Garder
+ * le premier mot (le titre s'il y en a un, sinon le prénom) et le dernier (le
+ * nom de famille) couvre les deux cas avec la même règle. Le nom complet reste
+ * accessible : au survol (`title`) et dans le menu du compte.
+ */
+function nomCompact(nomComplet: string | null | undefined): string | null {
+  if (!nomComplet) return null;
+  const mots = nomComplet.trim().split(/\s+/).filter(Boolean);
+  if (mots.length <= 2) return mots.join(" ");
+  return `${mots[0]} ${mots[mots.length - 1]}`;
+}
+
 /* ───────────────────────────────────────────────────────────
  *  Header
  *  ─────────────────────────────────────────────────────────── */
@@ -579,16 +596,17 @@ export function Header({
           style={{ background: "var(--si-line)" }}
         />
 
-        {/* Un nom complet avec titre (« Me Agboko Jean-Jacques Dadié ») talonne
-            les 200px d'origine sans jamais dépasser assez pour que l'ellipse se
-            déclenche : il collait directement sur l'icône du tableau de bord.
-            140px coupe systématiquement avant ce point de collision, quel que
-            soit le nom affiché. */}
+        {/* Un nom complet avec titre (« Me Agboko Jean-Jacques Dadié ») ne tient
+            jamais dans cette largeur, et une coupure au milieu d'un prénom
+            (« Jean-Jac… ») se lisait comme un accident. La forme compacte
+            (titre + nom de famille) tient presque toujours ; `truncate` reste
+            un filet de sécurité pour les cas restants. Le nom complet reste
+            accessible au survol et dans le menu du compte. */}
         <span
           className="hidden xl:block shrink-0 text-[13px] font-sans font-medium text-text-body truncate max-w-[140px]"
           title={user?.name ?? undefined}
         >
-          {user?.name ?? tMisc("myFirm")}
+          {nomCompact(user?.name) ?? tMisc("myFirm")}
         </span>
       </div>
 
@@ -616,7 +634,7 @@ export function Header({
                 onMouseEnter={() => setSurvole(group.id)}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`relative z-10 inline-flex origin-bottom items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-current={active ? "page" : undefined}
@@ -646,7 +664,7 @@ export function Header({
                 }}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`inline-flex origin-bottom items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active || isOpen ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-haspopup="menu"
