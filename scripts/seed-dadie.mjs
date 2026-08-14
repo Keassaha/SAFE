@@ -1018,10 +1018,11 @@ async function syncCrmLead() {
     leadId: lead.id,
     type: "NOTE",
     direction: "INTERNAL",
-    sujet: "Espace de démonstration complété",
+    sujet: "Espace configuré, vide de tout client inventé",
     contenu: [
-      `Cabinet ${CABINET_ID} configuré de bout en bout : clients, dossiers, heures, factures, débours, conflits.`,
-      "Compte général en fidéicommis déclaré, coordonnées bancaires à compléter par l'avocat.",
+      `Cabinet ${CABINET_ID} prêt : accès admin, facturation horaire ${TAUX_HORAIRE} $/h, débours.`,
+      "Aucun client, dossier, facture, heure ou compte en fidéicommis fabriqué (règle CEO 2026-08-13).",
+      "Le cabinet est vide, prêt à recevoir les vraies données de Me Dadié.",
       "Aucun courriel envoyé, les accès se remettent de vive voix.",
     ].join("\n"),
   };
@@ -1039,26 +1040,18 @@ function heuresNonFacturees() {
 }
 
 function logPlan() {
-  const r = AUDIT.recovery;
-  const nf = heuresNonFacturees();
-  const minutesNF = nf.reduce((s, t) => s + t.minutes, 0);
   console.log("Plan (dry-run) — rien n'est écrit.\n");
   console.log(`Cabinet:        ${AUDIT.cabinet.nom} (id ${CABINET_ID})`);
   console.log(`Affiché:        ${AUDIT.cabinet.displayName} — ${AUDIT.cabinet.location}`);
   console.log(`Admin:          ${ADMIN_EMAIL} / ${ADMIN_PASSWORD} (admin_cabinet)`);
   console.log(`Offre:          SAFE Solo fondatrice 50 $/mois (rapport annonçait 99 $)`);
   console.log(`Facturation:    HORAIRE ${TAUX_HORAIRE} $/h · TPS/TVQ`);
-  console.log(`Fidéicommis:    actif (usage faible) · RCNEPA`);
-  console.log(`  compte général déclaré, coordonnées bancaires « à compléter »`);
   console.log(`CRM:            lead ${AUDIT.leadId} complété, PAS converti (aucune signature)`);
-  console.log(`Aide juridique: RÉGULIÈRE · registres séparés · grille CSJ à configurer`);
-  console.log(`Récupérable:    ${r.valeurRecuperableAnnuelle}$/an · ${r.heuresRecuperablesParSemaine} h/sem`);
-  console.log(`Clients:        ${CLIENTS.length} · Dossiers: ${DOSSIERS.length} · Factures: ${INVOICES.length}`);
-  console.log(`Heures:         ${TIME_ENTRIES.length} entrées`);
-  console.log(`  dont à facturer: ${nf.length} entrées · ${round2(minutesNF / 60)} h · ${round2((minutesNF / 60) * TAUX_HORAIRE)} $`);
-  console.log(`Débours:        ${DEBOURS_TYPES.length} types · ${DEBOURS_TEMPLATES.length} gabarits`);
+  console.log(`Débours:        ${DEBOURS_TYPES.length} types · ${DEBOURS_TEMPLATES.length} gabarits (catalogue générique)`);
   console.log(`Couche assistante: MASQUÉE (aucun user assistante, file-assistante hors nav)`);
   console.log(`Fiche de temps: VISIBLE (mode horaire)`);
+  console.log(`\nAUCUNE donnée de démonstration (règle CEO 2026-08-13 : pas de client inventé).`);
+  console.log(`Clients, dossiers, factures, heures, fidéicommis : 0. Cabinet vide, prêt à l'emploi.`);
   console.log(`\nÀ confirmer avec l'avocat:`);
   CABINET_CONFIG.onboardingAudit.aConfirmer.forEach((q) => console.log(`  - ${q}`));
 }
@@ -1179,24 +1172,19 @@ async function main() {
   await upsertDebours();
   console.log("Types et gabarits de débours upsertés");
 
-  await upsertClients();
-  console.log("Clients de démonstration upsertés");
-
-  await upsertDossiers(admin.id);
-  console.log("Dossiers de démonstration upsertés");
-
-  // Les factures d'abord : les heures s'y rattachent par invoiceId/invoiceLineId.
-  await upsertInvoices(admin.id);
-  console.log("Factures et lignes de prestation upsertées");
-
-  await upsertTimeEntries(admin.id);
-  console.log("Fiches de temps upsertées");
-
-  await upsertTrust(admin.id);
-  console.log("Mouvement de fidéicommis upserté");
-
-  await upsertConformite(admin.id);
-  console.log("Éléments de conformité upsertés");
+  // Décision CEO 2026-08-13 : PAS DE CLIENT INVENTÉ. Un cabinet de démonstration
+  // qui ressemble à un vrai dossier client trompe, même en interne. Les données
+  // fabriquées (clients Diallo/Lemay/9312-4477, dossiers, factures, heures,
+  // fidéicommis, conflits) ont été retirées de la production le 2026-08-14 par
+  // scripts/vider-donnees-inventees-dadie.mjs.
+  //
+  // upsertClients / upsertDossiers / upsertInvoices / upsertTimeEntries /
+  // upsertTrust / upsertConformite restent plus bas, MORTES INTENTIONNELLEMENT :
+  // elles documentent la forme du modèle de données pour Me Dadié (horaire,
+  // fidéicommis actif, aide juridique régulière) sans jamais s'exécuter. Ne les
+  // rappelle pas depuis main() sans en reparler au CEO — c'est exactement le
+  // geste qui recréerait les faux clients.
+  console.log("Aucune donnée de démonstration créée (règle : pas de client inventé)");
 
   const lead = await syncCrmLead();
   console.log(
