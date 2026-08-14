@@ -210,9 +210,10 @@ function ReconciliationFigure() {
           <motion.div
             key={label}
             initial={{ opacity: 0, x: 12 }}
+            data-revele=""
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 + index * 0.12, duration: 0.35 }}
+            transition={{ delay: 0.08 + index * 0.13, duration: 0.68, ease: EASE }}
             className="flex items-center justify-between border-b py-4"
             style={{ borderColor: LINE_SOFT }}
           >
@@ -229,9 +230,10 @@ function ReconciliationFigure() {
       </div>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
+        data-revele=""
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ delay: 0.5, duration: 0.35 }}
+        transition={{ delay: 0.5, duration: 0.68, ease: EASE }}
         className="mt-5 flex items-start gap-3 rounded-[9px] px-4 py-3"
         style={{ background: "rgba(195,138,36,0.08)", color: "#72531B" }}
       >
@@ -284,6 +286,7 @@ function BillingFlowFigure() {
           className="absolute bottom-8 left-[17px] top-6 w-px origin-top"
           style={{ background: "rgb(var(--si-forest-rgb) / 0.3)" }}
           initial={{ scaleY: 0 }}
+          data-revele=""
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: EASE }}
@@ -294,9 +297,10 @@ function BillingFlowFigure() {
             <motion.div
               key={step.label}
               initial={{ opacity: 0, y: 10 }}
+              data-revele=""
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.15 + index * 0.16, duration: 0.4, ease: EASE }}
+              transition={{ delay: 0.12 + index * 0.17, duration: 0.72, ease: EASE }}
               className="relative grid grid-cols-[36px_1fr_auto] items-center gap-x-4 border-b py-4 last:border-0"
               style={{ borderColor: LINE_SOFT }}
             >
@@ -351,9 +355,10 @@ function ReviewFigure() {
           <motion.div
             key={card.title}
             initial={{ opacity: 0, x: 14 }}
+            data-revele=""
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: index * 0.12, duration: 0.4 }}
+            transition={{ delay: index * 0.13, duration: 0.7, ease: EASE }}
             className="group flex items-start gap-3 border-t py-4"
             style={{ borderColor: LINE_SOFT }}
           >

@@ -4,7 +4,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { INK, MUTED, FAINT, GREEN, LINE, SURFACE, BG, fadeUp, PageShell, PageHeader } from "./shared";
+import { INK, MUTED, FAINT, GREEN, LINE, SURFACE, BG, EASE, fadeUp, PageShell, PageHeader } from "./shared";
 
 const DEROULEMENT = [
   "Nous partons de votre façon de travailler.",
@@ -45,16 +45,17 @@ export default function DemoPage() {
               {DEROULEMENT.map((d, i) => (
                 <motion.li
                   key={i}
-                  initial={{ opacity: 0, x: 16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  data-revele=""
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.1 + i * 0.1, duration: 0.45 }}
+                  transition={{ delay: 0.08 + i * 0.12, duration: 0.72, ease: EASE }}
                   className="flex gap-4"
                 >
                   <span className="mt-0.5 font-mono text-[12px]" style={{ color: GREEN }} aria-hidden>
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-sans text-[16px] leading-[1.55]" style={{ color: MUTED }}>
+                  <span className="font-serif text-[16px] leading-[1.55]" style={{ color: MUTED }}>
                     {d}
                   </span>
                 </motion.li>
@@ -91,7 +92,7 @@ export default function DemoPage() {
             >
               Choisir un moment
             </button>
-            <p className="mt-4 font-sans text-[12px] leading-[1.5]" style={{ color: FAINT }}>
+            <p className="mt-4 font-serif text-[12.5px] leading-[1.5]" style={{ color: FAINT }}>
               Vos coordonnées servent uniquement à répondre à votre demande et à organiser la
               rencontre. Elles ne sont pas vendues ni partagées à des fins de prospection par des
               tiers.
@@ -103,7 +104,7 @@ export default function DemoPage() {
       <section className="border-t px-6 py-5" style={{ background: SURFACE, borderColor: LINE }}>
         <div className="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {["Conçu au Québec", "Données hébergées au Canada", "Pensé pour le fidéicommis", "Utilisé dans un vrai cabinet"].map((p) => (
-            <div key={p} className="flex items-center gap-2 font-sans text-[12.5px]" style={{ color: MUTED }}>
+            <div key={p} className="flex items-center gap-2 font-serif text-[13px]" style={{ color: MUTED }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} aria-hidden />
               {p}
             </div>

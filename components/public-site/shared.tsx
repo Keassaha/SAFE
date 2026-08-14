@@ -47,7 +47,19 @@ export const BARRE_TEXTE_FORT = "var(--si-ink)";
 export const BARRE_SURVOL = "rgb(var(--si-line-ink-rgb) / 0.05)";
 export const BARRE_OMBRE = "0 16px 36px -26px rgb(var(--si-line-ink-rgb) / 0.45)";
 
-export const EASE = [0.16, 1, 0.3, 1] as const;
+/**
+ * Courbe unique des apparitions du site.
+ *
+ * C'était [0.16, 1, 0.3, 1], une sortie exponentielle : la vitesse de départ
+ * y vaut plusieurs fois la vitesse moyenne, donc chaque bloc partait d'un
+ * coup avant de traîner sur sa fin. Sur une page qu'on parcourt au défilement,
+ * cela donne une suite de déclics.
+ *
+ * Celle-ci accélère puis ralentit sans à-coup. Le même geste s'y lit comme un
+ * glissement (décision CEO du 13 août 2026). Elle est le pendant de `--doux`
+ * dans la vitrine animée, qui vaut cubic-bezier(0.33, 0.06, 0.2, 1).
+ */
+export const EASE = [0.33, 0.06, 0.2, 1] as const;
 
 export const R = {
   accueil: "/",
@@ -64,12 +76,27 @@ export const R = {
  * Entrée douce à l'arrivée dans l'écran.
  * La marge négative est modeste : sur un écran de téléphone, une marge trop
  * grande retarde le déclenchement et le texte paraît manquant.
+ *
+ * `data-revele` marque l'élément comme « révélé au défilement ». Au téléphone,
+ * une seule règle de globals.css le repose à sa place définitive : un bloc de
+ * texte qui apparaît quand on arrive dessus est une idée d'écran large, où le
+ * regard a le temps de voir le mouvement. Au pouce, on défile vite et par
+ * à-coups, et la page donne l'impression de se charger pendant qu'on la lit.
+ *
+ * L'attribut est indispensable : framer-motion écrit l'opacité en style en
+ * ligne, qu'aucune feuille ne peut reprendre sans cible explicite. Toute
+ * révélation écrite à la main ailleurs doit donc le porter aussi.
  */
 export const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 14 },
+  initial: { opacity: 0, y: 10 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "-40px" },
-  transition: { duration: 0.45, delay, ease: EASE },
+  /* Plus long et plus court à la fois : la course dure 780 ms au lieu de 450,
+     mais le bloc ne parcourt plus que dix pixels au lieu de quatorze. Un
+     mouvement lent sur une courte distance se remarque moins qu'un mouvement
+     rapide sur une longue, à durée de lecture égale. */
+  transition: { duration: 0.78, delay, ease: EASE },
+  "data-revele": "",
 });
 
 export function Nav() {
@@ -330,7 +357,15 @@ export function Footer() {
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen font-sans antialiased" style={{ background: BG, color: INK }}>
+    /* `safe-vitrine` marque les pages publiques. Elle ne peint rien par
+       elle-même : elle sert d'ancrage aux règles qui ne valent QUE pour la
+       vitrine, à commencer par le repli du mono sur le sans au téléphone
+       (globals.css). L'intérieur de l'application ne la porte pas, et ses
+       chiffres gardent leur mono tabulaire comme l'exige la loi L1. */
+    <div
+      className="safe-vitrine min-h-screen font-sans antialiased"
+      style={{ background: BG, color: INK }}
+    >
       <Nav />
       <main>{children}</main>
       <Footer />
@@ -371,7 +406,14 @@ export function useScrollScrub(
   useEffect(() => {
     const el = zoneRef.current;
     if (!el) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* Le téléphone suit la même règle que « mouvement réduit », comme partout
+       ailleurs sur la vitrine : la scène est posée d'emblée à sa fin. Une scène
+       scrubbée demande une longue course de défilement pour se lire ; au pouce,
+       cette course coûte des écrans entiers et le contenu passe une bonne part
+       de son temps à moitié révélé. */
+    const reduced =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(max-width: 860px)").matches;
     let raf = 0;
     let shown = reduced ? 1 : 0;
     const loop = (time: number) => {
@@ -397,7 +439,7 @@ const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgb(var(--si-forest-rgb) / 0.22)", "
 /**
  * Fragments du logo flottants, brassés par le curseur, même langage que le hero
  * de l'accueil. Léger : ~11 pièces, dessin seulement quand le canvas est visible,
- * coupé en prefers-reduced-motion.
+ * coupé en prefers-reduced-motion et au téléphone.
  */
 export function PaperDrift({ count = 11 }: { count?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -407,10 +449,18 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    /* Sur téléphone ces galets passaient derrière le titre et le rendaient
-       pénible à lire : moins nombreux, plus petits, cantonnés à la marge. */
-    const petitEcran = window.matchMedia("(max-width: 860px)").matches;
-    const nombre = petitEcran ? Math.max(4, Math.round(count * 0.45)) : count;
+    /* Rien au téléphone.
+
+       Ces galets sont brassés par le CURSEUR : c'est tout leur propos, et il
+       n'y a pas de curseur au doigt. Une première tentative les avait réduits
+       et repoussés dans la bande de droite plutôt que supprimés ; il en restait
+       une animation permanente, des formes tronquées au bord de l'écran, et un
+       décor qui passait derrière le titre sans jamais répondre à rien.
+
+       Sur 375 px, la largeur est le budget le plus rare de la page. Elle va au
+       texte. */
+    if (window.matchMedia("(max-width: 860px)").matches) return;
+    const nombre = count;
 
     let seed = 20260726;
     const rnd = () => {
@@ -422,18 +472,12 @@ export function PaperDrift({ count = 11 }: { count?: number }) {
     const papers = Array.from({ length: nombre }, (_, i) => ({
       /* les galets encadrent le titre : la bande de droite, un peu la marge de
          gauche, jamais la colonne de texte */
-      fx: petitEcran
-        ? 0.78 + rnd() * 0.26
-        : i % 4 === 0
-          ? 0.01 + rnd() * 0.13
-          : 0.71 + rnd() * 0.31,
+      fx: i % 4 === 0 ? 0.01 + rnd() * 0.13 : 0.71 + rnd() * 0.31,
       /* réparti sur la hauteur plutôt qu'au hasard : évite les paquets */
       fy: 0.04 + ((i + rnd() * 0.85) / nombre) * 0.9,
       /* Taille de référence, calée sur le galet. Une forme plus pleine pèse
          davantage à surface égale : `fragmentWeight` la ramène au même calme. */
-      size:
-        ((petitEcran ? 20 : 38) + rnd() * (petitEcran ? 26 : 58)) *
-        FRAGMENT.fragmentWeight,
+      size: (38 + rnd() * 58) * FRAGMENT.fragmentWeight,
       rot: (rnd() - 0.5) * 1.1,
       /* un galet sur deux pointe vers le haut : les deux moitiés du mark */
       flip: rnd() > 0.45,
@@ -625,7 +669,7 @@ export function PageHeader({
         {intro && (
           <motion.p
             {...fadeUp(0.12)}
-            className="mt-5 max-w-[54ch] font-sans text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
+            className="mt-5 max-w-[54ch] font-serif text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
             style={{ color: MUTED }}
           >
             {intro}

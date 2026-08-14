@@ -2108,6 +2108,45 @@
 }
 
 
+/* ── Deux polices au téléphone, sur la vitrine seulement ────────────────────
+   La vitrine parle en trois familles : Instrument Serif porte le discours,
+   Geist Sans l'interface, Geist Mono les exergues et les chiffres. Sur 375 px,
+   trois familles dans un même écran se lisent comme un défaut de fabrication
+   plutôt que comme une intention (décision CEO du 13 août 2026).
+
+   Le mono se replie donc sur le sans sous 860 px. Ce qu'il protégeait
+   réellement, l'alignement des chiffres, est repris par `tabular-nums` : la
+   loi L1 tient toujours, elle est simplement obtenue autrement.
+
+   La règle est ancrée sur `.safe-vitrine`, jamais sur `body` : l'intérieur de
+   l'application affiche des soldes de fidéicommis et des rapprochements, où le
+   mono tabulaire n'est pas un choix de style mais une exigence de lecture. */
+@media (max-width: 860px) {
+  .safe-vitrine {
+    font-variant-numeric: tabular-nums;
+  }
+  .safe-vitrine .font-mono {
+    font-family: var(--font-geist-sans), -apple-system, "Segoe UI", sans-serif;
+  }
+
+  /* ── Pas de révélation au défilement au téléphone ─────────────────────────
+     Chaque bloc de la vitrine montait de quatorze pixels en apparaissant, une
+     fois arrivé dans l'écran. Sur un grand écran, le regard a le temps de voir
+     le mouvement. Au pouce, on défile vite et par à-coups : la page semble se
+     charger pendant qu'on la lit, et un défilement rapide dépasse le bloc
+     avant qu'il ne soit apparu.
+
+     `!important` n'est pas une facilité : framer-motion écrit l'opacité et la
+     transformation en style en ligne, et une feuille ne peut pas les reprendre
+     autrement. La cible reste étroite, le seul attribut `data-revele`, pour ne
+     jamais toucher une opacité voulue par le dessin (les formes flottantes de
+     l'en-tête, par exemple, sont volontairement pâles). */
+  .safe-vitrine [data-revele] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* ── Zoom souple des surfaces sélectionnables ───────────────────────────────
    Une mise à l'échelle rééchantillonne le texte : au-delà de 1 %, un libellé
    de 13 px devient visiblement mou. L'échelle reste donc à 1,006, sous le

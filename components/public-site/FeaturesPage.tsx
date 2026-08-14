@@ -120,10 +120,11 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
     >
       <div className="mx-auto grid max-w-[1140px] gap-9 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 12 }}
+          data-revele=""
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: EASE }}
+          transition={{ duration: 0.82, ease: EASE }}
           className={`min-w-0 ${s.inverse ? "lg:order-2" : ""}`}
         >
           <p className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: GREEN }}>
@@ -136,7 +137,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
           >
             {s.titre}
           </h2>
-          <div className="mt-5 max-w-[48ch] space-y-3.5 font-sans text-[16px] leading-[1.68]" style={{ color: MUTED }}>
+          <div className="mt-5 max-w-[48ch] space-y-3.5 font-serif text-[16px] leading-[1.68]" style={{ color: MUTED }}>
             {s.corps.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -146,11 +147,12 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
               {s.points.map((p, i) => (
                 <motion.li
                   key={p}
-                  initial={{ opacity: 0, x: 12 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 8 }}
+                  data-revele=""
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.12 + i * 0.09, duration: 0.45, ease: EASE }}
-                  className="flex gap-3 font-sans text-[14.5px] leading-[1.55]"
+                  transition={{ delay: 0.1 + i * 0.11, duration: 0.72, ease: EASE }}
+                  className="flex gap-3 font-serif text-[15px] leading-[1.55]"
                   style={{ color: INK }}
                 >
                   <span className="mt-[7px] shrink-0" style={{ color: GREEN }}>
@@ -164,10 +166,11 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 26 }}
+          initial={{ opacity: 0, y: 12 }}
+          data-revele=""
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ delay: 0.1, duration: 0.75, ease: EASE }}
+          transition={{ delay: 0.08, duration: 0.86, ease: EASE }}
           className={`min-w-0 ${s.inverse ? "lg:order-1" : ""}`}
         >
           {s.visuel}
@@ -212,6 +215,7 @@ export default function FonctionnalitesPage() {
         <div className="mx-auto max-w-[640px]">
           <motion.p
             initial={{ opacity: 0 }}
+            data-revele=""
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -221,7 +225,8 @@ export default function FonctionnalitesPage() {
             La limite
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 10 }}
+            data-revele=""
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.65, ease: EASE }}
@@ -231,11 +236,12 @@ export default function FonctionnalitesPage() {
             Ce que SAFE ne remplace pas.
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 10 }}
+            data-revele=""
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08, duration: 0.65, ease: EASE }}
-            className="mt-5 font-sans text-[16.5px] leading-[1.7]"
+            className="mt-5 font-serif text-[16.5px] leading-[1.7]"
             style={{ color: MUTED }}
           >
             SAFE ne remplace ni votre jugement professionnel, ni la personne qui connaît le
@@ -257,7 +263,7 @@ export default function FonctionnalitesPage() {
             </Link>
           </div>
 
-          <p className="mt-10 font-sans text-[12.5px] leading-[1.6]" style={{ color: VERIFIED }}>
+          <p className="mt-10 font-serif text-[13px] leading-[1.6]" style={{ color: VERIFIED }}>
             Les écrans de cette page sont des maquettes manipulables, sur des données
             fictives. Elles reproduisent l&apos;interface de SAFE sans être le logiciel.
           </p>

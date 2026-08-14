@@ -623,16 +623,38 @@ function DiagnosticStatique({ onStart }: { onStart: (lang: Lang) => void }) {
 
 export default function DiagnosticPage() {
   const [lang, setLang] = useState<Lang | null>(null);
+  /* La version statique existait déjà pour « mouvement réduit ». Le téléphone
+     la prend aussi : les scènes animées supposent un rail latéral, une longue
+     course de défilement et un curseur qui brasse les fragments du logo, dont
+     rien n'existe au pouce. C'est la page qui transforme un visiteur en
+     rendez-vous, elle doit être la plus directe du site.
+
+     La mesure est lue après le montage, jamais pendant le rendu : le serveur ne
+     connaît pas la largeur de l'écran, et trancher avant l'hydratation
+     donnerait deux arbres différents. On garde donc la mesure dans un état,
+     et on la relit si l'écran change de côté du seuil. */
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mouvement = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const telephone = window.matchMedia("(max-width: 860px)");
+    const lire = () => setReduced(mouvement.matches || telephone.matches);
+    lire();
+    mouvement.addEventListener("change", lire);
+    telephone.addEventListener("change", lire);
+    return () => {
+      mouvement.removeEventListener("change", lire);
+      telephone.removeEventListener("change", lire);
+    };
   }, []);
 
   if (lang) return <AuditForm lang={lang} />;
 
   return (
-    <div className="audit-v2-bg min-h-screen">
+    /* `safe-vitrine` : cette page monte sa propre coquille au lieu de passer
+       par PageShell, et n'héritait donc pas des règles téléphone de la vitrine
+       (deux polices, aucune révélation au défilement). */
+    <div className="safe-vitrine audit-v2-bg min-h-screen">
       <EnteteDiagnostic />
 
       {reduced ? (

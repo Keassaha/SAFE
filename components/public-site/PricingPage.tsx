@@ -14,6 +14,7 @@ import {
   LINE,
   SURFACE,
   BG,
+  EASE,
   R,
   fadeUp,
   PageShell,
@@ -39,6 +40,48 @@ const RAIL_STOPS: readonly RailStop[] = [
   { id: "sec-fondateurs", label: "Cabinets fondateurs" },
   { id: "sec-questions", label: "Questions" },
 ];
+
+/* ── La scène des frais, au téléphone ──────────────────────────────────────
+   Sur écran large, la scène se joue au défilement : cinq frais paraissent un à
+   un, se rayent, s'effacent, et le prix reste seul. Elle réserve 340vh pour
+   cela.
+
+   Au pouce, la même mise en scène coûtait 3,4 écrans de défilement et, une fois
+   le mouvement retiré, n'affichait plus que son dernier instant : cinq
+   pastilles invisibles occupant toujours leur place, un prix posé en absolu au
+   milieu du vide.
+
+   La version téléphone garde l'argument et jette la chorégraphie. Les frais
+   sont là, rayés, tous en même temps : c'est exactement ce que la scène
+   raconte, « voici ce que vous ne paierez pas ». Le prix se pose dessous, dans
+   le flux. Le propos tient en un écran au lieu de trois et demi.
+
+   Les `!important` reprennent les styles en ligne que le scrub écrit à chaque
+   image ; aucune feuille ne peut les atteindre autrement. */
+const CSS_TELEPHONE = `
+  @media (max-width: 860px) {
+    #scene-prix-clair { height: auto !important; }
+    #scene-prix-clair > div {
+      position: static;
+      min-height: 0;
+      padding: 88px 20px 72px;
+    }
+    #scene-prix-clair [data-frais] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    #scene-prix-clair [data-barre] { transform: scaleX(1) !important; }
+    #scene-prix-clair [data-prix] {
+      position: static;
+      width: 100%;
+      margin-top: 26px;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    #scene-prix-clair [data-legende] { margin-top: 16px; opacity: 1 !important; }
+    #scene-prix-clair [data-scroll-hint] { display: none; }
+  }
+`;
 
 /** Scène épinglée · les frais dispersés s'effacent, il reste un prix clair. */
 function SceneFraisClairs() {
@@ -83,6 +126,7 @@ function SceneFraisClairs() {
 
   return (
     <div ref={zone} id="scene-prix-clair" className="relative" style={{ height: "340vh" }}>
+      <style dangerouslySetInnerHTML={{ __html: CSS_TELEPHONE }} />
       <div className="sticky top-0 flex min-h-screen flex-col items-center justify-center px-6" style={{ background: BG }}>
         <div className="w-full max-w-[860px]">
           <p className="text-center font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>
@@ -114,7 +158,7 @@ function SceneFraisClairs() {
               <div
                 key={f.label}
                 data-frais
-                className="relative inline-flex max-w-full items-center justify-center rounded-full border bg-white px-5 py-3 text-center font-sans text-[14px] sm:text-[15px] md:absolute md:left-[var(--fx)] md:top-[var(--fy)] md:max-w-none md:whitespace-nowrap md:px-7 md:py-3.5 md:text-[17px] md:[rotate:var(--fr)]"
+                className="relative inline-flex max-w-full items-center justify-center rounded-full border bg-white px-5 py-3 text-center font-serif text-[14px] sm:text-[15px] md:absolute md:left-[var(--fx)] md:top-[var(--fy)] md:max-w-none md:whitespace-nowrap md:px-7 md:py-3.5 md:text-[17px] md:[rotate:var(--fr)]"
                 style={
                   {
                     "--fx": `${f.x}%`,
@@ -148,14 +192,14 @@ function SceneFraisClairs() {
             >
               <p className="font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: GREEN }}>Un prix clair</p>
               <p className="mt-4 font-mono text-[46px] leading-none tabular-nums md:text-[64px]" style={{ color: INK }}>
-                99 $<span className="font-sans text-[15px] md:text-[17px]" style={{ color: MUTED }}> / mois</span>
+                99 $<span className="font-mono text-[15px] md:text-[17px]" style={{ color: MUTED }}> / mois</span>
               </p>
-              <p className="mt-3 font-sans text-[13.5px] leading-[1.55]" style={{ color: MUTED }}>
+              <p className="mt-3 font-serif text-[13.5px] leading-[1.55]" style={{ color: MUTED }}>
                 Configuration initiale comprise. Rien à ajouter pour travailler.
               </p>
             </div>
           </div>
-          <p data-legende className="mx-auto mt-2 max-w-[52ch] text-center font-sans text-[13px]" style={{ color: FAINT, opacity: 0 }}>
+          <p data-legende className="mx-auto mt-2 max-w-[52ch] text-center font-serif text-[13.5px]" style={{ color: FAINT, opacity: 0 }}>
             Solo à 99 $ par mois, Cabinet à 149 $ par mois. C&apos;est tout.
           </p>
         </div>
@@ -187,6 +231,7 @@ function FactureFigure() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 26 }}
+      data-revele=""
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.7 }}
@@ -203,10 +248,11 @@ function FactureFigure() {
       {lignes.map(([desc, sub, amt], i) => (
         <motion.div
           key={desc}
-          initial={{ opacity: 0.25, x: 10 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0.25, y: 8 }}
+          data-revele=""
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 + i * 0.14, duration: 0.4 }}
+          transition={{ delay: 0.18 + i * 0.16, duration: 0.66, ease: EASE }}
           className="flex items-start justify-between gap-3 border-b py-3"
           style={{ borderColor: "rgba(31,42,36,0.05)" }}
         >
@@ -222,9 +268,10 @@ function FactureFigure() {
           <motion.div
             key={label}
             initial={{ opacity: 0 }}
+            data-revele=""
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.65 + i * 0.1, duration: 0.35 }}
+            transition={{ delay: 0.62 + i * 0.12, duration: 0.6, ease: EASE }}
             className="flex justify-between py-1 font-sans text-[12.5px]"
             style={{ color: MUTED }}
           >
@@ -234,9 +281,10 @@ function FactureFigure() {
         ))}
         <motion.div
           initial={{ opacity: 0 }}
+          data-revele=""
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.95, duration: 0.35 }}
+          transition={{ delay: 0.95, duration: 0.6, ease: EASE }}
           className="mt-2 flex justify-between border-t pt-2.5 font-sans text-[14px]"
           style={{ borderColor: LINE, color: INK }}
         >
@@ -246,9 +294,10 @@ function FactureFigure() {
       </div>
       <motion.span
         initial={{ opacity: 0, scale: 1.5, rotate: -8 }}
+        data-revele=""
         whileInView={{ opacity: 1, scale: 1, rotate: -8 }}
         viewport={{ once: true }}
-        transition={{ delay: 1.15, duration: 0.35 }}
+        transition={{ delay: 1.15, duration: 0.6, ease: EASE }}
         className="absolute bottom-9 left-8 rounded-[8px] border-2 px-4 py-1.5 font-mono text-[12px] uppercase tracking-[0.1em]"
         style={{ borderColor: GREEN, color: GREEN }}
       >
@@ -326,14 +375,14 @@ export default function TarificationPage() {
                 <span className="font-mono text-[38px] tabular-nums leading-none" style={{ color: INK }}>
                   {f.prix}
                 </span>
-                <span className="font-sans text-[14px]" style={{ color: MUTED }}>
+                <span className="font-mono text-[14px]" style={{ color: MUTED }}>
                   {f.periode}
                 </span>
               </div>
-              <p className="mt-5 font-sans text-[15px] font-medium leading-[1.5]" style={{ color: INK }}>
+              <p className="mt-5 font-serif text-[16px] leading-[1.5]" style={{ color: INK }}>
                 {f.pour}
               </p>
-              <p className="mt-2 font-sans text-[14.5px] leading-[1.55]" style={{ color: MUTED }}>
+              <p className="mt-2 font-serif text-[15px] leading-[1.55]" style={{ color: MUTED }}>
                 {f.desc}
               </p>
               <div className="mt-6">
@@ -352,7 +401,7 @@ export default function TarificationPage() {
             </motion.div>
           ))}
         </div>
-        <motion.p {...fadeUp(0.2)} className="mx-auto mt-4 max-w-4xl font-sans text-[12.5px]" style={{ color: FAINT }}>
+        <motion.p {...fadeUp(0.2)} className="mx-auto mt-4 max-w-4xl font-serif text-[13px]" style={{ color: FAINT }}>
           Prix en dollars canadiens. Taxes applicables en sus.
         </motion.p>
       </section>
@@ -375,11 +424,12 @@ export default function TarificationPage() {
               {COMPRIS.map((c, i) => (
                 <motion.li
                   key={c}
-                  initial={{ opacity: 0, x: 14 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  data-revele=""
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-                  className="flex gap-3 font-sans text-[15px] leading-[1.55]"
+                  transition={{ delay: 0.08 + i * 0.1, duration: 0.7, ease: EASE }}
+                  className="flex gap-3 font-serif text-[15px] leading-[1.55]"
                   style={{ color: MUTED }}
                 >
                   <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: GREEN }} aria-hidden />
@@ -390,7 +440,7 @@ export default function TarificationPage() {
           </div>
           <div>
             <FactureFigure />
-            <p className="mt-3 font-sans text-[12.5px]" style={{ color: FAINT }}>
+            <p className="mt-3 font-serif text-[13px]" style={{ color: FAINT }}>
               La facture du dossier de démonstration, telle que SAFE la construit à partir du temps
               et des débours déjà rattachés.
             </p>
@@ -411,7 +461,7 @@ export default function TarificationPage() {
           <h2 className="mt-4 max-w-[22ch] font-serif text-[28px] leading-[1.15] sm:text-[36px]" style={{ letterSpacing: "-0.015em" }}>
             Participez aux premières étapes de SAFE.
           </h2>
-          <div className="mt-5 space-y-4 font-sans text-[15.5px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
+          <div className="mt-5 space-y-4 font-serif text-[15.5px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
             <p>
               Nous ouvrons {FOND.placesTotal} places à des cabinets qui veulent utiliser SAFE et
               contribuer directement à son amélioration.
@@ -424,7 +474,7 @@ export default function TarificationPage() {
             </p>
           </div>
 
-          <ul className="mt-7 space-y-3 font-sans text-[15px] leading-[1.55]" style={{ color: "#EAF2EC" }}>
+          <ul className="mt-7 space-y-3 font-serif text-[15px] leading-[1.55]" style={{ color: "#EAF2EC" }}>
             {[
               "La mise en route est faite par nous : paramétrage, reprise de vos dossiers actifs et de vos soldes de fidéicommis, formation de votre adjointe.",
               "Un atelier chaque semaine avec les autres cabinets fondateurs, et vos questions traitées là.",
@@ -439,13 +489,13 @@ export default function TarificationPage() {
             ))}
           </ul>
 
-          <p className="mt-7 font-sans text-[15px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
+          <p className="mt-7 font-serif text-[15px] leading-[1.6]" style={{ color: "#C4D4C9" }}>
             En retour, nous demandons trente minutes par mois les trois premiers mois, puis une
             fois par trimestre, pour que vous nous disiez ce qui bloque. Et quelques phrases de
             votre part le jour où les résultats seront là.
           </p>
 
-          <p className="mt-4 font-sans text-[14px] leading-[1.6]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
+          <p className="mt-4 font-serif text-[14px] leading-[1.6]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             Chaque mise en route est faite à la main, ce qui nous limite à{" "}
             {FOND.miseEnRouteParMois} cabinets par mois. C’est pour cela qu’il y a{" "}
             {FOND.placesTotal} places et pas trente.
@@ -475,7 +525,7 @@ export default function TarificationPage() {
           <motion.h2 {...fadeUp(0)} className="font-serif text-[24px] leading-[1.2] sm:text-[30px]" style={{ color: INK, letterSpacing: "-0.015em" }}>
             Une décision réversible.
           </motion.h2>
-          <motion.p {...fadeUp(0.06)} className="mt-4 font-sans text-[16px] leading-[1.6]" style={{ color: MUTED }}>
+          <motion.p {...fadeUp(0.06)} className="mt-4 font-serif text-[16px] leading-[1.6]" style={{ color: MUTED }}>
             Les forfaits réguliers sont mensuels. Vous pouvez mettre fin à votre abonnement selon
             les modalités prévues et récupérer vos données dans les formats d’export offerts.
           </motion.p>
@@ -483,10 +533,10 @@ export default function TarificationPage() {
           <div className="mt-12 space-y-8">
             {QUESTIONS.map((item, i) => (
               <motion.div key={item.q} {...fadeUp(0.06 + i * 0.05)} className="pt-6" style={{ borderTop: `1px solid ${LINE}` }}>
-                <h3 className="font-sans text-[16px] font-medium" style={{ color: INK }}>
+                <h3 className="font-serif text-[18px] font-normal" style={{ color: INK }}>
                   {item.q}
                 </h3>
-                <p className="mt-2 font-sans text-[15px] leading-[1.6]" style={{ color: MUTED }}>
+                <p className="mt-2 font-serif text-[15px] leading-[1.6]" style={{ color: MUTED }}>
                   {item.r}
                 </p>
               </motion.div>

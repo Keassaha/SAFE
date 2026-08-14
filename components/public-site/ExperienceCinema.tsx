@@ -31,6 +31,24 @@ const CSS = `
     --serif: var(--font-instrument-serif), Georgia, serif;
     --sans: var(--font-geist-sans), -apple-system, "Segoe UI", sans-serif;
     --mono: var(--font-geist-mono), ui-monospace, monospace;
+
+    /* ── Vocabulaire du mouvement ────────────────────────────────────────────
+       Une seule courbe et deux durées pour toute la page.
+
+       La courbe précédente, cubic-bezier(0.16, 1, 0.3, 1), part à très haute
+       vitesse puis traîne sur sa fin : chaque apparition commençait par un
+       à-coup. Celle-ci accélère et ralentit doucement, ce qui se lit comme un
+       glissement (décision CEO du 13 août 2026).
+
+       La courbe n'était que la moitié du problème. Les apparitions animaient
+       aussi la hauteur, les colonnes de grille, les marges et le corps du
+       texte : quatre propriétés qui forcent un recalcul de mise en page à
+       chaque image. Plus rien ne bouge ici que l'opacité, la translation et
+       la couleur, les seules qui n'en demandent aucun. */
+    --doux: cubic-bezier(0.33, 0.06, 0.2, 1);
+    --duree-entree: 780ms;
+    --duree-teinte: 620ms;
+
     background: var(--bg);
     color: var(--ink);
     font-family: var(--sans);
@@ -40,6 +58,34 @@ const CSS = `
 
   .xc a { color: inherit; text-decoration: none; }
   .xc img { display: block; max-width: 100%; }
+
+  /* ── Une seule voix pour tout ce qui se lit ────────────────────────────────
+     Le titre d'ouverture était en Instrument Serif et la prose autour retombait
+     sur Geist : le chapeau du hero, l'intro de « Complet », la justification de
+     chaque point numéroté, la conclusion, les forfaits, les réponses. La page
+     changeait donc de voix d'une ligne à l'autre sans qu'aucune règle ne le
+     décide (décision CEO du 13 août 2026).
+
+     Depuis, tout ce qui relève du discours porte la serif. La famille reste
+     déclarée règle par règle plutôt qu'imposée par un sélecteur global : c'est
+     la seule façon de ne pas la faire déborder sur les deux registres qui ne
+     sont pas du discours.
+
+     1. L'interface du site. Barre de navigation, boutons, pied de page. Une
+        action n'est pas une phrase, et le référentiel l'interdit explicitement
+        (SAFE_PREMIUM_DESIGN_STANDARD §2.3 : jamais de serif dans un bouton).
+     2. Les maquettes de l'application (#hero-app, .em-fenetre, .fi-ecran,
+        .co-ecran). Elles montrent SAFE tel qu'il est, donc elles suivent la
+        typographie de l'application et non celle de la vitrine : Geist pour
+        les libellés, mono pour les chiffres, la serif réservée au seul titre
+        d'écran (SAFE_PREMIUM_DESIGN_STANDARD §2.3). Les passer en serif, ce
+        serait montrer un produit qui n'existe pas. */
+
+  /* Une référence de dossier reste d'un seul tenant. Sur une colonne étroite,
+     « 2026-011 » passait à la ligne après son trait d'union et se lisait comme
+     deux références au lieu d'une, sur la page même qui vend la rigueur
+     comptable (SAFE_PREMIUM_DESIGN_STANDARD L1). */
+  .xc .ref { white-space: nowrap; }
 
   .xc .kicker {
     font-family: var(--mono);
@@ -155,7 +201,7 @@ const CSS = `
     padding: 7px 0 7px 14px;
     border-radius: 6px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--t-menu, 10px);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--faint);
@@ -325,7 +371,7 @@ const CSS = `
   .xc #hero-app .ha-drop b {
     display: block;
     padding: 5px 9px 6px;
-    font-size: 9.5px; font-weight: 600;
+    font-size: var(--t-menu, 9.5px); font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--si-subtle);
   }
@@ -357,7 +403,7 @@ const CSS = `
   }
   .xc #hero-app .ha-strip .s.warn i { background: var(--si-amber-on-forest, #E0B54A); }
   .xc #hero-app .ha-strip .s b { font-weight: 600; }
-  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--mono); font-size: 10.5px; }
+  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--mono); font-size: var(--t-menu, 10.5px); }
 
   /* Corps */
   .xc #hero-app .ha-body { padding: 14px 16px; }
@@ -371,7 +417,7 @@ const CSS = `
   }
   .xc #hero-app .ha-kicker {
     font-family: var(--mono);
-    font-size: 9px; letter-spacing: 0.17em; text-transform: uppercase;
+    font-size: var(--t-menu, 9px); letter-spacing: 0.17em; text-transform: uppercase;
     color: var(--si-subtle);
   }
   .xc #hero-app .ha-h {
@@ -391,10 +437,10 @@ const CSS = `
   }
   .xc #hero-app .ha-tile .lab {
     font-family: var(--mono);
-    font-size: 8.5px; letter-spacing: 0.15em; text-transform: uppercase;
+    font-size: var(--t-menu, 8.5px); letter-spacing: 0.15em; text-transform: uppercase;
     opacity: 0.72;
   }
-  .xc #hero-app .ha-tile .sub { font-size: 10.5px; opacity: 0.66; margin-top: 6px; }
+  .xc #hero-app .ha-tile .sub { font-size: var(--t-menu, 10.5px); opacity: 0.66; margin-top: 6px; }
   .xc #hero-app .ha-tile .val {
     font-family: var(--mono);
     font-size: 17px; letter-spacing: -0.02em; margin-top: 2px;
@@ -427,7 +473,7 @@ const CSS = `
   /* Registre (écrans Facturation / Comptes) */
   .xc #hero-app table.ha-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
   .xc #hero-app .ha-tbl th {
-    text-align: left; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    text-align: left; font-size: var(--t-menu, 9px); letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--si-subtle); font-weight: 600;
     padding: 0 8px 7px; border-bottom: 1px solid var(--si-line);
   }
@@ -437,7 +483,7 @@ const CSS = `
   .xc #hero-app .ha-tag {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 2px 7px; border-radius: 999px;
-    font-size: 10px;
+    font-size: var(--t-menu, 10px);
     background: rgb(var(--si-forest-rgb) / 0.09); color: var(--si-verified);
   }
   /* Aging : cinq tranches d'ancienneté, lues d'un coup d'œil. */
@@ -450,7 +496,7 @@ const CSS = `
   .xc #hero-app .ha-aging .l {
     display: block;
     font-family: var(--mono);
-    font-size: 8.5px; letter-spacing: 0.13em; text-transform: uppercase;
+    font-size: var(--t-menu, 8.5px); letter-spacing: 0.13em; text-transform: uppercase;
     color: var(--si-subtle);
   }
   .xc #hero-app .ha-aging .m {
@@ -518,6 +564,7 @@ const CSS = `
     margin-top: 30px;
     margin-left: 6px;
     max-width: 49ch;
+    font-family: var(--serif);
     font-size: clamp(15px, 1.35vw, 18px);
     line-height: 1.62;
     color: var(--muted);
@@ -566,7 +613,8 @@ const CSS = `
   .xc #hero-copy .hero-reassure {
     margin-top: 15px;
     margin-left: 6px;
-    font-size: 12.5px;
+    font-family: var(--serif);
+    font-size: 13px;
     color: var(--faint);
   }
   .xc #hero-hint {
@@ -575,7 +623,7 @@ const CSS = `
     bottom: 4.5vh;
     text-align: center;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--t-menu, 10px);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--faint);
@@ -586,7 +634,8 @@ const CSS = `
     left: 0; right: 0;
     bottom: 5.5vh;
     text-align: center;
-    font-size: 13px;
+    font-family: var(--serif);
+    font-size: 13.5px;
     color: var(--muted);
     opacity: 0;
     will-change: opacity, transform;
@@ -597,7 +646,11 @@ const CSS = `
     padding: 20px min(6vw, 84px);
     max-width: 1240px;
     margin: 0 auto;
-    font-size: 12.5px;
+    /* Quatre affirmations, donc du discours : même voix que le reste.
+       Un demi-point de plus qu'en Geist, la serif se lisant plus petite à
+       corps égal. Le même écart est appliqué partout sous 14 px. */
+    font-family: var(--serif);
+    font-size: 13px;
     color: var(--muted);
     overflow: hidden;
   }
@@ -693,13 +746,21 @@ const CSS = `
     text-align: center;
     padding: 0 min(6vw, 84px);
   }
-  .xc.anime .pr-main {
+  /* La typographie de la promesse est déclarée hors de .anime, l'animation
+     seule reste dedans. Ces deux lignes tenaient tout, famille et corps
+     comprises, dans la règle animée : sans script, la promesse retombait en
+     Geist 16 px, c'est-à-dire ni la bonne police ni la bonne taille. Le
+     commentaire du script dit que sans lui « tout le texte s'affiche
+     normalement » : il le dit maintenant pour de vrai. */
+  .xc .pr-main {
     font-family: var(--serif);
     font-weight: 400;
     font-size: clamp(38px, 6.2vw, 76px);
     line-height: 1.04;
     letter-spacing: -0.026em;
     max-width: 16ch;
+  }
+  .xc.anime .pr-main {
     opacity: 0;
     will-change: opacity, transform;
   }
@@ -708,10 +769,8 @@ const CSS = `
      les titres, plus petite, en encre pleine. C'est le point final du
      raisonnement, pas une quatrième preuve. Elle se rapproche des points : le
      grand écart d'avant la détachait de ce qu'elle conclut. */
-  .xc.anime .ch-chute {
+  .xc .ch-chute {
     margin-top: 14px;
-    opacity: 0;
-    will-change: opacity, transform;
     font-family: var(--serif);
     font-weight: 400;
     font-size: clamp(17px, 1.9vw, 24px);
@@ -719,21 +778,25 @@ const CSS = `
     letter-spacing: -0.014em;
     color: var(--si-ink);
   }
+  .xc.anime .ch-chute {
+    opacity: 0;
+    will-change: opacity, transform;
+  }
 
   /* Seconde ligne de la promesse. Elle portait le même corps que la première :
      deux lignes de même poids, donc aucune ne dominait. Elle passe à un peu
      plus de la moitié, garde la serif et la teinte atténuée. La promesse se
      lit maintenant en deux temps, l'affirmation puis sa condition. */
-  .xc .pr-suite { color: var(--muted); }
   /* Même spécificité que la règle de .pr-main plus haut, et déclarée après :
      sans cela, le corps de la première ligne l'emporterait et la seconde
      resterait aussi grosse qu'elle. */
-  .xc.anime .pr-suite {
+  .xc .pr-suite {
     margin-top: 14px;
     font-size: clamp(21px, 2.9vw, 38px);
     line-height: 1.16;
     letter-spacing: -0.018em;
     max-width: 26ch;
+    color: var(--muted);
   }
 
   /* Masque de révélation. Le texte est translaté sous une arête invisible et
@@ -759,7 +822,6 @@ const CSS = `
     line-height: 1;
     letter-spacing: -0.028em;
     color: var(--si-ink);
-    transform-origin: left center;
   }
   .xc .ch-mark + .kicker { display: block; margin-top: 16px; }
   .xc.anime .ch-mark { opacity: 0; will-change: opacity, transform; }
@@ -788,87 +850,76 @@ const CSS = `
     letter-spacing: -0.02em;
     max-width: 17ch;
   }
-  /* Les arguments de « Simple » : la progression cumulative de « Fiable ».
+  /* ── Les points des trois piliers ─────────────────────────────────────────
+     Une seule grammaire pour « Simple », « Fiable » et « Complet ». Elle était
+     écrite trois fois, avec trois jeux de tailles ; les trois chapitres disent
+     la même chose de la même façon, ils la disent donc désormais avec les
+     mêmes règles.
 
-     C'était un accordéon de trois surfaces qu'on ouvrait et refermait. On
-     revenait donc en arrière pour relire, et un argument déjà lu pouvait se
-     refermer sous les yeux. Un argument arrive maintenant en grand, se réduit
-     en point numéroté pendant que le suivant prend sa place, et rien ne
-     disparaît. À la fin, les trois sont là dans l'ordre où on les a lus.
+     Ce qui a changé, et pourquoi (décision CEO du 13 août 2026).
 
-     Grammaire volontairement identique à celle de « Fiable », dupliquée plutôt
-     que partagée : les deux chapitres n'ont ni les mêmes tailles ni les mêmes
-     rythmes, et « Fiable » ne doit pas bouger quand on règle « Simple ».
+     Un point arrivait en grand, puis rétrécissait en ligne de liste pendant
+     que le suivant prenait sa place, et il portait une justification sous lui.
+     Un chapitre faisait donc coexister quatre corps de texte et en animait
+     deux, en même temps que la hauteur du bloc, ses colonnes et ses marges.
+     Beaucoup de charge, et beaucoup de recalcul de mise en page, pour dire
+     « celui-ci est le point en cours ».
 
-     La réduction agit sur la taille du texte, jamais sur une échelle : une
-     mise à l'échelle rendrait la lettre molle pendant toute la course. */
+     Un point a maintenant UN corps, qui ne change jamais, et UNE phrase. La
+     sous-ligne est retirée : ce qu'elle expliquait, la phrase le dit déjà.
+     Ce qui distingue le point en cours de ceux déjà lus est l'encre, pas la
+     taille.
+
+     La liste occupe sa place dès le départ. Rien ne se déplie, donc rien ne
+     pousse la colonne pendant qu'on la lit, et la hauteur de la scène ne
+     dépend plus d'un maximum deviné. */
   .xc .si-narration { margin-top: clamp(20px, 2.4vw, 30px); }
-  .xc.anime .si-narration { min-height: 322px; display: grid; align-content: start; }
-  .xc .si-args { display: grid; list-style: none; }
-  .xc .si-arg {
+  .xc .si-args, .xc .fi-args, .xc .co-args { display: grid; list-style: none; }
+  .xc .si-arg, .xc .fi-arg, .xc .co-arg {
     display: grid;
-    grid-template-columns: 0 1fr;
-    column-gap: 0;
-    align-items: baseline;
-  }
-  .xc.anime .si-arg {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition:
-      max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 320ms ease,
-      grid-template-columns 400ms cubic-bezier(0.16, 1, 0.3, 1),
-      column-gap 400ms cubic-bezier(0.16, 1, 0.3, 1),
-      padding 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc.anime .si-arg.avant { max-height: 250px; opacity: 1; padding: 13px 0; }
-  .xc.anime .si-arg.range {
-    max-height: 150px;
-    opacity: 1;
     grid-template-columns: 26px 1fr;
     column-gap: 14px;
-    padding: 9px 0;
+    align-items: baseline;
+    padding: clamp(9px, 1vw, 13px) 0;
   }
-  .xc .si-arg .n {
-    grid-row: span 2;
+  /* Pas encore atteint : déjà à sa place, pas encore là. Deux propriétés
+     animées, aucune qui touche à la mise en page. */
+  .xc.anime .si-arg, .xc.anime .fi-arg, .xc.anime .co-arg {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity var(--duree-entree) var(--doux),
+      transform var(--duree-entree) var(--doux);
+  }
+  .xc.anime .si-arg.vu, .xc.anime .fi-arg.vu, .xc.anime .co-arg.vu {
+    opacity: 1;
+    transform: none;
+  }
+  .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
     font-family: var(--mono);
     font-size: 11px;
     letter-spacing: 0.1em;
     color: var(--si-brand-green);
   }
-  .xc.anime .si-arg .n { opacity: 0; transition: opacity 300ms ease; }
-  .xc.anime .si-arg.range .n { opacity: 1; }
-  .xc .si-arg .t {
+  /* Un seul corps pour les neuf points de la page. Il est calé sur le chapitre
+     le plus chargé, « Complet », qui porte en plus une intro et une chute :
+     mesuré, sa colonne tient dans une vue de 620 px de haut, la hauteur d'un
+     portable une fois la barre du navigateur retirée. */
+  .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(26px, 2.9vw, 38px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--si-ink);
-    max-width: 15ch;
-    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1), max-width 400ms ease;
-  }
-  .xc .si-arg .d {
-    margin-top: 10px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(15px, 1.5vw, 17.5px);
-    line-height: 1.5;
+    font-size: clamp(18px, 1.85vw, 24px);
+    line-height: 1.24;
+    letter-spacing: -0.014em;
     color: var(--muted);
-    max-width: 42ch;
-    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1),
-                margin-top 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 34ch;
+    transition: color var(--duree-teinte) ease;
   }
-  /* Rangé : le titre descend au corps d'un point de liste, sa justification
-     reste lisible mais passe en second. */
-  .xc.anime .si-arg.range .t {
-    font-size: clamp(18px, 1.8vw, 22px);
-    max-width: 30ch;
-  }
-  .xc.anime .si-arg.range .d {
-    margin-top: 2px;
-    font-size: clamp(13.5px, 1.15vw, 15px);
+  /* Le point en cours porte l'encre pleine : c'est lui que la démonstration
+     de droite est en train de montrer. Un point déjà lu reste entièrement
+     lisible, il passe simplement au second plan. */
+  .xc .si-arg.actif .e, .xc .fi-arg.actif .e, .xc .co-arg.actif .e {
+    color: var(--si-ink);
   }
 
   /* ── L'émulateur du cabinet ───────────────────────────────────────────────
@@ -898,7 +949,7 @@ const CSS = `
     padding: 0 14px;
     background: var(--si-forest);
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: var(--t-menu, 9.5px);
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--si-surface);
@@ -922,7 +973,7 @@ const CSS = `
   .xc .em-ecran.on { opacity: 1; transform: none; pointer-events: auto; }
   .xc .em-kicker {
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: var(--t-menu, 9.5px);
     letter-spacing: 0.17em;
     text-transform: uppercase;
     color: var(--si-amber-ink);
@@ -956,7 +1007,7 @@ const CSS = `
   }
   .xc .em-tile .lab {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--t-menu, 9px);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--faint);
@@ -1000,7 +1051,7 @@ const CSS = `
   .xc .em-sous {
     margin-top: 13px;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--t-menu, 9px);
     letter-spacing: 0.17em;
     text-transform: uppercase;
     color: var(--faint);
@@ -1037,7 +1088,7 @@ const CSS = `
     gap: 10px;
     margin: 10px 0 0 14px;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--t-menu, 9px);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--faint);
@@ -1059,15 +1110,17 @@ const CSS = `
      Un cran plus petite qu'avant : elle conclut, elle ne rivalise plus avec
      les titres de chapitre. */
   .xc #zone-synthese, .xc #zone-synthese .pin { background: var(--si-surface); }
-  .xc.anime .sy-line {
+  .xc .sy-line {
     font-family: var(--serif); font-weight: 400;
     font-size: clamp(23px, 2.8vw, 36px);
     line-height: 1.26; letter-spacing: -0.018em;
+  }
+  .xc.anime .sy-line {
     opacity: 0;
     will-change: opacity, transform;
   }
   .xc.anime .sy-end { margin-top: 34px; opacity: 0; will-change: opacity, transform; }
-  .xc .sy-claim { font-size: clamp(14px, 1.4vw, 16.5px); color: var(--muted); max-width: 36ch; margin: 0 auto; }
+  .xc .sy-claim { font-family: var(--serif); font-size: clamp(14px, 1.4vw, 16.5px); color: var(--muted); max-width: 36ch; margin: 0 auto; }
   .xc .sy-cta { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   .xc #zone-fiable { height: 400vh; }
@@ -1110,90 +1163,20 @@ const CSS = `
   }
   .xc .co-intro {
     margin-top: 14px;
-    font-size: clamp(13.5px, 1.15vw, 15.5px);
+    font-family: var(--serif);
+    font-size: clamp(14px, 1.15vw, 15.5px);
     line-height: 1.6;
     color: var(--muted);
     max-width: 46ch;
   }
 
-  /* Le parcours qui se construit. */
+  /* Le parcours qui se construit. Les points suivent la grammaire partagée
+     déclarée avec « Simple » : un corps unique, une phrase, l'encre pour
+     dire lequel est en cours. « Complet » portait en plus deux textes
+     différents pour un même point, un grand message puis un libellé avec sa
+     justification, et basculait de l'un à l'autre en rétrécissant. Le grand
+     message est resté, seul : c'est lui qui raconte le parcours. */
   .xc .co-narration { margin-top: clamp(18px, 2.2vw, 28px); }
-  .xc.anime .co-narration { min-height: 300px; display: grid; align-content: start; }
-  .xc .co-args { display: grid; list-style: none; }
-  .xc .co-arg { display: grid; align-items: start; }
-  .xc.anime .co-arg {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition:
-      max-height 440ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 300ms ease,
-      padding 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc.anime .co-arg.avant { max-height: 210px; opacity: 1; padding: 12px 0; }
-  .xc.anime .co-arg.range { max-height: 150px; opacity: 1; padding: 8px 0; }
-  /* Les deux formes partagent la même cellule : le point apparaît exactement
-     là où le message commençait. C'est ce point d'ancrage commun qui fait lire
-     une transformation plutôt qu'un remplacement. */
-  .xc .co-grand, .xc .co-point { grid-area: 1 / 1; }
-  .xc .co-grand { display: block; }
-  .xc .co-grand .g1 {
-    display: block;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(18px, 1.8vw, 23px);
-    line-height: 1.24;
-    letter-spacing: -0.012em;
-    color: var(--muted);
-    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc .co-grand .g2 {
-    display: block;
-    margin-top: 6px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(26px, 2.9vw, 38px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--si-ink);
-    max-width: 16ch;
-    transition: font-size 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc.anime .co-grand { transition: opacity 260ms ease; }
-  /* En se rangeant, le message rétrécit pendant qu'il s'efface : le regard
-     descend avec lui au lieu de le voir disparaître sur place. */
-  .xc.anime .co-arg.range .co-grand { opacity: 0; }
-  .xc.anime .co-arg.range .co-grand .g1 { font-size: 15px; }
-  .xc.anime .co-arg.range .co-grand .g2 { font-size: 16px; }
-  .xc .co-point {
-    display: grid;
-    grid-template-columns: 26px 1fr;
-    column-gap: 14px;
-    row-gap: 3px;
-    align-items: baseline;
-  }
-  .xc.anime .co-point { opacity: 0; transition: opacity 320ms ease 100ms; }
-  .xc.anime .co-arg.range .co-point { opacity: 1; }
-  .xc .co-point .n {
-    grid-row: span 2;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--si-brand-green);
-  }
-  .xc .co-point .t {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(18px, 1.8vw, 22px);
-    line-height: 1.2;
-    letter-spacing: -0.012em;
-    color: var(--si-ink);
-  }
-  .xc .co-point .d {
-    font-size: clamp(13px, 1.1vw, 14.5px);
-    line-height: 1.5;
-    color: var(--muted);
-  }
   .xc .co-fin {
     margin-top: 22px;
     font-family: var(--serif);
@@ -1207,8 +1190,8 @@ const CSS = `
   .xc .co-fin .co-comptable {
     display: block;
     margin-top: 9px;
-    font-family: var(--sans);
-    font-size: 12.5px;
+    font-family: var(--serif);
+    font-size: 13px;
     line-height: 1.5;
     color: var(--muted);
     max-width: 42ch;
@@ -1233,7 +1216,7 @@ const CSS = `
   }
   .xc .co-ou {
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: var(--t-menu, 9.5px);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--muted);
@@ -1256,7 +1239,7 @@ const CSS = `
   .xc .co-domaine { display: grid; gap: 3px; }
   .xc .co-domaine .lb {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--t-menu, 9px);
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--muted);
@@ -1349,123 +1332,10 @@ const CSS = `
     max-width: 20ch;
   }
 
-  /* Un seul jeu de trois arguments, qui changent de rang au lieu de se
-     remplacer.
-
-     Chacun arrive en grand, occupe l'écran le temps de sa démonstration, puis
-     se range en point numéroté pendant que le suivant arrive en grand sous
-     lui. À la fin, les trois sont là, empilés, dans l'ordre où on les a lus.
-     La version précédente les faisait apparaître puis disparaître avant de
-     tous les rappeler d'un coup : on relisait au lieu de se souvenir.
-
-     La réduction agit sur la taille du texte, jamais sur une échelle : une
-     mise à l'échelle rendrait la lettre molle pendant toute la course. */
-  /* Le titre et la liste finale appartiennent au même raisonnement. Leur
-     proximité évite qu'un grand vide coupe la conclusion en deux. */
+  /* « Fiable » et « Complet » suivent la grammaire des points déclarée plus
+     haut, avec « Simple ». Il ne reste ici que ce qui leur est propre : la
+     respiration au-dessus de leur liste. */
   .xc .fi-narration { margin-top: clamp(12px, 1.5vw, 18px); }
-  .xc.anime .fi-narration {
-    min-height: 316px;
-    display: grid;
-    align-content: start;
-    gap: 0;
-  }
-  .xc .fi-args { display: grid; list-style: none; }
-  .xc .fi-arg {
-    display: grid;
-    grid-template-columns: 0 1fr;
-    column-gap: 0;
-    align-items: baseline;
-  }
-  .xc.anime .fi-arg {
-    /* Pas encore venu : aucune place prise, rien à lire. */
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition:
-      max-height 480ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 340ms ease,
-      grid-template-columns 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      column-gap 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      padding 420ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  /* En avant : la phrase d'accent occupe la colonne. */
-  .xc.anime .fi-arg.avant {
-    max-height: 260px;
-    opacity: 1;
-    padding: 14px 0;
-  }
-  /* À partir du deuxième argument, on laisse d'abord le précédent commencer
-     à se ranger. Le récit fait donc bien : grand, réduction en point, puis
-     prochain argument en grand. Les deux gestes ne se superposent pas. */
-  .xc.anime .fi-arg.avant.apres-range {
-    transition-delay: 260ms;
-  }
-  /* Rangé : le numéro prend sa colonne, le texte redescend d'un cran. */
-  .xc.anime .fi-arg.range {
-    max-height: 160px;
-    opacity: 1;
-    grid-template-columns: 26px 1fr;
-    column-gap: 14px;
-    padding: 9px 0;
-  }
-  /* Le seul vert de la colonne : discret, en mono, sur la ligne du titre. */
-  .xc .fi-arg .n {
-    grid-row: span 2;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--si-brand-green);
-  }
-  .xc.anime .fi-arg .n { opacity: 0; transition: opacity 300ms ease; }
-  .xc.anime .fi-arg.range .n { opacity: 1; }
-  .xc .fi-arg .e1 {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(19px, 1.9vw, 24px);
-    line-height: 1.24;
-    letter-spacing: -0.012em;
-    color: var(--muted);
-    transition: font-size 420ms cubic-bezier(0.16, 1, 0.3, 1), color 320ms ease;
-  }
-  /* La seconde phrase porte l'accent : c'est elle qui dit le bénéfice. */
-  .xc .fi-arg .e2 {
-    margin-top: 7px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(27px, 3vw, 40px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--si-ink);
-    max-width: 17ch;
-    transition:
-      font-size 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      color 320ms ease,
-      margin-top 420ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  /* L'argument courant est une seule proposition forte. Ses deux fragments
-     ont la même présence typographique, même s'ils retrouvent deux niveaux
-     distincts une fois rangés dans la liste. */
-  .xc.anime .fi-arg.avant .e1,
-  .xc.anime .fi-arg.avant .e2 {
-    font-size: clamp(27px, 3vw, 40px);
-    line-height: 1.1;
-    color: var(--si-ink);
-  }
-  .xc.anime .fi-arg.avant .e2 { margin-top: 2px; }
-  /* Rangé, la hiérarchie s'inverse : la première phrase devient le titre du
-     point, la seconde sa justification. Le contenu ne change pas, il change
-     de rang. */
-  .xc.anime .fi-arg.range .e1 {
-    font-size: clamp(18px, 1.8vw, 22px);
-    color: var(--si-ink);
-  }
-  .xc.anime .fi-arg.range .e2 {
-    margin-top: 2px;
-    font-size: clamp(13.5px, 1.15vw, 15px);
-    line-height: 1.5;
-    color: var(--muted);
-    max-width: 40ch;
-  }
 
   /* La démonstration. Seule surface de la section : elle représente un écran
      réel, donc une profondeur très légère, portée par la teinte du canevas et
@@ -1486,7 +1356,7 @@ const CSS = `
      décoration : il passe à l'encre secondaire (4,78). */
   .xc .fi-ou {
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: var(--t-menu, 9.5px);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--muted);
@@ -1569,7 +1439,7 @@ const CSS = `
   .xc .fi-temps .h {
     grid-column: 1 / -1;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--t-menu, 10px);
     letter-spacing: 0.08em;
     color: var(--muted);
   }
@@ -1626,12 +1496,14 @@ const CSS = `
     border-bottom: 1px solid var(--line);
   }
   .xc #tarifs .plan:first-of-type { margin-top: 34px; border-top: 1px solid var(--line); }
-  .xc #tarifs .plan .name { font-size: 15px; }
-  .xc #tarifs .plan .detail { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .xc #tarifs .plan .name { font-family: var(--serif); font-size: 16px; }
+  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--serif); font-size: 13.5px; color: var(--muted); }
+  /* Le prix et son unité restent un chiffre : mono, comme tout montant du
+     site. La serif s'arrête au texte qui l'entoure. */
   .xc #tarifs .plan .price { font-family: var(--mono); font-size: 25px; text-align: right; }
-  .xc #tarifs .plan .price small { font-family: var(--sans); font-size: 11px; color: var(--faint); margin-left: 4px; }
-  .xc #tarifs .note { margin-top: 18px; font-size: 12.5px; color: var(--faint); }
-  .xc #tarifs .more { margin-top: 18px; font-size: 13.5px; display: inline-block; color: var(--ink); }
+  .xc #tarifs .plan .price small { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: 4px; }
+  .xc #tarifs .note { margin-top: 18px; font-family: var(--serif); font-size: 13px; color: var(--faint); }
+  .xc #tarifs .more { margin-top: 18px; font-family: var(--serif); font-size: 14px; display: inline-block; color: var(--ink); }
 
   .xc #questions .q {
     display: grid;
@@ -1641,7 +1513,7 @@ const CSS = `
     border-top: 1px solid var(--line);
   }
   .xc #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.35; }
-  .xc #questions .q p { max-width: 58ch; font-size: 14px; line-height: 1.65; color: var(--muted); }
+  .xc #questions .q p { max-width: 58ch; font-family: var(--serif); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
   .xc #questions h2 {
     margin-top: 14px;
     font-family: var(--serif);
@@ -1650,7 +1522,7 @@ const CSS = `
     line-height: 1.08;
     max-width: 16ch;
   }
-  .xc #questions .more { margin-top: 16px; font-size: 13.5px; display: inline-block; color: var(--ink); }
+  .xc #questions .more { margin-top: 16px; font-family: var(--serif); font-size: 14px; display: inline-block; color: var(--ink); }
 
   .xc #cta { text-align: center; }
   .xc #cta h2 {
@@ -1662,7 +1534,7 @@ const CSS = `
     letter-spacing: -0.02em;
     max-width: 18ch;
   }
-  .xc #cta p { margin: 22px auto 0; max-width: 50ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
+  .xc #cta p { margin: 22px auto 0; max-width: 50ch; font-family: var(--serif); font-size: 16px; line-height: 1.65; color: var(--muted); }
   .xc #cta .actions { margin-top: 34px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
   .xc .btn {
     display: inline-flex;
@@ -1798,269 +1670,334 @@ const CSS = `
   @keyframes xcSlide { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
   @keyframes xcMarquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     TÉLÉPHONE
+     ═══════════════════════════════════════════════════════════════════════
+
+     Ce bloc n'est pas une pile de rattrapages, c'est la version téléphone de
+     la page. Elle tient en quatre décisions.
+
+     1. DEUX VOIX, PAS TROIS. Au large, la page parle en trois familles : la
+        serif porte le discours, Geist Sans l'interface, Geist Mono les
+        chiffres et les exergues. Sur 375 px, trois familles dans un même écran
+        se lisent comme un défaut de fabrication plutôt que comme une
+        intention. Le mono se replie donc sur le sans, et les chiffres gardent
+        ce que la loi L1 protège réellement : l'alignement, obtenu par
+        font-variant-numeric: tabular-nums posé à la racine.
+
+     2. UNE SEULE ÉCHELLE. Les tailles vivaient chapitre par chapitre, chacune
+        réglée à la main : le titre de « Fiable » ne valait pas celui de
+        « Complet » sans qu'aucune règle ne l'ait décidé. Sept variables
+        décrivent maintenant tout ce qui se lit, du titre d'ouverture au plus
+        petit libellé, et rien ne descend sous 11 px au doigt.
+
+     3. RIEN NE DÉBORDE. Les mots longs du métier — « fidéicommis »,
+        « rapprochement », « conformité » — se coupent au lieu de pousser leur
+        bloc hors de l'écran, et tout enfant de grille peut redescendre sous sa
+        largeur intrinsèque.
+
+     4. ÇA RESPIRE. Une marge latérale unique, un rythme vertical unique.
+
+     Le mouvement n'est pas traité ici : le téléphone emprunte plus bas le bloc
+     « sans mouvement », qui le lui retire en entier. */
   @media (max-width: 860px) {
+    .xc {
+      /* L'échelle. Sept tailles pour toute la page. */
+      --t-affiche: 33px;   /* le titre d'ouverture, une seule fois par page */
+      --t-marque: 28px;    /* le mot de chapitre : Simple, Fiable, Complet */
+      --t-titre: 23px;     /* le titre d'un chapitre */
+      --t-argument: 17px;  /* un point numéroté */
+      --t-corps: 14.5px;   /* la prose */
+      --t-detail: 13px;    /* la justification sous un point */
+      --t-menu: 11px;      /* exergue, méta, libellé d'écran : le plancher */
+
+      /* Une seule marge latérale pour toute la page. */
+      --marge: 20px;
+
+      /* La colonne du numéro devant un argument, et la mesure de lecture.
+         Au large, un argument se lit sur 30 caractères et le numéro tient dans
+         26 px ; sur 375 px, la colonne du numéro se resserre et la mesure
+         disparaît, sinon elle rogne une largeur déjà comptée. */
+      --col-numero: 22px;
+      --gout-numero: 10px;
+      --pad-argument: 9px;
+      --mesure-argument: none;
+      --mesure-detail: none;
+
+      /* Une scène ne réserve plus une vue entière : elle prend la hauteur de
+         ce qu'elle raconte. Voir le bloc « sans mouvement » plus bas. */
+      --haut-scene: 0;
+
+      /* Deux voix. */
+      --mono: var(--sans);
+      font-variant-numeric: tabular-nums;
+
+      /* Un mot plus large que sa colonne se coupe au lieu de la percer. */
+      overflow-wrap: break-word;
+    }
+    /* Pas de césure automatique. Elle avait été posée par précaution, et elle
+       coupait « enfin » en « en-fin » au milieu du chapeau : une coupure
+       correcte en français, mais qui se lit comme une coquille dans une phrase
+       de vente. overflow-wrap suffit pour ce qu'on cherchait réellement à
+       éviter, un mot plus large que sa colonne. */
+    /* Par défaut, un enfant de grille refuse de descendre sous la largeur de
+       son plus long mot et pousse toute la rangée hors de l'écran. */
+    .xc .grid > *, .xc .fi-grid > *, .xc .co-grid > *, .xc .ch-pin > *,
+    .xc .em-tiles > *, .xc .q > *, .xc .si-arg > *, .xc .co-arg > *,
+    .xc .fi-arg > *, .xc .co-item > * { min-width: 0; }
+
+    /* ── Barre de navigation ────────────────────────────────────────────────
+       Elle flotte au-dessus de tout le défilement : chaque pixel qu'elle prend
+       est un pixel définitivement perdu sur 812. Elle passe de 56 à 48 px et se
+       rapproche du bord. Les liens se rangent dans le menu, le bouton reste
+       une cible de 44 px. */
     .xc #rail, .xc #nav .links, .xc #nav .signin, .xc #nav .cta { display: none; }
-    .xc #nav { padding-right: 6px; }
+    .xc #nav {
+      top: 10px;
+      height: 48px;
+      padding-right: 6px;
+      justify-content: space-between;
+    }
     .xc #burger { display: inline-flex; }
-    .xc #nav { justify-content: space-between; }
-    /* rien sous 11 px au doigt */
-    .xc #hero-hint { font-size: 11px; }
-    /* Au téléphone, la barre de navigation range son action dans le menu : le
-       bloc du titre porte alors la seule action visible de la première vue. On
-       resserre pour qu'il tienne au-dessus du cadre qui s'assemble. */
-    .xc #hero-copy .hero-actions { margin-top: 26px; gap: 16px; }
-    .xc #hero-copy .hero-reassure { margin-top: 12px; font-size: 12px; }
-    /* Bande de preuves : au pouce, elle défile en boucle au lieu de tasser
-       quatre libellés sur deux rangs. */
-    .xc #preuves {
-      padding: 14px 0;
+
+    /* ── Première vue ───────────────────────────────────────────────────────
+       Deux décors disparaissent, pour la même raison : ils s'adressaient à une
+       souris et à un grand écran.
+
+       Le canevas d'assemblage d'abord. Les cartes qui dérivaient derrière le
+       titre réagissaient au survol du curseur : au doigt, elles ne faisaient
+       que salir la lecture du titre.
+
+       L'application navigable ensuite. Composée sur 1000 px puis ramenée à la
+       largeur du téléphone, elle tombait à 0,33 d'échelle et ses libellés à
+       moins de 7 px. Le script la retire (poserHeroStatique) ; la feuille de
+       style fait la même chose pour qu'elle n'apparaisse pas le temps d'une
+       image avant que le script ne tourne.
+
+       Reste ce qui parle : l'exergue, le titre, le chapeau, l'action. */
+    .xc #hero-app, .xc #hero-caption, .xc #hero-canvas { display: none; }
+    /* Le bloc du titre était posé en absolu à 17vh du haut, parce qu'il devait
+       céder la place au cadre que le canvas dessinait sous lui. Ce cadre n'est
+       plus là : il revient dans le flux, et la scène prend simplement la
+       hauteur de son contenu. */
+    .xc #hero-copy {
+      position: static;
+      padding: 104px var(--marge) 8px;
+    }
+    .xc #hero-copy h1 {
+      margin-top: 16px;
+      font-size: var(--t-affiche);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
       max-width: none;
-      flex-wrap: nowrap;
-      /* les libellés s'estompent aux bords au lieu d'être tranchés net */
-      -webkit-mask-image: linear-gradient(90deg, transparent, #000 26px, #000 calc(100% - 26px), transparent);
-      mask-image: linear-gradient(90deg, transparent, #000 26px, #000 calc(100% - 26px), transparent);
+    }
+    .xc #hero-copy p.lede {
+      margin-top: 20px;
+      font-size: var(--t-corps);
+      line-height: 1.58;
+      max-width: none;
+    }
+    /* La barre range son action dans le menu : ce bloc porte donc la seule
+       action visible de la première vue. */
+    .xc #hero-copy .hero-actions { margin-top: 24px; gap: 16px; }
+    .xc #hero-copy .hero-reassure { margin-top: 12px; font-size: var(--t-detail); }
+    .xc #hero-hint { font-size: var(--t-menu); }
+    .xc #hero-caption { font-size: var(--t-detail); }
+
+    /* ── Bande de preuves ───────────────────────────────────────────────────
+       Elle défilait en boucle plutôt que de tasser quatre libellés sur deux
+       rangs. Une boucle est une animation, et le téléphone n'en veut plus.
+       Restait le choix entre une bande qui se parcourt au doigt et quatre
+       libellés qui passent à la ligne : la bande cache la moitié de son
+       contenu derrière un geste que personne ne fait. Ils passent donc à la
+       ligne. Le double de sécurité, qui n'existait que pour masquer le raccord
+       de la boucle, disparaît avec elle. */
+    .xc #preuves {
+      padding: 14px var(--marge);
+      max-width: none;
+      flex-wrap: wrap;
+      -webkit-mask-image: none;
+      mask-image: none;
     }
     .xc .pv-track {
       flex: none;
-      width: auto;
-      /* jamais plus court que l'écran, sinon un trou apparaît à la boucle */
-      min-width: 100%;
-      gap: 0;
-      justify-content: space-around;
-      animation: xcMarquee 24s linear infinite;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 18px;
     }
-    .xc .pv-track.clone { display: flex; }
-    .xc #preuves span { padding: 0 18px; }
-    /* Les écrans de la maquette sont superposés en absolu au large. Au
-       téléphone, 979 px de contenu se retrouvaient enfermés dans 560 px avec un
-       défilement interne invisible : la fiche cliente était coupée en plein
-       milieu. On les remet dans le flux, l'écran actif donne sa hauteur. */
-    /* Chaque scène est épinglée sur un écran de haut. Au téléphone, le texte
-       plus la maquette dépassaient cette hauteur et le bas de la scène était
-       tranché. On resserre l'ensemble pour que tout tienne d'un coup d'oeil. */
-    .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 18px; }
-    /* Encaisser est la seule scène inversée : au large la facture est à gauche
-       du texte, mais empilée au téléphone elle passait avant le titre. On lit
-       d'abord de quoi il s'agit, la facture illustre ensuite, comme dans les
-       deux autres scènes. */
-    .xc .story.reverse .copy { order: -1; }
-    .xc .story .pin { align-content: center; padding-top: 6vh; }
-    .xc .story h2 { margin-top: 12px; font-size: 27px; }
-    .xc .story p.body { margin-top: 13px; font-size: 14px; line-height: 1.55; }
-    .xc .story p.result { margin-top: 15px; font-size: 13px; line-height: 1.5; }
-    /* on réserve une bande sous le total : le cachet s'y pose au lieu de barrer
-       les montants */
-    /* le cachet est incliné : sa boîte dépasse le bord bas de la carte, qui
-       rogne les coins. On le remonte dans la bande réservée. */
-    /* La carte « Pour l'avocat » chevauchait les cartes de la Navette et sortait
-       de l'écran. Au téléphone, elle se range dessous, pleine largeur. */
-    .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
-    /* Au pouce, chaque scène doit se lire vite : on raccourcit la course
-       plutôt que de faire défiler seize écrans. */
-    .xc #zone-hero { height: 250vh; }
-    .xc #zone-promesse { height: 130vh; }
-    .xc #zone-simple { height: 290vh; }
-    .xc #zone-complet { height: 340vh; }
-    /* « Fiable » au pouce : une colonne, le moment en cours puis l'écran qui le
-       prouve juste en dessous. Comme un seul moment est affiché à la fois,
-       l'argument précède toujours immédiatement son état produit. */
-    .xc #zone-fiable { height: 340vh; }
-    /* La barre de navigation flotte au-dessus de la scène : sans ce dégagement,
-       elle recouvrait le nom du chapitre. */
-    .xc .fi-pin { padding-top: 82px; }
-    .xc .fi-grid { grid-template-columns: 1fr; gap: 18px; }
-    .xc .fi-copy h2 { font-size: 25px; margin-top: 12px; max-width: none; }
-    .xc .fi-narration { margin-top: 18px; }
-    .xc.anime .fi-narration { min-height: 172px; }
-    .xc .fi-arg .e1 { font-size: 16px; }
-    .xc .fi-arg .e2 { font-size: 24px; max-width: none; }
-    .xc.anime .fi-arg.range .e1 { font-size: 16px; }
-    .xc.anime .fi-arg.range .e2 { font-size: 13px; }
-    .xc.anime .fi-arg.avant { max-height: 200px; padding: 10px 0; }
-    .xc.anime .fi-arg.range { max-height: 120px; padding: 7px 0; grid-template-columns: 22px 1fr; column-gap: 10px; }
-    .xc .fi-ecran { max-width: none; margin-left: 0; padding: 15px 16px 16px; }
-    .xc .fi-vue-zone { min-height: 190px; }
-    .xc .fi-src { padding: 9px 0; }
-    .xc .fi-src .l { font-size: 12.5px; }
-    .xc .fi-src .m { font-size: 13.5px; }
-    .xc .fi-dit, .xc .fi-refus { font-size: 12px; }
-    .xc #zone-synthese { height: 160vh; }
-    /* Au pouce, les chapitres à deux volets s'empilent et la démonstration
-       passe sous le propos : on lit d'abord de quoi il s'agit. */
-    .xc #zone-simple .ch-pin { grid-template-columns: 1fr; gap: 20px; }
-    .xc .em-ecran { padding: 14px 15px 12px; }
-    .xc .em-tiles { margin-top: 11px; gap: 6px; }
+    .xc .pv-track.clone { display: none; }
+    .xc #preuves span { padding: 0; font-size: var(--t-menu); }
+
+    /* ── Exergues et libellés ───────────────────────────────────────────────
+       Le mono tenait ses majuscules espacées à 11 px. Le sans est plus large à
+       taille égale : l'interlettrage se resserre, sinon « SYSTÈME DE GESTION
+       POUR CABINETS D'AVOCATS » passe sur deux lignes et touche le bord. */
+    .xc .kicker, .xc .em-kicker, .xc .fi-ou, .xc .co-ou, .xc .em-ou,
+    .xc .ha-kicker, .xc .lab, .xc .lb, .xc .sub, .xc .h, .xc .date {
+      font-size: var(--t-menu);
+      letter-spacing: 0.09em;
+    }
+
+    /* ── Chapitres ──────────────────────────────────────────────────────────
+       Trois chapitres, une seule grammaire : le mot du chapitre, son titre,
+       ses points numérotés, puis l'écran qui les prouve. Chacun réglait sa
+       propre échelle ; ils partagent désormais la même. */
+    .xc .ch-mark { font-size: var(--t-marque); }
+    .xc .ch-mark + .kicker { margin-top: 10px; }
+    .xc .ch-copy h2, .xc .story h2, .xc .fi-copy h2, .xc .co-copy h2 {
+      margin-top: 12px;
+      font-size: var(--t-titre);
+      line-height: 1.14;
+      max-width: none;
+    }
+    /* Les points des trois piliers partagent un seul corps, ici comme au
+       large. La sous-ligne n'existe plus, donc l'échelle du téléphone n'a plus
+       qu'une taille à donner pour eux. */
+    .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
+      font-size: var(--t-argument);
+      max-width: none;
+    }
+    .xc .si-narration, .xc .fi-narration, .xc .co-narration { margin-top: 16px; }
+    .xc .co-intro {
+      margin-top: 8px;
+      font-size: var(--t-detail);
+      line-height: 1.5;
+      max-width: none;
+    }
+    .xc .co-fin { margin-top: 14px; font-size: var(--t-corps); }
     .xc .ch-chute { margin-top: 16px; }
-    .xc .ch-mark { font-size: 32px; }
-    .xc .ch-mark + .kicker { margin-top: 12px; }
-    .xc .ch-copy h2 { font-size: 27px; }
-    /* « Simple » abandonne l'épinglage au pouce, comme « Complet ».
 
-       Un argument en grand occupe 172 px là où une fiche d'accordéon fermée en
-       prenait 60 : la colonne de texte a doublé de hauteur avec la progression
-       cumulative. Mesuré à 375 x 812, la fenêtre du cabinet passait 35 px sous
-       le pli au troisième argument, et bien davantage sur un écran court. Les
-       faire tenir voudrait dire rogner l'écran de démonstration.
-
-       Le chapitre défile donc normalement : les trois arguments sont
-       directement à leur forme finale et les trois écrans se lisent à la
-       suite. La progression animée reste sur ordinateur et tablette large. */
-    .xc #zone-simple { height: auto; }
-    .xc #zone-simple .pin { position: relative; height: auto; min-height: 0; }
-    .xc #zone-simple .ch-pin { align-content: start; padding: 92px min(6vw, 84px) 80px; }
-    .xc.anime #zone-simple .si-narration { min-height: 0; }
-    .xc.anime #zone-simple .si-arg {
-      max-height: none;
-      opacity: 1;
-      overflow: visible;
-      grid-template-columns: 22px 1fr;
-      column-gap: 10px;
-      padding: 9px 0;
-    }
-    .xc.anime #zone-simple .si-arg .n { opacity: 1; }
-    .xc.anime #zone-simple .si-arg .t { font-size: 17px; max-width: 30ch; }
-    .xc.anime #zone-simple .si-arg .d { margin-top: 2px; font-size: 13px; }
-    .xc.anime #zone-simple .em-corps { height: auto; }
-    .xc.anime #zone-simple .em-ecran {
-      position: static;
-      opacity: 1;
-      transform: none;
-      pointer-events: auto;
-    }
-    .xc .si-narration { margin-top: 16px; }
-    .xc .si-arg .t { font-size: 23px; max-width: none; }
-    .xc .si-arg .d { margin-top: 8px; font-size: 14px; max-width: none; }
-    .xc.anime .si-arg.range .t { font-size: 17px; }
-    .xc.anime .si-arg.range .d { font-size: 13px; }
-    .xc.anime .si-arg.avant { max-height: 190px; padding: 9px 0; }
-    .xc.anime .si-arg.range { max-height: 120px; padding: 6px 0; grid-template-columns: 22px 1fr; column-gap: 10px; }
-    /* « Complet » au pouce : une colonne, le message en cours puis l'écran du
-       parcours juste dessous, comme dans « Fiable ». */
-    /* « Complet » abandonne l'épinglage au pouce.
-
-       Mesuré à 375 x 812 : le titre, l'introduction, les trois moments, leur
-       conclusion et un écran de parcours à cinq opérations demandent 926 px de
-       hauteur. Les faire tenir dans un écran voudrait dire couper des
-       opérations ou rendre les libellés illisibles. La spécification autorise
-       à renoncer au sticky quand il nuit à la lecture : le chapitre défile
-       donc normalement, les trois moments sont directement à leur forme
-       finale, et le parcours se lit en entier sous eux. */
-    .xc #zone-complet { height: auto; }
-    .xc #zone-complet .pin { position: relative; height: auto; min-height: 0; }
-    .xc .co-pin { padding: 96px min(6vw, 84px) 84px; }
-    .xc.anime #zone-complet .co-narration { min-height: 0; }
-    .xc.anime #zone-complet .co-arg {
-      max-height: none;
-      opacity: 1;
-      overflow: visible;
-      padding: 10px 0;
-    }
-    .xc.anime #zone-complet .co-grand { display: none; }
-    .xc.anime #zone-complet .co-point { opacity: 1; }
-    .xc.anime #zone-complet .co-fin { opacity: 1; }
-    .xc.anime #zone-complet .co-vue-zone { min-height: 0; }
-    .xc.anime #zone-complet .co-vue {
-      position: static;
-      opacity: 1;
-      transform: none;
-      pointer-events: auto;
-      margin-top: 22px;
-    }
-    .xc.anime #zone-complet .co-item,
-    .xc.anime #zone-complet .co-dit { opacity: 1; transform: none; }
+    /* Les deux volets de chaque chapitre s'empilent, et le propos passe
+       toujours avant sa démonstration : on lit d'abord de quoi il s'agit. */
+    .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 18px; }
+    .xc .story.reverse .copy { order: -1; }
+    .xc .story .pin { align-content: center; }
+    .xc .story p.body { margin-top: 12px; font-size: var(--t-corps); line-height: 1.55; }
+    .xc .story p.result { margin-top: 14px; font-size: var(--t-detail); line-height: 1.5; }
+    .xc #zone-simple .ch-pin { grid-template-columns: 1fr; gap: 20px; }
+    .xc .fi-grid { grid-template-columns: 1fr; gap: 18px; }
     .xc .co-grid { grid-template-columns: 1fr; gap: 16px; }
     .xc .co-stage { order: 2; }
     .xc .co-copy { order: 1; }
-    .xc .co-copy h2 { font-size: 23px; margin-top: 10px; max-width: none; }
-    .xc .co-intro { margin-top: 8px; font-size: 12.5px; line-height: 1.5; max-width: none; }
-    .xc .co-narration { margin-top: 12px; }
-    .xc.anime .co-narration { min-height: 132px; }
-    .xc .co-grand .g1 { font-size: 15px; }
-    .xc .co-grand .g2 { font-size: 22px; max-width: none; }
-    .xc.anime .co-arg.avant { max-height: 150px; padding: 7px 0; }
-    .xc.anime .co-arg.range { max-height: 104px; padding: 5px 0; }
-    .xc .co-point { grid-template-columns: 22px 1fr; column-gap: 10px; }
-    .xc .co-point .t { font-size: 16.5px; }
-    .xc .co-point .d { font-size: 12.5px; }
-    .xc .co-fin { margin-top: 14px; font-size: 15px; }
-    .xc .co-ecran { max-width: none; padding: 12px 14px 14px; }
-    /* Réservée sur la plus haute des vues en colonne étroite, mesurée à 361 px. */
-    .xc .co-vue-zone { min-height: 366px; }
+    .xc .si-arg, .xc .fi-arg, .xc .co-arg {
+      grid-template-columns: 22px 1fr;
+      column-gap: 10px;
+    }
+
+    /* Le dégagement en tête de chapitre tient compte de la barre flottante
+       (10 px de haut plus 48 px de hauteur) : sans lui, elle recouvrait le mot
+       du chapitre. */
+    .xc #zone-simple .ch-pin { padding: 88px var(--marge) 72px; }
+    .xc .fi-pin { padding: 88px var(--marge) 72px; }
+    .xc .co-pin { padding: 88px var(--marge) 72px; }
+    .xc section.flat { padding: 64px var(--marge); }
+
+    /* ── Écrans de démonstration ────────────────────────────────────────────
+       Ce sont des captures du produit, pas des illustrations : les retirer
+       reviendrait à décrire au lieu de montrer. Elles prennent toute la
+       largeur et leurs libellés remontent au plancher de 11 px — à 9 px, elles
+       montraient qu'il y avait quelque chose sans qu'on puisse le lire. */
+    .xc .fi-ecran, .xc .co-ecran, .xc .em-ecran {
+      max-width: none;
+      margin-left: 0;
+      padding: 14px 15px 15px;
+    }
+    .xc .em-tiles { margin-top: 10px; gap: 6px; }
+    .xc .fi-src { padding: 9px 0; }
+    .xc .fi-src .l, .xc .fi-src .m { font-size: var(--t-detail); }
+    .xc .fi-dit, .xc .fi-refus { font-size: var(--t-menu); }
     .xc .co-sous { margin-top: 10px; }
-    .xc .co-item { padding: 6px 0; }
-    .xc .co-item .t { font-size: 12.5px; }
-    .xc .co-item .s { font-size: 11px; }
-    .xc .co-item .m { font-size: 12.5px; }
-    .xc .sy-cta { flex-direction: column; align-items: stretch; }
-    .xc section.flat { padding: clamp(56px, 8vh, 96px) min(6vw, 84px); }
+    .xc .co-item { padding: 7px 0; }
+    .xc .co-item .t, .xc .co-item .m { font-size: var(--t-detail); }
+    .xc .co-item .s { font-size: var(--t-menu); }
+
+    /* ── Les deux respirations ──────────────────────────────────────────────
+       « Bâtissez votre succès professionnel » et la synthèse finale occupent
+       chacune un écran entier. Au large, c'est une respiration : la phrase
+       arrive seule, on la lit, on repart. Sur 812 px de haut, la même règle
+       donnait une phrase de deux lignes au centre de 600 px de vide, ce qui ne
+       se lit pas comme une respiration mais comme un écran qui n'a pas fini de
+       charger. Elles prennent la hauteur de ce qu'elles disent, et gardent un
+       dégagement franc au-dessus et en dessous. */
+    .xc .pr-pin { padding: 88px var(--marge); }
+    .xc .sy-pin { padding: 80px var(--marge); }
+    .xc .pr-main { font-size: var(--t-titre); }
+    .xc .sy-line { font-size: var(--t-titre); }
+    .xc .sy-claim { font-size: var(--t-corps); }
+
+    /* ── Bas de page ────────────────────────────────────────────────────────
+       Les trois sections plates gardaient l'échelle du large : leurs titres
+       montaient à 46 et 56 px, et le prix pesait plus lourd que le nom du
+       forfait qu'il chiffre. Elles rejoignent l'échelle commune. */
+    .xc #tarifs .head h2, .xc #questions h2, .xc #cta h2 {
+      font-size: var(--t-titre);
+      line-height: 1.14;
+    }
+    .xc #tarifs .plan { padding: 20px 0; gap: 12px; }
+    .xc #tarifs .plan:first-of-type { margin-top: 24px; }
+    .xc #tarifs .plan .name { font-size: var(--t-argument); }
+    .xc #tarifs .plan .detail { font-size: var(--t-detail); }
+    .xc #tarifs .plan .price { font-size: 22px; }
+    .xc #tarifs .plan .price small { font-size: var(--t-menu); }
+    .xc #tarifs .note, .xc #questions .more, .xc #tarifs .more { font-size: var(--t-detail); }
+    .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
+    .xc #questions .q h3 { font-size: var(--t-argument); }
+    .xc #questions .q p { font-size: var(--t-corps); max-width: none; }
+    .xc #cta p { margin-top: 16px; font-size: var(--t-corps); max-width: none; }
+    .xc #cta .actions { margin-top: 26px; gap: 12px; }
+    /* Deux actions côte à côte tombaient chacune sous la largeur d'un pouce :
+       elles s'empilent, pleine largeur, comme celles de la synthèse. */
+    .xc #cta .actions, .xc .sy-cta { flex-direction: column; align-items: stretch; }
+    .xc footer { font-size: var(--t-menu); }
   }
 
-  /* Écrans courts (iPhone SE, mini, ou barre d'adresse déployée) : la scène
-     épinglée dispose de moins de 740 px de haut. On resserre encore, sinon le
-     dernier paragraphe passe sous le pli et disparaît. */
-  @media (max-width: 860px) and (max-height: 740px) {
-    /* « Fiable » empile un argument en grand, deux rangés et l'écran de
-       démonstration. Sous 740 px de haut, cet empilement passait tout juste :
-       on resserre plutôt que de laisser le bas de l'écran se faire rogner. */
-    .xc .fi-pin { padding-top: 74px; }
-    .xc .fi-copy h2 { font-size: 22px; }
-    .xc.anime .fi-narration { min-height: 150px; }
-    .xc .fi-arg .e2 { font-size: 21px; }
-    .xc.anime .fi-arg.avant { max-height: 170px; padding: 7px 0; }
-    .xc.anime .fi-arg.range { max-height: 104px; padding: 5px 0; }
-    .xc .fi-vue-zone { min-height: 172px; }
-    .xc .fi-src { padding: 7px 0; }
-    /* Même resserrement pour « Complet », dont l'écran porte cinq opérations. */
-    .xc .co-pin { padding-top: 74px; }
-    .xc .co-copy h2 { font-size: 21px; }
-    .xc .co-intro { font-size: 12.5px; }
-    .xc.anime .co-narration { min-height: 142px; }
-    .xc .co-grand .g2 { font-size: 20px; }
-    .xc.anime .co-arg.avant { max-height: 150px; padding: 6px 0; }
-    .xc.anime .co-arg.range { max-height: 104px; padding: 4px 0; }
-    .xc .co-vue-zone { min-height: 196px; }
-    .xc .co-item { padding: 5px 0; }
-    .xc .story .pin { padding-top: 0; }
-    .xc .story .grid, .xc .story.reverse .grid { gap: 10px; }
-    .xc .story h2 { font-size: 24px; margin-top: 6px; }
-    .xc .story p.body { margin-top: 8px; }
-    .xc .story p.result { margin-top: 6px; padding-left: 12px; }
-  }
+  /* Sans mouvement — et au téléphone, qui suit la même règle.
 
-  @media (prefers-reduced-motion: reduce) {
+     Le pouce hérite de tout ce bloc parce que le script y prend déjà le chemin
+     statique (voir SEUIL_TELEPHONE). Les deux devaient rester d'accord : quand
+     le script posait « Fiable » à son état final mais que la feuille de style
+     gardait ses arguments à opacité nulle et hauteur nulle, le chapitre
+     s'affichait à moitié effacé sur trois écrans de vide. Une seule liste de
+     règles pour les deux cas, et la question ne peut plus se poser. */
+  @media (prefers-reduced-motion: reduce), (max-width: 860px) {
     /* On cible la CLASSE et non chaque identifiant : ajouter un chapitre ne
        doit pas pouvoir laisser trois écrans de vide à quelqu'un qui a désactivé
        les animations. Sans cette règle, la zone garde sa course de défilement
        alors que son contenu ne bouge plus. */
     .xc .pinzone { height: auto !important; }
-    .xc .pinzone .pin { position: relative; height: auto; min-height: 100vh; }
+    /* Sur un grand écran, une scène dépinglée garde la hauteur d'une vue :
+       elle reste une scène, on la lit d'un bloc. Au téléphone, la même règle
+       recentrait un contenu plus court dans une vue trop haute et rouvrait
+       exactement les vides qu'on venait de fermer. La hauteur devient donc une
+       variable, que le bloc téléphone met à zéro : chaque chapitre prend la
+       hauteur de ce qu'il contient, et c'est son dégagement qui le fait
+       respirer. */
+    .xc .pinzone .pin { position: relative; height: auto; min-height: var(--haut-scene, 100vh); }
     .xc #hero-hint { display: none; }
     /* pas de défilement automatique : la bande se parcourt au doigt */
     .xc .pv-track { animation: none; }
     .xc #preuves { overflow-x: auto; }
 
-    /* « Fiable » raconte en quatre temps. Sans mouvement, il n'y a plus de
-       temps : les trois arguments se lisent à la suite, à leur taille rangée,
-       et les quatre états du logiciel s'empilent sous eux. Sans cela, le
-       script figerait la scène à son dernier temps et les arguments non
-       encore venus resteraient sans hauteur, donc invisibles. */
-    .xc.anime #zone-fiable .fi-narration { min-height: 0; }
-    .xc.anime #zone-fiable .fi-arg {
-      max-height: none;
+    /* Sans mouvement, les trois points des trois piliers se lisent à la
+       suite, tous posés et tous en encre pleine : il n'y a plus de « point en
+       cours » quand il n'y a plus de défilement qui le désigne. Sans cette
+       règle, le script figerait la scène à son dernier temps et les points non
+       encore venus resteraient transparents.
+
+       Une seule déclaration pour les trois chapitres, puisqu'ils partagent
+       désormais la même grammaire. */
+    .xc.anime #zone-simple .si-arg,
+    .xc.anime #zone-fiable .fi-arg,
+    .xc.anime #zone-complet .co-arg {
       opacity: 1;
-      overflow: visible;
-      grid-template-columns: 26px 1fr;
-      column-gap: 14px;
-      padding: 11px 0;
+      transform: none;
+      padding: var(--pad-argument, 11px) 0;
     }
-    .xc.anime #zone-fiable .fi-arg .n { opacity: 1; }
-    .xc.anime #zone-fiable .fi-arg .e1 { font-size: clamp(18px, 1.8vw, 22px); color: var(--si-ink); }
-    .xc.anime #zone-fiable .fi-arg .e2 {
-      margin-top: 2px;
-      font-size: clamp(13.5px, 1.15vw, 15px);
-      line-height: 1.5;
-      color: var(--muted);
-      max-width: 40ch;
+    .xc.anime #zone-simple .si-arg .e,
+    .xc.anime #zone-fiable .fi-arg .e,
+    .xc.anime #zone-complet .co-arg .e {
+      color: var(--si-ink);
     }
     .xc.anime #zone-fiable .fi-vue-zone { min-height: 0; }
     .xc.anime #zone-fiable .fi-vue {
@@ -2070,42 +2007,34 @@ const CSS = `
       pointer-events: auto;
       margin-top: 24px;
     }
-    /* « Simple » suit la même règle que « Fiable » : sans mouvement, les trois
-       arguments sont déjà à leur forme finale, numéro et justification
-       compris, et les trois écrans du cabinet s'empilent sous eux. */
-    .xc.anime #zone-simple .si-narration { min-height: 0; }
-    .xc.anime #zone-simple .si-arg {
-      max-height: none;
-      opacity: 1;
-      overflow: visible;
-      grid-template-columns: 26px 1fr;
-      column-gap: 14px;
-      padding: 11px 0;
-    }
-    .xc.anime #zone-simple .si-arg .n { opacity: 1; }
-    .xc.anime #zone-simple .si-arg .t { font-size: clamp(18px, 1.8vw, 22px); max-width: 30ch; }
-    .xc.anime #zone-simple .si-arg .d { margin-top: 2px; font-size: clamp(13.5px, 1.15vw, 15px); }
     .xc.anime #zone-simple .em-corps { height: auto; }
-    .xc.anime #zone-simple .em-ecran {
+
+    /* ── Les écrans de démonstration se lisent tous, à la suite ─────────────
+       Les trois chapitres montrent plusieurs états du logiciel dans un même
+       cadre, en les faisant se relayer : une classe « on » passe de l'un à
+       l'autre au fil du défilement, sur une transition d'opacité de 240 ms.
+
+       Dépinglés et remis dans le flux, ces écrans occupent chacun leur place
+       dans la page, mais un seul portait encore la classe « on » : les autres
+       gardaient leur hauteur en restant invisibles. Mesuré sur « Simple » :
+       536 px de vide entre deux démonstrations, et davantage sur « Complet ».
+
+       Deux déclarations, pas une. L'opacité en « !important » reprend la main sur
+       la règle de relais, qui vise la même propriété avec autant de poids ; et
+       la transition est coupée, sinon une bascule de « on » arrivant après la
+       pose statique relancerait un fondu vers un état qu'on vient de fixer. */
+    .xc.anime #zone-simple .em-ecran,
+    .xc.anime #zone-fiable .fi-vue,
+    .xc.anime #zone-complet .co-vue {
       position: static;
-      opacity: 1;
-      transform: none;
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none;
       pointer-events: auto;
     }
 
     /* « Complet » suit la même règle : sans mouvement, les trois moments sont
        déjà à leur forme finale et le parcours s'affiche en entier. */
-    .xc.anime #zone-complet .co-narration { min-height: 0; }
-    .xc.anime #zone-complet .co-arg {
-      max-height: none;
-      opacity: 1;
-      overflow: visible;
-      padding: 10px 0;
-    }
-    /* Le message disparaît au profit du point : garder les deux superposés
-       sans animation les rendrait illisibles l'un sur l'autre. */
-    .xc.anime #zone-complet .co-grand { display: none; }
-    .xc.anime #zone-complet .co-point { opacity: 1; }
     .xc.anime #zone-complet .co-fin { opacity: 1; }
     .xc.anime #zone-complet .co-vue-zone { min-height: 0; }
     .xc.anime #zone-complet .co-vue {
@@ -2124,8 +2053,25 @@ const CSS = `
   }
 `;
 
+/* Le seuil du téléphone. Une seule déclaration pour le script et pour la
+   feuille de style : tant qu'il vit à deux endroits, l'un des deux finit par
+   dériver et la page se retrouve à mi-chemin entre deux comportements. */
+const SEUIL_TELEPHONE = "(max-width: 860px)";
+
 function runExperience(root: HTMLElement): () => void {
-  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Au téléphone, la page suit exactement le chemin de « mouvement réduit ».
+
+     Ce n'est pas une privation, c'est le bon rendu. Le montage cinématique
+     suppose une souris qui survole, un grand écran et une course de défilement
+     confortable : au pouce, il produisait quinze écrans de défilement, des
+     chapitres figés à mi-opacité et des chiffres fantômes. Le chemin statique
+     existe déjà, il est complet, chaque chapitre s'y pose à son état final.
+
+     Une seule constante commande donc les deux cas. Ajouter une animation
+     plus tard la coupera au téléphone sans qu'on ait à y penser. */
+  const PHONE = window.matchMedia(SEUIL_TELEPHONE).matches;
+  const REDUCED =
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches || PHONE;
 
   /* Le script est là : on autorise les états de départ masqués. Tant que cette
      classe n'est pas posée, tout le texte s'affiche normalement. */
@@ -2152,6 +2098,12 @@ function runExperience(root: HTMLElement): () => void {
   const phase = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
   const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
   const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  /* Courbe des apparitions de texte, l'équivalent en script de --doux.
+     easeOutCubic démarre à trois fois la vitesse moyenne : l'élément part d'un
+     coup dès le premier pixel de défilement, ce qui se lit comme une secousse.
+     Celle-ci part de zéro et arrive à zéro, donc le texte s'installe au lieu
+     d'être jeté à sa place (décision CEO du 13 août 2026). */
+  const easeDoux = (t: number) => t * t * (3 - 2 * t);
   const fmt = (n: number) =>
     n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " $";
 
@@ -2391,6 +2343,28 @@ function runExperience(root: HTMLElement): () => void {
     heroCopy.style.transform = "none";
     heroCopy.style.visibility = "visible";
 
+    /* L'application de la première vue est dessinée sur 1000 px de large puis
+       ramenée à la largeur disponible. Sur 375 px, le facteur tombe à 0,33 :
+       ses libellés se retrouvaient entre 2,7 et 7 px à l'écran. On voyait
+       qu'il y avait un logiciel, on ne pouvait rien y lire, et c'est la
+       première chose que rencontrait un prospect venu d'un lien.
+
+       Une preuve qu'on ne peut pas lire n'est plus une preuve. Elle est donc
+       retirée au téléphone. Les trois écrans des chapitres, eux, se composent
+       à la largeur réelle et restent lisibles : la démonstration n'est pas
+       perdue, elle est déplacée là où elle tient. */
+    if (PHONE) {
+      heroShot.style.display = "none";
+      /* La légende annonce « ouvrez un menu et circulez ». Sans l'application
+         sous elle, elle promet un geste qui n'existe plus. */
+      heroCaption.style.display = "none";
+      heroHint.style.opacity = "0";
+      /* Aucune hauteur calculée ici : sans cadre à loger sous le titre, il n'y
+         a plus rien à mesurer. La feuille de style remet le bloc dans le flux
+         et la scène prend la hauteur de ce qu'elle contient. */
+      return;
+    }
+
     const scale = Math.min((W - marge * 2) / FRAME_W, 1);
     const haut = heroCopy.offsetTop + heroCopy.offsetHeight + 52;
     heroShot.style.left = ((W - FRAME_W * scale) / 2) + "px";
@@ -2410,11 +2384,17 @@ function runExperience(root: HTMLElement): () => void {
    * Montée sous masque. L'élément part sous son arête et remonte à sa place.
    * `decalage` en pourcentage de sa propre hauteur. L'opacité prend un peu
    * d'avance pour que le texte ne paraisse jamais sale pendant la course.
+   *
+   * Le décalage était d'une hauteur de ligne entière : la phrase traversait
+   * toute sa boîte à chaque apparition. Une demi-hauteur suffit à donner le
+   * geste, et le mouvement cesse d'attirer l'œil plus que le mot. L'avance de
+   * l'opacité est réduite d'autant : à 1,6 le texte était déjà opaque au tiers
+   * de la course, et la fin du mouvement se voyait toute seule.
    */
-  function monter(el: HTMLElement, t: number, decalage = 105) {
-    const e = easeOutCubic(clamp01(t));
+  function monter(el: HTMLElement, t: number, decalage = 55) {
+    const e = easeDoux(clamp01(t));
     el.style.transform = "translateY(" + ((1 - e) * decalage) + "%)";
-    el.style.opacity = String(clamp01(t * 1.6));
+    el.style.opacity = String(easeDoux(clamp01(t * 1.25)));
   }
 
   /* Chutes de chapitre. Elles n'arrivent qu'une fois le dernier argument
@@ -2425,9 +2405,9 @@ function runExperience(root: HTMLElement): () => void {
 
   function chute(el: HTMLElement, t: number) {
     if (!el) return;
-    const e = easeOutCubic(clamp01(t));
+    const e = easeDoux(clamp01(t));
     el.style.opacity = String(e);
-    el.style.transform = "translateY(" + ((1 - e) * 14) + "px)";
+    el.style.transform = "translateY(" + ((1 - e) * 9) + "px)";
   }
 
   /* Marqueurs de chapitre : « Simple », « Fiable », « Complet ». */
@@ -2436,18 +2416,23 @@ function runExperience(root: HTMLElement): () => void {
   const markComplet = $$('[data-mark="complet"]')[0];
 
   /**
-   * Ouvre un chapitre par son nom. Le mot monte de quelques pixels en
-   * s'agrandissant très légèrement, puis se pose. Il ne repart pas : c'est le
-   * titre du chapitre, pas une transition.
+   * Ouvre un chapitre par son nom. Le mot monte de quelques pixels puis se
+   * pose. Il ne repart pas : c'est le titre du chapitre, pas une transition.
+   *
+   * L'agrandissement de 1,06 à 1 a été retiré : un mot de cinquante pixels qui
+   * change de taille pendant sa course est exactement la charge visuelle qu'on
+   * cherche à retirer de la page, et la mise à l'échelle rendait la lettre
+   * molle tout du long. La fenêtre passe de 14 % à 24 % de la course du
+   * chapitre : le même geste, étalé sur plus de défilement, donc plus lent à
+   * l'œil sans être plus long à lire.
    */
   function marqueur(el: HTMLElement, p: number) {
     /* Jamais depuis zéro. C'est le titre du chapitre : arriver dessus par le
        rail, ou juste après le plan précédent, ne doit pas donner un écran où
        il manque son nom. Il entre à 0,4 et se pose. */
-    const e = easeOutCubic(phase(p, 0, 0.14));
+    const e = easeDoux(phase(p, 0, 0.24));
     el.style.opacity = String(0.4 + 0.6 * e);
-    el.style.transform =
-      "translateY(" + ((1 - e) * 14) + "px) scale(" + lerp(1.06, 1, e) + ")";
+    el.style.transform = "translateY(" + ((1 - e) * 10) + "px)";
   }
 
   /* ── Chapitre 1 · La promesse ──
@@ -2481,10 +2466,13 @@ function runExperience(root: HTMLElement): () => void {
     if (t === siTempsCourant) return;
     siTempsCourant = t;
     siArgs.forEach((el, i) => {
-      el.classList.toggle("range", i < t);
-      el.classList.toggle("avant", i === t);
+      /* Vu : le point est arrivé et il reste. Actif : c'est celui que la
+         démonstration de droite est en train de montrer. Aucune des deux
+         classes ne change une taille, seulement une opacité et une encre. */
+      el.classList.toggle("vu", i <= t);
+      el.classList.toggle("actif", i === Math.min(t, siArgs.length - 1));
     });
-    /* Le dernier temps range le troisième argument, mais l'écran ne recule
+    /* Le dernier temps pose le troisième argument, mais l'écran ne recule
        pas : il reste sur la preuve qu'on vient de lire. */
     const vue = Math.min(t, 2);
     emEcrans.forEach((ec, k) => ec.classList.toggle("on", k === vue));
@@ -2499,7 +2487,10 @@ function runExperience(root: HTMLElement): () => void {
     /* Passé ce seuil, les trois points sont posés et la chute peut conclure. */
     const fini = p > 0.88;
     poserSimpleTemps(fini ? 3 : t);
-    chute(chuteSimple, phase(p, 0.9, 0.98));
+    /* Fenêtre élargie : sur 8 % de la course, la conclusion du chapitre
+       apparaissait presque d'un bloc. Elle prend maintenant le double de
+       défilement pour le même geste. */
+    chute(chuteSimple, phase(p, 0.84, 1));
   }
 
   /* ── Chapitre 3 · Fiable ──
@@ -2536,9 +2527,8 @@ function runExperience(root: HTMLElement): () => void {
        sont rangés : la synthèse n'est pas un nouveau bloc, c'est l'état final
        des arguments eux-mêmes. */
     fiArgs.forEach((el, i) => {
-      el.classList.toggle("range", i < t);
-      el.classList.toggle("avant", i === t);
-      el.classList.toggle("apres-range", i === t && t > 0);
+      el.classList.toggle("vu", i <= t);
+      el.classList.toggle("actif", i === Math.min(t, fiArgs.length - 1));
     });
     fiVues.forEach((el, i) => el.classList.toggle("on", i === t));
     fiOu.textContent = FI_OU[t] || "";
@@ -2633,8 +2623,8 @@ function runExperience(root: HTMLElement): () => void {
     if (t === coTempsCourant) return;
     coTempsCourant = t;
     coArgs.forEach((el, i) => {
-      el.classList.toggle("range", i < t);
-      el.classList.toggle("avant", i === t);
+      el.classList.toggle("vu", i <= t);
+      el.classList.toggle("actif", i === Math.min(t, coArgs.length - 1));
     });
     coVues.forEach((el, i) => el.classList.toggle("on", i === Math.min(t, 2)));
     coOu.textContent = CO_OU[Math.min(t, 2)] || "";
@@ -2900,6 +2890,16 @@ function runExperience(root: HTMLElement): () => void {
   return () => {
     cancelAnimationFrame(rafId);
     root.classList.remove("anime");
+    /* Les deux chemins peignent en style en ligne. Tant qu'on ne relançait
+       jamais la mise en place, les laisser derrière soi était sans effet ;
+       depuis qu'un changement de régime relance, ils survivraient au régime
+       suivant — un canevas d'assemblage resté en display:none, une application
+       figée à la position calculée pour l'autre largeur. On rend chaque élément
+       à sa feuille de style. */
+    [heroCanvas, heroCopy, heroShot, heroCaption, heroHint].forEach((el) => {
+      el.removeAttribute("style");
+    });
+    heroZone.querySelector<HTMLElement>(".pin")?.style.removeProperty("min-height");
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("scroll", reveiller);
     window.removeEventListener("resize", reveiller);
@@ -2925,10 +2925,26 @@ export default function ExperienceCinema() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [menuOuvert, setMenuOuvert] = useState(false);
 
+  /* Le chemin (animé ou statique) est choisi au montage. Passer la barre des
+     860 px en cours de visite — une rotation d'écran, une fenêtre qu'on
+     élargit — laissait la page dans le mauvais régime : un téléphone tourné en
+     paysage récupérait le montage cinématique, un ordinateur rétréci gardait
+     les scènes épinglées sur une colonne. On relance donc la mise en place au
+     franchissement du seuil, et à ce moment seulement. */
+  const [regime, setRegime] = useState<"large" | "telephone">("large");
+
+  useEffect(() => {
+    const mq = window.matchMedia(SEUIL_TELEPHONE);
+    const lire = () => setRegime(mq.matches ? "telephone" : "large");
+    lire();
+    mq.addEventListener("change", lire);
+    return () => mq.removeEventListener("change", lire);
+  }, []);
+
   useEffect(() => {
     if (!rootRef.current) return;
     return runExperience(rootRef.current);
-  }, []);
+  }, [regime]);
 
   return (
     <div className="xc" ref={rootRef}>
@@ -3076,26 +3092,15 @@ export default function ExperienceCinema() {
               <ol className="si-args">
                 <li className="si-arg" data-siarg="0">
                   <span className="n" aria-hidden>01</span>
-                  <p className="t">Vos chiffres, en langage clair.</p>
-                  <p className="d">
-                    Comprenez votre cabinet sans naviguer entre débits, crédits et jargon
-                    comptable.
-                  </p>
+                  <p className="e">Vos chiffres, en langage clair.</p>
                 </li>
                 <li className="si-arg" data-siarg="1">
                   <span className="n" aria-hidden>02</span>
-                  <p className="t">Une prochaine action claire.</p>
-                  <p className="d">
-                    SAFE fait ressortir ce qui mérite votre attention, sans surcharger votre
-                    écran.
-                  </p>
+                  <p className="e">Une prochaine action claire.</p>
                 </li>
                 <li className="si-arg" data-siarg="2">
                   <span className="n" aria-hidden>03</span>
-                  <p className="t">Saisi une fois. Utilisé partout.</p>
-                  <p className="d">
-                    Du temps travaillé à la facture, puis au paiement et aux rapports.
-                  </p>
+                  <p className="e">Saisi une fois. Utilisé partout.</p>
                 </li>
               </ol>
               <p className="ch-chute">Moins de gestion. Plus de pratique.</p>
@@ -3201,18 +3206,15 @@ export default function ExperienceCinema() {
                 <ol className="fi-args">
                   <li className="fi-arg" data-arg="0">
                     <span className="n" aria-hidden>01</span>
-                    <p className="e1">Vos chiffres restent cohérents.</p>
-                    <p className="e2">Partout où vous les consultez.</p>
+                    <p className="e">Vos chiffres restent cohérents, partout où vous les consultez.</p>
                   </li>
                   <li className="fi-arg" data-arg="1">
                     <span className="n" aria-hidden>02</span>
-                    <p className="e1">Chaque correction laisse une trace.</p>
-                    <p className="e2">Rien d&apos;important ne disparaît.</p>
+                    <p className="e">Chaque correction laisse une trace. Rien d&apos;important ne disparaît.</p>
                   </li>
                   <li className="fi-arg" data-arg="2">
                     <span className="n" aria-hidden>03</span>
-                    <p className="e1">Les incohérences sont détectées.</p>
-                    <p className="e2">Avant qu&apos;elles deviennent un problème.</p>
+                    <p className="e">Les incohérences sont détectées avant qu&apos;elles deviennent un problème.</p>
                   </li>
                 </ol>
               </div>
@@ -3245,12 +3247,12 @@ export default function ExperienceCinema() {
                 <div className="fi-vue" data-fivue="1">
                   <div className="fi-temps" data-temps="0">
                     <span className="h">14 juin · 09 h 12</span>
-                    <span className="t">Écart constaté sur le dossier 2026-011</span>
+                    <span className="t">Écart constaté sur le dossier <span className="ref">2026-011</span></span>
                     <span className="m">− 500,00 $</span>
                   </div>
                   <div className="fi-temps" data-temps="1">
                     <span className="h">14 juin · 09 h 41</span>
-                    <span className="t">Écriture de correction · dossier 2026-011</span>
+                    <span className="t">Écriture de correction · dossier <span className="ref">2026-011</span></span>
                     <span className="m vert">+ 500,00 $</span>
                   </div>
                   <p className="fi-dit" id="fi-dit-1">
@@ -3260,7 +3262,7 @@ export default function ExperienceCinema() {
                 </div>
 
                 <div className="fi-vue" data-fivue="2">
-                  <p className="fi-op">Retrait demandé · dossier 2026-011</p>
+                  <p className="fi-op">Retrait demandé · dossier <span className="ref">2026-011</span></p>
                   <div className="fi-src">
                     <span className="l">Montant du retrait</span>
                     <span className="m">1 200,00 $</span>
@@ -3424,37 +3426,16 @@ export default function ExperienceCinema() {
               <div className="co-narration">
                 <ol className="co-args">
                   <li className="co-arg" data-coarg="0">
-                    <span className="co-grand">
-                      <span className="g1">Le bon cadre,</span>
-                      <span className="g2">dès l&apos;ouverture.</span>
-                    </span>
-                    <span className="co-point">
-                      <span className="n" aria-hidden>01</span>
-                      <span className="t">Une ouverture adaptée</span>
-                      <span className="d">Le bon cartable et les bonnes informations dès le départ.</span>
-                    </span>
+                    <span className="n" aria-hidden>01</span>
+                    <p className="e">Le bon cadre, dès l&apos;ouverture.</p>
                   </li>
                   <li className="co-arg" data-coarg="1">
-                    <span className="co-grand">
-                      <span className="g1">Le dossier avance.</span>
-                      <span className="g2">Chaque opération suit.</span>
-                    </span>
-                    <span className="co-point">
-                      <span className="n" aria-hidden>02</span>
-                      <span className="t">Un parcours relié</span>
-                      <span className="d">Le travail juridique et l&apos;administration avancent ensemble.</span>
-                    </span>
+                    <span className="n" aria-hidden>02</span>
+                    <p className="e">Le dossier avance. Chaque opération suit.</p>
                   </li>
                   <li className="co-arg" data-coarg="2">
-                    <span className="co-grand">
-                      <span className="g1">Le dossier se termine.</span>
-                      <span className="g2">Le cabinet reste à jour.</span>
-                    </span>
-                    <span className="co-point">
-                      <span className="n" aria-hidden>03</span>
-                      <span className="t">Une vision complète</span>
-                      <span className="d">Les finances et les rapports suivent le dossier jusqu&apos;à sa conclusion.</span>
-                    </span>
+                    <span className="n" aria-hidden>03</span>
+                    <p className="e">Le dossier se termine. Le cabinet reste à jour.</p>
                   </li>
                 </ol>
                 <p className="co-fin" id="co-fin">

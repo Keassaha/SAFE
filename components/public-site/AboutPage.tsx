@@ -50,15 +50,20 @@ const CSS = `
     --ap-t2: clamp(26px, 2.9vw, 38px);   /* titre de chapitre en cours */
     --ap-t3: clamp(19px, 1.9vw, 24px);   /* accents : phrases fortes, citation, domaines */
     --ap-t4: clamp(15px, 1.35vw, 17.5px);/* corps, constats, titre de chapitre lu */
-    --ap-t5: 13px;                       /* marge : jalons et légende */
+    --ap-t5: 13.5px;                     /* marge : jalons et légende */
 
     background: var(--si-surface);
     color: var(--ink);
-    /* Geist est la police principale du site : navigation, corps de texte,
-       interface. La serif ne sert qu'aux titres et aux moments éditoriaux, la
-       mono qu'aux étiquettes. C'est la répartition du reste des pages, et cette
-       page la suit désormais au lieu de mettre toute sa prose en serif. */
-    font-family: var(--sans);
+    /* Le récit est en Instrument Serif d'un bout à l'autre, comme la vitrine
+       (décision CEO du 13 août 2026, qui renverse la répartition précédente).
+       La page mélangeait des titres en serif et une prose en Geist : elle
+       changeait de voix à chaque paragraphe, alors qu'elle raconte une seule
+       histoire d'une seule traite.
+
+       Geist ne reste que sur ce qui n'est pas du récit : le bouton, la
+       navigation et le pied de page communs au site. La mono garde les
+       étiquettes et les numéros de chapitre. */
+    font-family: var(--serif);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -119,9 +124,9 @@ const CSS = `
     transition: color 380ms ease;
   }
   /* Le titre du jalon est du texte, pas une étiquette : il quitte la mono du
-     numéro qui le précède. */
+     numéro qui le précède et prend la voix du récit qu'il annonce. */
   .ap-jalon .lb {
-    font-family: var(--sans);
+    font-family: var(--serif);
     font-size: var(--ap-t5);
     letter-spacing: 0;
     line-height: 1.3;
@@ -356,31 +361,42 @@ const CSS = `
   .ap.anime .rev.vu { opacity: 1; transform: none; }
 
   @media (max-width: 860px) {
+    .ap {
+      /* Deux voix, comme sur l'accueil : la serif raconte, le sans fait
+         l'interface. Le mono ne portait ici que les étiquettes et les numéros
+         de chapitre, et une troisième famille pour cela seul ne se justifie
+         pas sur 375 px. */
+      --mono: var(--sans);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: break-word;
+
+      /* L'échelle se resserre. Le titre de la page descend de 34 à 28 px et le
+         titre de chapitre de 26 à 21 : sur une colonne unique, les valeurs du
+         large donnaient trois mots par ligne. */
+      --ap-t1: 28px;
+      --ap-t2: 21px;
+      --ap-t3: 17px;
+      --ap-t4: 15px;
+      --ap-t5: 12.5px;
+    }
     .ap-inner {
       grid-template-columns: minmax(0, 1fr);
       gap: 26px;
-      padding: 84px min(6vw, 84px) 76px;
+      padding: 84px 20px 76px;
     }
-    /* La marge passe au-dessus du récit et se met à l'horizontale : en colonne
-       étroite, une colonne de service à gauche vole la largeur de lecture. */
-    .ap-marge {
-      position: static;
-      padding-left: 0;
-      padding-bottom: 20px;
-      border-left: 0;
-      border-bottom: 1px solid var(--line);
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: center;
-      gap: 16px;
-    }
-    /* Au pouce, le sommaire se réduit à ses numéros : cinq titres à
-       l'horizontale prendraient toute la première vue. La légende de la trace
-       reste, c'est elle qui porte le sens. */
-    .ap-jalons { grid-auto-flow: column; grid-auto-columns: max-content; gap: 14px; }
-    .ap-jalon .lb { display: none; }
-    .ap-trace-bloc { grid-auto-flow: column; align-items: center; gap: 12px; }
-    .ap-trace { width: 44px; height: 44px; }
-    .ap-etiquette { display: none; }
+    /* ── La colonne de marge disparaît ─────────────────────────────────────
+       Elle portait trois choses : une trace SVG qui s'assemble au fil du
+       défilement, sa légende, et un sommaire de cinq jalons.
+
+       Au pouce, elle basculait à l'horizontale au-dessus du récit. Les cinq
+       jalons réduits à leurs numéros débordaient malgré tout de 43 px hors de
+       l'écran, et la trace n'était plus qu'un motif de 44 px dont l'assemblage
+       progressif ne se lisait pas.
+
+       Le sommaire n'apportait rien qu'un défilement ne donne déjà : cinq ancres
+       vers des chapitres qui se suivent. La page se lit donc d'un trait, et le
+       récit commence tout de suite. */
+    .ap-marge { display: none; }
     .ap-h1 { max-width: none; }
     .ap-titre { max-width: none; }
     .ap-fort { max-width: none; }
@@ -391,7 +407,10 @@ const CSS = `
     .ap-portrait img { width: 148px; height: 186px; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  /* Sans mouvement — et au téléphone, qui suit la même règle que l'accueil :
+     un article se lit, il ne se joue pas. Les passages n'ont plus à monter
+     sous un masque pour apparaître. */
+  @media (prefers-reduced-motion: reduce), (max-width: 860px) {
     /* Sans mouvement, l'article se lit d'un trait : tout est présent, à sa
        taille de lecture, dans l'ordre exact du script. */
     .ap.anime .rev { opacity: 1; transform: none; }
@@ -414,7 +433,13 @@ const CSS = `
  * pour la réduction du titre déjà lu.
  */
 function runRecit(root: HTMLElement): () => void {
-  const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Le téléphone est traité comme « mouvement réduit », exactement comme
+     l'accueil : la colonne de marge que ces observateurs alimentent n'y est
+     plus affichée, et révéler des passages un à un sur une colonne unique
+     donne une page qui semble se charger pendant qu'on la lit. */
+  const reduit =
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    window.matchMedia("(max-width: 860px)").matches;
   root.classList.add("anime");
 
   const $$ = <T extends HTMLElement>(sel: string) =>
