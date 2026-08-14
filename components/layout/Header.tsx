@@ -579,7 +579,15 @@ export function Header({
           style={{ background: "var(--si-line)" }}
         />
 
-        <span className="hidden xl:block text-[13px] font-sans font-medium text-text-body truncate max-w-[200px]">
+        {/* Un nom complet avec titre (« Me Agboko Jean-Jacques Dadié ») talonne
+            les 200px d'origine sans jamais dépasser assez pour que l'ellipse se
+            déclenche : il collait directement sur l'icône du tableau de bord.
+            140px coupe systématiquement avant ce point de collision, quel que
+            soit le nom affiché. */}
+        <span
+          className="hidden xl:block shrink-0 text-[13px] font-sans font-medium text-text-body truncate max-w-[140px]"
+          title={user?.name ?? undefined}
+        >
           {user?.name ?? tMisc("myFirm")}
         </span>
       </div>
