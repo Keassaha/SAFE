@@ -87,10 +87,14 @@ export function SafeWindow({
 /**
  * Invitation sous une maquette.
  * Repère graphique maison (chevron du logo), jamais d'émoji.
+ *
+ * En serif : c'est la page qui s'adresse au lecteur, pas un libellé de la
+ * maquette au-dessus. La frontière de la vitrine passe ici, au bord de
+ * l'écran dessiné.
  */
 export function IndiceEssai({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mt-3 flex items-start gap-2.5 font-sans text-[12.5px]" style={{ color: VERIFIED }}>
+    <p className="mt-3 flex items-start gap-2.5 font-serif text-[13px]" style={{ color: VERIFIED }}>
       <span className="mt-[5px] shrink-0" style={{ color: GREEN }}>
         <SafeBullet size={11} />
       </span>
