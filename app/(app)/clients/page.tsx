@@ -56,7 +56,15 @@ export default async function ClientsPage({
   const where = buildClientListWhere(cabinetId, { q, status, type });
   const orderBy = getClientListOrderBy(sortBy, sortOrder);
 
-  const [clients, totalCount, stats, lawyers, invoiceTotalsByClient, unbilledTasksByClient] = await Promise.all([
+  const [
+    clients,
+    totalCount,
+    stats,
+    lawyers,
+    invoiceTotalsByClient,
+    unbilledTasksByClient,
+    activeCasesResult,
+  ] = await Promise.all([
     prisma.client.findMany({
       where,
       orderBy,
@@ -90,13 +98,11 @@ export default async function ClientsPage({
       where: { cabinetId, statut: { not: "facture" } },
       _sum: { montantFinal: true },
     }),
+    prisma.dossier.count({ where: { cabinetId, statut: "actif" } }),
   ]);
 
   const totalClients = stats.reduce((s, g) => s + g._count, 0);
   const activeClients = stats.find((g) => g.status === "actif")?._count ?? 0;
-  const activeCasesResult = await prisma.dossier.count({
-    where: { cabinetId, statut: "actif" },
-  });
 
   // Build a per-client aggregate map (billed + unbilled fees)
   const feesByClient = new Map<string, number>();

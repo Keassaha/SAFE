@@ -6,6 +6,7 @@
  *
  * En v2 multi-tenant, ce check sera remplacé par un check sur Workspace.
  */
+import { cache } from "react";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
@@ -13,14 +14,20 @@ import { canManageCabinetSettings } from "@/lib/auth/permissions";
 
 const SAFE_INC_CABINET_NAME = "SAFE";
 
-/** Vérifie si un cabinet est le cabinet SAFE Inc. lui-même (dog food). */
-export async function isSafeIncCabinet(cabinetId: string): Promise<boolean> {
+/**
+ * Vérifie si un cabinet est le cabinet SAFE Inc. lui-même (dog food).
+ *
+ * `React.cache()` : appelée par le layout applicatif à chaque navigation ;
+ * sans elle, une requête `Cabinet` de plus vient s'ajouter aux deux autres
+ * déjà faites sur la même ligne dans le même rendu serveur.
+ */
+export const isSafeIncCabinet = cache(async (cabinetId: string): Promise<boolean> => {
   const cabinet = await prisma.cabinet.findUnique({
     where: { id: cabinetId },
     select: { nom: true },
   });
   return cabinet?.nom === SAFE_INC_CABINET_NAME;
-}
+});
 
 /**
  * Accès Console : vrai si l'utilisateur est marqué interne (`User.isInternal`).

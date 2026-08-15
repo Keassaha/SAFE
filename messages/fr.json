@@ -3870,7 +3870,12 @@
     "tools": "Chargement des outils en cours…",
     "reports": "Chargement des rapports en cours…",
     "settings": "Chargement des paramètres en cours…",
-    "timesheet": "Chargement de la fiche de temps en cours…"
+    "timesheet": "Chargement de la fiche de temps en cours…",
+    "invoicing": "Chargement de la facturation en cours…",
+    "invoice": "Chargement de la facture en cours…",
+    "dashboard": "Chargement du tableau de bord en cours…",
+    "clients": "Chargement du registre des clients en cours…",
+    "dossiers": "Chargement des dossiers en cours…"
   },
   "alertCenter": {
     "title": "Obligations du cabinet",

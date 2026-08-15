@@ -93,14 +93,33 @@ export default async function DossiersPage({
   const statsWhere = buildDossierListWhere(cabinetId, baseFilters);
   const orderBy = getDossierListOrderBy(sortBy, sortOrder);
 
-  const [dossiers, totalCount, stats, clients, acteStats, avocats, assistants] = await Promise.all([
+  // Taxonomie configurée du cabinet → sujets/sous-matières + numérotation par
+  // préfixe dans le modal de création (comme la page /dossiers/nouveau).
+  // `locale` n'a pas de dépendance DB : résolu avant pour pouvoir l'injecter
+  // dans le Promise.all ci-dessous, plutôt qu'en une troisième vague séparée.
+  const locale = await getLocale();
+
+  const [
+    dossiers,
+    totalCount,
+    stats,
+    clients,
+    acteStats,
+    avocats,
+    assistants,
+    actesUrgentsCount,
+    taxonomyOptions,
+    cabinetBillingMode,
+  ] = await Promise.all([
     prisma.dossier.findMany({
       where: listWhere,
       orderBy,
       skip: (page - 1) * DOSSIER_LIST_PAGE_SIZE,
       take: DOSSIER_LIST_PAGE_SIZE,
       include: {
-        client: true,
+        client: {
+          select: { id: true, raisonSociale: true, prenom: true, nom: true, typeClient: true },
+        },
         avocatResponsable: { select: { nom: true } },
       },
     }),
@@ -130,6 +149,15 @@ export default async function DossiersPage({
       select: { id: true, nom: true },
       orderBy: { nom: "asc" },
     }),
+    prisma.dossierActe.count({
+      where: {
+        dossier: { cabinetId },
+        status: { not: "done" },
+        deadline: { lte: today },
+      },
+    }),
+    getCabinetDossierTaxonomyOptions(cabinetId, locale),
+    getCabinetBillingMode(cabinetId),
   ]);
 
   const actifsCount =
@@ -142,24 +170,9 @@ export default async function DossiersPage({
   const totalActes = acteStats.reduce((s, g) => s + g._count, 0);
   const actesEnCours = acteStats.find((g) => g.status === "inprogress")?._count ?? 0;
   const actesTermines = acteStats.find((g) => g.status === "done")?._count ?? 0;
-  const actesUrgentsCount = await prisma.dossierActe.count({
-    where: {
-      dossier: { cabinetId },
-      status: { not: "done" },
-      deadline: { lte: today },
-    },
-  });
 
   const canCreate = canManageDossiers(role as UserRole);
   const multiPartiesEnabled = isMultiPartiesDossierEnabled();
-
-  // Taxonomie configurée du cabinet → sujets/sous-matières + numérotation par
-  // préfixe dans le modal de création (comme la page /dossiers/nouveau).
-  const locale = await getLocale();
-  const [taxonomyOptions, cabinetBillingMode] = await Promise.all([
-    getCabinetDossierTaxonomyOptions(cabinetId, locale),
-    getCabinetBillingMode(cabinetId),
-  ]);
 
   const exportParams = new URLSearchParams();
   if (params.q) exportParams.set("q", params.q);

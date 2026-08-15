@@ -51,14 +51,10 @@ function getDaysOverdue(periode: string, now: Date = new Date()): number {
 
 export async function getTrustReconciliationStatus(cabinetId: string): Promise<TrustReconciliationStatus | null> {
   // Check if the cabinet has any trust activity at all
-  const trustTxCount = await prisma.trustTransaction.count({
-    where: { cabinetId },
-  });
-
-  // Also check if any trust accounts exist
-  const trustAccountsCount = await prisma.trustAccount.count({
-    where: { cabinetId },
-  });
+  const [trustTxCount, trustAccountsCount] = await Promise.all([
+    prisma.trustTransaction.count({ where: { cabinetId } }),
+    prisma.trustAccount.count({ where: { cabinetId } }),
+  ]);
 
   const hasTrustActivity = trustTxCount > 0 || trustAccountsCount > 0;
 

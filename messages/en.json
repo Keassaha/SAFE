@@ -3870,7 +3870,12 @@
     "tools": "Loading tools…",
     "reports": "Loading reports…",
     "settings": "Loading settings…",
-    "timesheet": "Loading timesheet…"
+    "timesheet": "Loading timesheet…",
+    "invoicing": "Loading invoicing…",
+    "invoice": "Loading invoice…",
+    "dashboard": "Loading dashboard…",
+    "clients": "Loading client registry…",
+    "dossiers": "Loading matters…"
   },
   "alertCenter": {
     "title": "Firm obligations",

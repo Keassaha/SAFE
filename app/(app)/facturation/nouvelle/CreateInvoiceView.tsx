@@ -759,6 +759,12 @@ export function CreateInvoiceView({
       } else {
         router.push("/facturation");
       }
+      // Nécessaire : le compteur « à facturer » de la barre latérale
+      // (getSidebarCounts, rendu par le layout partagé) compte les factures
+      // en brouillon — exactement le statut de celle qu'on vient de créer.
+      // Une navigation douce (router.push seul) ne relève pas ce layout ;
+      // sans ce refresh, le badge resterait périmé jusqu'à la prochaine
+      // navigation complète.
       router.refresh();
     } catch (err) {
       raiseError(err instanceof Error ? err.message : t("errorUnexpected"));

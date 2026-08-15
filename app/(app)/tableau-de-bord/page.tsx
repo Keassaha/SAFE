@@ -102,10 +102,8 @@ export default async function TableauDeBordPage() {
     rawTasks,
     rawEvents,
     dossiersForEvolution,
-    cabinetForOnboarding,
-    cabinetConfigRow,
+    cabinetRow,
     latestReconciliation,
-    clientsCount,
     dossiersCount,
     timeEntriesCount,
     invoicesCount,
@@ -323,11 +321,7 @@ export default async function TableauDeBordPage() {
     }),
     prisma.cabinet.findUnique({
       where: { id: cabinetId },
-      select: { nom: true, adresse: true },
-    }),
-    prisma.cabinet.findUnique({
-      where: { id: cabinetId },
-      select: { config: true },
+      select: { nom: true, adresse: true, config: true },
     }),
     prisma.trustReconciliation.findFirst({
       where: { cabinetId },
@@ -340,7 +334,6 @@ export default async function TableauDeBordPage() {
         createdAt: true,
       },
     }).catch(() => null),
-    prisma.client.count({ where: { cabinetId, status: "actif" } }),
     prisma.dossier.count({ where: { cabinetId } }),
     prisma.timeEntry.count({ where: { cabinetId } }),
     prisma.invoice.count({ where: { cabinetId } }),
@@ -481,12 +474,10 @@ export default async function TableauDeBordPage() {
     trustBalance === 0 &&
     expensesThisMonth === 0;
 
-  const hasCabinetIdentity = Boolean(
-    cabinetForOnboarding?.nom && cabinetForOnboarding?.adresse
-  );
+  const hasCabinetIdentity = Boolean(cabinetRow?.nom && cabinetRow?.adresse);
   const onboardingChecklist: OnboardingChecklist = {
     cabinetConfigured: hasCabinetIdentity,
-    hasClient: clientsCount >= 1,
+    hasClient: activeClientsCount >= 1,
     hasDossier: dossiersCount >= 1,
     hasTimeEntry: timeEntriesCount >= 1,
     hasInvoice: invoicesCount >= 1,
@@ -845,9 +836,9 @@ export default async function TableauDeBordPage() {
 
   // ── Cabinet target hours (parsed from config JSON) ──
   let lawyerHoursTarget = 140;
-  if (cabinetConfigRow?.config) {
+  if (cabinetRow?.config) {
     try {
-      const parsed = JSON.parse(cabinetConfigRow.config) as {
+      const parsed = JSON.parse(cabinetRow.config) as {
         lawyerHoursTarget?: number;
       };
       if (typeof parsed.lawyerHoursTarget === "number" && parsed.lawyerHoursTarget > 0) {

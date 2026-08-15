@@ -43,7 +43,9 @@ export default async function AppV2Layout({
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") ?? "";
 
-  if (cabinetId && !isSubscriptionExemptPath(pathname)) {
+  // Répercuté depuis app/(app)/layout.tsx : `pathname` vide (détection de
+  // route échouée) ne doit jamais bloquer à l'aveugle.
+  if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
     const subscription = await getCabinetSubscriptionState(cabinetId);
     if (shouldBlockForSubscription(pathname, subscription)) {
       redirect("/parametres/abonnement");

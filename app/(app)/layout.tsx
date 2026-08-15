@@ -39,34 +39,45 @@ export default async function AppLayout({
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") ?? "";
 
-  if (cabinetId && !isSubscriptionExemptPath(pathname)) {
+  // `pathname` vient d'un en-tête posé par le middleware (x-pathname). S'il
+  // arrive vide pour une raison quelconque, on refuse de bloquer à l'aveugle :
+  // un cabinet payant coincé sans issue est pire qu'une vérification sautée
+  // une fois, et la garde se réévalue de toute façon à chaque navigation.
+  if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
     const subscription = await getCabinetSubscriptionState(cabinetId);
     if (shouldBlockForSubscription(pathname, subscription)) {
       redirect("/parametres/abonnement");
     }
   }
 
-  // Detect billing mode + nav visibility from CabinetInterface
-  // (cached per-request via React.cache — shared with pages that need the same config)
-  const { billingMode, activeNavIds, hiddenNavIds } = cabinetId
-    ? await getCabinetInterfaceDerived(cabinetId)
-    : { billingMode: "horaire" as const, activeNavIds: null, hiddenNavIds: [] };
-
-  // Trust reconciliation status — used to show a global compliance banner
-  const trustStatus = cabinetId ? await getTrustReconciliationStatus(cabinetId) : null;
-
-  // Province du cabinet — localise toute la réglementation affichée (bannière
-  // + écrans fidéicommis/conformité) : QC → Barreau du Québec (B-1, r. 5) en
-  // français ; sinon LSO Ontario en anglais. Fournie via contexte dans AppChrome.
-  const cabinetProvince = await getCabinetProvince(cabinetId);
-
-  // Sidebar live counts (clients actifs, dossiers ouverts, factures à traiter)
+  // Cinq lectures indépendantes (aucune ne consomme le résultat d'une autre) :
+  //   - CabinetInterface  : mode de facturation + visibilité de nav (cache React)
+  //   - trustStatus       : bannière de conformité globale
+  //   - cabinetProvince   : localise la réglementation affichée (bannière +
+  //     écrans fidéicommis/conformité) — QC → Barreau du Québec (B-1, r. 5),
+  //     sinon LSO Ontario. Fournie via contexte dans AppChrome.
+  //   - sidebarCounts     : compteurs vivants (clients actifs, dossiers
+  //     ouverts, factures à traiter)
+  //   - isSafeInc         : mode consultant SAFE Inc. (dog food), bascule sur
+  //     une navigation dédiée. Spec : CONSOLE_CONSULTANT_REFACTOR_v1.
+  // Séquentielles avant : la garde d'abonnement (peut rediriger, inutile de
+  // lancer ces cinq requêtes si on quitte la page).
   const userId = (session.user as { id?: string }).id ?? undefined;
-  const sidebarCounts = cabinetId ? await getSidebarCounts(cabinetId, userId) : null;
-
-  // Mode consultant : SAFE Inc. (dog food) bascule sur une navigation unique
-  // dédiée consultant au lieu du menu cabinet d'avocats. Spec : CONSOLE_CONSULTANT_REFACTOR_v1.
-  const isSafeInc = cabinetId ? await isSafeIncCabinet(cabinetId) : false;
+  const [
+    { billingMode, activeNavIds, hiddenNavIds },
+    trustStatus,
+    cabinetProvince,
+    sidebarCounts,
+    isSafeInc,
+  ] = await Promise.all([
+    cabinetId
+      ? getCabinetInterfaceDerived(cabinetId)
+      : Promise.resolve({ billingMode: "horaire" as const, activeNavIds: null, hiddenNavIds: [] }),
+    cabinetId ? getTrustReconciliationStatus(cabinetId) : Promise.resolve(null),
+    getCabinetProvince(cabinetId),
+    cabinetId ? getSidebarCounts(cabinetId, userId) : Promise.resolve(null),
+    cabinetId ? isSafeIncCabinet(cabinetId) : Promise.resolve(false),
+  ]);
 
   return (
     <QueryProvider>

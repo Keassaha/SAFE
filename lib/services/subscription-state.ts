@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/db";
 import type { PlanKey } from "@/lib/stripe";
 
@@ -37,9 +38,14 @@ export function deriveCabinetSubscriptionState(input: {
   };
 }
 
-export async function getCabinetSubscriptionState(
+/**
+ * `React.cache()` : appelée par le layout applicatif à chaque navigation ;
+ * sans elle, une requête `Cabinet` de plus vient s'ajouter aux deux autres
+ * déjà faites sur la même ligne dans le même rendu serveur.
+ */
+export const getCabinetSubscriptionState = cache(async (
   cabinetId: string,
-): Promise<CabinetSubscriptionState> {
+): Promise<CabinetSubscriptionState> => {
   const cabinet = await prisma.cabinet.findUnique({
     where: { id: cabinetId },
     select: {
@@ -65,7 +71,7 @@ export async function getCabinetSubscriptionState(
   }
 
   return deriveCabinetSubscriptionState(cabinet);
-}
+});
 
 function inactiveReason(status: string | null): string {
   switch (status) {
