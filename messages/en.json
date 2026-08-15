@@ -3875,7 +3875,18 @@
     "invoice": "Loading invoice…",
     "dashboard": "Loading dashboard…",
     "clients": "Loading client registry…",
-    "dossiers": "Loading matters…"
+    "dossiers": "Loading matters…",
+    "today": "Loading today…",
+    "briefing": "Loading briefing…",
+    "accounting": "Loading accounting…",
+    "compliance": "Loading compliance…",
+    "console": "Loading console…",
+    "documentEditor": "Loading document editor…",
+    "employees": "Loading employees…",
+    "import": "Loading import…",
+    "inspection": "Loading inspection…",
+    "myHours": "Loading my hours…",
+    "security": "Loading security…"
   },
   "alertCenter": {
     "title": "Firm obligations",

@@ -3875,7 +3875,18 @@
     "invoice": "Chargement de la facture en cours…",
     "dashboard": "Chargement du tableau de bord en cours…",
     "clients": "Chargement du registre des clients en cours…",
-    "dossiers": "Chargement des dossiers en cours…"
+    "dossiers": "Chargement des dossiers en cours…",
+    "today": "Chargement de la journée en cours…",
+    "briefing": "Chargement du briefing en cours…",
+    "accounting": "Chargement de la comptabilité en cours…",
+    "compliance": "Chargement de la conformité en cours…",
+    "console": "Chargement de la console en cours…",
+    "documentEditor": "Chargement de l'édition en cours…",
+    "employees": "Chargement des employés en cours…",
+    "import": "Chargement de l'import en cours…",
+    "inspection": "Chargement de l'inspection en cours…",
+    "myHours": "Chargement de mes heures en cours…",
+    "security": "Chargement de la sécurité en cours…"
   },
   "alertCenter": {
     "title": "Obligations du cabinet",
