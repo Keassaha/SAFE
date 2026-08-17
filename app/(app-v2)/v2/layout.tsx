@@ -9,6 +9,7 @@ import {
   isSubscriptionExemptPath,
   shouldBlockForSubscription,
 } from "@/lib/services/subscription-guard";
+import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { ShellV2 } from "./_components/ShellV2";
 
@@ -48,7 +49,9 @@ export default async function AppV2Layout({
   if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
     const subscription = await getCabinetSubscriptionState(cabinetId);
     if (shouldBlockForSubscription(pathname, subscription)) {
-      redirect("/parametres/abonnement");
+      // Même raison que dans app/(app)/layout.tsx : un `redirect()` depuis un
+      // layout pendant une requête RSC rend un arbre vide.
+      return <AbonnementRequis raison={subscription.reason} />;
     }
   }
 

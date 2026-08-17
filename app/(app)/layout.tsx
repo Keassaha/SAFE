@@ -11,6 +11,7 @@ import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { QuickCapture } from "@/components/capture/QuickCapture";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
+import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
 import {
   isSubscriptionExemptPath,
   shouldBlockForSubscription,
@@ -46,7 +47,11 @@ export default async function AppLayout({
   if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
     const subscription = await getCabinetSubscriptionState(cabinetId);
     if (shouldBlockForSubscription(pathname, subscription)) {
-      redirect("/parametres/abonnement");
+      // On rend le blocage, on ne redirige pas. Un `redirect()` levé depuis un
+      // layout pendant une requête RSC renvoie un arbre vide : c'est la page
+      // blanche observée après création de facture sur un cabinet dont
+      // l'abonnement n'est plus actif. Détail dans AbonnementRequis.
+      return <AbonnementRequis raison={subscription.reason} />;
     }
   }
 
