@@ -1,5 +1,6 @@
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import { getNextIssuedInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
@@ -31,6 +32,7 @@ export default async function NouvelleFacturePage({
     timeEntries,
     expenses,
     registreTaches,
+    cabinetTaxConfig,
   ] = await Promise.all([
     prisma.cabinet.findUniqueOrThrow({
       where: { id: cabinetId },
@@ -164,6 +166,10 @@ export default async function NouvelleFacturePage({
       },
       orderBy: { date: "asc" },
     }),
+    // Même régime de taxes que celui appliqué à la création (invoice-service).
+    // L'aperçu en direct s'en sert pour ne pas annoncer un total que la facture
+    // ne portera pas.
+    getCabinetTaxConfigById(cabinetId),
   ]);
 
   const billables = [
@@ -270,6 +276,7 @@ export default async function NouvelleFacturePage({
       nextInvoiceNumber={nextInvoiceNumber}
       initialClientId={resolvedSearchParams.clientId ?? ""}
       clientBillables={filteredBillables}
+      cabinetTaxConfig={cabinetTaxConfig}
     />
   );
 }

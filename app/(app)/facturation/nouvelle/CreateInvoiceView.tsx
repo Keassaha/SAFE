@@ -20,6 +20,7 @@ import {
   toDisplayTaxes,
   getDefaultTaxConfig,
 } from "@/lib/billing/taxes";
+import type { CabinetTaxConfig } from "@/lib/billing/types";
 import {
   ArrowLeft,
   Plus,
@@ -167,6 +168,9 @@ interface CreateInvoiceViewProps {
   nextInvoiceNumber: string;
   initialClientId?: string;
   clientBillables: ClientBillable[];
+  /** Régime de taxes résolu côté serveur, identique à celui qui sera appliqué
+   *  à la création. Sans lui, l'aperçu retomberait sur la province du client. */
+  cabinetTaxConfig?: CabinetTaxConfig;
 }
 
 /* ------------------------------------------------------------------ */
@@ -218,6 +222,7 @@ export function CreateInvoiceView({
   nextInvoiceNumber,
   initialClientId = "",
   clientBillables,
+  cabinetTaxConfig,
 }: CreateInvoiceViewProps) {
   const router = useRouter();
   const t = useTranslations("billingUi");
@@ -313,10 +318,17 @@ export function CreateInvoiceView({
     }
     const subtotal = subtotalHonoraires + totalFrais - totalRabais;
     // Taxes province-aware : Ontario -> TVH 13 %, Québec -> TPS 5 % + TVQ 9,975 %.
-    // Le régime suit la province de facturation du client (lieu de fourniture).
     // Stockage Option A : `tps`/`tvq` portent les colonnes DB (en TVH, tps=hst, tvq=0),
-    // `hst` est la valeur d'affichage dérivée. Le serveur recalcule la source de vérité.
-    const taxConfig = getDefaultTaxConfig(selectedClient?.billingProvince ?? "QC");
+    // `hst` est la valeur d'affichage dérivée.
+    //
+    // La config du cabinet prime, exactement comme côté serveur
+    // (`getCabinetTaxConfigById`). Avant, cet aperçu partait de la province de
+    // facturation du client et retombait sur QC quand elle était vide : un
+    // cabinet ontarien voyait TPS + TVQ à l'écran puis recevait une facture en
+    // TVH 13 %. Deux totaux différents pour la même facture, celui affiché
+    // avant création étant le faux.
+    const taxConfig =
+      cabinetTaxConfig ?? getDefaultTaxConfig(selectedClient?.billingProvince ?? "QC");
     const applied = applyTaxes(taxableBase, true, taxConfig);
     const cols = toInvoiceTaxColumns(applied, taxConfig.mode);
     const display = toDisplayTaxes(cols.tps, cols.tvq, taxConfig.mode);
@@ -331,7 +343,7 @@ export function CreateInvoiceView({
       hst: display.hst,
       total: subtotal + applied.taxesTotal,
     };
-  }, [lines, selectedClient?.billingProvince]);
+  }, [lines, selectedClient?.billingProvince, cabinetTaxConfig]);
 
   /**
    * Construit un `PresentedInvoice` "fictif" à partir de l'état du form,
