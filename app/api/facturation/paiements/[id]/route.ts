@@ -93,6 +93,8 @@ export async function PATCH(
     referenceNumber,
     sourceAccountType,
     note,
+    motifCode,
+    motifTexte,
   } = parsed.data;
 
   try {
@@ -106,6 +108,8 @@ export async function PATCH(
       sourceAccountType,
       note,
       performedById: userId ?? undefined,
+      motifCode,
+      motifTexte,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

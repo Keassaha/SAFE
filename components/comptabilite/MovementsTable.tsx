@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Undo2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import type { JournalEntryRow } from "@/types/journal";
 import {
@@ -50,7 +50,18 @@ const TH =
 const TH_R =
   "px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]";
 
-export function MovementsTable({ entries }: { entries: JournalEntryRow[] }) {
+export function MovementsTable({
+  entries,
+  onAnnuler,
+}: {
+  entries: JournalEntryRow[];
+  /**
+   * Fourni : une colonne d'action apparaît. Elle ne s'active que sur les lignes
+   * `annulable` (saisie manuelle vivante), miroir exact du garde-fou serveur
+   * `assertAnnulable`. Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md.
+   */
+  onAnnuler?: (entry: JournalEntryRow) => void;
+}) {
   const t = useTranslations("accountingUi");
 
   if (entries.length === 0) {
@@ -81,6 +92,7 @@ export function MovementsTable({ entries }: { entries: JournalEntryRow[] }) {
             <th className={TH_R}>{t("colReducesDue")}</th>
             <th className={TH_R}>{t("colCashImpact")}</th>
             <th className={TH}>{t("colRelatedBalance")}</th>
+            {onAnnuler ? <th className={TH_R}>{t("actions")}</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -134,6 +146,22 @@ export function MovementsTable({ entries }: { entries: JournalEntryRow[] }) {
                     {t(RELATED_BALANCE_KEY[m.relatedBalance])}
                   </span>
                 </td>
+                {onAnnuler ? (
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    {e.annulable ? (
+                      <button
+                        type="button"
+                        onClick={() => onAnnuler(e)}
+                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                      >
+                        <Undo2 className="h-4 w-4 shrink-0" aria-hidden />
+                        {t("cancelEntry")}
+                      </button>
+                    ) : (
+                      <span className="text-[12px] text-si-muted">—</span>
+                    )}
+                  </td>
+                ) : null}
               </tr>
             );
           })}

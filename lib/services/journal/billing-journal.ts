@@ -108,16 +108,27 @@ export async function writeJournalForIssuedInvoice(
 
 export async function writeJournalForPayment(
   payment: PaymentJournalInput,
-  opts: { client?: JournalPrismaClient; utilisateurId?: string | null } = {},
+  opts: {
+    client?: JournalPrismaClient;
+    utilisateurId?: string | null;
+    /**
+     * Re-jeu après correction : `${payment.id}#vN`. L'index unique partiel sur
+     * (cabinetId, sourceModule, sourceId) interdit de réécrire le même sourceId,
+     * c'est la version qui distingue l'écriture corrigée de l'originale.
+     * Doctrine: docs/accounting/APPEND_ONLY_CORRECTIONS.md.
+     */
+    sourceIdOverride?: string;
+  } = {},
 ): Promise<BillingJournalResult> {
   const amount = roundMoney(payment.montant || 0);
   if (amount <= 0) return { created: false, reason: "amount_zero" };
 
   const client = opts.client ?? prisma;
+  const sourceId = opts.sourceIdOverride ?? payment.id;
   const existing = await findExistingEntry(client, {
     cabinetId: payment.cabinetId,
     sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,
-    sourceId: payment.id,
+    sourceId,
   });
   if (existing) return { created: false, journalId: existing.id, reason: "already_journalized" };
 
@@ -135,7 +146,7 @@ export async function writeJournalForPayment(
         montantEntree: amount,
         montantSortie: 0,
         sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,
-        sourceId: payment.id,
+        sourceId,
         utilisateurId: opts.utilisateurId ?? payment.receivedById ?? null,
       },
       client,
@@ -146,7 +157,7 @@ export async function writeJournalForPayment(
     const winner = await findExistingEntry(client, {
       cabinetId: payment.cabinetId,
       sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,
-      sourceId: payment.id,
+      sourceId,
     });
     return { created: false, journalId: winner?.id, reason: "already_journalized" };
   }

@@ -135,6 +135,22 @@ export const patchPaymentSchema = z.object({
   referenceNumber: z.string().optional().nullable(),
   sourceAccountType: z.enum(["operating", "trust", "external"]).optional(),
   note: z.string().optional().nullable(),
+  // Motif de correction — exigé par `updatePayment` dès que le montant ou la date
+  // change, parce que ce sont les deux valeurs déjà inscrites au journal.
+  // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.2.
+  motifCode: z
+    .enum([
+      "ERREUR_SAISIE",
+      "MAUVAIS_TYPE",
+      "DOUBLON",
+      "MONTANT_ERRONE",
+      "TRANSACTION_ANNULEE",
+      "MAUVAIS_DOSSIER",
+      "AUTRE",
+    ])
+    .optional()
+    .nullable(),
+  motifTexte: z.string().trim().max(500).optional().nullable(),
 });
 
 export type PatchPaymentInput = z.infer<typeof patchPaymentSchema>;

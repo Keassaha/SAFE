@@ -12,11 +12,17 @@ import {
   exportJournalCsv,
 } from "@/lib/services/journal";
 import { isManualEntryTypeAllowed } from "@/lib/services/journal/manual-entry-policy";
+import { annulerEcritureJournal } from "@/lib/services/journal/annulation";
 import { buildPeriodAccountingExport } from "@/lib/services/accounting-export";
 import type { AccountingExportFormat } from "@/lib/accounting/export/serialize";
 import type { JournalListParams, JournalKpiData } from "@/types/journal";
 import type { JournalEntryRow } from "@/types/journal";
-import type { JournalSourceModule, JournalTransactionType, UserRole } from "@prisma/client";
+import type {
+  JournalCorrectionMotive,
+  JournalSourceModule,
+  JournalTransactionType,
+  UserRole,
+} from "@prisma/client";
 
 const manualJournalEntrySchema = z
   .object({
@@ -43,6 +49,20 @@ const manualJournalEntrySchema = z
     (data) => (data.montantEntree > 0 && data.montantSortie === 0) || (data.montantSortie > 0 && data.montantEntree === 0),
     { message: "Inscrivez soit une entrée, soit une sortie, mais pas les deux." },
   );
+
+const annulationSchema = z.object({
+  entryId: z.string().trim().min(1),
+  motifCode: z.enum([
+    "ERREUR_SAISIE",
+    "MAUVAIS_TYPE",
+    "DOUBLON",
+    "MONTANT_ERRONE",
+    "TRANSACTION_ANNULEE",
+    "MAUVAIS_DOSSIER",
+    "AUTRE",
+  ]),
+  motifTexte: z.string().trim().max(500).optional().nullable(),
+});
 
 export type ManualJournalContext = {
   clients: Array<{ id: string; label: string }>;
@@ -203,6 +223,38 @@ export async function createManualJournalEntryAction(
   revalidatePath("/journal/general");
   revalidatePath("/comptabilite");
   return created;
+}
+
+/**
+ * Annule une écriture manuelle du journal en écrivant sa contrepassation motivée.
+ *
+ * Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
+ * Rien n'est supprimé. `annulerEcritureJournal` refuse tout ce qui vient d'un
+ * module métier, la double annulation, et l'annulation d'une annulation.
+ */
+export async function annulerEcritureJournalAction(input: {
+  entryId: string;
+  motifCode: JournalCorrectionMotive;
+  motifTexte?: string | null;
+}): Promise<{ annulationId: string; montantNeutralise: number }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canUseManualJournal(role as UserRole)) {
+    throw new Error("Droits insuffisants");
+  }
+
+  const parsed = annulationSchema.parse(input);
+
+  const result = await annulerEcritureJournal({
+    entryId: parsed.entryId,
+    cabinetId,
+    motifCode: parsed.motifCode,
+    motifTexte: parsed.motifTexte ?? null,
+    utilisateurId: userId,
+  });
+
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
+  return result;
 }
 
 export async function exportJournalAction(

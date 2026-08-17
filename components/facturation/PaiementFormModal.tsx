@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
+import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
+import type { JournalCorrectionMotive } from "@prisma/client";
 
 const selectClass =
   "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -17,6 +19,28 @@ function clientLabel(client: { raisonSociale: string | null; prenom?: string | n
   if (company) return company;
   const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
   return person || "Client sans nom";
+}
+
+type PendingEdit = {
+  paymentDate: string;
+  amount: number;
+  paymentMethod: string;
+  referenceNumber: string | null;
+  note: string | null;
+};
+
+/**
+ * Un changement est MATÉRIEL quand il touche ce que le journal a déjà inscrit :
+ * le montant ou la date. Le mode de paiement, la référence et la note décrivent
+ * l'encaissement sans en changer l'effet comptable, ils se corrigent librement.
+ *
+ * Miroir de la détection serveur dans `updatePayment` : les deux doivent dire la
+ * même chose, sinon l'écran demande un motif que le serveur ignore, ou l'inverse.
+ */
+function estChangementMateriel(avant: PaymentFormPayment, apres: PendingEdit): boolean {
+  const montantChange = Math.abs(apres.amount - avant.montant) > 0.005;
+  const dateChange = apres.paymentDate.slice(0, 10) !== avant.datePaiement.slice(0, 10);
+  return montantChange || dateChange;
 }
 
 export type PaymentFormPayment = {
@@ -68,6 +92,9 @@ export function PaiementFormModal({
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
   const [paymentAmount, setPaymentAmount] = useState<string>("");
   const [allocatedAmount, setAllocatedAmount] = useState<string>("0");
+  const [pendingEdit, setPendingEdit] = useState<PendingEdit | null>(null);
+  const [motifSubmitting, setMotifSubmitting] = useState(false);
+  const [motifError, setMotifError] = useState<string | null>(null);
 
   const isEdit = mode === "edit" && paymentId;
 
@@ -185,19 +212,26 @@ export function PaiementFormModal({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? tp("errorSaving"));
       } else if (paymentId) {
-        const res = await fetch(`/api/facturation/paiements/${paymentId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentDate: payload.paymentDate,
-            amount: payload.amount,
-            paymentMethod: payload.paymentMethod,
-            referenceNumber: payload.referenceNumber,
-            note: payload.note,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? tp("errorModifying"));
+        const patch = {
+          paymentDate: payload.paymentDate,
+          amount: payload.amount,
+          paymentMethod: payload.paymentMethod,
+          referenceNumber: payload.referenceNumber,
+          note: payload.note,
+        };
+
+        // Le montant et la date sont les deux seules valeurs que le journal a
+        // inscrites. Les changer corrige une écriture comptable, pas un champ de
+        // fiche : le serveur exige un motif, l'écran le demande avant d'envoyer
+        // plutôt que de renvoyer une erreur après coup.
+        // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.2.
+        if (payment && estChangementMateriel(payment, patch)) {
+          setPendingEdit(patch);
+          setSubmitting(false);
+          return;
+        }
+
+        await envoyerPatch(patch, null, null);
       }
       queryClient.invalidateQueries({ queryKey: ["facturation", "paiements"] });
       form.reset();
@@ -210,6 +244,40 @@ export function PaiementFormModal({
     }
   };
 
+  async function envoyerPatch(
+    patch: PendingEdit,
+    motifCode: JournalCorrectionMotive | null,
+    motifTexte: string | null,
+  ) {
+    const res = await fetch(`/api/facturation/paiements/${paymentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...patch, motifCode, motifTexte }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? tp("errorModifying"));
+  }
+
+  async function handleConfirmMotif(
+    motifCode: JournalCorrectionMotive,
+    motifTexte: string | null,
+  ) {
+    if (!pendingEdit) return;
+    setMotifSubmitting(true);
+    setMotifError(null);
+    try {
+      await envoyerPatch(pendingEdit, motifCode, motifTexte);
+      queryClient.invalidateQueries({ queryKey: ["facturation", "paiements"] });
+      setPendingEdit(null);
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      setMotifError(err instanceof Error ? err.message : tp("errorOccurred"));
+    } finally {
+      setMotifSubmitting(false);
+    }
+  }
+
   const handleClose = () => {
     if (!submitting) {
       setError(null);
@@ -221,11 +289,12 @@ export function PaiementFormModal({
   const minAmount = isEdit && payment ? payment.allocatedAmount : 0;
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      title={mode === "create" ? tp("newPayment") : tp("editPayment")}
-    >
+    <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        title={mode === "create" ? tp("newPayment") : tp("editPayment")}
+      >
       {isEdit && loadingPayment ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
@@ -371,6 +440,27 @@ export function PaiementFormModal({
           </div>
         </form>
       )}
-    </Modal>
+      </Modal>
+
+      {/* Rendue en frère du formulaire, pas dedans : deux modales imbriquées se
+          disputent le focus et la fermeture au clavier. */}
+      <MotifAnnulationModal
+        open={pendingEdit !== null}
+        onClose={() => {
+          setPendingEdit(null);
+          setMotifError(null);
+        }}
+        onConfirm={handleConfirmMotif}
+        title={tp("editPaymentMotifTitle")}
+        intro={tp("editPaymentMotifIntro")}
+        cible={
+          pendingEdit && payment
+            ? `${formatCurrency(payment.montant)} → ${formatCurrency(pendingEdit.amount)}`
+            : null
+        }
+        submitting={motifSubmitting}
+        error={motifError}
+      />
+    </>
   );
 }

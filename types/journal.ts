@@ -3,9 +3,13 @@
  * Registre central append-only des transactions financières.
  */
 
-import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
+import type {
+  JournalTransactionType,
+  JournalSourceModule,
+  JournalCorrectionMotive,
+} from "@prisma/client";
 
-export type { JournalTransactionType, JournalSourceModule };
+export type { JournalTransactionType, JournalSourceModule, JournalCorrectionMotive };
 
 export interface JournalEntryCreateInput {
   cabinetId: string;
@@ -21,7 +25,25 @@ export interface JournalEntryCreateInput {
   sourceModule: JournalSourceModule;
   sourceId?: string | null;
   utilisateurId?: string | null;
+  /**
+   * Réservé aux CONTREPASSATIONS : identifiant de l'écriture que celle-ci annule.
+   * Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
+   */
+  annuleId?: string | null;
+  motifCode?: JournalCorrectionMotive | null;
+  motifTexte?: string | null;
 }
+
+/**
+ * Portée d'une liste d'écritures.
+ *  - `actives`     : ce que le cabinet doit voir et ce qui compte dans les totaux.
+ *                    Exclut les écritures annulées ET leurs contrepassations.
+ *  - `corrections` : le registre des corrections (doctrine §3). Uniquement les
+ *                    contrepassations, chacune portant son motif.
+ *  - `toutes`      : la vue opposable, rien n'est masqué. C'est elle qui part à
+ *                    l'inspection et à l'export comptable.
+ */
+export type JournalPortee = "actives" | "corrections" | "toutes";
 
 export interface JournalFiltersInput {
   cabinetId: string;
@@ -38,6 +60,8 @@ export interface JournalFiltersInput {
   entreesOnly?: boolean;
   sortiesOnly?: boolean;
   search?: string | null;
+  /** Défaut `actives` : une liste sans portée explicite ne montre jamais d'annulé. */
+  portee?: JournalPortee | null;
 }
 
 export interface JournalListParams extends JournalFiltersInput {
@@ -70,7 +94,32 @@ export interface JournalEntryRow {
   utilisateurId: string | null;
   utilisateurName: string | null;
   createdAt: Date;
+  /** Renseigné sur une CONTREPASSATION : l'écriture qu'elle neutralise. */
+  annuleId: string | null;
+  motifCode: JournalCorrectionMotive | null;
+  motifTexte: string | null;
+  /**
+   * Vrai si une autre écriture annule celle-ci. Sert à la vue Corrections, qui
+   * affiche la ligne d'origine à côté de sa contrepassation.
+   */
+  estAnnulee: boolean;
+  /**
+   * Vrai si le cabinet peut annuler cette ligne d'ici. Faux pour tout ce qui vient
+   * d'un module métier : ça s'annule dans le module, jamais au journal (doctrine §5).
+   */
+  annulable: boolean;
 }
+
+/** Libellés des motifs (doctrine §2). Liste fermée, en français de cabinet. */
+export const JOURNAL_MOTIVE_LABELS: Record<JournalCorrectionMotive, string> = {
+  ERREUR_SAISIE: "Erreur de saisie",
+  MAUVAIS_TYPE: "Mauvais type d'écriture",
+  DOUBLON: "Écriture en double",
+  MONTANT_ERRONE: "Montant erroné",
+  TRANSACTION_ANNULEE: "Transaction annulée par la banque ou le client",
+  MAUVAIS_DOSSIER: "Rattachée au mauvais client ou dossier",
+  AUTRE: "Autre, à préciser",
+};
 
 export interface JournalKpiData {
   /** Total FACTURÉ sur la période (factures émises). N'est PAS du cash. */

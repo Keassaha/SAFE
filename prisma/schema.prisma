@@ -1491,6 +1491,15 @@ model Payment {
   preuveHash        String? // SHA-256 du fichier de preuve — anti-doublon par contenu
   payerName         String? // payeur réel si tiers (source des fonds, distinct du client)
   payerEmail        String?
+  // ── Annulation d'encaissement ─────────────────────────────────────────────
+  // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
+  // `allocationStatus = REVERSED` existait sans jamais être écrit : ces champs
+  // lui donnent enfin son motif, sa date et son auteur. Le paiement lui-même
+  // n'est jamais supprimé, et sa contrepassation vit au journal général.
+  reversedAt        DateTime?
+  reversalMotive    JournalCorrectionMotive?
+  reversalNote      String?
+  reversedById      String?
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @default(now()) @updatedAt
 
@@ -3372,6 +3381,22 @@ enum JournalSourceModule {
   CORRECTION_SYSTEME
 }
 
+/// Motif d'annulation ou de correction d'une écriture financière.
+/// Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §2.
+///
+/// Liste FERMÉE et volontairement courte. Un champ libre par défaut se remplit avec
+/// « erreur » et ne prouve plus rien à l'inspection ; la liste force un classement
+/// exploitable. `AUTRE` seul ouvre un texte obligatoire.
+enum JournalCorrectionMotive {
+  ERREUR_SAISIE
+  MAUVAIS_TYPE
+  DOUBLON
+  MONTANT_ERRONE
+  TRANSACTION_ANNULEE
+  MAUVAIS_DOSSIER
+  AUTRE
+}
+
 /// Journal général — append-only.
 ///
 /// Idempotence structurelle: un index UNIQUE PARTIEL est maintenu hors-Prisma
@@ -3410,12 +3435,29 @@ model JournalGeneralEntry {
   isCash             Boolean @default(false)
   documentIdentifier String?
 
+  // ── Annulation append-only ────────────────────────────────────────────────
+  // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
+  //
+  // Porté par la CONTREPASSATION, jamais par l'écriture d'origine : celle-ci ne
+  // bouge JAMAIS, c'est toute la garantie de l'append-only. `annuleId` pointe
+  // vers la ligne neutralisée ; `@unique` interdit structurellement qu'une même
+  // écriture soit annulée deux fois (sinon le solde partirait au double).
+  //
+  // Une écriture est « annulée » ssi une autre la désigne (`annulePar` non nul).
+  // Une écriture est « une annulation » ssi `annuleId` est non nul.
+  // Les deux disparaissent de la vue Lisible et des KPI, jamais de la base.
+  annuleId   String?                  @unique
+  motifCode  JournalCorrectionMotive?
+  motifTexte String?
+
   createdAt       DateTime               @default(now())
 
   cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
   dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   utilisateur User?    @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+  annule      JournalGeneralEntry?  @relation("JournalAnnulation", fields: [annuleId], references: [id], onDelete: SetNull)
+  annulePar   JournalGeneralEntry?  @relation("JournalAnnulation")
 
   @@index([cabinetId])
   @@index([cabinetId, dateTransaction])

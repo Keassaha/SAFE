@@ -3,9 +3,17 @@
  * Règle : paiements et allocations séparés ; recalcul du solde facture après chaque allocation.
  */
 
+import type { JournalCorrectionMotive } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { createAuditLog } from "@/lib/services/audit";
-import { writeJournalForPayment } from "@/lib/services/journal/billing-journal";
+import {
+  writeJournalForPayment,
+  PAYMENT_JOURNAL_SOURCE_MODULE,
+} from "@/lib/services/journal/billing-journal";
+import {
+  contrepasserEcritureSource,
+  validateMotif,
+} from "@/lib/services/journal/annulation";
 import { recalculateInvoiceTotals } from "./invoice-service";
 import { warnPaymentWithoutInvoice, type GuardWarning } from "@/lib/accounting/anti-erreurs";
 
@@ -321,6 +329,12 @@ export async function updatePayment(params: {
   sourceAccountType?: string;
   note?: string | null;
   performedById?: string | null;
+  /**
+   * Obligatoire dès qu'un champ MATÉRIEL change (montant, date). Doctrine §1.2 :
+   * une valeur qui bouge sans raison consignée est une piste d'audit trouée.
+   */
+  motifCode?: JournalCorrectionMotive | null;
+  motifTexte?: string | null;
 }): Promise<void> {
   const {
     paymentId,
@@ -332,6 +346,8 @@ export async function updatePayment(params: {
     sourceAccountType,
     note,
     performedById,
+    motifCode,
+    motifTexte,
   } = params;
 
   const payment = await prisma.payment.findFirst({
@@ -368,9 +384,72 @@ export async function updatePayment(params: {
 
   if (Object.keys(updateData).length === 0) return;
 
-  await prisma.payment.update({
-    where: { id: paymentId },
-    data: updateData,
+  // ── Changement MATÉRIEL ────────────────────────────────────────────────────
+  // Le montant et la date sont les deux seules valeurs que le journal a inscrites.
+  // Les modifier sans toucher au journal, ce que faisait ce service jusqu'ici,
+  // laissait le journal sur l'ANCIEN montant : le paiement disait 800 $, le journal
+  // 1 000 $, et le solde opérationnel était faux sans que rien ne le signale.
+  const montantChange = amount != null && amount !== payment.montant;
+  const dateChange =
+    paymentDate != null && paymentDate.getTime() !== payment.datePaiement.getTime();
+  const materiel = montantChange || dateChange;
+
+  if (materiel) {
+    const motif = validateMotif({ code: motifCode ?? "AUTRE", texte: motifTexte });
+    if (!motifCode) {
+      throw new Error(
+        "Indiquez la raison de la modification : le montant ou la date d'un encaissement " +
+          "déjà inscrit au journal ne change pas sans motif.",
+      );
+    }
+    if (!motif.ok) throw new Error(motif.message);
+  }
+
+  const now = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`payment:${paymentId}`}))`;
+
+    await tx.payment.update({
+      where: { id: paymentId },
+      data: updateData,
+    });
+
+    if (!materiel) return;
+
+    // Contrepassation de l'écriture vivante, puis re-jeu versionné : jamais une
+    // mutation de la ligne d'origine.
+    await contrepasserEcritureSource({
+      cabinetId,
+      sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,
+      sourceId: paymentId,
+      motifCode: motifCode!,
+      motifTexte,
+      utilisateurId: performedById ?? null,
+      client: tx,
+    });
+
+    const versions = await tx.journalGeneralEntry.count({
+      where: {
+        cabinetId,
+        sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,
+        OR: [{ sourceId: paymentId }, { sourceId: { startsWith: `${paymentId}#v` } }],
+      },
+    });
+
+    const apres = await tx.payment.findUniqueOrThrow({
+      where: { id: paymentId },
+      include: {
+        client: { select: { raisonSociale: true, prenom: true, nom: true } },
+        invoice: { select: { numero: true, dossierId: true } },
+      },
+    });
+
+    await writeJournalForPayment(apres, {
+      client: tx,
+      utilisateurId: performedById ?? null,
+      sourceIdOverride: `${paymentId}#v${versions + 1}`,
+    });
   });
 
   await createAuditLog({
@@ -378,10 +457,13 @@ export async function updatePayment(params: {
     userId: performedById ?? undefined,
     entityType: "Payment",
     entityId: paymentId,
-    action: "update",
-    newValues: updateData,
+    action: materiel ? "reverse" : "update",
+    oldValues: materiel
+      ? { montant: payment.montant, datePaiement: payment.datePaiement }
+      : undefined,
+    newValues: materiel ? { ...updateData, motifCode, motifTexte } : updateData,
     performedBy: performedById ?? undefined,
-    performedAt: new Date(),
+    performedAt: now,
   });
 }
 

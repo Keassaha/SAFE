@@ -14,18 +14,32 @@ import {
   getJournalKpisAction,
   getManualJournalContextAction,
   exportJournalAction,
+  annulerEcritureJournalAction,
 } from "./actions";
-import type { JournalKpiData, JournalEntryRow } from "@/types/journal";
-import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
-import type { JournalTransactionType } from "@prisma/client";
-import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus } from "lucide-react";
+import type { JournalKpiData, JournalEntryRow, JournalPortee } from "@/types/journal";
+import { JOURNAL_TRANSACTION_TYPE_LABELS, JOURNAL_MOTIVE_LABELS } from "@/types/journal";
+import type { JournalCorrectionMotive, JournalTransactionType } from "@prisma/client";
+import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
+import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus, Undo2 } from "lucide-react";
 import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import { MovementsTable } from "@/components/comptabilite/MovementsTable";
 import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
 import type { ManualJournalContext } from "./actions";
 
-type JournalViewMode = "readable" | "expert";
+/**
+ * Trois lectures du même registre (doctrine §3) :
+ *  - `readable`    : ce qui compte aujourd'hui, en langage avocat. L'annulé n'y est pas.
+ *  - `expert`      : les colonnes brutes entrée/sortie. L'annulé n'y est pas non plus.
+ *  - `corrections` : le registre des corrections. Rien n'est perdu, tout est motivé.
+ */
+type JournalViewMode = "readable" | "expert" | "corrections";
+
+const PORTEE_PAR_VUE: Record<JournalViewMode, JournalPortee> = {
+  readable: "actives",
+  expert: "actives",
+  corrections: "corrections",
+};
 
 // Le journal se pagine côté serveur, mais à la même taille que les autres
 // registres du produit : une seule règle à retenir pour le cabinet.
@@ -78,6 +92,9 @@ export function GeneralJournalPageView({
   const [manualType, setManualType] = useState<JournalTransactionType>("AJUSTEMENT");
   const [manualClientId, setManualClientId] = useState("");
   const [viewMode, setViewMode] = useState<JournalViewMode>("readable");
+  const [annulationCible, setAnnulationCible] = useState<JournalEntryRow | null>(null);
+  const [annulationSubmitting, setAnnulationSubmitting] = useState(false);
+  const [annulationError, setAnnulationError] = useState<string | null>(null);
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
@@ -87,6 +104,7 @@ export function GeneralJournalPageView({
         dateTo: dateTo ? new Date(dateTo + "T23:59:59") : undefined,
         typeTransaction: (typeTransaction || undefined) as JournalTransactionType | undefined,
         search: search.trim() || undefined,
+        portee: PORTEE_PAR_VUE[viewMode],
         page,
         pageSize: PAGE_SIZE,
         orderBy: "dateTransaction",
@@ -97,7 +115,7 @@ export function GeneralJournalPageView({
     } finally {
       setLoading(false);
     }
-  }, [dateFrom, dateTo, typeTransaction, search, page]);
+  }, [dateFrom, dateTo, typeTransaction, search, page, viewMode]);
 
   useEffect(() => {
     loadEntries();
@@ -111,6 +129,29 @@ export function GeneralJournalPageView({
   useEffect(() => {
     refreshKpis();
   }, [refreshKpis]);
+
+  async function handleAnnuler(
+    motifCode: JournalCorrectionMotive,
+    motifTexte: string | null,
+  ) {
+    if (!annulationCible) return;
+    setAnnulationSubmitting(true);
+    setAnnulationError(null);
+    try {
+      await annulerEcritureJournalAction({
+        entryId: annulationCible.id,
+        motifCode,
+        motifTexte,
+      });
+      setAnnulationCible(null);
+      // La ligne quitte la vue courante et les totaux : les deux se rechargent.
+      await Promise.all([loadEntries(), refreshKpis()]);
+    } catch (e) {
+      setAnnulationError(e instanceof Error ? e.message : t("cancelEntryError"));
+    } finally {
+      setAnnulationSubmitting(false);
+    }
+  }
 
   async function handleExport() {
     setExporting(true);
@@ -557,24 +598,29 @@ export function GeneralJournalPageView({
           action={
             <div className="flex items-center gap-3">
               <div className="inline-flex rounded-lg border border-si-line bg-si-canvas p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("readable")}
-                  className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
-                    viewMode === "readable" ? "bg-si-surface text-si-ink shadow-sm" : "text-si-muted hover:text-si-ink"
-                  }`}
-                >
-                  {t("viewReadable")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("expert")}
-                  className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
-                    viewMode === "expert" ? "bg-si-surface text-si-ink shadow-sm" : "text-si-muted hover:text-si-ink"
-                  }`}
-                >
-                  {t("viewExpert")}
-                </button>
+                {(["readable", "expert", "corrections"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      setViewMode(mode);
+                      setPage(1);
+                    }}
+                    className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
+                      viewMode === mode
+                        ? "bg-si-surface text-si-ink shadow-sm"
+                        : "text-si-muted hover:text-si-ink"
+                    }`}
+                  >
+                    {t(
+                      mode === "readable"
+                        ? "viewReadable"
+                        : mode === "expert"
+                          ? "viewExpert"
+                          : "viewCorrections",
+                    )}
+                  </button>
+                ))}
               </div>
               <span className="text-sm font-normal text-si-muted">
                 {t("entryCount", { count: totalCount })}
@@ -587,6 +633,18 @@ export function GeneralJournalPageView({
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-si-verified" aria-hidden />
             </div>
+          ) : viewMode === "corrections" ? (
+            <>
+              <motion.div
+                variants={reduceMotion ? undefined : fadeInUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+              >
+                <CorrectionsTable entries={entries} emptyLabel={t("correctionsEmpty")} />
+              </motion.div>
+              {pagination}
+            </>
           ) : viewMode === "readable" ? (
             <>
               <motion.div
@@ -595,7 +653,10 @@ export function GeneralJournalPageView({
                 animate="visible"
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
               >
-                <MovementsTable entries={entries} />
+                <MovementsTable
+                  entries={entries}
+                  onAnnuler={canWrite ? setAnnulationCible : undefined}
+                />
               </motion.div>
               {pagination}
             </>
@@ -690,7 +751,108 @@ export function GeneralJournalPageView({
           )}
         </CardContent>
       </Card>
+
+      <MotifAnnulationModal
+        open={annulationCible !== null}
+        onClose={() => {
+          setAnnulationCible(null);
+          setAnnulationError(null);
+        }}
+        onConfirm={handleAnnuler}
+        title={t("cancelEntryTitle")}
+        intro={t("cancelEntryIntro")}
+        cible={
+          annulationCible
+            ? `${formatDate(annulationCible.dateTransaction)} · ${annulationCible.description} · ${formatCurrency(
+                Math.max(annulationCible.montantEntree, annulationCible.montantSortie),
+              )}`
+            : null
+        }
+        submitting={annulationSubmitting}
+        error={annulationError}
+      />
     </div>
+  );
+}
+
+/**
+ * Registre des corrections (doctrine §3).
+ *
+ * Une ligne par CONTREPASSATION, avec son motif. Aucun total n'en sort : ces
+ * écritures ne comptent nulle part, elles prouvent. C'est la page qu'on ouvre le
+ * jour de l'inspection, et celle qu'on relit quand un chiffre surprend.
+ */
+function CorrectionsTable({
+  entries,
+  emptyLabel,
+}: {
+  entries: JournalEntryRow[];
+  emptyLabel: string;
+}) {
+  if (entries.length === 0) {
+    return (
+      <div className="py-16 text-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-si-canvas">
+            <Undo2 className="h-8 w-8 text-si-muted" aria-hidden />
+          </div>
+          <p className="max-w-[420px] text-[14px] text-si-muted">{emptyLabel}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const TH =
+    "px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]";
+
+  return (
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b-[0.5px] border-si-line bg-si-canvas">
+          <th className={TH}>Date</th>
+          <th className={TH}>Écriture annulée</th>
+          <th className={TH}>Motif</th>
+          <th className={`${TH} text-right`}>Montant neutralisé</th>
+          <th className={TH}>Par</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((e) => (
+          <tr
+            key={e.id}
+            className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors"
+          >
+            <td className="whitespace-nowrap px-4 py-3 text-[14px] text-si-ink">
+              {formatDate(e.dateTransaction)}
+            </td>
+            <td
+              className="max-w-[320px] truncate px-4 py-3 text-[14px] text-si-ink"
+              title={e.description}
+            >
+              {e.description}
+            </td>
+            <td className="px-4 py-3 text-[14px] text-si-ink">
+              {e.motifCode ? (
+                <span className="inline-flex items-center rounded-full border border-si-line bg-si-canvas px-2 py-0.5 text-[12px] text-si-muted">
+                  {JOURNAL_MOTIVE_LABELS[e.motifCode]}
+                </span>
+              ) : (
+                "—"
+              )}
+              {e.motifTexte ? (
+                <span className="ml-2 text-[12px] text-si-muted">{e.motifTexte}</span>
+              ) : null}
+            </td>
+            <td className="px-4 py-3 text-right font-mono text-[14px] tabular-nums text-si-muted">
+              {formatCurrency(Math.max(e.montantEntree, e.montantSortie))}
+            </td>
+            <td className="whitespace-nowrap px-4 py-3 text-[14px] text-si-muted">
+              {e.utilisateurName ?? "—"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

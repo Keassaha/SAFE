@@ -11,6 +11,7 @@ import type {
   JournalListParams,
   JournalEntryRow,
   JournalKpiData,
+  JournalPortee,
 } from "@/types/journal";
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
 import { computeJournalKpis } from "./kpi";
@@ -97,10 +98,33 @@ export async function createJournalEntry(
       sourceModule: input.sourceModule,
       sourceId: input.sourceId ?? null,
       utilisateurId: input.utilisateurId ?? null,
+      annuleId: input.annuleId ?? null,
+      motifCode: input.motifCode ?? null,
+      motifTexte: input.motifTexte ?? null,
     },
     select: { id: true },
   });
   return { id: entry.id };
+}
+
+/**
+ * Filtre de PORTÉE (doctrine §3).
+ *
+ * `actives` retire du même geste l'écriture annulée ET sa contrepassation. Retirer
+ * seulement l'une des deux laisserait un montant orphelin dans les totaux : c'est la
+ * paire entière qui doit disparaître, puisque son effet net est nul par construction.
+ */
+export function buildPorteeWhere(
+  portee: JournalPortee = "actives",
+): Prisma.JournalGeneralEntryWhereInput {
+  switch (portee) {
+    case "actives":
+      return { annuleId: null, annulePar: { is: null } };
+    case "corrections":
+      return { annuleId: { not: null } };
+    case "toutes":
+      return {};
+  }
 }
 
 /** Crée une écriture corrective (type CORRECTION). Ne modifie jamais une ligne existante. */
@@ -187,6 +211,17 @@ function buildWhere(
     ];
   }
 
+  // La portée s'ajoute en AND pour ne jamais écraser le OR de recherche.
+  // Sans `portee` explicite, on retombe sur `actives` : aucune liste du produit ne
+  // peut afficher de l'annulé par oubli.
+  const portee = buildPorteeWhere(filters.portee ?? "actives");
+  if (Object.keys(portee).length > 0) {
+    where.AND = [
+      ...((where.AND as Prisma.JournalGeneralEntryWhereInput[]) ?? []),
+      portee,
+    ];
+  }
+
   return where;
 }
 
@@ -217,6 +252,7 @@ export async function getJournalEntries(
         client: { select: { id: true, raisonSociale: true } },
         dossier: { select: { id: true, intitule: true, numeroDossier: true } },
         utilisateur: { select: { id: true, nom: true } },
+        annulePar: { select: { id: true } },
       },
     }),
     prisma.journalGeneralEntry.count({ where }),
@@ -240,6 +276,18 @@ export async function getJournalEntries(
     utilisateurId: e.utilisateurId,
     utilisateurName: e.utilisateur?.nom ?? null,
     createdAt: e.createdAt,
+    annuleId: e.annuleId,
+    motifCode: e.motifCode,
+    motifTexte: e.motifTexte,
+    estAnnulee: e.annulePar !== null,
+    // Miroir exact d'`assertAnnulable` : l'écran ne propose l'annulation que là où
+    // le service l'accepterait. Un bouton qui finit en message d'erreur est un bug
+    // d'interface, pas une sécurité.
+    annulable:
+      e.sourceModule === "AJUSTEMENT_MANUEL" &&
+      e.annuleId === null &&
+      e.annulePar === null &&
+      (e.montantEntree > 0 || e.montantSortie > 0),
   }));
 
   return { entries: rows, totalCount };
@@ -272,8 +320,12 @@ export async function calculateJournalBalance(
   const prevTo = new Date(from.getTime() - 1);
 
   const [entries, arAgg, deboursAgg] = await Promise.all([
+    // Une écriture annulée et sa contrepassation sortent des indicateurs, toutes
+    // les deux. Les laisser en comptant sur leur effet net nul ne suffirait pas :
+    // `totalEncaisse` somme les seules ENTRÉES des PAIEMENT, une contrepassation en
+    // sortie ne le corrigerait donc jamais, et l'encaissé du mois resterait gonflé.
     prisma.journalGeneralEntry.findMany({
-      where: { cabinetId },
+      where: { cabinetId, ...buildPorteeWhere("actives") },
       select: {
         typeTransaction: true,
         sourceModule: true,

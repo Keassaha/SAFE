@@ -34,7 +34,9 @@ export type AuditEntityType =
   | "Employee"
   | "User"
   | "Invitation"
-  | "Payslip";
+  | "Payslip"
+  // Annulation d'écriture (entityType est une colonne String : aucune migration).
+  | "JournalGeneralEntry";
 
 export type AuditAction =
   | "create"
@@ -44,7 +46,11 @@ export type AuditAction =
   | "view_sensitive"
   | "download"
   // P3 — intention de remboursement d'un surpaiement (action est une colonne String : aucune migration).
-  | "refund_requested";
+  | "refund_requested"
+  // Contrepassation motivée d'une écriture ou d'un encaissement.
+  // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md.
+  // Ce n'est PAS "delete" : rien n'est supprimé, une écriture inverse est ajoutée.
+  | "reverse";
 
 export interface CreateAuditLogParams {
   cabinetId: string;

@@ -1677,7 +1677,9 @@
     "paymentMethodCard": "Carte",
     "paymentMethodBankTransfer": "Virement bancaire",
     "paymentMethodTrust": "Fidéicommis",
-    "paymentMethodOther": "Autre"
+    "paymentMethodOther": "Autre",
+    "editPaymentMotifTitle": "Pourquoi cette modification ?",
+    "editPaymentMotifIntro": "Cet encaissement est déjà inscrit au journal. La correction y sera écrite avec votre motif : l'ancienne valeur est neutralisée et la nouvelle prend sa place, sans que rien ne disparaisse."
   },
   "rapports": {
     "title": "Rapports",
@@ -2684,7 +2686,11 @@
     "sendWithCount": "Envoyer (+{n})",
     "importProof": "Importer une preuve",
     "viewProof": "Voir la preuve",
-    "managePayers": "Payeurs tiers"
+    "managePayers": "Payeurs tiers",
+    "reversePayment": "Annuler l'encaissement",
+    "reversePaymentTitle": "Annuler cet encaissement",
+    "reversePaymentIntro": "L'encaissement quitte les totaux et le solde dû revient sur les factures concernées. Il n'est pas supprimé : une écriture inverse est ajoutée au journal, avec votre motif.",
+    "reversePaymentError": "L'annulation n'a pas pu être enregistrée."
   },
   "accountingUi": {
     "pageTitle": "Comptabilité",
@@ -2856,7 +2862,27 @@
     "noAccess": "Vous n'avez pas accès à cette section.",
     "trustAccountsTitle": "Comptes en fidéicommis",
     "trustAccountsDescription": "Dépôts, retraits et relevés du compte en fidéicommis par client et dossier.",
-    "backToBilling": "Retour à la facturation"
+    "backToBilling": "Retour à la facturation",
+    "actions": "Actions",
+    "viewCorrections": "Corrections",
+    "correctionsEmpty": "Aucune correction. Quand une écriture est annulée, elle quitte le registre courant et vient se justifier ici.",
+    "cancelEntry": "Annuler",
+    "cancelEntryTitle": "Annuler cette écriture",
+    "cancelEntryIntro": "L'écriture quitte le registre et les totaux. Elle n'est pas supprimée : une écriture inverse est ajoutée, et les deux restent consultables dans l'onglet Corrections.",
+    "cancelEntryError": "L'annulation n'a pas pu être enregistrée.",
+    "motifLegend": "Pourquoi cette annulation ?",
+    "motifPreciser": "Précisez",
+    "motifNotice": "Le motif est conservé avec votre nom et la date. C'est ce qui rend la correction défendable lors d'une inspection.",
+    "motifConfirmer": "Confirmer l'annulation",
+    "motifRenoncer": "Ne rien changer",
+    "motifTexteTropCourt": "Encore un peu : {min} caractères au minimum.",
+    "motifErreurSaisie": "Erreur de saisie",
+    "motifMauvaisType": "Mauvais type d'écriture",
+    "motifDoublon": "Écriture en double",
+    "motifMontantErrone": "Montant erroné",
+    "motifTransactionAnnulee": "Transaction annulée par la banque ou le client",
+    "motifMauvaisDossier": "Rattachée au mauvais client ou dossier",
+    "motifAutre": "Autre, à préciser"
   },
   "mattersUi": {
     "reportsTitle": "Rapports",

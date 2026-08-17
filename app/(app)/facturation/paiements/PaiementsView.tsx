@@ -10,8 +10,10 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud, Paperclip, Users } from "lucide-react";
+import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud, Paperclip, Users, Undo2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
+import type { JournalCorrectionMotive } from "@prisma/client";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
@@ -80,6 +82,9 @@ export function FacturationPaiementsView({
     unallocatedAmount: number;
     clientId: string | null;
   } | null>(null);
+  const [annulationCible, setAnnulationCible] = useState<PaymentRow | null>(null);
+  const [annulationSubmitting, setAnnulationSubmitting] = useState(false);
+  const [annulationError, setAnnulationError] = useState<string | null>(null);
   const [refundClient, setRefundClient] = useState<ClientCreditBalance | null>(null);
   const [refundNote, setRefundNote] = useState("");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
@@ -161,6 +166,33 @@ export function FacturationPaiementsView({
   const canAllocate = (p: PaymentRow) =>
     p.unallocatedAmount > 0 &&
     (p.allocationStatus === "UNALLOCATED" || p.allocationStatus === "PARTIALLY_ALLOCATED");
+
+  async function handleAnnulerPaiement(
+    motifCode: JournalCorrectionMotive,
+    motifTexte: string | null,
+  ) {
+    if (!annulationCible) return;
+    setAnnulationSubmitting(true);
+    setAnnulationError(null);
+    try {
+      const res = await fetch(`/api/facturation/paiements/${annulationCible.id}/annuler`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motifCode, motifTexte }),
+      });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || t("reversePaymentError"));
+      }
+      setAnnulationCible(null);
+      // Le solde dû des factures rouvertes a bougé : les deux listes se rechargent.
+      await Promise.all([refetchPayments(), refetchSurpaiements()]);
+    } catch (e) {
+      setAnnulationError(e instanceof Error ? e.message : t("reversePaymentError"));
+    } finally {
+      setAnnulationSubmitting(false);
+    }
+  }
 
   async function handleRequestRefund() {
     if (!refundClient) return;
@@ -389,6 +421,22 @@ export function FacturationPaiementsView({
                             <Link2 className="w-4 h-4" />
                           </Button>
                           )}
+                          {/* Un encaissement déjà annulé ne se réannule pas : le
+                              service le refuserait, on ne propose pas le geste. */}
+                          {canWrite && p.allocationStatus !== "REVERSED" && (
+                            <Button
+                              type="button"
+                              variant="tertiary"
+                              className="!px-2 !py-1.5 min-w-0"
+                              onClick={() => {
+                                setAnnulationError(null);
+                                setAnnulationCible(p);
+                              }}
+                              aria-label={t("reversePayment")}
+                            >
+                              <Undo2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -462,6 +510,24 @@ export function FacturationPaiementsView({
         }
         invoices={invoices}
         onSuccess={() => setAllocationModalOpen(false)}
+      />
+
+      <MotifAnnulationModal
+        open={annulationCible !== null}
+        onClose={() => {
+          setAnnulationCible(null);
+          setAnnulationError(null);
+        }}
+        onConfirm={handleAnnulerPaiement}
+        title={t("reversePaymentTitle")}
+        intro={t("reversePaymentIntro")}
+        cible={
+          annulationCible
+            ? `${displayDate(annulationCible.datePaiement)} · ${clientLabel(annulationCible.client)} · ${money(annulationCible.montant)}`
+            : null
+        }
+        submitting={annulationSubmitting}
+        error={annulationError}
       />
 
       <Modal
