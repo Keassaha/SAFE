@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { routes } from "@/lib/routes";
 import { useLocale, useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
@@ -753,18 +754,29 @@ export function CreateInvoiceView({
         throw new Error(data.error || t("errorCreateInvoice"));
       }
 
+      // La facture existe désormais en base. On le dit tout de suite : le rendu
+      // serveur de l'aperçu qui suit prend plusieurs secondes, et sans ce
+      // message l'écran reste strictement identique pendant tout ce temps —
+      // mesuré à ~3 s sur le parcours réel. L'avocate cliquait, ne voyait rien,
+      // et recommençait. C'est le « le système ne le signale pas » remonté par
+      // Me Dadié.
+      toast.success(t("toastInvoiceCreated"));
+
       const invoiceId = data.invoice?.id;
       if (invoiceId) {
         router.push(`/facturation/factures/${invoiceId}`);
       } else {
         router.push("/facturation");
       }
-      // Nécessaire : le compteur « à facturer » de la barre latérale
-      // (getSidebarCounts, rendu par le layout partagé) compte les factures
-      // en brouillon — exactement le statut de celle qu'on vient de créer.
-      // Une navigation douce (router.push seul) ne relève pas ce layout ;
-      // sans ce refresh, le badge resterait périmé jusqu'à la prochaine
-      // navigation complète.
+      // `refresh()` APRÈS `push()`, et pas l'inverse.
+      // Le compteur « à facturer » de la barre latérale (getSidebarCounts,
+      // rendu par le layout partagé) compte les brouillons — exactement le
+      // statut de la facture qu'on vient de créer. Une navigation douce ne
+      // rejoue pas le layout partagé, d'où le besoin d'invalider.
+      // Inverser les deux appels a été essayé et écarté : le `push` supplante
+      // le `refresh` encore en vol, la navigation aboutit mais le compteur
+      // reste périmé (3 en base, 2 affiché). Dans cet ordre-ci, le refresh
+      // s'applique à la route d'arrivée et le compteur suit.
       router.refresh();
     } catch (err) {
       raiseError(err instanceof Error ? err.message : t("errorUnexpected"));

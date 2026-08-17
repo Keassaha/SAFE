@@ -2623,6 +2623,7 @@
     "sendByEmail": "Send by email",
     "cancelDraft": "Cancel draft",
     "toastInvoiceApproved": "Invoice approved.",
+    "toastInvoiceCreated": "Invoice created. Opening preview…",
     "toastInvoiceSent": "Invoice sent by email.",
     "toastDraftCancelled": "Draft cancelled.",
     "actionNotPossible": "Action not possible for this invoice",

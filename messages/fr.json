@@ -2623,6 +2623,7 @@
     "sendByEmail": "Envoyer par courriel",
     "cancelDraft": "Annuler le brouillon",
     "toastInvoiceApproved": "Facture approuvée.",
+    "toastInvoiceCreated": "Facture créée. Ouverture de l'aperçu…",
     "toastInvoiceSent": "Facture envoyée par courriel.",
     "toastDraftCancelled": "Brouillon annulé.",
     "actionNotPossible": "Action impossible pour cette facture",

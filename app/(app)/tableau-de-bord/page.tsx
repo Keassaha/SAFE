@@ -52,22 +52,30 @@ function getMonthRange(year: number, month: number) {
 export default async function TableauDeBordPage() {
   const { cabinetId, userId, role } = await requireCabinetAndUser();
 
+  /* Ces quatre lectures ne dépendent que de la session : elles partaient en
+     file indienne (deux allers-retours en base, plus la locale et les
+     traductions), désormais en une seule passe. La garde Console reste
+     évaluée juste après, avant tout le reste du rendu. */
+  const [consoleAccess, locale, t, employee] = await Promise.all([
+    hasConsoleAccess(userId, role),
+    getLocale(),
+    getTranslations("dashboard"),
+    prisma.employee.findFirst({
+      where: { cabinetId, userId },
+      select: { role: true },
+    }),
+  ]);
+
   // SAFE Inc. (dog food) atterrit sur sa Console, pas sur l'interface cabinet.
   // Condition alignée sur la garde de la Console : sans cela, un membre non-admin
   // du cabinet SAFE rebondirait entre les deux pages indéfiniment.
-  if (await hasConsoleAccess(userId, role)) {
+  if (consoleAccess) {
     redirect("/console");
   }
 
-  const locale = await getLocale();
   const intlLocale = toIntlLocale(locale);
-  const t = await getTranslations("dashboard");
   const userRole = role as UserRole;
 
-  const employee = await prisma.employee.findFirst({
-    where: { cabinetId, userId },
-    select: { role: true },
-  });
   const effectiveRole = getEffectiveRole({ role: userRole }, employee);
   const visibility = getDashboardVisibility(effectiveRole);
 
@@ -378,6 +386,55 @@ export default async function TableauDeBordPage() {
     }),
   ]);
 
+  /* Seconde vague — quatre lectures qui dépendent toutes de la vague ci-dessus
+     mais d'aucune autre entre elles. Elles étaient dispersées plus bas dans le
+     fichier, chacune sur son propre `await` : quatre allers-retours en file
+     indienne alors qu'un seul suffit. En production les fonctions tournent en
+     iad1 et la base en ca-central-1, donc chaque aller-retour évité est payant.
+     Les résultats sont consommés à leur place d'origine, plus bas. */
+  const userIdsForProductivity = [
+    ...new Set(timeEntriesForProductivity.map((e) => e.userId)),
+  ];
+  const dossierIdsForCases = activeDossiers.map((d) => d.id);
+  const showReadyInbox = userRole === "avocat" || userRole === "admin_cabinet";
+  const isLawyerRole = userRole === "avocat" || userRole === "admin_cabinet";
+
+  const [
+    users,
+    [hoursByDossierRows, invoicedByDossierRows],
+    readyForReviewSignalsRaw,
+    navetteInboxRaw,
+  ] = await Promise.all([
+    userIdsForProductivity.length
+      ? prisma.user.findMany({
+          where: { id: { in: userIdsForProductivity }, cabinetId },
+          select: { id: true, nom: true },
+        })
+      : Promise.resolve([]),
+    dossierIdsForCases.length > 0
+      ? Promise.all([
+          prisma.timeEntry.groupBy({
+            by: ["dossierId"],
+            where: { cabinetId, dossierId: { in: dossierIdsForCases } },
+            _sum: { dureeMinutes: true, montant: true },
+          }),
+          prisma.invoice.groupBy({
+            by: ["dossierId"],
+            where: { cabinetId, dossierId: { in: dossierIdsForCases } },
+            _sum: { montantTotal: true },
+          }),
+        ])
+      : Promise.resolve([[], []] as const),
+    showReadyInbox
+      ? listUnreadSignalsForUser(cabinetId, userId, {
+          scopeAllForAdmin: userRole === "admin_cabinet",
+        })
+      : Promise.resolve([]),
+    isLawyerRole
+      ? getNavetteInbox(cabinetId, userId, userRole, "needs_me", 10)
+      : Promise.resolve([]),
+  ]);
+
   // ── Basic aggregates ──
   const revenueThisMonth = invoiceThisMonth._sum.montantTotal ?? 0;
   const revenueLastMonth = invoiceLastMonth._sum.montantTotal ?? 0;
@@ -581,13 +638,7 @@ export default async function TableauDeBordPage() {
   });
 
   // ── Lawyer productivity ──
-  const userIds = [...new Set(timeEntriesForProductivity.map((e) => e.userId))];
-  const users = userIds.length
-    ? await prisma.user.findMany({
-        where: { id: { in: userIds }, cabinetId },
-        select: { id: true, nom: true },
-      })
-    : [];
+  // `users` est résolu plus haut, dans la seconde vague parallèle.
   const userMap = Object.fromEntries(users.map((u) => [u.id, u.nom]));
 
   const byUser = new Map<
@@ -630,22 +681,8 @@ export default async function TableauDeBordPage() {
   );
 
   // ── Active cases ──
-  const dossierIds = activeDossiers.map((d) => d.id);
-  const [hoursByDossierRows, invoicedByDossierRows] =
-    dossierIds.length > 0
-      ? await Promise.all([
-          prisma.timeEntry.groupBy({
-            by: ["dossierId"],
-            where: { cabinetId, dossierId: { in: dossierIds } },
-            _sum: { dureeMinutes: true, montant: true },
-          }),
-          prisma.invoice.groupBy({
-            by: ["dossierId"],
-            where: { cabinetId, dossierId: { in: dossierIds } },
-            _sum: { montantTotal: true },
-          }),
-        ])
-      : [[], []];
+  // `hoursByDossierRows` / `invoicedByDossierRows` sont résolus plus haut,
+  // dans la seconde vague parallèle.
 
   const hoursByDossierMap = new Map(
     (hoursByDossierRows as { dossierId: string | null; _sum: { dureeMinutes: number | null; montant: number | null } }[]).map((g) => [
@@ -861,12 +898,7 @@ export default async function TableauDeBordPage() {
 
   // Inbox "prêt pour revue" — visible pour les avocats et admin du cabinet.
   // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md
-  const showReadyInbox = userRole === "avocat" || userRole === "admin_cabinet";
-  const readyForReviewSignalsRaw = showReadyInbox
-    ? await listUnreadSignalsForUser(cabinetId, userId, {
-        scopeAllForAdmin: userRole === "admin_cabinet",
-      })
-    : [];
+  // `readyForReviewSignalsRaw` est résolu plus haut, dans la seconde vague.
   const readyForReviewSignals: DashboardReadyForReviewSignal[] = readyForReviewSignalsRaw.map((s) => ({
     id: s.id,
     dossierId: s.dossierId,
@@ -910,9 +942,9 @@ export default async function TableauDeBordPage() {
   };
 
   // N3 — Vue avocate « 15 secondes » : ce qui l'attend dans la Navette.
-  const isLawyerRole = userRole === "avocat" || userRole === "admin_cabinet";
+  // `navetteInboxRaw` est résolu plus haut, dans la seconde vague parallèle.
   const glanceRows = isLawyerRole
-    ? (await getNavetteInbox(cabinetId, userId, userRole, "needs_me", 10))
+    ? navetteInboxRaw
         .filter(
           (m) =>
             m.type === "ready_for_review" ||
