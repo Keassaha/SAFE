@@ -319,14 +319,30 @@ const CSS = `
     gap: 0 14px;
     list-style: none;
     overflow-x: auto;
+    /* ── Les bornes de la chaîne ─────────────────────────────────────────
+       Elle se laissait pousser bien au-delà de son dernier maillon, puis
+       revenait en arrière : on croyait avoir raté quelque chose à droite, et
+       le rebond se lit comme un défaut plutôt que comme une matière (retour
+       CEO du 18 août 2026).
+
+       « contain » arrête le geste à la chaîne au lieu de le passer à la page,
+       et l'aimant devient obligatoire : la course s'arrête sur un maillon,
+       jamais dans le vide entre deux ni après le dernier. Le retrait de fin
+       vaut la marge de la page, donc le dernier maillon s'arrête là où le
+       texte s'arrête, et pas un pixel plus loin. */
     overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
+    scroll-snap-stop: always;
+    scroll-padding-left: 0;
     scrollbar-width: none;
     /* Elle déborde jusqu'au bord de la page pour qu'on voie qu'elle continue. */
     margin-right: calc(-1 * var(--ap-marge, 24px));
     padding-right: var(--ap-marge, 24px);
     padding-bottom: 4px;
   }
+  /* Le filet n'est pas un point d'arrêt : seul un maillon en est un, sinon la
+     course se cale une fois sur deux sur un trait de dix-huit pixels. */
+  .ap-mots li .lien { scroll-snap-align: none; }
   .ap-mots::-webkit-scrollbar { display: none; }
   .ap-mots li { flex: none; scroll-snap-align: start; }
   /* Le filet ne dépend plus d'avoir été « vu » : sur une ligne qu'on fait

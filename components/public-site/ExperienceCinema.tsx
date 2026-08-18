@@ -2222,8 +2222,8 @@ const CSS = `
     .xc .si-args, .xc .fi-args, .xc .co-args {
       display: grid;
       grid-auto-flow: column;
-      grid-auto-columns: 86%;
-      gap: 14px;
+      grid-auto-columns: 88%;
+      gap: 16px;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x mandatory;
@@ -2244,30 +2244,69 @@ const CSS = `
     .xc .fi-args::-webkit-scrollbar,
     .xc .co-args::-webkit-scrollbar { display: none; }
 
+    /* La carte d'un point.
+
+       Elle reprend la fiche de la page « à propos », qui a été validée : un
+       numéro en tête, le propos en serif, la phrase en sans dessous, et de
+       l'air (retour CEO du 18 août 2026). Ce qui change ici tient en trois
+       choses.
+
+       Elle respire davantage : 28 px de retrait au lieu de 24, et surtout un
+       filet sous le numéro qui sépare l'étiquette du propos. Sans lui, les
+       trois blocs se touchaient et la carte se lisait comme un paragraphe
+       encadré.
+
+       Elle est plus haute que son contenu : une hauteur commune, donc trois
+       cartes de même taille quel que soit le nombre de lignes, et la phrase
+       calée en bas. Trois cartes inégales dans un carrousel donnent un bord
+       bas qui monte et descend à chaque glissement.
+
+       Et elle répond au doigt : celle qu'on a devant soi porte l'encre pleine
+       et une ombre plus franche, les autres reculent d'un ton. C'est la même
+       distinction que fait le défilement piloté au large, rendue ici par la
+       position dans le carrousel. */
     .xc .si-arg, .xc .fi-arg, .xc .co-arg {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      min-height: 210px;
       scroll-snap-align: start;
-      padding: 24px 24px 26px;
+      padding: 28px 30px 30px;
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 14px;
       background: var(--si-surface);
       box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.04),
-                  0 12px 24px -20px rgb(var(--si-line-ink-rgb) / 0.30);
+                  0 10px 20px -18px rgb(var(--si-line-ink-rgb) / 0.22);
+      transition: box-shadow 320ms var(--doux), border-color 320ms var(--doux);
+    }
+    .xc .si-arg.actif, .xc .fi-arg.actif, .xc .co-arg.actif {
+      border-color: rgb(var(--si-line-ink-rgb) / 0.16);
+      box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.05),
+                  0 20px 38px -24px rgb(var(--si-line-ink-rgb) / 0.40);
     }
     .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
       display: block;
       top: 0;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
     }
     .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
-      margin-top: 10px;
+      margin-top: 18px;
+      color: var(--si-ink);
     }
     .xc .si-arg .d, .xc .fi-arg .d, .xc .co-arg .d {
       display: block;
-      margin-top: 8px;
+      /* La phrase suit son propos de près.
+
+         Elle a d'abord été poussée au bas de la carte pour que les trois
+         phrases s'alignent entre elles. Mauvais calcul : avec un propos d'une
+         seule ligne, la carte se creusait de cent trente pixels de vide en son
+         milieu. La hauteur commune reste, mais le jeu se prend EN BAS, sous la
+         phrase, où il se lit comme du dégagement et non comme un trou. */
+      margin-top: 14px;
       font-family: var(--sans);
       font-size: var(--t-detail);
-      line-height: 1.5;
-      color: var(--si-muted);
+      line-height: 1.55;
+      color: var(--si-body);
     }
 
     /* Les repères de position, posés par le script sous chaque carrousel.
@@ -2652,6 +2691,25 @@ const CSS = `
     .xc.anime #zone-complet .co-vue-zone {
       position: relative;
       min-height: 420px;
+    }
+
+    /* ── Le retrait des cartes, repris ici ────────────────────────────────
+       Le bloc « sans mouvement » pose un retrait « var(--pad-argument) 0 » sur les
+       points, ce qui est juste pour une liste verticale : le retrait
+       horizontal y vient de la colonne de la page.
+
+       Dans une carte, ce zéro colle le texte au filet. Et comme ce sélecteur
+       est plus spécifique que celui du carrousel, c'est lui qui gagnait :
+       « Vos chiffres, en langage clair. » commençait exactement sur la
+       bordure, à gauche comme à droite (retour CEO du 18 août 2026).
+
+       Le retrait est donc redonné ici, à spécificité égale et plus bas dans la
+       feuille. Trente pixels sur les côtés : le texte respire des deux bords
+       au lieu de les toucher. */
+    .xc.anime #zone-simple .si-arg,
+    .xc.anime #zone-fiable .fi-arg,
+    .xc.anime #zone-complet .co-arg {
+      padding: 28px 30px 30px;
     }
   }
 `;
@@ -3562,6 +3620,9 @@ function runExperience(root: HTMLElement): () => void {
 
     let planifie = false;
     let dernierP = -1;
+    /* La progression AFFICHÉE, qui poursuit celle du défilement sans la
+       rattraper tout de suite. Voir poser(). */
+    let p = 0;
 
     /* ── Les pièces suivent l'inclinaison du téléphone ───────────────────────
        On penche l'appareil à gauche, les pièces glissent à gauche ; à droite,
@@ -3680,23 +3741,44 @@ function runExperience(root: HTMLElement): () => void {
       const zone = heroZone.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const course = Math.max(1, heroZone.offsetHeight - vh);
-      const p = clamp01(-zone.top / course);
-      if (Math.abs(p - dernierP) < 0.001) return;
-      dernierP = p;
+      const cible = clamp01(-zone.top / course);
 
-      /* Lissage : la valeur du capteur rejoint sa cible d'un cinquième par
-         image. Tant qu'elle n'y est pas, on redemande une image, et seulement
-         tant qu'elle n'y est pas. */
+      /* ── La scène traîne derrière le doigt ────────────────────────────────
+         La progression suivait le défilement au pixel : un coup de pouce un
+         peu vif et les pièces sautaient d'un état à l'autre, ce qui se lit
+         comme un saut d'image et non comme un mouvement (retour CEO du
+         18 août 2026).
+
+         Elle rejoint maintenant sa cible d'un huitième par image. Le doigt
+         donne la destination, la scène met une quinzaine d'images à y arriver,
+         et cette inertie est exactement ce qu'on appelle un défilement doux :
+         on ne ralentit pas la page, on ralentit ce qu'elle raconte.
+
+         Tant que l'écart n'est pas résorbé, une image de plus est demandée, et
+         seulement tant qu'il ne l'est pas : la scène immobile ne coûte rien. */
+      let encore = false;
+      const ecartP = cible - p;
+      if (Math.abs(ecartP) > 0.0004) {
+        p += ecartP * 0.125;
+        encore = true;
+      } else {
+        p = cible;
+      }
+
+      /* Lissage du capteur d'inclinaison, même principe. */
       const ecart = inclinaisonCible - inclinaison;
       if (Math.abs(ecart) > 0.002) {
         inclinaison += ecart * 0.2;
-        dernierP = -1;
-        if (!planifie) {
-          planifie = true;
-          requestAnimationFrame(poser);
-        }
+        encore = true;
       } else {
         inclinaison = inclinaisonCible;
+      }
+
+      if (!encore && Math.abs(p - dernierP) < 0.0004) return;
+      dernierP = p;
+      if (encore && !planifie) {
+        planifie = true;
+        requestAnimationFrame(poser);
       }
 
       const temps = performance.now();
