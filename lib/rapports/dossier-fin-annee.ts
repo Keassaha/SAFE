@@ -25,6 +25,7 @@
 
 import { taxeReclamable, type TaxOrigin } from "@/lib/expense-journal/tax-decomposition";
 import { deductibiliteFor } from "@/lib/expense-journal/deductibilite";
+import { deductionRepresentation, type DeductionRepresentation } from "@/lib/expense-journal/plafond-representation";
 
 const R2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
@@ -53,6 +54,8 @@ export interface EntreesDossier {
   prorataVehicule?: number | null;
   /** Mois de l'exercice dont la période comptable n'est pas verrouillée. */
   moisNonVerrouilles?: ReadonlyArray<string>;
+  /** Province du cabinet : décide si le plafond québécois s'applique. */
+  province?: string | null;
 }
 
 /* ── Sorties ──────────────────────────────────────────────────────────────── */
@@ -75,7 +78,7 @@ export type CodeIncertitude =
   | "CATEGORIE_AUTRES"
   | "PERIODE_NON_VERROUILLEE"
   | "PRORATA_VEHICULE_ABSENT"
-  | "PLAFOND_QC_NON_CALCULE"
+  | "PLAFOND_QC_EXCEPTIONS_CULTURELLES"
   | "PIECES_MANQUANTES";
 
 export interface Incertitude {
@@ -95,6 +98,12 @@ export interface DossierFinAnnee {
   totaux: { montantHt: number; taxePayee: number; taxeReclamable: number };
   taxes: { collectee: number; payeeReclamable: number; netARemettre: number };
   deboursRefactures: number;
+  /**
+   * Frais de représentation : le plafond s'applique au CUMUL de l'exercice, donc
+   * il est calculé ici et nulle part ailleurs. Absent quand le cabinet n'a aucun
+   * frais de cette nature.
+   */
+  representation: DeductionRepresentation | null;
   sansPiece: { nombre: number; montant: number; ids: string[] };
   incertitudes: Incertitude[];
 }
@@ -178,6 +187,18 @@ export function construireDossierFinAnnee(e: EntreesDossier): DossierFinAnnee {
     netARemettre: R2(e.taxesCollectees - totaux.taxeReclamable),
   };
 
+  // Le plafond québécois, au cumul. Le chiffre d'affaires retenu est le facturé
+  // hors taxes de l'exercice : c'est la mesure du volume d'affaires dont dispose
+  // SAFE, et celle qui correspond au « chiffre d'affaires annuel » du barème.
+  const ligneRepresentation = depensesParCategorie.find((l) => l.code === "REPAS_REPRESENTATION");
+  const representation = ligneRepresentation
+    ? deductionRepresentation({
+        fraisEngages: ligneRepresentation.montantHt,
+        chiffreAffairesAnnuel: e.revenus.factureHt,
+        province: e.province,
+      })
+    : null;
+
   return {
     annee: e.annee,
     revenus: {
@@ -189,12 +210,19 @@ export function construireDossierFinAnnee(e: EntreesDossier): DossierFinAnnee {
     totaux,
     taxes,
     deboursRefactures: R2(e.deboursRefactures),
+    representation,
     sansPiece: {
       nombre: sansPieceIds.length,
       montant: R2(sansPieceMontant),
       ids: sansPieceIds,
     },
-    incertitudes: releverIncertitudes(e, depensesParCategorie, sansPieceIds.length, sansPieceMontant),
+    incertitudes: releverIncertitudes(
+      e,
+      depensesParCategorie,
+      sansPieceIds.length,
+      sansPieceMontant,
+      representation,
+    ),
   };
 }
 
@@ -210,6 +238,7 @@ function releverIncertitudes(
   lignes: ReadonlyArray<LigneCategorie>,
   sansPieceNombre: number,
   sansPieceMontant: number,
+  representation: DeductionRepresentation | null,
 ): Incertitude[] {
   const out: Incertitude[] = [];
 
@@ -247,17 +276,18 @@ function releverIncertitudes(
     });
   }
 
-  // Le plafond québécois sur les frais de représentation : ses paliers ne sont pas
-  // établis (A_CONFIRMER de la recherche du 2026-08-17). On le DÉCLARE plutôt que
-  // d'inventer un montant que le comptable croirait calculé.
+  // Le plafond québécois est désormais CALCULÉ (paliers confirmés le 2026-08-18).
+  // L'incertitude qui subsiste est plus étroite, et honnête : SAFE ne sait pas
+  // reconnaître les billets de spectacle et abonnements culturels que la loi
+  // soustrait à la limite ET au plafond. Un cabinet qui en a déduit trop peu.
   const repas = lignes.find((l) => l.plafondApplicable && l.montantHt > 0);
-  if (repas) {
+  if (repas && representation?.plafondApplique) {
     out.push({
-      code: "PLAFOND_QC_NON_CALCULE",
+      code: "PLAFOND_QC_EXCEPTIONS_CULTURELLES",
       nombre: repas.nombre,
-      montant: repas.montantHt,
+      montant: representation.plafond ?? undefined,
       message:
-        "Au Québec, un plafond lié au chiffre d'affaires peut réduire encore la déduction des frais de représentation. Ses paliers ne sont pas établis dans SAFE : ce montant est un maximum, pas un montant final.",
+        "Le plafond québécois a réduit la déduction de vos frais de représentation. Certains billets de spectacle et abonnements culturels tenus au Québec y échappent, et SAFE ne sait pas les distinguer : signalez-les à votre comptable.",
     });
   }
 

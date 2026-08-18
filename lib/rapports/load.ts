@@ -469,6 +469,8 @@ export async function loadRapportsPayload(
       // Prorata véhicule de l'exercice. Absent, le dossier le DÉCLARE en zone
       // d'incertitude au lieu de deviner.
       prorataVehicule: prorataVehiculeAnnee,
+      // Province du cabinet : seul le Québec impose un plafond de représentation.
+      province: parseCabinetConfig(cabinetPourProrata?.config ?? null).province ?? null,
     }),
     clients: clients.map((c) => ({ id: c.id, label: c.raisonSociale ?? "" })),
     avocats: users.map((u) => ({ id: u.id, label: u.nom })),

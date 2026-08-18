@@ -146,13 +146,22 @@ La reprise de l'historique décidée par le CEO a une borne naturelle : au-delà
 
 ## Points a confirmer
 
-- `A_CONFIRMER` **Les paliers exacts du plafond québécois** : quel niveau de chiffre d'affaires déclenche 2 %, lequel déclenche 650 $, lequel déclenche 1,25 %. Le recueil des dépenses fiscales énonce les trois valeurs sans donner les bornes.
-- Impact si faux: la déduction des frais de représentation d'un cabinet québécois serait mal plafonnée, dans un sens ou dans l'autre.
-- Source ideale a trouver: guide IN-155 « Les revenus d'entreprise ou de profession », édition courante, ou Loi sur les impôts art. 175.6.1.
+- ✅ **RÉSOLU le 2026-08-18.** ~~Les paliers exacts du plafond québécois.~~ Trouvés dans le guide **IN-155 §6.11.1** de Revenu Québec, exactement la source désignée ici :
 
-- `A_CONFIRMER` **Le traitement ontarien du plafond** : le plafond fondé sur le chiffre d'affaires est une mesure québécoise, l'harmonisation avec le fédéral étant qualifiée de partielle. Un cabinet ontarien n'y est vraisemblablement pas soumis, mais cela n'a pas été vérifié directement sur une source fédérale ou ontarienne.
-- Impact si faux: sous-déduction des frais de représentation pour les cabinets ontariens.
-- Source ideale a trouver: T2125 ligne 8523 dans sa version intégrale, ou Loi de l'impôt sur le revenu art. 67.1.
+  | Chiffre d'affaires annuel | Plafond |
+  | --- | --- |
+  | 32 500 $ ou moins | 2 % |
+  | Entre 32 500 $ et 52 000 $ | 650 $ |
+  | 52 000 $ ou plus | 1,25 % |
+
+  `VERIFIE` Le barème est **continu** aux deux bornes : 2 % de 32 500 = 650, et 1,25 % de 52 000 = 650. Cette propriété sert de contrôle de transcription, et un test la verrouille.
+
+  Le guide donne aussi un exemple chiffré, repris tel quel en test : chiffre d'affaires 50 000 $, frais 2 000 $, limite de 50 % à 1 000 $, plafond à 650 $, déductible 650 $.
+
+  `A_CONFIRMER` **Édition du guide.** Le tableau vient de l'édition 2015-10, seule accessible. Les trois valeurs sont confirmées toujours en vigueur par le recueil des dépenses fiscales 2025 du ministère des Finances, mais ce recueil ne redonne pas les bornes. Impact si les bornes avaient bougé : plafond mal appliqué entre 32 500 $ et 52 000 $. À revoir sur l'édition courante d'IN-155.
+
+- ✅ **RÉSOLU le 2026-08-18.** ~~Le traitement ontarien du plafond.~~ `VERIFIE` sur la source primaire fédérale : la **Loi de l'impôt sur le revenu, art. 67.1(1)** répute la dépense de repas et divertissement égale à « 50 per cent of the lesser of » le montant payé et un montant raisonnable. **Aucun plafond lié au chiffre d'affaires n'y figure.** Le plafond est une mesure exclusivement québécoise ; un cabinet ontarien n'est soumis qu'à la limite de 50 %.
+  Source : https://laws-lois.justice.gc.ca/eng/acts/i-3.3/section-67.1.html
 
 - `A_CONFIRMER` **La liste des catégories structurellement sans taxe** (salaires, assurances, la plupart des frais bancaires, certains frais de tribunal). La spec prévoit d'activer la décomposition du TTC par catégorie ; cette liste doit être établie avant le lot 1, sans quoi le moteur fabriquera de la taxe là où il n'y en a pas.
 - Impact si faux: taxes récupérables surestimées, donc remises de taxes fausses.

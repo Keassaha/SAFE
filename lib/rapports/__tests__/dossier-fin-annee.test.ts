@@ -135,15 +135,49 @@ describe("le dossier déclare ses zones d'ombre", () => {
     expect(d.taxes.payeeReclamable).toBe(8.99);
   });
 
-  it("déclare le plafond québécois au lieu de l'inventer", () => {
-    // Ses paliers sont A_CONFIRMER depuis le 2026-08-17. Produire un montant
-    // « calculé » ferait croire au comptable qu'il est final.
+  it("calcule le plafond québécois, paliers confirmés le 2026-08-18", () => {
+    // CA 100 000 $ donne un plafond de 1 250 $. Les frais valent 100 $, donc la
+    // limite de 50 % (50 $) mord la première et le plafond ne s'applique pas.
     const d = construireDossierFinAnnee({
       ...base,
+      province: "QC",
       depenses: [dep({ categoryCode: "REPAS_REPRESENTATION" })],
     });
-    const i = d.incertitudes.find((x) => x.code === "PLAFOND_QC_NON_CALCULE")!;
-    expect(i.message).toContain("maximum");
+    expect(d.representation!.plafond).toBe(1250);
+    expect(d.representation!.deductible).toBe(50);
+    expect(d.representation!.plafondApplique).toBe(false);
+  });
+
+  it("quand le plafond mord, il signale les exceptions culturelles que SAFE ignore", () => {
+    // Petit chiffre d'affaires, gros frais : le plafond devient contraignant.
+    const d = construireDossierFinAnnee({
+      ...base,
+      province: "QC",
+      revenus: { factureHt: 30_000, encaisse: 28_000 },
+      depenses: [dep({ categoryCode: "REPAS_REPRESENTATION", montantHt: 4000 })],
+    });
+    expect(d.representation!.plafond).toBe(600); // 2 % de 30 000
+    expect(d.representation!.deductible).toBe(600);
+    expect(d.representation!.plafondApplique).toBe(true);
+    const i = d.incertitudes.find((x) => x.code === "PLAFOND_QC_EXCEPTIONS_CULTURELLES")!;
+    expect(i.message).toContain("culturels");
+  });
+
+  it("un cabinet ontarien n'a aucun plafond", () => {
+    const d = construireDossierFinAnnee({
+      ...base,
+      province: "ON",
+      revenus: { factureHt: 30_000, encaisse: 28_000 },
+      depenses: [dep({ categoryCode: "REPAS_REPRESENTATION", montantHt: 4000 })],
+    });
+    expect(d.representation!.plafond).toBeNull();
+    expect(d.representation!.deductible).toBe(2000);
+    expect(d.incertitudes.some((x) => x.code === "PLAFOND_QC_EXCEPTIONS_CULTURELLES")).toBe(false);
+  });
+
+  it("sans frais de représentation, aucun calcul de plafond", () => {
+    const d = construireDossierFinAnnee({ ...base, province: "QC", depenses: [dep()] });
+    expect(d.representation).toBeNull();
   });
 
   it("liste les dépenses sans pièce, la seule sur laquelle on agit", () => {
