@@ -10,6 +10,8 @@ import { writeJournalForCabinetExpense } from "@/lib/services/journal/cabinet-ex
 import { learnCategorizationRule } from "@/lib/expense-journal/categorization-rules";
 import { ExpenseJournalValidationStatus } from "@prisma/client";
 import type { UserRole } from "@prisma/client";
+import { decomposeExpenseTax } from "@/lib/expense-journal/tax-decomposition";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const EXT: Record<string, string> = {
@@ -135,6 +137,22 @@ export async function POST(request: Request) {
 
   try {
     // Atomicité : CabinetExpense + écriture journal append-only ensemble (doctrine §4).
+    // Lot 1, spec §2.1. Ce chemin capte déjà les taxes depuis le reçu : elles sont
+    // DÉCLARÉES, donc vérité, donc réclamables. On passe malgré tout par le même
+    // décompteur que les deux autres chemins, pour deux raisons : le régime de la
+    // catégorie doit pouvoir refuser une taxe qu'un reçu d'assurance porterait à
+    // tort, et un reçu muet sur les taxes doit être estimé plutôt que laissé vide.
+    const taxConfig = await getCabinetTaxConfigById(data.cabinetId);
+    const codeCategorie = categoryId
+      ? (await prisma.expenseCategory.findUnique({ where: { id: categoryId }, select: { code: true } }))?.code
+      : null;
+    const taxes = decomposeExpenseTax({
+      montantTtc,
+      categoryCode: codeCategorie,
+      taxConfig,
+      declared: { montantHt, tps, tvq },
+    });
+
     const expense = await prisma.$transaction(async (txClient) => {
       const created = await txClient.cabinetExpense.create({
         data: {
@@ -145,10 +163,11 @@ export async function POST(request: Request) {
           categoryId: categoryId ?? undefined,
           categoryName,
           montant: montantTtc,
-          montantHt: montantHt ?? undefined,
-          tps: tps ?? undefined,
-          tvq: tvq ?? undefined,
-          montantTtc,
+          montantHt: taxes.montantHt,
+          tps: taxes.tps,
+          tvq: taxes.tvq,
+          montantTtc: taxes.montantTtc,
+          taxOrigin: taxes.origine,
           dossierId: dossierId ?? undefined,
           refacturable,
           statutValidation: ExpenseJournalValidationStatus.VALIDE,

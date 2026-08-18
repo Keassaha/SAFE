@@ -12,6 +12,8 @@ import { ExpenseJournalTransactionType, ExpenseJournalValidationStatus } from "@
 import { revalidatePath } from "next/cache";
 import { writeJournalForCabinetExpense } from "@/lib/services/journal/cabinet-expense-journal";
 import { applyCabinetExpenseCorrection } from "@/lib/services/journal/append-only-corrections";
+import { decomposeExpenseTax } from "@/lib/expense-journal/tax-decomposition";
+import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 
 export type ImportResult = {
   sessionId: string;
@@ -223,6 +225,22 @@ export async function validateImportedTransaction(
     return { success: true };
   }
 
+  // Décomposition de la taxe payée (lot 1, spec §2.1). Jusqu'ici ce chemin écrivait
+  // le montant brut deux fois et s'arrêtait là : le gros du volume des dépenses
+  // arrivait donc sans aucune taxe récupérable, et le cabinet remettait trop.
+  //
+  // La décomposition est pilotée par la CATÉGORIE : sur un salaire ou une prime
+  // d'assurance, elle refuse de fabriquer une taxe qui n'existe pas.
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+  const categoryCode = categoryId
+    ? (await prisma.expenseCategory.findUnique({ where: { id: categoryId }, select: { code: true } }))?.code
+    : null;
+  const taxes = decomposeExpenseTax({
+    montantTtc: tx.rawAmount,
+    categoryCode,
+    taxConfig,
+  });
+
   // Atomicité : la création de la CabinetExpense, la mise à jour de la
   // BankImportTransaction et l'écriture au journal général doivent réussir
   // ensemble, ou échouer ensemble. Si l'écriture journal échoue, on ne veut
@@ -240,7 +258,11 @@ export async function validateImportedTransaction(
         categoryId: categoryId ?? undefined,
         categoryName,
         montant: tx.rawAmount,
-        montantTtc: tx.rawAmount,
+        montantHt: taxes.montantHt,
+        tps: taxes.tps,
+        tvq: taxes.tvq,
+        montantTtc: taxes.montantTtc,
+        taxOrigin: taxes.origine,
         typeTransaction,
         dossierId: input.dossierId ?? undefined,
         refacturable: input.refacturable ?? false,
@@ -288,6 +310,15 @@ export type EditCabinetExpenseInput = {
   fournisseurNormalise?: string | null;
   sousCategorie?: string | null;
   refacturable?: boolean;
+  /**
+   * Taxe LUE SUR LA PIÈCE. Fournie, elle vaut vérité et rend la dépense réclamable ;
+   * absente, la taxe est réestimée depuis le montant et la catégorie.
+   * Le cabinet ne pouvait rien corriger jusqu'ici : ce type n'exposait aucun champ
+   * de taxe, donc ce que l'import n'avait pas rempli restait vide pour toujours.
+   */
+  tps?: number | null;
+  tvq?: number | null;
+  montantHt?: number | null;
 };
 
 export type EditCabinetExpenseResult =
@@ -324,12 +355,38 @@ export async function editCabinetExpense(
 
   let correction: { correctionId: string; replayId?: string; reasons: string[] } | undefined;
 
+  // Recalcul de la taxe à chaque édition (lot 1, spec §2.1). Le montant ou la
+  // catégorie ont pu changer, et la taxe qui en découle avec eux : la laisser
+  // telle quelle ferait diverger la taxe du montant qu'elle est censée décomposer.
+  //
+  // Une taxe fournie dans le patch vaut PIÈCE, donc vérité, donc réclamable. Aucune
+  // taxe fournie : on réestime, et la ligne reste non réclamable.
+  const montantApres = patch.montant ?? before.montant;
+  const categoryIdApres = patch.categoryId !== undefined ? patch.categoryId : before.categoryId;
+  const taxConfig = await getCabinetTaxConfigById(cabinetId);
+  const codeApres = categoryIdApres
+    ? (await prisma.expenseCategory.findUnique({ where: { id: categoryIdApres }, select: { code: true } }))?.code
+    : null;
+  const taxes = decomposeExpenseTax({
+    montantTtc: montantApres,
+    categoryCode: codeApres,
+    taxConfig,
+    declared:
+      patch.tps != null || patch.tvq != null
+        ? { tps: patch.tps, tvq: patch.tvq, montantHt: patch.montantHt }
+        : null,
+  });
+
   const after = await prisma.$transaction(async (txClient) => {
     const updated = await txClient.cabinetExpense.update({
       where: { id: expenseId },
       data: {
-        montant: patch.montant ?? before.montant,
-        montantTtc: patch.montant ?? before.montantTtc,
+        montant: montantApres,
+        montantHt: taxes.montantHt,
+        tps: taxes.tps,
+        tvq: taxes.tvq,
+        montantTtc: taxes.montantTtc,
+        taxOrigin: taxes.origine,
         date: patch.date ?? before.date,
         typeTransaction: patch.typeTransaction ?? before.typeTransaction,
         dossierId: patch.dossierId !== undefined ? patch.dossierId : before.dossierId,

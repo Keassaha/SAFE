@@ -1,0 +1,162 @@
+/**
+ * SAFE — Décomposition de la taxe payée sur une dépense du cabinet.
+ *
+ * Spec      : docs/accounting/SPEC_DEPENSES_ET_PREPARATION_FISCALE.md §2.1, lot 1
+ * Régimes   : lib/expense-journal/tax-regime.ts (lot 0 bis)
+ *
+ * LE DÉFAUT QUE CE MODULE FERME
+ *
+ * `CabinetExpense` porte `montantHt`, `tps`, `tvq` depuis le début. Trois chemins
+ * créent des dépenses et un seul les remplissait : l'import de reçu par IA, qui est
+ * le chemin de plus faible volume. L'import bancaire, qui fait le gros du volume,
+ * écrivait `montant: rawAmount, montantTtc: rawAmount` et s'arrêtait là.
+ *
+ * Conséquence : un cabinet remet la taxe collectée sans déduire la taxe payée sur ses
+ * achats. Il remet trop, tous les trimestres, sans jamais le voir.
+ *
+ * TROIS ORIGINES, PAS DEUX
+ *
+ * La spec parle de « déclarée » et « estimée ». Il en faut une troisième, sinon une
+ * dépense sans taxe est indiscernable d'une dépense dont on n'a pas su lire la taxe :
+ *
+ *   DECLAREE  la pièce le dit. C'est la vérité, on la garde telle quelle.
+ *   ESTIMEE   décomposée d'un TTC. Sert à la justesse des états, JAMAIS à la
+ *             déclaration : le montant de taxe est exigé sur la pièce dès le premier
+ *             dollar pour la TVQ (spec §2.2 c).
+ *   AUCUNE    la catégorie ne porte structurellement pas de taxe. Ce n'est pas un
+ *             échec de lecture, c'est un fait, et il se dit à l'écran.
+ */
+
+import type { AppliedTaxes, CabinetTaxConfig } from "@/lib/billing/types";
+import { splitInclusiveTaxes, toInvoiceTaxColumns } from "@/lib/billing/taxes";
+import { regimeFor, peutEstimerTaxe, peutSaisirTaxe } from "./tax-regime";
+
+export type TaxOrigin = "DECLAREE" | "ESTIMEE" | "AUCUNE";
+
+export interface ExpenseTaxBreakdown {
+  montantHt: number;
+  /** Colonne `tps` : porte la TPS, ou la TVH en régime harmonisé. */
+  tps: number;
+  /** Colonne `tvq` : porte TVQ, PST ou RST. Invariant : tps + tvq === taxe totale. */
+  tvq: number;
+  montantTtc: number;
+  origine: TaxOrigin;
+  /**
+   * Réclamable sur une déclaration de taxes. Seule une taxe DECLAREE l'est.
+   * Une taxe estimée sert à la justesse des états et à la prévision, jamais à la
+   * demande de remboursement : sans le montant lu sur la pièce, elle n'est pas
+   * justifiable en vérification.
+   */
+  reclamable: boolean;
+  /** Phrase montrable au cabinet quand rien n'a été décomposé. Jamais un code. */
+  motif?: string;
+}
+
+/** Ce que la pièce ou la saisie affirme, quand elle affirme quelque chose. */
+export interface DeclaredTax {
+  montantHt?: number | null;
+  tps?: number | null;
+  tvq?: number | null;
+}
+
+const R2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+/** Une déclaration ne compte que si elle porte une taxe réelle. */
+function aUneTaxeDeclaree(d: DeclaredTax | null | undefined): boolean {
+  if (!d) return false;
+  return (d.tps ?? 0) > 0 || (d.tvq ?? 0) > 0;
+}
+
+/**
+ * Décompose la taxe payée d'une dépense.
+ *
+ * L'ordre des règles n'est pas indifférent : le régime de la catégorie est consulté
+ * AVANT la déclaration, parce qu'une catégorie sans taxe dure doit refuser même une
+ * saisie. C'est le piège de l'assurance : la taxe sur les primes existe et n'est pas
+ * récupérable ; l'accepter la ferait entrer dans les récupérables.
+ */
+export function decomposeExpenseTax(input: {
+  montantTtc: number;
+  categoryCode?: string | null;
+  taxConfig: CabinetTaxConfig;
+  declared?: DeclaredTax | null;
+}): ExpenseTaxBreakdown {
+  const { montantTtc, categoryCode, taxConfig, declared } = input;
+  const ttc = R2(montantTtc);
+  const regle = regimeFor(categoryCode);
+
+  const sansTaxe = (motif: string): ExpenseTaxBreakdown => ({
+    montantHt: ttc,
+    tps: 0,
+    tvq: 0,
+    montantTtc: ttc,
+    origine: "AUCUNE",
+    reclamable: false,
+    motif,
+  });
+
+  // Montant nul ou négatif : rien à décomposer, et surtout pas de division.
+  if (ttc <= 0) return sansTaxe("Aucun montant à décomposer.");
+
+  // 1. La catégorie refuse-t-elle toute taxe, même saisie ?
+  if (!peutSaisirTaxe(categoryCode)) return sansTaxe(regle.motif);
+
+  // 2. La pièce parle-t-elle ? C'est la vérité, on ne recalcule pas.
+  if (aUneTaxeDeclaree(declared)) {
+    const tps = R2(declared!.tps ?? 0);
+    const tvq = R2(declared!.tvq ?? 0);
+    // Le HT déclaré prime ; à défaut on le déduit, pour que HT + taxes === TTC
+    // au centime près quoi qu'il arrive en aval.
+    const ht = declared!.montantHt != null ? R2(declared!.montantHt) : R2(ttc - tps - tvq);
+    return {
+      montantHt: ht,
+      tps,
+      tvq,
+      montantTtc: ttc,
+      origine: "DECLAREE",
+      reclamable: true,
+    };
+  }
+
+  // 3. La catégorie autorise-t-elle une ESTIMATION ? Les frais bancaires et les
+  //    droits de greffe passent l'étape 1 mais échouent ici : on ne fabrique pas de
+  //    taxe sur une fourniture exonérée, on attend que la pièce la porte.
+  if (!peutEstimerTaxe(categoryCode)) return sansTaxe(regle.motif);
+
+  // 4. Régime général : décomposition du TTC selon le régime du cabinet.
+  const applied: AppliedTaxes = splitInclusiveTaxes(ttc, taxConfig);
+  const cols = toInvoiceTaxColumns(applied, taxConfig.mode);
+
+  if (applied.taxesTotal <= 0) {
+    return sansTaxe("Le régime de taxes du cabinet ne prévoit aucune taxe applicable.");
+  }
+
+  return {
+    montantHt: R2(applied.base),
+    tps: cols.tps,
+    tvq: cols.tvq,
+    montantTtc: ttc,
+    origine: "ESTIMEE",
+    reclamable: false,
+  };
+}
+
+/**
+ * Taxe réellement réclamable d'un lot de dépenses.
+ *
+ * Sert au calcul du net à remettre. Additionner sans filtrer gonflerait la demande
+ * de remboursement avec des montants estimés, qui ne sont pas justifiables en
+ * vérification.
+ */
+export function taxeReclamable(
+  lignes: ReadonlyArray<{ tps: number; tvq: number; origine: TaxOrigin }>,
+): { reclamable: number; estimee: number } {
+  let reclamable = 0;
+  let estimee = 0;
+  for (const l of lignes) {
+    const somme = (l.tps ?? 0) + (l.tvq ?? 0);
+    if (l.origine === "DECLAREE") reclamable += somme;
+    else if (l.origine === "ESTIMEE") estimee += somme;
+  }
+  return { reclamable: R2(reclamable), estimee: R2(estimee) };
+}

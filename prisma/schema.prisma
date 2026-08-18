@@ -3239,6 +3239,20 @@ model ExpenseCategory {
   @@index([cabinetId])
 }
 
+/// Origine de la taxe payée d'une dépense. Spec dépenses §2.1 (lot 1).
+///
+/// Trois états et non deux : un booléen « estimée » ne distinguerait pas une dépense
+/// SANS taxe d'une dépense dont on n'a pas su LIRE la taxe. La première est un fait
+/// qui s'affiche, la seconde est un trou qui se comble avec la pièce.
+enum ExpenseTaxOrigin {
+  /// La pièce le dit. Seul état réclamable en déclaration.
+  DECLAREE
+  /// Décomposée d'un TTC. Sert à la justesse des états, jamais à la déclaration.
+  ESTIMEE
+  /// La catégorie ne porte structurellement aucune taxe.
+  AUCUNE
+}
+
 model BankImportSession {
   id                  String   @id @default(cuid())
   cabinetId           String
@@ -3306,6 +3320,11 @@ model CabinetExpense {
   tps                  Float?
   tvq                  Float?
   montantTtc           Float?
+  /// Origine de la taxe ci-dessus. Lot 1, spec dépenses §2.1.
+  /// NULL = origine inconnue (dépense antérieure au lot 1), et surtout PAS « sans taxe ».
+  /// Seul DECLAREE est réclamable en déclaration : une taxe estimée n'est pas
+  /// justifiable en vérification, faute du montant lu sur la pièce.
+  taxOrigin            ExpenseTaxOrigin?
   typeTransaction      ExpenseJournalTransactionType  @default(DEPENSE)
   dossierId            String?
   refacturable         Boolean                        @default(false)
@@ -3327,6 +3346,7 @@ model CabinetExpense {
   @@unique([cabinetId, pieceHash]) // un même reçu → une seule dépense
   @@index([cabinetId])
   @@index([cabinetId, date])
+  @@index([cabinetId, taxOrigin])
   @@index([categoryId])
   @@index([dossierId])
   @@index([statutValidation])
