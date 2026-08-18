@@ -282,10 +282,11 @@ qui ne peut pas être délégué, et c'est lui qui décide du domaine, donc du b
 des formulaires et des listes de pièces.
 
 > ✅ **Étape 0 faite le 2026-08-18** :
-> [SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md](SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md).
-> Le vertical retenu n'est **pas** celui du blueprint §28 : le cabinet pilote est en
-> Ontario et fait immobilier et immigration, pas du droit familial québécois. Voir §0 de
-> la spec pour les trois constats qui justifient l'écart.
+> [SPEC_COLLECTE_PIECES_CLIENT.md](SPEC_COLLECTE_PIECES_CLIENT.md).
+> Cabinet pilote retenu : **Me Cayard** (Québec, immigration + famille + litige civil),
+> et non Me Derisier. Le blueprint §28 recommandait un vertical familial québécois : il
+> avait raison, mais pour un cabinet que je ne connaissais pas encore. La spec est écrite
+> sur le **divorce**, cas le plus exigeant, puis vérifiée sur l'Entrée express.
 
 ### Étape 0 — La spec de parcours (prochaine action physique du blueprint)
 

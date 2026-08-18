@@ -1,5 +1,17 @@
 # SAFE — Spec de parcours pilote : Entrée express (immigration)
 
+> ⚠️ **REMPLACÉE le 2026-08-18** par
+> [SPEC_COLLECTE_PIECES_CLIENT.md](SPEC_COLLECTE_PIECES_CLIENT.md).
+>
+> Motif : cette spec n'instanciait qu'un seul domaine, l'immigration. Le cabinet pilote
+> retenu (Me Cayard, Québec) fait immigration **et** droit de la famille. Le modèle
+> spécifié ici n'aurait pas porté le divorce : il lui manquait le rattachement d'une
+> pièce à une partie, la distinction entre partie adverse et tiers, et le lien vers la
+> pièce produite au cartable.
+>
+> Le contenu reste valable comme **instance immigration**, repris au §9 de la nouvelle
+> spec.
+
 > Prochaine action physique du [blueprint](BLUEPRINT_RENFORCEMENT_SAFE_INSPIRE_NEOLEGAL.md) §33.
 > Plan d'ensemble : [PLAN_CONSTRUCTION_MODULE_NEOLEGAL.md](PLAN_CONSTRUCTION_MODULE_NEOLEGAL.md)
 > Rédigée le 2026-08-18. **Statut : DRAFT, en attente de validation par le cabinet pilote.**
