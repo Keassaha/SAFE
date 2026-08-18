@@ -49,6 +49,47 @@ const CSS = `
     --duree-entree: 780ms;
     --duree-teinte: 620ms;
 
+    /* ── La colonne ──────────────────────────────────────────────────────────
+       Une seule largeur de page et une seule gouttière, pour toute la vitrine.
+
+       Audit du 13 août 2026 : la page employait dix-sept largeurs de contenu
+       et six bords gauches pour huit titres de section. « Simple » commençait
+       à 84 px, « Fiable » à 140 px. La cause n'était pas une faute de valeur
+       mais une différence de structure : les pins de « Fiable » et « Complet »
+       centraient une grille de 1160 px dans une boîte de 1272, ce qui ajoutait
+       56 px à gauche, quand « Simple » posait son contenu à même le retrait.
+
+       Le retrait se DÉDUIT désormais de la largeur de page : la boîte de
+       contenu vaut toujours --page au plus, donc une grille de --page la
+       remplit exactement et ne peut plus se recentrer. Toutes les scènes
+       partagent la même arête, à toutes les largeurs. Voir .colonne. */
+    --page: 1160px;
+    --gouttiere: min(6vw, 84px);
+
+    /* ── L'échelle typographique ─────────────────────────────────────────────
+       Vingt rampes clamp() aux triplets tous différents, dont six pour le seul
+       rôle « titre de section », donnaient 24 tailles en texte éditorial. Deux
+       rampes atteignaient 56 px avec des pentes différentes : les titres se
+       rejoignaient aux extrêmes et divergeaient au milieu.
+
+       L'échelle existait déjà, nommée et commentée, mais seulement sous 860 px
+       (voir la requête de média plus bas). Au-dessus, ses vingt-six appels
+       retombaient sur cinq valeurs littérales écrites dans les valeurs de
+       repli : le système était déclaré et jamais appliqué au large.
+
+       Le même vocabulaire monte donc en desktop, ce qui évite d'en inventer un
+       second. Six rôles, six valeurs. Aucune scène n'en montre plus de quatre
+       à la fois, ce qu'exige PS-007. Une taille qui change signale un
+       changement de rôle, jamais un ajustement pour qu'une phrase tombe
+       bien (T3). */
+    --t-affiche: clamp(44px, 7.4vw, 92px);   /* le titre d'ouverture, une seule fois */
+    --t-marque: clamp(34px, 4.4vw, 56px);    /* Simple, Fiable, Complet, et tout titre de section */
+    --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
+    --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
+    --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
+    --t-detail: 14px;                        /* la justification sous un point */
+    --t-menu: 11px;                          /* exergue, méta, libellé : le plancher */
+
     background: var(--bg);
     color: var(--ink);
     font-family: var(--sans);
@@ -88,9 +129,9 @@ const CSS = `
   .xc .ref { white-space: nowrap; }
 
   .xc .kicker {
-    font-family: var(--mono);
+    font-family: var(--sans);
     font-size: 11px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--green);
   }
@@ -200,11 +241,11 @@ const CSS = `
     /* la cible tactile fait au moins 24 px de haut, le tiret reste fin */
     padding: 7px 0 7px 14px;
     border-radius: 6px;
-    font-family: var(--mono);
-    font-size: var(--t-menu, 10px);
-    letter-spacing: 0.12em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--faint);
+    color: var(--muted);
   }
   .xc #rail .stop span { opacity: 0; transition: opacity 0.65s ease; }
   /* un tiret par étape : celui de l'étape en cours s'allonge et se nomme */
@@ -335,7 +376,7 @@ const CSS = `
     border: 1px solid var(--si-line);
     border-radius: 7px;
     font-size: 11.5px;
-    color: var(--si-subtle);
+    color: var(--si-muted);
     background: var(--si-surface);
     white-space: nowrap;
     overflow: hidden;
@@ -371,9 +412,9 @@ const CSS = `
   .xc #hero-app .ha-drop b {
     display: block;
     padding: 5px 9px 6px;
-    font-size: var(--t-menu, 9.5px); font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--si-subtle);
+    font-size: var(--t-menu); font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--si-muted);
   }
   .xc #hero-app .ha-drop a {
     display: flex; align-items: center; justify-content: space-between;
@@ -386,7 +427,7 @@ const CSS = `
   /* Entrée listée mais sans écran dans l'extrait. Elle ne se soulève pas :
      « ce qui se soulève doit s'ouvrir » (components/ui/rangee-ouvrable.ts).
      Promettre un geste inexistant apprend à l'œil à se méfier de l'animation. */
-  .xc #hero-app .ha-drop a.inerte { color: var(--si-subtle); cursor: default; }
+  .xc #hero-app .ha-drop a.inerte { color: var(--si-muted); cursor: default; }
 
   /* Bandeau d'état */
   .xc #hero-app .ha-strip {
@@ -403,7 +444,7 @@ const CSS = `
   }
   .xc #hero-app .ha-strip .s.warn i { background: var(--si-amber-on-forest, #E0B54A); }
   .xc #hero-app .ha-strip .s b { font-weight: 600; }
-  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--mono); font-size: var(--t-menu, 10.5px); }
+  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--sans); font-size: var(--t-menu); }
 
   /* Corps */
   .xc #hero-app .ha-body { padding: 14px 16px; }
@@ -416,9 +457,9 @@ const CSS = `
     padding: 13px 14px;
   }
   .xc #hero-app .ha-kicker {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9px); letter-spacing: 0.17em; text-transform: uppercase;
-    color: var(--si-subtle);
+    font-family: var(--sans);
+    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--si-muted);
   }
   .xc #hero-app .ha-h {
     font-family: var(--serif); font-weight: 400;
@@ -436,11 +477,11 @@ const CSS = `
     cursor: pointer;
   }
   .xc #hero-app .ha-tile .lab {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 8.5px); letter-spacing: 0.15em; text-transform: uppercase;
+    font-family: var(--sans);
+    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
     opacity: 0.72;
   }
-  .xc #hero-app .ha-tile .sub { font-size: var(--t-menu, 10.5px); opacity: 0.66; margin-top: 6px; }
+  .xc #hero-app .ha-tile .sub { font-size: var(--t-menu); opacity: 0.66; margin-top: 6px; }
   .xc #hero-app .ha-tile .val {
     font-family: var(--mono);
     font-size: 17px; letter-spacing: -0.02em; margin-top: 2px;
@@ -473,8 +514,8 @@ const CSS = `
   /* Registre (écrans Facturation / Comptes) */
   .xc #hero-app table.ha-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
   .xc #hero-app .ha-tbl th {
-    text-align: left; font-size: var(--t-menu, 9px); letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--si-subtle); font-weight: 600;
+    text-align: left; font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--si-muted); font-weight: 600;
     padding: 0 8px 7px; border-bottom: 1px solid var(--si-line);
   }
   .xc #hero-app .ha-tbl td { padding: 7px 8px; border-bottom: 1px solid var(--si-line2); }
@@ -483,7 +524,7 @@ const CSS = `
   .xc #hero-app .ha-tag {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 2px 7px; border-radius: 999px;
-    font-size: var(--t-menu, 10px);
+    font-size: var(--t-menu);
     background: rgb(var(--si-forest-rgb) / 0.09); color: var(--si-verified);
   }
   /* Aging : cinq tranches d'ancienneté, lues d'un coup d'œil. */
@@ -496,8 +537,8 @@ const CSS = `
   .xc #hero-app .ha-aging .l {
     display: block;
     font-family: var(--mono);
-    font-size: var(--t-menu, 8.5px); letter-spacing: 0.13em; text-transform: uppercase;
-    color: var(--si-subtle);
+    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--si-muted);
   }
   .xc #hero-app .ha-aging .m {
     display: block; margin-top: 5px;
@@ -507,7 +548,7 @@ const CSS = `
      relance devient prioritaire. */
   .xc #hero-app .ha-aging .m.chaud { color: var(--si-amber-ink); }
 
-  .xc #hero-app .ha-tag.late { background: rgb(184 74 62 / 0.10); color: #B84A3E; }
+  .xc #hero-app .ha-tag.late { background: rgb(var(--si-danger-rgb) / 0.10); color: var(--si-danger-ink); }
   .xc #hero-app .ha-tag.part { background: rgb(138 106 30 / 0.12); color: var(--si-amber-ink); }
   /* Décor : jamais cliquable. Ces blocs sont déclarés APRÈS #hero-app, donc ils
      peignent par-dessus, et opacity 0 ne retire rien du test de collision.
@@ -521,8 +562,8 @@ const CSS = `
     position: absolute;
     left: 0; right: 0;
     top: 17vh;
-    padding: 0 min(6vw, 84px);
-    max-width: 1240px;
+    padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
+    max-width: var(--page);
     margin: 0 auto;
     will-change: transform, opacity;
   }
@@ -550,7 +591,7 @@ const CSS = `
     margin-top: 20px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(44px, 7.4vw, 92px);
+    font-size: var(--t-affiche);
     line-height: 0.99;
     letter-spacing: -0.026em;
     max-width: 13.4ch;
@@ -565,7 +606,7 @@ const CSS = `
     margin-left: 6px;
     max-width: 49ch;
     font-family: var(--serif);
-    font-size: clamp(15px, 1.35vw, 18px);
+    font-size: var(--t-corps);
     line-height: 1.62;
     color: var(--muted);
   }
@@ -611,22 +652,22 @@ const CSS = `
   /* Réassurance factuelle, reprise mot pour mot de la page de diagnostic.
      Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
   .xc #hero-copy .hero-reassure {
-    margin-top: 15px;
+    margin-top: 16px;
     margin-left: 6px;
     font-family: var(--serif);
-    font-size: 13px;
-    color: var(--faint);
+    font-size: var(--t-detail);
+    color: var(--muted);
   }
   .xc #hero-hint {
     position: absolute;
     left: 0; right: 0;
     bottom: 4.5vh;
     text-align: center;
-    font-family: var(--mono);
-    font-size: var(--t-menu, 10px);
-    letter-spacing: 0.18em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--faint);
+    color: var(--muted);
     transition: opacity 0.4s ease;
   }
   .xc #hero-caption {
@@ -643,14 +684,14 @@ const CSS = `
 
   .xc #preuves {
     display: flex;
-    padding: 20px min(6vw, 84px);
-    max-width: 1240px;
+    padding-block: 20px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
+    max-width: var(--page);
     margin: 0 auto;
     /* Quatre affirmations, donc du discours : même voix que le reste.
        Un demi-point de plus qu'en Geist, la serif se lisant plus petite à
        corps égal. Le même écart est appliqué partout sous 14 px. */
     font-family: var(--serif);
-    font-size: 13px;
+    font-size: var(--t-detail);
     color: var(--muted);
     overflow: hidden;
   }
@@ -689,9 +730,9 @@ const CSS = `
   }
 
 
-  .xc .story .pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
+  .xc .story .pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
   .xc .story .grid {
-    max-width: 1160px;
+    max-width: var(--page);
     margin: 0 auto;
     width: 100%;
     display: grid;
@@ -704,7 +745,7 @@ const CSS = `
     margin-top: 18px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(30px, 3.3vw, 44px);
+    font-size: var(--t-marque);
     line-height: 1.08;
     letter-spacing: -0.018em;
     max-width: 15ch;
@@ -712,7 +753,7 @@ const CSS = `
   .xc .story p.body {
     margin-top: 20px;
     max-width: 48ch;
-    font-size: clamp(14px, 1.2vw, 16px);
+    font-size: var(--t-corps);
     line-height: 1.65;
     color: var(--muted);
   }
@@ -737,14 +778,13 @@ const CSS = `
   /* Trois arguments qui se rangent l'un après l'autre, chacun avec son écran :
      la course tient le même rythme que « Fiable », à un temps de moins. */
   .xc #zone-simple { height: 320vh; }
-  .xc #zone-synthese { height: 150vh; }
 
-  .xc .pr-pin, .xc .sy-pin {
+  .xc .pr-pin {
     display: grid;
     align-content: center;
     justify-items: center;
     text-align: center;
-    padding: 0 min(6vw, 84px);
+    padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
   }
   /* La typographie de la promesse est déclarée hors de .anime, l'animation
      seule reste dedans. Ces deux lignes tenaient tout, famille et corps
@@ -755,7 +795,7 @@ const CSS = `
   .xc .pr-main {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(38px, 6.2vw, 76px);
+    font-size: var(--t-marque);
     line-height: 1.04;
     letter-spacing: -0.026em;
     max-width: 16ch;
@@ -773,7 +813,7 @@ const CSS = `
     margin-top: 14px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(17px, 1.9vw, 24px);
+    font-size: var(--t-argument);
     line-height: 1.3;
     letter-spacing: -0.014em;
     color: var(--si-ink);
@@ -792,7 +832,7 @@ const CSS = `
      resterait aussi grosse qu'elle. */
   .xc .pr-suite {
     margin-top: 14px;
-    font-size: clamp(21px, 2.9vw, 38px);
+    font-size: var(--t-titre);
     line-height: 1.16;
     letter-spacing: -0.018em;
     max-width: 26ch;
@@ -818,7 +858,7 @@ const CSS = `
     display: block;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(34px, 4.2vw, 56px);
+    font-size: var(--t-marque);
     line-height: 1;
     letter-spacing: -0.028em;
     color: var(--si-ink);
@@ -830,7 +870,7 @@ const CSS = `
   .xc .ch-pin {
     display: grid;
     align-content: center;
-    padding: 0 min(6vw, 84px);
+    padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
   }
   /* Le chapitre « Simple » démontre par un émulateur du cabinet : les trois
      arguments à gauche, une fenêtre de SAFE à droite qui bascule d'un écran à
@@ -845,7 +885,7 @@ const CSS = `
     margin-top: 10px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(30px, 3.6vw, 46px);
+    font-size: var(--t-titre);
     line-height: 1.1;
     letter-spacing: -0.02em;
     max-width: 17ch;
@@ -897,9 +937,12 @@ const CSS = `
   }
   .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--t-menu);
     letter-spacing: 0.1em;
-    color: var(--si-brand-green);
+    /* Le vert de marque tombe à 4,26 pour 11 px, sous le seuil AA. Le vert de
+       validation donne 5,88 et dit la même chose ici. Même arbitrage que pour
+       le domaine de pratique, plus bas. */
+    color: var(--verified);
   }
   /* Un seul corps pour les neuf points de la page. Il est calé sur le chapitre
      le plus chargé, « Complet », qui porte en plus une intro et une chute :
@@ -908,7 +951,7 @@ const CSS = `
   .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(18px, 1.85vw, 24px);
+    font-size: var(--t-argument);
     line-height: 1.24;
     letter-spacing: -0.014em;
     color: var(--muted);
@@ -948,9 +991,9 @@ const CSS = `
     height: 34px;
     padding: 0 14px;
     background: var(--si-forest);
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9.5px);
-    letter-spacing: 0.15em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--si-surface);
   }
@@ -972,9 +1015,9 @@ const CSS = `
   }
   .xc .em-ecran.on { opacity: 1; transform: none; pointer-events: auto; }
   .xc .em-kicker {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9.5px);
-    letter-spacing: 0.17em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--si-amber-ink);
   }
@@ -982,7 +1025,7 @@ const CSS = `
     margin-top: 9px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(18px, 1.7vw, 22px);
+    font-size: var(--t-argument);
     line-height: 1.16;
     letter-spacing: -0.015em;
   }
@@ -1006,11 +1049,11 @@ const CSS = `
     background: var(--si-canvas);
   }
   .xc .em-tile .lab {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9px);
-    letter-spacing: 0.14em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--faint);
+    color: var(--muted);
   }
   .xc .em-tile .sub { margin-top: 6px; font-size: 11px; color: var(--muted); }
   /* Le chiffre est sacré : mono tabulaire, jamais tronqué. */
@@ -1050,11 +1093,11 @@ const CSS = `
   }
   .xc .em-sous {
     margin-top: 13px;
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9px);
-    letter-spacing: 0.17em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--faint);
+    color: var(--muted);
   }
   /* Écran « saisi une fois » : la même heure, à sa source puis sur la facture.
      Le trait vertical dit que rien n'a été retapé entre les deux. */
@@ -1087,11 +1130,11 @@ const CSS = `
     align-items: center;
     gap: 10px;
     margin: 10px 0 0 14px;
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9px);
-    letter-spacing: 0.16em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--faint);
+    color: var(--muted);
   }
   .xc .em-relie i {
     display: block;
@@ -1110,17 +1153,14 @@ const CSS = `
      Un cran plus petite qu'avant : elle conclut, elle ne rivalise plus avec
      les titres de chapitre. */
   .xc #zone-synthese, .xc #zone-synthese .pin { background: var(--si-surface); }
-  .xc .sy-line {
-    font-family: var(--serif); font-weight: 400;
-    font-size: clamp(23px, 2.8vw, 36px);
-    line-height: 1.26; letter-spacing: -0.018em;
-  }
-  .xc.anime .sy-line {
-    opacity: 0;
-    will-change: opacity, transform;
-  }
-  .xc.anime .sy-end { margin-top: 34px; opacity: 0; will-change: opacity, transform; }
-  .xc .sy-claim { font-family: var(--serif); font-size: clamp(14px, 1.4vw, 16.5px); color: var(--muted); max-width: 36ch; margin: 0 auto; }
+  /* Le bloc n'est plus animé depuis que la scène de synthèse a quitté la
+     boucle de défilement : drawSynthese posait son opacité, drawSynthese a
+     été retiré, la règle qui la mettait à zéro était restée. La phrase de
+     clôture et les deux actions ne s'affichaient donc plus nulle part, ni au
+     téléphone ni au large, et la page passait de « Complet » aux tarifs par
+     un bloc blanc de 307 px. */
+  .xc .sy-end { margin-top: 34px; }
+  .xc .sy-claim { font-family: var(--serif); font-size: var(--t-corps); color: var(--muted); max-width: 36ch; margin: 0 auto; }
   .xc .sy-cta { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   .xc #zone-fiable { height: 400vh; }
@@ -1141,10 +1181,10 @@ const CSS = `
      alterne alors franchement d'un chapitre à l'autre : Simple sur canevas,
      Fiable sur blanc, Complet sur canevas, la synthèse sur blanc, puis la
      tarification à nouveau sur canevas. */
-  .xc .co-pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
+  .xc .co-pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
   .xc .co-grid {
     width: 100%;
-    max-width: 1160px;
+    max-width: var(--page);
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1.02fr 0.98fr;
@@ -1156,7 +1196,7 @@ const CSS = `
     margin-top: 14px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(27px, 3vw, 40px);
+    font-size: var(--t-titre);
     line-height: 1.1;
     letter-spacing: -0.018em;
     max-width: 18ch;
@@ -1164,7 +1204,7 @@ const CSS = `
   .xc .co-intro {
     margin-top: 14px;
     font-family: var(--serif);
-    font-size: clamp(14px, 1.15vw, 15.5px);
+    font-size: var(--t-corps);
     line-height: 1.6;
     color: var(--muted);
     max-width: 46ch;
@@ -1181,7 +1221,7 @@ const CSS = `
     margin-top: 22px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(16px, 1.5vw, 20px);
+    font-size: var(--t-argument);
     line-height: 1.32;
     letter-spacing: -0.014em;
     color: var(--si-ink);
@@ -1215,9 +1255,9 @@ const CSS = `
     box-shadow: 0 26px 56px -46px rgb(var(--si-line-ink-rgb) / 0.42);
   }
   .xc .co-ou {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9.5px);
-    letter-spacing: 0.16em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -1238,9 +1278,9 @@ const CSS = `
      lit en premier et porte le vert de marque. */
   .xc .co-domaine { display: grid; gap: 3px; }
   .xc .co-domaine .lb {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9px);
-    letter-spacing: 0.15em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -1250,7 +1290,7 @@ const CSS = `
   .xc .co-domaine .vl {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(19px, 1.9vw, 24px);
+    font-size: var(--t-argument);
     line-height: 1.15;
     letter-spacing: -0.014em;
     color: var(--verified);
@@ -1311,10 +1351,10 @@ const CSS = `
      Le fond porte le blanc de la marque (--si-surface, l'albâtre du produit),
      pas un blanc pur inventé pour l'occasion. */
   .xc #zone-fiable, .xc #zone-fiable .pin { background: var(--si-surface); }
-  .xc .fi-pin { display: grid; align-content: center; padding: 0 min(6vw, 84px); }
+  .xc .fi-pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
   .xc .fi-grid {
     width: 100%;
-    max-width: 1160px;
+    max-width: var(--page);
     margin: 0 auto;
     display: grid;
     grid-template-columns: 0.94fr 1.06fr;
@@ -1326,7 +1366,7 @@ const CSS = `
     margin-top: 16px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(28px, 3.1vw, 42px);
+    font-size: var(--t-titre);
     line-height: 1.1;
     letter-spacing: -0.018em;
     max-width: 20ch;
@@ -1355,9 +1395,9 @@ const CSS = `
      sous le seuil AA. Ce libellé dit où l'on se trouve, ce n'est pas de la
      décoration : il passe à l'encre secondaire (4,78). */
   .xc .fi-ou {
-    font-family: var(--mono);
-    font-size: var(--t-menu, 9.5px);
-    letter-spacing: 0.16em;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -1439,7 +1479,7 @@ const CSS = `
   .xc .fi-temps .h {
     grid-column: 1 / -1;
     font-family: var(--mono);
-    font-size: var(--t-menu, 10px);
+    font-size: var(--t-menu);
     letter-spacing: 0.08em;
     color: var(--muted);
   }
@@ -1476,15 +1516,15 @@ const CSS = `
 
   /* sans display block, « Pour l'avocat » et le titre se collaient */
 
-  .xc section.flat { padding: clamp(84px, 12vh, 150px) min(6vw, 84px); }
-  .xc section.flat .inner { max-width: 1100px; margin: 0 auto; }
+  .xc section.flat { padding-block: clamp(84px, 12vh, 150px); padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
+  .xc section.flat .inner { max-width: var(--page); margin: 0 auto; }
   .xc section.flat.surface { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 
   .xc #tarifs .head h2 {
     margin-top: 14px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(30px, 3.4vw, 46px);
+    font-size: var(--t-marque);
     line-height: 1.08;
   }
   .xc #tarifs .plan {
@@ -1500,9 +1540,9 @@ const CSS = `
   .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--serif); font-size: 13.5px; color: var(--muted); }
   /* Le prix et son unité restent un chiffre : mono, comme tout montant du
      site. La serif s'arrête au texte qui l'entoure. */
-  .xc #tarifs .plan .price { font-family: var(--mono); font-size: 25px; text-align: right; }
-  .xc #tarifs .plan .price small { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: 4px; }
-  .xc #tarifs .note { margin-top: 18px; font-family: var(--serif); font-size: 13px; color: var(--faint); }
+  .xc #tarifs .plan .price { font-family: var(--mono); font-size: var(--t-argument); text-align: right; }
+  .xc #tarifs .plan .price small { font-family: var(--mono); font-size: var(--t-menu); color: var(--muted); margin-left: 4px; }
+  .xc #tarifs .note { margin-top: 18px; font-family: var(--serif); font-size: 13px; color: var(--muted); }
   .xc #tarifs .more { margin-top: 18px; font-family: var(--serif); font-size: 14px; display: inline-block; color: var(--ink); }
 
   .xc #questions .q {
@@ -1512,13 +1552,13 @@ const CSS = `
     padding: 26px 0;
     border-top: 1px solid var(--line);
   }
-  .xc #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.35; }
+  .xc #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: var(--t-argument); line-height: 1.35; }
   .xc #questions .q p { max-width: 58ch; font-family: var(--serif); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
   .xc #questions h2 {
     margin-top: 14px;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(30px, 3.4vw, 46px);
+    font-size: var(--t-marque);
     line-height: 1.08;
     max-width: 16ch;
   }
@@ -1529,7 +1569,7 @@ const CSS = `
     margin: 18px auto 0;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(34px, 4.6vw, 56px);
+    font-size: var(--t-marque);
     line-height: 1.05;
     letter-spacing: -0.02em;
     max-width: 18ch;
@@ -1568,14 +1608,14 @@ const CSS = `
   }
 
   .xc footer {
-    padding: 34px min(6vw, 84px) 44px;
+    padding-block: 34px 44px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
     border-top: 1px solid var(--line);
     display: flex;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
     font-size: 12px;
-    color: var(--faint);
+    color: var(--muted);
   }
   .xc footer .flinks { display: flex; gap: 18px; flex-wrap: wrap; }
   .xc footer .fbrand { display: inline-flex; align-items: center; gap: 12px; }
@@ -1720,7 +1760,7 @@ const CSS = `
          disparaît, sinon elle rogne une largeur déjà comptée. */
       --col-numero: 22px;
       --gout-numero: 10px;
-      --pad-argument: 9px;
+      --pad-argument: 14px;
       --mesure-argument: none;
       --mesure-detail: none;
 
@@ -1853,9 +1893,15 @@ const CSS = `
     }
     /* Les points des trois piliers partagent un seul corps, ici comme au
        large. La sous-ligne n'existe plus, donc l'échelle du téléphone n'a plus
-       qu'une taille à donner pour eux. */
+       qu'une taille à donner pour eux.
+
+       L'interligne s'ouvre de 1,24 à 1,36. Au large, un point tient sur une
+       ligne et l'interligne serré le tient groupé ; sur 335 px, les points de
+       « Fiable » passent tous à deux lignes, et le même serrage donne un pavé
+       compact que l'oeil lit comme un paragraphe et non comme un point. */
     .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
       font-size: var(--t-argument);
+      line-height: 1.36;
       max-width: none;
     }
     .xc .si-narration, .xc .fi-narration, .xc .co-narration { margin-top: 16px; }
@@ -1880,9 +1926,42 @@ const CSS = `
     .xc .co-grid { grid-template-columns: 1fr; gap: 16px; }
     .xc .co-stage { order: 2; }
     .xc .co-copy { order: 1; }
+    /* ── Les points, au téléphone ───────────────────────────────────────────
+       Au large, ce qui tient les trois points ensemble est la colonne : ils
+       partagent une arête gauche, l'écran de démonstration leur fait face, et
+       le point en cours porte l'encre pleine pendant que le défilement le
+       désigne. Rien de tout cela ne survit sur 335 px. Le défilement piloté
+       est coupé, donc les trois points sont tous « en cours » en même temps ;
+       la démonstration passe dessous au lieu d'être en face ; et le numéro
+       vert, seul repère restant, est un détail de 11 px posé à gauche d'un
+       texte qui fait le double.
+
+       Il restait donc trois phrases de même poids, sans rien pour dire où
+       l'une finit et où la suivante commence, séparées par du vide. C'est ce
+       vide qui se lit comme un brouillon.
+
+       Le filet remplace le vide. Ce n'est pas une invention pour l'occasion :
+       la page s'en sert déjà deux fois plus bas, pour les forfaits et pour
+       les questions. Les points des piliers prennent la même grammaire, donc
+       le téléphone lit trois listes bâties pareil au lieu de trois blocs qui
+       se ressemblent vaguement. Le dernier filet ferme la liste et la détache
+       de la phrase de chute, qui conclut le chapitre et n'en fait pas partie. */
     .xc .si-arg, .xc .fi-arg, .xc .co-arg {
       grid-template-columns: 22px 1fr;
-      column-gap: 10px;
+      column-gap: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .xc .si-args, .xc .fi-args, .xc .co-args {
+      border-bottom: 1px solid var(--line);
+    }
+    /* Le numéro est calé sur la première ligne de texte, pas sur son milieu :
+       à deux lignes, un numéro centré flotte entre les deux et ne désigne
+       plus rien. L'alignement sur la ligne de base le fait, sauf qu'à 11 px
+       contre 17 px la base commune enfonce le numéro d'environ un pixel sous
+       la panse des minuscules. Le décalage le remonte à hauteur d'oeil. */
+    .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
+      position: relative;
+      top: -1px;
     }
 
     /* Le dégagement en tête de chapitre tient compte de la barre flottante
@@ -1921,10 +2000,25 @@ const CSS = `
        charger. Elles prennent la hauteur de ce qu'elles disent, et gardent un
        dégagement franc au-dessus et en dessous. */
     .xc .pr-pin { padding: 88px var(--marge); }
-    .xc .sy-pin { padding: 80px var(--marge); }
     .xc .pr-main { font-size: var(--t-titre); }
-    .xc .sy-line { font-size: var(--t-titre); }
     .xc .sy-claim { font-size: var(--t-corps); }
+
+    /* ── La mesure ──────────────────────────────────────────────────────────
+       Sept blocs de texte portaient un plafond en ch calculé pour le large et
+       jamais relevé ici. Mesuré sur 375 px, la colonne offre 335 px et ces
+       blocs s'arrêtaient à 169, 190, 227, 240 et 275 px : la moitié de
+       l'écran restait vide à droite pendant que la phrase se cassait en trois
+       lignes courtes. « Des réponses précises aux questions importantes »
+       tombait sur trois lignes dans 169 px.
+
+       Un plafond en ch protège d'une ligne trop longue. Sur un téléphone, la
+       largeur de l'écran est déjà ce plafond : 335 px donnent au plus 40
+       caractères, très en deçà des 65 de PS-008. Le plafond n'y protège de
+       rien, il ne fait que rogner. Il tombe donc, et les huit blocs prennent
+       la colonne, comme tout le reste de la page. */
+    .xc .pr-main, .xc .pr-suite, .xc .sy-claim,
+    .xc .co-fin, .xc .co-fin .co-comptable,
+    .xc #tarifs .head h2, .xc #questions h2, .xc #cta h2 { max-width: none; }
 
     /* ── Bas de page ────────────────────────────────────────────────────────
        Les trois sections plates gardaient l'échelle du large : leurs titres
@@ -1934,7 +2028,12 @@ const CSS = `
       font-size: var(--t-titre);
       line-height: 1.14;
     }
-    .xc #tarifs .plan { padding: 20px 0; gap: 12px; }
+    /* Le prix se cale sur le nom du forfait, pas sur le milieu du bloc. Avec
+       align-items: center, un prix de 22 px se centrait sur deux lignes de
+       texte et venait se poser entre « Solo » et sa description : il ne
+       chiffrait visuellement ni l'un ni l'autre. Aligné sur la ligne de base
+       du nom, il chiffre le nom. */
+    .xc #tarifs .plan { padding: 20px 0; gap: 12px; align-items: baseline; }
     .xc #tarifs .plan:first-of-type { margin-top: 24px; }
     .xc #tarifs .plan .name { font-size: var(--t-argument); }
     .xc #tarifs .plan .detail { font-size: var(--t-detail); }
@@ -1949,7 +2048,47 @@ const CSS = `
     /* Deux actions côte à côte tombaient chacune sous la largeur d'un pouce :
        elles s'empilent, pleine largeur, comme celles de la synthèse. */
     .xc #cta .actions, .xc .sy-cta { flex-direction: column; align-items: stretch; }
-    .xc footer { font-size: var(--t-menu); }
+    /* Le pied de page répartissait quatre groupes sur une rangée en
+       space-between. Passés à la ligne faute de place, les groupes gardaient
+       cette répartition : « Confidentialité » se retrouvait seul sur sa
+       ligne, et les écarts entre les liens variaient d'une rangée à l'autre
+       sans qu'aucun ne veuille rien dire. Les groupes s'empilent, et les
+       liens d'un même groupe gardent un écart unique. */
+    /* Le pied de page gardait la gouttière du large, soit 6vw : 22,5 px sur
+       375, contre les 20 px de toute la page. Un décalage de 2,5 px ne se voit
+       pas, il se sent, et c'est exactement l'écart que la colonne unique
+       devait supprimer. */
+    .xc footer {
+      flex-direction: column;
+      gap: 20px;
+      padding-inline: var(--marge);
+      font-size: var(--t-menu);
+    }
+    .xc footer .flinks { gap: 14px 18px; }
+    /* Un lien tactile fait au moins 44 px de large (globals.css, cible au
+       doigt). « FAQ » n'en mesure que 21 : les 23 px restants tombaient tous
+       à sa droite et creusaient un trou de 41 px au milieu de la rangée, là
+       où les autres liens sont séparés de 18. Le lien garde sa cible, le mot
+       se centre dedans, et l'écart redevient le même partout. */
+    .xc footer .flinks a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  /* ── Les téléphones étroits ───────────────────────────────────────────────
+     320 px, l'iPhone SE de première génération et une partie du parc Android.
+     La page entière tient, à un mot près : « ENCAISSEMENTS » demande 108 px
+     dans une tuile qui en offre 95, et son S final passait seul à la ligne.
+
+     Le corps ne bouge pas, 11 px est le plancher de l'échelle. C'est
+     l'interlettrage qui cède, de 0,09 à 0,04em, plus trois pixels repris sur
+     le retrait de la tuile : le libellé rentre sur une ligne, et il reste
+     assez d'air pour que la tuile ne se lise pas comme un texte serré. */
+  @media (max-width: 360px) {
+    .xc .em-tile { padding-inline: 9px; }
+    .xc .em-tile .lab { letter-spacing: 0.04em; }
   }
 
   /* Sans mouvement — et au téléphone, qui suit la même règle.
@@ -2653,17 +2792,6 @@ function runExperience(root: HTMLElement): () => void {
     coFin.classList.toggle("on", fini);
   }
 
-  /* ── Synthèse ── */
-  const syLines = $$("#zone-synthese .sy-line");
-  const syEnd = $("sy-end");
-
-  function drawSynthese(p: number) {
-    syLines.forEach((line, i) => monter(line, phase(p, 0.08 + i * 0.15, 0.3 + i * 0.15)));
-    const e = easeOutCubic(phase(p, 0.62, 0.82));
-    syEnd.style.opacity = String(e);
-    syEnd.style.transform = "translateY(" + ((1 - e) * 14) + "px)";
-  }
-
   /* La maquette navigable « fiche client → dossier » a été retirée : la page
      portait deux extraits d'application qui ne se ressemblaient pas, l'un avec
      les vraies données du cabinet, l'autre avec une cliente inventée. La
@@ -2772,7 +2900,6 @@ function runExperience(root: HTMLElement): () => void {
     simple: $("zone-simple"),
     fiable: fiableZone,
     complet: completZone,
-    synthese: $("zone-synthese"),
   };
   function zoneVisible(el: HTMLElement) {
     const r = el.getBoundingClientRect();
@@ -2796,7 +2923,7 @@ function runExperience(root: HTMLElement): () => void {
 
   /* ── Boucle ── */
   const shown: Record<string, number> = {
-    hero: 0, promesse: 0, simple: 0, fiable: 0, complet: 0, synthese: 0,
+    hero: 0, promesse: 0, simple: 0, fiable: 0, complet: 0,
   };
   let rafId = 0;
   let vivante = false;
@@ -2831,7 +2958,6 @@ function runExperience(root: HTMLElement): () => void {
     if (near.simple) drawSimple(shown.simple);
     if (near.fiable) drawFiable(shown.fiable);
     if (near.complet) drawComplet(shown.complet);
-    if (near.synthese) drawSynthese(shown.synthese);
     updateRail();
 
     /* La boucle ne s'arrêtait jamais : six mesures de position par image, pour
@@ -2869,7 +2995,6 @@ function runExperience(root: HTMLElement): () => void {
     drawSimple(1);
     drawFiable(1);
     drawComplet(1);
-    drawSynthese(1);
     updateRail();
   }
 
@@ -3459,11 +3584,17 @@ export default function ExperienceCinema() {
          Fond blanc, comme les trois piliers qui la précèdent. La tarification
          qui suit reprend le canevas : le changement de surface marque le
          passage du récit à l'offre. */}
-      <div className="pinzone" id="zone-synthese">
-        <div className="pin sy-pin">
-          <span className="masque"><span className="sy-line" data-syline="0">Simple à utiliser.</span></span>
-          <span className="masque"><span className="sy-line" data-syline="1">Fiable au quotidien.</span></span>
-          <span className="masque"><span className="sy-line" data-syline="2">Complet pour évoluer.</span></span>
+      {/* La triade « simple, fiable, complet » était énoncée trois fois : par la
+          promesse, par les trois piliers qui la démontrent, puis récapitulée
+          ici sur un écran et demi. La troisième énonciation n'apprenait rien
+          à qui venait de parcourir onze écrans, et repoussait le prix d'autant
+          (audit du 13 août 2026).
+
+          Restent la phrase de clôture et l'action, qui referment la
+          démonstration et touchent maintenant la tarification. La scène quitte
+          l'épinglage : elle n'a plus de temps à raconter. */}
+      <section className="flat" id="zone-synthese">
+        <div className="inner">
           <div className="sy-end" id="sy-end">
             <p className="sy-claim">Bâtissez votre cabinet sur de meilleures fondations.</p>
             {/* L'action pleine menait vers une page de contenu pendant que le
@@ -3477,7 +3608,7 @@ export default function ExperienceCinema() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
       {/* Tarification */}
       <section className="flat" id="tarifs">
         <div className="inner">
