@@ -27,6 +27,10 @@ import { getCabinetDossierTaxonomyById } from "@/lib/dossiers/cabinet-dossier-ta
 import { localizedLabel } from "@/lib/dossiers/taxonomy";
 import { isMultiPartiesDossierEnabled } from "@/lib/flags";
 import type { PartieDraft } from "@/lib/dossiers/parties";
+import { PiecesAttenduesSection } from "@/components/dossiers/PiecesAttenduesSection";
+import { chargerPiecesAttendues } from "@/lib/dossiers/pieces-attendues-service";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
+import { canManageDossiers } from "@/lib/auth/permissions";
 
 function clientDisplayName(dossier: {
   client: { raisonSociale: string | null; prenom: string | null; nom: string | null; typeClient: string };
@@ -214,6 +218,14 @@ export default async function DossierDetailPage({
   const clientName = clientDisplayName(dossier);
   const numeroDossier = dossier.numeroDossier ?? dossier.reference ?? "Dossier";
   const statutDossier = dossier.mandate?.statutDossier ?? dossier.statut;
+
+  // Pièces attendues et délais de divulgation. `toCalendarDayUTC` plutôt que
+  // `new Date()` : un délai ne doit pas changer selon l'heure du rendu.
+  const piecesAttendues = await chargerPiecesAttendues({
+    cabinetId,
+    dossierId: id,
+    aujourdhui: toCalendarDayUTC(new Date()),
+  });
 
   // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
   // Calcul de l'état de préparation (dérivé, jamais stocké).
@@ -470,6 +482,42 @@ export default async function DossierDetailPage({
           </div>
         )}
       </section>
+
+      {/* Pièces attendues du client, et les délais qui les commandent.
+          Placées AVANT le cartable : ce qu'on attend se règle avant ce qu'on produit. */}
+      {piecesAttendues ? (
+        <PiecesAttenduesSection
+          dossierId={id}
+          delais={piecesAttendues.delais.map((d) => ({
+            code: d.code,
+            libelle: d.libelle,
+            reference: d.reference,
+            consequence: d.consequence,
+            etat: d.etat,
+            echeance: d.echeance ? d.echeance.toISOString() : null,
+            joursRestants: d.joursRestants,
+          }))}
+          pieces={piecesAttendues.pieces.map((p) => ({
+            id: p.id,
+            libelle: p.libelle,
+            raison: p.raison,
+            fournisseur: p.fournisseur,
+            obligation: p.obligation,
+            etat: p.etat,
+            referenceLegale: p.referenceLegale,
+            echeance: p.echeance ? p.echeance.toISOString() : null,
+          }))}
+          dates={{
+            dateSignification: piecesAttendues.dates.signification?.toISOString() ?? null,
+            datePresentation: piecesAttendues.dates.presentation?.toISOString() ?? null,
+            dateInstruction: piecesAttendues.dates.instruction?.toISOString() ?? null,
+            dateProtocole: piecesAttendues.dates.protocole?.toISOString() ?? null,
+            dateCommunicationPatrimoine:
+              piecesAttendues.dates.communicationPatrimoine?.toISOString() ?? null,
+          }}
+          canWrite={canManageDossiers(role as UserRole)}
+        />
+      ) : null}
 
       {/* Cartables de détail */}
       <DossierBriefcase

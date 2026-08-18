@@ -24,6 +24,7 @@ import { parsePartiesDrafts } from "@/lib/dossiers/parties";
 import { syncDossierParties, reconcilePrincipalParty } from "@/lib/dossiers/parties-sync";
 import type { DossierStatut, DossierType, ModeFacturationDossier, UserRole } from "@prisma/client";
 import { canManageDossiers } from "@/lib/auth/permissions";
+import { creerListeDepuisModele, MODELE_DIVORCE_QC } from "@/lib/dossiers/pieces-attendues-service";
 
 export async function createDossier(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
@@ -812,4 +813,97 @@ export async function createDossierNote(formData: FormData) {
   });
   revalidatePath(`/dossiers/${dossierId}`);
   redirect(`/dossiers/${dossierId}`);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PIÈCES ATTENDUES — collecte auprès du client
+   Spec : docs/product/SPEC_COLLECTE_PIECES_CLIENT.md
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Crée la liste de pièces d'un dossier familial depuis le modèle réglementaire.
+ *
+ * Idempotente : elle n'ajoute que ce qui manque. Relancer ne duplique jamais, et ne
+ * retouche jamais une pièce déjà reçue ou refusée.
+ */
+export async function creerPiecesAttenduesDivorce(
+  dossierId: string,
+): Promise<{ success: true; creees: number } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce dossier." };
+  }
+
+  try {
+    const { creees } = await creerListeDepuisModele({
+      cabinetId,
+      dossierId,
+      modele: MODELE_DIVORCE_QC,
+    });
+
+    await createAuditLog({
+      cabinetId,
+      userId: userId ?? undefined,
+      entityType: "Dossier",
+      entityId: dossierId,
+      action: "create",
+      newValues: { piecesAttenduesCreees: creees, modele: "divorce_qc" },
+      performedBy: userId ?? undefined,
+      performedAt: new Date(),
+    });
+
+    revalidatePath(`/dossiers/${dossierId}`);
+    return { success: true, creees };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Création impossible",
+    };
+  }
+}
+
+/**
+ * Enregistre une des dates qui commandent les délais de divulgation.
+ *
+ * Six délais légaux en dépendent. Tant qu'une date manque, SAFE affiche « à saisir »
+ * plutôt qu'une échéance inventée.
+ */
+export async function enregistrerDateDossier(
+  dossierId: string,
+  champ: "dateSignification" | "datePresentation" | "dateInstruction" | "dateProtocole" | "dateCommunicationPatrimoine",
+  valeur: string | null,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce dossier." };
+  }
+
+  const dossier = await prisma.dossier.findFirst({
+    where: { id: dossierId, cabinetId },
+    select: { id: true },
+  });
+  if (!dossier) return { success: false, error: "Dossier introuvable" };
+
+  // `valeur` vient d'un <input type="date">, donc « AAAA-MM-JJ ». `new Date()` le lit
+  // à minuit UTC, ce qui est exactement la convention des dates calendaires du projet.
+  const date = valeur ? new Date(valeur) : null;
+  if (valeur && Number.isNaN(date!.getTime())) {
+    return { success: false, error: "Date invalide" };
+  }
+
+  await prisma.dossier.update({ where: { id: dossierId }, data: { [champ]: date } });
+
+  await createAuditLog({
+    cabinetId,
+    userId: userId ?? undefined,
+    entityType: "Dossier",
+    entityId: dossierId,
+    action: "update",
+    newValues: { [champ]: valeur },
+    performedBy: userId ?? undefined,
+    performedAt: new Date(),
+  });
+
+  revalidatePath(`/dossiers/${dossierId}`);
+  return { success: true };
 }
