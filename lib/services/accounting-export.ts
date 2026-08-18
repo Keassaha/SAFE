@@ -18,6 +18,7 @@ import {
   type AccountingExportFormat,
 } from "@/lib/accounting/export/serialize";
 import type { AccountChart } from "@/lib/accounting/export/account-mapping";
+import { taxeReclamable } from "@/lib/expense-journal/tax-decomposition";
 
 export interface PeriodExportResult {
   csv: string;
@@ -78,12 +79,51 @@ export async function buildPeriodAccountingExport(params: {
     : [];
   const invoiceById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
 
+  // ── Dépenses : catégorie et taxe RÉCLAMABLE (lot 3) ───────────────────────
+  //
+  // Le journal ne porte que le total. La ventilation vit sur `CabinetExpense`, et
+  // c'est elle qui décide de ce qui part en actif chez le comptable.
+  const expenseIds = rows
+    .filter((e) => e.typeTransaction === "DEPENSE" && e.sourceId)
+    .map((e) => e.sourceId as string);
+  const expenses = expenseIds.length
+    ? await prisma.cabinetExpense.findMany({
+        where: { cabinetId, id: { in: expenseIds } },
+        select: {
+          id: true,
+          tps: true,
+          tvq: true,
+          taxOrigin: true,
+          category: { select: { code: true } },
+        },
+      })
+    : [];
+  const expenseById = new Map(expenses.map((x) => [x.id, x]));
+
+  // Prorata d'usage du véhicule : pas encore saisissable (reste du lot 2). Nul
+  // signifie « indéterminé », donc AUCUNE taxe véhicule ne part en actif. C'est la
+  // direction prudente : sous-réclamer se corrige, sur-réclamer se fait reprendre.
+  const prorataVehicule: number | null = null;
+
   const entries: ExportableEntry[] = rows.map((e) => ({
     ...(() => {
       const invoice = e.sourceId ? invoiceById.get(e.sourceId) : null;
       return invoice
         ? { subtotalBeforeTax: invoice.subtotalBeforeTax, taxTotal: invoice.taxTotal }
         : {};
+    })(),
+    ...(() => {
+      if (e.typeTransaction !== "DEPENSE" || !e.sourceId) return {};
+      const dep = expenseById.get(e.sourceId);
+      if (!dep) return {};
+      const code = dep.category?.code ?? null;
+      // Un seul appel, une seule règle : origine ET taux de catégorie. Recalculer
+      // ici ferait diverger l'export de ce que l'écran annonce au cabinet.
+      const { reclamable } = taxeReclamable(
+        [{ tps: dep.tps ?? 0, tvq: dep.tvq ?? 0, origine: dep.taxOrigin ?? "ESTIMEE", categoryCode: code }],
+        prorataVehicule,
+      );
+      return { categoryCode: code, taxReclamable: reclamable };
     })(),
     id: e.id,
     dateTransaction: e.dateTransaction,

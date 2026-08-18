@@ -17,6 +17,8 @@ export type AccountKey =
   | "accounts_receivable"
   | "revenue_fees"
   | "tax_payable"
+  /** Taxe payée sur les achats, récupérable en CTI/RTI. Actif, pas une dépense. */
+  | "tax_receivable"
   | "expenses"
   | "disbursements_recoverable"
   | "trust_liability"
@@ -39,6 +41,7 @@ export const DEFAULT_ACCOUNT_CHART: AccountChart = {
   accounts_receivable: { code: "1100", name: "Comptes à recevoir" },
   revenue_fees: { code: "4000", name: "Honoraires" },
   tax_payable: { code: "2200", name: "Taxes à remettre" },
+  tax_receivable: { code: "1210", name: "Taxes payées à recouvrer (CTI/RTI)" },
   expenses: { code: "5000", name: "Dépenses du cabinet" },
   disbursements_recoverable: { code: "1200", name: "Débours à recouvrer" },
   trust_liability: { code: "2100", name: "Fonds détenus en fidéicommis" },
@@ -54,6 +57,61 @@ export function resolveAccountChart(override?: Partial<AccountChart> | null): Ac
     if (o?.code && o?.name) merged[key] = o;
   }
   return merged;
+}
+
+/* ── Un compte par catégorie de dépense ─────────────────────────────────────
+ *
+ * Le cabinet classe ses dépenses dans 26 catégories, puis l'export les envoyait
+ * TOUTES sur le compte unique 5000. Le travail de classement était fait, puis jeté
+ * au moment précis où il servait : le comptable recevait un bloc indistinct et
+ * refaisait le tri à la main.
+ *
+ * Les codes suivent le découpage usuel d'un cabinet juridique canadien. Ils sont
+ * indicatifs et surchargeables : c'est le plan du logiciel du comptable qui fait
+ * foi, pas le nôtre.
+ */
+
+export const DEFAULT_EXPENSE_ACCOUNTS: Readonly<Record<string, Account>> = {
+  LOYER: { code: "5100", name: "Loyer et occupation" },
+  TELEPHONE: { code: "5110", name: "Téléphonie" },
+  INTERNET: { code: "5111", name: "Internet" },
+  LOGICIELS: { code: "5120", name: "Logiciels et abonnements" },
+  FOURNITURES: { code: "5130", name: "Fournitures de bureau" },
+  IMPRESSION: { code: "5131", name: "Impression et photocopies" },
+  POSTE: { code: "5132", name: "Poste et messagerie" },
+  DEPLACEMENTS: { code: "5200", name: "Déplacements" },
+  STATIONNEMENT: { code: "5201", name: "Stationnement" },
+  VEHICULE: { code: "5210", name: "Véhicule" },
+  REPAS_REPRESENTATION: { code: "5220", name: "Repas et représentation" },
+  FORMATION: { code: "5300", name: "Formation" },
+  SOUS_TRAITANCE: { code: "5400", name: "Sous-traitance" },
+  HONORAIRES_EXT: { code: "5410", name: "Honoraires professionnels externes" },
+  FRAIS_BANCAIRES: { code: "5500", name: "Frais bancaires" },
+  PUBLICITE: { code: "5600", name: "Publicité et marketing" },
+  ASSURANCES: { code: "5700", name: "Assurances" },
+  SALAIRES: { code: "5800", name: "Salaires et rémunération" },
+  DEBOURS_AVANCES: { code: "1200", name: "Débours à recouvrer" },
+  HUISSIER: { code: "5420", name: "Frais d'huissier" },
+  TRIBUNAL: { code: "5430", name: "Frais de tribunal" },
+  REGISTRE_FONCIER: { code: "5431", name: "Registre foncier" },
+  RECHERCHE_JURIDIQUE: { code: "5440", name: "Recherche juridique" },
+  EXPERTS: { code: "5450", name: "Experts" },
+  TRADUCTION: { code: "5460", name: "Traduction" },
+  AUTRES: { code: "5900", name: "Autres dépenses" },
+};
+
+/**
+ * Compte de dépense d'une catégorie. Retombe sur le compte général quand la
+ * catégorie est absente ou inconnue : mieux vaut un export exact sur un compte
+ * fourre-tout qu'un export qui échoue.
+ */
+export function expenseAccountFor(
+  categoryCode: string | null | undefined,
+  chart: AccountChart,
+  override?: Readonly<Record<string, Account>> | null,
+): Account {
+  if (!categoryCode) return chart.expenses;
+  return override?.[categoryCode] ?? DEFAULT_EXPENSE_ACCOUNTS[categoryCode] ?? chart.expenses;
 }
 
 /** Une règle de double-entrée : compte débité, compte crédité, et montant. */

@@ -6,8 +6,10 @@
 
 import type { JournalTransactionType, JournalSourceModule } from "@prisma/client";
 import {
+  type Account,
   type AccountChart,
   deriveDoubleEntry,
+  expenseAccountFor,
   resolveAccountChart,
 } from "./account-mapping";
 import { toIsoDay } from "@/lib/utils/calendar-date";
@@ -21,6 +23,14 @@ export interface ExportableEntry {
   montantSortie: number;
   subtotalBeforeTax?: number | null;
   taxTotal?: number | null;
+  /** Dépenses (lot 3) : code de catégorie, pour choisir le compte d'imputation. */
+  categoryCode?: string | null;
+  /**
+   * Dépenses : taxe RÉCLAMABLE, déjà filtrée par origine et par taux de catégorie.
+   * Volontairement distincte de la taxe payée : une taxe estimée ou limitée à 50 %
+   * ne doit jamais atterrir en actif chez le comptable.
+   */
+  taxReclamable?: number | null;
   reference?: string | null;
   description?: string | null;
   clientName?: string | null;
@@ -90,6 +100,8 @@ function pushLine(
 export function buildAccountingExportLines(
   entries: ExportableEntry[],
   chartOverride?: Partial<AccountChart> | null,
+  /** Surcharge cabinet des comptes de dépense par catégorie. */
+  expenseAccountsOverride?: Readonly<Record<string, Account>> | null,
 ): AccountingExportLine[] {
   const chart = resolveAccountChart(chartOverride);
   const lines: AccountingExportLine[] = [];
@@ -98,6 +110,8 @@ export function buildAccountingExportLines(
     const date = toIsoDate(e.dateTransaction);
     const reference = e.reference ?? "";
     const name = e.clientName ?? "";
+    // La catégorie rejoint le mémo : même avec un compte dédié, le comptable qui
+    // relit une ligne isolée doit voir le classement d'origine.
     const memoParts = [e.description ?? "", e.dossierLabel ?? ""].filter(Boolean);
     const memo = memoParts.join(" — ");
 
@@ -114,6 +128,40 @@ export function buildAccountingExportLines(
       pushLine(lines, { date, accountCode: ar.code, accountName: ar.name, debit: total, memo, reference, name });
       pushLine(lines, { date, accountCode: revenue.code, accountName: revenue.name, credit: subtotal, memo, reference, name });
       pushLine(lines, { date, accountCode: tax.code, accountName: tax.name, credit: taxTotal, memo, reference, name });
+      continue;
+    }
+
+    // ── Dépense : trois lignes quand une taxe est réellement récupérable ─────
+    //
+    // L'export envoyait le TTC entier en dépense, taxe noyée. Deux effets : les
+    // dépenses partaient surévaluées chez le comptable, et la taxe récupérable
+    // était invisible. L'asymétrie sautait aux yeux à côté de la facture, traitée
+    // en trois lignes deux blocs plus haut.
+    //
+    // Ce qui va en ACTIF est la taxe réclamable, pas la taxe payée. Une taxe
+    // estimée n'est pas justifiable en vérification, et sur un repas seule la
+    // moitié du crédit est permise : le reste est un COÛT, et reste donc dans la
+    // dépense. C'est ce qui relie les lots 1, 2 et 3.
+    if (e.typeTransaction === "DEPENSE") {
+      const total = round2(e.montantSortie);
+      if (total <= 0) continue;
+
+      const recuperable = round2(Math.max(0, Math.min(e.taxReclamable ?? 0, total)));
+      const compteDepense: Account = expenseAccountFor(e.categoryCode, chart, expenseAccountsOverride);
+      const bank = chart.bank_admin;
+
+      if (recuperable <= 0) {
+        // Rien de récupérable : deux lignes, et c'est correct. Inscrire zéro dans
+        // un compte de taxe à recouvrer polluerait le grand livre du comptable.
+        pushLine(lines, { date, accountCode: compteDepense.code, accountName: compteDepense.name, debit: total, memo, reference, name });
+        pushLine(lines, { date, accountCode: bank.code, accountName: bank.name, credit: total, memo, reference, name });
+        continue;
+      }
+
+      const taxeCompte = chart.tax_receivable;
+      pushLine(lines, { date, accountCode: compteDepense.code, accountName: compteDepense.name, debit: round2(total - recuperable), memo, reference, name });
+      pushLine(lines, { date, accountCode: taxeCompte.code, accountName: taxeCompte.name, debit: recuperable, memo, reference, name });
+      pushLine(lines, { date, accountCode: bank.code, accountName: bank.name, credit: total, memo, reference, name });
       continue;
     }
 
