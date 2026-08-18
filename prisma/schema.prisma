@@ -135,6 +135,8 @@ model Cabinet {
   inspectionSessions   InspectionAccessSession[]
   successionPlan       PracticeSuccessionPlan?
   interestRemittances  TrustInterestRemittance[]
+  expectedDocuments ExpectedDocument[]
+
 }
 
 /// Statut du permis d'exercice. Réf. By-Law 9 s. 2, 2.2, 2.3 (ON) ·
@@ -238,6 +240,8 @@ model User {
   conversationsCreated  SupportConversation[]  @relation("ConversationCreator")
   messagesAuthored      SupportMessage[]       @relation("MessageAuthor")
   impersonationsByMe    ImpersonationSession[] @relation("Impersonator")
+  expectedDocuments ExpectedDocument[]
+
 }
 
 enum EmployeeRole {
@@ -622,6 +626,15 @@ model Dossier {
   cnpCode            String? // National Occupation Classification
   cnpValidated       Boolean   @default(false)
 
+  // ── Dates qui commandent les délais de divulgation (matière familiale QC) ──
+  // Six délais légaux en dépendent. Voir lib/dossiers/delais-famille.ts et
+  // docs/research/RECHERCHE_divulgation_famille_QC_2026-08-18.md.
+  dateSignification           DateTime? // commande les 180 jours (Règl. art. 27 et 29)
+  datePresentation            DateTime? // commande les 10 et 5 jours (C.p.c. 413 al. 2)
+  dateInstruction             DateTime? // commande les 10 jours (Règl. art. 26)
+  dateProtocole               DateTime? // état des biens dû au protocole (C.p.c. 413 al. 1)
+  dateCommunicationPatrimoine DateTime? // commande les 30 jours en cas de contestation
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -668,6 +681,8 @@ model Dossier {
   navetteMessages       DossierNavetteMessage[]
   employeeHoursEntries  EmployeeHoursEntry[]
   parties               DossierPartie[]
+
+  expectedDocuments ExpectedDocument[]
 
   @@unique([cabinetId, numeroDossier])
   @@index([cabinetId])
@@ -729,6 +744,99 @@ model DossierMandate {
 //  - partie_externe : nom libre (adverse/tiers), JAMAIS une fiche Client. nomAffiche requis.
 // Garde-fou de conformité : une partie adverse ne devient jamais un Client
 // (conflit d'intérêts + Loi 25). Invariants détaillés dans la spec §3.3.
+/// État d'une pièce attendue. Un état ne saute jamais, et `ACCEPTEE` est toujours une
+/// décision HUMAINE, jamais un contrôle automatique.
+enum ExpectedDocumentEtat {
+  A_DEMANDER
+  DEMANDEE
+  RECUE
+  A_VERIFIER
+  ACCEPTEE
+  A_REMPLACER
+  ECARTEE
+  /// Uniquement en litige : la pièce est devenue une pièce du cartable.
+  PRODUITE
+}
+
+/// Qui doit fournir la pièce.
+///
+/// `PARTIE_ADVERSE` est distinct de `TIERS` volontairement : ranger la partie adverse
+/// dans « tiers » masquerait l'objet que la vérification de conflits cherche.
+enum ExpectedDocumentFournisseur {
+  CLIENT
+  CABINET
+  PARTIE_ADVERSE
+  TIERS
+}
+
+enum ExpectedDocumentObligation {
+  OBLIGATOIRE
+  CONDITIONNELLE
+  FACULTATIVE
+}
+
+/// Pièce attendue d'un client, d'un tiers ou de la partie adverse.
+///
+/// Spec : docs/product/SPEC_COLLECTE_PIECES_CLIENT.md
+///
+/// NE PAS CONFONDRE AVEC `DossierPiece`, qui est le cartable : la liste des pièces
+/// PRODUITES au tribunal. Une pièce attendue est une DEMANDE. Une demande peut ne
+/// jamais aboutir ; une production ne peut pas exister sans fichier. Les confondre
+/// rendrait impossible d'établir « je l'ai demandée trois fois et je ne l'ai jamais
+/// reçue ».
+model ExpectedDocument {
+  id        String @id @default(cuid())
+  cabinetId String
+  dossierId String
+
+  libelle String
+  /// Montrable au client, en une phrase. Jamais « documents financiers ».
+  raison          String?
+  periodeCouverte String?
+
+  fournisseur ExpectedDocumentFournisseur @default(CLIENT)
+  obligation  ExpectedDocumentObligation  @default(OBLIGATOIRE)
+  etat        ExpectedDocumentEtat        @default(A_DEMANDER)
+
+  /// Quelle partie du dossier la pièce concerne. NULL hors litige à parties multiples.
+  dossierPartieId String?
+
+  /// L'article qui impose la pièce, affichable. NULL pour une pièce d'appui : celles-ci
+  /// ne figurent dans aucun règlement et servent à REMPLIR les autres. Afficher un
+  /// délai légal sur une pièce d'appui donnerait une fausse assurance à l'avocat.
+  referenceLegale String?
+  echeance        DateTime?
+
+  /// En aide juridique, une pièce manquante fait REFUSER la facture par la Commission
+  /// des services juridiques, pas seulement retarder le dossier.
+  requisPourAideJuridique Boolean @default(false)
+
+  /// Le fichier reçu. L'original n'est jamais remplacé.
+  documentId String?
+  /// La pièce produite qui en découle, le cas échéant.
+  dossierPieceId String?
+
+  motifRemplacement String?
+  demandeeLe        DateTime?
+  recueLe           DateTime?
+  traiteeParId      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet       Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  dossier       Dossier        @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  dossierPartie DossierPartie? @relation(fields: [dossierPartieId], references: [id], onDelete: SetNull)
+  document      Document?      @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  dossierPiece  DossierPiece?  @relation(fields: [dossierPieceId], references: [id], onDelete: SetNull)
+  traiteePar    User?          @relation(fields: [traiteeParId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId])
+  @@index([dossierId, etat])
+  @@index([cabinetId, etat, echeance])
+  @@index([dossierPartieId])
+}
+
 model DossierPartie {
   id        String              @id @default(cuid())
   cabinetId String
@@ -750,6 +858,8 @@ model DossierPartie {
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   client  Client? @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  expectedDocuments ExpectedDocument[]
 
   @@index([cabinetId])
   @@index([dossierId])
@@ -773,6 +883,8 @@ model DossierPiece {
   updatedAt     DateTime  @updatedAt
 
   dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  expectedDocuments ExpectedDocument[]
 
   @@index([dossierId])
   @@index([dossierId, partie])
@@ -3029,6 +3141,8 @@ model Document {
   identityVerifications ClientIdentityVerification[]
   docketEntries         DossierDocketEntry[]
   trustSupportingFor    TrustTransactionDocument[]
+
+  expectedDocuments ExpectedDocument[]
 
   @@index([cabinetId])
   @@index([clientId])
