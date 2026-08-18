@@ -4,7 +4,7 @@ import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
@@ -137,7 +137,7 @@ export default async function FacturationFraisPage() {
                 <tbody>
                   {debours.map((d) => (
                     <tr key={d.id} className="border-b border-si-line/70">
-                      <td className="py-2 pr-2">{formatDate(d.date)}</td>
+                      <td className="py-2 pr-2">{formatCalendarDate(d.date)}</td>
                       <td className="py-2 pr-2">
                         <span className="text-si-ink block">{clientLabel(d.client)}</span>
                         <Link

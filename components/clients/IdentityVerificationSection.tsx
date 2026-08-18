@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatDate } from "@/lib/utils/format";
+import { formatCalendarDate } from "@/lib/utils/format";
 import type { ClientIdentityVerification, Document } from "@prisma/client";
 import { routes } from "@/lib/routes";
 
@@ -44,7 +44,7 @@ export function IdentityVerificationSection({
           className="flex items-center justify-between gap-2 py-2 border-b border-si-lineSubtle last:border-0"
         >
           <span className="text-sm">
-            {formatDate(v.date)} — {v.methode} —{" "}
+            {formatCalendarDate(v.date)} — {v.methode} —{" "}
             <span
               className={
                 v.statut === "verifie"

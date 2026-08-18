@@ -1,7 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import type { RapportFacturationRow } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
@@ -13,7 +13,7 @@ export function RapportFacturationTable({ data }: { data: RapportFacturationRow[
     { key: "client", header: t("client"), render: (r: RapportFacturationRow) => r.client },
     { key: "dossier", header: t("matter"), render: (r: RapportFacturationRow) => r.dossier ?? "—" },
     { key: "avocat", header: t("lawyer"), render: (r: RapportFacturationRow) => r.avocat ?? "—" },
-    { key: "date", header: t("date"), render: (r: RapportFacturationRow) => formatDate(r.date) },
+    { key: "date", header: t("date"), render: (r: RapportFacturationRow) => formatCalendarDate(r.date) },
     { key: "montantHT", header: t("amountBeforeTax"), render: (r: RapportFacturationRow) => formatCurrency(r.montantHT) },
     { key: "rabais", header: t("discount"), render: (r: RapportFacturationRow) => formatCurrency(r.rabais) },
     { key: "taxes", header: t("taxes"), render: (r: RapportFacturationRow) => formatCurrency(r.taxes) },

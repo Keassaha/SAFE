@@ -28,7 +28,7 @@ import type {
   AssistantTaskItem,
   AssistantEventItem,
 } from "@/lib/dossiers/assistant-queue";
-import { formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getKindCanonicalLink } from "@/lib/dossiers/missing-item-action-link";
 import { AssignToSelfButton } from "./AssignToSelfButton";
@@ -319,7 +319,7 @@ function TaskBucketCard({ title, description, items }: TaskBucketProps) {
                         )}
                         {task.dateEcheance && task.daysOverdue === null && (
                           <span className="text-si-muted">
-                            {formatDate(task.dateEcheance)}
+                            {formatCalendarDate(task.dateEcheance)}
                           </span>
                         )}
                       </div>

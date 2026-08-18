@@ -4,7 +4,7 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getSecurityAlerts } from "@/lib/services/security/security-alerts";
 import { ShieldCheck, AlertTriangle, ShieldAlert, CalendarClock, UserCheck, FileClock } from "lucide-react";
@@ -136,7 +136,7 @@ export default async function SecuritePage() {
                       {e.libelle} · {e.clientNom}
                       {e.numeroDossier ? ` (${e.numeroDossier})` : ""}
                     </span>
-                    <span className={`text-xs shrink-0 ${j.tone}`}>{formatDate(e.date)} · {j.txt}</span>
+                    <span className={`text-xs shrink-0 ${j.tone}`}>{formatCalendarDate(e.date)} · {j.txt}</span>
                   </div>
                 </Link>
               );
@@ -163,7 +163,7 @@ export default async function SecuritePage() {
                     {d.numeroDossier ? ` (${d.numeroDossier})` : ""}
                   </span>
                   <span className={`text-xs shrink-0 ${j.tone}`}>
-                    {formatDate(d.date)} · {d.joursRestants < 0 ? `expiré de ${Math.abs(d.joursRestants)} j` : j.txt}
+                    {formatCalendarDate(d.date)} · {d.joursRestants < 0 ? `expiré de ${Math.abs(d.joursRestants)} j` : j.txt}
                   </span>
                 </div>
               </Link>

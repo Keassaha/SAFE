@@ -57,6 +57,7 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("fr-CA", {
     day: "2-digit",
     month: "short",
+    timeZone: "UTC",
   });
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
-import { formatDate, formatCurrency } from "@/lib/utils/format";
+import { formatCalendarDate, formatDate, formatCurrency } from "@/lib/utils/format";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { routes } from "@/lib/routes";
 import type { InvoiceStatut } from "@prisma/client";
@@ -120,10 +120,10 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-si-muted">
-                  {formatDate(inv.dateEmission)}
+                  {formatCalendarDate(inv.dateEmission)}
                 </td>
                 <td className="px-4 py-3 text-sm text-si-muted">
-                  {formatDate(inv.dateEcheance)}
+                  {formatCalendarDate(inv.dateEcheance)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <span className="font-mono text-sm font-medium text-si-ink">

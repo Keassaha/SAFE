@@ -18,6 +18,7 @@ import {
 import { routes } from "@/lib/routes";
 import type { DossierEvolutionItem } from "@/lib/dashboard/types";
 import { toIntlLocale } from "@/lib/i18n/locale";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 type ViewMode = "list" | "board" | "timeline";
 
@@ -30,6 +31,7 @@ function formatDate(iso: string, locale: string): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -38,10 +40,12 @@ function formatRelative(
   locale: string,
   t: (key: string, values?: Record<string, string | number | Date>) => string,
 ): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  // Les deux bornes sont ramenées au MÊME repère, le jour calendaire à minuit UTC.
+  // Avant, `target` lisait une date stockée à minuit UTC avec des getters locaux et
+  // reculait d'un jour : une échéance du jour s'annonçait « il y a 1 jour ». Le
+  // libellé relatif était donc faux avant même le formatage.
+  const today = toCalendarDayUTC(new Date());
+  const target = toCalendarDayUTC(new Date(iso));
   const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays === 0) return t("today");
   if (diffDays === 1) return t("tomorrow");

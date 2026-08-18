@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ActionsSection } from "@/components/comptabilite/ActionsSection";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -119,7 +119,7 @@ export function FacturationPaiementsView({
   });
   const creditClients = (surData?.clients ?? []) as ClientCreditBalance[];
   const money = (amount: number) => formatCurrency(amount, "CAD", locale);
-  const displayDate = (date: string) => formatDate(date, locale);
+  const displayDate = (date: string) => formatCalendarDate(date, locale);
 
   const payments = (data?.payments ?? []) as PaymentRow[];
   // Paginé par 20, comme tous les registres du produit.

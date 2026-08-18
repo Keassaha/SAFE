@@ -11,7 +11,7 @@ import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-pres
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { FacturePreviewActions } from "./FacturePreviewActions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 
 function toIsoDate(value: string | Date) {
@@ -135,7 +135,7 @@ export default async function FacturePreviewPage({
           [t("total"), money(invoice.totals.montantTotal)],
           [t("alreadyPaid"), money(invoice.totals.montantPaye)],
           [t("balanceDue"), money(invoice.totals.balanceDue)],
-          [t("dueDate"), formatDate(invoice.dateEcheance, locale)],
+          [t("dueDate"), formatCalendarDate(invoice.dateEcheance, locale)],
         ].map(([label, value], index) => (
           <div
             key={label}

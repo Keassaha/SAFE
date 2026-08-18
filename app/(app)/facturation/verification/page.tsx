@@ -7,7 +7,7 @@ import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { FileText, ChevronRight } from "lucide-react";
 
@@ -58,7 +58,7 @@ export default async function FacturationVerificationPage() {
                       </p>
                       <p className="text-sm text-si-muted">
                         {inv.dossier?.intitule ?? t("noMatter")} · {t("issuedColon")}{" "}
-                        {formatDate(inv.dateEmission)}
+                        {formatCalendarDate(inv.dateEmission)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">

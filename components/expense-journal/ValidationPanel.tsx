@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import {
   validateImportedTransaction,
   ignoreTransactions,
@@ -136,7 +136,7 @@ export function ValidationPanel({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="text-[var(--safe-text-muted)]">{t("date")}</span>
-            <p className="font-medium text-[var(--safe-text-title)]">{formatDate(tx.date)}</p>
+            <p className="font-medium text-[var(--safe-text-title)]">{formatCalendarDate(tx.date)}</p>
           </div>
           <div>
             <span className="text-[var(--safe-text-muted)]">{t("amount")}</span>

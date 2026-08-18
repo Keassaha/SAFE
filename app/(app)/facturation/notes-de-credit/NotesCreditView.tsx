@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, FileMinus, ArrowLeft } from "lucide-react";
@@ -86,7 +86,7 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
                   {pageNotes.tranche.map((n) => (
                     <tr key={n.id} className="safe-zoom-rang border-b border-si-line ">
                       <td className="py-2 px-3 font-medium">{n.creditNoteNumber}</td>
-                      <td className="py-2 px-3">{formatDate(n.creditDate)}</td>
+                      <td className="py-2 px-3">{formatCalendarDate(n.creditDate)}</td>
                       <td className="py-2 px-3">{n.invoiceId}</td>
                       <td className="py-2 px-3 text-right">{formatCurrency(n.totalCredit)}</td>
                       <td className="py-2 px-3 text-right">{formatCurrency(n.appliedAmount)}</td>

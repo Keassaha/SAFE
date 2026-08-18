@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import {
@@ -132,7 +132,7 @@ export function ClientDossierFinancier({
                   className="flex justify-between items-center py-2 border-b border-si-line/60 last:border-0"
                 >
                   <span className="text-sm text-si-muted">
-                    {formatDate(tx.date)} — {tx.label}
+                    {formatCalendarDate(tx.date)} — {tx.label}
                   </span>
                   <span className="text-sm font-medium">
                     {formatCurrency(tx.amount)}
@@ -194,7 +194,7 @@ export function ClientDossierFinancier({
                       className="border-b border-si-line last:border-0"
                     >
                       <td className="py-2 px-3 text-si-muted">
-                        {formatDate(r.date)}
+                        {formatCalendarDate(r.date)}
                       </td>
                       <td className="py-2 px-3">
                         {r.dossierId ? (
@@ -268,7 +268,7 @@ export function ClientDossierFinancier({
                         {inv.dossierIntitule ?? "—"}
                       </td>
                       <td className="py-2 px-3">
-                        {formatDate(inv.dateEmission)}
+                        {formatCalendarDate(inv.dateEmission)}
                       </td>
                       <td className="py-2 px-3 text-right font-medium">
                         {formatCurrency(inv.montantTotal)}

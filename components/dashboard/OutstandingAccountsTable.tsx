@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { AlertTriangle, ExternalLink } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { toIntlLocale } from "@/lib/i18n/locale";
 import type { OutstandingAccountRow } from "@/lib/dashboard/types";
@@ -102,7 +102,7 @@ export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps
                       {formatCurrency(row.balanceDue, "CAD", locale)}
                     </td>
                     <td className="py-2 px-2 text-right text-[var(--safe-text-muted)]">
-                      {formatDate(row.firstInvoiceDate, locale)}
+                      {formatCalendarDate(row.firstInvoiceDate, locale)}
                     </td>
                     <td className="py-2 px-2 text-right font-medium text-[var(--safe-text-title)]">
                       {row.daysSinceFirstInvoice} j

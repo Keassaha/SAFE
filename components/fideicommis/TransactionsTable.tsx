@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { useTrustTransactions, type TrustTransactionsFilters } from "@/lib/hooks/useFideicommis";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -112,7 +112,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
               <tbody>
                 {transactions.map((t) => (
                   <tr key={t.id} className="safe-zoom-rang border-b border-neutral-100 ">
-                    <td className="py-2 px-3">{formatDate(t.date)}</td>
+                    <td className="py-2 px-3">{formatCalendarDate(t.date)}</td>
                     <td className="py-2 px-3">{t.client ? clientDisplayName(t.client) : "—"}</td>
                     <td className="py-2 px-3">
                       {t.dossier ? (t.dossier.numeroDossier ? `${t.dossier.numeroDossier} – ` : "") + t.dossier.intitule : "—"}

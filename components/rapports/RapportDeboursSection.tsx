@@ -1,7 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import type { RapportDeboursRow } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
@@ -9,7 +9,7 @@ export function RapportDeboursSection({ data }: { data: RapportDeboursRow[] }) {
   const t = useTranslations("reportsUi");
 
   const columns = [
-    { key: "date", header: t("date"), render: (r: RapportDeboursRow) => formatDate(r.date) },
+    { key: "date", header: t("date"), render: (r: RapportDeboursRow) => formatCalendarDate(r.date) },
     { key: "client", header: t("client"), render: (r: RapportDeboursRow) => r.client },
     { key: "dossier", header: t("matter"), render: (r: RapportDeboursRow) => r.dossier ?? "—" },
     { key: "description", header: t("description"), render: (r: RapportDeboursRow) => r.description },

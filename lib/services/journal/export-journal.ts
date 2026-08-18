@@ -7,7 +7,7 @@ import type { JournalSourceModule, JournalTransactionType } from "@prisma/client
 import { getJournalEntries } from "./journal-service";
 import type { JournalListParams } from "@/types/journal";
 import { JOURNAL_SOURCE_MODULE_LABELS, JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 
 export type ExportFormat = "csv" | "excel" | "pdf";
 
@@ -35,7 +35,7 @@ export async function exportJournalCsv(params: JournalListParams): Promise<strin
   ];
 
   const rows = entries.map((e) => [
-    formatDate(e.dateTransaction),
+    formatCalendarDate(e.dateTransaction),
     JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction],
     e.reference ?? "",
     e.clientName ?? "",
@@ -88,7 +88,7 @@ export async function exportJournalExcelRows(
   ];
 
   const rows = entries.map((e) => [
-    formatDate(e.dateTransaction),
+    formatCalendarDate(e.dateTransaction),
     JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction],
     e.reference ?? "",
     e.clientName ?? "",

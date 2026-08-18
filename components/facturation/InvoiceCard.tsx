@@ -3,7 +3,7 @@
 import type { Invoice } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 
@@ -89,7 +89,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
 
       {invoice.dateEcheance && (
         <p className="text-xs text-si-muted">
-          {t("dueDateLabel")} {formatDate(invoice.dateEcheance)}
+          {t("dueDateLabel")} {formatCalendarDate(invoice.dateEcheance)}
         </p>
       )}
 

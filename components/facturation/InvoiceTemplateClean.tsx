@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export type InvoiceLanguage = "fr" | "en";
@@ -170,7 +170,7 @@ export function InvoiceTemplateClean({
 }: InvoiceCleanProps) {
   const t = LABELS[language];
   const isDraft = !numero || numero === "BROUILLON" || numero === "—";
-  const fmtDate = (d: Date | string) => formatDate(d, language);
+  const fmtDate = (d: Date | string) => formatCalendarDate(d, language);
   const fmtMoney = (n: number) => formatCurrency(n, "CAD", language);
 
   return (

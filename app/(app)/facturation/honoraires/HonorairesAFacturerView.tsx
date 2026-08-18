@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useFacturationHonoraires } from "@/lib/hooks/useFacturation";
 import { useTempsContext } from "@/lib/hooks/useTemps";
@@ -240,7 +240,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                         {formatCurrency(row.totalAFacturer)}
                       </td>
                       <td className="py-3 px-3 text-si-muted">
-                        {formatDate(row.lastDate)}
+                        {formatCalendarDate(row.lastDate)}
                       </td>
                       <td className="py-3 px-3 text-right">
                         <div className="flex items-center justify-end gap-2">

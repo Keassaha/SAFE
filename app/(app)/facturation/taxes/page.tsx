@@ -3,7 +3,7 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getTaxRemittance, currentQuarter, type TaxLine } from "@/lib/services/finance/tax-remittance";
 
@@ -84,7 +84,7 @@ export default async function TaxesPage({
               Appliquer
             </button>
             <span className="text-xs text-si-muted self-center">
-              Période : {formatDate(report.periode.from)} → {formatDate(report.periode.to)}
+              Période : {formatDate(report.periode.from)} → {formatCalendarDate(report.periode.to)}
             </span>
           </form>
         </CardContent>

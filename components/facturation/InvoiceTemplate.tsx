@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export type InvoiceTemplateItem = {
@@ -141,11 +141,11 @@ export function InvoiceTemplate({
             <div className="flex gap-6 text-sm text-white/90">
               <span>
                 <span className="text-white/60">{tf("issueLabel")} : </span>
-                {formatDate(dateEmission)}
+                {formatCalendarDate(dateEmission)}
               </span>
               <span>
                 <span className="text-white/60">{tf("dueDateLabel")} : </span>
-                {isDueOnReceipt ? tf("dueOnReceipt") : formatDate(dateEcheance)}
+                {isDueOnReceipt ? tf("dueOnReceipt") : formatCalendarDate(dateEcheance)}
               </span>
             </div>
           </div>
@@ -231,7 +231,7 @@ export function InvoiceTemplate({
                   }
                 >
                   <td className="py-3 px-3 border-b border-[var(--safe-neutral-border)] text-[var(--safe-text-secondary)] whitespace-nowrap">
-                    {item.date ? formatDate(item.date) : "—"}
+                    {item.date ? formatCalendarDate(item.date) : "—"}
                   </td>
                   <td className="py-3 px-3 border-b border-[var(--safe-neutral-border)]">
                     <span className={`font-medium ${isRabais ? "text-[var(--safe-green-800)]" : "text-[var(--safe-text-title)]"}`}>

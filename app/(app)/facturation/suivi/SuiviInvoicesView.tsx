@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import { AlertCircle, DollarSign, FileText, Link2 } from "lucide-react";
@@ -79,7 +79,7 @@ export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
                 <td className="py-2 px-3 text-si-muted">
                   {inv.dossier ?? "—"}
                 </td>
-                <td className="py-2 px-3">{formatDate(inv.dateEcheance)}</td>
+                <td className="py-2 px-3">{formatCalendarDate(inv.dateEcheance)}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(inv.montantTotal)}</td>
                 <td className="py-2 px-3 text-right font-medium">
                   {formatCurrency(inv.balanceDue)}

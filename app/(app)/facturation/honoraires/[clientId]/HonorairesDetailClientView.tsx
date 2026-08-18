@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
 import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
@@ -281,7 +281,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                   <tbody>
                     {pageDraft.tranche.map((line) => (
                       <tr key={line.id} className="border-b border-si-line">
-                        <td className="py-2 px-4 text-si-muted">{formatDate(line.date)}</td>
+                        <td className="py-2 px-4 text-si-muted">{formatCalendarDate(line.date)}</td>
                         <td className={line.type === "rabais" ? "py-2 px-4 text-emerald-700" : "py-2 px-4"}>
                           {line.description}
                         </td>
@@ -437,7 +437,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: e.description ?? t("lineFallback") })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-si-muted">{formatDate(e.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatCalendarDate(e.date)}</td>
                             <td className="py-2 px-3">{e.userNom}</td>
                             <td className="py-2 px-3">
                               {e.description ?? "—"}
@@ -513,7 +513,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: e.description })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-si-muted">{formatDate(e.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatCalendarDate(e.date)}</td>
                             <td className="py-2 px-3">
                               {e.description}
                               {e.isDrafted && (
@@ -585,7 +585,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
                                 aria-label={t("includeItem", { item: tache.description })}
                               />
                             </td>
-                            <td className="py-2 px-3 text-si-muted">{formatDate(tache.date)}</td>
+                            <td className="py-2 px-3 text-si-muted">{formatCalendarDate(tache.date)}</td>
                             <td className="py-2 px-3">{tache.dossierIntitule ?? "—"}</td>
                             <td className="py-2 px-3">
                               {tache.description}

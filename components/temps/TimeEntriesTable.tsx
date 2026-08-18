@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Pencil, Trash2, Check } from "lucide-react";
 import { RowMenu, rowMenuItemClass, rowMenuItemDangerClass } from "@/components/ui/RowMenu";
 import { routes } from "@/lib/routes";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
@@ -139,7 +139,7 @@ export function TimeEntriesTable({
                   onClick={canEdit(entry) ? rangeeOuvrable(() => setEditId(entry.id)) : undefined}
                 >
                   <td className={`whitespace-nowrap ${registreCellMutedClass}`}>
-                    {formatDate(entry.date, locale)}
+                    {formatCalendarDate(entry.date, locale)}
                   </td>
                   <td className={registreCellClass}>
                     {entry.dossier ? (

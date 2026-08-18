@@ -10,7 +10,7 @@ import {
   createDeboursDossier,
   deleteDeboursDossierForm,
 } from "@/lib/actions/debours";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { Pencil, Trash2, FileText } from "lucide-react";
@@ -163,7 +163,7 @@ export function DossierDebours({
               <tbody>
                 {pageDebours.tranche.map((d) => (
                   <tr key={d.id} className="border-b border-si-line/70">
-                    <td className="py-2 pr-2">{formatDate(d.date)}</td>
+                    <td className="py-2 pr-2">{formatCalendarDate(d.date)}</td>
                     <td className="py-2 pr-2">
                       {d.deboursTypeNom ? (
                         <span className="text-si-muted">{d.deboursTypeCategorie} — </span>

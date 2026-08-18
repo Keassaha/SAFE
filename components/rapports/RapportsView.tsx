@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { RapportsPayload } from "@/lib/rapports/types";
-import { formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatDate } from "@/lib/utils/format";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { RapportsFilters } from "./RapportsFilters";
 import { RapportFacturationTable } from "./RapportFacturationTable";
@@ -70,7 +70,7 @@ export function RapportsView({
   const dateDebutStr = filters.dateDebut;
   const dateFinStr = filters.dateFin;
   const annee = parseInt(filters.dateFin.slice(0, 4), 10);
-  const periodLabel = `${formatDate(dateDebutStr)} – ${formatDate(dateFinStr)}`;
+  const periodLabel = `${formatCalendarDate(dateDebutStr)} – ${formatCalendarDate(dateFinStr)}`;
 
   const handlePrint = () => window.print();
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import type { BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 
@@ -98,7 +98,7 @@ export function ExpensesJournalTable({
                   <tr key={tx.id} className={`border-b border-[var(--safe-neutral-border)]/40 cursor-pointer transition-colors ${ selectedId === tx.id ? "bg-white/10" : "" }`} onClick={() => onSelectTransaction(selectedId === tx.id ? null : tx.id)}
                   >
                     <td className="py-2 px-4 text-[var(--safe-text-title)] whitespace-nowrap">
-                      {formatDate(tx.date)}
+                      {formatCalendarDate(tx.date)}
                     </td>
                     <td className="py-2 px-4 text-[var(--safe-text-title)] max-w-[200px] truncate" title={tx.rawDescription}>
                       {tx.rawDescription}

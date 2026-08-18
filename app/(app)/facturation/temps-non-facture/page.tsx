@@ -4,7 +4,7 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getUnbilledTimeReport, DORMANT_DAYS } from "@/lib/services/finance/unbilled-time";
 import { AlertTriangle, Clock } from "lucide-react";
@@ -67,7 +67,7 @@ export default async function TempsNonFacturePage() {
               {totals.ageMaxJours > 0 ? `${totals.ageMaxJours} j` : "—"}
             </p>
             <p className="text-xs text-si-muted mt-1">
-              {totals.plusAncienneDate ? formatDate(totals.plusAncienneDate) : "—"}
+              {totals.plusAncienneDate ? formatCalendarDate(totals.plusAncienneDate) : "—"}
             </p>
           </CardContent>
         </Card>

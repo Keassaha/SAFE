@@ -5,7 +5,7 @@ import { Maximize2, ClipboardList, Check, FileEdit, Send, AlertTriangle } from "
 import { useLocale, useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import type { BillingFollowUpRow } from "@/lib/dashboard/types";
-import { formatCurrency } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 export interface BillingFollowUpTableProps {
@@ -90,7 +90,7 @@ export function BillingFollowUpTable({
                     </Link>
                   </td>
                   <td className="py-2 text-right safe-text-metric">{formatCurrency(row.amount, "CAD", locale)}</td>
-                  <td className="py-2 text-right safe-text-secondary">{formatDate(row.dateIssued, locale)}</td>
+                  <td className="py-2 text-right safe-text-secondary">{formatCalendarDate(row.dateIssued, locale)}</td>
                   <td className="py-2 text-right">
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-safe-sm text-xs font-medium ${

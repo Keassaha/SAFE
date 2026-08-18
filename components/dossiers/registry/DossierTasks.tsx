@@ -55,6 +55,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
       year: "numeric",
       month: "short",
       day: "numeric",
+      timeZone: "UTC",
     });
   }
 

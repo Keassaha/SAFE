@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { isInvoiceDraft, isInvoiceIssued, getInvoiceLifecycleCategory } from "@/lib/billing/invoice-status";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -125,13 +125,13 @@ export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePrev
           <div>
             <p className="text-xs text-si-muted mb-1">{t("issueDate")}</p>
             <p className="font-medium text-si-ink">
-              {formatDate(invoice.dateEmission)}
+              {formatCalendarDate(invoice.dateEmission)}
             </p>
           </div>
           <div>
             <p className="text-xs text-si-muted mb-1">{t("dueDate")}</p>
             <p className="font-medium text-si-ink">
-              {formatDate(invoice.dateEcheance)}
+              {formatCalendarDate(invoice.dateEcheance)}
             </p>
           </div>
         </div>
