@@ -42,6 +42,7 @@ export function ExpenseJournalPageView({
   categories,
   transactions,
   taxesAConfirmer,
+  taxesSansOrigine,
   canWrite = true,
   embedded = false,
 }: {
@@ -52,6 +53,8 @@ export function ExpenseJournalPageView({
   transactions: BankImportTransaction[];
   /** Dépenses dont la taxe n'est qu'estimée, donc pas encore réclamable. */
   taxesAConfirmer: DepenseATaxeEstimee[];
+  /** Dépenses dont la taxe n'a jamais été calculée. */
+  taxesSansOrigine: number;
   /** Tenir le journal des dépenses. En lecture seule : chiffres et écritures,
    *  sans import ni validation (les actions serveur refusent de toute façon). */
   canWrite?: boolean;
@@ -127,7 +130,11 @@ export function ExpenseJournalPageView({
       {/* Après la boucle quotidienne, pas avant. Importer et valider est le geste
           de tous les jours ; confirmer les taxes est une dette qu'on vient solder.
           Mettre la dette en tête volerait la place du geste fréquent. */}
-      <TaxesAConfirmerSection depenses={taxesAConfirmer} canWrite={canWrite} />
+      <TaxesAConfirmerSection
+        depenses={taxesAConfirmer}
+        sansOrigine={taxesSansOrigine}
+        canWrite={canWrite}
+      />
     </div>
   );
 }

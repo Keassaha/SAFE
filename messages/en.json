@@ -2903,7 +2903,13 @@
     "taxeConfirmerAction": "Confirm",
     "colDate": "Date",
     "colCategorie": "Category",
-    "colMontant": "Amount"
+    "colMontant": "Amount",
+    "repriseTitre": "{n} expense(s) recorded before tax calculation.",
+    "repriseExplication": "Their tax was never calculated, so they count neither in your recoverable taxes nor in the list below. You can calculate it in one go. Every amount obtained will be marked as estimated, never as read from a receipt.",
+    "repriseSimuler": "See what this would do",
+    "repriseAppliquer": "Calculate the taxes",
+    "repriseSimulation": "{estimees} expense(s) would receive an estimated tax, {sansTaxe} carry none. Estimated total:",
+    "repriseSimulationTaxe": "in tax, to confirm afterwards with your receipts."
   },
   "mattersUi": {
     "reportsTitle": "Reports",

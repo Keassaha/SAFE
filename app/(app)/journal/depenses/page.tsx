@@ -147,6 +147,11 @@ export default async function JournalDepensesPage() {
   // Tant qu'une ligne est ici, la taxe qu'elle porte n'est pas réclamable et le
   // cabinet remet trop. C'est une liste qui se vide, donc elle est bornée et triée
   // du plus ancien au plus récent : on remonte la dette, on ne feuillette pas.
+  // Dépenses antérieures au lot 1 : leur taxe n'a jamais été calculée.
+  const sansOrigine = await prisma.cabinetExpense.count({
+    where: { cabinetId, taxOrigin: null, typeTransaction: "DEPENSE" },
+  });
+
   const aConfirmer = await prisma.cabinetExpense.findMany({
     where: { cabinetId, taxOrigin: "ESTIMEE", typeTransaction: "DEPENSE" },
     orderBy: { date: "asc" },
@@ -181,6 +186,7 @@ export default async function JournalDepensesPage() {
         tps: d.tps ?? 0,
         tvq: d.tvq ?? 0,
       }))}
+      taxesSansOrigine={sansOrigine}
       canWrite={canManageExpenseJournal(role)}
     />
   );

@@ -146,8 +146,20 @@ export function decomposeExpenseTax(input: {
     return sansTaxe("Le régime de taxes du cabinet ne prévoit aucune taxe applicable.");
   }
 
+  // Le HT se DÉDUIT du total, il ne se reprend pas de `applied.base`.
+  //
+  // `splitInclusiveTaxes` arrondit la base, puis recalcule les taxes SUR la base
+  // arrondie : les deux arrondis ne se réconcilient pas toujours. Relevé sur
+  // 229,95 $ en régime TVH 13 % : base 203,50 + taxe 26,46 = 229,96, un cent qui
+  // n'existe pas. Le journal général inscrit `montant`, donc ce cent aurait fait
+  // diverger la dépense de son écriture, et l'écart se serait accumulé ligne après
+  // ligne jusqu'au dossier de fin d'année.
+  //
+  // Le montant payé est la seule certitude ici : c'est lui qui arbitre. Le résidu
+  // va dans le HT et non dans la taxe, pour ne jamais réclamer un cent de plus que
+  // ce que le taux donne.
   return {
-    montantHt: R2(applied.base),
+    montantHt: R2(ttc - cols.tps - cols.tvq),
     tps: cols.tps,
     tvq: cols.tvq,
     montantTtc: ttc,

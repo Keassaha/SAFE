@@ -101,10 +101,29 @@ describe("l'addition retombe toujours juste", () => {
     ["ON", ON, 113],
     ["QC petit montant", QC, 1.15],
     ["QC montant tordu", QC, 987.65],
+    // Relevé en vérifiant la reprise sur la vraie base : base arrondie 203,50 puis
+    // taxe recalculée dessus donnait 229,96 pour un montant payé de 229,95.
+    ["ON cas du cent fantôme", ON, 229.95],
   ])("%s : HT + taxes === TTC au centime", (_label, config, ttc) => {
     const r = decomposeExpenseTax({ montantTtc: ttc, categoryCode: "LOGICIELS", taxConfig: config });
     const somme = Math.round((r.montantHt + r.tps + r.tvq) * 100) / 100;
     expect(somme).toBe(r.montantTtc);
+  });
+
+  it("balayage : aucun montant ne fabrique ni ne perd un cent", () => {
+    // Un cas isolé prouve peu sur un arrondi. On balaie deux régimes sur toute la
+    // plage des centimes, parce que le défaut est apparu sur un montant que quatre
+    // cas choisis à la main n'avaient pas attrapé.
+    const ecarts: string[] = [];
+    for (const [nom, config] of [["QC", QC], ["ON", ON]] as const) {
+      for (let cents = 1; cents <= 5000; cents++) {
+        const ttc = Math.round(cents * 7.3) / 100;
+        const r = decomposeExpenseTax({ montantTtc: ttc, categoryCode: "LOGICIELS", taxConfig: config });
+        const somme = Math.round((r.montantHt + r.tps + r.tvq) * 100) / 100;
+        if (somme !== r.montantTtc) ecarts.push(`${nom} ${ttc} -> ${somme}`);
+      }
+    }
+    expect(ecarts.slice(0, 5)).toEqual([]);
   });
 
   it("en régime harmonisé, la TVH vit dans la colonne tps", () => {

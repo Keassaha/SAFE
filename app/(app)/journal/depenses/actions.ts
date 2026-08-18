@@ -14,6 +14,7 @@ import { writeJournalForCabinetExpense } from "@/lib/services/journal/cabinet-ex
 import { applyCabinetExpenseCorrection } from "@/lib/services/journal/append-only-corrections";
 import { decomposeExpenseTax } from "@/lib/expense-journal/tax-decomposition";
 import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
+import { reprendreTaxesHistoriques, type RepriseResume } from "@/lib/expense-journal/reprise-taxes";
 
 export type ImportResult = {
   sessionId: string;
@@ -503,4 +504,47 @@ export async function ignoreTransactions(
   });
   revalidatePath("/journal/depenses");
   return { success: true, count: result.count };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REPRISE DE L'HISTORIQUE — arbitrage CEO n° 4
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Ce que la reprise CHANGERAIT, sans rien écrire.
+ *
+ * Séparée de l'application pour une raison de fond : une reprise en masse qui
+ * s'exécute sans qu'on ait vu son ampleur est exactement ce qu'un cabinet ne peut
+ * pas défendre en vérification. Il voit d'abord combien de lignes et combien de
+ * taxe, il décide ensuite.
+ */
+export async function simulerRepriseTaxes(): Promise<
+  { success: true; resume: RepriseResume } | { success: false; error: string }
+> {
+  const { cabinetId } = await requireExpenseJournalWriter();
+  try {
+    const resume = await reprendreTaxesHistoriques({ cabinetId, simulation: true });
+    return { success: true, resume };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Simulation impossible" };
+  }
+}
+
+/**
+ * Applique la reprise. Idempotente : seules les lignes sans origine sont touchées,
+ * donc un second passage ne retouche ni une ligne déjà reprise ni une ligne
+ * confirmée à la main.
+ */
+export async function appliquerRepriseTaxes(): Promise<
+  { success: true; resume: RepriseResume } | { success: false; error: string }
+> {
+  const { cabinetId } = await requireExpenseJournalWriter();
+  try {
+    const resume = await reprendreTaxesHistoriques({ cabinetId });
+    revalidatePath("/journal/depenses");
+    revalidatePath("/comptabilite");
+    return { success: true, resume };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Reprise impossible" };
+  }
 }

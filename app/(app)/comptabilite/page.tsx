@@ -154,6 +154,11 @@ async function loadExpenseJournalData(cabinetId: string) {
   const topCategoryName = byCategorySorted[0]?.categoryName ?? null;
   const topCategoryAmount = byCategorySorted[0]?._sum.montant ?? 0;
 
+  // Dépenses antérieures au lot 1 : leur taxe n'a jamais été calculée.
+  const sansOrigine = await prisma.cabinetExpense.count({
+    where: { cabinetId, taxOrigin: null, typeTransaction: "DEPENSE" },
+  });
+
   const aConfirmer = await prisma.cabinetExpense.findMany({
     where: { cabinetId, taxOrigin: "ESTIMEE", typeTransaction: "DEPENSE" },
     orderBy: { date: "asc" },
@@ -193,6 +198,7 @@ async function loadExpenseJournalData(cabinetId: string) {
     // Lot 1 — dépenses dont la taxe n'est qu'estimée, donc pas réclamable.
     // Même requête que /journal/depenses : les deux entrées mènent au même écran,
     // elles doivent montrer la même dette.
+    taxesSansOrigine: sansOrigine,
     taxesAConfirmer: aConfirmer.map((d) => ({
       id: d.id,
       date: d.date.toISOString(),

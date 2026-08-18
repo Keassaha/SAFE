@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/registre";
 import { Button } from "@/components/ui/Button";
 import { ConfirmerTaxeModal } from "./ConfirmerTaxeModal";
+import { RepriseHistoriqueBanniere } from "./RepriseHistoriqueBanniere";
 import { editCabinetExpense } from "@/app/(app)/journal/depenses/actions";
 
 /**
@@ -45,9 +46,12 @@ export type DepenseATaxeEstimee = {
 
 export function TaxesAConfirmerSection({
   depenses,
+  sansOrigine,
   canWrite = true,
 }: {
   depenses: DepenseATaxeEstimee[];
+  /** Dépenses antérieures au lot 1, dont la taxe n'a jamais été calculée. */
+  sansOrigine: number;
   canWrite?: boolean;
 }) {
   const t = useTranslations("accountingUi");
@@ -93,6 +97,10 @@ export function TaxesAConfirmerSection({
       <p className="max-w-2xl text-[13px] leading-relaxed text-si-muted">
         {t("taxesAConfirmerExplication")}
       </p>
+
+      {/* La dette d'historique passe AVANT la file : tant qu'elle n'est pas
+          reprise, la file ci-dessous est incomplète et le total sous-évalué. */}
+      {canWrite ? <RepriseHistoriqueBanniere compte={sansOrigine} /> : null}
 
       <RegistreFeuille ariaLabel={t("taxesAConfirmerTitre")}>
         {depenses.length === 0 ? (

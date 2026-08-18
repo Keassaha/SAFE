@@ -53,6 +53,7 @@ interface ComptabilitePageViewProps {
     categories: ExpenseCategory[];
     transactions: BankImportTransaction[];
     taxesAConfirmer: DepenseATaxeEstimee[];
+    taxesSansOrigine: number;
   };
   /** Mode consultant SAFE Inc. : masque le fidéicommis (non pertinent). */
   isSafeInc?: boolean;
@@ -358,6 +359,7 @@ export function ComptabilitePageView({
               categories={expenseData.categories}
               transactions={expenseData.transactions}
               taxesAConfirmer={expenseData.taxesAConfirmer}
+              taxesSansOrigine={expenseData.taxesSansOrigine}
               canWrite={canWriteJournal}
             />
           )}

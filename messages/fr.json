@@ -2903,7 +2903,13 @@
     "taxeConfirmerAction": "Confirmer",
     "colDate": "Date",
     "colCategorie": "Catégorie",
-    "colMontant": "Montant"
+    "colMontant": "Montant",
+    "repriseTitre": "{n} dépense(s) saisie(s) avant le calcul de taxe.",
+    "repriseExplication": "Leur taxe n'a jamais été calculée, donc elles ne comptent ni dans vos taxes récupérables, ni dans la liste ci-dessous. Vous pouvez la calculer d'un coup. Chaque montant obtenu sera marqué comme estimé, jamais comme lu sur un reçu.",
+    "repriseSimuler": "Voir ce que ça donnerait",
+    "repriseAppliquer": "Calculer les taxes",
+    "repriseSimulation": "{estimees} dépense(s) recevraient une taxe estimée, {sansTaxe} n'en portent aucune. Total estimé :",
+    "repriseSimulationTaxe": "de taxe, à confirmer ensuite avec vos pièces."
   },
   "mattersUi": {
     "reportsTitle": "Rapports",
