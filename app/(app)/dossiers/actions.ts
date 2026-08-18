@@ -25,6 +25,7 @@ import { syncDossierParties, reconcilePrincipalParty } from "@/lib/dossiers/part
 import type { DossierStatut, DossierType, ModeFacturationDossier, UserRole } from "@prisma/client";
 import { canManageDossiers } from "@/lib/auth/permissions";
 import { creerListeDepuisModele, MODELE_DIVORCE_QC } from "@/lib/dossiers/pieces-attendues-service";
+import { genererCollecteToken, calculerExpiration } from "@/lib/dossiers/collecte-lien";
 
 export async function createDossier(formData: FormData) {
   const { cabinetId, userId } = await requireCabinetAndUser();
@@ -900,6 +901,93 @@ export async function enregistrerDateDossier(
     entityId: dossierId,
     action: "update",
     newValues: { [champ]: valeur },
+    performedBy: userId ?? undefined,
+    performedAt: new Date(),
+  });
+
+  revalidatePath(`/dossiers/${dossierId}`);
+  return { success: true };
+}
+
+/**
+ * Engendre, ou renouvelle, le lien que le client utilise pour déposer ses pièces.
+ *
+ * Renvoie le lien existant s'il est encore valide, plutôt que d'en créer un second :
+ * deux liens en circulation pour le même dossier, c'est un client qui utilise le
+ * mauvais et un cabinet qui ne comprend pas pourquoi rien n'arrive.
+ */
+export async function genererLienCollecte(
+  dossierId: string,
+): Promise<{ success: true; url: string; expireLe: string } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce dossier." };
+  }
+
+  const dossier = await prisma.dossier.findFirst({
+    where: { id: dossierId, cabinetId },
+    select: { id: true, collecteToken: true, collecteTokenExpiresAt: true },
+  });
+  if (!dossier) return { success: false, error: "Dossier introuvable" };
+
+  const maintenant = new Date();
+  const encoreValide =
+    dossier.collecteToken &&
+    dossier.collecteTokenExpiresAt &&
+    dossier.collecteTokenExpiresAt > maintenant;
+
+  const token = encoreValide ? dossier.collecteToken! : genererCollecteToken();
+  const expire = encoreValide
+    ? dossier.collecteTokenExpiresAt!
+    : calculerExpiration(maintenant);
+
+  if (!encoreValide) {
+    await prisma.dossier.update({
+      where: { id: dossierId },
+      data: { collecteToken: token, collecteTokenExpiresAt: expire },
+    });
+    await createAuditLog({
+      cabinetId,
+      userId: userId ?? undefined,
+      entityType: "Dossier",
+      entityId: dossierId,
+      action: "update",
+      newValues: { lienCollecte: "engendre", expireLe: expire.toISOString() },
+      performedBy: userId ?? undefined,
+      performedAt: maintenant,
+    });
+  }
+
+  revalidatePath(`/dossiers/${dossierId}`);
+  return { success: true, url: `/collecte/${token}`, expireLe: expire.toISOString() };
+}
+
+/** Coupe l'accès immédiatement. Le jeton est retiré, pas expiré. */
+export async function revoquerLienCollecte(
+  dossierId: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce dossier." };
+  }
+
+  const dossier = await prisma.dossier.findFirst({
+    where: { id: dossierId, cabinetId },
+    select: { id: true },
+  });
+  if (!dossier) return { success: false, error: "Dossier introuvable" };
+
+  await prisma.dossier.update({
+    where: { id: dossierId },
+    data: { collecteToken: null, collecteTokenExpiresAt: null },
+  });
+  await createAuditLog({
+    cabinetId,
+    userId: userId ?? undefined,
+    entityType: "Dossier",
+    entityId: dossierId,
+    action: "update",
+    newValues: { lienCollecte: "revoque" },
     performedBy: userId ?? undefined,
     performedAt: new Date(),
   });

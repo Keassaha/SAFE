@@ -635,6 +635,12 @@ model Dossier {
   dateProtocole               DateTime? // état des biens dû au protocole (C.p.c. 413 al. 1)
   dateCommunicationPatrimoine DateTime? // commande les 30 jours en cas de contestation
 
+  // ── Lien de collecte des pièces ───────────────────────────────────────────
+  // Le client dépose sans créer de compte. Même patron que `Invoice.shareToken`.
+  // Révoquer = remettre le jeton à NULL, immédiat et sans état intermédiaire.
+  collecteToken          String?   @unique
+  collecteTokenExpiresAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -3085,6 +3091,16 @@ model IdentityAttestation {
   @@index([clientId])
 }
 
+/// Provenance d'un document. Blueprint §11 : un fichier ne vient pas toujours du
+/// cabinet, et le registre doit pouvoir le dire.
+enum DocumentProvenance {
+  CABINET
+  CLIENT
+  TIERS
+  TRIBUNAL
+  SYSTEME
+}
+
 model Document {
   id                        String    @id @default(cuid())
   cabinetId                 String
@@ -3096,7 +3112,12 @@ model Document {
   sizeBytes                 Int
   storageKey                String // chemin ou clé objet (fichier local ou S3)
   hash                      String? // intégrité
-  uploadedById              String
+  /// D'où vient le fichier. Blueprint §11, métadonnées canoniques.
+  provenance                DocumentProvenance @default(CABINET)
+  /// NULL = déposé hors du cabinet (client par lien, tiers). Attribuer un dépôt
+  /// client à un membre du cabinet inscrirait une fausse mention dans la piste
+  /// d'audit. Voir `provenance`.
+  uploadedById              String?
   retentionJusqua           DateTime?
 
   /// Art. 19 B-1 r.5 — original APPARTENANT AU CLIENT.
@@ -3136,7 +3157,7 @@ model Document {
   // empêche la cascade de contourner le garde-fou `DocumentRetentionError`
   // (lib/services/document.ts) et d'orpheliner l'objet Vercel Blob.
   dossier               Dossier?                     @relation(fields: [dossierId], references: [id], onDelete: Restrict)
-  uploadedBy            User                         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  uploadedBy            User?                        @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   reviewedBy            User?                        @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
   identityVerifications ClientIdentityVerification[]
   docketEntries         DossierDocketEntry[]

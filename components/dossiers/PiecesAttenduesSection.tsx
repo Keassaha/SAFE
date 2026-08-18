@@ -251,9 +251,18 @@ export function PiecesAttenduesSection({
                   </td>
                   <td className={registreCellMutedClass}>{LIBELLE_ETAT[p.etat] ?? p.etat}</td>
                   <td className="px-3 py-2.5 text-right align-middle text-[13px] tabular-nums text-si-ink">
-                    {p.echeance ? formatCalendarDate(p.echeance) : "—"}
-                    {/* Une pièce d'appui ne porte aucun délai légal : ne rien
-                        afficher vaut mieux qu'une fausse assurance. */}
+                    {/* Trois cas, et ils ne veulent pas dire la même chose :
+                        une date calculée, un délai légal dont la date de départ
+                        n'est pas encore saisie, et une pièce d'appui qui n'a
+                        aucun délai. Afficher « — » pour les trois laisserait
+                        croire qu'une pièce à délai légal n'en a pas. */}
+                    {p.echeance ? (
+                      formatCalendarDate(p.echeance)
+                    ) : p.referenceLegale ? (
+                      <span className="text-si-amber-ink">à calculer</span>
+                    ) : (
+                      "—"
+                    )}
                     {p.referenceLegale ? (
                       <span className="mt-0.5 block text-[12px] text-si-muted">
                         {p.referenceLegale}
