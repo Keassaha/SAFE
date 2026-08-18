@@ -27,6 +27,7 @@ import type { JournalKpiData } from "@/types/journal";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
 import { GeneralJournalPageView } from "@/app/(app)/journal/general/GeneralJournalPageView";
 import { ExpenseJournalPageView } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
+import type { DepenseATaxeEstimee } from "@/components/expense-journal/TaxesAConfirmerSection";
 import { FacturationPaiementsView } from "@/app/(app)/facturation/paiements/PaiementsView";
 
 export type ComptabiliteTabId = "general" | "depenses" | "paiements";
@@ -51,6 +52,7 @@ interface ComptabilitePageViewProps {
     sessions: SessionWithCount[];
     categories: ExpenseCategory[];
     transactions: BankImportTransaction[];
+    taxesAConfirmer: DepenseATaxeEstimee[];
   };
   /** Mode consultant SAFE Inc. : masque le fidéicommis (non pertinent). */
   isSafeInc?: boolean;
@@ -355,6 +357,7 @@ export function ComptabilitePageView({
               sessions={expenseData.sessions}
               categories={expenseData.categories}
               transactions={expenseData.transactions}
+              taxesAConfirmer={expenseData.taxesAConfirmer}
               canWrite={canWriteJournal}
             />
           )}

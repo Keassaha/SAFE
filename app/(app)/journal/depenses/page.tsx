@@ -142,6 +142,27 @@ export default async function JournalDepensesPage() {
     totalValidated: totalValidated._sum.montant ?? 0,
   };
 
+  // Lot 1, spec dépenses §2.1 — les dépenses dont la taxe n'est qu'ESTIMÉE.
+  //
+  // Tant qu'une ligne est ici, la taxe qu'elle porte n'est pas réclamable et le
+  // cabinet remet trop. C'est une liste qui se vide, donc elle est bornée et triée
+  // du plus ancien au plus récent : on remonte la dette, on ne feuillette pas.
+  const aConfirmer = await prisma.cabinetExpense.findMany({
+    where: { cabinetId, taxOrigin: "ESTIMEE", typeTransaction: "DEPENSE" },
+    orderBy: { date: "asc" },
+    take: 200,
+    select: {
+      id: true,
+      date: true,
+      descriptionBancaire: true,
+      fournisseurNormalise: true,
+      categoryName: true,
+      montant: true,
+      tps: true,
+      tvq: true,
+    },
+  });
+
   return (
     <ExpenseJournalPageView
       cabinetId={cabinetId}
@@ -149,6 +170,17 @@ export default async function JournalDepensesPage() {
       sessions={sessions}
       categories={categories}
       transactions={transactions}
+      taxesAConfirmer={aConfirmer.map((d) => ({
+        id: d.id,
+        date: d.date.toISOString(),
+        // Le nom normalisé quand on l'a : « BUREAU EN GROS » se reconnaît mieux
+        // que « BUREAU EN GROS #4412 MTL QC 08-14 ».
+        libelle: d.fournisseurNormalise ?? d.descriptionBancaire,
+        categorieName: d.categoryName,
+        montant: d.montant,
+        tps: d.tps ?? 0,
+        tvq: d.tvq ?? 0,
+      }))}
       canWrite={canManageExpenseJournal(role)}
     />
   );

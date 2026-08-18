@@ -319,6 +319,8 @@ export type EditCabinetExpenseInput = {
   tps?: number | null;
   tvq?: number | null;
   montantHt?: number | null;
+  /** Le cabinet affirme, pièce en main, que cette dépense ne porte aucune taxe. */
+  sansTaxe?: boolean;
 };
 
 export type EditCabinetExpenseResult =
@@ -375,6 +377,7 @@ export async function editCabinetExpense(
       patch.tps != null || patch.tvq != null
         ? { tps: patch.tps, tvq: patch.tvq, montantHt: patch.montantHt }
         : null,
+    declaredSansTaxe: patch.sansTaxe === true,
   });
 
   const after = await prisma.$transaction(async (txClient) => {

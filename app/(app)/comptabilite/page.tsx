@@ -154,6 +154,22 @@ async function loadExpenseJournalData(cabinetId: string) {
   const topCategoryName = byCategorySorted[0]?.categoryName ?? null;
   const topCategoryAmount = byCategorySorted[0]?._sum.montant ?? 0;
 
+  const aConfirmer = await prisma.cabinetExpense.findMany({
+    where: { cabinetId, taxOrigin: "ESTIMEE", typeTransaction: "DEPENSE" },
+    orderBy: { date: "asc" },
+    take: 200,
+    select: {
+      id: true,
+      date: true,
+      descriptionBancaire: true,
+      fournisseurNormalise: true,
+      categoryName: true,
+      montant: true,
+      tps: true,
+      tvq: true,
+    },
+  });
+
   return {
     kpis: {
       totalMonth,
@@ -174,5 +190,17 @@ async function loadExpenseJournalData(cabinetId: string) {
     sessions,
     categories,
     transactions,
+    // Lot 1 — dépenses dont la taxe n'est qu'estimée, donc pas réclamable.
+    // Même requête que /journal/depenses : les deux entrées mènent au même écran,
+    // elles doivent montrer la même dette.
+    taxesAConfirmer: aConfirmer.map((d) => ({
+      id: d.id,
+      date: d.date.toISOString(),
+      libelle: d.fournisseurNormalise ?? d.descriptionBancaire,
+      categorieName: d.categoryName,
+      montant: d.montant,
+      tps: d.tps ?? 0,
+      tvq: d.tvq ?? 0,
+    })),
   };
 }

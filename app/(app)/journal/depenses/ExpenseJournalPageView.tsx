@@ -11,6 +11,10 @@ import { ImportStatementBlock } from "@/components/expense-journal/ImportStateme
 import { ImportRecuModal } from "@/components/expense-journal/ImportRecuModal";
 import { ExpensesJournalTable } from "@/components/expense-journal/ExpensesJournalTable";
 import { ValidationPanel } from "@/components/expense-journal/ValidationPanel";
+import {
+  TaxesAConfirmerSection,
+  type DepenseATaxeEstimee,
+} from "@/components/expense-journal/TaxesAConfirmerSection";
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
 
 export type ExpenseJournalKpisData = {
@@ -37,6 +41,7 @@ export function ExpenseJournalPageView({
   sessions,
   categories,
   transactions,
+  taxesAConfirmer,
   canWrite = true,
   embedded = false,
 }: {
@@ -45,6 +50,8 @@ export function ExpenseJournalPageView({
   sessions: SessionWithCount[];
   categories: ExpenseCategory[];
   transactions: BankImportTransaction[];
+  /** Dépenses dont la taxe n'est qu'estimée, donc pas encore réclamable. */
+  taxesAConfirmer: DepenseATaxeEstimee[];
   /** Tenir le journal des dépenses. En lecture seule : chiffres et écritures,
    *  sans import ni validation (les actions serveur refusent de toute façon). */
   canWrite?: boolean;
@@ -116,6 +123,11 @@ export function ExpenseJournalPageView({
           </div>
         )}
       </div>
+
+      {/* Après la boucle quotidienne, pas avant. Importer et valider est le geste
+          de tous les jours ; confirmer les taxes est une dette qu'on vient solder.
+          Mettre la dette en tête volerait la place du geste fréquent. */}
+      <TaxesAConfirmerSection depenses={taxesAConfirmer} canWrite={canWrite} />
     </div>
   );
 }

@@ -80,8 +80,17 @@ export function decomposeExpenseTax(input: {
   categoryCode?: string | null;
   taxConfig: CabinetTaxConfig;
   declared?: DeclaredTax | null;
+  /**
+   * Le cabinet affirme, pièce en main, que cette dépense ne porte aucune taxe.
+   *
+   * Nécessaire parce qu'un zéro saisi est indiscernable d'un champ laissé vide :
+   * sans ce signal, répondre « aucune taxe » relancerait l'estimation, et la ligne
+   * reviendrait indéfiniment dans la liste à confirmer. Une affirmation vaut lecture
+   * de pièce, donc `AUCUNE` et non `ESTIMEE`.
+   */
+  declaredSansTaxe?: boolean;
 }): ExpenseTaxBreakdown {
-  const { montantTtc, categoryCode, taxConfig, declared } = input;
+  const { montantTtc, categoryCode, taxConfig, declared, declaredSansTaxe } = input;
   const ttc = R2(montantTtc);
   const regle = regimeFor(categoryCode);
 
@@ -101,7 +110,13 @@ export function decomposeExpenseTax(input: {
   // 1. La catégorie refuse-t-elle toute taxe, même saisie ?
   if (!peutSaisirTaxe(categoryCode)) return sansTaxe(regle.motif);
 
-  // 2. La pièce parle-t-elle ? C'est la vérité, on ne recalcule pas.
+  // 2. Le cabinet affirme-t-il qu'il n'y a rien ? On le croit, et on ne réestime
+  //    plus : sinon la ligne reviendrait dans la liste à chaque passage.
+  if (declaredSansTaxe) {
+    return sansTaxe("Vous avez confirmé que cette dépense ne porte aucune taxe.");
+  }
+
+  // 3. La pièce parle-t-elle ? C'est la vérité, on ne recalcule pas.
   if (aUneTaxeDeclaree(declared)) {
     const tps = R2(declared!.tps ?? 0);
     const tvq = R2(declared!.tvq ?? 0);
@@ -118,12 +133,12 @@ export function decomposeExpenseTax(input: {
     };
   }
 
-  // 3. La catégorie autorise-t-elle une ESTIMATION ? Les frais bancaires et les
+  // 4. La catégorie autorise-t-elle une ESTIMATION ? Les frais bancaires et les
   //    droits de greffe passent l'étape 1 mais échouent ici : on ne fabrique pas de
   //    taxe sur une fourniture exonérée, on attend que la pièce la porte.
   if (!peutEstimerTaxe(categoryCode)) return sansTaxe(regle.motif);
 
-  // 4. Régime général : décomposition du TTC selon le régime du cabinet.
+  // 5. Régime général : décomposition du TTC selon le régime du cabinet.
   const applied: AppliedTaxes = splitInclusiveTaxes(ttc, taxConfig);
   const cols = toInvoiceTaxColumns(applied, taxConfig.mode);
 

@@ -155,3 +155,44 @@ describe("taxeReclamable", () => {
     expect(taxeReclamable([])).toEqual({ reclamable: 0, estimee: 0 });
   });
 });
+
+describe("les deux issues de la modale de confirmation", () => {
+  // L'écran ne pose qu'une question, « que montre votre pièce ? », et n'a donc que
+  // deux réponses possibles. Ces tests couvrent ce que chaque bouton déclenche.
+
+  it("« elle montre un montant » rend la dépense réclamable", () => {
+    const r = decomposeExpenseTax({
+      montantTtc: 114.98,
+      categoryCode: "FOURNITURES",
+      taxConfig: QC,
+      declared: { tps: 5, tvq: 9.98 },
+    });
+    expect(r.origine).toBe("DECLAREE");
+    expect(r.reclamable).toBe(true);
+  });
+
+  it("« elle ne porte aucune taxe » ferme la ligne au lieu de la réestimer", () => {
+    // Sans ce signal, répondre « aucune taxe » relancerait l'estimation et la ligne
+    // reviendrait indéfiniment dans la liste à confirmer. Elle ne se viderait jamais.
+    const r = decomposeExpenseTax({
+      montantTtc: 114.98,
+      categoryCode: "FOURNITURES",
+      taxConfig: QC,
+      declaredSansTaxe: true,
+    });
+    expect(r.origine).toBe("AUCUNE");
+    expect(r.tps + r.tvq).toBe(0);
+    expect(r.montantHt).toBe(114.98);
+    expect(r.motif).toBeTruthy();
+  });
+
+  it("une ligne confirmée ne revient pas dans la liste au passage suivant", () => {
+    // La liste filtre sur ESTIMEE. Les deux réponses doivent en sortir.
+    for (const r of [
+      decomposeExpenseTax({ montantTtc: 100, categoryCode: "FOURNITURES", taxConfig: QC, declared: { tps: 4.35, tvq: 8.68 } }),
+      decomposeExpenseTax({ montantTtc: 100, categoryCode: "FOURNITURES", taxConfig: QC, declaredSansTaxe: true }),
+    ]) {
+      expect(r.origine).not.toBe("ESTIMEE");
+    }
+  });
+});
