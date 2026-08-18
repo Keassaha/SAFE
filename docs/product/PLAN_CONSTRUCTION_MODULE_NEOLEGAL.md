@@ -281,6 +281,12 @@ cabinet pilote, est ouverte.
 qui ne peut pas être délégué, et c'est lui qui décide du domaine, donc du bundle, donc
 des formulaires et des listes de pièces.
 
+> ✅ **Étape 0 faite le 2026-08-18** :
+> [SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md](SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md).
+> Le vertical retenu n'est **pas** celui du blueprint §28 : le cabinet pilote est en
+> Ontario et fait immobilier et immigration, pas du droit familial québécois. Voir §0 de
+> la spec pour les trois constats qui justifient l'écart.
+
 ### Étape 0 — La spec de parcours (prochaine action physique du blueprint)
 
 Un seul mandat, écrans, acteurs, données, pièces attendues, décisions humaines,
