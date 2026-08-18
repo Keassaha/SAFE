@@ -65,8 +65,12 @@ const AUDIT = {
   // CABINET_CONFIG.currentOffer, elle ne se lit pas dans Cabinet.plan.
   plan: "cabinet",
   cabinet: {
-    nom: "DADIÉ AVOCAT, entreprise individuelle",
-    displayName: "DADIÉ AVOCAT",
+    // Nom légal saisi tel quel au login (comparaison exacte, insensible à la
+    // casse — lib/auth.ts). Changé du nom complet avec forme juridique
+    // ("DADIÉ AVOCAT, entreprise individuelle") vers ce nom court sur
+    // demande du CEO, 2026-08-15.
+    nom: "Dadié Avocat",
+    displayName: "Dadié Avocat",
     principalLawyer: "Agboko Jean-Jacques Dadié",
     email: ADMIN_EMAIL,
     province: "QC",
