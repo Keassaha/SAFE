@@ -5,6 +5,7 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import { getGlobalTrustBalance } from "@/lib/services/fideicommis";
+import { construireDossierFinAnnee } from "./dossier-fin-annee";
 import {
   legacyStatutToInvoiceWhere,
   whereInvoiceForReports,
@@ -383,6 +384,26 @@ export async function loadRapportsPayload(
     factureNumero: d.facture?.numero ?? null,
   }));
 
+  // Dépenses de l'exercice, pour le dossier de fin d'année (lot 4).
+  const depensesFinAnnee = await prisma.cabinetExpense.findMany({
+    where: {
+      cabinetId,
+      typeTransaction: "DEPENSE",
+      date: { gte: new Date(dateDebut), lte: new Date(dateFin) },
+    },
+    select: {
+      id: true,
+      categoryName: true,
+      montant: true,
+      montantHt: true,
+      tps: true,
+      tvq: true,
+      taxOrigin: true,
+      pieceStorageKey: true,
+      category: { select: { code: true } },
+    },
+  });
+
   return {
     filters: {
       dateDebut: dateDebut.toISOString().slice(0, 10),
@@ -414,6 +435,29 @@ export async function loadRapportsPayload(
       totalTVQ,
       totalPaiements: totalPaid,
     },
+    // Lot 4 — le dossier de fin d'année, qui remplace les quatre lignes ci-dessus.
+    // Construit par une fonction PURE : tout ce qu'elle sait lui est donné ici.
+    dossierFinAnnee: construireDossierFinAnnee({
+      annee: new Date(dateFin).getUTCFullYear(),
+      revenus: { factureHt: totalInvoicedHT, encaisse: totalPaid },
+      taxesCollectees: totalTPS + totalTVQ,
+      deboursRefactures: deboursRows.reduce((sum, d) => sum + (d.montant ?? 0), 0),
+      depenses: depensesFinAnnee.map((d) => ({
+        id: d.id,
+        categoryCode: d.category?.code ?? null,
+        categoryName: d.categoryName,
+        montant: d.montant,
+        montantHt: d.montantHt,
+        tps: d.tps,
+        tvq: d.tvq,
+        taxOrigin: d.taxOrigin,
+        // La pièce, c'est le reçu conservé à l'import. Pas de reçu, pas de pièce.
+        piecePresente: d.pieceStorageKey != null,
+      })),
+      // Prorata véhicule : pas encore saisissable (reste du lot 2). Nul signifie
+      // « indéterminé », et le dossier le DÉCLARE au lieu de deviner.
+      prorataVehicule: null,
+    }),
     clients: clients.map((c) => ({ id: c.id, label: c.raisonSociale ?? "" })),
     avocats: users.map((u) => ({ id: u.id, label: u.nom })),
   };

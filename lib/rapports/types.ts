@@ -1,3 +1,5 @@
+import type { DossierFinAnnee } from "./dossier-fin-annee";
+
 /**
  * Types pour la page Rapports SAFE (SAAS juridique).
  * Toutes les dates sont sérialisées en string ISO pour le passage RSC -> client.
@@ -96,6 +98,8 @@ export interface RapportsPayload {
   fideicommis: RapportFideicommisSummary;
   taxes: RapportTaxesSummary;
   deboursRows: RapportDeboursRow[];
+  /** Lot 4 — le dossier de fin d'année, qui remplace `annuelImpots`. */
+  dossierFinAnnee: DossierFinAnnee;
   annuelImpots: {
     totalRevenus: number;
     totalTPS: number;

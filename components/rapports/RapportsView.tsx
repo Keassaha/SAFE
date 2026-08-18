@@ -33,7 +33,7 @@ import { RentabiliteDossierTable } from "./RentabiliteDossierTable";
 import { RapportFideicommisSection } from "./RapportFideicommisSection";
 import { RapportTaxesSection } from "./RapportTaxesSection";
 import { RapportDeboursSection } from "./RapportDeboursSection";
-import { RapportAnnuelImpotsSection } from "./RapportAnnuelImpotsSection";
+import { DossierFinAnneeSection } from "./DossierFinAnneeSection";
 import { ExportButtons } from "./ExportButtons";
 import { useTranslations } from "next-intl";
 
@@ -370,7 +370,7 @@ export function RapportsView({
           <Card>
             <CardHeader title={t("annualTaxReport")} className="print:hidden" />
             <CardContent>
-              <RapportAnnuelImpotsSection data={payload.annuelImpots} annee={annee} />
+              <DossierFinAnneeSection dossier={payload.dossierFinAnnee} />
             </CardContent>
           </Card>
         )}
