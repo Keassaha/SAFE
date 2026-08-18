@@ -28,7 +28,7 @@ import * as React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import type { PresentedInvoice } from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
-import { font, provinceToTaxRegime } from "./tokens";
+import { font } from "./tokens";
 import { derivePalette } from "./color";
 import type { InvoiceLanguage } from "./InvoiceDocument";
 
@@ -247,6 +247,29 @@ function fmtMoney(n: number, locale: InvoiceLanguage, currency: string): string 
   }).format(n);
 }
 
+/**
+ * Somme des taxes et sous-total avant taxes.
+ *
+ * EXTRAIT EN FONCTION PURE APRÈS UN DÉFAUT RÉEL
+ *
+ * Ce calcul vivait en ligne dans le composant et oubliait `hst`. Sur un cabinet en
+ * TVH, le presenter rend `tps = 0`, `tvq = 0` et `hst = le montant` : la somme
+ * valait donc zéro, la ligne de taxe disparaissait (conditionnée à `taxTotal > 0`)
+ * et le sous-total affichait le total taxes comprises.
+ *
+ * Une facture d'inscrit qui ne montre aucune taxe n'est pas seulement fausse, elle
+ * est indéfendable. Le calcul est sorti du JSX pour qu'un test puisse le tenir.
+ */
+export function resumeTaxes(totals: {
+  tps: number;
+  tvq: number;
+  hst: number;
+  montantTotal: number;
+}): { taxTotal: number; subtotalPreTax: number } {
+  const taxTotal = totals.tps + totals.tvq + totals.hst;
+  return { taxTotal, subtotalPreTax: totals.montantTotal - taxTotal };
+}
+
 function fmtDate(d: Date | string, locale: InvoiceLanguage): string {
   const intl = locale === "en" ? "en-CA" : "fr-CA";
   // `timeZone: "UTC"` : dates stockées à minuit UTC ; éviter le décalage local.
@@ -308,10 +331,25 @@ export function DerisierInvoiceDocument({
   const ink: Ink = { ...NEUTRALS, ...derivePalette(cabinet?.invoiceAccentColor) };
   const styles = createStyles(ink);
 
-  // Taxe : régime selon la province du client (Derisier ON → TVH 13 %).
-  const taxRegime = provinceToTaxRegime(client?.billingProvince ?? null);
-  const taxTotal = totals.tps + totals.tvq;
-  const subtotalPreTax = totals.montantTotal - taxTotal;
+  // ── Taxe ────────────────────────────────────────────────────────────────
+  //
+  // Le régime vient du CABINET, jamais de la province du CLIENT. Une facture d'un
+  // cabinet ontarien reste en TVH même pour un client domicilié ailleurs, et
+  // l'inverse pour un cabinet québécois. Ce gabarit lisait `client.billingProvince`,
+  // exactement le défaut corrigé ailleurs le 2026-06-11 (commit d09d142) : l'aperçu
+  // annonçait un total que la facture ne portait pas.
+  const taxRegime = totals.taxRegime;
+
+  // `hst` DOIT entrer dans la somme. Le projet stocke la TVH dans la colonne `tps`
+  // (invariant de lib/billing/taxes.ts), mais le presenter la ré-étiquette : pour un
+  // cabinet en TVH, il rend tps = 0, tvq = 0 et hst = le montant.
+  //
+  // L'oublier avait deux effets, tous deux visibles par le client d'un cabinet
+  // ontarien : la ligne de TVH disparaissait entièrement (elle est conditionnée à
+  // `taxTotal > 0`), et le « Sous-total » affichait le total TAXES COMPRISES. Une
+  // facture d'inscrit qui ne montre aucune taxe n'est pas seulement fausse, elle
+  // est indéfendable.
+  const { taxTotal, subtotalPreTax } = resumeTaxes(totals);
   const taxLabel =
     taxRegime === "GST_QST"
       ? language === "en" ? "GST 5% / QST 9.975%" : "TPS 5 % / TVQ 9,975 %"

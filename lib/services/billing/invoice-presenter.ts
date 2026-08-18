@@ -102,6 +102,82 @@ export interface PresentedLine {
   source: "invoice_line" | "invoice_item";
 }
 
+
+/* ── Ordre chronologique des lignes ────────────────────────────────────────── */
+
+const tempsDe = (d: string | Date | null | undefined): number | null => {
+  if (!d) return null;
+  const t = d instanceof Date ? d.getTime() : new Date(d).getTime();
+  return Number.isFinite(t) ? t : null;
+};
+
+/**
+ * Remet les lignes dans l'ordre où le travail a été fait.
+ *
+ * POURQUOI CE TRI EXISTE
+ *
+ * Les lignes étaient rendues dans l'ordre de `sortOrder`, lui-même attribué en deux
+ * passes à la création : TOUTES les prestations, puis TOUS les débours, chacun dans
+ * l'ordre non déterministe que renvoyait la base faute d'`orderBy`.
+ *
+ * Sur une facture qui mêle honoraires et débours, le client lisait donc une suite de
+ * dates qui montait, retombait, puis remontait. Une facture d'avocat se lit comme un
+ * récit du dossier : si les dates sautent, le client cherche l'erreur au lieu de lire
+ * le travail.
+ *
+ * TROIS RÈGLES, DANS CET ORDRE
+ *
+ * 1. Un rabais CIBLÉ colle à sa ligne parente. Le détacher pour le ranger à sa
+ *    propre date rendrait illisible ce qu'il vient réduire.
+ * 2. Le reste se trie par date croissante, à égalité l'ordre d'origine est conservé.
+ * 3. Ce qui n'a pas de date passe en fin : une ligne sans date n'a pas de place dans
+ *    une chronologie, et l'inventer en tête serait pire que de l'y laisser.
+ *
+ * Les rabais GLOBAUX ferment la facture : ils portent sur l'ensemble, pas sur un jour.
+ */
+export function ordonnerChronologiquement(lignes: PresentedLine[]): PresentedLine[] {
+  const parPosition = new Map(lignes.map((l, i) => [l.id, i]));
+
+  const cibles = new Map<string, PresentedLine[]>();
+  const globales: PresentedLine[] = [];
+  const principales: PresentedLine[] = [];
+
+  for (const l of lignes) {
+    if (l.parentLineId) {
+      const groupe = cibles.get(l.parentLineId) ?? [];
+      groupe.push(l);
+      cibles.set(l.parentLineId, groupe);
+    } else if (l.type === "rabais") {
+      globales.push(l);
+    } else {
+      principales.push(l);
+    }
+  }
+
+  principales.sort((a, b) => {
+    const ta = tempsDe(a.date);
+    const tb = tempsDe(b.date);
+    if (ta == null && tb == null) return (parPosition.get(a.id) ?? 0) - (parPosition.get(b.id) ?? 0);
+    if (ta == null) return 1;
+    if (tb == null) return -1;
+    if (ta !== tb) return ta - tb;
+    // À date égale, l'ordre de saisie fait foi : deux prestations du même jour se
+    // suivent comme elles ont été enregistrées.
+    return (parPosition.get(a.id) ?? 0) - (parPosition.get(b.id) ?? 0);
+  });
+
+  const out: PresentedLine[] = [];
+  for (const l of principales) {
+    out.push(l);
+    for (const rabais of cibles.get(l.id) ?? []) out.push(rabais);
+  }
+  // Un rabais dont la ligne parente a disparu ne doit pas disparaître avec elle.
+  for (const [parentId, groupe] of cibles) {
+    if (!principales.some((l) => l.id === parentId)) out.push(...groupe);
+  }
+  return [...out, ...globales];
+}
+
 export interface PresentedClient {
   id: string;
   raisonSociale: string | null;
@@ -384,7 +460,7 @@ export function presentInvoice(
     };
   });
 
-  const lines = [...linesFromInvoiceLine, ...linesFromInvoiceItem];
+  const lines = ordonnerChronologiquement([...linesFromInvoiceLine, ...linesFromInvoiceItem]);
   const totalRabais = lines
     .filter((l) => l.type === "rabais")
     .reduce((s, l) => s + Math.abs(l.amount), 0);

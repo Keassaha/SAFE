@@ -63,6 +63,9 @@ export async function createDraftFromBillableItems(params: {
             ...(dossierId != null ? { dossierId } : {}),
           },
           include: { user: { select: { id: true, nom: true } } },
+          // Sans tri, la base rend l'ordre qu'elle veut et la facture sort dans le
+          // désordre. Le client lit une chronologie, pas un tas.
+          orderBy: [{ date: "asc" }, { createdAt: "asc" }],
         })
       : [];
 
@@ -80,6 +83,7 @@ export async function createDraftFromBillableItems(params: {
         billingStatus: { in: ["NON_BILLED", "READY_TO_BILL"] },
         invoiceId: null,
       },
+      orderBy: [{ expenseDate: "asc" }, { createdAt: "asc" }],
     });
     if (expenses.length !== expenseIds.length) {
       throw new Error("Certains débours sont introuvables ou déjà facturés");
