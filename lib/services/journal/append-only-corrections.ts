@@ -26,6 +26,7 @@ import type {
 } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { createJournalEntry } from "./journal-service";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 type JournalPrismaClient = PrismaClient | Prisma.TransactionClient;
 
@@ -227,7 +228,9 @@ export async function applyCabinetExpenseCorrection(
   const correction = await createJournalEntry(
     {
       cabinetId,
-      dateTransaction: new Date(),
+      // Jour calendaire, pas un instant : `new Date()` brut porte l'heure, et une
+      // correction passée en soirée bascule au lendemain une fois relue en UTC.
+      dateTransaction: toCalendarDayUTC(new Date()),
       typeTransaction: "CORRECTION",
       reference: `correction:CabinetExpense:${entityId}`,
       clientId: null,
@@ -377,7 +380,9 @@ export async function applyDeboursDossierCorrection(
   const correction = await createJournalEntry(
     {
       cabinetId,
-      dateTransaction: new Date(),
+      // Jour calendaire, pas un instant : `new Date()` brut porte l'heure, et une
+      // correction passée en soirée bascule au lendemain une fois relue en UTC.
+      dateTransaction: toCalendarDayUTC(new Date()),
       typeTransaction: "CORRECTION",
       reference: `correction:DeboursDossier:${entityId}`,
       clientId: after.clientId,

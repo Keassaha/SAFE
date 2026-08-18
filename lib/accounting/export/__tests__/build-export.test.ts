@@ -16,6 +16,29 @@ function entry(partial: Partial<ExportableEntry>): ExportableEntry {
   };
 }
 
+describe("date d'export", () => {
+  it("exporte le jour stocké, pas la veille", () => {
+    // Forme RÉELLE des données de production : `z.coerce.date()` sur "2026-08-17"
+    // donne minuit UTC. L'ancien `toIsoDate` lisait en heure locale et sortait
+    // "2026-08-16" dans les fichiers QuickBooks, Xero et Sage. Une écriture datée
+    // d'un autre jour, et près d'une fin de mois, d'une autre période de TPS/TVQ.
+    //
+    // Le fixture par défaut de ce fichier utilise `new Date(2026, 5, 15)`, minuit
+    // LOCAL, ce qui masquait le défaut : les deux lectures tombaient d'accord.
+    const lines = buildAccountingExportLines([
+      entry({ dateTransaction: new Date("2026-08-17"), montantEntree: 100 }),
+    ]);
+    expect(lines.every((l) => l.date === "2026-08-17")).toBe(true);
+  });
+
+  it("ne recule pas non plus au tournant de l'année", () => {
+    const lines = buildAccountingExportLines([
+      entry({ dateTransaction: new Date("2026-01-01"), montantEntree: 100 }),
+    ]);
+    expect(lines.every((l) => l.date === "2026-01-01")).toBe(true);
+  });
+});
+
 describe("buildAccountingExportLines — double-entrée mappée (Lot 5)", () => {
   it("une FACTURE sans détail de taxes produit Dr Comptes à recevoir / Cr Honoraires, balancée", () => {
     const lines = buildAccountingExportLines([

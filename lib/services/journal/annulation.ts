@@ -26,6 +26,7 @@ import { prisma } from "@/lib/db";
 import { createJournalEntry } from "./journal-service";
 import { createAuditLog } from "@/lib/services/audit";
 import { JOURNAL_MOTIVE_LABELS } from "@/types/journal";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 type JournalPrismaClient = PrismaClient | Prisma.TransactionClient;
 
@@ -266,7 +267,9 @@ export async function annulerEcritureJournal(
     const created = await createJournalEntry(
       {
         cabinetId,
-        dateTransaction: new Date(),
+        // Jour calendaire, pas un instant : `new Date()` brut porte l'heure, et une
+      // correction passée en soirée bascule au lendemain une fois relue en UTC.
+      dateTransaction: toCalendarDayUTC(new Date()),
         typeTransaction: contrepassation.typeTransaction,
         reference: entry.reference,
         clientId: entry.clientId,
@@ -372,7 +375,9 @@ export async function contrepasserEcritureSource(params: {
   const created = await createJournalEntry(
     {
       cabinetId,
-      dateTransaction: new Date(),
+      // Jour calendaire, pas un instant : `new Date()` brut porte l'heure, et une
+      // correction passée en soirée bascule au lendemain une fois relue en UTC.
+      dateTransaction: toCalendarDayUTC(new Date()),
       typeTransaction: contrepassation.typeTransaction,
       reference: entry.reference,
       clientId: entry.clientId,

@@ -10,6 +10,7 @@ import {
   deriveDoubleEntry,
   resolveAccountChart,
 } from "./account-mapping";
+import { toIsoDay } from "@/lib/utils/calendar-date";
 
 export interface ExportableEntry {
   id?: string;
@@ -37,11 +38,17 @@ export interface AccountingExportLine {
   name: string; // tiers (client) si présent
 }
 
+/**
+ * Sérialise un jour en `YYYY-MM-DD`.
+ *
+ * Lecture en UTC, jamais locale : les dates comptables sont stockées à minuit UTC
+ * (voir lib/utils/calendar-date.ts). Les getters locaux les faisaient tomber la
+ * veille à 20 h côté Montréal, et le décalage partait tel quel dans les fichiers
+ * QuickBooks, Xero et Sage, où il devient l'écriture d'un autre jour, parfois d'un
+ * autre mois et donc d'une autre période de TPS/TVQ.
+ */
 function toIsoDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return toIsoDay(d);
 }
 
 function round2(n: number): number {

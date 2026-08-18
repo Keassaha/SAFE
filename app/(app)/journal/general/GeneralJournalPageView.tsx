@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCurrency, formatCalendarDate } from "@/lib/utils/format";
 import {
   createManualJournalEntryAction,
   getJournalEntriesAction,
@@ -716,7 +716,7 @@ export function GeneralJournalPageView({
                       return (
                         <tr key={e.id} className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors" >
                           <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                            {formatDate(e.dateTransaction)}
+                            {formatCalendarDate(e.dateTransaction)}
                           </td>
                           <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                             {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
@@ -763,7 +763,7 @@ export function GeneralJournalPageView({
         intro={t("cancelEntryIntro")}
         cible={
           annulationCible
-            ? `${formatDate(annulationCible.dateTransaction)} · ${annulationCible.description} · ${formatCurrency(
+            ? `${formatCalendarDate(annulationCible.dateTransaction)} · ${annulationCible.description} · ${formatCurrency(
                 Math.max(annulationCible.montantEntree, annulationCible.montantSortie),
               )}`
             : null
@@ -823,7 +823,7 @@ function CorrectionsTable({
             className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors"
           >
             <td className="whitespace-nowrap px-4 py-3 text-[14px] text-si-ink">
-              {formatDate(e.dateTransaction)}
+              {formatCalendarDate(e.dateTransaction)}
             </td>
             <td
               className="max-w-[320px] truncate px-4 py-3 text-[14px] text-si-ink"

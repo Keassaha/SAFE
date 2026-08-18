@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { BookOpen, Undo2 } from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCurrency, formatCalendarDate } from "@/lib/utils/format";
 import type { JournalEntryRow } from "@/types/journal";
 import {
   describeMovement,
@@ -101,7 +101,7 @@ export function MovementsTable({
             return (
               <tr key={e.id} className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors" >
                 <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                  {formatDate(e.dateTransaction)}
+                  {formatCalendarDate(e.dateTransaction)}
                 </td>
                 <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                   <span className="inline-flex items-center gap-2">
