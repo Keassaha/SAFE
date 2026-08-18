@@ -10,6 +10,7 @@ import { Loader2, UploadCloud, CheckCircle2, AlertTriangle, HelpCircle, Users } 
 import { formatCurrency } from "@/lib/utils/format";
 import type { PaymentProofExtraction } from "@/lib/ai/extract-payment-proof";
 import type { PaymentMatch } from "@/lib/services/finance/match-payment";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const selectClass =
   "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -116,7 +117,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       setClientId(m.clientId ?? "");
       setInvoiceId(m.invoiceId ?? "");
       setAmount(ext.montant != null ? String(ext.montant) : "");
-      setDate(ext.date ?? new Date().toISOString().slice(0, 10));
+      setDate(ext.date ?? toIsoDay(toCalendarDayUTC(new Date())));
       setReference(ext.referenceInterac ?? "");
       setNote("");
       setPhase("review");

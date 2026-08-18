@@ -14,6 +14,7 @@ import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { Pencil, Trash2, FileText } from "lucide-react";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export type DeboursDossierRow = {
   id: string;
@@ -115,7 +116,7 @@ export function DossierDebours({
                 <input
                   type="date"
                   name="date"
-                  defaultValue={new Date().toISOString().slice(0, 10)}
+                  defaultValue={toIsoDay(toCalendarDayUTC(new Date()))}
                   className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
                 />
               </div>

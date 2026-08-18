@@ -10,6 +10,7 @@ import { timeEntryCreateSchema, type TimeEntryCreateInput } from "@/lib/validati
 import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
 type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; tauxHoraire?: number | null; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
@@ -62,7 +63,7 @@ export function TimeEntryFormModal({
   const [dossierId, setDossierId] = useState(initial?.dossierId ?? "");
   const [userId, setUserId] = useState(initial?.userId ?? currentUserId);
   const [date, setDate] = useState(
-    initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)
+    initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : toIsoDay(toCalendarDayUTC(new Date()))
   );
   const [dureeMinutes, setDureeMinutes] = useState(initial?.dureeMinutes ?? 60);
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -104,7 +105,7 @@ export function TimeEntryFormModal({
       setClientId("");
     }
     setUserId(initial?.userId ?? currentUserId);
-    setDate(initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
+    setDate(initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : toIsoDay(toCalendarDayUTC(new Date())));
     setDureeMinutes(initial?.dureeMinutes ?? 60);
     if (initial && "rawDureeMinutes" in initial && "roundingMinutes" in initial && initial.rawDureeMinutes != null && initial.roundingMinutes != null && initial.dureeMinutes != null) {
       setRoundingHint({ raw: initial.rawDureeMinutes, rounded: initial.dureeMinutes, roundingMinutes: initial.roundingMinutes });

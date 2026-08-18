@@ -10,6 +10,7 @@ import { useCreateTrustWithdrawal, useTrustBalance } from "@/lib/hooks/useFideic
 import { formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 interface ClientOption {
   id: string;
@@ -48,7 +49,7 @@ export function RetraitForm({
   const [dossierId, setDossierId] = useState("");
   const [montant, setMontant] = useState("");
   const [dateTransaction, setDateTransaction] = useState(
-    () => new Date().toISOString().slice(0, 10)
+    () => toIsoDay(toCalendarDayUTC(new Date()))
   );
   const [factureId, setFactureId] = useState("");
   const [motive, setMotive] = useState<TrustWithdrawalMotive | "">("");

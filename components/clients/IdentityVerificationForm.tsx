@@ -6,6 +6,7 @@ import { createIdentityVerification } from "@/app/(app)/clients/actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import type { IdentitySubjectKind, VerificationMethod } from "@/lib/compliance/identity";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * Formulaire de vérification d'identité, adossé au règlement applicable.
@@ -49,7 +50,7 @@ export function IdentityVerificationForm({
 
   const manual = proofMode === "ATTESTATION_MANUELLE";
   const proofRequired = statut === "verifie" && proofRequiredByCabinet && !manual;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toIsoDay(toCalendarDayUTC(new Date()));
   const selected = methods.find((m) => m.code === methodCode) ?? methods[0];
 
   return (

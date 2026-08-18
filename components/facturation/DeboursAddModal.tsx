@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createDeboursDossier } from "@/lib/actions/debours";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export interface DeboursAddModalProps {
   open: boolean;
@@ -108,7 +109,7 @@ export function DeboursAddModal({
           <input
             type="date"
             name="date"
-            defaultValue={new Date().toISOString().slice(0, 10)}
+            defaultValue={toIsoDay(toCalendarDayUTC(new Date()))}
             className={selectClass}
           />
         </div>

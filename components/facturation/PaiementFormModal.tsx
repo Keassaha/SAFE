@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import type { JournalCorrectionMotive } from "@prisma/client";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const selectClass =
   "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -329,7 +330,7 @@ export function PaiementFormModal({
                 type="date"
                 name="paymentDate"
                 required
-                defaultValue={payment?.datePaiement ?? new Date().toISOString().slice(0, 10)}
+                defaultValue={payment?.datePaiement ?? toIsoDay(toCalendarDayUTC(new Date()))}
                 className={selectClass}
               />
             </div>

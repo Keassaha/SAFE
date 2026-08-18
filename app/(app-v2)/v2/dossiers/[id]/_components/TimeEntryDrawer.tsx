@@ -6,6 +6,7 @@ import { BriefcaseBusiness, CheckCircle2, Plus } from "lucide-react";
 import s from "../../../v2.module.css";
 import { Drawer } from "../../../_components/Drawer";
 import { moneyFR } from "../../../_components/primitives";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * Drawer « Ajouter du temps » — la seule mutation de la préversion v2.
@@ -40,7 +41,7 @@ export function TimeEntryDrawer({
   const [taux, setTaux] = useState(defaultTaux ?? 0);
   const [facturable, setFacturable] = useState(true);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toIsoDay(toCalendarDayUTC(new Date()));
   const estimate = facturable ? (minutes / 60) * taux : 0;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

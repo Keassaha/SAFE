@@ -12,6 +12,7 @@ import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { ListChecks, Clock, AlertTriangle, CheckCircle2, CalendarDays } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 interface PageProps {
   searchParams: Promise<{ dossierId?: string }>;
@@ -234,7 +235,11 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
       ? usersToLawyers(actes.map((a) => a.assignee).filter((u, i, arr) => arr.findIndex((x) => x.id === u.id) === i))
       : usersToLawyers(cabinetAvocats);
   const tasks = actes.map((a) => dossierActeToTask(a));
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Jour calendaire du cabinet (voir lib/utils/calendar-date.ts). C'est la borne qui
+  // décide de l'urgence d'une échéance : calculée en UTC, chaque soir après 20 h tout
+  // le tableau s'annonçait un jour MOINS urgent qu'en réalité. Sur un registre de
+  // délais, c'est la pire direction possible pour une erreur.
+  const todayStr = toIsoDay(toCalendarDayUTC(new Date()));
 
   return (
     <div className="h-full min-h-0 -m-4 md:-m-6">

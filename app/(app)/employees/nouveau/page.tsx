@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { EmployeeForm } from "@/components/employees/EmployeeForm";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export default async function NouveauEmployePage() {
   const { cabinetId, role } = await requireCabinetAndUser();
@@ -21,7 +22,10 @@ export default async function NouveauEmployePage() {
     orderBy: { fullName: "asc" },
   });
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Jour calendaire du cabinet (voir lib/utils/calendar-date.ts). Le serveur tourne
+  // en UTC en production : sans ça, une embauche saisie en soirée porte la date du
+  // lendemain.
+  const today = toIsoDay(toCalendarDayUTC(new Date()));
 
   const t = await getTranslations("settingsUi");
 

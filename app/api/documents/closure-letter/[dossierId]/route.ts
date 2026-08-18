@@ -9,6 +9,7 @@ import { canViewDossiers } from "@/lib/auth/permissions";
 import { getTrustBalance } from "@/lib/services/fideicommis/trust-balance-service";
 import { ClosureLetterPDF, type ClosureLetterData } from "@/components/pdf/ClosureLetterPDF";
 import type { UserRole } from "@prisma/client";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * GET /api/documents/closure-letter/[dossierId]
@@ -142,7 +143,7 @@ export async function GET(
       intitule: dossier.intitule,
       type: dossier.type,
       dateOuverture: dossier.dateOuverture.toISOString().split("T")[0],
-      dateFermeture: new Date().toISOString().split("T")[0],
+      dateFermeture: toIsoDay(toCalendarDayUTC(new Date())),
     },
     finances: {
       totalBilled,

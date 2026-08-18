@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { T } from "@/lib/onboarding/translations";
 import { calculateOnboardingValue } from "@/lib/onboarding/calculator";
 import type { StepProps } from "@/lib/onboarding/types";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
   const result = calculateOnboardingValue(data);
@@ -103,7 +104,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
               type="date"
               value={data.preferredDate}
               onChange={(e) => setData({ preferredDate: e.target.value })}
-              min={new Date().toISOString().split("T")[0]}
+              min={toIsoDay(toCalendarDayUTC(new Date()))}
               className="w-full px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             />
             {errors.preferredDate && <p className="text-xs text-red-500 mt-1">{errors.preferredDate}</p>}

@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getCurrentEmployee, getMyHours } from "@/lib/payroll/employee-hours-service";
 import { MyHoursPanel } from "@/components/temps/MyHoursPanel";
 import { DigestPreferenceToggle } from "@/components/temps/DigestPreferenceToggle";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * « Mon temps & ma paye » (N8) — l'employée (Aaliyah) soumet ses heures
@@ -64,7 +65,12 @@ export default async function MesHeuresPage() {
     })),
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Jour calendaire du cabinet, jamais `toISOString()` brut. Ce composant s'exécute
+  // sur le SERVEUR, qui tourne en UTC en production : après 20 h à Montréal il croit
+  // être demain. `today` sert de valeur par défaut ET de `max` au champ date des
+  // heures, donc une saisie de soirée partait au lendemain et alimentait la
+  // facturation. Voir lib/utils/calendar-date.ts.
+  const today = toIsoDay(toCalendarDayUTC(new Date()));
 
   return (
     <div className="space-y-6">

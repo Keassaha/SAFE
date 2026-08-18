@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { X } from "lucide-react";
 import { createCalendarEvent, updateCalendarEvent } from "@/app/(app)/gestion/lextrack/actions";
 import { useTranslations } from "next-intl";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export interface CalendarEventItem {
   id: string;
@@ -79,7 +80,7 @@ export function EventFormModal({
   const [type, setType] = useState(editEvent?.type ?? "rendez_vous_client");
   const [status, setStatus] = useState(editEvent?.status ?? "planifie");
   const [date, setDate] = useState(
-    editEvent ? new Date(editEvent.date).toISOString().slice(0, 10) : (defaultDate ?? new Date().toISOString().slice(0, 10))
+    editEvent ? new Date(editEvent.date).toISOString().slice(0, 10) : (defaultDate ?? toIsoDay(toCalendarDayUTC(new Date())))
   );
   const [startTime, setStartTime] = useState(editEvent?.startTime ?? "09:00");
   const [endTime, setEndTime] = useState(editEvent?.endTime ?? "10:00");

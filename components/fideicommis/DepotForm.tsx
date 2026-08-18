@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useCreateTrustDeposit } from "@/lib/hooks/useFideicommis";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 interface ClientOption {
   id: string;
@@ -38,7 +39,7 @@ export function DepotForm({ clients, dossiers, onSuccess, disabled, embedded }: 
   const [dossierId, setDossierId] = useState("");
   const [montant, setMontant] = useState("");
   const [dateTransaction, setDateTransaction] = useState(
-    () => new Date().toISOString().slice(0, 10)
+    () => toIsoDay(toCalendarDayUTC(new Date()))
   );
   const [modePaiement, setModePaiement] = useState<"CHEQUE" | "VIREMENT" | "INTERAC" | "ESPECES" | "AUTRE">("VIREMENT");
   const [reference, setReference] = useState("");

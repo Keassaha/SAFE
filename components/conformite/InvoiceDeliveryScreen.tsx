@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 import {
   declareDeliveryAction,
   type ActionResult,
@@ -106,7 +107,7 @@ export function InvoiceDeliveryScreen({
   }
 
   const presumees = unproven.filter((u) => u.presumed).length;
-  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const aujourdhui = toIsoDay(toCalendarDayUTC(new Date()));
 
   return (
     <div className="min-w-0 space-y-6">

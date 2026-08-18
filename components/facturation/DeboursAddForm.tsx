@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createDeboursDossier } from "@/lib/actions/debours";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export interface DeboursAddFormProps {
   clients: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null }[];
@@ -139,7 +140,7 @@ export function DeboursAddForm({
               <input
                 type="date"
                 name="date"
-                defaultValue={new Date().toISOString().slice(0, 10)}
+                defaultValue={toIsoDay(toCalendarDayUTC(new Date()))}
                 className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
               />
             </div>

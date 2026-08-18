@@ -3,6 +3,8 @@
  * Détection des colonnes et extraction des transactions.
  */
 
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+
 export type RawBankRow = Record<string, string>;
 
 export type DetectedColumnMap = {
@@ -126,7 +128,7 @@ export function parseRow(
   const date = dateKey ? parseDate(row[dateKey] ?? "") : "";
 
   return {
-    date: date || new Date().toISOString().slice(0, 10),
+    date: date || toIsoDay(toCalendarDayUTC(new Date())),
     description,
     amount,
     rawType,

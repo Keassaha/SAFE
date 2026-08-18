@@ -8,6 +8,7 @@ import type { LucideIcon } from "lucide-react";
 import type { LexTrackLawyer, LexTrackTask } from "@/types/gestion";
 import { LEXTRACK_PHASES } from "@/types/gestion";
 import { routes } from "@/lib/routes";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 /* Palette harmonisée avec le design system SAFE (émeraude + or) */
 const COLORS = {
@@ -48,7 +49,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function daysUntil(dateStr: string, todayStr?: string): number {
-  const today = todayStr ? new Date(todayStr) : new Date();
+  // Repli sans `todayStr` : `new Date()` porterait une heure, et le calcul
+  // d'urgence transformerait quelques heures en un jour entier d'ecart.
+  const today = todayStr ? new Date(todayStr) : toCalendarDayUTC(new Date());
   const d = new Date(dateStr);
   return Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
@@ -226,7 +229,9 @@ function TimelineBar({
   todayStr?: string;
 }) {
   const tg = useTranslations("gestion");
-  const today = todayStr ? new Date(todayStr) : new Date();
+  // Repli sans `todayStr` : `new Date()` porterait une heure, et le calcul
+  // d'urgence transformerait quelques heures en un jour entier d'ecart.
+  const today = todayStr ? new Date(todayStr) : toCalendarDayUTC(new Date());
   const start = new Date(today);
   start.setMonth(start.getMonth() - 1);
   start.setDate(1);

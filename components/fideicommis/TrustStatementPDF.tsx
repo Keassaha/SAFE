@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: "Helvetica", fontSize: 10 },
@@ -131,7 +132,7 @@ export function TrustStatementPDF({
         </View>
 
         <View style={styles.signature}>
-          <Text>Document généré le {formatDate(new Date().toISOString())} — SAFE</Text>
+          <Text>Document généré le {formatDate(toIsoDay(toCalendarDayUTC(new Date())))} — SAFE</Text>
           <Text style={{ marginTop: 24 }}>Signature ou validation avocat principal : _________________________</Text>
         </View>
       </Page>

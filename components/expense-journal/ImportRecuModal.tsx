@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils/format";
 import type { ExpenseCategory } from "@prisma/client";
 import type { ExpenseReceiptExtraction } from "@/lib/ai/extract-expense-receipt";
 import type { SuggestionResult } from "@/lib/expense-journal/categorization-rules";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const selectClass =
   "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -114,7 +115,7 @@ export function ImportRecuModal({ open, onClose, categories, onSuccess }: Import
       setSuggestion(sug);
       setNormalizedSupplier(data.normalizedSupplier ?? "");
       setFournisseur(ext.fournisseur ?? "");
-      setDate(ext.date ?? new Date().toISOString().slice(0, 10));
+      setDate(ext.date ?? toIsoDay(toCalendarDayUTC(new Date())));
       setMontantTtc(ext.montantTtc != null ? String(ext.montantTtc) : "");
       setTps(ext.tps != null ? String(ext.tps) : "");
       setTvq(ext.tvq != null ? String(ext.tvq) : "");
