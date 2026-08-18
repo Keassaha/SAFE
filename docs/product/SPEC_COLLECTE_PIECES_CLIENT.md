@@ -2,8 +2,18 @@
 
 > Spec de parcours pilote. Remplace [SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md](SPEC_PARCOURS_PILOTE_IMMIGRATION_EE.md),
 > qui n'instanciait qu'un seul domaine.
-> Cabinet pilote : **Me Cayard**, Québec, immigration + droit de la famille + litige civil.
-> Rédigée le 2026-08-18. **Statut : DRAFT, en attente de validation par le cabinet pilote.**
+> Cabinet **pressenti** : Me Cayard, Québec, immigration + droit de la famille + litige
+> civil. Profil issu de son audit (réf. A 2026 0609 CMQ) : entreprise individuelle, moins
+> de 2 ans de pratique, 10 à 30 dossiers actifs, facturation au forfait, aide juridique
+> occasionnelle.
+>
+> ⚠️ **Il n'est pas encore client.** La validation par un praticien qu'exige le blueprint
+> §33 est donc impossible aujourd'hui. Elle est remplacée par
+> [RECHERCHE_divulgation_famille_QC_2026-08-18.md](../research/RECHERCHE_divulgation_famille_QC_2026-08-18.md),
+> qui établit sur source primaire tout ce qui est déterminable **en droit**. Ce qui relève
+> de l'habitude de travail reste marqué à confirmer, et ne doit pas être codé en dur.
+>
+> Rédigée le 2026-08-18. **Statut : DRAFT.**
 
 ---
 
@@ -84,36 +94,81 @@ au cartable ce qu'il a déjà reçu.
 
 ## 3. Instance 1 : divorce (cas de référence)
 
-### Le délai qui commande
+### Les trois délais qui commandent
 
-Le Règlement de la Cour supérieure du Québec en matière familiale (RLRQ c C-25.01,
-r 0.2.4) impose à chaque partie de notifier à l'autre son **état de situation financière
-à jour, conforme au formulaire III**, ainsi que le **formulaire de fixation des pensions
-alimentaires pour enfants**, **au moins 10 jours avant l'instruction**.
+Vérifiés sur le Règlement de la Cour supérieure du Québec en matière familiale
+(RLRQ c C-25.01, r. 0.2.4). Ce ne sont pas des conventions de cabinet, ce sont des règles
+écrites, et **SAFE peut les calculer sans rien inventer**.
 
-C'est une date dure, calculable, et c'est elle qui fixe l'échéance de la collecte.
+| Délai | Point de départ | Qui | Article |
+| --- | --- | --- | --- |
+| **10 jours avant l'instruction** | date d'instruction | chaque partie | 26 |
+| **180 jours de la signification** | signification de la demande | demanderesse | 27 et 29 |
+| **30 jours de la communication** | réception du formulaire adverse | défenderesse qui conteste | 27 et 29 |
 
-> **À confirmer avec Me Cayard** : que ce délai de 10 jours est bien celui qui structure
-> sa préparation, et non un autre imposé par le district ou par le protocole d'instance.
+**Conséquence sur les données** : la **date de signification** doit être saisie sur le
+dossier. SAFE ne la connaît pas aujourd'hui, et trois délais en dépendent.
+
+### Deux natures de pièces, à ne pas confondre
+
+C'est la distinction que la recherche impose, et qui n'était pas dans ma première version.
+
+**Les documents nommés par le règlement**, qui portent un délai légal et dont l'absence a
+une conséquence procédurale. Ils peuvent afficher leur article en référence.
+
+**Les pièces d'appui**, qui ne figurent nulle part dans le règlement. Elles servent à
+**remplir** les premiers. Leur absence n'a aucune conséquence procédurale directe, et leur
+liste relève de la pratique du cabinet, donc elle est configurable.
+
+Afficher un délai légal sur une pièce d'appui donnerait une fausse assurance à l'avocat.
 
 ### Les pièces attendues
 
-| Pièce | Partie | Fournisseur | Obligatoire | Piège connu |
-| --- | --- | --- | --- | --- |
-| Formulaire III, assermenté | notre client | client | oui | non signé, ou périmé à l'audience |
-| Formulaire de fixation des pensions | notre client | client | si enfants | oublié quand la garde est « réglée » |
-| Avis de cotisation, 3 dernières années | notre client | client | oui | une seule année fournie |
-| Talons de paie récents | notre client | client | oui | ne couvrent pas la période |
-| Relevés bancaires | notre client | client | oui | comptes oubliés |
-| Relevés de REER et de pension | notre client | client | oui | **valeur à la date du mariage manquante** |
-| Actes de propriété, évaluation municipale | notre client | client | si immeuble | |
-| Dettes, marges, cartes | notre client | client | oui | sous-déclarées |
-| Formulaire III de la partie adverse | partie adverse | **partie adverse** | oui | reçu tard, ou incomplet |
-| Certificat de mariage | notre client | client | oui | |
+#### Documents nommés par le règlement (délai légal)
 
-Deux choses que SAFE **signale sans décider** : la valeur d'un régime de retraite à la
-date du mariage, qui commande le partage du patrimoine familial, et un formulaire III
-daté de plus de quelques mois à l'approche de l'audience.
+| Document | Fournisseur | Conditionnel à | Délai | Art. |
+| --- | --- | --- | --- | --- |
+| Formulaire III, état des revenus et dépenses, assermenté | client | toujours | 10 j avant instruction | 26 |
+| Formulaire de fixation des pensions pour enfants | client | enfants | 10 j avant instruction | 26 |
+| Relevé des calculs fiscaux | client | enfants | avec le précédent | 26.1 |
+| Formulaire de calcul de l'état du patrimoine familial, assermenté | client | mariage ou union civile | 180 j de la signification | 27 |
+| Formulaire de calcul de l'état de la société d'acquêts, assermenté | client | régime applicable | 180 j de la signification | 29 |
+| Formulaire III de la partie adverse | **partie adverse** | toujours | 10 j avant instruction | 26 |
+| Formulaire de patrimoine de la partie adverse, si contestation | **partie adverse** | contestation | 30 j de la communication | 27 |
+
+L'article 27 admet **trois solutions de rechange** au formulaire de patrimoine : une
+déclaration de non-assujettissement, une renonciation au partage, ou une déclaration que
+le partage n'est pas contesté. La pièce attendue doit donc pouvoir être **satisfaite par
+l'une ou l'autre**, sinon SAFE réclamera un formulaire qui n'est pas dû.
+
+#### Pièces d'appui (aucun délai légal, liste configurable)
+
+| Pièce | Sert à remplir | Piège connu |
+| --- | --- | --- |
+| Avis de cotisation, 3 dernières années | formulaire III | une seule année fournie |
+| Talons de paie récents | formulaire III | ne couvrent pas la période |
+| Relevés bancaires | patrimoine | comptes oubliés |
+| Relevés de REER et de pension | patrimoine | **valeur à la date du mariage manquante** |
+| Actes de propriété, évaluation municipale | patrimoine | |
+| Dettes, marges, cartes | patrimoine | sous-déclarées |
+| Certificat de mariage | dossier | |
+
+`A_CONFIRMER` Cette liste d'appui vient de la pratique courante, **pas du règlement**.
+Aucune recherche ne peut la trancher : seul un cabinet peut dire ce qu'il demande.
+
+### Trois signalements, jamais des blocages
+
+**Un formulaire III périmé.** L'article 26 exige un état « à jour ». Un formulaire rempli
+six mois plus tôt ne le satisfait pas. SAFE date la pièce et signale son âge à l'approche
+de l'instruction.
+
+**Une valeur de régime de retraite à la date du mariage manquante.** Elle commande le
+partage, et l'article 28 impose à qui renonce de confirmer connaître l'importance de la
+valeur partageable. Renoncer sans la connaître est un risque professionnel.
+
+**Les formulaires de patrimoine et d'acquêts viennent d'une directive du juge en chef**,
+publiée sur le site de la Cour supérieure, pas du règlement. Ils peuvent changer sans
+modification réglementaire. **SAFE ne les génère jamais, il les demande.**
 
 ### Variante aide juridique
 
@@ -276,9 +331,22 @@ Aucune estimation de durée.
 
 ---
 
-## 12. Ce qui doit être confirmé par Me Cayard
+## 12. Ce qui reste à confirmer, et par qui
 
-Par ordre d'importance. Les deux premières décident de tout.
+Le cabinet pressenti n'étant pas client, **rien de ce qui suit ne peut lui être demandé
+aujourd'hui**. La liste est donc séparée en deux : ce qu'une recherche peut encore
+trancher, et ce que seul un praticien pourra dire.
+
+### Ce qu'une recherche peut encore trancher
+
+- L'article 413 al. 2 C.p.c., pour le délai de production au greffe du formulaire III.
+- Les exigences de conservation de la Commission des services juridiques, en aide
+  juridique.
+- La version courante des formulaires de patrimoine et d'acquêts, par directive.
+
+### Ce que seul un praticien pourra dire
+
+Par ordre d'importance.
 
 1. **La liste de pièces du §3 correspond-elle à ce qu'il demande réellement** en divorce ?
 2. **Le délai de 10 jours avant l'instruction** est-il celui qui structure sa préparation ?
