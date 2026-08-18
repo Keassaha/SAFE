@@ -30,6 +30,7 @@
 import type { AppliedTaxes, CabinetTaxConfig } from "@/lib/billing/types";
 import { splitInclusiveTaxes, toInvoiceTaxColumns } from "@/lib/billing/taxes";
 import { regimeFor, peutEstimerTaxe, peutSaisirTaxe } from "./tax-regime";
+import { tauxTaxeReclamable } from "./deductibilite";
 
 export type TaxOrigin = "DECLAREE" | "ESTIMEE" | "AUCUNE";
 
@@ -176,14 +177,40 @@ export function decomposeExpenseTax(input: {
  * vérification.
  */
 export function taxeReclamable(
-  lignes: ReadonlyArray<{ tps: number; tvq: number; origine: TaxOrigin }>,
-): { reclamable: number; estimee: number } {
+  lignes: ReadonlyArray<{
+    tps: number;
+    tvq: number;
+    origine: TaxOrigin;
+    /** Code de catégorie : décide du taux de crédit applicable (lot 2). */
+    categoryCode?: string | null;
+  }>,
+  /** Part d'usage d'affaires déclarée par le cabinet, pour les catégories au prorata. */
+  prorataUsage?: number | null,
+): { reclamable: number; estimee: number; indetermine: number } {
   let reclamable = 0;
   let estimee = 0;
+  let indetermine = 0;
+
   for (const l of lignes) {
-    const somme = (l.tps ?? 0) + (l.tvq ?? 0);
-    if (l.origine === "DECLAREE") reclamable += somme;
-    else if (l.origine === "ESTIMEE") estimee += somme;
+    const paye = (l.tps ?? 0) + (l.tvq ?? 0);
+    if (paye === 0) continue;
+
+    // Le taux de crédit vient de la CATÉGORIE, pas de la ligne. Sur un repas, la
+    // taxe payée n'est réclamable qu'à moitié : additionner brut réclamerait le
+    // double de ce que la loi permet.
+    const taux = tauxTaxeReclamable(l.categoryCode, prorataUsage);
+
+    // Taux inconnu (prorata véhicule non renseigné) : ni réclamé, ni ignoré. Mis à
+    // part, pour que le dossier de fin d'année le montre comme zone d'incertitude
+    // au lieu de le faire disparaître.
+    if (taux === null) {
+      indetermine += paye;
+      continue;
+    }
+
+    if (l.origine === "DECLAREE") reclamable += paye * taux;
+    else if (l.origine === "ESTIMEE") estimee += paye * taux;
   }
-  return { reclamable: R2(reclamable), estimee: R2(estimee) };
+
+  return { reclamable: R2(reclamable), estimee: R2(estimee), indetermine: R2(indetermine) };
 }

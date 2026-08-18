@@ -171,7 +171,9 @@ describe("taxeReclamable", () => {
   });
 
   it("un lot vide ne casse pas", () => {
-    expect(taxeReclamable([])).toEqual({ reclamable: 0, estimee: 0 });
+    // Le troisième seau, `indetermine`, est arrivé au lot 2 : il recueille la taxe
+    // dont le taux de crédit dépend d'un prorata que le cabinet n'a pas fourni.
+    expect(taxeReclamable([])).toEqual({ reclamable: 0, estimee: 0, indetermine: 0 });
   });
 });
 

@@ -31,6 +31,11 @@ export const DEFAULT_EXPENSE_CATEGORIES: ReadonlyArray<{
   { name: "Recherche juridique", code: "RECHERCHE_JURIDIQUE", sortOrder: 21 },
   { name: "Experts", code: "EXPERTS", sortOrder: 22 },
   { name: "Traduction", code: "TRADUCTION", sortOrder: 23 },
+  // Les deux dépenses les plus fréquentes d'un cabinet solo, et les deux SEULES qui
+  // ne se déduisent pas à 100 %. Absentes jusqu'ici, elles tombaient dans « Autres »
+  // et se déduisaient en plein. Voir lib/expense-journal/deductibilite.ts.
+  { name: "Repas / représentation", code: "REPAS_REPRESENTATION", sortOrder: 24 },
+  { name: "Véhicule", code: "VEHICULE", sortOrder: 25 },
   { name: "Autres", code: "AUTRES", sortOrder: 99 },
 ];
 
