@@ -48,6 +48,7 @@ export interface TaxRegimeRule {
 
 const LTA_123 = "Loi sur la taxe d'accise, art. 123(1)";
 const ARC_TYPE = "ARC, Type of supply (fournitures exonérées)";
+const LTA_ANNEXE_V_VI_20 = "Loi sur la taxe d'accise, annexe V, partie VI, art. 20";
 
 /**
  * Régime par code de catégorie. Toute catégorie absente suit le régime général,
@@ -95,30 +96,38 @@ export const TAX_REGIME_BY_CATEGORY: Readonly<Record<string, TaxRegimeRule>> = {
     verifieLe: "2026-08-18",
   },
 
-  // ── Zones d'incertitude ──────────────────────────────────────────────────────
-  // L'ARC n'exonère que « CERTAIN property and services provided by governments ».
-  // Le mot interdit de conclure. Ces trois restent taxables par prudence, marquées
-  // incertaines, et attendent la verification de l'annexe V partie VI de la LTA.
+  // ── Greffes et registres publics ─────────────────────────────────────────────
+  // Tranché le 2026-08-18 sur le texte, et non plus par prudence. L'annexe V
+  // partie VI art. 20 exonère nommément les opérations de greffe et de registre.
+  //
+  // Régime SOUPLE et non dur, pour une raison de périmètre et non de droit : la
+  // catégorie du cabinet est plus large que la règle. Un sténographe judiciaire ou
+  // un service privé de recherche de titres facture une prestation taxable et
+  // atterrit naturellement ici. On refuse donc de FABRIQUER de la taxe sur un droit
+  // de greffe, sans interdire d'en saisir une que la pièce porte réellement.
   TRIBUNAL: {
-    regime: "TAXABLE",
-    motif: "Régime général, sous réserve : seuls « certains » services gouvernementaux sont exonérés.",
-    source: ARC_TYPE,
+    regime: "SANS_TAXE_SOUPLE",
+    motif:
+      "Les droits de greffe et de dépôt au tribunal sont exonérés. Si votre pièce porte tout de même une taxe (sténographie, service privé), saisissez-la.",
+    source: LTA_ANNEXE_V_VI_20 + ", al. b)",
     verifieLe: "2026-08-18",
-    incertain: true,
   },
   REGISTRE_FONCIER: {
-    regime: "TAXABLE",
-    motif: "Régime général, sous réserve : droits d'inscription non vérifiés.",
-    source: ARC_TYPE,
+    regime: "SANS_TAXE_SOUPLE",
+    motif:
+      "Les droits d'inscription et de consultation d'un registre de biens sont exonérés. Une recherche de titres faite par un privé, elle, reste taxable.",
+    source: LTA_ANNEXE_V_VI_20 + ", al. a)",
     verifieLe: "2026-08-18",
-    incertain: true,
   },
+
+  // Un huissier n'est pas un organisme gouvernemental : l'art. 20 ne le vise pas, et
+  // sa prestation est un service professionnel taxable. Ses DÉBOURS de greffe, eux,
+  // restent exonérés, mais ils relèvent du module débours et non d'ici.
   HUISSIER: {
     regime: "TAXABLE",
-    motif: "Régime général, sous réserve : statut de l'officier public non vérifié.",
-    source: ARC_TYPE,
+    motif: "Régime général : les honoraires d'un huissier sont un service professionnel taxable.",
+    source: LTA_ANNEXE_V_VI_20 + " (a contrario) et " + ARC_TYPE,
     verifieLe: "2026-08-18",
-    incertain: true,
   },
 };
 

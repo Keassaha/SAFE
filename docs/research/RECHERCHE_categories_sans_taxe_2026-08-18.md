@@ -81,6 +81,39 @@ non-profit organizations, municipalities, and other public service bodies ». Le
 **Conséquence : `TRIBUNAL` et `REGISTRE_FONCIER` ne peuvent pas être classés par
 déduction.** Voir zones d'incertitude.
 
+### 6. Les droits de greffe et de registre foncier sont exonérés
+
+`VERIFIE` **Loi sur la taxe d'accise, annexe V, partie VI, art. 20.** L'article énumère
+les fournitures exonérées « made by a government or municipality or by a board,
+commission or other body established by a government or municipality ». Deux alinéas
+tranchent nos catégories :
+
+**Alinéa a)** vise le système d'enregistrement de biens : le service d'enregistrer un
+bien, celui de déposer un document, et le droit d'accès au système. C'est le registre
+foncier.
+
+**Alinéa b)** vise le greffe : « a service of filing, or processing an application to
+file, a document in the registration system of **a court** or in accordance with
+legislative requirements », le droit d'accès au greffe pour y déposer, ainsi que la
+délivrance d'un document par le greffe d'un tribunal.
+
+Ces deux points étaient marqués `A_CONFIRMER` le matin même. Ils sont tranchés sur le
+texte, et non plus par prudence.
+
+**Catégories visées : `TRIBUNAL` et `REGISTRE_FONCIER`.**
+
+### 7. Un huissier n'est pas visé par l'article 20
+
+`INFERENCE` L'article 20 s'applique aux gouvernements, municipalités et aux organismes
+qu'ils établissent. Un huissier de justice exerce à son compte ou en étude : il n'est pas
+un organisme établi par un gouvernement. Sa prestation est un service professionnel, et
+l'ARC classe les services juridiques comme taxables.
+
+Nuance à retenir : la facture d'un huissier mêle souvent ses honoraires, taxables, et
+des débours de greffe, exonérés. La séparation se fait dans le module débours, pas ici.
+
+**Catégorie visée : `HUISSIER`, taxable, confirmé.**
+
 ---
 
 ## Analyse détaillée
@@ -138,10 +171,10 @@ refus `module_metier` déjà livré dans l'annulation.
 | `ASSURANCES` | **Sans taxe, dur** | ARC, émission de polices exonérée |
 | `DEBOURS_AVANCES` | **Hors périmètre** | relève du module débours |
 | `FRAIS_BANCAIRES` | **Sans taxe, souple** | ARC, services financiers exonérés ; saisie manuelle permise |
-| `TRIBUNAL` | `A_CONFIRMER` | « certain » services gouvernementaux |
-| `REGISTRE_FONCIER` | `A_CONFIRMER` | idem |
-| `HUISSIER` | `A_CONFIRMER` | officier public, statut non vérifié |
-| `SALAIRES` hors, tous les autres | **Taxable** | régime général |
+| `TRIBUNAL` | **Sans taxe, souple** | LTA annexe V, partie VI, art. 20 b) |
+| `REGISTRE_FONCIER` | **Sans taxe, souple** | LTA annexe V, partie VI, art. 20 a) |
+| `HUISSIER` | **Taxable** | art. 20 a contrario, service professionnel |
+| Tous les autres | **Taxable** | régime général |
 
 Les 17 catégories restantes suivent le régime général et sont estimables : loyer,
 téléphone, internet, logiciels, fournitures, impression, poste, déplacements,
@@ -152,16 +185,10 @@ juridique, experts, traduction, autres.
 
 ## Points à confirmer
 
-- `A_CONFIRMER` **Frais de tribunal et droits de greffe, QC et ON.** L'ARC n'exonère que
-  « certains » services gouvernementaux. Impact si faux : taxe estimée sur des droits qui
-  n'en portent pas, donc remise surestimée. Source idéale : liste des fournitures
-  gouvernementales exonérées, annexe V partie VI de la LTA, croisée avec le tarif des
-  frais judiciaires du MJQ et de la Cour supérieure de l'Ontario.
-- `A_CONFIRMER` **Frais d'huissier.** Un huissier de justice est un officier public
-  facturant des honoraires professionnels ; l'hypothèse est qu'ils sont taxables comme un
-  service professionnel, mais l'article n'a pas été vérifié.
-- `A_CONFIRMER` **Registre foncier.** Droits d'inscription probablement hors champ ou
-  exonérés, non vérifié.
+> **Tranchés le 2026-08-18 (même jour).** Frais de tribunal, registre foncier et
+> huissier étaient les trois `A_CONFIRMER` bloquants de la première version. Ils sont
+> résolus sur le texte de la LTA, annexe V partie VI art. 20. Voir faits vérifiés 6 et 7.
+
 - `A_CONFIRMER` **Taux et assiette de la taxe sur les primes d'assurance**, QC et ON.
   Nécessaire seulement pour l'afficher comme coût ; sans effet sur l'exclusion elle-même.
 
@@ -195,8 +222,8 @@ juridique, experts, traduction, autres.
 
 ### Avant le lot 1
 
-4. Trancher les frais de tribunal, au moins pour le Québec, puisque c'est la juridiction
-   de la cliente actuelle.
+4. ~~Trancher les frais de tribunal~~ — fait le 2026-08-18, voir fait vérifié 6. Plus
+   aucun point bloquant ne subsiste : le lot 1 peut démarrer.
 
 ---
 
@@ -204,6 +231,8 @@ juridique, experts, traduction, autres.
 
 - Loi sur la taxe d'accise, art. 123(1), définition de « business » :
   https://laws-lois.justice.gc.ca/eng/acts/E-15/section-123.html
+- Loi sur la taxe d'accise, annexe V, partie VI, art. 20 (greffes, registres de biens,
+  permis) : https://laws-lois.justice.gc.ca/eng/acts/e-15/page-120.html
 - ARC, *Type of supply*, tableau des fournitures taxables, détaxées et exonérées :
   https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/charge-collect-type-supply.html
 - Revenu Québec, *Fournitures exonérées* (consultée, accès direct refusé au robot) :

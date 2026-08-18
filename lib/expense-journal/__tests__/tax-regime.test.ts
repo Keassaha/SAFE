@@ -50,16 +50,41 @@ describe("catégories sans taxe", () => {
   });
 });
 
-describe("prudence sur les zones d'incertitude", () => {
-  it.each(["TRIBUNAL", "REGISTRE_FONCIER", "HUISSIER"])(
-    "%s reste TAXABLE et marquée incertaine, jamais sans-taxe",
+describe("greffes et registres publics", () => {
+  it.each(["TRIBUNAL", "REGISTRE_FONCIER"])(
+    "%s refuse l'estimation : l'annexe V partie VI art. 20 les exonère",
     (code) => {
-      // Direction de l'erreur assumée : reclamer trop peu de credits se corrige,
-      // en reclamer trop se fait reprendre.
-      expect(regimeFor(code).regime).toBe("TAXABLE");
-      expect(regimeFor(code).incertain).toBe(true);
+      expect(peutEstimerTaxe(code)).toBe(false);
     },
   );
+
+  it.each(["TRIBUNAL", "REGISTRE_FONCIER"])(
+    "%s accepte malgré tout une taxe lue sur la pièce",
+    (code) => {
+      // La catégorie du cabinet est plus large que la règle : un sténographe
+      // judiciaire ou une recherche de titres privée atterrit ici et facture une
+      // taxe réelle. Bloquer durement forcerait à recatégoriser pour rien.
+      expect(peutSaisirTaxe(code)).toBe(true);
+    },
+  );
+
+  it("un huissier reste taxable : ce n'est pas un organisme gouvernemental", () => {
+    // L'art. 20 vise les gouvernements, municipalités et organismes qu'ils créent.
+    // Un huissier facture un service professionnel. Ses débours de greffe, eux,
+    // relèvent du module débours.
+    expect(regimeFor("HUISSIER").regime).toBe("TAXABLE");
+    expect(peutEstimerTaxe("HUISSIER")).toBe(true);
+  });
+
+  it("plus aucune catégorie ne reste marquée incertaine", () => {
+    // Les trois zones d'incertitude du 2026-08-18 ont été tranchées sur le texte.
+    // Si une nouvelle apparaît, ce test la rend visible plutôt que de la laisser
+    // dormir dans le fichier.
+    const incertaines = Object.entries(TAX_REGIME_BY_CATEGORY)
+      .filter(([, r]) => r.incertain)
+      .map(([code]) => code);
+    expect(incertaines).toEqual([]);
+  });
 });
 
 describe("régime général", () => {

@@ -72,3 +72,43 @@ faut passer par le navigateur, comme pour le répertoire du Barreau de l'Ontario
 Trancher les frais de tribunal, au moins pour le Québec, puisque c'est la juridiction de
 la cliente actuelle. Source à viser : annexe V partie VI de la Loi sur la taxe d'accise,
 croisée avec le tarif des frais judiciaires.
+
+---
+
+## Addendum, même jour : les trois incertitudes sont tranchées
+
+Le point laissé ouvert ci-dessus a été résolu le jour même, sur le texte plutôt que par
+prudence.
+
+**Loi sur la taxe d'accise, annexe V, partie VI, article 20.** L'article énumère les
+fournitures exonérées faites par un gouvernement, une municipalité, ou un organisme
+qu'ils établissent. Deux alinéas règlent nos catégories :
+
+- **20 a)** vise le système d'enregistrement de biens : enregistrer un bien, y déposer un
+  document, accéder au système. C'est le registre foncier.
+- **20 b)** vise le greffe : déposer un document au greffe d'un tribunal, accéder au
+  greffe pour y déposer, obtenir un document du greffe.
+
+`TRIBUNAL` et `REGISTRE_FONCIER` passent donc en **sans taxe, souple**. Souple et non dur
+pour une raison de périmètre et non de droit : la catégorie du cabinet est plus large que
+la règle. Un sténographe judiciaire ou une recherche de titres faite par un privé
+atterrit naturellement dans « frais tribunal » et facture une taxe réelle. On refuse de
+fabriquer de la taxe sur un droit de greffe, sans interdire d'en saisir une que la pièce
+porte.
+
+`HUISSIER` reste **taxable**, et maintenant pour une raison positive : l'article 20 vise
+les organismes gouvernementaux, un huissier n'en est pas un, et sa prestation est un
+service professionnel. Nuance à retenir : sa facture mêle souvent honoraires taxables et
+débours de greffe exonérés ; la séparation se fait dans le module débours.
+
+**Plus aucun point bloquant ne subsiste. Le lot 1 peut démarrer.**
+
+Un test le garantit désormais : si une nouvelle catégorie était marquée incertaine, il
+échouerait plutôt que de la laisser dormir dans le fichier.
+
+## Note de navigation, pour la prochaine fois
+
+Le texte de la LTA sur `laws-lois.justice.gc.ca` est paginé sans correspondance stable
+entre numéro d'article et numéro de page. L'annexe V commence à `page-120.html`, l'annexe
+VI à 121, l'annexe VII à 122. Chercher par numéro de page fait perdre du temps ; suivre le
+lien « SCHEDULE V - Exempt Supplies » depuis n'importe quelle page va droit au but.
