@@ -2091,8 +2091,16 @@
    défilement (P10). Deux replis obligatoires : navigateur sans
    `backdrop-filter`, et personnes qui réduisent la transparence au niveau du
    système. Dans les deux cas la barre devient opaque, jamais illisible. */
+/* L'opacité était réglée sur le canvas clair, où 0,82 donne du verre. Le pied
+   de page de la vitrine est vert foncé : la même valeur y transmettait assez
+   de sombre pour que la barre devienne une dalle grise terne, et l'encre du
+   logo perdait son fond. 0,92 tient les deux surfaces. Sur le canvas, le flou
+   et les 8 % de transmission suffisent à dire que la barre passe au-dessus du
+   contenu ; sur le vert foncé, elle reste la même barre claire que partout
+   ailleurs. C'est la valeur qu'emploie déjà le panneau de navigation de
+   l'accueil, qui se pose lui aussi sur du contenu quelconque. */
 .safe-barre-verre {
-  background: rgb(var(--si-surface-rgb) / 0.82);
+  background: rgb(var(--si-surface-rgb) / 0.92);
   backdrop-filter: blur(18px) saturate(1.35);
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
 }

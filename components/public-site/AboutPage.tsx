@@ -218,11 +218,27 @@ const CSS = `
     color: var(--si-verified);
   }
 
+  /* ── Le petit texte ─────────────────────────────────────────────────────
+     Deux corrections d'un coup (retour CEO du 18 août 2026).
+
+     La famille d'abord. La serif porte les titres et les phrases qui pèsent,
+     et elle portait aussi la prose : une seule voix pour tout le récit, donc
+     rien ne distinguait un moment éditorial d'une explication. Le corps passe
+     à la sans, qui est déjà la seconde voix du site. Les deux se répondent au
+     lieu de se confondre.
+
+     L'encre ensuite. Le gris clair convenait à une prose posée à côté d'un
+     titre ; ici la prose EST le contenu, elle porte tout le récit, et un gris
+     à 5:1 la fait lire comme une note de bas de page. Elle prend l'encre du
+     corps, à 9,6:1 : franchement noire, sans être le noir des titres, qui
+     garde son rang. */
   .ap-p {
     margin-top: 22px;
+    font-family: var(--sans);
     font-size: var(--ap-t4);
-    line-height: 1.6;
-    color: var(--muted);
+    line-height: 1.62;
+    letter-spacing: -0.003em;
+    color: var(--si-body);
     max-width: 54ch;
   }
   .ap-p:first-of-type { margin-top: 26px; }
@@ -253,9 +269,10 @@ const CSS = `
     grid-template-columns: 16px minmax(0, 1fr);
     align-items: baseline;
     gap: 12px;
+    font-family: var(--sans);
     font-size: var(--ap-t4);
-    line-height: 1.5;
-    color: var(--muted);
+    line-height: 1.55;
+    color: var(--si-body);
     max-width: 52ch;
   }
   .ap-constats li .f {
@@ -279,34 +296,96 @@ const CSS = `
 
   /* Les six domaines. Ils arrivent un par un et restent : un filet les relie à
      mesure, ce qui rend visible le mot « relier » de la phrase suivante. */
+  /* ── La chaîne des domaines ─────────────────────────────────────────────
+     Six mots séparés par un filet : Temps, Facturation, Paiements,
+     Fidéicommis, Comptabilité, Rapports. Le filet est le propos de la section,
+     « un même système pour relier ce qui était dispersé », et il ne vaut que
+     si les six se lisent À LA SUITE.
+
+     En flex-wrap ils passaient à la ligne, et une chaîne qui passe à la ligne
+     n'est plus une chaîne : c'est une liste, et le dernier filet de chaque
+     rangée pointe vers le vide. Sur un téléphone, les six tombaient en six
+     rangées empilées, ce qui est exactement le contraire de ce que la phrase
+     annonce (retour CEO du 18 août 2026).
+
+     Ils tiennent maintenant sur une seule ligne qu'on parcourt au doigt. La
+     chaîne reste une chaîne, et son défilement se voit puisqu'elle sort du
+     cadre à droite. */
   .ap-mots {
     margin-top: 30px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0 14px;
     list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    /* Elle déborde jusqu'au bord de la page pour qu'on voie qu'elle continue. */
+    margin-right: calc(-1 * var(--ap-marge, 24px));
+    padding-right: var(--ap-marge, 24px);
+    padding-bottom: 4px;
   }
+  .ap-mots::-webkit-scrollbar { display: none; }
+  .ap-mots li { flex: none; scroll-snap-align: start; }
+  /* Le filet ne dépend plus d'avoir été « vu » : sur une ligne qu'on fait
+     défiler, un maillon qui n'apparaît qu'au passage laisse la chaîne
+     visiblement rompue devant soi. */
   .ap-mots li {
     display: flex;
     align-items: center;
     gap: 14px;
+  }
+  /* Le maillon : une fiche, pas un mot posé.
+
+     Elle emprunte la grammaire des cartes de l'accueil, celle des trois
+     piliers : un numéro en tête, le nom en serif, une ligne en sans sous lui.
+     Le site sait déjà présenter une suite de points de cette façon, il n'y
+     avait pas de raison d'en inventer une autre ici. */
+  .ap-dom {
+    display: block;
+    width: 200px;
+    padding: 16px 18px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--si-surface);
+    box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.04),
+                0 12px 24px -20px rgb(var(--si-line-ink-rgb) / 0.28);
+  }
+  .ap-dom .n {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--si-verified);
+  }
+  .ap-dom .m {
+    display: block;
+    margin-top: 10px;
     font-family: var(--serif);
     font-weight: 400;
     font-size: var(--ap-t3);
-    line-height: 1.6;
+    line-height: 1.15;
     letter-spacing: -0.012em;
     color: var(--ink);
   }
+  .ap-dom .l {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--si-body);
+  }
   .ap-mots li .lien {
     display: block;
-    width: 0;
+    flex: none;
+    width: 18px;
     height: 1px;
     background: var(--si-verified);
     opacity: 0.5;
-    transition: width 520ms cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .ap.anime .ap-mots li.vu .lien { width: 18px; }
   .ap-mots li:last-child .lien { display: none; }
 
   .ap-fin { margin-top: clamp(56px, 8vh, 88px); }
@@ -553,7 +632,25 @@ const LEGENDES = [
   "Un système",
 ];
 
-const DOMAINES = ["Temps.", "Facturation.", "Paiements.", "Fidéicommis.", "Comptabilité.", "Rapports."];
+/* Les six domaines que le fichier Excel a fini par couvrir.
+
+   Ils n'étaient que six mots suivis d'un point, séparés par un tiret. Le mot
+   seul ne dit pas ce que SAFE en fait : « Temps » peut être une feuille de
+   temps, un minuteur ou un rapport d'heures. Chacun porte donc une ligne, et
+   cette ligne dit ce que le logiciel fait du domaine, pas ce que le domaine
+   est (retour CEO du 18 août 2026).
+
+   Les six lignes sont tenues par ce que le produit fait déjà, et chacune se
+   retrouve ailleurs sur le site : rien n'est promis ici qui ne soit démontré
+   sur l'accueil ou sur Fonctionnalités. */
+const DOMAINES: { mot: string; ligne: string }[] = [
+  { mot: "Temps", ligne: "Saisi au dossier, jamais deux fois." },
+  { mot: "Facturation", ligne: "L'heure notée devient une ligne de facture." },
+  { mot: "Paiements", ligne: "Encaissements suivis, retards signalés." },
+  { mot: "Fidéicommis", ligne: "Rapproché à trois voies, écarts bloquants." },
+  { mot: "Comptabilité", ligne: "Le journal se tient au fil du travail." },
+  { mot: "Rapports", ligne: "Prêts le jour où on vous les demande." },
+];
 
 export default function AProposPage() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -695,9 +792,13 @@ export default function AProposPage() {
                 est progressivement devenu un véritable logiciel.
               </p>
               <ul className="ap-mots">
-                {DOMAINES.map((mot) => (
-                  <li className="rev" key={mot}>
-                    {mot}
+                {DOMAINES.map((d, i) => (
+                  <li className="rev" key={d.mot}>
+                    <span className="ap-dom">
+                      <span className="n">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="m">{d.mot}</span>
+                      <span className="l">{d.ligne}</span>
+                    </span>
                     <i className="lien" aria-hidden />
                   </li>
                 ))}

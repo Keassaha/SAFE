@@ -9,7 +9,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { MARK_GEOMETRY, SAFE_MARK_DEFAULT } from "@/components/brand/safe-mark";
 
@@ -99,8 +99,28 @@ export const fadeUp = (delay = 0) => ({
   "data-revele": "",
 });
 
-export function Nav() {
+/* ── L'en-tête du site ────────────────────────────────────────────────────
+   Une seule barre pour toute la vitrine (décision CEO du 18 août 2026).
+
+   Le site en portait trois : une pastille flottante à coins arrondis sur
+   l'accueil, une pastille de verre sur les pages partagées, et cette
+   barre-ci sur le diagnostic gratuit. Trois grammaires pour la même
+   fonction, dont la seule qui montre une action est celle du diagnostic.
+   C'est donc elle qui est retenue et propagée.
+
+   Ce qui la distingue : elle touche les bords plutôt que de flotter, elle se
+   pose sur un filet plutôt que sur une ombre, son bouton de menu est encadré
+   donc il se voit, et son action reste visible au téléphone au lieu d'être
+   rangée dans le menu. Une page qui a sa propre prochaine étape passe son
+   ancre par `cta` ; par défaut l'action mène au diagnostic.
+
+   Le fond emploie `safe-barre-verre` plutôt qu'un rgba écrit en dur : cette
+   classe porte déjà les deux replis obligatoires, navigateur sans
+   `backdrop-filter` et transparence réduite au niveau du système, et son
+   opacité est réglée pour rester claire au-dessus du pied de page vert. */
+export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const action = cta ?? { href: R.diagnostic, label: "Faire le diagnostic" };
   const links = [
     { label: "Fonctionnalités", href: R.fonctionnalites },
     { label: "Tarification", href: R.tarification },
@@ -110,167 +130,121 @@ export function Nav() {
 
   return (
     <>
-    {/* Le voile vit hors de l'entête : le `backdrop-filter` de la barre crée un
-       bloc conteneur qui empêcherait un enfant `fixed` de couvrir la page. */}
-    <AnimatePresence>
-      {mobileOpen && (
-        <motion.button
-          type="button"
-          aria-label="Fermer la navigation"
-          onClick={() => setMobileOpen(false)}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: "rgb(var(--si-ink-rgb) / 0.45)" }}
-        />
-      )}
-    </AnimatePresence>
-    {/* Barre flottante.
-       Elle ne colle plus au bord : un retrait la détache et une ombre unique
-       dit qu'elle passe AU-DESSUS du contenu. Le fond est plein, pas du verre :
-       une barre qui reste lisible pendant tout le défilement vaut mieux qu'une
-       barre à travers laquelle on devine la page (P10). */}
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
-      <nav
-        className="safe-barre-verre mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 rounded-xl border pl-4 pr-2 sm:pl-5 sm:pr-3"
-        /* Le flou est en ligne, pas dans la feuille : le minifieur CSS retire
-           la propriété non préfixée et ne laisse que `-webkit-`, sans effet sur
-           les navigateurs actuels. Le style en ligne ne passe pas par lui. */
+      {/* Le voile vit hors de l'entête : le `backdrop-filter` de la barre crée
+         un bloc conteneur qui empêcherait un enfant `fixed` de couvrir la
+         page. Il ferme le menu au toucher n'importe où ailleurs, ce que la
+         barre du diagnostic ne savait pas encore faire. */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.button
+            type="button"
+            aria-label="Fermer la navigation"
+            onClick={() => setMobileOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-40 lg:hidden"
+            style={{ background: "rgb(var(--si-ink-rgb) / 0.45)" }}
+          />
+        )}
+      </AnimatePresence>
+
+      <header
+        className="safe-barre-verre fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between px-6 sm:px-11"
+        /* Le flou est en ligne, pas seulement dans la feuille : le minifieur
+           CSS retire la propriété non préfixée et ne laisse que `-webkit-`,
+           sans effet sur les navigateurs actuels. Le style en ligne ne passe
+           pas par lui. */
         style={{
-          borderColor: BARRE_FILET,
-          boxShadow: BARRE_OMBRE,
+          borderBottom: `1px solid ${LINE}`,
           backdropFilter: BARRE_FLOU,
           WebkitBackdropFilter: BARRE_FLOU,
         }}
       >
         <Link href={R.accueil} className="inline-flex items-center">
-          {/* Ton de charte par défaut : forêt et émeraude, sur verre clair. */}
-          <SafeLogo size={19} />
+          <SafeLogo size={20} />
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-[26px] lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-[8px] px-3 py-2 font-sans text-[13.5px] transition-colors"
+              className="font-sans text-[13px] transition-colors duration-300"
               style={{ color: BARRE_TEXTE }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = BARRE_TEXTE_FORT;
-                e.currentTarget.style.background = BARRE_SURVOL;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = BARRE_TEXTE;
-                e.currentTarget.style.background = "transparent";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = BARRE_TEXTE_FORT; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = BARRE_TEXTE; }}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="flex items-center gap-4">
           <Link
             href="/connexion"
-            className="rounded-[8px] px-3 py-2 font-sans text-[13.5px] transition-colors"
+            className="hidden font-sans text-[13px] transition-colors duration-300 lg:inline"
             style={{ color: BARRE_TEXTE }}
             onMouseEnter={(e) => { e.currentTarget.style.color = BARRE_TEXTE_FORT; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = BARRE_TEXTE; }}
           >
             Connexion
           </Link>
-          {/* L'action s'inverse : sur une barre noire, c'est le clair qui
-             avance. Une seule action pleine dans la barre. */}
           <Link
-            href={R.diagnostic}
-            className="inline-flex h-9 items-center rounded-[8px] px-4 font-sans text-[13.5px] font-medium transition-colors"
-            style={{ background: "var(--si-forest)", color: "var(--si-surface)" }}
+            href={action.href}
+            className="inline-flex h-[34px] items-center rounded-[7px] px-4 font-sans text-[13px] font-medium transition-colors duration-300"
+            style={{ background: GREEN, color: "var(--si-surface)" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "var(--si-forest-soft)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "var(--si-forest)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = GREEN; }}
           >
-            Faire le diagnostic
+            {action.label}
           </Link>
-        </div>
 
-        <button
-          type="button"
-          onClick={() => setMobileOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-[8px] lg:hidden"
-          style={{ color: BARRE_TEXTE_FORT }}
-          aria-label={mobileOpen ? "Fermer la navigation" : "Ouvrir la navigation"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X size={19} /> : <Menu size={19} />}
-        </button>
-      </nav>
-
-      {/* Panneau mobile : voile qui isole du contenu, entrée glissée, rangées
-         généreuses au pouce. Les libellés arrivent en cascade. */}
-      <AnimatePresence>
-        {mobileOpen && (
-            <motion.div
-              key="menu-mobile"
-              initial={{ opacity: 0, y: -14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.32, ease: EASE }}
-              className="safe-barre-verre relative z-50 mx-auto mt-2 max-w-6xl rounded-xl border px-5 pb-5 pt-1 lg:hidden"
-              style={{
-                borderColor: BARRE_FILET,
-                boxShadow: BARRE_OMBRE,
-                backdropFilter: BARRE_FLOU,
-                WebkitBackdropFilter: BARRE_FLOU,
-              }}
+          <div className="relative lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-label={mobileOpen ? "Fermer la navigation" : "Ouvrir la navigation"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-[7px] border"
+              style={{ borderColor: LINE, background: SURFACE }}
             >
-              <div>
-                {links.map((link, i) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex min-h-14 items-center justify-between border-b font-sans text-[17px]"
-                      style={{ color: BARRE_TEXTE_FORT, borderColor: "var(--si-line2)" }}
-                    >
-                      {link.label}
-                      <span aria-hidden style={{ color: "var(--si-subtle)" }}>›</span>
-                    </Link>
-                  </motion.div>
-                ))}
+              <span className="flex flex-col gap-[3px]">
+                <span className={`block h-[1.5px] w-4 transition-transform duration-300 ${mobileOpen ? "translate-y-[4.5px] rotate-45" : ""}`} style={{ background: INK }} />
+                <span className={`block h-[1.5px] w-4 transition-opacity duration-300 ${mobileOpen ? "opacity-0" : ""}`} style={{ background: INK }} />
+                <span className={`block h-[1.5px] w-4 transition-transform duration-300 ${mobileOpen ? "-translate-y-[4.5px] -rotate-45" : ""}`} style={{ background: INK }} />
+              </span>
+            </button>
+
+            <AnimatePresence>
+              {mobileOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  key="menu"
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 + links.length * 0.05, duration: 0.3, ease: EASE }}
-                  className="mt-5 grid grid-cols-2 gap-3"
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.28, ease: EASE }}
+                  className="absolute right-0 top-[calc(100%+10px)] w-60 rounded-[12px] border p-2"
+                  style={{ background: SURFACE, borderColor: LINE, boxShadow: BARRE_OMBRE }}
                 >
-                  <Link
-                    href="/connexion"
-                    onClick={() => setMobileOpen(false)}
-                    className="inline-flex h-12 items-center justify-center rounded-[8px] border font-sans text-[15px]"
-                    style={{ color: BARRE_TEXTE_FORT, borderColor: "var(--si-line)", background: "var(--si-surface)" }}
-                  >
-                    Connexion
-                  </Link>
-                  <Link
-                    href={R.diagnostic}
-                    onClick={() => setMobileOpen(false)}
-                    className="inline-flex h-12 items-center justify-center rounded-[8px] font-sans text-[15px] font-medium"
-                    style={{ background: "var(--si-forest)", color: "var(--si-surface)" }}
-                  >
-                    Diagnostic
-                  </Link>
+                  {[...links, { href: "/connexion", label: "Connexion" }].map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center rounded-[8px] px-4 py-2.5 font-sans text-[13px] transition-colors duration-300"
+                      style={{ color: BARRE_TEXTE }}
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
                 </motion.div>
-              </div>
-            </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </header>
     </>
   );
 }

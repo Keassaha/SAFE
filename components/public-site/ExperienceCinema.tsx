@@ -8,7 +8,12 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { SafeLogo } from "@/components/branding/SafeLogo";
+import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
+import {
+  ASSEMBLY_PIECE_A_PATH,
+  ASSEMBLY_PIECE_B_PATH,
+  SAFE_PALETTE,
+} from "@/components/brand/safe-mark";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
 
 const CSS = `
@@ -141,26 +146,35 @@ const CSS = `
      clarté permet au logo de garder sa teinte de charte. Repli opaque plus bas
      pour les navigateurs sans backdrop-filter et pour les personnes qui
      réduisent la transparence. */
+  /* La barre du site (décision CEO du 18 août 2026).
+
+     La vitrine portait trois en-têtes : cette pastille flottante, la pastille
+     de verre des pages partagées, et la barre du diagnostic gratuit. La
+     dernière est retenue, parce qu'elle est la seule à montrer une action.
+     L'accueil s'y range.
+
+     Ce qui change ici : la barre touche les bords au lieu de flotter dans un
+     retrait, elle se pose sur un filet au lieu d'une ombre, elle perd ses
+     coins arrondis, et son opacité monte de 0,82 à 0,92 pour rester claire
+     au-dessus des scènes sombres du récit. Les retraits latéraux reprennent
+     ceux du composant partagé, 24 px puis 44 px, et non plus la gouttière de
+     la page. */
   .xc #nav {
     position: fixed;
-    top: 14px;
-    left: max(12px, 3vw);
-    right: max(12px, 3vw);
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 60;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 18px;
-    max-width: 1152px;
-    margin: 0 auto;
-    padding: 0 10px 0 18px;
-    height: 56px;
-    border-radius: 12px;
-    background: rgb(var(--si-surface-rgb) / 0.82);
+    padding: 0 44px;
+    height: 60px;
+    background: rgb(var(--si-surface-rgb) / 0.92);
     backdrop-filter: blur(18px) saturate(1.35);
     -webkit-backdrop-filter: blur(18px) saturate(1.35);
-    border: 1px solid rgb(var(--si-line-ink-rgb) / 0.10);
-    box-shadow: 0 16px 36px -26px rgb(var(--si-line-ink-rgb) / 0.45);
+    border-bottom: 1px solid var(--line);
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .xc #nav { background: var(--si-surface); }
@@ -277,7 +291,7 @@ const CSS = `
   }
 
   .xc #zone-hero { height: 420vh; }
-  .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* ── L'application, vivante ────────────────────────────────────────────────
      Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
      ne suit ni la palette, ni les libellés, ni les chiffres du produit, et on
@@ -292,6 +306,10 @@ const CSS = `
 
      Les chiffres sont ceux du Cabinet Demo (Me Camille Roy) relevés en base,
      pas des montants inventés. */
+  /* Neutre au large : même origine de coordonnées que .pin, aucun rognage. */
+  .xc #hero-cadre { position: absolute; inset: 0; pointer-events: none; }
+  .xc #hero-cadre > * { pointer-events: auto; }
+
   .xc #hero-app {
     position: absolute;
     width: 1000px;
@@ -330,9 +348,10 @@ const CSS = `
   /* La pastille porte le vert de la marque, pas le --si-forest : celui-ci vaut
      #1A1A1A dans la palette courante, ce qui donnerait un logo noir. */
   .xc #hero-app .ha-brand .mark {
-    width: 17px; height: 17px; border-radius: 5px;
-    background: var(--si-brand-green);
+    display: inline-flex;
+    width: 17px; height: 17px;
   }
+  .xc #hero-app .ha-brand .mark svg { display: block; }
   .xc #hero-app .ha-cab {
     font-size: 12px; color: var(--si-muted);
     padding-left: 13px; border-left: 1px solid var(--si-line);
@@ -469,13 +488,36 @@ const CSS = `
   .xc #hero-app .ha-tiles {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 11px;
   }
+  /* Les tuiles de chiffres, comme dans le produit.
+     Elles étaient un aplat d'encre. Le tableau de bord réel les peint avec
+     « safe-action-degrade », un dégradé de l'encre vers le vert forêt
+     profond, et pose une lueur verte dans le coin bas gauche
+     (« glow-verified »). Un
+     aplat noir ne ressemble pas à SAFE, il ressemble à un cadre de
+     démonstration. Les deux règles sont recopiées ici depuis globals.css
+     parce que la vitrine ne charge pas les classes utilitaires du produit. */
   .xc #hero-app .ha-tile {
-    background: var(--si-forest);
+    position: relative;
+    overflow: hidden;
+    background-color: var(--si-ink);
+    background-image: linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%);
     color: var(--si-surface);
     border-radius: 10px;
     padding: 9px 11px 11px;
     cursor: pointer;
   }
+  .xc #hero-app .ha-tile::after {
+    content: "";
+    position: absolute;
+    left: -34px;
+    bottom: -48px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%);
+    pointer-events: none;
+  }
+  .xc #hero-app .ha-tile > * { position: relative; z-index: 1; }
   .xc #hero-app .ha-tile .lab {
     font-family: var(--sans);
     font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
@@ -964,6 +1006,12 @@ const CSS = `
   .xc .si-arg.actif .e, .xc .fi-arg.actif .e, .xc .co-arg.actif .e {
     color: var(--si-ink);
   }
+  /* La description n'existe qu'au téléphone. Au large, la démonstration est
+     EN FACE du point : elle montre déjà ce qu'une phrase expliquerait, et la
+     sous-ligne avait été retirée pour cette raison le 13 août. Au pouce, la
+     démonstration passe dessous et n'est plus dans le même regard : la phrase
+     reprend son utilité. */
+  .xc .si-arg .d, .xc .fi-arg .d, .xc .co-arg .d { display: none; }
 
   /* ── L'émulateur du cabinet ───────────────────────────────────────────────
      Une fenêtre de SAFE posée à côté des arguments du chapitre « Simple ».
@@ -1622,14 +1670,19 @@ const CSS = `
   .xc footer a:hover { color: var(--ink); }
 
   /* ── Bouton et panneau de navigation au téléphone ── */
+  /* Le bouton de menu est encadré : sans filet, rien ne disait qu'on pouvait
+     appuyer, sinon trois traits posés dans le vide. Même cadre que celui du
+     composant partagé, 36 px, que la règle tactile de globals.css porte à 44
+     au doigt. */
   .xc #burger {
     display: none;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border: 0;
+    background: var(--si-surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
     cursor: pointer;
     color: var(--si-ink);
   }
@@ -1654,13 +1707,16 @@ const CSS = `
     background: rgb(var(--si-ink-rgb) / 0.45);
     animation: xcFade 0.25s ease;
   }
+  /* Le panneau suit la barre : ancré sous le bouton qui l'ouvre, à droite,
+     240 px, comme celui du composant partagé. Il occupait toute la largeur
+     sous une barre qui, elle, flottait dans un retrait. */
   .xc #menu-mobile {
     position: fixed;
-    top: 78px;
-    left: max(12px, 3vw);
-    right: max(12px, 3vw);
+    top: 70px;
+    right: var(--marge, 20px);
+    width: 240px;
     z-index: 60;
-    padding: 4px 18px 20px;
+    padding: 8px;
     border-radius: 12px;
     background: rgb(var(--si-surface-rgb) / 0.94);
     backdrop-filter: blur(18px) saturate(1.35);
@@ -1673,39 +1729,14 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 56px;
-    border-bottom: 1px solid var(--line);
-    font-size: 17px;
-    color: var(--si-ink);
-  }
-  .xc #menu-mobile a span { color: var(--si-subtle); }
-  /* Deux colonnes égales donnaient autant de place à « Connexion » qu'à
-     l'action principale, et coupaient son libellé en deux sur les petits
-     téléphones. La connexion prend ce qu'il lui faut, le diagnostic prend le
-     reste. */
-  .xc #menu-mobile .mm-actions {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 12px;
-    margin-top: 20px;
-  }
-  .xc #menu-mobile .mm-actions a {
-    justify-content: center;
-    min-height: 48px;
-    padding: 0 16px;
-    border: 1px solid var(--line);
+    min-height: 44px;
+    padding: 0 12px;
     border-radius: 8px;
-    background: var(--surface);
-    font-size: 15px;
+    font-size: 13px;
+    color: var(--si-muted);
   }
-  /* Sélecteur aussi spécifique que la règle générique juste au-dessus, sinon le
-     fond du bouton serait écrasé. Sur le panneau noir, l'action s'inverse. */
-  .xc #menu-mobile .mm-actions a.mm-cta {
-    background: var(--si-forest);
-    border-color: var(--si-forest);
-    color: var(--si-surface);
-    font-weight: 500;
-  }
+  .xc #menu-mobile a:hover { background: rgb(var(--si-line-ink-rgb) / 0.05); }
+  .xc #menu-mobile a span { color: var(--si-subtle); }
   @keyframes xcFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes xcSlide { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
   @keyframes xcMarquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
@@ -1791,13 +1822,17 @@ const CSS = `
        est un pixel définitivement perdu sur 812. Elle passe de 56 à 48 px et se
        rapproche du bord. Les liens se rangent dans le menu, le bouton reste
        une cible de 44 px. */
-    .xc #rail, .xc #nav .links, .xc #nav .signin, .xc #nav .cta { display: none; }
-    .xc #nav {
-      top: 10px;
-      height: 48px;
-      padding-right: 6px;
-      justify-content: space-between;
-    }
+    /* L'action ne se range plus dans le menu. C'est le trait qui distingue la
+       barre retenue : sur un téléphone, la prochaine étape doit rester à
+       portée de pouce sans ouvrir quoi que ce soit. Seuls les liens et la
+       connexion passent derrière le bouton de menu. */
+    .xc #rail, .xc #nav .links, .xc #nav .signin { display: none; }
+    /* Le retrait de la barre suit celui de la page, 20 px : le logo se pose
+       sur la même arête que le titre en dessous. Les pages partagées alignent
+       les deux à 24 px, l'accueil aligne les deux à 20. */
+    .xc #nav { padding: 0 var(--marge); }
+    .xc #nav .navright { gap: 16px; }
+    .xc #nav .cta { height: 34px; padding: 0 16px; border-radius: 7px; }
     .xc #burger { display: inline-flex; }
 
     /* ── Première vue ───────────────────────────────────────────────────────
@@ -1815,14 +1850,118 @@ const CSS = `
        image avant que le script ne tourne.
 
        Reste ce qui parle : l'exergue, le titre, le chapeau, l'action. */
-    .xc #hero-app, .xc #hero-caption, .xc #hero-canvas { display: none; }
-    /* Le bloc du titre était posé en absolu à 17vh du haut, parce qu'il devait
-       céder la place au cadre que le canvas dessinait sous lui. Ce cadre n'est
-       plus là : il revient dans le flux, et la scène prend simplement la
-       hauteur de son contenu. */
+    /* ── La première vue prend tout l'écran ─────────────────────────────────
+       Le canevas d'assemblage reste retiré : ses cartes dérivaient au survol
+       du curseur, geste qui n'existe pas au doigt.
+
+       L'application, elle, revient. Elle avait été retirée pour une raison
+       exacte : composée sur 1000 px puis ramenée à 375, elle tombait à 0,33
+       d'échelle et ses libellés à moins de 7 px. La faute n'était pas de la
+       montrer, elle était de la montrer ENTIÈRE. Une fenêtre de bureau ne
+       rentre pas dans un téléphone ; un fragment, oui.
+
+       Elle est donc AGRANDIE, pas réduite, et le cadre la rogne : on voit une
+       colonne du tableau de bord à 1,15 fois sa taille de composition, soit
+       des libellés à 15 px, plus lisibles que sur un écran de bureau. C'est
+       le parti de la référence : montrer un morceau vrai et net plutôt qu'un
+       tout illisible.
+
+       La scène occupe une vue entière, titre en haut, fenêtre en bas, et la
+       fenêtre est coupée par le bas de l'écran : elle continue au-delà, ce
+       qui dit qu'il y a un produit derrière et invite à défiler. */
+    .xc #hero-canvas, .xc #hero-caption { display: none; }
+    /* La scène reprend une course de défilement, la plus courte possible.
+
+       L'assemblage était joué au temps : il partait tout seul à l'arrivée et
+       se terminait sans qu'on ait rien fait. Ce n'est pas ce que raconte la
+       scène du large, où ce sont les feuilles qui se rangent PARCE QU'ON
+       descend. Le geste fait le propos : on tire vers le bas, le cabinet se
+       rassemble (décision CEO du 18 août 2026).
+
+       Une vue et demie de course, pas quatre comme au large. C'est le minimum
+       pour que le rassemblement se lise sans que la page s'allonge d'un
+       chapitre entier. */
+    .xc #zone-hero { height: 250svh !important; }
+    .xc #zone-hero .pin {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
     .xc #hero-copy {
       position: static;
-      padding: 104px var(--marge) 8px;
+      order: 1;
+      flex: none;
+      padding: 84px var(--marge) 0;
+    }
+
+    /* La fenêtre. Elle prend ce qui reste de la vue sous le titre, avec un
+       plancher pour que la coupe reste franche sur les petits écrans. */
+    /* La fenêtre. Elle avait un bord droit franc : l'application s'y arrêtait
+       net, sur un filet, au milieu d'une colonne de chiffres. Une capture
+       coupée au couteau se lit comme une image détourée et collée.
+
+       Le bord droit disparaît donc et l'image s'éteint dedans. Le cadre garde
+       ses deux arêtes vraies, à gauche et en haut, celles qui disent « ceci
+       est une fenêtre de logiciel » ; du côté où elle déborde, elle se fond
+       dans la page (retour CEO du 18 août 2026). */
+    .xc #hero-cadre {
+      position: relative;
+      inset: auto;
+      order: 2;
+      flex: 1 1 auto;
+      min-height: 300px;
+      margin: 22px 0 0 var(--marge);
+      /* La hauteur et le retrait haut sont repris par le script en fin de
+         course, quand le texte s'efface pour laisser voir l'application
+         entière, bord bas compris. */
+      /* Le cadre n'existe pas encore au départ.
+
+         Tant que les feuilles dérivent, il n'y a pas de logiciel : il y a des
+         papiers sur un bureau. Une surface blanche déjà posée derrière eux
+         annonçait la fin avant le début, et se lisait comme un trou clair
+         dans la page (retour CEO du 18 août 2026).
+
+         La page reste donc entièrement grise pendant la dérive. Le blanc, le
+         filet et l'arrondi arrivent AVEC le rassemblement : c'est le script
+         qui monte --cadre-a de zéro à un pendant que les feuilles se rangent,
+         de sorte que la fenêtre se matérialise en même temps que son contenu. */
+      --cadre-a: 0;
+      border: 1px solid rgb(var(--si-line-ink-rgb) / calc(0.14 * var(--cadre-a)));
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 12px 0 0 0;
+      background: rgb(var(--si-surface-rgb) / var(--cadre-a));
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
+    }
+    /* L'application derrière la fenêtre : agrandie, ancrée sur la colonne de
+       droite du tableau de bord, celle qui porte le travail à traiter.
+       L'origine du rognage vit dans deux variables pour se régler d'un seul
+       endroit. */
+    .xc #hero-app {
+      /* Le cadrage part du HAUT de l'application, barre de navigation
+         comprise : sans elle on voyait un panneau de chiffres qui pouvait
+         venir de n'importe où. Avec elle on voit un logiciel, son cabinet,
+         ses menus et sa bande d'état, puis la lecture rapide et le travail à
+         traiter (retour CEO du 18 août 2026). */
+      --crop-x: 0px;
+      --crop-y: 0px;
+      --crop-echelle: 0.72;
+      display: block;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 1;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      transform-origin: top left;
+      transform: scale(var(--crop-echelle)) translate(calc(-1 * var(--crop-x)), calc(-1 * var(--crop-y)));
     }
     .xc #hero-copy h1 {
       margin-top: 16px;
@@ -1839,35 +1978,151 @@ const CSS = `
     }
     /* La barre range son action dans le menu : ce bloc porte donc la seule
        action visible de la première vue. */
+    /* Une seule action, et rien après elle.
+
+       La première vue portait le bouton, un lien « Voir ce que fait SAFE » et
+       une ligne de réassurance. Trois choses à décider au lieu d'une, sur le
+       seul écran où l'on n'a encore rien vu du produit, et cent-vingt pixels
+       pris sur la fenêtre qui, elle, montre le produit.
+
+       Le lien secondaire et la réassurance sont retirés au téléphone
+       (décision CEO du 18 août 2026). La démonstration commence juste en
+       dessous : elle dit ce que fait SAFE mieux qu'un lien vers une autre
+       page, et le diagnostic reste gratuit qu'on l'écrive ou non. */
+    .xc #hero-copy .hero-second,
+    .xc #hero-copy .hero-reassure { display: none; }
     .xc #hero-copy .hero-actions { margin-top: 24px; gap: 16px; }
-    .xc #hero-copy .hero-reassure { margin-top: 12px; font-size: var(--t-detail); }
     .xc #hero-hint { font-size: var(--t-menu); }
     .xc #hero-caption { font-size: var(--t-detail); }
 
     /* ── Bande de preuves ───────────────────────────────────────────────────
-       Elle défilait en boucle plutôt que de tasser quatre libellés sur deux
-       rangs. Une boucle est une animation, et le téléphone n'en veut plus.
-       Restait le choix entre une bande qui se parcourt au doigt et quatre
-       libellés qui passent à la ligne : la bande cache la moitié de son
-       contenu derrière un geste que personne ne fait. Ils passent donc à la
-       ligne. Le double de sécurité, qui n'existait que pour masquer le raccord
-       de la boucle, disparaît avec elle. */
+       Trois états ont été essayés ici. Quatre libellés sur deux rangs : à
+       l'étroit, et deux rangs de six mots ne se lisent pas comme une preuve.
+       Une bande qu'on parcourt au doigt : elle cache la moitié de son contenu
+       derrière un geste que personne ne fait. Une boucle continue : le texte
+       glisse pendant qu'on le lit, donc on ne le lit pas.
+
+       Celle-ci ne glisse pas pendant la lecture. Elle POSE une affirmation,
+       la tient trois secondes immobile, puis la remplace. Un seul texte à la
+       fois, toujours au même endroit, toujours aligné pareil : c'est un
+       panneau qui tourne, pas un bandeau qui défile.
+
+       Quatre affirmations, quatre temps, seize secondes de cycle. Le pas est
+       fait en CSS sur une seule translation, donc aucun recalcul de mise en
+       page et rien à réveiller au défilement. */
     .xc #preuves {
-      padding: 14px var(--marge);
+      display: block;
+      position: relative;
+      padding: 0 var(--marge);
       max-width: none;
-      flex-wrap: wrap;
+      height: 46px;
+      overflow: hidden;
       -webkit-mask-image: none;
       mask-image: none;
     }
+    /* La bande tourne latéralement, un libellé à la fois.
+
+       Deux montages ont échoué avant celui-ci. Une piste de quatre colonnes
+       translatée : la règle de base répartit la piste en « space-between », et
+       des colonnes plus larges que leur conteneur s'y recouvrent, donc les
+       quatre libellés s'imprimaient les uns sur les autres. Une copie muette
+       ancrée à droite pour masquer le raccord : elle demandait de calculer sa
+       position à partir d'un retrait que le conteneur portait déjà, et elle
+       tombait à vingt pixels de sa place.
+
+       Plus de piste et plus de double. Les quatre libellés occupent le MÊME
+       emplacement, et chacun a son tour : il entre par la droite, se pose,
+       tient trois secondes immobile, puis sort par la gauche. Le décalage se
+       fait par le retard de l'animation, un quart de cycle par libellé. Le
+       retour du quatrième au premier n'a plus de raccord à masquer, puisqu'il
+       n'y a rien à raccorder. */
     .xc .pv-track {
-      flex: none;
+      display: block;
+      position: relative;
       width: 100%;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px 18px;
+      height: 100%;
+      animation: none;
     }
     .xc .pv-track.clone { display: none; }
-    .xc #preuves span { padding: 0; font-size: var(--t-menu); }
+    .xc #preuves span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0;
+      font-size: var(--t-detail);
+      white-space: nowrap;
+      opacity: 0;
+      animation: xcPreuveGlisse 16s infinite;
+    }
+    .xc #preuves span:nth-child(1) { animation-delay: 0s; }
+    .xc #preuves span:nth-child(2) { animation-delay: 4s; }
+    .xc #preuves span:nth-child(3) { animation-delay: 8s; }
+    .xc #preuves span:nth-child(4) { animation-delay: 12s; }
+    /* La sortie d'un libellé mord d'un point sur l'entrée du suivant. Réglée
+       bord à bord, la bande restait vide 160 ms à chaque tour, ce qui se lit
+       comme un clignotement. */
+    @keyframes xcPreuveGlisse {
+      0%        { opacity: 0; transform: translateX(26px); }
+      4%, 22%   { opacity: 1; transform: translateX(0); }
+      26%, 100% { opacity: 0; transform: translateX(-26px); }
+    }
+
+    /* ── La promesse, sa surface et sa gravure ──────────────────────────────
+       Elle partageait exactement le fond du chapitre « Simple » qui la suit :
+       deux scènes de suite sur le même gris, donc rien ne disait qu'on avait
+       changé de registre entre la phrase qui promet et le pilier qui démontre.
+
+       Elle prend donc sa propre surface, et cette surface est un dégradé :
+       elle s'assombrit vers son centre puis remonte au gris de la page à ses
+       deux bords. Aucun filet, aucune arête. La scène se creuse, et c'est ce
+       creux qui la sépare de ce qui l'entoure. */
+    .xc #zone-promesse {
+      position: relative;
+      background: var(--si-surface2);
+    }
+    .xc .pr-pin { position: relative; overflow: hidden; }
+    /* La gravure. Deux ombres opposées d'un pixel, l'une claire en haut,
+       l'autre sombre en bas, et un remplissage à peine plus foncé que la
+       pierre : c'est le vocabulaire du creux, celui d'une plaque gravée. Rien
+       n'est peint en couleur de marque, sinon le logo se lirait comme un logo
+       posé sur le fond au lieu d'être pris dedans. */
+    .xc .pr-gravure {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      pointer-events: none;
+      /* Ce qui fait un creux, ce n'est pas une forme pâle, c'est une arête.
+         L'opacité de 0,14 posée sur tout l'élément emportait aussi les ombres
+         de bord : la marque était une tache claire, pas une entaille.
+
+         L'élément reste donc entièrement opaque. Ce sont les REMPLISSAGES qui
+         se rapprochent de la pierre, en gardant leur vert, et les ombres qui
+         travaillent à pleine force. La lumière vient d'en haut, comme partout
+         ailleurs sur cette page : une entaille est donc sombre sur sa lèvre
+         haute et éclairée sur sa lèvre basse. Deux ombres opposées d'un pixel
+         et demi le disent, une troisième, plus douce et plus bas, donne la
+         profondeur du creux. */
+      opacity: 1;
+      filter:
+        drop-shadow(0 -1.5px 0 rgb(var(--si-line-ink-rgb) / 0.30))
+        drop-shadow(0 1.5px 0 rgb(255 255 255 / 0.95))
+        drop-shadow(0 4px 6px rgb(var(--si-line-ink-rgb) / 0.10));
+    }
+    .xc .pr-gravure svg { display: block; }
+    /* Les deux teintes de charte, forêt et émeraude, mélangées à la pierre à
+       environ un quart. Assez de vert pour qu'on reconnaisse la marque, assez
+       de pierre pour qu'elle appartienne au mur au lieu d'être posée dessus.
+       Les deux valeurs restent distinctes : aplaties sur une seule, les deux
+       volumes de « L'Assemblage » fusionnent et le dessin disparaît. */
+    .xc .pr-gravure svg path:first-child { fill: #C3CBC8 !important; }
+    .xc .pr-gravure svg path:last-child { fill: #C9DAD3 !important; }
+    .xc .pr-gravure svg * { stroke: none !important; }
+    .xc .pr-pin .masque { position: relative; z-index: 1; }
 
     /* ── Exergues et libellés ───────────────────────────────────────────────
        Le mono tenait ses majuscules espacées à 11 px. Le sans est plus large à
@@ -1904,7 +2159,7 @@ const CSS = `
       line-height: 1.36;
       max-width: none;
     }
-    .xc .si-narration, .xc .fi-narration, .xc .co-narration { margin-top: 16px; }
+    .xc .si-narration, .xc .fi-narration, .xc .co-narration { margin-top: 26px; }
     .xc .co-intro {
       margin-top: 8px;
       font-size: var(--t-detail);
@@ -1946,13 +2201,95 @@ const CSS = `
        le téléphone lit trois listes bâties pareil au lieu de trois blocs qui
        se ressemblent vaguement. Le dernier filet ferme la liste et la détache
        de la phrase de chute, qui conclut le chapitre et n'en fait pas partie. */
-    .xc .si-arg, .xc .fi-arg, .xc .co-arg {
-      grid-template-columns: 22px 1fr;
-      column-gap: 12px;
-      border-top: 1px solid var(--line);
-    }
+    /* ── Les points se lisent en travers, un par écran ──────────────────────
+       Empilés, les trois points d'un pilier prenaient la hauteur d'un écran à
+       eux seuls, et le chapitre en demandait deux avant sa démonstration. On
+       lisait donc trois affirmations d'affilée sans jamais en voir une seule
+       posément.
+
+       Ils passent en travers, une carte par point (décision CEO du 18 août
+       2026). Une carte occupe 82 % de la largeur : la suivante dépasse assez
+       pour qu'on sache qu'elle existe, et le geste pour l'atteindre est celui
+       qu'on fait déjà partout ailleurs sur un téléphone. L'aimant arrête la
+       course sur une carte, jamais entre deux.
+
+       Chaque carte porte le point et une phrase qui le pose. La phrase n'a pas
+       sa place au large, où la démonstration est en face du texte ; ici elle
+       est dessous, donc hors du regard, et la phrase reprend son rôle.
+
+       La barre de défilement disparaît : c'est la carte coupée au bord droit
+       qui dit qu'on peut pousser, pas un rail gris. */
     .xc .si-args, .xc .fi-args, .xc .co-args {
-      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 86%;
+      gap: 14px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      /* Sans cette ligne, l'aimant colle la première carte au bord de la BOÎTE
+         et non au bord du contenu : la liste s'ouvrait décalée de vingt
+         pixels, première carte coupée à gauche. */
+      scroll-padding-inline: var(--marge);
+      scrollbar-width: none;
+      /* La liste sort de la colonne pour que la première carte s'aligne sur le
+         texte et que la dernière puisse atteindre le bord. */
+      margin-inline: calc(-1 * var(--marge));
+      padding-inline: var(--marge);
+      /* De l'air sous les cartes pour l'ombre, repris en marge négative. */
+      padding-bottom: 14px;
+      margin-bottom: -14px;
+    }
+    .xc .si-args::-webkit-scrollbar,
+    .xc .fi-args::-webkit-scrollbar,
+    .xc .co-args::-webkit-scrollbar { display: none; }
+
+    .xc .si-arg, .xc .fi-arg, .xc .co-arg {
+      display: block;
+      scroll-snap-align: start;
+      padding: 24px 24px 26px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--si-surface);
+      box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.04),
+                  0 12px 24px -20px rgb(var(--si-line-ink-rgb) / 0.30);
+    }
+    .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
+      display: block;
+      top: 0;
+    }
+    .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
+      margin-top: 10px;
+    }
+    .xc .si-arg .d, .xc .fi-arg .d, .xc .co-arg .d {
+      display: block;
+      margin-top: 8px;
+      font-family: var(--sans);
+      font-size: var(--t-detail);
+      line-height: 1.5;
+      color: var(--si-muted);
+    }
+
+    /* Les repères de position, posés par le script sous chaque carrousel.
+       Le repère courant s'allonge au lieu de changer de couleur : à cette
+       taille, une différence de forme se voit d'un coup d'œil là où une
+       différence de teinte demande de comparer. */
+    .xc .arg-points {
+      display: flex;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .xc .arg-points i {
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgb(var(--si-line-ink-rgb) / 0.18);
+      transition: width 260ms var(--doux), background-color 260ms var(--doux);
+    }
+    .xc .arg-points i.on {
+      width: 20px;
+      background: var(--si-verified);
     }
     /* Le numéro est calé sur la première ligne de texte, pas sur son milieu :
        à deux lignes, un numéro centré flotte entre les deux et ne désigne
@@ -2075,6 +2412,40 @@ const CSS = `
       align-items: center;
       justify-content: center;
     }
+    /* ── L'entrée des textes ────────────────────────────────────────────────
+       Posée par le script (voir entreeTelephone), et seulement quand le
+       système ne demande pas moins de mouvement. La classe sur la racine est
+       la garantie que rien ne reste invisible si le script ne tourne pas :
+       sans elle, aucune de ces deux règles ne s'applique et la page arrive à
+       son état final, comme avant. */
+    .xc.tel-anime [data-tel-entre] {
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 620ms var(--doux),
+        transform 620ms var(--doux);
+    }
+    .xc.tel-anime [data-tel-entre="vu"] {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* La promesse se relève de sous une arête.
+       Les deux lignes montaient en fondu comme le reste de la page, donc la
+       phrase arrivait d'un bloc. Elle est pourtant construite en deux temps,
+       l'affirmation puis sa condition, et le balisage porte déjà le masque
+       qu'il faut : un conteneur en overflow hidden autour de chaque ligne.
+
+       Chaque ligne est donc poussée sous l'arête de son masque et remonte à
+       sa place. Le fondu disparaît : ce n'est pas un texte qui apparaît, c'est
+       un texte qui se lève. La seconde part 260 ms après la première, le temps
+       de lire la première. */
+    /* Les deux lignes de la promesse n'ont plus de transition : leur position
+       est posée à chaque image par promesseAuDefilement, et une transition
+       par-dessus un pilotage au défilement donne un retard élastique, pas un
+       mouvement commandé. Elles partent sous l'arête de leur masque, et c'est
+       le script qui les remonte. */
+    .xc.tel-anime .pr-main { transform: translateY(110%); }
   }
 
   /* ── Les téléphones étroits ───────────────────────────────────────────────
@@ -2113,10 +2484,64 @@ const CSS = `
        hauteur de ce qu'il contient, et c'est son dégagement qui le fait
        respirer. */
     .xc .pinzone .pin { position: relative; height: auto; min-height: var(--haut-scene, 100vh); }
-    .xc #hero-hint { display: none; }
-    /* pas de défilement automatique : la bande se parcourt au doigt */
-    .xc .pv-track { animation: none; }
-    .xc #preuves { overflow-x: auto; }
+    /* L'indication de défilement reste au téléphone. Elle avait été retirée
+       avec l'ancienne première vue, qui n'avait plus rien à révéler plus bas.
+       Elle en a de nouveau : trois états de rassemblement qui ne partent que
+       si l'on descend. Sans elle, on peut rester devant des pièces éparpillées
+       en croyant que c'est l'état final (retour CEO du 18 août 2026). */
+    .xc #hero-hint {
+      display: flex;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 18px;
+      z-index: 2;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: var(--t-menu);
+      /* Le script pilote son effacement au fil du rassemblement. */
+      opacity: 1;
+    }
+    /* La flèche : un chevron dessiné en deux filets, qui descend et remonte.
+       Trois pixels de course, assez pour désigner un sens, trop peu pour
+       attirer l'oeil pendant qu'on lit le titre. */
+    .xc #hero-hint i {
+      display: block;
+      width: 7px;
+      height: 7px;
+      border-right: 1.4px solid currentColor;
+      border-bottom: 1.4px solid currentColor;
+      transform: rotate(45deg);
+      animation: xcDescendre 1.9s ease-in-out infinite;
+    }
+    @keyframes xcDescendre {
+      0%, 100% { transform: translateY(-1.5px) rotate(45deg); }
+      50%      { transform: translateY(1.5px) rotate(45deg); }
+    }
+    /* Sans mouvement, le panneau cesse de tourner : les quatre affirmations
+       reprennent leur rang unique et se lisent d'un coup, réparties comme au
+       large. Personne ne perd d'information parce qu'il a demandé moins
+       d'animation. */
+    @media (prefers-reduced-motion: reduce) {
+      .xc #preuves { height: auto; padding-block: 12px; }
+      .xc .pv-track {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px 18px;
+      }
+      .xc #preuves span {
+        position: static;
+        inset: auto;
+        height: auto;
+        opacity: 1;
+        transform: none;
+        animation: none;
+        font-size: var(--t-menu);
+      }
+      .xc .pv-track.clone { display: none; }
+    }
 
     /* Sans mouvement, les trois points des trois piliers se lisent à la
        suite, tous posés et tous en encre pleine : il n'y a plus de « point en
@@ -2189,6 +2614,45 @@ const CSS = `
     .xc.anime #zone-fiable .fi-temps,
     .xc.anime #zone-fiable .fi-dit,
     .xc.anime #zone-fiable .fi-refus { opacity: 1; transform: none; }
+  }
+  /* ═══════════════════════════════════════════════════════════════════════
+     TÉLÉPHONE · L'ÉCRAN RÉPOND À LA CARTE
+     ═══════════════════════════════════════════════════════════════════════
+
+     Ce bloc vient APRÈS « sans mouvement » et le corrige sur un point. Sans
+     mouvement, les trois démonstrations d'un chapitre s'affichent à la suite :
+     c'est juste, puisqu'il n'y a plus de défilement pour désigner la bonne.
+
+     Au téléphone il y en a un, et c'est le doigt sur le carrousel. Une seule
+     démonstration est donc montrée, celle du point qu'on a devant soi, et
+     elle change quand la carte change (décision CEO du 18 août 2026). Les
+     trois écrans empilés disaient « voici tout », alors que le chapitre
+     raconte « voici ce point, et voici ce qu'il donne à l'écran ».
+
+     La scène garde une hauteur fixe : sans elle, passer d'un écran court à un
+     écran long ferait sauter la page sous le doigt pendant le geste. */
+  @media (max-width: 860px) and (prefers-reduced-motion: no-preference) {
+    .xc.anime #zone-simple .em-ecran,
+    .xc.anime #zone-fiable .fi-vue,
+    .xc.anime #zone-complet .co-vue {
+      position: absolute;
+      inset: 0;
+      opacity: 0 !important;
+      transition: opacity 260ms ease;
+      pointer-events: none;
+    }
+    .xc.anime #zone-simple .em-ecran.on,
+    .xc.anime #zone-fiable .fi-vue.on,
+    .xc.anime #zone-complet .co-vue.on {
+      opacity: 1 !important;
+      pointer-events: auto;
+    }
+    .xc.anime #zone-simple .em-corps,
+    .xc.anime #zone-fiable .fi-vue-zone,
+    .xc.anime #zone-complet .co-vue-zone {
+      position: relative;
+      min-height: 420px;
+    }
   }
 `;
 
@@ -2472,12 +2936,18 @@ function runExperience(root: HTMLElement): () => void {
      disparaît (immobile, ce n'est qu'un tas de rectangles), le titre reste en
      place et l'application se pose dessous, à une échelle qui la garde lisible.
      La zone grandit pour les contenir tous les deux. */
+  let assemblageEnCours = false;
+
   function poserHeroStatique() {
     const pin = heroZone.querySelector<HTMLElement>(".pin")!;
     const W = pin.clientWidth;
     const marge = Math.min(W * 0.06, 84);
 
-    heroCanvas.style.display = "none";
+    /* Le canevas n'est éteint ici que hors téléphone. Au pouce, c'est
+       jouerAssemblage qui le pilote, et cette fonction est rappelée après le
+       chargement des polices puis à chaque redimensionnement : elle éteignait
+       l'assemblage en pleine course, une demi-seconde après son départ. */
+    if (!PHONE) heroCanvas.style.display = "none";
     heroCopy.style.opacity = "1";
     heroCopy.style.transform = "none";
     heroCopy.style.visibility = "visible";
@@ -2493,14 +2963,24 @@ function runExperience(root: HTMLElement): () => void {
        à la largeur réelle et restent lisibles : la démonstration n'est pas
        perdue, elle est déplacée là où elle tient. */
     if (PHONE) {
-      heroShot.style.display = "none";
-      /* La légende annonce « ouvrez un menu et circulez ». Sans l'application
-         sous elle, elle promet un geste qui n'existe plus. */
-      heroCaption.style.display = "none";
-      heroHint.style.opacity = "0";
-      /* Aucune hauteur calculée ici : sans cadre à loger sous le titre, il n'y
-         a plus rien à mesurer. La feuille de style remet le bloc dans le flux
-         et la scène prend la hauteur de ce qu'elle contient. */
+      /* La feuille de style tient tout : la fenêtre, le rognage et l'échelle.
+         Le script efface donc ce qu'il aurait pu poser en ligne lors d'un
+         passage précédent au large, sinon ses valeurs l'emporteraient sur les
+         règles du bloc téléphone. */
+      heroShot.style.left = "";
+      heroShot.style.top = "";
+      heroShot.style.transform = "";
+      heroShot.style.borderRadius = "";
+      heroShot.style.display = "";
+      /* L'opacité appartient à l'assemblage tant qu'il tourne. Une fois posée
+         à 1 par sa dernière image, elle n'est plus touchée. */
+      if (!assemblageEnCours) heroShot.style.opacity = "";
+      /* L'application est navigable au doigt comme elle l'est à la souris :
+         la légende dit vrai, elle reste. */
+      heroShot.classList.add("live");
+      heroCaption.style.display = "";
+      /* L'indication de défilement appartient à l'assemblage : c'est lui qui
+         l'efface quand elle a servi. */
       return;
     }
 
@@ -2998,6 +3478,540 @@ function runExperience(root: HTMLElement): () => void {
     updateRail();
   }
 
+  /* ── L'assemblage, au téléphone ─────────────────────────────────────────
+     C'est la scène d'ouverture du large : des feuilles éparpillées dérivent,
+     puis se rangent et deviennent l'application. Elle dit littéralement ce
+     que dit le titre, « SAFE tient votre cabinet ensemble », et c'est la
+     seule chose de la page qui le démontre au lieu de l'affirmer.
+
+     Au large, elle est pilotée par 420 vh de défilement épinglé. Ce mécanisme
+     ne se transpose pas : au pouce, l'épinglage coûte quatre écrans de course
+     pour une scène, et la page en compte déjà assez.
+
+     Elle est donc jouée AU TEMPS. Elle part à l'arrivée dans la vue, dure
+     deux secondes deux, et se termine sur l'application posée dans sa
+     fenêtre. Une seule fois : on ne rejoue pas une ouverture à chaque
+     remontée, ça se lit comme un défaut.
+
+     Les feuilles se rangent exactement là où les blocs de l'application vont
+     apparaître. Les cibles sont dans l'espace logique de 1000 px du produit,
+     et la fenêtre en montre un fragment : la même transformation que la
+     feuille de style applique à l'application est donc appliquée ici, lue
+     depuis ses variables pour que les deux ne puissent pas diverger. */
+  /* ── L'ouverture du téléphone, en trois états ───────────────────────────
+     Le titre dit « SAFE tient votre cabinet ensemble ». L'ouverture le montre,
+     et elle le montre avec la marque elle-même plutôt qu'avec des papiers
+     anonymes (décision CEO du 18 août 2026).
+
+     « L'Assemblage » est fait de deux volumes imbriqués, une pièce gauche et
+     une pièce droite. La scène les prend au mot :
+
+       1. LE DÉSORDRE. Une douzaine de pièces détachées, gauches et droites
+          mêlées, dispersées et de travers sous l'appel à l'action. Aucune
+          n'est à sa place, et on voit bien que ce sont deux pièces
+          différentes qui traînent.
+       2. LE RASSEMBLEMENT. Le défilement les ramène toutes vers le centre :
+          les gauches sur la gauche du repère, les droites sur sa droite. Les
+          douze pièces se superposent exactement et il n'en reste qu'une de
+          chaque. Un seul logo, net, au milieu.
+       3. LA RELÈVE. Le logo s'efface et l'application prend sa place dans sa
+          fenêtre.
+
+     Les tracés viennent de safe-mark.ts, seule source des formes du logo
+     (CLAUDE.md) : Path2D les accepte tels quels, et le repère vit dans un
+     carré de 24, donc une seule mise à l'échelle suffit.
+
+     Rien de tout cela ne joue derrière le texte : la scène occupe le bas de
+     la vue, sous le bouton. Des pièces qui passent derrière un titre, c'est
+     du désordre par-dessus du texte, pas une ouverture. */
+  function jouerAssemblage() {
+    const cadre = root.querySelector<HTMLElement>("#hero-cadre");
+    if (!cadre) return () => {};
+
+    const PIECE_A = new Path2D(ASSEMBLY_PIECE_A_PATH);
+    const PIECE_B = new Path2D(ASSEMBLY_PIECE_B_PATH);
+    /* Repère du dessin : la pièce A occupe la moitié gauche du carré de 24,
+       la pièce B la moitié droite. Chacune est ramenée à son propre centre
+       pour pouvoir tourner sur elle-même pendant la dérive. */
+    const CENTRES = [
+      { path: PIECE_A, cx: 8.1, cy: 12, teinte: SAFE_PALETTE.forest },
+      { path: PIECE_B, cx: 15.9, cy: 12, teinte: SAFE_PALETTE.emeraude },
+    ];
+
+    /* Le nombre de pièces. Douze remplissaient mal une fenêtre entière une
+       fois les pièces réduites ; vingt donnent la sensation d'un tas, ce que
+       le mot « désordre » suppose (retour CEO du 18 août 2026). Elles se
+       superposent toutes sur deux positions à l'arrivée, donc le logo final
+       reste net quel qu'en soit le nombre. */
+    const NB = 20;
+    const pieces = Array.from({ length: NB }, (_, i) => ({
+      type: i % 2,
+      sx: rnd(),
+      sy: rnd(),
+      sr: (rnd() - 0.5) * 2.2,
+      /* Plus petites qu'au premier jet, où elles emplissaient la fenêtre :
+         une pièce détachée doit se lire comme un fragment, pas comme un
+         panneau (retour CEO du 18 août 2026). */
+      taille: 0.16 + rnd() * 0.22,
+      derive: rnd() * Math.PI * 2,
+      /* Profondeur : une pièce proche suit le poignet davantage qu'une pièce
+         lointaine. C'est ce qui fait le relief. */
+      fond: 0.4 + rnd() * 0.9,
+      retard: (i / NB) * 0.34,
+    }));
+
+    let planifie = false;
+    let dernierP = -1;
+
+    /* ── Les pièces suivent l'inclinaison du téléphone ───────────────────────
+       On penche l'appareil à gauche, les pièces glissent à gauche ; à droite,
+       elles suivent. Chacune a sa profondeur, donc elles ne bougent pas du
+       même pas : c'est ce décalage qui donne le relief plutôt qu'un bloc qui
+       coulisse (demande CEO du 18 août 2026).
+
+       Coût : un écouteur qui ne fait qu'écrire un nombre, et une image
+       redessinée seulement quand l'inclinaison a bougé d'un demi-degré et que
+       la scène est à l'écran. Rien ne tourne quand le téléphone est posé, ni
+       quand on a quitté la première vue. La valeur est lissée à chaque image,
+       sinon le bruit du capteur fait vibrer les pièces à l'arrêt.
+
+       iOS demande une permission explicite pour ce capteur, et une permission
+       ne se demande que sur un geste. On ne la demande pas : l'effet est un
+       agrément, pas un contenu. Là où le capteur répond, il enrichit la
+       scène ; ailleurs, personne ne voit qu'il manque quelque chose. */
+    let inclinaisonCible = 0;
+    let inclinaison = 0;
+    let hauteurCopie = 0;
+    let hauteurCadre = 0;
+
+    function surInclinaison(e: DeviceOrientationEvent) {
+      if (e.gamma == null) return;
+      /* gamma vaut le roulis gauche-droite en degrés. Trente degrés suffisent
+         à couvrir toute la course : au-delà on ne regarde plus l'écran. */
+      const g = Math.max(-30, Math.min(30, e.gamma)) / 30;
+      if (Math.abs(g - inclinaisonCible) < 0.017) return;
+      inclinaisonCible = g;
+      redessiner();
+    }
+
+    function dessiner(p: number, temps: number) {
+      const f = fitCanvas(heroCanvas);
+      const ctx = f.ctx, W = f.w, H = f.h;
+      ctx.clearRect(0, 0, W, H);
+
+      /* ── Où le rassemblement s'achève ───────────────────────────────────
+         Le logo ne s'efface pas sur place. Il rejoint le repère de la barre
+         de l'application, celui qui est en haut à gauche de la fenêtre, en
+         rétrécissant jusqu'à sa taille : les douze pièces deviennent un logo,
+         et ce logo devient le logo du logiciel (retour CEO du 18 août 2026).
+
+         La cible est MESURÉE sur le vrai élément, pas devinée : le cadrage de
+         la fenêtre peut changer, la marque restera au bon endroit. */
+      const repere = heroShot.querySelector<HTMLElement>(".ha-brand .mark");
+      const rCadre = heroCanvas.getBoundingClientRect();
+      let finX = W / 2;
+      let finY = H * 0.42;
+      let finCote = 17;
+      if (repere) {
+        const rr = repere.getBoundingClientRect();
+        if (rr.width > 0) {
+          finX = rr.left - rCadre.left + rr.width / 2;
+          finY = rr.top - rCadre.top + rr.height / 2;
+          finCote = rr.width;
+        }
+      }
+
+      /* Le repère rassemblé : centré, à une taille qui tient dans la fenêtre. */
+      const grand = Math.min(W * 0.46, H * 0.44);
+      /* L'état 3 : le logo file vers la barre pendant que l'application
+         apparaît. La course est longue et la courbe douce, c'est elle qui
+         donne le glissé. */
+      /* Toute la chorégraphie se termine à 84 % de la course, pas à 98 %.
+         Réglée sur la fin, l'état final n'avait plus de défilement pour être
+         regardé : l'épinglage lâchait au moment même où l'application finissait
+         de se poser, et on passait dessus sans la voir. Le dernier sixième de
+         la course est maintenant un temps d'arrêt sur le produit fini. */
+      const releve = easeInOut(phase(p, 0.44, 0.68));
+      if (releve >= 1) return;
+      const cote = lerp(grand, finCote, releve);
+      const cx = lerp(W / 2, finX, releve);
+      const cy = lerp(H / 2, finY, releve);
+
+      pieces.forEach((pc) => {
+        const local = easeOutCubic(phase(easeInOut(phase(p, 0.02, 0.58)), pc.retard, 1));
+        const d = CENTRES[pc.type];
+
+        /* Dérive : elle s'éteint à mesure que la pièce rejoint sa place. */
+        const dx = Math.sin(temps * 0.00042 + pc.derive) * 16 * (1 - local);
+        const dy = Math.cos(temps * 0.00034 + pc.derive * 1.7) * 12 * (1 - local);
+        /* L'inclinaison, pondérée par la profondeur de la pièce. Elle s'éteint
+           elle aussi une fois la pièce en place : un logo assemblé ne flotte
+           pas au gré du poignet. */
+        const roulis = inclinaison * pc.fond * 26 * (1 - local);
+
+        /* Départ dispersé, arrivée sur le repère. Les gauches et les droites
+           gardent leur côté : une pièce ne traverse jamais le logo. */
+        /* Dispersion plus large : les pièces occupent presque toute la
+           fenêtre au lieu de se serrer au centre. */
+        const x0 = pc.sx * W * 1.02 - W * 0.01 + dx + roulis;
+        const y0 = pc.sy * H * 0.94 + H * 0.03 + dy;
+        const x1 = cx + (d.cx - 12) * (cote / 24);
+        const y1 = cy + (d.cy - 12) * (cote / 24);
+
+        const ech = lerp(cote * pc.taille, cote, local) / 24;
+        const x = lerp(x0, x1, local);
+        const y = lerp(y0, y1, local);
+        const rot = pc.sr * (1 - local);
+
+        ctx.save();
+        ctx.globalAlpha = lerp(0.5, 1, local) * (1 - releve);
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.scale(ech, ech);
+        ctx.translate(-d.cx, -d.cy);
+        ctx.fillStyle = d.teinte;
+        ctx.fill(d.path);
+        ctx.restore();
+      });
+    }
+
+    function poser() {
+      planifie = false;
+      const zone = heroZone.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const course = Math.max(1, heroZone.offsetHeight - vh);
+      const p = clamp01(-zone.top / course);
+      if (Math.abs(p - dernierP) < 0.001) return;
+      dernierP = p;
+
+      /* Lissage : la valeur du capteur rejoint sa cible d'un cinquième par
+         image. Tant qu'elle n'y est pas, on redemande une image, et seulement
+         tant qu'elle n'y est pas. */
+      const ecart = inclinaisonCible - inclinaison;
+      if (Math.abs(ecart) > 0.002) {
+        inclinaison += ecart * 0.2;
+        dernierP = -1;
+        if (!planifie) {
+          planifie = true;
+          requestAnimationFrame(poser);
+        }
+      } else {
+        inclinaison = inclinaisonCible;
+      }
+
+      const temps = performance.now();
+      const fini = p >= 0.72;
+
+      assemblageEnCours = !fini;
+      heroCanvas.style.display = fini ? "none" : "block";
+      if (!fini) dessiner(p, temps);
+
+      /* L'application arrive dans la fenêtre pendant que le logo s'efface. */
+      /* L'application et sa fenêtre montent pendant que le logo descend vers
+         la barre : les deux courses se chevauchent largement, de sorte qu'on
+         ne voit jamais ni un logo seul sur du vide, ni une fenêtre vide. */
+      heroShot.style.opacity = String(easeInOut(phase(p, 0.44, 0.66)));
+      heroShot.classList.toggle("live", fini);
+      cadre!.style.setProperty("--cadre-a", String(easeInOut(phase(p, 0.38, 0.62))));
+
+      /* Le texte a dit ce qu'il avait à dire : il s'efface et la fenêtre prend
+         la vue, bord bas de l'interface compris. */
+      /* Elle a servi dès que le rassemblement commence pour de bon. */
+      heroHint.style.opacity = String(1 - phase(p, 0.04, 0.20));
+
+      const ouvre = easeInOut(phase(p, 0.66, 0.84));
+      heroCopy.style.opacity = String(1 - ouvre);
+      heroCopy.style.transform = "translateY(" + ouvre * -28 + "px)";
+      heroCopy.style.pointerEvents = ouvre > 0.6 ? "none" : "";
+      /* Le texte ne fait pas que s'effacer, il LIBÈRE SA PLACE.
+         Effacé seul, il gardait sa hauteur dans la colonne : la fenêtre
+         restait clouée au tiers bas de l'écran et les deux cents pixels du
+         titre devenaient une plage grise au-dessus d'elle. On voyait une
+         application repoussée en bas d'un vide (retour CEO du 18 août 2026).
+         Sa hauteur naturelle est mesurée une fois, au repos, puis rendue à la
+         fenêtre au même rythme que l'effacement. */
+      if (ouvre <= 0) {
+        heroCopy.style.maxHeight = "";
+        hauteurCopie = heroCopy.offsetHeight;
+      } else if (hauteurCopie > 0) {
+        heroCopy.style.overflow = "hidden";
+        heroCopy.style.maxHeight = hauteurCopie * (1 - ouvre) + "px";
+      }
+      /* Tant que le texte est là, la fenêtre garde son retrait sous lui. Une
+         fois la place rendue, ses deux marges passent en automatique et elle
+         se pose au milieu de la vue au lieu de rester accrochée en haut. */
+      cadre!.style.marginTop = ouvre > 0.001 ? "auto" : "22px";
+
+      /* ── Le cadre se règle sur l'application, pas l'inverse ──────────────
+         La fenêtre prend toute la vue une fois le texte parti, mais
+         l'application ne mesure que 563 px de haut dans son espace logique :
+         à 0,72 elle en occupe 405, et les trois cents restants étaient du
+         blanc sous un tableau de bord, ce qui se lit comme une capture mal
+         détourée.
+
+         Premier essai : agrandir l'application jusqu'à remplir la hauteur.
+         Erreur de sens. Agrandir montre MOINS d'application, et la demande
+         était d'en voir plus (retour CEO du 18 août 2026).
+
+         C'est donc le cadre qui se referme sur elle. L'échelle ne bouge plus,
+         la hauteur de la fenêtre rejoint celle de l'application, et la
+         fenêtre se centre dans la vue. Plus de blanc, l'interface est lue à
+         la même taille qu'avant, et on voit son bord bas. */
+      const hApp = FRAME_H * 0.72;
+      if (ouvre <= 0) {
+        cadre!.style.flex = "";
+        cadre!.style.height = "";
+        cadre!.style.marginBottom = "";
+        hauteurCadre = cadre!.clientHeight;
+      } else if (hauteurCadre > 0) {
+        cadre!.style.flex = "none";
+        cadre!.style.height = lerp(hauteurCadre, hApp, ouvre) + "px";
+        /* Ce que la fenêtre rend est repris en bas, pour qu'elle glisse vers
+           le milieu de la vue au lieu de rester collée en haut. */
+        cadre!.style.marginBottom = "auto";
+      }
+    }
+
+    function auDefilement() {
+      if (planifie) return;
+      planifie = true;
+      requestAnimationFrame(poser);
+    }
+
+    /* Le redessin dû à l'inclinaison passe par la même porte que celui dû au
+       défilement, donc au plus une image par rafraîchissement, et il force le
+       recalcul que le garde de progression bloquerait sinon. */
+    function redessiner() {
+      dernierP = -1;
+      auDefilement();
+    }
+
+    heroCanvas.style.display = "block";
+    heroShot.style.opacity = "0";
+    poser();
+    window.addEventListener("scroll", auDefilement, { passive: true });
+    window.addEventListener("resize", auDefilement);
+    window.addEventListener("deviceorientation", surInclinaison, { passive: true });
+
+    return () => {
+      assemblageEnCours = false;
+      window.removeEventListener("scroll", auDefilement);
+      window.removeEventListener("resize", auDefilement);
+      window.removeEventListener("deviceorientation", surInclinaison);
+    };
+  }
+
+  let arreterAssemblage = () => {};
+
+  /* ── Le carrousel commande la démonstration ─────────────────────────────
+     Les trois points d'un pilier se lisent en travers, une carte par point.
+     La démonstration qui suit ne montre plus les trois écrans à la file : elle
+     montre CELUI du point qu'on a devant soi, et elle change quand la carte
+     change (décision CEO du 18 août 2026).
+
+     Rien de neuf n'est écrit pour cela. Chaque chapitre possède déjà sa
+     fonction de mise en scène, celle que le défilement épinglé appelle au
+     large : elle range les points, désigne l'actif, allume le bon écran et
+     met à jour le fil d'Ariane du cadre. Le doigt sur le carrousel remplace
+     simplement le défilement comme source du numéro.
+
+     L'indice se déduit de la position de course divisée par le pas d'une
+     carte, arrondi : c'est l'aimant qui garantit qu'on tombe juste, on n'a
+     donc pas à deviner entre deux. */
+  function carrouselsTelephone() {
+    const listes: Array<[string, (t: number) => void]> = [
+      [".si-args", poserSimpleTemps],
+      [".fi-args", poserFiableTemps],
+      [".co-args", poserCompletTemps],
+    ];
+    const nettoyages: Array<() => void> = [];
+
+    listes.forEach(([sel, poser]) => {
+      const liste = root.querySelector<HTMLElement>(sel);
+      if (!liste) return;
+      const cartes = Array.from(liste.children) as HTMLElement[];
+      if (!cartes.length) return;
+
+      /* ── Dire qu'on peut pousser ────────────────────────────────────────
+         La carte suivante qui dépasse au bord droit le suggère, mais elle le
+         suggère seulement : on ne sait pas combien il y en a, ni où l'on en
+         est. Une rangée de repères le dit, un par carte, celui du point courant
+         allongé. Elle est posée par le script et non écrite dans le balisage :
+         le carrousel n'existe qu'au téléphone, ses repères non plus.
+
+         Ils ne sont pas cliquables et sont retirés aux lecteurs d'écran : la
+         liste est déjà parcourable au doigt et au clavier, et la position est
+         déjà donnée par le numéro de chaque carte. Un repère de plus à
+         franchir ne rendrait service à personne. */
+      const repères = document.createElement("div");
+      repères.className = "arg-points";
+      repères.setAttribute("aria-hidden", "true");
+      cartes.forEach(() => repères.appendChild(document.createElement("i")));
+      liste.insertAdjacentElement("afterend", repères);
+      nettoyages.push(() => repères.remove());
+
+      let planifie = false;
+      let dernier = -1;
+
+      function lire() {
+        planifie = false;
+        const pas =
+          cartes.length > 1
+            ? cartes[1].offsetLeft - cartes[0].offsetLeft
+            : liste!.clientWidth;
+        if (pas <= 0) return;
+        const i = Math.max(0, Math.min(cartes.length - 1, Math.round(liste!.scrollLeft / pas)));
+        if (i === dernier) return;
+        dernier = i;
+        Array.from(repères.children).forEach((r, k) =>
+          (r as HTMLElement).classList.toggle("on", k === i)
+        );
+        poser(i);
+      }
+
+      function auDefilement() {
+        if (planifie) return;
+        planifie = true;
+        requestAnimationFrame(lire);
+      }
+
+      /* poserStatique est rejouée après le chargement des polices et à chaque
+         redimensionnement, et elle repose la scène sur son DERNIER temps. Le
+         carrousel doit donc reprendre la main derrière elle, sinon la carte
+         montre le point 1 pendant que l'écran montre le point 3. */
+      function reprendre() {
+        dernier = -1;
+        auDefilement();
+      }
+
+      lire();
+      liste.addEventListener("scroll", auDefilement, { passive: true });
+      window.addEventListener("resize", reprendre);
+      nettoyages.push(() => {
+        liste.removeEventListener("scroll", auDefilement);
+        window.removeEventListener("resize", reprendre);
+      });
+    });
+
+    return () => nettoyages.forEach((f) => f());
+  }
+
+  let arreterCarrousels = () => {};
+
+  /* ── La promesse, pilotée par le défilement ─────────────────────────────
+     Les deux lignes entraient comme le reste de la page : un observateur les
+     déclenchait au franchissement du bord, elles montaient, c'était fini. Sur
+     une scène aussi courte, les deux étaient déjà à l'écran quand le
+     déclencheur partait, donc tout se jouait avant qu'on ait regardé.
+
+     Elles suivent maintenant le doigt. La position de la scène dans la vue
+     donne une progression, et cette progression pose directement la hauteur
+     des deux lignes sous l'arête de leur masque. On descend, elles montent ;
+     on remonte, elles redescendent. Ce n'est plus une entrée qu'on rate,
+     c'est un mouvement qu'on commande.
+
+     La seconde ligne est décalée de 22 % de la course : la phrase se lit en
+     deux temps, l'affirmation puis sa condition, comme elle est écrite.
+
+     Une image par événement de défilement, deux propriétés posées, aucune qui
+     touche à la mise en page. */
+  function promesseAuDefilement() {
+    const zone = root.querySelector<HTMLElement>("#zone-promesse");
+    const l1 = $("pr-1");
+    const l2 = $("pr-2");
+    if (!zone || !l1 || !l2) return () => {};
+
+    let planifie = false;
+
+    function poser() {
+      planifie = false;
+      const r = zone!.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      /* La course se joue pendant que la scène traverse le MILIEU de l'écran,
+         pas pendant qu'elle entre par le bas. Réglée sur l'entrée, elle était
+         terminée quand le haut de la scène atteignait 59 % de la hauteur de
+         vue : la phrase était déjà posée quand on arrivait dessus, et on ne
+         voyait donc jamais rien bouger.
+         Elle part quand le haut de la scène est à 88 % de la vue et se termine
+         à 43 %, soit exactement la traversée du regard. */
+      const p = clamp01((vh * 0.88 - r.top) / (vh * 0.45));
+      const a = easeOutCubic(phase(p, 0, 0.62));
+      const b = easeOutCubic(phase(p, 0.28, 0.9));
+      l1!.style.transform = "translateY(" + (1 - a) * 110 + "%)";
+      l2!.style.transform = "translateY(" + (1 - b) * 110 + "%)";
+    }
+
+    function auDefilement() {
+      if (planifie) return;
+      planifie = true;
+      requestAnimationFrame(poser);
+    }
+
+    poser();
+    window.addEventListener("scroll", auDefilement, { passive: true });
+    window.addEventListener("resize", auDefilement);
+    return () => {
+      window.removeEventListener("scroll", auDefilement);
+      window.removeEventListener("resize", auDefilement);
+    };
+  }
+
+  let arreterPromesse = () => {};
+
+  /* ── L'entrée des textes au téléphone ───────────────────────────────────
+     Le défilement piloté est coupé au pouce : la page y est posée d'un coup à
+     son état final, et elle arrivait donc entièrement figée. Une page qui ne
+     bouge jamais se lit comme un document, pas comme un produit.
+
+     Ce n'est pas le film du large qu'on remet, ce serait vingt écrans de
+     course de défilement. C'est la plus petite chose qui donne le sentiment
+     que la page répond : chaque bloc de texte monte de douze pixels et prend
+     son encre quand il entre dans l'écran, une seule fois. Deux propriétés,
+     opacité et translation, les deux seules qui ne demandent aucun recalcul
+     de mise en page.
+
+     Le décalage se lit dans l'ordre de lecture : un bloc part 70 ms après son
+     voisin du dessus, plafonné à quatre crans pour qu'une liste de six points
+     n'attende pas une demi-seconde. */
+  function entreeTelephone() {
+    const cibles = $$(
+      "#hero-copy > *, #hero-cadre, .ch-mark, .ch-mark + .kicker," +
+      " .ch-copy h2, .fi-copy h2, .co-copy h2, .co-intro, .si-arg, .fi-arg," +
+      " .co-arg, .ch-chute, .co-fin, .ch-stage, .fi-stage, .co-stage," +
+      " section.flat .kicker, section.flat h2, section.flat .plan," +
+      " section.flat .q, .sy-claim, .sy-cta, #cta p, #cta .actions"
+    );
+    if (!cibles.length) return () => {};
+
+    cibles.forEach((el) => el.setAttribute("data-tel-entre", ""));
+
+    const obs = new IntersectionObserver(
+      (entrees) => {
+        entrees.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target as HTMLElement;
+          /* Le rang se compte parmi les frères déjà marqués, donc l'ordre de
+             lecture, et non l'ordre d'arrivée dans l'observateur. */
+          const freres = el.parentElement
+            ? Array.from(el.parentElement.children).filter((n) => n.hasAttribute("data-tel-entre"))
+            : [el];
+          const rang = Math.min(freres.indexOf(el), 3);
+          el.style.transitionDelay = rang * 70 + "ms";
+          el.setAttribute("data-tel-entre", "vu");
+          obs.unobserve(el);
+        });
+      },
+      /* La marge négative en bas retarde le déclenchement de douze pour cent
+         de la vue : un bloc qui s'anime alors qu'il touche à peine le bord
+         bas se termine avant qu'on l'ait regardé. */
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.01 }
+    );
+    cibles.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }
+
+  let arreterEntree = () => {};
+
   if (REDUCED) {
     poserStatique();
     /* La hauteur du titre décide de la place de l'application : mesurée avant
@@ -3006,6 +4020,17 @@ function runExperience(root: HTMLElement): () => void {
     document.fonts?.ready.then(poserStatique).catch(() => {});
     window.addEventListener("resize", poserStatique);
     window.addEventListener("scroll", suivreRail, { passive: true });
+    /* Au téléphone seulement. Quelqu'un qui a demandé moins de mouvement au
+       niveau du système garde la page posée, sans aucune entrée. */
+    if (PHONE && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      root.classList.add("tel-anime");
+      arreterEntree = entreeTelephone();
+      arreterAssemblage = jouerAssemblage();
+      arreterPromesse = promesseAuDefilement();
+      arreterCarrousels = carrouselsTelephone();
+      /* Derrière la pose statique différée par les polices. */
+      document.fonts?.ready.then(() => window.dispatchEvent(new Event("resize"))).catch(() => {});
+    }
   } else {
     reveiller();
     window.addEventListener("scroll", reveiller, { passive: true });
@@ -3014,7 +4039,12 @@ function runExperience(root: HTMLElement): () => void {
 
   return () => {
     cancelAnimationFrame(rafId);
+    arreterEntree();
+    arreterAssemblage();
+    arreterPromesse();
+    arreterCarrousels();
     root.classList.remove("anime");
+    root.classList.remove("tel-anime");
     /* Les deux chemins peignent en style en ligne. Tant qu'on ne relançait
        jamais la mise en place, les laisser derrière soi était sans effet ;
        depuis qu'un changement de régime relance, ils survivraient au régime
@@ -3085,23 +4115,25 @@ export default function ExperienceCinema() {
           <a href="/a-propos">À propos</a>
           <a href="/contact">Contact</a>
         </div>
+        {/* Le bouton de menu vit dans le groupe de droite, aux côtés de
+            l'action : au téléphone les deux se tiennent ensemble contre le
+            bord, au lieu d'être écartés aux deux extrémités de la barre par
+            le space-between. */}
         <div className="navright">
           <a className="signin" href="/connexion">Connexion</a>
           <a className="cta" href="/audit-gratuit">Faire le diagnostic</a>
+          <button
+            type="button"
+            id="burger"
+            aria-label={menuOuvert ? "Fermer la navigation" : "Ouvrir la navigation"}
+            aria-expanded={menuOuvert}
+            onClick={() => setMenuOuvert((v) => !v)}
+          >
+            <span className={menuOuvert ? "ouvert" : ""} aria-hidden>
+              <i /><i /><i />
+            </span>
+          </button>
         </div>
-        {/* Au téléphone, les liens étaient simplement masqués : la landing n'offrait
-           plus aucun chemin vers le reste du site. */}
-        <button
-          type="button"
-          id="burger"
-          aria-label={menuOuvert ? "Fermer la navigation" : "Ouvrir la navigation"}
-          aria-expanded={menuOuvert}
-          onClick={() => setMenuOuvert((v) => !v)}
-        >
-          <span className={menuOuvert ? "ouvert" : ""} aria-hidden>
-            <i /><i /><i />
-          </span>
-        </button>
       </nav>
 
       {menuOuvert ? (
@@ -3124,10 +4156,13 @@ export default function ExperienceCinema() {
                 <span aria-hidden>›</span>
               </a>
             ))}
-            <div className="mm-actions">
-              <a className="mm-ghost" href="/connexion">Connexion</a>
-              <a className="mm-cta" href="/audit-gratuit">Faire le diagnostic</a>
-            </div>
+            {/* Plus de bouton d'action ici : l'action est restée dans la
+                barre, visible sans ouvrir le menu. La connexion prend une
+                rangée comme les autres liens. */}
+            <a href="/connexion" onClick={() => setMenuOuvert(false)}>
+              Connexion
+              <span aria-hidden>›</span>
+            </a>
           </div>
         </>
       ) : null}
@@ -3142,11 +4177,25 @@ export default function ExperienceCinema() {
       {/* Scène 1 · L'assemblage → vraie capture */}
       <div className="pinzone" id="zone-hero">
         <div className="pin" id="top">
-          <canvas id="hero-canvas" />
           {/* L'assemblage débouche sur l'application elle-même, navigable, et
              non sur une capture figée. Position et échelle pilotées au pixel
-             par le canvas (drawHero). */}
-          <HeroLiveApp />
+             par le canvas (drawHero).
+
+             Le cadre qui l'entoure ne fait rien au large : il couvre la scène
+             sans la rogner, et garde donc l'origine des coordonnées que le
+             script emploie pour poser l'application au pixel. Au téléphone il
+             devient une fenêtre : il rogne, et l'application est agrandie
+             derrière lui au lieu d'être réduite. Voir le bloc téléphone. */}
+          {/* Le canevas vit dans le cadre, donc dans le BAS de la vue, sous
+              l'appel à l'action. Essayé au-dessus, couvrant la scène entière :
+              les pièces passaient derrière le titre, ce qui fait du désordre
+              par-dessus du texte et non une ouverture (retour CEO du 18 août
+              2026). Au large, le cadre couvre toute la scène et rien ne
+              change pour lui. */}
+          <div id="hero-cadre">
+            <canvas id="hero-canvas" />
+            <HeroLiveApp />
+          </div>
           <div id="hero-copy">
             <p className="kicker">SAFE · système de gestion pour cabinets d&apos;avocats</p>
             <h1>SAFE tient votre cabinet <em>ensemble.</em></h1>
@@ -3168,7 +4217,13 @@ export default function ExperienceCinema() {
           <p id="hero-caption">
             SAFE, en vrai. Ouvrez un menu et circulez : c&apos;est l&apos;application, pas une capture.
           </p>
-          <p id="hero-hint">Faites défiler</p>
+          {/* Le sens est écrit, pas sous-entendu. « Faites défiler » laisse
+              choisir la direction, et l'ouverture ne se joue que vers le bas
+              (retour CEO du 18 août 2026). La flèche le redit sans mot. */}
+          <p id="hero-hint">
+            Faites défiler vers le bas
+            <i aria-hidden />
+          </p>
         </div>
       </div>
 
@@ -3192,6 +4247,14 @@ export default function ExperienceCinema() {
          visiteur vient de la quitter, on le laisse sur la phrase. */}
       <div className="pinzone" id="zone-promesse">
         <div className="pin pr-pin">
+          {/* La marque, gravée dans le fond. Elle ne se lit pas, elle se
+              devine : c'est un relief, pas un logo posé. La scène de la
+              promesse est la seule de la page à ne rien démontrer, elle n'a
+              donc rien à côté de quoi ce relief pourrait entrer en concurrence
+              (demande CEO du 18 août 2026). */}
+          <span className="pr-gravure" aria-hidden>
+            <SafeMark size={210} />
+          </span>
           <span className="masque"><span className="pr-main" id="pr-1">Bâtissez votre succès professionnel</span></span>
           <span className="masque"><span className="pr-main pr-suite" id="pr-2">sur un système simple, fiable et complet.</span></span>
         </div>
@@ -3218,14 +4281,17 @@ export default function ExperienceCinema() {
                 <li className="si-arg" data-siarg="0">
                   <span className="n" aria-hidden>01</span>
                   <p className="e">Vos chiffres, en langage clair.</p>
+                  <p className="d">Facturé, encaissé, reste à recevoir. Ni débit ni crédit à l’écran.</p>
                 </li>
                 <li className="si-arg" data-siarg="1">
                   <span className="n" aria-hidden>02</span>
                   <p className="e">Une prochaine action claire.</p>
+                  <p className="d">L’écran nomme ce qui se traite maintenant, et ce qui vient ensuite.</p>
                 </li>
                 <li className="si-arg" data-siarg="2">
                   <span className="n" aria-hidden>03</span>
                   <p className="e">Saisi une fois. Utilisé partout.</p>
+                  <p className="d">Une heure notée au dossier devient une ligne de facture, sans la ressaisir.</p>
                 </li>
               </ol>
               <p className="ch-chute">Moins de gestion. Plus de pratique.</p>
@@ -3332,14 +4398,17 @@ export default function ExperienceCinema() {
                   <li className="fi-arg" data-arg="0">
                     <span className="n" aria-hidden>01</span>
                     <p className="e">Vos chiffres restent cohérents, partout où vous les consultez.</p>
+                  <p className="d">Le compte, le registre et les soldes par dossier portent le même montant.</p>
                   </li>
                   <li className="fi-arg" data-arg="1">
                     <span className="n" aria-hidden>02</span>
                     <p className="e">Chaque correction laisse une trace. Rien d&apos;important ne disparaît.</p>
+                  <p className="d">L’écriture d’origine reste au journal. La correction s’ajoute en dessous, datée.</p>
                   </li>
                   <li className="fi-arg" data-arg="2">
                     <span className="n" aria-hidden>03</span>
                     <p className="e">Les incohérences sont détectées avant qu&apos;elles deviennent un problème.</p>
+                  <p className="d">Un retrait au-delà du solde détenu pour le dossier est refusé, règle citée.</p>
                   </li>
                 </ol>
               </div>
@@ -3553,14 +4622,17 @@ export default function ExperienceCinema() {
                   <li className="co-arg" data-coarg="0">
                     <span className="n" aria-hidden>01</span>
                     <p className="e">Le bon cadre, dès l&apos;ouverture.</p>
+                  <p className="d">Le cartable réglementaire de votre domaine est monté à la création du dossier.</p>
                   </li>
                   <li className="co-arg" data-coarg="1">
                     <span className="n" aria-hidden>02</span>
                     <p className="e">Le dossier avance. Chaque opération suit.</p>
+                  <p className="d">Temps, débours et documents se rattachent au dossier au fil du travail.</p>
                   </li>
                   <li className="co-arg" data-coarg="2">
                     <span className="n" aria-hidden>03</span>
                     <p className="e">Le dossier se termine. Le cabinet reste à jour.</p>
+                  <p className="d">À la fermeture, la facturation et les rapports du cabinet sont déjà à jour.</p>
                   </li>
                 </ol>
                 <p className="co-fin" id="co-fin">

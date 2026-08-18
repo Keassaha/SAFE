@@ -14,7 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
 import {
   BG, SURFACE, INK, MUTED, FAINT, GREEN, VERIFIED, LINE, LINE_SOFT, R,
-  Footer, PaperDrift, ScrollHint, SceneRail,
+  Nav, Footer, PaperDrift, ScrollHint, SceneRail,
   useScrollScrub, scenePhase, easeOutCubic, easeInOutQuad,
 } from "@/components/public-site/shared";
 
@@ -68,103 +68,6 @@ const RAIL = [
 
 const nombre = (v: number, decimales: number) =>
   v.toLocaleString("fr-CA", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
-
-/* ── En-tête, repris de l'accueil : liens, connexion, un seul bouton plein ── */
-
-function EnteteDiagnostic() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const liens = [
-    { href: R.fonctionnalites, label: "Fonctionnalités" },
-    { href: R.tarification, label: "Tarification" },
-    { href: R.aPropos, label: "À propos" },
-    { href: R.demo, label: "Contact" },
-  ];
-
-  return (
-    <header
-      className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between px-6 sm:px-11"
-      style={{
-        background: "rgba(239,242,237,0.86)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
-        borderBottom: `1px solid ${LINE}`,
-      }}
-    >
-      <Link href={R.accueil} className="flex items-center gap-2.5">
-        <SafeLogo size={20} />
-      </Link>
-
-      <div className="hidden items-center gap-[26px] lg:flex">
-        {liens.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="font-sans text-[13px] transition-colors duration-300 hover:text-[#1F2A24]"
-            style={{ color: MUTED }}
-          >
-            {l.label}
-          </Link>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Link href="/connexion" className="hidden font-sans text-[13px] lg:inline" style={{ color: MUTED }}>
-          Connexion
-        </Link>
-        <a
-          href="#section-depart"
-          className="inline-flex h-[34px] items-center rounded-[7px] px-4 font-sans text-[13px] font-medium transition-colors duration-300 hover:bg-[#0e8f47]"
-          style={{ background: GREEN, color: "#fff" }}
-        >
-          Commencer
-        </a>
-
-        <div className="relative lg:hidden">
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-expanded={menuOpen}
-            aria-label="Ouvrir le menu"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-[7px] border"
-            style={{ borderColor: LINE, background: SURFACE }}
-          >
-            <span className="flex flex-col gap-[3px]">
-              <span className={`block h-[1.5px] w-4 transition-transform duration-300 ${menuOpen ? "translate-y-[4.5px] rotate-45" : ""}`} style={{ background: INK }} />
-              <span className={`block h-[1.5px] w-4 transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} style={{ background: INK }} />
-              <span className={`block h-[1.5px] w-4 transition-transform duration-300 ${menuOpen ? "-translate-y-[4.5px] -rotate-45" : ""}`} style={{ background: INK }} />
-            </span>
-          </button>
-
-          <AnimatePresence>
-            {menuOpen && (
-              <motion.div
-                key="menu"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute right-0 top-[calc(100%+10px)] w-60 rounded-[12px] border p-2"
-                style={{ background: SURFACE, borderColor: LINE, boxShadow: "0 30px 60px -40px rgba(11,31,25,0.5)" }}
-              >
-                {[...liens, { href: "/connexion", label: "Connexion" }].map((l) => (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="block rounded-[8px] px-4 py-2.5 font-sans text-[13px] transition-colors duration-300 hover:bg-[rgb(var(--si-forest-rgb) / 0.06)]"
-                    style={{ color: MUTED }}
-                  >
-                    {l.label}
-                  </Link>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </header>
-  );
-}
 
 /* ── Scène 1 · Entrée épinglée : le titre cède la place aux trois promesses ── */
 
@@ -655,7 +558,9 @@ export default function DiagnosticPage() {
        par PageShell, et n'héritait donc pas des règles téléphone de la vitrine
        (deux polices, aucune révélation au défilement). */
     <div className="safe-vitrine audit-v2-bg min-h-screen">
-      <EnteteDiagnostic />
+      {/* La page a sa propre prochaine étape, au bas de l'écran : l'action de
+          la barre y descend au lieu de recharger la page sur elle-même. */}
+      <Nav cta={{ href: "#section-depart", label: "Commencer" }} />
 
       {reduced ? (
         <DiagnosticStatique onStart={setLang} />

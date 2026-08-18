@@ -24,6 +24,8 @@
    même arborescence que le produit. `screen` marque les entrées réellement
    navigables dans l'extrait ; les autres restent visibles mais inertes, et
    l'en-tête annonce que c'est un extrait. */
+import { SafeMark } from "@/components/branding/SafeLogo";
+
 const MENUS: {
   id: string;
   label: string;
@@ -82,7 +84,16 @@ export function HeroLiveApp() {
     <div id="hero-app" role="group" aria-label="Extrait navigable de SAFE : tableau de bord du cabinet">
       {/* ── Barre de navigation ── */}
       <div className="ha-nav">
-        <span className="ha-brand"><i className="mark" aria-hidden />SAFE</span>
+        {/* Le repère de la barre est le VRAI repère, pas une pastille verte.
+            C'est là que l'ouverture du téléphone dépose le logo qu'elle vient
+            d'assembler : si les deux ne sont pas le même dessin, le geste se
+            termine sur un objet qui n'existe pas (retour CEO du 18 août 2026). */}
+        <span className="ha-brand">
+          <span className="mark" aria-hidden>
+            <SafeMark size={17} />
+          </span>
+          SAFE
+        </span>
         <span className="ha-cab">Me Camille Roy · Cabinet Demo</span>
 
         <div className="ha-menu">
