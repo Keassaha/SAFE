@@ -10,6 +10,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
 import { getTranslations } from "next-intl/server";
 import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import { ProrataVehiculeCard } from "@/components/parametres/ProrataVehiculeCard";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 import { updateCabinetIdentity } from "./actions";
 
 export default async function CabinetSettingsPage({
@@ -40,7 +42,10 @@ export default async function CabinetSettingsPage({
   if (!cabinet) {
     redirect(routes.parametres);
   }
-  const taxes = getCabinetTaxNumbers(parseCabinetConfig(cabinet.config));
+  const config = parseCabinetConfig(cabinet.config);
+  const taxes = getCabinetTaxNumbers(config);
+  // Exercice courant du cabinet, pris sur le jour calendaire et non sur l'instant.
+  const anneeCourante = toCalendarDayUTC(new Date()).getUTCFullYear();
 
   const errorBanner =
     params.error === "invalid" ? t("cabinetEditInvalid") : params.error === "forbidden" ? t("cabinetEditForbidden") : null;
@@ -154,6 +159,13 @@ export default async function CabinetSettingsPage({
           </form>
         </CardContent>
       </Card>
+
+      {/* Réglage comptable, distinct de l'identité du cabinet : il ne change pas ce
+          que le cabinet EST, il change ce que son dossier fiscal PEUT contenir. */}
+      <ProrataVehiculeCard
+        anneeCourante={anneeCourante}
+        entrees={config.prorataVehicule ?? []}
+      />
     </div>
   );
 }

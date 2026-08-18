@@ -19,6 +19,7 @@ import {
 } from "@/lib/accounting/export/serialize";
 import type { AccountChart } from "@/lib/accounting/export/account-mapping";
 import { taxeReclamable } from "@/lib/expense-journal/tax-decomposition";
+import { getProrataVehicule, parseCabinetConfig } from "@/lib/cabinet-config";
 
 export interface PeriodExportResult {
   csv: string;
@@ -100,10 +101,16 @@ export async function buildPeriodAccountingExport(params: {
     : [];
   const expenseById = new Map(expenses.map((x) => [x.id, x]));
 
-  // Prorata d'usage du véhicule : pas encore saisissable (reste du lot 2). Nul
-  // signifie « indéterminé », donc AUCUNE taxe véhicule ne part en actif. C'est la
-  // direction prudente : sous-réclamer se corrige, sur-réclamer se fait reprendre.
-  const prorataVehicule: number | null = null;
+  // Prorata d'usage du véhicule, pour l'exercice de la période exportée. Absent, il
+  // vaut « indéterminé » et AUCUNE taxe véhicule ne part en actif : sous-réclamer se
+  // corrige, sur-réclamer se fait reprendre.
+  const cabinetPourProrata = await prisma.cabinet.findUnique({
+    where: { id: cabinetId },
+    select: { config: true },
+  });
+  const prorataVehicule =
+    getProrataVehicule(parseCabinetConfig(cabinetPourProrata?.config ?? null), from.getUTCFullYear())
+      ?.prorata ?? null;
 
   const entries: ExportableEntry[] = rows.map((e) => ({
     ...(() => {

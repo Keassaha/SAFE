@@ -41,7 +41,12 @@ export default function DemoPage() {
             <p className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
               Le déroulement
             </p>
-            <ul className="mt-6 space-y-5">
+            {/* Une liste numérotée se lit partout pareil sur le site : filet
+                entre deux points, numéro vert à gauche, le dernier filet ferme
+                la liste. C'est la grammaire du diagnostic gratuit et celle des
+                piliers de l'accueil. Elle était la seule à séparer ses points
+                par du vide. */}
+            <ul className="mt-6 border-b" style={{ borderColor: LINE }}>
               {DEROULEMENT.map((d, i) => (
                 <motion.li
                   key={i}
@@ -50,7 +55,8 @@ export default function DemoPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.08 + i * 0.12, duration: 0.72, ease: EASE }}
-                  className="flex gap-4"
+                  className="flex gap-4 border-t py-4"
+                  style={{ borderColor: LINE }}
                 >
                   <span className="mt-0.5 font-mono text-[12px]" style={{ color: GREEN }} aria-hidden>
                     {String(i + 1).padStart(2, "0")}

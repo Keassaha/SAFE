@@ -10,6 +10,8 @@ import { canManageCabinetSettings } from "@/lib/auth/permissions";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
 import { mergeCabinetConfig } from "@/lib/cabinet-config";
+import { parseCabinetConfig, setProrataVehicule } from "@/lib/cabinet-config";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * Server action — édite l'identité publique du cabinet (colonnes Cabinet)
@@ -118,4 +120,71 @@ export async function updateCabinetIdentity(formData: FormData) {
   revalidatePath("/parametres");
   revalidatePath("/parametres/cabinet");
   redirect("/parametres/cabinet?success=updated");
+}
+
+/**
+ * Enregistre la part d'usage d'affaires du véhicule pour un exercice.
+ *
+ * Spec : SPEC_DEPENSES_ET_PREPARATION_FISCALE.md §6, arbitrage CEO n° 1.
+ *
+ * Par ANNÉE : l'usage varie d'un exercice à l'autre, et appliquer la valeur de
+ * cette année aux dépenses de l'an dernier produirait une déduction fausse sur un
+ * exercice déjà déclaré.
+ *
+ * La date de saisie est conservée. C'est le minimum défendable pour une valeur
+ * affirmée plutôt que calculée : sans registre kilométrique, savoir QUAND elle a
+ * été déclarée est tout ce qui reste.
+ */
+export async function updateProrataVehicule(
+  input: { annee: number; pourcentage: number },
+): Promise<{ success: true } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageCabinetSettings(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce réglage." };
+  }
+
+  if (!Number.isInteger(input.annee) || input.annee < 2000 || input.annee > 2100) {
+    return { success: false, error: "Année invalide." };
+  }
+  // Refusé plutôt que corrigé en silence : un prorata hors bornes est une faute de
+  // saisie, et la corriger pour l'utilisateur masquerait l'erreur.
+  if (!(input.pourcentage >= 0 && input.pourcentage <= 100)) {
+    return { success: false, error: "Le pourcentage doit être compris entre 0 et 100." };
+  }
+
+  const current = await prisma.cabinet.findUnique({
+    where: { id: cabinetId },
+    select: { config: true },
+  });
+  const config = parseCabinetConfig(current?.config ?? null);
+  const utilisateur = userId
+    ? await prisma.user.findUnique({ where: { id: userId }, select: { nom: true } })
+    : null;
+
+  const majConfig = setProrataVehicule(config, {
+    annee: input.annee,
+    prorata: Math.round(input.pourcentage) / 100,
+    saisiLe: toIsoDay(toCalendarDayUTC(new Date())),
+    saisiPar: utilisateur?.nom ?? undefined,
+  });
+
+  await prisma.cabinet.update({
+    where: { id: cabinetId },
+    data: { config: JSON.stringify(majConfig) },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId: userId ?? undefined,
+    entityType: "Cabinet",
+    entityId: cabinetId,
+    action: "update",
+    newValues: { prorataVehicule: { annee: input.annee, pourcentage: input.pourcentage } },
+    performedBy: userId ?? undefined,
+    performedAt: new Date(),
+  });
+
+  revalidatePath("/parametres/cabinet");
+  revalidatePath("/rapports");
+  return { success: true };
 }

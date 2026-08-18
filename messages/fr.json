@@ -3031,7 +3031,16 @@
     "savedConfirmation": "Modifications enregistrées.",
     "newEmployeeTitle": "Nouvel employé",
     "newEmployeeDescription": "Ajoutez un employé au cabinet.",
-    "employeeInfoSection": "Informations de l'employé"
+    "employeeInfoSection": "Informations de l'employé",
+    "prorataVehiculeTitre": "Usage d'affaires du véhicule",
+    "prorataVehiculeIntro": "La part de vos dépenses de véhicule qui sert au cabinet. Elle décide de ce qui entre dans votre dossier de fin d'année. Sans elle, ces dépenses en sont exclues plutôt que déduites au hasard.",
+    "prorataVehiculeAvertissement": "Un pourcentage que vous déclarez se défend moins bien qu'un registre de kilométrage. L'ARC attend la date, la destination, le motif et les kilomètres de chaque déplacement. Tant que ce registre n'existe pas dans SAFE, votre dossier de fin d'année signale ce point comme une zone à éclaircir.",
+    "prorataAnnee": "Exercice",
+    "prorataPourcentage": "Pourcentage",
+    "prorataDeclareLe": "déclaré le {date}",
+    "prorataPar": "par {nom}",
+    "prorataAucun": "Aucun pourcentage déclaré pour l'instant.",
+    "enregistrer": "Enregistrer"
   },
   "authUi": {
     "layoutEyebrow": "Espace sécurisé",

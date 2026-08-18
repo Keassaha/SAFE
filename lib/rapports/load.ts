@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import { getGlobalTrustBalance } from "@/lib/services/fideicommis";
 import { construireDossierFinAnnee } from "./dossier-fin-annee";
+import { getProrataVehicule, parseCabinetConfig } from "@/lib/cabinet-config";
 import {
   legacyStatutToInvoiceWhere,
   whereInvoiceForReports,
@@ -384,6 +385,17 @@ export async function loadRapportsPayload(
     factureNumero: d.facture?.numero ?? null,
   }));
 
+  // Prorata d'usage du véhicule, pour l'exercice couvert par ce rapport.
+  const cabinetPourProrata = await prisma.cabinet.findUnique({
+    where: { id: cabinetId },
+    select: { config: true },
+  });
+  const prorataVehiculeAnnee =
+    getProrataVehicule(
+      parseCabinetConfig(cabinetPourProrata?.config ?? null),
+      new Date(dateFin).getUTCFullYear(),
+    )?.prorata ?? null;
+
   // Dépenses de l'exercice, pour le dossier de fin d'année (lot 4).
   const depensesFinAnnee = await prisma.cabinetExpense.findMany({
     where: {
@@ -454,9 +466,9 @@ export async function loadRapportsPayload(
         // La pièce, c'est le reçu conservé à l'import. Pas de reçu, pas de pièce.
         piecePresente: d.pieceStorageKey != null,
       })),
-      // Prorata véhicule : pas encore saisissable (reste du lot 2). Nul signifie
-      // « indéterminé », et le dossier le DÉCLARE au lieu de deviner.
-      prorataVehicule: null,
+      // Prorata véhicule de l'exercice. Absent, le dossier le DÉCLARE en zone
+      // d'incertitude au lieu de deviner.
+      prorataVehicule: prorataVehiculeAnnee,
     }),
     clients: clients.map((c) => ({ id: c.id, label: c.raisonSociale ?? "" })),
     avocats: users.map((u) => ({ id: u.id, label: u.nom })),

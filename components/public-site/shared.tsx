@@ -310,7 +310,7 @@ export function Footer() {
           <Link href={R.accueil} className="inline-flex items-center" style={{ color: "#F3F7F4" }}>
             <SafeLogo size={19} variant="dark" />
           </Link>
-          <p className="mt-3 max-w-[32ch] font-sans text-[13px] leading-[1.55]" style={{ color: "#AAB7AF" }}>
+          <p className="mt-3 font-sans text-[13px] leading-[1.55] sm:max-w-[32ch]" style={{ color: "#AAB7AF" }}>
             Votre fidéicommis à jour, vos dossiers en ordre, votre prochaine inspection sans
             mauvaise surprise.
           </p>
@@ -661,7 +661,7 @@ export function PageHeader({
         <Eyebrow>{eyebrow}</Eyebrow>
         <motion.h1
           {...fadeUp(0.06)}
-          className="mt-4 max-w-[18ch] font-serif text-[33px] leading-[1.1] sm:max-w-[22ch] sm:text-[52px]"
+          className="mt-4 font-serif text-[33px] leading-[1.1] sm:max-w-[22ch] sm:text-[52px]"
           style={{ color: INK, letterSpacing: "-0.018em" }}
         >
           {titre}

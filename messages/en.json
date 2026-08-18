@@ -3031,7 +3031,16 @@
     "savedConfirmation": "Changes saved.",
     "newEmployeeTitle": "New employee",
     "newEmployeeDescription": "Add an employee to the firm.",
-    "employeeInfoSection": "Employee information"
+    "employeeInfoSection": "Employee information",
+    "prorataVehiculeTitre": "Vehicle business use",
+    "prorataVehiculeIntro": "The share of your vehicle expenses used for the firm. It decides what enters your year-end file. Without it, those expenses are excluded rather than deducted at random.",
+    "prorataVehiculeAvertissement": "A percentage you declare holds up less well than a mileage log. The CRA expects the date, destination, purpose and kilometres of every trip. Until that log exists in SAFE, your year-end file flags this as an area to clarify.",
+    "prorataAnnee": "Fiscal year",
+    "prorataPourcentage": "Percentage",
+    "prorataDeclareLe": "declared on {date}",
+    "prorataPar": "by {nom}",
+    "prorataAucun": "No percentage declared yet.",
+    "enregistrer": "Save"
   },
   "authUi": {
     "layoutEyebrow": "Secure space",

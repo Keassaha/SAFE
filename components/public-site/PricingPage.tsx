@@ -415,7 +415,7 @@ export default function TarificationPage() {
             </motion.p>
             <motion.h2
               {...fadeUp(0.06)}
-              className="mt-4 max-w-[20ch] font-serif text-[28px] leading-[1.12] sm:text-[36px]"
+              className="mt-4 font-serif text-[28px] leading-[1.12] sm:max-w-[20ch] sm:text-[36px]"
               style={{ color: INK, letterSpacing: "-0.016em" }}
             >
               Du temps saisi au paiement, sans module à ajouter.
@@ -458,7 +458,7 @@ export default function TarificationPage() {
           <span className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: "rgb(var(--si-surface-rgb) / 0.72)" }}>
             Cabinets fondateurs
           </span>
-          <h2 className="mt-4 max-w-[22ch] font-serif text-[28px] leading-[1.15] sm:text-[36px]" style={{ letterSpacing: "-0.015em" }}>
+          <h2 className="mt-4 font-serif text-[28px] leading-[1.15] sm:max-w-[22ch] sm:text-[36px]" style={{ letterSpacing: "-0.015em" }}>
             Participez aux premières étapes de SAFE.
           </h2>
           <div className="mt-5 space-y-4 font-serif text-[15.5px] leading-[1.6]" style={{ color: "#C4D4C9" }}>

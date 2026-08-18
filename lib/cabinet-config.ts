@@ -89,6 +89,36 @@ export type EmailFactureConfig = {
   instructionsPaiement?: string;
 };
 
+/**
+ * Part d'usage d'affaires d'un véhicule, pour un exercice.
+ *
+ * Spec : SPEC_DEPENSES_ET_PREPARATION_FISCALE.md §6, arbitrage CEO n° 1.
+ *
+ * PAR ANNÉE, ET NON UNE VALEUR UNIQUE
+ *
+ * L'usage d'affaires varie d'un exercice à l'autre. Appliquer le prorata de cette
+ * année aux dépenses de l'an dernier produirait une déduction fausse sur un
+ * exercice déjà déclaré.
+ *
+ * SAISI, DONC PLUS FAIBLE QU'UN REGISTRE
+ *
+ * L'ARC attend un registre kilométrique : date, destination, motif, kilomètres,
+ * relevés d'odomètre. Un prorata déclaré se défend moins bien. La faiblesse est
+ * assumée par décision CEO, et le dossier de fin d'année la classe en zone
+ * d'incertitude. `saisiLe` existe pour qu'on puisse dire QUAND la valeur a été
+ * affirmée, ce qui est le minimum défendable.
+ */
+export type ProrataVehiculeAnnee = {
+  /** Exercice visé. */
+  annee: number;
+  /** Part d'usage d'affaires, de 0 à 1. */
+  prorata: number;
+  /** Date de saisie, `YYYY-MM-DD`. */
+  saisiLe: string;
+  /** Qui l'a affirmée. */
+  saisiPar?: string;
+};
+
 export type CabinetConfig = {
   devise?: string;
   tauxInteret?: number;
@@ -99,6 +129,8 @@ export type CabinetConfig = {
   emailFacture?: EmailFactureConfig;
   taxNumbers?: CabinetTaxNumbers;
   invoice?: CabinetInvoiceConfig;
+  /** Prorata d'usage du véhicule, un par exercice. Voir `ProrataVehiculeAnnee`. */
+  prorataVehicule?: ProrataVehiculeAnnee[];
 };
 
 const DEFAULT_LIEN_EXPIRATION_JOURS = 30;
@@ -229,4 +261,41 @@ export function mergeCabinetConfig(
         : current.invoice,
   };
   return JSON.stringify(merged);
+}
+
+/**
+ * Prorata véhicule d'un exercice donné.
+ *
+ * Ne retombe JAMAIS sur une autre année. Un prorata absent est une INCERTITUDE que
+ * le dossier de fin d'année doit déclarer, pas un trou à combler avec la valeur
+ * voisine : déduire 2025 avec le chiffre de 2026 serait une affirmation que rien ne
+ * soutient.
+ */
+export function getProrataVehicule(
+  config: CabinetConfig,
+  annee: number,
+): ProrataVehiculeAnnee | null {
+  const entree = (config.prorataVehicule ?? []).find((p) => p.annee === annee);
+  if (!entree) return null;
+  // Une valeur hors bornes est refusée plutôt que corrigée en silence : mieux vaut
+  // une incertitude déclarée qu'une déduction fabriquée par un clamp.
+  // `Number.isFinite` et non `typeof === "number"` : NaN est un nombre, et il
+  // franchit `< 0` comme `> 1` puisque toute comparaison avec NaN est fausse. Il se
+  // propagerait ensuite dans chaque montant de taxe du dossier de fin d'année.
+  if (!Number.isFinite(entree.prorata) || entree.prorata < 0 || entree.prorata > 1) {
+    return null;
+  }
+  return entree;
+}
+
+/** Remplace le prorata d'un exercice, en conservant les autres années. */
+export function setProrataVehicule(
+  config: CabinetConfig,
+  entree: ProrataVehiculeAnnee,
+): CabinetConfig {
+  const autres = (config.prorataVehicule ?? []).filter((p) => p.annee !== entree.annee);
+  return {
+    ...config,
+    prorataVehicule: [...autres, entree].sort((a, b) => b.annee - a.annee),
+  };
 }

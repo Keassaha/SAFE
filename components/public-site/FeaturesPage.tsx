@@ -132,7 +132,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
             {s.label}
           </p>
           <h2
-            className="mt-4 max-w-[19ch] font-serif text-[28px] font-normal leading-[1.14] sm:text-[38px]"
+            className="mt-4 font-serif text-[28px] font-normal leading-[1.14] sm:max-w-[19ch] sm:text-[38px]"
             style={{ color: INK, letterSpacing: "-0.018em" }}
           >
             {s.titre}
@@ -191,16 +191,28 @@ export default function FonctionnalitesPage() {
 
       {/* Sommaire cliquable, pour donner la mesure de la page */}
       <section className="px-6 pb-10 sm:pb-12" style={{ background: BG }}>
-        <div className="mx-auto flex max-w-[1140px] flex-wrap gap-2">
+        {/* Au large, six pastilles sur une rangée : leur largeur naturelle est
+            lisible parce qu'elles tiennent toutes sur la même ligne. Sur 335 px,
+            la rangée passe à la ligne et donne un escalier, avec « Le temps »
+            orpheline à droite d'un libellé trois fois plus long.
+
+            Le sommaire redevient alors ce qu'il est, un index : une entrée par
+            rangée, la même grammaire que le panneau de navigation du site,
+            libellé à gauche et chevron à droite. Le soulèvement au toucher est
+            conservé, c'est une cible qu'on sélectionne. */}
+        <div className="mx-auto grid max-w-[1140px] sm:flex sm:flex-wrap sm:gap-2">
           {SECTIONS.map((s, i) => (
             <a
               key={s.cle}
               href={`#${s.cle}`}
-              className="safe-zoom inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 py-2 font-sans text-[13px] transition-colors hover:bg-black/[0.03] sm:min-h-0 sm:px-3.5 sm:py-1.5 sm:text-[12.5px]"
+              className="safe-zoom flex min-h-[48px] items-center gap-3 border-b py-2 font-sans text-[14px] transition-colors first:border-t hover:bg-black/[0.03] sm:inline-flex sm:min-h-0 sm:gap-2 sm:rounded-full sm:border sm:px-3.5 sm:py-1.5 sm:text-[12.5px]"
               style={{ borderColor: LINE, color: MUTED }}
             >
               <span className="font-mono text-[11px]" style={{ color: FAINT }}>{String(i + 1).padStart(2, "0")}</span>
               {s.label}
+              <span className="ml-auto font-sans text-[15px] sm:hidden" style={{ color: FAINT }} aria-hidden>
+                ›
+              </span>
             </a>
           ))}
         </div>
