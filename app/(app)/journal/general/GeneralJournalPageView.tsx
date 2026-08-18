@@ -26,6 +26,7 @@ import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import { MovementsTable } from "@/components/comptabilite/MovementsTable";
 import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
 import type { ManualJournalContext } from "./actions";
+import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 /**
  * Trois lectures du même registre (doctrine §3) :
@@ -48,8 +49,19 @@ const TRANSACTION_TYPE_OPTIONS: { value: JournalTransactionType; label: string }
   Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS) as [JournalTransactionType, string][]
 ).map(([value, label]) => ({ value, label }));
 
+/**
+ * Serialise un instant en `YYYY-MM-DD` pour un `<input type="date">`.
+ *
+ * Passe par le JOUR CALENDAIRE du cabinet, jamais par `toISOString()` brut.
+ * Avec `toISOString()`, tout ce qui suit 20 h a Montreal est deja le lendemain en
+ * UTC : le formulaire de nouvelle ecriture proposait la date de DEMAIN chaque
+ * soir, et l'ecriture partait postdatee sans que rien ne le signale. Releve a
+ * l'ecran le 2026-08-17 a 22 h 57, ou le champ affichait le 18.
+ *
+ * Voir lib/utils/calendar-date.ts.
+ */
 function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  return toIsoDay(toCalendarDayUTC(d));
 }
 
 function startOfMonth(d: Date): Date {

@@ -104,7 +104,15 @@ export function MotifAnnulationModal({
                 name="motifCode"
                 value={code}
                 checked={motifCode === code}
-                onChange={() => setMotifCode(code)}
+                onChange={() => {
+                  setMotifCode(code);
+                  // Quitter AUTRE vide la precision. Le champ n'est visible que
+                  // sous AUTRE : la garder enverrait au registre un texte que
+                  // l'utilisateur ne voit plus et ne peut plus corriger. Releve a
+                  // l'ecran, ou une annulation s'inscrivait « Erreur de saisie ·
+                  // oups », le « oups » venant d'un AUTRE abandonne.
+                  if (code !== "AUTRE") setMotifTexte("");
+                }}
                 className="h-4 w-4 shrink-0 accent-si-forest"
               />
               {t(MOTIF_KEY[code])}
