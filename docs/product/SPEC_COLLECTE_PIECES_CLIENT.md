@@ -100,14 +100,28 @@ Vérifiés sur le Règlement de la Cour supérieure du Québec en matière famil
 (RLRQ c C-25.01, r. 0.2.4). Ce ne sont pas des conventions de cabinet, ce sont des règles
 écrites, et **SAFE peut les calculer sans rien inventer**.
 
-| Délai | Point de départ | Qui | Article |
+| Délai | Point de départ | Qui | Source |
 | --- | --- | --- | --- |
-| **10 jours avant l'instruction** | date d'instruction | chaque partie | 26 |
-| **180 jours de la signification** | signification de la demande | demanderesse | 27 et 29 |
-| **30 jours de la communication** | réception du formulaire adverse | défenderesse qui conteste | 27 et 29 |
+| **10 j avant la présentation de la demande** | date de présentation | demandeur d'une pension pour lui-même | C.p.c. 413 al. 2 |
+| **5 j avant la présentation** | date de présentation | défendeur | C.p.c. 413 al. 2 |
+| **au protocole de l'instance** | dépôt du protocole | chaque partie, état de ses biens | C.p.c. 413 al. 1 |
+| **10 j avant l'instruction** | date d'instruction | chaque partie | Règl. 26 |
+| **180 j de la signification** | signification de la demande | demandeur | Règl. 27 et 29 |
+| **30 j de la communication** | réception du formulaire adverse | défendeur qui conteste | Règl. 27 et 29 |
 
-**Conséquence sur les données** : la **date de signification** doit être saisie sur le
-dossier. SAFE ne la connaît pas aujourd'hui, et trois délais en dépendent.
+**Le délai le plus dur est celui de l'article 413 al. 2**, et il ne vient pas du règlement
+mais du Code. Les autres retardent ; celui-là rend la demande **indécidable**. Une pièce
+manquante n'y coûte pas du temps, elle coûte l'audience.
+
+**Conséquence sur les données.** Trois dates doivent être saisies sur le dossier, et SAFE
+n'en connaît **aucune** aujourd'hui :
+
+- la date de **signification** de la demande ;
+- la date de **présentation** de la demande ;
+- la date d'**instruction**.
+
+Sans elles, aucun de ces six délais n'est calculable. C'est le plus petit ajout de données
+du parcours, et il conditionne tout le reste.
 
 ### Deux natures de pièces, à ne pas confondre
 
@@ -170,14 +184,27 @@ valeur partageable. Renoncer sans la connaître est un risque professionnel.
 publiée sur le site de la Cour supérieure, pas du règlement. Ils peuvent changer sans
 modification réglementaire. **SAFE ne les génère jamais, il les demande.**
 
-### Variante aide juridique
+### Variante aide juridique : une pièce manquante fait refuser la facture
 
-Me Cayard fait de l'aide juridique. Le mandat impose de **conserver les pièces
-justificatives** pour la Commission des services juridiques. La collecte sert alors deux
-fins : le dossier, et la reddition de comptes.
+C'est la conséquence la plus concrète du parcours, et elle est financière.
 
-Concrètement, une seule différence dans le modèle : une pièce peut porter l'indication
-qu'elle est requise pour la reddition. Rien d'autre ne change.
+La Commission des services juridiques dit explicitement, dans son aide à la facturation,
+qu'il vaut mieux envoyer les pièces justificatives **en même temps que la facture**, afin
+**d'éviter que la facture soit refusée en raison d'un manque de pièces**.
+
+En aide juridique, une pièce qui manque ne retarde donc pas le dossier : elle fait
+**refuser la facture**. L'avocat n'est pas payé pour un travail déjà fait.
+
+**Une seule différence dans le modèle** : une pièce attendue peut porter l'indication
+qu'elle est requise pour la reddition à la Commission. Rien d'autre ne change, et c'est
+le signe que le modèle est au bon niveau.
+
+> **À ne pas confondre** : le **kilométrage** est réclamable à la Commission, alors que le
+> **prorata d'usage du véhicule** livré le 2026-08-18 est une déduction au revenu. Deux
+> mécanismes distincts, deux payeurs différents.
+
+`A_CONFIRMER` La liste exacte des pièces exigées par la Commission selon le type de
+mandat. Non établie.
 
 ---
 
@@ -339,10 +366,12 @@ trancher, et ce que seul un praticien pourra dire.
 
 ### Ce qu'une recherche peut encore trancher
 
-- L'article 413 al. 2 C.p.c., pour le délai de production au greffe du formulaire III.
-- Les exigences de conservation de la Commission des services juridiques, en aide
-  juridique.
-- La version courante des formulaires de patrimoine et d'acquêts, par directive.
+Les trois points ouverts au 2026-08-18 ont été traités le même jour. Restent :
+
+- la liste des pièces exigées par la Commission selon le type de mandat ;
+- les effets du régime d'**union parentale** (2024, c. 22) sur la liste de pièces ;
+- le contenu des formulaires de patrimoine et d'acquêts, **bloqué par Cloudflare** au
+  robot mais accessible à un humain.
 
 ### Ce que seul un praticien pourra dire
 

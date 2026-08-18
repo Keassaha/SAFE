@@ -63,9 +63,30 @@ Deux conséquences produit :
 notifient et le produisent au greffe dans les délais du second alinéa de l'article 413 du
 Code de procédure civile.
 
-`A_CONFIRMER` Le contenu exact de l'art. 413 al. 2 C.p.c. n'a pas été lu. Impact : le
-délai de production au greffe, distinct de celui de l'art. 26, resterait inconnu. À lire
-avant de coder ce cas.
+`VERIFIE` **Article 413 C.p.c.**, lu le 2026-08-18. Il ajoute **deux délais** et **une
+obligation** que le règlement seul ne révélait pas.
+
+**Alinéa 1** : si la demande comporte une conclusion pour partager le **patrimoine
+familial ou d'union parentale**, chaque partie doit **joindre au protocole de l'instance
+un état de ses biens**, en indiquant ceux qui sont inclus ou non dans le patrimoine.
+
+C'est un document distinct du formulaire de calcul de l'état du patrimoine familial de
+l'art. 27 du règlement, et il est dû **au protocole**, donc bien plus tôt.
+
+**Alinéa 2** : si une partie demande **pour elle-même** une pension alimentaire, sa
+demande **ne peut être décidée** à moins qu'elle n'ait déposé au greffe, **au moins 10
+jours avant la présentation de sa demande**, un état de ses revenus et dépenses et son
+bilan. La **partie défenderesse** dépose le sien **au moins cinq jours avant** cette
+présentation, à moins d'admettre avoir les facultés de payer ; même alors, le tribunal
+peut exiger un état.
+
+> **C'est le délai le plus dur du parcours.** Les autres retardent ; celui-ci rend la
+> demande **indécidable**. Une pièce manquante ne coûte pas du temps, elle coûte
+> l'audience.
+
+`A_CONFIRMER` La mention « patrimoine d'union parentale » vient de la modification
+2024, c. 22, a. 37. Le régime d'union parentale est récent : ses effets exacts sur la
+liste de pièces n'ont pas été vérifiés.
 
 ### 3. Pension alimentaire pour enfants : un document de plus
 
@@ -146,17 +167,82 @@ Confondre les deux ferait afficher un délai légal sur une pièce qui n'en a pa
 
 ---
 
+## Les formulaires par directive : ce qu'on peut dire, et ce qu'on ne peut pas
+
+`VERIFIE` Les articles 27 et 29 disent eux-mêmes que les formulaires de calcul de l'état
+du **patrimoine familial** et de la **société d'acquêts** sont établis **par directive du
+juge en chef**, publiés sur le site de la Cour supérieure. Ils ne sont donc pas annexés au
+règlement.
+
+`VERIFIE` Ces formulaires sont publiés en **fichiers Excel**, pas en PDF :
+
+- `coursuperieureduquebec.ca/fileadmin/cour-superieure/Formulaires/cs-patrimoine-familial.xls`
+- `coursuperieureduquebec.ca/fileadmin/cour-superieure/Formulaires/cs-etat-societe-acquets.xls`
+
+`A_CONFIRMER` **Leur contenu n'a pas pu être lu.** Le site de la Cour supérieure renvoie
+un 403 Cloudflare, à la page comme au fichier. Les adresses ci-dessus proviennent de
+l'indexation du domaine officiel, pas d'une lecture directe.
+
+**Ce que cette limite ne change pas** : la conclusion produit tient quand même. Un
+formulaire qui vit dans une directive, hors du règlement, et qui est distribué en tableur,
+peut changer sans qu'aucune loi ne bouge. **SAFE ne doit jamais le générer ni le figer.
+Il le demande comme une pièce, et il pointe vers la source officielle.**
+
+---
+
+## Aide juridique : la pièce manquante fait refuser la facture
+
+Le cabinet pressenti fait de l'aide juridique de façon occasionnelle.
+
+`VERIFIE` La Commission des services juridiques offre aux avocats de pratique privée un
+**service de facturation en ligne**, où ils réclament **honoraires, débours et
+kilométrage**, consultent leur relevé de compte et leur **relevé 27**.
+
+`VERIFIE` Le système comporte une fonction **« Envoyer pièces justificatives »**, et
+l'aide de la Commission dit :
+
+> « il est préférable que les pièces justificatives soient envoyées en même temps que
+> votre facture **afin d'éviter que votre facture soit refusée en raison d'un manque de
+> pièces**. »
+
+**C'est la conséquence la plus concrète de toute cette recherche.** En aide juridique, une
+pièce qui manque ne retarde pas le dossier : elle fait **refuser la facture**, donc
+l'avocat n'est pas payé pour un travail déjà fait.
+
+`VERIFIE` La facturation à la Commission est un **canal distinct** du client : ce n'est
+pas le client qui paie, et les numéros de TPS et TVQ se déclarent par facture.
+
+`VERIFIE` Le **kilométrage est réclamable** à la Commission. À rapprocher du prorata
+d'usage du véhicule livré le 2026-08-18 : ce sont deux mécanismes différents, l'un
+réclamé à un tiers payeur, l'autre déduit au revenu. **Ne pas les confondre.**
+
+`A_CONFIRMER` La **liste exacte des pièces** que la Commission exige selon le type de
+mandat. Le guide d'utilisation de la Commission (2018-06-26) et le guide de l'Association
+du Jeune Barreau de Montréal la contiennent probablement. Non lus.
+
+---
+
 ## Points à confirmer
 
-- `A_CONFIRMER` **Art. 413 al. 2 C.p.c.**, pour le délai de production au greffe du
-  formulaire III en matière de pension entre époux. Impact : un second délai, distinct de
-  celui de l'art. 26, resterait non calculé.
+> Les trois points ouverts au moment de la première rédaction ont été traités le même
+> jour. Deux sont résolus, un reste partiellement ouvert pour une raison technique.
+
+- ~~Art. 413 al. 2 C.p.c.~~ **résolu**, voir fait vérifié 2.
+- ~~Exigences de la Commission des services juridiques~~ **résolu sur l'essentiel** : la
+  facture est refusée si les pièces manquent. La liste par type de mandat reste ouverte.
+- ~~Version courante des formulaires par directive~~ **partiellement** : leur existence,
+  leur source et leur format sont établis ; leur contenu est inaccessible au robot.
+
+Restent ouverts :
+
 - `A_CONFIRMER` **La liste des pièces d'appui réellement demandées** par un cabinet
-  québécois. Relève de la pratique, pas du droit. Aucune recherche ne peut la trancher.
-- `A_CONFIRMER` **Les exigences de conservation de la Commission des services juridiques**
-  en aide juridique. Le cabinet pressenti en fait de façon occasionnelle.
-- `A_CONFIRMER` **La version courante des formulaires de patrimoine et d'acquêts**, qui
-  vivent dans une directive du juge en chef et non dans le règlement.
+  québécois. Relève de la pratique, pas du droit. **Aucune recherche ne peut la
+  trancher**, seul un praticien le peut.
+- `A_CONFIRMER` **La liste des pièces exigées par la Commission** selon le type de mandat.
+- `A_CONFIRMER` **Les effets du régime d'union parentale** (2024, c. 22) sur la liste de
+  pièces.
+- `A_CONFIRMER` **Le contenu des formulaires de patrimoine et d'acquêts**, bloqué par
+  Cloudflare.
 
 ---
 
@@ -191,6 +277,12 @@ Confondre les deux ferait afficher un délai légal sur une pièce qui n'en a pa
   https://www.legisquebec.gouv.qc.ca/fr/document/rc/c-25.01,%20r.%200.2.4
 - Formulaire III, texte officiel :
   https://www.legisquebec.gouv.qc.ca/fr/ressource/rc/C-25.01R0.2.4_FR_003_001.pdf
+- Code de procédure civile, RLRQ c C-25.01, art. 413 (mod. 2024, c. 22, a. 37) :
+  https://www.legisquebec.gouv.qc.ca/fr/document/lc/C-25.01
+- Commission des services juridiques, aide à la facturation des mandats d'aide juridique :
+  https://www.csj.qc.ca/facturation-mandats-aj/aide.aspx
+- Cour supérieure du Québec, formulaires de calcul (accès robot refusé, 403 Cloudflare) :
+  https://coursuperieureduquebec.ca/division-de-montreal/formulaires
 
 ### Note de méthode
 
