@@ -219,30 +219,34 @@ export default async function DossierDetailPage({
   const numeroDossier = dossier.numeroDossier ?? dossier.reference ?? "Dossier";
   const statutDossier = dossier.mandate?.statutDossier ?? dossier.statut;
 
-  // Pièces attendues et délais de divulgation. `toCalendarDayUTC` plutôt que
-  // `new Date()` : un délai ne doit pas changer selon l'heure du rendu.
-  const piecesAttendues = await chargerPiecesAttendues({
-    cabinetId,
-    dossierId: id,
-    aujourdhui: toCalendarDayUTC(new Date()),
-  });
+  // QUATRE LECTURES INDÉPENDANTES, DONC SIMULTANÉES.
+  //
+  // Elles s'attendaient les unes les autres sans aucune raison : aucune ne lit le
+  // résultat d'une autre. En file, la page mettait plus d'une seconde à se composer
+  // même à chaud, assez pour que Next envoie d'abord le squelette de route et fasse
+  // patienter le cabinet devant une page grise. En parallèle, la page ne coûte plus
+  // que la plus lente des quatre.
+  //
+  // `toCalendarDayUTC` plutôt que `new Date()` pour les pièces attendues : un délai
+  // ne doit pas changer selon l'heure à laquelle l'écran est rendu.
+  const [piecesAttendues, preparationSnapshot, resume, navetteRows] = await Promise.all([
+    chargerPiecesAttendues({
+      cabinetId,
+      dossierId: id,
+      aujourdhui: toCalendarDayUTC(new Date()),
+    }),
+    // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
+    // État de préparation (dérivé, jamais stocké).
+    loadDossierPreparationSnapshot(cabinetId, id, { callerUserId: userId }),
+    // T1 — Bloc « Où j'en étais ? » (context-resume, dérivé, zéro migration).
+    getDossierResume(cabinetId, id, resumeLocale),
+    // N2 — Navette : fil de communication interne du dossier.
+    getDossierNavette(cabinetId, id, role),
+  ]);
 
-  // Doctrine: docs/product/ACTIVE_ASSISTANT_LAYER.md
-  // Calcul de l'état de préparation (dérivé, jamais stocké).
-  const preparationSnapshot = await loadDossierPreparationSnapshot(
-    cabinetId,
-    id,
-    { callerUserId: userId },
-  );
   const preparationStatus = preparationSnapshot
     ? getDossierPreparationStatus(preparationSnapshot)
     : null;
-
-  // T1 — Bloc « Où j'en étais ? » (context-resume, dérivé, zéro migration).
-  const resume = await getDossierResume(cabinetId, id, resumeLocale);
-
-  // N2 — Navette : fil de communication interne du dossier (sérialisé pour le client).
-  const navetteRows = await getDossierNavette(cabinetId, id, role);
   const navetteSerialized = navetteRows.map((r) => ({
     id: r.id,
     type: r.type,
