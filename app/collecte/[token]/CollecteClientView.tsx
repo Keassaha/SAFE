@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { formatCalendarDate } from "@/lib/utils/format";
+import type { Locale } from "@/i18n/request";
 
 /**
  * Ce que le client voit et fait.
@@ -12,6 +14,11 @@ import { formatCalendarDate } from "@/lib/utils/format";
  * ELLE PARLE COMME UN HUMAIN. Pas de « document requis », pas d'état technique, pas
  * de code. Chaque ligne dit ce qu'on attend et pourquoi, et ce qui a été reçu se voit
  * tout de suite.
+ *
+ * ET DANS SA LANGUE. Les messages viennent du fournisseur posé par la page serveur,
+ * qui les a choisis d'après la fiche du client. `locale` sert aussi au format de date :
+ * un anglophone qui lit « 2026-09-18 » sur une page anglaise et le reste en français
+ * verrait un montage, pas un document de son cabinet.
  */
 
 type Piece = {
@@ -24,17 +31,17 @@ type Piece = {
 };
 
 /** Ce que le client comprend. Volontairement moins de nuances que les huit états. */
-function etatLisible(etat: string): { texte: string; fait: boolean } {
+function etatLisible(etat: string): { cle: string; fait: boolean } {
   switch (etat) {
     case "RECUE":
     case "A_VERIFIER":
-      return { texte: "Reçu, en cours de vérification", fait: true };
+      return { cle: "etatRecu", fait: true };
     case "ACCEPTEE":
-      return { texte: "Accepté", fait: true };
+      return { cle: "etatAccepte", fait: true };
     case "A_REMPLACER":
-      return { texte: "À remplacer", fait: false };
+      return { cle: "etatARemplacer", fait: false };
     default:
-      return { texte: "À fournir", fait: false };
+      return { cle: "etatAFournir", fait: false };
   }
 }
 
@@ -42,14 +49,31 @@ export function CollecteClientView({
   token,
   cabinet,
   dossier,
+  locale,
   pieces,
 }: {
   token: string;
   cabinet: string;
   dossier: string;
+  locale: Locale;
   pieces: Piece[];
 }) {
+  const t = useTranslations("collecte");
   const router = useRouter();
+
+  // La racine du document pose `lang` d'après le témoin de session, que ce visiteur
+  // n'a pas : une page anglaise restait annoncée comme française. Un lecteur d'écran
+  // la prononce alors avec une voix française, et c'est précisément cette personne,
+  // seule devant son téléphone, qui peut le moins se le permettre. On corrige donc
+  // l'attribut ici, seul endroit qui connaisse la langue réellement servie.
+  useEffect(() => {
+    const racine = document.documentElement;
+    const avant = racine.lang;
+    racine.lang = locale;
+    return () => {
+      racine.lang = avant;
+    };
+  }, [locale]);
   const [enCours, setEnCours] = useState<string | null>(null);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
 
@@ -67,15 +91,12 @@ export function CollecteClientView({
       const res = await fetch(`/api/collecte/${token}/depot`, { method: "POST", body: form });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setErreurs((e) => ({ ...e, [pieceId]: data.error ?? "Le dépôt n'a pas fonctionné." }));
+        setErreurs((e) => ({ ...e, [pieceId]: data.error ?? t("depotEchoue") }));
       } else {
         router.refresh();
       }
     } catch {
-      setErreurs((e) => ({
-        ...e,
-        [pieceId]: "Le dépôt n'a pas fonctionné. Vérifiez votre connexion et réessayez.",
-      }));
+      setErreurs((e) => ({ ...e, [pieceId]: t("depotEchoueReseau") }));
     } finally {
       setEnCours(null);
     }
@@ -85,16 +106,16 @@ export function CollecteClientView({
     <main className="mx-auto max-w-2xl px-6 py-10">
       <header className="space-y-1">
         <p className="text-[12px] uppercase tracking-[0.06em] text-si-muted">{cabinet}</p>
-        <h1 className="font-serif text-[24px] text-si-ink">Documents à fournir</h1>
+        <h1 className="font-serif text-[24px] text-si-ink">{t("titre")}</h1>
         <p className="text-[13px] text-si-muted">{dossier}</p>
       </header>
 
       <p className="mt-4 text-[14px] leading-relaxed text-si-ink">
         {restantes.length === 0
-          ? "Nous avons tout reçu. Merci, vous n'avez rien d'autre à faire pour l'instant."
+          ? t("toutRecu")
           : restantes.length === 1
-            ? "Il reste un document à nous transmettre."
-            : `Il reste ${restantes.length} documents à nous transmettre.`}
+            ? t("resteUn")
+            : t("restePlusieurs", { n: restantes.length })}
       </p>
 
       <ul className="mt-6 space-y-3">
@@ -108,7 +129,7 @@ export function CollecteClientView({
                 <span
                   className={`text-[12px] ${etat.fait ? "text-si-verified" : "text-si-muted"}`}
                 >
-                  {etat.texte}
+                  {t(etat.cle)}
                 </span>
               </div>
 
@@ -118,7 +139,7 @@ export function CollecteClientView({
 
               {p.echeance ? (
                 <p className="mt-1 text-[12px] tabular-nums text-si-muted">
-                  À fournir avant le {formatCalendarDate(p.echeance)}
+                  {t("avantLe", { date: formatCalendarDate(p.echeance, locale) })}
                 </p>
               ) : null}
 
@@ -136,7 +157,7 @@ export function CollecteClientView({
                     className="inline-flex cursor-pointer items-center rounded-md border border-si-line bg-si-surface px-3 py-2 text-[13px] font-medium text-si-ink transition-colors hover:bg-si-canvas"
                     htmlFor={`f-${p.id}`}
                   >
-                    {enCours === p.id ? "Envoi en cours…" : "Choisir un fichier"}
+                    {enCours === p.id ? t("envoiEnCours") : t("choisirFichier")}
                   </label>
                   <input
                     id={`f-${p.id}`}
@@ -150,9 +171,7 @@ export function CollecteClientView({
                       e.target.value = "";
                     }}
                   />
-                  <p className="mt-1.5 text-[12px] text-si-muted">
-                    PDF ou photo, jusqu&apos;à 25 Mo.
-                  </p>
+                  <p className="mt-1.5 text-[12px] text-si-muted">{t("formatsAcceptes")}</p>
                 </div>
               ) : null}
 
@@ -166,9 +185,7 @@ export function CollecteClientView({
         })}
       </ul>
 
-      <p className="mt-8 text-[12px] leading-relaxed text-si-muted">
-        Ce lien vous est personnel. Ne le transmettez à personne.
-      </p>
+      <p className="mt-8 text-[12px] leading-relaxed text-si-muted">{t("lienPersonnel")}</p>
     </main>
   );
 }

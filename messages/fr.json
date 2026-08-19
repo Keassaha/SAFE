@@ -3980,5 +3980,30 @@
       "critique": "Critique",
       "attention": "À traiter"
     }
+  },
+  "collecte": {
+    "aucunFichier": "Aucun fichier reçu.",
+    "avantLe": "À fournir avant le {date}",
+    "choisirFichier": "Choisir un fichier",
+    "depotEchoue": "Le dépôt n'a pas fonctionné.",
+    "depotEchoueReseau": "Le dépôt n'a pas fonctionné. Vérifiez votre connexion et réessayez.",
+    "envoiEnCours": "Envoi en cours…",
+    "etatAFournir": "À fournir",
+    "etatARemplacer": "À remplacer",
+    "etatAccepte": "Accepté",
+    "etatRecu": "Reçu, en cours de vérification",
+    "fichierTropLourd": "Ce fichier dépasse 25 Mo. Envoyez-le en plusieurs parties.",
+    "fichierVide": "Ce fichier est vide.",
+    "formatRefuse": "Ce format n'est pas accepté. Envoyez un PDF ou une photo (JPG, PNG).",
+    "formatsAcceptes": "PDF ou photo, jusqu'à 25 Mo.",
+    "lienExpire": "Ce lien a expiré. Écrivez à votre avocat pour en recevoir un nouveau.",
+    "lienInactif": "Ce lien n'est plus actif. Écrivez à votre avocat pour en recevoir un nouveau.",
+    "lienPersonnel": "Ce lien vous est personnel. Ne le transmettez à personne.",
+    "pieceDejaReglee": "Cette pièce est déjà réglée. Écrivez à votre avocat si elle doit changer.",
+    "pieceInattendue": "Cette pièce n'est pas attendue de vous.",
+    "restePlusieurs": "Il reste {n} documents à nous transmettre.",
+    "resteUn": "Il reste un document à nous transmettre.",
+    "titre": "Documents à fournir",
+    "toutRecu": "Nous avons tout reçu. Merci, vous n'avez rien d'autre à faire pour l'instant."
   }
 }

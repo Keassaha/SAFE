@@ -14,10 +14,15 @@ import {
   genererCollecteToken,
   calculerExpiration,
   verifierLien,
-  messageRefus,
+  cleRefus,
   verifierFichier,
   TAILLE_MAX_OCTETS,
 } from "../collecte-lien";
+import fr from "@/messages/fr.json";
+import en from "@/messages/en.json";
+
+const MESSAGES_FR = fr.collecte as Record<string, string>;
+const MESSAGES_EN = en.collecte as Record<string, string>;
 
 const MAINTENANT = new Date("2026-08-18T12:00:00Z");
 const dans = (jours: number) =>
@@ -79,17 +84,28 @@ describe("qui entre", () => {
 });
 
 describe("ce que le visiteur lit", () => {
-  it("un lien inexistant et un lien révoqué donnent le MÊME message", () => {
+  it("un lien inexistant et un lien révoqué donnent la MÊME clé", () => {
     // Dire « dossier introuvable » confirmerait qu'un autre jeton pourrait exister.
-    expect(messageRefus("inexistant")).toBe(messageRefus("revoque"));
+    expect(cleRefus("inexistant")).toBe(cleRefus("revoque"));
   });
 
-  it("aucun message ne parle en code ni ne mentionne un dossier", () => {
+  // Les phrases vivent désormais dans les fichiers de messages, et le client peut
+  // être anglophone. Les garde-fous se vérifient donc dans les DEUX langues : une
+  // traduction est exactement l'endroit où un « token » revient par distraction.
+  it.each([
+    ["fr", MESSAGES_FR, /avocat/],
+    ["en", MESSAGES_EN, /lawyer/],
+  ] as const)("aucun refus ne parle en code, en %s", (_langue, messages, mentionAvocat) => {
     for (const m of ["inexistant", "expire", "revoque"] as const) {
-      const texte = messageRefus(m);
-      expect(texte).not.toMatch(/token|jeton|dossier|404|null/i);
-      expect(texte).toMatch(/avocat/);
+      const texte = messages[cleRefus(m)];
+      expect(texte, `clé ${cleRefus(m)} absente`).toBeTruthy();
+      expect(texte).not.toMatch(/token|jeton|dossier|matter|404|null/i);
+      expect(texte).toMatch(mentionAvocat);
     }
+  });
+
+  it("les deux langues disent la même chose du même nombre de clés", () => {
+    expect(Object.keys(MESSAGES_EN).sort()).toEqual(Object.keys(MESSAGES_FR).sort());
   });
 });
 
@@ -106,7 +122,7 @@ describe("les fichiers acceptés", () => {
     (type) => {
       const v = verifierFichier({ type, size: 1000 });
       expect(v.ok).toBe(false);
-      if (!v.ok) expect(v.message).toMatch(/PDF|photo/);
+      if (!v.ok) expect(MESSAGES_FR[v.cle]).toMatch(/PDF|photo/);
     },
   );
 
@@ -117,7 +133,7 @@ describe("les fichiers acceptés", () => {
   it("un fichier trop lourd est refusé, avec la marche à suivre", () => {
     const v = verifierFichier({ type: "application/pdf", size: TAILLE_MAX_OCTETS + 1 });
     expect(v.ok).toBe(false);
-    if (!v.ok) expect(v.message).toMatch(/plusieurs parties/);
+    if (!v.ok) expect(MESSAGES_FR[v.cle]).toMatch(/plusieurs parties/);
   });
 
   it("la limite exacte passe encore", () => {
@@ -132,7 +148,9 @@ describe("les fichiers acceptés", () => {
     ]) {
       const v = verifierFichier(f);
       if (!v.ok) {
-        expect(v.message).not.toMatch(/MIME|octet|bytes|application\//i);
+        for (const messages of [MESSAGES_FR, MESSAGES_EN]) {
+          expect(messages[v.cle]).not.toMatch(/MIME|octet|bytes|application\//i);
+        }
       }
     }
   });

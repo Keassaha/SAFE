@@ -3980,5 +3980,30 @@
       "critique": "Critical",
       "attention": "To handle"
     }
+  },
+  "collecte": {
+    "aucunFichier": "No file was received.",
+    "avantLe": "Needed before {date}",
+    "choisirFichier": "Choose a file",
+    "depotEchoue": "The upload did not go through.",
+    "depotEchoueReseau": "The upload did not go through. Check your connection and try again.",
+    "envoiEnCours": "Sending…",
+    "etatAFournir": "Still needed",
+    "etatARemplacer": "Needs replacing",
+    "etatAccepte": "Accepted",
+    "etatRecu": "Received, being reviewed",
+    "fichierTropLourd": "That file is over 25 MB. Send it in several parts.",
+    "fichierVide": "That file is empty.",
+    "formatRefuse": "That format is not accepted. Send a PDF or a photo (JPG, PNG).",
+    "formatsAcceptes": "PDF or photo, up to 25 MB.",
+    "lienExpire": "This link has expired. Write to your lawyer to get a new one.",
+    "lienInactif": "This link is no longer active. Write to your lawyer to get a new one.",
+    "lienPersonnel": "This link is yours alone. Please do not forward it to anyone.",
+    "pieceDejaReglee": "This document is already settled. Write to your lawyer if it needs to change.",
+    "pieceInattendue": "This document is not one we are expecting from you.",
+    "restePlusieurs": "{n} documents are still missing.",
+    "resteUn": "One document is still missing.",
+    "titre": "Documents to send us",
+    "toutRecu": "We have everything. Thank you, there is nothing else for you to do right now."
   }
 }

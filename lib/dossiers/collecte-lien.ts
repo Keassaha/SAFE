@@ -58,17 +58,31 @@ export function verifierLien(
   return { valide: true };
 }
 
-/** Ce que le client lit quand son lien ne fonctionne plus. Jamais un code. */
-export function messageRefus(motif: "inexistant" | "expire" | "revoque"): string {
+/** Clés du namespace `collecte`. Le module ne rend jamais de phrase toute faite. */
+export type CleCollecte =
+  | "lienExpire"
+  | "lienInactif"
+  | "formatRefuse"
+  | "fichierVide"
+  | "fichierTropLourd";
+
+/**
+ * Ce que le client lit quand son lien ne fonctionne plus. Jamais un code.
+ *
+ * La fonction rend une CLÉ, pas une phrase : le client peut être anglophone, et la
+ * langue se décide au bord, d'après la fiche du client. Un module de sécurité qui
+ * fabrique du français impose sa langue à tout le monde.
+ */
+export function cleRefus(motif: "inexistant" | "expire" | "revoque"): CleCollecte {
   switch (motif) {
     case "expire":
-      return "Ce lien a expiré. Écrivez à votre avocat pour en recevoir un nouveau.";
+      return "lienExpire";
     case "revoque":
-      return "Ce lien n'est plus actif. Écrivez à votre avocat pour en recevoir un nouveau.";
+      return "lienInactif";
     default:
       // On ne dit pas « dossier introuvable » : cela confirmerait au visiteur qu'un
-      // autre jeton pourrait exister. Même phrase que pour un lien révoqué.
-      return "Ce lien n'est plus actif. Écrivez à votre avocat pour en recevoir un nouveau.";
+      // autre jeton pourrait exister. Même clé que pour un lien révoqué.
+      return "lienInactif";
   }
 }
 
@@ -83,7 +97,7 @@ export const TYPES_ACCEPTES = [
 /** 25 Mo. Au-delà, un scan de relevés bancaires devient ingérable des deux côtés. */
 export const TAILLE_MAX_OCTETS = 25 * 1024 * 1024;
 
-export type VerdictFichier = { ok: true } | { ok: false; message: string };
+export type VerdictFichier = { ok: true } | { ok: false; cle: CleCollecte };
 
 /**
  * Contrôles à l'entrée. Volontairement peu nombreux et tous explicables au client.
@@ -94,19 +108,13 @@ export type VerdictFichier = { ok: true } | { ok: false; message: string };
  */
 export function verifierFichier(f: { type: string; size: number }): VerdictFichier {
   if (!TYPES_ACCEPTES.includes(f.type as (typeof TYPES_ACCEPTES)[number])) {
-    return {
-      ok: false,
-      message: "Ce format n'est pas accepté. Envoyez un PDF ou une photo (JPG, PNG).",
-    };
+    return { ok: false, cle: "formatRefuse" };
   }
   if (f.size <= 0) {
-    return { ok: false, message: "Ce fichier est vide." };
+    return { ok: false, cle: "fichierVide" };
   }
   if (f.size > TAILLE_MAX_OCTETS) {
-    return {
-      ok: false,
-      message: "Ce fichier dépasse 25 Mo. Envoyez-le en plusieurs parties.",
-    };
+    return { ok: false, cle: "fichierTropLourd" };
   }
   return { ok: true };
 }

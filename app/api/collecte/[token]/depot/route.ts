@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { writeDocumentObject } from "@/lib/services/document";
-import { verifierLien, verifierFichier, messageRefus } from "@/lib/dossiers/collecte-lien";
+import { verifierLien, verifierFichier, cleRefus } from "@/lib/dossiers/collecte-lien";
+import {
+  localeDuClient,
+  messagesCollecte,
+  traduire,
+} from "@/lib/dossiers/collecte-langue";
 import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 /**
@@ -30,7 +35,9 @@ export async function POST(
 ) {
   const { token } = await params;
   if (!token?.trim()) {
-    return NextResponse.json({ error: messageRefus("inexistant") }, { status: 404 });
+    // Aucun dossier n'a encore été lu : la langue du client est inconnue, donc défaut.
+    const msg = await messagesCollecte("fr");
+    return NextResponse.json({ error: traduire(msg, cleRefus("inexistant")) }, { status: 404 });
   }
 
   const dossier = await prisma.dossier.findFirst({
@@ -40,13 +47,17 @@ export async function POST(
       cabinetId: true,
       collecteToken: true,
       collecteTokenExpiresAt: true,
+      // La langue des refus se prend sur la fiche du client, pas sur le navigateur.
+      client: { select: { langue: true } },
     },
   });
+
+  const msg = await messagesCollecte(localeDuClient(dossier?.client?.langue));
 
   const verdict = verifierLien(dossier, new Date());
   if (!verdict.valide) {
     // 404 dans tous les cas : un 403 confirmerait que le jeton a existé.
-    return NextResponse.json({ error: messageRefus(verdict.motif) }, { status: 404 });
+    return NextResponse.json({ error: traduire(msg, cleRefus(verdict.motif)) }, { status: 404 });
   }
 
   const form = await request.formData();
@@ -54,12 +65,12 @@ export async function POST(
   const fichier = form.get("fichier");
 
   if (!(fichier instanceof File)) {
-    return NextResponse.json({ error: "Aucun fichier reçu." }, { status: 400 });
+    return NextResponse.json({ error: traduire(msg, "aucunFichier") }, { status: 400 });
   }
 
   const controle = verifierFichier({ type: fichier.type, size: fichier.size });
   if (!controle.ok) {
-    return NextResponse.json({ error: controle.message }, { status: 400 });
+    return NextResponse.json({ error: traduire(msg, controle.cle) }, { status: 400 });
   }
 
   // La pièce doit appartenir au dossier du jeton, et être attendue DU CLIENT.
@@ -72,11 +83,11 @@ export async function POST(
     select: { id: true, libelle: true, etat: true },
   });
   if (!piece) {
-    return NextResponse.json({ error: "Cette pièce n'est pas attendue de vous." }, { status: 404 });
+    return NextResponse.json({ error: traduire(msg, "pieceInattendue") }, { status: 404 });
   }
   if (piece.etat === "ACCEPTEE" || piece.etat === "ECARTEE" || piece.etat === "PRODUITE") {
     return NextResponse.json(
-      { error: "Cette pièce est déjà réglée. Écrivez à votre avocat si elle doit changer." },
+      { error: traduire(msg, "pieceDejaReglee") },
       { status: 409 },
     );
   }
