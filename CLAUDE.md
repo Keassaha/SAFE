@@ -69,9 +69,16 @@ d'ouvrir un chantier, et ce que « terminé » veut dire. Elle tranche les
 contradictions entre le blueprint Neolegal, le modèle SAFE Lead et la doctrine
 d'ancrage.
 
-Règle courte : on ne construit que ce qui **supprime une saisie réelle** ou **rend
-visible ce qui existe déjà**. Et aucun chantier tant qu'aucun cabinet n'a franchi le
-jour 0.
+Règle courte, **deux files** :
+
+- **Ancrage** (pour le cabinet déjà client) : on ne construit que ce qui **supprime
+  une saisie réelle** ou **rend visible ce qui existe déjà**. Bloqué tant qu'aucun
+  cabinet n'a franchi le jour 0.
+- **Démonstration** (pour faire venir des clients) : la suite d'outils autonomes,
+  calculateurs en tête. Quatre conditions au §5bis, dont « le post est écrit avant le
+  code ». Un seul outil à la fois, publié avant le suivant.
+
+Jamais plus de deux chantiers vivants.
 
 ---
 
