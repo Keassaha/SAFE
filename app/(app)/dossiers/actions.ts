@@ -995,3 +995,74 @@ export async function revoquerLienCollecte(
   revalidatePath(`/dossiers/${dossierId}`);
   return { success: true };
 }
+
+/** Longueur minimale d'un motif de remplacement. Aligné sur les motifs comptables. */
+export const MOTIF_REMPLACEMENT_MIN = 10;
+
+/**
+ * Ce que le cabinet décide d'une pièce reçue.
+ *
+ * ACCEPTER EST UNE DÉCISION HUMAINE, et elle est tracée. Aucun contrôle automatique
+ * ne fait passer une pièce à « acceptée » : c'est la règle qui sépare une suggestion
+ * d'une décision, et elle vaut ici comme au journal comptable.
+ */
+export async function deciderPieceAttendue(
+  pieceId: string,
+  decision: "accepter" | "remplacer" | "ecarter",
+  motif?: string | null,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageDossiers(role as UserRole)) {
+    return { success: false, error: "Vous n'avez pas les droits pour modifier ce dossier." };
+  }
+
+  const piece = await prisma.expectedDocument.findFirst({
+    where: { id: pieceId, cabinetId },
+    select: { id: true, dossierId: true, etat: true, libelle: true },
+  });
+  if (!piece) return { success: false, error: "Pièce introuvable" };
+
+  // Une pièce jamais reçue ne se décide pas : il n'y a rien à juger.
+  if (piece.etat === "A_DEMANDER" || piece.etat === "DEMANDEE") {
+    return {
+      success: false,
+      error: "Cette pièce n'a pas encore été déposée. Il n'y a rien à accepter ni à refuser.",
+    };
+  }
+
+  const texte = motif?.trim() || null;
+  // Un remplacement sans motif fait redéposer la même chose. Le client doit lire
+  // POURQUOI, sinon la boucle tourne sans avancer.
+  if (decision === "remplacer" && (!texte || texte.length < MOTIF_REMPLACEMENT_MIN)) {
+    return {
+      success: false,
+      error: `Expliquez en ${MOTIF_REMPLACEMENT_MIN} caractères au moins ce qui ne va pas : votre client le lira.`,
+    };
+  }
+
+  const etat =
+    decision === "accepter" ? "ACCEPTEE" : decision === "remplacer" ? "A_REMPLACER" : "ECARTEE";
+
+  await prisma.expectedDocument.update({
+    where: { id: pieceId },
+    data: {
+      etat,
+      motifRemplacement: decision === "remplacer" ? texte : null,
+      traiteeParId: userId ?? null,
+    },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId: userId ?? undefined,
+    entityType: "Dossier",
+    entityId: piece.dossierId,
+    action: "update",
+    newValues: { pieceAttendue: piece.libelle, decision, etat, motif: texte },
+    performedBy: userId ?? undefined,
+    performedAt: new Date(),
+  });
+
+  revalidatePath(`/dossiers/${piece.dossierId}`);
+  return { success: true };
+}

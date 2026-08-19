@@ -515,6 +515,15 @@ export default async function DossierDetailPage({
             dateCommunicationPatrimoine:
               piecesAttendues.dates.communicationPatrimoine?.toISOString() ?? null,
           }}
+          lien={
+            dossier.collecteToken && dossier.collecteTokenExpiresAt &&
+            dossier.collecteTokenExpiresAt > new Date()
+              ? {
+                  url: `/collecte/${dossier.collecteToken}`,
+                  expireLe: dossier.collecteTokenExpiresAt.toISOString(),
+                }
+              : null
+          }
           canWrite={canManageDossiers(role as UserRole)}
         />
       ) : null}

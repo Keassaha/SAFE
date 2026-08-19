@@ -16,6 +16,9 @@ import {
 import {
   creerPiecesAttenduesDivorce,
   enregistrerDateDossier,
+  genererLienCollecte,
+  revoquerLienCollecte,
+  deciderPieceAttendue,
 } from "@/app/(app)/dossiers/actions";
 
 /**
@@ -80,17 +83,25 @@ export function PiecesAttenduesSection({
   delais,
   pieces,
   dates,
+  lien,
   canWrite = true,
 }: {
   dossierId: string;
   delais: DelaiAffiche[];
   pieces: PieceAffichee[];
   dates: Record<string, string | null>;
+  /** Lien de collecte en cours, s'il en existe un de valide. */
+  lien: { url: string; expireLe: string } | null;
   canWrite?: boolean;
 }) {
   const router = useRouter();
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, startTransition] = useTransition();
+  const [lienAffiche, setLienAffiche] = useState<string | null>(null);
+  const [copie, setCopie] = useState(false);
+  /** Pièce dont on est en train d'écrire le motif de remplacement. */
+  const [refus, setRefus] = useState<string | null>(null);
+  const [motif, setMotif] = useState("");
 
   // Le plus grave d'abord, pas le plus proche : un délai dans 20 jours qui coûte
   // l'audience prime sur un manquement dans 3 jours.
@@ -108,6 +119,55 @@ export function PiecesAttenduesSection({
       const r = await creerPiecesAttenduesDivorce(dossierId);
       if (!r.success) setErreur(r.error);
       else router.refresh();
+    });
+  }
+
+  function creerLien() {
+    setErreur(null);
+    startTransition(async () => {
+      const r = await genererLienCollecte(dossierId);
+      if (!r.success) setErreur(r.error);
+      else {
+        // L'origine ne se connaît qu'au navigateur : l'action rend un chemin.
+        setLienAffiche(`${window.location.origin}${r.url}`);
+        router.refresh();
+      }
+    });
+  }
+
+  function revoquer() {
+    setErreur(null);
+    startTransition(async () => {
+      const r = await revoquerLienCollecte(dossierId);
+      if (!r.success) setErreur(r.error);
+      else {
+        setLienAffiche(null);
+        router.refresh();
+      }
+    });
+  }
+
+  async function copier(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopie(true);
+      setTimeout(() => setCopie(false), 2000);
+    } catch {
+      // Le presse-papiers peut être refusé : le lien reste sélectionnable à l'écran.
+      setErreur("Copie impossible. Sélectionnez le lien ci-dessus.");
+    }
+  }
+
+  function decider(pieceId: string, decision: "accepter" | "remplacer" | "ecarter") {
+    setErreur(null);
+    startTransition(async () => {
+      const r = await deciderPieceAttendue(pieceId, decision, decision === "remplacer" ? motif : null);
+      if (!r.success) setErreur(r.error);
+      else {
+        setRefus(null);
+        setMotif("");
+        router.refresh();
+      }
     });
   }
 
@@ -191,6 +251,65 @@ export function PiecesAttenduesSection({
         </div>
       ) : null}
 
+      {/* Le lien que le client reçoit. Sans ce bouton, tout ce qui précède reste
+          une liste que personne d'autre ne voit. */}
+      {canWrite && pieces.length > 0 ? (
+        <div className="rounded-md border border-si-line bg-si-surface px-4 py-3.5">
+          {lien || lienAffiche ? (
+            <>
+              <p className="text-[13px] text-si-ink">
+                Votre client peut déposer ses documents avec ce lien.
+              </p>
+              <p className="mt-2 break-all rounded-md border border-si-line bg-si-canvas px-3 py-2 text-[12px] text-si-ink">
+                {lienAffiche ?? `${lien!.url}`}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={enCours}
+                  onClick={() => copier(lienAffiche ?? lien!.url)}
+                >
+                  {copie ? "Copié" : "Copier le lien"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={enCours}
+                  onClick={revoquer}
+                >
+                  Couper l&apos;accès
+                </Button>
+                {lien ? (
+                  <span className="text-[12px] text-si-muted">
+                    Expire le {formatCalendarDate(lien.expireLe)}
+                  </span>
+                ) : null}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-[13px] leading-relaxed text-si-muted">
+                Votre client ne peut rien déposer tant qu&apos;il n&apos;a pas de lien.
+                Il n&apos;aura pas de compte à créer.
+              </p>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                className="mt-3"
+                disabled={enCours}
+                onClick={creerLien}
+              >
+                Créer le lien de dépôt
+              </Button>
+            </>
+          )}
+        </div>
+      ) : null}
+
       {erreur ? (
         <p className="text-[13px] text-si-danger-ink" role="alert">
           {erreur}
@@ -235,6 +354,9 @@ export function PiecesAttenduesSection({
                 <th className={registreHeadCellClass}>
                   <RegistrePlainHeader label="Échéance" align="right" />
                 </th>
+                <th className={registreHeadCellClass}>
+                  <span className="sr-only">Décision</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -267,6 +389,72 @@ export function PiecesAttenduesSection({
                       <span className="mt-0.5 block text-[12px] text-si-muted">
                         {p.referenceLegale}
                       </span>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-2.5 align-middle text-right">
+                    {/* Trois gestes, et seulement sur une pièce déposée : une pièce
+                        jamais reçue n'a rien à juger. « Accepter » est une décision
+                        humaine, jamais un contrôle automatique. */}
+                    {canWrite && (p.etat === "RECUE" || p.etat === "A_VERIFIER") ? (
+                      refus === p.id ? (
+                        <div className="space-y-2 text-left">
+                          <textarea
+                            value={motif}
+                            onChange={(e) => setMotif(e.target.value)}
+                            rows={2}
+                            autoFocus
+                            placeholder="Ce que votre client doit corriger"
+                            className="w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[13px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              disabled={enCours}
+                              onClick={() => {
+                                setRefus(null);
+                                setMotif("");
+                              }}
+                            >
+                              Renoncer
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="primary"
+                              size="sm"
+                              disabled={enCours || motif.trim().length < 10}
+                              onClick={() => decider(p.id, "remplacer")}
+                            >
+                              Envoyer la demande
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          <Button
+                            type="button"
+                            variant="primary"
+                            size="sm"
+                            disabled={enCours}
+                            onClick={() => decider(p.id, "accepter")}
+                          >
+                            Accepter
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            disabled={enCours}
+                            onClick={() => {
+                              setMotif("");
+                              setRefus(p.id);
+                            }}
+                          >
+                            À remplacer
+                          </Button>
+                        </div>
+                      )
                     ) : null}
                   </td>
                 </tr>
