@@ -2081,6 +2081,18 @@
 @media (prefers-reduced-motion: reduce) {
   .audit-v2-mark-shell,
   .audit-v2-progress-shine::after { animation: none; }
+
+  /* Les révélations au défilement de la vitrine, pour qui demande moins de
+     mouvement. framer-motion écrit l'opacité et la transformation en style en
+     ligne, et une feuille ne peut pas les reprendre autrement : d'où le
+     !important, sur la cible la plus étroite possible, l'attribut posé par
+     fadeUp. Une opacité voulue par le dessin, comme les formes pâles de
+     l'en-tête, n'est jamais touchée puisqu'elle ne porte pas cet attribut. */
+  .safe-vitrine [data-revele] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 /* Dashboard Today — mode focus : masque les sections secondaires (.today-dimmable). */
@@ -2137,22 +2149,24 @@
     font-family: var(--font-geist-sans), -apple-system, "Segoe UI", sans-serif;
   }
 
-  /* ── Pas de révélation au défilement au téléphone ─────────────────────────
-     Chaque bloc de la vitrine montait de quatorze pixels en apparaissant, une
-     fois arrivé dans l'écran. Sur un grand écran, le regard a le temps de voir
-     le mouvement. Au pouce, on défile vite et par à-coups : la page semble se
-     charger pendant qu'on la lit, et un défilement rapide dépasse le bloc
-     avant qu'il ne soit apparu.
+  /* ── Les révélations au défilement reviennent au téléphone ────────────────
+     Cette règle les coupait, avec un argument défendable à l'époque : au
+     pouce on défile vite et par à-coups, la page semblait se charger pendant
+     qu'on la lit, et un défilement rapide dépassait le bloc avant qu'il ne
+     soit apparu.
 
-     `!important` n'est pas une facilité : framer-motion écrit l'opacité et la
-     transformation en style en ligne, et une feuille ne peut pas les reprendre
-     autrement. La cible reste étroite, le seul attribut `data-revele`, pour ne
-     jamais toucher une opacité voulue par le dessin (les formes flottantes de
-     l'en-tête, par exemple, sont volontairement pâles). */
-  .safe-vitrine [data-revele] {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+     L'argument ne tient plus. L'accueil a reçu depuis une entrée au
+     défilement réglée pour le pouce, validée, et ce qu'elle a corrigé n'est
+     pas le principe mais ses réglages : une course courte, dix à douze
+     pixels, une durée longue, et surtout un déclenchement qui ne dépasse pas
+     douze pour cent du bas de la vue. C'est exactement ce que `fadeUp`
+     applique ici, à la même courbe.
+
+     Les couper sur les autres pages laissait donc l'accueil vivant et le
+     reste du site figé, ce qui se remarque dès qu'on passe de l'un à l'autre
+     (décision CEO du 19 août 2026). Elles restent coupées pour qui demande
+     moins de mouvement : la requête plus haut dans cette feuille s'en charge,
+     et elle vient en premier. */
 }
 
 /* ── Zoom souple des surfaces sélectionnables ───────────────────────────────

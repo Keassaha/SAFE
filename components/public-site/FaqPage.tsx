@@ -4,7 +4,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { INK, MUTED, LINE, BG, fadeUp, PageShell, PageHeader } from "./shared";
+import { INK, MUTED, PROSE, LINE, BG, fadeUp, PageShell, PageHeader } from "./shared";
 
 const FAQ = [
   {
@@ -67,7 +67,7 @@ export default function FaqPage() {
               <h2 className="font-serif text-[20px] font-normal leading-[1.3]" style={{ color: INK }}>
                 {item.q}
               </h2>
-              <div className="mt-3 space-y-3 font-serif text-[15.5px] leading-[1.6]" style={{ color: MUTED }}>
+              <div className="mt-3 space-y-3 font-sans text-[15.5px] leading-[1.6]" style={{ color: PROSE }}>
                 {item.r.map((p, j) => (
                   <p key={j}>{p}</p>
                 ))}

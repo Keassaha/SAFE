@@ -4,7 +4,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { INK, MUTED, FAINT, GREEN, LINE, SURFACE, BG, EASE, fadeUp, PageShell, PageHeader } from "./shared";
+import { INK, MUTED, PROSE, FAINT, GREEN, LINE, SURFACE, BG, EASE, fadeUp, PageShell, PageHeader } from "./shared";
 
 const DEROULEMENT = [
   "Nous partons de votre façon de travailler.",
@@ -61,7 +61,7 @@ export default function DemoPage() {
                   <span className="mt-0.5 font-mono text-[12px]" style={{ color: GREEN }} aria-hidden>
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-serif text-[16px] leading-[1.55]" style={{ color: MUTED }}>
+                  <span className="font-sans text-[16px] leading-[1.55]" style={{ color: PROSE }}>
                     {d}
                   </span>
                 </motion.li>
@@ -98,7 +98,7 @@ export default function DemoPage() {
             >
               Choisir un moment
             </button>
-            <p className="mt-4 font-serif text-[12.5px] leading-[1.5]" style={{ color: FAINT }}>
+            <p className="mt-4 font-sans text-[12.5px] leading-[1.5]" style={{ color: FAINT }}>
               Vos coordonnées servent uniquement à répondre à votre demande et à organiser la
               rencontre. Elles ne sont pas vendues ni partagées à des fins de prospection par des
               tiers.
@@ -110,7 +110,7 @@ export default function DemoPage() {
       <section className="border-t px-6 py-5" style={{ background: SURFACE, borderColor: LINE }}>
         <div className="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {["Conçu au Québec", "Données hébergées au Canada", "Pensé pour le fidéicommis", "Utilisé dans un vrai cabinet"].map((p) => (
-            <div key={p} className="flex items-center gap-2 font-serif text-[13px]" style={{ color: MUTED }}>
+            <div key={p} className="flex items-center gap-2 font-sans text-[13px]" style={{ color: PROSE }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} aria-hidden />
               {p}
             </div>

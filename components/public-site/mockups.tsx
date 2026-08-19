@@ -62,16 +62,30 @@ export function SafeWindow({
       }}
     >
       <StylesMaquettesMobiles />
+      {/* Les surfaces sombres de l'application passent toutes par le dégradé
+          d'action et portent une lueur verte : l'application ne peint jamais
+          un aplat d'encre, il n'existe pas un seul fond plat dans le produit
+          (retour CEO du 19 août 2026, vérifié dans components/ds-safe). */}
       <div
-        className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-5"
-        style={{ background: "var(--si-forest)", color: "#E9EFE9" }}
+        className="relative flex flex-wrap items-center justify-between gap-2 overflow-hidden px-4 py-2.5 sm:px-5"
+        style={{
+          backgroundColor: "var(--si-ink)",
+          backgroundImage:
+            "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+          color: "#E9EFE9",
+        }}
       >
-        <span className="flex items-center gap-2 font-sans text-[12px]">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-[50px] -top-[70px] h-[230px] w-[230px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%)" }}
+        />
+        <span className="relative z-10 flex items-center gap-2 font-sans text-[12px]">
           <b className="font-medium">SAFE</b>
           <span style={{ opacity: 0.45 }}>·</span>
           {fil}
         </span>
-        <span className="mock-mini flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "var(--si-verified-on-forest)" }}>
+        <span className="mock-mini relative z-10 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "var(--si-verified-on-forest)" }}>
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full" style={{ background: "var(--si-verified-on-forest)", opacity: 0.6 }} />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "var(--si-verified-on-forest)" }} />
@@ -277,29 +291,53 @@ export function MockupFicheDeTemps() {
                     type="button"
                     onClick={() => setMode(m)}
                     className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] capitalize transition-colors"
-                    style={mode === m ? { background: "var(--si-forest)", color: "#fff" } : { color: MUTED }}
+                    /* Onglet actif : le produit emploie le dégradé d'action,
+                       voir RapportsView et Button. */
+                    style={
+                      mode === m
+                        ? {
+                            backgroundColor: "var(--si-ink)",
+                            backgroundImage:
+                              "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+                            color: "#fff",
+                          }
+                        : { color: MUTED }
+                    }
                   >
                     {m}
                   </button>
                 ))}
               </span>
             </div>
-            {/* deux rangées : la description occupe toute la largeur, le reste suit.
-               La maquette vit dans une colonne étroite, il ne faut rien faire déborder. */}
-            <div className="mt-2.5 grid grid-cols-[1fr_72px_auto] gap-2">
+            {/* ── La rangée d'ajout ─────────────────────────────────────────
+               Trois champs sur une rangée : le dossier, la durée, le bouton.
+               Au large, le dossier a la place de s'écrire en entier.
+
+               Sur la colonne d'un téléphone, il lui restait environ cent
+               trente pixels : « Succession Tremblay » y devenait « Succession
+               T », et le chevron natif du menu venait mordre sur la lettre
+               coupée (retour CEO du 19 août 2026). Un nom de dossier tronqué
+               au milieu d'un mot ne montre pas un logiciel qui range, il
+               montre un formulaire à l'étroit.
+
+               Sous 520 px, le dossier prend donc sa propre rangée, pleine
+               largeur, et la durée et le bouton se partagent la suivante. */}
+            <div className="mt-2.5 grid grid-cols-[1fr_72px_auto] gap-2 max-[520px]:grid-cols-[1fr_auto]">
               <input
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="Ex. Préparation de l'audition"
                 aria-label="Description du travail"
-                className="mock-input col-span-3 h-9 min-w-0 rounded-[7px] border px-2.5 font-sans text-[13px] outline-none"
+                className="mock-input col-span-3 h-9 min-w-0 rounded-[7px] border px-2.5 font-sans text-[13px] outline-none max-[520px]:col-span-2"
                 style={{ borderColor: LINE, background: "#fff", color: INK }}
               />
               <select
                 value={dossier}
                 onChange={(e) => setDossier(e.target.value)}
                 aria-label="Dossier"
-                className="mock-input h-9 min-w-0 rounded-[7px] border px-2 font-sans text-[12.5px] outline-none"
+                /* Le retrait à droite laisse la place au chevron natif : sans
+                   lui, le dernier caractère passe dessous. */
+                className="mock-input h-9 min-w-0 rounded-[7px] border pl-2 pr-7 font-sans text-[12.5px] outline-none max-[520px]:col-span-2"
                 style={{ borderColor: LINE, background: "#fff", color: INK }}
               >
                 {DOSSIERS.map((d) => (
@@ -590,15 +628,26 @@ export function MockupAppComplete() {
 
         {/* Bandeau d'état */}
         <div
-          className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2"
-          style={{ background: "var(--si-forest)", color: "#E4EDE6" }}
+          className="relative flex flex-wrap items-center gap-x-4 gap-y-1 overflow-hidden px-4 py-2"
+          style={{
+          backgroundColor: "var(--si-ink)",
+          backgroundImage:
+            "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+            color: "#E4EDE6",
+          }}
         >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-[50px] -top-[70px] h-[230px] w-[230px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%)" }}
+        />
+
           {[
             ["Dossiers actifs", "12"],
             ["Clients actifs", "9"],
             ["Fidéicommis", rapproche ? "Rapproché" : "À rapprocher"],
           ].map(([k, v], i) => (
-            <span key={k} className="mock-mini flex items-center gap-1.5 font-sans text-[10.5px]">
+            <span key={k} className="mock-mini relative z-10 flex items-center gap-1.5 font-sans text-[10.5px]">
               <span
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ background: i === 2 && !rapproche ? "var(--si-amber)" : "var(--si-verified-on-forest)" }}
@@ -607,7 +656,7 @@ export function MockupAppComplete() {
               <b className="font-medium">{v}</b>
             </span>
           ))}
-          <span className="mock-mini ml-auto font-mono text-[9.5px]" style={{ color: "rgba(228,237,230,0.6)" }}>
+          <span className="mock-mini relative z-10 ml-auto font-mono text-[9.5px]" style={{ color: "rgba(228,237,230,0.6)" }}>
             30 JUIN 2026
           </span>
         </div>
@@ -623,10 +672,38 @@ export function MockupAppComplete() {
                   ["À recevoir", "2 260,00 $", "3 factures"],
                   ["Heures du mois", "128,75 h", "+8 %"],
                 ].map(([l, v, s]) => (
-                  <div key={l} className="min-w-0 rounded-[9px] p-2.5" style={{ background: "var(--si-forest)", color: "#EAF2EC" }}>
-                    <p className="mock-mini truncate font-mono text-[8px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.65)" }}>{l}</p>
-                    <p className="mt-1.5 truncate font-mono text-[14px] tabular-nums">{v}</p>
-                    <p className="mock-mini mt-0.5 truncate font-sans text-[9px]" style={{ color: "var(--si-verified-on-forest)" }}>{s}</p>
+                  /* Les tuiles de chiffres, comme dans le produit.
+
+                     Elles étaient un aplat d'encre. Le tableau de bord réel
+                     les peint avec « safe-action-degrade », un dégradé de
+                     l'encre vers le vert forêt profond, et pose une lueur
+                     verte dans le coin bas gauche (« glow-verified »). Un
+                     aplat noir ne ressemble pas à SAFE : il ressemble à un
+                     cadre de démonstration (retour CEO du 19 août 2026).
+
+                     Les deux valeurs sont reprises du produit et non
+                     inventées ici ; voir app/globals.css. */
+                  <div
+                    key={l}
+                    className="relative min-w-0 overflow-hidden rounded-[9px] p-2.5"
+                    style={{
+                      backgroundColor: "var(--si-ink)",
+                      backgroundImage:
+                        "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+                      color: "#EAF2EC",
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-8 -left-6 h-24 w-24 rounded-full"
+                      style={{
+                        background:
+                          "radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%)",
+                      }}
+                    />
+                    <p className="mock-mini relative truncate font-mono text-[8px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.65)" }}>{l}</p>
+                    <p className="relative mt-1.5 truncate font-mono text-[14px] tabular-nums">{v}</p>
+                    <p className="mock-mini relative mt-0.5 truncate font-sans text-[9px]" style={{ color: "var(--si-verified-on-forest)" }}>{s}</p>
                   </div>
                 ))}
               </div>

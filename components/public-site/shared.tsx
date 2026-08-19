@@ -17,6 +17,18 @@ export const BG = "var(--si-canvas)";
 export const SURFACE = "var(--si-surface)";
 export const INK = "var(--si-ink)";
 export const MUTED = "var(--si-muted)";
+/* L'encre de la prose de la vitrine.
+ *
+ * Le corps de texte portait `muted`, cinq pour un sur le canvas. C'est la
+ * valeur d'une mention à côté d'un contenu ; ici le corps EST le contenu, il
+ * porte l'argumentaire de chaque page, et à cinq pour un il se lit comme une
+ * note de bas de page (décision CEO du 18 août 2026, appliquée d'abord à
+ * « à propos », étendue au reste le 19).
+ *
+ * `body` donne 9,6 pour un : franchement noir, sans prendre le rang de l'encre
+ * des titres. `muted` reste pour ce qui est vraiment secondaire, les méta et
+ * les légendes. */
+export const PROSE = "var(--si-body)";
 export const FAINT = "var(--si-subtle)";
 /* L'accent de la vitrine suit désormais l'action de l'application.
  * Il valait #12A150, un vert vif étranger à la palette, déclaré deux fois.
@@ -380,14 +392,20 @@ export function useScrollScrub(
   useEffect(() => {
     const el = zoneRef.current;
     if (!el) return;
-    /* Le téléphone suit la même règle que « mouvement réduit », comme partout
-       ailleurs sur la vitrine : la scène est posée d'emblée à sa fin. Une scène
-       scrubbée demande une longue course de défilement pour se lire ; au pouce,
-       cette course coûte des écrans entiers et le contenu passe une bonne part
-       de son temps à moitié révélé. */
-    const reduced =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      window.matchMedia("(max-width: 860px)").matches;
+    /* Les scènes pilotées au défilement jouent aussi au téléphone.
+
+       Elles y étaient posées d'emblée à leur fin, avec un argument de coût :
+       une scène scrubbée demande une longue course, et au pouce cette course
+       vaut des écrans entiers. L'argument valait tant que la vitrine n'avait
+       rien de tel ; l'accueil en a maintenant une, réglée pour le pouce et
+       validée, et la garder seule laissait le reste du site figé (décision CEO
+       du 19 août 2026).
+
+       Le coût est traité là où il se pose, dans la hauteur de la scène : la
+       page en règle la course par sa propre feuille au téléphone, sans que ce
+       crochet ait à en connaître le détail. Seul « mouvement réduit » pose
+       encore la scène à sa fin, et c'est le bon endroit pour le faire. */
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
     let shown = reduced ? 1 : 0;
     const loop = (time: number) => {
@@ -643,8 +661,8 @@ export function PageHeader({
         {intro && (
           <motion.p
             {...fadeUp(0.12)}
-            className="mt-5 max-w-[54ch] font-serif text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
-            style={{ color: MUTED }}
+            className="mt-5 max-w-[54ch] font-sans text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
+            style={{ color: PROSE }}
           >
             {intro}
           </motion.p>

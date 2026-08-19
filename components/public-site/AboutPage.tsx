@@ -54,16 +54,25 @@ const CSS = `
 
     background: var(--si-surface);
     color: var(--ink);
-    /* Le récit est en Instrument Serif d'un bout à l'autre, comme la vitrine
-       (décision CEO du 13 août 2026, qui renverse la répartition précédente).
-       La page mélangeait des titres en serif et une prose en Geist : elle
-       changeait de voix à chaque paragraphe, alors qu'elle raconte une seule
-       histoire d'une seule traite.
+    /* ── Une seule voix pour le texte, la serif pour les seuls grands titres
+       Trois répartitions ont été essayées sur cette page. Titres serif et
+       prose Geist : elle changeait de voix à chaque paragraphe. Tout en serif,
+       du titre à la légende : d'une seule traite, mais la prose y perdait en
+       lisibilité aux petites tailles, et rien ne distinguait plus une phrase
+       qui porte d'un paragraphe qui explique.
 
-       Geist ne reste que sur ce qui n'est pas du récit : le bouton, la
-       navigation et le pied de page communs au site. La mono garde les
-       étiquettes et les numéros de chapitre. */
-    font-family: var(--serif);
+       Celle-ci tranche autrement (décision CEO du 19 août 2026). La serif ne
+       sert plus qu'aux DEUX grands titres, celui de la page et celui du
+       chapitre en cours. Tout le reste, prose, phrases fortes, citation,
+       domaines, est en Geist, la police des liens du menu. Une seule voix
+       pour le texte, une autre pour les titres, et le rythme cesse de casser
+       à chaque bloc.
+
+       Ce qui distingue désormais une phrase forte d'un paragraphe n'est plus
+       sa famille mais son corps et son encre. La mono garde les numéros de
+       chapitre et les étiquettes de la marge : ce sont des chiffres et des
+       repères, pas du récit. */
+    font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -126,7 +135,7 @@ const CSS = `
   /* Le titre du jalon est du texte, pas une étiquette : il quitte la mono du
      numéro qui le précède et prend la voix du récit qu'il annonce. */
   .ap-jalon .lb {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: var(--ap-t5);
     letter-spacing: 0;
     line-height: 1.3;
@@ -245,12 +254,15 @@ const CSS = `
   /* Les phrases qui portent le propos gardent l'encre pleine et passent à la
      serif : ce sont les moments éditoriaux du récit, comme les accents des
      chapitres de l'accueil. */
+  /* La phrase qui porte le propos. En serif, sa famille suffisait à la
+     détacher. En sans, il lui faut un demi-cran de graisse et l'encre pleine,
+     sinon elle se confond avec le paragraphe qui la précède. */
   .ap-fort {
     margin-top: 26px;
-    font-family: var(--serif);
-    font-weight: 400;
+    font-family: var(--sans);
+    font-weight: 500;
     font-size: var(--ap-t3);
-    line-height: 1.26;
+    line-height: 1.34;
     letter-spacing: -0.014em;
     color: var(--ink);
     max-width: 30ch;
@@ -285,10 +297,10 @@ const CSS = `
     margin-top: 30px;
     padding-left: 22px;
     border-left: 2px solid rgb(var(--si-forest-rgb) / 0.28);
-    font-family: var(--serif);
-    font-weight: 400;
+    font-family: var(--sans);
+    font-weight: 500;
     font-size: var(--ap-t3);
-    line-height: 1.34;
+    line-height: 1.4;
     letter-spacing: -0.012em;
     color: var(--ink);
     max-width: 40ch;
@@ -379,8 +391,8 @@ const CSS = `
   .ap-dom .m {
     display: block;
     margin-top: 10px;
-    font-family: var(--serif);
-    font-weight: 400;
+    font-family: var(--sans);
+    font-weight: 500;
     font-size: var(--ap-t3);
     line-height: 1.15;
     letter-spacing: -0.012em;

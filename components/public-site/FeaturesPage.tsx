@@ -12,7 +12,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { SafeBullet } from "@/components/branding/SafeLogo";
 import {
-  INK, MUTED, FAINT, GREEN, VERIFIED, LINE, SURFACE, BG, EASE, R,
+  INK, MUTED, PROSE, FAINT, GREEN, VERIFIED, LINE, SURFACE, BG, EASE, R,
   PageShell, PageHeader,
 } from "./shared";
 import {
@@ -137,7 +137,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
           >
             {s.titre}
           </h2>
-          <div className="mt-5 max-w-[48ch] space-y-3.5 font-serif text-[16px] leading-[1.68]" style={{ color: MUTED }}>
+          <div className="mt-5 max-w-[48ch] space-y-3.5 font-sans text-[16px] leading-[1.68]" style={{ color: PROSE }}>
             {s.corps.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -152,7 +152,7 @@ function SectionFonction({ s, index }: { s: Section; index: number }) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 + i * 0.11, duration: 0.72, ease: EASE }}
-                  className="flex gap-3 font-serif text-[15px] leading-[1.55]"
+                  className="flex gap-3 font-sans text-[15px] leading-[1.55]"
                   style={{ color: INK }}
                 >
                   <span className="mt-[7px] shrink-0" style={{ color: GREEN }}>
@@ -253,7 +253,7 @@ export default function FonctionnalitesPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08, duration: 0.65, ease: EASE }}
-            className="mt-5 font-serif text-[16.5px] leading-[1.7]"
+            className="mt-5 font-sans text-[16.5px] leading-[1.7]"
             style={{ color: MUTED }}
           >
             SAFE ne remplace ni votre jugement professionnel, ni la personne qui connaît le
@@ -275,7 +275,7 @@ export default function FonctionnalitesPage() {
             </Link>
           </div>
 
-          <p className="mt-10 font-serif text-[13px] leading-[1.6]" style={{ color: VERIFIED }}>
+          <p className="mt-10 font-sans text-[13px] leading-[1.6]" style={{ color: VERIFIED }}>
             Les écrans de cette page sont des maquettes manipulables, sur des données
             fictives. Elles reproduisent l&apos;interface de SAFE sans être le logiciel.
           </p>
