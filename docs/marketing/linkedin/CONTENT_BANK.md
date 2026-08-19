@@ -128,3 +128,15 @@ L'angle : deux migrations de base de données n'étaient pas suivies. Sur une in
 Statut : idée capturée le 2026-07-26 pendant la recherche sur la clientèle franco-ontarienne. À développer au format 4 sections.
 
 L'angle : dans l'Est ontarien, une avocate peut faire toute sa journée en français. La cliente, la convention, la plaidoirie, la note au dossier. Puis vient le moment de tenir les livres et le compte en fiducie, et l'écran repasse en anglais. Ce n'est pas un drame, personne n'en parle. C'est juste une friction de plus, tous les jours, dans la partie du métier que personne n'aime déjà. Le coût invisible de travailler dans une langue que son logiciel ne parle pas. Réserve importante : ne pas publier avant d'avoir vérifié si les logiciels dominants offrent ou non le français, l'affirmation repose pour l'instant sur une source faible.
+
+---
+
+## Idée capturée — « Un refus sans raison fait redéposer la même chose »
+
+Statut : matière rédigée le 2026-08-19, prête à développer.
+Fiche complète : `MATIERE_2026-08-19_collecte_pieces.md`.
+
+L'angle : la collecte de pièces par lien, sans compte pour le client. Le détail qui
+porte le post est le motif obligatoire sur un refus. Quatre angles possibles listés dans
+la fiche, dont un plus risqué sur les trois briques construites qui ne servaient à rien
+tant que les deux derniers gestes manquaient.

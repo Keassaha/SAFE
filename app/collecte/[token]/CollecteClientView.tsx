@@ -92,7 +92,9 @@ export function CollecteClientView({
       <p className="mt-4 text-[14px] leading-relaxed text-si-ink">
         {restantes.length === 0
           ? "Nous avons tout reçu. Merci, vous n'avez rien d'autre à faire pour l'instant."
-          : `Il reste ${restantes.length} document(s) à nous transmettre.`}
+          : restantes.length === 1
+            ? "Il reste un document à nous transmettre."
+            : `Il reste ${restantes.length} documents à nous transmettre.`}
       </p>
 
       <ul className="mt-6 space-y-3">
