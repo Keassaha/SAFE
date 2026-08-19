@@ -25,6 +25,7 @@ import { syncDossierParties, reconcilePrincipalParty } from "@/lib/dossiers/part
 import type { DossierStatut, DossierType, ModeFacturationDossier, UserRole } from "@prisma/client";
 import { canManageDossiers } from "@/lib/auth/permissions";
 import { creerListeDepuisModele, MODELE_DIVORCE_QC } from "@/lib/dossiers/pieces-attendues-service";
+import { MOTIF_REMPLACEMENT_MIN } from "@/lib/dossiers/pieces-attendues-constantes";
 import { genererCollecteToken, calculerExpiration } from "@/lib/dossiers/collecte-lien";
 
 export async function createDossier(formData: FormData) {
@@ -995,9 +996,6 @@ export async function revoquerLienCollecte(
   revalidatePath(`/dossiers/${dossierId}`);
   return { success: true };
 }
-
-/** Longueur minimale d'un motif de remplacement. Aligné sur les motifs comptables. */
-export const MOTIF_REMPLACEMENT_MIN = 10;
 
 /**
  * Ce que le cabinet décide d'une pièce reçue.

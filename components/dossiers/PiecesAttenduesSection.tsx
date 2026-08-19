@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { formatCalendarDate } from "@/lib/utils/format";
@@ -13,6 +13,7 @@ import {
   registreCellMutedClass,
   RegistrePlainHeader,
 } from "@/components/ui/registre";
+import { MOTIF_REMPLACEMENT_MIN } from "@/lib/dossiers/pieces-attendues-constantes";
 import {
   creerPiecesAttenduesDivorce,
   enregistrerDateDossier,
@@ -102,6 +103,14 @@ export function PiecesAttenduesSection({
   /** Pièce dont on est en train d'écrire le motif de remplacement. */
   const [refus, setRefus] = useState<string | null>(null);
   const [motif, setMotif] = useState("");
+
+  // Le serveur ne rend qu'un CHEMIN : il ne connaît pas le domaine par lequel le
+  // cabinet est arrivé. Sans cette reprise au chargement, un lien déjà créé
+  // s'affichait « /collecte/… » après le moindre rechargement, et c'est ce fragment
+  // que le bouton copiait. Collé dans un courriel, il ne mène nulle part.
+  useEffect(() => {
+    if (lien) setLienAffiche(`${window.location.origin}${lien.url}`);
+  }, [lien]);
 
   // Le plus grave d'abord, pas le plus proche : un délai dans 20 jours qui coûte
   // l'audience prime sur un manquement dans 3 jours.
@@ -227,7 +236,9 @@ export function PiecesAttenduesSection({
       {aSaisir.length > 0 && canWrite ? (
         <div className="rounded-md border border-si-line bg-si-surface px-4 py-3.5">
           <p className="text-[13px] text-si-ink">
-            {aSaisir.length} date(s) à saisir pour que les échéances se calculent.
+            {aSaisir.length === 1
+              ? "Une date à saisir pour que les échéances se calculent."
+              : `${aSaisir.length} dates à saisir pour que les échéances se calculent.`}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {aSaisir.map(([champ]) => (
@@ -423,7 +434,7 @@ export function PiecesAttenduesSection({
                               type="button"
                               variant="primary"
                               size="sm"
-                              disabled={enCours || motif.trim().length < 10}
+                              disabled={enCours || motif.trim().length < MOTIF_REMPLACEMENT_MIN}
                               onClick={() => decider(p.id, "remplacer")}
                             >
                               Envoyer la demande
