@@ -1,5 +1,9 @@
 # État du chantier de renforcement SAFE
 
+> ⚠️ **Sa recommandation de suite (intake structuré) est suspendue.** Voir
+> `REGLE_DE_BUILD.md` §5 : aucun chantier tant qu'aucun cabinet n'a franchi le
+> jour 0.
+
 Date : 2026-08-19  
 Branche vérifiée : `release/2026-06-11-compta-admin-derisier`  
 Commit vérifié : `5c11176`  

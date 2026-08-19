@@ -59,6 +59,22 @@ Documents opérationnels, légaux, financiers et marketing de SAFE Inc.
 
 ---
 
+## ⚠️ Avant de construire quoi que ce soit : REGLE_DE_BUILD.md
+
+**[docs/product/REGLE_DE_BUILD.md](docs/product/REGLE_DE_BUILD.md)** — une page,
+opposable, prime sur tout autre document de construction.
+
+Elle dit à quoi sert SAFE, quel est le seul but, ce qui autorise et ce qui interdit
+d'ouvrir un chantier, et ce que « terminé » veut dire. Elle tranche les
+contradictions entre le blueprint Neolegal, le modèle SAFE Lead et la doctrine
+d'ancrage.
+
+Règle courte : on ne construit que ce qui **supprime une saisie réelle** ou **rend
+visible ce qui existe déjà**. Et aucun chantier tant qu'aucun cabinet n'a franchi le
+jour 0.
+
+---
+
 ## Règles de travail
 
 - Ne pas builder sans spec validée (voir pipeline Delivery Syst)

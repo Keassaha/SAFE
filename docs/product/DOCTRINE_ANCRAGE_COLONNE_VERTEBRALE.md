@@ -1,5 +1,8 @@
 # Doctrine d'ancrage : comment SAFE devient la colonne vertébrale d'un cabinet
 
+> ℹ️ **Source de `REGLE_DE_BUILD.md`.** Reste la référence longue : en cas de doute
+> sur une règle, c'est ce document qui explique pourquoi.
+
 > Statut : doctrine active, opposable aux décisions de construction.
 > Date : 2026-08-14. Auteur : co-direction CEO.
 > Portée : priorisation produit, mise en route client, prévention du décrochage.

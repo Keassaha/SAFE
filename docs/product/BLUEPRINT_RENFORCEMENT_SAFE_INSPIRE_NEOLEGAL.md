@@ -1,5 +1,9 @@
 # Blueprint de renforcement de SAFE inspiré des capacités de Neolegal
 
+> ⚠️ **Son ordre de construction ne s'applique plus.** Ce blueprint reste un
+> catalogue de ce qu'un cabinet fait, utile pour savoir quoi bâtir un jour. Il ne
+> dit plus dans quel ordre. Voir `REGLE_DE_BUILD.md`, qui prime.
+
 Date : 2026-08-17  
 Statut : proposition produit à valider avant spécification technique  
 Propriétaire : SAFE Inc.  

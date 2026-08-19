@@ -1,5 +1,9 @@
 # SAFE — Ce qu'il y a à construire côté Neolegal, et par quoi commencer
 
+> ⚠️ **Ordre de construction suspendu.** Son arbitrage reste juste (la doctrine
+> d'ancrage prime sur le blueprint), mais aucun chantier ne s'ouvre tant qu'aucun
+> cabinet n'a franchi le jour 0. Voir `REGLE_DE_BUILD.md`, qui prime.
+
 > Dérivé de [BLUEPRINT_RENFORCEMENT_SAFE_INSPIRE_NEOLEGAL.md](BLUEPRINT_RENFORCEMENT_SAFE_INSPIRE_NEOLEGAL.md)
 > État du code vérifié le 2026-08-18, après la fermeture du chantier comptable.
 > Doctrine applicable : [DOCTRINE_ANCRAGE_COLONNE_VERTEBRALE.md](DOCTRINE_ANCRAGE_COLONNE_VERTEBRALE.md)
