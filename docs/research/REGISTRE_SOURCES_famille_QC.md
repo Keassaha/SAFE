@@ -45,7 +45,7 @@ formulaire assermenté. Elle produira un état de calcul lisible et le dira.
 | B4 | C-25.01, r. 12, **ANNEXE I — la table elle-même** | **MANQUANT** | — | **Les montants.** Alimente la ligne 301 (déduction de base) et la ligne 401 (contribution alimentaire parentale de base) du formulaire |
 | B5 | Loi sur le divorce, art. 2(1) et 2(5) | **DÉTENU** | 2026-08-19 | Définition des « lignes directrices applicables » : celles de la province si les deux ex-époux y résident habituellement, sinon les Lignes directrices fédérales |
 | B6 | Décret désignant la province de Québec, DORS/97-237 | **DÉTENU** (référencé) | 2026-08-19 | Le Québec est province désignée depuis le 1er mai 1997. Le modèle québécois s'applique en matière de divorce **à condition que les deux parents résident au Québec** |
-| B7 | Lignes directrices fédérales sur les pensions alimentaires pour enfants, DORS/97-175 | **MANQUANT** | — | Le calcul applicable quand les parents ne résident pas dans la même province |
+| B7 | Lignes directrices fédérales sur les pensions alimentaires pour enfants, DORS/97-175 | **DÉTENU** | 2026-08-19 | Le calcul applicable quand les parents ne résident pas dans la même province. Détail au §B-bis |
 | B8 | Loi facilitant le paiement des pensions alimentaires, chapitre P-2.2 | **UTILE** | — | Perception par Revenu Québec, qui peut modifier la fréquence des versements (note 4 du formulaire) |
 | B9 | Loi favorisant l'accès à la justice (SARPA), chapitre A-2.02, art. 5 | **UTILE** | — | Détermination du revenu d'un parent en défaut de fournir ses renseignements (art. 9 du règlement) |
 
@@ -53,7 +53,7 @@ formulaire assermenté. Elle produira un état de calcul lisible et le dira.
 formulaire lisent cette table. C'est le seul manque réellement bloquant du registre.
 
 **B7 n'est pas optionnel pour un cabinet d'immigration et de famille** : dès qu'un
-parent quitte le Québec, le calcul change de régime.
+parent quitte le Québec, le calcul change de régime. Ce régime est désormais détenu.
 
 ---
 
