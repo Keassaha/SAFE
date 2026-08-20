@@ -27,7 +27,7 @@ import {
   ScrollHint,
   type RailStop,
 } from "./shared";
-import { TARIFICATION } from "@/lib/tarification";
+import { TARIFICATION, prixFr } from "@/lib/tarification";
 
 /* Offre fondatrice v2 : source unique dans lib/tarification.ts. */
 const FOND = TARIFICATION.fondateurs;
@@ -328,10 +328,15 @@ function FactureFigure() {
   );
 }
 
+/**
+ * Les prix viennent de `lib/tarification.ts`, jamais d'une chaîne écrite ici.
+ * Ils étaient en dur : la grille a changé le 2026-08-20 et cette page, qui est
+ * LA page publique des tarifs, a continué d'annoncer l'ancien montant.
+ */
 const FORFAITS = [
   {
     nom: "Solo",
-    prix: "99 $",
+    prix: `${prixFr(TARIFICATION.paliers.solo.prix)} $`,
     periode: "par mois",
     pour: "Pour l’avocate ou l’avocat qui exerce seul.",
     desc: "Fidéicommis, dossiers, temps et facturation dans un même abonnement.",
@@ -339,7 +344,7 @@ const FORFAITS = [
   },
   {
     nom: "Cabinet",
-    prix: "149 $",
+    prix: `${prixFr(TARIFICATION.paliers.cabinet.prix)} $`,
     periode: "par mois",
     pour: "Pour les petits cabinets qui travaillent en équipe.",
     desc: "Tout ce qui est compris dans Solo, avec l’accès pour votre équipe.",

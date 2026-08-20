@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { TARIFICATION, prixFr } from "@/lib/tarification";
 import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
 import {
   ASSEMBLY_PIECE_A_PATH,
@@ -4775,14 +4776,14 @@ export default function ExperienceCinema() {
               <p className="name">Solo</p>
               <p className="detail">Pour une pratique individuelle.</p>
             </div>
-            <p className="price">99 $<small>/ mois</small></p>
+            <p className="price">{prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small></p>
           </div>
           <div className="plan">
             <div>
               <p className="name">Cabinet</p>
               <p className="detail">Pour une petite équipe qui travaille ensemble.</p>
             </div>
-            <p className="price">149 $<small>/ mois</small></p>
+            <p className="price">{prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small></p>
           </div>
           <p className="note">Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.</p>
           <a className="more" href="/tarification">Tous les détails de la tarification →</a>

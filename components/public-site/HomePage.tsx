@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { TARIFICATION, prixFr } from "@/lib/tarification";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -458,8 +459,8 @@ function ProductArguments() {
 
 function ContinuityAndPricing() {
   const plans = [
-    ["Solo", "99 $", "Pour une pratique individuelle."],
-    ["Cabinet", "149 $", "Pour une petite équipe qui travaille ensemble."],
+    ["Solo", `${prixFr(TARIFICATION.paliers.solo.prix)} $`, "Pour une pratique individuelle."],
+    ["Cabinet", `${prixFr(TARIFICATION.paliers.cabinet.prix)} $`, "Pour une petite équipe qui travaille ensemble."],
   ];
   return (
     <section className="border-t px-5 py-28 sm:px-6 lg:py-36" style={{ background: BG, borderColor: LINE }}>
