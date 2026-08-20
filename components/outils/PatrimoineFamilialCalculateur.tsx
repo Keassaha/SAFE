@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/Button";
 import {
   calculerPartage,
   VERIFIE_LE,
-  type Bien,
   type CategorieBien,
   type CauseDissolution,
   type Regime,
 } from "@/lib/outils/patrimoine-familial/calcul";
+import { lignesVersBiens } from "@/lib/outils/patrimoine-familial/saisie";
 
 /**
  * L'écran du calculateur de patrimoine familial.
@@ -33,6 +33,7 @@ import {
  */
 
 type Ligne = {
+  /** Identité de la ligne dans la liste. Le reste vit dans `LigneSaisie`. */
   cle: number;
   libelle: string;
   categorie: CategorieBien;
@@ -74,11 +75,6 @@ const ligneVide = (): Ligne => ({
   chargeFiscaleLatente: "",
 });
 
-const nombre = (s: string): number => {
-  const n = Number(s.replace(/[\s$]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
-};
-
 const argent = (n: number) =>
   n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 });
 
@@ -96,23 +92,9 @@ export function PatrimoineFamilialCalculateur() {
 
   const dateRef = regime === "union_parentale" ? "à l'inclusion" : "au mariage";
 
-  const biens: Bien[] = useMemo(
-    () =>
-      lignes
-        .filter((l) => l.libelle.trim() !== "" || l.valeurBrutePartage !== "")
-        .map((l) => ({
-          libelle: l.libelle.trim() || "Bien sans nom",
-          categorie: l.categorie,
-          valeurBruteReference: l.possedeAvant ? nombre(l.valeurBruteReference) : null,
-          detteReference: l.possedeAvant ? nombre(l.detteReference) : 0,
-          valeurBrutePartage: nombre(l.valeurBrutePartage),
-          dettePartage: nombre(l.dettePartage),
-          partageableEnNature: l.partageableEnNature,
-          chargeFiscaleLatente:
-            l.chargeFiscaleLatente === "" ? undefined : nombre(l.chargeFiscaleLatente),
-        })),
-    [lignes],
-  );
+  // La lecture des champs et leur conversion vivent dans `saisie.ts`, où elles sont
+  // testées. Ce composant ne fait plus que du rendu.
+  const biens = useMemo(() => lignesVersBiens(lignes), [lignes]);
 
   const resultat = useMemo(
     () => (biens.length ? calculerPartage({ regime, cause, biens }) : null),
