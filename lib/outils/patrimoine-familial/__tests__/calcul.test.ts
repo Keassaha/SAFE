@@ -173,8 +173,10 @@ describe("ce que le calcul refuse de trancher, il le dit", () => {
     );
     const impot = r.reserves.find((x) => x.code === "impot_latent");
     expect(impot).toBeDefined();
+    // L'intention du test n'est pas le vocabulaire, c'est l'ORDRE : la question qui
+    // peut faire disparaître la question difficile se pose en premier.
     expect(impot!.message.indexOf("partager en nature")).toBeLessThan(
-      impot!.message.indexOf("déductibilité"),
+      impot!.message.indexOf("charge fiscale"),
     );
   });
 
@@ -199,5 +201,78 @@ describe("ce que le calcul refuse de trancher, il le dit", () => {
     const art422 = r.reserves.find((x) => x.code === "partage_inegal_422");
     expect(art422?.message).toMatch(/ÉCONOMIQUE/);
     expect(art422?.reference).toMatch(/2008 CSC 50/);
+  });
+});
+
+describe("les trois disciplines de la réserve", () => {
+  const reer = (o: Partial<Bien> = {}): Bien => ({
+    libelle: "REER",
+    categorie: "regime_retraite",
+    valeurBruteReference: null,
+    detteReference: 0,
+    valeurBrutePartage: 100_000,
+    dettePartage: 0,
+    ...o,
+  });
+
+  it("chaque réserve porte sa date de vérification et ce qui la lèverait", () => {
+    const r = calculerPartage({
+      regime: "patrimoine_familial",
+      cause: "divorce",
+      biens: [
+        reer(),
+        residence({
+          libelle: "Négative",
+          valeurBruteReference: 100_000,
+          detteReference: 140_000,
+          valeurBrutePartage: 200_000,
+        }),
+      ],
+    });
+    expect(r.reserves.length).toBeGreaterThan(0);
+    for (const res of r.reserves) {
+      expect(res.verifieLe).toBe("2026-08-19");
+      expect(res.leveePar.length).toBeGreaterThan(20);
+    }
+  });
+
+  it("dit franchement que l'art. 422 ne se lèvera jamais par une recherche", () => {
+    const r = calculerPartage({ regime: "patrimoine_familial", cause: "divorce", biens: [] });
+    const a422 = r.reserves.find((x) => x.code === "partage_inegal_422");
+    expect(a422?.leveePar).toMatch(/^Rien\./);
+  });
+
+  it("rend DEUX montants quand la charge fiscale est chiffrée, sans en retenir un", () => {
+    const r = calculerPartage({
+      regime: "patrimoine_familial",
+      cause: "divorce",
+      biens: [reer({ chargeFiscaleLatente: 40_000 })],
+    });
+    expect(r.valeurPartageableTotale).toBe(100_000);
+    expect(r.valeurPartageableTotaleApresImpotLatent).toBe(60_000);
+    expect(r.partParConjoint).toBe(50_000);
+    expect(r.partParConjointApresImpotLatent).toBe(30_000);
+  });
+
+  it("ne calcule aucune charge fiscale lui-même : sans montant fourni, une seule branche", () => {
+    const r = calculerPartage({
+      regime: "patrimoine_familial",
+      cause: "divorce",
+      biens: [reer()],
+    });
+    expect(r.valeurPartageableTotaleApresImpotLatent).toBeNull();
+    expect(r.reserves.find((x) => x.code === "impot_latent")?.message).toMatch(
+      /chiffrez la charge fiscale/,
+    );
+  });
+
+  it("se tait entièrement si le bien se partage en nature, même avec une charge chiffrée", () => {
+    const r = calculerPartage({
+      regime: "patrimoine_familial",
+      cause: "divorce",
+      biens: [reer({ chargeFiscaleLatente: 40_000, partageableEnNature: true })],
+    });
+    expect(r.reserves.find((x) => x.code === "impot_latent")).toBeUndefined();
+    expect(r.valeurPartageableTotaleApresImpotLatent).toBeNull();
   });
 });
