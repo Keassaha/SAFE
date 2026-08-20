@@ -34,13 +34,42 @@ export type CauseDissolution = "divorce" | "separation_corps" | "nullite" | "dec
  * donation, ou de leur remploi. Le régime d'union parentale en admet quatre sources
  * (art. 521.36 al. 2), d'où le champ `source`.
  */
+export type SourceApport =
+  | "succession_donation"
+  | "remploi"
+  | "biens_avant_union"
+  | "fruits_et_revenus"
+  | "autre";
+
 export interface Apport {
   /** Valeur de l'apport lui-même. */
   montant: number;
   /** Valeur brute du bien AU MOMENT de l'apport. Sert de dénominateur à la proportion. */
   valeurBruteAuMoment: number;
-  /** Valeur brute du bien à la date d'évaluation, pour mesurer la plus-value depuis. */
-  source: "succession_donation" | "biens_avant_union" | "fruits_et_revenus" | "autre";
+  /** D'où vient la somme. Toutes les provenances ne se déduisent pas. */
+  source: SourceApport;
+}
+
+/**
+ * Quelles provenances se déduisent, selon le régime.
+ *
+ * Les deux régimes ne sont PAS symétriques, et c'est la source de l'erreur la plus
+ * facile à commettre ici.
+ *
+ * Le patrimoine familial (art. 418 al. 1) n'admet que ce qui vient d'une succession ou
+ * d'une donation, ou de leur remploi. Une somme épargnée avant le mariage n'ouvre
+ * aucune déduction : elle a été mise dans le bien, elle y reste.
+ *
+ * Le patrimoine d'union parentale (art. 521.36 al. 2) en admet quatre, dont les biens
+ * accumulés avant l'union et les fruits et revenus de ces biens. Transposer la règle
+ * du mariage à l'union parentale ferait perdre une déduction légitime, et l'inverse en
+ * accorderait une qui n'existe pas.
+ */
+export function sourceDeductible(source: SourceApport, regime: Regime): boolean {
+  if (regime === "union_parentale") {
+    return source !== "autre";
+  }
+  return source === "succession_donation" || source === "remploi";
 }
 
 export interface Bien {
@@ -288,6 +317,22 @@ export function calculerBien(bien: Bien, regime: Regime): ResultatBien {
   // d'achat.
   for (const a of bien.apports ?? []) {
     if (a.valeurBruteAuMoment <= 0) continue;
+
+    // Une provenance non admissible ne se déduit pas, et le calcul le DIT plutôt que
+    // de l'ignorer en silence. Sinon l'utilisateur croit sa déduction prise en compte.
+    if (!sourceDeductible(a.source, regime)) {
+      etapes.push({
+        libelle: "Apport écarté : cette provenance n'ouvre pas de déduction",
+        formule: `${a.montant} non déduit`,
+        montant: 0,
+        reference:
+          regime === "union_parentale"
+            ? "C.c.Q. art. 521.36 al. 2"
+            : "C.c.Q. art. 418 al. 1, succession ou donation seulement",
+      });
+      continue;
+    }
+
     const proportionApport = a.montant / a.valeurBruteAuMoment;
     const plusValueDepuis = bien.valeurBrutePartage - a.valeurBruteAuMoment;
     const dedApport = R2(a.montant + plusValueDepuis * proportionApport);

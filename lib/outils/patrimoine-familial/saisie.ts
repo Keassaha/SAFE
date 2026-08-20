@@ -11,7 +11,14 @@
  * Ici, tout est pur. Le composant ne garde que le rendu.
  */
 
-import type { Bien, CategorieBien } from "./calcul";
+import type { Apport, Bien, CategorieBien, SourceApport } from "./calcul";
+
+/** Un apport saisi : que du texte, comme le reste du formulaire. */
+export interface ApportSaisi {
+  montant: string;
+  valeurBruteAuMoment: string;
+  source: SourceApport;
+}
 
 /** Une ligne du formulaire, telle que l'utilisateur la remplit : que du texte. */
 export interface LigneSaisie {
@@ -24,6 +31,7 @@ export interface LigneSaisie {
   dettePartage: string;
   partageableEnNature: boolean;
   chargeFiscaleLatente: string;
+  apports: ApportSaisi[];
 }
 
 /**
@@ -58,6 +66,25 @@ export function ligneRemplie(l: LigneSaisie): boolean {
  * « il n'y a pas d'impôt », alors que vide veut dire « on ne l'a pas chiffré ». Le
  * moteur ne rend la seconde branche que dans le premier cas.
  */
+/**
+ * Un apport n'existe qu'une fois ses DEUX montants donnés.
+ *
+ * La proportion de l'art. 418 al. 2 a la valeur du bien au moment de l'apport au
+ * dénominateur. Sans elle, il n'y a pas de déduction possible, seulement une division
+ * par zéro. Une ligne à moitié remplie est donc ignorée, pas devinée.
+ */
+export function apportRempli(a: ApportSaisi): boolean {
+  return nombre(a.montant) > 0 && nombre(a.valeurBruteAuMoment) > 0;
+}
+
+function apportVersModele(a: ApportSaisi): Apport {
+  return {
+    montant: nombre(a.montant),
+    valeurBruteAuMoment: nombre(a.valeurBruteAuMoment),
+    source: a.source,
+  };
+}
+
 export function ligneVersBien(l: LigneSaisie): Bien {
   return {
     libelle: l.libelle.trim() || "Bien sans nom",
@@ -69,6 +96,7 @@ export function ligneVersBien(l: LigneSaisie): Bien {
     partageableEnNature: l.partageableEnNature,
     chargeFiscaleLatente:
       l.chargeFiscaleLatente.trim() === "" ? undefined : nombre(l.chargeFiscaleLatente),
+    apports: (l.apports ?? []).filter(apportRempli).map(apportVersModele),
   };
 }
 

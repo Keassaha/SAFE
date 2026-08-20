@@ -9,7 +9,11 @@ import {
   type CauseDissolution,
   type Regime,
 } from "@/lib/outils/patrimoine-familial/calcul";
-import { lignesVersBiens } from "@/lib/outils/patrimoine-familial/saisie";
+import {
+  lignesVersBiens,
+  type ApportSaisi,
+} from "@/lib/outils/patrimoine-familial/saisie";
+import type { SourceApport } from "@/lib/outils/patrimoine-familial/calcul";
 
 /**
  * L'écran du calculateur de patrimoine familial.
@@ -44,7 +48,35 @@ type Ligne = {
   dettePartage: string;
   partageableEnNature: boolean;
   chargeFiscaleLatente: string;
+  apports: ApportSaisi[];
 };
+
+/**
+ * Les provenances proposées, et leur ordre.
+ *
+ * La succession vient en tête parce que c'est le cas courant. « Autre » est là pour
+ * que l'utilisateur puisse être honnête : le calcul l'écartera et le dira, plutôt que
+ * de le pousser à mentir sur la provenance pour obtenir une déduction.
+ */
+const SOURCES_MARIAGE: { valeur: SourceApport; libelle: string }[] = [
+  { valeur: "succession_donation", libelle: "Un héritage ou une donation" },
+  { valeur: "remploi", libelle: "La vente d'un bien possédé au mariage" },
+  { valeur: "autre", libelle: "Autre provenance" },
+];
+
+const SOURCES_UNION_PARENTALE: { valeur: SourceApport; libelle: string }[] = [
+  { valeur: "succession_donation", libelle: "Un héritage ou une donation" },
+  { valeur: "remploi", libelle: "La vente d'un bien déjà au patrimoine" },
+  { valeur: "biens_avant_union", libelle: "Des biens accumulés avant l'union" },
+  { valeur: "fruits_et_revenus", libelle: "Les revenus de ces biens" },
+  { valeur: "autre", libelle: "Autre provenance" },
+];
+
+const apportVide = (): ApportSaisi => ({
+  montant: "",
+  valeurBruteAuMoment: "",
+  source: "succession_donation",
+});
 
 const CATEGORIES: { valeur: CategorieBien; libelle: string }[] = [
   { valeur: "residence_familiale", libelle: "Résidence de la famille" },
@@ -73,6 +105,7 @@ const ligneVide = (): Ligne => ({
   dettePartage: "",
   partageableEnNature: false,
   chargeFiscaleLatente: "",
+  apports: [],
 });
 
 const argent = (n: number) =>
@@ -132,6 +165,15 @@ export function PatrimoineFamilialCalculateur({
 
   const majLigne = (cle: number, champs: Partial<Ligne>) =>
     setLignes((ls) => ls.map((l) => (l.cle === cle ? { ...l, ...champs } : l)));
+
+  const majApport = (cle: number, index: number, champs: Partial<ApportSaisi>) =>
+    setLignes((ls) =>
+      ls.map((l) =>
+        l.cle === cle
+          ? { ...l, apports: l.apports.map((a, i) => (i === index ? { ...a, ...champs } : a)) }
+          : l,
+      ),
+    );
 
   return (
     <div className="space-y-8">
@@ -307,6 +349,92 @@ export function PatrimoineFamilialCalculateur({
                   </label>
                 </div>
               ) : null}
+
+              {/* LES APPORTS.
+                  Le moteur savait les traiter depuis le premier jour et aucun champ ne
+                  permettait de les saisir. Une cliente ayant mis un héritage dans la
+                  maison obtenait donc un chiffre FAUX, pas un refus : le pire des trois
+                  comportements possibles. */}
+              <div className="mt-3 border-t border-si-line pt-3">
+                <p className="text-[13px] text-si-ink">
+                  Une somme a-t-elle été investie dans ce bien pendant l&apos;union ?
+                </p>
+                <p className="mt-1 text-[12px] leading-relaxed text-si-muted">
+                  Un héritage, une donation, ou le produit de la vente d&apos;un bien que
+                  vous possédiez déjà. Toutes les provenances n&apos;ouvrent pas de
+                  déduction, et le calcul dira lesquelles il écarte.
+                </p>
+
+                {l.apports.map((a, i) => (
+                  <div key={i} className="mt-3 grid gap-3 sm:grid-cols-[1.4fr_1fr_1fr_auto] sm:items-end">
+                    <label className="block">
+                      <span className="mb-[6px] block text-[12px] font-medium text-si-ink">
+                        Provenance
+                      </span>
+                      <select
+                        className={champ}
+                        value={a.source}
+                        onChange={(e) =>
+                          majApport(l.cle, i, { source: e.target.value as SourceApport })
+                        }
+                      >
+                        {(regime === "union_parentale"
+                          ? SOURCES_UNION_PARENTALE
+                          : SOURCES_MARIAGE
+                        ).map((o) => (
+                          <option key={o.valeur} value={o.valeur}>
+                            {o.libelle}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="mb-[6px] block text-[12px] font-medium text-si-ink">
+                        Somme investie
+                      </span>
+                      <input
+                        className={champ}
+                        inputMode="decimal"
+                        value={a.montant}
+                        onChange={(e) => majApport(l.cle, i, { montant: e.target.value })}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-[6px] block text-[12px] font-medium text-si-ink">
+                        Valeur du bien ce jour-là
+                      </span>
+                      <input
+                        className={champ}
+                        inputMode="decimal"
+                        value={a.valeurBruteAuMoment}
+                        onChange={(e) =>
+                          majApport(l.cle, i, { valeurBruteAuMoment: e.target.value })
+                        }
+                      />
+                    </label>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        majLigne(l.cle, { apports: l.apports.filter((_, j) => j !== i) })
+                      }
+                    >
+                      Retirer
+                    </Button>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => majLigne(l.cle, { apports: [...l.apports, apportVide()] })}
+                >
+                  {l.apports.length ? "Ajouter une autre somme" : "Ajouter une somme investie"}
+                </Button>
+              </div>
 
               {l.categorie === "regime_retraite" ? (
                 <div className="mt-3 border-t border-si-line pt-3">
