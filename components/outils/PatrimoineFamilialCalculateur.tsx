@@ -78,14 +78,43 @@ const ligneVide = (): Ligne => ({
 const argent = (n: number) =>
   n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 });
 
-const joursDepuis = (iso: string) =>
-  Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
+/**
+ * L'âge d'une vérification, écrit comme une personne l'écrit.
+ *
+ * « il y a 1 jours » est la même faute que « 5 document(s) » : une économie de
+ * développeur qui signe la machine. Et au-delà de deux mois, le nombre de jours ne
+ * dit plus rien d'utile ; ce qui compte alors est que la vérification vieillit.
+ */
+const ageVerification = (iso: string): string => {
+  const jours = Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
+  if (jours <= 0) return "vérifié aujourd'hui";
+  if (jours === 1) return "vérifié hier";
+  if (jours < 60) return `vérifié il y a ${jours} jours`;
+  const mois = Math.round(jours / 30);
+  return `vérifié il y a ${mois} mois`;
+};
 
 const champ =
   "w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-2.5 py-1.5 text-[13px] " +
   "text-si-ink outline-none focus:border-si-verified focus:shadow-focus";
 
-export function PatrimoineFamilialCalculateur() {
+export function PatrimoineFamilialCalculateur({
+  contexte = "cabinet",
+}: {
+  /**
+   * Qui lit l'écran.
+   *
+   * L'avertissement n'est pas le même. Au cabinet, l'avocate sait déjà que ce calcul
+   * ne remplace pas le formulaire assermenté ; ce qu'elle doit savoir, c'est qu'elle
+   * jure sur ce qu'elle signe. Au public, un justiciable pourrait s'en servir seul
+   * pour négocier son divorce, et il faut lui dire que ce n'est pas un avis juridique.
+   *
+   * Rien d'autre ne change. Le calcul, les étapes et les réserves sont identiques :
+   * un outil qui simplifierait son raisonnement pour le public serait moins honnête,
+   * pas plus accessible.
+   */
+  contexte?: "cabinet" | "public";
+} = {}) {
   const [regime, setRegime] = useState<Regime>("patrimoine_familial");
   const [cause, setCause] = useState<CauseDissolution>("divorce");
   const [lignes, setLignes] = useState<Ligne[]>([ligneVide()]);
@@ -409,7 +438,7 @@ export function PatrimoineFamilialCalculateur() {
                       {r.message}
                     </p>
                     <p className="mt-1 text-[12px] text-si-muted">
-                      {r.reference} · vérifié le {r.verifieLe} (il y a {joursDepuis(r.verifieLe)} jours)
+                      {r.reference} · {ageVerification(r.verifieLe)}, le {r.verifieLe}
                     </p>
                     <p className="mt-0.5 text-[12px] text-si-muted">
                       Ce qui le lèverait : {r.leveePar}
@@ -421,8 +450,19 @@ export function PatrimoineFamilialCalculateur() {
           ) : null}
 
           <p className="mt-6 text-[12px] leading-relaxed text-si-muted">
-            Ce calcul ne remplace pas le formulaire de la Cour supérieure, qui se produit
-            sous serment. Sources vérifiées le {VERIFIE_LE}.
+            {contexte === "public" ? (
+              <>
+                Ce calcul n&apos;est pas un avis juridique et ne remplace pas le
+                formulaire de la Cour supérieure, qui se produit sous serment. Un partage
+                se plaide sur des faits que seul un avocat peut apprécier. Sources
+                vérifiées le {VERIFIE_LE}.
+              </>
+            ) : (
+              <>
+                Ce calcul ne remplace pas le formulaire de la Cour supérieure, qui se
+                produit sous serment. Sources vérifiées le {VERIFIE_LE}.
+              </>
+            )}
           </p>
         </section>
       ) : null}

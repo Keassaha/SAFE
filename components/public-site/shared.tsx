@@ -82,6 +82,10 @@ export const R = {
   diagnostic: "/audit-gratuit",
   faq: "/faq",
   auditReel: "/audit-gratuit",
+  // La suite d'outils gratuits. Un chemin propre parce qu'elle va s'allonger :
+  // le patrimoine familial d'abord, la pension alimentaire ensuite.
+  outils: "/calculateurs",
+  calcPatrimoineFamilial: "/calculateurs/patrimoine-familial",
 };
 
 /**
@@ -135,6 +139,7 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
   const action = cta ?? { href: R.diagnostic, label: "Faire le diagnostic" };
   const links = [
     { label: "Fonctionnalités", href: R.fonctionnalites },
+    { label: "Outils", href: R.outils },
     { label: "Tarification", href: R.tarification },
     { label: "À propos", href: R.aPropos },
     { label: "Contact", href: R.demo },
