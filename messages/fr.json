@@ -2136,6 +2136,28 @@
         "submit": "Ajouter",
         "cancel": "Annuler",
         "error": "Erreur"
+      },
+      "feeSchedule": {
+        "title": "Grille tarifaire",
+        "addService": "Ajouter un service",
+        "code": "Code",
+        "codePlaceholder": "IMMO-ACHAT",
+        "serviceName": "Nom du service",
+        "serviceNamePlaceholder": "Achat immobilier",
+        "price": "Prix ($)",
+        "pricePlaceholder": "1500,00",
+        "category": "Catégorie",
+        "categoryGeneral": "Général",
+        "categoryRealEstate": "Immobilier",
+        "categoryImmigration": "Immigration",
+        "taxable": "Taxable",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "columnService": "Service",
+        "columnTax": "Taxe",
+        "taxYes": "Oui",
+        "editPrice": "Modifier le prix",
+        "empty": "Aucun service pour l'instant. Ajoutez le premier ci-dessus."
       }
     },
     "deleteEntry": "Supprimer cette entrée ?",

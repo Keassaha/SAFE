@@ -2136,6 +2136,28 @@
         "submit": "Add",
         "cancel": "Cancel",
         "error": "Error"
+      },
+      "feeSchedule": {
+        "title": "Fee schedule",
+        "addService": "Add a service",
+        "code": "Code",
+        "codePlaceholder": "IMMO-PURCHASE",
+        "serviceName": "Service name",
+        "serviceNamePlaceholder": "Real estate purchase",
+        "price": "Price ($)",
+        "pricePlaceholder": "1500.00",
+        "category": "Category",
+        "categoryGeneral": "General",
+        "categoryRealEstate": "Real estate",
+        "categoryImmigration": "Immigration",
+        "taxable": "Taxable",
+        "save": "Save",
+        "cancel": "Cancel",
+        "columnService": "Service",
+        "columnTax": "Tax",
+        "taxYes": "Yes",
+        "editPrice": "Edit price",
+        "empty": "No service yet. Add the first one above."
       }
     },
     "deleteEntry": "Delete this entry?",

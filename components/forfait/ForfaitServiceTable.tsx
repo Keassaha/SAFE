@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +24,8 @@ interface ForfaitService {
 interface EditState { id: string; field: string; value: string }
 
 export function ForfaitServiceTable() {
+  const t = useTranslations("temps.taskRegister.feeSchedule");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [editState, setEditState] = useState<EditState | null>(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -76,44 +79,53 @@ export function ForfaitServiceTable() {
 
   const services = data?.services ?? [];
 
+  // Les deux catégories du catalogue se traduisent. Une catégorie libre venue
+  // de l'API s'affiche telle qu'elle a été saisie : on ne devine pas.
+  const categorieLabel = (categorie: string | null): string => {
+    if (!categorie) return "—";
+    if (categorie === "immobilier") return t("categoryRealEstate");
+    if (categorie === "immigration") return t("categoryImmigration");
+    return categorie;
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium">Fee Schedule</h3>
+          <h3 className="text-sm font-medium">{t("title")}</h3>
           <Button variant="secondary" onClick={() => setShowAdd(!showAdd)}>
-            <Plus className="w-3 h-3" /> Add Service
+            <Plus className="w-3 h-3" /> {t("addService")}
           </Button>
         </div>
 
         {showAdd && (
           <div className="mb-4 p-3 bg-neutral-50 rounded-safe border space-y-3">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Input label="Code" value={newService.code} onChange={e => setNewService({ ...newService, code: e.target.value })} placeholder="IMMO-ACHAT" />
-              <Input label="Service Name" value={newService.nom} onChange={e => setNewService({ ...newService, nom: e.target.value })} placeholder="Real estate purchase" />
-              <Input label="Price ($)" type="number" step="0.01" value={newService.montant} onChange={e => setNewService({ ...newService, montant: e.target.value })} placeholder="1500.00" />
+              <Input label={t("code")} value={newService.code} onChange={e => setNewService({ ...newService, code: e.target.value })} placeholder={t("codePlaceholder")} />
+              <Input label={t("serviceName")} value={newService.nom} onChange={e => setNewService({ ...newService, nom: e.target.value })} placeholder={t("serviceNamePlaceholder")} />
+              <Input label={t("price")} type="number" step="0.01" value={newService.montant} onChange={e => setNewService({ ...newService, montant: e.target.value })} placeholder={t("pricePlaceholder")} />
               <div>
-                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">Category</label>
+                <label className="block text-sm font-medium text-neutral-text-secondary mb-1">{t("category")}</label>
                 <select
                   value={newService.categorie}
                   onChange={e => setNewService({ ...newService, categorie: e.target.value })}
                   className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
                 >
-                  <option value="">General</option>
-                  <option value="immobilier">Real Estate</option>
-                  <option value="immigration">Immigration</option>
+                  <option value="">{t("categoryGeneral")}</option>
+                  <option value="immobilier">{t("categoryRealEstate")}</option>
+                  <option value="immigration">{t("categoryImmigration")}</option>
                 </select>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={newService.taxable} onChange={e => setNewService({ ...newService, taxable: e.target.checked })} className="rounded" />
-                Taxable (HST 13%)
+                {t("taxable")}
               </label>
               <Button variant="primary" onClick={() => createMutation.mutate()} disabled={!newService.code || !newService.nom || !newService.montant}>
-                Save
+                {t("save")}
               </Button>
-              <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setShowAdd(false)}>{t("cancel")}</Button>
             </div>
           </div>
         )}
@@ -122,11 +134,11 @@ export function ForfaitServiceTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
-                <th className="pb-2 font-medium w-24">Code</th>
-                <th className="pb-2 font-medium">Service</th>
-                <th className="pb-2 font-medium w-20">Category</th>
-                <th className="pb-2 font-medium w-28 text-right">Price</th>
-                <th className="pb-2 font-medium w-16 text-center">Tax</th>
+                <th className="pb-2 font-medium w-24">{t("code")}</th>
+                <th className="pb-2 font-medium">{t("columnService")}</th>
+                <th className="pb-2 font-medium w-20">{t("category")}</th>
+                <th className="pb-2 font-medium w-28 text-right">{t("price")}</th>
+                <th className="pb-2 font-medium w-16 text-center">{t("columnTax")}</th>
                 <th className="pb-2 font-medium w-16"></th>
               </tr>
             </thead>
@@ -135,7 +147,7 @@ export function ForfaitServiceTable() {
                 <tr key={s.id} className="safe-zoom-rang border-b last:border-0 ">
                   <td className="py-2 font-mono text-xs text-neutral-500">{s.code}</td>
                   <td className="py-2 font-medium">{s.nom}</td>
-                  <td className="py-2 text-xs text-neutral-500">{s.categorie ?? "—"}</td>
+                  <td className="py-2 text-xs text-neutral-500">{categorieLabel(s.categorie)}</td>
                   <td className="py-2 text-right tabular-nums">
                     {editState?.id === s.id && editState.field === "montant" ? (
                       <div className="flex items-center gap-1 justify-end">
@@ -158,19 +170,20 @@ export function ForfaitServiceTable() {
                         className="cursor-pointer hover:text-primary-600 hover:underline"
                         onClick={() => setEditState({ id: s.id, field: "montant", value: String(s.montant) })}
                       >
-                        {formatCurrency(s.montant)}
+                        {formatCurrency(s.montant, "CAD", locale)}
                       </span>
                     )}
                   </td>
                   <td className="py-2 text-center">
                     <span className={`text-xs ${s.taxable ? "text-green-600" : "text-neutral-400"}`}>
-                      {s.taxable ? "HST" : "—"}
+                      {s.taxable ? t("taxYes") : "—"}
                     </span>
                   </td>
                   <td className="py-2">
                     <button
                       onClick={() => setEditState({ id: s.id, field: "montant", value: String(s.montant) })}
                       className="text-neutral-400 hover:text-primary-600"
+                      aria-label={t("editPrice")}
                     >
                       <Pencil className="w-3 h-3" />
                     </button>
@@ -178,7 +191,7 @@ export function ForfaitServiceTable() {
                 </tr>
               ))}
               {services.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-neutral-400">No services configured. Add your first service above.</td></tr>
+                <tr><td colSpan={6} className="py-8 text-center text-neutral-400">{t("empty")}</td></tr>
               )}
             </tbody>
           </table>
