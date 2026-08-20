@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TrustWithdrawalMotive } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -52,6 +52,13 @@ export function RetraitForm({
     () => toIsoDay(toCalendarDayUTC(new Date()))
   );
   const [factureId, setFactureId] = useState("");
+  /* Factures que ce retrait peut légalement rembourser. Le champ demandait
+     auparavant de TAPER un identifiant de base de données : on y écrivait le
+     numéro lu partout ailleurs, et on recevait « Facture introuvable ». */
+  const [facturesEligibles, setFacturesEligibles] = useState<
+    { id: string; numero: string; soldeDu: number }[]
+  >([]);
+  const [chargementFactures, setChargementFactures] = useState(false);
   const [motive, setMotive] = useState<TrustWithdrawalMotive | "">("");
   // `ESPECES` est volontairement absent : l'art. 57 B-1 r.5 interdit tout retrait
   // en espèces d'un compte général en fidéicommis, et la s. 11(a) By-Law 9 interdit
@@ -99,6 +106,36 @@ export function RetraitForm({
   const dossiersForClient = clientId
     ? dossiers.filter((d) => d.clientId === clientId)
     : [];
+
+  useEffect(() => {
+    if (!clientId) {
+      setFacturesEligibles([]);
+      return;
+    }
+    let annule = false;
+    setChargementFactures(true);
+    const params = new URLSearchParams({ clientId });
+    if (dossierId) params.set("dossierId", dossierId);
+    fetch(`/api/fideicommis/factures-eligibles?${params}`)
+      .then((r) => (r.ok ? r.json() : { factures: [] }))
+      .then((d) => {
+        if (annule) return;
+        setFacturesEligibles(d.factures ?? []);
+        // Le choix courant peut ne plus être éligible après changement de dossier.
+        setFactureId((prev) =>
+          (d.factures ?? []).some((f: { id: string }) => f.id === prev) ? prev : "",
+        );
+      })
+      .catch(() => {
+        if (!annule) setFacturesEligibles([]);
+      })
+      .finally(() => {
+        if (!annule) setChargementFactures(false);
+      });
+    return () => {
+      annule = true;
+    };
+  }, [clientId, dossierId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,21 +287,40 @@ export function RetraitForm({
               </select>
               <p className="mt-1 text-xs text-neutral-muted">{tf("withdrawalMotiveHint")}</p>
             </div>
-            <Input
-              label={
-                invoiceRequired ? `${tf("linkedInvoice")} *` : tf("linkedInvoice")
-              }
-              value={factureId}
-              onChange={(e) => setFactureId(e.target.value)}
-              placeholder={tf("invoiceIdPlaceholder")}
-              required={invoiceRequired}
-              disabled={disabled}
-            />
-            {invoiceRequired && (
-              <p className="-mt-2 text-xs text-neutral-muted">
-                {tf("withdrawalInvoiceRequired")}
+            <div>
+              {/* Le libellé disait « (optionnel) » ET portait une astérisque de
+                  champ obligatoire. Deux libellés distincts, selon le motif. */}
+              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
+                {invoiceRequired ? `${tf("linkedInvoiceRequired")} *` : tf("linkedInvoice")}
+              </label>
+              <select
+                value={factureId}
+                onChange={(e) => setFactureId(e.target.value)}
+                required={invoiceRequired}
+                disabled={disabled || chargementFactures || !clientId}
+                className="w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white px-3 py-2 text-sm text-[var(--safe-text-title)] disabled:opacity-60"
+              >
+                <option value="">
+                  {!clientId
+                    ? tf("invoicePickClientFirst")
+                    : chargementFactures
+                      ? tf("invoiceLoading")
+                      : facturesEligibles.length === 0
+                        ? tf("invoiceNoneEligible")
+                        : tf("invoicePick")}
+                </option>
+                {facturesEligibles.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.numero} — {formatCurrency(f.soldeDu)} {tf("invoiceStillDue")}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-neutral-muted">
+                {invoiceRequired
+                  ? tf("withdrawalInvoiceRequired")
+                  : tf("invoiceOnlyEligible")}
               </p>
-            )}
+            </div>
             <div>
               <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
                 {tf("paymentMode")}

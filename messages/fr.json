@@ -1644,7 +1644,7 @@
     "loadingError": "Erreur chargement",
     "errorGeneric": "Erreur",
     "withdrawalMotive": "Motif du retrait",
-    "withdrawalMotiveHint": "Le règlement ne permet que trois retraits du compte général en fidéicommis (B-1 r.5, art. 56).",
+    "withdrawalMotiveHint": "Le règlement n'autorise que trois motifs de retrait du compte général en fidéicommis (B-1 r.5, art. 56).",
     "withdrawalMotiveSelect": "Choisir le motif",
     "withdrawalMotiveRemise": "Remise au client ou à un tiers en son nom",
     "withdrawalMotiveHonoraires": "Honoraires et débours facturés",
@@ -1652,7 +1652,14 @@
     "withdrawalMotiveInadvertance": "Somme déposée par inadvertance",
     "withdrawalMotiveRequired": "Choisissez le motif du retrait.",
     "withdrawalInvoiceRequired": "Un retrait pour honoraires et débours doit être rattaché à une facture émise et envoyée.",
-    "withdrawalCashNotice": "Aucun retrait en espèces n'est permis sur un compte en fidéicommis (B-1 r.5, art. 57)."
+    "withdrawalCashNotice": "Aucun retrait en espèces n'est permis sur un compte en fidéicommis (B-1 r.5, art. 57).",
+    "linkedInvoiceRequired": "Facture à rembourser",
+    "invoicePick": "Choisir une facture",
+    "invoicePickClientFirst": "Choisissez d'abord un client",
+    "invoiceLoading": "Chargement des factures…",
+    "invoiceNoneEligible": "Aucune facture éligible pour ce dossier",
+    "invoiceStillDue": "encore dû",
+    "invoiceOnlyEligible": "Seules les factures émises, transmises et encore dues sont proposées."
   },
   "payments": {
     "newPayment": "Nouveau paiement",

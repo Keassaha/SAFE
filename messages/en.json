@@ -1644,7 +1644,7 @@
     "loadingError": "Loading error",
     "errorGeneric": "Error",
     "withdrawalMotive": "Withdrawal reason",
-    "withdrawalMotiveHint": "Only three withdrawals from the general trust account are permitted (By-Law 9, s. 9(1)).",
+    "withdrawalMotiveHint": "The rules allow only three grounds for withdrawal from the general trust account (By-Law 9, s. 9(1)).",
     "withdrawalMotiveSelect": "Select a reason",
     "withdrawalMotiveRemise": "Payment to the client or a third party on their behalf",
     "withdrawalMotiveHonoraires": "Billed fees and disbursements",
@@ -1652,7 +1652,14 @@
     "withdrawalMotiveInadvertance": "Money paid in through inadvertence",
     "withdrawalMotiveRequired": "Select the withdrawal reason.",
     "withdrawalInvoiceRequired": "A withdrawal for fees and disbursements must be linked to a delivered invoice.",
-    "withdrawalCashNotice": "Cash withdrawals from a trust account are not permitted (By-Law 9, s. 11)."
+    "withdrawalCashNotice": "Cash withdrawals from a trust account are not permitted (By-Law 9, s. 11).",
+    "linkedInvoiceRequired": "Invoice to reimburse",
+    "invoicePick": "Choose an invoice",
+    "invoicePickClientFirst": "Choose a client first",
+    "invoiceLoading": "Loading invoices…",
+    "invoiceNoneEligible": "No eligible invoice for this matter",
+    "invoiceStillDue": "still due",
+    "invoiceOnlyEligible": "Only issued, delivered and still outstanding invoices are offered."
   },
   "payments": {
     "newPayment": "New payment",
