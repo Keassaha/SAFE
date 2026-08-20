@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Calculator } from "lucide-react";
 import { WIZARD_COLORS as C } from "@/lib/documents/famille/wizard-data";
 
 type Tool = {
@@ -13,7 +14,19 @@ type Tool = {
 };
 
 export function OutilsHub() {
-  const TOOLS: Tool[] = [];
+  // Le catalogue déclare cet outil depuis longtemps (`lib/catalog/catalog.ts`,
+  // id `calc-patrimoine-familial`). Le hub affichait « aucun outil disponible »
+  // pendant que la route n'existait pas. Les deux sont branchés maintenant.
+  const TOOLS: Tool[] = [
+    {
+      id: "calc-patrimoine-familial",
+      href: "/outils/patrimoine-familial",
+      label: "Patrimoine familial",
+      desc: "Le partage, calculé article par article, avec ce qu'il ne tranche pas.",
+      icon: Calculator,
+      color: C.sl700,
+    },
+  ];
 
   if (TOOLS.length === 0) {
     return (
