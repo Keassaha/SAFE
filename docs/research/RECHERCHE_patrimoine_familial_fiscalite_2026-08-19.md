@@ -1,9 +1,52 @@
 # Recherche — Le volet fiscal du patrimoine familial
 
 **Date de recherche** : 2026-08-19
-**Statut** : `draft` — **couverture partielle du mandat, voir §5**
+**Statut** : `review` — **corrigé le 2026-08-19 après la recherche Perplexity, voir §0**
 **Complète** : `RECHERCHE_patrimoine_familial_QC_2026-08-19.md` (volet civil)
 **Risque** : ÉLEVÉ
+
+---
+
+## 0. Correction de ce document
+
+**Ce que j'ai écrit au §1 et au §2 était trop affirmatif, et je le retire.**
+
+J'avais présenté la déduction de l'impôt latent comme une règle établie assortie d'une
+condition. La recherche complémentaire montre que **la question n'est pas tranchée** :
+deux courants s'opposent, et aucun arrêt de principe de la Cour d'appel ou de la Cour
+suprême ne les départage.
+
+| Courant | Décision | Position |
+|---|---|---|
+| Report à l'exécution | juge Chabot, *Droit de la famille - 1747*, [1993] R.D.F. 227 (C.S.) | L'incidence fiscale n'entre en ligne de compte **qu'à l'exécution** du partage. Les époux n'acquièrent pas un droit de propriété dans les biens, mais une **créance** sur la valeur du patrimoine |
+| Déduction immédiate | juge Senécal, *Droit de la famille - 2384*, [1996] R.D.F. 410 (C.S.) | La dette fiscale latente est déduite **dans le calcul de la créance elle-même**, sous condition de vraisemblance |
+
+**Et surtout, ce que font les tribunaux en pratique** : ils ordonnent le **partage en
+nature du REER par roulement**. Chaque époux reçoit la moitié des sommes et paiera
+l'impôt à son propre retrait futur. La question de la charge fiscale devient alors sans
+objet, ce qui explique qu'elle ne soit jamais tranchée.
+
+**Conséquence pour l'outil, révisée** : la première réponse n'est pas « l'impôt latent
+est-il déductible ». C'est **« ce bien peut-il se partager en nature ? »**. Si oui, la
+question fiscale disparaît. C'est l'inverse de ce que je proposais au §4.
+
+Sources : recherche Perplexity du 2026-08-19, conservée sous
+`sources-officielles/PERPLEXITY_patrimoine-familial-perimetre-fiscalite_2026-08-19.pdf`.
+
+---
+
+## 0bis. Trois de mes quatre « zones à ne pas coder » sont en fait tranchées
+
+| Zone | Ce que je disais | Ce que la jurisprudence dit |
+|---|---|---|
+| Moins-value | à ne pas coder | **Tranchée et non controversée.** Traitement **symétrique** : au lieu de déduire la plus-value proportionnelle, on **additionne la moins-value proportionnelle**. *DF-980*, [1990] R.J.Q. 1104 ; *DF-1893*, [1993] R.J.Q. 2806 (C.A.) ; *DF-2122* |
+| Valeur partageable négative | à ne pas coder | **Position majoritaire : plancher à zéro**, sans compensation entre biens, Cour d'appel 1993 (*DF-1893*). Dissidence isolée du juge Blanchet, *DF-2616*, [1995] R.J.Q. 917 |
+| Partage inégal, art. 422 | à ne pas coder | **Critère établi depuis 2008** : *M.T. c. J.-Y.T.*, 2008 CSC 50. Seule une **injustice de nature économique**, liée à l'échec de l'obligation de contribuer au patrimoine, justifie une dérogation. Adultère, violence conjugale et fautes non économiques **expressément exclus** |
+| Valeur nette négative au mariage | à ne pas coder | **Reste introuvable.** Aucune source. C'est la seule zone qui survit |
+
+**Le calculateur peut donc coder la moins-value et le plancher à zéro**, en signalant la
+dissidence pour le second. Pour l'art. 422, il ne calcule toujours pas, mais il peut
+désormais **nommer le critère** au lieu de rester muet.
 
 ---
 
