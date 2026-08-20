@@ -42,15 +42,20 @@ formulaire assermenté. Elle produira un état de calcul lisible et le dira.
 | B1 | C.c.Q. art. 585 à 596 | **DÉTENU** | 2026-08-19 | Qui se doit des aliments, présomption de l'art. 587.1, ajustements de l'art. 587.2, entente des parents de l'art. 587.3, indexation annuelle de l'art. 590, arrérages |
 | B2 | Règlement sur la fixation des pensions alimentaires pour enfants, C-25.01, r. 0.4 | **DÉTENU** | 2026-08-19 | Règles 1 à 10 et **formulaire officiel complet avec ses lignes numérotées** (parties 1 à 10) |
 | B3 | Règlement sur la table de fixation de la contribution alimentaire parentale de base, C-25.01, r. 12, **art. 1 et 2** | **DÉTENU** | 2026-08-19 | Renvoi de la table à l'annexe I, et **règle au-delà de 6 enfants** : multiplier l'écart entre les montants pour 5 et 6 enfants par le nombre d'enfants additionnels, puis ajouter au montant pour 6 |
-| B4 | C-25.01, r. 12, **ANNEXE I — la table elle-même** | **MANQUANT** | — | **Les montants.** Alimente la ligne 301 (déduction de base) et la ligne 401 (contribution alimentaire parentale de base) du formulaire |
+| B4 | C-25.01, r. 12, **ANNEXE I — la table elle-même** | **DÉTENU** | 2026-08-19 | **Les montants**, 105 tranches de revenu disponible × 6 colonnes, plus la **déduction de base de 13 865 $** (ligne 301) et les pourcentages au-delà de 200 000 $. Version applicable depuis le 1er janvier 2026, A.M. 5500 |
 | B5 | Loi sur le divorce, art. 2(1) et 2(5) | **DÉTENU** | 2026-08-19 | Définition des « lignes directrices applicables » : celles de la province si les deux ex-époux y résident habituellement, sinon les Lignes directrices fédérales |
 | B6 | Décret désignant la province de Québec, DORS/97-237 | **DÉTENU** (référencé) | 2026-08-19 | Le Québec est province désignée depuis le 1er mai 1997. Le modèle québécois s'applique en matière de divorce **à condition que les deux parents résident au Québec** |
 | B7 | Lignes directrices fédérales sur les pensions alimentaires pour enfants, DORS/97-175 | **DÉTENU** | 2026-08-19 | Le calcul applicable quand les parents ne résident pas dans la même province. Détail au §B-bis |
 | B8 | Loi facilitant le paiement des pensions alimentaires, chapitre P-2.2 | **UTILE** | — | Perception par Revenu Québec, qui peut modifier la fréquence des versements (note 4 du formulaire) |
 | B9 | Loi favorisant l'accès à la justice (SARPA), chapitre A-2.02, art. 5 | **UTILE** | — | Détermination du revenu d'un parent en défaut de fournir ses renseignements (art. 9 du règlement) |
 
-**Sans B4, aucun montant ne peut être produit.** Les deux lignes qui commandent tout le
-formulaire lisent cette table. C'est le seul manque réellement bloquant du registre.
+**B4 est arrivée le 2026-08-19** et le blocage est levé. La table a été extraite de la
+couche texte du PDF officiel, puis validée : 105 tranches contiguës, aucune
+discontinuité, croissance vérifiée sur les deux axes, cinq témoins recoupés. Elle est
+figée dans `sources-officielles/table-contribution-alimentaire-2026-01-01.json`.
+
+**Il ne reste qu'un manque**, A4, le formulaire de patrimoine de la Cour supérieure. Il
+n'empêche aucun calcul ; il empêche de prétendre produire le formulaire assermenté.
 
 **B7 n'est pas optionnel pour un cabinet d'immigration et de famille** : dès qu'un
 parent quitte le Québec, le calcul change de régime. Ce régime est désormais détenu.
@@ -106,19 +111,12 @@ montrer son chemin de calcul, article par article, parce que quelqu'un va jurer 
 
 ---
 
-## D. Les deux téléchargements que seul un humain peut faire
+## D. Le téléchargement qu'il reste à faire
 
-Les deux sites refusent les outils automatisés, et je n'ai pas contourné ces
-protections. Ils sont publics et gratuits.
+~~1. La table de fixation.~~ **Fournie par le CEO le 2026-08-19**, version applicable
+depuis le 1er janvier 2026 (A.M. 5500), vérifiée et figée.
 
-1. **La table de fixation** — la pièce bloquante.
-   `https://www.legisquebec.gouv.qc.ca/fr/pdf/rc/C-25.01,%20R.%2012.pdf`
-   Ou, pour l'annexe seule, le lien « ressource » de la page du règlement.
-   Vérifier que la version porte **« applicable à compter du 1er janvier 2026 »**,
-   édictée par A.M. 5500 (2025 G.O. 2, 6632). La table est réindexée chaque année : une
-   version périmée produit des montants faux sans rien signaler.
-
-2. **Le formulaire de patrimoine familial** de la Cour supérieure.
+1. **Le formulaire de patrimoine familial** de la Cour supérieure.
    `coursuperieureduquebec.ca`, section Formulaires, fichier `cs-patrimoine-familial.xls`.
 
 ---

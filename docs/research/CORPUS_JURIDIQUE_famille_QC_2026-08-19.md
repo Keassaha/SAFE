@@ -6,10 +6,11 @@
 **Périmètre** : réglementaire (Québec et fédéral), pour les domaines A à D du mandat
 **Risque** : ÉLEVÉ. Tout montant produit sera juré sous serment par une avocate.
 
-> **Verdict d'entrée** : aucun calculateur ne doit être construit aujourd'hui pour la
-> pension alimentaire québécoise. Une pièce indispensable manque et n'est pas
-> obtenable par moi. Le patrimoine familial et le régime fédéral, eux, passent le
-> contrôle sous réserves nommées au §7.
+> **Verdict d'entrée, révisé le 2026-08-19 en fin de journée.** La table québécoise a
+> été fournie par le CEO, vérifiée et figée. Le blocage de la pension québécoise est
+> **levé**. Les trois domaines passent désormais le contrôle, chacun sous les réserves
+> nommées au §7. Un seul manque subsiste, et il n'empêche aucun calcul : le formulaire
+> de patrimoine de la Cour supérieure.
 
 ---
 
@@ -79,7 +80,7 @@ fait à verser au dossier.
 | C.c.Q. art. 585 à 596 | Éditeur officiel du Québec | 2026-08-19 | **DÉTENU** |
 | C-25.01, r. 0.4, règles 1 à 10 + formulaire (annexe I) | Éditeur officiel du Québec | **à jour au 1er avril 2026** | **DÉTENU**, PDF conservé au dépôt |
 | C-25.01, r. 12, art. 1 et 2 | Éditeur officiel du Québec | à jour au 1er avril 2026 | **DÉTENU** |
-| C-25.01, r. 12, **annexe I (la table)** | Éditeur officiel du Québec | applicable depuis le **1er janvier 2026**, A.M. 5500 | **MANQUANT** |
+| C-25.01, r. 12, **annexe I (la table)** | Éditeur officiel du Québec | applicable depuis le **1er janvier 2026**, A.M. 5500 ; document à jour au 1er avril 2026 | **DÉTENU**, PDF conservé et table extraite |
 
 ### 4.2 Règles établies `VERIFIE`
 
@@ -147,10 +148,32 @@ sérieuse.
 aux deux semaines (÷26), hebdomadaire (÷52), ou autre. La perception par Revenu Québec
 peut modifier cette fréquence.
 
-### 4.3 Ce qui bloque
+### 4.3 La table, obtenue et vérifiée
 
-Les lignes **301** (déduction de base) et **401** (contribution alimentaire parentale de
-base) lisent toutes deux la table manquante. **Sans elle, aucun montant.**
+Fournie le 2026-08-19. Extraite de la **couche texte du PDF officiel**, jamais recopiée
+à l'œil, puis validée par programme avant tout usage :
+
+- **105 tranches** de revenu disponible, de `1 - 1 000` à `198 001 - 200 000` ;
+- **contiguïté** vérifiée : aucune discontinuité ni chevauchement ;
+- **croissance** vérifiée sur les deux axes, revenu et nombre d'enfants ;
+- **cinq témoins** recoupés contre le texte source.
+
+Elle donne aussi les deux paramètres qui manquaient :
+
+- **déduction de base de la ligne 301 : 13 865 $**, applicable depuis le 1er janvier
+  2026 ;
+- au-delà de 200 000 $ de revenu disponible, pourcentages de l'excédent de
+  **3,5 / 4,5 / 6,5 / 8,0 / 10,0 / 11,5 %** selon le nombre d'enfants, **indicatifs
+  seulement** (r. 0.4, art. 10).
+
+Figée dans `sources-officielles/table-contribution-alimentaire-2026-01-01.json`, avec sa
+provenance et sa date d'application.
+
+**Note de méthode.** Ma première lecture visuelle de l'image donnait 21 430 $ pour la
+tranche 98 001 - 100 000 à trois enfants. La couche texte dit **21 130 $**, valeur
+encadrée par 20 960 $ et 21 290 $ aux tranches voisines. C'est mon œil qui avait tort.
+C'est précisément pourquoi le mandat exige une deuxième vérification, et pourquoi aucun
+nombre de cette table ne doit être saisi à la main.
 
 ---
 
@@ -264,14 +287,16 @@ détenu ; l'outil doit dire qu'il ne le remplace pas.
 | Déterminer le régime applicable | Loi sur le divorce 2(1) ; DORS/97-237 | ✅ |
 | Qualifier la garde | r. 0.4, art. 4 à 7 | ✅ |
 | Établir les revenus | r. 0.4, art. 9, 2° | ✅ |
-| Calculer le revenu disponible | r. 0.4, art. 9, 3° **et la table (ligne 301)** | ❌ |
-| Calculer la contribution de base | **r. 12, annexe I (ligne 401)** | ❌ |
+| Calculer le revenu disponible | r. 0.4, art. 9, 3° et la table (ligne 301 = 13 865 $) | ✅ |
+| Calculer la contribution de base | r. 12, annexe I (ligne 401) | ✅ |
 | Répartir les frais | r. 0.4, art. 9, 1° ; formulaire lignes 403-407 | ✅ |
 | Appliquer le plafond de capacité | r. 0.4, art. 8 ; partie 6 | ✅ |
-| Traiter plus de six enfants | r. 12, art. 1 al. 2 **et la table** | ❌ |
+| Traiter plus de six enfants | r. 12, art. 1 al. 2 et la table | ✅ |
 
-**Verdict : ÉCHEC.** Trois règles sur huit dépendent d'une pièce manquante, dont les
-deux qui produisent les montants. **Aucune construction.**
+**Verdict : PASSE SOUS RÉSERVE**, révisé le 2026-08-19. Les huit règles sont sourcées.
+Réserves : l'absence de règle d'arrondi explicite (§8), et l'interdiction de trancher
+les cas discrétionnaires, qui restent au tribunal (art. 587.2 C.c.Q., art. 10 du
+règlement).
 
 ### 7.3 Régime fédéral
 
