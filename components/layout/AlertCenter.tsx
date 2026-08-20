@@ -33,14 +33,31 @@ type Obligation = {
   action: string;
 };
 
+/**
+ * Vue minimale de l'abonnement, sérialisable pour un composant client.
+ * `echeance` est une chaîne ISO : une `Date` ne traverse pas la frontière RSC.
+ */
+export interface AbonnementAlerte {
+  actif: boolean;
+  /** `no_active_subscription`, `acces_expire`, `past_due`, `canceled`, `unpaid`… */
+  motif: string | null;
+  echeance: string | null;
+}
+
 export interface AlertCenterProps {
   status: TrustReconciliationStatus | null;
   /** Pilote la réglementation citée, jamais la langue de l'interface. */
   province?: string | null;
+  /**
+   * État de l'abonnement. Quand il n'est pas actif, il devient une obligation
+   * de plus dans cette liste, au lieu de fermer l'application entière.
+   */
+  abonnement?: AbonnementAlerte | null;
 }
 
-export function AlertCenter({ status, province }: AlertCenterProps) {
+export function AlertCenter({ status, province, abonnement }: AlertCenterProps) {
   const t = useTranslations("alertCenter");
+  const ta = useTranslations("abonnementAlerte");
   const tb = useTranslations("trustBanner");
   const locale = useLocale();
   const [ouvert, setOuvert] = useState(false);
@@ -80,6 +97,25 @@ export function AlertCenter({ status, province }: AlertCenterProps) {
       echeance: status.expectedPeriode ?? null,
       href: "/comptes/rapprochement",
       action: tb("cta"),
+    });
+  }
+
+  /* L'abonnement n'est PAS une obligation réglementaire : c'est une créance
+     commerciale. Sa gravité reste donc « attention », jamais « critique », et
+     elle passe après le fidéicommis, qui engage la responsabilité professionnelle
+     de l'avocate. Un rappel de facturation ne doit pas crier plus fort qu'un
+     compte en fidéicommis non rapproché. */
+  if (abonnement && !abonnement.actif) {
+    const motif = abonnement.motif ?? "no_active_subscription";
+    const connu = ["past_due", "unpaid", "canceled", "acces_expire"].includes(motif);
+    obligations.push({
+      id: "abonnement",
+      gravite: "attention",
+      titre: ta(connu ? `${motif}.titre` : "aucun.titre"),
+      detail: ta(connu ? `${motif}.detail` : "aucun.detail"),
+      echeance: abonnement.echeance,
+      href: "/parametres/abonnement",
+      action: ta("cta"),
     });
   }
 

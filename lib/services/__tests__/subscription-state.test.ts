@@ -129,9 +129,12 @@ describe("subscription guard", () => {
     expect(shouldBlockForSubscription("/parametres/abonnement", { active: false })).toBe(false);
   });
 
-  it("bloque les pages app ordinaires sans abonnement actif", () => {
-    expect(shouldBlockForSubscription("/tableau-de-bord", { active: false })).toBe(true);
-    expect(shouldBlockForSubscription("/facturation", { active: false })).toBe(true);
+  it("ne bloque plus les pages app sans abonnement actif", () => {
+    // Comportement CHANGÉ volontairement le 2026-08-20 : le mur enfermait un
+    // cabinet réel avec ses données dedans. La créance est passée au centre
+    // d'alertes. Le mur reste rallumable, cf. le bloc dédié plus bas.
+    expect(shouldBlockForSubscription("/tableau-de-bord", { active: false })).toBe(false);
+    expect(shouldBlockForSubscription("/facturation", { active: false })).toBe(false);
     expect(shouldBlockForSubscription("/facturation", { active: true })).toBe(false);
   });
 
@@ -141,5 +144,45 @@ describe("subscription guard", () => {
       NOW,
     );
     expect(shouldBlockForSubscription("/tableau-de-bord", s)).toBe(false);
+  });
+});
+
+describe("le mur d'abonnement n'enferme plus personne", () => {
+  it("un cabinet sans abonnement travaille normalement", () => {
+    // Le cas vécu : jamais de ligne Stripe, donc `active: false`, donc l'écran
+    // « abonnement requis » à chaque chargement de page. Il ne bloque plus.
+    expect(shouldBlockForSubscription("/tableau-de-bord", { active: false })).toBe(false);
+    expect(shouldBlockForSubscription("/facturation", { active: false })).toBe(false);
+    expect(shouldBlockForSubscription("/comptes", { active: false })).toBe(false);
+  });
+
+  it("un abonnement actif ne bloque évidemment rien", () => {
+    expect(shouldBlockForSubscription("/tableau-de-bord", { active: true })).toBe(false);
+  });
+
+  it("l'interrupteur rallume le mur exactement comme avant", () => {
+    const avant = process.env.SAFE_BLOCAGE_ABONNEMENT;
+    process.env.SAFE_BLOCAGE_ABONNEMENT = "on";
+    try {
+      expect(shouldBlockForSubscription("/tableau-de-bord", { active: false })).toBe(true);
+      expect(shouldBlockForSubscription("/facturation", { active: false })).toBe(true);
+      // La page d'abonnement reste la porte de sortie.
+      expect(shouldBlockForSubscription("/parametres/abonnement", { active: false })).toBe(false);
+      // Un abonnement actif passe, mur allumé ou non.
+      expect(shouldBlockForSubscription("/tableau-de-bord", { active: true })).toBe(false);
+    } finally {
+      if (avant == null) delete process.env.SAFE_BLOCAGE_ABONNEMENT;
+      else process.env.SAFE_BLOCAGE_ABONNEMENT = avant;
+    }
+  });
+
+  it("une valeur qui n'est pas une activation explicite laisse le mur éteint", () => {
+    const avant = process.env.SAFE_BLOCAGE_ABONNEMENT;
+    for (const v of ["off", "false", "0", "", "peut-être"]) {
+      process.env.SAFE_BLOCAGE_ABONNEMENT = v;
+      expect(shouldBlockForSubscription("/tableau-de-bord", { active: false })).toBe(false);
+    }
+    if (avant == null) delete process.env.SAFE_BLOCAGE_ABONNEMENT;
+    else process.env.SAFE_BLOCAGE_ABONNEMENT = avant;
   });
 });

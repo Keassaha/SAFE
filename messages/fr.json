@@ -4008,6 +4008,29 @@
       "attention": "À traiter"
     }
   },
+  "abonnementAlerte": {
+    "cta": "Voir mon abonnement",
+    "aucun": {
+      "titre": "Abonnement à activer",
+      "detail": "Votre espace fonctionne normalement. Il reste à mettre votre abonnement en place quand vous serez prêt."
+    },
+    "acces_expire": {
+      "titre": "Accès payé arrivé à échéance",
+      "detail": "Votre dernier paiement couvrait jusqu'à la date indiquée. Un nouveau virement prolonge l'accès d'un mois."
+    },
+    "past_due": {
+      "titre": "Paiement en retard",
+      "detail": "Le dernier prélèvement n'a pas abouti. Vos données et vos dossiers restent intacts."
+    },
+    "unpaid": {
+      "titre": "Facture d'abonnement impayée",
+      "detail": "Une facture d'abonnement reste à régler. Vos données et vos dossiers restent intacts."
+    },
+    "canceled": {
+      "titre": "Abonnement résilié",
+      "detail": "Votre abonnement a été résilié. Vos données et vos dossiers restent intacts et exportables."
+    }
+  },
   "collecte": {
     "aucunFichier": "Aucun fichier reçu.",
     "avantLe": "À fournir avant le {date}",

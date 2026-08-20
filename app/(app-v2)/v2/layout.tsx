@@ -5,10 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { TimerProvider } from "@/lib/contexts/TimerContext";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
-import {
-  isSubscriptionExemptPath,
-  shouldBlockForSubscription,
-} from "@/lib/services/subscription-guard";
+import { shouldBlockForSubscription } from "@/lib/services/subscription-guard";
 import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { ShellV2 } from "./_components/ShellV2";
@@ -46,13 +43,14 @@ export default async function AppV2Layout({
 
   // Répercuté depuis app/(app)/layout.tsx : `pathname` vide (détection de
   // route échouée) ne doit jamais bloquer à l'aveugle.
-  if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
-    const subscription = await getCabinetSubscriptionState(cabinetId);
-    if (shouldBlockForSubscription(pathname, subscription)) {
-      // Même raison que dans app/(app)/layout.tsx : un `redirect()` depuis un
-      // layout pendant une requête RSC rend un arbre vide.
-      return <AbonnementRequis raison={subscription.reason} />;
-    }
+  // Répercuté depuis app/(app)/layout.tsx : l'abonnement ne ferme plus la porte,
+  // il se rappelle dans le centre d'alertes. Blocage possible derrière
+  // `SAFE_BLOCAGE_ABONNEMENT=on`.
+  const subscription = cabinetId ? await getCabinetSubscriptionState(cabinetId) : null;
+  if (subscription && pathname && shouldBlockForSubscription(pathname, subscription)) {
+    // Même raison que dans app/(app)/layout.tsx : un `redirect()` depuis un
+    // layout pendant une requête RSC rend un arbre vide.
+    return <AbonnementRequis raison={subscription.reason} />;
   }
 
   const counts = cabinetId ? await getSidebarCounts(cabinetId, userId) : null;

@@ -47,7 +47,7 @@ import {
 import { routes } from "@/lib/routes";
 import { GlobalTimer } from "@/components/temps/GlobalTimer";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
-import { AlertCenter } from "@/components/layout/AlertCenter";
+import { AlertCenter, type AbonnementAlerte } from "@/components/layout/AlertCenter";
 import type { TrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { motion, AnimatePresence } from "framer-motion";
@@ -69,6 +69,7 @@ interface HeaderProps {
   isSafeInc?: boolean;
   /** Obligations ouvertes du cabinet, présentées par le centre d'alertes. */
   trustStatus?: TrustReconciliationStatus | null;
+  abonnement?: AbonnementAlerte | null;
   /** Pilote la réglementation citée, jamais la langue de l'interface. */
   province?: string | null;
 }
@@ -407,6 +408,7 @@ export function Header({
   role,
   isSafeInc,
   trustStatus,
+  abonnement,
   province,
 }: HeaderProps) {
   const t = useTranslations("shell.header");
@@ -802,7 +804,7 @@ export function Header({
           </kbd>
         </div>
 
-        <AlertCenter status={trustStatus ?? null} province={province ?? null} />
+        <AlertCenter status={trustStatus ?? null} province={province ?? null} abonnement={abonnement ?? null} />
 
 
         {billingMode !== "forfait" && (

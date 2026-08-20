@@ -4008,6 +4008,29 @@
       "attention": "To handle"
     }
   },
+  "abonnementAlerte": {
+    "cta": "View my subscription",
+    "aucun": {
+      "titre": "Subscription to activate",
+      "detail": "Your workspace works normally. Setting up your subscription is the remaining step, whenever you are ready."
+    },
+    "acces_expire": {
+      "titre": "Paid access has lapsed",
+      "detail": "Your last payment covered up to the date shown. A new transfer extends access by one month."
+    },
+    "past_due": {
+      "titre": "Payment overdue",
+      "detail": "The last charge did not go through. Your data and your matters remain intact."
+    },
+    "unpaid": {
+      "titre": "Subscription invoice unpaid",
+      "detail": "A subscription invoice is still outstanding. Your data and your matters remain intact."
+    },
+    "canceled": {
+      "titre": "Subscription cancelled",
+      "detail": "Your subscription was cancelled. Your data and your matters remain intact and exportable."
+    }
+  },
   "collecte": {
     "aucunFichier": "No file was received.",
     "avantLe": "Needed before {date}",

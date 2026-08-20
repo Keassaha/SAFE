@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Session } from "next-auth";
 import { Header } from "@/components/layout/Header";
+import type { AbonnementAlerte } from "@/components/layout/AlertCenter";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { MobileSidebar } from "@/components/layout/MobileSidebar";
 import { CabinetProvinceProvider } from "@/components/providers/CabinetProvinceProvider";
@@ -19,13 +20,14 @@ type AppChromeProps = {
   activeNavIds?: string[] | null;
   hiddenNavIds?: string[];
   trustStatus?: TrustReconciliationStatus | null;
+  abonnement?: AbonnementAlerte | null;
   /** Province du cabinet — localise la réglementation citée par le centre d'alertes. */
   province?: string | null;
   sidebarCounts?: SidebarCounts | null;
   isSafeInc?: boolean;
 };
 
-export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, province, sidebarCounts, isSafeInc }: AppChromeProps) {
+export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, province, sidebarCounts, isSafeInc, abonnement }: AppChromeProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -56,6 +58,7 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           isSafeInc={isSafeInc}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           trustStatus={isSafeInc ? null : trustStatus}
+          abonnement={isSafeInc ? null : abonnement}
           province={province}
         />
         <main

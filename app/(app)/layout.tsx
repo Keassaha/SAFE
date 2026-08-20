@@ -12,10 +12,7 @@ import { QuickCapture } from "@/components/capture/QuickCapture";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
-import {
-  isSubscriptionExemptPath,
-  shouldBlockForSubscription,
-} from "@/lib/services/subscription-guard";
+import { shouldBlockForSubscription } from "@/lib/services/subscription-guard";
 import { getCabinetProvince } from "@/lib/cabinet/get-province";
 
 export default async function AppLayout({
@@ -44,15 +41,22 @@ export default async function AppLayout({
   // arrive vide pour une raison quelconque, on refuse de bloquer à l'aveugle :
   // un cabinet payant coincé sans issue est pire qu'une vérification sautée
   // une fois, et la garde se réévalue de toute façon à chaque navigation.
-  if (cabinetId && pathname && !isSubscriptionExemptPath(pathname)) {
-    const subscription = await getCabinetSubscriptionState(cabinetId);
-    if (shouldBlockForSubscription(pathname, subscription)) {
-      // On rend le blocage, on ne redirige pas. Un `redirect()` levé depuis un
-      // layout pendant une requête RSC renvoie un arbre vide : c'est la page
-      // blanche observée après création de facture sur un cabinet dont
-      // l'abonnement n'est plus actif. Détail dans AbonnementRequis.
-      return <AbonnementRequis raison={subscription.reason} />;
-    }
+  // L'abonnement est LU à chaque rendu, mais il ne ferme plus la porte.
+  //
+  // Le mur rendait « Votre abonnement n'est plus actif » à chaque chargement de
+  // page. Un cabinet réel s'y est retrouvé enfermé avec ses données dedans,
+  // sans rien avoir fait : il n'avait jamais eu de ligne Stripe, et seul le
+  // webhook peut en écrire une. La créance vit maintenant dans le centre
+  // d'alertes, à côté du rapprochement de fidéicommis.
+  //
+  // Le blocage reste possible derrière `SAFE_BLOCAGE_ABONNEMENT=on`, pour le
+  // jour où un impayé devra vraiment fermer l'accès. Ce sera une décision.
+  const subscription = cabinetId ? await getCabinetSubscriptionState(cabinetId) : null;
+  if (subscription && pathname && shouldBlockForSubscription(pathname, subscription)) {
+    // On rend le blocage, on ne redirige pas. Un `redirect()` levé depuis un
+    // layout pendant une requête RSC renvoie un arbre vide : c'est la page
+    // blanche observée après création de facture. Détail dans AbonnementRequis.
+    return <AbonnementRequis raison={subscription.reason} />;
   }
 
   // Cinq lectures indépendantes (aucune ne consomme le résultat d'une autre) :
@@ -98,6 +102,15 @@ export default async function AppLayout({
           province={cabinetProvince}
           sidebarCounts={sidebarCounts}
           isSafeInc={isSafeInc}
+          abonnement={
+            subscription
+              ? {
+                  actif: subscription.active,
+                  motif: subscription.reason,
+                  echeance: subscription.currentPeriodEnd?.toISOString() ?? null,
+                }
+              : null
+          }
         >
           {children}
         </AppChrome>
