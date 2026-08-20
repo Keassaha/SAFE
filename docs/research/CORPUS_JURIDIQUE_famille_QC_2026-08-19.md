@@ -2,7 +2,8 @@
 
 **Date de recherche** : 2026-08-19
 **Auteur** : session Claude Code, sous mandat de constitution de corpus
-**Statut** : `review` — le contrôle de complétude du §7 n'est PAS réussi
+**Statut** : `review` — contrôle de complétude du §7 **réussi sous réserves** depuis la
+réception de la table le 2026-08-19
 **Périmètre** : réglementaire (Québec et fédéral), pour les domaines A à D du mandat
 **Risque** : ÉLEVÉ. Tout montant produit sera juré sous serment par une avocate.
 
@@ -35,23 +36,28 @@ laws-lois.justice.gc.ca (ministère de la Justice du Canada), textes codifiés.
   lien PDF déclenche une boîte d'enregistrement plutôt qu'un affichage. Le site de la
   Cour supérieure est protégé par **Cloudflare**. Ces protections **n'ont pas été
   contournées**, conformément au mandat.
-- Conséquence : trois pièces sont classées **MANQUANTES** bien que leur existence et
-  leur emplacement soient connus. Une référence vers un PDF n'est pas sa possession.
+- Conséquence, au moment de la première rédaction : trois pièces classées
+  **MANQUANTES**. Deux ont depuis été fournies par le CEO (r. 0.4, puis r. 12 avec sa
+  table). **Une seule reste manquante** : le formulaire de patrimoine de la Cour
+  supérieure. Une référence vers un PDF n'est toujours pas sa possession.
 - **Aucune jurisprudence n'a été dépouillée.** Les zones d'incertitude du §8 se
   tranchent en jurisprudence.
 - Aucune règle n'a été déduite d'un calculateur tiers.
 
 ---
 
-## 3. La découverte qui change l'ordre de construction
+## 3. Les deux tables n'ont pas la même forme
 
-**Le régime fédéral est aujourd'hui plus constructible que le régime québécois.**
+L'asymétrie relevée avant la réception de la table québécoise portait sur l'accès ; elle
+est levée. Celle qui reste porte sur la **forme**, et elle commande deux implémentations
+différentes.
 
 | | Québec | Fédéral |
 |---|---|---|
-| Où vit la table | C-25.01, r. 12, annexe I, **PDF verrouillé** | DORS/97-175, annexe I, **HTML lisible** |
-| Forme de la table | montants, non consultés | **formule affine par tranche** : `De`, `À`, `Montant de base`, `Plus (%)`, `Du revenu dépassant` |
-| Codable aujourd'hui | **non** | **oui** |
+| Où vit la table | C-25.01, r. 12, annexe I, PDF officiel **détenu** | DORS/97-175, annexe I, HTML |
+| Ce que la table donne | la **contribution des deux parents**, en dollars par année, à répartir ensuite | le **montant du débiteur seul**, en dollars par mois |
+| Forme | **105 tranches en dur** + pourcentages au-delà de 200 000 $ | **formule affine par tranche** : `De`, `À`, `Montant de base`, `Plus (%)`, `Du revenu dépassant` |
+| Entrée | revenu **disponible combiné** des deux parents | revenu du **débiteur** |
 
 La table fédérale du Québec (page 6 du règlement) comporte six tables, une par nombre
 d'enfants de 1 à 6, avec des tranches de revenu de 1 000 $. Le montant mensuel se
@@ -64,10 +70,10 @@ paiement mensuel = montant de base + (revenu - seuil de la tranche) x pourcentag
 Exemple lisible dans la source, table du Québec, dernière tranche :
 `150000 | ou plus | 3903 | 2.08 | 150000`. `VERIFIE`
 
-Cette asymétrie n'était pas prévue par le mandat, et elle a une conséquence pratique :
-si un premier outil de pension devait être construit, ce serait le fédéral, pas le
-québécois. Ce n'est **pas** une recommandation de le faire maintenant, seulement un
-fait à verser au dossier.
+Conséquence de conception : le québécois se lit dans une table figée, le fédéral se
+calcule. Un moteur unique qui prétendrait servir les deux avec la même structure de
+données se tromperait sur l'unité (année contre mois) autant que sur l'assiette
+(couple contre débiteur).
 
 ---
 
@@ -344,13 +350,13 @@ contradiction mais un renvoi, et il crée la dépendance bloquante du §7.2.
 
 Trois fichiers, publics et gratuits, sur des sites qui refusent les outils automatisés.
 
-1. **C-25.01, r. 12, annexe I — la table québécoise.** Bloquant.
-   `https://www.legisquebec.gouv.qc.ca/fr/pdf/rc/C-25.01,%20R.%2012.pdf`
-   Vérifier la mention « applicable à compter du 1er janvier 2026 » (A.M. 5500).
+1. ~~**C-25.01, r. 12, annexe I.**~~ **Fournie et vérifiée le 2026-08-19.**
 2. **`cs-patrimoine-familial.xls`**, Cour supérieure du Québec, section Formulaires.
 3. **Les instructions officielles** accompagnant ce fichier, si elles existent.
 
-À leur réception, le contrôle du §7 est rejoué et le verdict mis à jour.
+**Mise à jour du 2026-08-19** : les pièces 1 (r. 0.4) et 2 (r. 12 et sa table) ont été
+fournies par le CEO et vérifiées. Il ne reste que le formulaire de la Cour supérieure et
+ses instructions. Le contrôle du §7 a été rejoué en conséquence.
 
 ---
 
@@ -360,7 +366,7 @@ Trois fichiers, publics et gratuits, sur des sites qui refusent les outils autom
 - [Code civil du Québec](https://www.legisquebec.gouv.qc.ca/fr/document/lc/ccq-1991) — art. 414-426, 521.20-521.36, 585-596
 - [C-25.01, r. 0.2.4](https://www.legisquebec.gouv.qc.ca/fr/document/rc/C-25.01,%20r.%200.2.4) — art. 26-29
 - [C-25.01, r. 0.4](https://www.legisquebec.gouv.qc.ca/fr/document/rc/C-25.01,%20r.%200.4) — PDF conservé, à jour au 1er avril 2026
-- [C-25.01, r. 12](https://www.legisquebec.gouv.qc.ca/fr/document/rc/C-25.01,%20r.%2012) — art. 1-2 lus, annexe I manquante
+- [C-25.01, r. 12](https://www.legisquebec.gouv.qc.ca/fr/document/rc/C-25.01,%20r.%2012) — art. 1-2 et annexe I, PDF conservé, table extraite et validée
 
 **Fédéral**
 - [Loi sur le divorce](https://laws-lois.justice.gc.ca/fra/lois/d-3.4/) — art. 2(1), 2(5)
