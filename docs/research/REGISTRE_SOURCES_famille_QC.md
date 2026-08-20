@@ -123,6 +123,24 @@ protections. Ils sont publics et gratuits.
 
 ---
 
+## B-bis. Régime fédéral (domaine B du mandat)
+
+| # | Source | État | Vérifié le | Ce qu'elle donne |
+|---|---|---|---|---|
+| B10 | DORS/97-175, art. 1 à 10 | **DÉTENU** | 2026-08-19 | Objectifs, définitions (majorité du temps parental = plus de 60 %), montant de base, table applicable selon la résidence du débiteur, seuil de 150 000 $, six catégories de dépenses spéciales, garde exclusive croisée, temps parental partagé à 40 %, difficultés excessives et test des niveaux de vie |
+| B11 | DORS/97-175, annexe I, **table du Québec** | **DÉTENU** | 2026-08-19 | Six tables, une par nombre d'enfants. Formule affine par tranche de 1 000 $ : montant de base + (revenu − seuil) × pourcentage |
+| B12 | DORS/97-175, art. 15 à 20 et annexe III | **MANQUANT** | — | Détermination et rajustements du revenu. Accessible, simplement pas encore relevé |
+| B13 | DORS/97-175, annexe II | **MANQUANT** | — | Méthode de comparaison des niveaux de vie, requise par l'art. 10(3) |
+
+**Version du règlement fédéral** : à jour au 2026-06-17, dernière modification
+2025-10-01, page consultée modifiée le 2026-08-06.
+
+**Asymétrie notable** : la table fédérale est en HTML lisible et directement codable ;
+la table québécoise est un PDF verrouillé. Le régime fédéral est aujourd'hui plus
+constructible que le régime québécois.
+
+---
+
 ## E. Journal des vérifications
 
 | Date | Fait |
@@ -134,6 +152,7 @@ protections. Ils sont publics et gratuits.
 | 2026-08-19 | C-25.01, r. 12 art. 1-2 obtenus. **Annexe I non accessible** : publiée en PDF, site en 403 hors navigateur, et le navigateur déclenche une boîte d'enregistrement |
 | 2026-08-19 | C.c.Q. 585-596 obtenus |
 | 2026-08-19 | Loi sur le divorce 2(1)/2(5) obtenue ; désignation du Québec confirmée (DORS/97-237, 1er mai 1997) |
+| 2026-08-19 | DORS/97-175 art. 1 à 10 obtenus verbatim, plus la structure de la table du Québec. Corpus et contrôle de complétude consignés dans `CORPUS_JURIDIQUE_famille_QC_2026-08-19.md` |
 
 ---
 
