@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { PLANS, type PlanKey } from "@/lib/stripe";
+import { PLANS, PLAN_NOM_PUBLIC, type PlanKey } from "@/lib/stripe";
 import { ConvertirClientForm } from "@/components/console/ConvertirClientForm";
 
 /**
@@ -50,11 +50,16 @@ export default async function ConvertirPage({
     lead.contacts.find((c) => c.email && !c.doNotContact) ??
     null;
 
-  const plans = (Object.keys(PLANS) as PlanKey[]).map((key) => ({
-    key,
-    label: PLANS[key].name,
-    prix: `${(PLANS[key].price / 100).toFixed(0)} $/mois`,
-  }));
+  // Le nom public accompagne la clé, sinon le choix se fait sur un mot ambigu :
+  // « Cabinet » désigne 149,99 $ sur le site et la clé `cabinet` en vaut 299,99.
+  const plans = (Object.keys(PLANS) as PlanKey[]).map((key) => {
+    const nomPublic = PLAN_NOM_PUBLIC[key];
+    return {
+      key,
+      label: nomPublic ? `${PLANS[key].name} (« ${nomPublic} » sur le site)` : PLANS[key].name,
+      prix: `${(PLANS[key].price / 100).toLocaleString("fr-CA", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} $/mois`,
+    };
+  });
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">

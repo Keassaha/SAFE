@@ -1,6 +1,22 @@
 // Constantes éditoriales et de prix pour la page /tarification et le widget dashboard.
 // Modifier directement ici pour mettre à jour la page publique.
 
+/**
+ * Formate un prix en français canadien : virgule décimale, et pas de « ,00 »
+ * inutile sur un montant rond.
+ *
+ * Les paliers s'interpolaient directement dans le JSX (`{cabinet.prix} $`).
+ * Tant que tous les prix étaient entiers, ça passait. Depuis que le palier
+ * Cabinet vaut 149,99, l'interpolation brute affiche « 149.99 $ » sur un site
+ * francophone destiné à des avocats du Québec.
+ */
+export function prixFr(montant: number): string {
+  return montant.toLocaleString("fr-CA", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
 export const TARIFICATION = {
   fondateurs: {
     // Offre v2, décision CEO 2026-07-27. Voir docs/marketing/ventes/OFFRE_FONDATRICE_v2.md.
@@ -29,7 +45,9 @@ export const TARIFICATION = {
       eco: 240,
     },
     cabinet: {
-      prix: 149,
+      // 149,99 et non 149 : aligné sur `PLANS.professionnel`, que ce palier
+      // facture réellement (mapping dans `PLAN_NOM_PUBLIC`, lib/stripe.ts).
+      prix: 149.99,
       prixAnnuel: 119,
     },
   },
@@ -130,7 +148,7 @@ export const FAQ_TARIFICATION = [
   {
     question: "Comment fonctionne le tarif fondateur ?",
     answer:
-      "Vos douze premiers mois sont à 50 $ par mois pour une pratique individuelle et 75 $ par mois pour un cabinet avec adjointe. Ensuite, votre tarif fondateur reste gelé à 79 $ ou 119 $ par mois tant que votre abonnement demeure actif, au lieu des 99 $ ou 149 $ du tarif régulier. Votre coût ne double pas au treizième mois.",
+      "Vos douze premiers mois sont à 50 $ par mois pour une pratique individuelle et 75 $ par mois pour un cabinet avec adjointe. Ensuite, votre tarif fondateur reste gelé à 79 $ ou 119 $ par mois tant que votre abonnement demeure actif, au lieu des 99 $ ou 149,99 $ du tarif régulier. Votre coût ne double pas au treizième mois.",
   },
   {
     question: "Qu'est-ce qui est fait par vous, et qu'est-ce qui reste à ma charge ?",

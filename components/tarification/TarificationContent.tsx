@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronDown, Clock3, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
-import { TARIFICATION, FAQ_TARIFICATION } from "@/lib/tarification";
+import { TARIFICATION, FAQ_TARIFICATION, prixFr } from "@/lib/tarification";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const AUDIT_HREF = "/audit-gratuit";
@@ -170,8 +170,8 @@ function OffreFondatrice() {
     premiereAnneeSolo,
     premiereAnneeCabinet,
   } = TARIFICATION.fondateurs;
-  const prixSolo = TARIFICATION.paliers.solo.prix;
-  const prixCabinet = TARIFICATION.paliers.cabinet.prix;
+  const prixSolo = prixFr(TARIFICATION.paliers.solo.prix);
+  const prixCabinet = prixFr(TARIFICATION.paliers.cabinet.prix);
   const restantes = Math.max(placesTotal - placesPrises, 0);
   return (
     <section id="fondateurs" className="py-20 px-6 max-w-5xl mx-auto">
@@ -397,7 +397,7 @@ function PaliersGrid() {
       key: "solo",
       nom: "Solo",
       label: "Cabinet indépendant",
-      prix: `${solo.prix} $`,
+      prix: `${prixFr(solo.prix)} $`,
       prixSuffix: "/mois",
       annuel: `${solo.prixAnnuel} $/mois en annuel · économie ${solo.eco} $`,
       pourQui: "1 avocat, toute discipline.",
@@ -419,7 +419,7 @@ function PaliersGrid() {
       key: "cabinet",
       nom: "Cabinet",
       label: "Équipe en croissance",
-      prix: `${cabinet.prix} $`,
+      prix: `${prixFr(cabinet.prix)} $`,
       prixSuffix: "/mois",
       annuel: `${cabinet.prixAnnuel} $/mois en annuel`,
       pourQui: "2 à 5 avocats, équipes mixtes, multi-disciplines.",

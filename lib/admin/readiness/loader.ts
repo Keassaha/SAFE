@@ -24,6 +24,7 @@ export async function loadCabinetReadinessSnapshot(
         stripeCurrentPeriodEnd: true,
         stripeCancelAtPeriodEnd: true,
         stripeTrialEnd: true,
+        accesPayeJusquau: true,
       },
     }),
     prisma.documentRetentionPolicy.findMany({
@@ -62,6 +63,9 @@ export async function loadCabinetReadinessSnapshot(
       stripeCurrentPeriodEnd: cabinet.stripeCurrentPeriodEnd ?? null,
       stripeCancelAtPeriodEnd: cabinet.stripeCancelAtPeriodEnd ?? null,
       stripeTrialEnd: cabinet.stripeTrialEnd ?? null,
+      // Sans lui, le moteur de readiness déclare « abonnement inactif » un
+      // cabinet qui a payé par virement : un blocage annoncé à tort.
+      accesPayeJusquau: cabinet.accesPayeJusquau ?? null,
     },
     taxNumbers: config.taxNumbers ?? {},
     team: { employees, adminUserCount },

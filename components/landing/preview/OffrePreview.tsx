@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Section, NarrativeHeader, fadeUp, CheckDraw, EASE, INK, MUTED, SURFACE, LINE } from "./kit";
-import { TARIFICATION } from "@/lib/tarification";
+import { TARIFICATION, prixFr } from "@/lib/tarification";
 
 // 07 Offre et prix — prix publics lisibles, l'audit gratuit reste l'action dominante,
 // l'offre fondatrice distincte et honnête. Tout aligné à gauche.
@@ -28,7 +28,7 @@ export function OffrePreview() {
             Un audit gratuit. <span className="italic text-forest-600">Des prix publics.</span>
           </>
         }
-        description={`Solo ${solo.prix} $/mois, Cabinet ${cabinet.prix} $/mois. Tout inclus, configuration comprise, sans frais cachés. Le premier geste demandé reste l'audit gratuit.`}
+        description={`Solo ${prixFr(solo.prix)} $/mois, Cabinet ${prixFr(cabinet.prix)} $/mois. Tout inclus, configuration comprise, sans frais cachés. Le premier geste demandé reste l'audit gratuit.`}
       />
 
       <div className="mt-16 grid gap-4 md:grid-cols-2">
@@ -48,7 +48,7 @@ export function OffrePreview() {
                   Solo
                 </span>
                 <span className="font-serif text-[32px] tabular-nums" style={{ color: INK }}>
-                  {solo.prix}&nbsp;$<span className="font-sans text-[14px]" style={{ color: MUTED }}>&nbsp;/&nbsp;mois</span>
+                  {prixFr(solo.prix)}&nbsp;$<span className="font-sans text-[14px]" style={{ color: MUTED }}>&nbsp;/&nbsp;mois</span>
                 </span>
               </div>
               <div className="flex items-baseline justify-between border-t border-[0.5px] border-border pt-4">
@@ -56,7 +56,7 @@ export function OffrePreview() {
                   Cabinet
                 </span>
                 <span className="font-serif text-[32px] tabular-nums" style={{ color: INK }}>
-                  {cabinet.prix}&nbsp;$<span className="font-sans text-[14px]" style={{ color: MUTED }}>&nbsp;/&nbsp;mois</span>
+                  {prixFr(cabinet.prix)}&nbsp;$<span className="font-sans text-[14px]" style={{ color: MUTED }}>&nbsp;/&nbsp;mois</span>
                 </span>
               </div>
             </div>

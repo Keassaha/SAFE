@@ -63,7 +63,7 @@ const VOLUME_LABELS: Record<string, string> = {
 };
 
 function money(n: number): string {
-  return n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+  return n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 function planLabel(plan: string): string {
   return plan in PLANS ? PLANS[plan as PlanKey].name : plan;

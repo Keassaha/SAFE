@@ -16,6 +16,7 @@ import {
 } from "@/lib/services/journal/annulation";
 import { recalculateInvoiceTotals } from "./invoice-service";
 import { warnPaymentWithoutInvoice, type GuardWarning } from "@/lib/accounting/anti-erreurs";
+import { prolongerAccesApresPaiement } from "@/lib/services/abonnement/acces-paye";
 
 export interface AllocationItem {
   invoiceId: string;
@@ -307,6 +308,21 @@ export async function createPayment(params: {
     performedAt: new Date(),
   });
 
+  // Encaissement d'un abonnement SAFE Inc. : la facture payée prolonge l'accès
+  // du cabinet abonné. No-op immédiat pour toute facture ordinaire.
+  //
+  // APRÈS la transaction, volontairement : `balanceDue` doit être committé pour
+  // que la décision se prenne sur le solde réel. Et un échec ici ne doit jamais
+  // annuler un encaissement déjà inscrit au journal : l'argent est reçu, seule
+  // la prolongation reste à rejouer.
+  if (invoiceId) {
+    await prolongerAccesApresPaiement(invoiceId, { utilisateurId: receivedById }).catch(
+      (err) => {
+        console.error("[abonnement] prolongation échouée", { invoiceId, err });
+      },
+    );
+  }
+
   const warnings: GuardWarning[] = [];
   const warning = warnPaymentWithoutInvoice(Boolean(invoiceId));
   if (warning) warnings.push(warning);
@@ -588,4 +604,15 @@ export async function allocateToInvoices(params: {
     performedBy: performedById ?? undefined,
     performedAt: now,
   });
+
+  // Une allocation faite après coup peut solder une facture d'abonnement restée
+  // partiellement payée. Sans ce passage, un virement encaissé puis alloué en
+  // deux temps n'aurait jamais débloqué l'accès.
+  for (const { invoiceId } of validatedItems) {
+    await prolongerAccesApresPaiement(invoiceId, { utilisateurId: performedById }).catch(
+      (err) => {
+        console.error("[abonnement] prolongation échouée", { invoiceId, err });
+      },
+    );
+  }
 }

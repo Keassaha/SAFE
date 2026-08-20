@@ -79,7 +79,10 @@ function formatPlanPrice(plan: string, locale: string) {
   return new Intl.NumberFormat(toIntlLocale(locale), {
     style: "currency",
     currency: planDef.currency.toUpperCase(),
-    maximumFractionDigits: 0,
+    // 149,99 $ ne doit pas s'afficher « 150 $ » : un prix arrondi sur
+    // un écran d'abonnement est un prix faux.
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(planDef.price / 100);
 }
 
@@ -199,6 +202,7 @@ export default async function ParametresPage() {
         stripeCurrentPeriodEnd: true,
         stripeCancelAtPeriodEnd: true,
         stripeTrialEnd: true,
+        accesPayeJusquau: true,
       },
     }),
     // Le mode de facturation et la config taxes vivent dans CabinetInterface.modules (JSON).
@@ -263,6 +267,10 @@ export default async function ParametresPage() {
     stripeCurrentPeriodEnd: cabinet?.stripeCurrentPeriodEnd,
     stripeCancelAtPeriodEnd: cabinet?.stripeCancelAtPeriodEnd,
     stripeTrialEnd: cabinet?.stripeTrialEnd,
+    // Sans ce champ, cet écran annonce « aucun abonnement » à un cabinet qui a
+    // payé par virement et qui travaille normalement. La règle est la même
+    // partout ou elle ne sert à rien.
+    accesPayeJusquau: cabinet?.accesPayeJusquau,
   });
   const subscriptionStatusLabel = subState.active
     ? subState.isTrialing
@@ -276,7 +284,9 @@ export default async function ParametresPage() {
           ? t("subscriptionStatusUnpaid")
           : subState.reason === "incomplete" || subState.reason === "incomplete_expired"
             ? t("subscriptionStatusIncomplete")
-            : t("subscriptionNotConfigured");
+            : subState.reason === "acces_expire"
+              ? t("subscriptionStatusExpired")
+              : t("subscriptionNotConfigured");
   const subscriptionBadgeVariant: StatusVariant = subState.active
     ? "success"
     : subState.reason === "past_due" || subState.reason === "unpaid"

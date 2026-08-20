@@ -38,6 +38,7 @@ function makeSnapshot(over: Partial<CabinetReadinessSnapshot> = {}): CabinetRead
       stripeCurrentPeriodEnd: null,
       stripeCancelAtPeriodEnd: false,
       stripeTrialEnd: null,
+      accesPayeJusquau: null,
     },
     retention: { policies: [] },
     ...over,

@@ -3,17 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
-import { sendEmail, invoiceAccompanyingEmailHtml } from "@/lib/email";
-import {
-  presentInvoice,
-  presentClientDisplayName,
-} from "@/lib/services/billing/invoice-presenter";
-import {
-  generateInvoicePdf,
-  invoicePdfFilename,
-} from "@/lib/services/billing/invoice-pdf";
-import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
-import { renderRichDocumentsToPdf } from "@/lib/services/client-send/send-to-client";
+import { sendInvoiceByEmail } from "@/lib/services/billing/invoice-send-service";
+import { reponseHttpPourEnvoi } from "@/lib/services/billing/invoice-send-http";
 import {
   parseCabinetConfig,
   getEmailFactureConfig,
@@ -22,23 +13,20 @@ import {
 import type { UserRole } from "@prisma/client";
 
 /**
- * Envoi officiel d'une facture par courriel (phase 1 de la refonte).
+ * Envoi officiel d'une facture par courriel — garde d'accès HTTP.
  *
- * Pipeline canonique :
- *   1. presenter(invoice) → modèle de présentation unique.
- *   2. generateInvoicePdf(presented) → Buffer PDF officiel.
- *   3. invoiceAccompanyingEmailHtml(...) → lettre d'accompagnement courte
- *      (PAS le contenu de la facture en HTML).
- *   4. sendEmail({ to, subject, html, attachments: [pdf] }).
- *   5. prisma.invoiceSendLog.create(...) → trace consultable dans la fiche client.
- *   6. Si l'email a réussi ET la facture est encore DRAFT/READY_TO_ISSUE,
- *      on l'escalade à ISSUED via `issueInvoice` pour aligner le statut.
+ * Le pipeline d'envoi ne vit PLUS ici. Il a été extrait dans
+ * `lib/services/billing/invoice-send-service.ts` pour qu'une tâche planifiée
+ * puisse l'appeler : cette route commençait par `getServerSession`, et un cron
+ * n'a pas de session.
  *
- * Garanties phase 1 :
- *   - Le courriel ne ment plus : si la pièce jointe ne peut pas être générée,
- *     le texte indique clairement la situation (lien sécurisé ou message).
- *   - Échec d'envoi → InvoiceSendLog.status = "failed" + facture NON marquée
- *     comme envoyée. L'utilisateur peut relancer.
+ * Ce fichier ne fait donc plus que trois choses :
+ *   - GET  : gabarit d'accompagnement et pièces joignables, pour la modale ;
+ *   - POST : vérifier les droits, lire le corps, appeler le service ;
+ *   - traduire le résultat en code HTTP (`invoice-send-http.ts`, testé).
+ *
+ * Les garanties, elles, ont suivi le pipeline dans le service : un échec
+ * d'envoi ne transmet rien, et la trace est écrite dans les deux cas.
  */
 /** Nom d'affichage du client à partir des champs bruts. */
 function clientDisplayName(client: {
@@ -169,9 +157,19 @@ export async function POST(
   if (!session?.user) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
+  const role = (session.user as { role?: string }).role as UserRole;
+  if (!role || !canManageInvoices(role)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
+  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
+  if (!cabinetId) {
+    return NextResponse.json({ error: "Cabinet manquant" }, { status: 401 });
+  }
+  const userId = (session.user as { id?: string }).id ?? null;
+  const { id } = await context.params;
 
-  // Pièces additionnelles optionnelles : RichDocuments du dossier à joindre
-  // (ex. lettre explicative). Best-effort : un body absent/invalide = aucune pièce.
+  // Corps optionnel : pièces additionnelles et gabarit d'accompagnement.
+  // Best-effort, comme avant : un body absent ou invalide n'empêche pas l'envoi.
   let attachRichDocumentIds: string[] = [];
   let customSubject: string | undefined;
   let customMessage: string | undefined;
@@ -184,7 +182,9 @@ export async function POST(
       paymentInstructions?: unknown;
     };
     if (Array.isArray(body?.attachRichDocumentIds)) {
-      attachRichDocumentIds = body.attachRichDocumentIds.filter((x): x is string => typeof x === "string");
+      attachRichDocumentIds = body.attachRichDocumentIds.filter(
+        (x): x is string => typeof x === "string",
+      );
     }
     if (typeof body?.subject === "string" && body.subject.trim()) customSubject = body.subject.trim();
     if (typeof body?.message === "string" && body.message.trim()) customMessage = body.message;
@@ -195,211 +195,18 @@ export async function POST(
     attachRichDocumentIds = [];
   }
 
-  const role = (session.user as { role?: string }).role as UserRole;
-  if (!role || !canManageInvoices(role)) {
-    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
-  }
-
-  const { id } = await context.params;
-  const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
-  const userId = (session.user as { id?: string }).id ?? null;
-  if (!cabinetId) {
-    return NextResponse.json({ error: "Cabinet manquant" }, { status: 401 });
-  }
-
-  // 1. Charger la facture complète pour le presenter.
-  const invoice = await prisma.invoice.findFirst({
-    where: { id, cabinetId },
-    include: {
-      cabinet: {
-        select: { id: true, nom: true, adresse: true, telephone: true, email: true, barreauNumero: true },
-      },
-      client: {
-        select: {
-          id: true,
-          raisonSociale: true,
-          prenom: true,
-          nom: true,
-          typeClient: true,
-          email: true,
-          billingAddress: true,
-          billingCity: true,
-          billingProvince: true,
-          billingPostalCode: true,
-          billingCountry: true,
-        },
-      },
-      dossier: { select: { id: true, intitule: true, numeroDossier: true, modeFacturation: true } },
-      invoiceLines: {
-        orderBy: { sortOrder: "asc" },
-        include: { timeEntry: { include: { user: { select: { nom: true } } } } },
-      },
-      invoiceItems: {
-        orderBy: { createdAt: "asc" },
-        include: { user: { select: { nom: true } } },
-      },
-    },
-  });
-
-  if (!invoice) {
-    return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
-  }
-
-  const recipientEmail = invoice.client?.email?.trim();
-  if (!recipientEmail) {
-    return NextResponse.json(
-      { error: "Le client n'a pas d'adresse courriel" },
-      { status: 400 }
-    );
-  }
-
-  const taxConfig = await getCabinetTaxConfigById(
+  // Le pipeline vit dans le service, pour qu'une tâche planifiée puisse
+  // l'appeler sans session. Cette route n'est plus qu'une garde d'accès.
+  const resultat = await sendInvoiceByEmail({
+    invoiceId: id,
     cabinetId,
-    prisma,
-    invoice.client?.billingProvince ?? null,
-  );
-  const presented = presentInvoice(invoice, taxConfig);
-  const clientName = presentClientDisplayName(presented.client);
-  const cabinetName = presented.cabinet?.nom ?? "Cabinet";
-  const dueDate = presented.dateEcheance
-    ? new Date(presented.dateEcheance).toLocaleDateString("fr-CA")
-    : undefined;
-  const shareUrl = invoice.shareToken
-    ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/facture/${invoice.shareToken}`
-    : undefined;
-
-  // 2. Tenter de générer le PDF officiel (best-effort en phase 1).
-  let pdfBuffer: Buffer | null = null;
-  let pdfError: string | null = null;
-  try {
-    pdfBuffer = await generateInvoicePdf(presented);
-  } catch (err) {
-    pdfError = err instanceof Error ? err.message : "Erreur génération PDF";
-    console.error("[invoice-send] PDF generation failed:", err);
-  }
-
-  const hasAttachment = pdfBuffer != null && pdfBuffer.length > 0;
-
-  // 3. Construire la lettre d'accompagnement honnête (le texte reflète la réalité).
-  const built = invoiceAccompanyingEmailHtml({
-    clientName,
-    invoiceNumber: presented.numero,
-    cabinetName,
-    dueDate,
-    shareUrl: hasAttachment ? undefined : shareUrl,
-    hasAttachment,
-    customMessage,
+    sentById: userId,
+    attachRichDocumentIds,
+    subject: customSubject,
+    message: customMessage,
     paymentInstructions,
   });
-  const subject = customSubject ?? built.subject;
-  const html = built.html;
 
-  const attachmentList: { filename: string; content: Buffer }[] = hasAttachment
-    ? [{ filename: invoicePdfFilename(presented), content: pdfBuffer as Buffer }]
-    : [];
-
-  // Pièces additionnelles (RichDocuments du dossier) — best-effort, n'empêchent
-  // jamais l'envoi de la facture.
-  if (attachRichDocumentIds.length > 0 && invoice.dossier?.id) {
-    try {
-      const { attachments: extra } = await renderRichDocumentsToPdf(
-        cabinetId,
-        invoice.dossier.id,
-        attachRichDocumentIds,
-      );
-      attachmentList.push(...extra);
-    } catch (err) {
-      console.error("[invoice-send] pièces additionnelles:", err);
-    }
-  }
-
-  const attachments = attachmentList.length > 0 ? attachmentList : undefined;
-
-  // 4. Envoyer + tracer (succès ou échec).
-  let sendError: string | null = null;
-  try {
-    await sendEmail({
-      to: recipientEmail,
-      subject,
-      html,
-      cabinetNom: cabinetName,
-      attachments,
-    });
-  } catch (err) {
-    sendError = err instanceof Error ? err.message : "Erreur envoi courriel";
-    console.error("[invoice-send] Email send failed:", err);
-  }
-
-  // CH-13 — l'envoi RÉEL est le seul canal dont SAFE détient la preuve. C'est ici,
-  // et nulle part ailleurs, que `deliveredAt` prend le canal EMAIL_SAFE.
-  // Un échec d'envoi ne transmet rien : la facture reste non transmise.
-  if (!sendError) {
-    const deliveredNow = new Date();
-    await prisma.invoice.update({
-      where: { id: invoice.id },
-      data: {
-        sentAt: deliveredNow,
-        deliveredAt: deliveredNow,
-        deliveryChannel: "EMAIL_SAFE",
-        deliveryDeclaredById: userId ?? null,
-      },
-    });
-  }
-
-  await prisma.invoiceSendLog.create({
-    data: {
-      invoiceId: invoice.id,
-      cabinetId: invoice.cabinetId,
-      clientId: invoice.clientId,
-      dossierId: invoice.dossierId ?? null,
-      sentById: userId,
-      recipientEmail,
-      subject,
-      body: html,
-      status: sendError ? "failed" : "sent",
-      errorMessage: sendError ?? pdfError ?? null,
-      attachmentName: hasAttachment ? invoicePdfFilename(presented) : null,
-      attachmentSize: hasAttachment ? pdfBuffer!.length : null,
-      sentAt: sendError ? null : new Date(),
-    },
-  });
-
-  if (sendError) {
-    return NextResponse.json(
-      { error: `Envoi échoué : ${sendError}`, pdfWasAttached: false },
-      { status: 502 }
-    );
-  }
-
-  // 5. Escalader le statut si la facture est encore en brouillon.
-  //    (Lock anti-modification silencieuse — cf. canModifyInvoice.)
-  if (invoice.invoiceStatus === "DRAFT" || invoice.invoiceStatus === "READY_TO_ISSUE") {
-    try {
-      const { issueInvoice } = await import("@/lib/services/billing");
-      await issueInvoice({
-        invoiceId: invoice.id,
-        approvedById: userId,
-        cabinetId: invoice.cabinetId,
-      });
-    } catch (err) {
-      // L'email est déjà parti et tracé. On ne rejette pas la requête : on logue et
-      // on retourne 207 partial pour signaler que l'escalade de statut a échoué.
-      console.error("[invoice-send] issueInvoice after email send failed:", err);
-      return NextResponse.json(
-        {
-          success: true,
-          pdfWasAttached: hasAttachment,
-          warning: "Email envoyé mais escalade de statut échouée. Vérifier le statut.",
-        },
-        { status: 207 }
-      );
-    }
-  }
-
-  return NextResponse.json({
-    success: true,
-    pdfWasAttached: hasAttachment,
-    pdfError: pdfError ?? undefined,
-    message: "Facture envoyée par email",
-  });
+  const { status, body } = reponseHttpPourEnvoi(resultat);
+  return NextResponse.json(body, { status });
 }

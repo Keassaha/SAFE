@@ -57,6 +57,37 @@ model Cabinet {
   stripeCurrentPeriodEnd      DateTime?
   stripeCancelAtPeriodEnd     Boolean   @default(false)
   stripeTrialEnd              DateTime?
+
+  /// Accès payé hors Stripe, jusqu'à cette date incluse.
+  ///
+  /// SAFE Inc. encaisse aujourd'hui ses abonnements par virement Interac, qui
+  /// n'a pas d'API. Sans ce champ, l'accès d'un cabinet dépend uniquement de
+  /// `stripeSubscriptionStatus`, que SEUL le webhook Stripe écrit : un cabinet
+  /// pouvait donc payer réellement et rester bloqué sur l'écran « abonnement
+  /// requis ».
+  ///
+  /// C'est une date d'échéance, pas un statut : elle se prolonge à chaque
+  /// encaissement confirmé et expire d'elle-même si rien ne la prolonge. Aucun
+  /// travail de désactivation à penser.
+  ///
+  /// Cohabite avec Stripe sans le remplacer : `deriveCabinetSubscriptionState`
+  /// accorde l'accès si l'UNE des deux sources est valide.
+  accesPayeJusquau            DateTime?
+
+  /// Montant mensuel de l'abonnement de CE cabinet, taxes exclues.
+  ///
+  /// `Decimal` et non `Float`, contrairement aux colonnes monétaires
+  /// historiques : c'est un montant contractuel, recopié tel quel sur une
+  /// facture, et il n'a aucune raison de subir un arrondi binaire.
+  ///
+  /// Vaut le tarif fondateur quand le cabinet en est un (50 $, 75 $), donc PAS
+  /// forcément le prix catalogue de `PLANS`.
+  abonnementMontantMensuel    Decimal?  @db.Decimal(10, 2)
+
+  /// Jour du mois où la facture d'abonnement est émise. 1 à 28 seulement :
+  /// au-delà, février n'existe pas certaines années et la facture sauterait
+  /// silencieusement.
+  abonnementJourFacturation   Int?
   // Stripe Connect (Express) — compte connecté du cabinet pour encaisser les
   // factures en ligne (direct charge : l'argent va direct à l'avocate). ADR-012.
   stripeConnectAccountId      String?   @unique
@@ -113,6 +144,9 @@ model Cabinet {
 
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
   lead               Lead?                  @relation("CabinetLead")
+  /// Fiche client, chez SAFE Inc., qui facture l'abonnement de CE cabinet.
+  /// Sert de pont entre un encaissement et l'accès qu'il paie (dog food, ADR-006).
+  ficheAbonne        Client?                @relation("CabinetAbonne")
   tickets            SupportTicket[]        @relation("CabinetTickets")
   conversations      SupportConversation[]  @relation("CabinetConversations")
   impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
@@ -517,6 +551,21 @@ model Client {
   updatedAt                   DateTime                @updatedAt
 
   cabinet               Cabinet                       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  /// Cabinet ABONNÉ que cette fiche client représente.
+  ///
+  /// Ne concerne que les fiches du cabinet SAFE Inc., qui facture ses propres
+  /// abonnés via le module de facturation ordinaire (dog food, ADR-006). Pour
+  /// toutes les autres fiches, ce champ reste NULL et la mécanique d'accès ne
+  /// se déclenche jamais.
+  ///
+  /// C'est ce lien qui permet à un encaissement d'étendre un accès : sans lui,
+  /// confirmer un virement Interac crée un paiement et ne débloque personne.
+  ///
+  /// `@unique` : deux fiches clients ne peuvent pas facturer le même abonné,
+  /// sinon deux factures payées prolongeraient le même accès deux fois.
+  cabinetAbonneId            String?                 @unique
+  cabinetAbonne              Cabinet?                @relation("CabinetAbonne", fields: [cabinetAbonneId], references: [id], onDelete: SetNull)
   lawyerInCharge        User?                         @relation("LawyerInCharge", fields: [lawyerInChargeId], references: [id], onDelete: SetNull)
   assignedLawyer        User?                         @relation("AssignedLawyer", fields: [assignedLawyerId], references: [id], onDelete: SetNull)
   assistantAssigned     User?                         @relation("AssistantAssigned", fields: [assistantAssignedId], references: [id], onDelete: SetNull)
@@ -1471,6 +1520,18 @@ model Invoice {
   cancelledAt            DateTime?
   cancelReason           String?
   createdById            String?
+
+  /// Nombre de mois d'abonnement que cette facture couvre. NULL vaut 1.
+  /// Sans ce champ, une facture annuelle encaissée ne prolongerait l'accès que
+  /// d'un mois, et l'abonné serait bloqué onze mois trop tôt.
+  accesMoisCouverts      Int?
+
+  /// Échéance d'accès que CETTE facture a effectivement accordée.
+  ///
+  /// Double emploi assumé : c'est la trace (jusqu'à quand elle a payé) ET le
+  /// verrou d'idempotence. Non NULL veut dire « déjà appliquée » : un paiement
+  /// rejoué, corrigé ou réalloué ne peut pas offrir un second mois gratuit.
+  accesProlongeJusquau   DateTime?
   shareToken             String?               @unique // token pour lien unique d'envoi au client
   shareTokenExpiresAt    DateTime? // expiration du lien (option config cabinet)
   createdAt              DateTime              @default(now())

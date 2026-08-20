@@ -41,10 +41,21 @@ export function getStripe(): Stripe {
 
 // Plans SAFE — correspondance avec Stripe Price IDs
 // Ces IDs seront créés automatiquement au premier démarrage via /api/stripe/setup
+/**
+ * Tarif CATALOGUE, en cents. Décision CEO 2026-08-20 : 99 $, 149,99 $, 299,99 $.
+ *
+ * À ne pas confondre avec l'OFFRE FONDATRICE (`TARIFICATION.fondateurs` dans
+ * `lib/tarification.ts`) : 10 places à 50 $ / 75 $ pendant douze mois, puis gel
+ * à 79 $ / 119 $. Un fondateur ne paie JAMAIS ces montants-ci.
+ *
+ * Deux des trois paliers portent des cents. Tout affichage de ces prix doit donc
+ * laisser passer deux décimales : arrondir à l'unité afficherait 150 $ pour
+ * 149,99 $, et 300 $ pour 299,99 $.
+ */
 export const PLANS = {
   essentiel: {
     name: "Essentiel",
-    price: 8900, // en cents
+    price: 9900, // en cents
     currency: "cad",
     interval: "month" as const,
     features: {
@@ -58,7 +69,7 @@ export const PLANS = {
   },
   professionnel: {
     name: "Professionnel",
-    price: 14900,
+    price: 14999,
     currency: "cad",
     interval: "month" as const,
     features: {
@@ -72,7 +83,7 @@ export const PLANS = {
   },
   cabinet: {
     name: "Cabinet",
-    price: 29900,
+    price: 29999,
     currency: "cad",
     interval: "month" as const,
     features: {
@@ -87,6 +98,29 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+
+/**
+ * Nom du palier TEL QUE LE SITE PUBLIC L'APPELLE. Décision CEO 2026-08-20
+ * (« option A »), qui règle une collision qui aurait facturé le double.
+ *
+ * Le site vend deux paliers, « Solo » et « Cabinet ». Le moteur en porte trois,
+ * et son troisième s'appelle aussi `cabinet`. Convertir un prospect venu du site
+ * pour « Cabinet » en choisissant la clé `cabinet` facturait donc 299,99 $ au
+ * lieu des 149,99 $ annoncés à un avocat.
+ *
+ *   Solo    (site) → `essentiel`     99,00 $
+ *   Cabinet (site) → `professionnel` 149,99 $
+ *   (non publié)   → `cabinet`       299,99 $
+ *
+ * `null` veut dire « pas encore vendu sur le site ». Tout écran qui fait choisir
+ * un palier DOIT afficher ce nom à côté de la clé : sans lui, le choix se fait
+ * sur un mot qui ne veut pas dire la même chose des deux côtés.
+ */
+export const PLAN_NOM_PUBLIC: Record<PlanKey, string | null> = {
+  essentiel: "Solo",
+  professionnel: "Cabinet",
+  cabinet: null,
+};
 
 const PLAN_PRICE_ENV: Record<PlanKey, string> = {
   essentiel: "STRIPE_PRICE_ID_ESSENTIEL",

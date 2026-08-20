@@ -9,7 +9,7 @@ import { TourDeControle } from "@/components/console/TourDeControle";
 
 /** Montant en dollars canadiens, sans décimales (tableau de bord). */
 function money(n: number): string {
-  return n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+  return n.toLocaleString("fr-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 // Zone 1  Ancre      : phase J+X/90, barre de progression, date du jour.

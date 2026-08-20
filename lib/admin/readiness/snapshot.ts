@@ -37,6 +37,8 @@ export interface CabinetReadinessSnapshot {
     stripeCurrentPeriodEnd: Date | null;
     stripeCancelAtPeriodEnd: boolean | null;
     stripeTrialEnd: Date | null;
+    /** Accès payé hors Stripe (virement Interac). Seconde source d'accès. */
+    accesPayeJusquau: Date | null;
   };
   /** Numéros d'inscription aux taxes (selon la province). */
   taxNumbers: CabinetTaxNumbers;

@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "./ui/Button";
-import { TARIFICATION } from "@/lib/tarification";
+import { TARIFICATION, prixFr } from "@/lib/tarification";
 
 // Étapes + prix publics en une seule section compacte.
 // Question facile avant décision difficile : le seul geste demandé est l'audit gratuit.
@@ -47,7 +47,7 @@ export function Commencer() {
             Un audit gratuit. <span className="italic text-forest-600">Des prix publics.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-[480px] font-sans text-[15px] leading-[1.6] text-text-body">
-            Solo {solo.prix}&nbsp;$/mois. Cabinet {cabinet.prix}&nbsp;$/mois. Tout inclus,
+            Solo {prixFr(solo.prix)}&nbsp;$/mois. Cabinet {prixFr(cabinet.prix)}&nbsp;$/mois. Tout inclus,
             configuration comprise, sans frais cachés.
           </p>
         </motion.div>

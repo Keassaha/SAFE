@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/Button";
 interface SubscriptionManagerProps {
   currentPlan: string;
   stripeCustomerId: string | null;
+  /**
+   * Accès réellement accordé, décidé côté serveur par
+   * `deriveCabinetSubscriptionState`. Le composant le RECOIT, il ne le
+   * recalcule pas : il rejugeait « actif = statut Stripe active|trialing », ce
+   * qui affichait un avertissement d'activation à un cabinet ayant payé par
+   * virement Interac.
+   */
+  isActive: boolean;
+  /** `stripe`, `acces_paye` (virement encaissé hors Stripe), ou `null`. */
+  accessSource?: "stripe" | "acces_paye" | null;
   subscriptionStatus?: string | null;
   periodEnd: string | null;
   trialEnd?: string | null;
@@ -19,6 +29,8 @@ interface SubscriptionManagerProps {
 export function SubscriptionManager({
   currentPlan,
   stripeCustomerId,
+  isActive,
+  accessSource = null,
   subscriptionStatus,
   periodEnd,
   trialEnd,
@@ -38,9 +50,11 @@ export function SubscriptionManager({
     professionnel: t("subscriptionTaglineProfessionnel"),
     cabinet: t("subscriptionTaglineCabinet"),
   };
-  const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
   const formattedRenewal = formatDate(periodEnd, intlLocale);
   const formattedTrialEnd = formatDate(trialEnd ?? null, intlLocale);
+  // Quand l'accès vient d'un virement encaissé, le statut Stripe ne décide de
+  // rien : l'afficher ferait croire au cabinet que son accès en dépend.
+  const accesPaye = accessSource === "acces_paye";
 
   async function startCheckout(plan: PlanKey) {
     setBusy(plan);
@@ -82,13 +96,16 @@ export function SubscriptionManager({
           <p className="text-sm safe-text-secondary mt-1">
             {t("subscriptionCurrentPlan")} :{" "}
             <strong className="capitalize safe-text-title">{PLANS[currentKey].name}</strong>
-            {subscriptionStatus && (
+            {!accesPaye && subscriptionStatus && (
               <span> · {t("subscriptionStripeStatus", { status: subscriptionStatus })}</span>
             )}
-            {formattedRenewal && (
+            {accesPaye && formattedRenewal && (
+              <span> · {t("subscriptionAccessPaidUntil", { date: formattedRenewal })}</span>
+            )}
+            {!accesPaye && formattedRenewal && (
               <span> · {t("subscriptionRenewsOn", { date: formattedRenewal })}</span>
             )}
-            {formattedTrialEnd && (
+            {!accesPaye && formattedTrialEnd && (
               <span> · {t("subscriptionTrialEndsOn", { date: formattedTrialEnd })}</span>
             )}
             {cancelAtPeriodEnd && <span> · {t("subscriptionCancelsAtPeriodEnd")}</span>}
@@ -122,7 +139,10 @@ export function SubscriptionManager({
           const monthly = new Intl.NumberFormat(intlLocale, {
             style: "currency",
             currency: plan.currency.toUpperCase(),
-            maximumFractionDigits: 0,
+            // 149,99 $ ne doit pas s'afficher « 150 $ » : un prix arrondi sur
+    // un écran d'abonnement est un prix faux.
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
           }).format(plan.price / 100);
           const features: string[] = [
             plan.features.maxUsers === -1
