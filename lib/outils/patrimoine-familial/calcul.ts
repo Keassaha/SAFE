@@ -266,14 +266,21 @@ export function calculerBien(bien: Bien, regime: Regime): ResultatBien {
         code: "valeur_nette_negative_reference",
         bien: bien.libelle,
         message:
-          `Les dettes dépassaient la valeur du bien ${dateRef}. Le Code ne prévoit pas ` +
-          `ce cas et aucune décision consultée ne le tranche. Ce calcul s'arrête ici : ` +
-          `la déduction relève de votre appréciation.`,
+          `Les dettes dépassaient la valeur du bien ${dateRef}, de sorte que la ` +
+          `proportion de l'article 418 devient négative. Appliqué à la lettre, le texte ` +
+          `transforme alors la déduction en ajout : la valeur à partager dépasserait ` +
+          `celle du bien lui-même. Ce résultat est absurde, ce qui est déjà un argument, ` +
+          `mais le Code ne dit pas par quoi le remplacer. Deux lectures se défendent : ` +
+          `ramener la déduction à zéro, ou ramener la proportion à zéro. Les deux ` +
+          `reviennent à ne rien déduire pour ce bien. Ce calcul s'arrête plutôt que de ` +
+          `choisir à votre place.`,
         reference: refDeduction,
         verifieLe: VERIFIE_LE,
         leveePar:
-          "Une décision qui dirait comment traiter une proportion négative. Aucune " +
-          "n'a été trouvée au 2026-08-19, et la recherche n'a pas dépouillé CanLII.",
+          "Une décision sur le traitement d'une proportion négative. Au 2026-08-20, " +
+          "aucune n'a été trouvée : CanLII refuse les outils automatisés et la recherche " +
+          "de SOQUIJ passe par un contrôle anti-robot. Une consultation humaine de l'une " +
+          "ou l'autre lèverait la réserve, ou confirmerait que la question reste au juge.",
       });
       return {
         libelle: bien.libelle,

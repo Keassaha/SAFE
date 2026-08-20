@@ -100,6 +100,11 @@ describe("les garde-fous", () => {
     expect(r.valeurPartageable).toBeNull();
     expect(r.reserves[0].code).toBe("valeur_nette_negative_reference");
     expect(r.reserves[0].message).not.toMatch(/erreur|invalide/i);
+    // Le refus doit ARMER l'avocate, pas seulement constater. Il nomme l'absurdité de
+    // la lecture littérale et les deux lectures qui se défendent.
+    expect(r.reserves[0].message).toMatch(/absurde/);
+    expect(r.reserves[0].message).toMatch(/Deux lectures/);
+    expect(r.reserves[0].leveePar).toMatch(/CanLII|SOQUIJ/);
   });
 
   it("refuse une valeur brute de référence nulle plutôt que de diviser par zéro", () => {

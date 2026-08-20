@@ -112,13 +112,45 @@ source primaire. La façon dont les 12 000 $ se répartissent entre les deux ép
 
 ---
 
+## C6 — Un troisième exemple publié, et ce qu'il révèle **ARRONDI**
+
+Source : SBL Avocats, « Le patrimoine familial a trente ans », Claude Voyer, avocat.
+Consulté le 2026-08-20.
+
+| Entrée | Valeur |
+|---|---|
+| Valeur brute au mariage | 150 000 $ |
+| Dette au mariage | 50 000 $ |
+| Valeur brute au partage | 200 000 $ |
+| Dette au partage | 25 000 $ |
+
+| | La source publie | Le calcul exact |
+|---|---|---|
+| Proportion | **66 %** | 0,666666… |
+| Déduction de plus-value | 33 000 $ | **33 333,33 $** |
+| Déduction totale | 133 000 $ | **133 333,33 $** |
+| Valeur partageable | 42 000 $ | **41 666,67 $** |
+| Part de chaque époux | 21 000 $ | **20 833,33 $** |
+
+**Ce n'est pas une erreur de la source, c'est un arrondi pédagogique.** Mais il coûte
+**333,33 $** sur un partage de 42 000 $, et l'écart grandit avec la valeur du bien.
+
+**Conséquence pour le calculateur, et elle est déjà appliquée** : la proportion ne
+s'arrondit jamais. Seul le résultat final est arrondi au cent. Arrondir la proportion
+avant de multiplier ferait dériver chaque dossier.
+
+**Ne pas utiliser comme vecteur exact.** Utile comme contrôle de vraisemblance à 1 %
+près, et surtout comme illustration de ce qu'un tableur fait quand il tape « 66 % ».
+
+---
+
 ## Cas encore à trouver
 
 | Situation | État |
 |---|---|
 | Apport provenant d'un héritage pendant le mariage | source citée, chiffres non extraits |
 | Bien en moins-value | source citée, chiffres non extraits |
-| Valeur nette négative au mariage | **introuvable**, aucune source |
+| Valeur nette négative au mariage | **introuvable.** Recherche refaite le 2026-08-20 : CanLII rend une page vide aux outils automatisés, SOQUIJ protège sa recherche par un contrôle anti-robot, et la doctrine consultée traite des cas voisins sans celui-ci. Non contournés. |
 | Dissolution par décès | aucun exemple chiffré publié trouvé |
 | Partage inégal, art. 422 | aucune grille chiffrée publiée |
 | Patrimoine d'union parentale | aucun exemple chiffré publié trouvé |
