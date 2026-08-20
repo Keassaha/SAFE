@@ -31,6 +31,7 @@ import {
   GitBranch,
   Flame,
   CalendarDays,
+  Calculator,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { UserRole } from "@prisma/client";
@@ -253,8 +254,17 @@ const NAV: NavGroup[] = [
       routes.edition,
       routes.rapports,
       routes.safeImport,
+      routes.outils,
     ],
     children: [
+      {
+        // La suite d'outils autonomes. Sans cette entrée, le calculateur existait et
+        // rien n'y menait : on y arrivait par l'URL, et on n'y revenait jamais.
+        labelKey: "navPatrimoineFamilial",
+        href: "/outils/patrimoine-familial",
+        icon: Calculator,
+        descriptionKey: "navPatrimoineFamilialDesc",
+      },
       {
         labelKey: "navEdition",
         href: routes.edition,

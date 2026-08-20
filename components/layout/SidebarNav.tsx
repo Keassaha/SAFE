@@ -26,6 +26,7 @@ import {
   ClipboardCheck,
   Sunrise,
   CalendarDays,
+  Calculator,
 } from "lucide-react";
 import {
   canViewClients,
@@ -150,6 +151,8 @@ const NAV_ITEMS: NavItem[] = [
     exactMatch: true,
     dividerBefore: true,
     children: [
+      // Même raison qu'au menu du haut : un outil qu'aucun menu ne nomme n'existe pas.
+      { id: "calc-patrimoine-familial", href: "/outils/patrimoine-familial", labelKey: "nav.patrimoineFamilial", icon: Calculator, show: () => true },
       { id: "edition", href: routes.edition, labelKey: "nav.edition", icon: FileText, show: canViewDocuments },
       { id: "rapports", href: routes.rapports, labelKey: "nav.reports", icon: BarChart3, show: canViewReports },
       { id: "safe-import", href: routes.safeImport, labelKey: "nav.safeImport", icon: Upload, show: () => true },

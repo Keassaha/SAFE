@@ -318,7 +318,8 @@
         "compliance": "Conformité",
         "settings": "Paramètres",
         "today": "Aujourd’hui",
-        "myHours": "Mon temps & ma paye"
+        "myHours": "Mon temps & ma paye",
+        "patrimoineFamilial": "Patrimoine familial"
       },
       "profile": {
         "title": "Profil",
@@ -3734,7 +3735,9 @@
     "navReportsDesc": "Analyses et performance",
     "navSafeImport": "Safe Import",
     "navSafeImportDesc": "Importer données / relevés",
-    "navSettings": "Paramètres"
+    "navSettings": "Paramètres",
+    "navPatrimoineFamilial": "Patrimoine familial",
+    "navPatrimoineFamilialDesc": "Partage calculé article par article"
   },
   "appExtraUi": {
     "newMatterTitle": "Nouveau dossier",

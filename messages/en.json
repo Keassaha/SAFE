@@ -318,7 +318,8 @@
         "compliance": "Compliance",
         "settings": "Settings",
         "today": "Today",
-        "myHours": "My time & pay"
+        "myHours": "My time & pay",
+        "patrimoineFamilial": "Family patrimony"
       },
       "profile": {
         "title": "Profile",
@@ -3734,7 +3735,9 @@
     "navReportsDesc": "Analytics and performance",
     "navSafeImport": "Safe Import",
     "navSafeImportDesc": "Import data / statements",
-    "navSettings": "Settings"
+    "navSettings": "Settings",
+    "navPatrimoineFamilial": "Family patrimony",
+    "navPatrimoineFamilialDesc": "Division computed article by article"
   },
   "appExtraUi": {
     "newMatterTitle": "New matter",
