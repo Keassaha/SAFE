@@ -4031,6 +4031,15 @@
       "detail": "Votre abonnement a été résilié. Vos données et vos dossiers restent intacts et exportables."
     }
   },
+  "espaceFerme": {
+    "titre": "Votre espace est fermé",
+    "corps": "L'accès aux écrans est suspendu. Vos dossiers, vos clients et vos factures sont intacts : rien n'a été supprimé, et tout redevient disponible si l'espace est rouvert.",
+    "export": "Vous pouvez récupérer vos données dès maintenant, sans nous les demander.",
+    "exportClients": "Exporter mes clients",
+    "exportDossiers": "Exporter mes dossiers",
+    "contact": "Pour rouvrir votre espace ou pour toute question, écrivez-nous à info@safecabinet.ca.",
+    "motif": "Motif : {motif}"
+  },
   "collecte": {
     "aucunFichier": "Aucun fichier reçu.",
     "avantLe": "À fournir avant le {date}",

@@ -2,10 +2,13 @@ import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { TimerProvider } from "@/lib/contexts/TimerContext";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { shouldBlockForSubscription } from "@/lib/services/subscription-guard";
+import { shouldBlockForFermeture } from "@/lib/services/cabinet-fermeture";
+import { EspaceFerme } from "@/components/cabinet/EspaceFerme";
 import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
 import { ShellV2 } from "./_components/ShellV2";
@@ -46,6 +49,22 @@ export default async function AppV2Layout({
   // Répercuté depuis app/(app)/layout.tsx : l'abonnement ne ferme plus la porte,
   // il se rappelle dans le centre d'alertes. Blocage possible derrière
   // `SAFE_BLOCAGE_ABONNEMENT=on`.
+  // Espace fermé : l'accès aux écrans s'arrête, les données restent entières.
+  // Vérifié AVANT l'abonnement, parce qu'une fermeture est une décision prise,
+  // là où un abonnement inactif n'est qu'un rappel.
+  //
+  // Les routes d'API ne passent pas par ici : l'export reste donc possible, et
+  // c'est voulu. Un cabinet qui s'en va repart avec ses dossiers.
+  const fermeture = cabinetId
+    ? await prisma.cabinet.findUnique({
+        where: { id: cabinetId },
+        select: { fermeLe: true, fermeMotif: true },
+      })
+    : null;
+  if (pathname && shouldBlockForFermeture(pathname, fermeture)) {
+    return <EspaceFerme motif={fermeture?.fermeMotif ?? null} />;
+  }
+
   const subscription = cabinetId ? await getCabinetSubscriptionState(cabinetId) : null;
   if (subscription && pathname && shouldBlockForSubscription(pathname, subscription)) {
     // Même raison que dans app/(app)/layout.tsx : un `redirect()` depuis un

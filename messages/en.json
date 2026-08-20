@@ -4031,6 +4031,15 @@
       "detail": "Your subscription was cancelled. Your data and your matters remain intact and exportable."
     }
   },
+  "espaceFerme": {
+    "titre": "Your workspace is closed",
+    "corps": "Access to the screens is suspended. Your matters, clients and invoices are intact: nothing was deleted, and everything becomes available again if the workspace is reopened.",
+    "export": "You can retrieve your data right now, without asking us for it.",
+    "exportClients": "Export my clients",
+    "exportDossiers": "Export my matters",
+    "contact": "To reopen your workspace or for any question, write to info@safecabinet.ca.",
+    "motif": "Reason: {motif}"
+  },
   "collecte": {
     "aucunFichier": "No file was received.",
     "avantLe": "Needed before {date}",

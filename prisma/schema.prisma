@@ -88,6 +88,24 @@ model Cabinet {
   /// au-delà, février n'existe pas certaines années et la facture sauterait
   /// silencieusement.
   abonnementJourFacturation   Int?
+
+  /// Date de FERMETURE de l'espace. NULL = espace ouvert.
+  ///
+  /// Fermer n'est pas supprimer. Le cabinet perd l'accès aux écrans, ses
+  /// données restent entières et exportables, et effacer cette date rouvre
+  /// l'espace tel qu'il était. C'est la seule façon de couper l'accès depuis
+  /// que le mur d'abonnement ne bloque plus (voir `isBlocageAbonnementActif`),
+  /// et c'est tant mieux : une fermeture doit être un geste posé, pas la
+  /// conséquence silencieuse d'une ligne Stripe absente.
+  ///
+  /// Les routes d'API ne sont PAS bloquées par cette date : l'export des
+  /// données doit rester possible après la fermeture. Un cabinet qui s'en va
+  /// repart avec ses dossiers.
+  fermeLe                     DateTime?
+  /// Pourquoi l'espace a été fermé. Une fermeture anonyme est une fermeture
+  /// que personne n'assume, et c'est la première chose qu'on cherche six mois
+  /// plus tard en se demandant ce qui s'est passé.
+  fermeMotif                  String?
   // Stripe Connect (Express) — compte connecté du cabinet pour encaisser les
   // factures en ligne (direct charge : l'argent va direct à l'avocate). ADR-012.
   stripeConnectAccountId      String?   @unique

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { AppChrome } from "@/components/layout/AppChrome";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { TimerProvider } from "@/lib/contexts/TimerContext";
@@ -13,6 +14,8 @@ import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { AbonnementRequis } from "@/components/abonnement/AbonnementRequis";
 import { shouldBlockForSubscription } from "@/lib/services/subscription-guard";
+import { shouldBlockForFermeture } from "@/lib/services/cabinet-fermeture";
+import { EspaceFerme } from "@/components/cabinet/EspaceFerme";
 import { getCabinetProvince } from "@/lib/cabinet/get-province";
 
 export default async function AppLayout({
@@ -51,6 +54,22 @@ export default async function AppLayout({
   //
   // Le blocage reste possible derrière `SAFE_BLOCAGE_ABONNEMENT=on`, pour le
   // jour où un impayé devra vraiment fermer l'accès. Ce sera une décision.
+  // Espace fermé : l'accès aux écrans s'arrête, les données restent entières.
+  // Vérifié AVANT l'abonnement, parce qu'une fermeture est une décision prise,
+  // là où un abonnement inactif n'est qu'un rappel.
+  //
+  // Les routes d'API ne passent pas par ici : l'export reste donc possible, et
+  // c'est voulu. Un cabinet qui s'en va repart avec ses dossiers.
+  const fermeture = cabinetId
+    ? await prisma.cabinet.findUnique({
+        where: { id: cabinetId },
+        select: { fermeLe: true, fermeMotif: true },
+      })
+    : null;
+  if (pathname && shouldBlockForFermeture(pathname, fermeture)) {
+    return <EspaceFerme motif={fermeture?.fermeMotif ?? null} />;
+  }
+
   const subscription = cabinetId ? await getCabinetSubscriptionState(cabinetId) : null;
   if (subscription && pathname && shouldBlockForSubscription(pathname, subscription)) {
     // On rend le blocage, on ne redirige pas. Un `redirect()` levé depuis un
