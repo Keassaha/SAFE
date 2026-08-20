@@ -96,5 +96,17 @@ Le mode forfait, une fois choisi, donne ce qui était déjà construit : le regi
 tâches et sa grille de prix en forfait pur, et en mixte la bascule Forfait / Heures à
 chaque ajout. Aucun de ces écrans n'a été touché aujourd'hui.
 
-Rien n'est en production. Le travail est dans l'arbre de travail, sur
-`feat/encaissement-interac`, au milieu du chantier abonnement.
+## Déployé
+
+Commit `efef763` sur `feat/encaissement-interac`, poussé, puis déployé en production
+avec `vercel --prod --archive=tgz` (39 430 fichiers, au-delà du plafond de 15 000 de
+l'envoi non archivé).
+
+Le déploiement de 12:25 porte les alias `safecabinet.ca` et `www.safecabinet.ca` : il
+sert la production. Journal de build : « 55 migrations found », **« No pending
+migrations to apply »**. Aucun schéma touché, ce qui était attendu puisque ce lot
+n'apporte aucune migration. Les trois migrations d'abonnement, elles, avaient déjà été
+appliquées par le déploiement de 12:07.
+
+Vérifié en production, sans session, sur `/ds-preview/temps` : le registre affiche
+« 2,5 h », et la fenêtre de saisie affiche « Durée (heures) » avec l'écho « = 2 h 30 ».
