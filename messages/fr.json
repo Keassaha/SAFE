@@ -349,7 +349,11 @@
       "chooseMatter": "Choisir un dossier",
       "user": "Utilisateur",
       "date": "Date",
-      "durationMinutes": "Durée (minutes)",
+      "durationHours": "Durée (heures)",
+      "durationPlaceholder": "1,5",
+      "durationHint": "En heures : écrivez 1,5 pour 1 h 30.",
+      "durationEcho": "= {duree}",
+      "amountPreview": "{heures} h à ce taux : {montant}",
       "roundedTo": "arrondi {minutes} min",
       "description": "Description",
       "activityType": "Type d'activité",
@@ -367,7 +371,13 @@
       },
       "errors": {
         "selectMatter": "Veuillez sélectionner un dossier pour ce client.",
-        "invalidData": "Données invalides. Vérifiez les champs."
+        "invalidData": "Données invalides. Vérifiez les champs.",
+        "duration": {
+          "vide": "Indiquez une durée, en heures.",
+          "illisible": "Durée illisible. Écrivez 1,5 pour 1 h 30, ou 1h30.",
+          "zero": "La durée doit être supérieure à zéro.",
+          "trop_longue": "Le champ est en heures : 24 h au maximum. Pour des minutes, écrivez « 45 min »."
+        }
       },
       "activity": {
         "consultation": "Consultation",
@@ -383,7 +393,8 @@
         "validated": "Validé",
         "invoiced": "Facturé"
       }
-    }
+    },
+    "hoursShort": "{heures} h"
   },
   "dashboard": {
     "tabs": {
@@ -2181,7 +2192,8 @@
     "legalEntity": "Personne morale",
     "naturalPerson": "Personne physique",
     "registering": "Enregistrement…",
-    "registerInRegistry": "Enregistrer dans le registre"
+    "registerInRegistry": "Enregistrer dans le registre",
+    "hoursShort": "{heures} h"
   },
   "parametres": {
     "title": "Paramètres",
@@ -3043,7 +3055,17 @@
     "prorataDeclareLe": "déclaré le {date}",
     "prorataPar": "par {nom}",
     "prorataAucun": "Aucun pourcentage déclaré pour l'instant.",
-    "enregistrer": "Enregistrer"
+    "enregistrer": "Enregistrer",
+    "billingModeSectionTitle": "Mode de facturation",
+    "billingModeSectionIntro": "Ce réglage change ce que l'application vous demande. En forfait, elle cesse de réclamer un taux horaire à l'ouverture d'un dossier et la facture parle de tâches, pas d'heures.",
+    "billingModeHourlyEffect": "Le dossier porte un taux horaire, la facture se construit à partir des heures saisies.",
+    "billingModeForfaitEffect": "Aucun taux horaire demandé. La facture se construit à partir des tâches et de leur prix convenu.",
+    "billingModeMixedEffect": "Les deux coexistent. Chaque ligne de facture bascule entre forfait et heures.",
+    "billingModeAppliesEverywhere": "S'applique à tous les écrans.",
+    "billingModeSave": "Enregistrer le mode",
+    "billingModeHourly": "Horaire",
+    "billingForfait": "Forfait",
+    "billingModeMixed": "Mixte"
   },
   "authUi": {
     "layoutEyebrow": "Espace sécurisé",

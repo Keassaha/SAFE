@@ -7,7 +7,9 @@ import { useTimer, formatTimerElapsed } from "@/lib/contexts/TimerContext";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { useQueryClient } from "@tanstack/react-query";
 import { NewClientModal } from "./NewClientModal";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatHeuresDecimales, minutesFacturablesDuChrono } from "@/lib/temps/duree";
+import { DEFAULT_ROUNDING_MINUTES } from "@/lib/constants";
 
 interface SaisieRapideBlockProps {
   cabinetId: string | null;
@@ -26,6 +28,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
   const t = useTranslations("temps");
   const tc = useTranslations("common");
   const tt = useTranslations("timer");
+  const locale = useLocale();
   const timer = useTimer();
   const queryClient = useQueryClient();
   const { data: context, isLoading } = useTempsContext(cabinetId);
@@ -36,6 +39,11 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
 
   const dossiersForClient = context?.dossiers.filter((d) => d.clientId === clientId) ?? [];
   const clients = context?.clients ?? [];
+
+  // Le cabinet facture en heures : le chrono le dit tout de suite, sans attendre
+  // qu'on l'arrête pour découvrir ce que 47 minutes valent sur une facture.
+  const rounding = context?.roundingMinutes ?? DEFAULT_ROUNDING_MINUTES;
+  const minutesFacturables = minutesFacturablesDuChrono(timer.elapsedSeconds, rounding);
 
   useEffect(() => {
     if (!clientId) {
@@ -95,6 +103,12 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
               {formatTimerElapsed(timer.elapsedSeconds)}
             </p>
             <p className="text-xs text-si-muted">
+              {minutesFacturables > 0 && (
+                <span className="font-medium text-si-ink tabular-nums">
+                  {t("hoursShort", { heures: formatHeuresDecimales(minutesFacturables, locale) })}
+                  {" · "}
+                </span>
+              )}
               {timer.running ? t("statusRunning") : timer.hasStoppedWithPending ? t("statusStopped") : timer.isPaused ? t("statusPaused") : t("statusReady")}
             </p>
           </div>

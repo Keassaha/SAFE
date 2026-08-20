@@ -349,7 +349,11 @@
       "chooseMatter": "Choose a matter",
       "user": "User",
       "date": "Date",
-      "durationMinutes": "Duration (minutes)",
+      "durationHours": "Duration (hours)",
+      "durationPlaceholder": "1.5",
+      "durationHint": "In hours: type 1.5 for 1 h 30.",
+      "durationEcho": "= {duree}",
+      "amountPreview": "{heures} h at this rate: {montant}",
       "roundedTo": "rounded to {minutes} min",
       "description": "Description",
       "activityType": "Activity type",
@@ -367,7 +371,13 @@
       },
       "errors": {
         "selectMatter": "Please select a matter for this client.",
-        "invalidData": "Invalid data. Please review the fields."
+        "invalidData": "Invalid data. Please review the fields.",
+        "duration": {
+          "vide": "Enter a duration, in hours.",
+          "illisible": "Duration not recognized. Type 1.5 for 1 h 30, or 1h30.",
+          "zero": "Duration must be greater than zero.",
+          "trop_longue": "This field is in hours: 24 h maximum. For minutes, type “45 min”."
+        }
       },
       "activity": {
         "consultation": "Consultation",
@@ -383,7 +393,8 @@
         "validated": "Validated",
         "invoiced": "Invoiced"
       }
-    }
+    },
+    "hoursShort": "{heures} h"
   },
   "dashboard": {
     "tabs": {
@@ -2181,7 +2192,8 @@
     "legalEntity": "Legal entity",
     "naturalPerson": "Natural person",
     "registering": "Registering…",
-    "registerInRegistry": "Register in registry"
+    "registerInRegistry": "Register in registry",
+    "hoursShort": "{heures} h"
   },
   "parametres": {
     "title": "Settings",
@@ -3043,7 +3055,17 @@
     "prorataDeclareLe": "declared on {date}",
     "prorataPar": "by {nom}",
     "prorataAucun": "No percentage declared yet.",
-    "enregistrer": "Save"
+    "enregistrer": "Save",
+    "billingModeSectionTitle": "Billing mode",
+    "billingModeSectionIntro": "This setting changes what the app asks you for. On flat fee, it stops requiring an hourly rate when you open a matter, and invoices speak of tasks rather than hours.",
+    "billingModeHourlyEffect": "The matter carries an hourly rate; invoices are built from recorded time.",
+    "billingModeForfaitEffect": "No hourly rate requested. Invoices are built from tasks and their agreed price.",
+    "billingModeMixedEffect": "Both coexist. Each invoice line switches between flat fee and hours.",
+    "billingModeAppliesEverywhere": "Applies across every screen.",
+    "billingModeSave": "Save mode",
+    "billingModeHourly": "Hourly",
+    "billingForfait": "Flat fee",
+    "billingModeMixed": "Mixed"
   },
   "authUi": {
     "layoutEyebrow": "Secure space",

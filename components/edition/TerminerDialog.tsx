@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatDureeHM, formatHeuresDecimales } from "@/lib/temps/duree";
 import { CheckCircle, Clock, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -35,11 +36,9 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const montant = ((dureeMinutes / 60) * taux).toFixed(2);
-  const heures = Math.floor(dureeMinutes / 60);
-  const minutes = dureeMinutes % 60;
-  const dureeLabel = heures > 0
-    ? `${heures}h ${minutes > 0 ? `${minutes}min` : ""}`
-    : `${minutes} min`;
+  // Heures décimales : c'est l'unité du taux affiché juste à côté, et celle de
+  // la ligne de facture qui sortira de cette confirmation.
+  const dureeLabel = `${formatHeuresDecimales(dureeMinutes)} h`;
 
   async function handleConfirm() {
     setIsSubmitting(true);
@@ -98,7 +97,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-[var(--safe-neutral-bg)] rounded-xl p-4 text-center">
               <Clock className="w-5 h-5 text-[var(--safe-primary)] mx-auto mb-1" />
-              <p className="text-xl font-medium text-[var(--safe-text-title)]">{dureeLabel}</p>
+              <p className="text-xl font-medium text-[var(--safe-text-title)]" title={formatDureeHM(dureeMinutes)}>{dureeLabel}</p>
               <p className="text-xs text-[var(--safe-text-secondary)]">{t("workDuration")}</p>
             </div>
             <div className="bg-green-50 rounded-xl p-4 text-center">

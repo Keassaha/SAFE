@@ -11,6 +11,8 @@ import {
   getCabinetTaxNumbers,
 } from "@/lib/cabinet-config";
 import { InvoiceAppearanceForm } from "./InvoiceAppearanceForm";
+import { BillingModeForm } from "./BillingModeForm";
+import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTranslations } from "next-intl/server";
 
 /**
@@ -36,6 +38,12 @@ export default async function InvoiceAppearancePage() {
   const inv = getCabinetInvoiceConfig(config);
   const taxes = getCabinetTaxNumbers(config);
 
+  // Le mode vit dans CabinetInterface.modules, pas dans Cabinet.config.
+  // `mixed` est la valeur interne ; le réglage écrit « mixte », les deux
+  // orthographes étant acceptées en lecture (cf. getCabinetInterfaceDerived).
+  const { billingMode } = await getCabinetInterfaceDerived(cabinetId);
+  const billingChoice = billingMode === "mixed" ? "mixte" : billingMode;
+
   const t = await getTranslations("settingsUi");
 
   return (
@@ -46,6 +54,8 @@ export default async function InvoiceAppearancePage() {
         backHref={routes.parametres}
         backLabel={t("backToSettings")}
       />
+
+      <BillingModeForm initial={billingChoice} />
 
       <InvoiceAppearanceForm
         initial={{

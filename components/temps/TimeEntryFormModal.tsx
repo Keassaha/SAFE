@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +11,13 @@ import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import {
+  formatDureeHM,
+  minutesVersChampHeures,
+  parseDureeHeures,
+  type DureeParseError,
+} from "@/lib/temps/duree";
+import { computeMontant } from "@/lib/temps/utils";
 
 type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
 type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; tauxHoraire?: number | null; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
@@ -21,12 +28,6 @@ type UserOption = { id: string; nom: string; defaultHourlyRate?: number | null }
 function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
   if (c.raisonSociale) return c.raisonSociale;
   return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
-}
-
-function formatDuree(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h00`;
 }
 
 interface TimeEntryFormModalProps {
@@ -58,6 +59,7 @@ export function TimeEntryFormModal({
   onSuccess,
 }: TimeEntryFormModalProps) {
   const t = useTranslations("timer.form");
+  const locale = useLocale();
   const isEdit = !!initial?.id;
   const [clientId, setClientId] = useState("");
   const [dossierId, setDossierId] = useState(initial?.dossierId ?? "");
@@ -65,7 +67,12 @@ export function TimeEntryFormModal({
   const [date, setDate] = useState(
     initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : toIsoDay(toCalendarDayUTC(new Date()))
   );
-  const [dureeMinutes, setDureeMinutes] = useState(initial?.dureeMinutes ?? 60);
+  // Le champ porte des heures écrites à la main (« 1,5 », « 1h30 ») ; la minute
+  // reste l'unité stockée. On garde donc le texte tel qu'il est tapé et on ne
+  // convertit qu'au moment de valider.
+  const [dureeTexte, setDureeTexte] = useState(() =>
+    minutesVersChampHeures(initial?.dureeMinutes ?? 60, locale)
+  );
   const [description, setDescription] = useState(initial?.description ?? "");
   const [typeActivite, setTypeActivite] = useState(initial?.typeActivite ?? "");
   const [facturable, setFacturable] = useState(initial?.facturable ?? true);
@@ -106,7 +113,7 @@ export function TimeEntryFormModal({
     }
     setUserId(initial?.userId ?? currentUserId);
     setDate(initial?.date ? new Date(initial.date).toISOString().slice(0, 10) : toIsoDay(toCalendarDayUTC(new Date())));
-    setDureeMinutes(initial?.dureeMinutes ?? 60);
+    setDureeTexte(minutesVersChampHeures(initial?.dureeMinutes ?? 60, locale));
     if (initial && "rawDureeMinutes" in initial && "roundingMinutes" in initial && initial.rawDureeMinutes != null && initial.roundingMinutes != null && initial.dureeMinutes != null) {
       setRoundingHint({ raw: initial.rawDureeMinutes, rounded: initial.dureeMinutes, roundingMinutes: initial.roundingMinutes });
     } else {
@@ -121,7 +128,7 @@ export function TimeEntryFormModal({
     // Nouvelle entrée (taux 0) → déverrouillée, l'auto-remplissage prendra le relais.
     setRateManuallyEdited((initial?.tauxHoraire ?? 0) > 0);
     setError(null);
-  }, [open, initial, currentUserId, dossiers]);
+  }, [open, initial, currentUserId, dossiers, locale]);
 
   // Pré-remplissage automatique du taux : taux du dossier (négocié) sinon taux de l'avocat sélectionné.
   // Ne s'applique que tant que l'utilisateur n'a pas saisi de taux à la main.
@@ -139,11 +146,25 @@ export function TimeEntryFormModal({
   const clientHasDossiers = dossiersForClient.length > 0;
   const dossierRequired = clientHasDossiers;
 
+  const dureeLue = parseDureeHeures(dureeTexte);
+  const dureeMinutes = dureeLue.ok ? dureeLue.minutes : 0;
+  // Un champ laissé vide pendant la frappe n'est pas une faute : on ne montre
+  // l'erreur que si la personne a écrit quelque chose d'inutilisable.
+  const dureeErreur: DureeParseError | null =
+    dureeLue.ok || dureeLue.error === "vide" ? null : dureeLue.error;
+  const montantAnnonce = dureeMinutes > 0 && tauxHoraire > 0
+    ? computeMontant(dureeMinutes, tauxHoraire)
+    : null;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (dossierRequired && !dossierId) {
       setError(t("errors.selectMatter"));
+      return;
+    }
+    if (!dureeLue.ok) {
+      setError(t(`errors.duration.${dureeLue.error}`));
       return;
     }
     const raw = {
@@ -270,16 +291,28 @@ export function TimeEntryFormModal({
         </div>
         <Input label={t("date")} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         <Input
-          label={t("durationMinutes")}
-          type="number"
-          min={1}
-          value={String(dureeMinutes)}
-          onChange={(e) => setDureeMinutes(Number(e.target.value) || 0)}
+          label={t("durationHours")}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          placeholder={t("durationPlaceholder")}
+          value={dureeTexte}
+          onChange={(e) => setDureeTexte(e.target.value)}
+          status={dureeErreur ? "error" : "default"}
           required
         />
+        {dureeErreur ? (
+          <p className="text-xs text-status-error -mt-2">{t(`errors.duration.${dureeErreur}`)}</p>
+        ) : dureeMinutes > 0 ? (
+          <p className="text-xs text-si-muted -mt-2">
+            {t("durationEcho", { duree: formatDureeHM(dureeMinutes) })}
+          </p>
+        ) : (
+          <p className="text-xs text-si-muted -mt-2">{t("durationHint")}</p>
+        )}
         {roundingHint && (
           <p className="text-xs text-si-muted -mt-2">
-            {formatDuree(roundingHint.raw)} → {formatDuree(roundingHint.rounded)} ({t("roundedTo", { minutes: roundingHint.roundingMinutes })})
+            {formatDureeHM(roundingHint.raw)} → {formatDureeHM(roundingHint.rounded)} ({t("roundedTo", { minutes: roundingHint.roundingMinutes })})
           </p>
         )}
         <Input label={t("description")} value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -331,6 +364,17 @@ export function TimeEntryFormModal({
           }}
           required
         />
+        {montantAnnonce !== null && (
+          <p className="text-xs text-si-muted -mt-2">
+            {t("amountPreview", {
+              heures: minutesVersChampHeures(dureeMinutes, locale),
+              montant: new Intl.NumberFormat(locale === "en" ? "en-CA" : "fr-CA", {
+                style: "currency",
+                currency: "CAD",
+              }).format(montantAnnonce),
+            })}
+          </p>
+        )}
         {!rateManuallyEdited && tauxHoraire > 0 && (
           <p className="text-xs text-si-muted -mt-2">{t("rateAutofillHint")}</p>
         )}

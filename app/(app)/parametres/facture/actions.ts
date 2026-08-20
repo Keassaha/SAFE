@@ -10,6 +10,7 @@ import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
 import { mergeCabinetConfig } from "@/lib/cabinet-config";
 import { isAccentDarkEnough, normalizeHex } from "@/lib/invoice-template/color";
+import { BILLING_MODES } from "./billing-modes";
 
 /**
  * Server action — apparence de la facture du cabinet.
@@ -115,5 +116,94 @@ export async function updateInvoiceAppearance(
 
   revalidatePath("/parametres/facture");
   revalidatePath("/parametres");
+  return { ok: true };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODE DE FACTURATION PRINCIPAL
+   ══════════════════════════════════════════════════════════════════════════
+
+   Le mode vit dans `CabinetInterface.modules.facturation.principal`, lu par
+   `getCabinetInterfaceDerived` puis distribué à toute l'application.
+
+   POURQUOI CETTE ACTION EXISTE
+
+   Toute l'interface sait déjà s'adapter au forfait : le formulaire de dossier
+   et l'assistant de création cessent de demander un taux horaire, la facture
+   affiche « Tâches facturées » au lieu de « Lignes de facture », et le mode
+   mixte fait apparaître une bascule Forfait / Heures par ligne.
+
+   Ce qui manquait était l'interrupteur. Jusqu'ici, `modules.facturation.principal`
+   n'était écrit QUE par les scripts d'amorçage et la configuration par bundle.
+   Un cabinet installé sans cette clé retombait sur « horaire » par défaut et
+   n'avait plus aucun moyen d'en sortir depuis l'application. Le mode forfait
+   existait sans être atteignable.
+*/
+
+const billingModeSchema = z.object({
+  principal: z.enum(BILLING_MODES),
+});
+
+export type BillingModeResult = { ok: true } | { ok: false; error: string };
+
+export async function updateBillingMode(input: {
+  principal: string;
+}): Promise<BillingModeResult> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageCabinetSettings(role as UserRole)) {
+    return { ok: false, error: "Droits insuffisants." };
+  }
+
+  const parsed = billingModeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Mode de facturation invalide." };
+  }
+
+  const existing = await prisma.cabinetInterface.findUnique({
+    where: { cabinetId },
+    select: { modules: true },
+  });
+
+  // Fusion, jamais remplacement : `modules` porte aussi la configuration de
+  // taxes, le profil comptable et la conformité. Écraser le JSON réinitialiserait
+  // silencieusement le régime de taxes du cabinet.
+  let modules: Record<string, unknown> = {};
+  if (existing?.modules) {
+    try {
+      const parsedModules = JSON.parse(existing.modules);
+      if (parsedModules && typeof parsedModules === "object") {
+        modules = parsedModules as Record<string, unknown>;
+      }
+    } catch {
+      /* JSON illisible : on repart d'un objet vide plutôt que de refuser le réglage. */
+    }
+  }
+
+  const facturation = (modules.facturation as Record<string, unknown>) ?? {};
+  const avant = typeof facturation.principal === "string" ? facturation.principal : null;
+  modules.facturation = { ...facturation, principal: parsed.data.principal };
+  const json = JSON.stringify(modules);
+
+  await prisma.cabinetInterface.upsert({
+    where: { cabinetId },
+    create: { cabinetId, modules: json },
+    update: { modules: json },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Cabinet",
+    entityId: cabinetId,
+    action: "update",
+    oldValues: { billingPrincipal: avant },
+    newValues: { billingPrincipal: parsed.data.principal },
+    performedBy: userId,
+    performedAt: new Date(),
+  });
+
+  // Le mode change l'interface partout : dossiers, facturation, tableau de bord.
+  // On invalide la racine plutôt que d'énumérer des chemins qu'on oublierait.
+  revalidatePath("/", "layout");
   return { ok: true };
 }

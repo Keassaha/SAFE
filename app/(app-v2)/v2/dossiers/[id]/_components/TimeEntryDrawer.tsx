@@ -7,6 +7,7 @@ import s from "../../../v2.module.css";
 import { Drawer } from "../../../_components/Drawer";
 import { moneyFR } from "../../../_components/primitives";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import { formatDureeHM, parseDureeHeures } from "@/lib/temps/duree";
 
 /**
  * Drawer « Ajouter du temps » — la seule mutation de la préversion v2.
@@ -37,15 +38,22 @@ export function TimeEntryDrawer({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [minutes, setMinutes] = useState(30);
+  // Saisie en heures (« 0,5 », « 1h30 ») ; la minute reste l'unité enregistrée.
+  const [dureeTexte, setDureeTexte] = useState("0,5");
   const [taux, setTaux] = useState(defaultTaux ?? 0);
   const [facturable, setFacturable] = useState(true);
 
   const today = toIsoDay(toCalendarDayUTC(new Date()));
+  const dureeLue = parseDureeHeures(dureeTexte);
+  const minutes = dureeLue.ok ? dureeLue.minutes : 0;
   const estimate = facturable ? (minutes / 60) * taux : 0;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!dureeLue.ok) {
+      setError("Durée illisible. Écrivez 1,5 pour 1 h 30.");
+      return;
+    }
     setSaving(true);
     setError(null);
     const form = new FormData(event.currentTarget);
@@ -131,17 +139,19 @@ export function TimeEntryDrawer({
                 <input type="date" name="date" defaultValue={today} required />
               </label>
               <label>
-                Durée (minutes)
+                Durée (heures)
                 <input
-                  type="number"
-                  name="dureeMinutes"
-                  min={1}
-                  max={1440}
-                  step={1}
-                  value={minutes}
-                  onChange={(e) => setMinutes(Number(e.target.value))}
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  placeholder="1,5"
+                  value={dureeTexte}
+                  onChange={(e) => setDureeTexte(e.target.value)}
                   required
                 />
+                <span className={s.fieldHint}>
+                  {dureeLue.ok ? `= ${formatDureeHM(minutes)}` : "Écrivez 1,5 pour 1 h 30."}
+                </span>
               </label>
             </div>
 

@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, Pause, Play, Square, RotateCcw, Save, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useTimer, formatTimerElapsed } from "@/lib/contexts/TimerContext";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
 import { routes } from "@/lib/routes";
-import { roundDurationMinutes } from "@/lib/temps/utils";
+import {
+  formatHeuresDecimales,
+  minutesFacturablesDuChrono,
+} from "@/lib/temps/duree";
 import { DEFAULT_ROUNDING_MINUTES } from "@/lib/constants";
 import type { TimeEntryCreateInput } from "@/lib/validations/time-entry";
 import type { TimerState } from "@/lib/contexts/TimerContext";
@@ -27,6 +30,7 @@ interface GlobalTimerProps {
 
 export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
   const t = useTranslations("timer");
+  const locale = useLocale();
   const timer = useTimer();
   const { data: context, isLoading: contextLoading } = useTempsContext(cabinetId);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -42,7 +46,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
             : 0;
       const rawMinutes = Math.max(1, Math.ceil(totalSeconds / 60));
       const rounding = context?.roundingMinutes ?? DEFAULT_ROUNDING_MINUTES;
-      const dureeMinutes = roundDurationMinutes(rawMinutes, rounding);
+      const dureeMinutes = minutesFacturablesDuChrono(totalSeconds, rounding);
       setPendingInitial({
         clientId: payload.clientId ?? undefined,
         dossierId: payload.dossierId ?? undefined,
@@ -67,6 +71,12 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
   };
 
   const displayTime = formatTimerElapsed(timer.elapsedSeconds);
+  // Le chrono affiche l'heure facturable à côté du décompte : c'est elle qu'on
+  // enregistrera, et c'est elle que le cabinet lit.
+  const minutesFacturables = minutesFacturablesDuChrono(
+    timer.elapsedSeconds,
+    context?.roundingMinutes ?? DEFAULT_ROUNDING_MINUTES
+  );
 
   return (
     <>
@@ -77,6 +87,11 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               <Clock className="w-4 h-4 text-si-verified" aria-hidden />
               {displayTime}
             </span>
+            {minutesFacturables > 0 && (
+              <span className="safe-topbar-text hidden text-sm tabular-nums text-si-muted sm:inline">
+                {t("hoursShort", { heures: formatHeuresDecimales(minutesFacturables, locale) })}
+              </span>
+            )}
             {timer.hasStoppedWithPending ? (
               <>
                 <button

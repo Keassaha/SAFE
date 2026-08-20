@@ -96,9 +96,14 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
     style: "currency",
     currency: "CAD",
   });
+  // `TimeEntry.date` et `RegistreTache.date` sont des jours de calendrier posés
+  // à minuit UTC par le formulaire. Sans `timeZone: "UTC"`, le Québec les lit à
+  // 20 h la veille et l'activité récente affiche un jour de moins que le
+  // registre juste à côté. Même règle que `formatCalendarDate`.
   const dateFmt = new Intl.DateTimeFormat(locale === "fr" ? "fr-CA" : "en-CA", {
     day: "2-digit",
     month: "short",
+    timeZone: "UTC",
   });
 
   return (

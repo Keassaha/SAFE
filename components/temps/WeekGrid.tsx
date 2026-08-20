@@ -1,8 +1,9 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils/format";
+import { formatDureeHM, formatHeuresDecimales } from "@/lib/temps/duree";
 
 interface TimeEntryRow {
   id: string;
@@ -12,10 +13,9 @@ interface TimeEntryRow {
   dossier: { intitule: string; numeroDossier: string | null } | null;
 }
 
-function formatDuree(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m > 0 ? `${h}h${m}` : `${h}h`;
+/** La grille parle en heures, comme le champ de saisie et comme la facture. */
+function formatHeures(minutes: number, locale: string): string {
+  return `${formatHeuresDecimales(minutes, locale)} h`;
 }
 
 function formatPeriodLabel(start: Date, end: Date): string {
@@ -35,6 +35,7 @@ export function WeekGrid({
   onNextWeek: () => void;
 }) {
   const t = useTranslations("gestionCompUi");
+  const locale = useLocale();
   const startOfWeek = new Date(weekStart);
   startOfWeek.setHours(0, 0, 0, 0);
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -78,7 +79,7 @@ export function WeekGrid({
           </button>
         </div>
         <p className="text-sm text-si-muted">
-          {t("weekTotalLabel")} <span className="font-medium text-si-ink tabular-nums">{formatDuree(weekTotalMinutes)}</span>
+          {t("weekTotalLabel")} <span className="font-medium text-si-ink tabular-nums" title={formatDureeHM(weekTotalMinutes)}>{formatHeures(weekTotalMinutes, locale)}</span>
         </p>
       </div>
       <div className="grid grid-cols-7 gap-2">
@@ -90,13 +91,13 @@ export function WeekGrid({
             <p className="text-xs font-medium text-si-muted mb-2">
               {formatDate(date)}
             </p>
-            <p className="text-lg font-medium text-si-ink mb-2">
-              {formatDuree(total)}
+            <p className="text-lg font-medium text-si-ink mb-2" title={formatDureeHM(total)}>
+              {formatHeures(total, locale)}
             </p>
             <ul className="space-y-1 text-sm">
               {dayEntries.slice(0, 3).map((e) => (
                 <li key={e.id} className="truncate" title={e.description ?? e.dossier?.intitule ?? undefined}>
-                  {e.dossier?.numeroDossier ?? "—"} {formatDuree(e.dureeMinutes)}
+                  {e.dossier?.numeroDossier ?? "—"} {formatHeures(e.dureeMinutes, locale)}
                 </li>
               ))}
               {dayEntries.length > 3 && (

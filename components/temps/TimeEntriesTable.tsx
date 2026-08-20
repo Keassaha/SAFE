@@ -20,6 +20,7 @@ import {
   RegistrePlainHeader,
   rangeeOuvrable,
 } from "@/components/ui/registre";
+import { formatDureeHM, formatHeuresDecimales } from "@/lib/temps/duree";
 import type { TimeEntryStatut } from "@prisma/client";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -41,13 +42,6 @@ interface TimeEntryRow {
   client?: { id: string; raisonSociale: string | null; prenom: string | null; nom: string | null } | null;
   user: { id: string; nom: string };
   invoiceLines: { id: string }[];
-}
-
-function formatDuree(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m} min`;
-  return m > 0 ? `${h} h ${String(m).padStart(2, "0")}` : `${h} h`;
 }
 
 function BillingStatus({ billingStatus }: { billingStatus: string | null }) {
@@ -184,8 +178,13 @@ export function TimeEntriesTable({
                       <p className="line-clamp-2 leading-snug">{entry.description ?? "—"}</p>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-sm tabular-nums">
-                    {formatDuree(entry.dureeMinutes)}
+                  {/* La durée se lit dans l'unité qui sera facturée : des heures.
+                      Le survol garde la lecture en heures et minutes. */}
+                  <td
+                    className="whitespace-nowrap px-4 py-3 text-right font-mono text-sm tabular-nums"
+                    title={formatDureeHM(entry.dureeMinutes)}
+                  >
+                    {t("hoursShort", { heures: formatHeuresDecimales(entry.dureeMinutes, locale) })}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
                     <p className="font-mono font-medium tabular-nums">
