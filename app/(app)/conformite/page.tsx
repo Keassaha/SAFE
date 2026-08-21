@@ -1,4 +1,6 @@
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canViewBillingTrust } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { ComplianceDashboard } from "@/components/conformite/ComplianceDashboard";
 import { ReadinessOverview } from "@/components/conformite/ReadinessOverview";
@@ -59,7 +61,20 @@ async function buildTrustDetail(cabinetId: string, province: string | null) {
 }
 
 export default async function ConformitePage() {
-  const { cabinetId } = await requireCabinetAndUser();
+  const { cabinetId, role } = await requireCabinetAndUser();
+
+  /* L'ÉTAT de conformité est ouvert à tous les rôles : rapprochement en retard,
+     obligations à traiter, préparation à l'inspection. C'est souvent l'adjointe
+     qui monte le dossier d'inspection, et lui fermer cet écran la priverait de
+     son propre travail.
+     Le DÉTAIL nominatif, lui, est de l'argent client : « Nom du client · N°
+     dossier » avec son solde en fidéicommis. C'est exactement ce que `/comptes`
+     et les treize écrans d'Inspection refusent déjà à l'assistante, via
+     `canViewBillingTrust`. Cet écran l'affichait à tout le monde : seule entrée
+     du menu latéral posée à `show: () => true`, sans prédicat.
+     Décision CEO 2026-08-21 : séparer l'état du détail plutôt que fermer
+     l'écran entier. */
+  const voitLeDetailFiduciaire = canViewBillingTrust(role as UserRole);
   const province = await getCabinetProvince(cabinetId);
   const copy = getTrustRegulatorCopy(province);
 
@@ -68,7 +83,9 @@ export default async function ConformitePage() {
 
   if (COMPLIANCE_DASHBOARD_V2 && report) {
     const t = await getTranslations("conformite");
-    const trustDetail = await buildTrustDetail(cabinetId, province);
+    const trustDetail = voitLeDetailFiduciaire
+      ? await buildTrustDetail(cabinetId, province)
+      : null;
     return (
       <div className="space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
