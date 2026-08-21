@@ -331,7 +331,20 @@ const CSS = `
     overflow: hidden;
   }
 
-  .xc #zone-hero { height: 340vh; }
+  /* ── La course des scènes épinglées ──────────────────────────────────────
+     Elle valait 340vh ici, 400 pour le parcours et 300 pour la vérification.
+     Mesuré au défilement, à 1440 x 900 : sur les dix-sept vues de la page,
+     huit montraient un titre déjà lu, dont quatre d'affilée sous « Saisi une
+     fois. Utilisé jusqu'à la fermeture du dossier. » La liste des cinq étapes
+     est lisible en entier dès la première de ces vues : le lecteur avait fini
+     de lire, puis défilait trois écrans de plus pour voir changer une carte.
+
+     La course est donc ramenée à un peu plus de deux vues par scène. Rien
+     n'est retiré du récit : sceneEtapes repartit ses etapes sur
+     (hauteur - 100vh), donc raccourcir la zone accélère la cadence sans
+     supprimer une seule étape ni une seule ligne. Le pouce n'est pas touché,
+     les zones y passent en height:auto. */
+  .xc #zone-hero { height: 250vh; }
   .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* ── L'application, vivante ────────────────────────────────────────────────
      Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
@@ -641,13 +654,21 @@ const CSS = `
   .xc #hero-copy,
   .xc.anime #hero-caption,
   .xc #hero-hint { pointer-events: none; }
+  /* La marge du hero est celle des sections, pas une marge à elle.
+     Elle centrait DEUX fois : max-width:var(--page) plus margin:0 auto
+     ramenaient déjà le bloc à 1160 px centrés, donc à 140 px du bord sur un
+     écran de 1440, puis padding-inline rajoutait par-dessus
+     (1440 - 1160) / 2, soit 140 px de plus. Le titre d'ouverture partait à
+     280 px quand toutes les sections partent à 140.
+
+     La formule reste, le double centrage part : c'est exactement le montage
+     de section.flat, ou l'element pleine largeur porte le padding et son
+     .inner porte la mesure. Mesuré : 140 px, comme « Le constat ». */
   .xc #hero-copy {
     position: absolute;
     left: 0; right: 0;
     top: 17vh;
     padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
-    max-width: var(--page);
-    margin: 0 auto;
     will-change: transform, opacity;
   }
   /* ── Lignes légèrement irrégulières, côté éditorial ──────────────────────
@@ -903,8 +924,8 @@ const CSS = `
   .xc .co-arg { padding-block: 6px; }
   .xc .co-arg .e { font-size: var(--t-corps); line-height: 1.3; }
 
-  .xc #zone-verification { height: 300vh; }
-  .xc #zone-parcours { height: 400vh; }
+  .xc #zone-verification { height: 190vh; }
+  .xc #zone-parcours { height: 220vh; }
 
   /* ── Le parcours d'un dossier (section 03) ────────────────────────────────
      Même langage que la vérification : les étapes d'un côté, l'écran qui les
@@ -1567,11 +1588,15 @@ const CSS = `
   .xc #questions .q p { max-width: 58ch; font-family: var(--sans); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
   .xc #questions .liste-q { margin-top: clamp(32px, 4vw, 44px); }
 
-  .xc #cta { text-align: center; }
-  .xc #cta h2 { margin-inline: auto; max-width: 18ch; }
-  .xc #cta p { margin: 22px auto 0; max-width: 50ch; font-family: var(--sans); font-size: 16px; line-height: 1.65; color: var(--muted); }
+  /* La fermeture s'aligne à gauche, comme les huit chapitres qui la précèdent.
+     Elle était le seul bloc centré de la page : après seize écrans de colonne
+     à 140 px, un dernier écran centré se lit comme un gabarit rapporté, et
+     c'est le tell A2 de DESIGN_HUMAIN (« tout centré »). La page garde donc
+     une seule ligne de départ du premier mot au dernier bouton. */
+  .xc #cta h2 { max-width: 18ch; }
+  .xc #cta p { margin: 22px 0 0; max-width: 50ch; font-family: var(--sans); font-size: 16px; line-height: 1.65; color: var(--muted); }
   .xc #cta .reassure { margin-top: 20px; font-size: var(--t-detail); color: var(--muted); }
-  .xc #cta .actions { margin-top: 34px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+  .xc #cta .actions { margin-top: 34px; display: flex; gap: 18px; flex-wrap: wrap; }
   .xc .btn {
     display: inline-flex;
     align-items: center;
@@ -3897,34 +3922,11 @@ function runExperience(root: HTMLElement): () => void {
   };
 }
 
-/* ── Routes publiques ─────────────────────────────────────────────────────
-   L'application s'appelle SAFE, pas « SAFE Cabinet » (décision CEO du 21 août
-   2026, contre la proposition d'architecture du 20). Il n'y a donc pas de
-   sous-marque à nommer dans la navigation : une entrée mène à l'application,
-   une autre aux outils, et le mot SAFE reste porté par la marque elle-même.
-
-   L'entrée de l'application n'a pas de route à son nom et pointe vers
-   `/fonctionnalites`, qui décrit exactement ce qu'elle promet.
-
-   CORRESPONDANCE TEMPORAIRE, à revoir quand la route existera :
-     L'application → /fonctionnalites
-     Rencontre     → /demo  (la page de contact du site)
-*/
-const ROUTES = {
-  cabinet: "/fonctionnalites",
-  outils: "/calculateurs",
-  tarification: "/tarification",
-  aPropos: "/a-propos",
-  connexion: "/connexion",
-  evaluation: "/audit-gratuit",
-  rencontre: "/demo",
-  faq: "/faq",
-  conditions: "/conditions",
-  confidentialite: "/confidentialite",
-};
-
+/* Un seul vocabulaire pour tout le site. Ces libellés sont ceux de la barre
+   partagée (shared.tsx) et de la page À propos : le même écran ne peut pas
+   porter deux noms selon la page d'où l'on vient. */
 const LIENS_NAV: [string, string][] = [
-  [ROUTES.cabinet, "L’application"],
+  [ROUTES.cabinet, "SAFE Cabinet"],
   [ROUTES.outils, "Outils SAFE"],
   [ROUTES.tarification, "Tarification"],
   [ROUTES.aPropos, "À propos"],
