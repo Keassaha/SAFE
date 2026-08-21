@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canViewDocuments } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
@@ -19,6 +21,9 @@ export async function POST(
 ) {
   const { id } = await params;
   const session = await requireCabinetAndUser();
+  if (!canViewDocuments(session.role as UserRole)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();

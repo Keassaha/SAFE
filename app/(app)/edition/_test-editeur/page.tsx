@@ -1,3 +1,5 @@
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canViewDocuments } from "@/lib/auth/permissions";
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -5,7 +7,11 @@ import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
-export default function EditorTestPage() {
+/* ⚠️ Page de test servie en PRODUCTION. Gardée par le même rôle que le
+   reste d'Édition, faute de mieux : elle n'a rien à faire ici et
+   devrait être retirée. */
+export default async function EditorTestPage() {
+  await requirePageAccess(canViewDocuments);
   const tx = useTranslations("appExtraUi");
   const [keyLog, setKeyLog] = useState<string[]>([]);
 

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canViewDocuments } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { classifyDocument, extractTextFromPDF } from "@/lib/ai/classify-document";
 import { writeDocumentObject } from "@/lib/services/document";
@@ -23,6 +25,9 @@ const ALLOWED_TYPES = [
 // Upload un fichier + classification IA optionnelle
 export async function POST(req: NextRequest) {
   const session = await requireCabinetAndUser();
+  if (!canViewDocuments(session.role as UserRole)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   let formData: FormData;

@@ -1,10 +1,14 @@
-import { requireCabinetAndUser } from "@/lib/auth/session";
+import { requirePageAccess } from "@/lib/auth/page-guard";
+import { canViewDocuments } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { EditionBibliotheque } from "@/components/edition/EditionBibliotheque";
 
 export default async function EditionBibliothequePage() {
-  const session = await requireCabinetAndUser();
+  /* Le menu masquait déjà Édition aux rôles non autorisés
+     (SidebarNav, `canViewDocuments`), mais l'URL directe servait la
+     page quand même. « Le menu cache, il ne protège pas. » */
+  const session = await requirePageAccess(canViewDocuments);
   if (!session) notFound();
 
   const docs = await prisma.richDocument.findMany({

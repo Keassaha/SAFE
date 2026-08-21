@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { canViewDocuments } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
@@ -12,6 +14,9 @@ const StartSessionSchema = z.object({
 // POST /api/edition/sessions — démarrer une session chrono
 export async function POST(req: NextRequest) {
   const session = await requireCabinetAndUser();
+  if (!canViewDocuments(session.role as UserRole)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
@@ -49,6 +54,9 @@ export async function POST(req: NextRequest) {
 // PATCH /api/edition/sessions — pauser une session
 export async function PATCH(req: NextRequest) {
   const session = await requireCabinetAndUser();
+  if (!canViewDocuments(session.role as UserRole)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const { sessionId, action } = await req.json();
