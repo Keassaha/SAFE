@@ -668,6 +668,15 @@
   color: #fff;
 }
 
+/* Barre supérieure — repli mesuré de la navigation.
+   L'attribut est posé par la barre elle-même, après mesure : les libellés ne
+   tiennent plus dans leur piste (chrono en cours, fenêtre étroite, langue plus
+   longue), l'icône porte alors seule. Le nom reste dans `title` / `aria-label`,
+   donc rien ne disparaît pour le lecteur d'écran. */
+[data-nav-compact="true"] .safe-nav-label {
+  display: none;
+}
+
 /* ─── Composants inspirés glassmorphism (couleurs SAFE) ─── */
 @layer components {
   .glass-card {

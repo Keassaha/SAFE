@@ -462,6 +462,8 @@ export function Header({
    */
   const trameRef = useRef<number | null>(null);
   const souriseRef = useRef<number | null>(null);
+  /** Remesure du repli, posée par l'effet de mesure et appelée à la sortie du pointeur. */
+  const mesurerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -504,6 +506,8 @@ export function Header({
       // dans tous les cas.
       setSurvole(null);
       demander();
+      // La mesure a pu être refusée pendant le survol : elle se rattrape ici.
+      mesurerRef.current?.();
     };
 
     nav.addEventListener("pointermove", surDeplacement);
@@ -514,6 +518,67 @@ export function Header({
       if (trameRef.current !== null) cancelAnimationFrame(trameRef.current);
     };
   }, []);
+  // Les libellés changent avec la langue et avec le rôle : leur largeur aussi,
+  // sans que la barre, elle, ait bougé. On remesure dans ce cas.
+  const signatureNav = navGroups.map(navLabel).join("|");
+
+  /**
+   * Repli de la navigation quand la piste se resserre.
+   *
+   * La barre est une seule ligne : marque à gauche, navigation au centre,
+   * recherche et chrono à droite. Les deux extrémités ne se compriment pas, la
+   * navigation est donc la seule à céder du terrain, et comme ses libellés ne
+   * se coupent pas, ils débordaient de leur piste et se peignaient par-dessus
+   * la marque et le champ de recherche dès qu'on démarrait le chrono.
+   *
+   * On mesure plutôt que de deviner : on repose les libellés, on regarde si le
+   * contenu tient encore, et on les retire seulement s'il déborde. L'icône
+   * porte alors seule, le nom reste dans le `title` et l'`aria-label`. La
+   * mesure est réversible, la barre reprend ses mots dès que la place revient.
+   */
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const mesurer = () => {
+      // La loupe de survol agrandit les entrées : mesurer pendant qu'un doigt
+      // est posé donnerait une largeur qui n'existe que sous le curseur. On
+      // remesure au départ du pointeur.
+      if (souriseRef.current !== null) return;
+      // Toujours mesurer libellés posés, sinon on mesurerait l'état replié et
+      // la barre ne se déplierait plus jamais.
+      nav.dataset.navCompact = "false";
+      // On compare l'étendue réellement peinte à la piste. `scrollWidth` ne
+      // servirait à rien ici : un contenu centré déborde des deux côtés et il
+      // n'en compte qu'un seul.
+      const piste = nav.getBoundingClientRect();
+      let gauche = Infinity;
+      let droite = -Infinity;
+      nav.querySelectorAll("[data-nav-item]").forEach((entree) => {
+        const r = entree.getBoundingClientRect();
+        if (r.left < gauche) gauche = r.left;
+        if (r.right > droite) droite = r.right;
+      });
+      const deborde = droite - gauche > piste.width + 1;
+      nav.dataset.navCompact = deborde ? "true" : "false";
+    };
+    mesurerRef.current = mesurer;
+
+    mesurer();
+    const observateur = new ResizeObserver(mesurer);
+    observateur.observe(nav);
+    // Les polices arrivent après le premier rendu : la largeur des libellés
+    // change alors sans que la piste, elle, ait bougé.
+    let vivant = true;
+    void document.fonts?.ready.then(() => {
+      if (vivant) mesurer();
+    });
+    return () => {
+      vivant = false;
+      observateur.disconnect();
+    };
+  }, [signatureNav]);
+
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // ⌘K focuses search
@@ -646,15 +711,17 @@ export function Header({
                 onMouseEnter={() => setSurvole(group.id)}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
                 {/* Sous 1280 px, six libellés ne tiennent pas sans écraser la
-                    marque. L'icône porte alors seule, le nom accessible reste. */}
-                <span className="hidden xl:inline">{navLabel(group)}</span>
+                    marque. L'icône porte alors seule, le nom accessible reste.
+                    Au-dessus, `safe-nav-label` laisse la mesure ci-dessus les
+                    retirer quand la barre se remplit (chrono en cours). */}
+                <span className="safe-nav-label hidden xl:inline">{navLabel(group)}</span>
               </Link>
             );
           }
@@ -662,7 +729,7 @@ export function Header({
           // Dropdown group
           const isOpen = openGroupId === group.id;
           return (
-            <div key={group.id} className="relative z-10">
+            <div key={group.id} className="relative z-10 shrink-0">
               <button
                 type="button"
                 data-nav-item={group.id}
@@ -676,7 +743,7 @@ export function Header({
                 }}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active || isOpen ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-haspopup="menu"
@@ -684,8 +751,10 @@ export function Header({
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
                 {/* Sous 1280 px, six libellés ne tiennent pas sans écraser la
-                    marque. L'icône porte alors seule, le nom accessible reste. */}
-                <span className="hidden xl:inline">{navLabel(group)}</span>
+                    marque. L'icône porte alors seule, le nom accessible reste.
+                    Au-dessus, `safe-nav-label` laisse la mesure ci-dessus les
+                    retirer quand la barre se remplit (chrono en cours). */}
+                <span className="safe-nav-label hidden xl:inline">{navLabel(group)}</span>
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -787,7 +856,10 @@ export function Header({
 
       {/* ── RIGHT: Search, Locale, Timer, User menu ──────────── */}
       <div className="flex items-center gap-2 lg:gap-3 shrink-0">
-        <div className="relative hidden md:block w-40 xl:w-52">
+        {/* La recherche rend 32 px à la navigation : le bouton du chrono vit
+            désormais dans la barre, et six libellés valent mieux qu'un champ
+            plus long. */}
+        <div className="relative hidden md:block w-40 xl:w-44">
           <Search
             className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-si-muted"
             strokeWidth={1.75}

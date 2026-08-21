@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   CreditCard,
   FileClock,
+  Languages,
   Receipt,
   Send,
   ShieldCheck,
@@ -27,6 +28,7 @@ import { getCabinetTaxConfig, describeTaxConfig } from "@/lib/billing/taxes";
 import { deriveCabinetSubscriptionState } from "@/lib/services/subscription-state";
 import { getCabinetReadiness } from "@/lib/admin/readiness";
 import { AdminReadinessStrip } from "@/components/parametres/AdminReadinessStrip";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import {
   canManageCabinetSettings,
   canManageInvoices,
@@ -432,6 +434,25 @@ export default async function ParametresPage() {
                 : renewalDate
             }
           />
+        </SectionCard>
+
+        {/* 6. Affichage — la langue avait disparu dans le menu du compte.
+            Elle a maintenant une adresse : Paramètres, là où l'on cherche un
+            réglage. Elle reste aussi dans le menu du compte et dans le tiroir
+            mobile, pour ceux qui la cherchent près de leur nom. */}
+        <SectionCard
+          icon={<Languages className="h-4 w-4" aria-hidden />}
+          title={t("cardPreferencesTitle")}
+          description={t("cardPreferencesDescription")}
+          primaryDisabled
+          primaryDisabledHint={t("preferencesLanguageHint")}
+        >
+          <div className="flex items-center justify-between gap-3 py-1.5">
+            <span className="text-si-muted text-xs uppercase tracking-wide">
+              {t("preferencesLanguage")}
+            </span>
+            <LocaleSwitcher />
+          </div>
         </SectionCard>
 
         {/* 6. Actions opérationnelles compactes — bas de page */}

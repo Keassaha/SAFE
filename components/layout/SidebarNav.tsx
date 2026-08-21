@@ -40,6 +40,7 @@ import {
   canViewDocuments,
 } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import type { SidebarCounts } from "@/lib/services/sidebar-counts";
 import type { Session } from "next-auth";
 
@@ -545,6 +546,7 @@ export function SidebarBottomSection({
   user?: Session["user"];
 }) {
   const t = useTranslations("shell.sidebar");
+  const tMisc = useTranslations("miscUi");
 
   const displayName = user?.name ?? t("profile.title");
   const initial = (displayName?.[0] ?? "S").toUpperCase();
@@ -555,6 +557,16 @@ export function SidebarBottomSection({
       className="px-3 pb-3 pt-2 border-t shrink-0"
       style={{ borderTopColor: "var(--sand-400)" }}
     >
+      {/* La langue se cherchait dans le menu du compte, hors du tiroir : sur
+          mobile ce tiroir est toute la navigation, et le réglage restait
+          introuvable. Il se pose ici, écrit, à côté du profil. */}
+      <div className="mb-1 flex items-center justify-between gap-2 px-2 py-1.5">
+        <span className="text-[12px] font-medium" style={{ color: "var(--zinc-950)" }}>
+          {tMisc("language")}
+        </span>
+        <LocaleSwitcher />
+      </div>
+
       <Link
         href={routes.parametres}
         onClick={() => onNavigate?.()}
