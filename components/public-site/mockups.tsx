@@ -120,9 +120,228 @@ export function IndiceEssai({ children }: { children: React.ReactNode }) {
 const money = (n: number) =>
   n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " $";
 
-/* ──────────────────── 1. Fiche de temps, réellement saisissable ──────────────────── */
+/* ──────────────────── 1. La journée du cabinet ────────────────────
+   Reproduit l'écran « Aujourd'hui » (app/(app)/aujourdhui/page.tsx), qui compose
+   la file de l'adjointe (lib/dossiers/assistant-queue) et la Navette : une seule
+   prochaine action, ce qui attend une validation, les échéances qui approchent,
+   ce qui dort chez le client. On traite un élément, le suivant prend sa place.
+   Aucune relance n'est envoyée ici : l'écran montre, il ne poste rien. */
 
-type Entree = { id: number; desc: string; dossier: string; heures: number; taux: number; facturee: boolean };
+type ElementDuJour = { action: string; dossier: string; delai: string; retard?: boolean };
+
+const FILE_DU_JOUR: ElementDuJour[] = [
+  {
+    action: "Consigner les 2 h d'audition de mardi",
+    dossier: "2026-008 · Vente Beaulieu",
+    delai: "en retard de 2 jours",
+    retard: true,
+  },
+  {
+    action: "Demander la déclaration de revenus 2025",
+    dossier: "2026-021 · Garde partagée Nadeau",
+    delai: "dans 3 jours",
+  },
+  {
+    action: "Faire signer le mandat de représentation",
+    dossier: "2026-014 · Succession Tremblay",
+    delai: "dans 6 jours",
+  },
+];
+
+const A_VALIDER: [string, string][] = [
+  ["Projet de mise en demeure", "préparé par Aaliyah · 2026-021"],
+  ["Facture 2026-041 · 4 072,41 $", "préparée par Aaliyah · 2026-014"],
+];
+
+const ECHEANCES: [string, string, string][] = [
+  ["Divulgation des pièces", "2026-021", "3 j"],
+  ["Signification de la demande", "2026-014", "8 j"],
+  ["Publication de l'acte de vente", "2026-008", "15 j"],
+];
+
+const CHEZ_LE_CLIENT: [string, string][] = [
+  ["Relevés bancaires 2025", "demandés il y a 6 jours"],
+  ["Procuration signée", "demandée il y a 2 jours"],
+];
+
+export function MockupAujourdhui() {
+  const [traites, setTraites] = useState(0);
+  const [approuves, setApprouves] = useState<number[]>([]);
+  const courant = FILE_DU_JOUR[traites] ?? null;
+  const restants = FILE_DU_JOUR.length - traites;
+
+  return (
+    <div>
+      <SafeWindow fil={<span>Aujourd&apos;hui · Cabinet Nadeau</span>} indice="Maquette · traitez un élément">
+        <div className="p-4 sm:p-5">
+          {/* En-tête : ce qui reste, et rien d'autre. */}
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-3" style={{ borderColor: LINE }}>
+            <span className="font-serif text-[19px]" style={{ color: INK }}>Bonjour Aaliyah</span>
+            <span className="mock-mini font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
+              Jeudi 11 juin 2026 · 12 dossiers actifs
+            </span>
+          </div>
+          <p className="mt-2 flex items-center gap-2 font-sans text-[12.5px]" style={{ color: restants > 0 ? AMBER : VERIFIED }}>
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "currentColor" }} aria-hidden />
+            {restants > 0
+              ? `${restants} élément${restants > 1 ? "s" : ""} attend${restants > 1 ? "ent" : ""} une intervention.`
+              : "Rien ne vous échappe aujourd'hui."}
+          </p>
+
+          {/* Une seule prochaine action. C'est le propos de l'écran. */}
+          <div
+            className="mt-3 rounded-[10px] border p-3.5"
+            style={{
+              borderColor: courant ? "rgb(var(--si-forest-rgb) / 0.35)" : LINE,
+              background: courant ? "rgb(var(--si-forest-rgb) / 0.04)" : "#fff",
+            }}
+          >
+            <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: courant ? GREEN : FAINT }}>
+              Votre prochaine action
+            </p>
+            {courant ? (
+              <div className="mt-1.5 flex flex-wrap items-end justify-between gap-3">
+                <span className="min-w-0">
+                  <span className="block font-sans text-[14.5px] leading-[1.35]" style={{ color: INK }}>
+                    {courant.action}
+                  </span>
+                  <span className="mock-mini mt-1 flex flex-wrap items-center gap-2 font-mono text-[10.5px]" style={{ color: FAINT }}>
+                    {courant.dossier}
+                    <span
+                      className="rounded-full px-2 py-0.5"
+                      style={
+                        courant.retard
+                          ? { background: "rgb(var(--si-amber-rgb) / 0.14)", color: AMBER }
+                          : { background: "rgb(var(--si-line-ink-rgb) / 0.06)", color: MUTED }
+                      }
+                    >
+                      {courant.delai}
+                    </span>
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTraites((n) => n + 1)}
+                  className="safe-zoom inline-flex h-9 shrink-0 items-center rounded-[7px] px-4 font-sans text-[13px] font-medium"
+                  style={{ background: GREEN, color: "#fff" }}
+                >
+                  Faire maintenant →
+                </button>
+              </div>
+            ) : (
+              <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3">
+                <span className="font-sans text-[14px]" style={{ color: VERIFIED }}>
+                  La file du jour est vide.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { setTraites(0); setApprouves([]); }}
+                  className="font-sans text-[12px] underline underline-offset-2"
+                  style={{ color: FAINT }}
+                >
+                  Recommencer
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-3 grid items-start gap-3 lg:grid-cols-[1.05fr_0.95fr]">
+            {/* Prêts pour validation */}
+            <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
+              <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+                Prêts pour votre validation
+              </p>
+              <div className="mt-2 space-y-1.5">
+                {A_VALIDER.map(([titre, meta], i) => {
+                  const fait = approuves.includes(i);
+                  return (
+                    <div
+                      key={titre}
+                      className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 last:border-0 last:pb-0"
+                      style={{ borderColor: LINE_SOFT }}
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-sans text-[12.5px]" style={{ color: INK }}>{titre}</span>
+                        <span className="mock-mini block truncate font-sans text-[10.5px]" style={{ color: FAINT }}>{meta}</span>
+                      </span>
+                      {fait ? (
+                        <span className="mock-mini shrink-0 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: VERIFIED }}>
+                          Approuvé
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setApprouves((a) => [...a, i])}
+                          className="safe-zoom inline-flex h-8 shrink-0 items-center rounded-[7px] border px-3 font-sans text-[12px] font-medium"
+                          style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.35)", color: VERIFIED, background: "#fff" }}
+                        >
+                          Approuver
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Échéances + attente client */}
+            <div className="space-y-3">
+              <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
+                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+                  Échéances
+                </p>
+                <div className="mt-1.5">
+                  {ECHEANCES.map(([label, dossier, jours]) => (
+                    <div key={label} className="flex items-center justify-between gap-3 border-b py-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
+                      <span className="min-w-0">
+                        <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>{label}</span>
+                        <span className="mock-mini block font-mono text-[10px]" style={{ color: FAINT }}>{dossier}</span>
+                      </span>
+                      <span className="mock-mini shrink-0 font-mono text-[11px] tabular-nums" style={{ color: MUTED }}>{jours}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
+                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+                  En attente du client
+                </p>
+                <div className="mt-1.5">
+                  {CHEZ_LE_CLIENT.map(([label, meta]) => (
+                    <div key={label} className="flex items-center justify-between gap-3 border-b py-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
+                      <span className="truncate font-sans text-[12px]" style={{ color: INK }}>{label}</span>
+                      <span className="mock-mini shrink-0 font-sans text-[10px]" style={{ color: FAINT }}>{meta}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SafeWindow>
+      <IndiceEssai>
+        Traitez la prochaine action : la suivante prend sa place, et le compte du haut suit.
+      </IndiceEssai>
+    </div>
+  );
+}
+
+/* ──────────────────── 2. Du travail consigné au travail facturable ────────────────────
+   Le temps se prend au chronomètre ou après coup, le forfait s'inscrit comme un
+   montant, le débours se rattache au même dossier. Les trois se retrouvent dans
+   le total « prêt à facturer », qui est ce que /facturation agrège réellement
+   (lib/billing/queries : temps, forfaits et dépenses refacturables). */
+
+type Entree = {
+  id: number;
+  desc: string;
+  dossier: string;
+  heures: number;
+  taux: number;
+  genre: "horaire" | "forfait" | "debours";
+  facturee: boolean;
+};
 
 const DOSSIERS = [
   "Succession Tremblay · 2026-014",
@@ -131,21 +350,28 @@ const DOSSIERS = [
 ];
 
 const ENTREES_INITIALES: Entree[] = [
-  { id: 1, desc: "Rédaction de la requête en vérification", dossier: DOSSIERS[0], heures: 2.1, taux: 450, facturee: false },
-  { id: 2, desc: "Appel avec la liquidatrice", dossier: DOSSIERS[0], heures: 0.8, taux: 450, facturee: false },
+  { id: 1, desc: "Rédaction de la requête en vérification", dossier: DOSSIERS[0], heures: 2.1, taux: 450, genre: "horaire", facturee: false },
+  { id: 2, desc: "Appel avec la liquidatrice", dossier: DOSSIERS[0], heures: 0.8, taux: 450, genre: "horaire", facturee: false },
+  { id: 3, desc: "Copies certifiées et expédition", dossier: DOSSIERS[0], heures: 0, taux: 342, genre: "debours", facturee: false },
 ];
 
-export function MockupFicheDeTemps() {
+const MODES = [
+  { cle: "horaire", label: "Heures" },
+  { cle: "forfait", label: "Forfait" },
+  { cle: "debours", label: "Débours" },
+] as const;
+
+type ModeSaisie = (typeof MODES)[number]["cle"];
+
+export function MockupTravailFacturable() {
   const [entrees, setEntrees] = useState<Entree[]>(ENTREES_INITIALES);
   const [desc, setDesc] = useState("");
   const [dossier, setDossier] = useState(DOSSIERS[0]);
   const [heures, setHeures] = useState("1,5");
+  const [montant, setMontant] = useState("750");
   const [facture, setFacture] = useState(false);
   const [dernierId, setDernierId] = useState<number | null>(null);
-
-  /* Deux façons de facturer : à l'heure ou au forfait. */
-  const [mode, setMode] = useState<"horaire" | "forfait">("horaire");
-  const [forfait, setForfait] = useState("750");
+  const [mode, setMode] = useState<ModeSaisie>("horaire");
 
   /* Chronomètre : certains avocats comptent au fil du travail. */
   const [secondes, setSecondes] = useState(0);
@@ -170,40 +396,35 @@ export function MockupFicheDeTemps() {
     setMode("horaire");
   }
 
-  /* un forfait porte son montant dans `taux` et zéro heure */
-  const valeur = (e: Entree) => (e.heures === 0 ? e.taux : e.heures * e.taux);
-  const nonFacture = useMemo(
-    () => entrees.filter((e) => !e.facturee).reduce((s, e) => s + valeur(e), 0),
-    [entrees]
+  /* un forfait et un débours portent leur montant dans `taux` et zéro heure */
+  const valeur = (e: Entree) => (e.genre === "horaire" ? e.heures * e.taux : e.taux);
+  const ouvertes = useMemo(() => entrees.filter((e) => !e.facturee), [entrees]);
+  const honoraires = useMemo(
+    () => ouvertes.filter((e) => e.genre !== "debours").reduce((s, e) => s + valeur(e), 0),
+    [ouvertes]
   );
-  const heuresTotal = useMemo(
-    () => entrees.filter((e) => !e.facturee).reduce((s, e) => s + e.heures, 0),
-    [entrees]
+  const debours = useMemo(
+    () => ouvertes.filter((e) => e.genre === "debours").reduce((s, e) => s + valeur(e), 0),
+    [ouvertes]
   );
 
   function ajouter(e: React.FormEvent) {
     e.preventDefault();
     if (!desc.trim()) return;
     const id = Date.now();
-    if (mode === "forfait") {
-      const montant = parseFloat(forfait.replace(",", "."));
-      if (!Number.isFinite(montant) || montant <= 0) return;
-      /* un forfait s'inscrit comme un montant, sans heures */
-      setEntrees((prev) => [{ id, desc: desc.trim(), dossier, heures: 0, taux: montant, facturee: false }, ...prev]);
-    } else {
+    if (mode === "horaire") {
       const h = parseFloat(heures.replace(",", "."));
       if (!Number.isFinite(h) || h <= 0) return;
-      setEntrees((prev) => [{ id, desc: desc.trim(), dossier, heures: h, taux: 450, facturee: false }, ...prev]);
+      setEntrees((prev) => [{ id, desc: desc.trim(), dossier, heures: h, taux: 450, genre: "horaire", facturee: false }, ...prev]);
+    } else {
+      const m = parseFloat(montant.replace(",", "."));
+      if (!Number.isFinite(m) || m <= 0) return;
+      setEntrees((prev) => [{ id, desc: desc.trim(), dossier, heures: 0, taux: m, genre: mode, facturee: false }, ...prev]);
     }
     setDernierId(id);
     setDesc("");
     setHeures("1,5");
     setFacture(false);
-  }
-
-  function facturer() {
-    setEntrees((prev) => prev.map((e) => ({ ...e, facturee: true })));
-    setFacture(true);
   }
 
   function reinitialiser() {
@@ -212,20 +433,23 @@ export function MockupFicheDeTemps() {
     setDernierId(null);
   }
 
+  const etiquetteGenre = (e: Entree) =>
+    e.genre === "horaire" ? e.heures.toFixed(2).replace(".", ",") + " h" : e.genre === "forfait" ? "forfait" : "débours";
+
   return (
     <div>
-      <SafeWindow fil={<span>Temps &amp; forfaits</span>} indice="Maquette · saisissez votre temps">
+      <SafeWindow fil={<span>Dossier 2026-014 · prêt à facturer</span>} indice="Maquette · inscrivez du travail">
         <div className="p-4 sm:p-5">
-          {/* Totaux */}
+          {/* Totaux. Un chiffre par colonne, aligné à droite comme dans le produit. */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              ["Temps non facturé", money(nonFacture), `${entrees.filter((e) => !e.facturee).length} entrées`],
-              ["Heures", heuresTotal.toFixed(2).replace(".", ",") + " h", "hors forfaits"],
-              ["Total à facturer", money(nonFacture), facture ? "facturé" : "prêt"],
+              ["Honoraires", money(honoraires), `${ouvertes.filter((e) => e.genre !== "debours").length} entrées`],
+              ["Débours rattachés", money(debours), "refacturables"],
+              ["Prêt à facturer", money(honoraires + debours), facture ? "porté à la facture" : "en attente"],
             ].map(([label, val, sous]) => (
               <div key={label} className="min-w-0 rounded-[9px] border px-2.5 py-2.5" style={{ borderColor: LINE, background: "#fff" }}>
                 <p className="mock-mini truncate font-sans text-[10px]" style={{ color: FAINT }}>{label}</p>
-                <p className="mt-1 truncate font-mono text-[14px] tabular-nums" style={{ color: INK }}>{val}</p>
+                <p className="mt-1 truncate text-right font-mono text-[14px] tabular-nums" style={{ color: INK }}>{val}</p>
                 <p className="mock-mini mt-0.5 truncate font-sans text-[9.5px]" style={{ color: FAINT }}>{sous}</p>
               </div>
             ))}
@@ -238,7 +462,7 @@ export function MockupFicheDeTemps() {
           >
             <span
               className="safe-zoom font-mono text-[19px] tabular-nums transition-colors"
-              style={{ color: enMarche ? GREEN : INK }}
+              style={{ color: enMarche ? VERIFIED : INK }}
             >
               {horloge}
             </span>
@@ -248,7 +472,7 @@ export function MockupFicheDeTemps() {
               className="safe-zoom inline-flex h-8 items-center gap-1.5 rounded-[7px] px-3 font-sans text-[12px] font-medium transition-colors"
               style={
                 enMarche
-                  ? { background: "rgba(31,42,36,0.07)", color: INK }
+                  ? { background: "rgb(var(--si-line-ink-rgb) / 0.07)", color: INK }
                   : { background: GREEN, color: "#fff" }
               }
             >
@@ -273,7 +497,7 @@ export function MockupFicheDeTemps() {
               Verser dans l&apos;entrée
             </button>
             <span className="mock-mini ml-auto font-sans text-[10.5px]" style={{ color: FAINT }}>
-              Le chronomètre tourne pendant que vous travaillez.
+              Ou inscrivez la durée après coup.
             </span>
           </div>
 
@@ -281,20 +505,19 @@ export function MockupFicheDeTemps() {
           <form onSubmit={ajouter} className="mt-2.5 rounded-[10px] border p-3" style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.3)", background: "rgb(var(--si-forest-rgb) / 0.04)" }}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>
-                Ajouter une entrée
+                Rattacher au dossier
               </p>
-              {/* certains avocats facturent à l'heure, d'autres au forfait */}
               <span className="inline-flex rounded-[7px] border p-0.5" style={{ borderColor: LINE, background: "#fff" }}>
-                {(["horaire", "forfait"] as const).map((m) => (
+                {MODES.map((m) => (
                   <button
-                    key={m}
+                    key={m.cle}
                     type="button"
-                    onClick={() => setMode(m)}
-                    className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] capitalize transition-colors"
+                    onClick={() => setMode(m.cle)}
+                    className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] transition-colors"
                     /* Onglet actif : le produit emploie le dégradé d'action,
                        voir RapportsView et Button. */
                     style={
-                      mode === m
+                      mode === m.cle
                         ? {
                             backgroundColor: "var(--si-ink)",
                             backgroundImage:
@@ -304,30 +527,22 @@ export function MockupFicheDeTemps() {
                         : { color: MUTED }
                     }
                   >
-                    {m}
+                    {m.label}
                   </button>
                 ))}
               </span>
             </div>
             {/* ── La rangée d'ajout ─────────────────────────────────────────
-               Trois champs sur une rangée : le dossier, la durée, le bouton.
-               Au large, le dossier a la place de s'écrire en entier.
-
-               Sur la colonne d'un téléphone, il lui restait environ cent
-               trente pixels : « Succession Tremblay » y devenait « Succession
-               T », et le chevron natif du menu venait mordre sur la lettre
-               coupée (retour CEO du 19 août 2026). Un nom de dossier tronqué
-               au milieu d'un mot ne montre pas un logiciel qui range, il
-               montre un formulaire à l'étroit.
-
-               Sous 520 px, le dossier prend donc sa propre rangée, pleine
-               largeur, et la durée et le bouton se partagent la suivante. */}
-            <div className="mt-2.5 grid grid-cols-[1fr_72px_auto] gap-2 max-[520px]:grid-cols-[1fr_auto]">
+               Trois champs sur une rangée : le dossier, la valeur, le bouton.
+               Sous 520 px, le dossier prend sa propre rangée, pleine largeur :
+               « Succession Tremblay » y devenait « Succession T », et le
+               chevron natif du menu mordait sur la lettre coupée. */}
+            <div className="mt-2.5 grid grid-cols-[1fr_84px_auto] gap-2 max-[520px]:grid-cols-[1fr_auto]">
               <input
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
-                placeholder="Ex. Préparation de l'audition"
-                aria-label="Description du travail"
+                placeholder={mode === "debours" ? "Ex. Frais de signification" : "Ex. Préparation de l'audition"}
+                aria-label={mode === "debours" ? "Nature du débours" : "Description du travail"}
                 className="mock-input col-span-3 h-9 min-w-0 rounded-[7px] border px-2.5 font-sans text-[13px] outline-none max-[520px]:col-span-2"
                 style={{ borderColor: LINE, background: "#fff", color: INK }}
               />
@@ -344,25 +559,14 @@ export function MockupFicheDeTemps() {
                   <option key={d} value={d}>{d.split(" · ")[0]}</option>
                 ))}
               </select>
-              {mode === "horaire" ? (
-                <input
-                  value={heures}
-                  onChange={(e) => setHeures(e.target.value)}
-                  aria-label="Durée en heures"
-                  inputMode="decimal"
-                  className="mock-input h-9 min-w-0 rounded-[7px] border px-2 text-right font-mono text-[13px] outline-none"
-                  style={{ borderColor: LINE, background: "#fff", color: INK }}
-                />
-              ) : (
-                <input
-                  value={forfait}
-                  onChange={(e) => setForfait(e.target.value)}
-                  aria-label="Montant du forfait"
-                  inputMode="decimal"
-                  className="mock-input h-9 min-w-0 rounded-[7px] border px-2 text-right font-mono text-[13px] outline-none"
-                  style={{ borderColor: LINE, background: "#fff", color: INK }}
-                />
-              )}
+              <input
+                value={mode === "horaire" ? heures : montant}
+                onChange={(e) => (mode === "horaire" ? setHeures(e.target.value) : setMontant(e.target.value))}
+                aria-label={mode === "horaire" ? "Durée en heures" : "Montant"}
+                inputMode="decimal"
+                className="mock-input h-9 min-w-0 rounded-[7px] border px-2 text-right font-mono text-[13px] tabular-nums outline-none"
+                style={{ borderColor: LINE, background: "#fff", color: INK }}
+              />
               <button
                 type="submit"
                 className="safe-zoom h-9 whitespace-nowrap rounded-[7px] px-4 font-sans text-[13px] font-medium transition-transform"
@@ -391,11 +595,11 @@ export function MockupFicheDeTemps() {
                   </span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-mono text-[12.5px]" style={{ color: INK }}>
-                    {e.heures === 0 ? "forfait" : e.heures.toFixed(2).replace(".", ",") + " h"}
+                  <span className="block font-mono text-[12.5px] tabular-nums" style={{ color: INK }}>
+                    {etiquetteGenre(e)}
                   </span>
-                  <span className="mock-mini block font-mono text-[10.5px]" style={{ color: e.facturee ? VERIFIED : FAINT }}>
-                    {e.facturee ? "facturée" : money(valeur(e))}
+                  <span className="mock-mini block font-mono text-[10.5px] tabular-nums" style={{ color: e.facturee ? VERIFIED : FAINT }}>
+                    {e.facturee ? "portée à la facture" : money(valeur(e))}
                   </span>
                 </span>
               </div>
@@ -407,7 +611,10 @@ export function MockupFicheDeTemps() {
             {!facture ? (
               <button
                 type="button"
-                onClick={facturer}
+                onClick={() => {
+                  setEntrees((prev) => prev.map((e) => ({ ...e, facturee: true })));
+                  setFacture(true);
+                }}
                 className="safe-zoom inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium transition-colors"
                 style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
               >
@@ -418,8 +625,8 @@ export function MockupFicheDeTemps() {
                 className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
                 style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
               >
-                <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} />
-                Facture préparée à partir de {money(nonFacture)} de temps. Aucune ressaisie.
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: VERIFIED }} />
+                Facture préparée : {money(honoraires)} d&apos;honoraires et {money(debours)} de débours. Aucune ressaisie.
               </span>
             )}
             <button
@@ -434,18 +641,19 @@ export function MockupFicheDeTemps() {
         </div>
       </SafeWindow>
       <IndiceEssai>
-        Démarrez le chronomètre, ou basculez sur forfait. Écrivez une tâche, puis regardez
-        le total suivre.
+        Démarrez le chronomètre, ou basculez sur forfait ou débours. Le total à facturer suit.
       </IndiceEssai>
       <style>{`
         @keyframes mockIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-        .mock-input:focus { border-color: ${GREEN} !important; box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12); }
+        .mock-input:focus { border-color: ${INK} !important; box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12); }
       `}</style>
     </div>
   );
 }
 
-/* ──────────────────── 2. Tableau de bord manipulable ──────────────────── */
+/* ──────────────────── 3. Tableau de bord manipulable ────────────────────
+   Hors page depuis la refonte des fonctionnalités : conservé pour la vitrine
+   qui en aurait besoin. */
 
 const CARTES = [
   {
@@ -570,297 +778,10 @@ export function MockupTableauDeBord() {
   );
 }
 
-/* ──────────── 2 bis. L'application complète, avec sa barre de menu ────────────
-   Le « après » de la page À propos : une vraie fenêtre de logiciel, dense et
-   cohérente, où l'on change de section comme dans SAFE. */
-
-const MENUS = [
-  { cle: "tableau", label: "Tableau de bord" },
-  { cle: "facturation", label: "Facturation" },
-  { cle: "fideicommis", label: "Fidéicommis" },
-] as const;
-
-export function MockupAppComplete() {
-  const [vue, setVue] = useState<string>("tableau");
-  const [rapproche, setRapproche] = useState(false);
-  const [envoyee, setEnvoyee] = useState(false);
-
-  return (
-    <div>
-      <div
-        className="safe-mock overflow-hidden rounded-[14px] border"
-        style={{ borderColor: LINE, background: SURFACE, boxShadow: "0 40px 80px -44px rgba(11,31,25,0.55)" }}
-      >
-        <StylesMaquettesMobiles />
-        {/* Barre de menu de l'application */}
-        <div
-          /* Sous 375 px, le menu passe sous le logo : sans cela la barre force
-             une largeur minimale qui déborde la page (reflow 320 px). */
-          className="flex items-center gap-2 border-b px-3 py-2 max-[374px]:flex-wrap"
-          style={{ borderColor: "rgba(255,255,255,0.08)", background: "#FBFCFA" }}
-        >
-          <span className="flex items-center pr-2">
-            <SafeLogo size={12} />
-          </span>
-          <span className="mock-mini hidden font-sans text-[10.5px] sm:inline" style={{ color: FAINT }}>
-            Cabinet Nadeau
-          </span>
-          <span className="ml-auto flex items-center gap-1">
-            {MENUS.map((m) => {
-              const on = vue === m.cle;
-              return (
-                <button
-                  key={m.cle}
-                  type="button"
-                  onClick={() => setVue(m.cle)}
-                  className="safe-zoom rounded-[6px] px-2.5 py-1.5 font-sans text-[11.5px] transition-colors"
-                  style={{
-                    color: on ? INK : MUTED,
-                    background: on ? "rgba(31,42,36,0.06)" : "transparent",
-                  }}
-                >
-                  {m.label}
-                </button>
-              );
-            })}
-          </span>
-        </div>
-
-        {/* Bandeau d'état */}
-        <div
-          className="relative flex flex-wrap items-center gap-x-4 gap-y-1 overflow-hidden px-4 py-2"
-          style={{
-          backgroundColor: "var(--si-ink)",
-          backgroundImage:
-            "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
-            color: "#E4EDE6",
-          }}
-        >
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-[50px] -top-[70px] h-[230px] w-[230px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%)" }}
-        />
-
-          {[
-            ["Dossiers actifs", "12"],
-            ["Clients actifs", "9"],
-            ["Fidéicommis", rapproche ? "Rapproché" : "À rapprocher"],
-          ].map(([k, v], i) => (
-            <span key={k} className="mock-mini relative z-10 flex items-center gap-1.5 font-sans text-[10.5px]">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: i === 2 && !rapproche ? "var(--si-amber)" : "var(--si-verified-on-forest)" }}
-              />
-              {k}
-              <b className="font-medium">{v}</b>
-            </span>
-          ))}
-          <span className="mock-mini relative z-10 ml-auto font-mono text-[9.5px]" style={{ color: "rgba(228,237,230,0.6)" }}>
-            30 JUIN 2026
-          </span>
-        </div>
-
-        <div className="p-3.5 sm:p-4">
-          {/* ── Vue tableau de bord ── */}
-          {vue === "tableau" ? (
-            <div>
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                {[
-                  ["Facturé ce mois", "18 240,00 $", "+12 %"],
-                  ["Encaissé", "15 980,00 $", "88 %"],
-                  ["À recevoir", "2 260,00 $", "3 factures"],
-                  ["Heures du mois", "128,75 h", "+8 %"],
-                ].map(([l, v, s]) => (
-                  /* Les tuiles de chiffres, comme dans le produit.
-
-                     Elles étaient un aplat d'encre. Le tableau de bord réel
-                     les peint avec « safe-action-degrade », un dégradé de
-                     l'encre vers le vert forêt profond, et pose une lueur
-                     verte dans le coin bas gauche (« glow-verified »). Un
-                     aplat noir ne ressemble pas à SAFE : il ressemble à un
-                     cadre de démonstration (retour CEO du 19 août 2026).
-
-                     Les deux valeurs sont reprises du produit et non
-                     inventées ici ; voir app/globals.css. */
-                  <div
-                    key={l}
-                    className="relative min-w-0 overflow-hidden rounded-[9px] p-2.5"
-                    style={{
-                      backgroundColor: "var(--si-ink)",
-                      backgroundImage:
-                        "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
-                      color: "#EAF2EC",
-                    }}
-                  >
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute -bottom-8 -left-6 h-24 w-24 rounded-full"
-                      style={{
-                        background:
-                          "radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%)",
-                      }}
-                    />
-                    <p className="mock-mini relative truncate font-mono text-[8px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.65)" }}>{l}</p>
-                    <p className="relative mt-1.5 truncate font-mono text-[14px] tabular-nums">{v}</p>
-                    <p className="mock-mini relative mt-0.5 truncate font-sans text-[9px]" style={{ color: "var(--si-verified-on-forest)" }}>{s}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-3 grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                  <p className="mock-mini font-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>À traiter maintenant</p>
-                  <p className="mt-1.5 font-serif text-[16px] leading-[1.2]" style={{ color: INK }}>
-                    Trois factures dépassent 30 jours.
-                  </p>
-                  <div className="mt-2.5 space-y-1.5">
-                    {[
-                      ["Boulanger c. Nadeau", "1 240,00 $", "42 j"],
-                      ["Succession Tremblay", "620,00 $", "35 j"],
-                      ["Vente Beaulieu", "400,00 $", "31 j"],
-                    ].map(([c, m, j]) => (
-                      <div key={c} className="flex items-center justify-between border-b pb-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
-                        <span className="truncate font-sans text-[11.5px]" style={{ color: INK }}>{c}</span>
-                        <span className="flex shrink-0 items-center gap-2">
-                          <span className="font-mono text-[11px]" style={{ color: INK }}>{m}</span>
-                          <span className="mock-mini rounded-full px-1.5 py-0.5 font-mono text-[9px]" style={{ background: "rgba(195,138,36,0.14)", color: "#8A6A1E" }}>{j}</span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setEnvoyee(true)}
-                    className="mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[11.5px] font-medium"
-                    style={{ background: envoyee ? "rgb(var(--si-forest-rgb) / 0.12)" : GREEN, color: envoyee ? VERIFIED : "#fff" }}
-                  >
-                    {envoyee ? "Rappels envoyés aux trois clients" : "Envoyer les rappels"}
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                    <p className="font-serif text-[13px]" style={{ color: INK }}>Lecture financière</p>
-                    {[
-                      ["Taux d'encaissement", "88 %"],
-                      ["Heures non facturées", "1 400,83 $"],
-                      ["Solde en fidéicommis", "23 568,40 $"],
-                    ].map(([k, v]) => (
-                      <div key={k} className="flex justify-between border-b py-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
-                        <span className="font-sans text-[11px]" style={{ color: MUTED }}>{k}</span>
-                        <span className="font-mono text-[11px]" style={{ color: INK }}>{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                    <p className="font-serif text-[13px]" style={{ color: INK }}>Activité récente</p>
-                    {[
-                      ["Facture 2026-041 payée", "il y a 2 h"],
-                      ["6,5 h approuvées", "il y a 5 h"],
-                      ["Dépôt en fiducie 2 500 $", "hier"],
-                    ].map(([k, v]) => (
-                      <div key={k} className="flex items-center justify-between border-b py-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="h-1 w-1 shrink-0 rounded-full" style={{ background: GREEN }} />
-                          <span className="truncate font-sans text-[11px]" style={{ color: INK }}>{k}</span>
-                        </span>
-                        <span className="mock-mini shrink-0 font-sans text-[9.5px]" style={{ color: FAINT }}>{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {/* ── Vue facturation ── */}
-          {vue === "facturation" ? (
-            <div>
-              <div className="grid grid-cols-3 gap-2">
-                {[["Facturables", "4"], ["Envoyées", "11"], ["En retard", "3"]].map(([l, v]) => (
-                  <div key={l} className="rounded-[9px] border p-2.5" style={{ borderColor: LINE, background: "#fff" }}>
-                    <p className="mock-mini font-sans text-[9.5px]" style={{ color: FAINT }}>{l}</p>
-                    <p className="mt-1 font-mono text-[15px]" style={{ color: INK }}>{v}</p>
-                  </div>
-                ))}
-              </div>
-              <table className="mt-3 w-full text-left">
-                <tbody>
-                  <tr className="border-b" style={{ borderColor: LINE }}>
-                    {["Client", "Dossier", "Heures", "Montant"].map((h) => (
-                      <th key={h} className="pb-1.5 font-sans text-[9.5px] font-medium last:text-right" style={{ color: FAINT }}>{h}</th>
-                    ))}
-                  </tr>
-                  {[
-                    ["Marie-Claude Tremblay", "2026-014", "6,5 h", "3 679,20 $"],
-                    ["Pierre Nadeau", "2026-021", "4,2 h", "2 173,50 $"],
-                    ["Sylvie Beaulieu", "2026-008", "2,0 h", "1 034,25 $"],
-                  ].map((r) => (
-                    <tr key={r[0]} className="border-b" style={{ borderColor: LINE_SOFT }}>
-                      {r.map((c, i) => (
-                        <td key={i} className="py-1.5 font-sans text-[11px] last:text-right last:font-mono" style={{ color: i === 0 ? INK : MUTED }}>{c}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p className="mt-2.5 font-sans text-[10.5px] leading-[1.5]" style={{ color: VERIFIED }}>
-                À l&apos;envoi d&apos;une facture, les écritures comptables se passent seules :
-                revenu, taxes, créance. Rien à ressaisir.
-              </p>
-            </div>
-          ) : null}
-
-          {/* ── Vue fidéicommis ── */}
-          {vue === "fideicommis" ? (
-            <div>
-              {[
-                ["Solde bancaire", "23 568,40 $", true],
-                ["Registre du fidéicommis", "23 568,40 $", true],
-                ["Soldes par dossier", rapproche ? "23 568,40 $" : "23 068,40 $", rapproche],
-              ].map(([l, v, ok]) => (
-                <div key={l as string} className="flex items-center justify-between border-b py-2.5" style={{ borderColor: LINE_SOFT }}>
-                  <span className="font-sans text-[12px]" style={{ color: MUTED }}>{l}</span>
-                  <span className="flex items-center gap-2 font-mono text-[12px]" style={{ color: ok ? INK : "#9A6712" }}>
-                    {v}
-                    <span className="h-2 w-2 rounded-full" style={{ background: ok ? GREEN : "#C38A24" }} />
-                  </span>
-                </div>
-              ))}
-              <div className="mt-3">
-                {!rapproche ? (
-                  <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(195,138,36,0.09)" }}>
-                    <p className="font-sans text-[11px] leading-[1.5]" style={{ color: "#72531B" }}>
-                      Écart de 500 $. La certification reste bloquée.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setRapproche(true)}
-                      className="mt-2 inline-flex h-7.5 items-center rounded-[6px] px-2.5 py-1.5 font-sans text-[11px] font-medium"
-                      style={{ background: GREEN, color: "#fff" }}
-                    >
-                      Corriger l&apos;écart
-                    </button>
-                  </div>
-                ) : (
-                  <p className="rounded-[8px] px-3 py-2.5 font-sans text-[11px]" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}>
-                    Concordance. La certification peut être produite.
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <IndiceEssai>
-        Changez de section dans le menu : tableau de bord, facturation, fidéicommis.
-      </IndiceEssai>
-    </div>
-  );
-}
-
-/* ──────────────────── 2 ter. Un dépôt non conforme est refusé ────────────────────
+/* ──────────────────── 8. Un dépôt non conforme est refusé ────────────────────
+   Retiré de la page des fonctionnalités le 2026-08-20 : le régime des espèces
+   est une règle provinciale, elle appartient à une page spécialisée et non au
+   récit du travail administratif. Le composant reste juste et réutilisable.
    Décrit le comportement livré aujourd'hui : au-delà du plafond, l'écriture est
    refusée et la règle citée. Le régime québécois (déclaration obligatoire plutôt
    qu'interdiction) sera ajouté quand le moteur sera rendu conscient de la province. */
@@ -945,88 +866,173 @@ export function MockupDepotConforme() {
   );
 }
 
-/* ──────────── 2 quater. L'envoi de facture écrit la comptabilité ──────────── */
+/* ──────────── 4. La facture, le paiement, l'écriture ────────────
+   Trois états d'un même objet. Les taux viennent de la table des provinces
+   (lib/billing/taxes.ts : QC en TPS et TVQ, ON en TVH), et le calcul suit
+   lib/invoice-calculations.ts. Le journal de SAFE est mono-axe et append-only :
+   l'émission écrit UNE ligne « Facturation client », l'encaissement en écrit
+   une seconde (lib/services/journal/billing-journal.ts). On ne montre donc pas
+   quatre écritures de double-entrée, qui n'existent qu'à l'export. */
 
-const ECRITURES = [
-  ["Honoraires professionnels", "3 200,00 $", "Produit"],
-  ["TPS à remettre", "160,00 $", "Passif"],
-  ["TVQ à remettre", "319,20 $", "Passif"],
-  ["Créance client", "3 679,20 $", "Actif"],
-];
+const TAUX_PROVINCE = {
+  QC: { label: "Québec", lignes: [["TPS 5 %", 0.05], ["TVQ 9,975 %", 0.09975]] as [string, number][] },
+  ON: { label: "Ontario", lignes: [["TVH 13 %", 0.13]] as [string, number][] },
+} as const;
 
-export function MockupEnvoiFacture() {
-  const [etape, setEtape] = useState(0); // 0 prête · 1 envoyée · 2 écritures passées
+const HONORAIRES = 3200;
+const DEBOURS_REFACTURABLES = 342;
 
-  React.useEffect(() => {
-    if (etape !== 1) return;
-    const t = setTimeout(() => setEtape(2), 900);
-    return () => clearTimeout(t);
-  }, [etape]);
+export function MockupFactureEtPaiement() {
+  const [province, setProvince] = useState<keyof typeof TAUX_PROVINCE>("QC");
+  const [etape, setEtape] = useState(0); // 0 prête · 1 émise · 2 payée
+
+  const taxable = HONORAIRES + DEBOURS_REFACTURABLES;
+  const taxes = TAUX_PROVINCE[province].lignes.map(
+    ([label, taux]) => [label, Math.round(taxable * taux * 100) / 100] as [string, number]
+  );
+  const total = Math.round((taxable + taxes.reduce((s, [, v]) => s + v, 0)) * 100) / 100;
+
+  const ecritures = [
+    ["FACTURE", "Facture 2026-041 — Marie-Claude Tremblay", "Facturation client", total],
+    ["PAIEMENT", "Paiement reçu — facture 2026-041", "Paiement Interac", total],
+  ] as const;
 
   return (
     <div>
-      <SafeWindow fil={<span>Facture 2026-041</span>} indice="Maquette · envoyez la facture">
+      <SafeWindow fil={<span>Facture 2026-041 · Succession Tremblay</span>} indice="Maquette · émettez, puis encaissez">
         <div className="p-4 sm:p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-3" style={{ borderColor: LINE }}>
-            <span className="font-serif text-[18px]" style={{ color: INK }}>Succession Tremblay</span>
-            <span className="font-mono text-[15px]" style={{ color: INK }}>3 679,20 $</span>
+          {/* Régime de taxes : réglage du cabinet, pas une constante. */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3" style={{ borderColor: LINE }}>
+            <span className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+              Régime de taxes du cabinet
+            </span>
+            <span className="inline-flex rounded-[7px] border p-0.5" style={{ borderColor: LINE, background: "#fff" }}>
+              {(Object.keys(TAUX_PROVINCE) as (keyof typeof TAUX_PROVINCE)[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => { setProvince(p); setEtape(0); }}
+                  className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] transition-colors"
+                  style={
+                    province === p
+                      ? {
+                          backgroundColor: "var(--si-ink)",
+                          backgroundImage: "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+                          color: "#fff",
+                        }
+                      : { color: MUTED }
+                  }
+                >
+                  {TAUX_PROVINCE[p].label}
+                </button>
+              ))}
+            </span>
           </div>
 
+          {/* Composition de la facture */}
           <div className="mt-3">
+            {[
+              ["Honoraires · 6,5 h à 450 $", HONORAIRES],
+              ["Débours refacturables · copies et expédition", DEBOURS_REFACTURABLES],
+            ].map(([label, val]) => (
+              <div key={label as string} className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
+                <span className="min-w-0 truncate font-sans text-[12.5px]" style={{ color: INK }}>{label}</span>
+                <span className="shrink-0 font-mono text-[12.5px] tabular-nums" style={{ color: INK }}>{money(val as number)}</span>
+              </div>
+            ))}
+            <div className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
+              <span className="font-sans text-[12.5px]" style={{ color: MUTED }}>Sous-total taxable</span>
+              <span className="font-mono text-[12.5px] tabular-nums" style={{ color: MUTED }}>{money(taxable)}</span>
+            </div>
+            {taxes.map(([label, val]) => (
+              <div key={label} className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
+                <span className="font-sans text-[12.5px]" style={{ color: MUTED }}>{label}</span>
+                <span className="font-mono text-[12.5px] tabular-nums" style={{ color: MUTED }}>{money(val)}</span>
+              </div>
+            ))}
+            <div className="flex items-baseline justify-between gap-3 border-t pt-2.5" style={{ borderColor: LINE }}>
+              <span className="font-sans text-[13.5px]" style={{ color: INK }}>Total de la facture</span>
+              <span className="font-mono text-[15px] tabular-nums" style={{ color: INK }}>{money(total)}</span>
+            </div>
+            <div className="mt-1.5 flex items-baseline justify-between gap-3">
+              <span className="font-sans text-[12.5px]" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
+                {etape === 2 ? "Encaissée" : "Reste à recevoir"}
+              </span>
+              <span className="font-mono text-[12.5px] tabular-nums" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
+                {money(etape === 2 ? 0 : total)}
+              </span>
+            </div>
+          </div>
+
+          {/* Le journal, une ligne par mouvement */}
+          <div className="mt-4 rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
             <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
-              Écritures comptables
+              Journal général du cabinet
             </p>
-            <div className="mt-2">
-              {ECRITURES.map((e, i) => {
-                const visible = etape === 2;
+            <div className="mt-1.5 min-h-[74px]">
+              {ecritures.map(([type, description, categorie, val], i) => {
+                const visible = etape > i;
                 return (
                   <div
-                    key={e[0]}
-                    className="safe-zoom flex items-center justify-between border-b py-2 transition-all duration-500"
+                    key={type}
+                    className="flex items-center justify-between gap-3 border-b py-2 transition-all duration-500 last:border-0"
                     style={{
                       borderColor: LINE_SOFT,
-                      opacity: visible ? 1 : 0.2,
+                      opacity: visible ? 1 : 0.22,
                       transform: visible ? "none" : "translateX(-6px)",
-                      transitionDelay: `${i * 110}ms`,
                     }}
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       <span
-                        className="safe-zoom h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-500"
-                        style={{ background: visible ? GREEN : "rgba(124,135,127,0.4)" }}
-                      />
-                      <span className="truncate font-sans text-[12.5px]" style={{ color: INK }}>{e[0]}</span>
+                        className="mock-mini shrink-0 rounded-[4px] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em]"
+                        style={{ background: "rgb(var(--si-line-ink-rgb) / 0.07)", color: MUTED }}
+                      >
+                        {type}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>{description}</span>
+                        <span className="mock-mini block truncate font-sans text-[10px]" style={{ color: FAINT }}>{categorie}</span>
+                      </span>
                     </span>
-                    <span className="flex shrink-0 items-center gap-3">
-                      <span className="mock-mini font-sans text-[10.5px]" style={{ color: FAINT }}>{e[2]}</span>
-                      <span className="font-mono text-[12px]" style={{ color: INK }}>{e[1]}</span>
-                    </span>
+                    <span className="shrink-0 font-mono text-[12px] tabular-nums" style={{ color: INK }}>{money(val)}</span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-3.5 flex flex-wrap items-center gap-3">
             {etape === 0 ? (
               <button
                 type="button"
                 onClick={() => setEtape(1)}
-                className="inline-flex h-9 items-center rounded-[7px] px-4 font-sans text-[13px] font-medium"
+                className="safe-zoom inline-flex h-9 items-center rounded-[7px] px-4 font-sans text-[13px] font-medium"
                 style={{ background: GREEN, color: "#fff" }}
               >
-                Envoyer la facture au client
+                Émettre la facture
               </button>
+            ) : etape === 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setEtape(2)}
+                  className="safe-zoom inline-flex h-9 items-center rounded-[7px] px-4 font-sans text-[13px] font-medium"
+                  style={{ background: GREEN, color: "#fff" }}
+                >
+                  Enregistrer le paiement
+                </button>
+                <span className="font-sans text-[12px]" style={{ color: MUTED }}>
+                  Numéro officiel attribué à l&apos;émission, sans trou dans la séquence.
+                </span>
+              </>
             ) : (
-              <div className="flex flex-wrap items-center gap-3">
+              <>
                 <span
                   className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
                   style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} />
-                  {etape === 1
-                    ? "Facture envoyée au client..."
-                    : "Envoyée. Quatre écritures passées, tableau de bord à jour."}
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: VERIFIED }} />
+                  Paiement rattaché à la facture. Le solde à recevoir tombe à zéro.
                 </span>
                 <button
                   type="button"
@@ -1036,207 +1042,341 @@ export function MockupEnvoiFacture() {
                 >
                   Recommencer
                 </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </SafeWindow>
-      <IndiceEssai>Cliquez « Envoyer » : les écritures se passent seules, sous vos yeux.</IndiceEssai>
-    </div>
-  );
-}
-
-/* ──────────── 2 quinquies. Le cartable se monte selon la pratique ──────────── */
-
-const CARTABLES: Record<string, { label: string; sections: [string, string][] }> = {
-  famille: {
-    label: "Droit de la famille",
-    sections: [
-      ["Mandat et engagement", ""],
-      ["Pièces Madame (P-)", "Règl. Cour Qc art. 13"],
-      ["Pièces Monsieur (D-)", "Règl. Cour Qc art. 13"],
-      ["Procédures", ""],
-      ["Jugements et ordonnances", ""],
-      ["Correspondance", ""],
-      ["Fidéicommis", ""],
-      ["Notes et honoraires", ""],
-      ["Fermeture du dossier", ""],
-    ],
-  },
-  criminel: {
-    label: "Droit criminel",
-    sections: [
-      ["Mandat et engagement", ""],
-      ["Phase préjudiciaire", ""],
-      ["Divulgation de la preuve", ""],
-      ["Procédures", ""],
-      ["Audiences", ""],
-      ["Correspondance", ""],
-      ["Notes et honoraires", ""],
-      ["Fermeture du dossier", ""],
-    ],
-  },
-  immobilier: {
-    label: "Immobilier",
-    sections: [
-      ["Mandat et engagement", ""],
-      ["Titre et examen", ""],
-      ["Financement", ""],
-      ["Actes et publication", ""],
-      ["Fidéicommis", ""],
-      ["Correspondance", ""],
-      ["Notes et honoraires", ""],
-      ["Fermeture du dossier", ""],
-    ],
-  },
-};
-
-export function MockupCartable() {
-  const [domaine, setDomaine] = useState("famille");
-  const [depose, setDepose] = useState(false);
-  const cartable = CARTABLES[domaine];
-
-  return (
-    <div>
-      <SafeWindow fil={<span>Nouveau dossier · cartable</span>} indice="Maquette · changez de domaine">
-        <div className="p-4 sm:p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-sans text-[12px]" style={{ color: MUTED }}>Domaine de pratique</span>
-            <select
-              value={domaine}
-              onChange={(e) => { setDomaine(e.target.value); setDepose(false); }}
-              aria-label="Domaine de pratique"
-              className="mock-input h-9 rounded-[7px] border px-2.5 font-sans text-[13px] outline-none"
-              style={{ borderColor: LINE, background: "#fff", color: INK }}
-            >
-              {Object.entries(CARTABLES).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mt-3.5 space-y-1">
-            {cartable.sections.map((s, i) => (
-              <div
-                key={s[0]}
-                className="flex items-center justify-between rounded-[7px] border px-3 py-2"
-                style={{
-                  borderColor: depose && i === 1 ? "rgb(var(--si-forest-rgb) / 0.45)" : LINE_SOFT,
-                  background: depose && i === 1 ? "rgb(var(--si-forest-rgb) / 0.06)" : "#fff",
-                  animation: `mockIn 0.45s cubic-bezier(0.16,1,0.3,1) ${i * 55}ms both`,
-                }}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="mock-mini font-mono text-[10px]" style={{ color: FAINT }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="truncate font-sans text-[12.5px]" style={{ color: INK }}>{s[0]}</span>
-                </span>
-                <span className="mock-mini shrink-0 pl-3 font-mono text-[9.5px]" style={{ color: FAINT }}>
-                  {depose && i === 1 ? "1 pièce classée" : s[1]}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-3.5">
-            {!depose ? (
-              <button
-                type="button"
-                onClick={() => setDepose(true)}
-                className="inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium"
-                style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
-              >
-                Déposer une pièce
-              </button>
-            ) : (
-              <p className="font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
-                « Déclaration de revenus 2025.pdf » reconnue et classée dans la bonne
-                section. Vous n&apos;avez rien eu à choisir.
-              </p>
+              </>
             )}
           </div>
         </div>
       </SafeWindow>
       <IndiceEssai>
-        Changez de domaine : le cartable se remonte. Puis déposez une pièce.
+        Changez de province : les taxes suivent. Puis émettez et encaissez, le journal se remplit.
       </IndiceEssai>
     </div>
   );
 }
 
-/* ──────────────────── 3. Rapprochement à trois voies ──────────────────── */
+/* ──────────── 5. Les journaux du cabinet ────────────
+   Distinct de la facturation, et c'est le propos : les dépenses du cabinet ne
+   sont pas des débours de dossier (lib/expense-journal/constants.ts pour les
+   catégories, /comptabilite pour l'écran). Deux registres, un seul contexte. */
 
-export function MockupRapprochement() {
-  const [corrige, setCorrige] = useState(false);
-  const soldes = [
-    ["Solde bancaire", 21000, true],
-    ["Registre du fidéicommis", 21000, true],
-    ["Soldes par dossier", corrige ? 21000 : 20500, corrige],
-  ] as const;
+const DEPENSES: [string, string, string][] = [
+  ["03 juin", "Vidéotron", "Internet"],
+  ["05 juin", "SOQUIJ", "Recherche juridique"],
+  ["11 juin", "Postes Canada", "Poste / messagerie"],
+  ["18 juin", "Bureau en Gros", "Fournitures de bureau"],
+];
+const DEPENSES_MONTANTS = [118.42, 89.0, 46.75, 213.6];
+
+const GENERAL: [string, string, string][] = [
+  ["11 juin", "Facture 2026-041 — Marie-Claude Tremblay", "Facturation client"],
+  ["14 juin", "Paiement reçu — facture 2026-039", "Paiement Interac"],
+  ["18 juin", "Bureau en Gros — fournitures", "Dépense du cabinet"],
+];
+const GENERAL_MONTANTS = [4072.41, 1240.0, -213.6];
+
+export function MockupJournaux() {
+  const [vue, setVue] = useState<"depenses" | "general">("depenses");
+  const totalDepenses = DEPENSES_MONTANTS.reduce((s, v) => s + v, 0);
 
   return (
     <div>
-      <SafeWindow fil={<span>Fidéicommis · rapprochement</span>} indice="Maquette · corrigez l'écart">
+      <SafeWindow fil={<span>Comptabilité · juin 2026</span>} indice="Maquette · changez de journal">
         <div className="p-4 sm:p-5">
-          <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: LINE }}>
-            <span className="font-sans text-[13px]" style={{ color: INK }}>Rapprochement à trois voies</span>
-            <span className="mock-mini font-mono text-[10.5px]" style={{ color: FAINT }}>JUIN 2026</span>
-          </div>
-          {soldes.map(([label, val, ok]) => (
-            <div key={label} className="flex items-center justify-between border-b py-3" style={{ borderColor: LINE_SOFT }}>
-              <span className="font-sans text-[13px]" style={{ color: MUTED }}>{label}</span>
-              <span className="flex items-center gap-2 font-mono text-[13px]" style={{ color: ok ? INK : "#9A6712" }}>
-                {money(val)}
-                <span
-                  className="safe-zoom h-2 w-2 rounded-full transition-all"
-                  style={{
-                    background: ok ? GREEN : "#C38A24",
-                    boxShadow: ok ? "none" : "0 0 0 4px rgba(195,138,36,0.12)",
-                  }}
-                />
-              </span>
-            </div>
-          ))}
-          <div className="mt-3.5">
-            {!corrige ? (
-              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgba(195,138,36,0.09)" }}>
-                <p className="font-sans text-[12px] leading-[1.55]" style={{ color: "#72531B" }}>
-                  Écart de 500 $. La certification reste bloquée jusqu&apos;à la correction.
-                </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="inline-flex rounded-[7px] border p-0.5" style={{ borderColor: LINE, background: "#fff" }}>
+              {([["depenses", "Dépenses du cabinet"], ["general", "Journal général"]] as const).map(([cle, label]) => (
                 <button
+                  key={cle}
                   type="button"
-                  onClick={() => setCorrige(true)}
-                  className="mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
-                  style={{ background: GREEN, color: "#fff" }}
+                  onClick={() => setVue(cle)}
+                  className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11.5px] transition-colors"
+                  style={
+                    vue === cle
+                      ? {
+                          backgroundColor: "var(--si-ink)",
+                          backgroundImage: "linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%)",
+                          color: "#fff",
+                        }
+                      : { color: MUTED }
+                  }
                 >
-                  Corriger l&apos;écart
+                  {label}
                 </button>
-              </div>
-            ) : (
-              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
-                <p className="font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
-                  Concordance. Les trois soldes s&apos;accordent, la certification peut être produite.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setCorrige(false)}
-                  className="mt-2 font-sans text-[11.5px] underline underline-offset-2"
-                  style={{ color: FAINT }}
-                >
-                  Revoir l&apos;écart
-                </button>
-              </div>
-            )}
+              ))}
+            </span>
+            <span className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
+              Période ouverte
+            </span>
           </div>
+
+          <div className="mt-3">
+            {(vue === "depenses" ? DEPENSES : GENERAL).map(([date, libelle, categorie], i) => {
+              const val = vue === "depenses" ? DEPENSES_MONTANTS[i] : GENERAL_MONTANTS[i];
+              return (
+                <div
+                  key={libelle}
+                  className="flex items-baseline justify-between gap-3 border-b py-2"
+                  style={{ borderColor: LINE_SOFT, animation: `mockIn 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 50}ms both` }}
+                >
+                  <span className="flex min-w-0 items-baseline gap-2.5">
+                    <span className="mock-mini shrink-0 font-mono text-[10px] tabular-nums" style={{ color: FAINT }}>{date}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-sans text-[12.5px]" style={{ color: INK }}>{libelle}</span>
+                      <span className="mock-mini block truncate font-sans text-[10px]" style={{ color: FAINT }}>{categorie}</span>
+                    </span>
+                  </span>
+                  <span
+                    className="shrink-0 font-mono text-[12.5px] tabular-nums"
+                    style={{ color: val < 0 ? MUTED : INK }}
+                  >
+                    {val < 0 ? "−" : ""}{money(Math.abs(val))}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex items-baseline justify-between gap-3">
+            <span className="font-sans text-[12px]" style={{ color: MUTED }}>
+              {vue === "depenses" ? "Total des dépenses du mois" : "Écritures du mois"}
+            </span>
+            <span className="font-mono text-[13px] tabular-nums" style={{ color: INK }}>
+              {vue === "depenses" ? money(totalDepenses) : `${GENERAL.length} lignes`}
+            </span>
+          </div>
+          <p className="mt-2.5 font-sans text-[11.5px] leading-[1.55]" style={{ color: MUTED }}>
+            Une écriture ne se modifie pas et ne se supprime pas. Une correction s&apos;ajoute au
+            journal, et l&apos;écriture d&apos;origine reste lisible.
+          </p>
         </div>
       </SafeWindow>
-      <IndiceEssai>Le bouton est actif : corrigez l&apos;écart et regardez la pastille passer au vert.</IndiceEssai>
+      <IndiceEssai>Passez d&apos;un journal à l&apos;autre : ce sont deux registres distincts.</IndiceEssai>
     </div>
   );
 }
 
-/* ──────────────────── 4. Dossier navigable (client → dossier) ──────────────────── */
+/* ──────────── 6. Le cartable, en détail subordonné ────────────
+   Les libellés et les sources ci-dessous sont ceux que le produit monte
+   réellement à l'ouverture d'un dossier (lib/dossiers/cartable-templates,
+   posés par generateCartable). Recopiés ici et non importés : la vitrine ne
+   doit pas tirer une table du domaine métier pour se dessiner.
+
+   Ce n'est plus une section : c'est une preuve secondaire du dossier. Pas de
+   cadre de fenêtre, pas de manipulation de pièce, une taille en dessous. */
+
+const CARTABLES: Record<string, { label: string; sections: [string, string][] }> = {
+  famille: {
+    label: "Droit de la famille",
+    sections: [
+      ["Mandat et engagement", "RCNEPA art. 15-16"],
+      ["Pièces Madame (P-)", "Règl. Cour Qc art. 13"],
+      ["Pièces Monsieur (D-)", "Règl. Cour Qc art. 13"],
+      ["Procédures", "C.p.c. art. 109 et s."],
+      ["Jugements et ordonnances", "C.p.c. art. 322 et s."],
+      ["Fidéicommis", "RCNEPA art. 44-55"],
+      ["Fermeture du dossier", "RCNEPA art. 18-19"],
+    ],
+  },
+  criminel: {
+    label: "Droit criminel",
+    sections: [
+      ["Mandat et engagement", "Code déonto. art. 3.08"],
+      ["Divulgation DPCP", "R. c. Stinchcombe, 1991"],
+      ["Formulaires prescrits (C.cr.)", "Code criminel, annexes"],
+      ["Actes de procédure", "Règles Cour sup. ch. crim."],
+      ["Comparutions et dates", "R. c. Jordan, 2016 CSC 27"],
+      ["Fidéicommis", "RCNEPA art. 44-55"],
+      ["Fermeture du dossier", "RCNEPA art. 18-19"],
+    ],
+  },
+  immobilier: {
+    label: "Immobilier",
+    sections: [
+      ["Mandat et engagement", "RCNEPA · LRPCFAT"],
+      ["Offre et convention", "C.c.Q. art. 1385 et s."],
+      ["Financement et hypothèque", "Instructions du prêteur"],
+      ["Recherche de titres", "C.c.Q. art. 2938 et s."],
+      ["Documents de clôture", "C.c.Q. art. 1553 et s. · RDPRM"],
+      ["Fidéicommis", "RCNEPA art. 44-55"],
+      ["Fermeture du dossier", "RCNEPA art. 18-19"],
+    ],
+  },
+};
+
+export function DetailCartable() {
+  const [domaine, setDomaine] = useState("famille");
+  const cartable = CARTABLES[domaine];
+
+  return (
+    <div className="safe-mock grid gap-6 sm:grid-cols-[minmax(200px,236px)_1fr] sm:gap-10">
+      <StylesMaquettesMobiles />
+      <div>
+      <p className="font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+        Détail · la structure du dossier
+      </p>
+      {/* Au large, les trois domaines s'empilent : côte à côte dans un rail de
+          236 px ils repassaient à la ligne deux contre un, ce qui se lit comme
+          un accident et non comme un choix. */}
+      <div className="mt-2.5 flex flex-wrap gap-1.5 sm:flex-col sm:items-start">
+        {Object.entries(CARTABLES).map(([cle, v]) => (
+          <button
+            key={cle}
+            type="button"
+            onClick={() => setDomaine(cle)}
+            aria-pressed={domaine === cle}
+            className="safe-zoom rounded-[6px] border px-2.5 py-1 font-sans text-[12px] transition-colors"
+            style={
+              domaine === cle
+                ? { borderColor: INK, color: INK, background: "rgb(var(--si-line-ink-rgb) / 0.05)" }
+                : { borderColor: LINE, color: MUTED, background: "transparent" }
+            }
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3.5 font-sans text-[12px] leading-[1.55]" style={{ color: MUTED }}>
+        Changez de domaine : la structure change, et chaque section garde sa source.
+      </p>
+      </div>
+      <ul className="grid border-b sm:grid-cols-2 sm:gap-x-10" style={{ borderColor: LINE_SOFT }}>
+        {cartable.sections.map(([label, source], i) => (
+          <li
+            key={label}
+            className="flex items-baseline justify-between gap-3 border-t py-1.5"
+            style={{ borderColor: LINE_SOFT, animation: `mockIn 0.35s cubic-bezier(0.16,1,0.3,1) ${i * 35}ms both` }}
+          >
+            <span className="flex min-w-0 items-baseline gap-2.5">
+              <span className="mock-mini shrink-0 font-mono text-[10px] tabular-nums" style={{ color: FAINT }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="truncate font-sans text-[12.5px]" style={{ color: INK }}>{label}</span>
+            </span>
+            <span className="mock-mini shrink-0 font-mono text-[9.5px]" style={{ color: FAINT }}>{source}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ──────────────────── 7. Le rapprochement du fidéicommis ────────────────────
+   Trois soldes qui doivent concorder, un écart qui reste visible, une
+   correction qui s'ajoute au journal sans effacer l'écriture d'origine
+   (lib/services/journal/append-only-corrections.ts), et une certification qui
+   ne s'ouvre qu'à écart nul, exactement comme ReconciliationWorkflow
+   (canCertify = ecart === 0). */
+
+export function MockupRapprochement() {
+  const [etat, setEtat] = useState<"ecart" | "corrige" | "certifie">("ecart");
+  const corrige = etat !== "ecart";
+  const soldes = [
+    ["Solde bancaire", 21000, true],
+    ["Registre du fidéicommis", 21000, true],
+    ["Soldes détenus par dossier", corrige ? 21000 : 20500, corrige],
+  ] as const;
+
+  return (
+    <div>
+      <SafeWindow fil={<span>Fidéicommis · rapprochement</span>} indice="Maquette · résorbez l'écart">
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: LINE }}>
+            <span className="font-sans text-[13px]" style={{ color: INK }}>Rapprochement à trois voies</span>
+            <span className="mock-mini font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>Juin 2026</span>
+          </div>
+          {soldes.map(([label, val, ok]) => (
+            <div key={label} className="flex items-center justify-between gap-3 border-b py-3" style={{ borderColor: LINE_SOFT }}>
+              <span className="font-sans text-[13px]" style={{ color: MUTED }}>{label}</span>
+              <span className="flex shrink-0 items-center gap-2 font-mono text-[13px] tabular-nums" style={{ color: ok ? INK : AMBER }}>
+                {money(val)}
+                <span
+                  className="h-2 w-2 rounded-full transition-all"
+                  style={{
+                    background: ok ? VERIFIED : "var(--si-amber)",
+                    boxShadow: ok ? "none" : "0 0 0 4px rgb(var(--si-amber-rgb) / 0.14)",
+                  }}
+                  aria-hidden
+                />
+              </span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between gap-3 py-3">
+            <span className="font-sans text-[13px]" style={{ color: corrige ? VERIFIED : AMBER }}>Écart</span>
+            <span className="font-mono text-[15px] tabular-nums" style={{ color: corrige ? VERIFIED : AMBER }}>
+              {money(corrige ? 0 : 500)}
+            </span>
+          </div>
+
+          {etat === "ecart" ? (
+            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-amber-rgb) / 0.1)" }}>
+              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: AMBER }}>
+                Un dépôt de 500 $ n&apos;est rattaché à aucun dossier. L&apos;écart reste affiché
+                tant qu&apos;il subsiste, et la certification demeure fermée.
+              </p>
+              <button
+                type="button"
+                onClick={() => setEtat("corrige")}
+                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
+                style={{ background: GREEN, color: "#fff" }}
+              >
+                Rattacher le dépôt au dossier
+              </button>
+              <p className="mock-mini mt-2 font-sans text-[11px]" style={{ color: MUTED }}>
+                Certifier le rapprochement · indisponible tant que l&apos;écart n&apos;est pas nul
+              </p>
+            </div>
+          ) : etat === "corrige" ? (
+            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.08)" }}>
+              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
+                Concordance. La correction s&apos;est ajoutée au journal, et l&apos;écriture
+                d&apos;origine y reste lisible.
+              </p>
+              <div className="mt-2 flex items-baseline justify-between gap-3 rounded-[7px] px-2.5 py-1.5" style={{ background: "#fff" }}>
+                <span className="min-w-0">
+                  <span className="mock-mini block font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ color: FAINT }}>
+                    Correction · 30 juin 2026
+                  </span>
+                  <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>
+                    Dépôt rattaché au dossier 2026-014
+                  </span>
+                </span>
+                <span className="shrink-0 font-mono text-[12px] tabular-nums" style={{ color: INK }}>{money(500)}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEtat("certifie")}
+                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
+                style={{ background: GREEN, color: "#fff" }}
+              >
+                Certifier le rapprochement
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
+              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
+                Rapprochement de juin 2026 certifié le 30 juin par Me Nadeau. La correction et
+                l&apos;écriture d&apos;origine restent toutes deux au journal.
+              </p>
+              <button
+                type="button"
+                onClick={() => setEtat("ecart")}
+                className="mt-2 font-sans text-[11.5px] underline underline-offset-2"
+                style={{ color: FAINT }}
+              >
+                Revoir l&apos;écart
+              </button>
+            </div>
+          )}
+        </div>
+      </SafeWindow>
+      <IndiceEssai>
+        Rattachez le dépôt : l&apos;écart tombe à zéro, et la certification s&apos;ouvre seulement là.
+      </IndiceEssai>
+    </div>
+  );
+}
+
+/* ──────────────────── 9. Dossier navigable (client → dossier) ──────────────────── */
 
 const ONGLETS = [
   { cle: "apercu", label: "Aperçu" },

@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Fonctionnalités",
   description:
-    "Fidéicommis, facturation, temps et dossiers reliés dans un système conçu pour les petits cabinets d’avocats.",
+    "Le travail du jour, les dossiers, le temps, la facturation, la comptabilité et le fidéicommis reliés dans un même système, pour les cabinets du Québec et de l’Ontario.",
   path: "/fonctionnalites",
 });
 
