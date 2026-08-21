@@ -1,15 +1,35 @@
 "use client";
 
 /**
- * Expérience cinématique de la page d'accueil.
- * Port React du prototype public/experience-cinema.html (journal 2026-07-25).
- * Scroll piloté : assemblage → vraie capture, rapprochement, facture, Navette.
- * Maquette navigable (fiche client → dossier) et brassage des papiers au curseur.
+ * La page d'accueil de SAFE.
+ *
+ * Neuf sections, dans l'ordre où une avocate se pose les questions : ce
+ * qu'est SAFE, ce qui cloche aujourd'hui, ce que ça change, ce que contient la
+ * suite, pourquoi faire confiance au fidéicommis, ce que devient l'équipe,
+ * combien ça coûte, les objections, la prochaine étape.
+ *
+ * Trois d'entre elles se démontrent au défilement, et trois seulement :
+ * l'assemblage de la marque qui devient l'application (hero), le parcours
+ * administratif d'un dossier, le rapprochement du fidéicommis. Le reste est
+ * écrit, posé, lisible sans qu'on ait à faire quoi que ce soit.
+ *
+ * RÈGLE DE LA PAGE : aucun texte n'attend un geste pour exister. Le mouvement
+ * DÉSIGNE ce dont l'écran d'à côté parle en ce moment ; il ne révèle jamais
+ * l'argument lui-même. Une page dont la promesse se mérite au défilement est
+ * une page vide pour qui ne défile pas.
+ *
+ * Le montage épinglé est réservé au large. Au téléphone, les deux scènes
+ * deviennent des carrousels au doigt, et la page suit exactement le chemin de
+ * « mouvement réduit » (voir SEUIL_TELEPHONE).
+ *
+ * Refonte du 2026-08-20, d'après docs/product/ARCHITECTURE_SITE_PUBLIC_SAFE_2026-08-20.md.
+ * Le port React du prototype public/experience-cinema.html (journal 2026-07-25)
+ * en reste l'ancêtre : la mécanique de défilement et l'assemblage viennent de là.
  */
 
 import { useEffect, useRef, useState } from "react";
 import { TARIFICATION, prixFr } from "@/lib/tarification";
-import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
+import { SafeLogo } from "@/components/branding/SafeLogo";
 import {
   ASSEMBLY_PIECE_A_PATH,
   ASSEMBLY_PIECE_B_PATH,
@@ -59,11 +79,11 @@ const CSS = `
        Une seule largeur de page et une seule gouttière, pour toute la vitrine.
 
        Audit du 13 août 2026 : la page employait dix-sept largeurs de contenu
-       et six bords gauches pour huit titres de section. « Simple » commençait
-       à 84 px, « Fiable » à 140 px. La cause n'était pas une faute de valeur
-       mais une différence de structure : les pins de « Fiable » et « Complet »
-       centraient une grille de 1160 px dans une boîte de 1272, ce qui ajoutait
-       56 px à gauche, quand « Simple » posait son contenu à même le retrait.
+       et six bords gauches pour huit titres de section, de 84 à 140 px. La
+       cause n'était pas une faute de valeur mais une différence de structure :
+       les scènes épinglées centraient une grille de 1160 px dans une boîte de
+       1272, ce qui ajoutait 56 px à gauche, quand les sections écrites posaient
+       leur contenu à même le retrait.
 
        Le retrait se DÉDUIT désormais de la largeur de page : la boîte de
        contenu vaut toujours --page au plus, donc une grille de --page la
@@ -89,7 +109,7 @@ const CSS = `
        changement de rôle, jamais un ajustement pour qu'une phrase tombe
        bien (T3). */
     --t-affiche: clamp(44px, 7.4vw, 92px);   /* le titre d'ouverture, une seule fois */
-    --t-marque: clamp(34px, 4.4vw, 56px);    /* Simple, Fiable, Complet, et tout titre de section */
+    --t-marque: clamp(34px, 4.4vw, 56px);    /* le titre d'une section écrite */
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
@@ -106,27 +126,36 @@ const CSS = `
   .xc a { color: inherit; text-decoration: none; }
   .xc img { display: block; max-width: 100%; }
 
-  /* ── Une seule voix pour tout ce qui se lit ────────────────────────────────
-     Le titre d'ouverture était en Instrument Serif et la prose autour retombait
-     sur Geist : le chapeau du hero, l'intro de « Complet », la justification de
-     chaque point numéroté, la conclusion, les forfaits, les réponses. La page
-     changeait donc de voix d'une ligne à l'autre sans qu'aucune règle ne le
-     décide (décision CEO du 13 août 2026).
+  /* ── La serif titre, Geist parle ───────────────────────────────────────────
+     Décision CEO du 21 août 2026, prise sur le premier écran puis étendue à
+     toute la page.
 
-     Depuis, tout ce qui relève du discours porte la serif. La famille reste
-     déclarée règle par règle plutôt qu'imposée par un sélecteur global : c'est
-     la seule façon de ne pas la faire déborder sur les deux registres qui ne
-     sont pas du discours.
+     La règle du 13 août disait l'inverse : tout ce qui relevait du discours
+     portait Instrument Serif, et Geist était réservée à l'interface. Une page
+     entière en serif de titrage se lit comme un document ; l'accueil doit se
+     lire comme un produit. Et le chapeau d'ouverture, qui énumère neuf postes
+     d'affilée, était précisément le passage où la serif traînait le plus.
 
-     1. L'interface du site. Barre de navigation, boutons, pied de page. Une
-        action n'est pas une phrase, et le référentiel l'interdit explicitement
-        (SAFE_PREMIUM_DESIGN_STANDARD §2.3 : jamais de serif dans un bouton).
-     2. Les maquettes de l'application (#hero-app, .em-fenetre, .fi-ecran,
-        .co-ecran). Elles montrent SAFE tel qu'il est, donc elles suivent la
-        typographie de l'application et non celle de la vitrine : Geist pour
-        les libellés, mono pour les chiffres, la serif réservée au seul titre
-        d'écran (SAFE_PREMIUM_DESIGN_STANDARD §2.3). Les passer en serif, ce
-        serait montrer un produit qui n'existe pas. */
+     La frontière est donc la fonction, plus le registre :
+
+     1. INSTRUMENT SERIF, uniquement ce qui TITRE. Le titre d'ouverture, les
+        titres de section, les titres de bloc, les questions. Rien d'autre. La
+        serif garde son poids parce qu'elle devient rare.
+     2. GEIST SANS, tout ce qui se LIT. Chapeaux, justifications, réponses,
+        conclusions, forfaits, libellés, actions. C'est aussi la fonte des
+        boutons, donc la page ne change plus de voix entre une phrase et
+        l'action qu'elle propose.
+     3. GEIST MONO, les chiffres et les repères, comme avant.
+
+     Deux exceptions, et elles ne sont pas de la vitrine :
+     - Les maquettes de l'application (#hero-app, .fi-ecran, .co-ecran) suivent
+       la typographie du produit, pas celle de la page : Geist pour les
+       libellés, mono pour les chiffres, serif pour le seul titre d'écran
+       (SAFE_PREMIUM_DESIGN_STANDARD §2.3). Les repeindre, ce serait montrer un
+       produit qui n'existe pas.
+     - La famille reste déclarée règle par règle plutôt qu'imposée par un
+       sélecteur global : c'est ce qui a permis de retourner la règle en une
+       passe sans toucher aux deux registres ci-dessus. */
 
   /* Une référence de dossier reste d'un seul tenant. Sur une colonne étroite,
      « 2026-011 » passait à la ligne après son trait d'union et se lisait comme
@@ -228,6 +257,17 @@ const CSS = `
 
      Invisible, il passe aussi en visibility hidden : un lien qu'on ne voit pas
      ne doit pas pouvoir recevoir le focus. */
+  /* Le rail des scènes.
+
+     Il vit dans la marge, et la marge n'existe que si l'écran est plus large
+     que la colonne. À 1280 px, la page occupe 1160 : il ne reste que 60 px de
+     chaque côté, et le libellé du jalon passait par-dessus l'écran de
+     démonstration, qui est aligné à droite de la colonne. Il ne s'affiche donc
+     qu'au-delà de 1400 px, où la marge lui appartient vraiment. En dessous, la
+     page se lit très bien sans lui : il repère, il ne dit rien. */
+  @media (max-width: 1399px) {
+    .xc #rail { display: none; }
+  }
   .xc #rail {
     position: fixed;
     right: 22px;
@@ -291,7 +331,7 @@ const CSS = `
     overflow: hidden;
   }
 
-  .xc #zone-hero { height: 420vh; }
+  .xc #zone-hero { height: 340vh; }
   .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* ── L'application, vivante ────────────────────────────────────────────────
      Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
@@ -644,13 +684,26 @@ const CSS = `
     /* Le mot mis en valeur porte exactement le vert du logo, pas l'encre
      de l'action ni le vert de validation. */
   .xc #hero-copy h1 em { font-style: italic; color: var(--si-brand-green); }
+  /* Le chapeau d'ouverture est en Geist, la fonte de l'action (demande CEO du
+     21 août 2026).
+
+     Il porte la seule énumération de la page : neuf postes d'affilée, puis ce
+     qu'on y voit. Une serif de titrage traîne sur ce genre de liste, et la
+     première vue est le seul endroit où le chapeau se lit AVANT le titre, pas
+     après. Il prend donc la même voix que le bouton qui le suit.
+
+     C'est une exception nommée à la règle du 13 août (« tout ce qui relève du
+     discours porte la serif »), et elle s'arrête à la première vue : la prose
+     des sections garde la serif. */
   .xc #hero-copy p.lede {
     margin-top: 30px;
     margin-left: 6px;
     max-width: 49ch;
-    font-family: var(--serif);
-    font-size: var(--t-corps);
-    line-height: 1.62;
+    font-family: var(--sans);
+    /* Geist se lit plus large qu'Instrument Serif à corps égal : un demi-point
+       de moins rend au chapeau la mesure qu'il avait. */
+    font-size: calc(var(--t-corps) - 0.5px);
+    line-height: 1.6;
     color: var(--muted);
   }
   /* L'action du premier écran.
@@ -665,6 +718,7 @@ const CSS = `
      pour ne pas avaler les clics destinés à l'application, et l'action est le
      seul élément du titre qui doit rester saisissable. Le script la retire du
      test de collision dès que le titre s'estompe. */
+  .xc #hero-copy p.lede-suite { margin-top: 14px; max-width: 44ch; color: var(--si-ink); }
   .xc #hero-copy .hero-actions {
     margin-top: 36px;
     margin-left: 5px;
@@ -694,11 +748,14 @@ const CSS = `
   .xc #hero-copy .hero-second:hover i { width: 22px; opacity: 1; }
   /* Réassurance factuelle, reprise mot pour mot de la page de diagnostic.
      Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
+  /* La réassurance suit le chapeau : elle vit dans le même bloc, sous la même
+     action, et rester la seule ligne en serif s'y lirait comme un oubli. */
   .xc #hero-copy .hero-reassure {
     margin-top: 16px;
     margin-left: 6px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: var(--t-detail);
+    line-height: 1.5;
     color: var(--muted);
   }
   .xc #hero-hint {
@@ -718,226 +775,18 @@ const CSS = `
     left: 0; right: 0;
     bottom: 5.5vh;
     text-align: center;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: 13.5px;
     color: var(--muted);
     opacity: 0;
     will-change: opacity, transform;
   }
 
-  .xc #preuves {
-    display: flex;
-    padding-block: 20px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
-    max-width: var(--page);
-    margin: 0 auto;
-    /* Quatre affirmations, donc du discours : même voix que le reste.
-       Un demi-point de plus qu'en Geist, la serif se lisant plus petite à
-       corps égal. Le même écart est appliqué partout sous 14 px. */
-    font-family: var(--serif);
-    font-size: var(--t-detail);
-    color: var(--muted);
-    overflow: hidden;
-  }
-  /* Au large : les quatre preuves tiennent sur une ligne, réparties.
-     Au téléphone (voir la requête média) : bande qui défile toute seule,
-     un seul rang lisible au lieu de quatre libellés à l'étroit. */
-  .xc .pv-track {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    width: 100%;
-  }
-  .xc .pv-track.clone { display: none; }
-  .xc #preuves span { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-  .xc #preuves i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
-  .xc .strip { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-
-
-  /* ── Les quatre postes ──────────────────────────────────────────────────
-     Pas de maquette d'application ici. La section parle d'un écart de
-     personnel, pas d'un écran : la montrer sous forme d'écran affaiblirait
-     le propos et ferait doublon avec le hero, qui porte déjà le vrai produit.
-
-     Chaque carte tient trois niveaux de voix : le poste en petites capitales
-     mono (le vocabulaire du grand cabinet), la question en serif (la voix de
-     l'avocat), la réponse en sans (celle du produit). */
-
-
-
-  /* la ligne ouvrable se signale : bord vert, fond teinté, léger relief */
-  /* le libellé d'action devient un bouton plein, impossible à rater */
-  @keyframes xcpulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.35; transform: scale(1.5); }
-  }
-
-
-  .xc .story .pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
-  .xc .story .grid {
-    max-width: var(--page);
-    margin: 0 auto;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 0.92fr 1.08fr;
-    gap: clamp(32px, 5vw, 76px);
-    align-items: center;
-  }
-  .xc .story.reverse .grid { grid-template-columns: 1.08fr 0.92fr; }
-  .xc .story h2 {
-    margin-top: 18px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-marque);
-    line-height: 1.08;
-    letter-spacing: -0.018em;
-    max-width: 15ch;
-  }
-  .xc .story p.body {
-    margin-top: 20px;
-    max-width: 48ch;
-    font-size: var(--t-corps);
-    line-height: 1.65;
-    color: var(--muted);
-  }
-  .xc .story p.result {
-    margin-top: 24px;
-    padding-left: 16px;
-    border-left: 2px solid var(--green);
-    font-size: 14px;
-    line-height: 1.55;
-    max-width: 44ch;
-  }
-
-
-  /* ── Chapitres de la narration ─────────────────────────────────────────────
-     Promesse et synthèse sont des respirations : rien à l'écran que du texte,
-     centré, avec beaucoup de vide autour. Elles ne portent aucune interface,
-     c'est ce qui leur donne leur poids. */
-  /* Courses raccourcies : la promesse a perdu son chapeau et « Simple » sa
-     démonstration. Une zone qui garde sa longueur alors que son contenu a
-     maigri devient un couloir vide qu'il faut traverser au défilement. */
-  .xc #zone-promesse { height: 120vh; }
-  /* Trois arguments qui se rangent l'un après l'autre, chacun avec son écran :
-     la course tient le même rythme que « Fiable », à un temps de moins. */
-  .xc #zone-simple { height: 320vh; }
-
-  .xc .pr-pin {
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    text-align: center;
-    padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
-  }
-  /* La typographie de la promesse est déclarée hors de .anime, l'animation
-     seule reste dedans. Ces deux lignes tenaient tout, famille et corps
-     comprises, dans la règle animée : sans script, la promesse retombait en
-     Geist 16 px, c'est-à-dire ni la bonne police ni la bonne taille. Le
-     commentaire du script dit que sans lui « tout le texte s'affiche
-     normalement » : il le dit maintenant pour de vrai. */
-  .xc .pr-main {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-marque);
-    line-height: 1.04;
-    letter-spacing: -0.026em;
-    max-width: 16ch;
-  }
-  .xc.anime .pr-main {
-    opacity: 0;
-    will-change: opacity, transform;
-  }
-
-  /* Chute de chapitre : la phrase qui referme chaque pilier. Même famille que
-     les titres, plus petite, en encre pleine. C'est le point final du
-     raisonnement, pas une quatrième preuve. Elle se rapproche des points : le
-     grand écart d'avant la détachait de ce qu'elle conclut. */
-  .xc .ch-chute {
-    margin-top: 14px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-argument);
-    line-height: 1.3;
-    letter-spacing: -0.014em;
-    color: var(--si-ink);
-  }
-  .xc.anime .ch-chute {
-    opacity: 0;
-    will-change: opacity, transform;
-  }
-
-  /* Seconde ligne de la promesse. Elle portait le même corps que la première :
-     deux lignes de même poids, donc aucune ne dominait. Elle passe à un peu
-     plus de la moitié, garde la serif et la teinte atténuée. La promesse se
-     lit maintenant en deux temps, l'affirmation puis sa condition. */
-  /* Même spécificité que la règle de .pr-main plus haut, et déclarée après :
-     sans cela, le corps de la première ligne l'emporterait et la seconde
-     resterait aussi grosse qu'elle. */
-  .xc .pr-suite {
-    margin-top: 14px;
-    font-size: var(--t-titre);
-    line-height: 1.16;
-    letter-spacing: -0.018em;
-    max-width: 26ch;
-    color: var(--muted);
-  }
-
-  /* Masque de révélation. Le texte est translaté sous une arête invisible et
-     remonte à sa place : il ne surgit pas à plat, il entre. C'est le geste le
-     plus discret qui donne l'impression de soin, et il ne coûte qu'un
-     overflow plus une translation. */
-  .xc .masque { display: block; overflow: hidden; padding-bottom: 0.08em; }
-  .xc .masque > * { display: block; will-change: transform, opacity; }
-
-  /* Marqueur de chapitre.
-
-     Le mot traversait l'écran en gros plan par-dessus la démonstration, puis
-     s'effaçait. On lisait donc un mot géant posé sur une carte de chiffres, et
-     le repère avait disparu au moment précis où le texte qu'il annonce
-     arrivait. Il ouvre maintenant le chapitre à sa place, au-dessus du titre,
-     et il reste. Le léger zoom d'entrée est conservé : c'est lui qui donne la
-     sensation d'entrer dans un point plutôt que de tourner une page. */
-  .xc .ch-mark {
-    display: block;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-marque);
-    line-height: 1;
-    letter-spacing: -0.028em;
-    color: var(--si-ink);
-  }
-  .xc .ch-mark + .kicker { display: block; margin-top: 16px; }
-  .xc.anime .ch-mark { opacity: 0; will-change: opacity, transform; }
-
-  /* Chapitre à deux volets : le propos à gauche, la démonstration à droite. */
-  .xc .ch-pin {
-    display: grid;
-    align-content: center;
-    padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
-  }
-  /* Le chapitre « Simple » démontre par un émulateur du cabinet : les trois
-     arguments à gauche, une fenêtre de SAFE à droite qui bascule d'un écran à
-     l'autre selon l'argument en cours (décision CEO du 13 août 2026). */
-  .xc #zone-simple .ch-pin {
-    grid-template-columns: 0.94fr 1.06fr;
-    gap: clamp(24px, 3.4vw, 56px);
-    align-items: center;
-  }
-  .xc #zone-simple .ch-copy { min-width: 0; }
-  .xc .ch-copy h2 {
-    margin-top: 10px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-titre);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    max-width: 17ch;
-  }
-  /* ── Les points des trois piliers ─────────────────────────────────────────
-     Une seule grammaire pour « Simple », « Fiable » et « Complet ». Elle était
-     écrite trois fois, avec trois jeux de tailles ; les trois chapitres disent
-     la même chose de la même façon, ils la disent donc désormais avec les
-     mêmes règles.
+  /* ── Les points des deux scènes ───────────────────────────────────────────
+     Une seule grammaire pour le parcours d'un dossier et pour la vérification
+     du fidéicommis. Elle était écrite trois fois, avec trois jeux de tailles ;
+     les deux scènes disent la même chose de la même façon, elles la disent donc
+     avec les mêmes règles.
 
      Ce qui a changé, et pourquoi (décision CEO du 13 août 2026).
 
@@ -956,29 +805,27 @@ const CSS = `
      La liste occupe sa place dès le départ. Rien ne se déplie, donc rien ne
      pousse la colonne pendant qu'on la lit, et la hauteur de la scène ne
      dépend plus d'un maximum deviné. */
-  .xc .si-narration { margin-top: clamp(20px, 2.4vw, 30px); }
-  .xc .si-args, .xc .fi-args, .xc .co-args { display: grid; list-style: none; }
-  .xc .si-arg, .xc .fi-arg, .xc .co-arg {
+  .xc .fi-args, .xc .co-args { display: grid; list-style: none; }
+  .xc .fi-arg, .xc .co-arg {
     display: grid;
     grid-template-columns: 26px 1fr;
     column-gap: 14px;
     align-items: baseline;
     padding: clamp(9px, 1vw, 13px) 0;
   }
-  /* Pas encore atteint : déjà à sa place, pas encore là. Deux propriétés
-     animées, aucune qui touche à la mise en page. */
-  .xc.anime .si-arg, .xc.anime .fi-arg, .xc.anime .co-arg {
-    opacity: 0;
-    transform: translateY(10px);
-    transition:
-      opacity var(--duree-entree) var(--doux),
-      transform var(--duree-entree) var(--doux);
-  }
-  .xc.anime .si-arg.vu, .xc.anime .fi-arg.vu, .xc.anime .co-arg.vu {
-    opacity: 1;
-    transform: none;
-  }
-  .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
+  /* Les points ne s'allument plus au passage du défilement.
+
+     Ils partaient à opacité nulle et n'existaient qu'une fois atteints : la
+     preuve précédait la promesse, mais seulement pour qui défilait jusqu'au
+     bout. Une page dont le texte n'apparaît qu'au geste se lit comme une page
+     vide à qui ne le fait pas, et personne ne demande à voir ce qu'il ne
+     soupçonne pas.
+
+     Les cinq étapes et les trois preuves sont donc posées, lisibles, dès
+     l'arrivée dans la section. Le défilement ne révèle rien : il DÉSIGNE.
+     C'est l'encre du point courant qui change, et l'écran d'à côté qui montre
+     ce dont ce point parle. */
+  .xc .fi-arg .n, .xc .co-arg .n {
     font-family: var(--mono);
     font-size: var(--t-menu);
     letter-spacing: 0.1em;
@@ -988,11 +835,11 @@ const CSS = `
     color: var(--verified);
   }
   /* Un seul corps pour les neuf points de la page. Il est calé sur le chapitre
-     le plus chargé, « Complet », qui porte en plus une intro et une chute :
-     mesuré, sa colonne tient dans une vue de 620 px de haut, la hauteur d'un
-     portable une fois la barre du navigateur retirée. */
-  .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
-    font-family: var(--serif);
+     le plus chargé, le parcours, qui porte cinq étapes et leur justification :
+     mesuré, sa colonne tient dans une vue de 720 px de haut, barre de
+     navigation comprise. */
+  .xc .fi-arg .e, .xc .co-arg .e {
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-argument);
     line-height: 1.24;
@@ -1001,243 +848,89 @@ const CSS = `
     max-width: 34ch;
     transition: color var(--duree-teinte) ease;
   }
-  /* Le point en cours porte l'encre pleine : c'est lui que la démonstration
-     de droite est en train de montrer. Un point déjà lu reste entièrement
-     lisible, il passe simplement au second plan. */
-  .xc .si-arg.actif .e, .xc .fi-arg.actif .e, .xc .co-arg.actif .e {
+  /* Le point en cours porte l'encre pleine ET grandit d'un cran : c'est lui
+     que la démonstration d'à côté est en train de montrer. Un point déjà lu
+     reste entièrement lisible, il passe simplement au second plan.
+
+     L'encre seule ne suffisait pas (retour CEO du 21 août 2026). Le passage du
+     gris à l'encre est un écart de luminance sur un texte de seize pixels : à
+     la vitesse où l'on défile, il se voit à peine, et rien ne dit alors quel
+     point l'écran est en train de prouver.
+
+     Cinq pour cent, pas plus. Au-delà, une mise à l'échelle rééchantillonne la
+     lettre et le texte devient mou (SAFE_PREMIUM_DESIGN_STANDARD §2.8, qui
+     tolère 2 % sur un libellé de treize pixels et réserve les valeurs plus
+     franches aux surfaces). Ici la cible est une phrase de seize à dix-huit
+     pixels, qui encaisse un peu plus, et le geste doit se voir depuis la
+     colonne d'à côté.
+
+     L'origine reste le bord gauche : la colonne des numéros ne bouge pas d'un
+     pixel, c'est elle qui tient la liste alignée pendant que le point grandit. */
+  .xc .fi-arg, .xc .co-arg {
+    transform-origin: left center;
+    transition: transform 420ms var(--doux);
+  }
+  .xc .fi-arg.actif, .xc .co-arg.actif { transform: scale(1.05); }
+  .xc .fi-arg.actif .e, .xc .co-arg.actif .e {
     color: var(--si-ink);
   }
-  /* La description n'existe qu'au téléphone. Au large, la démonstration est
-     EN FACE du point : elle montre déjà ce qu'une phrase expliquerait, et la
-     sous-ligne avait été retirée pour cette raison le 13 août. Au pouce, la
-     démonstration passe dessous et n'est plus dans le même regard : la phrase
-     reprend son utilité. */
-  .xc .si-arg .d, .xc .fi-arg .d, .xc .co-arg .d { display: none; }
+  /* La description revient au large.
 
-  /* ── L'émulateur du cabinet ───────────────────────────────────────────────
-     Une fenêtre de SAFE posée à côté des arguments du chapitre « Simple ».
-     Elle ne bouge pas : c'est son écran qui change quand l'argument change,
-     au défilement puis au clic. Chaque écran est un extrait réel du Cabinet
-     Demo, avec les chiffres relevés en base. Jamais une vue plus avancée que
-     le produit.
+     Elle avait été retirée le 13 août au motif que la démonstration est EN
+     FACE du point et montre déjà ce qu'une phrase expliquerait. L'argument
+     tient tant que la démonstration a joué : elle est pilotée par le
+     défilement, donc le point qu'on n'a pas encore atteint n'a rien en face
+     de lui, et son titre seul ne dit pas ce qu'il fait. « Encaisser et
+     comptabiliser » se comprend, « Tenir les registres à jour » beaucoup
+     moins.
 
-     Hauteur fixe : trois écrans de hauteurs différentes qui se remplacent
-     feraient sauter la colonne à chaque bascule. */
-  .xc .ch-stage { position: relative; display: grid; place-items: center; }
-  .xc .em-fenetre {
-    width: 100%;
-    max-width: 520px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--surface);
-    box-shadow: 0 28px 60px -40px rgb(var(--si-line-ink-rgb) / 0.4);
-    overflow: hidden;
-  }
-  .xc .em-barre {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    height: 34px;
-    padding: 0 14px;
-    background: var(--si-forest);
+     La phrase est donc écrite pour les cinq étapes, à la taille d'une
+     justification et non d'un argument : elle explique le point, elle ne
+     rivalise pas avec lui. */
+  .xc .fi-arg .d, .xc .co-arg .d {
+    grid-column: 2;
+    margin-top: 5px;
+    max-width: 42ch;
     font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--si-surface);
-  }
-  .xc .em-barre i {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--si-amber-on-forest, #E0B54A);
-  }
-  .xc .em-barre .em-ou { margin-left: auto; opacity: 0.66; }
-  .xc .em-corps { position: relative; height: 318px; }
-  .xc .em-ecran {
-    position: absolute;
-    inset: 0;
-    padding: 18px 18px 14px;
-    opacity: 0;
-    transform: translateY(7px);
-    transition: opacity 240ms ease, transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-  }
-  .xc .em-ecran.on { opacity: 1; transform: none; pointer-events: auto; }
-  .xc .em-kicker {
-    font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--si-amber-ink);
-  }
-  .xc .em-h {
-    margin-top: 9px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-argument);
-    line-height: 1.16;
-    letter-spacing: -0.015em;
-  }
-  .xc .em-mini {
-    margin-top: 9px;
-    font-size: 12.5px;
-    line-height: 1.5;
-    color: var(--muted);
-    max-width: 40ch;
-  }
-  .xc .em-tiles {
-    margin-top: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .xc .em-tile {
-    padding: 10px 12px 11px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    background: var(--si-canvas);
-  }
-  .xc .em-tile .lab {
-    font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+    font-size: var(--t-detail);
+    line-height: 1.45;
     color: var(--muted);
   }
-  .xc .em-tile .sub { margin-top: 6px; font-size: 11px; color: var(--muted); }
-  /* Le chiffre est sacré : mono tabulaire, jamais tronqué. */
-  .xc .em-tile .val {
-    margin-top: 3px;
-    font-family: var(--mono);
-    font-size: 14.5px;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
-  }
-  .xc .em-tile.amber .val { color: var(--si-amber-ink); }
-  .xc .em-kv {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    padding: 7px 0;
-    border-top: 1px solid var(--line-soft);
-    font-size: 12.5px;
-  }
-  .xc .em-kv .v {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-    color: var(--muted);
-  }
-  .xc .em-act {
-    display: inline-flex;
-    align-items: center;
-    height: 29px;
-    margin-top: 13px;
-    padding: 0 13px;
-    border-radius: 7px;
-    background: var(--si-forest);
-    color: var(--si-surface);
-    font-size: 12px;
-  }
-  .xc .em-sous {
-    margin-top: 13px;
-    font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  /* Écran « saisi une fois » : la même heure, à sa source puis sur la facture.
-     Le trait vertical dit que rien n'a été retapé entre les deux. */
-  .xc .em-bloc {
-    margin-top: 9px;
-    padding: 11px 13px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    background: var(--si-canvas);
-  }
-  .xc .em-bloc .t { font-size: 13px; }
-  .xc .em-bloc .s { margin-top: 4px; font-size: 11.5px; color: var(--muted); }
-  .xc .em-ligne {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    margin-top: 7px;
-    padding-top: 7px;
-    border-top: 1px solid var(--line-soft);
-    font-size: 12.5px;
-  }
-  .xc .em-ligne .m {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-  }
-  .xc .em-relie {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 10px 0 0 14px;
-    font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .xc .em-relie i {
-    display: block;
-    width: 1px;
-    height: 18px;
-    background: var(--si-brand-green);
-    opacity: 0.5;
-  }
+  /* Cinq étapes dans une vue épinglée, et la vue peut ne faire que 720 px de
+     haut : le point se resserre pour que la colonne tienne sans rogner.
+     Mesuré à 1280 par 720, la colonne du parcours passe de 756 à 640 px.
+     Trois preuves gardent l'aisance. */
+  .xc .co-arg { padding-block: 6px; }
+  .xc .co-arg .e { font-size: var(--t-corps); line-height: 1.3; }
 
-  /* Synthèse. */
-  /* Synthèse. Elle referme le récit depuis que la section « pour qui » a été
-     retirée. Fond blanc comme les trois piliers qu'elle résume ; la
-     tarification qui suit revient au canevas, et ce changement de surface
-     marque le passage du récit à l'offre.
+  .xc #zone-verification { height: 300vh; }
+  .xc #zone-parcours { height: 400vh; }
 
-     Un cran plus petite qu'avant : elle conclut, elle ne rivalise plus avec
-     les titres de chapitre. */
-  .xc #zone-synthese, .xc #zone-synthese .pin { background: var(--si-surface); }
-  /* Le bloc n'est plus animé depuis que la scène de synthèse a quitté la
-     boucle de défilement : drawSynthese posait son opacité, drawSynthese a
-     été retiré, la règle qui la mettait à zéro était restée. La phrase de
-     clôture et les deux actions ne s'affichaient donc plus nulle part, ni au
-     téléphone ni au large, et la page passait de « Complet » aux tarifs par
-     un bloc blanc de 307 px. */
-  .xc .sy-end { margin-top: 34px; }
-  .xc .sy-claim { font-family: var(--serif); font-size: var(--t-corps); color: var(--muted); max-width: 36ch; margin: 0 auto; }
-  .xc .sy-cta { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  /* ── Le parcours d'un dossier (section 03) ────────────────────────────────
+     Même langage que la vérification : les étapes d'un côté, l'écran qui les
+     démontre de l'autre. La démonstration passe à gauche parce qu'ici on suit
+     un dossier, et qu'on le regarde avancer avant de lire ce qu'on en conclut.
 
-  .xc #zone-fiable { height: 400vh; }
-  .xc #zone-complet { height: 420vh; }
+     Les montants vivent sur l'opération qui les produit : ni jeton flottant,
+     ni ligne verticale de parcours.
 
-  /* ── Chapitre COMPLET ─────────────────────────────────────────────────────
-     Même langage que « Fiable » : un message arrive en grand, se réduit et
-     prend sa place dans une liste qui se construit. Deux différences voulues.
-     La démonstration passe à gauche, parce qu'ici on suit un dossier et qu'on
-     le regarde avancer avant de lire ce qu'on en conclut. Et le texte du point
-     n'est pas celui du message : le bloc porte les deux et bascule de l'un à
-     l'autre pendant qu'il rétrécit, ancré au même coin.
-
-     Ce qui a été retiré : le jeton noir flottant qui portait le montant, et la
-     ligne verticale du parcours. Les montants vivent maintenant sur
-     l'opération qui les produit. */
-  /* « Complet » revient au canevas (décision CEO du 13 août 2026). La page
-     alterne alors franchement d'un chapitre à l'autre : Simple sur canevas,
-     Fiable sur blanc, Complet sur canevas, la synthèse sur blanc, puis la
-     tarification à nouveau sur canevas. */
-  .xc .co-pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
+     La scène reste sur le canevas. La page alterne franchement d'une surface à
+     l'autre : le problème sur blanc, le parcours sur canevas, la suite sur
+     canevas, la vérification sur blanc, l'équipe sur blanc, l'offre sur
+     canevas. */
+  .xc .co-pin { display: grid; align-content: center; padding: 66px 0 18px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
   .xc .co-grid {
     width: 100%;
     max-width: var(--page);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1.02fr 0.98fr;
-    gap: clamp(30px, 4.6vw, 76px);
+    /* La colonne de texte prend le large : elle porte cinq étapes et leur
+       justification, quand l'écran de démonstration plafonne de toute façon à
+       520 px. Chaque dizaine de pixels rendue au texte enlève une ligne à une
+       description, donc de la hauteur à une scène qui doit tenir dans une vue
+       de 720 px. */
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(28px, 4vw, 64px);
     align-items: center;
   }
   .xc .co-copy { min-width: 0; }
@@ -1248,11 +941,11 @@ const CSS = `
     font-size: var(--t-titre);
     line-height: 1.1;
     letter-spacing: -0.018em;
-    max-width: 18ch;
+    max-width: 26ch;
   }
   .xc .co-intro {
     margin-top: 14px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: var(--t-corps);
     line-height: 1.6;
     color: var(--muted);
@@ -1260,39 +953,37 @@ const CSS = `
   }
 
   /* Le parcours qui se construit. Les points suivent la grammaire partagée
-     déclarée avec « Simple » : un corps unique, une phrase, l'encre pour
-     dire lequel est en cours. « Complet » portait en plus deux textes
-     différents pour un même point, un grand message puis un libellé avec sa
-     justification, et basculait de l'un à l'autre en rétrécissant. Le grand
-     message est resté, seul : c'est lui qui raconte le parcours. */
-  .xc .co-narration { margin-top: clamp(18px, 2.2vw, 28px); }
+     déclarée plus haut : un corps unique, une phrase, sa justification, et
+     l'encre pour dire lequel est en cours. */
+  .xc .co-narration { margin-top: clamp(14px, 1.6vw, 20px); }
+  /* La chute du parcours. Elle portait le corps d'un argument, ce qui la
+     mettait au rang des cinq étapes qu'elle conclut. Elle prend le corps de la
+     prose : c'est un point final, pas une sixième étape. Et la scène est
+     épinglée dans une vue qui peut ne faire que 720 px : chaque cran compte. */
   .xc .co-fin {
-    margin-top: 22px;
-    font-family: var(--serif);
+    margin-top: 18px;
+    font-family: var(--sans);
     font-weight: 400;
-    font-size: var(--t-argument);
-    line-height: 1.32;
-    letter-spacing: -0.014em;
+    font-size: var(--t-corps);
+    line-height: 1.5;
     color: var(--si-ink);
-    max-width: 34ch;
+    max-width: 46ch;
   }
   .xc .co-fin .co-comptable {
     display: block;
     margin-top: 9px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: 13px;
     line-height: 1.5;
     color: var(--muted);
     max-width: 42ch;
   }
-  .xc.anime .co-fin { opacity: 0; transition: opacity 400ms ease; }
-  .xc.anime .co-fin.on { opacity: 1; }
 
-  /* La démonstration du parcours. Même surface que celle de « Fiable » :
+  /* La démonstration du parcours. Même surface que celle de la vérification :
      un écran réel, une profondeur très légère, aucune bordure. */
   .xc .co-stage { min-width: 0; }
-  /* La surface s'inverse avec la section. Sur le blanc de « Fiable », l'écran
-     prend le canevas ; sur le canevas de « Complet », il prend le blanc. Mesuré
+  /* La surface s'inverse avec la section. Sur le blanc de la vérification,
+     l'écran prend le canevas ; sur le canevas du parcours, il prend le blanc. Mesuré
      après le passage au gris : l'écran et son fond avaient exactement la même
      teinte, la fenêtre ne se détachait plus que par son ombre. */
   .xc .co-ecran {
@@ -1337,7 +1028,7 @@ const CSS = `
      seuil AA. Le vert de validation passe à 5,88 et dit la même chose ici, le
      domaine étant une donnée confirmée du dossier. */
   .xc .co-domaine .vl {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-argument);
     line-height: 1.15;
@@ -1376,6 +1067,9 @@ const CSS = `
     transition: opacity 340ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .xc.anime .co-item.on { opacity: 1; transform: none; }
+  /* Le total se détache par un filet, jamais par un fond coloré. */
+  .xc .co-item.total { margin-top: 4px; padding-top: 13px; border-top: 1px solid var(--line); }
+  .xc .co-item.total .t { color: var(--si-ink); }
   /* La confirmation porte une marque en plus de sa couleur : le vert ne dit
      jamais seul qu'une chose est réglée. */
   .xc .co-dit {
@@ -1389,18 +1083,22 @@ const CSS = `
     max-width: 40ch;
   }
   .xc .co-dit .marque { font-size: 11px; }
-  .xc.anime .co-dit { opacity: 0; transition: opacity 380ms ease; }
-  .xc.anime .co-dit.on { opacity: 1; }
 
-  /* ── Chapitre FIABLE ──────────────────────────────────────────────────────
+  /* ── La vérification du fidéicommis (section 05) ──────────────────────────
      Section blanche, éditoriale, sans un seul cadre. La hiérarchie tient à
      trois choses : la taille, l'espace et le contraste. Le vert n'apparaît que
      sur les numéros, les états actifs et les confirmations.
 
      Le fond porte le blanc de la marque (--si-surface, l'albâtre du produit),
      pas un blanc pur inventé pour l'occasion. */
-  .xc #zone-fiable, .xc #zone-fiable .pin { background: var(--si-surface); }
-  .xc .fi-pin { display: grid; align-content: center; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
+  .xc #zone-verification, .xc #zone-verification .pin { background: var(--si-surface); }
+  /* Les deux scènes épinglées dégagent la barre de navigation.
+
+     Elles centraient leur contenu dans 100 vh sans rien réserver en haut, et
+     la barre est fixe sur 60 px : sur une vue de 720 px, l'exergue de la
+     section passait dessous. Une scène qui commence sous une barre de menu
+     donne l'impression d'être arrivée trop tard. */
+  .xc .fi-pin { display: grid; align-content: center; padding: 66px 0 18px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
   .xc .fi-grid {
     width: 100%;
     max-width: var(--page);
@@ -1421,10 +1119,31 @@ const CSS = `
     max-width: 20ch;
   }
 
-  /* « Fiable » et « Complet » suivent la grammaire des points déclarée plus
-     haut, avec « Simple ». Il ne reste ici que ce qui leur est propre : la
-     respiration au-dessus de leur liste. */
+  /* Les deux scènes suivent la grammaire des points déclarée plus haut. Il ne
+     reste ici que ce qui est propre à celle-ci : son intro et la respiration
+     au-dessus de sa liste. */
+  .xc .fi-intro {
+    margin-top: 16px;
+    max-width: 46ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.62;
+    color: var(--muted);
+  }
   .xc .fi-narration { margin-top: clamp(12px, 1.5vw, 18px); }
+  .xc .fi-arg { padding-block: 8px; }
+  /* La réserve qui accompagne toute preuve de conformité. Elle est écrite,
+     jamais suggérée : SAFE soutient la tenue, il ne la garantit pas. */
+  .xc .fi-precision {
+    margin-top: 22px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+    max-width: 46ch;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    line-height: 1.55;
+    color: var(--muted);
+  }
 
   /* La démonstration. Seule surface de la section : elle représente un écran
      réel, donc une profondeur très légère, portée par la teinte du canevas et
@@ -1452,7 +1171,7 @@ const CSS = `
   }
   /* Hauteur réservée : quatre vues de hauteurs différentes qui se remplacent
      feraient sauter la colonne à chaque étape. */
-  .xc .fi-vue-zone { position: relative; min-height: 236px; }
+  .xc .fi-vue-zone { position: relative; min-height: 268px; }
   .xc .fi-vue { margin-top: 16px; }
   .xc.anime .fi-vue {
     position: absolute;
@@ -1481,12 +1200,18 @@ const CSS = `
     color: var(--si-ink);
   }
   .xc .fi-src .m.vert { color: var(--verified); }
-  .xc.anime .fi-src[data-src] {
+  /* Tout ce qui se pose ligne à ligne dans un écran de démonstration.
+
+     Quatre règles disaient ceci, une par classe : la source, l'entrée de
+     journal, la phrase de conclusion, le refus. Le balisage déclare
+     maintenant data-ligne et la mécanique des scènes pose « on » : la
+     feuille n'a plus à connaître le nom de chaque ligne. */
+  .xc.anime [data-ligne] {
     opacity: 0;
     transform: translateY(6px);
     transition: opacity 360ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .xc.anime .fi-src[data-src].on { opacity: 1; transform: none; }
+  .xc.anime [data-ligne].on { opacity: 1; transform: none; }
   /* La phrase qui dit ce que les chiffres viennent de prouver. */
   .xc .fi-dit {
     margin-top: 14px;
@@ -1496,8 +1221,6 @@ const CSS = `
     max-width: 40ch;
   }
   .xc .fi-dit.vert { color: var(--verified); }
-  .xc.anime .fi-dit { opacity: 0; transition: opacity 400ms ease; }
-  .xc.anime .fi-dit.on { opacity: 1; }
   /* Mini-chronologie : deux entrées datées, reliées par le seul trait de la
      section, qui n'est pas décoratif puisqu'il porte la continuité. */
   .xc .fi-temps {
@@ -1541,12 +1264,6 @@ const CSS = `
   }
   .xc .fi-temps .m.vert { color: var(--verified); }
   .xc .fi-temps[data-temps="1"]::before { background: var(--si-brand-green); }
-  .xc.anime .fi-temps {
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 360ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc.anime .fi-temps.on { opacity: 1; transform: none; }
   .xc .fi-op { font-size: 13px; color: var(--si-ink); }
   /* Le refus. Texte exact du produit, en ambre : c'est un arrêt, pas une
      erreur du cabinet. */
@@ -1559,23 +1276,269 @@ const CSS = `
     color: var(--si-amber-ink);
     max-width: 42ch;
   }
-  .xc.anime .fi-refus { opacity: 0; transition: opacity 400ms ease; }
-  .xc.anime .fi-refus.on { opacity: 1; }
 
 
-  /* sans display block, « Pour l'avocat » et le titre se collaient */
 
-  .xc section.flat { padding-block: clamp(84px, 12vh, 150px); padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
-  .xc section.flat .inner { max-width: var(--page); margin: 0 auto; }
-  .xc section.flat.surface { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  /* ── Les sections écrites ─────────────────────────────────────────────────
+     Le problème, la suite, l'équipe, l'offre, les questions et l'appel final
+     ne portent aucune interface. Leur hiérarchie tient à trois choses : la
+     taille du titre, l'espace entre les groupes, et le filet.
 
-  .xc #tarifs .head h2 {
+     Une seule règle donne le titre de toutes ces sections. Elle était écrite
+     trois fois, une par section, avec trois valeurs proches. */
+  .xc section.flat h2 {
     margin-top: 14px;
     font-family: var(--serif);
     font-weight: 400;
     font-size: var(--t-marque);
     line-height: 1.08;
+    letter-spacing: -0.018em;
+    max-width: 20ch;
   }
+  .xc section.flat > .inner > .lede {
+    margin-top: 22px;
+    max-width: 62ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.66;
+    color: var(--muted);
+  }
+  /* La phrase qui referme une section : même famille que les titres, un cran
+     plus petite, en encre pleine. C'est le point final d'un raisonnement, pas
+     un argument de plus. */
+  .xc section.flat .chute {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: var(--t-argument);
+    line-height: 1.32;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
+    max-width: 38ch;
+  }
+  /* Le lien de fin de bloc. Le filet sous le mot s'allonge au survol : c'est
+     le seul mouvement de ces sections, et il confirme une cible. */
+  .xc section.flat .more {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    border-bottom: 1px solid rgb(var(--si-line-ink-rgb) / 0.22);
+    padding-bottom: 2px;
+    transition: border-color var(--duree-teinte) ease;
+  }
+  .xc section.flat .more:hover { border-color: var(--si-ink); }
+  /* L'exergue d'un bloc secondaire : il nomme le rang de ce qu'on lit
+     (SAFE, Outils SAFE, Accompagnement), en petites capitales. */
+  .xc section.flat .rang {
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── 02 · Le problème ─────────────────────────────────────────────────────
+     Cinq lignes numérotées à gauche, la conclusion à droite. La liste porte le
+     poids : c'est elle qui est reconnaissable, et le commentaire ne fait que
+     nommer ce qu'on vient de reconnaître.
+
+     Chaque ligne dit l'endroit où la chose vit aujourd'hui, en mono et à
+     droite. Aucun nom de logiciel : personne ici ne sait dans quoi travaille
+     le cabinet qui lit la page. */
+  .xc .deux-colonnes {
+    margin-top: clamp(32px, 4vw, 52px);
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: start;
+  }
+  .xc .morceau {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    column-gap: 14px;
+    align-items: baseline;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+  }
+  .xc .morceau:last-child { border-bottom: 1px solid var(--line); }
+  .xc .morceau .n {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.1em;
+    color: var(--si-subtle);
+  }
+  .xc .morceau .t {
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.45;
+    color: var(--si-ink);
+  }
+  .xc .morceau .ou {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .xc #probleme .cote p {
+    max-width: 42ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.66;
+    color: var(--muted);
+  }
+  /* La conclusion garde son rang malgré la règle de prose ci-dessus : elle est
+     dans la même colonne, donc c'est ici qu'il faut le dire. */
+  .xc #probleme .cote .chute {
+    margin-top: 22px;
+    font-size: var(--t-argument);
+    line-height: 1.32;
+    color: var(--si-ink);
+  }
+
+  /* ── 04 · La suite ────────────────────────────────────────────────────────
+     Trois blocs de poids différents, jamais trois cartes identiques. SAFE
+     Cabinet prend la largeur et porte la liste de ce qu'il tient ensemble ;
+     les outils et l'accompagnement se partagent la rangée du dessous, un cran
+     plus bas. C'est la hiérarchie qui dit lequel est le produit central, pas
+     une étiquette. */
+  .xc .bloc-maitre {
+    margin-top: clamp(32px, 4vw, 52px);
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: center;
+    padding: clamp(28px, 3.4vw, 40px) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .xc .bloc-maitre h3 {
+    margin-top: 12px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: var(--t-titre);
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    max-width: 18ch;
+  }
+  .xc .bloc-maitre p {
+    margin-top: 14px;
+    max-width: 46ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.62;
+    color: var(--muted);
+  }
+  /* Les neuf postes, en mono : ce sont des noms de registres, pas de la prose.
+     Ils reprennent mot pour mot ceux du titre d'ouverture. */
+  .xc .contexte {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    list-style: none;
+  }
+  .xc .contexte li {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--si-ink);
+    background: var(--si-surface);
+  }
+  .xc .deux-blocs {
+    margin-top: clamp(28px, 3.4vw, 44px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(28px, 4vw, 64px);
+  }
+  .xc .deux-blocs .bloc { padding-top: 4px; }
+  .xc .deux-blocs h3 {
+    margin-top: 10px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: var(--t-argument);
+    line-height: 1.22;
+    letter-spacing: -0.014em;
+    max-width: 22ch;
+  }
+  .xc .deux-blocs p {
+    margin-top: 12px;
+    max-width: 44ch;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  /* L'outil publié se nomme. Le reste de la suite ne s'annonce pas : un
+     catalogue promis avant d'exister est une promesse qu'on ne tient pas le
+     jour où quelqu'un clique. */
+  .xc .deux-blocs p.detail { color: var(--si-ink); }
+
+  /* ── 06 · L'équipe ────────────────────────────────────────────────────────
+     Deux points de vue de même poids, séparés par un filet vertical. La
+     composition change volontairement de celle de la suite : ici, aucun des
+     deux ne domine, et c'est le propos. */
+  .xc .deux-vues {
+    margin-top: clamp(32px, 4vw, 52px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(28px, 4vw, 64px);
+    padding-top: clamp(24px, 3vw, 34px);
+    border-top: 1px solid var(--line);
+  }
+  .xc .deux-vues .vue p {
+    margin-top: 12px;
+    max-width: 40ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.62;
+    color: var(--muted);
+  }
+  .xc #equipe .chute { margin-top: clamp(28px, 3.4vw, 44px); }
+
+  /* ── 07 · L'offre ─────────────────────────────────────────────────────────
+     Les trois temps de la mise en service, sous les deux forfaits : le prix
+     seul ne dit pas ce qui se passe après, et c'est la question qui suit le
+     prix dans toutes les conversations. */
+  .xc #tarifs .etapes {
+    margin-top: clamp(32px, 4vw, 48px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 3.4vw, 48px);
+  }
+  .xc #tarifs .etape { border-top: 1px solid var(--line); padding-top: 16px; }
+  .xc #tarifs .etape .n {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.1em;
+    color: var(--verified);
+  }
+  .xc #tarifs .etape .t {
+    margin-top: 10px;
+    font-family: var(--sans);
+    font-size: var(--t-argument);
+    line-height: 1.25;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
+  }
+  .xc #tarifs .etape .d {
+    margin-top: 8px;
+    max-width: 34ch;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .xc #tarifs .actions { margin-top: clamp(32px, 4vw, 48px); display: flex; gap: 18px; flex-wrap: wrap; }
+
+  .xc section.flat { padding-block: clamp(84px, 12vh, 150px); padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2); }
+  .xc section.flat .inner { max-width: var(--page); margin: 0 auto; }
+  .xc section.flat.surface { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
   .xc #tarifs .plan {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -1585,14 +1548,13 @@ const CSS = `
     border-bottom: 1px solid var(--line);
   }
   .xc #tarifs .plan:first-of-type { margin-top: 34px; border-top: 1px solid var(--line); }
-  .xc #tarifs .plan .name { font-family: var(--serif); font-size: 16px; }
-  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--serif); font-size: 13.5px; color: var(--muted); }
+  .xc #tarifs .plan .name { font-family: var(--sans); font-size: 16px; }
+  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--sans); font-size: 13.5px; color: var(--muted); }
   /* Le prix et son unité restent un chiffre : mono, comme tout montant du
      site. La serif s'arrête au texte qui l'entoure. */
   .xc #tarifs .plan .price { font-family: var(--mono); font-size: var(--t-argument); text-align: right; }
   .xc #tarifs .plan .price small { font-family: var(--mono); font-size: var(--t-menu); color: var(--muted); margin-left: 4px; }
-  .xc #tarifs .note { margin-top: 18px; font-family: var(--serif); font-size: 13px; color: var(--muted); }
-  .xc #tarifs .more { margin-top: 18px; font-family: var(--serif); font-size: 14px; display: inline-block; color: var(--ink); }
+  .xc #tarifs .note { margin-top: 18px; font-family: var(--sans); font-size: 13px; color: var(--muted); }
 
   .xc #questions .q {
     display: grid;
@@ -1602,28 +1564,13 @@ const CSS = `
     border-top: 1px solid var(--line);
   }
   .xc #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: var(--t-argument); line-height: 1.35; }
-  .xc #questions .q p { max-width: 58ch; font-family: var(--serif); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
-  .xc #questions h2 {
-    margin-top: 14px;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-marque);
-    line-height: 1.08;
-    max-width: 16ch;
-  }
-  .xc #questions .more { margin-top: 16px; font-family: var(--serif); font-size: 14px; display: inline-block; color: var(--ink); }
+  .xc #questions .q p { max-width: 58ch; font-family: var(--sans); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
+  .xc #questions .liste-q { margin-top: clamp(32px, 4vw, 44px); }
 
   .xc #cta { text-align: center; }
-  .xc #cta h2 {
-    margin: 18px auto 0;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: var(--t-marque);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    max-width: 18ch;
-  }
-  .xc #cta p { margin: 22px auto 0; max-width: 50ch; font-family: var(--serif); font-size: 16px; line-height: 1.65; color: var(--muted); }
+  .xc #cta h2 { margin-inline: auto; max-width: 18ch; }
+  .xc #cta p { margin: 22px auto 0; max-width: 50ch; font-family: var(--sans); font-size: 16px; line-height: 1.65; color: var(--muted); }
+  .xc #cta .reassure { margin-top: 20px; font-size: var(--t-detail); color: var(--muted); }
   .xc #cta .actions { margin-top: 34px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
   .xc .btn {
     display: inline-flex;
@@ -1758,8 +1705,8 @@ const CSS = `
         font-variant-numeric: tabular-nums posé à la racine.
 
      2. UNE SEULE ÉCHELLE. Les tailles vivaient chapitre par chapitre, chacune
-        réglée à la main : le titre de « Fiable » ne valait pas celui de
-        « Complet » sans qu'aucune règle ne l'ait décidé. Sept variables
+        réglée à la main : le titre d'une scène ne valait pas celui de la
+        suivante sans qu'aucune règle ne l'ait décidé. Sept variables
         décrivent maintenant tout ce qui se lit, du titre d'ouverture au plus
         petit libellé, et rien ne descend sous 11 px au doigt.
 
@@ -1814,8 +1761,9 @@ const CSS = `
        éviter, un mot plus large que sa colonne. */
     /* Par défaut, un enfant de grille refuse de descendre sous la largeur de
        son plus long mot et pousse toute la rangée hors de l'écran. */
-    .xc .grid > *, .xc .fi-grid > *, .xc .co-grid > *, .xc .ch-pin > *,
-    .xc .em-tiles > *, .xc .q > *, .xc .si-arg > *, .xc .co-arg > *,
+    .xc .fi-grid > *, .xc .co-grid > *, .xc .q > *,
+    .xc .deux-colonnes > *, .xc .deux-blocs > *, .xc .deux-vues > *,
+    .xc .bloc-maitre > *, .xc .morceau > *, .xc .co-arg > *,
     .xc .fi-arg > *, .xc .co-item > * { min-width: 0; }
 
     /* ── Barre de navigation ────────────────────────────────────────────────
@@ -1990,177 +1938,58 @@ const CSS = `
        (décision CEO du 18 août 2026). La démonstration commence juste en
        dessous : elle dit ce que fait SAFE mieux qu'un lien vers une autre
        page, et le diagnostic reste gratuit qu'on l'écrive ou non. */
-    .xc #hero-copy .hero-second,
-    .xc #hero-copy .hero-reassure { display: none; }
+    /* Le lien secondaire reste caché : au pouce, la suite se découvre en
+       défilant, et l'indication du bas le dit déjà.
+
+       La réassurance, elle, revient. Elle avait été retirée avec lui le
+       18 août pour rendre cent-vingt pixels à la fenêtre du produit. Ce sont
+       trois faits vérifiables (conçu au Québec, adapté aux deux provinces,
+       données au Canada) et c'est la seule preuve de la première vue au
+       téléphone, puisque la démonstration y arrive plus bas. */
+    .xc #hero-copy .hero-second { display: none; }
+    .xc #hero-copy .hero-reassure {
+      margin-top: 16px;
+      margin-left: 0;
+      font-size: var(--t-detail);
+      line-height: 1.5;
+    }
     .xc #hero-copy .hero-actions { margin-top: 24px; gap: 16px; }
     .xc #hero-hint { font-size: var(--t-menu); }
     .xc #hero-caption { font-size: var(--t-detail); }
-
-    /* ── Bande de preuves ───────────────────────────────────────────────────
-       Trois états ont été essayés ici. Quatre libellés sur deux rangs : à
-       l'étroit, et deux rangs de six mots ne se lisent pas comme une preuve.
-       Une bande qu'on parcourt au doigt : elle cache la moitié de son contenu
-       derrière un geste que personne ne fait. Une boucle continue : le texte
-       glisse pendant qu'on le lit, donc on ne le lit pas.
-
-       Celle-ci ne glisse pas pendant la lecture. Elle POSE une affirmation,
-       la tient trois secondes immobile, puis la remplace. Un seul texte à la
-       fois, toujours au même endroit, toujours aligné pareil : c'est un
-       panneau qui tourne, pas un bandeau qui défile.
-
-       Quatre affirmations, quatre temps, seize secondes de cycle. Le pas est
-       fait en CSS sur une seule translation, donc aucun recalcul de mise en
-       page et rien à réveiller au défilement. */
-    .xc #preuves {
-      display: block;
-      position: relative;
-      padding: 0 var(--marge);
-      max-width: none;
-      height: 46px;
-      overflow: hidden;
-      -webkit-mask-image: none;
-      mask-image: none;
-    }
-    /* La bande tourne latéralement, un libellé à la fois.
-
-       Deux montages ont échoué avant celui-ci. Une piste de quatre colonnes
-       translatée : la règle de base répartit la piste en « space-between », et
-       des colonnes plus larges que leur conteneur s'y recouvrent, donc les
-       quatre libellés s'imprimaient les uns sur les autres. Une copie muette
-       ancrée à droite pour masquer le raccord : elle demandait de calculer sa
-       position à partir d'un retrait que le conteneur portait déjà, et elle
-       tombait à vingt pixels de sa place.
-
-       Plus de piste et plus de double. Les quatre libellés occupent le MÊME
-       emplacement, et chacun a son tour : il entre par la droite, se pose,
-       tient trois secondes immobile, puis sort par la gauche. Le décalage se
-       fait par le retard de l'animation, un quart de cycle par libellé. Le
-       retour du quatrième au premier n'a plus de raccord à masquer, puisqu'il
-       n'y a rien à raccorder. */
-    .xc .pv-track {
-      display: block;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      animation: none;
-    }
-    .xc .pv-track.clone { display: none; }
-    .xc #preuves span {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 0;
-      font-size: var(--t-detail);
-      white-space: nowrap;
-      opacity: 0;
-      animation: xcPreuveGlisse 16s infinite;
-    }
-    .xc #preuves span:nth-child(1) { animation-delay: 0s; }
-    .xc #preuves span:nth-child(2) { animation-delay: 4s; }
-    .xc #preuves span:nth-child(3) { animation-delay: 8s; }
-    .xc #preuves span:nth-child(4) { animation-delay: 12s; }
-    /* La sortie d'un libellé mord d'un point sur l'entrée du suivant. Réglée
-       bord à bord, la bande restait vide 160 ms à chaque tour, ce qui se lit
-       comme un clignotement. */
-    @keyframes xcPreuveGlisse {
-      0%        { opacity: 0; transform: translateX(26px); }
-      4%, 22%   { opacity: 1; transform: translateX(0); }
-      26%, 100% { opacity: 0; transform: translateX(-26px); }
-    }
-
-    /* ── La promesse, sa surface et sa gravure ──────────────────────────────
-       Elle partageait exactement le fond du chapitre « Simple » qui la suit :
-       deux scènes de suite sur le même gris, donc rien ne disait qu'on avait
-       changé de registre entre la phrase qui promet et le pilier qui démontre.
-
-       Elle prend donc sa propre surface, et cette surface est un dégradé :
-       elle s'assombrit vers son centre puis remonte au gris de la page à ses
-       deux bords. Aucun filet, aucune arête. La scène se creuse, et c'est ce
-       creux qui la sépare de ce qui l'entoure. */
-    .xc #zone-promesse {
-      position: relative;
-      background: var(--si-surface2);
-    }
-    .xc .pr-pin { position: relative; overflow: hidden; }
-    /* La gravure. Deux ombres opposées d'un pixel, l'une claire en haut,
-       l'autre sombre en bas, et un remplissage à peine plus foncé que la
-       pierre : c'est le vocabulaire du creux, celui d'une plaque gravée. Rien
-       n'est peint en couleur de marque, sinon le logo se lirait comme un logo
-       posé sur le fond au lieu d'être pris dedans. */
-    .xc .pr-gravure {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 0;
-      pointer-events: none;
-      /* Ce qui fait un creux, ce n'est pas une forme pâle, c'est une arête.
-         L'opacité de 0,14 posée sur tout l'élément emportait aussi les ombres
-         de bord : la marque était une tache claire, pas une entaille.
-
-         L'élément reste donc entièrement opaque. Ce sont les REMPLISSAGES qui
-         se rapprochent de la pierre, en gardant leur vert, et les ombres qui
-         travaillent à pleine force. La lumière vient d'en haut, comme partout
-         ailleurs sur cette page : une entaille est donc sombre sur sa lèvre
-         haute et éclairée sur sa lèvre basse. Deux ombres opposées d'un pixel
-         et demi le disent, une troisième, plus douce et plus bas, donne la
-         profondeur du creux. */
-      opacity: 1;
-      filter:
-        drop-shadow(0 -1.5px 0 rgb(var(--si-line-ink-rgb) / 0.30))
-        drop-shadow(0 1.5px 0 rgb(255 255 255 / 0.95))
-        drop-shadow(0 4px 6px rgb(var(--si-line-ink-rgb) / 0.10));
-    }
-    .xc .pr-gravure svg { display: block; }
-    /* Les deux teintes de charte, forêt et émeraude, mélangées à la pierre à
-       environ un quart. Assez de vert pour qu'on reconnaisse la marque, assez
-       de pierre pour qu'elle appartienne au mur au lieu d'être posée dessus.
-       Les deux valeurs restent distinctes : aplaties sur une seule, les deux
-       volumes de « L'Assemblage » fusionnent et le dessin disparaît. */
-    .xc .pr-gravure svg path:first-child { fill: #C3CBC8 !important; }
-    .xc .pr-gravure svg path:last-child { fill: #C9DAD3 !important; }
-    .xc .pr-gravure svg * { stroke: none !important; }
-    .xc .pr-pin .masque { position: relative; z-index: 1; }
 
     /* ── Exergues et libellés ───────────────────────────────────────────────
        Le mono tenait ses majuscules espacées à 11 px. Le sans est plus large à
        taille égale : l'interlettrage se resserre, sinon « SYSTÈME DE GESTION
        POUR CABINETS D'AVOCATS » passe sur deux lignes et touche le bord. */
-    .xc .kicker, .xc .em-kicker, .xc .fi-ou, .xc .co-ou, .xc .em-ou,
+    .xc .kicker, .xc .fi-ou, .xc .co-ou,
     .xc .ha-kicker, .xc .lab, .xc .lb, .xc .sub, .xc .h, .xc .date {
       font-size: var(--t-menu);
       letter-spacing: 0.09em;
     }
 
-    /* ── Chapitres ──────────────────────────────────────────────────────────
-       Trois chapitres, une seule grammaire : le mot du chapitre, son titre,
-       ses points numérotés, puis l'écran qui les prouve. Chacun réglait sa
-       propre échelle ; ils partagent désormais la même. */
-    .xc .ch-mark { font-size: var(--t-marque); }
-    .xc .ch-mark + .kicker { margin-top: 10px; }
-    .xc .ch-copy h2, .xc .story h2, .xc .fi-copy h2, .xc .co-copy h2 {
+    /* ── Sections ───────────────────────────────────────────────────────────
+       Une seule grammaire pour toute la page : l'exergue, le titre, ce qui
+       suit. Chaque section réglait la sienne ; elles partagent la même. */
+    .xc section.flat h2, .xc .fi-copy h2, .xc .co-copy h2 {
       margin-top: 12px;
       font-size: var(--t-titre);
       line-height: 1.14;
       max-width: none;
     }
-    /* Les points des trois piliers partagent un seul corps, ici comme au
+    /* Les points des deux scènes partagent un seul corps, ici comme au
        large. La sous-ligne n'existe plus, donc l'échelle du téléphone n'a plus
        qu'une taille à donner pour eux.
 
        L'interligne s'ouvre de 1,24 à 1,36. Au large, un point tient sur une
        ligne et l'interligne serré le tient groupé ; sur 335 px, les points de
-       « Fiable » passent tous à deux lignes, et le même serrage donne un pavé
+       la vérification passent tous à deux lignes, et le même serrage donne un pavé
        compact que l'oeil lit comme un paragraphe et non comme un point. */
-    .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
+    .xc .fi-arg .e, .xc .co-arg .e {
       font-size: var(--t-argument);
       line-height: 1.36;
       max-width: none;
     }
-    .xc .si-narration, .xc .fi-narration, .xc .co-narration { margin-top: 26px; }
+    .xc .fi-narration, .xc .co-narration { margin-top: 26px; }
     .xc .co-intro {
       margin-top: 8px;
       font-size: var(--t-detail);
@@ -2168,16 +1997,9 @@ const CSS = `
       max-width: none;
     }
     .xc .co-fin { margin-top: 14px; font-size: var(--t-corps); }
-    .xc .ch-chute { margin-top: 16px; }
 
     /* Les deux volets de chaque chapitre s'empilent, et le propos passe
        toujours avant sa démonstration : on lit d'abord de quoi il s'agit. */
-    .xc .story .grid, .xc .story.reverse .grid { grid-template-columns: 1fr; gap: 18px; }
-    .xc .story.reverse .copy { order: -1; }
-    .xc .story .pin { align-content: center; }
-    .xc .story p.body { margin-top: 12px; font-size: var(--t-corps); line-height: 1.55; }
-    .xc .story p.result { margin-top: 14px; font-size: var(--t-detail); line-height: 1.5; }
-    .xc #zone-simple .ch-pin { grid-template-columns: 1fr; gap: 20px; }
     .xc .fi-grid { grid-template-columns: 1fr; gap: 18px; }
     .xc .co-grid { grid-template-columns: 1fr; gap: 16px; }
     .xc .co-stage { order: 2; }
@@ -2220,7 +2042,7 @@ const CSS = `
 
        La barre de défilement disparaît : c'est la carte coupée au bord droit
        qui dit qu'on peut pousser, pas un rail gris. */
-    .xc .si-args, .xc .fi-args, .xc .co-args {
+    .xc .fi-args, .xc .co-args {
       display: grid;
       grid-auto-flow: column;
       grid-auto-columns: 88%;
@@ -2241,7 +2063,6 @@ const CSS = `
       padding-bottom: 14px;
       margin-bottom: -14px;
     }
-    .xc .si-args::-webkit-scrollbar,
     .xc .fi-args::-webkit-scrollbar,
     .xc .co-args::-webkit-scrollbar { display: none; }
 
@@ -2266,7 +2087,7 @@ const CSS = `
        et une ombre plus franche, les autres reculent d'un ton. C'est la même
        distinction que fait le défilement piloté au large, rendue ici par la
        position dans le carrousel. */
-    .xc .si-arg, .xc .fi-arg, .xc .co-arg {
+    .xc .fi-arg, .xc .co-arg {
       display: flex;
       flex-direction: column;
       min-height: 210px;
@@ -2279,22 +2100,23 @@ const CSS = `
                   0 10px 20px -18px rgb(var(--si-line-ink-rgb) / 0.22);
       transition: box-shadow 320ms var(--doux), border-color 320ms var(--doux);
     }
-    .xc .si-arg.actif, .xc .fi-arg.actif, .xc .co-arg.actif {
+    .xc .fi-arg, .xc .co-arg, .xc .fi-arg.actif, .xc .co-arg.actif { transform: none; }
+    .xc .fi-arg.actif, .xc .co-arg.actif {
       border-color: rgb(var(--si-line-ink-rgb) / 0.16);
       box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.05),
                   0 20px 38px -24px rgb(var(--si-line-ink-rgb) / 0.40);
     }
-    .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
+    .xc .fi-arg .n, .xc .co-arg .n {
       display: block;
       top: 0;
       padding-bottom: 14px;
       border-bottom: 1px solid var(--line);
     }
-    .xc .si-arg .e, .xc .fi-arg .e, .xc .co-arg .e {
+    .xc .fi-arg .e, .xc .co-arg .e {
       margin-top: 18px;
       color: var(--si-ink);
     }
-    .xc .si-arg .d, .xc .fi-arg .d, .xc .co-arg .d {
+    .xc .fi-arg .d, .xc .co-arg .d {
       display: block;
       /* La phrase suit son propos de près.
 
@@ -2336,7 +2158,7 @@ const CSS = `
        plus rien. L'alignement sur la ligne de base le fait, sauf qu'à 11 px
        contre 17 px la base commune enfonce le numéro d'environ un pixel sous
        la panse des minuscules. Le décalage le remonte à hauteur d'oeil. */
-    .xc .si-arg .n, .xc .fi-arg .n, .xc .co-arg .n {
+    .xc .fi-arg .n, .xc .co-arg .n {
       position: relative;
       top: -1px;
     }
@@ -2344,7 +2166,6 @@ const CSS = `
     /* Le dégagement en tête de chapitre tient compte de la barre flottante
        (10 px de haut plus 48 px de hauteur) : sans lui, elle recouvrait le mot
        du chapitre. */
-    .xc #zone-simple .ch-pin { padding: 88px var(--marge) 72px; }
     .xc .fi-pin { padding: 88px var(--marge) 72px; }
     .xc .co-pin { padding: 88px var(--marge) 72px; }
     .xc section.flat { padding: 64px var(--marge); }
@@ -2354,12 +2175,11 @@ const CSS = `
        reviendrait à décrire au lieu de montrer. Elles prennent toute la
        largeur et leurs libellés remontent au plancher de 11 px — à 9 px, elles
        montraient qu'il y avait quelque chose sans qu'on puisse le lire. */
-    .xc .fi-ecran, .xc .co-ecran, .xc .em-ecran {
+    .xc .fi-ecran, .xc .co-ecran {
       max-width: none;
       margin-left: 0;
       padding: 14px 15px 15px;
     }
-    .xc .em-tiles { margin-top: 10px; gap: 6px; }
     .xc .fi-src { padding: 9px 0; }
     .xc .fi-src .l, .xc .fi-src .m { font-size: var(--t-detail); }
     .xc .fi-dit, .xc .fi-refus { font-size: var(--t-menu); }
@@ -2368,17 +2188,36 @@ const CSS = `
     .xc .co-item .t, .xc .co-item .m { font-size: var(--t-detail); }
     .xc .co-item .s { font-size: var(--t-menu); }
 
-    /* ── Les deux respirations ──────────────────────────────────────────────
-       « Bâtissez votre succès professionnel » et la synthèse finale occupent
-       chacune un écran entier. Au large, c'est une respiration : la phrase
-       arrive seule, on la lit, on repart. Sur 812 px de haut, la même règle
-       donnait une phrase de deux lignes au centre de 600 px de vide, ce qui ne
-       se lit pas comme une respiration mais comme un écran qui n'a pas fini de
-       charger. Elles prennent la hauteur de ce qu'elles disent, et gardent un
-       dégagement franc au-dessus et en dessous. */
-    .xc .pr-pin { padding: 88px var(--marge); }
-    .xc .pr-main { font-size: var(--t-titre); }
-    .xc .sy-claim { font-size: var(--t-corps); }
+    /* ── Les sections écrites, au pouce ─────────────────────────────────────
+       Toutes leurs grilles à deux colonnes s'empilent. L'ordre de lecture est
+       déjà le bon dans le balisage : la liste avant son commentaire, le bloc
+       maître avant les deux blocs secondaires, la vue de l'adjointe avant
+       celle de l'avocate. */
+    .xc .deux-colonnes,
+    .xc .deux-blocs,
+    .xc .deux-vues,
+    .xc .bloc-maitre,
+    .xc #tarifs .etapes {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .xc .deux-colonnes { margin-top: 26px; gap: 26px; }
+    .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
+    .xc .deux-vues { margin-top: 26px; padding-top: 22px; }
+    .xc #tarifs .etapes { margin-top: 28px; }
+    /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
+       droite en plus de la colonne du numéro ne laisse plus rien au texte. */
+    .xc .morceau { grid-template-columns: 26px 1fr; row-gap: 6px; padding: 13px 0; }
+    .xc .morceau .t { font-size: var(--t-detail); line-height: 1.5; }
+    .xc .morceau .ou { grid-column: 2; }
+    .xc .bloc-maitre h3, .xc .deux-blocs h3 { font-size: var(--t-argument); max-width: none; }
+    .xc .bloc-maitre p, .xc .deux-blocs p, .xc .deux-vues .vue p,
+    .xc #probleme .cote p, .xc #tarifs .etape .d { max-width: none; font-size: var(--t-detail); }
+    .xc section.flat .chute, .xc .fi-precision { max-width: none; font-size: var(--t-corps); }
+    .xc .contexte li { font-size: var(--t-menu); padding: 6px 10px; }
+    .xc #tarifs .actions { margin-top: 28px; flex-direction: column; align-items: stretch; }
+    .xc .fi-intro { margin-top: 12px; font-size: var(--t-detail); line-height: 1.5; max-width: none; }
+    .xc #questions .liste-q { margin-top: 26px; }
 
     /* ── La mesure ──────────────────────────────────────────────────────────
        Sept blocs de texte portaient un plafond en ch calculé pour le large et
@@ -2393,7 +2232,6 @@ const CSS = `
        caractères, très en deçà des 65 de PS-008. Le plafond n'y protège de
        rien, il ne fait que rogner. Il tombe donc, et les huit blocs prennent
        la colonne, comme tout le reste de la page. */
-    .xc .pr-main, .xc .pr-suite, .xc .sy-claim,
     .xc .co-fin, .xc .co-fin .co-comptable,
     .xc #tarifs .head h2, .xc #questions h2, .xc #cta h2 { max-width: none; }
 
@@ -2424,7 +2262,7 @@ const CSS = `
     .xc #cta .actions { margin-top: 26px; gap: 12px; }
     /* Deux actions côte à côte tombaient chacune sous la largeur d'un pouce :
        elles s'empilent, pleine largeur, comme celles de la synthèse. */
-    .xc #cta .actions, .xc .sy-cta { flex-direction: column; align-items: stretch; }
+    .xc #cta .actions { flex-direction: column; align-items: stretch; }
     /* Le pied de page répartissait quatre groupes sur une rangée en
        space-between. Passés à la ligne faute de place, les groupes gardaient
        cette répartition : « Confidentialité » se retrouvait seul sur sa
@@ -2470,43 +2308,13 @@ const CSS = `
       transform: none;
     }
 
-    /* La promesse se relève de sous une arête.
-       Les deux lignes montaient en fondu comme le reste de la page, donc la
-       phrase arrivait d'un bloc. Elle est pourtant construite en deux temps,
-       l'affirmation puis sa condition, et le balisage porte déjà le masque
-       qu'il faut : un conteneur en overflow hidden autour de chaque ligne.
-
-       Chaque ligne est donc poussée sous l'arête de son masque et remonte à
-       sa place. Le fondu disparaît : ce n'est pas un texte qui apparaît, c'est
-       un texte qui se lève. La seconde part 260 ms après la première, le temps
-       de lire la première. */
-    /* Les deux lignes de la promesse n'ont plus de transition : leur position
-       est posée à chaque image par promesseAuDefilement, et une transition
-       par-dessus un pilotage au défilement donne un retard élastique, pas un
-       mouvement commandé. Elles partent sous l'arête de leur masque, et c'est
-       le script qui les remonte. */
-    .xc.tel-anime .pr-main { transform: translateY(110%); }
-  }
-
-  /* ── Les téléphones étroits ───────────────────────────────────────────────
-     320 px, l'iPhone SE de première génération et une partie du parc Android.
-     La page entière tient, à un mot près : « ENCAISSEMENTS » demande 108 px
-     dans une tuile qui en offre 95, et son S final passait seul à la ligne.
-
-     Le corps ne bouge pas, 11 px est le plancher de l'échelle. C'est
-     l'interlettrage qui cède, de 0,09 à 0,04em, plus trois pixels repris sur
-     le retrait de la tuile : le libellé rentre sur une ligne, et il reste
-     assez d'air pour que la tuile ne se lise pas comme un texte serré. */
-  @media (max-width: 360px) {
-    .xc .em-tile { padding-inline: 9px; }
-    .xc .em-tile .lab { letter-spacing: 0.04em; }
   }
 
   /* Sans mouvement — et au téléphone, qui suit la même règle.
 
      Le pouce hérite de tout ce bloc parce que le script y prend déjà le chemin
      statique (voir SEUIL_TELEPHONE). Les deux devaient rester d'accord : quand
-     le script posait « Fiable » à son état final mais que la feuille de style
+     le script posait la vérification à son état final mais que la feuille de style
      gardait ses arguments à opacité nulle et hauteur nulle, le chapitre
      s'affichait à moitié effacé sur trois écrans de vide. Une seule liste de
      règles pour les deux cas, et la question ne peut plus se poser. */
@@ -2559,77 +2367,49 @@ const CSS = `
       0%, 100% { transform: translateY(-1.5px) rotate(45deg); }
       50%      { transform: translateY(1.5px) rotate(45deg); }
     }
-    /* Sans mouvement, le panneau cesse de tourner : les quatre affirmations
-       reprennent leur rang unique et se lisent d'un coup, réparties comme au
-       large. Personne ne perd d'information parce qu'il a demandé moins
-       d'animation. */
-    @media (prefers-reduced-motion: reduce) {
-      .xc #preuves { height: auto; padding-block: 12px; }
-      .xc .pv-track {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px 18px;
-      }
-      .xc #preuves span {
-        position: static;
-        inset: auto;
-        height: auto;
-        opacity: 1;
-        transform: none;
-        animation: none;
-        font-size: var(--t-menu);
-      }
-      .xc .pv-track.clone { display: none; }
-    }
-
-    /* Sans mouvement, les trois points des trois piliers se lisent à la
+    /* Sans mouvement, les points des deux scènes se lisent à la
        suite, tous posés et tous en encre pleine : il n'y a plus de « point en
        cours » quand il n'y a plus de défilement qui le désigne. Sans cette
        règle, le script figerait la scène à son dernier temps et les points non
        encore venus resteraient transparents.
 
-       Une seule déclaration pour les trois chapitres, puisqu'ils partagent
+       Une seule déclaration pour les deux scènes, puisqu'elles partagent
        désormais la même grammaire. */
-    .xc.anime #zone-simple .si-arg,
-    .xc.anime #zone-fiable .fi-arg,
-    .xc.anime #zone-complet .co-arg {
-      opacity: 1;
-      transform: none;
+    .xc.anime #zone-verification .fi-arg,
+    .xc.anime #zone-parcours .co-arg {
       padding: var(--pad-argument, 11px) 0;
+      transform: none;
+      transition: none;
     }
-    .xc.anime #zone-simple .si-arg .e,
-    .xc.anime #zone-fiable .fi-arg .e,
-    .xc.anime #zone-complet .co-arg .e {
+    .xc.anime #zone-verification .fi-arg .e,
+    .xc.anime #zone-parcours .co-arg .e {
       color: var(--si-ink);
     }
-    .xc.anime #zone-fiable .fi-vue-zone { min-height: 0; }
-    .xc.anime #zone-fiable .fi-vue {
+    .xc.anime #zone-verification .fi-vue-zone { min-height: 0; }
+    .xc.anime #zone-verification .fi-vue {
       position: static;
       opacity: 1;
       transform: none;
       pointer-events: auto;
       margin-top: 24px;
     }
-    .xc.anime #zone-simple .em-corps { height: auto; }
 
     /* ── Les écrans de démonstration se lisent tous, à la suite ─────────────
-       Les trois chapitres montrent plusieurs états du logiciel dans un même
+       Les deux scènes montrent plusieurs états du logiciel dans un même
        cadre, en les faisant se relayer : une classe « on » passe de l'un à
        l'autre au fil du défilement, sur une transition d'opacité de 240 ms.
 
        Dépinglés et remis dans le flux, ces écrans occupent chacun leur place
        dans la page, mais un seul portait encore la classe « on » : les autres
-       gardaient leur hauteur en restant invisibles. Mesuré sur « Simple » :
-       536 px de vide entre deux démonstrations, et davantage sur « Complet ».
+       gardaient leur hauteur en restant invisibles. Mesuré à l'époque : plus de
+       500 px de vide entre deux démonstrations.
 
        Deux déclarations, pas une. L'opacité en « !important » reprend la main sur
        la règle de relais, qui vise la même propriété avec autant de poids ; et
        la transition est coupée, sinon une bascule de « on » arrivant après la
        pose statique relancerait un fondu vers un état qu'on vient de fixer. */
-    .xc.anime #zone-simple .em-ecran,
-    .xc.anime #zone-fiable .fi-vue,
-    .xc.anime #zone-complet .co-vue {
+    .xc.anime #zone-verification .fi-vue,
+    .xc.anime #zone-parcours .co-vue {
       position: static;
       opacity: 1 !important;
       transform: none !important;
@@ -2637,23 +2417,20 @@ const CSS = `
       pointer-events: auto;
     }
 
-    /* « Complet » suit la même règle : sans mouvement, les trois moments sont
+    /* Le parcours suit la même règle : sans mouvement, ses cinq moments sont
        déjà à leur forme finale et le parcours s'affiche en entier. */
-    .xc.anime #zone-complet .co-fin { opacity: 1; }
-    .xc.anime #zone-complet .co-vue-zone { min-height: 0; }
-    .xc.anime #zone-complet .co-vue {
+    .xc.anime #zone-parcours .co-fin { opacity: 1; }
+    .xc.anime #zone-parcours .co-vue-zone { min-height: 0; }
+    .xc.anime #zone-parcours .co-vue {
       position: static;
       opacity: 1;
       transform: none;
       pointer-events: auto;
       margin-top: 22px;
     }
-    .xc.anime #zone-complet .co-item,
-    .xc.anime #zone-complet .co-dit { opacity: 1; transform: none; }
-    .xc.anime #zone-fiable .fi-src[data-src],
-    .xc.anime #zone-fiable .fi-temps,
-    .xc.anime #zone-fiable .fi-dit,
-    .xc.anime #zone-fiable .fi-refus { opacity: 1; transform: none; }
+    .xc.anime #zone-parcours .co-item,
+    .xc.anime #zone-parcours .co-dit { opacity: 1; transform: none; }
+    .xc.anime [data-ligne] { opacity: 1; transform: none; }
   }
   /* ═══════════════════════════════════════════════════════════════════════
      TÉLÉPHONE · L'ÉCRAN RÉPOND À LA CARTE
@@ -2672,24 +2449,21 @@ const CSS = `
      La scène garde une hauteur fixe : sans elle, passer d'un écran court à un
      écran long ferait sauter la page sous le doigt pendant le geste. */
   @media (max-width: 860px) and (prefers-reduced-motion: no-preference) {
-    .xc.anime #zone-simple .em-ecran,
-    .xc.anime #zone-fiable .fi-vue,
-    .xc.anime #zone-complet .co-vue {
+    .xc.anime #zone-verification .fi-vue,
+    .xc.anime #zone-parcours .co-vue {
       position: absolute;
       inset: 0;
       opacity: 0 !important;
       transition: opacity 260ms ease;
       pointer-events: none;
     }
-    .xc.anime #zone-simple .em-ecran.on,
-    .xc.anime #zone-fiable .fi-vue.on,
-    .xc.anime #zone-complet .co-vue.on {
+    .xc.anime #zone-verification .fi-vue.on,
+    .xc.anime #zone-parcours .co-vue.on {
       opacity: 1 !important;
       pointer-events: auto;
     }
-    .xc.anime #zone-simple .em-corps,
-    .xc.anime #zone-fiable .fi-vue-zone,
-    .xc.anime #zone-complet .co-vue-zone {
+    .xc.anime #zone-verification .fi-vue-zone,
+    .xc.anime #zone-parcours .co-vue-zone {
       position: relative;
       min-height: 420px;
     }
@@ -2707,9 +2481,8 @@ const CSS = `
        Le retrait est donc redonné ici, à spécificité égale et plus bas dans la
        feuille. Trente pixels sur les côtés : le texte respire des deux bords
        au lieu de les toucher. */
-    .xc.anime #zone-simple .si-arg,
-    .xc.anime #zone-fiable .fi-arg,
-    .xc.anime #zone-complet .co-arg {
+    .xc.anime #zone-verification .fi-arg,
+    .xc.anime #zone-parcours .co-arg {
       padding: 28px 30px 30px;
     }
   }
@@ -2739,8 +2512,28 @@ function runExperience(root: HTMLElement): () => void {
      classe n'est pas posée, tout le texte s'affiche normalement. */
   root.classList.add("anime");
 
+  /* Les teintes du canevas d'assemblage.
+
+     Elles étaient écrites en dur, et elles portaient l'ancienne direction
+     claire verdâtre : les feuilles qui s'assemblent se peignaient en #FBFCFA
+     sur une page devenue #EBEDEF, donc l'ouverture était la seule surface du
+     site à ne pas suivre la palette (L5, aucune valeur brute).
+
+     Un canevas ne comprend pas une variable CSS : il faut la lui lire. Les
+     valeurs sont donc prises sur l'élément racine au montage, une fois, et
+     c'est la palette qui décide. Les valeurs de repli ne servent que si le
+     style n'est pas encore appliqué. */
+  const jetons = getComputedStyle(root);
+  const jeton = (nom: string, repli: string) =>
+    jetons.getPropertyValue(nom).trim() || repli;
+  const encreRgb = jeton("--si-line-ink-rgb", "26 26 26");
   const COL = {
-    bg: "#EFF2ED", surface: "#FBFCFA", line: "rgba(31,42,36,0.08)",
+    bg: jeton("--bg", "#EBEDEF"),
+    surface: jeton("--surface", "#FFFFFF"),
+    line: jeton("--line", "rgb(26 26 26 / 0.11)"),
+    /* L'ombre de la fenêtre qui se forme. Elle était teintée forêt, d'une
+       époque où l'encre du site l'était aussi. Elle prend l'encre courante. */
+    ombre: (a: number) => "rgb(" + encreRgb + " / " + a + ")",
   };
 
   const $ = (id: string) => root.querySelector<HTMLElement>("#" + id)!;
@@ -2765,7 +2558,6 @@ function runExperience(root: HTMLElement): () => void {
      coup dès le premier pixel de défilement, ce qui se lit comme une secousse.
      Celle-ci part de zéro et arrive à zéro, donc le texte s'installe au lieu
      d'être jeté à sa place (décision CEO du 13 août 2026). */
-  const easeDoux = (t: number) => t * t * (3 - 2 * t);
   const fmt = (n: number) =>
     n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " $";
 
@@ -2815,40 +2607,73 @@ function runExperience(root: HTMLElement): () => void {
      largeur borne, `frameW = W * 0.88`. */
   const FRAME_W = 1000;
   const FRAME_H = 563;
-  /* Les cibles ci-dessous sont décrites dans l'espace 1000x625 d'origine. On
-     les ramène au nouveau format par un facteur unique : plus sûr que de
-     réécrire trente coordonnées à la main. */
-  const TARGET_VS = FRAME_H / 625;
+  /* ── L'assemblage de la marque ────────────────────────────────────────────
+     La scène d'ouverture, et la seule chose de la page qui DÉMONTRE le titre
+     au lieu de l'affirmer : des pièces éparpillées se rassemblent en une
+     marque, et cette marque devient l'application.
 
-  function dashboardTargets() {
-    const t: Array<{ x: number; y: number; w: number; h: number }> = [];
-    t.push({ x: 24, y: 20, w: 180, h: 16 });
-    t.push({ x: 796, y: 20, w: 74, h: 16 });
-    t.push({ x: 884, y: 20, w: 92, h: 16 });
-    for (let i = 0; i < 5; i++) t.push({ x: 24, y: 74 + i * 34, w: 132, h: 14 });
-    t.push({ x: 188, y: 66, w: 240, h: 108 });
-    t.push({ x: 444, y: 66, w: 240, h: 108 });
-    t.push({ x: 700, y: 66, w: 276, h: 108 });
-    t.push({ x: 188, y: 198, w: 496, h: 252 });
-    for (let j = 0; j < 5; j++) t.push({ x: 700, y: 198 + j * 52, w: 276, h: 40 });
-    t.push({ x: 188, y: 474, w: 496, h: 26 });
-    t.push({ x: 188, y: 512, w: 496, h: 26 });
-    t.push({ x: 700, y: 474, w: 276, h: 64 });
-    return t.map((c) => ({ ...c, y: c.y * TARGET_VS, h: c.h * TARGET_VS }));
-  }
+     « L'Assemblage » est fait de deux volumes imbriqués, une pièce gauche et
+     une pièce droite. La scène les prend au mot :
 
+       1. LE DÉSORDRE. Une vingtaine de pièces détachées, gauches et droites
+          mêlées, dispersées et de travers. Aucune n'est à sa place, et on voit
+          bien que ce sont deux pièces différentes qui traînent.
+       2. LE RASSEMBLEMENT. Le défilement les ramène toutes vers le centre :
+          les gauches sur la gauche du repère, les droites sur sa droite. Les
+          vingt pièces se superposent exactement et il n'en reste qu'une de
+          chaque. Un seul logo, net, au milieu.
+       3. LA RELÈVE. Le logo rejoint le repère de la barre de l'application, en
+          rétrécissant jusqu'à sa taille, pendant que l'application apparaît.
+          Les pièces deviennent un logo, et ce logo devient le logo du logiciel.
+
+     Elle était réservée au téléphone. Le large jouait autre chose : des
+     rectangles pâles qui se rangeaient en tableau de bord. Même idée, autre
+     vocabulaire, et la marque n'y apparaissait jamais. Les deux chemins jouent
+     donc la même scène depuis le 21 août 2026, et elle n'est écrite qu'une
+     fois : seuls changent la taille du logo assemblé, le minutage, et ce qui
+     brasse les pièces avant qu'elles ne se rangent.
+
+     Les tracés viennent de safe-mark.ts, seule source des formes du logo
+     (CLAUDE.md) : Path2D les accepte tels quels, et le repère vit dans un
+     carré de 24, donc une seule mise à l'échelle suffit. */
+  const PIECE_A = new Path2D(ASSEMBLY_PIECE_A_PATH);
+  const PIECE_B = new Path2D(ASSEMBLY_PIECE_B_PATH);
+  /* Repère du dessin : la pièce A occupe la moitié gauche du carré de 24, la
+     pièce B la moitié droite. Chacune est ramenée à son propre centre pour
+     pouvoir tourner sur elle-même pendant la dérive. */
+  const CENTRES = [
+    { path: PIECE_A, cx: 8.1, cy: 12, teinte: SAFE_PALETTE.forest },
+    { path: PIECE_B, cx: 15.9, cy: 12, teinte: SAFE_PALETTE.emeraude },
+  ];
+
+  /* Vingt pièces. Douze remplissaient mal une fenêtre entière une fois les
+     pièces réduites ; vingt donnent la sensation d'un tas, ce que le mot
+     « désordre » suppose (retour CEO du 18 août 2026). Elles se superposent
+     toutes sur deux positions à l'arrivée, donc le logo final reste net quel
+     qu'en soit le nombre. */
+  const NB_PIECES = 20;
   const rnd = mulberry32(20260725);
-  const papers = dashboardTargets().map((tg, i) => ({
-    tg,
-    sx: rnd(), sy: rnd(),
-    sr: (rnd() - 0.5) * 1.4,
-    sw: 34 + rnd() * 52, sh: 22 + rnd() * 30,
-    drift: rnd() * Math.PI * 2,
-    delay: (i % 7) / 7 * 0.3,
+  const pieces = Array.from({ length: NB_PIECES }, (_, i) => ({
+    type: i % 2,
+    sx: rnd(),
+    sy: rnd(),
+    sr: (rnd() - 0.5) * 2.2,
+    /* Une pièce détachée doit se lire comme un fragment, pas comme un panneau
+       (retour CEO du 18 août 2026). */
+    taille: 0.16 + rnd() * 0.22,
+    derive: rnd() * Math.PI * 2,
+    /* Profondeur : une pièce proche suit le geste davantage qu'une pièce
+       lointaine. C'est ce qui fait le relief plutôt qu'un bloc qui coulisse. */
+    fond: 0.4 + rnd() * 0.9,
+    retard: (i / NB_PIECES) * 0.34,
+    /* Une pièce sur quatre part de la marge gauche, les autres de la bande de
+       droite. Ne sert qu'au large, où le titre occupe la colonne du milieu. */
+    bord: i % 4 === 0,
+    /* Écart accumulé sous la poussée du curseur, et sa vitesse. */
     ox: 0, oy: 0, vx: 0, vy: 0,
   }));
 
-  /* le curseur brasse les papiers tant qu'ils ne sont pas rangés */
+  /* le curseur brasse les pièces tant qu'elles ne sont pas rangées */
   const pointer = { x: -9999, y: -9999, speed: 0 };
   const onPointerMove = (e: PointerEvent) => {
     const r = heroCanvas.getBoundingClientRect();
@@ -2857,6 +2682,156 @@ function runExperience(root: HTMLElement): () => void {
     pointer.x = nx; pointer.y = ny;
   };
   window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+  /**
+   * Où la relève dépose le logo : le repère de la barre de l'application, celui
+   * qui est en haut à gauche de la fenêtre.
+   *
+   * La cible est MESURÉE sur le vrai élément, pas devinée : le cadrage de la
+   * fenêtre peut changer, la marque restera au bon endroit.
+   */
+  function cibleMarque(W: number, H: number) {
+    const repere = heroShot.querySelector<HTMLElement>(".ha-brand .mark");
+    const rCadre = heroCanvas.getBoundingClientRect();
+    let x = W / 2, y = H * 0.42, cote = 17;
+    if (repere) {
+      const rr = repere.getBoundingClientRect();
+      if (rr.width > 0) {
+        x = rr.left - rCadre.left + rr.width / 2;
+        y = rr.top - rCadre.top + rr.height / 2;
+        cote = rr.width;
+      }
+    }
+    return { x, y, cote };
+  }
+
+  type ReglageAssemblage = {
+    /** Bornes du rassemblement, en progression de scène. */
+    rassemble: [number, number];
+    /** Bornes de la relève vers le repère de l'application. */
+    releve: [number, number];
+    /** Côté du logo une fois rassemblé, en pixels. */
+    grand: number;
+    /** Inclinaison de l'appareil, de -1 à 1. Zéro au large. */
+    roulis?: number;
+    /** Le curseur pousse les pièces libres. Vrai au large seulement. */
+    curseur?: boolean;
+    /** Où la marque se rassemble, en fraction de largeur. 0,5 par défaut.
+
+        Au pouce, le centre est vide : la scène vit sous le texte. Au large, le
+        titre tient la moitié gauche, et une marque rassemblée au milieu se
+        pose sur sa dernière ligne pendant qu'elle finit de s'effacer. Elle se
+        rassemble donc un peu à droite, dans l'espace que les pièces occupaient
+        déjà, et sa relève vers le repère de l'application n'en devient que
+        plus lisible : elle traverse la fenêtre au lieu d'y tomber. */
+    centre?: number;
+    /** Les pièces partent des marges au lieu de toute la surface.
+
+        Au pouce, la scène vit sous l'appel à l'action : elle peut occuper
+        toute sa fenêtre sans rien recouvrir. Au large, le titre tient la
+        colonne du milieu, et des pièces qui lui passent dessus font du
+        désordre par-dessus du texte, pas une ouverture (retour CEO du 18 août
+        2026, sur le pouce, qui vaut ici aussi). Elles l'encadrent donc : la
+        bande de droite, un peu la marge de gauche, jamais la colonne de
+        lecture. Elles la traversent seulement pour se rassembler, quand le
+        titre a fini de s'effacer. */
+    marges?: boolean;
+  };
+
+  function dessinerAssemblage(
+    ctx: CanvasRenderingContext2D,
+    W: number,
+    H: number,
+    p: number,
+    temps: number,
+    r: ReglageAssemblage
+  ) {
+    const releve = easeInOut(phase(p, r.releve[0], r.releve[1]));
+    /* Une fois la relève terminée, il n'y a plus rien à dessiner : c'est
+       l'application qui occupe la place. */
+    if (releve >= 1) return;
+
+    const fin = cibleMarque(W, H);
+    const cote = lerp(r.grand, fin.cote, releve);
+    const cx = lerp(W * (r.centre ?? 0.5), fin.x, releve);
+    const cy = lerp(H / 2, fin.y, releve);
+    const avance = easeInOut(phase(p, r.rassemble[0], r.rassemble[1]));
+
+    pieces.forEach((pc) => {
+      const local = easeOutCubic(phase(avance, pc.retard, 1));
+      const d = CENTRES[pc.type];
+
+      /* Dérive : elle s'éteint à mesure que la pièce rejoint sa place. */
+      const dx = Math.sin(temps * 0.00042 + pc.derive) * 16 * (1 - local);
+      const dy = Math.cos(temps * 0.00034 + pc.derive * 1.7) * 12 * (1 - local);
+      /* L'inclinaison, pondérée par la profondeur. Elle s'éteint elle aussi
+         une fois la pièce en place : un logo assemblé ne flotte pas au gré du
+         poignet. */
+      const roulis = (r.roulis ?? 0) * pc.fond * 26 * (1 - local);
+
+      /* Départ dispersé, arrivée sur le repère. Les gauches et les droites
+         gardent leur côté : une pièce ne traverse jamais le logo. */
+      const etale = r.marges
+        ? pc.bord
+          ? 0.01 + pc.sx * 0.13
+          : 0.66 + pc.sx * 0.33
+        : pc.sx * 1.02 - 0.01;
+      const x0 = etale * W + dx + roulis;
+      const y0 = pc.sy * H * 0.94 + H * 0.03 + dy;
+      const x1 = cx + (d.cx - 12) * (cote / 24);
+      const y1 = cy + (d.cy - 12) * (cote / 24);
+
+      /* La taille suit le trajet, mais avec du retard.
+
+         Position et taille partageaient la même course : à mi-chemin, une
+         pièce était déjà à moitié grandie ET encore à moitié dispersée, donc
+         des formes de cent cinquante pixels traversaient la colonne du titre.
+         Au pouce ça ne se voyait pas, la scène vit sous le texte ; au large,
+         c'est exactement le désordre par-dessus du texte qu'on refuse.
+
+         Là où les marges protègent une colonne de lecture, le fragment reste
+         donc petit pendant qu'il voyage et ne prend sa taille que sur la fin,
+         quand les vingt pièces sont déjà empilées au centre. On voit des
+         fragments se rejoindre, puis une marque apparaître, au lieu de deux
+         gestes mélangés. */
+      const grossit = r.marges ? easeOutCubic(clamp01((local - 0.42) / 0.58)) : local;
+      const ech = lerp(cote * pc.taille, cote, grossit) / 24;
+      let x = lerp(x0, x1, local);
+      let y = lerp(y0, y1, local);
+      let rot = pc.sr * (1 - local);
+
+      const libre = 1 - local;
+      if (r.curseur && libre > 0.02) {
+        const ex = x + pc.ox - pointer.x;
+        const ey = y + pc.oy - pointer.y;
+        const dist = Math.hypot(ex, ey);
+        const R = 170;
+        if (dist < R && dist > 0.001) {
+          const force = (1 - dist / R) * (0.9 + pointer.speed * 0.12) * libre;
+          pc.vx += (ex / dist) * force * 3.2;
+          pc.vy += (ey / dist) * force * 3.2;
+        }
+        pc.vx *= 0.88; pc.vy *= 0.88;
+        pc.ox = (pc.ox + pc.vx) * 0.965;
+        pc.oy = (pc.oy + pc.vy) * 0.965;
+        x += pc.ox * libre;
+        y += pc.oy * libre;
+        rot += pc.ox * 0.0022 * libre;
+      } else if (r.curseur) {
+        pc.ox *= 0.8; pc.oy *= 0.8; pc.vx = 0; pc.vy = 0;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = lerp(0.5, 1, local) * (1 - releve);
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(ech, ech);
+      ctx.translate(-d.cx, -d.cy);
+      ctx.fillStyle = d.teinte;
+      ctx.fill(d.path);
+      ctx.restore();
+    });
+  }
 
   function drawHero(p: number, time: number) {
     const f = fitCanvas(heroCanvas);
@@ -2886,16 +2861,16 @@ function runExperience(root: HTMLElement): () => void {
        laisser le temps de cliquer. */
     const fy = lerp(H * 0.58, (H - frameH) / 2 + H * 0.015, phase(p, 0.20, 0.52));
 
-    const assemble = easeInOut(phase(p, 0.12, 0.50));
-
-    const frameA = phase(p, 0.32, 0.54);
+    /* Le cadre d'abord, les pièces par-dessus : le logo vient se poser SUR la
+       fenêtre, puis rentre dans sa barre. */
+    const frameA = phase(p, 0.42, 0.62);
     if (frameA > 0) {
       ctx.save();
       ctx.globalAlpha = frameA;
       ctx.fillStyle = COL.surface;
       ctx.strokeStyle = COL.line;
       roundRect(ctx, fx, fy, frameW, frameH, 14 * scale);
-      ctx.shadowColor = "rgba(11,31,25,0.28)";
+      ctx.shadowColor = COL.ombre(0.28);
       ctx.shadowBlur = 60 * scale;
       ctx.shadowOffsetY = 30 * scale;
       ctx.fill();
@@ -2904,62 +2879,29 @@ function runExperience(root: HTMLElement): () => void {
       ctx.restore();
     }
 
-    papers.forEach((pp) => {
-      const local = easeOutCubic(phase(assemble, pp.delay, 1));
-      const driftX = Math.sin(time * 0.0004 + pp.drift) * 14 * (1 - local);
-      const driftY = Math.cos(time * 0.00032 + pp.drift * 1.7) * 10 * (1 - local);
-      const x0 = pp.sx * W * 0.9 + W * 0.05 + driftX;
-      const y0 = pp.sy * H * 0.85 + H * 0.05 + driftY;
-      const x1 = fx + pp.tg.x * scale, y1 = fy + pp.tg.y * scale;
-      const w = lerp(pp.sw, pp.tg.w * scale, local);
-      const h = lerp(pp.sh, pp.tg.h * scale, local);
-      let x = lerp(x0, x1, local), y = lerp(y0, y1, local);
-      let rot = pp.sr * (1 - local);
+    /* Le minutage du large. Il est plus serré que celui du pouce parce que la
+       course est plus longue : le rassemblement se termine quand le titre a
+       fini de s'effacer, la relève emmène le logo pendant que l'application
+       se pose, et tout est terminé à 0,60. Le reste de la scène est une plage
+       de repos où l'on se sert du menu. Un décor qui invite au clic doit
+       laisser le temps de cliquer.
 
-      const free = 1 - local;
-      if (free > 0.02 && !REDUCED) {
-        const dx = (x + w / 2 + pp.ox) - pointer.x;
-        const dy = (y + h / 2 + pp.oy) - pointer.y;
-        const d = Math.hypot(dx, dy);
-        const R = 170;
-        if (d < R && d > 0.001) {
-          const force = (1 - d / R) * (0.9 + pointer.speed * 0.12) * free;
-          pp.vx += (dx / d) * force * 3.2;
-          pp.vy += (dy / d) * force * 3.2;
-        }
-        pp.vx *= 0.88; pp.vy *= 0.88;
-        pp.ox = (pp.ox + pp.vx) * 0.965;
-        pp.oy = (pp.oy + pp.vy) * 0.965;
-        x += pp.ox * free;
-        y += pp.oy * free;
-        rot += pp.ox * 0.0022 * free;
-      } else {
-        pp.ox *= 0.8; pp.oy *= 0.8; pp.vx = 0; pp.vy = 0;
-      }
-
-      ctx.save();
-      ctx.translate(x + w / 2, y + h / 2);
-      ctx.rotate(rot);
-      const isCard = pp.tg.h > 60;
-      ctx.globalAlpha = lerp(0.85, isCard ? 1 : 0.9, local);
-      ctx.fillStyle = local > 0.7 && isCard ? COL.bg : COL.surface;
-      ctx.strokeStyle = COL.line;
-      roundRect(ctx, -w / 2, -h / 2, w, h, Math.min(8, h * 0.3));
-      if (local < 0.7) {
-        ctx.shadowColor = "rgba(11,31,25,0.16)";
-        ctx.shadowBlur = 18;
-        ctx.shadowOffsetY = 8;
-      }
-      ctx.fill();
-      ctx.shadowColor = "transparent";
-      ctx.stroke();
-      ctx.restore();
+       La taille du logo assemblé est bornée par la largeur ET par la hauteur :
+       sur un écran large, un logo réglé sur la seule hauteur deviendrait un
+       panneau au milieu de la page. */
+    dessinerAssemblage(ctx, W, H, p, time, {
+      rassemble: [0.14, 0.54],
+      releve: [0.54, 0.72],
+      grand: Math.min(W * 0.22, H * 0.42),
+      curseur: !REDUCED,
+      marges: true,
+      centre: 0.6,
     });
 
     /* L'extrait est dessiné dans sa boîte logique 1000x563 puis mis à
        l'échelle : la typographie reste nette au lieu d'être rééchantillonnée
        comme l'était la capture. */
-    const shotA = phase(p, 0.44, 0.58);
+    const shotA = phase(p, 0.56, 0.72);
     heroShot.style.left = fx + "px";
     heroShot.style.top = fy + "px";
     heroShot.style.transform = "scale(" + scale + ")";
@@ -2967,18 +2909,23 @@ function runExperience(root: HTMLElement): () => void {
     heroShot.style.opacity = String(easeInOut(shotA));
     /* Cliquable dès que le fondu est terminé (0.58), pas plus tard : le seuil
        précédent laissait voir une application finie mais inerte. */
-    heroShot.classList.toggle("live", p > 0.59);
+    heroShot.classList.toggle("live", p > 0.73);
 
-    const lift = easeInOut(phase(p, 0.18, 0.44));
-    const copyA = 1 - phase(p, 0.24, 0.46);
+    const lift = easeInOut(phase(p, 0.14, 0.34));
+    /* Le titre s'efface entre 18 et 34 % de la course, soit avant que les
+       pièces ne grandissent (elles prennent leur taille à partir de 42 % de
+       leur propre trajet, voir dessinerAssemblage). Réglé plus tard, on voyait
+       une masse verte posée sur un titre à demi effacé : deux gestes en même
+       temps, donc aucun des deux. */
+    const copyA = 1 - phase(p, 0.18, 0.34);
     heroCopy.style.transform = "translateY(" + (-lift * 9) + "vh)";
     heroCopy.style.opacity = String(copyA);
     /* Le titre porte désormais une action, donc une zone saisissable. Estompée,
        elle intercepterait les clics destinés au menu de l'application, comme le
        faisait le titre lui-même avant d'être neutralisé. */
     heroCopy.style.visibility = copyA > 0.2 ? "visible" : "hidden";
-    heroCaption.style.opacity = String(phase(p, 0.56, 0.64));
-    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.56, 0.64)) * 12) + "px)";
+    heroCaption.style.opacity = String(phase(p, 0.70, 0.78));
+    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.70, 0.78)) * 12) + "px)";
     heroHint.style.opacity = String(p < 0.04 ? 1 : 0);
   }
 
@@ -3058,199 +3005,87 @@ function runExperience(root: HTMLElement): () => void {
     pin.style.minHeight = (haut + FRAME_H * scale + 108) + "px";
   }
 
-  /**
-   * Montée sous masque. L'élément part sous son arête et remonte à sa place.
-   * `decalage` en pourcentage de sa propre hauteur. L'opacité prend un peu
-   * d'avance pour que le texte ne paraisse jamais sale pendant la course.
-   *
-   * Le décalage était d'une hauteur de ligne entière : la phrase traversait
-   * toute sa boîte à chaque apparition. Une demi-hauteur suffit à donner le
-   * geste, et le mouvement cesse d'attirer l'œil plus que le mot. L'avance de
-   * l'opacité est réduite d'autant : à 1,6 le texte était déjà opaque au tiers
-   * de la course, et la fin du mouvement se voyait toute seule.
-   */
-  function monter(el: HTMLElement, t: number, decalage = 55) {
-    const e = easeDoux(clamp01(t));
-    el.style.transform = "translateY(" + ((1 - e) * decalage) + "%)";
-    el.style.opacity = String(easeDoux(clamp01(t * 1.25)));
+  /* ── Une seule mécanique pour les deux démonstrations ────────────────────
+     La page en gardait trois, écrites trois fois, avec chacune ses bornes,
+     son compteur de temps et sa façon de désigner le point courant. Elles
+     faisaient toutes la même chose : découper une course de défilement en
+     étapes, montrer l'écran de l'étape en cours, et dire lequel des points
+     écrits à côté cet écran est en train de prouver.
+
+     C'est donc écrit une fois. Une scène déclare ses étapes dans le balisage
+     (`data-etape` pour un point, `data-vue` pour l'écran qui lui répond,
+     `data-ligne` pour ce qui se pose ligne à ligne dedans) et la mécanique se
+     charge du reste. Ajouter une étape est un ajout de balisage, pas un
+     réglage de bornes.
+
+     Ce qui a changé de nature : les points ne sont plus révélés, ils sont
+     DÉSIGNÉS. Ils vivent tous à l'écran dès l'arrivée dans la section, et le
+     défilement ne fait qu'indiquer lequel des cinq est démontré en ce moment.
+     Une page dont le texte n'existe qu'après le geste ne se lit pas, elle se
+     mérite. */
+  type Scene = {
+    /** Pose la scène à l'étape `t`. Appelée par le défilement, et par le doigt
+     *  sur le carrousel du téléphone. */
+    poser: (t: number) => void;
+    /** Joue la scène à la progression `p` (0 à 1) de sa course épinglée. */
+    draw: (p: number) => void;
+  };
+
+  function sceneEtapes(
+    zoneId: string,
+    ou: string[],
+    pendant?: (t: number, q: number) => void
+  ): Scene {
+    const zone = $(zoneId);
+    const args = $$("#" + zoneId + " [data-etape]");
+    const vues = $$("#" + zoneId + " [data-vue]");
+    const libelle = zone.querySelector<HTMLElement>("[data-ou]");
+    const lignes = vues.map((v) =>
+      Array.prototype.slice.call(v.querySelectorAll("[data-ligne]")) as HTMLElement[]
+    );
+    const n = Math.max(1, vues.length);
+    let courant = -1;
+
+    function poser(t: number) {
+      const i = t < 0 ? 0 : t > n - 1 ? n - 1 : t;
+      if (i === courant) return;
+      courant = i;
+      args.forEach((el, k) => el.classList.toggle("actif", k === i));
+      vues.forEach((el, k) => el.classList.toggle("on", k === i));
+      if (libelle) libelle.textContent = ou[i] || "";
+      /* Les autres écrans sont posés à leur état complet : on peut y revenir
+         par le rail ou en remontant sans qu'ils se rejouent. */
+      lignes.forEach((ls, k) => {
+        if (k !== i) ls.forEach((el) => el.classList.add("on"));
+      });
+    }
+
+    function draw(p: number) {
+      let t = Math.floor(p * n);
+      if (t > n - 1) t = n - 1;
+      if (t < 0) t = 0;
+      poser(t);
+      /* Progression à l'intérieur de l'étape courante : c'est elle qui fait
+         entrer les lignes une à une plutôt que d'un bloc. */
+      const q = clamp01(p * n - t);
+      lignes[t].forEach((el, i) => el.classList.toggle("on", q > 0.05 + i * 0.1));
+      if (pendant) pendant(t, q);
+    }
+
+    return { poser, draw };
   }
 
-  /* Chutes de chapitre. Elles n'arrivent qu'une fois le dernier argument
-     déplié : sinon on conclut un raisonnement que le visiteur lit encore. */
-  /* Ciblées par leur chapitre, pas par leur rang : « Fiable » n'a plus de
-     chute depuis sa refonte, et un index décalé aurait animé la mauvaise. */
-  const chuteSimple = root.querySelector<HTMLElement>("#zone-simple .ch-chute")!;
+  /* ── Le parcours d'un dossier ──
+     Une information entre une fois et traverse le cabinet : l'ouverture monte
+     le cartable du domaine, le travail s'y rattache, la facture se prépare
+     sans être reconstruite, le paiement se rattache à la facture, et les
+     registres suivent. Cinq étapes, cinq états du même dossier.
 
-  function chute(el: HTMLElement, t: number) {
-    if (!el) return;
-    const e = easeDoux(clamp01(t));
-    el.style.opacity = String(e);
-    el.style.transform = "translateY(" + ((1 - e) * 9) + "px)";
-  }
-
-  /* Marqueurs de chapitre : « Simple », « Fiable », « Complet ». */
-  const markSimple = $$('[data-mark="simple"]')[0];
-  const markFiable = $$('[data-mark="fiable"]')[0];
-  const markComplet = $$('[data-mark="complet"]')[0];
-
-  /**
-   * Ouvre un chapitre par son nom. Le mot monte de quelques pixels puis se
-   * pose. Il ne repart pas : c'est le titre du chapitre, pas une transition.
-   *
-   * L'agrandissement de 1,06 à 1 a été retiré : un mot de cinquante pixels qui
-   * change de taille pendant sa course est exactement la charge visuelle qu'on
-   * cherche à retirer de la page, et la mise à l'échelle rendait la lettre
-   * molle tout du long. La fenêtre passe de 14 % à 24 % de la course du
-   * chapitre : le même geste, étalé sur plus de défilement, donc plus lent à
-   * l'œil sans être plus long à lire.
-   */
-  function marqueur(el: HTMLElement, p: number) {
-    /* Jamais depuis zéro. C'est le titre du chapitre : arriver dessus par le
-       rail, ou juste après le plan précédent, ne doit pas donner un écran où
-       il manque son nom. Il entre à 0,4 et se pose. */
-    const e = easeDoux(phase(p, 0, 0.24));
-    el.style.opacity = String(0.4 + 0.6 * e);
-    el.style.transform = "translateY(" + ((1 - e) * 10) + "px)";
-  }
-
-  /* ── Chapitre 1 · La promesse ──
-     Le chapeau qui suivait la promesse a été retiré (décision CEO du 13 août
-     2026) : la phrase se suffit, et la scène ne porte plus que deux temps. */
-  const prMain = $("pr-1");
-  const prSuite = $("pr-2");
-
-  function drawPromesse(p: number) {
-    /* Deux temps nets, séparés par un silence. La seconde ligne ne commence
-       qu'une fois la première entièrement posée. */
-    monter(prMain, phase(p, 0.12, 0.56));
-    monter(prSuite, phase(p, 0.40, 0.80));
-  }
-
-  /* ── Chapitre 2 · Simple ──
-     L'accordéon a été remplacé par la progression cumulative de « Fiable » :
-     un argument arrive en grand, se réduit en point numéroté pendant que le
-     suivant arrive, et rien ne disparaît. Les trois écrans du cabinet suivent
-     l'argument en cours. */
-  const siArgs = $$("#zone-simple .si-arg");
-  const emEcrans = $$("#zone-simple .em-ecran");
-  const emOu = $("em-ou");
-  /* Le nom de l'écran dans le bandeau : on doit savoir où l'on se trouve dans
-     le logiciel, pas seulement ce qu'on y voit. */
-  const EM_OU = ["Tableau de bord", "Tableau de bord", "Temps"];
-  const SI_BORNES = [0, 0.3, 0.6, 1];
-  let siTempsCourant = -1;
-
-  function poserSimpleTemps(t: number) {
-    if (t === siTempsCourant) return;
-    siTempsCourant = t;
-    siArgs.forEach((el, i) => {
-      /* Vu : le point est arrivé et il reste. Actif : c'est celui que la
-         démonstration de droite est en train de montrer. Aucune des deux
-         classes ne change une taille, seulement une opacité et une encre. */
-      el.classList.toggle("vu", i <= t);
-      el.classList.toggle("actif", i === Math.min(t, siArgs.length - 1));
-    });
-    /* Le dernier temps pose le troisième argument, mais l'écran ne recule
-       pas : il reste sur la preuve qu'on vient de lire. */
-    const vue = Math.min(t, 2);
-    emEcrans.forEach((ec, k) => ec.classList.toggle("on", k === vue));
-    emOu.textContent = EM_OU[vue] || "";
-  }
-
-  function drawSimple(p: number) {
-    marqueur(markSimple, p);
-
-    let t = 0;
-    while (t < 2 && p >= SI_BORNES[t + 1]) t++;
-    /* Passé ce seuil, les trois points sont posés et la chute peut conclure. */
-    const fini = p > 0.88;
-    poserSimpleTemps(fini ? 3 : t);
-    /* Fenêtre élargie : sur 8 % de la course, la conclusion du chapitre
-       apparaissait presque d'un bloc. Elle prend maintenant le double de
-       défilement pour le même geste. */
-    chute(chuteSimple, phase(p, 0.84, 1));
-  }
-
-  /* ── Chapitre 3 · Fiable ──
-     Quatre temps sur la course : trois moments racontés, puis la synthèse qui
-     les rassemble. Chaque moment a sa vue dans l'écran de droite, et la
-     quatrième vue ramène le rapprochement à la concordance : la démonstration
-     se termine en ordre, pas sur un refus. */
-  const fiableZone = $("zone-fiable");
-  const fiArgs = $$("#zone-fiable .fi-arg");
-  const fiVues = $$("#zone-fiable .fi-vue");
-  const fiOu = $("fi-ou");
-  const fiSrcs = $$("#zone-fiable .fi-src[data-src]");
-  const fiTemps = $$("#zone-fiable .fi-temps");
-  const fiDit0 = $("fi-dit-0");
-  const fiDit1 = $("fi-dit-1");
-  const fiDit3 = $("fi-dit-3");
-  const fiRefus = $("fi-refus");
-
-  /* Où l'on se trouve dans le logiciel, temps par temps. */
-  const FI_OU = [
-    "Rapprochement · juin 2026",
-    "Journal du dossier · juin 2026",
-    "Retrait · fidéicommis",
-    "Rapprochement · juin 2026",
-  ];
-  const FI_BORNES = [0, 0.26, 0.52, 0.76, 1];
-  let fiTempsCourant = -1;
-
-  function poserFiableTemps(t: number) {
-    if (t === fiTempsCourant) return;
-    fiTempsCourant = t;
-    /* Ce qui a déjà été démontré est rangé, ce qui se démontre est en grand,
-       ce qui vient ne prend pas encore de place. Au dernier temps, les trois
-       sont rangés : la synthèse n'est pas un nouveau bloc, c'est l'état final
-       des arguments eux-mêmes. */
-    fiArgs.forEach((el, i) => {
-      el.classList.toggle("vu", i <= t);
-      el.classList.toggle("actif", i === Math.min(t, fiArgs.length - 1));
-    });
-    fiVues.forEach((el, i) => el.classList.toggle("on", i === t));
-    fiOu.textContent = FI_OU[t] || "";
-  }
-
-  function drawFiable(p: number) {
-    marqueur(markFiable, p);
-
-    let t = 0;
-    while (t < 3 && p >= FI_BORNES[t + 1]) t++;
-    poserFiableTemps(t);
-    /* Progression à l'intérieur du temps courant : c'est elle qui fait entrer
-       les lignes une à une plutôt que d'un bloc. */
-    const q = phase(p, FI_BORNES[t], FI_BORNES[t + 1]);
-
-    /* Trois sources qui se posent l'une après l'autre : on comprend qu'elles
-       viennent d'endroits différents avant de constater qu'elles disent la
-       même chose. */
-    fiSrcs.forEach((el, i) => el.classList.toggle("on", t > 0 || q > 0.05 + i * 0.15));
-    fiDit0.classList.toggle("on", t > 0 || q > 0.62);
-
-    fiTemps.forEach((el, i) => el.classList.toggle("on", t > 1 || (t === 1 && q > 0.05 + i * 0.28)));
-    fiDit1.classList.toggle("on", t > 1 || (t === 1 && q > 0.66));
-
-    /* Le refus arrive après les deux montants : on voit ce qui est demandé,
-       puis pourquoi le système s'y oppose. */
-    fiRefus.classList.toggle("on", t > 2 || (t === 2 && q > 0.34));
-    fiDit3.classList.toggle("on", t === 3 && q > 0.14);
-  }
-
-  /* ── Chapitre 4 · Complet ──
-     Un dossier, du premier écran à la dernière écriture. Trois moments qui se
-     rangent comme dans « Fiable », mais un rythme un peu plus continu : les
-     temps s'enchaînent sans marge morte, parce qu'ils racontent un parcours et
-     non trois garanties séparées. */
-  const completZone = $("zone-complet");
-  const coArgs = $$("#zone-complet .co-arg");
-  const coVues = $$("#zone-complet .co-vue");
-  const coOu = $("co-ou");
-  const coFin = $("co-fin");
+     Les sections de cartable et leurs sources viennent de
+     `lib/dossiers/cartable-templates` : ce sont celles que le produit monte
+     réellement à l'ouverture. */
+  const parcoursZone = $("zone-parcours");
   const coCartable = $$("#co-cartable .co-item");
-  const coOps = $$('#zone-complet [data-op]');
-  const coFins = $$('#zone-complet [data-fin]');
-  const coDit = $("co-dit");
   const coDomaineNom = $("co-domaine-nom");
   const coSous = $("co-sous");
   const coCart1 = $("co-cart-1");
@@ -3258,14 +3093,10 @@ function runExperience(root: HTMLElement): () => void {
   const coCart3 = $("co-cart-3");
   const coCart3s = $("co-cart-3s");
 
-  const CO_OU = ["Nouveau dossier", "Dossier en cours", "Fin de dossier"];
-  const CO_BORNES = [0, 0.34, 0.66, 1];
-  let coTempsCourant = -1;
-
-  /* Deux cartables réels, tirés de `lib/dossiers/cartable-templates`. Le second
-     ne sert pas à faire défiler des exemples : il montre que ce sont les
-     sections elles-mêmes qui changent avec le domaine, pas juste une étiquette.
-     Le mandat ne bouge pas, il est commun aux deux. */
+  /* Deux cartables réels. Le second ne sert pas à faire défiler des exemples :
+     il montre que ce sont les sections elles-mêmes qui changent avec le
+     domaine, pas seulement une étiquette. Le mandat, lui, ne bouge pas : il
+     est commun aux deux. */
   const CO_DOMAINES = [
     {
       nom: "Droit de la famille",
@@ -3297,39 +3128,37 @@ function runExperience(root: HTMLElement): () => void {
       i === 0 ? "Cartable monté automatiquement" : "Autre domaine, autre cartable";
   }
 
-  function poserCompletTemps(t: number) {
-    if (t === coTempsCourant) return;
-    coTempsCourant = t;
-    coArgs.forEach((el, i) => {
-      el.classList.toggle("vu", i <= t);
-      el.classList.toggle("actif", i === Math.min(t, coArgs.length - 1));
-    });
-    coVues.forEach((el, i) => el.classList.toggle("on", i === Math.min(t, 2)));
-    coOu.textContent = CO_OU[Math.min(t, 2)] || "";
-  }
+  const parcours = sceneEtapes(
+    "zone-parcours",
+    [
+      "Nouveau dossier",
+      "Dossier en cours",
+      "Facture en préparation",
+      "Encaissement",
+      "Registres du cabinet",
+    ],
+    (t, q) => {
+      /* Le cartable se monte section par section, puis le domaine bascule : on
+         voit d'abord que la structure arrive seule, ensuite qu'elle dépend du
+         domaine de pratique. */
+      coCartable.forEach((el, i) => el.classList.toggle("on", t > 0 || q > 0.08 + i * 0.11));
+      poserDomaine(t === 0 && q > 0.72 ? 1 : 0);
+    }
+  );
 
-  function drawComplet(p: number) {
-    marqueur(markComplet, p);
+  /* ── Le rapprochement du fidéicommis ──
+     Trois preuves, dans l'ordre où elles se démontrent : les trois sources
+     portent le même montant, une opération incohérente est refusée avant son
+     inscription, une correction s'ajoute sans effacer l'écriture d'origine.
 
-    let t = 0;
-    while (t < 2 && p >= CO_BORNES[t + 1]) t++;
-    /* Le dernier quart range le troisième moment : les trois points sont alors
-       posés, et la conclusion arrive. */
-    const fini = p > 0.9;
-    poserCompletTemps(fini ? 3 : t);
-    const q = phase(p, CO_BORNES[t], CO_BORNES[t + 1]);
-
-    /* Le cartable se monte section par section, puis le domaine bascule : on
-       voit d'abord que la structure arrive seule, ensuite qu'elle dépend du
-       domaine. */
-    coCartable.forEach((el, i) => el.classList.toggle("on", t > 0 || q > 0.08 + i * 0.11));
-    poserDomaine(t === 0 && q > 0.72 ? 1 : 0);
-
-    coOps.forEach((el, i) => el.classList.toggle("on", t > 1 || (t === 1 && q > 0.04 + i * 0.15)));
-    coFins.forEach((el, i) => el.classList.toggle("on", t > 1 && q > 0.04 + i * 0.13));
-    coDit.classList.toggle("on", t === 2 && q > 0.74);
-    coFin.classList.toggle("on", fini);
-  }
+     Les refus affichés ne sont pas écrits pour la vitrine : ce sont les
+     messages exacts de `lib/services/fideicommis/errors.ts`. */
+  const verificationZone = $("zone-verification");
+  const verification = sceneEtapes("zone-verification", [
+    "Rapprochement · juin 2026",
+    "Retrait · fidéicommis",
+    "Journal du dossier · juin 2026",
+  ]);
 
   /* La maquette navigable « fiche client → dossier » a été retirée : la page
      portait deux extraits d'application qui ne se ressemblaient pas, l'un avec
@@ -3422,23 +3251,21 @@ function runExperience(root: HTMLElement): () => void {
   };
   document.addEventListener("click", onDocClickHero);
 
-  /* ── Chapitres ────────────────────────────────────────────────────────────
-     La page raconte désormais une promesse et trois piliers. Le rail ne jalonne
-     que les quatre moments qui portent un argument : la promesse et la synthèse
-     sont des respirations, pas des étapes, et n'y figurent donc pas. */
+  /* ── Les scènes ───────────────────────────────────────────────────────────
+     Le rail ne jalonne que ce qui se démontre : l'ouverture, le parcours d'un
+     dossier, la vérification du fidéicommis. Les sections écrites (le
+     problème, la suite, l'équipe, l'offre) se lisent d'un bloc et n'ont pas
+     d'étape à repérer. */
   const rail = $("rail");
   const railStops: Record<string, HTMLElement> = {
     hero: rail.querySelector('[data-rail="hero"]')!,
-    simple: rail.querySelector('[data-rail="simple"]')!,
-    fiable: rail.querySelector('[data-rail="fiable"]')!,
-    complet: rail.querySelector('[data-rail="complet"]')!,
+    parcours: rail.querySelector('[data-rail="parcours"]')!,
+    verification: rail.querySelector('[data-rail="verification"]')!,
   };
   const zones: Record<string, HTMLElement> = {
     hero: heroZone,
-    promesse: $("zone-promesse"),
-    simple: $("zone-simple"),
-    fiable: fiableZone,
-    complet: completZone,
+    parcours: parcoursZone,
+    verification: verificationZone,
   };
   function zoneVisible(el: HTMLElement) {
     const r = el.getBoundingClientRect();
@@ -3461,9 +3288,7 @@ function runExperience(root: HTMLElement): () => void {
   }
 
   /* ── Boucle ── */
-  const shown: Record<string, number> = {
-    hero: 0, promesse: 0, simple: 0, fiable: 0, complet: 0,
-  };
+  const shown: Record<string, number> = { hero: 0, parcours: 0, verification: 0 };
   let rafId = 0;
   let vivante = false;
   /* Images consécutives sans aucune scène proche. La boucle ne s'endort qu'au
@@ -3474,8 +3299,43 @@ function runExperience(root: HTMLElement): () => void {
      perdre. La boucle mourait alors au milieu de la page. */
   let repos = 0;
 
+  /* ── La vitesse d'une scène ne dépend plus du poignet ─────────────────────
+     Le défilement donnait la progression au pixel, amortie d'un sixième par
+     image. Deux défauts, tous deux visibles.
+
+     Le premier : l'amortissement se comptait PAR IMAGE. À 60 Hz une scène
+     rattrapait son retard en une quinzaine d'images ; à 120 Hz, en deux fois
+     moins de temps. La même page allait donc deux fois plus vite sur un écran
+     rapide, ce qui n'est pas une décision de design mais un accident de
+     matériel. Le facteur est maintenant ramené à une durée : à 60 comme à 120,
+     le rattrapage dure le même temps.
+
+     Le second, et c'est celui qui se voyait : un coup de molette un peu vif
+     déplaçait la cible d'un demi-écran, et la scène s'y jetait. On ne voyait
+     pas des pièces se rassembler, on voyait un état remplacer un autre. Chaque
+     scène a donc une VITESSE MAXIMALE, exprimée en progression par seconde :
+     le doigt donne la destination, jamais la vitesse. Qui défile vite arrive
+     vite en bas de la zone et regarde la scène finir son geste ; le mouvement
+     reste le même pour tout le monde (retour CEO du 21 août 2026).
+
+     L'ouverture est la plus lente des trois : c'est elle qu'on regarde. Les
+     deux démonstrations suivent le doigt de plus près, parce qu'un écran qui
+     traîne derrière l'étape qu'on lit se lit comme un retard, pas comme un
+     glissement. */
+  const AMORTI_60 = 0.16;
+  const VITESSE: Record<string, number> = { hero: 0.4, parcours: 0.95, verification: 0.95 };
+
+  let dernierTemps = 0;
+
   function frame(time: number) {
     const vh = window.innerHeight;
+    /* Bornée à 50 ms : après un onglet en arrière-plan ou une longue image, le
+       delta réel vaut parfois plusieurs secondes, et la scène ferait un bond
+       exactement là où on cherche à en éviter un. */
+    const dt = dernierTemps ? Math.min(0.05, (time - dernierTemps) / 1000) : 1 / 60;
+    dernierTemps = time;
+    /* Le même amortissement qu'avant à 60 Hz, exprimé en durée. */
+    const amorti = 1 - Math.pow(1 - AMORTI_60, dt * 60);
     const near: Record<string, boolean> = {};
     let proche = false;
     Object.keys(shown).forEach((k) => {
@@ -3484,19 +3344,32 @@ function runExperience(root: HTMLElement): () => void {
       near[k] = r.bottom > -300 && r.top < vh + 300;
       if (near[k]) proche = true;
       const total = r.height - vh;
-      const target = total <= 0 ? 1 : clamp01(-r.top / total);
+      /* Une zone pas encore mise en page mesure zéro. Sans le premier test,
+         `total <= 0` la traitait comme une scène plus courte que la vue et la
+         posait à sa FIN : au chargement, la démonstration du parcours affichait
+         « Registres du cabinet » alors que le visiteur n'y était pas encore, et
+         elle le gardait tant qu'il ne s'en approchait pas, puisque les scènes
+         lointaines ne sont pas redessinées. */
+      const target = r.height <= 0 ? 0 : total <= 0 ? 1 : clamp01(-r.top / total);
       /* Les scènes hors de vue rejoignent leur cible sans lissage. C'est ce qui
          permet d'endormir la boucle sans jamais figer une scène à mi-course :
          au retour, elle est déjà dans le bon état. */
-      shown[k] = near[k] ? shown[k] + (target - shown[k]) * 0.16 : target;
+      if (!near[k]) {
+        shown[k] = target;
+      } else {
+        const ecart = target - shown[k];
+        let pas = ecart * amorti;
+        const plafond = (VITESSE[k] ?? 1) * dt;
+        if (pas > plafond) pas = plafond;
+        else if (pas < -plafond) pas = -plafond;
+        shown[k] += pas;
+      }
       if (Math.abs(target - shown[k]) < 0.0005) shown[k] = target;
     });
 
     if (near.hero) drawHero(shown.hero, time);
-    if (near.promesse) drawPromesse(shown.promesse);
-    if (near.simple) drawSimple(shown.simple);
-    if (near.fiable) drawFiable(shown.fiable);
-    if (near.complet) drawComplet(shown.complet);
+    if (near.parcours) parcours.draw(shown.parcours);
+    if (near.verification) verification.draw(shown.verification);
     updateRail();
 
     /* La boucle ne s'arrêtait jamais : six mesures de position par image, pour
@@ -3530,10 +3403,8 @@ function runExperience(root: HTMLElement): () => void {
      son état final. Un nouveau calcul au redimensionnement suffit. */
   function poserStatique() {
     poserHeroStatique();
-    drawPromesse(1);
-    drawSimple(1);
-    drawFiable(1);
-    drawComplet(1);
+    parcours.draw(1);
+    verification.draw(1);
     updateRail();
   }
 
@@ -3587,40 +3458,11 @@ function runExperience(root: HTMLElement): () => void {
     const cadre = root.querySelector<HTMLElement>("#hero-cadre");
     if (!cadre) return () => {};
 
-    const PIECE_A = new Path2D(ASSEMBLY_PIECE_A_PATH);
-    const PIECE_B = new Path2D(ASSEMBLY_PIECE_B_PATH);
-    /* Repère du dessin : la pièce A occupe la moitié gauche du carré de 24,
-       la pièce B la moitié droite. Chacune est ramenée à son propre centre
-       pour pouvoir tourner sur elle-même pendant la dérive. */
-    const CENTRES = [
-      { path: PIECE_A, cx: 8.1, cy: 12, teinte: SAFE_PALETTE.forest },
-      { path: PIECE_B, cx: 15.9, cy: 12, teinte: SAFE_PALETTE.emeraude },
-    ];
-
-    /* Le nombre de pièces. Douze remplissaient mal une fenêtre entière une
-       fois les pièces réduites ; vingt donnent la sensation d'un tas, ce que
-       le mot « désordre » suppose (retour CEO du 18 août 2026). Elles se
-       superposent toutes sur deux positions à l'arrivée, donc le logo final
-       reste net quel qu'en soit le nombre. */
-    const NB = 20;
-    const pieces = Array.from({ length: NB }, (_, i) => ({
-      type: i % 2,
-      sx: rnd(),
-      sy: rnd(),
-      sr: (rnd() - 0.5) * 2.2,
-      /* Plus petites qu'au premier jet, où elles emplissaient la fenêtre :
-         une pièce détachée doit se lire comme un fragment, pas comme un
-         panneau (retour CEO du 18 août 2026). */
-      taille: 0.16 + rnd() * 0.22,
-      derive: rnd() * Math.PI * 2,
-      /* Profondeur : une pièce proche suit le poignet davantage qu'une pièce
-         lointaine. C'est ce qui fait le relief. */
-      fond: 0.4 + rnd() * 0.9,
-      retard: (i / NB) * 0.34,
-    }));
-
     let planifie = false;
     let dernierP = -1;
+    /* Horodatage de l'image précédente, pour compter l'amortissement en durée
+       plutôt qu'en images. */
+    let derniereImage = 0;
     /* La progression AFFICHÉE, qui poursuit celle du défilement sans la
        rattraper tout de suite. Voir poser(). */
     let p = 0;
@@ -3656,84 +3498,20 @@ function runExperience(root: HTMLElement): () => void {
       redessiner();
     }
 
+    /* Le pouce joue la même scène que le large, avec trois réglages à lui :
+       un logo assemblé plus grand (la fenêtre est étroite, il doit tenir la
+       vue), un minutage plus lent (la course de défilement y est plus courte
+       mais le geste plus lent), et l'inclinaison de l'appareil à la place du
+       curseur. */
     function dessiner(p: number, temps: number) {
       const f = fitCanvas(heroCanvas);
       const ctx = f.ctx, W = f.w, H = f.h;
       ctx.clearRect(0, 0, W, H);
-
-      /* ── Où le rassemblement s'achève ───────────────────────────────────
-         Le logo ne s'efface pas sur place. Il rejoint le repère de la barre
-         de l'application, celui qui est en haut à gauche de la fenêtre, en
-         rétrécissant jusqu'à sa taille : les douze pièces deviennent un logo,
-         et ce logo devient le logo du logiciel (retour CEO du 18 août 2026).
-
-         La cible est MESURÉE sur le vrai élément, pas devinée : le cadrage de
-         la fenêtre peut changer, la marque restera au bon endroit. */
-      const repere = heroShot.querySelector<HTMLElement>(".ha-brand .mark");
-      const rCadre = heroCanvas.getBoundingClientRect();
-      let finX = W / 2;
-      let finY = H * 0.42;
-      let finCote = 17;
-      if (repere) {
-        const rr = repere.getBoundingClientRect();
-        if (rr.width > 0) {
-          finX = rr.left - rCadre.left + rr.width / 2;
-          finY = rr.top - rCadre.top + rr.height / 2;
-          finCote = rr.width;
-        }
-      }
-
-      /* Le repère rassemblé : centré, à une taille qui tient dans la fenêtre. */
-      const grand = Math.min(W * 0.46, H * 0.44);
-      /* L'état 3 : le logo file vers la barre pendant que l'application
-         apparaît. La course est longue et la courbe douce, c'est elle qui
-         donne le glissé. */
-      /* Toute la chorégraphie se termine à 84 % de la course, pas à 98 %.
-         Réglée sur la fin, l'état final n'avait plus de défilement pour être
-         regardé : l'épinglage lâchait au moment même où l'application finissait
-         de se poser, et on passait dessus sans la voir. Le dernier sixième de
-         la course est maintenant un temps d'arrêt sur le produit fini. */
-      const releve = easeInOut(phase(p, 0.44, 0.68));
-      if (releve >= 1) return;
-      const cote = lerp(grand, finCote, releve);
-      const cx = lerp(W / 2, finX, releve);
-      const cy = lerp(H / 2, finY, releve);
-
-      pieces.forEach((pc) => {
-        const local = easeOutCubic(phase(easeInOut(phase(p, 0.02, 0.58)), pc.retard, 1));
-        const d = CENTRES[pc.type];
-
-        /* Dérive : elle s'éteint à mesure que la pièce rejoint sa place. */
-        const dx = Math.sin(temps * 0.00042 + pc.derive) * 16 * (1 - local);
-        const dy = Math.cos(temps * 0.00034 + pc.derive * 1.7) * 12 * (1 - local);
-        /* L'inclinaison, pondérée par la profondeur de la pièce. Elle s'éteint
-           elle aussi une fois la pièce en place : un logo assemblé ne flotte
-           pas au gré du poignet. */
-        const roulis = inclinaison * pc.fond * 26 * (1 - local);
-
-        /* Départ dispersé, arrivée sur le repère. Les gauches et les droites
-           gardent leur côté : une pièce ne traverse jamais le logo. */
-        /* Dispersion plus large : les pièces occupent presque toute la
-           fenêtre au lieu de se serrer au centre. */
-        const x0 = pc.sx * W * 1.02 - W * 0.01 + dx + roulis;
-        const y0 = pc.sy * H * 0.94 + H * 0.03 + dy;
-        const x1 = cx + (d.cx - 12) * (cote / 24);
-        const y1 = cy + (d.cy - 12) * (cote / 24);
-
-        const ech = lerp(cote * pc.taille, cote, local) / 24;
-        const x = lerp(x0, x1, local);
-        const y = lerp(y0, y1, local);
-        const rot = pc.sr * (1 - local);
-
-        ctx.save();
-        ctx.globalAlpha = lerp(0.5, 1, local) * (1 - releve);
-        ctx.translate(x, y);
-        ctx.rotate(rot);
-        ctx.scale(ech, ech);
-        ctx.translate(-d.cx, -d.cy);
-        ctx.fillStyle = d.teinte;
-        ctx.fill(d.path);
-        ctx.restore();
+      dessinerAssemblage(ctx, W, H, p, temps, {
+        rassemble: [0.02, 0.58],
+        releve: [0.44, 0.68],
+        grand: Math.min(W * 0.46, H * 0.44),
+        roulis: inclinaison,
       });
     }
 
@@ -3758,9 +3536,22 @@ function runExperience(root: HTMLElement): () => void {
          Tant que l'écart n'est pas résorbé, une image de plus est demandée, et
          seulement tant qu'il ne l'est pas : la scène immobile ne coûte rien. */
       let encore = false;
+      /* Même bride qu'au large : l'amortissement se compte en durée et la
+         progression a une vitesse maximale, pour que la scène glisse au même
+         rythme quel que soit l'écran et quelle que soit la vivacité du pouce.
+         Le delta est borné à 50 ms, sinon un retour d'arrière-plan ferait
+         exactement le bond qu'on cherche à éviter. */
+      const maintenant = performance.now();
+      const dt = derniereImage ? Math.min(0.05, (maintenant - derniereImage) / 1000) : 1 / 60;
+      derniereImage = maintenant;
       const ecartP = cible - p;
       if (Math.abs(ecartP) > 0.0004) {
-        p += ecartP * 0.125;
+        const amorti = 1 - Math.pow(1 - 0.125, dt * 60);
+        let pas = ecartP * amorti;
+        const plafond = 0.4 * dt;
+        if (pas > plafond) pas = plafond;
+        else if (pas < -plafond) pas = -plafond;
+        p += pas;
         encore = true;
       } else {
         p = cible;
@@ -3903,9 +3694,8 @@ function runExperience(root: HTMLElement): () => void {
      donc pas à deviner entre deux. */
   function carrouselsTelephone() {
     const listes: Array<[string, (t: number) => void]> = [
-      [".si-args", poserSimpleTemps],
-      [".fi-args", poserFiableTemps],
-      [".co-args", poserCompletTemps],
+      [".co-args", parcours.poser],
+      [".fi-args", verification.poser],
     ];
     const nettoyages: Array<() => void> = [];
 
@@ -3981,66 +3771,6 @@ function runExperience(root: HTMLElement): () => void {
 
   let arreterCarrousels = () => {};
 
-  /* ── La promesse, pilotée par le défilement ─────────────────────────────
-     Les deux lignes entraient comme le reste de la page : un observateur les
-     déclenchait au franchissement du bord, elles montaient, c'était fini. Sur
-     une scène aussi courte, les deux étaient déjà à l'écran quand le
-     déclencheur partait, donc tout se jouait avant qu'on ait regardé.
-
-     Elles suivent maintenant le doigt. La position de la scène dans la vue
-     donne une progression, et cette progression pose directement la hauteur
-     des deux lignes sous l'arête de leur masque. On descend, elles montent ;
-     on remonte, elles redescendent. Ce n'est plus une entrée qu'on rate,
-     c'est un mouvement qu'on commande.
-
-     La seconde ligne est décalée de 22 % de la course : la phrase se lit en
-     deux temps, l'affirmation puis sa condition, comme elle est écrite.
-
-     Une image par événement de défilement, deux propriétés posées, aucune qui
-     touche à la mise en page. */
-  function promesseAuDefilement() {
-    const zone = root.querySelector<HTMLElement>("#zone-promesse");
-    const l1 = $("pr-1");
-    const l2 = $("pr-2");
-    if (!zone || !l1 || !l2) return () => {};
-
-    let planifie = false;
-
-    function poser() {
-      planifie = false;
-      const r = zone!.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      /* La course se joue pendant que la scène traverse le MILIEU de l'écran,
-         pas pendant qu'elle entre par le bas. Réglée sur l'entrée, elle était
-         terminée quand le haut de la scène atteignait 59 % de la hauteur de
-         vue : la phrase était déjà posée quand on arrivait dessus, et on ne
-         voyait donc jamais rien bouger.
-         Elle part quand le haut de la scène est à 88 % de la vue et se termine
-         à 43 %, soit exactement la traversée du regard. */
-      const p = clamp01((vh * 0.88 - r.top) / (vh * 0.45));
-      const a = easeOutCubic(phase(p, 0, 0.62));
-      const b = easeOutCubic(phase(p, 0.28, 0.9));
-      l1!.style.transform = "translateY(" + (1 - a) * 110 + "%)";
-      l2!.style.transform = "translateY(" + (1 - b) * 110 + "%)";
-    }
-
-    function auDefilement() {
-      if (planifie) return;
-      planifie = true;
-      requestAnimationFrame(poser);
-    }
-
-    poser();
-    window.addEventListener("scroll", auDefilement, { passive: true });
-    window.addEventListener("resize", auDefilement);
-    return () => {
-      window.removeEventListener("scroll", auDefilement);
-      window.removeEventListener("resize", auDefilement);
-    };
-  }
-
-  let arreterPromesse = () => {};
-
   /* ── L'entrée des textes au téléphone ───────────────────────────────────
      Le défilement piloté est coupé au pouce : la page y est posée d'un coup à
      son état final, et elle arrivait donc entièrement figée. Une page qui ne
@@ -4058,11 +3788,22 @@ function runExperience(root: HTMLElement): () => void {
      n'attende pas une demi-seconde. */
   function entreeTelephone() {
     const cibles = $$(
-      "#hero-copy > *, #hero-cadre, .ch-mark, .ch-mark + .kicker," +
-      " .ch-copy h2, .fi-copy h2, .co-copy h2, .co-intro, .si-arg, .fi-arg," +
-      " .co-arg, .ch-chute, .co-fin, .ch-stage, .fi-stage, .co-stage," +
-      " section.flat .kicker, section.flat h2, section.flat .plan," +
-      " section.flat .q, .sy-claim, .sy-cta, #cta p, #cta .actions"
+      /* Le titre d'ouverture n'est PAS dans cette liste, et c'est délibéré.
+         Un bloc marqué ici part à opacité nulle et n'existe qu'une fois
+         l'observateur passé. Pour tout ce qui vit sous la ligne de flottaison,
+         le risque est nul : on ne le voit qu'après avoir défilé. Pour la
+         première vue, il est total : si l'observateur tarde d'une image, la
+         page s'ouvre sur un écran vide. La promesse ne se gagne pas au
+         défilement. */
+      "#hero-cadre, .fi-copy h2, .co-copy h2, .co-intro," +
+      " .fi-arg, .co-arg, .co-fin, .fi-stage, .co-stage," +
+      /* Un bloc par unité de lecture, jamais deux imbriqués : une phrase déjà
+         contenue dans une rangée marquée n'a pas besoin de sa propre entrée. */
+      " section.flat .kicker, section.flat h2, section.flat > .inner > .lede," +
+      " section.flat .morceau, section.flat .cote p, section.flat .chute," +
+      " section.flat .plan, section.flat .note, section.flat .etape," +
+      " section.flat .q, section.flat .bloc, section.flat .vue," +
+      " section.flat .contexte, #cta > .inner > p, #cta .actions, #cta .reassure"
     );
     if (!cibles.length) return () => {};
 
@@ -4109,12 +3850,20 @@ function runExperience(root: HTMLElement): () => void {
       root.classList.add("tel-anime");
       arreterEntree = entreeTelephone();
       arreterAssemblage = jouerAssemblage();
-      arreterPromesse = promesseAuDefilement();
       arreterCarrousels = carrouselsTelephone();
       /* Derrière la pose statique différée par les polices. */
       document.fonts?.ready.then(() => window.dispatchEvent(new Event("resize"))).catch(() => {});
     }
   } else {
+    /* Les deux scènes sont remises à leur première étape avant que la boucle
+       ne parte. Sans cela, une visite qui a d'abord été servie en régime
+       téléphone — une fenêtre élargie au-delà de 860 px, un écran tourné —
+       gardait l'état final posé par le chemin statique : on arrivait sur le
+       parcours d'un dossier par sa dernière étape, et rien ne le corrigeait
+       tant qu'on ne s'en approchait pas, puisque les scènes lointaines ne sont
+       pas redessinées. */
+    parcours.poser(0);
+    verification.poser(0);
     reveiller();
     window.addEventListener("scroll", reveiller, { passive: true });
     window.addEventListener("resize", reveiller, { passive: true });
@@ -4124,7 +3873,6 @@ function runExperience(root: HTMLElement): () => void {
     cancelAnimationFrame(rafId);
     arreterEntree();
     arreterAssemblage();
-    arreterPromesse();
     arreterCarrousels();
     root.classList.remove("anime");
     root.classList.remove("tel-anime");
@@ -4149,11 +3897,96 @@ function runExperience(root: HTMLElement): () => void {
   };
 }
 
-const PREUVES = [
-  "Conçu au Québec",
-  "Données hébergées au Canada",
-  "Pensé pour le fidéicommis",
-  "Utilisé dans un vrai cabinet",
+/* ── Routes publiques ─────────────────────────────────────────────────────
+   L'application s'appelle SAFE, pas « SAFE Cabinet » (décision CEO du 21 août
+   2026, contre la proposition d'architecture du 20). Il n'y a donc pas de
+   sous-marque à nommer dans la navigation : une entrée mène à l'application,
+   une autre aux outils, et le mot SAFE reste porté par la marque elle-même.
+
+   L'entrée de l'application n'a pas de route à son nom et pointe vers
+   `/fonctionnalites`, qui décrit exactement ce qu'elle promet.
+
+   CORRESPONDANCE TEMPORAIRE, à revoir quand la route existera :
+     L'application → /fonctionnalites
+     Rencontre     → /demo  (la page de contact du site)
+*/
+const ROUTES = {
+  cabinet: "/fonctionnalites",
+  outils: "/calculateurs",
+  tarification: "/tarification",
+  aPropos: "/a-propos",
+  connexion: "/connexion",
+  evaluation: "/audit-gratuit",
+  rencontre: "/demo",
+  faq: "/faq",
+  conditions: "/conditions",
+  confidentialite: "/confidentialite",
+};
+
+const LIENS_NAV: [string, string][] = [
+  [ROUTES.cabinet, "L’application"],
+  [ROUTES.outils, "Outils SAFE"],
+  [ROUTES.tarification, "Tarification"],
+  [ROUTES.aPropos, "À propos"],
+];
+
+/* Les cinq registres du problème. Ce ne sont pas cinq fonctionnalités : c'est
+   la liste de ce qu'un cabinet tient déjà, ailleurs, séparément. Le libellé de
+   droite nomme l'endroit, pas un produit : personne ici ne sait dans quel
+   logiciel travaille le cabinet qui lit la page. */
+const MORCEAUX: [string, string][] = [
+  ["Un dossier est ouvert dans un système.", "Dossiers"],
+  ["Le temps est noté ailleurs.", "Feuille de temps"],
+  ["Les échéances restent dans un calendrier.", "Calendrier"],
+  ["La facture est préparée plus tard.", "Facturation"],
+  ["Les paiements, la comptabilité et le fidéicommis sont vérifiés dans d'autres registres.", "Registres"],
+];
+
+/* Ce que SAFE tient dans un même contexte. Les neuf mots du hero, dans
+   le même ordre : la page ne doit pas énumérer deux listes différentes de la
+   même chose. */
+const CONTEXTE = [
+  "Clients",
+  "Dossiers",
+  "Temps",
+  "Facturation",
+  "Paiements",
+  "Comptabilité",
+  "Fidéicommis",
+  "Échéances",
+  "Rapports",
+];
+
+/* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
+   ce que le cabinet doit préparer : c'est la différence entre un
+   accompagnement et un mode d'emploi. */
+const IMPLANTATION: [string, string, string][] = [
+  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités."],
+  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique."],
+  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service."],
+];
+
+const QUESTIONS: [string, string][] = [
+  [
+    "SAFE remplace-t-il mon logiciel comptable ?",
+    "SAFE tient la comptabilité liée aux opérations du cabinet et prépare une information structurée. Le diagnostic permet de déterminer la place que doit conserver votre logiciel comptable actuel.",
+  ],
+  [
+    "SAFE garantit-il la conformité ?",
+    "Non. SAFE soutient la tenue, la vérification et la traçabilité. La responsabilité professionnelle demeure celle du cabinet.",
+  ],
+  [
+    "SAFE remplace-t-il mon adjointe ?",
+    "Non. SAFE prépare, relie et signale. Votre équipe conserve le jugement, la connaissance du cabinet et la relation avec les clients.",
+  ],
+  [
+    "À qui appartiennent mes données ?",
+    "À votre cabinet. Vous conservez la propriété de vos données et pouvez les exporter dans les formats offerts.",
+  ],
+  [
+    "Où sont hébergées les données ?",
+    "Les données sont hébergées au Canada. Les accès sont contrôlés selon les rôles et les responsabilités de chaque membre du cabinet.",
+  ],
 ];
 
 /* Les états de départ à opacité nulle ne s'appliquent QUE si le script tourne.
@@ -4193,18 +4026,17 @@ export default function ExperienceCinema() {
           <SafeLogo size={20} />
         </a>
         <div className="links">
-          <a href="/fonctionnalites">Fonctionnalités</a>
-          <a href="/tarification">Tarification</a>
-          <a href="/a-propos">À propos</a>
-          <a href="/contact">Contact</a>
+          {LIENS_NAV.map(([href, label]) => (
+            <a key={href} href={href}>{label}</a>
+          ))}
         </div>
         {/* Le bouton de menu vit dans le groupe de droite, aux côtés de
             l'action : au téléphone les deux se tiennent ensemble contre le
             bord, au lieu d'être écartés aux deux extrémités de la barre par
             le space-between. */}
         <div className="navright">
-          <a className="signin" href="/connexion">Connexion</a>
-          <a className="cta" href="/audit-gratuit">Faire le diagnostic</a>
+          <a className="signin" href={ROUTES.connexion}>Connexion</a>
+          <a className="cta" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
           <button
             type="button"
             id="burger"
@@ -4228,81 +4060,63 @@ export default function ExperienceCinema() {
             onClick={() => setMenuOuvert(false)}
           />
           <div id="menu-mobile">
-            {[
-              ["/fonctionnalites", "Fonctionnalités"],
-              ["/tarification", "Tarification"],
-              ["/a-propos", "À propos"],
-              ["/contact", "Contact"],
-            ].map(([href, label]) => (
+            {[...LIENS_NAV, [ROUTES.connexion, "Connexion"] as [string, string]].map(([href, label]) => (
               <a key={href} href={href} onClick={() => setMenuOuvert(false)}>
                 {label}
                 <span aria-hidden>›</span>
               </a>
             ))}
-            {/* Plus de bouton d'action ici : l'action est restée dans la
-                barre, visible sans ouvrir le menu. La connexion prend une
-                rangée comme les autres liens. */}
-            <a href="/connexion" onClick={() => setMenuOuvert(false)}>
-              Connexion
-              <span aria-hidden>›</span>
-            </a>
           </div>
         </>
       ) : null}
 
       <nav id="rail" aria-label="Chapitres de la page">
         <a className="stop" data-rail="hero" href="#zone-hero"><span>Assembler</span><i aria-hidden /></a>
-        <a className="stop" data-rail="simple" href="#zone-simple"><span>Simple</span><i aria-hidden /></a>
-        <a className="stop" data-rail="fiable" href="#zone-fiable"><span>Fiable</span><i aria-hidden /></a>
-        <a className="stop" data-rail="complet" href="#zone-complet"><span>Complet</span><i aria-hidden /></a>
+        <a className="stop" data-rail="parcours" href="#zone-parcours"><span>Parcours</span><i aria-hidden /></a>
+        <a className="stop" data-rail="verification" href="#zone-verification"><span>Vérification</span><i aria-hidden /></a>
       </nav>
 
-      {/* Scène 1 · L'assemblage → vraie capture */}
+      {/* ── 01 · L'ouverture ────────────────────────────────────────────────
+         L'assemblage débouche sur l'application elle-même, navigable, et non
+         sur une capture figée. Position et échelle pilotées au pixel par le
+         canvas (drawHero).
+
+         Le titre nomme les neuf postes que SAFE relie : la comptabilité, la
+         facturation et l'administration se lisent donc dans la première vue,
+         sans attendre que l'application se pose. */}
       <div className="pinzone" id="zone-hero">
         <div className="pin" id="top">
-          {/* L'assemblage débouche sur l'application elle-même, navigable, et
-             non sur une capture figée. Position et échelle pilotées au pixel
-             par le canvas (drawHero).
-
-             Le cadre qui l'entoure ne fait rien au large : il couvre la scène
-             sans la rogner, et garde donc l'origine des coordonnées que le
-             script emploie pour poser l'application au pixel. Au téléphone il
-             devient une fenêtre : il rogne, et l'application est agrandie
-             derrière lui au lieu d'être réduite. Voir le bloc téléphone. */}
-          {/* Le canevas vit dans le cadre, donc dans le BAS de la vue, sous
-              l'appel à l'action. Essayé au-dessus, couvrant la scène entière :
-              les pièces passaient derrière le titre, ce qui fait du désordre
-              par-dessus du texte et non une ouverture (retour CEO du 18 août
-              2026). Au large, le cadre couvre toute la scène et rien ne
-              change pour lui. */}
           <div id="hero-cadre">
             <canvas id="hero-canvas" />
             <HeroLiveApp />
           </div>
           <div id="hero-copy">
-            <p className="kicker">SAFE · système de gestion pour cabinets d&apos;avocats</p>
+            <p className="kicker">La suite administrative des cabinets d&apos;avocats</p>
             <h1>SAFE tient votre cabinet <em>ensemble.</em></h1>
             <p className="lede">
-              Fidéicommis, dossiers, temps, facturation et conformité partagent enfin le même
-              contexte. Vous voyez ce qui est à jour, ce qui attend et ce qui ne concorde pas.
+              SAFE relie l&apos;administration, les dossiers, le temps, la facturation, les
+              paiements, la comptabilité, le fidéicommis, les échéances et les rapports dans un
+              même système.
+            </p>
+            <p className="lede lede-suite">
+              Vous voyez ce qui est à jour, ce qui attend et ce qui demande votre attention.
             </p>
             <div className="hero-actions">
-              <a className="btn" href="/audit-gratuit">Faire le diagnostic</a>
-              <a className="hero-second" href="/fonctionnalites">
-                Voir ce que fait SAFE<i aria-hidden />
+              <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
+              <a className="hero-second" href="#suite">
+                Découvrir la suite SAFE<i aria-hidden />
               </a>
             </div>
-            <p className="hero-reassure">Gratuit, sans carte de crédit. Rapport sous 24 h.</p>
+            <p className="hero-reassure">
+              Conçu au Québec. Adapté au Québec et à l&apos;Ontario. Données hébergées au Canada.
+            </p>
           </div>
-          {/* La légende disait « capture réelle ». Ce n'en est plus une : le
-             cadre contient l'application elle-même. Annoncer une image quand
-             on peut cliquer dedans priverait le visiteur du geste. */}
+          {/* La légende ne dit pas « capture réelle » : le cadre contient
+             l'application elle-même. Annoncer une image quand on peut cliquer
+             dedans priverait le visiteur du geste. */}
           <p id="hero-caption">
             SAFE, en vrai. Ouvrez un menu et circulez : c&apos;est l&apos;application, pas une capture.
           </p>
-          {/* Le sens est écrit, pas sous-entendu. « Faites défiler » laisse
-              choisir la direction, et l'ouverture ne se joue que vers le bas
-              (retour CEO du 18 août 2026). La flèche le redit sans mot. */}
           <p id="hero-hint">
             Faites défiler vers le bas
             <i aria-hidden />
@@ -4310,190 +4124,361 @@ export default function ExperienceCinema() {
         </div>
       </div>
 
-      {/* Bande de preuves */}
-      <div className="strip">
-        <div id="preuves">
-          <div className="pv-track">
-            {PREUVES.map((p) => (<span key={p}><i />{p}</span>))}
-          </div>
-          {/* copie muette : elle prend le relais quand la première sort de
-              l'écran, pour un défilement sans rupture au téléphone */}
-          <div className="pv-track clone" aria-hidden="true">
-            {PREUVES.map((p) => (<span key={p}><i />{p}</span>))}
-          </div>
-        </div>
-      </div>
+      {/* ── 02 · Le problème administratif ──────────────────────────────────
+         Pas d'écran ici, et c'est voulu : la section parle de ce qui se passe
+         AILLEURS que dans un logiciel. Montrer une interface à cet endroit
+         reviendrait à répondre avant d'avoir posé la question.
 
-      {/* Chapitre 1 · La promesse ─────────────────────────────────────────
-         Rien d'autre à l'écran. La promesse a besoin de vide autour d'elle
-         pour peser, et l'application ne doit pas encore reparaître : le
-         visiteur vient de la quitter, on le laisse sur la phrase. */}
-      <div className="pinzone" id="zone-promesse">
-        <div className="pin pr-pin">
-          {/* La marque, gravée dans le fond. Elle ne se lit pas, elle se
-              devine : c'est un relief, pas un logo posé. La scène de la
-              promesse est la seule de la page à ne rien démontrer, elle n'a
-              donc rien à côté de quoi ce relief pourrait entrer en concurrence
-              (demande CEO du 18 août 2026). */}
-          <span className="pr-gravure" aria-hidden>
-            <SafeMark size={210} />
-          </span>
-          <span className="masque"><span className="pr-main" id="pr-1">Bâtissez votre succès professionnel</span></span>
-          <span className="masque"><span className="pr-main pr-suite" id="pr-2">sur un système simple, fiable et complet.</span></span>
-        </div>
-      </div>
+         Les cinq lignes ne sont pas des fonctionnalités manquantes : c'est la
+         liste de ce que le cabinet tient déjà, séparément. */}
+      <section className="flat surface" id="probleme">
+        <div className="inner">
+          <p className="kicker">L&apos;administration s&apos;est construite par morceaux</p>
+          <h2>Trop de tâches reposent encore sur la mémoire de l&apos;équipe.</h2>
 
-      {/* Chapitre 2 · Simple ───────────────────────────────────────────────
-         La carte de factures qui occupait la moitié droite a été retirée
-         (décision CEO du 13 août 2026). Le chapitre qui parle de simplicité
-         ne montre plus qu'une chose à la fois : son propos. */}
-      <div className="pinzone" id="zone-simple">
-        <div className="pin ch-pin">
-          <div className="ch-copy">
-            {/* Le marqueur ouvre le chapitre à sa place, au-dessus du titre, et
-                il reste. Il traversait l'écran en gros plan puis s'effaçait. */}
-            <p className="ch-mark" data-mark="simple">Simple</p>
-            <p className="kicker">Pilier 1 sur 3</p>
-            <h2>La gestion de votre cabinet, sans la complexité comptable.</h2>
-            {/* Trois arguments qui changent de rang, comme dans « Fiable ».
-                L'accordéon a disparu : plus rien ne s'ouvre ni ne se ferme, un
-                argument arrive en grand puis se range en point numéroté
-                pendant que le suivant prend sa place. */}
-            <div className="si-narration">
-              <ol className="si-args">
-                <li className="si-arg" data-siarg="0">
-                  <span className="n" aria-hidden>01</span>
-                  <p className="e">Vos chiffres, en langage clair.</p>
-                  <p className="d">Facturé, encaissé, reste à recevoir. Ni débit ni crédit à l’écran.</p>
-                </li>
-                <li className="si-arg" data-siarg="1">
-                  <span className="n" aria-hidden>02</span>
-                  <p className="e">Une prochaine action claire.</p>
-                  <p className="d">L’écran nomme ce qui se traite maintenant, et ce qui vient ensuite.</p>
-                </li>
-                <li className="si-arg" data-siarg="2">
-                  <span className="n" aria-hidden>03</span>
-                  <p className="e">Saisi une fois. Utilisé partout.</p>
-                  <p className="d">Une heure notée au dossier devient une ligne de facture, sans la ressaisir.</p>
-                </li>
-              </ol>
-              <p className="ch-chute">Moins de gestion. Plus de pratique.</p>
+          <div className="deux-colonnes">
+            <div className="morceaux">
+              {MORCEAUX.map(([texte, ou], i) => (
+                <div className="morceau" key={ou}>
+                  <span className="n" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+                  <p className="t">{texte}</p>
+                  <span className="ou">{ou}</span>
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* L'émulateur. Trois écrans du Cabinet Demo, un par argument. Le
-              défilement les fait défiler, puis le clic sur un argument prend
-              la main. Les chiffres sont ceux relevés en base, et l'heure de
-              consultation porte le même montant que la chaîne du chapitre
-              « Complet » : 1 h 30 à 450 $ l'heure. */}
-          <div className="ch-stage">
-            <div className="em-fenetre">
-              <div className="em-barre">
-                <i aria-hidden />Cabinet Demo
-                <span className="em-ou" id="em-ou">Tableau de bord</span>
-              </div>
-              <div className="em-corps">
-                <div className="em-ecran on" data-em="0">
-                  <p className="em-kicker">Lecture rapide</p>
-                  <p className="em-h">Vos chiffres, en langage simple</p>
-                  <div className="em-tiles">
-                    <div className="em-tile">
-                      <p className="lab">Facturation</p><p className="sub">Facturé</p>
-                      <p className="val">87 115,20 $</p>
-                    </div>
-                    <div className="em-tile">
-                      <p className="lab">Encaissements</p><p className="sub">Encaissé</p>
-                      <p className="val">49 055,00 $</p>
-                    </div>
-                    <div className="em-tile amber">
-                      <p className="lab">Créances</p><p className="sub">Reste à recevoir</p>
-                      <p className="val">38 060,20 $</p>
-                    </div>
-                    <div className="em-tile">
-                      <p className="lab">Fidéicommis</p><p className="sub">Fidéicommis client</p>
-                      <p className="val">0,00 $</p>
-                    </div>
-                  </div>
-                  <p className="em-sous">Ni débit, ni crédit à l&apos;écran</p>
-                </div>
-
-                <div className="em-ecran" data-em="1">
-                  <p className="em-kicker">À traiter maintenant</p>
-                  <p className="em-h">Dix-sept factures attendent un paiement</p>
-                  <p className="em-mini">
-                    Onze sont en retard. Le rapprochement du fidéicommis n&apos;a pas encore été
-                    fait ce mois-ci.
-                  </p>
-                  <span className="em-act">Voir les créances</span>
-                  <p className="em-sous">Ensuite</p>
-                  <div className="em-kv">
-                    <span>Rapprocher le fidéicommis</span><span className="v">Ce mois</span>
-                  </div>
-                  <div className="em-kv">
-                    <span>Relancer Pelletier · 2026-002</span><span className="v">5 533,18 $</span>
-                  </div>
-                </div>
-
-                <div className="em-ecran" data-em="2">
-                  <p className="em-kicker">Temps</p>
-                  <p className="em-h">Saisie une fois, portée toute seule</p>
-                  <div className="em-bloc">
-                    <p className="t">Consultation · 1 h 30</p>
-                    <p className="s">Me Camille Roy · 450 $ l&apos;heure</p>
-                  </div>
-                  <div className="em-relie"><i aria-hidden />Sans ressaisie</div>
-                  <div className="em-bloc">
-                    <p className="t">Facture 2026-031</p>
-                    <div className="em-ligne">
-                      <span>Honoraires professionnels · 1 h 30</span>
-                      <span className="m">675,00 $</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="cote">
+              <p>
+                L&apos;information existe, mais elle reste dispersée. L&apos;équipe doit
+                continuellement chercher, vérifier et ressaisir ce qui s&apos;est passé.
+              </p>
+              <p className="chute">
+                Le problème n&apos;est pas le manque d&apos;effort. C&apos;est l&apos;absence de
+                contexte partagé.
+              </p>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ── 03 · Le changement ──────────────────────────────────────────────
+         Surtout pas cinq cartes côte à côte. Une seule information entre dans
+         le système et le traverse : l'heure de consultation devient ligne de
+         facture, puis paiement, puis écriture, puis chiffre de rapport. La
+         continuité se voit au lieu de se lire.
+
+         La chaîne de montants se vérifie : 675,00 $ d'honoraires, TPS 5 % et
+         TVQ 9,975 % (les taux qu'applique `lib/invoice-calculations.ts`), plus
+         195,00 $ de débours non taxables, soit 971,08 $ encaissés. */}
+      <div className="pinzone" id="zone-parcours">
+        <div className="pin co-pin">
+          <div className="co-grid">
+            {/* La démonstration passe à gauche : on suit un dossier, donc on le
+                voit avancer avant de lire ce qu'on en conclut. */}
+            <div className="co-stage">
+              <div className="co-ecran">
+                <p className="co-ou" data-ou>Nouveau dossier</p>
+
+                <div className="co-vue-zone">
+                  <div className="co-vue on" data-vue="0">
+                    <p className="co-domaine">
+                      <span className="lb">Domaine de pratique</span>
+                      <span className="vl" id="co-domaine-nom">Droit de la famille</span>
+                    </p>
+                    <p className="co-sous" id="co-sous">Cartable monté automatiquement</p>
+                    <div className="co-liste" id="co-cartable">
+                      <div className="co-item">
+                        <span className="t">Mandat et engagement</span>
+                        <span className="s">RCNEPA art. 15-16</span>
+                      </div>
+                      <div className="co-item">
+                        <span className="t" id="co-cart-1">Pièces Madame (P-)</span>
+                        <span className="s">Règl. Cour Qc art. 13</span>
+                      </div>
+                      <div className="co-item">
+                        <span className="t" id="co-cart-2">Pièces Monsieur (D-)</span>
+                        <span className="s">Règl. Cour Qc art. 13</span>
+                      </div>
+                      <div className="co-item">
+                        <span className="t" id="co-cart-3">Procédures</span>
+                        <span className="s" id="co-cart-3s">C.p.c. art. 109 et s.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="co-vue" data-vue="1">
+                    <p className="co-sous">Dossier Pelletier · 2026-002</p>
+                    <div className="co-liste">
+                      <div className="co-item" data-ligne>
+                        <span className="t">Échéance inscrite</span>
+                        <span className="s">Protocole de l&apos;instance · 12 juin</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Temps consigné</span>
+                        <span className="s">Consultation · 1 h 30 à 450,00 $ l&apos;heure</span>
+                        <span className="m">675,00 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Document déposé</span>
+                        <span className="s">Pièce P-4 · rangée au cartable</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Débours inscrit</span>
+                        <span className="s">Frais de greffe · non taxable</span>
+                        <span className="m">195,00 $</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="co-vue" data-vue="2">
+                    <p className="co-sous">Facture 2026-031 · préparée depuis le dossier</p>
+                    <div className="co-liste">
+                      <div className="co-item" data-ligne>
+                        <span className="t">Honoraires</span>
+                        <span className="s">Reprise du temps consigné, sans ressaisie</span>
+                        <span className="m">675,00 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">TPS</span>
+                        <span className="s">5 %</span>
+                        <span className="m">33,75 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">TVQ</span>
+                        <span className="s">9,975 %</span>
+                        <span className="m">67,33 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Débours</span>
+                        <span className="s">Frais de greffe</span>
+                        <span className="m">195,00 $</span>
+                      </div>
+                      <div className="co-item total" data-ligne>
+                        <span className="t">Total de la facture</span>
+                        <span className="m">971,08 $</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="co-vue" data-vue="3">
+                    <p className="co-sous">Paiement rattaché à la facture 2026-031</p>
+                    <div className="co-liste">
+                      <div className="co-item" data-ligne>
+                        <span className="t">Paiement reçu</span>
+                        <span className="s">Virement Interac · dossier 2026-002</span>
+                        <span className="m">971,08 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Solde de la facture</span>
+                        <span className="s">Réglée</span>
+                        <span className="m">0,00 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Revenu d&apos;honoraires</span>
+                        <span className="s">Écriture datée, rattachée au dossier</span>
+                        <span className="m">675,00 $</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Taxes à remettre</span>
+                        <span className="s">TPS et TVQ perçues, jamais du revenu</span>
+                        <span className="m">101,08 $</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="co-vue" data-vue="4">
+                    <p className="co-sous">Ce que le dossier laisse aux registres</p>
+                    <div className="co-liste">
+                      <div className="co-item" data-ligne>
+                        <span className="t">Journal du dossier</span>
+                        <span className="s">Chaque opération, datée et attribuée</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Grand livre</span>
+                        <span className="s">Écritures en ajout seul</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Fidéicommis</span>
+                        <span className="s">Registre et rapprochement du mois</span>
+                      </div>
+                      <div className="co-item" data-ligne>
+                        <span className="t">Rapports du cabinet</span>
+                        <span className="s">Revenus, taxes et créances à jour</span>
+                      </div>
+                    </div>
+                    <p className="co-dit">
+                      <span className="marque" aria-hidden>✓</span>
+                      Le dossier peut se fermer. Les registres n&apos;ont rien à rattraper.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="co-copy">
+              <p className="kicker">Une information entre. Le travail avance.</p>
+              <h2>Saisi une fois. Utilisé jusqu&apos;à la fermeture du dossier.</h2>
+
+              <div className="co-narration">
+                <ol className="co-args">
+                  <li className="co-arg actif" data-etape="0">
+                    <span className="n" aria-hidden>01</span>
+                    <p className="e">Ouvrir le dossier</p>
+                    <p className="d">
+                      SAFE prépare un cadre adapté au domaine de pratique, avec les
+                      renseignements, les sections et les suivis nécessaires.
+                    </p>
+                  </li>
+                  <li className="co-arg" data-etape="1">
+                    <span className="n" aria-hidden>02</span>
+                    <p className="e">Faire avancer le travail</p>
+                    <p className="d">
+                      Le temps, les débours, les documents et les échéances se rattachent au même
+                      dossier au fil du travail.
+                    </p>
+                  </li>
+                  <li className="co-arg" data-etape="2">
+                    <span className="n" aria-hidden>03</span>
+                    <p className="e">Préparer la facturation</p>
+                    <p className="d">
+                      Le travail déjà consigné devient une facture sans devoir être reconstruit
+                      dans un autre système.
+                    </p>
+                  </li>
+                  <li className="co-arg" data-etape="3">
+                    <span className="n" aria-hidden>04</span>
+                    <p className="e">Encaisser et comptabiliser</p>
+                    <p className="d">
+                      Les paiements se rattachent aux bonnes factures. Les revenus, les taxes et
+                      les mouvements comptables restent reliés aux opérations qui les ont produits.
+                    </p>
+                  </li>
+                  <li className="co-arg" data-etape="4">
+                    <span className="n" aria-hidden>05</span>
+                    <p className="e">Tenir les registres à jour</p>
+                    <p className="d">
+                      Le fidéicommis, les rapprochements et les rapports conservent le contexte du
+                      client et du dossier.
+                    </p>
+                  </li>
+                </ol>
+                <p className="co-fin">
+                  Moins de ressaisie. Moins de recherche. Une lecture plus claire de ce qui se
+                  passe dans le cabinet.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      {/* Chapitre 3 · Fiable ───────────────────────────────────────────────
+
+      {/* ── 04 · La suite ───────────────────────────────────────────────────
+         Trois blocs de poids différents, pas trois cartes à icônes. SAFE
+         Cabinet occupe la largeur et porte la liste de ce qu'il tient ; les
+         outils et l'accompagnement se partagent la rangée du dessous, à un
+         cran plus bas.
+
+         Les outils : un seul est publié, et c'est le seul qui est nommé. Un
+         catalogue annoncé avant d'exister est une promesse qu'on ne peut pas
+         tenir le jour où quelqu'un clique. */}
+      <section className="flat" id="suite">
+        <div className="inner">
+          <p className="kicker">Une suite qui évolue avec la pratique</p>
+          <h2>Un système central. Des outils pour les tâches qui peuvent être simplifiées.</h2>
+
+          <div className="bloc bloc-maitre">
+            <div className="bloc-texte">
+              <p className="rang">SAFE</p>
+              <h3>Le travail quotidien, dans un même système</h3>
+              <p>
+                Clients, dossiers, temps, facturation, paiements, comptabilité, fidéicommis,
+                échéances et rapports partagent le même contexte.
+              </p>
+              <a className="more" href={ROUTES.cabinet}>Voir ce que fait SAFE →</a>
+            </div>
+            <ul className="contexte">
+              {CONTEXTE.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="deux-blocs">
+            <div className="bloc">
+              <p className="rang">Outils SAFE</p>
+              <h3>Un outil précis pour une tâche précise</h3>
+              <p>
+                Calculateurs, vérificateurs et générateurs spécialisés simplifient certaines
+                tâches sans exiger l&apos;adoption de toute l&apos;application.
+              </p>
+              <p className="detail">
+                Le premier est publié : le partage du patrimoine familial, calculé article par
+                article.
+              </p>
+              <a className="more" href={ROUTES.outils}>Découvrir les outils SAFE →</a>
+            </div>
+            <div className="bloc">
+              <p className="rang">Accompagnement SAFE</p>
+              <h3>Une implantation adaptée au cabinet</h3>
+              <p>
+                SAFE analyse vos méthodes actuelles, configure le système et vous aide à
+                commencer avec vos vrais dossiers et vos vraies données.
+              </p>
+              <a className="more" href={ROUTES.evaluation}>Évaluer mon cabinet →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 05 · La preuve distinctive ──────────────────────────────────────
          Section blanche et éditoriale. Aucune carte, aucun cadre, aucun filet
          décoratif : la hiérarchie tient à la typographie, à l'espace et au
-         contraste. Trois moments racontés l'un après l'autre pendant le
-         défilement, chacun prouvé dans l'interface à droite, puis les trois
-         rassemblés dans une synthèse ouverte.
+         contraste.
 
          Les refus affichés ne sont pas inventés pour la vitrine : ce sont les
          messages exacts de `lib/services/fideicommis/errors.ts`. */}
-      <div className="pinzone fiable-blanc" id="zone-fiable">
+      <div className="pinzone" id="zone-verification">
         <div className="pin fi-pin">
           <div className="fi-grid">
             <div className="fi-copy">
-              <p className="ch-mark" data-mark="fiable">Fiable</p>
-              <p className="kicker">Pilier 2 sur 3</p>
-              <h2>Des contrôles intégrés là où ils comptent.</h2>
+              <p className="kicker">Relier ne suffit pas</p>
+              <h2>SAFE vérifie aussi ce qui doit concorder.</h2>
+              <p className="fi-intro">
+                SAFE conserve le lien entre le travail juridique, la facturation, les paiements et
+                les écritures comptables. Pour le fidéicommis, il compare le solde bancaire, le
+                registre et les soldes détenus pour chaque dossier.
+              </p>
 
-              {/* Trois arguments qui changent de rang, jamais remplacés.
-                  Le courant est en grand ; ceux qui l'ont précédé sont rangés
-                  au-dessus, numérotés. Le numéro est masqué à la voix de
-                  synthèse : le rang est déjà porté par la liste ordonnée. */}
               <div className="fi-narration">
                 <ol className="fi-args">
-                  <li className="fi-arg" data-arg="0">
+                  <li className="fi-arg actif" data-etape="0">
                     <span className="n" aria-hidden>01</span>
-                    <p className="e">Vos chiffres restent cohérents, partout où vous les consultez.</p>
-                  <p className="d">Le compte, le registre et les soldes par dossier portent le même montant.</p>
+                    <p className="e">Trois sources, un même montant</p>
+                    <p className="d">
+                      Le relevé bancaire, le registre du fidéicommis et les soldes par dossier
+                      sont rapprochés dans une même vue.
+                    </p>
                   </li>
-                  <li className="fi-arg" data-arg="1">
+                  <li className="fi-arg" data-etape="1">
                     <span className="n" aria-hidden>02</span>
-                    <p className="e">Chaque correction laisse une trace. Rien d&apos;important ne disparaît.</p>
-                  <p className="d">L’écriture d’origine reste au journal. La correction s’ajoute en dessous, datée.</p>
+                    <p className="e">Les incohérences sont arrêtées</p>
+                    <p className="d">
+                      Un retrait supérieur au solde détenu pour un dossier est refusé avant son
+                      inscription.
+                    </p>
                   </li>
-                  <li className="fi-arg" data-arg="2">
+                  <li className="fi-arg" data-etape="2">
                     <span className="n" aria-hidden>03</span>
-                    <p className="e">Les incohérences sont détectées avant qu&apos;elles deviennent un problème.</p>
-                  <p className="d">Un retrait au-delà du solde détenu pour le dossier est refusé, règle citée.</p>
+                    <p className="e">Chaque correction laisse une trace</p>
+                    <p className="d">
+                      L&apos;écriture d&apos;origine demeure au journal. La correction
+                      s&apos;ajoute, datée et attribuée.
+                    </p>
                   </li>
                 </ol>
+                <p className="fi-precision">
+                  SAFE soutient la tenue, la vérification et la traçabilité. La responsabilité
+                  professionnelle demeure celle du cabinet.
+                </p>
               </div>
             </div>
 
@@ -4502,339 +4487,188 @@ export default function ExperienceCinema() {
                 portée par la teinte du canevas plutôt que par une bordure. */}
             <div className="fi-stage">
               <div className="fi-ecran">
-                <p className="fi-ou" id="fi-ou">Rapprochement · juin 2026</p>
+                <p className="fi-ou" data-ou>Rapprochement · juin 2026</p>
 
                 <div className="fi-vue-zone">
-                <div className="fi-vue on" data-fivue="0">
-                  <div className="fi-src" data-src="0">
-                    <span className="l">Solde bancaire</span>
-                    <span className="m">21 000,00 $</span>
+                  <div className="fi-vue on" data-vue="0">
+                    <div className="fi-src" data-ligne>
+                      <span className="l">Solde bancaire</span>
+                      <span className="m">21 000,00 $</span>
+                    </div>
+                    <div className="fi-src" data-ligne>
+                      <span className="l">Registre du fidéicommis</span>
+                      <span className="m">21 000,00 $</span>
+                    </div>
+                    <div className="fi-src" data-ligne>
+                      <span className="l">Soldes par dossier</span>
+                      <span className="m">21 000,00 $</span>
+                    </div>
+                    <p className="fi-dit" data-ligne>
+                      Trois sources, un seul montant. La certification peut être produite.
+                    </p>
                   </div>
-                  <div className="fi-src" data-src="1">
-                    <span className="l">Registre du fidéicommis</span>
-                    <span className="m">21 000,00 $</span>
-                  </div>
-                  <div className="fi-src" data-src="2">
-                    <span className="l">Soldes par dossier</span>
-                    <span className="m">21 000,00 $</span>
-                  </div>
-                  <p className="fi-dit" id="fi-dit-0">Trois sources, un seul montant.</p>
-                </div>
 
-                <div className="fi-vue" data-fivue="1">
-                  <div className="fi-temps" data-temps="0">
-                    <span className="h">14 juin · 09 h 12</span>
-                    <span className="t">Écart constaté sur le dossier <span className="ref">2026-011</span></span>
-                    <span className="m">− 500,00 $</span>
+                  <div className="fi-vue" data-vue="1">
+                    <p className="fi-op">Retrait demandé · dossier <span className="ref">2026-011</span></p>
+                    <div className="fi-src" data-ligne>
+                      <span className="l">Montant du retrait</span>
+                      <span className="m">1 200,00 $</span>
+                    </div>
+                    <div className="fi-src" data-ligne>
+                      <span className="l">Solde détenu pour ce dossier</span>
+                      <span className="m">850,00 $</span>
+                    </div>
+                    <p className="fi-refus" data-ligne>
+                      Solde en fidéicommis insuffisant pour ce dossier. Un retrait ne peut jamais
+                      dépasser le solde détenu pour ce dossier.
+                    </p>
                   </div>
-                  <div className="fi-temps" data-temps="1">
-                    <span className="h">14 juin · 09 h 41</span>
-                    <span className="t">Écriture de correction · dossier <span className="ref">2026-011</span></span>
-                    <span className="m vert">+ 500,00 $</span>
-                  </div>
-                  <p className="fi-dit" id="fi-dit-1">
-                    L&apos;écriture d&apos;origine reste au journal. La correction s&apos;ajoute
-                    en dessous, datée.
-                  </p>
-                </div>
 
-                <div className="fi-vue" data-fivue="2">
-                  <p className="fi-op">Retrait demandé · dossier <span className="ref">2026-011</span></p>
-                  <div className="fi-src">
-                    <span className="l">Montant du retrait</span>
-                    <span className="m">1 200,00 $</span>
+                  <div className="fi-vue" data-vue="2">
+                    <div className="fi-temps" data-temps="0" data-ligne>
+                      <span className="h">14 juin · 09 h 12</span>
+                      <span className="t">Écart constaté sur le dossier <span className="ref">2026-011</span></span>
+                      <span className="m">− 500,00 $</span>
+                    </div>
+                    <div className="fi-temps" data-temps="1" data-ligne>
+                      <span className="h">14 juin · 09 h 41</span>
+                      <span className="t">Écriture de correction · dossier <span className="ref">2026-011</span></span>
+                      <span className="m vert">+ 500,00 $</span>
+                    </div>
+                    <p className="fi-dit" data-ligne>
+                      L&apos;écriture d&apos;origine reste au journal. La correction s&apos;ajoute
+                      en dessous, datée et attribuée.
+                    </p>
                   </div>
-                  <div className="fi-src">
-                    <span className="l">Solde détenu pour ce dossier</span>
-                    <span className="m">850,00 $</span>
-                  </div>
-                  <p className="fi-refus" id="fi-refus">
-                    Solde en fidéicommis insuffisant pour ce dossier. Un retrait ne peut
-                    jamais dépasser le solde détenu pour ce dossier.
-                  </p>
-                </div>
-
-                <div className="fi-vue" data-fivue="3">
-                  <div className="fi-src">
-                    <span className="l">Solde bancaire</span>
-                    <span className="m">21 000,00 $</span>
-                  </div>
-                  <div className="fi-src">
-                    <span className="l">Registre du fidéicommis</span>
-                    <span className="m">21 000,00 $</span>
-                  </div>
-                  <div className="fi-src">
-                    <span className="l">Soldes par dossier</span>
-                    <span className="m">21 000,00 $</span>
-                  </div>
-                  <p className="fi-dit vert" id="fi-dit-3">
-                    Concordance. La certification peut être produite.
-                  </p>
-                </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* Chapitre 4 · Complet ──────────────────────────────────────────────
-         Surtout pas six cartes côte à côte. Une seule information entre dans
-         le système et le traverse : la même heure de consultation devient
-         ligne de facture, puis paiement, puis mouvement de fidéicommis, puis
-         écriture, puis chiffre de rapport. Le montant se transforme sous les
-         yeux, la continuité se voit au lieu de se lire. */}
-      <div className="pinzone" id="zone-complet">
-        <div className="pin co-pin">
-          <div className="co-grid">
-            {/* La démonstration passe à gauche : on suit un dossier, donc on le
-                voit avancer avant de lire ce qu'on en conclut. Les sections de
-                cartable et leurs sources viennent de
-                `lib/dossiers/cartable-templates`, ce sont celles que le produit
-                monte réellement à l'ouverture. */}
-            <div className="co-stage">
-              <div className="co-ecran">
-                <p className="co-ou" id="co-ou">Nouveau dossier</p>
 
-                <div className="co-vue-zone">
-                <div className="co-vue on" data-covue="0">
-                  <p className="co-domaine">
-                    <span className="lb">Domaine de pratique</span>
-                    <span className="vl" id="co-domaine-nom">Droit de la famille</span>
-                  </p>
-                  <p className="co-sous" id="co-sous">Cartable monté automatiquement</p>
-                  <div className="co-liste" id="co-cartable">
-                    <div className="co-item" data-cart="0">
-                      <span className="t">Mandat et engagement</span>
-                      <span className="s">RCNEPA art. 15-16</span>
-                    </div>
-                    <div className="co-item" data-cart="1">
-                      <span className="t" id="co-cart-1">Pièces Madame (P-)</span>
-                      <span className="s">Règl. Cour Qc art. 13</span>
-                    </div>
-                    <div className="co-item" data-cart="2">
-                      <span className="t" id="co-cart-2">Pièces Monsieur (D-)</span>
-                      <span className="s">Règl. Cour Qc art. 13</span>
-                    </div>
-                    <div className="co-item" data-cart="3">
-                      <span className="t" id="co-cart-3">Procédures</span>
-                      <span className="s" id="co-cart-3s">C.p.c. art. 109 et s.</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="co-vue" data-covue="1">
-                  <p className="co-sous">Dossier Pelletier · 2026-002</p>
-                  <div className="co-liste">
-                    <div className="co-item" data-op="0">
-                      <span className="t">Échéance inscrite</span>
-                      <span className="s">Protocole de l&apos;instance · 12 juin</span>
-                    </div>
-                    <div className="co-item" data-op="1">
-                      <span className="t">Temps consigné</span>
-                      <span className="s">Consultation · 1 h 30</span>
-                      <span className="m">675,00 $</span>
-                    </div>
-                    <div className="co-item" data-op="2">
-                      <span className="t">Document déposé</span>
-                      <span className="s">Pièce P-4 · rangée au cartable</span>
-                    </div>
-                    <div className="co-item" data-op="3">
-                      <span className="t">Débours inscrit</span>
-                      <span className="s">Frais de greffe</span>
-                      <span className="m">195,00 $</span>
-                    </div>
-                    <div className="co-item" data-op="4">
-                      <span className="t">Facture préparée</span>
-                      <span className="s">2026-031 · rien à ressaisir</span>
-                      <span className="m">870,00 $</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="co-vue" data-covue="2">
-                  <p className="co-sous">Ce que le dossier a produit</p>
-                  <div className="co-liste">
-                    <div className="co-item" data-fin="0">
-                      <span className="t">Facture 2026-031</span>
-                      <span className="s">Envoyée au client</span>
-                      <span className="m">675,00 $</span>
-                    </div>
-                    <div className="co-item" data-fin="1">
-                      <span className="t">Paiement reçu</span>
-                      <span className="s">Virement Interac</span>
-                      <span className="m">776,36 $</span>
-                    </div>
-                    <div className="co-item" data-fin="2">
-                      <span className="t">Débours réglés</span>
-                      <span className="s">Du compte client</span>
-                      <span className="m">195,00 $</span>
-                    </div>
-                    <div className="co-item" data-fin="3">
-                      <span className="t">Écriture au grand livre</span>
-                      <span className="s">Datée et protégée</span>
-                    </div>
-                    <div className="co-item" data-fin="4">
-                      <span className="t">Revenus et taxes</span>
-                      <span className="s">À jour, sans ressaisie</span>
-                    </div>
-                  </div>
-                  <p className="co-dit" id="co-dit">
-                    <span className="marque" aria-hidden>✓</span>
-                    Le dossier est clos. Les rapports du cabinet sont à jour.
-                  </p>
-                </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="co-copy">
-              <p className="ch-mark" data-mark="complet">Complet</p>
-              <p className="kicker">Pilier 3 sur 3</p>
-              <h2>De l&apos;ouverture du dossier jusqu&apos;aux rapports.</h2>
-              <p className="co-intro">
-                SAFE adapte chaque étape à votre domaine de pratique, puis relie le travail
-                juridique, l&apos;administration et la comptabilité dans un même système.
-              </p>
-
-              {/* Même grammaire que « Fiable » : le message se réduit et prend
-                  sa place dans le parcours. Ici le texte du point n'est pas
-                  celui du grand message, donc le bloc porte les deux et bascule
-                  de l'un à l'autre pendant qu'il rétrécit et se déplace. */}
-              <div className="co-narration">
-                <ol className="co-args">
-                  <li className="co-arg" data-coarg="0">
-                    <span className="n" aria-hidden>01</span>
-                    <p className="e">Le bon cadre, dès l&apos;ouverture.</p>
-                  <p className="d">Le cartable réglementaire de votre domaine est monté à la création du dossier.</p>
-                  </li>
-                  <li className="co-arg" data-coarg="1">
-                    <span className="n" aria-hidden>02</span>
-                    <p className="e">Le dossier avance. Chaque opération suit.</p>
-                  <p className="d">Temps, débours et documents se rattachent au dossier au fil du travail.</p>
-                  </li>
-                  <li className="co-arg" data-coarg="2">
-                    <span className="n" aria-hidden>03</span>
-                    <p className="e">Le dossier se termine. Le cabinet reste à jour.</p>
-                  <p className="d">À la fermeture, la facturation et les rapports du cabinet sont déjà à jour.</p>
-                  </li>
-                </ol>
-                <p className="co-fin" id="co-fin">
-                  Un parcours adapté à votre pratique. Un cabinet relié de bout en bout.
-                  <span className="co-comptable">
-                    Votre comptable conserve sa place. SAFE lui fournit une information mieux
-                    structurée.
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Synthèse ──────────────────────────────────────────────────────────
-         La section « Conçu pour les petits cabinets » a été retirée (décision
-         CEO du 13 août 2026) : la démonstration terminée, c'est la synthèse qui
-         referme le récit, sans détour par un dernier argument.
-
-         Fond blanc, comme les trois piliers qui la précèdent. La tarification
-         qui suit reprend le canevas : le changement de surface marque le
-         passage du récit à l'offre. */}
-      {/* La triade « simple, fiable, complet » était énoncée trois fois : par la
-          promesse, par les trois piliers qui la démontrent, puis récapitulée
-          ici sur un écran et demi. La troisième énonciation n'apprenait rien
-          à qui venait de parcourir onze écrans, et repoussait le prix d'autant
-          (audit du 13 août 2026).
-
-          Restent la phrase de clôture et l'action, qui referment la
-          démonstration et touchent maintenant la tarification. La scène quitte
-          l'épinglage : elle n'a plus de temps à raconter. */}
-      <section className="flat" id="zone-synthese">
+      {/* ── 06 · L'équipe ───────────────────────────────────────────────────
+         Deux points de vue, jamais un seul : c'est l'adjointe qui tient le
+         cabinet en mouvement et l'avocate qui décide. La composition change
+         volontairement de celle de la suite : ici deux colonnes de même poids,
+         séparées par un filet, sous une phrase qui les tient ensemble. */}
+      <section className="flat surface" id="equipe">
         <div className="inner">
-          <div className="sy-end" id="sy-end">
-            <p className="sy-claim">Bâtissez votre cabinet sur de meilleures fondations.</p>
-            {/* L'action pleine menait vers une page de contenu pendant que le
-                diagnostic, seule prochaine étape réelle du parcours, était
-                relégué en bouton fantôme. La synthèse referme la démonstration :
-                c'est l'endroit de la page où l'engagement coûte le moins, il ne
-                peut pas porter la hiérarchie inversée. */}
-            <div className="sy-cta">
-              <a className="btn" href="/audit-gratuit">Faire le diagnostic</a>
-              <a className="btn ghost" href="/fonctionnalites">Voir ce que fait SAFE</a>
+          <p className="kicker">Conçu autour du travail réel</p>
+          <h2>SAFE soutient l&apos;équipe qui tient le cabinet en mouvement.</h2>
+          <p className="lede">
+            L&apos;adjointe conserve la connaissance du cabinet. L&apos;avocate conserve le
+            jugement professionnel. SAFE prépare, relie et signale pour que
+            l&apos;administration ne repose plus uniquement sur leur mémoire.
+          </p>
+
+          <div className="deux-vues">
+            <div className="vue">
+              <p className="rang">Pour l&apos;équipe administrative</p>
+              <p>
+                Moins de ressaisie, de recherche et de suivis invisibles. Le travail à accomplir
+                reste visible dans son contexte.
+              </p>
+            </div>
+            <div className="vue">
+              <p className="rang">Pour l&apos;avocate</p>
+              <p>
+                Une lecture claire des montants, des échéances et des décisions qui demandent son
+                attention.
+              </p>
             </div>
           </div>
+
+          <p className="chute">
+            SAFE ne remplace pas l&apos;équipe. Il lui donne un système commun pour travailler.
+          </p>
         </div>
       </section>
-      {/* Tarification */}
+
+      {/* ── 07 · L'offre ────────────────────────────────────────────────────
+         Les prix viennent de `lib/tarification.ts`, seule source du site. Le
+         palier Cabinet vaut 149,99 $ et non 149 $ : c'est ce que Stripe
+         facture réellement, et un prix arrondi sur la vitrine deviendrait un
+         écart à la première facture. */}
       <section className="flat" id="tarifs">
         <div className="inner">
           <div className="head">
-            <p className="kicker">Tarification</p>
-            <h2>Simple dès le départ.</h2>
+            <p className="kicker">Une implantation accompagnée</p>
+            <h2>Simple dès le départ. Adapté avant la mise en service.</h2>
           </div>
           <div className="plan">
             <div>
               <p className="name">Solo</p>
-              <p className="detail">Pour une pratique individuelle.</p>
+              <p className="detail">
+                Pour une pratique individuelle qui veut relier son administration, sa facturation,
+                sa comptabilité et son fidéicommis.
+              </p>
             </div>
             <p className="price">{prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small></p>
           </div>
           <div className="plan">
             <div>
               <p className="name">Cabinet</p>
-              <p className="detail">Pour une petite équipe qui travaille ensemble.</p>
+              <p className="detail">
+                Pour une petite équipe qui partage les dossiers, les suivis et les responsabilités
+                administratives.
+              </p>
             </div>
             <p className="price">{prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small></p>
           </div>
-          <p className="note">Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.</p>
-          <a className="more" href="/tarification">Tous les détails de la tarification →</a>
+          <p className="note">
+            Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.
+          </p>
+
+          <div className="etapes">
+            {IMPLANTATION.map(([n, titre, texte]) => (
+              <div className="etape" key={n}>
+                <span className="n" aria-hidden>{n}</span>
+                <p className="t">{titre}</p>
+                <p className="d">{texte}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="actions">
+            <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
+            <a className="btn ghost" href={ROUTES.tarification}>Voir la tarification complète</a>
+          </div>
         </div>
       </section>
 
-      {/* Questions */}
+      {/* ── 08 · Les questions ──────────────────────────────────────────── */}
       <section className="flat surface" id="questions">
         <div className="inner">
           <p className="kicker">Avant de nous parler</p>
           <h2>Des réponses précises aux questions importantes.</h2>
-          <div style={{ marginTop: 44 }}>
-            <div className="q">
-              <h3>SAFE garantit-il ma conformité ?</h3>
-              <p>
-                Non. SAFE soutient la tenue, la vérification et la traçabilité. La responsabilité
-                professionnelle demeure celle du cabinet.
-              </p>
-            </div>
-            <div className="q">
-              <h3>Est-ce que SAFE remplace mon adjointe ?</h3>
-              <p>
-                Non. SAFE prépare, relie et signale. Votre équipe conserve le jugement et la
-                connaissance du cabinet.
-              </p>
-            </div>
-            <div className="q">
-              <h3>À qui appartiennent mes données ?</h3>
-              <p>
-                À votre cabinet. Les données sont hébergées au Canada et peuvent être exportées dans
-                les formats offerts.
-              </p>
-            </div>
+          <div className="liste-q">
+            {QUESTIONS.map(([q, r]) => (
+              <div className="q" key={q}>
+                <h3>{q}</h3>
+                <p>{r}</p>
+              </div>
+            ))}
           </div>
-          <a className="more" href="/faq">Lire toutes les questions →</a>
+          <a className="more" href={ROUTES.faq}>Lire toutes les questions →</a>
         </div>
       </section>
 
-      {/* CTA final */}
+      {/* ── 09 · La prochaine étape ─────────────────────────────────────── */}
       <section className="flat" id="cta">
         <div className="inner">
           <p className="kicker">La prochaine étape</p>
-          <h2>Voyons si SAFE convient à votre façon de travailler.</h2>
+          <h2>Voyons ce que SAFE pourrait simplifier dans votre cabinet.</h2>
           <p>
-            Commencez par un diagnostic concret de votre cabinet. Vous décidez ensuite si une
-            démonstration mérite vingt minutes de votre temps.
+            Commencez par une évaluation de votre organisation administrative. SAFE relève les
+            tâches répétitives, les informations dispersées et les points qui demandent une
+            meilleure visibilité.
           </p>
           <div className="actions">
-            <a className="btn" href="/audit-gratuit">Faire le diagnostic</a>
-            <a className="btn ghost" href="/demo">Réserver une rencontre</a>
+            <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
+            <a className="btn ghost" href={ROUTES.rencontre}>Réserver une rencontre</a>
           </div>
+          <p className="reassure">Gratuit, sans carte de crédit. Rapport sous 24 heures.</p>
         </div>
       </section>
 
@@ -4844,12 +4678,14 @@ export default function ExperienceCinema() {
           <span>Maquettes et captures sur données de démonstration</span>
         </span>
         <span className="flinks">
-          <a href="/fonctionnalites">Fonctionnalités</a>
-          <a href="/a-propos">À propos</a>
-          <a href="/faq">FAQ</a>
-          <a href="/contact">Contact</a>
-          <a href="/conditions">Conditions</a>
-          <a href="/confidentialite">Confidentialité</a>
+          <a href={ROUTES.cabinet}>L’application</a>
+          <a href={ROUTES.outils}>Outils SAFE</a>
+          <a href={ROUTES.tarification}>Tarification</a>
+          <a href={ROUTES.aPropos}>À propos</a>
+          <a href={ROUTES.faq}>FAQ</a>
+          <a href={ROUTES.rencontre}>Contact</a>
+          <a href={ROUTES.conditions}>Conditions</a>
+          <a href={ROUTES.confidentialite}>Confidentialité</a>
         </span>
       </footer>
     </div>
