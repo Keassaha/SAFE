@@ -1,13 +1,12 @@
 /* Barre et pied de page du site, pas ceux d'une troisième famille de pages.
-   Ces deux pages servaient `components/marketing/Navbar` et
-   `components/marketing/Footer`, un troisième jeu que plus rien d'autre
-   n'emploie : fond noir #0A0A0A au lieu du vert forêt, liens périmés
-   (« Prix après audit », « Audit gratuit », /contact au lieu de /demo), et
-   surtout deux affirmations que la marque interdit, « conformité au Barreau,
-   automatisés » et « Conforme à la Loi 25 ». SAFE ne garantit pas la
-   conformité (docs/brand/IDENTITE_SAFE §1). Le pied de page partagé porte à la
-   place la mention exacte : la responsabilité professionnelle demeure celle du
-   cabinet. */
+   Ces deux pages servaient un jeu à elles, `components/marketing/Navbar` et
+   `components/marketing/Footer`, supprimé le 2026-08-21 : fond noir #0A0A0A au
+   lieu du vert forêt, liens périmés (« Prix après audit », « Audit gratuit »,
+   /contact au lieu de /demo), et surtout deux affirmations que la marque
+   interdit, « conformité au Barreau, automatisés » et « Conforme à la Loi 25 ».
+   SAFE ne garantit pas la conformité (docs/brand/IDENTITE_SAFE §1). Le pied de
+   page partagé porte à la place la mention exacte : la responsabilité
+   professionnelle demeure celle du cabinet. */
 import { PageShell } from "@/components/public-site/shared";
 import type { Metadata } from "next";
 

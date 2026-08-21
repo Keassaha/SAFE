@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navbar } from '@/components/marketing/Navbar';
+import { Nav } from '@/components/public-site/shared';
 import { HeroPreview } from '@/components/landing/preview/HeroPreview';
 import { ReperesPreview } from '@/components/landing/preview/ReperesPreview';
 import { CoutDesordre } from '@/components/landing/preview/CoutDesordre';
@@ -28,7 +28,7 @@ export const metadata = buildMetadata({
 export default function LandingPreviewPage() {
   return (
     <div className="min-h-screen bg-canvas font-sans text-text-body antialiased selection:bg-forest-100 selection:text-forest-600">
-      <Navbar />
+      <Nav />
       <main className="pt-20">
         <HeroPreview />
         <ReperesPreview />
