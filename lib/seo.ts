@@ -27,8 +27,25 @@ export const DEFAULT_OG_IMAGE = "/safe-hero-dashboard.png";
  */
 export const LOGO_PATH = "/safe-logo.png";
 
+/**
+ * Description de repli, et surtout description des données structurées.
+ *
+ * Elle affirmait « Conforme au Barreau du Québec ». C'est la seule phrase du
+ * site qui promettait une conformité, et elle la promettait à l'endroit le plus
+ * lu par les moteurs et les modèles : le JSON-LD de l'accueil. La marque
+ * l'interdit, l'accueil dit maintenant le contraire noir sur blanc (« SAFE
+ * garantit-il la conformité ? Non. »), et une page qui se contredit entre son
+ * texte et son balisage perd les deux fois.
+ *
+ * Elle nomme donc ce que SAFE fait, pas ce qu'il garantirait, et elle couvre
+ * les deux provinces servies. 152 caractères.
+ *
+ * Aucune page publique ne s'en sert comme description de page : toutes passent
+ * la leur à `buildMetadata`. Elle ne vit que dans `organizationSchema` et
+ * `softwareApplicationSchema`, tous deux injectés sur l'accueil.
+ */
 const DEFAULT_DESCRIPTION =
-  "Logiciel de gestion pour petits cabinets d'avocats au Québec : facturation, suivi du temps, forfaits et comptabilité en fiducie. Conforme au Barreau du Québec.";
+  "Suite administrative pour cabinets d'avocats du Québec et de l'Ontario : dossiers, temps, facturation, comptabilité et fidéicommis dans un même système.";
 
 type BuildMetadataInput = {
   /** Titre de la page, sans le suffixe « — SAFE » (ajouté automatiquement). */
@@ -94,13 +111,24 @@ export function organizationSchema() {
     url: SITE_URL,
     logo: `${SITE_URL}${LOGO_PATH}`,
     description: DEFAULT_DESCRIPTION,
+    /* Gatineau, comme le pied de page du site. Le balisage disait Montréal :
+       Google prend l'adresse d'une Organization au sérieux pour le signal
+       local, et deux villes différentes sur le même site en font une donnée
+       sur laquelle il n'appuie plus (confirmé par le CEO le 21 août 2026). */
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Montréal",
+      addressLocality: "Gatineau",
       addressRegion: "QC",
       addressCountry: "CA",
     },
-    areaServed: { "@type": "AdministrativeArea", name: "Québec" },
+    /* Les deux provinces servies, comme le dit la première vue de l'accueil
+       (« Adapté au Québec et à l'Ontario »). Le balisage n'en déclarait
+       qu'une, et un signal local qui contredit la page ne sert ni l'un ni
+       l'autre. */
+    areaServed: [
+      { "@type": "AdministrativeArea", name: "Québec" },
+      { "@type": "AdministrativeArea", name: "Ontario" },
+    ],
     sameAs: [] as string[], // à compléter : LinkedIn, etc.
   };
 }
@@ -120,7 +148,10 @@ export function softwareApplicationSchema() {
     audience: {
       "@type": "Audience",
       audienceType: "Cabinets d'avocats, petits cabinets, adjointes juridiques",
-      geographicArea: { "@type": "AdministrativeArea", name: "Québec" },
+      geographicArea: [
+        { "@type": "AdministrativeArea", name: "Québec" },
+        { "@type": "AdministrativeArea", name: "Ontario" },
+      ],
     },
     offers: {
       "@type": "Offer",
