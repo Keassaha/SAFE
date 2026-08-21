@@ -104,11 +104,17 @@ Cabinet de démonstration local, 1470 px, chrono en marche.
 Aussi : `tsc --noEmit` sans erreur, `next lint` sans avertissement,
 `navigation-parity.test.ts` vert.
 
-## Reste
+## Tiroir mobile, vérifié à son tour
 
-Le tiroir mobile (ligne « Langue » au-dessus du profil) n'a pas été vu à
-l'écran : le navigateur piloté rend à largeur fixe et ne descend pas sous le
-seuil mobile. Vérifié par le code et la compilation seulement.
+Le navigateur piloté rend à largeur fixe et ne descend pas sous le seuil mobile.
+Le tiroir a donc été ouvert depuis la page (clic sur le bouton de menu, qui
+existe dans le DOM même masqué) et démasqué par une règle de style temporaire,
+retirée ensuite. Le composant rendu est le vrai.
+
+La ligne « Langue » y est, avec sa bascule FR/EN, entre la navigation et la
+ligne « Profil · Mon compte ». Bascule vers EN depuis le tiroir : toute
+l'interface passe à l'anglais, tiroir compris (« Language », « Today »,
+« Practice »). Retour en FR depuis le tiroir : l'inverse.
 
 ## Fichiers
 
