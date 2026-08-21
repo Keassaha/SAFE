@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { userRoleToEmployeeRole } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/services/audit";
 
 // GET — valide le token et retourne les infos de l'invitation
@@ -58,25 +59,59 @@ export async function POST(
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: {
-      cabinetId: invitation.cabinetId,
-      email: invitation.email,
-      passwordHash,
-      nom,
-      role: invitation.role,
-      isBillable: invitation.compensation
-        ? JSON.parse(invitation.compensation).isBillable ?? false
-        : false,
-      defaultHourlyRate: invitation.compensation
-        ? JSON.parse(invitation.compensation).tauxHoraireFact ?? null
-        : null,
-    },
-  });
+  /* Compte ET fiche employé, dans la MÊME transaction.
+   *
+   * Cette route ne créait qu'un `User`. Or l'écran Équipe liste des employés,
+   * et le seul levier de désactivation historique lisait `Employee.status` :
+   * une personne arrivée par invitation n'apparaissait donc nulle part et ne
+   * pouvait être désactivée par personne. Deux adjointes d'un cabinet réel
+   * étaient dans ce cas.
+   *
+   * `User.desactiveLe` couvre désormais tous les comptes, y compris les neuf
+   * déjà créés sans fiche. La fiche reste nécessaire pour que le membre soit
+   * VISIBLE et gérable depuis l'écran Équipe, plutôt que par un script.
+   *
+   * Atomique : un compte sans fiche est exactement le défaut qu'on corrige.
+   */
+  const prenom = nom.trim().split(/\s+/)[0] ?? nom.trim();
+  const nomFamille = nom.trim().split(/\s+/).slice(1).join(" ") || prenom;
+  const compensation = invitation.compensation ? JSON.parse(invitation.compensation) : null;
 
-  await prisma.invitation.update({
-    where: { token },
-    data: { acceptedAt: new Date() },
+  const user = await prisma.$transaction(async (tx) => {
+    const cree = await tx.user.create({
+      data: {
+        cabinetId: invitation.cabinetId,
+        email: invitation.email,
+        passwordHash,
+        nom,
+        role: invitation.role,
+        isBillable: compensation?.isBillable ?? false,
+        defaultHourlyRate: compensation?.tauxHoraireFact ?? null,
+      },
+    });
+
+    await tx.employee.create({
+      data: {
+        cabinetId: invitation.cabinetId,
+        userId: cree.id,
+        firstName: prenom,
+        lastName: nomFamille,
+        fullName: nom,
+        email: invitation.email,
+        // Date d'entrée = acceptation. C'est la seule que SAFE connaisse, et
+        // elle est vraie : c'est le jour où cette personne a obtenu l'accès.
+        hireDate: new Date(),
+        role: userRoleToEmployeeRole(invitation.role),
+        hourlyRate: compensation?.tauxHoraireFact ?? 0,
+      },
+    });
+
+    await tx.invitation.update({
+      where: { token },
+      data: { acceptedAt: new Date() },
+    });
+
+    return cree;
   });
 
   // P4/Sécurité — traçabilité : compte créé par acceptation d'invitation.

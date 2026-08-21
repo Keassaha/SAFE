@@ -224,6 +224,23 @@ model User {
   // changement de rôle n'invalidait rien. Tout JWT émis avant cette date est
   // refusé au prochain contrôle.
   sessionsValidFrom DateTime?
+
+  /// Date de DÉSACTIVATION du compte. NULL = compte actif.
+  ///
+  /// Révoquer un accès n'est pas mettre fin à un emploi. Le seul levier existant
+  /// passait par `Employee.status`, or l'acceptation d'une invitation crée un
+  /// `User` SANS fiche employé : neuf comptes sur dix en production n'étaient
+  /// donc révocables par aucun moyen, y compris les deux adjointes du seul
+  /// cabinet client. Une adjointe qui part gardait l'accès aux dossiers.
+  ///
+  /// Ce champ vaut pour TOUS les comptes, avec ou sans fiche employé. Il coupe
+  /// la connexion et révoque les sessions déjà ouvertes, sans attendre les
+  /// trente jours du jeton. Aucune donnée n'est touchée : le compte se
+  /// réactive en effaçant la date.
+  desactiveLe       DateTime?
+  /// Pourquoi l'accès a été retiré. Un retrait d'accès anonyme est un retrait
+  /// que personne n'assume, et c'est ce qu'un inspecteur cherche.
+  desactiveMotif    String?
   /// Statut du permis. s. 2 et 2.2 By-Law 9 : un titulaire failli ou suspendu ne
   /// peut pas manier de fonds détenus en fiducie. s. 2.3(1) : le suspendu dispose de
   /// 30 jours pour retirer les fonds de ses comptes en fiducie.

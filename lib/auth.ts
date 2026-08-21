@@ -4,6 +4,7 @@ import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { isRateLimited } from "@/lib/rate-limit";
+import { isCompteDesactive } from "@/lib/auth/compte-desactive";
 
 /** Intervalle de revalidation des droits portés par le JWT (rôle, cabinet, statut). */
 const SESSION_REVALIDATION_INTERVAL_MS = 15 * 60 * 1000;
@@ -38,6 +39,10 @@ export const authOptions: NextAuthOptions = {
         const cabinetName = credentials.cabinetName.trim().toLowerCase();
         const expectedCabinetName = user.cabinet.nom.trim().toLowerCase();
         if (cabinetName !== expectedCabinetName) return null;
+        // Compte désactivé : la connexion s'arrête ici. Vaut pour TOUS les
+        // comptes, y compris ceux sans fiche employé, que l'acceptation d'une
+        // invitation crée. Voir `User.desactiveLe`.
+        if (isCompteDesactive(user)) return null;
         if (user.employee && user.employee.status !== "active") return null;
         const ok = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!ok) return null;
@@ -87,12 +92,19 @@ export const authOptions: NextAuthOptions = {
           role: true,
           cabinetId: true,
           sessionsValidFrom: true,
+          desactiveLe: true,
           employee: { select: { status: true } },
         },
       });
 
-      // Compte supprimé, ou employé désactivé : la session ne vaut plus rien.
-      if (!current || (current.employee && current.employee.status !== "active")) {
+      // Compte supprimé, désactivé, ou employé désactivé : la session ne vaut
+      // plus rien. La désactivation ne doit pas attendre les trente jours du
+      // jeton : c'est tout l'intérêt de la revalidation périodique.
+      if (
+        !current ||
+        isCompteDesactive(current) ||
+        (current.employee && current.employee.status !== "active")
+      ) {
         token.revoked = true;
         return token;
       }
