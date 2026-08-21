@@ -1,0 +1,157 @@
+domaine,ecran,type_de_garde,permission,role,permission_attendue,autorise_par_le_modele,acces_reel,verdict
+Argent,/comptabilite,requirePageAccess,canViewComptabilite,admin_cabinet,canViewComptabilite,oui,oui,conforme
+Argent,/comptabilite,requirePageAccess,canViewComptabilite,avocat,canViewComptabilite,oui,oui,conforme
+Argent,/comptabilite,requirePageAccess,canViewComptabilite,assistante,canViewComptabilite,oui,oui,conforme
+Argent,/comptabilite,requirePageAccess,canViewComptabilite,comptabilite,canViewComptabilite,oui,oui,conforme
+Fidéicommis,/comptes,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/comptes,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes/rapports,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes/rapports,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes/rapports,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/comptes/rapports,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes/rapprochement,blocage explicite,canEditBillingTrust,admin_cabinet,canEditBillingTrust,oui,oui,conforme
+Fidéicommis,/comptes/rapprochement,blocage explicite,canEditBillingTrust,avocat,canEditBillingTrust,non,non,conforme
+Fidéicommis,/comptes/rapprochement,blocage explicite,canEditBillingTrust,assistante,canEditBillingTrust,non,non,conforme
+Fidéicommis,/comptes/rapprochement,blocage explicite,canEditBillingTrust,comptabilite,canEditBillingTrust,oui,oui,conforme
+Fidéicommis,/conformite,AUCUNE,—,admin_cabinet,canViewBillingTrust,oui,OUI,conforme
+Fidéicommis,/conformite,AUCUNE,—,avocat,canViewBillingTrust,oui,OUI,conforme
+Fidéicommis,/conformite,AUCUNE,—,assistante,canViewBillingTrust,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Fidéicommis,/conformite,AUCUNE,—,comptabilite,canViewBillingTrust,oui,OUI,conforme
+Documents,/edition,AUCUNE,—,admin_cabinet,canViewDocuments,oui,OUI,conforme
+Documents,/edition,AUCUNE,—,avocat,canViewDocuments,oui,OUI,conforme
+Documents,/edition,AUCUNE,—,assistante,canViewDocuments,oui,OUI,conforme
+Documents,/edition,AUCUNE,—,comptabilite,canViewDocuments,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Documents,/edition/[dossierId],AUCUNE,—,admin_cabinet,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId],AUCUNE,—,avocat,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId],AUCUNE,—,assistante,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId],AUCUNE,—,comptabilite,canViewDocuments,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Documents,/edition/[dossierId]/[docId],AUCUNE,—,admin_cabinet,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId]/[docId],AUCUNE,—,avocat,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId]/[docId],AUCUNE,—,assistante,canViewDocuments,oui,OUI,conforme
+Documents,/edition/[dossierId]/[docId],AUCUNE,—,comptabilite,canViewDocuments,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Documents,/edition/_test-editeur,AUCUNE,—,admin_cabinet,aucune — page de test,oui,OUI,conforme
+Documents,/edition/_test-editeur,AUCUNE,—,avocat,aucune — page de test,oui,OUI,conforme
+Documents,/edition/_test-editeur,AUCUNE,—,assistante,aucune — page de test,oui,OUI,conforme
+Documents,/edition/_test-editeur,AUCUNE,—,comptabilite,aucune — page de test,oui,OUI,conforme
+Documents,/edition/bibliotheque,AUCUNE,—,admin_cabinet,canViewDocuments,oui,OUI,conforme
+Documents,/edition/bibliotheque,AUCUNE,—,avocat,canViewDocuments,oui,OUI,conforme
+Documents,/edition/bibliotheque,AUCUNE,—,assistante,canViewDocuments,oui,OUI,conforme
+Documents,/edition/bibliotheque,AUCUNE,—,comptabilite,canViewDocuments,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Argent,/facturation,AUCUNE,—,admin_cabinet,canViewBilling,oui,OUI,conforme
+Argent,/facturation,AUCUNE,—,avocat,canViewBilling,oui,OUI,conforme
+Argent,/facturation,AUCUNE,—,assistante,canViewBilling,oui,OUI,conforme
+Argent,/facturation,AUCUNE,—,comptabilite,canViewBilling,oui,OUI,conforme
+Argent,/facturation/creances-aging,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/creances-aging,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/creances-aging,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Argent,/facturation/creances-aging,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/factures/[id],AUCUNE,—,admin_cabinet,canViewBilling,oui,OUI,conforme
+Argent,/facturation/factures/[id],AUCUNE,—,avocat,canViewBilling,oui,OUI,conforme
+Argent,/facturation/factures/[id],AUCUNE,—,assistante,canViewBilling,oui,OUI,conforme
+Argent,/facturation/factures/[id],AUCUNE,—,comptabilite,canViewBilling,oui,OUI,conforme
+Argent,/facturation/frais,requirePageAccess,canViewBilling,admin_cabinet,canViewBilling,oui,oui,conforme
+Argent,/facturation/frais,requirePageAccess,canViewBilling,avocat,canViewBilling,oui,oui,conforme
+Argent,/facturation/frais,requirePageAccess,canViewBilling,assistante,canViewBilling,oui,oui,conforme
+Argent,/facturation/frais,requirePageAccess,canViewBilling,comptabilite,canViewBilling,oui,oui,conforme
+Argent,/facturation/honoraires/[clientId],AUCUNE,—,admin_cabinet,canViewBilling,oui,OUI,conforme
+Argent,/facturation/honoraires/[clientId],AUCUNE,—,avocat,canViewBilling,oui,OUI,conforme
+Argent,/facturation/honoraires/[clientId],AUCUNE,—,assistante,canViewBilling,oui,OUI,conforme
+Argent,/facturation/honoraires/[clientId],AUCUNE,—,comptabilite,canViewBilling,oui,OUI,conforme
+Argent,/facturation/notes-de-credit,requirePageAccess,canViewBilling,admin_cabinet,canViewBilling,oui,oui,conforme
+Argent,/facturation/notes-de-credit,requirePageAccess,canViewBilling,avocat,canViewBilling,oui,oui,conforme
+Argent,/facturation/notes-de-credit,requirePageAccess,canViewBilling,assistante,canViewBilling,oui,oui,conforme
+Argent,/facturation/notes-de-credit,requirePageAccess,canViewBilling,comptabilite,canViewBilling,oui,oui,conforme
+Argent,/facturation/nouvelle,AUCUNE,—,admin_cabinet,canManageInvoices,oui,OUI,conforme
+Argent,/facturation/nouvelle,AUCUNE,—,avocat,canManageInvoices,non,OUI,"TROU : rôle exclu par le modèle, mais la page se charge"
+Argent,/facturation/nouvelle,AUCUNE,—,assistante,canManageInvoices,oui,OUI,conforme
+Argent,/facturation/nouvelle,AUCUNE,—,comptabilite,canManageInvoices,oui,OUI,conforme
+Argent,/facturation/paiements,requirePageAccess,canViewBilling,admin_cabinet,canViewBilling,oui,oui,conforme
+Argent,/facturation/paiements,requirePageAccess,canViewBilling,avocat,canViewBilling,oui,oui,conforme
+Argent,/facturation/paiements,requirePageAccess,canViewBilling,assistante,canViewBilling,oui,oui,conforme
+Argent,/facturation/paiements,requirePageAccess,canViewBilling,comptabilite,canViewBilling,oui,oui,conforme
+Argent,/facturation/rentabilite,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/rentabilite,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/rentabilite,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Argent,/facturation/rentabilite,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/suivi,requirePageAccess,canViewBilling,admin_cabinet,canViewBilling,oui,oui,conforme
+Argent,/facturation/suivi,requirePageAccess,canViewBilling,avocat,canViewBilling,oui,oui,conforme
+Argent,/facturation/suivi,requirePageAccess,canViewBilling,assistante,canViewBilling,oui,oui,conforme
+Argent,/facturation/suivi,requirePageAccess,canViewBilling,comptabilite,canViewBilling,oui,oui,conforme
+Argent,/facturation/taxes,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/taxes,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/taxes,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Argent,/facturation/taxes,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/temps-non-facture,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/temps-non-facture,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/temps-non-facture,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Argent,/facturation/temps-non-facture,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Argent,/facturation/verification,requirePageAccess,canViewBilling,admin_cabinet,canViewBilling,oui,oui,conforme
+Argent,/facturation/verification,requirePageAccess,canViewBilling,avocat,canViewBilling,oui,oui,conforme
+Argent,/facturation/verification,requirePageAccess,canViewBilling,assistante,canViewBilling,oui,oui,conforme
+Argent,/facturation/verification,requirePageAccess,canViewBilling,comptabilite,canViewBilling,oui,oui,conforme
+Fidéicommis,/inspection,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/autres-biens,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/autres-biens,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/autres-biens,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/autres-biens,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/comptes,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/comptes,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/comptes,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/comptes,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/conservation,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/conservation,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/conservation,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/conservation,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/cycle-de-vie,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/cycle-de-vie,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/cycle-de-vie,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/cycle-de-vie,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/especes,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/especes,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/especes,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/especes,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-annuel,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-annuel,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-annuel,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/rapport-annuel,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-mensuel,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-mensuel,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/rapport-mensuel,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/rapport-mensuel,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/registres,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/registres,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/registres,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/registres,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/soldes-debiteurs,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/soldes-debiteurs,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/soldes-debiteurs,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/soldes-debiteurs,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/transmission-factures,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/transmission-factures,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/transmission-factures,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/transmission-factures,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/trousse,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/trousse,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/trousse,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/trousse,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/virements,blocage explicite,canViewBillingTrust,admin_cabinet,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/virements,blocage explicite,canViewBillingTrust,avocat,canViewBillingTrust,oui,oui,conforme
+Fidéicommis,/inspection/virements,blocage explicite,canViewBillingTrust,assistante,canViewBillingTrust,non,non,conforme
+Fidéicommis,/inspection/virements,blocage explicite,canViewBillingTrust,comptabilite,canViewBillingTrust,oui,oui,conforme
+Argent,/journal/depenses,requirePageAccess,canViewComptabilite,admin_cabinet,canViewComptabilite,oui,oui,conforme
+Argent,/journal/depenses,requirePageAccess,canViewComptabilite,avocat,canViewComptabilite,oui,oui,conforme
+Argent,/journal/depenses,requirePageAccess,canViewComptabilite,assistante,canViewComptabilite,oui,oui,conforme
+Argent,/journal/depenses,requirePageAccess,canViewComptabilite,comptabilite,canViewComptabilite,oui,oui,conforme
+Argent,/journal/general,requirePageAccess,canViewComptabilite,admin_cabinet,canViewComptabilite,oui,oui,conforme
+Argent,/journal/general,requirePageAccess,canViewComptabilite,avocat,canViewComptabilite,oui,oui,conforme
+Argent,/journal/general,requirePageAccess,canViewComptabilite,assistante,canViewComptabilite,oui,oui,conforme
+Argent,/journal/general,requirePageAccess,canViewComptabilite,comptabilite,canViewComptabilite,oui,oui,conforme
+Argent,/rapports,requirePageAccess,canViewReports,admin_cabinet,canViewReports,oui,oui,conforme
+Argent,/rapports,requirePageAccess,canViewReports,avocat,canViewReports,oui,oui,conforme
+Argent,/rapports,requirePageAccess,canViewReports,assistante,canViewReports,oui,oui,conforme
+Argent,/rapports,requirePageAccess,canViewReports,comptabilite,canViewReports,oui,oui,conforme
