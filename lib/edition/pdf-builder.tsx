@@ -158,7 +158,7 @@ export function buildPdfDocument(
       title: titre,
       author: cabinet.nom,
       subject: `${typeLabels[type] ?? "Document"} — ${dossierIntitule}`,
-      creator: "SAFE Cabinet",
+      creator: "SAFE",
       keywords: `${clientNom}, ${dossierIntitule}`,
     },
     React.createElement(

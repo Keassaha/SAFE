@@ -27,7 +27,7 @@ export default function ConditionsPage() {
               <p>
                 Les présentes conditions générales d&apos;utilisation (les « <strong>Conditions</strong> ») s&apos;appliquent
                 à l&apos;accès au site public <strong>safecabinet.ca</strong> et à l&apos;utilisation de la plateforme
-                <strong> SAFE</strong> (la « <strong>Plateforme</strong> »), exploitées par <strong>SAFE Cabinet inc.</strong>,
+                <strong> SAFE</strong> (la « <strong>Plateforme</strong> »), exploitées par <strong>SAFE Inc.</strong>,
                 société constituée au Québec (« <strong>SAFE</strong> », « nous »).
               </p>
               <p className="mt-3">
@@ -463,7 +463,7 @@ export default function ConditionsPage() {
                 l&apos;exercice des droits prévus à la politique de confidentialité&nbsp;:
               </p>
               <p className="mt-3">
-                SAFE Cabinet inc.<br />
+                SAFE Inc.<br />
                 Courriel&nbsp;:{" "}
                 <a href="mailto:jeremie@safecabinet.ca" className="text-[var(--safe-accent)] underline">
                   jeremie@safecabinet.ca

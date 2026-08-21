@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendEmail({
         to: email,
-        subject: "Nous avons reçu votre demande — SAFE Cabinet",
+        subject: "Nous avons reçu votre demande — SAFE",
         html: `
           <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
             <h2 style="color: #1a3a5c; margin-bottom: 16px;">Merci de votre intérêt!</h2>

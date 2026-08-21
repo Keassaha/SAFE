@@ -25,8 +25,8 @@ export default function ConfidentialitePage() {
             <section>
               <h2 className="text-xl font-medium mb-3">1. Entité responsable et portée du document</h2>
               <p>
-                La présente politique est publiée par <strong>SAFE Cabinet inc.</strong> (« SAFE », « nous »), société
-                constituée au Québec, dont le siège est à Montréal. Elle décrit la manière dont nous traitons les
+                La présente politique est publiée par <strong>SAFE Inc.</strong> (« SAFE », « nous »), société
+                constituée au Québec, dont le siège est à Gatineau. Elle décrit la manière dont nous traitons les
                 renseignements personnels dans le cadre&nbsp;:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
@@ -255,7 +255,7 @@ export default function ConfidentialitePage() {
               </p>
               <p className="mt-3">
                 <strong>Jérémie Tiahou</strong>, président<br />
-                SAFE Cabinet inc.<br />
+                SAFE Inc.<br />
                 Courriel&nbsp;:{" "}
                 <a href="mailto:jeremie@safecabinet.ca" className="text-[var(--safe-accent)] underline">
                   jeremie@safecabinet.ca

@@ -338,7 +338,7 @@ export function Footer() {
           className="mt-5 flex flex-col gap-2 font-sans text-[11.5px] sm:flex-row sm:items-center sm:justify-between"
           style={{ color: "#7F9187" }}
         >
-          <span>© {new Date().getFullYear()} SafeCabinet Inc. Tous droits réservés.</span>
+          <span>© {new Date().getFullYear()} SAFE Inc. Tous droits réservés.</span>
           <span>Gatineau, Québec</span>
         </div>
       </div>
