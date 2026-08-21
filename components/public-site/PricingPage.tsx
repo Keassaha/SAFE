@@ -421,7 +421,7 @@ export default function TarificationPage() {
                       : { background: "transparent", color: INK, border: `1px solid ${LINE}` }
                   }
                 >
-                  Faire le diagnostic
+                  Évaluer mon cabinet
                 </Link>
               </div>
             </motion.div>

@@ -1,5 +1,14 @@
-import { Navbar } from "@/components/marketing/Navbar";
-import { Footer } from "@/components/marketing/Footer";
+/* Barre et pied de page du site, pas ceux d'une troisième famille de pages.
+   Ces deux pages servaient `components/marketing/Navbar` et
+   `components/marketing/Footer`, un troisième jeu que plus rien d'autre
+   n'emploie : fond noir #0A0A0A au lieu du vert forêt, liens périmés
+   (« Prix après audit », « Audit gratuit », /contact au lieu de /demo), et
+   surtout deux affirmations que la marque interdit, « conformité au Barreau,
+   automatisés » et « Conforme à la Loi 25 ». SAFE ne garantit pas la
+   conformité (docs/brand/IDENTITE_SAFE §1). Le pied de page partagé porte à la
+   place la mention exacte : la responsabilité professionnelle demeure celle du
+   cabinet. */
+import { PageShell } from "@/components/public-site/shared";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,9 +19,9 @@ export const metadata: Metadata = {
 
 export default function ConditionsPage() {
   return (
-    <>
-      <Navbar />
-      <main className="section-morning min-h-screen pt-32 pb-20">
+    <PageShell>
+      {/* `div` et non `main` : PageShell porte déjà le sien. */}
+      <div className="section-morning min-h-screen pt-32 pb-20">
         <div className="mx-auto max-w-3xl px-6 lg:px-10">
           <h1 className="font-sans text-3xl sm:text-4xl font-medium text-[var(--safe-darkest)] mb-2 tracking-tight">
             Conditions d&apos;utilisation
@@ -472,8 +481,7 @@ export default function ConditionsPage() {
             </section>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </PageShell>
   );
 }

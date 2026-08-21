@@ -136,13 +136,31 @@ export const fadeUp = (delay = 0) => ({
    opacité est réglée pour rester claire au-dessus du pied de page vert. */
 export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const action = cta ?? { href: R.diagnostic, label: "Faire le diagnostic" };
+  /* Le libellé de l'action est celui de l'accueil, et c'est le seul du site.
+     La barre disait « Faire le diagnostic » pendant que l'accueil, la page
+     Fonctionnalités et la page À propos proposaient toutes « Évaluer mon
+     cabinet » dans leur corps de texte. Deux noms pour la même page rendaient
+     l'action deux fois plus difficile à reconnaître qu'elle ne devait l'être
+     (ARCHITECTURE_SITE_PUBLIC_SAFE §4 et §8). */
+  const action = cta ?? { href: R.diagnostic, label: "Évaluer mon cabinet" };
+  /* Le même vocabulaire que l'accueil, dans le même ordre.
+
+     « Fonctionnalités » décrivait le logiciel de l'intérieur. Le remplaçant
+     n'est PAS « SAFE Cabinet » : la décision CEO du 21 août 2026, écrite dans
+     ExperienceCinema au-dessus de ROUTES, tranche contre la proposition
+     d'architecture du 20 et dit que l'application s'appelle SAFE, sans
+     sous-marque à nommer dans la navigation. Une entrée mène à l'application,
+     une autre aux outils.
+
+     La route ne bouge pas : /fonctionnalites reste, seul le libellé change.
+
+     « Contact » quitte la barre du bureau, où l'accueil ne l'a jamais eu, et
+     reste au pied de page et dans le menu du téléphone. */
   const links = [
-    { label: "Fonctionnalités", href: R.fonctionnalites },
-    { label: "Outils", href: R.outils },
+    { label: "L’application", href: R.fonctionnalites },
+    { label: "Outils SAFE", href: R.outils },
     { label: "Tarification", href: R.tarification },
     { label: "À propos", href: R.aPropos },
-    { label: "Contact", href: R.demo },
   ];
 
   return (
@@ -245,7 +263,7 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
                   className="absolute right-0 top-[calc(100%+10px)] w-60 rounded-[12px] border p-2"
                   style={{ background: SURFACE, borderColor: LINE, boxShadow: BARRE_OMBRE }}
                 >
-                  {[...links, { href: "/connexion", label: "Connexion" }].map((l) => (
+                  {[...links, { href: R.demo, label: "Contact" }, { href: "/connexion", label: "Connexion" }].map((l) => (
                     <Link
                       key={l.href}
                       href={l.href}
@@ -268,19 +286,22 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
 
 export function Footer() {
   const cols = [
+    /* Mêmes libellés que la barre, plus « Outils », qui manquait alors que la
+       suite est publiée et annoncée sur trois pages. */
     {
       titre: "Produit",
       links: [
-        { label: "Fonctionnalités", href: R.fonctionnalites },
+        { label: "L’application", href: R.fonctionnalites },
+        { label: "Outils SAFE", href: R.outils },
         { label: "Tarification", href: R.tarification },
-        { label: "Diagnostic gratuit", href: R.diagnostic },
+        { label: "Évaluer mon cabinet", href: R.diagnostic },
       ],
     },
     {
       titre: "Cabinet",
       links: [
         { label: "À propos", href: R.aPropos },
-        { label: "Démo et contact", href: R.demo },
+        { label: "Contact", href: R.demo },
         { label: "Questions fréquentes", href: R.faq },
       ],
     },

@@ -36,6 +36,15 @@ import {
   SAFE_PALETTE,
 } from "@/components/brand/safe-mark";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
+/* Le pied de page du site, pas un pied de page d'accueil.
+   L'accueil en portait un a lui : 98 px, fond transparent, huit liens en
+   ligne. Toutes les autres pages en servent un de 386 px, vert foret, en
+   trois colonnes, qui porte la mention de responsabilite professionnelle.
+   Un visiteur qui passait de l'accueil a Tarification changeait de site en
+   bas de page. C'est le composant partage qui gagne : il est sur dix pages,
+   il porte la mention, et il n'y a aucune raison que la page la plus lue
+   soit la seule a en avoir un autre. */
+import { Footer } from "@/components/public-site/shared";
 
 const CSS = `
   .xc {
@@ -1628,19 +1637,19 @@ const CSS = `
     background: rgb(var(--si-line-ink-rgb) / 0.03);
   }
 
-  .xc footer {
-    padding-block: 34px 44px; padding-inline: max(var(--gouttiere), (100% - var(--page)) / 2);
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    font-size: 12px;
-    color: var(--muted);
+  /* La mention des maquettes, en fin de recit. Meme traitement que la note de
+     bas de section sur Fonctionnalites : un filet tres discret, l'encre la plus
+     legere, et une mesure large parce qu'on ne la lit pas, on la trouve. */
+  .xc #cta .mention-maquettes {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-douce, var(--line));
+    max-width: 74ch;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--faint, var(--muted));
   }
-  .xc footer .flinks { display: flex; gap: 18px; flex-wrap: wrap; }
-  .xc footer .fbrand { display: inline-flex; align-items: center; gap: 12px; }
-  .xc footer a:hover { color: var(--ink); }
 
   /* ── Bouton et panneau de navigation au téléphone ── */
   /* Le bouton de menu est encadré : sans filet, rien ne disait qu'on pouvait
@@ -2288,33 +2297,6 @@ const CSS = `
     /* Deux actions côte à côte tombaient chacune sous la largeur d'un pouce :
        elles s'empilent, pleine largeur, comme celles de la synthèse. */
     .xc #cta .actions { flex-direction: column; align-items: stretch; }
-    /* Le pied de page répartissait quatre groupes sur une rangée en
-       space-between. Passés à la ligne faute de place, les groupes gardaient
-       cette répartition : « Confidentialité » se retrouvait seul sur sa
-       ligne, et les écarts entre les liens variaient d'une rangée à l'autre
-       sans qu'aucun ne veuille rien dire. Les groupes s'empilent, et les
-       liens d'un même groupe gardent un écart unique. */
-    /* Le pied de page gardait la gouttière du large, soit 6vw : 22,5 px sur
-       375, contre les 20 px de toute la page. Un décalage de 2,5 px ne se voit
-       pas, il se sent, et c'est exactement l'écart que la colonne unique
-       devait supprimer. */
-    .xc footer {
-      flex-direction: column;
-      gap: 20px;
-      padding-inline: var(--marge);
-      font-size: var(--t-menu);
-    }
-    .xc footer .flinks { gap: 14px 18px; }
-    /* Un lien tactile fait au moins 44 px de large (globals.css, cible au
-       doigt). « FAQ » n'en mesure que 21 : les 23 px restants tombaient tous
-       à sa droite et creusaient un trou de 41 px au milieu de la rangée, là
-       où les autres liens sont séparés de 18. Le lien garde sa cible, le mot
-       se centre dedans, et l'écart redevient le même partout. */
-    .xc footer .flinks a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
     /* ── L'entrée des textes ────────────────────────────────────────────────
        Posée par le script (voir entreeTelephone), et seulement quand le
        système ne demande pas moins de mouvement. La classe sur la racine est
@@ -3922,11 +3904,42 @@ function runExperience(root: HTMLElement): () => void {
   };
 }
 
-/* Un seul vocabulaire pour tout le site. Ces libellés sont ceux de la barre
-   partagée (shared.tsx) et de la page À propos : le même écran ne peut pas
-   porter deux noms selon la page d'où l'on vient. */
+/* ── Routes publiques ─────────────────────────────────────────────────────
+   L'application s'appelle SAFE, pas « SAFE Cabinet » (décision CEO du 21 août
+   2026, contre la proposition d'architecture du 20). Il n'y a donc pas de
+   sous-marque à nommer dans la navigation : une entrée mène à l'application,
+   une autre aux outils, et le mot SAFE reste porté par la marque elle-même.
+
+   L'entrée de l'application n'a pas de route à son nom et pointe vers
+   `/fonctionnalites`, qui décrit exactement ce qu'elle promet.
+
+   CORRESPONDANCE TEMPORAIRE, à revoir quand la route existera :
+     L'application → /fonctionnalites
+     Rencontre     → /demo  (la page de contact du site)
+*/
+const ROUTES = {
+  cabinet: "/fonctionnalites",
+  outils: "/calculateurs",
+  tarification: "/tarification",
+  aPropos: "/a-propos",
+  connexion: "/connexion",
+  evaluation: "/audit-gratuit",
+  rencontre: "/demo",
+  faq: "/faq",
+  conditions: "/conditions",
+  confidentialite: "/confidentialite",
+};
+
+/* Un seul vocabulaire pour tout le site (2026-08-21).
+
+   L'accueil disait « L'application » et « Outils SAFE », les autres pages
+   disaient « Fonctionnalités » et « Outils » : le même écran portait deux noms
+   selon la page d'où on venait. C'est la barre de l'accueil qui gagne, parce
+   qu'elle applique la décision CEO du 21 août ci-dessus, laquelle tranche
+   explicitement CONTRE la proposition d'architecture du 20. Ce sont donc les
+   autres pages qui viennent ici, pas l'inverse. Aucune route ne bouge. */
 const LIENS_NAV: [string, string][] = [
-  [ROUTES.cabinet, "SAFE Cabinet"],
+  [ROUTES.cabinet, "L’application"],
   [ROUTES.outils, "Outils SAFE"],
   [ROUTES.tarification, "Tarification"],
   [ROUTES.aPropos, "À propos"],
@@ -4020,6 +4033,7 @@ export default function ExperienceCinema() {
   }, [regime]);
 
   return (
+    <>
     <div className="xc" ref={rootRef}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
@@ -4062,7 +4076,14 @@ export default function ExperienceCinema() {
             onClick={() => setMenuOuvert(false)}
           />
           <div id="menu-mobile">
-            {[...LIENS_NAV, [ROUTES.connexion, "Connexion"] as [string, string]].map(([href, label]) => (
+            {/* Contact ne tient pas dans la barre du bureau, où il n'a jamais
+                été, mais il est dans le menu du téléphone comme sur les autres
+                pages : au pouce, le pied de page est à onze écrans de là. */}
+            {[
+              ...LIENS_NAV,
+              [ROUTES.rencontre, "Contact"] as [string, string],
+              [ROUTES.connexion, "Connexion"] as [string, string],
+            ].map(([href, label]) => (
               <a key={href} href={href} onClick={() => setMenuOuvert(false)}>
                 {label}
                 <span aria-hidden>›</span>
@@ -4671,25 +4692,21 @@ export default function ExperienceCinema() {
             <a className="btn ghost" href={ROUTES.rencontre}>Réserver une rencontre</a>
           </div>
           <p className="reassure">Gratuit, sans carte de crédit. Rapport sous 24 heures.</p>
+          {/* La mention vivait dans le pied de page de l'accueil. Elle concerne
+              cette page, pas le site : elle rejoint donc la fin du récit, à la
+              place exacte qu'elle occupe sur Fonctionnalités et sur À propos. */}
+          <p className="mention-maquettes">
+            Les écrans de cette page sont des maquettes, sur des données de démonstration. Elles
+            reproduisent l’interface de SAFE sans être le logiciel.
+          </p>
         </div>
       </section>
 
-      <footer>
-        <span className="fbrand">
-          <SafeLogo size={17} />
-          <span>Maquettes et captures sur données de démonstration</span>
-        </span>
-        <span className="flinks">
-          <a href={ROUTES.cabinet}>L’application</a>
-          <a href={ROUTES.outils}>Outils SAFE</a>
-          <a href={ROUTES.tarification}>Tarification</a>
-          <a href={ROUTES.aPropos}>À propos</a>
-          <a href={ROUTES.faq}>FAQ</a>
-          <a href={ROUTES.rencontre}>Contact</a>
-          <a href={ROUTES.conditions}>Conditions</a>
-          <a href={ROUTES.confidentialite}>Confidentialité</a>
-        </span>
-      </footer>
     </div>
+
+      {/* Hors de .xc : la feuille injectée de l'accueil ne doit rien peindre
+          dans un composant partagé par tout le site. */}
+      <Footer />
+    </>
   );
 }
