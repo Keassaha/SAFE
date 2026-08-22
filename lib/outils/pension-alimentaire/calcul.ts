@@ -62,7 +62,31 @@ export interface Frais {
   particuliers: number;
 }
 
+/**
+ * Ce qui décide si le modèle québécois s'applique.
+ *
+ * C'EST LA PREMIÈRE QUESTION, ET ELLE PRIME SUR TOUT LE RESTE.
+ *
+ * En matière de DIVORCE, les lignes directrices d'une province ne s'appliquent que si
+ * les deux ex-époux y résident habituellement (Loi sur le divorce, art. 2(1)). Le
+ * Québec est province désignée depuis le 1er mai 1997 (DORS/97-237). Dès qu'un parent
+ * réside ailleurs, ou hors du Canada, le régime bascule aux Lignes directrices
+ * fédérales, qui ont une autre assiette, une autre unité et une autre table.
+ *
+ * Hors divorce (séparation de fait, union parentale, parents jamais mariés), c'est le
+ * droit québécois qui s'applique, sans passer par la Loi sur le divorce.
+ *
+ * Pour un cabinet qui fait aussi de l'immigration, ce n'est pas un cas d'école.
+ */
+export interface Contexte {
+  /** La demande s'inscrit-elle dans une instance en divorce ? */
+  divorce: boolean;
+  /** Les deux parents résident-ils habituellement au Québec ? */
+  deuxParentsAuQuebec: boolean;
+}
+
 export interface Entree {
+  contexte: Contexte;
   pere: RevenusParent;
   mere: RevenusParent;
   /** Ligne 400. */
@@ -161,6 +185,28 @@ export function contributionDeBase(
 export function calculerPension(e: Entree): Resultat {
   const lignes: Ligne[] = [];
   const reserves: Reserve[] = [];
+
+  // ── Avant tout : ce calcul est-il seulement le bon ? ───────────────────────
+  if (e.contexte.divorce && !e.contexte.deuxParentsAuQuebec) {
+    reserves.push({
+      code: "regime_federal",
+      message:
+        "Dans une instance en divorce, le modèle québécois ne s'applique que si les " +
+        "DEUX parents résident habituellement au Québec. Ici, ce n'est pas le cas : ce " +
+        "sont les Lignes directrices fédérales qui s'appliquent, et elles ne se " +
+        "calculent pas de la même façon. Elles lisent le revenu du seul parent qui " +
+        "paie, dans la table de SA province, et rendent un montant mensuel. Ce calcul " +
+        "s'arrête ici plutôt que de vous donner un montant du mauvais régime.",
+      reference:
+        "Loi sur le divorce, art. 2(1) et 2(5) ; DORS/97-237 ; Lignes directrices fédérales, DORS/97-175",
+      verifieLe: VERIFIE_LE,
+      leveePar:
+        "Un second outil pour le régime fédéral. Il n'est pas construit, et transposer " +
+        "les règles québécoises y serait une faute : le fédéral n'a aucun plafond de " +
+        "capacité de payer.",
+    });
+    return { pensionAnnuelle: null, pensionMensuelle: null, debiteur: null, lignes, reserves };
+  }
 
   // ── Partie 3 : le revenu disponible ────────────────────────────────────────
   const disponible = (r: RevenusParent) =>

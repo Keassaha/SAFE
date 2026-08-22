@@ -17,6 +17,7 @@ const revenus = (revenuAnnuel: number) => ({
 });
 
 const base = (o: Partial<Entree> = {}): Entree => ({
+  contexte: { divorce: true, deuxParentsAuQuebec: true },
   pere: revenus(80_000),
   mere: revenus(40_000),
   nombreEnfants: 2,
@@ -273,5 +274,32 @@ describe("les arrondis : ce que le formulaire AFFICHE et ce que le calcul UTILIS
     const r = calculerPension(base());
     expect(r.pensionAnnuelle).toBe(Math.round(r.pensionAnnuelle! * 100) / 100);
     expect(r.pensionMensuelle).toBe(Math.round(r.pensionMensuelle! * 100) / 100);
+  });
+});
+
+describe("la première question : ce calcul est-il le bon ?", () => {
+  it("refuse un divorce où un parent ne réside pas au Québec", () => {
+    const r = calculerPension(
+      base({ contexte: { divorce: true, deuxParentsAuQuebec: false } }),
+    );
+    expect(r.pensionAnnuelle).toBeNull();
+    expect(r.reserves[0].code).toBe("regime_federal");
+    expect(r.reserves[0].message).toMatch(/Lignes directrices fédérales/);
+  });
+
+  it("accepte hors divorce, même si un parent vit ailleurs", () => {
+    // Séparation de fait, union parentale, parents jamais mariés : la Loi sur le
+    // divorce ne s'applique pas, donc son aiguillage non plus.
+    const r = calculerPension(
+      base({ contexte: { divorce: false, deuxParentsAuQuebec: false } }),
+    );
+    expect(r.pensionAnnuelle).not.toBeNull();
+  });
+
+  it("refuse AVANT de calculer quoi que ce soit", () => {
+    const r = calculerPension(
+      base({ contexte: { divorce: true, deuxParentsAuQuebec: false } }),
+    );
+    expect(r.lignes).toHaveLength(0);
   });
 });
