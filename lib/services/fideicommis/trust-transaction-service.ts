@@ -43,7 +43,10 @@ import { getCabinetProvince } from "@/lib/cabinet/get-province";
 import { resolveProvince, type CabinetProvince } from "@/lib/compliance/rules";
 import { TrustComplianceError } from "./errors";
 import { assertIdentityForFundsMovement } from "@/lib/services/identity/identity-gate";
-import { resolveDefaultTrustBankAccountId } from "./trust-bank-account-service";
+import {
+  resolveDefaultTrustBankAccountId,
+  getClientBalanceInAccount,
+} from "./trust-bank-account-service";
 import { registerTrustCheque } from "./trust-cheque-service";
 import { checkChequePayee } from "@/lib/compliance/trust-records";
 import { CASH_THRESHOLD_CAD, evaluateCashAcceptance } from "@/lib/compliance/cash";
@@ -102,12 +105,30 @@ async function lockAndReadBalance(
   },
 ): Promise<number> {
   await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${trustLockKey(params.trustAccountId)}))`;
+
+  // Le solde borné au compte est calculé par `getClientBalanceInAccount`, qui
+  // porte déjà la formulation exacte de la s. 9(3) : « more money than is held
+  // on behalf of that client IN THAT TRUST ACCOUNT ». Elle existait et n'était
+  // appelée nulle part, pendant que ce fichier en refaisait le calcul à la main.
+  // Une règle, une implémentation.
+  if (params.trustBankAccountId) {
+    return getClientBalanceInAccount({
+      cabinetId: params.cabinetId,
+      accountId: params.trustBankAccountId,
+      clientId: params.clientId,
+      dossierId: params.dossierId,
+      client: db,
+    });
+  }
+
+  // Aucun compte rattaché : cabinet qui n'a pas encore saisi ses comptes. On lit
+  // alors tous comptes confondus, faute de mieux. Ce cas ne se produit plus
+  // quand des comptes existent : `resolveTrustBankAccountId` refuse l'ambiguïté.
   const agg = await db.trustTransaction.aggregate({
     where: {
       cabinetId: params.cabinetId,
       clientId: params.clientId,
       dossierId: params.dossierId,
-      ...(params.trustBankAccountId ? { trustBankAccountId: params.trustBankAccountId } : {}),
     },
     _sum: { amount: true },
   });
@@ -133,6 +154,22 @@ async function resolveTrustBankAccountId(
   if (provided) return provided;
   const resolved = await resolveDefaultTrustBankAccountId(cabinetId);
   if (resolved) return resolved;
+
+  /* `resolveDefaultTrustBankAccountId` renvoie `null` dans DEUX cas opposés :
+     aucun compte saisi, ou plusieurs. On les distingue, parce qu'ils n'appellent
+     pas la même conduite.
+
+     Plusieurs comptes ouverts et aucun désigné : on REFUSE. Le commentaire
+     ci-dessus l'annonçait déjà — « dès qu'il en a deux, on refuse de choisir » —
+     mais le code retombait sur `null`, et le garde-fou de solde perdait alors
+     son bornage : un retrait sur le compte A pouvait être autorisé par des fonds
+     dormant sur le compte B (constat A-01 de l'audit). */
+  const ouverts = await prisma.trustBankAccount.count({
+    where: { cabinetId, closedAt: null },
+  });
+  if (ouverts > 1) {
+    throw new TrustComplianceError("TRUST_BANK_ACCOUNT_AMBIGUOUS", { province });
+  }
   // Aucun compte, ou plusieurs : on laisse passer sans rattachement plutôt que de
   // bloquer un cabinet qui n'a pas encore saisi ses comptes. Le manquement est
   // visible au rapprochement, où il devient bloquant.

@@ -29,6 +29,7 @@ export type TrustComplianceCode =
   | "CHEQUE_PAYEE_INVALID"
   | "INSUFFICIENT_TRUST_BALANCE"
   | "TRUST_CROSS_ALLOCATION_BLOCKED"
+  | "TRUST_BANK_ACCOUNT_AMBIGUOUS"
   // ── Correction (art. 59-60 QC / s. 9(3), 14 ON) ───────────────────
   | "CORRECTION_WOULD_CREATE_DEBIT_BALANCE"
   | "CORRECTION_TARGET_NOT_FOUND"
@@ -170,6 +171,24 @@ const RULES: Record<TrustComplianceCode, TrustComplianceRuleMeta> = {
     remedy: {
       fr: "Un retrait ne peut jamais dépasser le solde détenu pour ce dossier. Vérifiez le solde ou le dossier visé.",
       en: "A withdrawal may never exceed the balance held for this matter. Check the balance or the matter selected.",
+    },
+  },
+  TRUST_BANK_ACCOUNT_AMBIGUOUS: {
+    articleQC: "art. 36 et 59",
+    articleON: "s. 18(8)ii et 9(3)",
+    message: {
+      fr: "Plusieurs comptes en fidéicommis sont ouverts : indiquez lequel.",
+      en: "Several trust accounts are open: specify which one.",
+    },
+    remedy: {
+      fr:
+        "Le plafond d'un retrait est le solde détenu pour ce dossier DANS LE COMPTE visé, " +
+        "jamais la somme de tous les comptes. Sans le compte, l'écriture serait aussi " +
+        "absente du rapprochement, qui se fait compte par compte.",
+      en:
+        "A withdrawal is capped by the balance held for that matter IN THE ACCOUNT used, " +
+        "never by the sum of all accounts. Without the account, the entry would also be " +
+        "missing from reconciliation, which is done account by account.",
     },
   },
   TRUST_CROSS_ALLOCATION_BLOCKED: {

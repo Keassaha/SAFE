@@ -10,6 +10,10 @@ export const trustModePaiementSchema = z.enum([
 export type TrustModePaiementInput = z.infer<typeof trustModePaiementSchema>;
 
 export const depotBodySchema = z.object({
+  /* Compte en fidéicommis visé. Facultatif quand le cabinet n'en a qu'un ;
+     EXIGÉ dès qu'il en a plusieurs, sans quoi le plafond de retrait ne peut
+     pas être borné au bon compte (art. 59 QC / s. 9(3) ON). */
+  trustBankAccountId: z.string().min(1).optional().nullable(),
   clientId: z.string().min(1, "Client obligatoire"),
   dossierId: z.string().min(1, "Dossier obligatoire"),
   montant: z.number().positive("Le montant doit être strictement positif"),
@@ -44,6 +48,10 @@ export const trustWithdrawalModeSchema = z.enum(["CHEQUE", "VIREMENT", "INTERAC"
 
 export const retraitBodySchema = z
   .object({
+    /* Compte en fidéicommis visé. Facultatif quand le cabinet n'en a qu'un ;
+       EXIGÉ dès qu'il en a plusieurs, sans quoi le plafond de retrait ne peut
+       pas être borné au bon compte (art. 59 QC / s. 9(3) ON). */
+    trustBankAccountId: z.string().min(1).optional().nullable(),
     clientId: z.string().min(1, "Client obligatoire"),
     dossierId: z.string().min(1, "Dossier obligatoire"),
     montant: z.number().positive("Le montant doit être strictement positif"),

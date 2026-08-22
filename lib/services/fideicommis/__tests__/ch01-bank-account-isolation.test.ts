@@ -50,6 +50,7 @@ const prismaMock = {
   },
   trustBankAccount: {
     findMany: vi.fn(async () => generalAccounts),
+    count: vi.fn(async () => generalAccounts.length),
   },
   // CH-05 — le dépôt en espèces consulte le cumul du dossier (art. 69 QC / s. 4(1) ON).
   cashReceipt: { aggregate: vi.fn(async () => ({ _sum: { cadAmount: 0 } })) },
@@ -116,15 +117,53 @@ describe("Rattachement au compte bancaire", () => {
   });
 
   it("REFUSE de choisir quand le cabinet a plusieurs comptes généraux", async () => {
-    // Choisir « le premier » imputerait de l'argent client au mauvais compte, et
-    // l'écart ne se verrait qu'au rapprochement du mois suivant.
+    /* Ce test s'appelait déjà « REFUSE » et vérifiait l'inverse : il exigeait que
+       l'écriture soit CRÉÉE, simplement sans compte. Il codifiait le défaut qu'il
+       prétendait interdire (constat A-01 de l'audit).
+
+       Une écriture sans compte est invisible au rapprochement, qui se fait compte
+       par compte (art. 36 QC / s. 18(8)ii ON). Et surtout, le garde-fou de solde
+       perdait son bornage : sans compte, il additionnait TOUS les comptes, donc un
+       retrait sur A pouvait être autorisé par des fonds dormant sur B. */
     generalAccounts = [{ id: "acc-A" }, { id: "acc-B" }];
     const { createTrustDeposit } = await import("../trust-transaction-service");
 
-    await createTrustDeposit({ ...BASE, montant: 200 });
+    await expect(createTrustDeposit({ ...BASE, montant: 200 })).rejects.toMatchObject({
+      code: "TRUST_BANK_ACCOUNT_AMBIGUOUS",
+    });
+    expect(txClient.trustTransaction.create).not.toHaveBeenCalled();
+  });
+
+  it("accepte quand le compte est désigné explicitement, même avec plusieurs comptes", async () => {
+    // Le refus ne doit pas enfermer le cabinet : désigner le compte lève l'ambiguïté.
+    generalAccounts = [{ id: "acc-A" }, { id: "acc-B" }];
+    const { createTrustDeposit } = await import("../trust-transaction-service");
+
+    await createTrustDeposit({ ...BASE, montant: 200, trustBankAccountId: "acc-B" });
 
     const data = txClient.trustTransaction.create.mock.calls[0]![0].data;
-    expect(data.trustBankAccountId).toBeUndefined();
+    expect(data.trustBankAccountId).toBe("acc-B");
+  });
+
+  it("le plafond du retrait est le solde DU COMPTE visé, pas la somme des comptes", async () => {
+    /* s. 9(3) By-Law 9 : « shall not at any time with respect to a client withdraw
+       from a trust account more money than is held on behalf of that client IN
+       THAT TRUST ACCOUNT at that time ». */
+    generalAccounts = [{ id: "acc-A" }, { id: "acc-B" }];
+    trustBalanceByAccount = { "acc-A": 100, "acc-B": 900 };
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    // 500 $ < 1000 $ tous comptes confondus, mais > 100 $ sur le compte A.
+    await expect(
+      createTrustWithdrawal({
+        ...BASE,
+        montant: 500,
+        trustBankAccountId: "acc-A",
+        motive: "REMISE_CLIENT_OU_TIERS",
+        modePaiement: "VIREMENT",
+      }),
+    ).rejects.toMatchObject({ code: "INSUFFICIENT_TRUST_BALANCE" });
+    expect(txClient.trustTransaction.create).not.toHaveBeenCalled();
   });
 
   it("porte le compte sur le retrait et sur la correction", async () => {

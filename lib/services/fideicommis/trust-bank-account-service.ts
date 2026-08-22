@@ -15,6 +15,7 @@
  */
 
 import { prisma } from "@/lib/db";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { createAuditLog } from "@/lib/services/audit";
 import { getCabinetProvince } from "@/lib/cabinet/get-province";
 import { resolveProvince, type CabinetProvince } from "@/lib/compliance/rules";
@@ -345,8 +346,16 @@ export async function getClientBalanceInAccount(params: {
   accountId: string;
   clientId: string;
   dossierId?: string | null;
+  /**
+   * Client de transaction, quand le solde doit être lu SOUS VERROU. Le garde-fou
+   * de retrait (art. 59 QC / s. 9(3) ON) ne vaut que si la lecture se fait dans
+   * la même transaction que l'écriture : lue dehors, deux retraits concurrents
+   * passent tous les deux. Par défaut, lecture ordinaire.
+   */
+  client?: PrismaClient | Prisma.TransactionClient;
 }): Promise<number> {
-  const agg = await prisma.trustTransaction.aggregate({
+  const db = params.client ?? prisma;
+  const agg = await db.trustTransaction.aggregate({
     where: {
       cabinetId: params.cabinetId,
       trustBankAccountId: params.accountId,

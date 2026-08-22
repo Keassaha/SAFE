@@ -40,6 +40,7 @@ export async function POST(request: Request) {
   try {
     const { transactionId } = await createTrustDeposit({
       cabinetId,
+      trustBankAccountId: parsed.data.trustBankAccountId ?? null,
       clientId: parsed.data.clientId,
       dossierId: parsed.data.dossierId,
       montant: parsed.data.montant,
