@@ -145,19 +145,17 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
   const action = cta ?? { href: R.diagnostic, label: "Évaluer mon cabinet" };
   /* Le même vocabulaire que l'accueil, dans le même ordre.
 
-     « Fonctionnalités » décrivait le logiciel de l'intérieur. Le remplaçant
-     n'est PAS « SAFE Cabinet » : la décision CEO du 21 août 2026, écrite dans
-     ExperienceCinema au-dessus de ROUTES, tranche contre la proposition
-     d'architecture du 20 et dit que l'application s'appelle SAFE, sans
-     sous-marque à nommer dans la navigation. Une entrée mène à l'application,
-     une autre aux outils.
+     « Fonctionnalités » décrivait le logiciel de l'intérieur. « SAFE Cabinet »
+     nomme le produit tel que le cabinet l'achète : c'est le nom tranché par le
+     CEO le 21 août 2026, celui de l'architecture du site et celui qu'emploie la
+     page À propos.
 
      La route ne bouge pas : /fonctionnalites reste, seul le libellé change.
 
      « Contact » quitte la barre du bureau, où l'accueil ne l'a jamais eu, et
      reste au pied de page et dans le menu du téléphone. */
   const links = [
-    { label: "L’application", href: R.fonctionnalites },
+    { label: "SAFE Cabinet", href: R.fonctionnalites },
     { label: "Outils SAFE", href: R.outils },
     { label: "Tarification", href: R.tarification },
     { label: "À propos", href: R.aPropos },
@@ -291,7 +289,7 @@ export function Footer() {
     {
       titre: "Produit",
       links: [
-        { label: "L’application", href: R.fonctionnalites },
+        { label: "SAFE Cabinet", href: R.fonctionnalites },
         { label: "Outils SAFE", href: R.outils },
         { label: "Tarification", href: R.tarification },
         { label: "Évaluer mon cabinet", href: R.diagnostic },

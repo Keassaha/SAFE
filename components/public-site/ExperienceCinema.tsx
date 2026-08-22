@@ -1359,7 +1359,7 @@ const CSS = `
   }
   .xc section.flat .more:hover { border-color: var(--si-ink); }
   /* L'exergue d'un bloc secondaire : il nomme le rang de ce qu'on lit
-     (SAFE, Outils SAFE, Accompagnement), en petites capitales. */
+     (SAFE Cabinet, Outils SAFE, Accompagnement), en petites capitales. */
   .xc section.flat .rang {
     font-family: var(--sans);
     font-size: var(--t-menu);
@@ -3330,7 +3330,13 @@ function runExperience(root: HTMLElement): () => void {
      traîne derrière l'étape qu'on lit se lit comme un retard, pas comme un
      glissement. */
   const AMORTI_60 = 0.16;
-  const VITESSE: Record<string, number> = { hero: 0.4, parcours: 0.95, verification: 0.95 };
+  /* Le plafond du hero valait 0,4, réglé sur une course de 340 vh. Elle est
+     passée à 250 : à 900 px de haut il reste 1350 px, donc un défilement d'un
+     écran déplace la progression de 0,67. À 0,4 par seconde, la scène mettait
+     1,7 s à rattraper un geste qui en dure trois dixièmes, et l'épinglage
+     lâchait pendant qu'elle jouait encore. 0,7 la laisse glisser sans la
+     laisser décrocher du doigt (décision CEO du 21 août 2026). */
+  const VITESSE: Record<string, number> = { hero: 0.7, parcours: 0.95, verification: 0.95 };
 
   let dernierTemps = 0;
 
@@ -3932,14 +3938,13 @@ const ROUTES = {
 
 /* Un seul vocabulaire pour tout le site (2026-08-21).
 
-   L'accueil disait « L'application » et « Outils SAFE », les autres pages
-   disaient « Fonctionnalités » et « Outils » : le même écran portait deux noms
-   selon la page d'où on venait. C'est la barre de l'accueil qui gagne, parce
-   qu'elle applique la décision CEO du 21 août ci-dessus, laquelle tranche
-   explicitement CONTRE la proposition d'architecture du 20. Ce sont donc les
-   autres pages qui viennent ici, pas l'inverse. Aucune route ne bouge. */
+   Le même écran portait deux noms selon la page d'où l'on venait. Il s'appelle
+   SAFE Cabinet, ici comme dans la barre partagée et dans la page À propos :
+   c'est le nom tranché par le CEO le 21 août 2026, après deux allers-retours
+   dans la même journée, et c'est celui de l'architecture du site. Aucune route
+   ne bouge. */
 const LIENS_NAV: [string, string][] = [
-  [ROUTES.cabinet, "L’application"],
+  [ROUTES.cabinet, "SAFE Cabinet"],
   [ROUTES.outils, "Outils SAFE"],
   [ROUTES.tarification, "Tarification"],
   [ROUTES.aPropos, "À propos"],
@@ -3957,7 +3962,7 @@ const MORCEAUX: [string, string][] = [
   ["Les paiements, la comptabilité et le fidéicommis sont vérifiés dans d'autres registres.", "Registres"],
 ];
 
-/* Ce que SAFE tient dans un même contexte. Les neuf mots du hero, dans
+/* Ce que SAFE Cabinet tient dans un même contexte. Les neuf mots du hero, dans
    le même ordre : la page ne doit pas énumérer deux listes différentes de la
    même chose. */
 const CONTEXTE = [
@@ -4410,13 +4415,13 @@ export default function ExperienceCinema() {
 
           <div className="bloc bloc-maitre">
             <div className="bloc-texte">
-              <p className="rang">SAFE</p>
+              <p className="rang">SAFE Cabinet</p>
               <h3>Le travail quotidien, dans un même système</h3>
               <p>
                 Clients, dossiers, temps, facturation, paiements, comptabilité, fidéicommis,
                 échéances et rapports partagent le même contexte.
               </p>
-              <a className="more" href={ROUTES.cabinet}>Voir ce que fait SAFE →</a>
+              <a className="more" href={ROUTES.cabinet}>Découvrir SAFE Cabinet →</a>
             </div>
             <ul className="contexte">
               {CONTEXTE.map((c) => (
