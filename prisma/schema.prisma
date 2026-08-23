@@ -4007,8 +4007,11 @@ model TrustComplianceReport {
   periode       String // "2026-04"
   type          String   @default("monthly") // "monthly" | "quarterly" | "annual"
   generatedAt   DateTime @default(now())
-  generatedById String
-  generatedBy   User     @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
+  /// Nullable pour la même raison que `ConflictCheck.checkedById`, et pour
+  /// s'aligner sur `certifiedById` deux champs plus bas, qui l'était déjà.
+  /// L'attestation signée survit dans `declarationText`, qui en est un snapshot.
+  generatedById String?
+  generatedBy   User?    @relation("ComplianceReportGeneratedBy", fields: [generatedById], references: [id], onDelete: SetNull)
 
   pdfUrl String? // URL Supabase Storage
   status String  @default("draft") // "draft" | "final"
@@ -4082,8 +4085,13 @@ model ConflictCheck {
   dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
   checkedAt   DateTime @default(now())
-  checkedById String
-  checkedBy   User     @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+  /// Nullable, parce que la relation est `SetNull` : une colonne NON NULL rendait
+  /// la suppression de l'utilisateur IMPOSSIBLE, Postgres refusant d'y écrire NULL.
+  /// Un avocat ayant fait une vérification de conflits ne pouvait plus être
+  /// supprimé, et un cabinet ne pouvait plus être purgé. Le contrôle lui-même est
+  /// la pièce réglementaire ; son auteur en est la métadonnée.
+  checkedById String?
+  checkedBy   User?    @relation("ConflictCheckPerformedBy", fields: [checkedById], references: [id], onDelete: SetNull)
 
   clientName     String // Name searched
   conflictsFound Boolean @default(false)
