@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { StageLead, TypeActivity } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSafeIncWorkspace } from "@/lib/safe-inc";
-import { PLANS, type PlanKey } from "@/lib/stripe";
+import { calculerMrr } from "@/lib/services/crm/mrr";
 import { calculerActionsCles } from "@/lib/services/crm/prochaine-action";
 import { Card, CardContent } from "@/components/ui/Card";
 import { TourDeControle } from "@/components/console/TourDeControle";
@@ -285,6 +285,8 @@ export default async function ConsolePage() {
   let moneyIn = 0;
   let moneyOut = 0;
   let mrr = 0;
+  let mrrPayants = 0;
+  let mrrEnEssai = 0;
   if (safeCabinet) {
     const [payAgg, expAgg, clientCabinets] = await Promise.all([
       prisma.payment.aggregate({
@@ -306,18 +308,27 @@ export default async function ConsolePage() {
           cabinetId: { not: null },
           cabinet: { nom: { not: "SAFE" } },
         },
-        select: { cabinet: { select: { plan: true, stripeSubscriptionStatus: true } } },
+        select: {
+          cabinet: {
+            select: {
+              plan: true,
+              stripeSubscriptionStatus: true,
+              // Ce que le cabinet paie REELLEMENT, et l'echeance qui prouve
+              // qu'il paie encore. Sans ces deux champs, le MRR retombait sur
+              // le prix catalogue et comptait les essais.
+              abonnementMontantMensuel: true,
+              accesPayeJusquau: true,
+            },
+          },
+        },
       }),
     ]);
     moneyIn = payAgg._sum.montant ?? 0;
     moneyOut = expAgg._sum.montant ?? 0;
-    for (const l of clientCabinets) {
-      const plan = l.cabinet?.plan;
-      const status = l.cabinet?.stripeSubscriptionStatus;
-      if (plan && plan in PLANS && (status === "active" || status === "trialing")) {
-        mrr += PLANS[plan as PlanKey].price / 100;
-      }
-    }
+    const detail = calculerMrr(clientCabinets.map((l) => l.cabinet ?? {}));
+    mrr = detail.montant;
+    mrrPayants = detail.payants;
+    mrrEnEssai = detail.enEssai;
   }
   const monthlyNet = moneyIn - moneyOut;
 
@@ -463,7 +474,11 @@ export default async function ConsolePage() {
           <KpiCard
             value={money(mrr)}
             label="Revenu récurrent"
-            subtext="MRR des abonnements actifs"
+            subtext={
+              mrrEnEssai > 0
+                ? `${mrrPayants} abonné${mrrPayants > 1 ? "s" : ""} · ${mrrEnEssai} en essai, non compté${mrrEnEssai > 1 ? "s" : ""}`
+                : `${mrrPayants} abonné${mrrPayants > 1 ? "s" : ""} payant${mrrPayants > 1 ? "s" : ""}`
+            }
             tone={mrr > 0 ? "green" : "neutral"}
           />
         </div>
