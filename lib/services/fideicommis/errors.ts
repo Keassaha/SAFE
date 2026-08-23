@@ -29,6 +29,7 @@ export type TrustComplianceCode =
   | "CHEQUE_PAYEE_INVALID"
   | "INSUFFICIENT_TRUST_BALANCE"
   | "TRUST_CROSS_ALLOCATION_BLOCKED"
+  | "TRUST_CROSS_MATTER_BLOCKED"
   | "TRUST_BANK_ACCOUNT_AMBIGUOUS"
   // ── Correction (art. 59-60 QC / s. 9(3), 14 ON) ───────────────────
   | "CORRECTION_WOULD_CREATE_DEBIT_BALANCE"
@@ -171,6 +172,24 @@ const RULES: Record<TrustComplianceCode, TrustComplianceRuleMeta> = {
     remedy: {
       fr: "Un retrait ne peut jamais dépasser le solde détenu pour ce dossier. Vérifiez le solde ou le dossier visé.",
       en: "A withdrawal may never exceed the balance held for this matter. Check the balance or the matter selected.",
+    },
+  },
+  TRUST_CROSS_MATTER_BLOCKED: {
+    articleQC: "art. 48 et 59",
+    articleON: "s. 9(3)",
+    message: {
+      fr: "Cette facture appartient à un autre dossier que celui dont les fonds sortent.",
+      en: "This invoice belongs to a matter other than the one the funds are withdrawn from.",
+    },
+    remedy: {
+      fr:
+        "Les sommes en fidéicommis s'utilisent selon leur affectation : les fonds détenus " +
+        "pour un dossier ne règlent pas la facture d'un autre, même chez le même client. " +
+        "Retirez depuis le dossier que la facture concerne.",
+      en:
+        "Trust money must be used for the purpose it was received: funds held for one matter " +
+        "do not settle another matter's invoice, even for the same client. Withdraw from the " +
+        "matter the invoice relates to.",
     },
   },
   TRUST_BANK_ACCOUNT_AMBIGUOUS: {

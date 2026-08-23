@@ -39,6 +39,13 @@ const txClient = {
   client: { update: vi.fn(async () => ({ id: "client-1" })) },
   dossier: { update: vi.fn(async () => ({ id: "dossier-1" })) },
   invoice: {
+    // Relecture du solde dû SOUS VERROU (A-02) : la valeur vient du même
+    // `invoiceRow` que la pré-validation, pour que les deux racontent la même
+    // facture. Un mock qui renverrait autre chose masquerait la course.
+    findUnique: vi.fn(async () => ({
+      numero: (invoiceRow?.numero as string) ?? "F-1",
+      balanceDue: (invoiceRow?.balanceDue as number) ?? 0,
+    })),
     findUniqueOrThrow: vi.fn(async () => ({ trustAppliedAmount: 0, trustApplied: 0 })),
     update: vi.fn(async () => ({ id: "inv1" })),
   },
@@ -98,6 +105,9 @@ const base = {
 function conformingInvoice(overrides: Record<string, unknown> = {}) {
   return {
     clientId: "client-1",
+    // Art. 48 : une facture est rattachée à une AFFAIRE, et les fonds d'un autre
+    // dossier ne la règlent pas.
+    dossierId: "dossier-1",
     numero: "F-2026-0001",
     invoiceStatus: "ISSUED",
     paymentStatus: "UNPAID",
@@ -249,6 +259,63 @@ describe("CH-00 — interdictions de retrait", () => {
         factureId: "inv1",
       }),
     ).rejects.toMatchObject({ code: "TRUST_CROSS_ALLOCATION_BLOCKED" });
+  });
+
+  it("REFUSE d'appliquer les fonds d'un dossier à la facture d'un AUTRE dossier", async () => {
+    /* Constat A-02. Le contrôle ne regardait que le client : les fonds détenus
+       pour le dossier B réglaient donc la facture du dossier A du même client.
+       Art. 48 QC — les sommes en fidéicommis s'utilisent selon leur affectation. */
+    invoiceRow = conformingInvoice({ dossierId: "un-autre-dossier" });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).rejects.toMatchObject({ code: "TRUST_CROSS_MATTER_BLOCKED" });
+    expect(txClient.trustTransaction.create).not.toHaveBeenCalled();
+  });
+
+  it("ACCEPTE une facture sans dossier : elle n'est rattachée à aucune affaire", async () => {
+    // Une facture au niveau du client peut être réglée depuis n'importe lequel de
+    // ses dossiers. Bloquer là serait du sur-blocage.
+    invoiceRow = conformingInvoice({ dossierId: null });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).resolves.toMatchObject({ transactionId: expect.any(String) });
+  });
+
+  it("REVÉRIFIE le solde dû SOUS VERROU, pas seulement avant la transaction", async () => {
+    /* Le verrou de solde porte sur (cabinet, client, DOSSIER) : deux dossiers d'un
+       même client prennent deux verrous différents et ne se sérialisent pas. Sans
+       relecture de la facture sous son propre verrou, chacun appliquait son retrait
+       et la facture recevait plus de fidéicommis qu'elle ne valait.
+
+       Ici la facture passe la pré-validation à 500 $, puis tombe à 100 $ avant la
+       relecture : c'est exactement ce qu'un retrait concurrent aurait produit. */
+    invoiceRow = conformingInvoice({ balanceDue: 500 });
+    txClient.invoice.findUnique.mockResolvedValueOnce({ numero: "F-2026-0001", balanceDue: 100 });
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await expect(
+      createTrustWithdrawal({
+        ...base,
+        montant: 400,
+        motive: "HONORAIRES_DEBOURS_FACTURES",
+        factureId: "inv1",
+      }),
+    ).rejects.toMatchObject({ code: "INVOICE_AMOUNT_EXCEEDED" });
+    expect(txClient.trustTransaction.create).not.toHaveBeenCalled();
   });
 
   it("REFUSE un retrait en espèces (art. 57 B-1 r.5 / s. 11 By-Law 9)", async () => {

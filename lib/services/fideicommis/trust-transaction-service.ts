@@ -488,18 +488,21 @@ export async function createTrustDeposit(params: CreateTrustDepositParams): Prom
 async function validateInvoiceForWithdrawal(params: {
   cabinetId: string;
   clientId: string;
+  /** Dossier D'OÙ SORTENT LES FONDS. Sans lui, l'affectation ne se vérifie pas. */
+  dossierId: string;
   factureId: string;
   montant: number;
   dateTransaction: Date;
   province: CabinetProvince;
   createdById?: string | null;
 }): Promise<void> {
-  const { cabinetId, clientId, factureId, montant, dateTransaction, province, createdById } = params;
+  const { cabinetId, clientId, dossierId, factureId, montant, dateTransaction, province, createdById } = params;
 
   const invoice = await prisma.invoice.findFirst({
     where: { id: factureId, cabinetId },
     select: {
       clientId: true,
+      dossierId: true,
       numero: true,
       invoiceStatus: true,
       paymentStatus: true,
@@ -524,6 +527,26 @@ async function validateInvoiceForWithdrawal(params: {
       values: { attemptedClientId: clientId, invoiceClientId: invoice.clientId, factureId },
     });
     throw new TrustComplianceError("TRUST_CROSS_ALLOCATION_BLOCKED", { province });
+  }
+
+  /* Art. 48 QC — « les sommes d'argent en fidéicommis doivent être utilisées selon
+     leur AFFECTATION ». Le contrôle ci-dessus ne regardait que le client : les
+     fonds détenus pour le dossier B réglaient donc la facture du dossier A du même
+     client, sans que rien ne le signale (constat A-02 de l'audit).
+
+     Une facture SANS dossier n'est rattachée à aucune affaire : n'importe quel
+     dossier du client peut légitimement la régler, on ne bloque pas. */
+  if (invoice.dossierId && invoice.dossierId !== dossierId) {
+    await logBlockedAttempt({
+      cabinetId,
+      createdById,
+      reason: "TRUST_CROSS_MATTER_BLOCKED",
+      values: { attemptedDossierId: dossierId, invoiceDossierId: invoice.dossierId, factureId },
+    });
+    throw new TrustComplianceError("TRUST_CROSS_MATTER_BLOCKED", {
+      province,
+      detail: `Facture ${invoice.numero} — rattachée à un autre dossier.`,
+    });
   }
 
   // art. 56(2) QC / s. 9(1)3 ON — la facture doit être ÉMISE.
@@ -692,6 +715,7 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
     await validateInvoiceForWithdrawal({
       cabinetId,
       clientId,
+      dossierId,
       factureId,
       montant,
       dateTransaction,
@@ -727,6 +751,34 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
       });
     }
     newBalance = balance - montant;
+
+    /* Le solde dû de la facture est REVÉRIFIÉ ici, sous verrou.
+       `validateInvoiceForWithdrawal` le lit hors transaction : utile pour échouer
+       vite, insuffisant pour garantir quoi que ce soit. Le verrou de solde porte
+       sur `trust:{trustAccountId}`, c'est-à-dire (cabinet, client, DOSSIER) : deux
+       dossiers d'un même client prennent donc deux verrous différents et ne se
+       sérialisent pas. Avant ce contrôle, chacun pouvait appliquer son retrait à la
+       même facture, et la facture recevait plus de fidéicommis qu'elle ne valait
+       (constat A-02 de l'audit).
+
+       Le verrou de facture reprend la clé de `allocateToInvoices`, pour que les
+       deux chemins qui touchent `balanceDue` s'attendent au lieu de se croiser. */
+    if (factureId) {
+      await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`invoice:${factureId}`}))`;
+      const sousVerrou = await db.invoice.findUnique({
+        where: { id: factureId },
+        select: { numero: true, balanceDue: true },
+      });
+      const soldeDu = sousVerrou?.balanceDue ?? 0;
+      if (montant > soldeDu + 0.005) {
+        throw new TrustComplianceError("INVOICE_AMOUNT_EXCEEDED", {
+          province,
+          detail:
+            `Facture ${sousVerrou?.numero ?? factureId} — solde dû : ${soldeDu.toFixed(2)} $ ; ` +
+            `montant demandé : ${montant.toFixed(2)} $.`,
+        });
+      }
+    }
 
     const created = await db.trustTransaction.create({
       data: {
