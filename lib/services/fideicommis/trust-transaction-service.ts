@@ -821,6 +821,16 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
           trustApplied: (inv.trustApplied ?? 0) + montant,
         },
       });
+
+      /* Le recalcul du solde vit DANS la transaction, sous le même verrou de
+         facture que l'incrément ci-dessus.
+         Il se faisait après le commit : si ce seul appel échouait, le
+         fidéicommis était débité et appliqué à la facture, mais `balanceDue`
+         restait à l'ancienne valeur. La facture réclamait alors au client une
+         somme déjà prise sur ses propres fonds (constat A-06 de l'audit).
+         `recalculateInvoiceTotals` accepte un client de transaction depuis
+         toujours : `createPayment` l'appelle déjà ainsi. */
+      await recalculateInvoiceTotals(factureId, db);
     }
     await createJournalEntry(
       {
@@ -845,8 +855,6 @@ export async function createTrustWithdrawal(params: CreateTrustWithdrawalParams)
     );
     return created;
   });
-
-  if (factureId) await recalculateInvoiceTotals(factureId);
 
   // Art. 61 — inscription au registre des chèques. Faite APRÈS l'écriture : le
   // mouvement de fonds existe indépendamment du registre, qui en est le suivi. Une

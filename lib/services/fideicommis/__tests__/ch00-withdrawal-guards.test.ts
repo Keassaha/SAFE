@@ -318,6 +318,29 @@ describe("CH-00 — interdictions de retrait", () => {
     expect(txClient.trustTransaction.create).not.toHaveBeenCalled();
   });
 
+  it("recalcule le solde de la facture DANS la transaction, pas apres le commit", async () => {
+    /* Constat A-06. L'increment de `trustAppliedAmount` etait committe, puis le
+       recalcul du solde se faisait dehors. Si ce seul appel echouait, le
+       fideicommis etait debite et applique a la facture, mais `balanceDue`
+       restait a l'ancienne valeur : la facture reclamait au client une somme
+       deja prise sur ses propres fonds.
+
+       On verifie que le recalcul recoit le CLIENT DE TRANSACTION, pas le prisma
+       global. C'est la seule difference observable entre « atomique » et
+       « presque atomique ». */
+    const { recalculateInvoiceTotals } = await import("@/lib/services/billing/invoice-service");
+    const { createTrustWithdrawal } = await import("../trust-transaction-service");
+
+    await createTrustWithdrawal({
+      ...base,
+      montant: 400,
+      motive: "HONORAIRES_DEBOURS_FACTURES",
+      factureId: "inv1",
+    });
+
+    expect(recalculateInvoiceTotals).toHaveBeenCalledWith("inv1", txClient);
+  });
+
   it("REFUSE un retrait en espèces (art. 57 B-1 r.5 / s. 11 By-Law 9)", async () => {
     const { createTrustWithdrawal } = await import("../trust-transaction-service");
 
