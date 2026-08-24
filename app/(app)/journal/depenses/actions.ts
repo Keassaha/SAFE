@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
+import { lireCodeCategorieDuCabinet } from "@/lib/expense-journal/categorie-cabinet";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canManageExpenseJournal } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
@@ -233,9 +234,7 @@ export async function validateImportedTransaction(
   // La décomposition est pilotée par la CATÉGORIE : sur un salaire ou une prime
   // d'assurance, elle refuse de fabriquer une taxe qui n'existe pas.
   const taxConfig = await getCabinetTaxConfigById(cabinetId);
-  const categoryCode = categoryId
-    ? (await prisma.expenseCategory.findUnique({ where: { id: categoryId }, select: { code: true } }))?.code
-    : null;
+  const categoryCode = await lireCodeCategorieDuCabinet({ cabinetId, categoryId });
   const taxes = decomposeExpenseTax({
     montantTtc: tx.rawAmount,
     categoryCode,
@@ -367,9 +366,7 @@ export async function editCabinetExpense(
   const montantApres = patch.montant ?? before.montant;
   const categoryIdApres = patch.categoryId !== undefined ? patch.categoryId : before.categoryId;
   const taxConfig = await getCabinetTaxConfigById(cabinetId);
-  const codeApres = categoryIdApres
-    ? (await prisma.expenseCategory.findUnique({ where: { id: categoryIdApres }, select: { code: true } }))?.code
-    : null;
+  const codeApres = await lireCodeCategorieDuCabinet({ cabinetId, categoryId: categoryIdApres });
   const taxes = decomposeExpenseTax({
     montantTtc: montantApres,
     categoryCode: codeApres,

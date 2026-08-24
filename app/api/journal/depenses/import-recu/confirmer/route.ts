@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { lireCodeCategorieDuCabinet } from "@/lib/expense-journal/categorie-cabinet";
 import { canManageExpenseJournal } from "@/lib/auth/permissions";
 import { hashProofFile, findDuplicateExpense } from "@/lib/services/finance/proof-dedup";
 import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
@@ -143,9 +144,10 @@ export async function POST(request: Request) {
     // catégorie doit pouvoir refuser une taxe qu'un reçu d'assurance porterait à
     // tort, et un reçu muet sur les taxes doit être estimé plutôt que laissé vide.
     const taxConfig = await getCabinetTaxConfigById(data.cabinetId);
-    const codeCategorie = categoryId
-      ? (await prisma.expenseCategory.findUnique({ where: { id: categoryId }, select: { code: true } }))?.code
-      : null;
+    const codeCategorie = await lireCodeCategorieDuCabinet({
+      cabinetId: data.cabinetId,
+      categoryId,
+    });
     const taxes = decomposeExpenseTax({
       montantTtc,
       categoryCode: codeCategorie,
