@@ -24,7 +24,7 @@ import {
 } from "../lib/services/abonnement/facture-abonnement";
 import { createPayment } from "../lib/services/billing/payment-allocation-service";
 import { deriveCabinetSubscriptionState } from "../lib/services/subscription-state";
-import { ajouterMois } from "../lib/services/abonnement/acces-paye";
+import { deciderProlongation } from "../lib/services/abonnement/acces-paye";
 
 const arg = (nom: string): string | undefined =>
   process.argv.find((a) => a.startsWith(`--${nom}=`))?.split("=").slice(1).join("=");
@@ -113,14 +113,20 @@ async function main() {
     dateEmission: datePaiement,
   });
 
-  // La prolongation part de l'échéance en cours si elle court encore, sinon de
-  // la date du paiement : un cabinet qui paie en avance ne perd pas ses jours,
-  // un cabinet qui paie en retard ne se voit pas créditer le vide.
-  const depuis =
-    abonne.accesPayeJusquau != null && abonne.accesPayeJusquau > datePaiement
-      ? abonne.accesPayeJusquau
-      : datePaiement;
-  const nouvelleEcheance = ajouterMois(depuis, mois);
+  /* L'aperçu doit interroger la règle, pas la réimplémenter.
+     Première version : l'aperçu partait de la date du virement et annonçait le
+     1er août ; le service, lui, part du jour de l'enregistrement et a posé le
+     24 septembre. Un aperçu qu'on relit pour approuver une écriture comptable
+     ne peut pas raconter autre chose que ce qui sera écrit. */
+  const decision = deciderProlongation({
+    cabinetAbonneId: abonne.id,
+    balanceDue: 0,
+    dejaProlongeJusquau: null,
+    accesActuel: abonne.accesPayeJusquau,
+    moisCouverts: mois,
+    maintenant: new Date(),
+  });
+  const nouvelleEcheance = decision.prolonger ? decision.nouvelleEcheance : null;
   const avant = deriveCabinetSubscriptionState(abonne);
 
   console.log(`\n${appliquer ? "ENREGISTREMENT" : "SIMULATION (rien n'est écrit)"}\n`);
@@ -132,7 +138,17 @@ async function main() {
   console.log(`  date           : ${jour(datePaiement)}`);
   console.log(`  référence      : ${reference ?? "—"}`);
   console.log(`  accès  avant   : ${avant.active ? "ouvert" : `refusé (${avant.reason})`}, échéance ${jour(abonne.accesPayeJusquau)}`);
-  console.log(`  accès  après   : ouvert jusqu'au ${jour(nouvelleEcheance)}\n`);
+  console.log(`  accès  après   : ouvert jusqu'au ${jour(nouvelleEcheance)}`);
+  /* Un virement enregistré en retard ne rétro-date pas l'accès : le mois court
+     depuis aujourd'hui. La facture, elle, garde la date du virement. Les deux
+     dates divergent donc, et il vaut mieux le lire avant d'approuver. */
+  if (datePaiement.toISOString().slice(0, 10) !== new Date().toISOString().slice(0, 10)) {
+    console.log(
+      `  ⚠️  virement daté du ${jour(datePaiement)}, enregistré aujourd'hui :` +
+        `\n      la facture porte la date du virement, l'accès court depuis ce jour-ci.`,
+    );
+  }
+  console.log("");
 
   if (!appliquer) {
     console.log("  Relancez avec --apply pour écrire.\n");
