@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getRegistreTaches, ajouterTache, updateTache, deleteTache } from "@/lib/services/forfait-billing-service";
@@ -8,6 +10,8 @@ export async function GET(request: Request) {
   if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
   if (!cabinetId) return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
+  const refus = refusSiRoleInsuffisant((session.user as { role?: string }).role, canViewBilling);
+  if (refus) return refus;
 
   const { searchParams } = new URL(request.url);
   const taches = await getRegistreTaches({
@@ -25,6 +29,8 @@ export async function POST(request: Request) {
   const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
   const userId = (session.user as { id?: string }).id;
   if (!cabinetId || !userId) return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
+  const refus = refusSiRoleInsuffisant((session.user as { role?: string }).role, canManageInvoices);
+  if (refus) return refus;
 
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "JSON invalide" }, { status: 400 }); }

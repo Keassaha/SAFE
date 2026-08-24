@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canViewDossiers } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 
 export async function GET(
@@ -8,6 +10,8 @@ export async function GET(
 ) {
   const session = await requireCabinetAndUser();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const refus = refusSiRoleInsuffisant(session.role, canViewDossiers);
+  if (refus) return refus;
 
   const { id } = await params;
   const dossier = await prisma.dossier.findFirst({

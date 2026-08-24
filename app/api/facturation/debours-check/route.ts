@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canViewBilling } from "@/lib/auth/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -16,6 +18,8 @@ export async function GET(request: Request) {
   if (!cabinetId) {
     return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
   }
+  const refus = refusSiRoleInsuffisant((session.user as { role?: string }).role, canViewBilling);
+  if (refus) return refus;
 
   const { searchParams } = new URL(request.url);
   const dossierId = searchParams.get("dossierId");

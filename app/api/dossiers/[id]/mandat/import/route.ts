@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import mammoth from "mammoth";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canManageDossiers } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { extractTextFromPDF } from "@/lib/ai/classify-document";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -35,6 +37,8 @@ export async function POST(
 ) {
   const session = await requireCabinetAndUser();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const refus = refusSiRoleInsuffisant(session.role, canManageDossiers);
+  if (refus) return refus;
   const { id } = await params;
 
   const dossier = await prisma.dossier.findFirst({

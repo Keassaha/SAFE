@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canViewBilling } from "@/lib/auth/permissions";
 import { generateInvoicePdf, invoicePdfFilename } from "@/lib/services/billing/invoice-pdf";
 import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-presented-invoice";
 import { isRateLimited } from "@/lib/rate-limit";
@@ -8,7 +10,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { cabinetId } = await requireCabinetAndUser();
+  const { cabinetId, role } = await requireCabinetAndUser();
+  const refus = refusSiRoleInsuffisant(role, canViewBilling);
+  if (refus) return refus;
   // La génération PDF (@react-pdf) est coûteuse : plafonner le débit par cabinet
   // pour éviter un déni de service. 30/min couvre largement la consultation légitime.
   if (await isRateLimited(`invoice-pdf-${cabinetId}`, 30, 60_000)) {

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canCreateClients } from "@/lib/auth/permissions";
 import { getSessionOrRespond } from "@/lib/auth/session";
 import { runClientConflictCheck } from "@/lib/services/conflict-check-service";
 
@@ -8,6 +10,8 @@ export async function POST(request: Request) {
   const sessionOrResp = await getSessionOrRespond();
   if (sessionOrResp instanceof NextResponse) return sessionOrResp;
   const { cabinetId } = sessionOrResp;
+  const refus = refusSiRoleInsuffisant((sessionOrResp.session.user as { role?: string }).role, canCreateClients);
+  if (refus) return refus;
 
   let body: Record<string, unknown>;
   try {

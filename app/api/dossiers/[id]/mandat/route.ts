@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canManageDossiers, canViewDossiers } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { parseCabinetConfig } from "@/lib/cabinet-config";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -35,6 +37,8 @@ export async function GET(
 ) {
   const session = await requireCabinetAndUser();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const refus = refusSiRoleInsuffisant(session.role, canViewDossiers);
+  if (refus) return refus;
   const { id } = await params;
 
   const mandats = await prisma.richDocument.findMany({
@@ -58,6 +62,8 @@ export async function POST(
 ) {
   const session = await requireCabinetAndUser();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const refus = refusSiRoleInsuffisant(session.role, canManageDossiers);
+  if (refus) return refus;
   const { id } = await params;
 
   const dossier = await loadDossier(id, session.cabinetId);

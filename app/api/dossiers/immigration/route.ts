@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { refusSiRoleInsuffisant } from "@/lib/auth/api-guard";
+import { canManageDossiers, canViewDossiers } from "@/lib/auth/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import {
@@ -19,6 +21,8 @@ export async function GET(request: Request) {
   if (!cabinetId) {
     return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
   }
+  const refus = refusSiRoleInsuffisant((session.user as { role?: string }).role, canViewDossiers);
+  if (refus) return refus;
 
   const { searchParams } = new URL(request.url);
   const dossierId = searchParams.get("dossierId");
@@ -41,6 +45,8 @@ export async function POST(request: Request) {
   if (!cabinetId || !userId) {
     return NextResponse.json({ error: "Cabinet non trouvé" }, { status: 403 });
   }
+  const refus = refusSiRoleInsuffisant((session.user as { role?: string }).role, canManageDossiers);
+  if (refus) return refus;
 
   let body: Record<string, unknown>;
   try {
