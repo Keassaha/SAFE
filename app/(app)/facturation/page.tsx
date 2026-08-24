@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
+import { Card } from "@/components/ui/Card";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -200,8 +201,9 @@ export default async function FacturationPage({
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
       </section>
 
-      <section className="overflow-hidden border-y border-si-line bg-si-surface">
-        <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card>
+        <section>
+          <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-medium text-si-ink">{t("listTitle")}</h2>
           <FacturationActions billingMode={billingMode} />
         </div>
@@ -232,8 +234,9 @@ export default async function FacturationPage({
           ) : (
             <FacturationTable invoices={rows} />
           )}
-        </div>
-      </section>
+          </div>
+        </section>
+      </Card>
     </div>
   );
 }

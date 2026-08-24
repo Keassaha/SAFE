@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { Card } from "@/components/ui/Card";
 import { InvoiceTemplateClean } from "@/components/facturation/InvoiceTemplateClean";
 import type { InvoiceCleanItem } from "@/components/facturation/InvoiceTemplateClean";
 import { requireCabinetAndUser } from "@/lib/auth/session";
@@ -130,16 +131,23 @@ export default async function FacturePreviewPage({
         />
       </header>
 
-      <section className="grid grid-cols-2 border-y border-si-line bg-si-surface md:grid-cols-4" aria-label={t("invoiceSummaryLabel")}>
+      {/* `role="region"` + aria-label : c'est exactement ce qu'apportait la
+          balise <section> nommée qui portait cette grille avant la carte. */}
+      <Card className="grid grid-cols-2 md:grid-cols-4" role="region" aria-label={t("invoiceSummaryLabel")}>
         {[
           [t("total"), money(invoice.totals.montantTotal)],
           [t("alreadyPaid"), money(invoice.totals.montantPaye)],
           [t("balanceDue"), money(invoice.totals.balanceDue)],
           [t("dueDate"), formatCalendarDate(invoice.dateEcheance, locale)],
-        ].map(([label, value], index) => (
+        ].map(([label, value]) => (
           <div
             key={label}
-            className={`px-4 py-3 ${index % 2 === 0 ? "border-r" : ""} border-si-line md:border-r md:last:border-r-0`}
+            /* Deux colonnes puis quatre. Toutes les variantes passent par un
+               nth-child, donc au même poids : la cascade regarde la
+               spécificité avant la requête média, et un `md:border-b-0` seul
+               perdrait contre le filet de base. La rangée du bas et la colonne
+               de droite n'ont pas de filet, le bord de la carte les remplace. */
+            className="border-si-line px-4 py-3 [&:nth-child(-n+2)]:border-b [&:nth-child(2n+1)]:border-r md:[&:nth-child(-n+2)]:border-b-0 md:[&:nth-child(-n+3)]:border-r"
           >
             <p className="text-xs font-medium text-si-muted">{label}</p>
             <p className="mt-1 text-right font-mono text-lg font-medium tabular-nums text-si-ink">
@@ -147,8 +155,10 @@ export default async function FacturePreviewPage({
             </p>
           </div>
         ))}
-      </section>
+      </Card>
 
+      {/* La feuille de la facture reste carrée : c'est une page de papier, et
+          une facture n'a pas les coins arrondis. */}
       <section className="border border-si-line bg-si-canvas p-3 sm:p-6 md:p-8" aria-label={t("invoiceDocumentLabel")}>
         <div className="mx-auto max-w-[860px] overflow-hidden border border-si-line bg-si-surface">
           <InvoiceTemplateClean

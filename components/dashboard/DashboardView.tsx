@@ -20,6 +20,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import type {
   BillingFollowUpRow,
@@ -494,19 +495,29 @@ function buildHealthCards(
 
 function HealthCardsGrid({ cards }: { cards: HealthCard[] }) {
   return (
-    <div className="grid grid-cols-1 border-y border-si-line bg-si-surface sm:grid-cols-2 lg:grid-cols-4">
+    <Card className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
         <Link
           key={card.key}
           href={card.href}
-          className="min-w-0 border-b border-si-line2 px-4 py-3 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2 sm:border-r lg:border-b-0"
+          /* Les filets d'une cellule s'arrêtent avant le bord de la carte :
+             un trait de cellule posé sur le trait de la carte fait du carton,
+             pas de la profondeur. Une colonne à 1, puis 2, puis 4, donc trois
+             jeux de bords à éteindre.
+
+             Toutes les variantes passent par un nth-child, donc au même poids.
+             Avec un simple `lg:border-b-0`, qui pèse moins qu'un sélecteur
+             nth-child, deux cellules gardaient leur filet du bas à quatre
+             colonnes : la cascade regarde la spécificité avant la requête
+             média. */
+          className="min-w-0 border-si-line2 px-4 py-3 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2 [&:nth-child(-n+3)]:border-b sm:[&:nth-child(n+3)]:border-b-0 sm:[&:nth-child(2n+1)]:border-r lg:[&:nth-child(-n+3)]:border-b-0 lg:[&:nth-child(-n+3)]:border-r"
         >
           <p className="truncate text-[11px] font-medium text-si-muted">{card.title}</p>
           <p className="mt-1 truncate font-mono text-xl font-medium tabular-nums text-si-ink">{card.value}</p>
           {card.sub && <p className="mt-1 truncate text-xs text-si-muted" title={card.sub}>{card.sub}</p>}
         </Link>
       ))}
-    </div>
+    </Card>
   );
 }
 

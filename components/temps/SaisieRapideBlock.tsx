@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useTimer, formatTimerElapsed } from "@/lib/contexts/TimerContext";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { useQueryClient } from "@tanstack/react-query";
+import { Card } from "@/components/ui/Card";
 import { NewClientModal } from "./NewClientModal";
 import { useLocale, useTranslations } from "next-intl";
 import { formatHeuresDecimales, minutesFacturablesDuChrono } from "@/lib/temps/duree";
@@ -87,7 +88,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
   };
 
   return (
-    <div className="bg-si-surface border border-si-line p-6">
+    <Card className="p-6">
       <h2 className="text-base font-medium text-si-ink flex items-center gap-2 tracking-tight">
         <Play className="w-4 h-4" aria-hidden />
         {t("quickEntry")}
@@ -216,6 +217,6 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
         onClose={() => setNewClientModalOpen(false)}
         onSuccess={handleNewClientSuccess}
       />
-    </div>
+    </Card>
   );
 }

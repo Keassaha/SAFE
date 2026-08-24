@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Card } from "@/components/ui/Card";
 
 interface TimeMetricsCardsProps {
   semaineHeures: number;
@@ -46,29 +47,29 @@ export function TimeMetricsCards({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 border-y border-si-line bg-si-surface lg:grid-cols-4" aria-busy="true">
+      <Card className="grid grid-cols-2 lg:grid-cols-4" aria-busy="true">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="border-b border-r border-si-line2 px-4 py-3">
+          <div key={i} className="min-w-0 px-4 py-3 border-si-line2 [&:nth-child(-n+2)]:border-b [&:nth-child(2n+1)]:border-r lg:[&:nth-child(-n+2)]:border-b-0 lg:[&:nth-child(-n+3)]:border-r">
             <Skeleton className="mb-2 h-3 w-24" />
             <Skeleton className="h-6 w-20" />
           </div>
         ))}
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 border-y border-si-line bg-si-surface lg:grid-cols-4">
+    <Card className="grid grid-cols-2 lg:grid-cols-4">
       {cards.map(({ title, value, sub }) => (
         <div
           key={title}
-          className="min-w-0 border-b border-r border-si-line2 px-4 py-3"
+          className="min-w-0 px-4 py-3 border-si-line2 [&:nth-child(-n+2)]:border-b [&:nth-child(2n+1)]:border-r lg:[&:nth-child(-n+2)]:border-b-0 lg:[&:nth-child(-n+3)]:border-r"
         >
           <p className="truncate text-[11px] font-medium text-si-muted">{title}</p>
           <p className="mt-1 truncate text-right font-mono text-xl font-medium tabular-nums text-si-ink">{value}</p>
           {sub && <p className="mt-1 truncate text-right text-xs text-si-muted">{sub}</p>}
         </div>
       ))}
-    </div>
+    </Card>
   );
 }

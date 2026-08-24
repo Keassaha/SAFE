@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -193,7 +194,8 @@ export function TempsPageClient({
             loading={isLoading}
           />
 
-          <section className="border-y border-si-line bg-si-surface" aria-labelledby="time-history-title">
+          <Card>
+            <section aria-labelledby="time-history-title">
             <div className="flex items-center justify-between px-4 py-3">
               <h2 id="time-history-title" className="text-sm font-medium text-si-ink">
                 {t("entriesHistory")}
@@ -296,6 +298,7 @@ export function TempsPageClient({
             </>
           )}
           </section>
+          </Card>
 
           <TimeEntryFormModal
             open={addModalOpen}

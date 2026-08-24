@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Figure } from "@/components/ui/Figure";
+import { Card } from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
@@ -123,7 +124,10 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
         {/* ── Vue d'ensemble ── */}
         <TabsContent value="overview">
           <div className="space-y-6">
-            <div className="grid border-y border-si-line bg-si-surface sm:grid-cols-3">
+            {/* SummaryMetric éteint déjà ses propres filets de bord
+                (last:border-b-0, sm:last:border-r-0) : la carte n'a rien à
+                corriger ici. */}
+            <Card className="grid sm:grid-cols-3">
               <SummaryMetric
                 label={t("cards.timeUnbilled")}
                 count={t("cards.entries", { count: overview.tempsCount })}
@@ -139,9 +143,10 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                 count={t("cards.items", { count: totalCount })}
                 amount={money.format(totalMontant)}
               />
-            </div>
+            </Card>
 
-            <section className="border-y border-si-line bg-si-surface" aria-labelledby="recent-activity-title">
+            <Card>
+              <section aria-labelledby="recent-activity-title">
               <h2 id="recent-activity-title" className="px-4 py-3 text-sm font-medium text-si-ink">
                 {t("recent.title")}
               </h2>
@@ -181,7 +186,8 @@ export function TempsMixteView({ cabinetId, userId, role, dossiers, overview }: 
                   </ul>
                 )}
               </div>
-            </section>
+              </section>
+            </Card>
           </div>
         </TabsContent>
 

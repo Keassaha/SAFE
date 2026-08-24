@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
 import { routes } from "@/lib/routes";
 import { useLocale, useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
@@ -1607,7 +1608,7 @@ export function CreateInvoiceView({
 
         {/* ======== RIGHT — Live Preview ======== */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="mb-3 grid grid-cols-2 border-y border-si-line bg-si-surface">
+          <Card className="mb-3 grid grid-cols-2">
             <div className="border-r border-si-line px-4 py-3">
               <p className="text-xs text-si-muted">{t("total")}</p>
               <p className="mt-1 text-right font-mono text-xl font-medium tabular-nums text-si-ink">
@@ -1620,7 +1621,7 @@ export function CreateInvoiceView({
                 {dateEcheance}
               </p>
             </div>
-          </div>
+          </Card>
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className={sectionTitle}>{t("livePreview")}</h2>
             {presentedPreview.cabinet?.invoiceTemplate === "derisier" &&
