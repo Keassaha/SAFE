@@ -52,6 +52,21 @@ export function getStripe(): Stripe {
  * laisser passer deux décimales : arrondir à l'unité afficherait 150 $ pour
  * 149,99 $, et 300 $ pour 299,99 $.
  */
+/*
+ * `features` ne porte plus qu'UNE limite, et elle est appliquée.
+ *
+ * Cinq autres y figuraient (`trustAccounts`, `virtualEmployees`, `clientPortal`,
+ * `advancedReports`, `api`). Aucune n'était appliquée nulle part, et surtout
+ * elles décrivaient un produit qui n'existe pas : `essentiel.trustAccounts`
+ * valait `false` alors que la page publique vend le palier Solo sur la phrase
+ * « Fidéicommis, dossiers, temps et facturation dans un même abonnement ».
+ * Les appliquer aurait cassé l'offre ; les garder faisait mentir la carte de
+ * prix. Retirées (constat C-07).
+ *
+ * `maxUsers` reste : c'est la seule que le site distingue vraiment, entre
+ * « qui exerce seul » et « avec l'accès pour votre équipe ». Elle est vérifiée
+ * à l'invitation et à la création d'un employé avec accès.
+ */
 export const PLANS = {
   essentiel: {
     name: "Essentiel",
@@ -60,11 +75,6 @@ export const PLANS = {
     interval: "month" as const,
     features: {
       maxUsers: 1,
-      trustAccounts: false,
-      virtualEmployees: false,
-      clientPortal: false,
-      advancedReports: false,
-      api: false,
     },
   },
   professionnel: {
@@ -74,11 +84,6 @@ export const PLANS = {
     interval: "month" as const,
     features: {
       maxUsers: 5,
-      trustAccounts: true,
-      virtualEmployees: true,
-      clientPortal: true,
-      advancedReports: false,
-      api: false,
     },
   },
   cabinet: {
@@ -88,11 +93,6 @@ export const PLANS = {
     interval: "month" as const,
     features: {
       maxUsers: -1, // illimité
-      trustAccounts: true,
-      virtualEmployees: true,
-      clientPortal: true,
-      advancedReports: true,
-      api: true,
     },
   },
 } as const;

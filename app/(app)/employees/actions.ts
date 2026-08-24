@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import type { EmployeeRole, EmployeeStatus, EmploymentType } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { peutAjouterUnUtilisateur } from "@/lib/services/abonnement/places";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/services/audit";
 import { canEditEmployees } from "@/lib/auth/permissions";
@@ -67,6 +68,28 @@ export async function createEmployee(input: CreateEmployeeInput) {
     });
     if (existingUser) {
       throw new Error("Un compte de connexion existe déjà avec cet email.");
+    }
+
+    /* Places du forfait (constat C-07). Meme regle qu'a l'invitation : c'est le
+       second endroit ou un compte de connexion nait. Un employe SANS acces ne
+       consomme pas de place, il n'a pas de compte. */
+    const [actifs, enAttente, forfait] = await Promise.all([
+      prisma.user.count({ where: { cabinetId, desactiveLe: null } }),
+      prisma.invitation.count({
+        where: { cabinetId, acceptedAt: null, expiresAt: { gt: new Date() } },
+      }),
+      prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { plan: true } }),
+    ]);
+    const place = peutAjouterUnUtilisateur({
+      plan: forfait?.plan,
+      utilisateursActifs: actifs + enAttente,
+    });
+    if (!place.autorise) {
+      throw new Error(
+        `Votre forfait comprend ${place.limite} accès, et ${place.actuels} sont déjà pris ` +
+          `ou réservés par une invitation en attente. Créez cette fiche sans accès, ` +
+          `ou passez à un forfait supérieur.`,
+      );
     }
   }
 

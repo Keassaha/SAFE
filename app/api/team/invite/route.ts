@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { peutAjouterUnUtilisateur } from "@/lib/services/abonnement/places";
 import { sendEmail, invitationEmailHtml } from "@/lib/email";
 import { getSessionOrRespond } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/services/audit";
@@ -44,6 +45,37 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.user.findFirst({ where: { cabinetId, email: email.toLowerCase() } });
   if (existing) {
     return NextResponse.json({ error: "Un utilisateur avec cet email existe déjà." }, { status: 409 });
+  }
+
+  /* Places du forfait (constat C-07). Verifiee ICI, a l'invitation, et non a
+     l'acceptation : l'administrateur apprend tout de suite qu'il n'a plus de
+     place, plutot que d'envoyer un lien qui echouera chez la personne invitee.
+
+     On compte les comptes ACTIFS : un compte desactive ne consomme pas de
+     place, sinon un cabinet resterait bloque par le depart qu'il vient d'acter.
+     Les invitations en attente comptent aussi, sans quoi on pourrait en emettre
+     dix d'un coup sur un forfait a une place. */
+  const [utilisateursActifs, invitationsEnAttente, cabinetForfait] = await Promise.all([
+    prisma.user.count({ where: { cabinetId, desactiveLe: null } }),
+    prisma.invitation.count({
+      where: { cabinetId, acceptedAt: null, expiresAt: { gt: new Date() } },
+    }),
+    prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { plan: true } }),
+  ]);
+  const place = peutAjouterUnUtilisateur({
+    plan: cabinetForfait?.plan,
+    utilisateursActifs: utilisateursActifs + invitationsEnAttente,
+  });
+  if (!place.autorise) {
+    return NextResponse.json(
+      {
+        error:
+          `Votre forfait comprend ${place.limite} accès, et ${place.actuels} sont déjà ` +
+          `pris ou réservés par une invitation en attente. Passez à un forfait supérieur ` +
+          `pour inviter cette personne.`,
+      },
+      { status: 409 },
+    );
   }
 
   // Invalider toute invitation précédente non acceptée pour cet email
