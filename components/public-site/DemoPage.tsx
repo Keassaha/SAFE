@@ -1,17 +1,25 @@
 "use client";
 
-/** Ébauche landing-v2 — Démo et contact (copy section E). Route isolée, non liée à la prod. */
+/**
+ * La page de rencontre, servie sur /demo et sur /contact.
+ *
+ * Elle posait un exergue en mono, une liste numérotée et un formulaire encarté
+ * dans une colonne de 1024 px centrée, puis une bande de quatre gages sur fond
+ * blanc. Elle passe au contrat de section du site : le déroulement de la
+ * rencontre en liste numérotée pleine largeur, le formulaire dans sa propre
+ * section, les gages en index numéroté.
+ */
 
 import React from "react";
-import { motion } from "framer-motion";
-import { INK, MUTED, PROSE, FAINT, GREEN, LINE, SURFACE, BG, EASE, fadeUp, PageShell, PageHeader } from "./shared";
+import { PageShell, GREEN, INK, LINE, R } from "./shared";
+import { Ouverture, Recit, Tete, ListeNumerotee, IndexNumerote } from "./recit";
 
 const DEROULEMENT = [
-  "Nous partons de votre façon de travailler.",
-  "Nous ciblons les tâches qui demandent le plus de vérifications.",
-  "Nous vous montrons seulement les parties de SAFE qui s’y rapportent.",
-  "Vous posez vos questions et décidez de la suite, sans pression.",
-];
+  ["Nous partons de votre façon de travailler.", "Écoute"],
+  ["Nous ciblons les tâches qui demandent le plus de vérifications.", "Repérage"],
+  ["Nous vous montrons seulement les parties de SAFE qui s’y rapportent.", "Démonstration"],
+  ["Vous posez vos questions et décidez de la suite, sans pression.", "Décision"],
+] as const;
 
 const CHAMPS = [
   { label: "Nom", type: "text", placeholder: "Votre nom" },
@@ -19,104 +27,117 @@ const CHAMPS = [
   { label: "Nom du cabinet", type: "text", placeholder: "Votre cabinet" },
 ];
 
+const GAGES = [
+  ["01", "Conçu au Québec"],
+  ["02", "Données hébergées au Canada"],
+  ["03", "Pensé pour le fidéicommis"],
+  ["04", "Utilisé dans un vrai cabinet"],
+] as const;
+
 export default function DemoPage() {
   return (
     <PageShell>
-      <PageHeader
-        eyebrow="Démo et contact"
-        titre="Commençons par votre réalité, pas par une présentation de vente."
-        intro="En 20 minutes, nous regardons comment vous tenez vos dossiers, votre temps et votre fidéicommis aujourd’hui. Vous verrez ensuite si SAFE mérite d’aller plus loin."
+      <Ouverture
+        titre="Commençons par votre réalité"
+        dire={[
+          "Vingt minutes sur vos dossiers, votre temps et votre fidéicommis.",
+          "Vous verrez ensuite si SAFE mérite d’aller plus loin.",
+        ]}
       />
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        .demo-input:focus {
-          border-color: ${GREEN} !important;
+      <Recit id="deroulement">
+        <Tete
+          titre="Ce qui se passe pendant la rencontre"
+          dire={["Quatre temps, dans cet ordre.", "Aucune présentation de vente."]}
+        />
+        <ListeNumerotee entrees={DEROULEMENT} />
+      </Recit>
+
+      <Recit id="rencontre" socle>
+        <Tete
+          titre="Choisir un moment"
+          dire={[
+            "Trois champs, rien de plus.",
+            "Vos coordonnées servent à répondre et à organiser la rencontre, jamais à autre chose.",
+          ]}
+        />
+
+        <form className="formulaire" onSubmit={(e) => e.preventDefault()}>
+          {CHAMPS.map((c) => (
+            <label key={c.label}>
+              <span>{c.label}</span>
+              <input type={c.type} placeholder={c.placeholder} className="safe-zoom champ" />
+            </label>
+          ))}
+          <button type="submit" className="btn">
+            Choisir un moment
+          </button>
+        </form>
+
+        <p className="note note-faible">
+          Vos coordonnées ne sont ni vendues ni partagées à des fins de prospection par des tiers.
+        </p>
+      </Recit>
+
+      <Recit id="gages">
+        <Tete
+          titre="Ce que vous savez déjà avant d’écrire"
+          dire={["Quatre faits, vérifiables.", "Le reste se regarde ensemble."]}
+        />
+        <IndexNumerote entrees={GAGES} />
+        <div className="actions">
+          <a className="btn ghost" href={R.diagnostic}>
+            Ou commencer par l’évaluation
+          </a>
+        </div>
+      </Recit>
+
+      {/* Le formulaire est le seul objet de saisie du site public : ses règles
+          vivent avec lui, pas dans le vocabulaire partagé. Il tient sur une
+          rangée de trois champs et son bouton, et s'empile au pouce. */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .safe-vitrine .formulaire {
+          margin-top: clamp(56px, 8vh, 104px);
+          display: grid;
+          grid-template-columns: repeat(3, 1fr) auto;
+          align-items: end;
+          gap: 18px clamp(20px, 2.4vw, 32px);
+        }
+        .safe-vitrine .formulaire label { display: block; min-width: 0; }
+        .safe-vitrine .formulaire label span {
+          display: block;
+          font-family: var(--sans);
+          font-size: 13px;
+          font-weight: 500;
+          color: ${INK};
+        }
+        .safe-vitrine .champ {
+          margin-top: 7px;
+          height: 44px;
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid ${LINE};
+          background: var(--si-surface);
+          padding: 0 14px;
+          font-family: var(--sans);
+          font-size: 14.5px;
+          color: ${INK};
+          outline: none;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .safe-vitrine .champ:focus {
+          border-color: ${GREEN};
           box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12);
         }
-      ` }} />
-      <section className="px-6 pb-24" style={{ background: BG }}>
-        <div className="mx-auto grid max-w-5xl gap-12 sm:grid-cols-2 sm:items-start">
-          {/* Déroulement */}
-          <motion.div {...fadeUp(0)}>
-            <p className="font-mono text-[12px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
-              Le déroulement
-            </p>
-            {/* Une liste numérotée se lit partout pareil sur le site : filet
-                entre deux points, numéro vert à gauche, le dernier filet ferme
-                la liste. C'est la grammaire du diagnostic gratuit et celle des
-                piliers de l'accueil. Elle était la seule à séparer ses points
-                par du vide. */}
-            <ul className="mt-6 border-b" style={{ borderColor: LINE }}>
-              {DEROULEMENT.map((d, i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  data-revele=""
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.08 + i * 0.12, duration: 0.72, ease: EASE }}
-                  className="flex gap-4 border-t py-4"
-                  style={{ borderColor: LINE }}
-                >
-                  <span className="mt-0.5 font-mono text-[12px]" style={{ color: GREEN }} aria-hidden>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="font-sans text-[16px] leading-[1.55]" style={{ color: PROSE }}>
-                    {d}
-                  </span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Formulaire */}
-          <motion.form
-            {...fadeUp(0.1)}
-            onSubmit={(e) => e.preventDefault()}
-            className="rounded-[16px] p-7"
-            style={{ background: SURFACE, border: `1px solid ${LINE}` }}
-          >
-            <div className="space-y-4">
-              {CHAMPS.map((c) => (
-                <label key={c.label} className="block">
-                  <span className="font-sans text-[13px] font-medium" style={{ color: INK }}>
-                    {c.label}
-                  </span>
-                  <input
-                    type={c.type}
-                    placeholder={c.placeholder}
-                    className="safe-zoom demo-input mt-1.5 h-11 w-full rounded-[8px] px-3.5 font-sans text-[14.5px] outline-none transition-shadow"
-                    style={{ background: "#fff", border: `1px solid ${LINE}`, color: INK }}
-                  />
-                </label>
-              ))}
-            </div>
-            <button
-              type="submit"
-              className="safe-zoom mt-6 inline-flex h-11 w-full items-center justify-center rounded-[8px] font-sans text-[15px] font-medium transition-transform duration-200"
-              style={{ background: GREEN, color: "#fff" }}
-            >
-              Choisir un moment
-            </button>
-            <p className="mt-4 font-sans text-[12.5px] leading-[1.5]" style={{ color: FAINT }}>
-              Vos coordonnées servent uniquement à répondre à votre demande et à organiser la
-              rencontre. Elles ne sont pas vendues ni partagées à des fins de prospection par des
-              tiers.
-            </p>
-          </motion.form>
-        </div>
-      </section>
-
-      <section className="border-t px-6 py-5" style={{ background: SURFACE, borderColor: LINE }}>
-        <div className="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {["Conçu au Québec", "Données hébergées au Canada", "Pensé pour le fidéicommis", "Utilisé dans un vrai cabinet"].map((p) => (
-            <div key={p} className="flex items-center gap-2 font-sans text-[13px]" style={{ color: PROSE }}>
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: GREEN }} aria-hidden />
-              {p}
-            </div>
-          ))}
-        </div>
-      </section>
+        @media (max-width: 860px) {
+          .safe-vitrine .formulaire { margin-top: 32px; grid-template-columns: 1fr; }
+          .safe-vitrine .formulaire .btn { justify-content: center; }
+        }
+      `,
+        }}
+      />
     </PageShell>
   );
 }

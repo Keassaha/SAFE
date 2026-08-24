@@ -1,10 +1,18 @@
 "use client";
 
-/** Page publique FAQ, issue du copy révisé. */
+/**
+ * La page des questions fréquentes.
+ *
+ * Elle posait ses questions dans une colonne de 672 px centrée, pendant que
+ * son titre vivait dans une colonne de 768 px : deux arêtes gauches pour une
+ * page de six questions. Elle passe au contrat de section du site : la
+ * question à gauche, la réponse à droite, un filet entre deux, sur la seule
+ * colonne du site.
+ */
 
 import React from "react";
-import { motion } from "framer-motion";
-import { INK, MUTED, PROSE, LINE, BG, fadeUp, PageShell, PageHeader } from "./shared";
+import { PageShell, R } from "./shared";
+import { Ouverture, Recit, Tete } from "./recit";
 
 const FAQ = [
   {
@@ -51,31 +59,44 @@ const FAQ = [
 export default function FaqPage() {
   return (
     <PageShell>
-      <PageHeader
-        eyebrow="Questions fréquentes"
-        titre="Vos questions, avant même de nous parler."
+      <Ouverture
+        titre="Vos questions, avant même de nous parler"
+        dire={[
+          "Les six qu’on nous pose le plus.",
+          "Les autres se répondent en rencontre, sur votre cas.",
+        ]}
       />
 
-      <section className="px-6 pb-24" style={{ background: BG }}>
-        <div className="mx-auto max-w-2xl">
-          {FAQ.map((item, i) => (
-            <motion.div key={item.q} {...fadeUp(0.04)} className="py-8" style={{ borderTop: i === 0 ? "none" : `1px solid ${LINE}` }}>
-              {/* La question passe en serif comme le reste du site. Elle perd
-                  sa graisse moyenne au passage : Instrument Serif n'existe
-                  qu'en 400, et une graisse demandée serait synthétisée par le
-                  navigateur. La hiérarchie tient au corps et à l'encre. */}
-              <h2 className="font-serif text-[20px] font-normal leading-[1.3]" style={{ color: INK }}>
-                {item.q}
-              </h2>
-              <div className="mt-3 space-y-3 font-sans text-[15.5px] leading-[1.6]" style={{ color: PROSE }}>
+      <Recit id="questions">
+        <div className="liste-q">
+          {FAQ.map((item) => (
+            <div className="q" key={item.q}>
+              <h3>{item.q}</h3>
+              <div>
                 {item.r.map((p, j) => (
                   <p key={j}>{p}</p>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </section>
+      </Recit>
+
+      <Recit>
+        <Tete
+          titre="Il en reste une ?"
+          dire={["Posez-la pendant la rencontre.", "Vingt minutes, sur vos dossiers, sans engagement."]}
+        />
+        <div className="actions">
+          <a className="btn" href={R.diagnostic}>
+            Évaluer mon cabinet
+          </a>
+          <a className="btn ghost" href={R.demo}>
+            Réserver une rencontre
+          </a>
+        </div>
+        <p className="note">Gratuit, sans carte de crédit. Rapport sous 24 heures.</p>
+      </Recit>
     </PageShell>
   );
 }

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { SafeLogo } from "@/components/branding/SafeLogo";
+import { VocabulaireRecit, Ouverture, AnimationsRecit } from "./recit";
 import { MARK_GEOMETRY, SAFE_MARK_DEFAULT } from "@/components/brand/safe-mark";
 
 export const BG = "var(--si-canvas)";
@@ -376,6 +377,13 @@ export function PageShell({ children }: { children: React.ReactNode }) {
       className="safe-vitrine min-h-screen font-sans antialiased"
       style={{ background: BG, color: INK }}
     >
+      {/* Le vocabulaire de récit, posé une fois pour toutes les pages qui
+          vivent dans cette coquille. Voir components/public-site/recit.tsx :
+          c'est le même contrat que l'accueil, à la portée près. */}
+      <VocabulaireRecit />
+      {/* Les blocs paraissent au défilement et la phrase s'allume mot à mot.
+          Une seule instance pour toute la page. */}
+      <AnimationsRecit />
       <Nav />
       <main>{children}</main>
       <Footer />
@@ -661,39 +669,43 @@ export function ScrollHint({ label = "Faites défiler" }: { label?: string }) {
   );
 }
 
+/**
+ * L'en-tête d'une page publique.
+ *
+ * Elle centrait un exergue en mono, un titre et une intro dans une colonne de
+ * 768 px, sur un fond animé de papiers qui dérivent. Elle passe au contrat de
+ * section du site : le titre à gauche, UNE phrase à droite à la même hauteur,
+ * sur la colonne de 1160 px que partagent toutes les pages.
+ *
+ * L'exergue disparaît. Il nommait la page une deuxième fois, au-dessus d'un
+ * titre qui le disait déjà, et le contrat n'en a pas.
+ *
+ * La phrase est bicolore : la première phrase porte l'encre pleine, la suite
+ * reste en gris. Quand l'intro arrive en un seul morceau, on la coupe à la
+ * première phrase, ce qui donne exactement le même geste sans rien demander
+ * aux pages.
+ */
+function couperALaPremierePhrase(texte: string): [string, string] {
+  /* Pas de drapeau `s` : la cible de compilation est antérieure à ES2018. Le
+     [\s\S] fait le même travail, y compris sur une intro à plusieurs lignes. */
+  const m = texte.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/);
+  return m ? [m[1], m[2]] : [texte, ""];
+}
+
 export function PageHeader({
   eyebrow,
   titre,
   intro,
 }: {
-  eyebrow: string;
+  /** Conservé le temps que les pages cessent de le passer ; il n'est plus rendu. */
+  eyebrow?: string;
   titre: React.ReactNode;
   intro?: React.ReactNode;
 }) {
-  return (
-    <section className="relative overflow-hidden px-6 pb-14 pt-28 sm:pb-16 sm:pt-36" style={{ background: BG }}>
-      <PaperDrift />
-      <div className="relative mx-auto max-w-3xl">
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <motion.h1
-          {...fadeUp(0.06)}
-          className="mt-4 font-serif text-[33px] leading-[1.1] sm:max-w-[22ch] sm:text-[52px]"
-          style={{ color: INK, letterSpacing: "-0.018em" }}
-        >
-          {titre}
-        </motion.h1>
-        {intro && (
-          <motion.p
-            {...fadeUp(0.12)}
-            className="mt-5 max-w-[54ch] font-sans text-[16.5px] leading-[1.6] sm:mt-6 sm:text-[19px]"
-            style={{ color: PROSE }}
-          >
-            {intro}
-          </motion.p>
-        )}
-      </div>
-    </section>
-  );
+  void eyebrow;
+  const dire: [React.ReactNode, React.ReactNode] | undefined =
+    typeof intro === "string" ? couperALaPremierePhrase(intro) : intro ? ["", intro] : undefined;
+  return <Ouverture titre={titre} dire={dire} />;
 }
 
 export function AConfirmer({ children }: { children: React.ReactNode }) {
