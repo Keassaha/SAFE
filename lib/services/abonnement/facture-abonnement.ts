@@ -93,7 +93,23 @@ export async function emettreFactureAbonnement(params: {
   mois: number;
   dateEmission: Date;
   emisParId?: string | null;
-}): Promise<{ invoiceId: string; montant: number; description: string; periodeFin: Date }> {
+  /**
+   * `false` s'arrête au brouillon.
+   *
+   * Un brouillon porte un numéro provisoire et ne consomme donc AUCUN numéro de
+   * la séquence officielle. C'est ce qui permet de préparer d'avance la facture
+   * d'un mois à venir sans casser la propriété que la séquence Barreau suit la
+   * chronologie : le numéro définitif s'attribue le jour de l'émission, pas le
+   * jour où on a préparé le document.
+   */
+  emettre?: boolean;
+}): Promise<{
+  invoiceId: string;
+  montant: number;
+  description: string;
+  periodeFin: Date;
+  emise: boolean;
+}> {
   const mois = validerMoisCouverts(params.mois);
 
   const abonne = await prisma.cabinet.findUnique({
@@ -160,16 +176,21 @@ export async function emettreFactureAbonnement(params: {
   });
 
   await recalculateInvoiceTotals(facture.id);
-  await issueInvoice({
-    invoiceId: facture.id,
-    approvedById: params.emisParId ?? null,
-    cabinetId: abonne.ficheAbonne.cabinetId,
-  });
+
+  const emettre = params.emettre ?? true;
+  if (emettre) {
+    await issueInvoice({
+      invoiceId: facture.id,
+      approvedById: params.emisParId ?? null,
+      cabinetId: abonne.ficheAbonne.cabinetId,
+    });
+  }
 
   return {
     invoiceId: facture.id,
     montant: prepare.montant,
     description: prepare.description,
     periodeFin: prepare.periodeFin,
+    emise: emettre,
   };
 }

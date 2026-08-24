@@ -68,11 +68,18 @@ async function main() {
   const moisTexte = arg("mois");
   const reference = arg("reference") ?? null;
   const appliquer = flag("apply");
+  /* Trois gestes distincts, parce qu'ils le sont dans la réalité :
+     préparer un document, l'émettre, encaisser l'argent. Les confondre
+     obligerait à inventer un paiement pour pouvoir facturer. */
+  const brouillon = flag("brouillon");
+  const sansPaiement = brouillon || flag("sans-paiement");
 
   if (!cabinetAbonneId || !dateTexte || !moisTexte) {
     console.error(
       "\nUsage : --cabinet=<identifiant> --date=AAAA-MM-JJ --mois=<1..12> [--reference=<n° Interac>] [--apply]" +
-        "\n        --list pour voir les cabinets facturables.\n",
+        "\n        --brouillon      prépare la facture sans l'émettre (aucun numéro consommé)" +
+        "\n        --sans-paiement  émet la facture sans encaisser (créance ouverte)" +
+        "\n        --list           voir les cabinets facturables\n",
     );
     process.exitCode = 1;
     return;
@@ -118,18 +125,26 @@ async function main() {
      1er août ; le service, lui, part du jour de l'enregistrement et a posé le
      24 septembre. Un aperçu qu'on relit pour approuver une écriture comptable
      ne peut pas raconter autre chose que ce qui sera écrit. */
-  const decision = deciderProlongation({
-    cabinetAbonneId: abonne.id,
-    balanceDue: 0,
-    dejaProlongeJusquau: null,
-    accesActuel: abonne.accesPayeJusquau,
-    moisCouverts: mois,
-    maintenant: new Date(),
-  });
-  const nouvelleEcheance = decision.prolonger ? decision.nouvelleEcheance : null;
+  const decision = sansPaiement
+    ? null
+    : deciderProlongation({
+      cabinetAbonneId: abonne.id,
+      balanceDue: 0,
+      dejaProlongeJusquau: null,
+      accesActuel: abonne.accesPayeJusquau,
+      moisCouverts: mois,
+      maintenant: new Date(),
+    });
+  const nouvelleEcheance =
+    decision && decision.prolonger ? decision.nouvelleEcheance : null;
   const avant = deriveCabinetSubscriptionState(abonne);
 
-  console.log(`\n${appliquer ? "ENREGISTREMENT" : "SIMULATION (rien n'est écrit)"}\n`);
+  const geste = brouillon
+    ? "PRÉPARATION D'UN BROUILLON"
+    : sansPaiement
+      ? "ÉMISSION SANS ENCAISSEMENT"
+      : "ENREGISTREMENT D'UN PAIEMENT";
+  console.log(`\n${geste}${appliquer ? "" : " — SIMULATION (rien n'est écrit)"}\n`);
   console.log(`  cabinet        : ${abonne.nom}`);
   console.log(`  fiche client   : ${abonne.ficheAbonne.raisonSociale ?? abonne.ficheAbonne.id}`);
   console.log(`  facture        : ${prepare.description}`);
@@ -138,11 +153,18 @@ async function main() {
   console.log(`  date           : ${jour(datePaiement)}`);
   console.log(`  référence      : ${reference ?? "—"}`);
   console.log(`  accès  avant   : ${avant.active ? "ouvert" : `refusé (${avant.reason})`}, échéance ${jour(abonne.accesPayeJusquau)}`);
-  console.log(`  accès  après   : ouvert jusqu'au ${jour(nouvelleEcheance)}`);
+  console.log(
+    sansPaiement
+      ? `  accès  après   : inchangé (l'accès vient du paiement, pas de la facture)`
+      : `  accès  après   : ouvert jusqu'au ${jour(nouvelleEcheance)}`,
+  );
   /* Un virement enregistré en retard ne rétro-date pas l'accès : le mois court
      depuis aujourd'hui. La facture, elle, garde la date du virement. Les deux
      dates divergent donc, et il vaut mieux le lire avant d'approuver. */
-  if (datePaiement.toISOString().slice(0, 10) !== new Date().toISOString().slice(0, 10)) {
+  if (
+    !sansPaiement &&
+    datePaiement.toISOString().slice(0, 10) !== new Date().toISOString().slice(0, 10)
+  ) {
     console.log(
       `  ⚠️  virement daté du ${jour(datePaiement)}, enregistré aujourd'hui :` +
         `\n      la facture porte la date du virement, l'accès court depuis ce jour-ci.`,
@@ -159,8 +181,22 @@ async function main() {
     cabinetAbonneId: abonne.id,
     mois,
     dateEmission: datePaiement,
+    emettre: !brouillon,
   });
-  console.log(`  ✓ facture émise (${facture.invoiceId})`);
+  console.log(
+    facture.emise
+      ? `  ✓ facture émise (${facture.invoiceId})`
+      : `  ✓ brouillon préparé (${facture.invoiceId}) — aucun numéro officiel consommé`,
+  );
+
+  if (sansPaiement) {
+    console.log(
+      brouillon
+        ? `  → à émettre le jour venu, puis à encaisser quand le virement arrive\n`
+        : `  → créance ouverte ; l'accès se prolongera à l'encaissement\n`,
+    );
+    return;
+  }
 
   /* L'émission a consommé un numéro de la séquence officielle. Si
      l'encaissement échoue maintenant, la facture reste émise et impayée : elle
