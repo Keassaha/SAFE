@@ -25,8 +25,22 @@ const nextConfig: NextConfig = {
   /* ── Images ── */
   images: {
     formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200],
+    /* Les largeurs s'arrêtaient à 1200 px. La vitrine montre des FENÊTRES de
+       l'application sur toute la colonne, soit 1236 px affichés à 1440 : le
+       navigateur recevait donc une image plus petite que sa place, et deux
+       fois trop petite sur un écran à haute densité. Les libellés du logiciel
+       y devenaient illisibles, ce qui vide la démonstration de son sens.
+
+       Les paliers hauts ne pèsent que s'ils sont choisis : le navigateur prend
+       le candidat qui correspond à la place réelle multipliée par la densité,
+       donc un téléphone reste à 640 ou 750. */
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920, 2560, 3200],
     imageSizes: [16, 32, 48, 64, 96],
+    /* 75 est le défaut de Next, calibré pour la photographie. Une capture
+       d'interface porte du texte de onze pixels et des filets d'un pixel :
+       la compression y crée des halos autour des glyphes. 92 les efface, et
+       l'AVIF garde le fichier sous les trois cents kilo-octets. */
+    qualities: [75, 92],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
 
