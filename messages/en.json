@@ -4065,6 +4065,14 @@
     "canceled": {
       "titre": "Subscription cancelled",
       "detail": "Your subscription was cancelled. Your data and your matters remain intact and exportable."
+    },
+    "essai_expire": {
+      "titre": "Trial period ended",
+      "detail": "Your trial has come to an end. Your workspace and your matters are untouched; the subscription remains to be set up."
+    },
+    "abonnement_expire": {
+      "titre": "Subscription period ended",
+      "detail": "The period covered by your subscription has ended. Your data and your matters are untouched."
     }
   },
   "espaceFerme": {

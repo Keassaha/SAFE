@@ -186,3 +186,140 @@ describe("le mur d'abonnement n'enferme plus personne", () => {
     else process.env.SAFE_BLOCAGE_ABONNEMENT = avant;
   });
 });
+
+/**
+ * C-08 — l'accès était décidé par un statut que rien ne met à jour.
+ *
+ * Le cas de référence est réel : un cabinet en essai depuis le 7 juin, essai
+ * terminé depuis onze semaines, à qui l'application annonçait toujours un
+ * abonnement actif. Le statut Stripe est écrit une fois puis jamais relu ;
+ * seule la date dit ce qui s'est passé depuis.
+ */
+describe("échéance de l'abonnement Stripe", () => {
+  const t0 = new Date("2026-08-23T12:00:00Z");
+  const jours = (n: number) => new Date(t0.getTime() + n * 86400000);
+
+  it("refuse l'accès quand l'essai est terminé", () => {
+    const etat = deriveCabinetSubscriptionState(
+      { plan: "cabinet", stripeSubscriptionStatus: "trialing", stripeTrialEnd: jours(-77) },
+      t0,
+    );
+    expect(etat.active).toBe(false);
+    expect(etat.isTrialing).toBe(false);
+    expect(etat.reason).toBe("essai_expire");
+    expect(etat.source).toBeNull();
+  });
+
+  it("laisse travailler un essai encore en cours", () => {
+    const etat = deriveCabinetSubscriptionState(
+      { plan: "cabinet", stripeSubscriptionStatus: "trialing", stripeTrialEnd: jours(25) },
+      t0,
+    );
+    expect(etat.active).toBe(true);
+    expect(etat.isTrialing).toBe(true);
+    expect(etat.source).toBe("stripe");
+  });
+
+  it("garde l'accès le jour même où l'essai se termine", () => {
+    const etat = deriveCabinetSubscriptionState(
+      { plan: "cabinet", stripeSubscriptionStatus: "trialing", stripeTrialEnd: t0 },
+      t0,
+    );
+    expect(etat.active).toBe(true);
+  });
+
+  /* Le doute profite au cabinet : une date absente ne prouve pas une expiration,
+     et le prix d'une erreur n'est pas symétrique. */
+  it("garde l'accès quand aucune échéance n'est enregistrée", () => {
+    expect(
+      deriveCabinetSubscriptionState(
+        { plan: "cabinet", stripeSubscriptionStatus: "active" },
+        t0,
+      ).active,
+    ).toBe(true);
+    expect(
+      deriveCabinetSubscriptionState(
+        { plan: "cabinet", stripeSubscriptionStatus: "trialing" },
+        t0,
+      ).active,
+    ).toBe(true);
+  });
+
+  it("tolère trois jours de retard sur un renouvellement, pas dix", () => {
+    const enVol = deriveCabinetSubscriptionState(
+      { plan: "cabinet", stripeSubscriptionStatus: "active", stripeCurrentPeriodEnd: jours(-2) },
+      t0,
+    );
+    expect(enVol.active).toBe(true);
+
+    const abandonne = deriveCabinetSubscriptionState(
+      { plan: "cabinet", stripeSubscriptionStatus: "active", stripeCurrentPeriodEnd: jours(-10) },
+      t0,
+    );
+    expect(abandonne.active).toBe(false);
+    expect(abandonne.reason).toBe("abonnement_expire");
+  });
+
+  /* La fin d'un essai n'est pas un renouvellement en vol : rien ne la confirme
+     après coup, donc elle ne mérite aucune tolérance. */
+  it("n'accorde aucune tolérance à un essai terminé la veille", () => {
+    expect(
+      deriveCabinetSubscriptionState(
+        { plan: "cabinet", stripeSubscriptionStatus: "trialing", stripeTrialEnd: jours(-1) },
+        t0,
+      ).active,
+    ).toBe(false);
+  });
+
+  it("un virement confirmé rattrape un essai terminé", () => {
+    const etat = deriveCabinetSubscriptionState(
+      {
+        plan: "cabinet",
+        stripeSubscriptionStatus: "trialing",
+        stripeTrialEnd: jours(-77),
+        accesPayeJusquau: jours(20),
+      },
+      t0,
+    );
+    expect(etat.active).toBe(true);
+    expect(etat.source).toBe("acces_paye");
+    expect(etat.currentPeriodEnd).toEqual(jours(20));
+  });
+
+  /* Un cabinet qui a déjà payé par virement doit lire son virement, pas une
+     ligne Stripe dont il n'a jamais entendu parler. */
+  it("annonce l'accès payé expiré plutôt que l'essai expiré", () => {
+    const etat = deriveCabinetSubscriptionState(
+      {
+        plan: "cabinet",
+        stripeSubscriptionStatus: "trialing",
+        stripeTrialEnd: jours(-77),
+        accesPayeJusquau: jours(-3),
+      },
+      t0,
+    );
+    expect(etat.active).toBe(false);
+    expect(etat.reason).toBe("acces_expire");
+  });
+
+  /* Tout motif renvoyé ici doit avoir une phrase dans les deux langues, sinon
+     le cabinet lit un repli générique qui ne décrit pas sa situation. */
+  it("chaque motif de refus a un libellé traduit", async () => {
+    const fr = (await import("@/messages/fr.json")).default;
+    const en = (await import("@/messages/en.json")).default;
+    const motifs = [
+      deriveCabinetSubscriptionState(
+        { plan: "cabinet", stripeSubscriptionStatus: "trialing", stripeTrialEnd: jours(-1) },
+        t0,
+      ).reason,
+      deriveCabinetSubscriptionState(
+        { plan: "cabinet", stripeSubscriptionStatus: "active", stripeCurrentPeriodEnd: jours(-10) },
+        t0,
+      ).reason,
+    ];
+    for (const motif of motifs) {
+      expect(Object.keys(fr.abonnementAlerte)).toContain(motif);
+      expect(Object.keys(en.abonnementAlerte)).toContain(motif);
+    }
+  });
+});

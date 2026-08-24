@@ -59,7 +59,11 @@ export function deriveCabinetSubscriptionState(input: {
 }, now: Date = new Date()): CabinetSubscriptionState {
   const status = input.stripeSubscriptionStatus ?? null;
   const isTrialing = status === "trialing";
-  const stripeActive = status === "active" || status === "trialing";
+
+  const echeanceStripe = echeanceDuStatut(status, input);
+  const stripeActive =
+    (status === "active" || status === "trialing") &&
+    echeanceStripeValide(status, echeanceStripe, now);
 
   const accesPayeJusquau = input.accesPayeJusquau ?? null;
   const accesPayeActif =
@@ -87,7 +91,9 @@ export function deriveCabinetSubscriptionState(input: {
         : (input.stripeCurrentPeriodEnd ?? null),
     cancelAtPeriodEnd: input.stripeCancelAtPeriodEnd ?? false,
     trialEnd: input.stripeTrialEnd ?? null,
-    reason: active ? null : inactiveReason(status, accesPayeJusquau),
+    reason: active
+      ? null
+      : inactiveReason(status, accesPayeJusquau, echeanceStripe, now),
     source,
     accesPayeJusquau,
   };
@@ -137,7 +143,25 @@ export const getCabinetSubscriptionState = cache(async (
  * la même situation qu'un cabinet qui n'a jamais rien payé, et la personne qui
  * lit le journal doit pouvoir les séparer sans ouvrir la base.
  */
-function inactiveReason(status: string | null, accesPayeJusquau: Date | null): string {
+function inactiveReason(
+  status: string | null,
+  accesPayeJusquau: Date | null,
+  echeanceStripe: Date | null,
+  now: Date,
+): string {
+  // Une échéance dépassée prime sur le statut : `trialing` avec un essai fini
+  // depuis onze semaines ne doit pas se lire « abonnement à activer », sinon le
+  // journal raconte un cabinet qui n'a jamais commencé au lieu d'un essai qui
+  // s'est terminé sans suite.
+  // Un cabinet qui a déjà payé par virement lit d'abord son virement. Sa
+  // ligne Stripe est un vestige : lui répondre « essai expiré » l'enverrait
+  // vers un canal qu'il n'utilise pas.
+  if (accesPayeJusquau != null) return "acces_expire";
+
+  if (echeanceStripe != null && !echeanceStripeValide(status, echeanceStripe, now)) {
+    return status === "trialing" ? "essai_expire" : "abonnement_expire";
+  }
+
   switch (status) {
     case "past_due":
       return "past_due";
@@ -151,4 +175,51 @@ function inactiveReason(status: string | null, accesPayeJusquau: Date | null): s
     default:
       return accesPayeJusquau != null ? "acces_expire" : "no_active_subscription";
   }
+}
+
+/**
+ * Tolérance sur le renouvellement d'un abonnement `active`.
+ *
+ * Stripe laisse le statut à `active` pendant le court intervalle entre la fin
+ * de la période et l'encaissement de la facture suivante. Couper l'accès dans
+ * cet intervalle punirait un cabinet à jour pour un webhook en retard.
+ *
+ * La tolérance ne s'applique PAS à `trialing` : la fin d'un essai n'est pas un
+ * renouvellement en vol, c'est une date connue d'avance qui n'attend aucune
+ * confirmation.
+ */
+const TOLERANCE_RENOUVELLEMENT_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** L'échéance qui fait foi dépend du statut : l'essai a la sienne. */
+function echeanceDuStatut(
+  status: string | null,
+  input: { stripeCurrentPeriodEnd?: Date | null; stripeTrialEnd?: Date | null },
+): Date | null {
+  if (status === "trialing") return input.stripeTrialEnd ?? null;
+  if (status === "active") return input.stripeCurrentPeriodEnd ?? null;
+  return null;
+}
+
+/**
+ * Une date absente laisse l'accès ouvert, jamais l'inverse.
+ *
+ * L'accès reposait jusqu'ici sur le seul `stripeSubscriptionStatus`, un champ
+ * que seul le webhook Stripe écrit et qu'aucun webhook n'a jamais mis à jour :
+ * un essai terminé depuis onze semaines continuait d'ouvrir l'application en
+ * annonçant « essai en cours ». Lire la date rétablit la vérité.
+ *
+ * Mais l'absence de date ne prouve rien. Un cabinet dont le statut a été posé à
+ * la main, sans échéance, n'est pas un cabinet expiré : c'est un cabinet dont
+ * on ignore l'échéance. Le doute lui profite, parce que le prix d'une erreur
+ * n'est pas symétrique — se tromper dans un sens affiche un rappel de trop, se
+ * tromper dans l'autre retire son logiciel à une avocate qui travaille.
+ */
+function echeanceStripeValide(
+  status: string | null,
+  echeance: Date | null,
+  now: Date,
+): boolean {
+  if (echeance == null) return true;
+  const tolerance = status === "active" ? TOLERANCE_RENOUVELLEMENT_MS : 0;
+  return echeance.getTime() + tolerance >= now.getTime();
 }

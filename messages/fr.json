@@ -4065,6 +4065,14 @@
     "canceled": {
       "titre": "Abonnement résilié",
       "detail": "Votre abonnement a été résilié. Vos données et vos dossiers restent intacts et exportables."
+    },
+    "essai_expire": {
+      "titre": "Période d'essai terminée",
+      "detail": "Votre essai est arrivé à son terme. Votre espace et vos dossiers restent intacts, il reste à mettre l'abonnement en place."
+    },
+    "abonnement_expire": {
+      "titre": "Abonnement arrivé à échéance",
+      "detail": "La période couverte par votre abonnement est terminée. Vos données et vos dossiers restent intacts."
     }
   },
   "espaceFerme": {

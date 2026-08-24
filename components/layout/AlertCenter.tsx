@@ -107,7 +107,14 @@ export function AlertCenter({ status, province, abonnement }: AlertCenterProps) 
      compte en fidéicommis non rapproché. */
   if (abonnement && !abonnement.actif) {
     const motif = abonnement.motif ?? "no_active_subscription";
-    const connu = ["past_due", "unpaid", "canceled", "acces_expire"].includes(motif);
+    const connu = [
+      "past_due",
+      "unpaid",
+      "canceled",
+      "acces_expire",
+      "essai_expire",
+      "abonnement_expire",
+    ].includes(motif);
     obligations.push({
       id: "abonnement",
       gravite: "attention",
