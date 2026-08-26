@@ -2612,38 +2612,62 @@ const CSS = `
      Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
      qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
      lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
-  /* Les deux vues sont BRIDEES a 880 px, la meme largeur que les cartes de
-     forfait. A pleine page chaque photographie faisait 560 px de large et
-     373 de haut : deux images de cette taille l'une a cote de l'autre pesaient
-     plus que le titre qui les annonce, et la section devenait une galerie.
-     Demande CEO du 2026-08-26, « reduire les dimensions sans perdre en
-     qualite ».
+  /* ── Les deux vues, sous les deux colonnes de la tete ─────────────────────
+     La grille est EXACTEMENT celle de « .tete » : memes colonnes, meme
+     gouttiere. C'est ce qui met la photographie de l'equipe sous le titre et
+     celle de l'avocate sous « SAFE ne remplace pas l'equipe ». Demande CEO du
+     2026-08-26.
 
-     La qualite ne bouge pas, et c'est mesurable : la source fait 1400 px pour
-     un emplacement de 422, soit 3,3 fois la densite affichee. Un ecran a deux
-     fois la densite en demande 844. */
+     Avec une grille a elle, la section posait deux bords verticaux de plus au
+     milieu de la page. La regle du site est qu'un bloc se cale sur une colonne
+     existante, il n'en cree pas.
+
+     La reduction de taille demandee plus tot dans la journee tient toujours,
+     mais elle porte sur la PHOTOGRAPHIE et non sur la grille : borner la
+     grille a 880 px la decalait des colonnes de la tete, ce qui est justement
+     le defaut a corriger. Chaque cellule fait donc sa demi-page, et l'image
+     s'arrete a 422 px a l'interieur. */
   .xc .deux-vues {
     margin-top: clamp(32px, 4.4vh, 52px);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: clamp(20px, 2.6vw, 36px);
-    max-width: 880px;
+    gap: clamp(32px, 5vw, 88px);
   }
   .xc .deux-vues .vue { margin: 0; }
   /* La photographie porte le meme rayon que les cartes de forfait, et le meme
      filet : c'est une surface du site, pas une image rapportee. */
   .xc .vue-photo {
     width: 100%;
+    /* 422 px : la taille arretee le 2026-08-26. Elle vit ici, sur l'image, et
+       non sur la grille, pour que la cellule garde sa colonne. */
+    max-width: 422px;
     height: auto;
     aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: 14px;
     border: 1px solid var(--si-border);
   }
-  .xc .deux-vues .vue figcaption { margin-top: 18px; }
+  .xc .deux-vues .vue figcaption { margin-top: 18px; max-width: 422px; }
+  /* Le role, en minuscules et en encre pleine. Il portait « .rang », les
+     capitales espacees de 11 px que le site emploie pour ses exergues. Deux
+     defauts : elles annoncent une categorie la ou ces libelles nomment
+     quelqu'un, et a 11 px elles pesaient moins que la phrase qu'elles
+     introduisent. Elles prennent la mesure du texte d'explication, et c'est
+     l'encre qui les distingue, pas la casse. */
+  /* Ecrit « .xc .deux-vues .vue p.vue-role » et non « .xc .vue-role » : la
+     regle voisine des paragraphes compte trois classes et un element, elle
+     l'emportait. Le role sortait donc en gris, a la couleur exacte de la
+     phrase qu'il introduit, et rien ne les separait plus. */
+  .xc .deux-vues .vue p.vue-role {
+    margin-top: 0;
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--si-ink);
+  }
   .xc .deux-vues .vue p {
     margin-top: 10px;
-    max-width: 42ch;
     font-family: var(--sans);
     font-size: var(--t-explique);
     line-height: 1.55;
@@ -5770,7 +5794,12 @@ export default function ExperienceCinema() {
                   className="vue-photo"
                 />
                 <figcaption>
-                  <p className="rang">{role}</p>
+                  {/* « .rang » est l'exergue en capitales espacees du reste du
+                      site. Il ne sert plus ici : decision CEO du 2026-08-26,
+                      ces deux libelles passent en minuscules. Une capitale
+                      espacee annonce une CATEGORIE ; ces deux-la nomment
+                      quelqu'un, et un nom se lit comme un nom. */}
+                  <p className="vue-role">{role}</p>
                   <p>{phrase}</p>
                 </figcaption>
               </figure>
