@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { AlertTriangle, ExternalLink } from "lucide-react";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { toIntlLocale } from "@/lib/i18n/locale";
 import type { OutstandingAccountRow } from "@/lib/dashboard/types";
@@ -30,6 +30,7 @@ function formatDate(d: Date | string, locale: string): string {
 
 export function OutstandingAccountsTable({ rows }: OutstandingAccountsTableProps) {
   const t = useTranslations("dashboard");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tUi = useTranslations("dashboardUi");
   const locale = useLocale();
 

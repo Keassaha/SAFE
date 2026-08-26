@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,15 +15,8 @@ interface YearEndReportClientProps {
   selectedYear: number;
 }
 
-function fmt(n: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(n);
-}
-
 function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
   const isT4 = emp.employmentType === "employee";
@@ -67,15 +61,15 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
         <div className="hidden sm:flex items-center gap-6 flex-shrink-0 text-right">
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Brut</p>
-            <p className="text-[13px] font-medium text-si-ink">{fmt(emp.totalGross)}</p>
+            <p className="text-[13px] font-medium text-si-ink">{formatCurrency(emp.totalGross)}</p>
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Retenues</p>
-            <p className="text-[13px] font-medium text-si-muted">{fmt(emp.totalDeductions)}</p>
+            <p className="text-[13px] font-medium text-si-muted">{formatCurrency(emp.totalDeductions)}</p>
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Net versé</p>
-            <p className="text-[13px] font-medium text-si-verified">{fmt(emp.totalNet)}</p>
+            <p className="text-[13px] font-medium text-si-verified">{formatCurrency(emp.totalNet)}</p>
           </div>
           <div>
             <p className="text-[10px] text-si-muted/50 uppercase tracking-wide">Périodes</p>
@@ -113,7 +107,7 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
                 <tr key={ps.payslipId} className="safe-zoom-rang border-b border-si-line " >
                   <td className="py-1.5 text-si-ink">{ps.periodLabel}</td>
                   <td className="py-1.5 text-right text-si-muted">
-                    {new Date(ps.paymentDate).toLocaleDateString("fr-CA", {
+                    {new Date(ps.paymentDate).toLocaleDateString(intlLocale, {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
@@ -123,12 +117,12 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
                     {ps.hoursWorked.toFixed(2)} h
                   </td>
                   <td className="py-1.5 text-right text-si-muted">
-                    {fmt(ps.hourlyRate)}/h
+                    {formatCurrency(ps.hourlyRate)}/h
                   </td>
-                  <td className="py-1.5 text-right text-si-ink">{fmt(ps.grossPay)}</td>
-                  <td className="py-1.5 text-right text-si-muted">{fmt(ps.deductions)}</td>
+                  <td className="py-1.5 text-right text-si-ink">{formatCurrency(ps.grossPay)}</td>
+                  <td className="py-1.5 text-right text-si-muted">{formatCurrency(ps.deductions)}</td>
                   <td className="py-1.5 text-right font-medium text-si-verified">
-                    {fmt(ps.netPay)}
+                    {formatCurrency(ps.netPay)}
                   </td>
                 </tr>
               ))}
@@ -143,11 +137,11 @@ function EmployeeRow({ emp }: { emp: YearEndEmployeeSummary }) {
                   {emp.totalHours.toFixed(2)} h
                 </td>
                 <td />
-                <td className="pt-2 pb-1 text-right text-si-ink">{fmt(emp.totalGross)}</td>
+                <td className="pt-2 pb-1 text-right text-si-ink">{formatCurrency(emp.totalGross)}</td>
                 <td className="pt-2 pb-1 text-right text-si-muted">
-                  {fmt(emp.totalDeductions)}
+                  {formatCurrency(emp.totalDeductions)}
                 </td>
-                <td className="pt-2 pb-1 text-right text-si-verified">{fmt(emp.totalNet)}</td>
+                <td className="pt-2 pb-1 text-right text-si-verified">{formatCurrency(emp.totalNet)}</td>
               </tr>
             </tfoot>
           </table>
@@ -178,6 +172,7 @@ export function YearEndReportClient({
   availableYears,
   selectedYear,
 }: YearEndReportClientProps) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const router = useRouter();
   const tc = useTranslations("common");
   const [downloading, setDownloading] = useState(false);
@@ -271,15 +266,15 @@ export function YearEndReportClient({
             />
             <StatCard
               label="Brut annuel total"
-              value={fmt(summary.employees.reduce((s, e) => s + e.totalGross, 0))}
+              value={formatCurrency(summary.employees.reduce((s, e) => s + e.totalGross, 0))}
             />
             <StatCard
               label="Retenues totales"
-              value={fmt(summary.employees.reduce((s, e) => s + e.totalDeductions, 0))}
+              value={formatCurrency(summary.employees.reduce((s, e) => s + e.totalDeductions, 0))}
             />
             <StatCard
               label="Net versé total"
-              value={fmt(summary.employees.reduce((s, e) => s + e.totalNet, 0))}
+              value={formatCurrency(summary.employees.reduce((s, e) => s + e.totalNet, 0))}
               highlight
             />
           </div>
@@ -341,6 +336,7 @@ function StatCard({
   value: string;
   highlight?: boolean;
 }) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   return (
     <div
       className={`rounded-xl border px-4 py-3 ${

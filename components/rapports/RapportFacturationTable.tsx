@@ -1,12 +1,13 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import type { RapportFacturationRow } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
 export function RapportFacturationTable({ data }: { data: RapportFacturationRow[] }) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
 
   const columns = [
     { key: "numero", header: t("invoiceNumber"), render: (r: RapportFacturationRow) => r.numero },

@@ -1,10 +1,10 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, ShieldCheck, Clock } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
 
 interface TrustAccountAlert {
   accountId: string;
@@ -26,6 +26,7 @@ function libelleCompte(a: TrustAccountAlert): string {
 }
 
 export function TrustAlertsPanel() {
+  const { formatCurrency } = useFormatteurs();
   const { data, isLoading } = useQuery({
     queryKey: ["fideicommis", "alerts"],
     queryFn: async () => {

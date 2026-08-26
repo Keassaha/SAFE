@@ -1,10 +1,10 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/Card";
 import { AlertTriangle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/lib/utils/format";
 
 interface MissingDeboursAlertProps {
   dossierId: string;
@@ -23,6 +23,7 @@ interface ExpectedDebours {
 }
 
 export function MissingDeboursAlert({ dossierId, dossierType, sousType }: MissingDeboursAlertProps) {
+  const { formatCurrency } = useFormatteurs();
   const typeKey = sousType ? `${dossierType}_${sousType}` : dossierType;
 
   const { data, isLoading } = useQuery({

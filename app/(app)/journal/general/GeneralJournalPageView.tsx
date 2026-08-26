@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -7,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { formatCurrency, formatCalendarDate } from "@/lib/utils/format";
 import {
   createManualJournalEntryAction,
   getJournalEntriesAction,
@@ -84,6 +84,7 @@ export function GeneralJournalPageView({
   canWrite?: boolean;
 }) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const { reduceMotion } = useSafeMotion();
   const now = new Date();
@@ -801,6 +802,8 @@ function CorrectionsTable({
   entries: JournalEntryRow[];
   emptyLabel: string;
 }) {
+  // Avant le retour anticipé : un hook ne se saute pas.
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   if (entries.length === 0) {
     return (
       <div className="py-16 text-center">

@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 
 type Item = {
@@ -25,6 +25,7 @@ export function AuditLogList({
   entityTypeFilter?: string;
 }) {
   const t = useTranslations("gestionCompUi");
+  const { formatDate } = useFormatteurs();
   if (items.length === 0) {
     return (
       <p className="p-6 text-sm text-neutral-muted">{t("noLog")}</p>

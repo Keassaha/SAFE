@@ -1,6 +1,6 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { formatCurrency } from "@/lib/utils/format";
 import type { ComptesRecevoirAging } from "@/lib/rapports/types";
 import { BarChart2, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -13,6 +13,7 @@ const BUCKET_COLORS = ["bg-si-verified", "bg-si-amber", "bg-orange-500", "bg-[#B
 
 export function ComptesRecevoirSection({ data }: ComptesRecevoirSectionProps) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
   const total = data.reduce((s, b) => s + b.montant, 0);
   const maxMontant = Math.max(...data.map((b) => b.montant), 1);
 

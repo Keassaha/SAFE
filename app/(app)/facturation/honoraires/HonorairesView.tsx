@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import type { TimeEntry, Expense } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
 
 type ClientSelect = { id: string; raisonSociale: string | null } | null;
@@ -39,6 +39,7 @@ export function HonorairesView({
   expenses,
 }: HonorairesViewProps) {
   const router = useRouter();
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("facturation");
   const tb = useTranslations("billingUi");
   const [isLoading, setIsLoading] = useState<string | null>(null);

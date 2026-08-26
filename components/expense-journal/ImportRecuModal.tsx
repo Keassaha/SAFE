@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -6,7 +7,6 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2, UploadCloud, CheckCircle2, AlertTriangle, HelpCircle } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import type { ExpenseCategory } from "@prisma/client";
 import type { ExpenseReceiptExtraction } from "@/lib/ai/extract-expense-receipt";
 import type { SuggestionResult } from "@/lib/expense-journal/categorization-rules";
@@ -41,6 +41,7 @@ const CONFIDENCE_STYLE: Record<ConfidenceLevel, { badge: string; icon: typeof Ch
 
 export function ImportRecuModal({ open, onClose, categories, onSuccess }: ImportRecuModalProps) {
   const t = useTranslations("receiptImport");
+  const { formatCurrency } = useFormatteurs();
   const tc = useTranslations("common");
   const fileInputRef = useRef<HTMLInputElement>(null);
 

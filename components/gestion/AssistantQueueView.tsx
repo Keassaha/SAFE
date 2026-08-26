@@ -28,10 +28,10 @@ import type {
   AssistantTaskItem,
   AssistantEventItem,
 } from "@/lib/dossiers/assistant-queue";
-import { formatCalendarDate, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getKindCanonicalLink } from "@/lib/dossiers/missing-item-action-link";
 import { AssignToSelfButton } from "./AssignToSelfButton";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 interface AssistantQueueViewProps {
   queue: AssistantQueue;
@@ -276,7 +276,8 @@ interface TaskBucketProps {
   items: AssistantTaskItem[];
 }
 
-function TaskBucketCard({ title, description, items }: TaskBucketProps) {
+async function TaskBucketCard({ title, description, items }: TaskBucketProps) {
+  const { formatCalendarDate } = await getFormatteurs();
   return (
     <Card>
       <CardHeader title={title} />
@@ -342,7 +343,8 @@ interface EventBucketProps {
   items: AssistantEventItem[];
 }
 
-function EventBucketCard({ title, description, items }: EventBucketProps) {
+async function EventBucketCard({ title, description, items }: EventBucketProps) {
+  const { formatDate } = await getFormatteurs();
   return (
     <Card>
       <CardHeader title={title} />

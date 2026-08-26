@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -48,8 +49,8 @@ interface DossiersTableProps {
   canManage?: boolean;
 }
 
-function formatDate(d: Date): string {
-  return new Date(d).toLocaleDateString("fr-CA", {
+function formatDate(d: Date, intlLocale: string): string {
+  return new Date(d).toLocaleDateString(intlLocale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -123,6 +124,7 @@ export function DossiersTable({
   avocats = [],
   canManage = false,
 }: DossiersTableProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
@@ -225,7 +227,7 @@ export function DossiersTable({
             </div>
             <div className="mt-2 flex items-baseline gap-4 text-[12px] text-si-muted">
               <span>{row.avocatResponsable?.nom ?? "—"}</span>
-              <span className="ml-auto">{formatDate(row.dateOuverture)}</span>
+              <span className="ml-auto">{formatDate(row.dateOuverture, intlLocale)}</span>
             </div>
           </Link>
         ))}
@@ -363,7 +365,7 @@ export function DossiersTable({
                   />
                 </td>
                 <td className="px-3 py-2.5 text-right align-middle text-[12px] text-si-muted">
-                  {formatDate(row.dateOuverture)}
+                  {formatDate(row.dateOuverture, intlLocale)}
                 </td>
                 <td className="px-3 py-2.5 text-right align-middle">
                   <DossierRowMenu row={row} />

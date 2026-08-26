@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -18,7 +19,6 @@ import {
   Scale,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
-import { formatCurrency } from "@/lib/utils/format";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MovementLegend } from "@/components/comptabilite/MovementLegend";
 // Types Prisma générés (pas d'instance prisma sur le namespace @prisma/client)
@@ -72,6 +72,7 @@ export function ComptabilitePageView({
   canSeePayments = true,
 }: ComptabilitePageViewProps) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency } = useFormatteurs();
   const searchParams = useSearchParams();
   const tab = (searchParams.get("tab") as ComptabiliteTabId) || "general";
   // Un onglet inconnu — ou refusé au rôle — retombe sur le journal général

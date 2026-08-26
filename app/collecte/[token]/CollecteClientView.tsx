@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { formatCalendarDate } from "@/lib/utils/format";
 import type { Locale } from "@/i18n/request";
 
 /**
@@ -59,6 +59,7 @@ export function CollecteClientView({
   pieces: Piece[];
 }) {
   const t = useTranslations("collecte");
+  const { formatCalendarDate } = useFormatteurs();
   const router = useRouter();
 
   // La racine du document pose `lang` d'après le témoin de session, que ce visiteur

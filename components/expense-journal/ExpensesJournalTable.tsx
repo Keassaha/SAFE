@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import type { BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 
@@ -21,6 +21,7 @@ export function ExpensesJournalTable({
   onValidationComplete: () => void;
 }) {
   const t = useTranslations("billingCompUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
 

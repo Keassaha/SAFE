@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useLocale, useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 
@@ -21,6 +21,7 @@ export function TimeMetricsCards({
   loading,
 }: TimeMetricsCardsProps) {
   const t = useTranslations("gestionCompUi");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const cards = [
     {

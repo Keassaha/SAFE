@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -30,6 +31,7 @@ interface DossierTasksProps {
 }
 
 export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
 
   function formatDate(d: Date | null): string {
     if (!d) return "—";
-    return new Date(d).toLocaleDateString("fr-CA", {
+    return new Date(d).toLocaleDateString(intlLocale, {
       year: "numeric",
       month: "short",
       day: "numeric",

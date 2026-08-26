@@ -1,4 +1,5 @@
 "use client";
+import { useMoney } from "./primitives";
 
 import { useRouter } from "next/navigation";
 import type { CabinetProvince } from "@/lib/compliance/rules";
@@ -11,7 +12,6 @@ import {
   SecondaryButton,
   Table,
   inputClass,
-  money,
 } from "./primitives";
 
 /**
@@ -70,6 +70,7 @@ export function RegistersScreen({
   error,
 }: Props) {
   const router = useRouter();
+  const money = useMoney();
 
   function go(id: string, p: string | null) {
     const q = new URLSearchParams({ registre: id });

@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -31,8 +32,8 @@ interface EmployeeInfoTabProps {
   supervisorOptions: { id: string; fullName: string }[];
 }
 
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("fr-CA", {
+function formatDate(d: Date, intlLocale: string): string {
+  return new Intl.DateTimeFormat(intlLocale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -40,19 +41,12 @@ function formatDate(d: Date): string {
   }).format(new Date(d));
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
 export function EmployeeInfoTab({
   employee,
   canEdit,
   supervisorOptions,
 }: EmployeeInfoTabProps) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const t = useTranslations("employees");
   const tc = useTranslations("common");
   const [editing, setEditing] = useState(false);
@@ -130,7 +124,7 @@ export function EmployeeInfoTab({
             <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
               {t("hireDate")}
             </dt>
-            <dd className="mt-1 text-sm">{formatDate(employee.hireDate)}</dd>
+            <dd className="mt-1 text-sm">{formatDate(employee.hireDate, intlLocale)}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">{tc("status")}</dt>

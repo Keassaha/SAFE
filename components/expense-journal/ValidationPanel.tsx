@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import {
   validateImportedTransaction,
   ignoreTransactions,
@@ -26,6 +26,7 @@ export function ValidationPanel({
   onValidated: () => void;
 }) {
   const t = useTranslations("billingCompUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const [categoryId, setCategoryId] = useState<string>("");
   const [categoryName, setCategoryName] = useState<string>("");
   const [refacturable, setRefacturable] = useState(false);

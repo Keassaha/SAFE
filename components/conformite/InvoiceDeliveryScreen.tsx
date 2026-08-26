@@ -1,4 +1,5 @@
 "use client";
+import { useMoney } from "./primitives";
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -20,7 +21,6 @@ import {
   Table,
   day,
   inputClass,
-  money,
 } from "./primitives";
 
 /**
@@ -90,6 +90,7 @@ export function InvoiceDeliveryScreen({
   invoiceHrefBase,
 }: Props) {
   const router = useRouter();
+  const money = useMoney();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [ouverte, setOuverte] = useState<string | null>(null);

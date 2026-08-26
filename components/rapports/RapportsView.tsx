@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +18,6 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { RapportsPayload } from "@/lib/rapports/types";
-import { formatCalendarDate, formatDate } from "@/lib/utils/format";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { RapportsFilters } from "./RapportsFilters";
 import { RapportFacturationTable } from "./RapportFacturationTable";
@@ -56,6 +56,7 @@ export function RapportsView({
   cabinet: { nom: string; adresse: string | null; logoUrl: string | null };
 }) {
   const t = useTranslations("rapports");
+  const { formatDate, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const tr = useTranslations("reportsUi");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
@@ -65,7 +66,7 @@ export function RapportsView({
   const [generatedAt, setGeneratedAt] = useState<string>("");
   useEffect(() => {
     setGeneratedAt(formatDate(new Date()));
-  }, []);
+  }, [formatDate]);
   const { filters } = payload;
   const dateDebutStr = filters.dateDebut;
   const dateFinStr = filters.dateFin;

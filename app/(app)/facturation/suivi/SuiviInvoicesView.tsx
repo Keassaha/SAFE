@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import { AlertCircle, DollarSign, FileText, Link2 } from "lucide-react";
@@ -28,6 +28,7 @@ interface SuiviInvoicesViewProps {
 
 export function SuiviInvoicesView({ invoices }: SuiviInvoicesViewProps) {
   const t = useTranslations("billingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   // Paginé par 20, comme tous les registres du produit.
   const pageFactures = usePaginationLocale(invoices);

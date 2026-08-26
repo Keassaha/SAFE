@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { formatCurrency } from "@/lib/utils/format";
 import { Tag, FolderOpen } from "lucide-react";
 
 interface ForfaitService {
@@ -57,6 +57,7 @@ interface AjouterTacheModalProps {
 
 export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossierId, onSuccess }: AjouterTacheModalProps) {
   const t = useTranslations("temps.taskRegister.addModal");
+  const { formatCurrency } = useFormatteurs();
   const queryClient = useQueryClient();
   const preselectedDossier = dossiers.find((d) => d.id === preselectedDossierId);
   const [clientId, setClientId] = useState(preselectedDossier?.clientId ?? "");

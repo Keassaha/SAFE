@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { AlertTriangle, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import {
   registreHeadRowClass,
   registreHeadCellClass,
@@ -34,6 +34,7 @@ import type { DossierFinAnnee } from "@/lib/rapports/dossier-fin-annee";
  */
 export function DossierFinAnneeSection({ dossier }: { dossier: DossierFinAnnee }) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
   const { taxes, revenus, totaux, depensesParCategorie, incertitudes, sansPiece } = dossier;
 
   return (

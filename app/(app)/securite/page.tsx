@@ -4,12 +4,12 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getSecurityAlerts } from "@/lib/services/security/security-alerts";
 import { ShieldCheck, AlertTriangle, ShieldAlert, CalendarClock, UserCheck, FileClock } from "lucide-react";
 import { getCabinetProvince } from "@/lib/cabinet/get-province";
 import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   medical: "Examen médical",
@@ -26,6 +26,7 @@ function joursLabel(j: number): { txt: string; tone: string } {
 }
 
 export default async function SecuritePage() {
+  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;

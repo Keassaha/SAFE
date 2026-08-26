@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { Landmark, ArrowDownCircle, ArrowUpCircle, Wallet } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import type { RapportFideicommisSummary } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +11,7 @@ interface RapportFideicommisSectionProps {
 
 export function RapportFideicommisSection({ data }: RapportFideicommisSectionProps) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
   const cards = [
     {
       title: t("depositsPeriod"),

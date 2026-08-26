@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useLocale, useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientSummaryCardsProps {
@@ -27,6 +27,7 @@ export function ClientSummaryCards({
   unbilledAmount,
 }: ClientSummaryCardsProps) {
   const t = useTranslations("clients");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const intlLocale = toIntlLocale(locale);
   const activePercent = totalClients > 0 ? Math.round((activeClients / totalClients) * 100) : 0;

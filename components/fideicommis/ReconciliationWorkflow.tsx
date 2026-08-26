@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import { Figure } from "@/components/ui/Figure";
@@ -11,7 +12,6 @@ import { Input } from "@/components/ui/Input";
 import { QueryErrorState } from "@/components/ui/QueryErrorState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
-import { formatCurrency } from "@/lib/utils/format";
 
 interface Reconciliation {
   id: string;
@@ -48,6 +48,7 @@ const panelClass = "rounded-lg border border-si-line bg-si-surface";
 
 export function ReconciliationWorkflow() {
   const queryClient = useQueryClient();
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("trustReconciliationUi");
   const locale = useLocale();
   const isQuebec = (useCabinetProvince() ?? "").toUpperCase() === "QC";

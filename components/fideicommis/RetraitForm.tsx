@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import type { TrustWithdrawalMotive } from "@prisma/client";
@@ -7,7 +8,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCreateTrustWithdrawal, useTrustBalance } from "@/lib/hooks/useFideicommis";
-import { formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
@@ -44,6 +44,7 @@ export function RetraitForm({
   embedded,
 }: RetraitFormProps) {
   const tf = useTranslations("fideicommis");
+  const { formatCurrency } = useFormatteurs();
   const tc = useTranslations("common");
   const [clientId, setClientId] = useState("");
   const [dossierId, setDossierId] = useState("");

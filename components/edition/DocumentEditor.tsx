@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -135,6 +136,7 @@ function useChrono(session: WorkSessionData | null) {
 }
 
 export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("editorUi");
   const router = useRouter();
   const [sessionId, setSessionId] = useState<string | null>(activeSession?.id ?? null);
@@ -391,7 +393,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
             ) : savedAt ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                {t("savedAt", { time: savedAt.toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" }) })}
+                {t("savedAt", { time: savedAt.toLocaleTimeString(intlLocale, { hour: "2-digit", minute: "2-digit" }) })}
               </>
             ) : null}
           </span>

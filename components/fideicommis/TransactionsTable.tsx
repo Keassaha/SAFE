@@ -1,10 +1,10 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { useTrustTransactions, type TrustTransactionsFilters } from "@/lib/hooks/useFideicommis";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,7 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({ cabinetId, clients, dossiers }: TransactionsTableProps) {
   const tf = useTranslations("fideicommis");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const [clientId, setClientId] = useState("");
   const [dossierId, setDossierId] = useState("");

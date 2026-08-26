@@ -1,5 +1,6 @@
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { DashboardPayload, ActivityFeedItem } from "@/lib/dashboard/types";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -52,7 +53,7 @@ import { routes } from "@/lib/routes";
  *   6. obligations, lecture financière, activité ;
  *   7. la configuration, en dernier, parce qu'elle finit par disparaître.
  */
-export function DashboardViewSafe({
+export async function DashboardViewSafe({
   payload,
   glance,
 }: {
@@ -60,7 +61,8 @@ export function DashboardViewSafe({
   /** Bloc Navette. Injecté par la page, qui seule sait le construire. */
   glance?: React.ReactNode;
 }) {
-  const t = useTranslations("dashboard");
+  const { intlLocale } = await getFormatteurs();
+  const t = await getTranslations("dashboard");
   const {
     kpis,
     alerts,
@@ -83,7 +85,7 @@ export function DashboardViewSafe({
   const recon = lastReconciliation;
   const trustToReconcile = !recon || recon.status !== "certified" || recon.daysSince > 31;
 
-  const dateLabel = new Date().toLocaleDateString("fr-CA", {
+  const dateLabel = new Date().toLocaleDateString(intlLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",

@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import {
   DollarSign,
@@ -9,7 +10,6 @@ import {
   Percent,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
-import { formatCurrency } from "@/lib/utils/format";
 import { DashboardKPICard } from "@/components/dashboard/DashboardKPICard";
 import { useLocale, useTranslations } from "next-intl";
 import { toIntlLocale } from "@/lib/i18n/locale";
@@ -29,6 +29,7 @@ interface DashboardFinancierProps {
 
 export function DashboardFinancier({ kpis, revenueByMonth }: DashboardFinancierProps) {
   const t = useTranslations("rapports");
+  const { formatCurrency } = useFormatteurs();
   /* Un point décimal dans une interface française trahit un nombre formaté en
      anglais. Les heures et les pourcentages passent par Intl, comme les
      montants le font déjà. */

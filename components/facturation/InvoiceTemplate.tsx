@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 
 export type InvoiceTemplateItem = {
@@ -89,6 +89,7 @@ export function InvoiceTemplate({
   className = "",
 }: InvoiceTemplateProps) {
   const tf = useTranslations("facturation");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
 
   const typeLabel: Record<string, string> = {

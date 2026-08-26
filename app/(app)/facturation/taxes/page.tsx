@@ -3,9 +3,9 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getTaxRemittance, currentQuarter, type TaxLine } from "@/lib/services/finance/tax-remittance";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 function parseDate(s: string | undefined): Date | null {
   if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
@@ -13,7 +13,9 @@ function parseDate(s: string | undefined): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-function TaxCard({ titre, line }: { titre: string; line: TaxLine }) {
+async function TaxCard({ titre, line }: { titre: string; line: TaxLine }) {
+  // Composant serveur asynchrone : la carte formate ses propres montants.
+  const { formatCurrency } = await getFormatteurs();
   return (
     <Card>
       <CardContent className="p-4 space-y-1">
@@ -46,6 +48,7 @@ export default async function TaxesPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+  const { formatCurrency, formatDate, formatCalendarDate } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;

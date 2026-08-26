@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { routes } from "@/lib/routes";
 import {
@@ -58,6 +58,7 @@ export function ClientDossierFinancier({
   transactions,
 }: ClientDossierFinancierProps) {
   const t = useTranslations("clients");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tInv = useTranslations("invoiceStatut");
 
   const totalHeures =

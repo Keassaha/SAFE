@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -7,7 +8,6 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import type { JournalCorrectionMotive } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
@@ -83,6 +83,7 @@ export function PaiementFormModal({
   onSuccess,
 }: PaiementFormModalProps) {
   const tp = useTranslations("payments");
+  const { formatCurrency } = useFormatteurs();
   const tc = useTranslations("common");
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);

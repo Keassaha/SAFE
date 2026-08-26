@@ -1,13 +1,57 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Bell, Eye, Send } from "lucide-react";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
-import { formatCalendarDate, formatDate, formatCurrency } from "@/lib/utils/format";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { RowMenu, rowMenuItemClass } from "@/components/ui/RowMenu";
 import { routes } from "@/lib/routes";
+import {
+  RegistrePlainHeader,
+  RegistreSortHeader,
+  registreCellMutedClass,
+  registreCellNumClass,
+  registreHeadCellClass,
+  registreHeadRowClass,
+  registreRowClass,
+  rangeeOuvrable,
+} from "@/components/ui/registre";
+import type { FactureChampTri, FactureOrdreTri } from "@/lib/facturation/liste-query";
 import type { InvoiceStatut } from "@prisma/client";
-import { ChevronRight, FileText, Building2, Bell } from "lucide-react";
+
+/**
+ * Registre de facturation.
+ *
+ * Il était le seul tableau du produit écrit hors de la grammaire commune des
+ * registres (`components/ui/registre.tsx`) — y compris à l'intérieur de son
+ * propre module, où Paiements, Suivi, Notes de crédit et Honoraires s'y
+ * appuient tous. Passer d'une liste à l'autre demandait donc de réapprendre
+ * l'objet.
+ *
+ * ── Ce que la refonte décide ────────────────────────────────────────────────
+ *
+ * 1. UNE COLONNE PORTEUSE au lieu de trois. Le numéro, le client et le dossier
+ *    occupaient trois colonnes de largeur voisine : à 1440 px, un nom de
+ *    société passait sur quatre lignes et un intitulé de dossier sur cinq. Le
+ *    client porte la ligne ; le numéro et le dossier descendent en seconde
+ *    ligne, tronqués (L3, A15, E1).
+ *
+ * 2. FILETS HORIZONTAUX SEULS. Les zébrures une ligne sur deux faisaient
+ *    tableur (A14, C2). Le survol soulève la rangée au lieu de la peindre en
+ *    gris (déc. CEO 2026-08-11, `safe-zoom-rang`).
+ *
+ * 3. LA RANGÉE ENTIÈRE OUVRE, donc la colonne « Voir › » disparaît : elle
+ *    répétait sur chaque ligne ce que le clic fait déjà (A11). Le menu de
+ *    ligne la remplace, avec un déclencheur permanent — jamais une action qui
+ *    n'existe qu'au survol.
+ *
+ * 4. L'AMBRE REDEVIENT UN APPEL À L'ACTION. « Envoyée » était en ambre, comme
+ *    une alerte, alors qu'une facture envoyée ne demande rien. Voir
+ *    `VARIANTES` plus bas.
+ */
 
 export interface FacturationTableRow {
   id: string;
@@ -25,154 +69,211 @@ export interface FacturationTableRow {
   lastReminderSentAt?: Date | null;
 }
 
-const STATUT_VARIANTS: Record<InvoiceStatut, "neutral" | "warning" | "success" | "error"> = {
+/**
+ * Un état ne porte la couleur que s'il appelle un geste.
+ *
+ * Envoyée, partiellement payée et brouillon sont des états d'attente : ils se
+ * distinguent par leur libellé. C'est le même arbitrage que « inactif » au
+ * registre clients, où l'ambre est réservé à ce qui réclame une action (C3).
+ * Le retard est en outre doublé par l'échéance en rouge : la couleur ne
+ * travaille jamais seule (WCAG 1.4.1).
+ */
+const VARIANTES: Record<InvoiceStatut, "neutral" | "warning" | "success" | "error"> = {
   brouillon: "neutral",
-  envoyee: "warning",
-  partiellement_payee: "warning",
+  envoyee: "neutral",
+  partiellement_payee: "neutral",
   payee: "success",
   en_retard: "error",
 };
 
-function paidPercent(montantTotal: number, balanceDue: number): number {
+function partPayee(montantTotal: number, balanceDue: number): number {
   if (montantTotal <= 0) return 0;
-  const paid = montantTotal - balanceDue;
-  return Math.min(100, Math.round((paid / montantTotal) * 100));
+  return Math.min(100, Math.round(((montantTotal - balanceDue) / montantTotal) * 100));
 }
 
-export function FacturationTable({ invoices }: { invoices: FacturationTableRow[] }) {
+export function FacturationTable({
+  invoices,
+  sortBy,
+  sortOrder,
+}: {
+  invoices: FacturationTableRow[];
+  sortBy: FactureChampTri;
+  sortOrder: FactureOrdreTri;
+}) {
   const t = useTranslations("common");
+  const tf = useTranslations("facturation");
   const tStatut = useTranslations("invoiceStatut");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Montants et dates suivent la langue du cabinet, comme les tuiles de KPI
+  // juste au-dessus. Voir `lib/i18n/formatteurs.ts`.
+  const { formatCurrency, formatCalendarDate, formatDate } = useFormatteurs();
+
+  function getSortUrl(champ: FactureChampTri, ordre: FactureOrdreTri) {
+    const suivant = new URLSearchParams(searchParams.toString());
+    suivant.set("sortBy", champ);
+    suivant.set("sortOrder", ordre);
+    suivant.delete("page");
+    return `${routes.facturation}?${suivant.toString()}`;
+  }
+
+  const entete = { currentSortBy: sortBy, currentSortOrder: sortOrder, getSortUrl };
 
   return (
+    // Défilement horizontal confiné au conteneur du tableau : la page, elle,
+    // ne défile jamais latéralement.
     <div className="overflow-x-auto">
-      <table className="min-w-full">
+      <table className="w-full min-w-[900px] border-collapse">
         <thead>
-          <tr className="border-b border-si-line bg-si-canvas/60">
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("invoiceNumber")}
+          <tr className={registreHeadRowClass}>
+            <th scope="col" className={registreHeadCellClass}>
+              <RegistreSortHeader label={t("client")} field="client" {...entete} />
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("client")}
+            <th scope="col" className="w-[104px] px-3 py-2.5 text-right">
+              <RegistreSortHeader
+                label={t("issueDateShort")}
+                field="dateEmission"
+                align="right"
+                {...entete}
+              />
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("dossier")}
+            <th scope="col" className="w-[104px] px-3 py-2.5 text-right">
+              <RegistreSortHeader
+                label={t("dueDateShort")}
+                field="dateEcheance"
+                align="right"
+                {...entete}
+              />
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("issueDate")}
+            <th scope="col" className="w-[140px] px-3 py-2.5 text-right">
+              <RegistreSortHeader
+                label={t("total")}
+                field="montantTotal"
+                align="right"
+                {...entete}
+              />
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("dueDate")}
+            <th scope="col" className="w-[140px] px-3 py-2.5 text-right">
+              <RegistreSortHeader
+                label={t("balance")}
+                field="balanceDue"
+                align="right"
+                {...entete}
+              />
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("totalAmount")}
+            <th scope="col" className="w-[132px] px-3 py-2.5 text-left">
+              <RegistrePlainHeader label={t("status")} />
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("balance")}
+            <th scope="col" className="w-[88px] px-3 py-2.5 text-left">
+              <RegistrePlainHeader label={t("reminder")} />
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider">
-              {t("status")}
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-si-muted uppercase tracking-wider w-24">
-              {t("reminder")}
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-si-muted uppercase tracking-wider w-28">
-              {t("actions")}
-            </th>
+            {/* Colonne de contrôle : jamais de libellé (L4) */}
+            <th scope="col" className="w-[48px] px-3 py-2.5" />
           </tr>
         </thead>
         <tbody>
-          {invoices.map((inv, i) => {
-            const percent = paidPercent(inv.montantTotal, inv.balanceDue);
-            const hasPayment = percent > 0;
-            const hasReminder = inv.lastReminderDay != null || inv.lastReminderSentAt != null;
+          {invoices.map((inv) => {
+            const part = partPayee(inv.montantTotal, inv.balanceDue);
+            const enRetard = inv.statut === "en_retard";
+            const lien = routes.facturationFactureEdit(inv.id);
             return (
-              <tr key={inv.id} className={`border-b border-si-line/80 transition-colors ${ i % 2 === 1 ? "bg-si-canvas/40" : "" }`} >
-                <td className="px-4 py-3">
-                  <Link
-                    href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-si-ink-strong hover:underline"
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
-                      <FileText className="h-4 w-4" aria-hidden />
-                    </span>
-                    <span className="font-mono">{displayInvoiceNumero(inv.numero)}</span>
-                  </Link>
-                </td>
-                <td className="px-4 py-3">
-                  <Link
-                    href={routes.client(inv.clientId)}
-                    className="inline-flex items-center gap-2 text-sm text-si-ink-strong hover:underline"
-                  >
-                    <Building2 className="h-4 w-4 text-si-muted shrink-0" aria-hidden />
-                    {inv.client}
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-sm text-si-ink">
-                  {inv.dossierId ? (
-                    <Link
-                      href={routes.dossier(inv.dossierId)}
-                      className="text-si-ink-strong hover:underline"
+              <tr
+                key={inv.id}
+                className={`${registreRowClass} cursor-pointer`}
+                onClick={rangeeOuvrable(() => router.push(lien))}
+              >
+                <td className="max-w-0 px-3 py-2.5">
+                  <Link href={lien} className="block min-w-0">
+                    <span
+                      className="block truncate text-[14px] font-medium leading-5 text-si-ink"
+                      title={inv.client}
                     >
-                      {inv.dossier}
-                    </Link>
-                  ) : (
-                    inv.dossier
-                  )}
-                </td>
-                <td className="px-4 py-3 text-sm text-si-muted">
-                  {formatCalendarDate(inv.dateEmission)}
-                </td>
-                <td className="px-4 py-3 text-sm text-si-muted">
-                  {formatCalendarDate(inv.dateEcheance)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="font-mono text-sm font-medium text-si-ink">
-                    {formatCurrency(inv.montantTotal)}
+                      {inv.client}
+                    </span>
+                  </Link>
+                  <span className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-[12px] leading-[17px] text-si-muted">
+                    <span className="shrink-0 font-mono">
+                      {displayInvoiceNumero(inv.numero)}
+                    </span>
+                    {inv.dossierId && (
+                      <>
+                        <span className="text-si-subtle" aria-hidden>
+                          ·
+                        </span>
+                        <span className="truncate" title={inv.dossier}>
+                          {inv.dossier}
+                        </span>
+                      </>
+                    )}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex flex-col items-end gap-0.5">
-                    <span className="font-mono text-sm font-medium text-si-ink">
-                      {formatCurrency(inv.balanceDue)}
+                <td className={`whitespace-nowrap text-right ${registreCellMutedClass}`}>
+                  {formatCalendarDate(inv.dateEmission)}
+                </td>
+                <td
+                  className={`whitespace-nowrap px-3 py-2.5 text-right align-middle text-[13px] ${
+                    enRetard ? "font-medium text-si-danger-ink" : "text-si-muted"
+                  }`}
+                >
+                  {formatCalendarDate(inv.dateEcheance)}
+                </td>
+                <td className={registreCellNumClass}>{formatCurrency(inv.montantTotal)}</td>
+                <td className="px-3 py-2.5 text-right align-middle">
+                  <span
+                    className={`block font-mono text-[13px] tabular-nums ${
+                      inv.balanceDue === 0
+                        ? "text-si-muted"
+                        : enRetard
+                          ? "font-medium text-si-danger-ink"
+                          : "font-medium text-si-ink"
+                    }`}
+                  >
+                    {formatCurrency(inv.balanceDue)}
+                  </span>
+                  {part > 0 && part < 100 && (
+                    <span className="mt-0.5 block text-[12px] text-si-muted">
+                      {part} {t("paidPercent")}
                     </span>
-                    {hasPayment && (
-                      <span className="text-xs text-si-muted">
-                        {percent} {t("paidPercent")}
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </td>
-                <td className="px-4 py-3">
-                  <StatusBadge
-                    label={tStatut(inv.statut)}
-                    variant={STATUT_VARIANTS[inv.statut]}
-                  />
+                <td className="px-3 py-2.5 align-middle">
+                  <StatusBadge label={tStatut(inv.statut)} variant={VARIANTES[inv.statut]} />
                 </td>
-                <td className="px-4 py-3">
-                  {hasReminder ? (
+                <td className={`whitespace-nowrap ${registreCellMutedClass}`}>
+                  {inv.lastReminderDay != null ? (
                     <span
-                      className="inline-flex items-center gap-1.5 text-sm text-si-muted"
+                      className="inline-flex items-center gap-1.5"
                       title={
                         inv.lastReminderSentAt
                           ? `${t("relanceOn")} ${formatDate(inv.lastReminderSentAt)}`
                           : undefined
                       }
                     >
-                      <Bell className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-                      {inv.lastReminderDay != null ? `J+${inv.lastReminderDay}` : "—"}
+                      <Bell className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+                      J+{inv.lastReminderDay}
                     </span>
                   ) : (
-                    <span className="text-sm text-si-muted/50">—</span>
+                    <span className="text-si-subtle">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-si-ink-strong hover:underline"
+                <td className="px-3 py-2.5 text-right align-middle">
+                  <RowMenu
+                    label={t("actions")}
+                    describedBy={tf("rowActions", { numero: displayInvoiceNumero(inv.numero) })}
                   >
-                    {t("see")}
-                    <ChevronRight className="h-4 w-4" aria-hidden />
-                  </Link>
+                    <Link href={lien} className={rowMenuItemClass} role="menuitem">
+                      <Eye className="h-4 w-4" aria-hidden />
+                      {tf("openInvoice")}
+                    </Link>
+                    <Link
+                      href={routes.facturationSuivi}
+                      className={rowMenuItemClass}
+                      role="menuitem"
+                    >
+                      <Send className="h-4 w-4" aria-hidden />
+                      {tf("sendReminder")}
+                    </Link>
+                  </RowMenu>
                 </td>
               </tr>
             );

@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
@@ -6,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useFacturationHonoraires } from "@/lib/hooks/useFacturation";
 import { useTempsContext } from "@/lib/hooks/useTemps";
@@ -32,6 +32,7 @@ interface HonorairesAFacturerViewProps {
 
 export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: HonorairesAFacturerViewProps) {
   const router = useRouter();
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const t = useTranslations("billingUi");
   const tc = useTranslations("common");
   const [filters, setFilters] = useState<FacturationHonorairesQueryInput>({});

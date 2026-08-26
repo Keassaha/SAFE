@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import {
   Send,
   Clock,
@@ -19,6 +19,7 @@ export interface IndicatorsPanelProps {
 
 export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPanelProps) {
   const t = useTranslations("dashboard");
+  const { formatCurrency } = useFormatteurs();
 
   const items = [
     {

@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Wallet } from "lucide-react";
 import { routes } from "@/lib/routes";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 interface ClientTrustAccountProps {
@@ -24,6 +24,7 @@ export function ClientTrustAccount({
   lastTransactionDate,
 }: ClientTrustAccountProps) {
   const t = useTranslations("clients");
+  const { formatCurrency } = useFormatteurs();
   const tc = useTranslations("common");
   const locale = useLocale();
   const intlLocale = toIntlLocale(locale);

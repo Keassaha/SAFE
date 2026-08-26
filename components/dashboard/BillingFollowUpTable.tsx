@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { Maximize2, ClipboardList, Check, FileEdit, Send, AlertTriangle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import type { BillingFollowUpRow } from "@/lib/dashboard/types";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 export interface BillingFollowUpTableProps {
@@ -35,6 +35,7 @@ export function BillingFollowUpTable({
   viewAllHref = routes.facturationSuivi,
 }: BillingFollowUpTableProps) {
   const locale = useLocale();
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   return (

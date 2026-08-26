@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -29,6 +30,7 @@ interface DossierOverviewProps {
 }
 
 export function DossierOverview({ data }: DossierOverviewProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
 
@@ -140,7 +142,7 @@ export function DossierOverview({ data }: DossierOverviewProps) {
           </div>
           <div className="text-si-muted">
             {t("openingDate")}{" "}
-            {new Date(data.dateOuverture).toLocaleDateString("fr-CA", {
+            {new Date(data.dateOuverture).toLocaleDateString(intlLocale, {
               year: "numeric",
               month: "long",
               day: "numeric",

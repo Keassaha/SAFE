@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -15,7 +16,6 @@ import {
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { formatCurrency } from "@/lib/utils/format";
 import { closeDossier } from "@/app/(app)/dossiers/actions";
 import type { ClosureBlockers } from "@/lib/services/dossiers/closure-blockers";
 
@@ -42,6 +42,7 @@ export function DossierDetailFermeture({
   statutDossier?: string;
 }) {
   const t = useTranslations("matterDetailUi");
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [ack, setAck] = useState(false);
@@ -63,7 +64,7 @@ export function DossierDetailFermeture({
 
   const fmtDate = (iso: string | null | undefined) =>
     iso
-      ? new Date(iso).toLocaleDateString("fr-CA", { year: "numeric", month: "long", day: "numeric" })
+      ? new Date(iso).toLocaleDateString(intlLocale, { year: "numeric", month: "long", day: "numeric" })
       : "";
 
   const blockerLines: string[] = [];

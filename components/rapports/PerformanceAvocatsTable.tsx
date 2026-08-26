@@ -1,12 +1,13 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { formatCurrency } from "@/lib/utils/format";
 import type { PerformanceAvocatRow } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
 export function PerformanceAvocatsTable({ data }: { data: PerformanceAvocatRow[] }) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
 
   const columns = [
     { key: "nom", header: t("lawyer"), render: (r: PerformanceAvocatRow) => r.nom },

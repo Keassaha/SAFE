@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -6,7 +7,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formatCalendarDate, formatCurrency, formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
 import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
@@ -22,6 +22,7 @@ interface HonorairesDetailClientViewProps {
 
 export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailClientViewProps) {
   const router = useRouter();
+  const { formatCurrency, formatDate, formatCalendarDate } = useFormatteurs();
   const t = useTranslations("billingUi");
   const tc = useTranslations("common");
   const { data, isLoading } = useFacturationHonorairesDetail(clientId);
@@ -144,7 +145,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
     }
     lines.sort((a, b) => a.date.getTime() - b.date.getTime());
     return lines;
-  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds]);
+  }, [entries, expenses, registreTaches, selectedEntryIds, selectedExpenseIds, selectedRegistreTacheIds, formatCurrency]);
 
   // Paginés par 20, comme tous les registres du produit. Les totaux, les cases
   // « tout cocher » et le calcul de la facture continuent de porter sur les

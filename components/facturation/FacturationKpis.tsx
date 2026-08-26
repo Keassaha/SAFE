@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import {
   DollarSign,
   TrendingUp,
@@ -78,6 +78,7 @@ function KpiCard({
 
 export function FacturationKpis({ kpis, currentStatut = null }: FacturationKpisProps) {
   const pathname = usePathname();
+  const { formatCurrency } = useFormatteurs();
   const tf = useTranslations("facturation");
   const t = useTranslations("billingCompUi");
 

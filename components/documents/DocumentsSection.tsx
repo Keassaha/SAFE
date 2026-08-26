@@ -1,10 +1,10 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { formatDate } from "@/lib/utils/format";
 
 type DocumentWithUploader = {
   id: string;
@@ -27,6 +27,7 @@ export function DocumentsSection({
   canManage: boolean;
 }) {
   const t = useTranslations("editorUi");
+  const { formatDate } = useFormatteurs();
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 

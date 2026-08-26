@@ -4,15 +4,16 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getDossierProfitability } from "@/lib/services/finance/dossier-profitability";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 function pct(v: number | null): string {
   return v == null ? "—" : `${Math.round(v * 100)} %`;
 }
 
 export default async function RentabilitePage() {
+  const { formatCurrency } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;

@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, FileMinus, ArrowLeft } from "lucide-react";
@@ -26,6 +26,7 @@ type NoteDeCredit = {
 
 export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCreditViewProps) {
   const t = useTranslations("billingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const { data, isLoading } = useQuery<{ creditNotes: NoteDeCredit[] }>({
     queryKey: ["facturation", "notes-credit"],

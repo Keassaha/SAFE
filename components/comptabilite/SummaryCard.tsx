@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 
 /**
  * Carte de synthèse du cockpit comptable — anatomie unique (icône + badge +
@@ -77,6 +77,7 @@ export function SummaryCard({
   tone = "neutral",
   className = "",
 }: SummaryCardProps) {
+  const { formatCurrency } = useFormatteurs();
   const tn = TONES[tone];
   return (
     <Link

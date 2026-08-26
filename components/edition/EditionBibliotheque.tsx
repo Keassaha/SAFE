@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -54,12 +55,13 @@ const TYPE_COLOR: Record<string, string> = {
   autre: "#fce7f3",
 };
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, intlLocale: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("fr-CA", { day: "numeric", month: "short" });
+  return d.toLocaleDateString(intlLocale, { day: "numeric", month: "short" });
 }
 
 export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("editorUi");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [filter, setFilter] = useState<string>("all");
@@ -349,7 +351,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                         {TYPE_LABEL_KEY[d.type] ? t(TYPE_LABEL_KEY[d.type]) : d.type}
                         {d.clientNom ? ` · ${d.clientNom}` : ""}
                       </span>
-                      <span style={{ flexShrink: 0 }}>{formatDate(d.updatedAt)}</span>
+                      <span style={{ flexShrink: 0 }}>{formatDate(d.updatedAt, intlLocale)}</span>
                     </div>
                   </div>
                 </Link>
@@ -422,7 +424,7 @@ export function EditionBibliotheque({ docs }: { docs: Doc[] }) {
                     </span>
                   </div>
                   <div style={{ color: V1.textMid }}>{TYPE_LABEL_KEY[d.type] ? t(TYPE_LABEL_KEY[d.type]) : d.type}</div>
-                  <div style={{ color: V1.textMid }}>{formatDate(d.updatedAt)}</div>
+                  <div style={{ color: V1.textMid }}>{formatDate(d.updatedAt, intlLocale)}</div>
                   <div>
                     <span
                       style={{

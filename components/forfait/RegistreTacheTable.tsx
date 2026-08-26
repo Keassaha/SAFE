@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCurrency } from "@/lib/utils/format";
 import { Receipt, Trash2, Tag } from "lucide-react";
 
 type StatusVariant = "success" | "warning" | "neutral" | "error";
@@ -41,6 +41,7 @@ interface RegistreTacheTableProps {
 
 export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTableProps) {
   const t = useTranslations("temps.taskRegister");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const dateLocale = locale === "fr" ? "fr-CA" : "en-CA";
   const queryClient = useQueryClient();

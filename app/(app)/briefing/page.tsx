@@ -4,12 +4,13 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getDailyBriefing } from "@/lib/services/briefing/daily-briefing";
 import { ShieldAlert, AlertTriangle, ShieldCheck, Clock, FileWarning, CalendarClock, DollarSign } from "lucide-react";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 export default async function BriefingPage() {
+  const { formatCurrency } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;

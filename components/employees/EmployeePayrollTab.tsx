@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import type { PayslipStatus } from "@prisma/client";
@@ -37,22 +38,13 @@ interface EmployeePayrollTabProps {
   locale?: "fr" | "en";
 }
 
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("fr-CA", {
+function formatDate(d: Date, intlLocale: string): string {
+  return new Intl.DateTimeFormat(intlLocale, {
     year: "numeric",
     month: "short",
     day: "numeric",
     timeZone: "UTC",
   }).format(new Date(d));
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
 }
 
 const STATUS_KEYS: Record<PayslipStatus, string> = {
@@ -71,6 +63,7 @@ export function EmployeePayrollTab({
   approvedSummary = null,
   locale = "en",
 }: EmployeePayrollTabProps) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const t = useTranslations("employees");
 
   return (
@@ -137,8 +130,8 @@ export function EmployeePayrollTab({
               <tbody>
                 {payslips.map((row) => (
                   <tr key={row.id} className="safe-zoom-rang border-b border-si-line " >
-                    <td className="px-4 py-3">{formatDate(row.periodStart)}</td>
-                    <td className="px-4 py-3">{formatDate(row.periodEnd)}</td>
+                    <td className="px-4 py-3">{formatDate(row.periodStart, intlLocale)}</td>
+                    <td className="px-4 py-3">{formatDate(row.periodEnd, intlLocale)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{row.hoursWorked}</td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {formatCurrency(row.hourlyRate)}
@@ -166,7 +159,7 @@ export function EmployeePayrollTab({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-si-muted">
-                      {row.paymentDate ? formatDate(row.paymentDate) : "—"}
+                      {row.paymentDate ? formatDate(row.paymentDate, intlLocale) : "—"}
                     </td>
                   </tr>
                 ))}

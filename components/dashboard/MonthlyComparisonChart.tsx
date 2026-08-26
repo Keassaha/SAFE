@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useLocale, useTranslations } from "next-intl";
 import { BarChart2 } from "lucide-react";
@@ -12,7 +13,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { formatCurrency } from "@/lib/utils/format";
 import type { MonthlyComparisonRow } from "@/lib/dashboard/types";
 
 export interface MonthlyComparisonChartProps {
@@ -26,6 +26,7 @@ export interface MonthlyComparisonChartProps {
  */
 export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
   const t = useTranslations("dashboard");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const year = new Date().getFullYear();
 

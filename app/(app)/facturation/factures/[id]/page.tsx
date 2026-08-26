@@ -12,8 +12,8 @@ import { loadPresentedInvoiceForCabinet } from "@/lib/services/billing/load-pres
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { FacturePreviewActions } from "./FacturePreviewActions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 function toIsoDate(value: string | Date) {
   return new Date(value).toISOString();
@@ -65,6 +65,7 @@ export default async function FacturePreviewPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const t = await getTranslations("billingUi");
   const locale = await getLocale();
   const { cabinetId } = await requireCabinetAndUser();

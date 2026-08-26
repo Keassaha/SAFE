@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -27,12 +28,13 @@ export function DossierNotes({
   descriptionConfidentielle,
   notesStrategieJuridique,
 }: DossierNotesProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
   const [showAdd, setShowAdd] = useState(false);
 
   function formatDate(d: Date): string {
-    return new Date(d).toLocaleDateString("fr-CA", {
+    return new Date(d).toLocaleDateString(intlLocale, {
       weekday: "short",
       year: "numeric",
       month: "short",

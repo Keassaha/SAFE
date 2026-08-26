@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
-import { formatCalendarDate } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import {
   registreHeadRowClass,
@@ -96,6 +96,7 @@ export function PiecesAttenduesSection({
   canWrite?: boolean;
 }) {
   const router = useRouter();
+  const { formatCalendarDate } = useFormatteurs();
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, startTransition] = useTransition();
   const [lienAffiche, setLienAffiche] = useState<string | null>(null);

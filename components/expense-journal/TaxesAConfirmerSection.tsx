@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import {
   RegistreFeuille,
   registreHeadRowClass,
@@ -55,6 +55,7 @@ export function TaxesAConfirmerSection({
   canWrite?: boolean;
 }) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const router = useRouter();
   const [cible, setCible] = useState<DepenseATaxeEstimee | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);

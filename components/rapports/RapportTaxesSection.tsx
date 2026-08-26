@@ -1,7 +1,7 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { Receipt } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import type { RapportTaxesSummary } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +11,7 @@ interface RapportTaxesSectionProps {
 
 export function RapportTaxesSection({ data }: RapportTaxesSectionProps) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium text-si-ink flex items-center gap-2 tracking-tight">

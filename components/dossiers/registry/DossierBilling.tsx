@@ -1,18 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
 
 export type TimeEntryRow = {
   id: string;
@@ -36,6 +29,7 @@ export function DossierBilling({
   totalMontant,
   timeEntries,
 }: DossierBillingProps) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
 
@@ -76,7 +70,7 @@ export function DossierBilling({
                 {timeEntries.map((r) => (
                   <tr key={r.id} className="border-b border-si-line last:border-0">
                     <td className="py-2 px-3 text-si-muted">
-                      {new Date(r.date).toLocaleDateString("fr-CA")}
+                      {new Date(r.date).toLocaleDateString(intlLocale)}
                     </td>
                     <td className="py-2 px-3">{r.description ?? "—"}</td>
                     <td className="py-2 px-3 text-right">

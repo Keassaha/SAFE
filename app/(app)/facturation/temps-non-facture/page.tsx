@@ -4,12 +4,13 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getUnbilledTimeReport, DORMANT_DAYS } from "@/lib/services/finance/unbilled-time";
 import { AlertTriangle, Clock } from "lucide-react";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 export default async function TempsNonFacturePage() {
+  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return (

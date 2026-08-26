@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 
 /**
  * Confirmer la taxe payée d'une dépense.
@@ -48,6 +48,7 @@ export function ConfirmerTaxeModal({
   error?: string | null;
 }) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const [reponse, setReponse] = useState<Reponse>(null);
   const [tps, setTps] = useState("");
   const [tvq, setTvq] = useState("");

@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
@@ -25,31 +26,32 @@ export function EmployeeSummaryCards({
   byRoleCount,
 }: EmployeeSummaryCardsProps) {
   const t = useTranslations("employees");
+  const { intlLocale } = useFormatteurs();
   const activePercent = total > 0 ? Math.round((active / total) * 100) : 0;
 
   const cards = [
     {
       title: t("totalEmployees"),
-      value: total.toLocaleString("fr-CA"),
+      value: total.toLocaleString(intlLocale),
       icon: Users,
       sub: null,
     },
     {
       title: t("activeEmployees"),
-      value: active.toLocaleString("fr-CA"),
+      value: active.toLocaleString(intlLocale),
       icon: UserCheck,
       sub: `${activePercent}%`,
       subClassName: "text-si-verified",
     },
     {
       title: t("inactiveEmployees"),
-      value: inactive.toLocaleString("fr-CA"),
+      value: inactive.toLocaleString(intlLocale),
       icon: UserX,
       sub: null,
     },
     {
       title: t("distinctRoles"),
-      value: byRoleCount.toLocaleString("fr-CA"),
+      value: byRoleCount.toLocaleString(intlLocale),
       icon: Briefcase,
       sub: null,
     },

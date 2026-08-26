@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/lib/utils/format";
 import { BookOpen, Pencil, ArrowRight, Receipt, Loader2 } from "lucide-react";
 
 interface DossierWithTasks {
@@ -30,6 +30,7 @@ interface NewInvoiceChoiceModalProps {
  */
 export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false }: NewInvoiceChoiceModalProps) {
   const t = useTranslations("billingCompUi");
+  const { formatCurrency } = useFormatteurs();
   const router = useRouter();
   const [mode, setMode] = useState<"choose" | "registre">("choose");
   const [dossiers, setDossiers] = useState<DossierWithTasks[]>([]);

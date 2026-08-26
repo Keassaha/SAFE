@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import { MetricTile } from "@/components/ui/Figure";
 
 export interface FacturationMainKpisData {
@@ -27,6 +27,7 @@ interface FacturationMainKpisProps {
  */
 export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
   const searchParams = useSearchParams();
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const t = useTranslations("facturation");
   const currentStatut = searchParams.get("statut") ?? "";

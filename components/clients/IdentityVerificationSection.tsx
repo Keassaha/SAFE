@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatCalendarDate } from "@/lib/utils/format";
 import type { ClientIdentityVerification, Document } from "@prisma/client";
 import { routes } from "@/lib/routes";
 
@@ -20,6 +20,7 @@ export function IdentityVerificationSection({
   canManage: boolean;
 }) {
   const t = useTranslations("clients");
+  const { formatCalendarDate } = useFormatteurs();
 
   if (verifications.length === 0) {
     return (

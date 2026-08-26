@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import {
@@ -18,6 +19,7 @@ export function ChartRevenus({
 }: {
   data: { month: string; value: number }[];
 }) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("dashboard");
 
   if (data.length === 0) {
@@ -31,7 +33,7 @@ export function ChartRevenus({
   const formatted = data.map((d) => ({
     ...d,
     label: d.month.replace(/-/, " / "),
-    display: new Intl.NumberFormat("fr-CA", {
+    display: new Intl.NumberFormat(intlLocale, {
       style: "currency",
       currency: "CAD",
       minimumFractionDigits: 0,
@@ -49,7 +51,7 @@ export function ChartRevenus({
           />
           <YAxis
             tickFormatter={(v) =>
-              new Intl.NumberFormat("fr-CA", {
+              new Intl.NumberFormat(intlLocale, {
                 style: "currency",
                 currency: "CAD",
                 minimumFractionDigits: 0,
@@ -61,7 +63,7 @@ export function ChartRevenus({
           />
           <Tooltip
             formatter={(value: number) => [
-              new Intl.NumberFormat("fr-CA", {
+              new Intl.NumberFormat(intlLocale, {
                 style: "currency",
                 currency: "CAD",
               }).format(value),

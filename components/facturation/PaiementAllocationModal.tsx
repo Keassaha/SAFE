@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/lib/utils/format";
 import { Loader2 } from "lucide-react";
 
 const selectClass =
@@ -39,6 +39,7 @@ export function PaiementAllocationModal({
   onSuccess,
 }: PaiementAllocationModalProps) {
   const tp = useTranslations("payments");
+  const { formatCurrency } = useFormatteurs();
   const tc = useTranslations("common");
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);

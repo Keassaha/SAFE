@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { FileEdit, Send, AlertTriangle, CheckCircle, Maximize2 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import type { BillingFollowUpRow } from "@/lib/dashboard/types";
-import { formatCurrency } from "@/lib/utils/format";
 
 export interface BillingPipelineProps {
   rows: BillingFollowUpRow[];
@@ -26,6 +26,7 @@ interface PipelineStage {
  */
 export function BillingPipeline({ rows }: BillingPipelineProps) {
   const t = useTranslations("dashboard");
+  const { formatCurrency } = useFormatteurs();
   const tUi = useTranslations("dashboardUi");
   const locale = useLocale();
 

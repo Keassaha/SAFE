@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { motion } from "framer-motion";
 import { FolderOpen, FolderCheck, Folder, ListChecks, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -26,6 +27,7 @@ export function DossierSummaryCards({
   actesTermines = 0,
 }: DossierSummaryCardsProps) {
   const t = useTranslations("matters");
+  const { intlLocale } = useFormatteurs();
 
   const actifPercent =
     totalDossiers > 0 ? Math.round((actifsCount / totalDossiers) * 100) : 0;
@@ -35,7 +37,7 @@ export function DossierSummaryCards({
   const cards = [
     {
       title: t("totalMatters"),
-      value: totalDossiers.toLocaleString("fr-CA"),
+      value: totalDossiers.toLocaleString(intlLocale),
       icon: Folder,
       sub: null as string | null,
       subTone: "muted" as "muted" | "verified",
@@ -43,7 +45,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("activeMatters"),
-      value: actifsCount.toLocaleString("fr-CA"),
+      value: actifsCount.toLocaleString(intlLocale),
       icon: FolderOpen,
       sub: `${actifPercent}${t("ofTotal")}`,
       subTone: "verified" as const,
@@ -51,7 +53,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("closedMatters"),
-      value: cloturesCount.toLocaleString("fr-CA"),
+      value: cloturesCount.toLocaleString(intlLocale),
       icon: FolderCheck,
       sub: null,
       subTone: "muted" as const,
@@ -59,7 +61,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("totalActs"),
-      value: totalActes.toLocaleString("fr-CA"),
+      value: totalActes.toLocaleString(intlLocale),
       icon: ListChecks,
       sub: `${terminePercent}${t("completed")}`,
       subTone: "verified" as const,
@@ -67,7 +69,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("inProgress"),
-      value: actesEnCours.toLocaleString("fr-CA"),
+      value: actesEnCours.toLocaleString(intlLocale),
       icon: Clock,
       sub: null,
       subTone: "muted" as const,
@@ -75,7 +77,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("urgentOverdue"),
-      value: actesUrgents.toLocaleString("fr-CA"),
+      value: actesUrgents.toLocaleString(intlLocale),
       icon: AlertTriangle,
       sub: null,
       subTone: "muted" as const,
@@ -83,7 +85,7 @@ export function DossierSummaryCards({
     },
     {
       title: t("completed2"),
-      value: actesTermines.toLocaleString("fr-CA"),
+      value: actesTermines.toLocaleString(intlLocale),
       icon: CheckCircle2,
       sub: null,
       subTone: "muted" as const,

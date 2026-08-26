@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -7,7 +8,6 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2, UploadCloud, CheckCircle2, AlertTriangle, HelpCircle, Users } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import type { PaymentProofExtraction } from "@/lib/ai/extract-payment-proof";
 import type { PaymentMatch } from "@/lib/services/finance/match-payment";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
@@ -46,6 +46,7 @@ const CONFIDENCE_STYLE: Record<
 
 export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess }: ImportPreuveModalProps) {
   const t = useTranslations("paymentImport");
+  const { formatCurrency } = useFormatteurs();
   const tp = useTranslations("payments");
   const tc = useTranslations("common");
   const queryClient = useQueryClient();

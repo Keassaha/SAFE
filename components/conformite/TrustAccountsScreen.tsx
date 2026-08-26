@@ -1,4 +1,5 @@
 "use client";
+import { useMoney } from "./primitives";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +23,6 @@ import {
   day,
   inputClass,
   inputNumberClass,
-  money,
 } from "./primitives";
 
 /**
@@ -102,6 +102,7 @@ export function TrustAccountsScreen({
   interestNoteFr,
 }: Props) {
   const router = useRouter();
+  const money = useMoney();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [violations, setViolations] = useState<Violation[]>([]);

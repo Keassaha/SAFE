@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatDate } from "@/lib/utils/format";
 import { formatDureeHM, formatHeuresDecimales } from "@/lib/temps/duree";
 
 interface TimeEntryRow {
@@ -35,6 +35,7 @@ export function WeekGrid({
   onNextWeek: () => void;
 }) {
   const t = useTranslations("gestionCompUi");
+  const { formatDate } = useFormatteurs();
   const locale = useLocale();
   const startOfWeek = new Date(weekStart);
   startOfWeek.setHours(0, 0, 0, 0);

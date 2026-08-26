@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
@@ -12,7 +13,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 import type { RevenueChartPoint } from "@/lib/dashboard/types";
 
@@ -113,6 +113,7 @@ const GRIS = "var(--si-border-strong)";
 
 export function CashflowChart({ data }: Props) {
   const locale = useLocale();
+  const { formatCurrency } = useFormatteurs();
   const intlLocale = toIntlLocale(locale);
   const [fenetre, setFenetre] = useState<Fenetre>(6);
 

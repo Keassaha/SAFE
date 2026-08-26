@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -34,7 +35,6 @@ import {
   Percent,
   Receipt,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -226,6 +226,7 @@ export function CreateInvoiceView({
   cabinetTaxConfig,
 }: CreateInvoiceViewProps) {
   const router = useRouter();
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("billingUi");
   const locale = useLocale();
   const formatMoney = (amount: number) => formatCurrency(amount, "CAD", locale);
@@ -482,7 +483,6 @@ export function CreateInvoiceView({
     totals,
     clientNote,
   ]);
-
 
   useEffect(() => {
     if (!selectedClientId) return;

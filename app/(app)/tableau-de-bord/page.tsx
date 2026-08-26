@@ -5,7 +5,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getEffectiveRole, userRoleToEmployeeRole } from "@/lib/auth/rbac";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 import { getGlobalTrustBalance, countClientsWithTrustFunds } from "@/lib/services/fideicommis";
 import { getDashboardVisibility } from "@/lib/dashboard/visibility";
@@ -42,6 +41,7 @@ import {
 import { listUnreadSignalsForUser } from "@/lib/services/ready-for-review-service";
 import { getNavetteInbox } from "@/lib/navette/navette-service";
 import { LawyerGlance } from "@/components/navette/LawyerGlance";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -50,6 +50,7 @@ function getMonthRange(year: number, month: number) {
 }
 
 export default async function TableauDeBordPage() {
+  const { formatCurrency } = await getFormatteurs();
   const { cabinetId, userId, role } = await requireCabinetAndUser();
 
   /* Ces quatre lectures ne dépendent que de la session : elles partaient en

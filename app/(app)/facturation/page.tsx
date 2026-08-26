@@ -2,18 +2,33 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { routes } from "@/lib/routes";
-import { Card } from "@/components/ui/Card";
 import { prisma } from "@/lib/db";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { FacturationMainKpis, type FacturationMainKpisData } from "@/components/facturation/FacturationMainKpis";
-import { FacturationFilters } from "@/components/facturation/FacturationFilters";
+import {
+  FacturationFiltres,
+  FacturationRecherche,
+} from "@/components/facturation/FacturationFilters";
 import { FacturationTable } from "@/components/facturation/FacturationTable";
 import { FacturationActions } from "@/components/facturation/FacturationActions";
 import { HonorairesAFacturerView } from "./honoraires/HonorairesAFacturerView";
-import type { InvoiceStatut } from "@prisma/client";
+import type { InvoiceStatut, Prisma } from "@prisma/client";
+import {
+  FACTURE_LISTE_TAILLE_PAGE,
+  estChampTri,
+  getFactureListeOrderBy,
+  type FactureChampTri,
+  type FactureOrdreTri,
+} from "@/lib/facturation/liste-query";
+import {
+  RegistreBarreOutils,
+  RegistreFeuille,
+  RegistreAucunResultat,
+} from "@/components/ui/registre";
+import { FacturationPagination } from "@/components/facturation/FacturationPagination";
 import type { FacturationTableRow } from "@/components/facturation/FacturationTable";
 import {
   aggregateBillableRegistreTaches,
@@ -42,7 +57,15 @@ const STATUT_OPTIONS: { value: "" | InvoiceStatut; label: string }[] = [
 export default async function FacturationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ statut?: string; q?: string; dateFrom?: string; dateTo?: string }>;
+  searchParams: Promise<{
+    statut?: string;
+    q?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    page?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }>;
 }) {
   const t = await getTranslations("facturation");
   const { cabinetId, role } = await requireCabinetAndUser();
@@ -51,7 +74,13 @@ export default async function FacturationPage({
   // (React.cache dedupes, so no second DB query here)
   const { billingMode } = await getCabinetInterfaceDerived(cabinetId);
 
-  const { statut: statutParam, q, dateFrom: dateFromParam, dateTo: dateToParam } = await searchParams;
+  const params = await searchParams;
+  const { statut: statutParam, q, dateFrom: dateFromParam, dateTo: dateToParam } = params;
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  // Par défaut, la plus récente en tête : c'est ce que le registre faisait
+  // déjà, sans laisser le cabinet en changer.
+  const sortBy: FactureChampTri = estChampTri(params.sortBy) ? params.sortBy : "dateEmission";
+  const sortOrder: FactureOrdreTri = params.sortOrder === "asc" ? "asc" : "desc";
   const currentStatut =
     STATUT_OPTIONS.some((o) => o.value === statutParam) && statutParam
       ? (statutParam as InvoiceStatut)
@@ -70,8 +99,30 @@ export default async function FacturationPage({
   // ne pas dépendre du champ `statut` legacy qui n'est plus la source de vérité.
   const statutFilter = legacyStatutToInvoiceWhere(currentStatut, now);
 
+  // Un seul `where` pour la tranche et pour le compte : deux copies finissent
+  // toujours par diverger, et la pagination annoncerait alors un total qui ne
+  // correspond pas aux lignes affichées.
+  const whereFactures = {
+    cabinetId,
+    ...(statutFilter ?? {}),
+    ...(dateFrom ? { dateEmission: { gte: dateFrom, ...(dateTo ? { lte: dateTo } : {}) } } : {}),
+    ...(dateTo && !dateFrom ? { dateEmission: { lte: dateTo } } : {}),
+    ...(currentSearch
+      ? {
+          OR: [
+            { numero: { contains: currentSearch } },
+            { client: { raisonSociale: { contains: currentSearch } } },
+            { client: { nom: { contains: currentSearch } } },
+            { client: { prenom: { contains: currentSearch } } },
+            { dossier: { intitule: { contains: currentSearch } } },
+          ],
+        }
+      : {}),
+  } satisfies Prisma.InvoiceWhereInput;
+
   const [
     invoices,
+    invoicesTotal,
     facturablesTime,
     facturablesForfaits,
     facturablesExpenses,
@@ -82,28 +133,21 @@ export default async function FacturationPage({
     issuedForTaux,
   ] = await Promise.all([
     prisma.invoice.findMany({
-      where: {
-        cabinetId,
-        ...(statutFilter ?? {}),
-        ...(dateFrom ? { dateEmission: { gte: dateFrom, ...(dateTo ? { lte: dateTo } : {}) } } : {}),
-        ...(dateTo && !dateFrom ? { dateEmission: { lte: dateTo } } : {}),
-        ...(currentSearch
-          ? {
-              OR: [
-                { numero: { contains: currentSearch } },
-                { client: { raisonSociale: { contains: currentSearch } } },
-                { dossier: { intitule: { contains: currentSearch } } },
-              ],
-            }
-          : {}),
-      },
+      where: whereFactures,
       include: {
-        client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
+        // `typeClient` manquait : le registre affichait `raisonSociale ?? ""`,
+        // donc une colonne Client VIDE pour toute personne physique.
+        client: {
+          select: { id: true, raisonSociale: true, prenom: true, nom: true, typeClient: true },
+        },
         dossier: { select: { id: true, intitule: true } },
         reminderLogs: { orderBy: { sentAt: "desc" as const }, take: 1 },
       },
-      orderBy: { dateEmission: "desc" },
+      orderBy: getFactureListeOrderBy(sortBy, sortOrder),
+      skip: (page - 1) * FACTURE_LISTE_TAILLE_PAGE,
+      take: FACTURE_LISTE_TAILLE_PAGE,
     }),
+    prisma.invoice.count({ where: whereFactures }),
     // Doctrine §3 — feeAmount prime sur montant, write-offs exclus.
     // Encapsulé dans `aggregateBillableTimeEntries` pour garder la règle au même endroit.
     aggregateBillableTimeEntries(prisma, cabinetId),
@@ -151,10 +195,26 @@ export default async function FacturationPage({
       totalEmitted > 0 ? Math.round((totalPaid / totalEmitted) * 100) : undefined,
   };
 
+  /**
+   * Nom porté par la ligne. Même règle qu'au registre clients : nom de famille
+   * d'abord, qui est ce sur quoi l'œil balaye et ce sur quoi le tri porte.
+   */
+  function nomClient(client: {
+    typeClient: string;
+    raisonSociale: string | null;
+    prenom: string | null;
+    nom: string | null;
+  }): string {
+    if (client.typeClient === "personne_physique" && (client.prenom || client.nom)) {
+      return [client.nom, client.prenom].filter(Boolean).join(", ");
+    }
+    return client.raisonSociale?.trim() || t("clientUnnamed");
+  }
+
   const rows: FacturationTableRow[] = invoices.map((inv) => ({
     id: inv.id,
     numero: inv.numero,
-    client: inv.client.raisonSociale ?? "",
+    client: nomClient(inv.client),
     clientId: inv.client.id,
     dossier: inv.dossier?.intitule ?? "—",
     dossierId: inv.dossier?.id ?? null,
@@ -201,25 +261,37 @@ export default async function FacturationPage({
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
       </section>
 
-      <Card>
-        <section>
-          <div className="flex flex-col gap-3 border-b border-si-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* La liste passe sur une feuille : surface blanche, filet, une ombre
+          longue. Le canvas gris la porte au lieu de la contenir, et la barre
+          d'outils appartient visiblement au même objet que le tableau. */}
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-medium text-si-ink">{t("listTitle")}</h2>
           <FacturationActions billingMode={billingMode} />
         </div>
-        <div className="space-y-4 p-6">
-          <FacturationFilters
-            currentStatut={currentStatut}
-            currentSearch={currentSearch}
-            statutOptions={STATUT_OPTIONS}
-            dateFrom={dateFromParam ?? ""}
-            dateTo={dateToParam ?? ""}
+        <RegistreFeuille ariaLabel={t("listTitle")}>
+          <RegistreBarreOutils
+            recherche={
+              <FacturationRecherche
+                currentStatut={currentStatut}
+                currentSearch={currentSearch}
+                dateFrom={dateFromParam ?? ""}
+                dateTo={dateToParam ?? ""}
+              />
+            }
+            filtres={
+              <FacturationFiltres
+                currentStatut={currentStatut}
+                currentSearch={currentSearch}
+                statutOptions={STATUT_OPTIONS}
+                dateFrom={dateFromParam ?? ""}
+                dateTo={dateToParam ?? ""}
+              />
+            }
           />
           {rows.length === 0 ? (
             hasActiveFilter ? (
-              <p className="text-sm text-si-muted py-8 text-center">
-                {t("noMatch")}
-              </p>
+              <RegistreAucunResultat message={t("noMatch")} />
             ) : (
               <EmptyState
                 title={t("emptyTitle")}
@@ -232,11 +304,13 @@ export default async function FacturationPage({
               />
             )
           ) : (
-            <FacturationTable invoices={rows} />
+            <>
+              <FacturationTable invoices={rows} sortBy={sortBy} sortOrder={sortOrder} />
+              <FacturationPagination totalCount={invoicesTotal} currentPage={page} />
+            </>
           )}
-          </div>
-        </section>
-      </Card>
+        </RegistreFeuille>
+      </div>
     </div>
   );
 }

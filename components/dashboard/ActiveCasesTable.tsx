@@ -1,11 +1,11 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { Maximize2, FolderOpen, Folder } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { routes } from "@/lib/routes";
 import type { ActiveCaseRow } from "@/lib/dashboard/types";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 
 export interface ActiveCasesTableProps {
@@ -26,6 +26,7 @@ export function ActiveCasesTable({
   viewAllHref = routes.dossiers,
 }: ActiveCasesTableProps) {
   const locale = useLocale();
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   return (

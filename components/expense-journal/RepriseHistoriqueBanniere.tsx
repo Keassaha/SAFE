@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { formatCurrency } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import {
   simulerRepriseTaxes,
@@ -27,6 +27,7 @@ import {
  */
 export function RepriseHistoriqueBanniere({ compte }: { compte: number }) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency } = useFormatteurs();
   const router = useRouter();
   const [resume, setResume] = useState<{
     examinees: number;

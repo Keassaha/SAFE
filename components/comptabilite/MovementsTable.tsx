@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import { BookOpen, Undo2 } from "lucide-react";
-import { formatCurrency, formatCalendarDate } from "@/lib/utils/format";
 import type { JournalEntryRow } from "@/types/journal";
 import {
   describeMovement,
@@ -63,6 +63,7 @@ export function MovementsTable({
   onAnnuler?: (entry: JournalEntryRow) => void;
 }) {
   const t = useTranslations("accountingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
 
   if (entries.length === 0) {
     return (

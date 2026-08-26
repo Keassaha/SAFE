@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -6,7 +7,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ActionsSection } from "@/components/comptabilite/ActionsSection";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -68,6 +68,7 @@ export function FacturationPaiementsView({
   canWrite = true,
 }: FacturationPaiementsViewProps) {
   const t = useTranslations("billingUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const locale = useLocale();
   const [formModalOpen, setFormModalOpen] = useState(false);

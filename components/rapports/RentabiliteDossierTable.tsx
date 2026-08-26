@@ -1,12 +1,13 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { formatCurrency } from "@/lib/utils/format";
 import type { RentabiliteDossierRow } from "@/lib/rapports/types";
 import { useTranslations } from "next-intl";
 
 export function RentabiliteDossierTable({ data }: { data: RentabiliteDossierRow[] }) {
   const t = useTranslations("reportsUi");
+  const { formatCurrency } = useFormatteurs();
 
   const columns = [
     { key: "intitule", header: t("matter"), render: (r: RentabiliteDossierRow) => r.intitule },

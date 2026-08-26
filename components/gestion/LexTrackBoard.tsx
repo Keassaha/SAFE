@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -56,8 +57,8 @@ function daysUntil(dateStr: string, todayStr?: string): number {
   return Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("fr-CA", {
+function formatDate(dateStr: string, intlLocale: string): string {
+  return new Date(dateStr).toLocaleDateString(intlLocale, {
     day: "2-digit",
     month: "short",
     timeZone: "UTC",
@@ -126,6 +127,7 @@ function TaskCard({
   typeLabels: Record<string, string>;
   statusLabels: Record<string, string>;
 }) {
+  const { intlLocale } = useFormatteurs();
   const Icon = TYPE_ICONS[task.type] ?? FileText;
   const statusColor = STATUS_COLORS[task.status] ?? COLORS.dimmed;
   const isAudience = task.type === "audience";
@@ -185,7 +187,7 @@ function TaskCard({
             }}
           >
             <span style={{ fontSize: 10, color: COLORS.muted }}>
-              {formatDate(task.deadline)}
+              {formatDate(task.deadline, intlLocale)}
             </span>
             <DeadlinePill
               deadline={task.deadline}
@@ -412,6 +414,7 @@ export function LexTrackBoard({
   onTaskStatusChange,
   todayStr,
 }: LexTrackBoardProps) {
+  const { intlLocale } = useFormatteurs();
   const tg = useTranslations("gestion");
 
   const typeLabels: Record<string, string> = {
@@ -1070,7 +1073,7 @@ export function LexTrackBoard({
                       }}
                     >
                       <span style={{ fontSize: 12 }}>
-                        {formatDate(selectedTask.deadline)}
+                        {formatDate(selectedTask.deadline, intlLocale)}
                       </span>
                       <DeadlinePill
                         deadline={selectedTask.deadline}

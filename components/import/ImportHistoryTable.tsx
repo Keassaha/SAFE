@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
@@ -22,6 +23,7 @@ import { getImportHistory, getImportHistoryErrors } from "@/app/(app)/import/act
 const PAGE_SIZE = 10;
 
 export function ImportHistoryTable() {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("import");
 
   const TYPE_LABELS: Record<string, string> = {
@@ -88,7 +90,7 @@ export function ImportHistoryTable() {
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString("fr-CA", {
+    return d.toLocaleDateString(intlLocale, {
       year: "numeric",
       month: "short",
       day: "numeric",

@@ -1,4 +1,5 @@
 "use client";
+import { useMoney } from "./primitives";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,6 @@ import {
   Table,
   day,
   inputClass,
-  money,
 } from "./primitives";
 
 /**
@@ -87,6 +87,7 @@ export function ShortfallsScreen({
   statutoryDeadlineExists,
 }: Props) {
   const router = useRouter();
+  const money = useMoney();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [comblant, setComblant] = useState<string | null>(null);

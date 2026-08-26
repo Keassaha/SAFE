@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import type { Invoice, InvoiceLine } from "@prisma/client";
@@ -6,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { isInvoiceDraft, isInvoiceIssued, getInvoiceLifecycleCategory } from "@/lib/billing/invoice-status";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
@@ -23,6 +23,7 @@ interface InvoicePreviewModalProps {
 
 export function InvoicePreviewModal({ invoice, onClose, cabinetId }: InvoicePreviewModalProps) {
   const t = useTranslations("billingCompUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 

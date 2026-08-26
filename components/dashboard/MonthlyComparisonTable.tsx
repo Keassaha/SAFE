@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useLocale, useTranslations } from "next-intl";
 import { BarChart2, TrendingUp, TrendingDown } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import type { MonthlyComparisonRow } from "@/lib/dashboard/types";
 
 export interface MonthlyComparisonTableProps {
@@ -11,6 +11,7 @@ export interface MonthlyComparisonTableProps {
 
 export function MonthlyComparisonTable({ rows }: MonthlyComparisonTableProps) {
   const t = useTranslations("dashboard");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
 
   const year = new Date().getFullYear();

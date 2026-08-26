@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 /**
  * Primitives partagées des écrans de conformité.
@@ -18,7 +19,6 @@
  */
 
 import { useState, type ReactNode } from "react";
-import { formatCurrency } from "@/lib/utils/format";
 
 /* ════════════════════════════════════════════════════════════════
    SURFACE
@@ -305,15 +305,22 @@ export function Disclosure({
    ════════════════════════════════════════════════════════════════ */
 
 /**
- * Montant.
+ * Montant des écrans de conformité.
  *
  * Délègue au formateur canonique du dépôt plutôt que d'en être une troisième
  * implémentation. Il y en avait deux (`lib/format.ts`, mort, et `lib/utils/format.ts`,
  * vivant) ; en ajouter une aurait garanti que les écrans de conformité affichent les
  * montants autrement que le reste de l'application.
+ *
+ * C'est un hook, et non plus la fonction `money()` d'avant : sans locale, le
+ * formateur se rabattait sur `document.documentElement.lang`, absent au rendu
+ * serveur. Un cabinet en anglais lisait « 1 234,56 $ » venu du serveur, puis
+ * « $1,234.56 » après hydratation. Un composant serveur prend l'équivalent
+ * asynchrone, `getFormatteurs()` de `lib/i18n/formatteurs-serveur.ts`.
  */
-export function money(n: number): string {
-  return formatCurrency(n);
+export function useMoney(): (n: number) => string {
+  const { formatCurrency: formater } = useFormatteurs();
+  return (n: number) => formater(n);
 }
 
 /**

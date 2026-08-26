@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -45,9 +46,9 @@ function statusLabel(status: string): string {
   }
 }
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | null, intlLocale: string): string {
   if (!value) return "Date à préciser";
-  return new Intl.DateTimeFormat("fr-CA", {
+  return new Intl.DateTimeFormat(intlLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -55,6 +56,7 @@ function formatDate(value: string | null): string {
 }
 
 export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("matterDetailUi");
   const [entries, setEntries] = useState<DocketEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +148,7 @@ export function DossierDetailProcedures({ dossierId }: { dossierId: string }) {
                     <p className="truncate font-medium text-si-ink">{entry.title}</p>
                   </div>
                   <p className="mt-1 text-xs text-si-muted">
-                    {entry.entryType.replace(/_/g, " ")} · {formatDate(entry.eventDate)}
+                    {entry.entryType.replace(/_/g, " ")} · {formatDate(entry.eventDate, intlLocale)}
                     {entry.confidence != null ? ` · ${t("confidence", { value: entry.confidence })}` : ""}
                   </p>
                   {entry.notes ? (

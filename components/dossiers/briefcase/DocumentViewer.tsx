@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -11,6 +12,7 @@ export interface DocumentViewerProps {
 }
 
 export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("miscUi");
   const [document, setDocument] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -113,7 +115,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
           <h2 className="text-lg font-medium text-si-ink">{title}</h2>
           <p className="mt-1 text-sm text-si-muted">{t("typeLabel", { type: docType })}</p>
           <p className="mt-1 text-xs text-si-muted">
-            {t("createdOn", { date: new Date(document.createdAt).toLocaleDateString("fr-CA") })}
+            {t("createdOn", { date: new Date(document.createdAt).toLocaleDateString(intlLocale) })}
           </p>
         </div>
         <div className="flex shrink-0 gap-2">

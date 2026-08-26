@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -16,14 +17,15 @@ interface EmployeeActivityTabProps {
   activities: ActivityRow[];
 }
 
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("fr-CA", {
+function formatDate(d: Date, intlLocale: string): string {
+  return new Intl.DateTimeFormat(intlLocale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(new Date(d));
 }
 
 export function EmployeeActivityTab({ activities }: EmployeeActivityTabProps) {
+  const { intlLocale } = useFormatteurs();
   const t = useTranslations("employees");
 
   return (
@@ -49,7 +51,7 @@ export function EmployeeActivityTab({ activities }: EmployeeActivityTabProps) {
                 {activities.map((row) => (
                   <tr key={row.id} className="safe-zoom-rang border-b border-si-line " >
                     <td className="px-4 py-3 text-si-muted whitespace-nowrap">
-                      {row.performedAt ? formatDate(row.performedAt) : "—"}
+                      {row.performedAt ? formatDate(row.performedAt, intlLocale) : "—"}
                     </td>
                     <td className="px-4 py-3 font-medium">{row.action}</td>
                     <td className="px-4 py-3">

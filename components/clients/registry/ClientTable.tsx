@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -20,7 +21,6 @@ import {
   registreRowClass,
   rangeeOuvrable,
 } from "@/components/ui/registre";
-import { formatCurrency } from "@/lib/utils/format";
 import { toIntlLocale } from "@/lib/i18n/locale";
 import type { ClientStatus } from "@prisma/client";
 import type { ClientSortField, ClientSortOrder } from "@/lib/clients/query";
@@ -86,6 +86,7 @@ export function ClientTable({
   sortOrder = "asc",
 }: ClientTableProps) {
   const searchParams = useSearchParams();
+  const { formatCurrency } = useFormatteurs();
   const router = useRouter();
   const t = useTranslations("clients");
   const tc = useTranslations("common");

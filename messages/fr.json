@@ -72,7 +72,9 @@
     "download": "Télécharger",
     "print": "Imprimer",
     "export": "Exporter",
-    "import": "Importer"
+    "import": "Importer",
+    "issueDateShort": "Émission",
+    "dueDateShort": "Échéance"
   },
   "ui": {
     "back": "Retour",
@@ -819,7 +821,14 @@
     "selectAllDisbursements": "Tout sélectionner (débours)",
     "includeItem": "Inclure",
     "filtersTitle": "Filtres",
-    "byClient": "Par client"
+    "byClient": "Par client",
+    "paginationNone": "Aucune facture",
+    "paginationRange": "{start}–{end} sur {total} facture(s)",
+    "paginationPage": "Page {current} / {total}",
+    "openInvoice": "Ouvrir la facture",
+    "sendReminder": "Relancer",
+    "rowActions": "Actions de la facture {numero}",
+    "clientUnnamed": "Client sans nom"
   },
   "debours": {
     "title": "Débours",

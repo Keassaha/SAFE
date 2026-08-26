@@ -4,11 +4,12 @@ import { canViewBillingTrust } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { getReceivablesAging } from "@/lib/services/finance/receivables-aging";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 export default async function CreancesAgingPage() {
+  const { formatCurrency } = await getFormatteurs();
   const { cabinetId, role } = await requireCabinetAndUser();
   if (!canViewBillingTrust(role as UserRole)) {
     return <div className="p-6"><p className="text-[#B84A3E]">Accès refusé.</p></div>;

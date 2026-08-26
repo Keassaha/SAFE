@@ -430,6 +430,7 @@ function buildHealthCards(
   totalOutstanding: number,
   totalClients: number,
   t: ReturnType<typeof useTranslations>,
+  intlLocale: string,
 ): HealthCard[] {
   const activePercent =
     totalClients > 0 ? Math.round((payload.activeClientsCount / totalClients) * 100) : 0;
@@ -438,7 +439,7 @@ function buildHealthCards(
     {
       key: "activeClients",
       title: t("kpiActiveClients"),
-      value: payload.activeClientsCount.toLocaleString("fr-CA"),
+      value: payload.activeClientsCount.toLocaleString(intlLocale),
       sub: totalClients > 0 ? t("kpiActiveClientsSub", { percent: activePercent }) : undefined,
       href: ACTIVE_CLIENTS_ROUTE,
       icon: UserCheck,
@@ -470,7 +471,7 @@ function buildHealthCards(
   cards.push({
     key: "activeMatters",
     title: t("kpiActiveMatters"),
-    value: payload.activeDossiersCount.toLocaleString("fr-CA"),
+    value: payload.activeDossiersCount.toLocaleString(intlLocale),
     sub:
       payload.dossiersParStatut.en_attente > 0
         ? t("kpiActiveMattersSub", { count: payload.dossiersParStatut.en_attente })
@@ -755,7 +756,7 @@ export function DashboardView({ payload }: DashboardViewProps) {
   const totalClients = payload.activeClientsCount + payload.inactiveClientsCount;
   const actionItems = buildActionItems(payload, trustRisk, intlLocale, t);
   const pipelineColumns = buildPipelineColumns(payload, t);
-  const healthCards = buildHealthCards(payload, trustRisk, totalOutstanding, totalClients, t);
+  const healthCards = buildHealthCards(payload, trustRisk, totalOutstanding, totalClients, t, intlLocale);
 
   return (
     <div className="space-y-6">

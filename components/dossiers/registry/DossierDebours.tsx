@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -10,7 +11,6 @@ import {
   createDeboursDossier,
   deleteDeboursDossierForm,
 } from "@/lib/actions/debours";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
 import { Pencil, Trash2, FileText } from "lucide-react";
@@ -44,6 +44,7 @@ export function DossierDebours({
   deboursTypes,
 }: DossierDeboursProps) {
   const t = useTranslations("matters");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
 
   const [showAdd, setShowAdd] = useState(false);

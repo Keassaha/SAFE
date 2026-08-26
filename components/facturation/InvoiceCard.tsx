@@ -1,9 +1,9 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import type { Invoice } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 
@@ -18,6 +18,7 @@ interface InvoiceCardProps {
 
 export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
   const t = useTranslations("billingCompUi");
+  const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const getStatusColor = () => {
     switch (status) {
       case "brouillon":

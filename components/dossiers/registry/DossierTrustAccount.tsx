@@ -1,15 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
 
 interface DossierTrustAccountProps {
   soldeFiducieDossier: number | null;
@@ -22,6 +15,7 @@ export function DossierTrustAccount({
   autoriserPaiementFiducie,
   clientTrustLink,
 }: DossierTrustAccountProps) {
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("matters");
   const tc = useTranslations("common");
   const solde = soldeFiducieDossier ?? 0;

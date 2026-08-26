@@ -7,11 +7,12 @@ import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import { FileText, ChevronRight } from "lucide-react";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 export default async function FacturationVerificationPage() {
+  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const t = await getTranslations("billingUi");
   const { cabinetId } = await requirePageAccess(canViewBilling);
 

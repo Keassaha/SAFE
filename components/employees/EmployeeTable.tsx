@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -67,17 +68,8 @@ interface EmployeeTableProps {
   sortOrder?: EmployeeSortOrder;
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("fr-CA", {
+function formatDate(d: Date, intlLocale: string): string {
+  return new Intl.DateTimeFormat(intlLocale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -123,6 +115,7 @@ export function EmployeeTable({
   sortBy = "fullName",
   sortOrder = "asc",
 }: EmployeeTableProps) {
+  const { formatCurrency, intlLocale } = useFormatteurs();
   const t = useTranslations("employees");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
@@ -182,7 +175,7 @@ export function EmployeeTable({
                 {formatCurrency(row.hourlyRate)}
               </span>
               {accessBadge(row)}
-              <span className="ml-auto">{formatDate(row.hireDate)}</span>
+              <span className="ml-auto">{formatDate(row.hireDate, intlLocale)}</span>
             </div>
           </Link>
         ))}
@@ -300,7 +293,7 @@ export function EmployeeTable({
                 </td>
                 <td className="px-3 py-2.5 align-middle">{accessBadge(row)}</td>
                 <td className="px-3 py-2.5 text-right align-middle text-[12px] text-si-muted">
-                  {formatDate(row.hireDate)}
+                  {formatDate(row.hireDate, intlLocale)}
                 </td>
                 <td className="px-3 py-2.5 text-right align-middle">
                   <EmployeeRowMenu

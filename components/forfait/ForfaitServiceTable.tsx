@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -6,7 +7,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { formatCurrency } from "@/lib/utils/format";
 import { Plus, Pencil, Check, X } from "lucide-react";
 
 interface ForfaitService {
@@ -25,6 +25,7 @@ interface EditState { id: string; field: string; value: string }
 
 export function ForfaitServiceTable() {
   const t = useTranslations("temps.taskRegister.feeSchedule");
+  const { formatCurrency } = useFormatteurs();
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [editState, setEditState] = useState<EditState | null>(null);

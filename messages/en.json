@@ -72,7 +72,9 @@
     "download": "Download",
     "print": "Print",
     "export": "Export",
-    "import": "Import"
+    "import": "Import",
+    "issueDateShort": "Issued",
+    "dueDateShort": "Due"
   },
   "ui": {
     "back": "Back",
@@ -819,7 +821,14 @@
     "selectAllDisbursements": "Select all (disbursements)",
     "includeItem": "Include",
     "filtersTitle": "Filters",
-    "byClient": "By client"
+    "byClient": "By client",
+    "paginationNone": "No invoices",
+    "paginationRange": "{start}–{end} of {total} invoice(s)",
+    "paginationPage": "Page {current} / {total}",
+    "openInvoice": "Open invoice",
+    "sendReminder": "Send reminder",
+    "rowActions": "Actions for invoice {numero}",
+    "clientUnnamed": "Unnamed client"
   },
   "debours": {
     "title": "Disbursements",

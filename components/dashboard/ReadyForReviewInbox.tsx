@@ -13,16 +13,17 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { CheckCircle2, ChevronRight } from "lucide-react";
-import { formatDate } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import type { ReadyForReviewSignalRow } from "@/lib/services/ready-for-review-service";
 import { MarkSignalReadButton } from "./MarkSignalReadButton";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 interface ReadyForReviewInboxProps {
   signals: ReadyForReviewSignalRow[];
 }
 
-export function ReadyForReviewInbox({ signals }: ReadyForReviewInboxProps) {
+export async function ReadyForReviewInbox({ signals }: ReadyForReviewInboxProps) {
+  const { formatDate } = await getFormatteurs();
   // Si aucun signal, on n'affiche pas le bloc — pas d'inbox vide bruyante.
   if (signals.length === 0) return null;
 

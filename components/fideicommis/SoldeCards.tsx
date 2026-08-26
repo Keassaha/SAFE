@@ -1,8 +1,8 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/utils/format";
 import { useQuery } from "@tanstack/react-query";
 import { Wallet, TrendingUp, TrendingDown, FolderOpen, AlertTriangle } from "lucide-react";
 
@@ -13,6 +13,7 @@ interface SoldeCardsProps {
 
 export function SoldeCards({ cabinetId, seuilBas = 500 }: SoldeCardsProps) {
   const tf = useTranslations("fideicommis");
+  const { formatCurrency } = useFormatteurs();
   const { data, isLoading } = useQuery({
     queryKey: ["fideicommis", "summary"],
     queryFn: async () => {

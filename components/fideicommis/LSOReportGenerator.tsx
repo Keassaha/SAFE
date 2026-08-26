@@ -1,4 +1,5 @@
 "use client";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatCurrency } from "@/lib/utils/format";
 import { FileText, Download, Eye } from "lucide-react";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
 import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
@@ -67,6 +67,7 @@ export function LSOReportGenerator({
   canCertify?: boolean;
 }) {
   const queryClient = useQueryClient();
+  const { formatCurrency } = useFormatteurs();
   const copy = getTrustRegulatorCopy(useCabinetProvince());
   const [periode, setPeriode] = useState("");
   const [reportType, setReportType] = useState<"monthly" | "quarterly" | "annual">("monthly");

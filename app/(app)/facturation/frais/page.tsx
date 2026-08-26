@@ -4,13 +4,14 @@ import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
 import type { DeboursStatut } from "@prisma/client";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 
 export default async function FacturationFraisPage() {
+  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const t = await getTranslations("billingUi");
   const { cabinetId, role } = await requirePageAccess(canViewBilling);
   const canWrite = canManageInvoices(role);

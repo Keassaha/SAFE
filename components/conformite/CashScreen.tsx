@@ -1,4 +1,5 @@
 "use client";
+import { useMoney } from "./primitives";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,6 @@ import {
   Table,
   day,
   inputClass,
-  money,
 } from "./primitives";
 
 /**
@@ -74,6 +74,7 @@ interface Props {
 
 export function CashScreen({ province, canEdit, threshold, receipts, pending }: Props) {
   const router = useRouter();
+  const money = useMoney();
   const [pendingTx, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
