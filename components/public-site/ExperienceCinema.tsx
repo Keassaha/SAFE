@@ -135,13 +135,13 @@ const CSS = `
        Leur titre fait 26 px et n'a AUCUN sous-texte : tout le reste de leur
        hero est a 16 px. Le notre doit encore expliquer ce qu'est SAFE, il
        garde donc douze pixels d'avance sur le leur. */
-    --t-affiche: clamp(23px, 2.1vw, 28px);
+    --t-affiche: clamp(21px, 1.9vw, 26px);
     /* Descendu de 46 px a 33 px le 2026-08-25. Le hero est passe a 38 px au
        cran C3 : un titre de section a 46 px pesait donc PLUS que le titre de
        la page, et la hierarchie disait le contraire de la verite. Il reste
        cinq pixels sous le hero, ce qui suffit tant que les deux ne partagent
        pas la meme fonte. */
-    --t-marque: clamp(20px, 1.8vw, 24px);
+    --t-marque: clamp(19px, 1.7vw, 22px);
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
@@ -447,7 +447,12 @@ const CSS = `
      produit doit etre visible avant le bas du premier ecran. Consequence
      assumee, ecrite plus haut : la scene se joue sur (hauteur - 100vh), donc
      raccourcir accelere la cadence. */
-  .xc #zone-hero { height: 160vh; }
+  /* Raccourcie une seconde fois le 2026-08-25 : 160vh valaient encore 1 440 px
+     sur une vue de 900, soit six cents pixels de defilement APRES que
+     l'application soit entierement visible. Sans animation d'ouverture, cette
+     course ne sert plus rien : elle etait la reserve dont l'assemblage avait
+     besoin. 118vh laissent la fenetre se poser puis rendent la main. */
+  .xc #zone-hero { height: 118vh; }
   .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* ── L'application, vivante ────────────────────────────────────────────────
      Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
@@ -508,6 +513,19 @@ const CSS = `
      peinte hors de la boite. L'elevation vient donc du liseré clair interieur
      et de l'ombre de contact, tous deux a l'interieur du masque, et l'ombre
      longue est portee par le CADRE parent, qui n'est pas masque. */
+  /* Le cadre rentre dans la colonne de la page (demande CEO du 2026-08-26).
+     Il occupait toute la largeur de la fenetre, donc l'application commencait
+     au bord de l'ecran quand le titre commencait a 140. Il prend le meme
+     rembourrage que les sections : un seul calcul, un seul bord. */
+  /* Le cadre rentre dans la colonne de la page (demande CEO du 2026-08-26).
+     Il occupait toute la largeur de la fenetre, donc l'application commencait
+     au bord de l'ecran quand le titre commencait a 140.
+
+     C'est une CONTRAINTE de boite et non un rembourrage. Le script mesure la
+     largeur du cadre pour dimensionner l'extrait : un rembourrage laissait la
+     boite a 1440, l'extrait etait donc calcule pour 1440 puis pousse vers la
+     droite, et il debordait. Une largeur maximale donne au script la bonne
+     mesure des le montage. */
   .xc #hero-cadre {
     filter: drop-shadow(0 28px 64px rgb(var(--si-line-ink-rgb) / 0.30));
   }
@@ -875,7 +893,9 @@ const CSS = `
        C'est le cran le plus serre des quatre. A cette valeur certaines paires
        se touchent presque, « ti » de « tient » en premier. Signale, assume. */
     line-height: 1.02;
-    letter-spacing: -0.042em;
+    /* -0.024 em et non -0.042 depuis que SAFE Grotesk porte le resserrement
+       DANS son fichier, 9/1000 d'em par cote. Les deux s'additionnaient. */
+    letter-spacing: -0.024em;
     /* La mesure suit la phrase. Elle valait 13,4ch quand le titre disait
        « SAFE tient votre cabinet ensemble » (34 caracteres) ; la phrase en
        porte 65 depuis qu'elle nomme la categorie, et 13,4ch la cassait en
@@ -1889,9 +1909,14 @@ const CSS = `
      ajoutait un troisieme plan qui ne disait rien de plus : le contour de la
      fenetre et son fondu suffisent a dire que ce rectangle est un logiciel.
      Il reste le debordement, qui donne a la scene sa largeur de scene. */
+  /* La scene ne deborde plus de sa colonne (demande CEO du 2026-08-26).
+     Elle etait tiree de 39 px vers l'exterieur a 1440 : les titres, les
+     phrases, les listes et les liens commencaient tous a 140 px, et les
+     fenetres seules a 101. Un bord de plus dans une page qui en compte deja
+     deux, et l'oeil le voit sans savoir le nommer. */
   .xc .scene-produit {
     margin-top: clamp(40px, 6vh, 72px);
-    margin-inline: calc(-1 * clamp(0px, (100vw - var(--page)) * 0.14, 96px));
+    margin-inline: 0;
   }
   .xc .fenetre-produit {
     margin: 0;
@@ -2254,6 +2279,53 @@ const CSS = `
      lue, et sans effet. */
   .xc #nav .links a.en-avant { color: var(--si-ink); }
 
+  /* ── Les objections repliees ──────────────────────────────────────────────
+     L'intitule descend et la reponse monte : c'est l'inverse du reglage
+     habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
+     n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
+     elle qui doit etre confortable. Demande CEO du 2026-08-26. */
+  .xc .objections { margin-top: clamp(28px, 3.6vh, 44px); }
+  .xc .obj {
+    border-top: 1px solid var(--si-line);
+  }
+  .xc .obj:last-child { border-bottom: 1px solid var(--si-line); }
+  .xc .obj summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    padding: 17px 0;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    color: var(--si-ink);
+    cursor: pointer;
+    list-style: none;
+    transition: color 180ms ease;
+  }
+  .xc .obj summary::-webkit-details-marker { display: none; }
+  .xc .obj summary:hover { color: var(--si-body); }
+  /* Le chevron tourne d'un quart de tour a l'ouverture. Il vit dans un « i »
+     et non dans le marqueur natif, que Safari refuse de styler. */
+  .xc .obj summary i {
+    flex: 0 0 auto;
+    width: 8px; height: 8px;
+    border-right: 1.4px solid var(--si-subtle);
+    border-bottom: 1.4px solid var(--si-subtle);
+    transform: rotate(45deg);
+    margin-right: 3px;
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc .obj[open] summary i { transform: rotate(-135deg); }
+  .xc .obj > p {
+    margin: 0;
+    padding: 0 0 20px;
+    max-width: 62ch;
+    font-family: var(--sans);
+    font-size: var(--t-corps);
+    line-height: 1.66;
+    color: var(--si-body);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .xc .obj summary i { transition: none; }
+  }
+
   .xc .trio {
     display: grid; grid-template-columns: repeat(3, 1fr);
     gap: clamp(12px, 1.8vw, 20px);
@@ -2391,23 +2463,6 @@ const CSS = `
   .xc .duo-fenetres .fenetre-produit { margin: 0; }
   @media (max-width: 900px) { .xc .duo-fenetres { grid-template-columns: 1fr; } }
 
-  /* ── Les cinq endroits, nommes puis resolus ──────────────────────────────
-     La phrase devient un objet qu'on lit d'un coup d'oeil. Les pastilles sont
-     POINTILLEES tant que le travail est disperse, et la derniere est pleine :
-     la resolution se voit avant d'etre lue. */
-  .xc .pastilles {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-    margin-top: clamp(34px, 4.4vw, 52px);
-  }
-  .xc .pastilles span {
-    font-family: var(--mono);
-    font-size: var(--t-detail);
-    color: var(--si-muted);
-    border: 1px dashed rgb(var(--si-line-ink-rgb) / 0.26);
-    border-radius: 999px;
-    padding: 7px 15px;
-  }
-  .xc .pastilles .fleche { border: 0; padding: 7px 4px; color: var(--si-subtle); }
   .xc .pastilles .resolu {
     border: 1px solid rgb(38 101 74 / 0.34);
     background: rgb(38 101 74 / 0.10);
@@ -2788,8 +2843,8 @@ const CSS = `
       /* L'échelle. Sept tailles pour toute la page. */
       /* Descendus avec l'echelle de bureau le 2026-08-25 : a 33 px le titre du
          telephone etait devenu PLUS gros que celui de l'ecran large. */
-      --t-affiche: 25px;   /* le titre d'ouverture, une seule fois par page */
-      --t-marque: 21px;    /* le mot de chapitre : Simple, Fiable, Complet */
+      --t-affiche: 23px;   /* le titre d'ouverture, une seule fois par page */
+      --t-marque: 20px;    /* le mot de chapitre : Simple, Fiable, Complet */
       --t-titre: 23px;     /* le titre d'un chapitre */
       --t-argument: 17px;  /* un point numéroté */
       --t-corps: 14.5px;   /* la prose */
@@ -2896,7 +2951,9 @@ const CSS = `
        Une vue et demie de course, pas quatre comme au large. C'est le minimum
        pour que le rassemblement se lise sans que la page s'allonge d'un
        chapitre entier. */
-    .xc #zone-hero { height: 250svh !important; }
+    /* Au pouce aussi : 250svh etaient la course de l'assemblage, eteint depuis.
+       Ce qui reste a parcourir est la hauteur du titre et de la fenetre. */
+    .xc #zone-hero { height: 132svh !important; }
     .xc #zone-hero .pin {
       position: sticky;
       top: 0;
@@ -2933,26 +2990,27 @@ const CSS = `
       /* La hauteur et le retrait haut sont repris par le script en fin de
          course, quand le texte s'efface pour laisser voir l'application
          entière, bord bas compris. */
-      /* Le cadre n'existe pas encore au départ.
+      /* ── Le cadre redevient un cadre (2026-08-25) ─────────────────────────
+         Tout ce bloc etait ecrit POUR l'assemblage : le cadre naissait
+         invisible, « --cadre-a » monte de zero a un par le script pendant que
+         les feuilles se rangent, sans bord droit ni bord bas, et un fondu
+         horizontal eteignait sa droite pour qu'il ait l'air de deriver depuis
+         la gauche.
 
-         Tant que les feuilles dérivent, il n'y a pas de logiciel : il y a des
-         papiers sur un bureau. Une surface blanche déjà posée derrière eux
-         annonçait la fin avant le début, et se lisait comme un trou clair
-         dans la page (retour CEO du 18 août 2026).
+         L'assemblage est eteint. « --cadre-a » restait donc a ZERO : plus de
+         filet, plus de fond, et le fondu a 72 % coupait la fenetre en plein
+         milieu d'une carte sombre, qui se dissolvait dans le blanc a droite.
+         Un decor d'animation survit rarement a l'animation.
 
-         La page reste donc entièrement grise pendant la dérive. Le blanc, le
-         filet et l'arrondi arrivent AVEC le rassemblement : c'est le script
-         qui monte --cadre-a de zéro à un pendant que les feuilles se rangent,
-         de sorte que la fenêtre se matérialise en même temps que son contenu. */
-      --cadre-a: 0;
-      border: 1px solid rgb(var(--si-line-ink-rgb) / calc(0.14 * var(--cadre-a)));
-      border-right: 0;
-      border-bottom: 0;
-      border-radius: 12px 0 0 0;
-      background: rgb(var(--si-surface-rgb) / var(--cadre-a));
+         Le cadre est donc pose, entier et tout de suite : quatre bords, quatre
+         coins, aucun fondu horizontal. Le fondu du BAS reste, porte par
+         « #hero-app.live » : il dit que l'ecran continue sous le pli, ce qui
+         est vrai. Le fondu de droite disait que l'ecran s'efface, ce qui ne
+         l'etait pas. */
+      border: 1px solid rgb(var(--si-line-ink-rgb) / 0.16);
+      border-radius: 12px;
+      background: var(--si-surface);
       overflow: hidden;
-      -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
-      mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
     }
     /* L'application derrière la fenêtre : agrandie, ancrée sur la colonne de
        droite du tableau de bord, celle qui porte le travail à traiter.
@@ -2982,7 +3040,9 @@ const CSS = `
       margin-top: 16px;
       font-size: var(--t-affiche);
       line-height: 1.02;
-      letter-spacing: -0.042em;
+      /* -0.024 em et non -0.042 depuis que SAFE Grotesk porte le resserrement
+       DANS son fichier, 9/1000 d'em par cote. Les deux s'additionnaient. */
+    letter-spacing: -0.024em;
       max-width: none;
     }
     /* La barre range son action dans le menu : ce bloc porte donc la seule
@@ -3666,7 +3726,11 @@ function runExperience(root: HTMLElement): () => void {
   const heroCanvas = $("hero-canvas") as HTMLCanvasElement;
   const heroShot = $("hero-app");
   const heroCopy = $("hero-copy");
-  const heroCaption = $("hero-caption");
+  /* La legende a ete retiree du balisage le 2026-08-26. « $ » porte une
+     assertion non nulle : sans ce « ?. » sur chaque usage, le script levait une
+     exception et la page entiere restait blanche, typecheck vert. C'est la
+     deuxieme fois qu'un element retire fait tomber la scene par ce chemin. */
+  const heroCaption = root.querySelector<HTMLElement>("#hero-caption");
   const heroHint = $("hero-hint");
 
   /* Format du cadre.
@@ -4009,8 +4073,10 @@ function runExperience(root: HTMLElement): () => void {
        elle intercepterait les clics destinés au menu de l'application, comme le
        faisait le titre lui-même avant d'être neutralisé. */
     heroCopy.style.visibility = copyA > 0.2 ? "visible" : "hidden";
-    heroCaption.style.opacity = String(phase(p, 0.70, 0.78));
-    heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.70, 0.78)) * 12) + "px)";
+    if (heroCaption) {
+      heroCaption.style.opacity = String(phase(p, 0.70, 0.78));
+      heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.70, 0.78)) * 12) + "px)";
+    }
     heroHint.style.opacity = String(p < 0.04 ? 1 : 0);
   }
 
@@ -4069,23 +4135,41 @@ function runExperience(root: HTMLElement): () => void {
       /* L'application est navigable au doigt comme elle l'est à la souris :
          la légende dit vrai, elle reste. */
       heroShot.classList.add("live");
-      heroCaption.style.display = "";
+      if (heroCaption) heroCaption.style.display = "";
       /* L'indication de défilement appartient à l'assemblage : c'est lui qui
          l'efface quand elle a servi. */
       return;
     }
 
-    const scale = Math.min((W - marge * 2) / FRAME_W, 1);
+    /* ── L'extrait s'aligne sur le TITRE ──────────────────────────────────
+       Il etait centre sur la largeur du volet, avec une marge propre de 6 %
+       plafonnee a 84 px. Le titre, lui, commence au bord de la colonne de la
+       page, a 140 px sur un ecran de 1440. Deux bords gauches a 56 px l'un de
+       l'autre dans le premier ecran, et l'oeil le voit sans savoir le nommer.
+       Demande CEO du 2026-08-26.
+
+       On lit le bord du TITRE plutot que de recalculer la colonne : la mesure
+       de la page vit dans la feuille de style, et la recopier ici creerait
+       deux verites a accorder. Repli sur l'ancienne marge si le titre n'est
+       pas encore mesurable. */
+    const bordTitre = Math.round(
+      (heroCopy.querySelector("h1") ?? heroCopy).getBoundingClientRect().left -
+        pin.getBoundingClientRect().left,
+    );
+    const gauche = bordTitre > 0 ? bordTitre : marge;
+    const scale = Math.min((W - gauche * 2) / FRAME_W, 1);
     const haut = heroCopy.offsetTop + heroCopy.offsetHeight + 52;
-    heroShot.style.left = ((W - FRAME_W * scale) / 2) + "px";
+    heroShot.style.left = gauche + "px";
     heroShot.style.top = haut + "px";
     heroShot.style.transform = "scale(" + scale + ")";
     heroShot.style.borderRadius = (14 / scale) + "px";
     heroShot.style.opacity = "1";
     heroShot.classList.add("live");
 
-    heroCaption.style.opacity = "1";
-    heroCaption.style.transform = "none";
+    if (heroCaption) {
+      heroCaption.style.opacity = "1";
+      heroCaption.style.transform = "none";
+    }
     heroHint.style.opacity = "0";
     pin.style.minHeight = (haut + FRAME_H * scale + 108) + "px";
   }
@@ -4572,6 +4656,12 @@ function runExperience(root: HTMLElement): () => void {
          ne voit jamais ni un logo seul sur du vide, ni une fenêtre vide. */
       heroShot.style.opacity = String(easeInOut(phase(p, 0.44, 0.66)));
       heroShot.classList.toggle("live", fini);
+      /* Plus personne ne lit « --cadre-a » depuis le 2026-08-25 : la feuille du
+         telephone pose le cadre entier des le depart, l'assemblage etant
+         eteint. La ligne reste pour que la mecanique soit complete si le
+         drapeau est rallume, mais il faudra alors REMETTRE dans la feuille le
+         cadre qui nait invisible. « Rallumer suffit a tout rendre » ne vaut
+         plus tout a fait ici, et c'est ecrit plutot que suppose. */
       cadre!.style.setProperty("--cadre-a", String(easeInOut(phase(p, 0.38, 0.62))));
 
       /* Le texte a dit ce qu'il avait à dire : il s'efface et la fenêtre prend
@@ -4714,7 +4804,7 @@ function runExperience(root: HTMLElement): () => void {
        figée à la position calculée pour l'autre largeur. On rend chaque élément
        à sa feuille de style. */
     [heroCanvas, heroCopy, heroShot, heroCaption, heroHint].forEach((el) => {
-      el.removeAttribute("style");
+      el?.removeAttribute("style");
     });
     heroZone.querySelector<HTMLElement>(".pin")?.style.removeProperty("min-height");
     window.removeEventListener("pointermove", onPointerMove);
@@ -4768,22 +4858,14 @@ const LIENS_NAV: [string, string][] = [
   [ROUTES.aPropos, "À propos"],
 ];
 
-/* Les cinq registres du problème. Ce ne sont pas cinq fonctionnalités : c'est
-   la liste de ce qu'un cabinet tient déjà, ailleurs, séparément. Le libellé de
-   droite nomme l'endroit, pas un produit : personne ici ne sait dans quel
-   logiciel travaille le cabinet qui lit la page. */
-/* Les cinq endroits ou vit un meme dossier, nommes comme un cabinet les nomme.
-   La version precedente decrivait le probleme en cinq phrases completes, avec
-   un numero et une etiquette de module pour chacune : elle demandait cinq
-   lectures pour dire une seule chose. Ce sont maintenant cinq noms, et la
-   rangee se lit d'un coup d'oeil. */
-const ENDROITS: string[] = [
-  "la boîte courriel",
-  "le chiffrier",
-  "le dossier papier",
-  "le comptable",
-  "la mémoire de l'adjointe",
-];
+/* La rangee des cinq endroits a ete retiree le 2026-08-25, demande CEO, sur
+   les deux formats. Elle nommait la boite courriel, le chiffrier, le dossier
+   papier, le comptable et la memoire de l'adjointe, puis les resolvait en
+   « un seul dossier ». La fiche qui suit dit la meme chose en la MONTRANT, et
+   deux demonstrations de la meme idee affaiblissent la premiere.
+
+   Les libelles partent avec elle : une constante que plus rien ne lit est un
+   piege pour la prochaine lecture. */
 
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
    ce que le cabinet doit préparer : c'est la différence entre un
@@ -4969,12 +5051,11 @@ export default function ExperienceCinema() {
               </a>
             </div>
           </div>
-          {/* La légende ne dit pas « capture réelle » : le cadre contient
-             l'application elle-même. Annoncer une image quand on peut cliquer
-             dedans priverait le visiteur du geste. */}
-          <p id="hero-caption">
-            Un extrait navigable de SAFE. Ouvrez un menu et circulez : l&apos;écran répond.
-          </p>
+          {/* La legende de l'extrait est retiree le 2026-08-26, demande CEO. Elle
+              disait « Un extrait navigable de SAFE. Ouvrez un menu et circulez :
+              l'ecran repond. » La bande d'etat de la fenetre le dit deja, et une
+              page qui explique comment se servir d'elle-meme avoue qu'elle n'est
+              pas evidente. */}
           <p id="hero-hint">
             Faites défiler vers le bas
             <i aria-hidden />
@@ -5033,17 +5114,6 @@ export default function ExperienceCinema() {
               facturation et fait reposer les suivis sur la mémoire de votre équipe.
             </p>
 
-          </div>
-
-          {/* Les cinq endroits, nommes puis resolus. La liste numerotee qui
-              tenait ici demandait cinq lectures ; la rangee de pastilles se
-              lit d'un coup d'oeil, et la derniere, pleine, porte la reponse. */}
-          <div className="pastilles">
-            {ENDROITS.map((e) => (
-              <span key={e}>{e}</span>
-            ))}
-            <span className="fleche" aria-hidden>&rarr;</span>
-            <span className="resolu">un seul dossier</span>
           </div>
 
           {/* ── L'interieur d'un dossier ────────────────────────────────────
@@ -5770,11 +5840,16 @@ export default function ExperienceCinema() {
          écart à la première facture. */}
       <section className="recit" id="tarifs">
         <div className="inner">
+          {/* « Simple des le depart » ne disait pas de quoi la section parle :
+              on peut etre simple des le depart pour a peu pres tout. Le titre
+              nomme maintenant l'action, et la phrase annonce les deux temps
+              qui suivent, le parcours puis les forfaits. Demande CEO du
+              2026-08-26. */}
           <div className="tete">
-            <h2>Simple dès le départ</h2>
+            <h2>Commencer avec SAFE</h2>
             <p className="dire">
-              <b>Configuration comprise.</b> Le système est adapté à votre pratique avant la mise
-              en service.
+              <b>Trois temps, puis un forfait.</b> La configuration est comprise : le système est
+              adapté à votre pratique avant la mise en service.
             </p>
           </div>
           {/* L'implantation passe AVANT les forfaits. On ne choisit pas un
@@ -5828,19 +5903,35 @@ export default function ExperienceCinema() {
       {/* ── 08 · Les questions ──────────────────────────────────────────── */}
       <section className="recit" id="questions">
         <div className="inner">
+          {/* ── Vos objections ─────────────────────────────────────────────
+              Le titre disait « Avant de nous parler », ce qui annonce une
+              formalite. Un avocat qui lit cette page n'a pas des questions, il
+              a des OBJECTIONS, et les nommer ainsi vaut mieux que de les
+              deguiser. Demande CEO du 2026-08-26.
+
+              Chaque objection se replie. On voit huit intitules au lieu de
+              huit paragraphes, donc la section tient dans un ecran, et on
+              n'ouvre que ce qui nous concerne.
+
+              « details » et « summary » plutot qu'un etat React : le repli
+              fonctionne sans JavaScript, la recherche interne du navigateur
+              trouve le texte replie, et le clavier le pilote sans qu'on ait
+              rien a ecrire. */}
           <div className="tete">
-            <h2>Avant de nous parler</h2>
+            <h2>Vos objections</h2>
             <p className="dire">
-              <b>Les questions qu&apos;on nous pose le plus.</b> Les autres se répondent en
-              rencontre.
+              <b>Les questions fréquentes.</b> Ouvrez celle qui vous concerne.
             </p>
           </div>
-          <div className="liste-q">
+          <div className="objections">
             {QUESTIONS.map(([q, r]) => (
-              <div className="q" key={q}>
-                <h3>{q}</h3>
+              <details className="obj" key={q}>
+                <summary>
+                  {q}
+                  <i aria-hidden />
+                </summary>
                 <p>{r}</p>
-              </div>
+              </details>
             ))}
           </div>
           <a className="more" href={ROUTES.faq}>Lire toutes les questions →</a>

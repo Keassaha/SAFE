@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { getServerSession } from "next-auth";
@@ -11,6 +11,34 @@ import { PaletteStyles } from "@/components/ds/PaletteStyles";
 
 import { authOptions } from "@/lib/auth";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
+
+/**
+ * SAFE Grotesk, la fonte de la maison.
+ *
+ * Forgee a partir de Geist, sous SIL Open Font License 1.1 sans nom reserve,
+ * par scripts/forger-safe-grotesk.mjs. Trois retouches, toutes mesurees :
+ * hauteur de capitale a 718 milliemes d'em, oeil du x a 540, jambage
+ * descendant a 185. Le resserrement de 9/1000 par cote vit dans le fichier et
+ * non dans les feuilles de style.
+ *
+ * Elle prend la variable de Geist, « --font-geist-sans ». Tout le site et
+ * toute l'application la lisent deja par ce nom : la bascule ne demande donc
+ * aucune modification ailleurs, et revenir en arriere se fait ici.
+ *
+ * Geist n'est plus importe du tout : un import qu'on n'applique pas ne charge
+ * rien et ne sert de repli a personne. Le repli est declare ci-dessous, ce
+ * sont les fontes du systeme. GeistMono, lui, est intact.
+ */
+const safeGrotesk = localFont({
+  src: [
+    { path: "../public/fonts/safe-grotesk/SAFEGrotesk-Regular.woff", weight: "400", style: "normal" },
+    { path: "../public/fonts/safe-grotesk/SAFEGrotesk-Medium.woff", weight: "500", style: "normal" },
+    { path: "../public/fonts/safe-grotesk/SAFEGrotesk-SemiBold.woff", weight: "600", style: "normal" },
+  ],
+  variable: "--font-geist-sans",
+  display: "swap",
+  fallback: ["-apple-system", "Segoe UI", "sans-serif"],
+});
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -77,7 +105,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
+      className={`${safeGrotesk.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
     >
       {/* Le fond de secours du document suit le canevas de la palette. Il servait
           un blanc chaud sous une interface froide, visible partout où une page

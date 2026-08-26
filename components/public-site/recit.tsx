@@ -71,7 +71,7 @@ export function jetonsRecit(portee: string): string {
        prenait « --t-marque », la mesure des titres de SECTION, et pesait donc
        exactement autant qu'eux. Il reprend du service au cran C3, aligne sur
        l'accueil. */
-    --t-affiche: clamp(23px, 2.1vw, 28px);
+    --t-affiche: clamp(21px, 1.9vw, 26px);
     /* Descendu le 2026-08-24 avec l'affiche : l'echelle entiere pesait trop
        lourd. L'ECART entre l'affiche et la marque est conserve, c'est lui qui
        dit lequel des deux est le heros de la page. */
@@ -80,13 +80,13 @@ export function jetonsRecit(portee: string): string {
        la page, et la hierarchie disait le contraire de la verite. Il reste
        cinq pixels sous le hero, ce qui suffit tant que les deux ne partagent
        pas la meme fonte. */
-    --t-marque: clamp(20px, 1.8vw, 24px);
+    --t-marque: clamp(19px, 1.7vw, 22px);
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui le développe */
     /* Le titre d'un CHAPITRE. Il existe parce qu'une page qui raconte a besoin
        de trois niveaux, pas deux : la page, le chapitre, la phrase. Sans lui,
        un titre de chapitre pesait exactement autant que le titre de la page,
        et rien ne disait ou on se trouvait dans l'histoire. */
-    --t-chapitre: clamp(20px, 1.8vw, 24px);
+    --t-chapitre: clamp(19px, 1.7vw, 22px);
     /* Le rembourrage d'une section de RECIT. La moitie de celui d'une section
        de produit, parce qu'un chapitre n'a pas de fenetre a faire respirer.
 
@@ -163,7 +163,9 @@ export function reglesRecit(p: string): string {
     font-size: var(--t-affiche);
     /* Meme cran que l'accueil, C3. Voir la note dans ExperienceCinema.tsx. */
     line-height: 1.02;
-    letter-spacing: -0.042em;
+    /* -0.024 em et non -0.042 depuis que SAFE Grotesk porte le resserrement
+       DANS son fichier, 9/1000 d'em par cote. Les deux s'additionnaient. */
+    letter-spacing: -0.024em;
     max-width: 26ch;
   }
   ${p} .recit.ouverture h1 em { font-style: normal; color: var(--si-brand-green); }
