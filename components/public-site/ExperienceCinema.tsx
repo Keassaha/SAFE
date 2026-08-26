@@ -2604,31 +2604,14 @@ const CSS = `
      Deux points de vue de même poids, séparés par un filet vertical. La
      composition change volontairement de celle de la suite : ici, aucun des
      deux ne domine, et c'est le propos. */
-  /* La tete de cette section n'est PAS celle des autres. Partout ailleurs le
-     titre tient la colonne de gauche et sa phrase celle de droite, a la meme
-     hauteur : c'est le contrat du site, et il vaut quand un objet suit dessous
-     sur toute la largeur. Ici deux cartes suivent, et le contrat laissait le
-     titre suspendu au-dessus d'un vide avec ses arguments deux ecrans plus
-     bas. Le titre prend donc toute la largeur, la phrase se pose dessous, et
-     les cartes commencent tout de suite. */
-  .xc .tete-large h2 {
-    font-family: var(--sans);
-    font-size: var(--t-marque);
-    line-height: 1.12;
-    letter-spacing: -0.018em;
-    color: var(--si-ink);
-    max-width: 22ch;
-  }
-  .xc .tete-large .dire {
-    margin-top: 14px;
-    max-width: 56ch;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.55;
-    color: var(--si-muted);
-  }
-  .xc .tete-large .dire b { font-weight: 400; color: var(--si-ink); }
+  /* La tete reste celle de TOUTES les sections : le titre a gauche, sa phrase
+     a droite, a la meme hauteur. Regle CEO du 2026-08-26, apres que j'aie
+     essaye de sortir cette seule section du contrat. Une section qui invente
+     sa propre tete casse la colonne que les autres tiennent.
 
+     Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
+     qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
+     lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
   .xc .deux-vues {
     margin-top: clamp(32px, 4.4vh, 52px);
     display: grid;
@@ -5737,19 +5720,23 @@ export default function ExperienceCinema() {
          Deux points de vue, jamais un seul : c'est l'adjointe qui tient le
          cabinet en mouvement et l'avocate qui décide.
 
-         La composition change le 2026-08-26, sur demande du CEO : « qu'on
-         sente le titre et qu'on voie l'argumentation ». Le titre et sa phrase
-         restaient a la tete de section, puis DEUX ECRANS DE VIDE separaient
-         cette phrase des deux arguments, poses tout en bas en petit gris.
-         Le titre ne portait plus rien et l'argument arrivait trop tard.
+         Le CEO demandait le 2026-08-26 « qu'on sente le titre et qu'on voie
+         l'argumentation ». J'avais repondu en sortant cette section du contrat
+         du site : titre pleine largeur, phrase dessous. C'etait la mauvaise
+         reponse, et il l'a corrigee le jour meme : LE TITRE ET SON SOUS-TITRE
+         RESTENT DE PART ET D'AUTRE, dans CHAQUE section. Une section qui
+         invente sa propre tete casse la colonne que toutes les autres tiennent,
+         et le lecteur perd le repere qui lui dit qu'un chapitre commence.
 
-         Le titre monte donc au-dessus, seul, sur toute la largeur, et chaque
-         point de vue devient une carte : sa photographie, son role, sa phrase.
-         L'image dit de qui on parle avant qu'on ait lu le libelle, ce que
-         deux colonnes de texte separees par un filet ne faisaient pas. */}
+         Ce qui separait vraiment le titre de l'argument, ce n'etait pas la
+         tete : c'etaient deux ecrans de vide, puis deux colonnes de petit gris
+         tout en bas. C'est cela qui est corrige. Chaque point de vue devient
+         une carte, sa photographie, son role, sa phrase, et les cartes
+         commencent tout de suite sous la tete. L'image dit de qui on parle
+         avant qu'on ait lu le libelle. */}
       <section className="recit" id="equipe">
         <div className="inner">
-          <div className="tete-large">
+          <div className="tete">
             <h2>SAFE soutient l&apos;équipe qui tient le cabinet</h2>
             <p className="dire">
               <b>SAFE ne remplace pas l&apos;équipe.</b> Il lui donne un système commun pour
