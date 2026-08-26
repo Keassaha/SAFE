@@ -168,7 +168,7 @@ export function TimeEntriesTable({
                       <button
                         type="button"
                         onClick={() => setEditId(entry.id)}
-                        className="block w-full rounded-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
+                        className="block w-full rounded-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/30"
                       >
                         <span className="line-clamp-2 leading-snug">
                           {entry.description ?? "—"}

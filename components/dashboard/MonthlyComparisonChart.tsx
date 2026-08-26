@@ -88,8 +88,8 @@ export function MonthlyComparisonChart({ rows }: MonthlyComparisonChartProps) {
             >
               <defs>
                 <linearGradient id="invoicedGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--si-forest)" stopOpacity={0.95} />
-                  <stop offset="100%" stopColor="var(--si-forest)" stopOpacity={0.75} />
+                  <stop offset="0%" stopColor="var(--si-ink-strong)" stopOpacity={0.95} />
+                  <stop offset="100%" stopColor="var(--si-ink-strong)" stopOpacity={0.75} />
                 </linearGradient>
                 <linearGradient id="collectedGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#F4A045" stopOpacity={0.95} />

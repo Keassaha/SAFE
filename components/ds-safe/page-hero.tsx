@@ -64,7 +64,7 @@ export function HeroButtonPrimary({
   return (
     <button
       className={cn(
-        "inline-flex items-center gap-2 rounded-lg bg-si-surface px-4 py-2 text-sm font-medium text-si-forest hover:bg-white transition-colors",
+        "inline-flex items-center gap-2 rounded-lg bg-si-surface px-4 py-2 text-sm font-medium text-si-ink-strong hover:bg-white transition-colors",
         className,
       )}
       {...props}

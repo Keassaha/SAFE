@@ -102,7 +102,7 @@ export function RegistersScreen({
                     type="button"
                     onClick={() => go(r.id, periode)}
                     className={`flex w-full flex-col gap-0.5 px-3 py-2.5 text-left transition-colors ${
-                      actif ? "bg-si-forest/[0.05]" : "hover:bg-si-forest/[0.03]"
+                      actif ? "bg-si-ink-strong/[0.05]" : "hover:bg-si-ink-strong/[0.03]"
                     }`}
                   >
                     <span className="text-sm text-[var(--si-ink)]">{r.titleFr}</span>
@@ -161,13 +161,13 @@ export function RegistersScreen({
                       href={exportUrl("html")}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded-lg bg-[var(--si-forest)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-si-forest-soft"
+                      className="rounded-lg bg-[var(--si-ink-strong)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-si-ink-strong-soft"
                     >
                       Imprimer
                     </a>
                     <a
                       href={exportUrl("csv")}
-                      className="rounded-lg border border-[var(--si-line)] px-3 py-1.5 text-xs text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04]"
+                      className="rounded-lg border border-[var(--si-line)] px-3 py-1.5 text-xs text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04]"
                     >
                       CSV
                     </a>

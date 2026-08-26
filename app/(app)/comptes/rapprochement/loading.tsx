@@ -11,7 +11,7 @@ export default async function RapprochementLoading() {
     <div role="status" aria-live="polite">
       <span className="sr-only">{t("loading")}</span>
       <div aria-hidden className="space-y-6">
-        <div className="rounded-lg bg-si-forest p-8">
+        <div className="rounded-lg bg-si-ink-strong p-8">
           <div className="h-4 w-40 rounded bg-white/15" />
           <div className="mt-4 h-9 w-72 max-w-full rounded bg-white/20" />
           <div className="mt-3 h-4 w-full max-w-xl rounded bg-white/10" />

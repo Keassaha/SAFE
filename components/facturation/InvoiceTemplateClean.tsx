@@ -179,7 +179,7 @@ export function InvoiceTemplateClean({
       style={{ fontFamily: "var(--font-sans)", fontSize: "13px" }}
     >
       {/* Une seule couleur d'accent sur le document. */}
-      <div className="h-1 bg-si-forest" />
+      <div className="h-1 bg-si-ink-strong" />
 
       {/* ── Hero: FACTURE kicker + invoice number + dates ── */}
       <div className="px-10 pt-9 pb-7">
@@ -239,7 +239,7 @@ export function InvoiceTemplateClean({
           </div>
 
           {/* Recipient */}
-          <div className="border-t border-si-forest pt-4">
+          <div className="border-t border-si-ink-strong pt-4">
             <p className={`${kicker} mb-2 text-si-verified`}>{t.billedTo}</p>
             {client ? (
               <>
@@ -418,7 +418,7 @@ export function InvoiceTemplateClean({
             )}
 
             {/* Le total se distingue par un filet, jamais par une tuile colorée. */}
-            <div className="mt-3 flex items-baseline justify-between gap-3 border-t-2 border-si-forest px-1 py-3.5 text-si-ink">
+            <div className="mt-3 flex items-baseline justify-between gap-3 border-t-2 border-si-ink-strong px-1 py-3.5 text-si-ink">
               <span className="font-medium text-[11.5px] uppercase tracking-[0.14em] whitespace-nowrap">
                 {t.total}
               </span>
@@ -448,7 +448,7 @@ export function InvoiceTemplateClean({
       {/* ── Message to client ── */}
       {clientNote && (
         <div className="px-10 pb-6">
-          <div className="border-l-2 border-si-forest bg-si-canvas p-4">
+          <div className="border-l-2 border-si-ink-strong bg-si-canvas p-4">
             <p className={`${kicker} mb-1.5`}>{t.message}</p>
             <p className="text-[12px] italic leading-relaxed text-si-muted">
               {clientNote}

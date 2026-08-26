@@ -31,14 +31,14 @@ export function ClientCases({ cases, clientId }: ClientCasesProps) {
           <div className="flex items-center gap-2">
             <Link
               href={routes.dossierNouveau(clientId)}
-              className="text-sm font-medium text-si-forest hover:underline"
+              className="text-sm font-medium text-si-ink-strong hover:underline"
             >
               {t("newMatter")}
             </Link>
             {cases.length > 0 && (
               <Link
                 href={`${routes.dossiers}?clientId=${clientId}`}
-                className="text-sm font-medium text-si-forest hover:underline"
+                className="text-sm font-medium text-si-ink-strong hover:underline"
               >
                 {t("openMatters")}
               </Link>
@@ -55,7 +55,7 @@ export function ClientCases({ cases, clientId }: ClientCasesProps) {
               <li key={c.id}>
                 <Link
                   href={routes.dossier(c.id)}
-                  className="flex items-center gap-2 text-sm text-si-forest hover:underline"
+                  className="flex items-center gap-2 text-sm text-si-ink-strong hover:underline"
                 >
                   <FolderOpen className="w-4 h-4 shrink-0" />
                   {c.numeroDossier ?? c.reference ?? "—"} — {c.intitule}

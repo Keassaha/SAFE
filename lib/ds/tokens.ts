@@ -140,7 +140,7 @@ export const typography = {
     // UI + body + KPI numbers
     sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
     // Tabular numbers (refs, N° factures, dates)
-    mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+    mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
     // Editorial italic subtitles: "— registre en temps réel",
     //                             "— composition éditoriale"
     serif: ["var(--font-instrument-serif)", "Georgia", "ui-serif", "serif"],

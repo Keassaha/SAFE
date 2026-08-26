@@ -141,7 +141,7 @@ export function DossierDetailFermeture({
     return (
       <div className={`${card} space-y-4`}>
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-si-forest/[0.06] text-si-forest">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-si-ink-strong/[0.06] text-si-ink-strong">
             <FolderClosed className="h-5 w-5" strokeWidth={1.75} aria-hidden />
           </span>
           <div>
@@ -237,7 +237,7 @@ export function DossierDetailFermeture({
                 type="checkbox"
                 checked={ack}
                 onChange={(e) => setAck(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-si-forest"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-si-ink-strong"
               />
               <span>{t("closeAck")}</span>
             </label>

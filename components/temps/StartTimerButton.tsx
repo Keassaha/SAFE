@@ -39,8 +39,8 @@ export function StartTimerButton({
 
   const style =
     variant === "solid"
-      ? { backgroundColor: "var(--si-forest)", color: "#fff", border: "none" }
-      : { backgroundColor: "#fff", color: "var(--si-forest)", border: "1px solid #CDE0D4" };
+      ? { backgroundColor: "var(--si-ink-strong)", color: "#fff", border: "none" }
+      : { backgroundColor: "#fff", color: "var(--si-ink-strong)", border: "1px solid #CDE0D4" };
 
   return (
     <button

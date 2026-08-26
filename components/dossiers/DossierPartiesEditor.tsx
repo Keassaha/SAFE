@@ -125,7 +125,7 @@ export function DossierPartiesEditor({
       {/* Co-clients */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-si-forest" />
+          <Users className="w-4 h-4 text-si-ink-strong" />
           <span className="text-sm font-medium text-si-ink">{t("coClients")}</span>
         </div>
         <p className="text-xs text-si-muted">{t("coClientsHint")}</p>
@@ -188,7 +188,7 @@ export function DossierPartiesEditor({
                 <button
                   type="button"
                   onClick={() => addNew("personne_physique")}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-forest hover:bg-si-canvas transition"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
                 >
                   <Plus className="w-3.5 h-3.5 shrink-0" />
                   {t("createAsIndividual", { name: query.trim() })}
@@ -196,7 +196,7 @@ export function DossierPartiesEditor({
                 <button
                   type="button"
                   onClick={() => addNew("personne_morale")}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-forest hover:bg-si-canvas transition"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
                 >
                   <Plus className="w-3.5 h-3.5 shrink-0" />
                   {t("createAsCompany", { name: query.trim() })}
@@ -261,7 +261,7 @@ export function DossierPartiesEditor({
         <button
           type="button"
           onClick={() => setExternes([...externes, { nomAffiche: "", role: "partie_adverse" }])}
-          className="inline-flex items-center gap-2 text-sm font-medium text-si-forest hover:underline"
+          className="inline-flex items-center gap-2 text-sm font-medium text-si-ink-strong hover:underline"
         >
           <UserPlus className="w-4 h-4" />
           {t("addParty")}

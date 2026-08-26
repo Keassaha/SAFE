@@ -269,7 +269,7 @@ export function FacturePreviewActions({
                     {docs.map((d) => (
                       <li key={d.id}>
                         <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-si-canvas">
-                          <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} className="accent-si-forest" />
+                          <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} className="accent-si-ink-strong" />
                           <span className="flex-1 truncate text-si-ink">{d.titre}</span>
                           {d.statut === "brouillon" ? (
                             <span className="border-l-2 border-status-warning pl-2 text-[10px] font-medium text-status-warning">

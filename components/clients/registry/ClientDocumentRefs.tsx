@@ -64,7 +64,7 @@ export function ClientDocumentRefs({
             <li key={key}>
               <Link
                 href={`${baseDownloadUrl}/${docId}/download`}
-                className="inline-flex items-center gap-2 text-sm text-si-forest hover:underline"
+                className="inline-flex items-center gap-2 text-sm text-si-ink-strong hover:underline"
               >
                 <FileText className="w-4 h-4 shrink-0" />
                 {LABELS[key] ?? key}

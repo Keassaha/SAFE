@@ -220,7 +220,7 @@ function FeuilleRapport() {
       <div
         data-reco
         className="mt-6 rounded-[9px] px-5 py-4"
-        style={{ background: "var(--si-forest)", color: "#F4F7F3", opacity: 0 }}
+        style={{ background: "var(--si-ink-strong)", color: "#F4F7F3", opacity: 0 }}
       >
         <p className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--si-verified-on-forest)" }}>
           Recommandation
@@ -428,7 +428,7 @@ function SectionDepart({ onStart }: { onStart: (lang: Lang) => void }) {
               onClick={() => onStart(l)}
               className="rounded-[12px] border p-6 text-left transition-colors duration-300"
               style={{ background: SURFACE, borderColor: LINE }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgb(var(--si-forest-rgb) / 0.45)"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgb(var(--si-ink-strong-rgb) / 0.45)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}
             >
               <span className="block font-serif text-[34px] leading-none" style={{ color: INK }}>

@@ -660,7 +660,7 @@ export function Header({
 
         <Link
           href={routes.tableauDeBord}
-          className="flex items-center gap-2.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
+          className="flex items-center gap-2.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/30"
           aria-label={tMisc("logoHomeAria")}
         >
           {/* Verrou canonique. Cet entête recopiait le mot à la main, en serif et
@@ -781,10 +781,10 @@ export function Header({
                   >
                     <span
                       aria-hidden
-                      className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-si-forest to-transparent"
+                      className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-si-ink-strong to-transparent"
                     />
                     <div className="px-4 pt-4 pb-2">
-                      <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-si-forest font-medium">
+                      <span className="text-[10.5px] font-sans uppercase tracking-[0.15em] text-si-ink-strong font-medium">
                         {navLabel(group)}
                       </span>
                     </div>
@@ -808,15 +808,15 @@ export function Header({
                                  qu'à dire « vous êtes ici », ce qui est un état
                                  et non un survol. */
                               className={`safe-zoom-menu group flex items-start gap-3 rounded-lg px-2.5 py-2.5 ${
-                                childActive ? "bg-si-forest/5" : ""
+                                childActive ? "bg-si-ink-strong/5" : ""
                               }`}
                               onClick={() => setOpenGroupId(null)}
                             >
                               <span
                                 className={`shrink-0 mt-0.5 w-7 h-7 rounded-[7px] flex items-center justify-center border border-[0.5px] transition-colors ${
                                   childActive
-                                    ? "safe-action-degrade border-si-forest text-white"
-                                    : "bg-[var(--si-canvas)] border-border text-si-forest group-hover:bg-si-forest/10 group-hover:border-si-forest/30"
+                                    ? "safe-action-degrade border-si-ink-strong text-white"
+                                    : "bg-[var(--si-canvas)] border-border text-si-ink-strong group-hover:bg-si-ink-strong/10 group-hover:border-si-ink-strong/30"
                                 }`}
                               >
                                 <ChildIcon
@@ -828,7 +828,7 @@ export function Header({
                                 <span
                                   className={`block text-[13px] font-sans font-medium leading-tight ${
                                     childActive
-                                      ? "text-si-forest"
+                                      ? "text-si-ink-strong"
                                       : "text-text-primary"
                                   }`}
                                 >
@@ -869,7 +869,7 @@ export function Header({
             type="search"
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
-            className="w-full h-[32px] pl-8 pr-10 rounded-[7px] bg-[var(--si-canvas)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-si-forest/40 focus:bg-surface transition-all placeholder:text-si-muted"
+            className="w-full h-[32px] pl-8 pr-10 rounded-[7px] bg-[var(--si-canvas)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-si-ink-strong/40 focus:bg-surface transition-all placeholder:text-si-muted"
           />
           <kbd className="absolute right-2 top-1/2 -translate-y-1/2 px-1 bg-surface border border-[0.5px] border-border text-si-muted text-[9px] font-mono rounded pointer-events-none uppercase">
             ⌘K
@@ -893,7 +893,7 @@ export function Header({
           <button
             type="button"
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="w-[32px] h-[32px] rounded-full safe-action-degrade flex items-center justify-center text-white text-[12px] font-medium hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+            className="w-[32px] h-[32px] rounded-full safe-action-degrade flex items-center justify-center text-white text-[12px] font-medium hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
             aria-label={displayName}
             aria-haspopup="menu"
             aria-expanded={userMenuOpen}
@@ -913,7 +913,7 @@ export function Header({
                 className="absolute right-0 mt-2 w-64 bg-surface border border-[0.5px] border-border rounded-[10px] shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)] overflow-hidden z-50"
               >
                 <div className="px-4 py-3 border-b border-[0.5px] border-border/70 bg-si-canvas/60">
-                  <p className="text-[11px] font-sans uppercase tracking-[0.12em] text-si-forest font-medium">
+                  <p className="text-[11px] font-sans uppercase tracking-[0.12em] text-si-ink-strong font-medium">
                     {tMisc("account")}
                   </p>
                   <p className="font-serif text-[15px] text-text-primary mt-1 truncate">

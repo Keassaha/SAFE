@@ -60,7 +60,7 @@ function StageBadge({ stage }: { stage: string }) {
   const color = isLive
     ? "bg-si-verified/10 text-si-verified border-si-verified/30"
     : isClosing
-    ? "bg-si-forest/[0.06] text-si-forest border-si-forest/20"
+    ? "bg-si-ink-strong/[0.06] text-si-ink-strong border-si-ink-strong/20"
     : "bg-si-canvas text-si-ink border-si-line";
   return (
     <span
@@ -91,7 +91,7 @@ export default async function ConsoleLeadsPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-1.5 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft"
+            className="inline-flex items-center gap-1.5 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft"
           >
             + Nouveau cabinet
           </Link>

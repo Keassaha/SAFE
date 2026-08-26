@@ -19,9 +19,9 @@ const TONES: Record<
 > = {
   neutral: {
     card: "border-si-line bg-si-surface",
-    hover: "hover:border-si-forest/30",
-    iconBg: "bg-si-forest/[0.06]",
-    iconText: "text-si-forest",
+    hover: "hover:border-si-ink-strong/30",
+    iconBg: "bg-si-ink-strong/[0.06]",
+    iconText: "text-si-ink-strong",
     badge: "border-si-line text-si-muted",
   },
   positive: {
@@ -98,7 +98,7 @@ export function SummaryCard({
       </p>
       <p className="mt-2 text-[12px] leading-snug text-si-muted">{explanation}</p>
 
-      <span className="mt-4 inline-flex items-center gap-1 text-[12px] font-medium text-si-forest">
+      <span className="mt-4 inline-flex items-center gap-1 text-[12px] font-medium text-si-ink-strong">
         {linkLabel}
         <ArrowRight className="safe-zoom h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </span>

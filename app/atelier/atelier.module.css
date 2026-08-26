@@ -31,7 +31,7 @@
   --faint: #8a968f;
 
   /* ---- Accent et statuts (un accent, trois statuts) ---------------------- */
-  --forest: var(--si-forest);
+  --forest: var(--si-ink-strong);
   --forest-soft: #16312a;
   --action: #216a49;
   --verified: var(--si-verified);

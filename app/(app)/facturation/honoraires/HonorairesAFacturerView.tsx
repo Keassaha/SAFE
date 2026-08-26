@@ -18,7 +18,7 @@ import { Search, Eye, FileText, FilePlus2, Loader2, ArrowLeft } from "lucide-rea
 const ICON_BTN_BASE =
   "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-si-verified focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed";
 const ICON_BTN_OUTLINE =
-  "border border-si-forest/30 text-si-verified bg-si-surface hover:bg-si-canvas";
+  "border border-si-ink-strong/30 text-si-verified bg-si-surface hover:bg-si-canvas";
 const ICON_BTN_GHOST =
   "border border-transparent text-si-verified hover:bg-si-canvas";
 const ICON_BTN_PRIMARY = "safe-action-degrade text-si-surface hover:opacity-90";

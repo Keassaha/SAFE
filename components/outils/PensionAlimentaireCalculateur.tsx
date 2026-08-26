@@ -131,7 +131,7 @@ export function PensionAlimentaireCalculateur({
           <label className="flex cursor-pointer items-start gap-2.5 text-[13px] text-si-ink">
             <input
               type="checkbox"
-              className="mt-0.5 h-4 w-4 shrink-0 accent-si-forest"
+              className="mt-0.5 h-4 w-4 shrink-0 accent-si-ink-strong"
               checked={s.divorce}
               onChange={(e) => maj({ divorce: e.target.checked })}
             />
@@ -145,7 +145,7 @@ export function PensionAlimentaireCalculateur({
           <label className="flex cursor-pointer items-start gap-2.5 text-[13px] text-si-ink">
             <input
               type="checkbox"
-              className="mt-0.5 h-4 w-4 shrink-0 accent-si-forest"
+              className="mt-0.5 h-4 w-4 shrink-0 accent-si-ink-strong"
               checked={s.deuxParentsAuQuebec}
               onChange={(e) => maj({ deuxParentsAuQuebec: e.target.checked })}
             />
@@ -270,7 +270,7 @@ export function PensionAlimentaireCalculateur({
               <input
                 type="radio"
                 name="situation"
-                className="mt-0.5 h-4 w-4 shrink-0 accent-si-forest"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-si-ink-strong"
                 checked={s.situation === o.valeur}
                 onChange={() => maj({ situation: o.valeur })}
               />

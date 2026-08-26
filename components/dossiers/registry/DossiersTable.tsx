@@ -327,7 +327,7 @@ export function DossiersTable({
                 <td className="px-3 py-2.5 align-middle">
                   <Link
                     href={routes.dossier(row.id)}
-                    className="font-mono text-[13px] text-si-body transition-colors hover:text-si-forest"
+                    className="font-mono text-[13px] text-si-body transition-colors hover:text-si-ink-strong"
                   >
                     {row.numeroDossier ?? row.reference ?? "—"}
                   </Link>
@@ -344,7 +344,7 @@ export function DossiersTable({
                 <td className="max-w-0 px-3 py-2.5 align-middle">
                   <Link
                     href={routes.client(row.clientId)}
-                    className="block truncate text-[13px] text-si-body transition-colors hover:text-si-forest"
+                    className="block truncate text-[13px] text-si-body transition-colors hover:text-si-ink-strong"
                     title={clientDisplayName(row)}
                   >
                     {clientDisplayName(row)}

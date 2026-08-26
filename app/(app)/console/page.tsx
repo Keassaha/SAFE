@@ -121,7 +121,7 @@ function stageTone(stage: StageLead) {
     return "bg-si-verified/10 text-si-verified border-si-verified/30";
   }
   if (["READY_TO_SIGN", "SIGNED", "ACTIVATION_IN_PROGRESS"].includes(stage)) {
-    return "bg-si-forest/[0.06] text-si-forest border-si-forest/20";
+    return "bg-si-ink-strong/[0.06] text-si-ink-strong border-si-ink-strong/20";
   }
   if (["AUDIT_PROPOSED", "AUDIT_SCHEDULED", "AUDIT_COMPLETED", "CONSULTATION_PHASE2"].includes(stage)) {
     return "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30";
@@ -131,7 +131,7 @@ function stageTone(stage: StageLead) {
 
 function activityTone(type: TypeActivity) {
   if (["CONTRAT_SIGNE", "GO_LIVE", "AUDIT_SOUMIS"].includes(type)) return "bg-si-verified";
-  if (["CALL", "MEETING", "DEMO"].includes(type)) return "bg-si-forest";
+  if (["CALL", "MEETING", "DEMO"].includes(type)) return "bg-si-ink-strong";
   if (["CHURN_SIGNAL", "EMAIL_BOUNCE"].includes(type)) return "bg-[#B84A3E]";
   if (["LINKEDIN_DM", "EMAIL_RECU", "EMAIL_CLIQUE"].includes(type)) return "bg-si-amber";
   return "bg-si-muted";

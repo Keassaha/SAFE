@@ -152,7 +152,7 @@ export function MovementsTable({
                       <button
                         type="button"
                         onClick={() => onAnnuler(e)}
-                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
                       >
                         <Undo2 className="h-4 w-4 shrink-0" aria-hidden />
                         {t("cancelEntry")}

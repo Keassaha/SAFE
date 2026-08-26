@@ -28,7 +28,7 @@ export function IdentityVerificationSection({
         {canManage && (
           <Link
             href={routes.clientVerificationIdentite(clientId)}
-            className="ml-2 text-si-forest hover:underline"
+            className="ml-2 text-si-ink-strong hover:underline"
           >
             {t("addVerification")}
           </Link>
@@ -62,7 +62,7 @@ export function IdentityVerificationSection({
               href={`/api/documents/${v.document.id}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-si-forest hover:underline"
+              className="text-xs text-si-ink-strong hover:underline"
             >
               {t("attachment")}
             </a>
@@ -73,7 +73,7 @@ export function IdentityVerificationSection({
         <li>
           <Link
             href={routes.clientVerificationIdentite(clientId)}
-            className="text-sm text-si-forest hover:underline"
+            className="text-sm text-si-ink-strong hover:underline"
           >
             {t("addVerification")}
           </Link>

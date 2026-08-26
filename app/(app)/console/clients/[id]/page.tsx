@@ -89,7 +89,7 @@ function StageBadge({ stage }: { stage: string }) {
   const isLive = stage === "LIVE" || stage === "AMBASSADOR";
   const isClosing = ["SIGNED", "ACTIVATION_IN_PROGRESS", "READY_TO_SIGN"].includes(stage);
   const color = isLive ? "bg-si-verified/10 text-si-verified border-si-verified/30"
-    : isClosing ? "bg-si-forest/[0.06] text-si-forest border-si-forest/20"
+    : isClosing ? "bg-si-ink-strong/[0.06] text-si-ink-strong border-si-ink-strong/20"
     : "bg-si-canvas text-si-ink border-si-line";
   return <span className={`inline-flex items-center rounded border px-2.5 py-1 text-sm font-medium ${color}`}>{STAGE_LABELS[stage] ?? stage}</span>;
 }
@@ -409,7 +409,7 @@ export default async function ConsoleClientDetailPage({
                       <div>
                         <div className="font-medium text-si-ink">
                           {contact.prenom} {contact.nom}
-                          {contact.estDecideur && <span className="ml-2 inline-flex items-center rounded bg-si-forest/[0.06] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-forest">Décideur</span>}
+                          {contact.estDecideur && <span className="ml-2 inline-flex items-center rounded bg-si-ink-strong/[0.06] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-ink-strong">Décideur</span>}
                           {contact.estChampionInterne && <span className="ml-1 inline-flex items-center rounded bg-si-verified/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-si-verified">Champion</span>}
                           {contact.doNotContact && <span className="ml-1 inline-flex items-center rounded bg-[#B84A3E]/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#B84A3E]">Désabonné</span>}
                         </div>

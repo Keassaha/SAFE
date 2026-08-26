@@ -42,9 +42,9 @@ interface Props {
 
 const TONE: Record<string, { fg: string; bg: string }> = {
   warn: { fg: "#8B6B1F", bg: "#F5E6C8" },
-  succ: { fg: "var(--si-forest)", bg: "#D4E8D9" },
+  succ: { fg: "var(--si-ink-strong)", bg: "#D4E8D9" },
   err: { fg: "#8A3A2D", bg: "#F3D8D2" },
-  brand: { fg: "var(--si-forest)", bg: "#EEF5F0" },
+  brand: { fg: "var(--si-ink-strong)", bg: "#EEF5F0" },
 };
 
 function toneFor(s: EmployeeHoursStatus): keyof typeof TONE {
@@ -207,7 +207,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
             disabled={pending}
             onClick={submit}
             className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            style={{ backgroundColor: "var(--si-forest)" }}
+            style={{ backgroundColor: "var(--si-ink-strong)" }}
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" aria-hidden />}
             {t("submit")}

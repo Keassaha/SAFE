@@ -10,7 +10,7 @@ interface Props {
   enabled: boolean;
 }
 
-const FOREST = "var(--si-forest)";
+const FOREST = "var(--si-ink-strong)";
 
 /** Bascule on/off du digest courriel quotidien (N7b — notifications calmes). */
 export function DigestPreferenceToggle({ enabled: initial }: Props) {

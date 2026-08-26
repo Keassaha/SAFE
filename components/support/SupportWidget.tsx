@@ -218,7 +218,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
         className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border border-si-line bg-si-surface px-4 py-2.5 text-[13px] font-medium text-si-ink shadow-sm transition-colors hover:bg-si-canvas"
         aria-label="Aide"
       >
-        <LifeBuoy className="h-4 w-4 text-si-forest" />
+        <LifeBuoy className="h-4 w-4 text-si-ink-strong" />
         Aide
         {totalUnread > 0 && (
           <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full safe-action-degrade px-1 text-[11px] font-medium text-white">

@@ -40,14 +40,14 @@ export function ClientProfileTabs({ tabs, activeTab, onTabChange }: ClientProfil
             onClick={() => onTabChange(tab.id)}
             className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
               isActive
-                ? "text-si-forest"
+                ? "text-si-ink-strong"
                 : "text-si-muted hover:text-si-ink"
             }`}
           >
             {isActive && (
               <motion.span
                 layoutId="client-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-si-forest rounded-t"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-si-ink-strong rounded-t"
                 transition={tMicro}
                 aria-hidden
               />

@@ -164,7 +164,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               aria-haspopup="menu"
               aria-expanded={panneauOuvert}
               title={`${displayTime} · ${etat}`}
-              className="safe-topbar-text flex items-center gap-1.5 rounded-[7px] border border-[0.5px] border-border bg-[var(--si-canvas)] py-1 pl-2 pr-1.5 text-sm font-mono font-medium text-si-ink transition-colors hover:border-si-forest/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+              className="safe-topbar-text flex items-center gap-1.5 rounded-[7px] border border-[0.5px] border-border bg-[var(--si-canvas)] py-1 pl-2 pr-1.5 text-sm font-mono font-medium text-si-ink transition-colors hover:border-si-ink-strong/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
             >
               <Clock
                 className={`h-4 w-4 ${timer.running ? "text-si-verified" : "text-si-muted"}`}
@@ -182,7 +182,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               <button
                 type="button"
                 onClick={timer.triggerOpenSaveModal}
-                className="safe-action-degrade rounded-[7px] p-1.5 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+                className="safe-action-degrade rounded-[7px] p-1.5 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
                 title={t("saveTime")}
                 aria-label={t("save")}
               >
@@ -192,7 +192,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               <button
                 type="button"
                 onClick={timer.pause}
-                className="rounded-[7px] p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+                className="rounded-[7px] p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
                 title={t("pause")}
                 aria-label={t("pause")}
               >
@@ -202,7 +202,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               <button
                 type="button"
                 onClick={timer.resume}
-                className="rounded-[7px] p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40"
+                className="rounded-[7px] p-1.5 text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
                 title={t("resume")}
                 aria-label={t("resume")}
               >
@@ -216,7 +216,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
                 className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[10px] border border-[0.5px] border-border bg-surface shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)]"
               >
                 <div className="border-b border-[0.5px] border-border/70 bg-si-canvas/60 px-3.5 py-3">
-                  <p className="text-[11px] font-sans font-medium uppercase tracking-[0.12em] text-si-forest">
+                  <p className="text-[11px] font-sans font-medium uppercase tracking-[0.12em] text-si-ink-strong">
                     {t("time")}
                   </p>
                   <p className="mt-1 font-mono text-[17px] tabular-nums text-si-ink">
@@ -279,9 +279,9 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
         ) : (
           <Link
             href={routes.temps}
-            className="safe-topbar-text flex items-center gap-1.5 text-sm text-si-ink hover:text-si-forest"
+            className="safe-topbar-text flex items-center gap-1.5 text-sm text-si-ink hover:text-si-ink-strong"
           >
-            <Clock className="w-4 h-4 text-si-forest" />
+            <Clock className="w-4 h-4 text-si-ink-strong" />
             <span className="hidden sm:inline">{t("time")}</span>
           </Link>
         )}

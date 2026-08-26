@@ -86,7 +86,7 @@ function SceneTenir() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: 0.55 + i * 0.15, ease: EASE }}
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-sans text-[11px] font-medium"
-                  style={{ background: "rgb(var(--si-forest-rgb) / 0.12)", color: VERIFIED }}
+                  style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.12)", color: VERIFIED }}
                 >
                   <CheckDraw size={10} delay={0.7 + i * 0.15} />
                   Prêt
@@ -134,7 +134,7 @@ function SceneVerifier() {
         ))}
       </div>
       <div className="flex items-center gap-3 px-6 py-4" style={{ background: "#F3F7F3", borderTop: `1px solid ${LINE}` }}>
-        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full" style={{ background: "rgb(var(--si-forest-rgb) / 0.13)" }}>
+        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full" style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.13)" }}>
           <CheckDraw delay={1.2} />
         </span>
         <span className="flex-1 font-sans text-[12.5px]" style={{ color: "#3A423B" }}>
@@ -165,7 +165,7 @@ const invoices: Invoice[] = [
     client: "Succession Tremblay",
     montant: "3 200 $",
     statutInitial: { label: "Envoyée", bg: "rgba(31,42,36,0.06)", color: "#4A534B" },
-    statutFinal: { label: "Payée", bg: "rgb(var(--si-forest-rgb) / 0.12)", color: VERIFIED },
+    statutFinal: { label: "Payée", bg: "rgb(var(--si-ink-strong-rgb) / 0.12)", color: VERIFIED },
   },
   {
     facture: "F-2026-0143",

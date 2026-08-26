@@ -169,7 +169,7 @@ export function RowMenu({ label, describedBy, children }: RowMenuProps) {
         aria-controls={ouvert ? menuId : undefined}
         aria-label={label}
         title={label}
-        className="safe-zoom-menu inline-flex h-8 w-8 items-center justify-center rounded-md text-si-muted hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/30"
+        className="safe-zoom-menu inline-flex h-8 w-8 items-center justify-center rounded-md text-si-muted hover:text-si-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/30"
       >
         <MoreHorizontal className="h-4 w-4" aria-hidden />
       </button>

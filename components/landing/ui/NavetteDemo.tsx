@@ -148,7 +148,7 @@ export function NavetteDemo() {
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
-              <path d="M4 2l14 7.5-6 1.5-2.5 6L4 2z" fill="var(--si-forest)" stroke="#FFFFFF" strokeWidth="1.4" strokeLinejoin="round" />
+              <path d="M4 2l14 7.5-6 1.5-2.5 6L4 2z" fill="var(--si-ink-strong)" stroke="#FFFFFF" strokeWidth="1.4" strokeLinejoin="round" />
             </svg>
           </motion.div>
         )}

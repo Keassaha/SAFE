@@ -25,7 +25,7 @@ const SEMANTIC_STYLES: Record<
   ComptaKpiSemantic,
   { iconBg: string; iconColor: string; valueColor: string; ring: string }
 > = {
-  neutral: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest",  valueColor: "text-si-ink",       ring: "" },
+  neutral: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong",  valueColor: "text-si-ink",       ring: "" },
   credit:  { iconBg: "bg-si-verified/10",   iconColor: "text-si-verified", valueColor: "text-si-verified",  ring: "" },
   debit:   { iconBg: "bg-[#B84A3E]/10",     iconColor: "text-[#B84A3E]",   valueColor: "text-[#B84A3E]",    ring: "" },
   warning: { iconBg: "bg-si-amber/[0.13]",  iconColor: "text-si-amber",    valueColor: "text-si-ink",       ring: "" },

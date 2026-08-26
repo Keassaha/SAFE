@@ -102,7 +102,7 @@ export function ClientDossierFinancier({
             {sub && (
               <p className="mt-0.5 text-sm text-si-muted">{sub}</p>
             )}
-            <div className="mt-2 w-8 h-8 rounded-lg bg-si-forest/10 flex items-center justify-center text-si-forest">
+            <div className="mt-2 w-8 h-8 rounded-lg bg-si-ink-strong/10 flex items-center justify-center text-si-ink-strong">
               <Icon className="w-4 h-4" />
             </div>
           </div>
@@ -200,7 +200,7 @@ export function ClientDossierFinancier({
                         {r.dossierId ? (
                           <Link
                             href={routes.dossier(r.dossierId)}
-                            className="text-si-forest hover:underline"
+                            className="text-si-ink-strong hover:underline"
                           >
                             {r.dossierIntitule ?? "—"}
                           </Link>

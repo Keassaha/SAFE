@@ -124,8 +124,8 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
             >
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--si-forest)" stopOpacity={0.22} />
-                  <stop offset="100%" stopColor="var(--si-forest)" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="var(--si-ink-strong)" stopOpacity={0.22} />
+                  <stop offset="100%" stopColor="var(--si-ink-strong)" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid
@@ -159,7 +159,7 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="var(--si-forest)"
+                stroke="var(--si-ink-strong)"
                 strokeWidth={2}
                 fill="url(#revenueGradient)"
                 isAnimationActive

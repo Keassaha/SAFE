@@ -152,16 +152,16 @@ export function DeboursAddModal({
         </div>
 
         <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
-          <input type="checkbox" name="refacturable" defaultChecked value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
+          <input type="checkbox" name="refacturable" defaultChecked value="on" className="rounded border-si-line text-si-ink-strong focus:ring-si-verified/25" />
           {td("billableToClient")}
         </label>
         <div className="flex gap-2">
           <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
-            <input type="checkbox" name="taxable" value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
+            <input type="checkbox" name="taxable" value="on" className="rounded border-si-line text-si-ink-strong focus:ring-si-verified/25" />
             {td("taxable")}
           </label>
           <label className="flex items-center gap-3 text-sm text-si-ink cursor-pointer">
-            <input type="checkbox" name="payeParCabinet" defaultChecked value="on" className="rounded border-si-line text-si-forest focus:ring-si-verified/25" />
+            <input type="checkbox" name="payeParCabinet" defaultChecked value="on" className="rounded border-si-line text-si-ink-strong focus:ring-si-verified/25" />
             {td("paidByFirm")}
           </label>
         </div>

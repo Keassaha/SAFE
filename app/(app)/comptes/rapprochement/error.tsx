@@ -33,7 +33,7 @@ export default function RapprochementError({
         <button
           type="button"
           onClick={reset}
-          className="mt-5 h-10 rounded-md safe-action-degrade px-4 text-sm font-medium text-si-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-si-forest/40"
+          className="mt-5 h-10 rounded-md safe-action-degrade px-4 text-sm font-medium text-si-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-si-ink-strong/40"
         >
           Réessayer
         </button>

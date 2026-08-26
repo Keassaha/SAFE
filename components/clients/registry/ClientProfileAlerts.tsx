@@ -73,7 +73,7 @@ export function ClientProfileAlerts({
           return (
             <li key={a.id} className="flex items-center gap-2">
               {a.href ? (
-                <Link href={a.href} className="flex items-center gap-2 hover:text-si-forest">
+                <Link href={a.href} className="flex items-center gap-2 hover:text-si-ink-strong">
                   {content}
                 </Link>
               ) : (

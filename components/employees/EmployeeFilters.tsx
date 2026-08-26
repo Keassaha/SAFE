@@ -73,7 +73,7 @@ export function EmployeeFilters() {
       {(status || role) && (
         <Link
           href="/employees"
-          className="text-sm font-medium text-si-forest hover:underline"
+          className="text-sm font-medium text-si-ink-strong hover:underline"
         >
           {t("reset")}
         </Link>

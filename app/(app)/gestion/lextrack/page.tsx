@@ -194,7 +194,7 @@ export default async function GestionPlanificationPage({ searchParams }: PagePro
           <div className="rounded-xl border border-si-line bg-si-surface p-6 text-center">
             <p className="text-sm text-si-muted">
               {t("noMatters")}{" "}
-              <Link href={routes.dossierNouveau()} className="text-si-forest hover:underline font-medium">{t("createMatter")}</Link>
+              <Link href={routes.dossierNouveau()} className="text-si-ink-strong hover:underline font-medium">{t("createMatter")}</Link>
             </p>
           </div>
         ) : (

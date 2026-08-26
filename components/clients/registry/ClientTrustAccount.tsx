@@ -60,7 +60,7 @@ export function ClientTrustAccount({
           <div className="pt-2 border-t border-si-line">
             <Link
               href={`${routes.comptes}?clientId=${encodeURIComponent(clientId)}`}
-              className="text-sm text-si-forest hover:underline"
+              className="text-sm text-si-ink-strong hover:underline"
             >
               {t("viewTrustModule")}
             </Link>

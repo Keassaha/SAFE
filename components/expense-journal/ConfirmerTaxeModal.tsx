@@ -99,7 +99,7 @@ export function ConfirmerTaxeModal({
               name="reponseTaxe"
               checked={reponse === "montant"}
               onChange={() => setReponse("montant")}
-              className="h-4 w-4 shrink-0 accent-si-forest"
+              className="h-4 w-4 shrink-0 accent-si-ink-strong"
             />
             {t("taxeReponseMontant")}
           </label>
@@ -110,7 +110,7 @@ export function ConfirmerTaxeModal({
               name="reponseTaxe"
               checked={reponse === "aucune"}
               onChange={() => setReponse("aucune")}
-              className="h-4 w-4 shrink-0 accent-si-forest"
+              className="h-4 w-4 shrink-0 accent-si-ink-strong"
             />
             {t("taxeReponseAucune")}
           </label>

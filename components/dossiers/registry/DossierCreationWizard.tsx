@@ -216,7 +216,7 @@ export function DossierCreationWizard({
               onClick={() => goToStep(s.id)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
-                  ? "bg-si-forest/10 text-si-forest"
+                  ? "bg-si-ink-strong/10 text-si-ink-strong"
                   : isPast
                     ? "bg-si-canvas text-si-ink"
                     : "bg-si-canvas/60 text-si-muted"

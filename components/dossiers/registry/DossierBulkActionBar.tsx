@@ -41,15 +41,15 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
   }
 
   const selectClass =
-    "h-9 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-forest/20 focus:border-si-forest/40 outline-none disabled:opacity-50";
+    "h-9 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm focus:ring-2 focus:ring-si-ink-strong/20 focus:border-si-ink-strong/40 outline-none disabled:opacity-50";
 
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-si-line bg-si-forest/5 px-6 py-3">
+    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-si-line bg-si-ink-strong/5 px-6 py-3">
       <span className="text-sm font-medium text-si-ink">
         {t("bulkSelectedCount", { count })}
       </span>
 
-      {isPending && <Loader2 className="h-4 w-4 animate-spin text-si-forest" aria-hidden />}
+      {isPending && <Loader2 className="h-4 w-4 animate-spin text-si-ink-strong" aria-hidden />}
 
       {!confirmArchive ? (
         <>
@@ -122,7 +122,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
             type="button"
             disabled={isPending}
             onClick={() => run({ ids: selectedIds, action: "archive" })}
-            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg safe-action-degrade text-white hover:bg-si-forest/90 text-sm font-medium transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg safe-action-degrade text-white hover:bg-si-ink-strong/90 text-sm font-medium transition-colors disabled:opacity-50"
           >
             <Check className="h-4 w-4" aria-hidden />
             {t("bulkArchiveConfirmYes")}

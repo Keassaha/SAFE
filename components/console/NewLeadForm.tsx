@@ -225,7 +225,7 @@ export function NewLeadForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
+          className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
         >
           {isPending ? "Création…" : "Créer le cabinet"}
         </button>

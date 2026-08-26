@@ -83,7 +83,7 @@ export function QuickCapture() {
         </div>
 
         {done ? (
-          <div className="flex items-center gap-2 px-4 py-6 text-sm font-medium" style={{ color: "var(--si-forest)" }}>
+          <div className="flex items-center gap-2 px-4 py-6 text-sm font-medium" style={{ color: "var(--si-ink-strong)" }}>
             <Check className="h-5 w-5" /> {t("added")}
           </div>
         ) : !selected ? (
@@ -120,7 +120,7 @@ export function QuickCapture() {
         ) : (
           <div className="p-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium" style={{ backgroundColor: "#EEF5F0", color: "var(--si-forest)" }}>
+              <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium" style={{ backgroundColor: "#EEF5F0", color: "var(--si-ink-strong)" }}>
                 <FolderOpen className="h-3.5 w-3.5" /> {selected.label}
               </span>
               <button onClick={() => setSelected(null)} className="text-xs font-medium text-neutral-400 hover:text-neutral-600">{t("change")}</button>
@@ -137,7 +137,7 @@ export function QuickCapture() {
               onClick={submit}
               disabled={pending || !title.trim()}
               className="mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-              style={{ backgroundColor: "var(--si-forest)" }}
+              style={{ backgroundColor: "var(--si-ink-strong)" }}
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {t("addTask")}
             </button>

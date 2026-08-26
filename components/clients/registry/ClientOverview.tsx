@@ -51,7 +51,7 @@ export function ClientOverview({ data }: { data: ClientOverviewData }) {
             {data.primary_email && (
               <div className="flex items-center gap-2 text-sm">
                 <Mail className="w-4 h-4 text-si-muted shrink-0" />
-                <a href={`mailto:${data.primary_email}`} className="text-si-forest hover:underline">
+                <a href={`mailto:${data.primary_email}`} className="text-si-ink-strong hover:underline">
                   {data.primary_email}
                 </a>
               </div>

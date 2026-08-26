@@ -321,7 +321,7 @@ export default async function InspectionPage() {
           <li key={p.href}>
             <Link
               href={p.href}
-              className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-si-forest/[0.03]"
+              className="block h-full rounded-xl border border-[var(--si-line)] bg-[var(--si-surface)] p-4 transition-colors hover:bg-si-ink-strong/[0.03]"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="text-sm font-medium text-[var(--si-ink)]">{p.titre}</h3>

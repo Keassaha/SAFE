@@ -16,8 +16,8 @@ const MUTED = "#5A665F";
 const FAINT = "#7C877F";
 /* L'accent de la vitrine suit désormais l'action de l'application.
  * Il valait #12A150, un vert vif étranger à la palette, déclaré deux fois.
- * Source unique : `si-forest` dans lib/ds/palettes.ts. */
-const GREEN = "var(--si-forest)";
+ * Source unique : `si-ink-strong` dans lib/ds/palettes.ts. */
+const GREEN = "var(--si-ink-strong)";
 const LINE = "rgba(31,42,36,0.08)";
 
 const EASE = [0.2, 0, 0, 1] as const;
@@ -46,7 +46,7 @@ const ROWS = [
   {
     dossier: "Achat Rivière",
     statut: "Payé",
-    statutBg: "rgb(var(--si-forest-rgb) / 0.12)",
+    statutBg: "rgb(var(--si-ink-strong-rgb) / 0.12)",
     statutColor: "var(--si-verified)",
     aRecevoir: "0 $",
     aRecevoirColor: "#B8BDB7",
@@ -205,7 +205,7 @@ export function Hero() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.4, delay: 1.55, ease: EASE }}
             className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-            style={{ background: "rgb(var(--si-forest-rgb) / 0.13)" }}
+            style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.13)" }}
             aria-hidden
           >
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">

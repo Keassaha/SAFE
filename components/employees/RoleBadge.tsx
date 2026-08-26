@@ -7,7 +7,7 @@ import { EMPLOYEE_ROLE_LABELS } from "@/lib/auth/rbac";
 // neutres pour le personnel de soutien. Le libellé textuel porte la précision.
 const ROLE_STYLES: Record<EmployeeRole, string> = {
   ADMIN_ACCOUNTANT: "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30",
-  LEAD_LAWYER: "bg-si-forest/[0.08] text-si-forest border-si-forest/20",
+  LEAD_LAWYER: "bg-si-ink-strong/[0.08] text-si-ink-strong border-si-ink-strong/20",
   LAWYER: "bg-si-verified/10 text-si-verified border-si-verified/30",
   LEGAL_ASSISTANT: "bg-si-canvas text-si-ink border-si-line",
   ACCOUNTING_TECHNICIAN: "bg-si-verified/10 text-si-verified border-si-verified/30",

@@ -24,7 +24,7 @@ const STATUT_LABELS: Record<string, string> = {
 
 function statutBadge(s: string) {
   const map: Record<string, string> = {
-    NOUVEAU: "bg-si-forest/[0.06] text-si-forest border-si-forest/20",
+    NOUVEAU: "bg-si-ink-strong/[0.06] text-si-ink-strong border-si-ink-strong/20",
     EN_COURS: "bg-si-amber/[0.13] text-si-amber-ink border-si-amber/30",
     EN_ATTENTE_CLIENT: "bg-purple-100 text-purple-800 border-purple-200",
     RESOLU: "bg-si-verified/10 text-si-verified border-si-verified/30",
@@ -80,7 +80,7 @@ export default async function ConsoleSupportPage() {
         <Link href="/console/support/messages" className="rounded-md px-3 py-1.5 text-si-muted hover:bg-si-canvas">
           Messages
         </Link>
-        <span className="rounded-md bg-si-forest/[0.06] px-3 py-1.5 font-medium text-si-forest">Billets</span>
+        <span className="rounded-md bg-si-ink-strong/[0.06] px-3 py-1.5 font-medium text-si-ink-strong">Billets</span>
       </div>
 
       <Card>

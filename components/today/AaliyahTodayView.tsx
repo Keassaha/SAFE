@@ -68,7 +68,7 @@ export interface AaliyahTodayData {
   weekReady: number;
 }
 
-const ACCENT = "var(--si-forest)";
+const ACCENT = "var(--si-ink-strong)";
 /* Cette vue portait sa propre palette en hexadécimal : six couleurs héritées
    d'une génération antérieure, donc six écarts avec le reste du produit. Elles
    pointent maintenant vers les jetons. L'urgence garde sa teinte, le reste

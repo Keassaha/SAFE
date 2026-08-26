@@ -113,7 +113,7 @@ export function MotifAnnulationModal({
                   // oups », le « oups » venant d'un AUTRE abandonne.
                   if (code !== "AUTRE") setMotifTexte("");
                 }}
-                className="h-4 w-4 shrink-0 accent-si-forest"
+                className="h-4 w-4 shrink-0 accent-si-ink-strong"
               />
               {t(MOTIF_KEY[code])}
             </label>

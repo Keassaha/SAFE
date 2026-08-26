@@ -179,7 +179,7 @@ export function DossierDebours({
                       {d.factureId ? (
                         <Link
                           href={routes.facturationFactureEdit(d.factureId)}
-                          className="text-si-forest hover:underline inline-flex items-center gap-1"
+                          className="text-si-ink-strong hover:underline inline-flex items-center gap-1"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           {d.factureNumero ?? t("invoice")}

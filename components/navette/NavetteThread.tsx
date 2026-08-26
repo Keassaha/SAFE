@@ -39,8 +39,8 @@ interface Props {
 const TONE: Record<string, { fg: string; bg: string }> = {
   err: { fg: "#8A3A2D", bg: "#F3D8D2" },
   warn: { fg: "#8B6B1F", bg: "#F5E6C8" },
-  succ: { fg: "var(--si-forest)", bg: "#D4E8D9" },
-  brand: { fg: "var(--si-forest)", bg: "#EEF5F0" },
+  succ: { fg: "var(--si-ink-strong)", bg: "#D4E8D9" },
+  brand: { fg: "var(--si-ink-strong)", bg: "#EEF5F0" },
   muted: { fg: "#71717A", bg: "#FAFAFA" },
 };
 
@@ -195,7 +195,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
               disabled={pending}
               onClick={() => run(() => approveMatterAction({ dossierId }))}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
-              style={{ backgroundColor: "var(--si-forest)" }}
+              style={{ backgroundColor: "var(--si-ink-strong)" }}
             >
               <Check className="h-3.5 w-3.5" aria-hidden /> {t("approve")}
             </button>
@@ -216,7 +216,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
             disabled={pending}
             onClick={() => run(() => markReadyForReviewAction({ dossierId }))}
             className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
-            style={{ borderColor: "#CDE0D4", backgroundColor: "#EEF5F0", color: "var(--si-forest)" }}
+            style={{ borderColor: "#CDE0D4", backgroundColor: "#EEF5F0", color: "var(--si-ink-strong)" }}
           >
             <Send className="h-3.5 w-3.5" aria-hidden /> {t("markReady")}
           </button>
@@ -237,7 +237,7 @@ export function NavetteThread({ dossierId, rows, currentUserId, currentUserRole,
           disabled={pending || !text.trim()}
           onClick={onSend}
           className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          style={{ backgroundColor: mode === "sentback" ? TONE.err.fg : "var(--si-forest)" }}
+          style={{ backgroundColor: mode === "sentback" ? TONE.err.fg : "var(--si-ink-strong)" }}
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" aria-hidden />}
           {mode === "sentback" ? t("sendBack") : t("send")}

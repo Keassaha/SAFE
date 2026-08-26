@@ -320,7 +320,7 @@ export function ComplianceDashboard() {
               <p className="text-sm text-si-muted">
                 {copy.reportGeneratorDesc}
               </p>
-              <span className="text-xs text-si-forest flex items-center gap-1">
+              <span className="text-xs text-si-ink-strong flex items-center gap-1">
                 {t("viewReports")} <ExternalLink className="w-3 h-3" />
               </span>
             </CardContent>

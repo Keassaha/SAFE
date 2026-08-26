@@ -9,7 +9,7 @@ import { EASE, INK, MUTED, FAINT, SURFACE, GREEN, LINE, HAIR, VERIFIED, AMBER, S
 const ROWS = [
   { dossier: "Succession Tremblay", statut: "Facturé", statutBg: "rgba(31,42,36,0.06)", statutColor: "#4A534B", aRecevoir: "3 200 $", aRecevoirColor: INK, fiducie: "12 000 $", fiducieColor: INK },
   { dossier: "Divorce Gagnon", statut: "À relancer", statutBg: "rgba(176,122,28,0.12)", statutColor: AMBER, aRecevoir: "1 850 $", aRecevoirColor: AMBER, fiducie: "—", fiducieColor: "#B8BDB7" },
-  { dossier: "Achat Rivière", statut: "Payé", statutBg: "rgb(var(--si-forest-rgb) / 0.12)", statutColor: VERIFIED, aRecevoir: "0 $", aRecevoirColor: "#B8BDB7", fiducie: "8 500 $", fiducieColor: INK },
+  { dossier: "Achat Rivière", statut: "Payé", statutBg: "rgb(var(--si-ink-strong-rgb) / 0.12)", statutColor: VERIFIED, aRecevoir: "0 $", aRecevoirColor: "#B8BDB7", fiducie: "8 500 $", fiducieColor: INK },
 ];
 
 const up = (delay: number) => ({
@@ -137,7 +137,7 @@ export function HeroPreview() {
               animate={reduce ? undefined : { scale: 1 }}
               transition={{ duration: 0.4, delay: 1.5, ease: EASE }}
               className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-              style={{ background: "rgb(var(--si-forest-rgb) / 0.13)" }}
+              style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.13)" }}
             >
               <CheckDraw delay={1.6} />
             </motion.span>

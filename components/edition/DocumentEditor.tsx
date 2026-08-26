@@ -554,7 +554,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               setShowSendDialog(true);
             }}
             className="flex items-center gap-1.5 text-xs font-medium text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
-            style={{ backgroundColor: "var(--si-forest)" }}
+            style={{ backgroundColor: "var(--si-ink-strong)" }}
           >
             <SendHorizontal className="w-3.5 h-3.5" />
             {t("sendToClient")}

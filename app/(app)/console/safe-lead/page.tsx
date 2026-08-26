@@ -181,7 +181,7 @@ export default async function SafeLeadPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-2 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface transition hover:bg-si-forest-soft"
+            className="inline-flex items-center gap-2 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface transition hover:bg-si-ink-strong-soft"
           >
             <Plus className="h-4 w-4" />
             Nouveau lead
@@ -286,9 +286,9 @@ export default async function SafeLeadPage() {
                   <p className="text-sm font-medium text-si-verified">{activitiesThisWeek} activité{activitiesThisWeek > 1 ? "s" : ""} cette semaine</p>
                   <p className="mt-1 text-xs leading-5 text-si-verified">Interactions CRM reliées aux leads SAFE Inc.</p>
                 </div>
-                <div className="rounded-md border border-si-forest/15 bg-si-forest/[0.06] px-3 py-3">
-                  <p className="text-sm font-medium text-si-forest">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
-                  <p className="mt-1 text-xs leading-5 text-si-forest">Actifs qui peuvent déclencher une qualification.</p>
+                <div className="rounded-md border border-si-ink-strong/15 bg-si-ink-strong/[0.06] px-3 py-3">
+                  <p className="text-sm font-medium text-si-ink-strong">{leadMagnets} lead magnet{leadMagnets > 1 ? "s" : ""} actif{leadMagnets > 1 ? "s" : ""}</p>
+                  <p className="mt-1 text-xs leading-5 text-si-ink-strong">Actifs qui peuvent déclencher une qualification.</p>
                 </div>
               </div>
             </CardContent>

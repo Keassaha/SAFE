@@ -232,7 +232,7 @@ export function FacturationPaiementsView({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href={routes.parametresPayeursTiers}
-          className="inline-flex items-center gap-1.5 text-sm text-si-muted hover:text-si-forest"
+          className="inline-flex items-center gap-1.5 text-sm text-si-muted hover:text-si-ink-strong"
         >
           <Users className="w-4 h-4 shrink-0" aria-hidden />
           {t("managePayers")}
@@ -382,7 +382,7 @@ export function FacturationPaiementsView({
                               href={`/api/facturation/paiements/${p.id}/preuve`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
                               aria-label={t("viewProof")}
                               title={t("viewProof")}
                             >
@@ -393,7 +393,7 @@ export function FacturationPaiementsView({
                             href={`/api/documents/payment-receipt/${p.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-forest"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
                             aria-label={t("viewReceipt")}
                             title={t("viewReceipt")}
                           >

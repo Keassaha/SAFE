@@ -1021,7 +1021,7 @@ export function CreateInvoiceView({
                     onClick={() => handleDueDatePreset(p)}
                     className={`min-h-11 rounded-md border px-4 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30 ${
                       dueDatePreset === p
-                        ? "border-si-forest bg-si-canvas text-si-verified"
+                        ? "border-si-ink-strong bg-si-canvas text-si-verified"
                         : "border-si-line bg-si-surface text-si-muted hover:border-si-muted hover:text-si-ink"
                     }`}
                   >

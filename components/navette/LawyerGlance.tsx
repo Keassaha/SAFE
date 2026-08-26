@@ -73,7 +73,7 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
       <div className="flex items-center gap-2">
         <h2 className="font-serif text-[17px] leading-tight text-si-ink">{t("title")}</h2>
         <span className="text-xs text-si-muted">· {t("glanceTitle")}</span>
-        <span className="ml-auto rounded-full bg-si-forest/[0.08] px-2.5 py-0.5 font-mono text-xs text-si-forest">
+        <span className="ml-auto rounded-full bg-si-ink-strong/[0.08] px-2.5 py-0.5 font-mono text-xs text-si-ink-strong">
           {rows.length}
         </span>
       </div>
@@ -83,7 +83,7 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
           const isReady = r.type === "ready_for_review";
           const chipClass = r.type === "question"
             ? "bg-si-amber/[0.13] text-si-amber"
-            : "bg-si-forest/[0.06] text-si-forest";
+            : "bg-si-ink-strong/[0.06] text-si-ink-strong";
           return (
             <div key={r.id} className="border-t border-si-line2 py-3 first:border-t-0">
               <div className="flex items-start gap-3">
@@ -141,13 +141,13 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
                         >
                           <CornerUpLeft className="h-3.5 w-3.5" aria-hidden /> {t("sendBack")}
                         </button>
-                        <Link href={`/dossiers/${r.dossierId}`} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-forest hover:bg-si-canvas">
+                        <Link href={`/dossiers/${r.dossierId}`} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
                           {t("open")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                         </Link>
                       </div>
                     )
                   ) : (
-                    <Link href={`/dossiers/${r.dossierId}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-forest hover:bg-si-canvas">
+                    <Link href={`/dossiers/${r.dossierId}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
                       {t("open")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                     </Link>
                   )}

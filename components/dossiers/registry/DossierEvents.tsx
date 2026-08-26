@@ -168,7 +168,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                       <button
                         type="button"
                         onClick={() => setEditingId(e.id)}
-                        className="p-2 text-si-muted hover:text-si-forest rounded"
+                        className="p-2 text-si-muted hover:text-si-ink-strong rounded"
                         aria-label={tc("edit")}
                       >
                         <Pencil className="w-4 h-4" />

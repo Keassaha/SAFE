@@ -314,7 +314,7 @@ export function PatrimoineFamilialCalculateur({
               <label className="mt-3 flex cursor-pointer items-center gap-2 text-[13px] text-si-ink">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 accent-si-forest"
+                  className="h-4 w-4 accent-si-ink-strong"
                   checked={l.possedeAvant}
                   onChange={(e) => majLigne(l.cle, { possedeAvant: e.target.checked })}
                 />
@@ -441,7 +441,7 @@ export function PatrimoineFamilialCalculateur({
                   <label className="flex cursor-pointer items-center gap-2 text-[13px] text-si-ink">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-si-forest"
+                      className="h-4 w-4 accent-si-ink-strong"
                       checked={l.partageableEnNature}
                       onChange={(e) =>
                         majLigne(l.cle, { partageableEnNature: e.target.checked })

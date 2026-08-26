@@ -281,7 +281,7 @@ export function TrustAccountsScreen({
                   <input
                     type="checkbox"
                     name="barreauAgreementConfirmed"
-                    className="mt-0.5 accent-[var(--si-forest)]"
+                    className="mt-0.5 accent-[var(--si-ink-strong)]"
                   />
                   <span>
                     L&apos;institution a conclu une entente avec le Barreau au sens de B-1, r. 10.

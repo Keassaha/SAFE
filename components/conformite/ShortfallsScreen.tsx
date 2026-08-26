@@ -203,7 +203,7 @@ export function ShortfallsScreen({
                       name="source"
                       value={o.source}
                       required
-                      className="mt-1 h-4 w-4 accent-[var(--si-forest)]"
+                      className="mt-1 h-4 w-4 accent-[var(--si-ink-strong)]"
                     />
                     <span className="min-w-0">
                       <span className="text-[var(--si-ink)]">{o.labelFr}</span>

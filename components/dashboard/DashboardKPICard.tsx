@@ -7,10 +7,10 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 // Accents unifiés en forêt calme (design safe-interface) — pastille d'icône
 // discrète, cohérente avec les autres cartes KPI de l'app.
 const ACCENT_STYLES: Record<string, { iconBg: string; iconColor: string }> = {
-  emerald: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest" },
-  blue: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest" },
-  amber: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest" },
-  red: { iconBg: "bg-si-forest/[0.06]", iconColor: "text-si-forest" },
+  emerald: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong" },
+  blue: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong" },
+  amber: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong" },
+  red: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong" },
 };
 
 export interface DashboardKPICardProps {

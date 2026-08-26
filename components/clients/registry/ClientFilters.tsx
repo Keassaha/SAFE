@@ -78,7 +78,7 @@ export function ClientFilters() {
         type="button"
         onClick={handleRefresh}
         disabled={isPending}
-        className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-forest disabled:opacity-50"
+        className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
         aria-label={t("refresh")}
         title={t("refresh")}
       >

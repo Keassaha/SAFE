@@ -56,10 +56,10 @@ export function EmployeeSummaryCards({
   ];
 
   const iconColors = [
-    "bg-si-verified/10 text-si-forest",
+    "bg-si-verified/10 text-si-ink-strong",
     "bg-si-verified/10 text-si-verified",
     "bg-si-canvas text-si-muted",
-    "bg-si-verified/10 text-si-forest",
+    "bg-si-verified/10 text-si-ink-strong",
   ] as const;
 
   const { reduceMotion } = useSafeMotion();

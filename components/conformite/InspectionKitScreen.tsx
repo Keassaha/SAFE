@@ -125,7 +125,7 @@ export function InspectionKitScreen({
               type="date"
               name="from"
               defaultValue={from}
-              className="mt-1 block rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-forest)] focus:outline-none"
+              className="mt-1 block rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
             />
           </label>
           <label className="block">
@@ -134,12 +134,12 @@ export function InspectionKitScreen({
               type="date"
               name="to"
               defaultValue={to}
-              className="mt-1 block rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-forest)] focus:outline-none"
+              className="mt-1 block rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
             />
           </label>
           <button
             type="submit"
-            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04]"
+            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04]"
           >
             Recalculer
           </button>
@@ -199,7 +199,7 @@ export function InspectionKitScreen({
           </div>
           <a
             href={downloadUrl}
-            className="rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft"
+            className="rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft"
           >
             Télécharger
           </a>
@@ -260,7 +260,7 @@ export function InspectionKitScreen({
         <button
           type="button"
           onClick={() => setShowManifest((v) => !v)}
-          className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-forest/[0.02]"
+          className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-ink-strong/[0.02]"
         >
           <span className="text-sm font-medium text-[var(--si-ink)]">
             {showManifest ? "Masquer le manifeste" : "Voir le manifeste"}

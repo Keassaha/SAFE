@@ -35,7 +35,7 @@ interface Props {
 
 const ERR = { fg: "#8A3A2D", bg: "#F3D8D2" };
 const WARN = { fg: "#8B6B1F", bg: "#F5E6C8" };
-const BRAND = "var(--si-forest)";
+const BRAND = "var(--si-ink-strong)";
 
 export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate, locale = "en" }: Props) {
   const t = useTranslations("hoursAdmin");

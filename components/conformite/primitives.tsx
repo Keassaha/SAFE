@@ -106,7 +106,7 @@ export type PillTone = "action" | "info" | "done";
 export function Pill({ tone, children }: { tone: PillTone; children: ReactNode }) {
   const styles = {
     action: "bg-si-danger/10 text-si-danger-ink border-transparent",
-    done: "bg-si-forest/[0.06] text-[var(--si-forest)] border-transparent",
+    done: "bg-si-ink-strong/[0.06] text-[var(--si-ink-strong)] border-transparent",
     info: "border-[var(--si-line)] text-[var(--si-muted)]",
   }[tone];
   return (
@@ -220,7 +220,7 @@ export function Field({
 }
 
 export const inputClass =
-  "mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-forest)] focus:outline-none";
+  "mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none";
 
 export const inputNumberClass = `${inputClass} text-right tabular-nums`;
 
@@ -239,7 +239,7 @@ export function PrimaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg bg-[var(--si-forest)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-forest-soft disabled:opacity-50 ${className}`}
+      className={`rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -254,7 +254,7 @@ export function SecondaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-forest/[0.04] disabled:opacity-50 ${className}`}
+      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -290,7 +290,7 @@ export function Disclosure({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-forest/[0.02]"
+        className="flex w-full items-baseline justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-si-ink-strong/[0.02]"
       >
         <span className="text-sm font-medium text-[var(--si-ink)]">{label}</span>
         {meta && <span className="shrink-0 text-xs text-[var(--si-muted)]">{meta}</span>}

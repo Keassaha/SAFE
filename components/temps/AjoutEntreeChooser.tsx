@@ -26,7 +26,7 @@ export function AjoutEntreeChooser({ open, onClose, onChoose }: AjoutEntreeChoos
         <button
           type="button"
           onClick={() => onChoose("forfait")}
-          className="group flex flex-col items-start gap-2 rounded-xl border border-si-line p-4 text-left transition-colors hover:border-si-forest hover:bg-si-verified/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+          className="group flex flex-col items-start gap-2 rounded-xl border border-si-line p-4 text-left transition-colors hover:border-si-ink-strong hover:bg-si-verified/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
         >
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-si-verified/10 text-si-verified group-hover:bg-si-verified/10">
             <Package className="w-5 h-5" />
@@ -38,7 +38,7 @@ export function AjoutEntreeChooser({ open, onClose, onChoose }: AjoutEntreeChoos
         <button
           type="button"
           onClick={() => onChoose("horaire")}
-          className="group flex flex-col items-start gap-2 rounded-xl border border-si-line p-4 text-left transition-colors hover:border-si-forest hover:bg-si-verified/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+          className="group flex flex-col items-start gap-2 rounded-xl border border-si-line p-4 text-left transition-colors hover:border-si-ink-strong hover:bg-si-verified/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
         >
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-si-verified/10 text-si-verified group-hover:bg-si-verified/10">
             <Clock className="w-5 h-5" />

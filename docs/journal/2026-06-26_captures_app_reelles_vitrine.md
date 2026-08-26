@@ -38,5 +38,4 @@ survendre, ne pas exposer de données client réelles (Dérisier), ne pas pollue
 
 ## Reste
 - Le badge dev Next et l'« Aide » flottante : absents en prod, non bloquants.
-- `public/images/app/dashboard.png` non utilisée dans la landing (le tableau de bord mène par la
-  navette/onboarding, moins vendeur). Conservée comme asset.
+- ~~`public/images/app/dashboard.png`~~ **Supprimé 2026-08-24** — l'image ne reflétait plus le design courant (ancien design coloré, avant re-skin forêt/albâtre du 2026-06-22). Non utilisée dans la landing, n'a jamais été référencée en prod.

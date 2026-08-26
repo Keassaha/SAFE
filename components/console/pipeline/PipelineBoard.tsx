@@ -310,7 +310,7 @@ export function PipelineBoard({ phases, initialLeads }: PipelineBoardProps) {
           <div className="rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-1.5 text-xs text-[#B84A3E]">{error}</div>
         )}
         {isPending && (
-          <div className="rounded-md border border-si-forest/20 bg-si-forest/[0.06] px-3 py-1 text-[11px] text-si-forest">Mise à jour…</div>
+          <div className="rounded-md border border-si-ink-strong/20 bg-si-ink-strong/[0.06] px-3 py-1 text-[11px] text-si-ink-strong">Mise à jour…</div>
         )}
         <div className="ml-auto inline-flex rounded-md border border-si-line bg-si-surface p-0.5">
           <button

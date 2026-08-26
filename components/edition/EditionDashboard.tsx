@@ -275,7 +275,7 @@ export function EditionDashboard({ stats, recent, activeSessions, userName, doss
 
       {activeSessions.length > 0 && (
         /* Bandeau d'information, pas d'alerte. Il ne prend pas la couleur
-           d'action : depuis la bascule de palette du 2026-08-11, `si-forest`
+           d'action : depuis la bascule de palette du 2026-08-11, `si-ink-strong`
            est l'encre noire et la couleur est réservée aux états. Peindre ce
            bandeau avec le jeton d'action le ferait virer au vert le jour où
            l'accent serait restauré, sans qu'il ait rien changé de son sens.

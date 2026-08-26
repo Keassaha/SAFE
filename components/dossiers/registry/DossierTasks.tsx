@@ -207,7 +207,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                     <button
                       type="button"
                       onClick={() => setEditingId(task.id)}
-                      className="p-2 text-si-muted hover:text-si-forest rounded"
+                      className="p-2 text-si-muted hover:text-si-ink-strong rounded"
                       aria-label={tc("edit")}
                     >
                       <Pencil className="w-4 h-4" />

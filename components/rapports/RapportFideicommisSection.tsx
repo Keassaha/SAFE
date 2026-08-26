@@ -28,7 +28,7 @@ export function RapportFideicommisSection({ data }: RapportFideicommisSectionPro
       title: t("trustBalance"),
       value: formatCurrency(data.solde),
       icon: Wallet,
-      className: "border-l-si-forest",
+      className: "border-l-si-ink-strong",
     },
   ];
 

@@ -105,7 +105,7 @@ export async function TrustDetailPanel({
 
       <Link
         href="/comptes/rapprochement"
-        className="inline-flex items-center gap-1 text-xs font-medium text-si-forest hover:underline"
+        className="inline-flex items-center gap-1 text-xs font-medium text-si-ink-strong hover:underline"
       >
         {t("trustSeeReconciliation")}
         <ExternalLink className="w-3 h-3" aria-hidden />

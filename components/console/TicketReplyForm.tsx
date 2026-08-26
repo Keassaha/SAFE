@@ -69,7 +69,7 @@ export function TicketReplyForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
+          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
         >
           {isPending ? "Envoi…" : "Envoyer la réponse"}
         </button>

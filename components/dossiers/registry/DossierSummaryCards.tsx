@@ -122,7 +122,7 @@ export function DossierSummaryCards({
                 </p>
               )}
             </div>
-            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-forest/[0.06] text-si-forest">
+            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-ink-strong/[0.06] text-si-ink-strong">
               <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden />
             </div>
           </div>

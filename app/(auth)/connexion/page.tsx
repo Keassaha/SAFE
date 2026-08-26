@@ -10,7 +10,7 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
 
 const inputBaseClass =
-  "w-full h-11 rounded-[6px] border border-border bg-surface text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-forest focus:ring-1 focus:ring-si-forest/40 font-sans";
+  "w-full h-11 rounded-[6px] border border-border bg-surface text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-ink-strong focus:ring-1 focus:ring-si-ink-strong/40 font-sans";
 const inputClass = `${inputBaseClass} px-4`;
 const passwordInputClass = `${inputBaseClass} pl-4 pr-12`;
 
@@ -238,7 +238,7 @@ function AuthPageContent() {
                 onClick={() => setShowPassword((value) => !value)}
                 aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 title={showPassword ? t("hidePassword") : t("showPassword")}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" aria-hidden />
@@ -252,7 +252,7 @@ function AuthPageContent() {
             <p className="text-[12px] text-text-subtle font-sans leading-[1.5] max-w-[240px]">
               {t("employeeSignInHint")}
             </p>
-            <Link href="/forgot-password" className="text-[12px] text-si-forest hover:text-si-forest-soft underline underline-offset-4 whitespace-nowrap ml-2">
+            <Link href="/forgot-password" className="text-[12px] text-si-ink-strong hover:text-si-ink-strong-soft underline underline-offset-4 whitespace-nowrap ml-2">
               {t("forgotLink")}
             </Link>
           </div>
@@ -334,7 +334,7 @@ function AuthPageContent() {
                 onClick={() => setShowSignupPassword((value) => !value)}
                 aria-label={showSignupPassword ? t("hidePassword") : t("showPassword")}
                 title={showSignupPassword ? t("hidePassword") : t("showPassword")}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showSignupPassword ? (
                   <EyeOff className="h-4 w-4" aria-hidden />

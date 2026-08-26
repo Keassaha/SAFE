@@ -154,7 +154,7 @@ export function digestSubject(d: DigestData, locale: DigestLocale): string {
 
 /* Valeur littérale, pas une variable CSS : un client de courriel et un
  * moteur PDF n'ont pas de contexte de cascade, `var()` y rend transparent.
- * À tenir manuellement en phase avec `si-forest` de lib/ds/palettes.ts. */
+ * À tenir manuellement en phase avec `si-ink-strong` de lib/ds/palettes.ts. */
 const FOREST = "#16202B";
 const INK = "#18181B";
 const BODY = "#3F3F46";

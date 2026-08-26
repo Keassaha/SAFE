@@ -33,7 +33,7 @@ export default async function ConsoleMessagesPage() {
       />
 
       <div className="flex items-center gap-2 text-sm">
-        <span className="rounded-md bg-si-forest/[0.06] px-3 py-1.5 font-medium text-si-forest">Messages</span>
+        <span className="rounded-md bg-si-ink-strong/[0.06] px-3 py-1.5 font-medium text-si-ink-strong">Messages</span>
         <Link href="/console/support" className="rounded-md px-3 py-1.5 text-si-muted hover:bg-si-canvas">
           Billets
         </Link>

@@ -93,7 +93,7 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsToRebill")} />
           <CardContent>
-            <p className="text-2xl font-medium text-si-forest">
+            <p className="text-2xl font-medium text-si-ink-strong">
               {formatCurrency(totalARefacturer)}
             </p>
             <p className="text-sm text-si-muted mt-1">
@@ -104,7 +104,7 @@ export default async function FacturationFraisPage() {
         <Card>
           <CardHeader title={t("disbursementsUnreimbursed")} />
           <CardContent>
-            <p className="text-2xl font-medium text-si-forest">
+            <p className="text-2xl font-medium text-si-ink-strong">
               {formatCurrency(totalNonRembourses)}
             </p>
             <p className="text-sm text-si-muted mt-1">
@@ -142,7 +142,7 @@ export default async function FacturationFraisPage() {
                         <span className="text-si-ink block">{clientLabel(d.client)}</span>
                         <Link
                           href={routes.dossier(d.dossierId)}
-                          className="text-si-forest hover:underline text-xs"
+                          className="text-si-ink-strong hover:underline text-xs"
                         >
                           {d.dossier.numeroDossier ?? d.dossier.intitule}
                         </Link>
@@ -159,7 +159,7 @@ export default async function FacturationFraisPage() {
                         {d.facture ? (
                           <Link
                             href={routes.facturationFactureEdit(d.facture.id)}
-                            className="text-si-forest hover:underline text-xs"
+                            className="text-si-ink-strong hover:underline text-xs"
                           >
                             {d.facture.numero}
                           </Link>

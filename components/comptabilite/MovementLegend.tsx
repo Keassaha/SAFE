@@ -46,7 +46,7 @@ export function MovementLegend() {
               key={row.kind}
               className="flex gap-3 rounded-md border border-si-line bg-si-canvas p-3"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-si-forest/[0.06] text-si-forest">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-si-ink-strong/[0.06] text-si-ink-strong">
                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
               </span>
               <div className="min-w-0">

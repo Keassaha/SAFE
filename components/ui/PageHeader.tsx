@@ -36,10 +36,10 @@ export function PageHeader({
 
   // Define styles based on Design System variant
   const containerClasses = {
-    default: "dash-header relative overflow-hidden rounded-lg bg-si-forest p-8 [&>*]:relative [&>*]:z-10",
+    default: "dash-header relative overflow-hidden rounded-lg bg-si-ink-strong p-8 [&>*]:relative [&>*]:z-10",
     dashboard: "bg-transparent py-4",
-    compact: "dash-header relative overflow-hidden rounded-lg bg-si-forest p-5 [&>*]:relative [&>*]:z-10",
-  }[variant] || "dash-header relative overflow-hidden rounded-lg bg-si-forest p-8 [&>*]:relative [&>*]:z-10";
+    compact: "dash-header relative overflow-hidden rounded-lg bg-si-ink-strong p-5 [&>*]:relative [&>*]:z-10",
+  }[variant] || "dash-header relative overflow-hidden rounded-lg bg-si-ink-strong p-8 [&>*]:relative [&>*]:z-10";
 
   const titleClasses = {
     default: "text-[31px] font-serif text-si-surface",

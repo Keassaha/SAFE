@@ -122,7 +122,7 @@ export function ConversationThread({
         <div className="rounded border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-1.5 text-xs text-[#B84A3E]">⚠️ {error}</div>
       )}
       {converted && (
-        <div className="rounded border border-si-verified/30 bg-si-verified/[0.06] px-3 py-1.5 text-xs text-si-forest">
+        <div className="rounded border border-si-verified/30 bg-si-verified/[0.06] px-3 py-1.5 text-xs text-si-ink-strong">
           ✓ Billet créé. Il apparaît dans le suivi du client.
         </div>
       )}
@@ -163,14 +163,14 @@ export function ConversationThread({
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50"
+              className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
             >
               {isPending ? "Envoi…" : "Envoyer la réponse"}
             </button>
             <button
               type="button"
               onClick={() => { setShowConvert((s) => !s); setError(null); }}
-              className="rounded-md border border-si-verified/40 px-3 py-1.5 text-sm font-medium text-si-forest hover:bg-si-verified/[0.06]"
+              className="rounded-md border border-si-verified/40 px-3 py-1.5 text-sm font-medium text-si-ink-strong hover:bg-si-verified/[0.06]"
             >
               Transformer en billet
             </button>
@@ -217,7 +217,7 @@ export function ConversationThread({
               <button type="button" onClick={() => setShowConvert(false)} className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-muted hover:bg-si-canvas">
                 Annuler
               </button>
-              <button type="submit" disabled={isPending} className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50">
+              <button type="submit" disabled={isPending} className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50">
                 {isPending ? "Création…" : "Créer le billet"}
               </button>
             </div>

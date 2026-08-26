@@ -182,7 +182,7 @@ export function AnnualReportScreen({
                     type="button"
                     onClick={() => router.push(`/inspection/rapport-annuel?rapport=${r.id}`)}
                     className={`flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors ${
-                      detail?.id === r.id ? "bg-si-forest/[0.05]" : "hover:bg-si-forest/[0.03]"
+                      detail?.id === r.id ? "bg-si-ink-strong/[0.05]" : "hover:bg-si-ink-strong/[0.03]"
                     }`}
                   >
                     <span className="text-sm text-[var(--si-ink)]">
@@ -299,7 +299,7 @@ export function AnnualReportScreen({
               </div>
 
               {certified && detail.declarationText && (
-                <blockquote className="mt-4 border-l-2 border-[var(--si-forest)]/30 pl-3 text-sm leading-relaxed text-[var(--si-ink)]">
+                <blockquote className="mt-4 border-l-2 border-[var(--si-ink-strong)]/30 pl-3 text-sm leading-relaxed text-[var(--si-ink)]">
                   {detail.declarationText}
                 </blockquote>
               )}

@@ -143,7 +143,7 @@ function FeatureCard({
         </motion.span>
         <motion.span
           className="text-[11px] font-sans uppercase tracking-[0.12em] text-text-muted mt-2.5"
-          variants={{ hover: { color: "var(--si-forest)" } }}
+          variants={{ hover: { color: "var(--si-ink-strong)" } }}
           transition={{ duration: 0.4 }}
         >
           {feature.kicker}
@@ -241,7 +241,7 @@ export function AnimatedCard({
           className={`text-[11px] font-sans uppercase tracking-[0.12em] ${
             kickerColor ?? "text-text-muted"
           }`}
-          variants={{ hover: { color: "var(--si-forest)" } }}
+          variants={{ hover: { color: "var(--si-ink-strong)" } }}
           transition={{ duration: 0.4 }}
         >
           {kicker}

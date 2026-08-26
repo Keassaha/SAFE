@@ -76,7 +76,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
               placeholder={t("filterPlaceholder")}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:outline-none focus:ring-2 focus:ring-si-forest/35 w-48"
+              className="pl-8 pr-3 py-1.5 text-xs rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:outline-none focus:ring-2 focus:ring-si-ink-strong/35 w-48"
             />
           </div>
         )}
@@ -91,7 +91,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-xs font-medium uppercase tracking-wider text-si-forest">
+                <span className="text-xs font-medium uppercase tracking-wider text-si-ink-strong">
                   {d.numeroDossier ?? d.reference ?? d.id.slice(0, 8)}
                 </span>
                 {d.type && (
@@ -135,7 +135,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               </div>
             </div>
 
-            <ArrowRight className="safe-zoom w-4 h-4 text-si-muted/40 group-hover:text-si-forest transition-colors shrink-0" />
+            <ArrowRight className="safe-zoom w-4 h-4 text-si-muted/40 group-hover:text-si-ink-strong transition-colors shrink-0" />
           </Link>
         ))}
       </div>

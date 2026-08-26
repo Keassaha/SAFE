@@ -88,7 +88,7 @@ function LinkLabel({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-si-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-si-forest/35 focus-visible:outline-offset-2"
+      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-si-ink-strong hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-si-ink-strong/35 focus-visible:outline-offset-2"
     >
       {children}
       <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -725,14 +725,14 @@ function SixMonthChart({
         <polyline
           points={points((r) => r.collected)}
           fill="none"
-          stroke="var(--si-forest)"
+          stroke="var(--si-ink-strong)"
           strokeWidth="1.8"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
       <div className="mt-2 flex flex-wrap items-center gap-4 text-xs safe-text-secondary">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-4 bg-si-forest" /> {t("chartCollected")}
+          <span className="h-0.5 w-4 bg-si-ink-strong" /> {t("chartCollected")}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="h-0.5 w-4 border-t border-dashed border-si-muted" /> {t("chartInvoiced")}

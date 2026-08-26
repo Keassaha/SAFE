@@ -187,7 +187,7 @@ export function ComptabilitePageView({
           <button
             type="button"
             onClick={() => setShowHelp((v) => !v)}
-            className="shrink-0 text-[12px] font-medium text-si-forest hover:underline"
+            className="shrink-0 text-[12px] font-medium text-si-ink-strong hover:underline"
           >
             {showHelp ? t("hideHelp") : t("showHelp")}
           </button>
@@ -200,7 +200,7 @@ export function ComptabilitePageView({
             const content = (
               <>
                 <span className="min-w-0">
-                  <span className="text-[13px] font-medium text-si-ink group-hover:text-si-forest">
+                  <span className="text-[13px] font-medium text-si-ink group-hover:text-si-ink-strong">
                     {row.title}
                   </span>
                   {row.trust && (
@@ -263,9 +263,9 @@ export function ComptabilitePageView({
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-label={t("tabsAriaLabel")}
-            className="inline-flex items-center gap-2.5 rounded-[10px] border-[0.5px] border-si-line bg-si-surface px-4 py-2.5 text-[13px] text-si-ink transition-colors duration-200 hover:border-si-forest/40"
+            className="inline-flex items-center gap-2.5 rounded-[10px] border-[0.5px] border-si-line bg-si-surface px-4 py-2.5 text-[13px] text-si-ink transition-colors duration-200 hover:border-si-ink-strong/40"
           >
-            <CurrentIcon className="w-4 h-4 text-si-forest" strokeWidth={1.75} />
+            <CurrentIcon className="w-4 h-4 text-si-ink-strong" strokeWidth={1.75} />
             <span className="font-medium font-sans">{currentJournal.label}</span>
             <ChevronDown
               className="w-4 h-4 text-si-muted transition-transform duration-200"
@@ -300,14 +300,14 @@ export function ComptabilitePageView({
                             active ? "bg-si-canvas" : "hover:bg-si-canvas"
                           }`}
                         >
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-forest">
+                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
                             <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
                           </span>
                           <span className="min-w-0">
                             <span className="block font-sans text-[13px] font-medium text-si-ink">{j.label}</span>
                             <span className="block font-sans text-[12px] text-si-muted">{j.desc}</span>
                           </span>
-                          {active && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-si-forest" aria-hidden />}
+                          {active && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-si-ink-strong" aria-hidden />}
                         </Link>
                       );
                     })}
@@ -325,7 +325,7 @@ export function ComptabilitePageView({
                           onClick={() => setMenuOpen(false)}
                           className="safe-zoom flex items-center gap-3 rounded-[10px] px-2.5 py-2.5 hover:bg-si-canvas"
                         >
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-forest">
+                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
                             <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
                           </span>
                           <span className="min-w-0">

@@ -24,8 +24,8 @@ export function FocusShell({ children }: { children: ReactNode }) {
         className="fixed bottom-[4.75rem] right-5 z-50 inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg"
         style={
           focus
-            ? { backgroundColor: "var(--si-forest)", color: "#fff" }
-            : { backgroundColor: "#fff", color: "var(--si-forest)", border: "1px solid #CDE0D4" }
+            ? { backgroundColor: "var(--si-ink-strong)", color: "#fff" }
+            : { backgroundColor: "#fff", color: "var(--si-ink-strong)", border: "1px solid #CDE0D4" }
         }
         aria-pressed={focus}
       >

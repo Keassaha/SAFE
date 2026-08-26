@@ -139,7 +139,7 @@ function SectionCard({
   return (
     <Card className="flex flex-col h-full">
       <div className="px-6 py-4 border-b border-si-line/60 flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-si-forest/10 text-si-forest">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-si-ink-strong/10 text-si-ink-strong">
           {icon}
         </span>
         <h2 className="text-base font-medium text-si-ink tracking-tight">{title}</h2>

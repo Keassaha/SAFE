@@ -256,7 +256,7 @@ export function SafetrackCalendar({
                 const isSelected = d === selectedDay;
                 return (
                   <button key={d} type="button" onClick={() => { setSelectedDay(d === selectedDay ? null : d); setExpandedId(null); }}
-                    className={`bg-si-surface min-h-[4.5rem] p-1 text-left transition-colors relative ${isSelected ? "ring-2 ring-si-forest ring-inset z-10" : "hover:bg-si-canvas"}`}>
+                    className={`bg-si-surface min-h-[4.5rem] p-1 text-left transition-colors relative ${isSelected ? "ring-2 ring-si-ink-strong ring-inset z-10" : "hover:bg-si-canvas"}`}>
                     <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium tabular-nums ${isToday ? "safe-action-degrade text-white" : "text-si-ink"}`}>{d}</span>
                     <div className="mt-0.5 space-y-px">
                       {items.slice(0, 2).map((item) => {

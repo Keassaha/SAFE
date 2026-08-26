@@ -63,7 +63,7 @@ export function DocumentsSection({
           <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm text-si-muted file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-si-forest/10 file:text-si-ink"
+            className="text-sm text-si-muted file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-si-ink-strong/10 file:text-si-ink"
           />
           <Button type="submit" disabled={!file || uploading}>
             {uploading ? t("sending") : t("upload")}
@@ -87,7 +87,7 @@ export function DocumentsSection({
                 href={`/api/documents/${doc.id}/download`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-si-forest hover:underline shrink-0"
+                className="text-sm text-si-ink-strong hover:underline shrink-0"
               >
                 {t("download")}
               </Link>

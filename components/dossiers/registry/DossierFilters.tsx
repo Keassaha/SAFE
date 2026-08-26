@@ -156,7 +156,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           aria-controls={zoneAvancesId}
           className={`safe-zoom-menu inline-flex h-9 items-center gap-2 rounded-md border px-2.5 text-[13px] font-medium ${
             avancesOuverts || nbAvancesActifs > 0
-              ? "border-si-forest/40 text-si-forest"
+              ? "border-si-ink-strong/40 text-si-ink-strong"
               : "border-si-line bg-si-surface text-si-muted hover:text-si-ink"
           }`}
         >
@@ -164,7 +164,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           <span className="hidden sm:inline">{t("moreFilters")}</span>
           {nbAvancesActifs > 0 && (
             <span
-              className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-si-forest px-1 font-mono text-[11px] tabular-nums text-white"
+              className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-si-ink-strong px-1 font-mono text-[11px] tabular-nums text-white"
               aria-label={t("moreFiltersActive", { count: nbAvancesActifs })}
             >
               {nbAvancesActifs}
@@ -176,7 +176,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           type="button"
           onClick={handleRefresh}
           disabled={isPending}
-          className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-forest disabled:opacity-50"
+          className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
           aria-label={t("refresh")}
           title={t("refresh")}
         >
@@ -233,7 +233,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
             aria-pressed={overdueActive}
             className={`safe-zoom-menu inline-flex h-9 items-center rounded-md border px-2.5 text-[13px] font-medium ${
               overdueActive
-                ? "border-si-forest/40 bg-si-forest/10 text-si-forest"
+                ? "border-si-ink-strong/40 bg-si-ink-strong/10 text-si-ink-strong"
                 : "border-si-line bg-si-surface text-si-muted hover:text-si-ink"
             }`}
           >

@@ -196,7 +196,7 @@ export default function LaboratoireAccent() {
 
         <footer className="border-t border-si-line py-6 text-[13px] leading-relaxed text-si-muted">
           Bleu ardoise est installé dans le produit. Cette page sert à l&apos;ajuster. Le retenu vit dans <code className="font-mono">lib/ds/palettes.ts</code>,
-          et tout ce qui utilise <code className="font-mono">si-forest</code> suivra sans qu&apos;un
+          et tout ce qui utilise <code className="font-mono">si-ink-strong</code> suivra sans qu&apos;un
           seul écran soit touché.
         </footer>
       </div>

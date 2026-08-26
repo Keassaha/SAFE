@@ -11,7 +11,7 @@ interface Props {
   onSent?: () => void;
 }
 
-const FOREST = "var(--si-forest)";
+const FOREST = "var(--si-ink-strong)";
 const WARN = { fg: "#8B6B1F", bg: "#F5E6C8" };
 const ERR = "#8A3A2D";
 

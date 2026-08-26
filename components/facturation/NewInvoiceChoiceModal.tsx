@@ -121,7 +121,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
           <button
             type="button"
             onClick={() => setMode("registre")}
-            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-forest hover:bg-si-verified/10 transition-all"
+            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-ink-strong hover:bg-si-verified/10 transition-all"
           >
             <div className="flex items-start gap-3 mb-3">
               <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-verified/10 text-si-verified border border-si-verified/30">
@@ -199,7 +199,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                     key={d.id}
                     className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                       selectedDossierId === d.id
-                        ? "border-si-forest bg-si-verified/10"
+                        ? "border-si-ink-strong bg-si-verified/10"
                         : "border-si-line hover:bg-si-canvas"
                     }`}
                   >
@@ -209,7 +209,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                       value={d.id}
                       checked={selectedDossierId === d.id}
                       onChange={() => setSelectedDossierId(d.id)}
-                      className="accent-si-forest"
+                      className="accent-si-ink-strong"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-si-ink truncate">

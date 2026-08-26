@@ -90,9 +90,9 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                 <td className="px-4 py-3">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-si-forest hover:underline"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-si-ink-strong hover:underline"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-si-canvas text-si-forest">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
                       <FileText className="h-4 w-4" aria-hidden />
                     </span>
                     <span className="font-mono">{displayInvoiceNumero(inv.numero)}</span>
@@ -101,7 +101,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                 <td className="px-4 py-3">
                   <Link
                     href={routes.client(inv.clientId)}
-                    className="inline-flex items-center gap-2 text-sm text-si-forest hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-si-ink-strong hover:underline"
                   >
                     <Building2 className="h-4 w-4 text-si-muted shrink-0" aria-hidden />
                     {inv.client}
@@ -111,7 +111,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                   {inv.dossierId ? (
                     <Link
                       href={routes.dossier(inv.dossierId)}
-                      className="text-si-forest hover:underline"
+                      className="text-si-ink-strong hover:underline"
                     >
                       {inv.dossier}
                     </Link>
@@ -168,7 +168,7 @@ export function FacturationTable({ invoices }: { invoices: FacturationTableRow[]
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={routes.facturationFactureEdit(inv.id)}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-si-forest hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-si-ink-strong hover:underline"
                   >
                     {t("see")}
                     <ChevronRight className="h-4 w-4" aria-hidden />

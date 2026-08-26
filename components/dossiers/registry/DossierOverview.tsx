@@ -64,7 +64,7 @@ export function DossierOverview({ data }: DossierOverviewProps) {
           <p className="text-si-muted">
             <Link
               href={routes.client(data.clientId)}
-              className="text-si-forest hover:underline font-medium"
+              className="text-si-ink-strong hover:underline font-medium"
             >
               {data.clientName}
             </Link>

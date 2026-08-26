@@ -282,7 +282,7 @@ function TaskBucketCard({ title, description, items }: TaskBucketProps) {
       <CardHeader title={title} />
       <CardContent>
         <div className="flex items-center gap-2 mb-2">
-          <ListChecks className="w-5 h-5 text-si-forest" aria-hidden />
+          <ListChecks className="w-5 h-5 text-si-ink-strong" aria-hidden />
           <span className="text-xs px-2 py-0.5 rounded-full bg-si-canvas text-si-muted">
             {items.length}
           </span>
@@ -348,7 +348,7 @@ function EventBucketCard({ title, description, items }: EventBucketProps) {
       <CardHeader title={title} />
       <CardContent>
         <div className="flex items-center gap-2 mb-2">
-          <CalendarClock className="w-5 h-5 text-si-forest" aria-hidden />
+          <CalendarClock className="w-5 h-5 text-si-ink-strong" aria-hidden />
           <span className="text-xs px-2 py-0.5 rounded-full bg-si-canvas text-si-muted">
             {items.length}
           </span>

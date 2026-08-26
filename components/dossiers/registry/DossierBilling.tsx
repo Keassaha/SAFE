@@ -96,7 +96,7 @@ export function DossierBilling({
             {t("noTimesheets")}{" "}
             <Link
               href={routes.temps}
-              className="text-si-forest hover:underline"
+              className="text-si-ink-strong hover:underline"
             >
               {t("addTimesheetLink")}
             </Link>

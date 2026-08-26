@@ -208,7 +208,7 @@ export function AlertCenter({ status, province, abonnement }: AlertCenterProps) 
                     href={o.href}
                     hrefLang={locale}
                     onClick={() => setOuvert(false)}
-                    className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-si-verified transition-colors hover:text-si-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+                    className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-si-verified transition-colors hover:text-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
                   >
                     {o.action}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden />

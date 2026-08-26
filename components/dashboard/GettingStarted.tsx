@@ -36,10 +36,10 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
   const progressPercent = (completedCount / TOTAL_STEPS) * 100;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-si-line border-l-4 border-l-si-forest bg-si-surface p-5 md:p-6">
+    <div className="overflow-hidden rounded-2xl border border-si-line border-l-4 border-l-si-ink-strong bg-si-surface p-5 md:p-6">
       <div className="mb-4">
         <h3 className="flex items-center gap-1.5 font-serif text-[19px] leading-tight text-si-ink">
-          <Sparkles className="w-4 h-4 text-si-forest" strokeWidth={1.5} aria-hidden />
+          <Sparkles className="w-4 h-4 text-si-ink-strong" strokeWidth={1.5} aria-hidden />
           {t("title")}
         </h3>
         <p className="text-xs mt-1 text-si-muted">{t("subtitle")}</p>
@@ -53,7 +53,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
         </div>
         <div className="h-2 rounded-full overflow-hidden bg-si-canvas">
           <motion.div
-            className="h-full rounded-full bg-si-forest"
+            className="h-full rounded-full bg-si-ink-strong"
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ type: "tween", duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
@@ -75,7 +75,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
               >
                 <span
                   className={`relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
-                    done ? "bg-si-forest border-si-forest" : "bg-si-surface border-si-line"
+                    done ? "bg-si-ink-strong border-si-ink-strong" : "bg-si-surface border-si-line"
                   }`}
                   aria-hidden
                   role="img"

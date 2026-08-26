@@ -93,7 +93,7 @@ export async function AdminReadinessStrip({ report }: { report: ReadinessReport 
               </span>
               <Link
                 href={DOMAIN_ROUTE[d.domain]}
-                className="text-si-forest hover:underline whitespace-nowrap"
+                className="text-si-ink-strong hover:underline whitespace-nowrap"
               >
                 {t("readinessFix")}
               </Link>

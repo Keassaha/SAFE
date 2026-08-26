@@ -101,7 +101,7 @@ export default async function ConsoleClientsPage() {
           isConsoleIntakeEnabled() ? (
             <Link
               href="/console/clients/nouveau"
-              className="inline-flex items-center rounded-xl bg-si-surface px-4 py-2 text-sm font-medium text-si-forest transition hover:bg-si-surface/90"
+              className="inline-flex items-center rounded-xl bg-si-surface px-4 py-2 text-sm font-medium text-si-ink-strong transition hover:bg-si-surface/90"
             >
               + Nouveau client
             </Link>

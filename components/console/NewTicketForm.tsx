@@ -42,7 +42,7 @@ export function NewTicketForm({ cabinets }: { cabinets: CabinetOption[] }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-forest-soft"
+        className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft"
       >
         + Nouveau ticket
       </button>
@@ -91,7 +91,7 @@ export function NewTicketForm({ cabinets }: { cabinets: CabinetOption[] }) {
         <textarea name="description" required rows={3} className={inputCls} placeholder="Détails…" />
       </div>
       <div className="flex items-center gap-2">
-        <button type="submit" disabled={isPending} className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-forest-soft disabled:opacity-50">
+        <button type="submit" disabled={isPending} className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50">
           {isPending ? "Création…" : "Créer le ticket"}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60">

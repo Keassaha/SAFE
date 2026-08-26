@@ -46,7 +46,7 @@ export const registreCellNumClass =
 
 /** Lien porteur d'une rangée : le nom, la référence. Jamais souligné au repos. */
 export const registreLienClass =
-  "block min-w-0 truncate text-[14px] font-medium leading-5 text-si-ink transition-colors hover:text-si-forest";
+  "block min-w-0 truncate text-[14px] font-medium leading-5 text-si-ink transition-colors hover:text-si-ink-strong";
 
 /**
  * Ouvre la rangée au clic, où qu'on la clique. Le calcul vit à part pour se
@@ -56,7 +56,7 @@ export { rangeeOuvrable } from "./rangee-ouvrable";
 
 /** Case à cocher de registre, identique dans les trois listes. */
 export const registreCaseClass =
-  "h-4 w-4 rounded border-si-line text-si-forest focus:ring-si-forest/30";
+  "h-4 w-4 rounded border-si-line text-si-ink-strong focus:ring-si-ink-strong/30";
 
 /**
  * Géométrie d'un contrôle de barre d'outils. 36 px de haut : les trois
@@ -68,7 +68,7 @@ export const registreCaseClass =
  * nuisance.
  */
 export const registreChampClass =
-  "h-9 rounded-md border border-si-line bg-si-surface text-[13px] text-si-ink outline-none transition-[border-color,box-shadow] focus:border-si-forest/40 focus:ring-2 focus:ring-si-forest/20";
+  "h-9 rounded-md border border-si-line bg-si-surface text-[13px] text-si-ink outline-none transition-[border-color,box-shadow] focus:border-si-ink-strong/40 focus:ring-2 focus:ring-si-ink-strong/20";
 
 /**
  * Contrôle qui sélectionne : liste déroulante, bascule, bouton d'outil. Ceux-là
