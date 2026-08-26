@@ -2300,6 +2300,109 @@ const CSS = `
      habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
      n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
      elle qui doit etre confortable. Demande CEO du 2026-08-26. */
+  /* ── Les cartes de forfait ────────────────────────────────────────────────
+     Modele releve sur cursor.com : le nom, le prix en grand avec son unite en
+     petit, ce que le forfait contient en liste a coches, un bouton pleine
+     largeur au bas. La carte se lit de haut en bas et se termine par le geste.
+
+     Les cartes prennent leur hauteur NATURELLE. J'avais d'abord voulu les
+     egaliser pour que les deux boutons tombent a la meme ligne, en me disant
+     que deux hauteurs differentes se liraient comme deux rangs. Mesure faite,
+     Solo porte six lignes et Cabinet deux : l'egalisation ouvrait un vide de
+     trois cents pixels au milieu de la seconde carte, et un vide se lit comme
+     une erreur, pas comme une egalite. Deux cartes de hauteurs differentes,
+     elles, se lisent comme deux offres de contenus differents, ce qui est
+     exactement le cas. */
+  .xc .forfaits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(16px, 2vw, 26px);
+    margin-top: clamp(24px, 3.2vh, 36px);
+    align-items: start;
+  }
+  .xc .forfait {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--si-border);
+    border-radius: 14px;
+    background: var(--si-surface);
+    padding: clamp(22px, 2.6vw, 32px);
+  }
+  .xc .f-nom {
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    color: var(--si-ink);
+  }
+  .xc .f-prix {
+    font-family: var(--mono);
+    font-size: var(--t-argument);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    margin-top: 6px;
+  }
+  .xc .f-prix small {
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    color: var(--si-muted);
+    margin-left: 6px;
+  }
+  .xc .f-dit {
+    margin-top: 14px;
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.55;
+    color: var(--si-muted);
+    max-width: 40ch;
+  }
+  .xc .f-liste { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 9px; }
+  .xc .f-liste li {
+    position: relative;
+    padding-left: 24px;
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.45;
+    color: var(--si-ink);
+  }
+  /* La coche est dessinee par deux bords, pas par un caractere : un « ✓ » est
+     compte comme emoji par le standard, et son dessin change d'une fonte a
+     l'autre. */
+  .xc .f-liste li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.42em;
+    width: 9px; height: 5px;
+    border-left: 1.6px solid var(--si-verified);
+    border-bottom: 1.6px solid var(--si-verified);
+    transform: rotate(-45deg);
+  }
+  /* Le bouton suit la liste, il n'est plus pousse au bas de la carte. */
+  .xc .f-action { margin-top: 22px; justify-content: center; }
+  .xc .forfait .btn { width: 100%; }
+
+  /* Le programme des fondateurs. Un bloc, pas une troisieme carte : ce n'est
+     pas un forfait de plus, c'est une condition sur les deux. */
+  .xc .fondateurs-bloc {
+    margin-top: clamp(16px, 2vw, 26px);
+    border: 1px solid rgb(var(--si-verified-rgb) / 0.28);
+    border-radius: 14px;
+    background: rgb(var(--si-verified-rgb) / 0.05);
+    padding: clamp(20px, 2.4vw, 28px);
+  }
+  .xc .fondateurs-bloc .f-dit { color: var(--si-body); max-width: 72ch; }
+  .xc .fondateurs-bloc .f-dit b { font-weight: 400; color: var(--si-ink); }
+  .xc .f-places {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--si-verified);
+  }
+  @media (max-width: 900px) {
+    .xc .forfaits { grid-template-columns: 1fr; }
+  }
+
   .xc .objections { margin-top: clamp(28px, 3.6vh, 44px); }
   .xc .obj {
     border-top: 1px solid var(--si-line);
@@ -4883,6 +4986,24 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
+/* Ce que contient un abonnement. Repris de components/public-site/PricingPage.tsx :
+   les deux pages disent la meme chose ou elles divergent au premier changement. */
+const COMPRIS_FORFAIT: string[] = [
+  "Fidéicommis rapproché à trois sources",
+  "Dossiers, clients et parties reliés",
+  "Temps et débours prêts à facturer",
+  "Facturation avec taxes et suivi des paiements",
+  "Configuration initiale avec votre équipe",
+  "Interface en français et en anglais",
+];
+
+/* Ce que le palier Cabinet ajoute. Deux entrees seulement, et les deux sont
+   verifiables dans le produit : les roles vivent dans lib/auth/permissions.ts. */
+const EN_PLUS_CABINET: string[] = [
+  "L'accès pour votre adjointe et votre équipe",
+  "Des droits par rôle : avocate, adjointe, comptabilité",
+];
+
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
    ce que le cabinet doit préparer : c'est la différence entre un
    accompagnement et un mode d'emploi. */
@@ -5884,27 +6005,82 @@ export default function ExperienceCinema() {
             ))}
           </div>
 
+          {/* ── Les forfaits, au modele de cursor.com ────────────────────────
+              Ils tenaient en deux rangees : un nom, une phrase, un prix a
+              droite. On lisait le prix sans savoir ce qu'il achete, et la
+              difference entre les deux paliers n'etait dite nulle part.
+
+              Le modele de Cursor, releve dans la video du CEO : le nom, le
+              prix en grand avec son unite en petit, ce que le forfait
+              contient en liste a coches, et un bouton pleine largeur. Le
+              second palier ne repete pas le premier, il dit « tout ce qui est
+              dans Solo, plus ».
+
+              Les contenus viennent des memes constantes que /tarification :
+              une seule source, sinon les deux pages divergent au premier
+              changement de prix. */}
           <p className="sous-titre-bloc filet">Choisir le forfait</p>
-          <div className="plan">
-            <div>
-              <p className="name">Solo</p>
-              <p className="detail">
-                Pour une pratique individuelle qui veut relier son administration, sa facturation,
-                sa comptabilité et son fidéicommis.
+          <div className="forfaits">
+            <article className="forfait">
+              <p className="f-nom">Solo</p>
+              <p className="f-prix">
+                {prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small>
               </p>
-            </div>
-            <p className="price">{prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small></p>
-          </div>
-          <div className="plan">
-            <div>
-              <p className="name">Cabinet</p>
-              <p className="detail">
-                Pour une petite équipe qui partage les dossiers, les suivis et les responsabilités
-                administratives.
+              <p className="f-dit">
+                Pour l&apos;avocate ou l&apos;avocat qui exerce seul. Fidéicommis, dossiers, temps
+                et facturation dans un même abonnement.
               </p>
-            </div>
-            <p className="price">{prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small></p>
+              <ul className="f-liste">
+                {COMPRIS_FORFAIT.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+              <a className="btn ghost f-action" href={ROUTES.evaluation}>
+                Évaluer mon cabinet
+              </a>
+            </article>
+
+            <article className="forfait">
+              <p className="f-nom">Cabinet</p>
+              <p className="f-prix">
+                {prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small>
+              </p>
+              <p className="f-dit">Tout ce qui est compris dans Solo, plus :</p>
+              <ul className="f-liste">
+                {EN_PLUS_CABINET.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+              <a className="btn f-action" href={ROUTES.evaluation}>
+                Évaluer mon cabinet
+              </a>
+            </article>
           </div>
+
+          {/* Le programme des fondateurs se dit APRES les deux forfaits, pas a
+              la place. Un prix reduit annonce avant le prix normal fait douter
+              du second. Le compteur de places est le vrai : il vient de la
+              meme constante que la page de tarification, et il n'est jamais
+              gonfle. */}
+          <div className="fondateurs-bloc">
+            <p className="f-nom">Programme des fondateurs</p>
+            <p className="f-dit">
+              <b>
+                {TARIFICATION.fondateurs.premiereAnneeSolo} $ et{" "}
+                {TARIFICATION.fondateurs.premiereAnneeCabinet} $ par mois pendant{" "}
+                {TARIFICATION.fondateurs.dureeMois} mois.
+              </b>{" "}
+              Ensuite votre tarif reste gelé à {TARIFICATION.fondateurs.apresSolo} $ ou{" "}
+              {TARIFICATION.fondateurs.apresCabinet} $, et non au tarif régulier : votre coût ne
+              double pas au treizième mois.
+            </p>
+            <p className="f-places">
+              {TARIFICATION.fondateurs.placesTotal - TARIFICATION.fondateurs.placesPrises} places
+              sur {TARIFICATION.fondateurs.placesTotal} · sortie libre ·{" "}
+              {TARIFICATION.fondateurs.garantieJours} jours pour changer d&apos;avis
+            </p>
+          </div>
+
           <p className="note">
             Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.
           </p>
