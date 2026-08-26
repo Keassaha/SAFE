@@ -35,6 +35,7 @@ import {
   SAFE_PALETTE,
 } from "@/components/brand/safe-mark";
 import Image from "next/image";
+import { Objections, reglesObjections, type Objection } from "./objections";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
 import { MENU_PRINCIPAL } from "@/components/public-site/menu-principal";
 import { SafeMark } from "@/components/branding/SafeLogo";
@@ -2297,53 +2298,6 @@ const CSS = `
      lue, et sans effet. */
   .xc #nav .links a.en-avant { color: var(--si-ink); }
 
-  /* ── Les objections repliees ──────────────────────────────────────────────
-     L'intitule descend et la reponse monte : c'est l'inverse du reglage
-     habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
-     n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
-     elle qui doit etre confortable. Demande CEO du 2026-08-26. */
-
-  .xc .objections { margin-top: clamp(28px, 3.6vh, 44px); }
-  .xc .obj {
-    border-top: 1px solid var(--si-line);
-  }
-  .xc .obj:last-child { border-bottom: 1px solid var(--si-line); }
-  .xc .obj summary {
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    padding: 17px 0;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    color: var(--si-ink);
-    cursor: pointer;
-    list-style: none;
-    transition: color 180ms ease;
-  }
-  .xc .obj summary::-webkit-details-marker { display: none; }
-  .xc .obj summary:hover { color: var(--si-body); }
-  /* Le chevron tourne d'un quart de tour a l'ouverture. Il vit dans un « i »
-     et non dans le marqueur natif, que Safari refuse de styler. */
-  .xc .obj summary i {
-    flex: 0 0 auto;
-    width: 8px; height: 8px;
-    border-right: 1.4px solid var(--si-subtle);
-    border-bottom: 1.4px solid var(--si-subtle);
-    transform: rotate(45deg);
-    margin-right: 3px;
-    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc .obj[open] summary i { transform: rotate(-135deg); }
-  .xc .obj > p {
-    margin: 0;
-    padding: 0 0 20px;
-    max-width: 62ch;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.66;
-    color: var(--si-body);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .xc .obj summary i { transition: none; }
-  }
 
   /* Le zoom souple, version fenetre. La classe partagee « .safe-zoom » pose
      une box-shadow : sur un parent transparent aux coins arrondis, elle
@@ -4814,7 +4768,7 @@ const VUES: [string, string, string, string][] = [
   ],
 ];
 
-const QUESTIONS: [string, string][] = [
+const QUESTIONS: Objection[] = [
   [
     "SAFE remplace-t-il mon logiciel comptable ?",
     "SAFE tient la comptabilité liée aux opérations du cabinet et prépare une information structurée. Le diagnostic permet de déterminer la place que doit conserver votre logiciel comptable actuel.",
@@ -4868,7 +4822,7 @@ export default function ExperienceCinema() {
   return (
     <>
     <div className="xc" ref={rootRef}>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS + reglesObjections(".xc") }} />
 
       <nav id="nav">
         <a className="brand" href="#top" aria-label="SAFE, retour au haut de la page">
@@ -5683,17 +5637,9 @@ export default function ExperienceCinema() {
               <b>Les questions fréquentes.</b> Ouvrez celle qui vous concerne.
             </p>
           </div>
-          <div className="objections">
-            {QUESTIONS.map(([q, r]) => (
-              <details className="obj" key={q}>
-                <summary>
-                  {q}
-                  <i aria-hidden />
-                </summary>
-                <p>{r}</p>
-              </details>
-            ))}
-          </div>
+          {/* L'accordeon vit dans ./objections.tsx : /faq sert le MEME modele
+              depuis le meme composant. */}
+          <Objections entrees={QUESTIONS} />
           <a className="more" href={ROUTES.faq}>Lire toutes les questions →</a>
         </div>
       </section>
