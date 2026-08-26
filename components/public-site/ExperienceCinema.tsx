@@ -28,7 +28,6 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { CartesForfaits, PanneauFondateurs, reglesForfaits } from "./forfaits";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import {
   ASSEMBLY_PIECE_A_PATH,
@@ -2269,25 +2268,12 @@ const CSS = `
      de preuve, sans rien pour dire qu'on change de registre. Elles gagnent un
      degagement plus large et un filet discret entre elles. Aucune couleur,
      aucun fond, aucun composant nouveau : seulement de l'air et un trait. */
-  .xc #equipe, .xc #tarifs, .xc #questions, .xc #cta {
+  .xc #equipe, .xc #questions, .xc #cta {
     padding-block: clamp(88px, 12vh, 148px);
   }
   /* Le titre d'une sous-partie a l'interieur d'une section. Il ne cree pas un
      niveau de titre de plus : c'est un libelle, dans la meme graisse que les
      autres exergues de la page. */
-  .xc .sous-titre-bloc {
-    margin-top: clamp(34px, 4.4vw, 52px);
-    font-family: var(--mono);
-    font-size: var(--t-menu);
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-    color: var(--si-muted);
-  }
-  .xc .sous-titre-bloc.filet {
-    margin-top: clamp(44px, 5.6vw, 68px);
-    padding-top: clamp(30px, 3.6vw, 44px);
-    border-top: 1px solid var(--si-line);
-  }
 
   .xc .chaine .lien {
     flex: 0 0 28px; display: grid; place-items: center;
@@ -2312,67 +2298,6 @@ const CSS = `
      habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
      n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
      elle qui doit etre confortable. Demande CEO du 2026-08-26. */
-  /* Les trois temps portaient un symbole en regard de leur rang, et chaque
-     garantie le sien. Retires le 2026-08-26 : le CEO les a juges DECONNECTES
-     DU RESTE DU SITE, et il a raison. Nulle part ailleurs SAFE ne met une
-     icone devant un libelle ; les registres, les tableaux, les fiches n'en
-     portent aucune. Huit glyphes apparaissaient ici et seulement ici. Le rang
-     numerote suffit a ordonner, et le libelle dit deja ce que le symbole
-     redisait. */
-
-  /* ── Le panneau des garanties ─────────────────────────────────────────────
-     Modele de cursor.com/home : le contenu vit dans un panneau avec son propre
-     fond au lieu de flotter sur la page. C'est ce qui separe deux mouvements
-     d'une meme section sans ajouter un titre de plus.
-
-     La phrase de gauche et les quatre garanties sont a la MEME taille, comme
-     chez eux : seul le gris les separe. Une phrase de conclusion qui grossit
-     redeviendrait un titre, et la section en compte deja deux. */
-  .xc .panneau-garanties {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2.1fr);
-    gap: clamp(24px, 3.4vw, 54px);
-    align-items: center;
-    margin-top: clamp(28px, 3.6vh, 44px);
-    padding: clamp(24px, 3vw, 38px);
-    border-radius: 16px;
-    background: rgb(var(--si-ink-rgb) / 0.035);
-  }
-  .xc .pg-dit {
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.35;
-    color: var(--si-ink);
-  }
-  .xc .pg-liste {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(16px, 2vw, 30px);
-  }
-  /* Un filet entre deux garanties, pas autour : le panneau a deja un bord. */
-  .xc .pg + .pg { border-left: 1px solid var(--si-line); padding-left: clamp(16px, 2vw, 30px); }
-  .xc .pg-t {
-    margin-top: 12px;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    color: var(--si-ink);
-    line-height: 1.35;
-  }
-  .xc .pg-d {
-    margin-top: 5px;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    color: var(--si-muted);
-    line-height: 1.45;
-  }
-  @media (max-width: 900px) {
-    .xc .panneau-garanties { grid-template-columns: 1fr; align-items: start; }
-    .xc .pg-liste { grid-template-columns: 1fr 1fr; }
-    /* En deux colonnes, un filet a gauche de chaque paire impaire pend dans le
-       vide : il ne reste qu'entre les deux colonnes d'une meme rangee. */
-    .xc .pg + .pg { border-left: 0; padding-left: 0; }
-    .xc .pg:nth-child(even) { border-left: 1px solid var(--si-line); padding-left: 18px; }
-  }
 
   .xc .objections { margin-top: clamp(28px, 3.6vh, 44px); }
   .xc .obj {
@@ -2683,58 +2608,14 @@ const CSS = `
      est le plus grand de la section, et le plus petit sépare une étape de sa
      justification. C'est ce rapport qui fait lire, pas la quantité de vide
      (SAFE_PREMIUM_DESIGN_STANDARD §2.2, un pour trois au moins). */
-  .xc #tarifs .etapes {
-    margin-top: clamp(48px, 6vw, 76px);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(24px, 3.4vw, 48px);
-  }
-  .xc #tarifs .etape { border-top: 1px solid var(--line); padding-top: 16px; }
-  .xc #tarifs .etape .n {
-    font-family: var(--mono);
-    font-size: var(--t-menu);
-    letter-spacing: 0.1em;
-    color: var(--verified);
-  }
-  .xc #tarifs .etape .t {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-size: var(--t-argument);
-    line-height: 1.25;
-    letter-spacing: -0.014em;
-    color: var(--si-ink);
-  }
-  .xc #tarifs .etape .d {
-    margin-top: 8px;
-    max-width: 34ch;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    line-height: 1.55;
-    color: var(--muted);
-  }
-  .xc #tarifs .actions { margin-top: clamp(40px, 5vw, 60px); display: flex; gap: 18px; flex-wrap: wrap; }
 
   /* Une section de récit peut prendre la surface blanche. On ne s'en sert
      pas aujourd'hui : la page tient sur un seul canevas, et c'est ce qui
      laisse les deux captures s'y fondre sans bord visible. */
   .xc .recit.surface { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 
-  .xc #tarifs .plan {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 16px;
-    padding: 26px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .xc #tarifs .plan:first-of-type { margin-top: clamp(56px, 8vh, 104px); border-top: 1px solid var(--line); }
-  .xc #tarifs .plan .name { font-family: var(--sans); font-size: var(--t-explique); }
-  .xc #tarifs .plan .detail { margin-top: 6px; font-family: var(--sans); font-size: var(--t-explique); color: var(--muted); }
   /* Le prix et son unité restent un chiffre : mono, comme tout montant du
      site. La serif s'arrête au texte qui l'entoure. */
-  .xc #tarifs .plan .price { font-family: var(--mono); font-size: var(--t-argument); text-align: right; }
-  .xc #tarifs .plan .price small { font-family: var(--mono); font-size: var(--t-menu); color: var(--muted); margin-left: 4px; }
-  .xc #tarifs .note { margin-top: 22px; font-family: var(--sans); font-size: 13px; color: var(--muted); }
 
   .xc #questions .q {
     display: grid;
@@ -3409,14 +3290,9 @@ const CSS = `
     .xc .deux-blocs,
     .xc .deux-vues,
     .xc .bloc-maitre,
-    .xc #tarifs .etapes {
-      grid-template-columns: 1fr;
-      gap: 22px;
-    }
     .xc .morceaux { margin-top: 26px; }
     .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
     .xc .deux-vues { margin-top: 26px; }
-    .xc #tarifs .etapes { margin-top: 28px; }
     /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
        droite en plus de la colonne du numéro ne laisse plus rien au texte. */
     .xc .morceau { grid-template-columns: 26px 1fr; row-gap: 6px; padding: 13px 0; }
@@ -3424,11 +3300,9 @@ const CSS = `
     .xc .morceau .ou { grid-column: 2; }
     .xc .bloc-maitre h3, .xc .deux-blocs h3 { font-size: var(--t-argument); max-width: none; }
     .xc .bloc-maitre p, .xc .deux-blocs p,
-    .xc #tarifs .etape .d { max-width: none; font-size: var(--t-detail); }
     .xc .deux-vues .vue p { max-width: none; }
     .xc .chute, .xc .fi-precision { max-width: none; font-size: var(--t-corps); }
     .xc .contexte li { font-size: var(--t-menu); padding: 6px 10px; }
-    .xc #tarifs .actions { margin-top: 28px; flex-direction: column; align-items: stretch; }
     .xc .fi-intro { margin-top: 12px; font-size: var(--t-detail); line-height: 1.5; max-width: none; }
     .xc #questions .liste-q { margin-top: 26px; }
 
@@ -3446,28 +3320,16 @@ const CSS = `
        rien, il ne fait que rogner. Il tombe donc, et les huit blocs prennent
        la colonne, comme tout le reste de la page. */
     .xc .co-fin, .xc .co-fin .co-comptable,
-    .xc #tarifs h2, .xc #questions h2, .xc #cta h2 { max-width: none; }
 
     /* ── Bas de page ────────────────────────────────────────────────────────
        Les trois sections plates gardaient l'échelle du large : leurs titres
        montaient à 46 et 56 px, et le prix pesait plus lourd que le nom du
        forfait qu'il chiffre. Elles rejoignent l'échelle commune. */
-    .xc #tarifs h2, .xc #questions h2, .xc #cta h2 {
-      font-size: var(--t-titre);
-      line-height: 1.14;
-    }
     /* Le prix se cale sur le nom du forfait, pas sur le milieu du bloc. Avec
        align-items: center, un prix de 22 px se centrait sur deux lignes de
        texte et venait se poser entre « Solo » et sa description : il ne
        chiffrait visuellement ni l'un ni l'autre. Aligné sur la ligne de base
        du nom, il chiffre le nom. */
-    .xc #tarifs .plan { padding: 20px 0; gap: 12px; align-items: baseline; }
-    .xc #tarifs .plan:first-of-type { margin-top: 24px; }
-    .xc #tarifs .plan .name { font-size: var(--t-explique); }
-    .xc #tarifs .plan .detail { font-size: var(--t-explique); }
-    .xc #tarifs .plan .price { font-size: 21px; }
-    .xc #tarifs .plan .price small { font-size: var(--t-menu); }
-    .xc #tarifs .note, .xc #questions .more, .xc #tarifs .more { font-size: var(--t-detail); }
     .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
     .xc #questions .q h3 { font-size: var(--t-argument); }
     .xc #questions .q p { font-size: var(--t-corps); max-width: none; }
@@ -4948,30 +4810,6 @@ const VUES: [string, string, string, string][] = [
   ],
 ];
 
-/* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
-   ce que le cabinet doit préparer : c'est la différence entre un
-   accompagnement et un mode d'emploi. */
-const IMPLANTATION: [string, string, string][] = [
-  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités."],
-  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique."],
-  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service."],
-];
-
-/* Ce que la mise en route garantit. Chaque ligne est tenue ailleurs :
-   « on part de ce que vous faites deja » et la reprise des dossiers viennent de
-   l'offre fondatrice (lib/tarification.ts), les regles du Barreau du moteur de
-   conformite, l'accompagnement de la mise en route faite par nous.
-
-   Quatre lignes et pas six : un panneau de garanties qui en aligne six cesse
-   d'etre une garantie et devient une liste de fonctions. */
-const GARANTIES: [string, string][] = [
-  ["Moins de temps perdu", "On part de ce que vous faites déjà."],
-  ["Conforme dès le départ", "Les règles du Barreau sont dans le produit."],
-  ["Accompagnement humain", "La mise en route est faite par nous, pas par vous."],
-  ["Vos vrais dossiers", "Repris avant la mise en service, pas des données de démonstration."],
-];
-
-
 const QUESTIONS: [string, string][] = [
   [
     "SAFE remplace-t-il mon logiciel comptable ?",
@@ -5026,7 +4864,7 @@ export default function ExperienceCinema() {
   return (
     <>
     <div className="xc" ref={rootRef}>
-      <style dangerouslySetInnerHTML={{ __html: CSS + reglesForfaits(".xc") }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       <nav id="nav">
         <a className="brand" href="#top" aria-label="SAFE, retour au haut de la page">
@@ -5808,98 +5646,15 @@ export default function ExperienceCinema() {
         </div>
       </section>
 
-      {/* ── 07 · L'offre ────────────────────────────────────────────────────
-         Les prix viennent de `lib/tarification.ts`, seule source du site. Le
-         palier Cabinet vaut 149,99 $ et non 149 $ : c'est ce que Stripe
-         facture réellement, et un prix arrondi sur la vitrine deviendrait un
-         écart à la première facture. */}
-      <section className="recit" id="tarifs">
-        <div className="inner">
-          {/* « Simple des le depart » ne disait pas de quoi la section parle :
-              on peut etre simple des le depart pour a peu pres tout. Le titre
-              nomme maintenant l'action, et la phrase annonce les deux temps
-              qui suivent, le parcours puis les forfaits. Demande CEO du
-              2026-08-26. */}
-          <div className="tete">
-            <h2>Commencer avec SAFE</h2>
-            <p className="dire">
-              <b>Trois temps, puis un forfait.</b> La configuration est comprise : le système est
-              adapté à votre pratique avant la mise en service.
-            </p>
-          </div>
-          {/* L'implantation passe AVANT les forfaits. On ne choisit pas un
-              prix avant de savoir ce qu'on achete : la mise en route est ce
-              qui distingue l'offre, le forfait n'en est que le chiffre.
-              Deux sous-parties dans la MEME section, separees par un filet,
-              pour ne pas ajouter une section de plus au bas de page. */}
-          <p className="sous-titre-bloc">Commencer avec vos vrais dossiers</p>
-          <div className="etapes">
-            {IMPLANTATION.map(([n, titre, texte]) => (
-              <div className="etape" key={n}>
-                <span className="n" aria-hidden>{n}</span>
-                <p className="t">{titre}</p>
-                <p className="d">{texte}</p>
-              </div>
-            ))}
-          </div>
+      {/* La section « Commencer avec SAFE » tenait ici : les trois temps de
+         la mise en route, le panneau des garanties, les deux cartes de forfait
+         et le programme des fondateurs. Retiree le 2026-08-26 sur decision du
+         CEO, « toute cette section sera supprimee ».
 
-          {/* ── Le panneau des garanties ─────────────────────────────────────
-              Modele de cursor.com/home : le contenu vit dans un PANNEAU avec
-              son propre fond, au lieu de flotter sur la page. Ici il porte ce
-              que la mise en route garantit, et il ferme les trois temps par
-              une phrase plutot que par un vide.
-
-              Chaque ligne est tenue ailleurs : « on part de ce que vous faites
-              deja » et la reprise des dossiers viennent de l'offre fondatrice,
-              les regles du Barreau du moteur de conformite. */}
-          <div className="panneau-garanties">
-            <p className="pg-dit">
-              Votre pratique reste
-              <br />
-              notre point de départ.
-            </p>
-            <div className="pg-liste">
-              {GARANTIES.map(([titre, texte]) => (
-                <div className="pg" key={titre}>
-                  <p className="pg-t">{titre}</p>
-                  <p className="pg-d">{texte}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Les forfaits, au modele de cursor.com ────────────────────────
-              Ils tenaient en deux rangees : un nom, une phrase, un prix a
-              droite. On lisait le prix sans savoir ce qu'il achete, et la
-              difference entre les deux paliers n'etait dite nulle part.
-
-              Le modele de Cursor, releve dans la video du CEO : le nom, le
-              prix en grand avec son unite en petit, ce que le forfait
-              contient en liste a coches, et un bouton pleine largeur. Le
-              second palier ne repete pas le premier, il dit « tout ce qui est
-              dans Solo, plus ».
-
-              Les contenus viennent des memes constantes que /tarification :
-              une seule source, sinon les deux pages divergent au premier
-              changement de prix. */}
-          {/* Les cartes et le panneau des fondateurs vivent dans
-              ./forfaits.tsx : l'accueil et /tarification servent le MEME
-              modele, sinon les deux pages divergent au premier changement de
-              grille. Demande CEO du 2026-08-26. */}
-          <p className="sous-titre-bloc filet">Choisir le forfait</p>
-          <CartesForfaits action={ROUTES.evaluation} />
-          <PanneauFondateurs />
-
-          <p className="note">
-            Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.
-          </p>
-
-          <div className="actions">
-            <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
-            <a className="btn ghost" href={ROUTES.tarification}>Voir la tarification complète</a>
-          </div>
-        </div>
-      </section>
+         Elle n'emporte rien avec elle : /tarification sert le meme modele,
+         depuis le meme composant (./forfaits.tsx), et la barre de navigation y
+         mene depuis chaque page. La section « cta » qui ferme l'accueil garde
+         les deux actions, evaluer et reserver une rencontre. */}
 
       {/* ── 08 · Les questions ──────────────────────────────────────────── */}
       <section className="recit" id="questions">
@@ -5965,8 +5720,7 @@ export default function ExperienceCinema() {
           <p className="mention-maquettes">
             La fiche de temps et les comptes en fidéicommis sont des captures de SAFE, prises sur
             un cabinet de démonstration : les dossiers et les montants qu’on y lit sont fictifs,
-            l’interface est celle du logiciel. L’écran d’ouverture en est un extrait navigable, et
-            les trois figures numérotées en sont des schémas.
+            l’interface est celle du logiciel. L’écran d’ouverture en est un extrait navigable.
           </p>
         </div>
       </section>
