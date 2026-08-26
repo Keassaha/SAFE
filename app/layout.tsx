@@ -82,7 +82,7 @@ export default async function RootLayout({
       {/* Le fond de secours du document suit le canevas de la palette. Il servait
           un blanc chaud sous une interface froide, visible partout où une page
           ne peint pas son propre fond. */}
-      <body className="min-h-screen bg-canvas font-sans text-text-body antialiased selection:bg-si-forest/15 selection:text-si-forest">
+      <body className="min-h-screen bg-canvas font-sans text-text-body antialiased selection:bg-si-ink-strong/15 selection:text-si-ink-strong">
         <PaletteStyles />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider session={session ?? null}>

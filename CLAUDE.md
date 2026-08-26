@@ -164,6 +164,12 @@ Pour tout travail de design, UI, layout, page, écran ou composant, consulter AV
 - `docs/design/DESIGN_HUMAIN.md` — base hiérarchisée de conseils design tirés de créateurs humains (source de vérité, markdown portable). §0 prime toujours.
 - `docs/design/sources/` — extractions par vidéo + catalogue.
 
+- `docs/design/PROCEDURE_EXTRAITS_VITRINE.md` — **opposable** : toute illustration de
+  produit du site public part d'une capture de l'interface réelle (cabinet de Me Camille
+  Roy), puis devient une réplique aux cinq critères de la landing. Quatre étapes, deux
+  scripts (`capturer-ecran-reel.mjs`, `verifier-extrait-vitrine.mjs`). Un extrait qui n'a
+  pas passé le vérificateur ne va pas en ligne.
+
 Objectif: produire des interfaces qui ressemblent a du travail humain de qualite, jamais a du design genere par IA. Les meta-regles (§0) et le catalogue anti-slop (§10) priment. Passer la checklist §10 avant de dire qu'un ecran est termine. Le skill Claude `design-humain` declenche l'ingestion d'une nouvelle video et l'application de la base.
 
 ---

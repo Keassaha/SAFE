@@ -175,7 +175,10 @@ const config: Config = {
          * (docs/propositions/safe-interface/tailwind.config.ts) sans toucher
          * aux tokens existants. Sert au socle + à la page de démonstration.
          * La bascule des écrans réels se fera ensuite, écran par écran. */
-        "si-forest": { DEFAULT: siColor("forest"), soft: siColor("forest-soft") },
+        /* Nom canonique depuis le 2026-08-24. Ce rôle s'appelait `si-forest`,
+           et le nom mentait : il porte l'encre, pas un vert. Les 413
+           occurrences ont migré, l'alias est retiré, le compte est à zéro. */
+        "si-ink-strong": { DEFAULT: siColor("ink-strong"), soft: siColor("ink-strong-soft") },
         "si-canvas": siColor("canvas"),
         "si-surface": siColor("surface"),
         "si-surface2": siColor("surface2"),
@@ -205,8 +208,22 @@ const config: Config = {
          * (jamais sous 20px, une seule graisse) + Geist pour tout le reste.
          * Pas d'autre famille ni d'alias secondaire. */
         sans: ['var(--font-geist-sans)', "system-ui", "-apple-system", "sans-serif"],
-        mono: ['var(--font-geist-mono)', "ui-monospace", "monospace"],
-        serif: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
+        mono: ['var(--font-geist-mono)', "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+        /* ── « font-serif » ne rend plus de serif ─────────────────────────
+         * Demande CEO du 2026-08-25 : plus aucun titre en serif. La classe
+         * habillait 197 endroits, presque tous des titres. On REPOINTE le
+         * jeton plutot que d'editer 197 lignes : un seul endroit a lire, un
+         * seul a defaire, et aucun risque d'oublier une occurrence.
+         *
+         * Le nom « serif » ment maintenant. Il reste parce que le renommer
+         * demanderait exactement les 197 editions qu'on evite ici, et parce
+         * qu'un renommage de classe Tailwind n'est PAS verifie par le
+         * compilateur : une occurrence manquee rendrait un titre sans fonte,
+         * en silence. Le renommage se fera, mais comme un chantier a lui.
+         *
+         * « font-instrument » reste la vraie serif : c'est le chemin nomme
+         * pour ce qui doit encore l'etre, la voix citee et le document. */
+        serif: ['var(--font-geist-sans)', "system-ui", "-apple-system", "sans-serif"],
         instrument: ['var(--font-instrument-serif)', "Georgia", "ui-serif", "serif"],
       },
 

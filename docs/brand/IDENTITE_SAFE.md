@@ -125,12 +125,30 @@ encre `#0B0B0C`, vert forêt `#1F3A2E`, or chaud `#F4A045` employé avec parcimo
 
 | Usage | Fonte |
 |---|---|
-| Titres, display, grands chiffres, numéros de section, mot-symbole | **Instrument Serif** (`--font-instrument-serif`) |
+| **Titre d'ouverture d'une page** (le hero, le seul `h1`) | **Geist Sans**, graisse 400, resserré à `-0.026em` |
+| Titres de section et de chapitre, grands chiffres, numéros de section, mot-symbole | **Instrument Serif** (`--font-instrument-serif`) |
 | Interface, corps, chiffres de KPI | **Geist Sans** (`--font-geist-sans`) |
 | Chiffres tabulaires, références, numéros de facture, dates | **Geist Mono** (`--font-geist-mono`) |
 
 Le serif jamais sous 20 px, une seule graisse, italique réservé à l'accent. Étiquettes
 de section en petites capitales espacées.
+
+**Le hero est en gothique depuis le 2026-08-25** (décision CEO, après examen de
+cursor.com). Trois choses à savoir avant de vouloir le « corriger » :
+
+- Le geste vient de Cursor, pas leur fonte. `CursorGothic` est une commande privée
+  sans licence publique : elle ne se reprend pas. Ce qui se reprend est le réglage,
+  un gothique en graisse **normale**, resserré. Ils ne grossissent pas le titre,
+  ils le serrent.
+- Le titre de chapitre **reste en serif**. C'est l'écart entre les deux fontes qui
+  dit lequel ouvre la page et lequel ouvre un chapitre. Mettre les deux en gothique
+  les rend indistincts.
+- Le mot d'accent dans un hero **n'est pas en italique**. Geist Variable n'a pas de
+  vrai italique : le navigateur penche le dessin au lieu de le redessiner. Seul le
+  vert de la marque porte l'accent.
+
+Écrit dans `.xc #hero-copy h1` (accueil) et `.recit.ouverture h1` (autres pages
+publiques).
 
 ### 3.4 Formes, profondeur, mouvement
 

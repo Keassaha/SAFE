@@ -28,8 +28,8 @@ export type SiTokenKey =
   | "body"
   | "muted"
   | "subtle"
-  | "forest"
-  | "forest-soft"
+  | "ink-strong"
+  | "ink-strong-soft"
   | "brand-green"
   | "action-vert"
   | "verified"
@@ -50,8 +50,8 @@ export const SI_TOKEN_KEYS: readonly SiTokenKey[] = [
   "body",
   "muted",
   "subtle",
-  "forest",
-  "forest-soft",
+  "ink-strong",
+  "ink-strong-soft",
   "brand-green",
   "action-vert",
   "verified",
@@ -91,7 +91,7 @@ export type Palette = {
  * texte, l'action et le mot-symbole. La couleur devient entièrement
  * sémantique, réservée aux états.
  *
- * Ce que ça coûte : les 135 usages de `text-si-forest` (liens, mots d'accent)
+ * Ce que ça coûte : les 135 usages de `text-si-ink-strong` (liens, mots d'accent)
  * perdent leur teinte et se lisent comme du texte courant. Le soulignement
  * porte alors seul l'affordance du lien. Choix éditorial défendable, mais
  * c'est bien un renoncement, pas un gain.
@@ -107,7 +107,7 @@ export type Palette = {
  * pleine de marque », pas une teinte. Le renommer imposerait de toucher
  * 297 usages pour zéro gain visuel.
  *
- * ## Contrastes vérifiés sur `canvas` (#F1F3F5)
+ * ## Contrastes vérifiés sur `canvas` (#F7F7F6, repeint le 2026-08-24)
  *
  * Mesuré dans le navigateur, pas estimé : ink 15,5:1 · body 9,6:1 ·
  * muted 5,0:1 · verified 6,2:1. Blanc sur l'action 17,4:1, sur son survol
@@ -129,25 +129,42 @@ export const PALETTE: Palette = {
      *
      * Page plus sombre, carte franchement blanche, champ en creux gris. La
      * marche se voit du premier coup d'œil. */
-    canvas: "#EBEDEF",
+    canvas: "#F7F7F6",
     surface: "#FFFFFF",
-    surface2: "#F4F5F7",
+    surface2: "#EFEFEC",
     /* Filet de structure : sépare sans peser. */
-    border: "#D6D9DD",
+    border: "#E0E3E0",
     /* Bordure de contrôle. 3,31:1 sur la carte blanche et 3,03:1 sur le creux
      * du champ, soit le seuil de WCAG 1.4.11 dans les deux cas. L'ancienne
      * valeur (#C4C7CB) plafonnait à 1,70 : elle échouait au critère. */
-    "border-strong": "#888E94",
+    "border-strong": "#8A8E8A",
     /* Encre : un vrai noir, neutre. La version précédente (#16202B) portait
        21 points de bleu de plus que de rouge : elle se lisait comme un bleu
        marine, pas comme du noir. */
-    ink: "#1A1A1A",
-    body: "#3C3E40",
-    muted: "#65686B",
-    subtle: "#85888C",
-    /* Action : le même noir. Une seule encre traverse le produit. */
-    forest: "#1A1A1A",
-    "forest-soft": "#2F3133",
+    ink: "#161817",
+    body: "#3A3D3B",
+    muted: "#666A67",
+    subtle: "#868A86",
+    /* Encre forte : le même noir que `ink`. Une seule encre traverse le produit.
+     *
+     * ── Renommage du 2026-08-24 ──────────────────────────────────────────────
+     * Ce rôle s'appelait `forest`, et le nom mentait : le jeton ne portait
+     * aucun vert, il portait l'encre. Un nom qui ment est une dette qui se
+     * paye au reskin suivant, quand quelqu'un « corrige » la valeur pour la
+     * rendre verte et repeint quatre-vingt-trois surfaces sombres d'un coup.
+     *
+     * `ink-strong` est le nom canonique. La migration s'est faite avec un
+     * filet : les deux noms ont coexisté à la même valeur le temps que les
+     * 413 occurrences bougent, parce qu'une classe Tailwind renommée n'est
+     * PAS vérifiée par le compilateur et qu'un oubli aurait rendu un élément
+     * sans couleur, en silence. Le compte est tombé à zéro, l'alias est
+     * retiré.
+     *
+     * Le vert de la marque, lui, n'a jamais été ici : il vit dans `verified`
+     * (l'état validé du produit) et `brand-green` (l'accent éditorial). */
+    "ink-strong": "#161817",
+    "ink-strong-soft": "#2C2F2D",
+
     /* Vert de la marque, repris tel quel de la charte (`SAFE_PALETTE.emeraude`,
        components/brand/safe-mark.ts). Il ne sert qu'aux accents éditoriaux de
        la vitrine, pour que le mot mis en valeur porte exactement la teinte du
@@ -173,7 +190,7 @@ export const PALETTE: Palette = {
     danger: "#A83232",
     "danger-ink": "#862626",
   },
-  line: { ink: "#1A1A1A", normal: 0.11, subtle: 0.065 },
+  line: { ink: "#161817", normal: 0.11, subtle: 0.065 },
 };
 
 /* ─────────────────────── Échelles de retrait ───────────────────────

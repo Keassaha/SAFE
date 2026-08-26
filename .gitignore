@@ -26,3 +26,10 @@ SAFE Inc./
 
 # Brouillons locaux (HTML de travail, PDF generes a la main). Rien de reproductible.
 tmp/
+
+# Relevés et captures de référence de l'application (docs/design/PROCEDURE_EXTRAITS_VITRINE.md).
+# Ils sont RÉGÉNÉRABLES par scripts/capturer-ecran-reel.mjs et
+# scripts/relever-depuis-la-base.mjs, et ils portent des noms de clients et des
+# montants du cabinet de démonstration. Une preuve se refait, elle ne se
+# versionne pas.
+docs/design/references-app/
