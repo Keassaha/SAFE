@@ -145,6 +145,18 @@ const CSS = `
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
+    /* ── La prose qui EXPLIQUE ────────────────────────────────────────────
+       Demande CEO du 2026-08-26 : tous les textes d'explication prennent la
+       taille de la phrase de tete, celle qui commence par « La fragmentation
+       de vos dossiers ». Elle valait 21 px et n'etait ecrite nulle part comme
+       mesure : chaque bloc avait la sienne, et la page en portait SIX, 13,
+       14, 16, 18, 21 et 24.
+
+       La regle qui les separe : ce qui developpe une idee prend cette taille,
+       ce qui LEGENDE un chiffre ou nomme un endroit garde --t-detail. Une
+       metadonnee sous un montant n'est pas une explication ; la passer a
+       21 px ferait un mur et rendrait le chiffre secondaire. */
+    --t-explique: clamp(18px, 1.55vw, 21px);
     --t-detail: 14px;                        /* la justification sous un point */
     --t-menu: 11px;                          /* exergue, méta, libellé : le plancher */
 
@@ -1617,7 +1629,7 @@ const CSS = `
      manquait une seconde plus tôt. */
   .xc .recit .dire {
     font-family: var(--sans);
-    font-size: clamp(18px, 1.55vw, 21px);
+    font-size: var(--t-explique);
     line-height: 1.45;
     letter-spacing: -0.006em;
     max-width: 40ch;
@@ -1777,12 +1789,16 @@ const CSS = `
     align-items: baseline;
     gap: 12px;
   }
+  /* Le rang d'un registre est un REPERE, comme le rang d'un chapitre : meme
+     jeton, pas une mesure de plus. Cette regle avait une jumelle dans
+     recit.tsx, corrigee la seule le 2026-08-25, et l'ecart avait survecu
+     ici pendant une journee. */
   .xc .index-modules .mod .n {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: var(--t-menu);
     color: var(--si-subtle);
   }
-  .xc .index-modules .mod .t { font-family: var(--sans); font-size: 15px; color: var(--si-ink); }
+  .xc .index-modules .mod .t { font-family: var(--sans); font-size: var(--t-explique); color: var(--si-ink); }
   .xc .index-modules .colonne-droite { border-left: 1px solid var(--line); padding-left: clamp(24px, 4vw, 56px); }
 
   /* ── Les trois figures ────────────────────────────────────────────────────
@@ -2161,7 +2177,7 @@ const CSS = `
 
   .xc .conclusion-fiche {
     margin-top: 20px;
-    font-size: var(--t-corps);
+    font-size: var(--t-explique);
     max-width: 64ch;
     line-height: 1.5;
     color: var(--si-ink);
@@ -2318,7 +2334,7 @@ const CSS = `
     padding: 0 0 20px;
     max-width: 62ch;
     font-family: var(--sans);
-    font-size: var(--t-corps);
+    font-size: var(--t-explique);
     line-height: 1.66;
     color: var(--si-body);
   }
@@ -2340,7 +2356,7 @@ const CSS = `
     text-transform: uppercase; color: var(--si-verified);
   }
   .xc .trio figcaption b { font-size: var(--t-detail); font-weight: 500; }
-  .xc .trio figcaption span { font-size: var(--t-detail); color: var(--si-muted); line-height: 1.45; }
+  .xc .trio figcaption span { font-size: var(--t-explique); color: var(--si-muted); line-height: 1.5; }
   /* ── Les trois fenetres de « figures » ────────────────────────────────────
      Elles portent la meme grammaire que les extraits pleine largeur, en plus
      serre : la fiche, ses plaques de nombres et ses rangees existent deja, on
@@ -2665,8 +2681,8 @@ const CSS = `
     border-bottom: 1px solid var(--line);
   }
   .xc #tarifs .plan:first-of-type { margin-top: clamp(56px, 8vh, 104px); border-top: 1px solid var(--line); }
-  .xc #tarifs .plan .name { font-family: var(--sans); font-size: 16px; }
-  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--sans); font-size: 13px; color: var(--muted); }
+  .xc #tarifs .plan .name { font-family: var(--sans); font-size: var(--t-explique); }
+  .xc #tarifs .plan .detail { margin-top: 6px; font-family: var(--sans); font-size: var(--t-explique); color: var(--muted); }
   /* Le prix et son unité restent un chiffre : mono, comme tout montant du
      site. La serif s'arrête au texte qui l'entoure. */
   .xc #tarifs .plan .price { font-family: var(--mono); font-size: var(--t-argument); text-align: right; }
@@ -3399,8 +3415,8 @@ const CSS = `
        du nom, il chiffre le nom. */
     .xc #tarifs .plan { padding: 20px 0; gap: 12px; align-items: baseline; }
     .xc #tarifs .plan:first-of-type { margin-top: 24px; }
-    .xc #tarifs .plan .name { font-size: var(--t-argument); }
-    .xc #tarifs .plan .detail { font-size: var(--t-detail); }
+    .xc #tarifs .plan .name { font-size: var(--t-explique); }
+    .xc #tarifs .plan .detail { font-size: var(--t-explique); }
     .xc #tarifs .plan .price { font-size: 21px; }
     .xc #tarifs .plan .price small { font-size: var(--t-menu); }
     .xc #tarifs .note, .xc #questions .more, .xc #tarifs .more { font-size: var(--t-detail); }

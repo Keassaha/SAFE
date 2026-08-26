@@ -97,6 +97,10 @@ export function jetonsRecit(portee: string): string {
     --souffle-recit: clamp(38px, 5vh, 58px);
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
+    /* La prose qui EXPLIQUE, calee sur la phrase de tete. Voir la note dans
+       ExperienceCinema.tsx : ce qui developpe une idee prend cette mesure, ce
+       qui legende un chiffre garde --t-detail. */
+    --t-explique: clamp(18px, 1.55vw, 21px);
     --t-detail: 14px;                        /* la justification sous un point */
     --t-menu: 11px;                          /* exergue, méta, libellé */
   }`;
@@ -145,7 +149,7 @@ export function reglesRecit(p: string): string {
      est un texte qui manquait une seconde plus tôt. */
   ${p} .recit .dire {
     font-family: var(--sans);
-    font-size: clamp(18px, 1.55vw, 21px);
+    font-size: var(--t-explique);
     line-height: 1.45;
     letter-spacing: -0.006em;
     max-width: 40ch;
@@ -398,7 +402,7 @@ export function reglesRecit(p: string): string {
   ${p} .recit .cit {
     font-family: var(--sans);
     font-weight: 400;
-    font-size: var(--t-corps);
+    font-size: var(--t-explique);
     line-height: 1.5;
     letter-spacing: -0.012em;
     color: var(--si-ink);
@@ -429,7 +433,7 @@ export function reglesRecit(p: string): string {
   ${p} .recit .apres-cit {
     font-family: var(--sans);
     color: var(--si-muted);
-    font-size: var(--t-corps);
+    font-size: var(--t-explique);
     line-height: 1.68;
     max-width: 44ch;
     margin: 0;
@@ -726,7 +730,7 @@ export function reglesRecit(p: string): string {
     letter-spacing: 0.1em;
     color: var(--si-subtle);
   }
-  ${p} .morceau .t { font-family: var(--sans); font-size: var(--t-corps); color: var(--si-ink); }
+  ${p} .morceau .t { font-family: var(--sans); font-size: var(--t-explique); color: var(--si-ink); }
   ${p} .morceau .ou {
     font-family: var(--mono);
     font-size: var(--t-menu);
