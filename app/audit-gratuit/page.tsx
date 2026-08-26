@@ -1,22 +1,38 @@
 "use client";
 
 /**
- * Diagnostic — page d'entrée, écrite avec la grammaire de la page d'accueil.
- * Même en-tête, même rail de tirets, mêmes scènes épinglées pilotées au scroll,
- * même bande de preuves et même pied de page que le site public.
- * Réf. direction : docs/design/PROMPT_DIAGNOSTIC_COMME_LA_LANDING.md
+ * Le diagnostic — la porte d'entrée du questionnaire.
+ *
+ * ── Refonte du 2026-08-26 ───────────────────────────────────────────────────
+ * Elle portait 582 lignes et six scènes : une entrée épinglée sur 360 vh, une
+ * bande de preuves, une feuille de rapport dont les chiffres s'incrémentaient
+ * au défilement, un déroulement en étapes, une reprise de la FAQ, et enfin, au
+ * BAS de tout cela, le choix de la langue qui ouvre le questionnaire.
+ *
+ * Autrement dit : la seule action de la page était son dernier écran. Il
+ * fallait traverser cinq scènes d'argumentation pour atteindre ce qu'on était
+ * venu faire, et la page entretenait pour elle seule un rail latéral, un
+ * pilotage au défilement et une seconde version « mouvement réduit » de tout
+ * son contenu.
+ *
+ * Décision CEO du 2026-08-25, redemandée le 2026-08-26 : « la personne choisit
+ * la langue et ensuite rentre dans le formulaire simplement ». C'est la même
+ * doctrine que la page « Parler à quelqu'un » : quelqu'un qui arrive ici a déjà
+ * décidé, lui vendre encore le diagnostic le retarde.
+ *
+ * Reste le titre, le choix de la langue dans le premier écran, et ce que le
+ * rapport regarde. Ce dernier point n'est pas de l'argumentation : c'est la
+ * contrepartie de quinze minutes de questions, et elle se dit avant, pas après.
+ *
+ * La page passe aussi au contrat de section du site (voir
+ * components/public-site/recit.tsx). Elle montait sa propre coquille et
+ * n'héritait donc d'aucune de ses règles.
  */
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import { AnimatePresence, motion } from "framer-motion";
-import { SafeLogo, SafeMark } from "@/components/branding/SafeLogo";
-import {
-  BG, SURFACE, INK, MUTED, FAINT, GREEN, VERIFIED, LINE, LINE_SOFT, R,
-  Nav, Footer, PaperDrift, ScrollHint, SceneRail,
-  useScrollScrub, scenePhase, easeOutCubic, easeInOutQuad,
-} from "@/components/public-site/shared";
+import { PageShell, FAINT } from "@/components/public-site/shared";
+import { Recit, Tete } from "@/components/public-site/recit";
 
 const AuditForm = dynamic(
   () => import("@/components/audit-gratuit/AuditForm").then((m) => m.AuditForm),
@@ -28,555 +44,176 @@ const AuditForm = dynamic(
         </span>
       </div>
     ),
-  }
+  },
 );
 
 type Lang = "fr" | "en";
 
-/* Une promesse par palier de défilement : le lecteur n'en lit jamais deux à la fois. */
-const PROMESSES = [
-  {
-    num: "01",
-    titre: "Plus de revenus",
-    ligne: "Le temps saisi mais jamais facturé, chiffré pour votre cabinet.",
-  },
-  {
-    num: "02",
-    titre: "Plus de temps",
-    ligne: "Les heures d'administration que la double saisie vous prend chaque semaine.",
-  },
-  {
-    num: "03",
-    titre: "Plus tranquille",
-    ligne: "L'état de vos obligations Barreau, écrit noir sur blanc.",
-  },
+const LANGUES: [Lang, string, string][] = [
+  ["fr", "Français", "Québec"],
+  ["en", "English", "Canada"],
 ];
 
-/* Les trois lignes de la feuille de rapport, avec leur valeur d'exemple. */
-const LIGNES_RAPPORT = [
-  { lbl: "Temps saisi, jamais facturé", cible: 18400, suffixe: " $ / an", decimales: 0 },
-  { lbl: "Administration, par semaine", cible: 6.5, suffixe: " h", decimales: 1 },
-  { lbl: "Obligations à jour", cible: 7, suffixe: " sur 10", decimales: 0 },
+/* Ce que le rapport regarde. Trois lignes, et aucun chiffre.
+   La page en portait trois d'exemple — 18 400 $, 6,5 h, 7 sur 10 — sous la
+   mention « données fictives ». Un montant invente sur une page qui promet un
+   montant vrai travaille contre elle : le lecteur retient le nombre, pas
+   l'avertissement. Ce qui est annonce ici, c'est ce qui SERA mesure. */
+const REGARDE: [string, string, string][] = [
+  ["01", "Votre facturation", "Le temps saisi qui n'arrive jamais sur une facture."],
+  ["02", "Votre temps", "Les heures d'administration que la double saisie vous prend."],
+  ["03", "Vos obligations", "L'état de ce que le Barreau attend de vous."],
 ];
 
-const RAIL = [
-  { id: "zone-entree", label: "Diagnostic" },
-  { id: "zone-rapport", label: "Rapport" },
-  { id: "section-etapes", label: "Déroulement" },
-  { id: "section-depart", label: "Commencer" },
-] as const;
-
-const nombre = (v: number, decimales: number) =>
-  v.toLocaleString("fr-CA", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
-
-/* ── Scène 1 · Entrée épinglée : le titre cède la place aux trois promesses ── */
-
-function SceneEntree() {
-  const zone = useRef<HTMLDivElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
-
-  useScrollScrub(zone, (p) => {
-    const root = stage.current;
-    if (!root) return;
-
-    const tete = root.querySelector<HTMLElement>("[data-tete]");
-    if (tete) {
-      const parti = easeInOutQuad(scenePhase(p, 0.08, 0.3));
-      tete.style.opacity = String(1 - parti);
-      tete.style.transform = `translateY(${-parti * 6}vh)`;
-    }
-
-    root.querySelectorAll<HTMLElement>("[data-promesse]").forEach((el, i) => {
-      const entre = easeOutCubic(scenePhase(p, 0.22 + i * 0.16, 0.42 + i * 0.16));
-      el.style.opacity = String(entre);
-      el.style.transform = `translateY(${(1 - entre) * 22}px)`;
-      const filet = el.querySelector<HTMLElement>("[data-filet]");
-      if (filet) filet.style.transform = `scaleX(${easeOutCubic(scenePhase(p, 0.24 + i * 0.16, 0.5 + i * 0.16))})`;
-    });
-
-    const hint = zone.current?.querySelector<HTMLElement>("[data-scroll-hint]");
-    if (hint) hint.style.opacity = String(1 - scenePhase(p, 0.02, 0.12));
-  });
+export default function DiagnosticPage() {
+  const [lang, setLang] = useState<Lang | null>(null);
+  if (lang) return <AuditForm lang={lang} />;
 
   return (
-    <div ref={zone} id="zone-entree" className="relative" style={{ height: "360vh" }}>
-      {/* pr sur grand écran : le rail garde sa voie à droite, il ne croise jamais le texte */}
-      <div className="sticky top-0 flex min-h-screen items-center overflow-hidden px-6 sm:px-11 lg:pr-[150px]" style={{ background: BG }}>
-        <PaperDrift count={9} />
-
-        <div ref={stage} className="relative mx-auto w-full max-w-[1080px]">
-          {/* Tête : ce que c'est, en une phrase */}
-          <div data-tete>
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-              Diagnostic · gratuit · rapport sous 24 h
-            </p>
-            <h1
-              className="mt-5 max-w-[13ch] font-serif text-[44px] leading-[1.0] sm:text-[68px]"
-              style={{ color: INK, letterSpacing: "-0.026em" }}
-            >
-              Ce que votre cabinet{" "}
-              <em className="italic" style={{ color: GREEN }}>
-                laisse passer.
-              </em>
-            </h1>
-            <p className="mt-6 max-w-[46ch] font-sans text-[16px] leading-[1.62]" style={{ color: MUTED }}>
-              Une quinzaine de minutes de questions sur votre pratique. En retour, un rapport
-              chiffré sur votre facturation, votre temps et vos obligations.
+    <PageShell>
+      {/* Le choix de la langue vit DANS l'ouverture, pas dans une section a
+          atteindre : c'est la seule action de la page, elle est offerte au
+          premier ecran. */}
+      <section className="recit ouverture">
+        <div className="inner">
+          <div className="tete">
+            <h1>Évaluer mon cabinet</h1>
+            <p className="dire">
+              <b>Une quinzaine de minutes de questions.</b> En retour, un rapport chiffré sur votre
+              facturation, votre temps et vos obligations. Gratuit, sans carte de crédit.
             </p>
           </div>
 
-          {/* Trois promesses, une par palier */}
-          <div className="pointer-events-none absolute inset-x-0 top-0">
-            {PROMESSES.map((pr, i) => (
-              <div
-                key={pr.num}
-                data-promesse
-                className="absolute left-0 w-full max-w-[46ch]"
-                style={{ top: `${i * 132}px`, opacity: 0 }}
+          <p className="choix-titre">Dans quelle langue préférez-vous répondre&nbsp;?</p>
+          <div className="langues">
+            {LANGUES.map(([code, nom, lieu]) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setLang(code)}
+                className="safe-zoom langue"
               >
-                <span
-                  data-filet
-                  aria-hidden
-                  className="block h-px origin-left"
-                  style={{ background: LINE, transform: "scaleX(0)" }}
-                />
-                <div className="flex gap-6 pt-5">
-                  <span className="pt-1.5 font-mono text-[11px] tracking-[0.14em]" style={{ color: GREEN }}>
-                    {pr.num}
-                  </span>
-                  <div>
-                    <p className="font-serif text-[26px] leading-tight sm:text-[32px]" style={{ color: INK }}>
-                      {pr.titre}
-                    </p>
-                    <p className="mt-2 font-sans text-[15px] leading-[1.6]" style={{ color: MUTED }}>
-                      {pr.ligne}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <ScrollHint />
-      </div>
-    </div>
-  );
-}
-
-/* ── Bande de preuves, même dispositif que l'accueil ── */
-
-function BandePreuves() {
-  const items = [
-    "Gratuit, sans carte de crédit",
-    "Une quinzaine de minutes",
-    "Rapport écrit sous 24 h",
-    "Vos réponses restent confidentielles",
-  ];
-  return (
-    <div className="border-y" style={{ background: SURFACE, borderColor: LINE }}>
-      <div className="mx-auto grid max-w-[1240px] gap-3 px-6 py-5 sm:grid-cols-2 sm:px-11 lg:grid-cols-4">
-        {items.map((t) => (
-          <span key={t} className="flex items-center gap-2 font-sans text-[12.5px]" style={{ color: MUTED }}>
-            <i className="block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: GREEN }} />
-            {t}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ── Feuille de rapport : les lignes se posent, les chiffres montent ── */
-
-function FeuilleRapport() {
-  return (
-    <div
-      className="rounded-[12px] border p-7 sm:p-8"
-      style={{ background: "#fff", borderColor: LINE, boxShadow: "0 30px 60px -38px rgba(11,31,25,0.5)" }}
-    >
-      <div className="flex items-baseline justify-between gap-4">
-        <span className="font-serif text-[24px]" style={{ color: INK }}>Rapport de diagnostic</span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: FAINT }}>Exemple</span>
-      </div>
-      <p className="mt-1.5 border-b pb-4 font-sans text-[12.5px]" style={{ color: MUTED, borderColor: LINE }}>
-        Cabinet de deux personnes · pratique en droit familial
-      </p>
-
-      {LIGNES_RAPPORT.map((l) => (
-        <div
-          key={l.lbl}
-          data-ligne
-          className="flex items-center justify-between gap-4 border-b py-4"
-          style={{ borderColor: LINE_SOFT, opacity: 0 }}
-        >
-          <span className="font-sans text-[13.5px]" style={{ color: MUTED }}>{l.lbl}</span>
-          <span data-valeur className="font-mono text-[15px] tabular-nums" style={{ color: INK }}>
-            {nombre(0, l.decimales)}{l.suffixe}
-          </span>
-        </div>
-      ))}
-
-      <div
-        data-reco
-        className="mt-6 rounded-[9px] px-5 py-4"
-        style={{ background: "var(--si-ink-strong)", color: "#F4F7F3", opacity: 0 }}
-      >
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--si-verified-on-forest)" }}>
-          Recommandation
-        </p>
-        <p className="mt-2 font-sans text-[13.5px] leading-[1.55]">
-          Reprendre la facturation du temps déjà saisi avant de toucher au reste. C&apos;est là que
-          se trouve l&apos;écart le plus large.
-        </p>
-      </div>
-
-      <p data-remise className="mt-4 font-sans text-[12.5px]" style={{ color: VERIFIED, opacity: 0 }}>
-        Remis par écrit sous 24 h, avec le détail de chaque chiffre.
-      </p>
-    </div>
-  );
-}
-
-function SceneRapport() {
-  const zone = useRef<HTMLDivElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
-
-  useScrollScrub(zone, (p) => {
-    const root = stage.current;
-    if (!root) return;
-
-    root.querySelectorAll<HTMLElement>("[data-ligne]").forEach((el, i) => {
-      const pose = easeOutCubic(scenePhase(p, 0.08 + i * 0.13, 0.32 + i * 0.13));
-      el.style.opacity = String(0.2 + pose * 0.8);
-      el.style.transform = `translateX(${(1 - pose) * 14}px)`;
-      const valeur = el.querySelector<HTMLElement>("[data-valeur]");
-      const ligne = LIGNES_RAPPORT[i];
-      if (valeur && ligne) {
-        const monte = easeInOutQuad(scenePhase(p, 0.14 + i * 0.13, 0.46 + i * 0.13));
-        valeur.textContent = nombre(ligne.cible * monte, ligne.decimales) + ligne.suffixe;
-      }
-    });
-
-    const reco = root.querySelector<HTMLElement>("[data-reco]");
-    if (reco) {
-      const a = easeOutCubic(scenePhase(p, 0.66, 0.86));
-      reco.style.opacity = String(a);
-      reco.style.transform = `translateY(${(1 - a) * 16}px)`;
-    }
-
-    const remise = root.querySelector<HTMLElement>("[data-remise]");
-    if (remise) remise.style.opacity = String(scenePhase(p, 0.86, 0.97));
-  });
-
-  return (
-    <div ref={zone} id="zone-rapport" className="relative" style={{ height: "320vh" }}>
-      <div className="sticky top-0 grid min-h-screen content-center overflow-hidden px-6 sm:px-11 lg:pr-[150px]" style={{ background: BG }}>
-        <div
-          ref={stage}
-          className="mx-auto grid w-full max-w-[1160px] items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-[76px]"
-        >
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-              Ce qu&apos;on regarde
-            </p>
-            <h2
-              className="mt-4 max-w-[15ch] font-serif text-[30px] leading-[1.08] sm:text-[44px]"
-              style={{ color: INK, letterSpacing: "-0.018em" }}
-            >
-              Trois chiffres, tirés de vos réponses.
-            </h2>
-            <p className="mt-5 max-w-[48ch] font-sans text-[15px] leading-[1.65]" style={{ color: MUTED }}>
-              Les questions portent sur votre façon de saisir le temps, de facturer, de tenir le
-              fidéicommis et de suivre vos échéances. Le rapport ramène tout cela à ce qui se
-              chiffre, avec la méthode de calcul à côté de chaque montant.
-            </p>
-            <p
-              className="mt-6 max-w-[44ch] border-l-2 pl-4 font-sans text-[14px] leading-[1.55]"
-              style={{ borderColor: GREEN, color: INK }}
-            >
-              Vous repartez avec le rapport, que vous choisissiez SAFE ou non.
-            </p>
-          </div>
-
-          <div>
-            <FeuilleRapport />
-            <p className="mt-3 font-sans text-[12px]" style={{ color: FAINT }}>
-              Exemple sur des données fictives. Vos chiffres viennent de vos réponses.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Déroulement, questions, départ ── */
-
-const ETAPES = [
-  {
-    num: "01",
-    titre: "Vous répondez",
-    ligne: "Une question à l'écran, dans la langue de votre choix. Vous pouvez vous arrêter et reprendre.",
-  },
-  {
-    num: "02",
-    titre: "On calcule",
-    ligne: "Vos réponses sont converties en montants et en heures, avec la méthode de calcul écrite à côté.",
-  },
-  {
-    num: "03",
-    titre: "Vous décidez",
-    ligne: "Le rapport arrive sous 24 h. Vous jugez ensuite si une démonstration mérite vingt minutes.",
-  },
-];
-
-const QUESTIONS = [
-  {
-    q: "Qui voit mes réponses ?",
-    r: "Elles servent à produire votre rapport et restent entre vous et SAFE. Aucun nom de client n'est demandé.",
-  },
-  {
-    q: "Faut-il payer quelque chose ?",
-    r: "Non. Le diagnostic est gratuit et sans carte de crédit. Le tarif se discute après le rapport, si vous le souhaitez.",
-  },
-  {
-    q: "Et si je ne connais pas mes chiffres ?",
-    r: "Une estimation suffit. Les questions sont écrites pour être répondues de mémoire, sans ouvrir votre comptabilité.",
-  },
-];
-
-function SectionEtapes() {
-  return (
-    <section id="section-etapes" className="border-y px-6 py-[clamp(84px,12vh,150px)] sm:px-11" style={{ background: SURFACE, borderColor: LINE }}>
-      <div className="mx-auto max-w-[1100px]">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-          Comment ça se passe
-        </p>
-        <h2
-          className="mt-3.5 max-w-[16ch] font-serif text-[30px] leading-[1.08] sm:text-[46px]"
-          style={{ color: INK, letterSpacing: "-0.018em" }}
-        >
-          Trois étapes, et rien à préparer.
-        </h2>
-
-        <div className="mt-11">
-          {ETAPES.map((e) => (
-            <div key={e.num} className="grid gap-2 border-t py-7 sm:grid-cols-[auto_0.8fr_1.2fr] sm:gap-8" style={{ borderColor: LINE }}>
-              <span className="font-mono text-[11px] tracking-[0.14em]" style={{ color: GREEN }}>{e.num}</span>
-              <p className="font-serif text-[22px] leading-tight" style={{ color: INK }}>{e.titre}</p>
-              <p className="max-w-[58ch] font-sans text-[14px] leading-[1.65]" style={{ color: MUTED }}>{e.ligne}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SectionQuestions() {
-  return (
-    <section className="px-6 py-[clamp(84px,12vh,150px)] sm:px-11" style={{ background: BG }}>
-      <div className="mx-auto max-w-[1100px]">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-          Avant de commencer
-        </p>
-        <h2
-          className="mt-3.5 max-w-[16ch] font-serif text-[30px] leading-[1.08] sm:text-[46px]"
-          style={{ color: INK, letterSpacing: "-0.018em" }}
-        >
-          Les questions qu&apos;on nous pose.
-        </h2>
-
-        <div className="mt-11">
-          {QUESTIONS.map((item) => (
-            <div key={item.q} className="grid gap-3 border-t py-7 sm:grid-cols-[0.86fr_1.14fr] sm:gap-[18px]" style={{ borderColor: LINE }}>
-              <h3 className="font-serif text-[20px] leading-[1.35]" style={{ color: INK }}>{item.q}</h3>
-              <p className="max-w-[58ch] font-sans text-[14px] leading-[1.65]" style={{ color: MUTED }}>{item.r}</p>
-            </div>
-          ))}
-        </div>
-
-        <Link href={R.faq} className="mt-4 inline-block font-sans text-[13.5px]" style={{ color: INK }}>
-          Lire toutes les questions →
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-/** Départ : seul moment centré de la page, c'est ici que le questionnaire prend la main. */
-function SectionDepart({ onStart }: { onStart: (lang: Lang) => void }) {
-  return (
-    <section id="section-depart" className="border-t px-6 py-[clamp(84px,12vh,150px)] text-center sm:px-11" style={{ background: BG, borderColor: LINE }}>
-      <div className="mx-auto max-w-[620px]">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-          Prêt quand vous l&apos;êtes
-        </p>
-        <h2
-          className="mx-auto mt-4 max-w-[18ch] font-serif text-[34px] leading-[1.05] sm:text-[52px]"
-          style={{ color: INK, letterSpacing: "-0.02em" }}
-        >
-          Dans quelle langue préférez-vous répondre&nbsp;?
-        </h2>
-
-        <div className="mt-9 grid grid-cols-2 gap-4">
-          {(["fr", "en"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => onStart(l)}
-              className="rounded-[12px] border p-6 text-left transition-colors duration-300"
-              style={{ background: SURFACE, borderColor: LINE }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgb(var(--si-ink-strong-rgb) / 0.45)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}
-            >
-              <span className="block font-serif text-[34px] leading-none" style={{ color: INK }}>
-                {l.toUpperCase()}
-              </span>
-              <span className="mt-2 block font-sans text-[12.5px]" style={{ color: MUTED }}>
-                {l === "fr" ? "Français · Québec" : "English · Canada"}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <p className="mt-6 font-sans text-[12.5px]" style={{ color: FAINT }}>
-          Confidentiel. Aucune carte de crédit. Le tarif vient après le diagnostic, pas avant.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ── Version sans animation : même contenu, empilé ── */
-
-function DiagnosticStatique({ onStart }: { onStart: (lang: Lang) => void }) {
-  return (
-    <>
-      <div className="px-6 pb-20 pt-32 sm:px-11" style={{ background: BG }}>
-        <div className="mx-auto w-full max-w-[720px]">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-            Diagnostic · gratuit · rapport sous 24 h
-          </p>
-          <h1 className="mt-5 font-serif text-[44px] leading-[1.02] sm:text-[60px]" style={{ color: INK, letterSpacing: "-0.026em" }}>
-            Ce que votre cabinet <em className="italic" style={{ color: GREEN }}>laisse passer.</em>
-          </h1>
-          <p className="mt-6 max-w-[46ch] font-sans text-[16px] leading-[1.62]" style={{ color: MUTED }}>
-            Une quinzaine de minutes de questions sur votre pratique. En retour, un rapport chiffré
-            sur votre facturation, votre temps et vos obligations.
-          </p>
-
-          <div className="mt-12 space-y-8">
-            {PROMESSES.map((pr) => (
-              <div key={pr.num} className="border-t pt-5" style={{ borderColor: LINE }}>
-                <div className="flex gap-6">
-                  <span className="pt-1.5 font-mono text-[11px] tracking-[0.14em]" style={{ color: GREEN }}>
-                    {pr.num}
-                  </span>
-                  <div>
-                    <p className="font-serif text-[26px] leading-tight" style={{ color: INK }}>{pr.titre}</p>
-                    <p className="mt-2 max-w-[46ch] font-sans text-[15px] leading-[1.6]" style={{ color: MUTED }}>
-                      {pr.ligne}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <BandePreuves />
-
-      <section className="px-6 py-20 sm:px-11" style={{ background: BG }}>
-        <div className="mx-auto w-full max-w-[720px]">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: GREEN }}>
-            Ce qu&apos;on regarde
-          </p>
-          <h2 className="mt-4 font-serif text-[30px] leading-[1.08] sm:text-[40px]" style={{ color: INK }}>
-            Trois chiffres, tirés de vos réponses.
-          </h2>
-          <p className="mt-5 max-w-[52ch] font-sans text-[15px] leading-[1.65]" style={{ color: MUTED }}>
-            Les questions portent sur votre façon de saisir le temps, de facturer, de tenir le
-            fidéicommis et de suivre vos échéances. Le rapport ramène tout cela à ce qui se chiffre.
-          </p>
-          <ul className="mt-8 border-t" style={{ borderColor: LINE }}>
-            {LIGNES_RAPPORT.map((l) => (
-              <li key={l.lbl} className="flex items-center justify-between gap-4 border-b py-4" style={{ borderColor: LINE_SOFT }}>
-                <span className="font-sans text-[13.5px]" style={{ color: MUTED }}>{l.lbl}</span>
-                <span className="font-mono text-[15px] tabular-nums" style={{ color: INK }}>
-                  {nombre(l.cible, l.decimales)}{l.suffixe}
+                <span className="lg-code" aria-hidden>
+                  {code.toUpperCase()}
                 </span>
-              </li>
+                <span className="lg-nom">{nom}</span>
+                <span className="lg-lieu">{lieu}</span>
+              </button>
             ))}
-          </ul>
-          <p className="mt-3 font-sans text-[12px]" style={{ color: FAINT }}>
-            Exemple sur des données fictives. Vos chiffres viennent de vos réponses.
+          </div>
+          <p className="note note-faible">
+            Vos réponses restent confidentielles. Le tarif vient après le diagnostic, pas avant.
           </p>
         </div>
       </section>
 
-      <SectionEtapes />
-      <SectionQuestions />
-      <SectionDepart onStart={onStart} />
-    </>
-  );
-}
+      <Recit id="regarde" socle>
+        <Tete
+          titre="Ce que le rapport regarde"
+          dire={[
+            "Trois choses, dans cet ordre.",
+            "Les questions portent sur votre façon de saisir le temps, de facturer, de tenir le fidéicommis et de suivre vos échéances.",
+          ]}
+        />
+        <div className="etapes-audit">
+          {REGARDE.map(([n, titre, texte]) => (
+            <div className="etape-audit" key={n}>
+              <span className="n" aria-hidden>
+                {n}
+              </span>
+              <p className="t">{titre}</p>
+              <p className="d">{texte}</p>
+            </div>
+          ))}
+        </div>
+      </Recit>
 
-export default function DiagnosticPage() {
-  const [lang, setLang] = useState<Lang | null>(null);
-  /* La version statique existait déjà pour « mouvement réduit ». Le téléphone
-     la prend aussi : les scènes animées supposent un rail latéral, une longue
-     course de défilement et un curseur qui brasse les fragments du logo, dont
-     rien n'existe au pouce. C'est la page qui transforme un visiteur en
-     rendez-vous, elle doit être la plus directe du site.
-
-     La mesure est lue après le montage, jamais pendant le rendu : le serveur ne
-     connaît pas la largeur de l'écran, et trancher avant l'hydratation
-     donnerait deux arbres différents. On garde donc la mesure dans un état,
-     et on la relit si l'écran change de côté du seuil. */
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mouvement = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const telephone = window.matchMedia("(max-width: 860px)");
-    const lire = () => setReduced(mouvement.matches || telephone.matches);
-    lire();
-    mouvement.addEventListener("change", lire);
-    telephone.addEventListener("change", lire);
-    return () => {
-      mouvement.removeEventListener("change", lire);
-      telephone.removeEventListener("change", lire);
-    };
-  }, []);
-
-  if (lang) return <AuditForm lang={lang} />;
-
-  return (
-    /* `safe-vitrine` : cette page monte sa propre coquille au lieu de passer
-       par PageShell, et n'héritait donc pas des règles téléphone de la vitrine
-       (deux polices, aucune révélation au défilement). */
-    <div className="safe-vitrine audit-v2-bg min-h-screen">
-      {/* La page a sa propre prochaine étape, au bas de l'écran : l'action de
-          la barre y descend au lieu de recharger la page sur elle-même. */}
-      <Nav cta={{ href: "#section-depart", label: "Commencer" }} />
-
-      {reduced ? (
-        <DiagnosticStatique onStart={setLang} />
-      ) : (
-        <>
-          <SceneRail stops={RAIL} />
-          <SceneEntree />
-          <BandePreuves />
-          <SceneRapport />
-          <SectionEtapes />
-          <SectionQuestions />
-          <SectionDepart onStart={setLang} />
-        </>
-      )}
-
-      <Footer />
-    </div>
+      {/* Les deux plaques de langue et l'index des trois lignes. Ils ne servent
+          qu'ici : leurs regles vivent avec eux plutot que dans le vocabulaire
+          partage. */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .safe-vitrine .choix-titre {
+          margin-top: clamp(48px, 7vh, 88px);
+          font-family: var(--sans);
+          font-size: var(--t-explique);
+          color: var(--si-ink);
+        }
+        .safe-vitrine .langues {
+          margin-top: 18px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: clamp(14px, 1.8vw, 22px);
+          max-width: 620px;
+        }
+        .safe-vitrine .langue {
+          display: block;
+          text-align: left;
+          border: 1px solid var(--si-border);
+          border-radius: 14px;
+          background: var(--si-surface);
+          padding: clamp(20px, 2.4vw, 28px);
+          cursor: pointer;
+        }
+        .safe-vitrine .langue:focus-visible { outline: 2px solid var(--si-ink-strong); outline-offset: 3px; }
+        .safe-vitrine .lg-code {
+          display: block;
+          font-family: var(--mono);
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          color: var(--si-verified);
+        }
+        .safe-vitrine .lg-nom {
+          display: block;
+          margin-top: 10px;
+          font-family: var(--sans);
+          font-size: var(--t-argument);
+          letter-spacing: -0.014em;
+          color: var(--si-ink);
+        }
+        .safe-vitrine .lg-lieu {
+          display: block;
+          margin-top: 4px;
+          font-family: var(--sans);
+          font-size: var(--t-detail);
+          color: var(--si-muted);
+        }
+        .safe-vitrine .etapes-audit {
+          margin-top: clamp(40px, 5vw, 64px);
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: clamp(24px, 3.4vw, 48px);
+        }
+        .safe-vitrine .etape-audit { border-top: 1px solid var(--si-line); padding-top: 16px; }
+        .safe-vitrine .etape-audit .n {
+          font-family: var(--mono);
+          font-size: var(--t-menu);
+          letter-spacing: 0.1em;
+          color: var(--si-verified);
+        }
+        .safe-vitrine .etape-audit .t {
+          margin-top: 10px;
+          font-family: var(--sans);
+          font-size: var(--t-argument);
+          line-height: 1.25;
+          letter-spacing: -0.014em;
+          color: var(--si-ink);
+        }
+        .safe-vitrine .etape-audit .d {
+          margin-top: 8px;
+          font-family: var(--sans);
+          font-size: var(--t-detail);
+          line-height: 1.55;
+          color: var(--si-muted);
+        }
+        @media (max-width: 860px) {
+          .safe-vitrine .langues { grid-template-columns: 1fr; }
+          .safe-vitrine .etapes-audit { grid-template-columns: 1fr; gap: 22px; }
+        }
+      `,
+        }}
+      />
+    </PageShell>
   );
 }
