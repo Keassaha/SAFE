@@ -2416,84 +2416,10 @@ const CSS = `
     .xc .obj summary i { transition: none; }
   }
 
-  .xc .trio {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: clamp(12px, 1.8vw, 20px);
-  }
-  .xc .trio figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
-  .xc .trio .fenetre-produit { margin: 0; }
-  .xc .trio .barre-fenetre { font-size: 10px; padding: 7px 10px; gap: 7px; }
-  .xc .trio .pastilles-fenetre i { width: 6px; height: 6px; }
-  /* ── La legende d'une figure : la question, rien d'autre ──────────────────
-     Elle en portait trois choses : un exergue « LA QUESTION » en mono vert, la
-     question en gras, puis une phrase d'explication en gris. Deux defauts, vus
-     par le CEO le 2026-08-26. La question, qui est le propos, etait ECRITE
-     PLUS PETIT que l'explication qui la commente. Et trois legendes de
-     hauteurs differentes posaient leurs premieres lignes a trois altitudes.
-
-     Il ne reste que la question, sur une ligne, a la meme taille pour les
-     trois. L'exergue disait « la question » au-dessus d'une phrase entre
-     guillemets qui se voyait deja comme telle. */
-  .xc .trio figcaption {
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.45;
-    color: var(--si-ink);
-    text-wrap: balance;
-  }
-  /* ── Les trois fenetres de « figures » ────────────────────────────────────
-     Elles portent la meme grammaire que les extraits pleine largeur, en plus
-     serre : la fiche, ses plaques de nombres et ses rangees existent deja, on
-     ne redessine rien, on retaille.
-
-     Les trois figures sont EGALISEES en hauteur, sinon leurs legendes se
-     posaient a trois altitudes differentes et la rangee se lisait de travers.
-     Une fenetre plus haute que son contenu ne montre pas de vide : le masque
-     de fondu eteint le bas. */
-  .xc .trio { align-items: stretch; }
-  .xc .trio figure { display: grid; grid-template-rows: 1fr auto; }
-  .xc .trio .fenetre-fondante, .xc .trio .fenetre-produit { height: 100%; }
-  .xc .trio .fiche { padding: 14px 15px 30px; }
-  .xc .trio .fiche .ft { font-family: var(--sans); font-size: 17px; letter-spacing: -0.012em; }
-  .xc .trio .fiche .fs { font-size: var(--t-menu); color: var(--si-muted); margin-top: 3px; }
-  .xc .trio .fiche .etiq {
-    font-size: 10px; padding: 2px 7px; border-radius: 99px; vertical-align: 2px;
-    background: rgb(var(--si-verified-rgb) / 0.10); color: var(--si-verified);
-  }
-  .xc .trio .fiche .totaux { gap: 7px; margin-top: 12px; }
-  .xc .trio .fiche .totaux.duo { grid-template-columns: 1fr 1fr; }
-  .xc .trio .fiche .totaux.solo { grid-template-columns: 1fr; }
-  .xc .trio .fiche .tot { padding: 8px 9px; border-radius: 8px; }
-  .xc .trio .fiche .tot .k { font-size: 8.5px; letter-spacing: 0.09em; }
-  .xc .trio .fiche .tot .v { font-size: 14px; margin-top: 5px; }
-  .xc .trio .fiche .tot .s { font-size: 9px; margin-top: 3px; }
-  .xc .trio .fiche .lignes { padding: 6px 0 0; }
-  .xc .trio .fiche .lg { padding: 7px 0; gap: 10px; font-size: 11.5px; }
-  .xc .trio .fiche .lg > span:first-child {
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .xc .trio .fiche .lg .v { font-size: 11.5px; }
-  .xc .trio .fiche .lg small { font-size: 10px; margin-right: 4px; }
-
   /* Le zoom souple, version fenetre. La classe partagee « .safe-zoom » pose
      une box-shadow : sur un parent transparent aux coins arrondis, elle
      dessinerait un rectangle derriere la fenetre. On garde donc sa courbe et
      son amplitude, et on approfondit l'ombre PORTEE, qui epouse la forme. */
-  .xc .trio .fenetre-fondante {
-    transition:
-      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-      filter 260ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .xc .trio figure:hover .fenetre-fondante,
-  .xc .trio figure:focus-within .fenetre-fondante {
-    transform: scale(1.006) translateY(-2px);
-    filter: drop-shadow(0 34px 54px rgb(var(--si-line-ink-rgb) / 0.22));
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .xc .trio .fenetre-fondante { transition: none; }
-    .xc .trio figure:hover .fenetre-fondante { transform: none; }
-  }
-
   /* ── Les illustrations au telephone ───────────────────────────────────────
      Demande CEO du 2026-08-25 : les extraits gardent les DIMENSIONS d'un
      ordinateur et retrecissent, au lieu de se reorganiser pour le pouce.
@@ -2508,22 +2434,13 @@ const CSS = `
      « scale », le parent garderait la hauteur d'origine et laisserait mille
      pixels de vide sous chaque fenetre.
 
-     Une exception, et c'est un choix : le TRIO garde sa largeur native de
-     399 px et se met a l'echelle pour remplir l'ecran, au lieu d'etre etire a
-     1238 px comme les autres. Etire, il bleedait comme eux mais ses montants
-     tombaient hors de l'ecran : « Honoraires », « Debours » et « Taxes »
-     s'affichaient sans leur chiffre. Une illustration qui perd ses chiffres
-     ne prouve plus rien. Chaque fenetre est donc montree a SES dimensions
-     d'ordinateur, ramenee a la largeur du telephone.
-
-     Consequence assumee : le trio est a 0,877 quand les autres sont a 0,720,
-     donc son texte est un peu plus grand. C'est le prix des chiffres. */
+     La section « figures » gardait ici une exception, une echelle de 0,877 sur
+     des fenetres de 399 px, parce qu'etirees a 1238 px leurs montants
+     tombaient hors de l'ecran. Elle est retiree le 2026-08-26 et l'exception
+     avec elle : il ne reste qu'une echelle pour toutes les fenetres. */
   @media (max-width: 900px) {
     .xc .fenetre-fondante { width: 100%; overflow: hidden; }
     .xc .fenetre-produit { width: 1238px; zoom: 0.72; }
-    .xc .trio { grid-template-columns: 1fr; gap: 30px; }
-    .xc .trio .fenetre-fondante { width: 100%; }
-    .xc .trio .fenetre-produit { width: 399px; zoom: 0.877; }
     /* ── La chaine, au telephone ────────────────────────────────────────────
        Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
        se suivent horizontalement et la fleche tombe entre deux cadrans, ce
@@ -5754,152 +5671,14 @@ export default function ExperienceCinema() {
         </div>
       </section>
 
-      {/* ── 04 · Trois figures ──────────────────────────────────────────────
-         Un fragment de produit par figure, pas une illustration. Chacune tient
-         en cinq lignes et se lit sans légende ; la légende dit ce qu'on en
-         retire, pas ce qu'on y voit. */}
-      <section className="recit" id="figures">
-        <div className="inner">
-          <div className="tete">
-            <h2>Ce que le cabinet retrouve, sans le chercher</h2>
-            <p className="dire">
-              <b>Trois écrans, trois réponses.</b> Le dossier, la facture, le fidéicommis.
-            </p>
-          </div>
+      {/* La section « Ce que le cabinet retrouve, sans le chercher » tenait
+         ici : trois fenetres repliquees, une question sous chacune. Retiree le
+         2026-08-26 sur decision du CEO.
 
-          {/* ── Trois ecrans, trois reponses ───────────────────────────────
-              La phrase de la section dit TROIS, donc la scene en montre trois.
-              Un cadre a onglets n'en montrerait qu'un a qui ne clique jamais,
-              et la section mentirait sur elle-meme.
-
-              Chaque fenetre porte LA QUESTION a laquelle elle repond, ecrite
-              dans les mots d'une avocate et non dans ceux du logiciel. Les
-              trois figures dessinees qui tenaient ici montraient des chiffres
-              inventes dans des cadres dessines ; ce sont maintenant les vrais
-              ecrans du 23 aout. */}
-          <div className="scene-produit">
-            {/* ── Les trois fenetres, repliquees ────────────────────────────────
-                Elles etaient trois PNG du 23 aout, d'avant la repeinte : plus
-                froides que la page qui les porte, et rien n'y etait cliquable.
-
-                Elles suivent la procedure de docs/design/PROCEDURE_EXTRAITS_VITRINE.md.
-                Chaque chiffre vient de la base du cabinet de Me Camille Roy,
-                releve le 2026-08-25 :
-
-                  43 dossiers actifs sur 50, chez 27 clients.
-                  Facture 2026-025, Vincent Bouchard : 948,54 $ dont 597,58 $
-                  recus, solde 350,96 $. Honoraires 825,00 $, taxes 123,54 $,
-                  soit exactement la TPS et la TVQ sur 825 $.
-                  Fideicommis : 89 275,00 $, somme des transactions, ce que
-                  calcule getGlobalTrustBalance().
-
-                La facture ne montre PAS de lignes de detail. Aucune facture de
-                ce cabinet n'en a : zero InvoiceLine, et 218 entrees de temps
-                dont aucune rattachee. Montrer un detail ici serait le
-                fabriquer. L'etat de paiement repond de toute facon a la
-                question posee. */}
-            <div className="trio">
-              <figure>
-                <div className="fenetre-fondante">
-                  <div className="fenetre-produit contour-fondu">
-                    <div className="barre-fenetre">
-                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                      <span>Pratique · Dossiers</span>
-                    </div>
-                    <div className="fiche">
-                      <p className="ft">Dossiers</p>
-                      <p className="fs">Ce qui est ouvert, chez qui</p>
-                      <div className="totaux">
-                        <div className="tot"><span className="k">Actifs</span><span className="v">43</span></div>
-                        <div className="tot"><span className="k">Clients</span><span className="v">27</span></div>
-                        <div className="tot"><span className="k">Total</span><span className="v">50</span></div>
-                      </div>
-                      <div className="lignes">
-                        <div className="lg"><span><small>2026-049</small> Constructions Outremont</span><span className="v">Litige civil</span></div>
-                        <div className="lg"><span><small>2026-048</small> Constructions Outremont</span><span className="v">Immigration</span></div>
-                        <div className="lg"><span><small>2026-047</small> Gagnon</span><span className="v">Immobilier</span></div>
-                        <div className="lg"><span><small>2026-045</small> Coopérative Longueuil</span><span className="v">Immobilier</span></div>
-                        <div className="lg"><span><small>2026-044</small> Coopérative Longueuil</span><span className="v">Litige civil</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <figcaption>
-                  &laquo;&nbsp;Où en est ce dossier ?&nbsp;&raquo;
-                </figcaption>
-              </figure>
-
-              <figure>
-                <div className="fenetre-fondante">
-                  <div className="fenetre-produit contour-fondu">
-                    <div className="barre-fenetre">
-                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                      <span>Finances · Facture</span>
-                    </div>
-                    <div className="fiche">
-                      <p className="ft">
-                        Facture 2026-025 <span className="etiq">Partiellement payée</span>
-                      </p>
-                      <p className="fs">Vincent Bouchard · émise le 2026-04-24</p>
-                      <div className="totaux duo">
-                        <div className="tot"><span className="k">Total</span><span className="v">948,54 $</span></div>
-                        <div className="tot"><span className="k">Déjà payé</span><span className="v">597,58 $</span></div>
-                        <div className="tot"><span className="k">Solde dû</span><span className="v">350,96 $</span></div>
-                        <div className="tot"><span className="k">Échéance</span><span className="v">2026-05-24</span></div>
-                      </div>
-                      <div className="lignes">
-                        <div className="lg"><span>Honoraires</span><span className="v">825,00 $</span></div>
-                        <div className="lg"><span>Débours</span><span className="v">0,00 $</span></div>
-                        <div className="lg"><span>Taxes</span><span className="v">123,54 $</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <figcaption>
-                  &laquo;&nbsp;Cette facture, elle est payée ?&nbsp;&raquo;
-                </figcaption>
-              </figure>
-
-              <figure>
-                <div className="fenetre-fondante">
-                  <div className="fenetre-produit contour-fondu">
-                    <div className="barre-fenetre">
-                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                      <span>Finances · Fidéicommis</span>
-                    </div>
-                    <div className="fiche">
-                      <p className="ft">Comptes en fidéicommis</p>
-                      <p className="fs">Chaque somme appartient à quelqu&apos;un</p>
-                      <div className="totaux solo">
-                        <div className="tot">
-                          <span className="k">Solde total</span>
-                          <span className="v">89 275,00 $</span>
-                          <span className="s">7 clients avec des fonds</span>
-                        </div>
-                      </div>
-                      <div className="lignes">
-                        <div className="lg"><span>Gestion Outremont inc.</span><span className="v">21 800,00 $</span></div>
-                        <div className="lg"><span>Marc Bouchard</span><span className="v">16 900,00 $</span></div>
-                        <div className="lg"><span>Distribution Beauport s.e.n.c.</span><span className="v">16 700,00 $</span></div>
-                        <div className="lg"><span>Félix Gagnon</span><span className="v">13 200,00 $</span></div>
-                        <div className="lg"><span>Jean-Christophe Côté</span><span className="v">11 500,00 $</span></div>
-                        <div className="lg"><span>Olivier Gagnon</span><span className="v">8 800,00 $</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <figcaption>
-                  &laquo;&nbsp;Cet argent, à qui appartient-il ?&nbsp;&raquo;
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-
-          <p className="sortie-section">
-            <a href={ROUTES.cabinet + "#ecrans"}>Voir les trois écrans en grand &rarr;</a>
-          </p>
-        </div>
-      </section>
+         Ses trois repliques etaient conformes a la procedure et leurs chiffres
+         venaient de la base : c'est la SECTION qui sortait, pas leur exactitude.
+         Si elles reviennent un jour, l'historique les porte, et
+         docs/design/PROCEDURE_EXTRAITS_VITRINE.md dit comment en refaire. */}
 
       {/* ── 06 · L'équipe ───────────────────────────────────────────────────
          Deux points de vue, jamais un seul : c'est l'adjointe qui tient le
