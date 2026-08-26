@@ -208,17 +208,51 @@ qui l'annonce.
 
 ---
 
-## §5 · Note visée après réécriture
+## §5 · Mesure après réécriture, 2026-08-26
 
-| Catégorie | Avant | Après | Ce qui bouge |
+Le texte est en ligne sur le local. Les valeurs ci-dessous sont **relevées sur
+la page rendue**, pas estimées.
+
+| Mesure | Seuil | Avant | Après |
 |---|---|---|---|
-| A · Bénéfice | 9 / 20 | 19 / 20 | Titre de résultat, sujets inversés. |
-| B · Spécificité | 14 / 18 | 17 / 18 | Les deux phrases substituables sont remplacées. |
-| C · Preuve | 12 / 16 | 15 / 16 | La limite devient visible sans clic. |
-| D · Voix | 13 / 14 | 13 / 14 | Inchangée, elle était déjà tenue. |
-| E · Économie | 10 / 12 | 12 / 12 | Aucune phrase au-dessus de 26 mots. |
-| F · Structure | 9 / 12 | 11 / 12 | Plus aucun sous-titre qui paraphrase son titre. |
-| G · Action | 7 / 8 | 8 / 8 | Le coût du geste rejoint la phrase. |
+| Sujet lecteur | ≥ 40 % | 8 % | **41 %** |
+| Sujet SAFE | ≤ 15 % | 46 % | **7 %** |
+| Mots par phrase | ≤ 18 | 16,4 | **11,8** |
+| Phrase la plus longue | ≤ 26 | 31 | **22** |
+| Occurrences « vous / votre / vos » | — | 9 | **23** |
+| Tiret long en milieu de phrase | 0 | 0 | **0** |
+| Tutoiement | 0 | 0 | **0** |
+| Point d'exclamation | 0 | 0 | **0** |
+| Jargon de la liste noire | 0 | 0 | **0** |
 
-**Total visé : 95 / 100.** À confirmer par la mesure une fois le texte en ligne,
-pas avant.
+| Catégorie | Avant | Après | Ce qui a bougé |
+|---|---|---|---|
+| A · Bénéfice | 9 / 20 | 19 / 20 | Le titre nomme quatre résultats au lieu d'une catégorie de produit. Les sujets sont inversés. |
+| B · Spécificité | 14 / 18 | 17 / 18 | Les deux phrases qui survivaient au test de substitution sont remplacées. |
+| C · Preuve | 12 / 16 | 15 / 16 | La limite « SAFE signale, vous décidez » quitte l'objection repliée pour la section où la promesse se fait. |
+| D · Voix | 13 / 14 | 13 / 14 | Inchangée, elle était déjà tenue. |
+| E · Économie | 10 / 12 | 12 / 12 | 11,8 mots par phrase, plus longue à 22. |
+| F · Structure | 9 / 12 | 11 / 12 | Plus aucun sous-titre qui paraphrase son titre. Une section neuve dit les quatre domaines. |
+| G · Action | 7 / 8 | 8 / 8 | Le coût du geste rejoint la phrase qui l'annonce. |
+
+**Total mesuré : 95 / 100.**
+
+### Ce qui reste ouvert, et pourquoi
+
+- **A perd un point** sur C-A02 : « Quatre choses, réunies » ne se comprend pas
+  entièrement sans la phrase qui suit.
+- **B perd un point** sur C-B03 : la page ne cite aucun chiffre de résultat, par
+  choix. Il n'y en a pas encore un seul qui soit vrai et mesuré chez un cabinet.
+- **C perd un point** sur C-C03 : rien n'est emprunté, mais rien ne remplace non
+  plus la preuve de masse qu'on n'a pas.
+- **D perd un point** sur C-D02 : « Rien à brancher » est une facilité annoncée
+  sans démonstration à côté.
+- **F perd un point** sur C-F03 : la section du constat porte deux idées, la
+  fragmentation et la mémoire de l'équipe.
+
+### Le titre de la section « équipe »
+
+Il dit « SAFE soutient votre cabinet », ce qui prend SAFE pour sujet et coûte
+sur C-A03. Il n'a pas été touché : c'est la formulation choisie par le CEO le
+2026-08-26. Seule la phrase qui le suit a été réécrite, parce qu'elle
+survivait au test de substitution.

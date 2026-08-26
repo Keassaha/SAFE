@@ -2495,6 +2495,40 @@ const CSS = `
      Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
      qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
      lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
+  /* ── Les quatre domaines ──────────────────────────────────────────────────
+     Meme poids pour les quatre : c'est le propos. Un domaine plus large ou plus
+     gras se lirait comme le vrai produit et les trois autres comme des options.
+     Aucune image : la page en porte deja trois, et ce bloc doit se lire en dix
+     secondes. */
+  .xc .domaines {
+    margin-top: clamp(40px, 5vw, 64px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(20px, 2.6vw, 40px);
+  }
+  .xc .domaine { border-top: 1px solid var(--line); padding-top: 16px; }
+  .xc .domaine .n {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.1em;
+    color: var(--verified);
+  }
+  .xc .domaine .t {
+    margin-top: 10px;
+    font-family: var(--sans);
+    font-size: var(--t-argument);
+    line-height: 1.25;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
+  }
+  .xc .domaine .d {
+    margin-top: 8px;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
   /* ── Les deux vues, sous les deux colonnes de la tete ─────────────────────
      La grille est EXACTEMENT celle de « .tete » : memes colonnes, meme
      gouttiere. C'est ce qui met la photographie de l'equipe sous le titre et
@@ -3250,6 +3284,7 @@ const CSS = `
     .xc .bloc-maitre,
     .xc .morceaux { margin-top: 26px; }
     .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
+    .xc .domaines { margin-top: 28px; grid-template-columns: 1fr 1fr; gap: 20px; }
     .xc .deux-vues { margin-top: 26px; }
     /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
        droite en plus de la colonne du numéro ne laisse plus rien au texte. */
@@ -4751,6 +4786,31 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
+/* Les quatre domaines de SAFE. Chacun est tenu par du code, pas par une
+   promesse : voir la note de la section « contenu ». */
+const DOMAINES: [string, string, string][] = [
+  [
+    "01",
+    "Vos dossiers",
+    "Le client, les parties, le mandat, les documents et les échéances restent reliés au même dossier.",
+  ],
+  [
+    "02",
+    "Votre facturation",
+    "Le temps et les débours deviennent une facture avec ses taxes, puis un paiement suivi jusqu'à l'encaissement.",
+  ],
+  [
+    "03",
+    "Votre comptabilité",
+    "Chaque facture, paiement, dépense et débours s'inscrit au journal sans que personne le ressaisisse. L'export vers votre logiciel comptable reste disponible.",
+  ],
+  [
+    "04",
+    "Votre conformité",
+    "Le fidéicommis se rapproche à trois sources, et ce qu'un inspecteur demande est rassemblé au même endroit.",
+  ],
+];
+
 /* Les deux points de vue de la section « equipe ». Chacun porte sa
    photographie : l'image dit de qui on parle avant qu'on ait lu le role. */
 const VUES: [string, string, string, string][] = [
@@ -4926,7 +4986,7 @@ export default function ExperienceCinema() {
                 Cursor ecrit « Cursor EST VOTRE AGENT DE CODAGE pour creer des
                 logiciels ambitieux » : le nom, la categorie, le resultat.
                 Le titre absorbe donc l'exergue, qui devenait un doublon. */}
-            <h1>SAFE est la suite administrative qui tient votre cabinet <em>ensemble.</em></h1>
+            <h1>Vos dossiers, votre facturation, votre comptabilité et votre conformité <em>au même endroit.</em></h1>
             {/* Le chapeau est tombe le 2026-08-25, demande CEO.
 
                 Il disait « Vous voyez ce qui est a jour, ce qui attend et ce
@@ -5000,10 +5060,11 @@ export default function ExperienceCinema() {
       <section className="recit" id="probleme">
         <div className="inner">
           <div className="tete">
-            <h2>Cinq endroits pour un seul dossier</h2>
+            <h2>Vous ouvrez cinq endroits pour un seul dossier</h2>
             <p className="dire">
-              <b>La fragmentation de vos dossiers multiplie les ressaisies,</b> ralentit la
-              facturation et fait reposer les suivis sur la mémoire de votre équipe.
+              <b>Le client ici, le mandat là, les heures ailleurs.</b> Chaque ressaisie est une
+              occasion de plus de se tromper, et chaque suivi repose sur la mémoire de
+              quelqu&apos;un.
             </p>
 
           </div>
@@ -5222,8 +5283,51 @@ export default function ExperienceCinema() {
 
 
           <p className="sortie-section">
-            <a href={ROUTES.cabinet}>Voir comment SAFE relie un dossier &rarr;</a>
+            <a href={ROUTES.cabinet}>Voir comment un dossier reste relié &rarr;</a>
           </p>
+        </div>
+      </section>
+
+      {/* ── 01 bis · Ce que SAFE contient ───────────────────────────────────
+         Demande CEO du 2026-08-26 : « je veux que la presentation de SAFE soit
+         plus claire et complete. Alors on va simplifier, mais equilibre. »
+
+         La page prouvait DEUX domaines sur quatre : la facturation par la
+         chaine du temps, la conformite par le rapprochement. Les dossiers
+         n'apparaissaient qu'en creux, dans le constat, et la comptabilite
+         nulle part. Quelqu'un qui parcourait la page ne pouvait pas savoir que
+         SAFE tient un journal.
+
+         Quatre blocs de meme poids, une phrase chacun, aucune image. C'est le
+         seul endroit de la page ou l'offre se dit en entier, et il se lit en
+         dix secondes. Il repond au constat qui le precede : cinq endroits,
+         puis les quatre choses reunies.
+
+         Chaque ligne est verifiable dans le code, pas promise. Pour la
+         troisieme, qui est la plus facile a surestimer :
+         lib/services/journal/billing-journal.ts inscrit chaque facture et
+         chaque paiement au journal, cabinet-expense-journal.ts chaque depense,
+         debours-dossier-journal.ts chaque debours paye. Ils sont appeles depuis
+         invoice-service, payment-allocation-service et payment-reversal, donc
+         personne ne ressaisit. */}
+      <section className="recit" id="contenu">
+        <div className="inner">
+          <div className="tete">
+            <h2>Quatre choses, réunies</h2>
+            <p className="dire">
+              <b>Vous les tenez déjà, séparément.</b> Rien à brancher, rien à ajouter plus
+              tard.
+            </p>
+          </div>
+          <div className="domaines">
+            {DOMAINES.map(([n, titre, texte]) => (
+              <div className="domaine" key={n}>
+                <span className="n" aria-hidden>{n}</span>
+                <p className="t">{titre}</p>
+                <p className="d">{texte}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -5240,10 +5344,10 @@ export default function ExperienceCinema() {
       <section className="recit" id="continuite">
         <div className="inner">
           <div className="tete">
-            <h2>Le temps consigné devient la facture</h2>
+            <h2>Vous consignez une heure. Elle arrive sur la facture.</h2>
             <p className="dire">
-              <b>Vous consignez une fois.</b> SAFE reprend la même entrée jusqu&apos;à
-              l&apos;encaissement.
+              <b>La même entrée traverse le dossier, la feuille de temps, la facture et le
+              paiement.</b> Vous ne la saisissez qu&apos;une fois.
             </p>
           </div>
 
@@ -5419,10 +5523,10 @@ export default function ExperienceCinema() {
       <section className="recit" id="verification">
         <div className="inner">
           <div className="tete">
-            <h2>Le fidéicommis se vérifie à trois sources</h2>
+            <h2>Vos trois sources se comparent chaque mois</h2>
             <p className="dire">
-              <b>Le solde bancaire, le registre et les soldes par dossier</b> sont comparés
-              chaque mois.
+              <b>Le relevé bancaire, le registre et les soldes par client.</b> SAFE signale
+              l&apos;écart, et c&apos;est vous qui décidez ce qu&apos;on en fait.
             </p>
           </div>
 
@@ -5570,8 +5674,12 @@ export default function ExperienceCinema() {
           <div className="tete">
             <h2>SAFE soutient votre cabinet</h2>
             <p className="dire">
-              <b>SAFE ne remplace pas l&apos;équipe.</b> Il lui donne un système commun pour
-              travailler.
+              {/* « Il lui donne un systeme commun pour travailler » survivait au
+                  test de substitution du bareme : n'importe quel concurrent
+                  pouvait l'ecrire. La phrase dit maintenant ce qui est retire
+                  et ce qui ne l'est pas. Le TITRE ne bouge pas, il est du CEO. */}
+              <b>Votre adjointe connaît vos dossiers mieux qu&apos;un logiciel ne le fera.</b>{" "}
+              SAFE lui retire la ressaisie, pas la connaissance.
             </p>
           </div>
 
@@ -5634,7 +5742,7 @@ export default function ExperienceCinema() {
           <div className="tete">
             <h2>Vos objections</h2>
             <p className="dire">
-              <b>Les questions fréquentes.</b> Ouvrez celle qui vous concerne.
+              <b>Nous en entendons cinq souvent.</b> Ouvrez celle qui vous concerne.
             </p>
           </div>
           {/* L'accordeon vit dans ./objections.tsx : /faq sert le MEME modele
@@ -5648,10 +5756,10 @@ export default function ExperienceCinema() {
       <section className="recit" id="cta">
         <div className="inner">
           <div className="tete">
-            <h2>Voyons ce que SAFE simplifierait chez vous</h2>
+            <h2>Voyons ce que ça changerait chez vous</h2>
             <p className="dire">
-              <b>Une évaluation de votre organisation administrative,</b> et ce qu&apos;elle
-              laisse voir.
+              <b>Une quinzaine de minutes de questions sur votre pratique.</b> Vous recevez un
+              rapport chiffré sous 24 heures.
             </p>
           </div>
           <div className="actions">
