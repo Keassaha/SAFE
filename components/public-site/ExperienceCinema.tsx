@@ -2604,21 +2604,56 @@ const CSS = `
      Deux points de vue de même poids, séparés par un filet vertical. La
      composition change volontairement de celle de la suite : ici, aucun des
      deux ne domine, et c'est le propos. */
+  /* La tete de cette section n'est PAS celle des autres. Partout ailleurs le
+     titre tient la colonne de gauche et sa phrase celle de droite, a la meme
+     hauteur : c'est le contrat du site, et il vaut quand un objet suit dessous
+     sur toute la largeur. Ici deux cartes suivent, et le contrat laissait le
+     titre suspendu au-dessus d'un vide avec ses arguments deux ecrans plus
+     bas. Le titre prend donc toute la largeur, la phrase se pose dessous, et
+     les cartes commencent tout de suite. */
+  .xc .tete-large h2 {
+    font-family: var(--sans);
+    font-size: var(--t-marque);
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    color: var(--si-ink);
+    max-width: 22ch;
+  }
+  .xc .tete-large .dire {
+    margin-top: 14px;
+    max-width: 56ch;
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.55;
+    color: var(--si-muted);
+  }
+  .xc .tete-large .dire b { font-weight: 400; color: var(--si-ink); }
+
   .xc .deux-vues {
-    margin-top: clamp(56px, 8vh, 104px);
+    margin-top: clamp(32px, 4.4vh, 52px);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: clamp(28px, 4vw, 64px);
-    padding-top: clamp(24px, 3vw, 34px);
-    border-top: 1px solid var(--line);
+    gap: clamp(20px, 2.6vw, 36px);
   }
+  .xc .deux-vues .vue { margin: 0; }
+  /* La photographie porte le meme rayon que les cartes de forfait, et le meme
+     filet : c'est une surface du site, pas une image rapportee. */
+  .xc .vue-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 1px solid var(--si-border);
+  }
+  .xc .deux-vues .vue figcaption { margin-top: 18px; }
   .xc .deux-vues .vue p {
-    margin-top: 12px;
-    max-width: 40ch;
+    margin-top: 10px;
+    max-width: 42ch;
     font-family: var(--sans);
-    font-size: var(--t-corps);
-    line-height: 1.62;
-    color: var(--muted);
+    font-size: var(--t-explique);
+    line-height: 1.55;
+    color: var(--si-muted);
   }
   .xc #equipe .chute { margin-top: clamp(28px, 3.4vw, 44px); }
 
@@ -3362,7 +3397,7 @@ const CSS = `
     }
     .xc .morceaux { margin-top: 26px; }
     .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
-    .xc .deux-vues { margin-top: 26px; padding-top: 22px; }
+    .xc .deux-vues { margin-top: 26px; }
     .xc #tarifs .etapes { margin-top: 28px; }
     /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
        droite en plus de la colonne du numéro ne laisse plus rien au texte. */
@@ -3370,8 +3405,9 @@ const CSS = `
     .xc .morceau .t { font-size: var(--t-detail); line-height: 1.5; }
     .xc .morceau .ou { grid-column: 2; }
     .xc .bloc-maitre h3, .xc .deux-blocs h3 { font-size: var(--t-argument); max-width: none; }
-    .xc .bloc-maitre p, .xc .deux-blocs p, .xc .deux-vues .vue p,
+    .xc .bloc-maitre p, .xc .deux-blocs p,
     .xc #tarifs .etape .d { max-width: none; font-size: var(--t-detail); }
+    .xc .deux-vues .vue p { max-width: none; }
     .xc .chute, .xc .fi-precision { max-width: none; font-size: var(--t-corps); }
     .xc .contexte li { font-size: var(--t-menu); padding: 6px 10px; }
     .xc #tarifs .actions { margin-top: 28px; flex-direction: column; align-items: stretch; }
@@ -4877,6 +4913,23 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
+/* Les deux points de vue de la section « equipe ». Chacun porte sa
+   photographie : l'image dit de qui on parle avant qu'on ait lu le role. */
+const VUES: [string, string, string, string][] = [
+  [
+    "/images/equipe/equipe-administrative.webp",
+    "Trois personnes travaillent dans un bureau ; l'une consulte le tableau de bord SAFE.",
+    "Pour l'équipe administrative",
+    "L'adjointe conserve la connaissance du cabinet. Moins de ressaisie, de recherche et de suivis invisibles.",
+  ],
+  [
+    "/images/equipe/avocate.webp",
+    "Une avocate annote un document a son bureau, le Code civil du Quebec a portee de main.",
+    "Pour l'avocate",
+    "L'avocate conserve le jugement professionnel. Les montants, les échéances et ce qui demande une décision.",
+  ],
+];
+
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
    ce que le cabinet doit préparer : c'est la différence entre un
    accompagnement et un mode d'emploi. */
@@ -5682,12 +5735,21 @@ export default function ExperienceCinema() {
 
       {/* ── 06 · L'équipe ───────────────────────────────────────────────────
          Deux points de vue, jamais un seul : c'est l'adjointe qui tient le
-         cabinet en mouvement et l'avocate qui décide. La composition change
-         volontairement de celle de la suite : ici deux colonnes de même poids,
-         séparées par un filet, sous une phrase qui les tient ensemble. */}
+         cabinet en mouvement et l'avocate qui décide.
+
+         La composition change le 2026-08-26, sur demande du CEO : « qu'on
+         sente le titre et qu'on voie l'argumentation ». Le titre et sa phrase
+         restaient a la tete de section, puis DEUX ECRANS DE VIDE separaient
+         cette phrase des deux arguments, poses tout en bas en petit gris.
+         Le titre ne portait plus rien et l'argument arrivait trop tard.
+
+         Le titre monte donc au-dessus, seul, sur toute la largeur, et chaque
+         point de vue devient une carte : sa photographie, son role, sa phrase.
+         L'image dit de qui on parle avant qu'on ait lu le libelle, ce que
+         deux colonnes de texte separees par un filet ne faisaient pas. */}
       <section className="recit" id="equipe">
         <div className="inner">
-          <div className="tete">
+          <div className="tete-large">
             <h2>SAFE soutient l&apos;équipe qui tient le cabinet</h2>
             <p className="dire">
               <b>SAFE ne remplace pas l&apos;équipe.</b> Il lui donne un système commun pour
@@ -5696,20 +5758,22 @@ export default function ExperienceCinema() {
           </div>
 
           <div className="deux-vues">
-            <div className="vue">
-              <p className="rang">Pour l&apos;équipe administrative</p>
-              <p>
-                L&apos;adjointe conserve la connaissance du cabinet. Moins de ressaisie, de
-                recherche et de suivis invisibles.
-              </p>
-            </div>
-            <div className="vue">
-              <p className="rang">Pour l&apos;avocate</p>
-              <p>
-                L&apos;avocate conserve le jugement professionnel. Les montants, les échéances
-                et ce qui demande une décision.
-              </p>
-            </div>
+            {VUES.map(([image, alt, role, phrase]) => (
+              <figure className="vue" key={role}>
+                <Image
+                  src={image}
+                  alt={alt}
+                  width={1400}
+                  height={933}
+                  sizes="(max-width: 900px) 100vw, 50vw"
+                  className="vue-photo"
+                />
+                <figcaption>
+                  <p className="rang">{role}</p>
+                  <p>{phrase}</p>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
