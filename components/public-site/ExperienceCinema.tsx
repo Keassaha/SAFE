@@ -2300,6 +2300,67 @@ const CSS = `
      habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
      n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
      elle qui doit etre confortable. Demande CEO du 2026-08-26. */
+  /* ── Le symbole d'un temps et d'une garantie ──────────────────────────────
+     Meme registre que ceux du resume de /a-propos : un trait de 1,5, aucune
+     couleur, aucun aplat. Il accompagne le rang sans lui voler la ligne. */
+  .xc .etape-tete { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .xc .sym-etape { display: inline-flex; color: var(--si-ink); opacity: 0.55; }
+  .xc .panneau-garanties .sym-etape { opacity: 0.5; }
+
+  /* ── Le panneau des garanties ─────────────────────────────────────────────
+     Modele de cursor.com/home : le contenu vit dans un panneau avec son propre
+     fond au lieu de flotter sur la page. C'est ce qui separe deux mouvements
+     d'une meme section sans ajouter un titre de plus.
+
+     La phrase de gauche et les quatre garanties sont a la MEME taille, comme
+     chez eux : seul le gris les separe. Une phrase de conclusion qui grossit
+     redeviendrait un titre, et la section en compte deja deux. */
+  .xc .panneau-garanties {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2.1fr);
+    gap: clamp(24px, 3.4vw, 54px);
+    align-items: center;
+    margin-top: clamp(28px, 3.6vh, 44px);
+    padding: clamp(24px, 3vw, 38px);
+    border-radius: 16px;
+    background: rgb(var(--si-ink-rgb) / 0.035);
+  }
+  .xc .pg-dit {
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.35;
+    color: var(--si-ink);
+  }
+  .xc .pg-liste {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 30px);
+  }
+  /* Un filet entre deux garanties, pas autour : le panneau a deja un bord. */
+  .xc .pg + .pg { border-left: 1px solid var(--si-line); padding-left: clamp(16px, 2vw, 30px); }
+  .xc .pg-t {
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    color: var(--si-ink);
+    line-height: 1.35;
+  }
+  .xc .pg-d {
+    margin-top: 5px;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    color: var(--si-muted);
+    line-height: 1.45;
+  }
+  @media (max-width: 900px) {
+    .xc .panneau-garanties { grid-template-columns: 1fr; align-items: start; }
+    .xc .pg-liste { grid-template-columns: 1fr 1fr; }
+    /* En deux colonnes, un filet a gauche de chaque paire impaire pend dans le
+       vide : il ne reste qu'entre les deux colonnes d'une meme rangee. */
+    .xc .pg + .pg { border-left: 0; padding-left: 0; }
+    .xc .pg:nth-child(even) { border-left: 1px solid var(--si-line); padding-left: 18px; }
+  }
+
   /* ── Les cartes de forfait ────────────────────────────────────────────────
      Modele releve sur cursor.com : le nom, le prix en grand avec son unite en
      petit, ce que le forfait contient en liste a coches, un bouton pleine
@@ -5007,11 +5068,90 @@ const EN_PLUS_CABINET: string[] = [
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
    ce que le cabinet doit préparer : c'est la différence entre un
    accompagnement et un mode d'emploi. */
-const IMPLANTATION: [string, string, string][] = [
-  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités."],
-  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique."],
-  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service."],
+const IMPLANTATION: [string, string, string, string][] = [
+  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités.", "dossier"],
+  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique.", "reglages"],
+  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service.", "coche"],
 ];
+
+/* Ce que la mise en route garantit. Chaque ligne est tenue ailleurs :
+   « on part de ce que vous faites deja » et la reprise des dossiers viennent de
+   l'offre fondatrice (lib/tarification.ts), les regles du Barreau du moteur de
+   conformite, l'accompagnement de la mise en route faite par nous.
+
+   Quatre lignes et pas six : un panneau de garanties qui en aligne six cesse
+   d'etre une garantie et devient une liste de fonctions. */
+const GARANTIES: [string, string, string][] = [
+  ["horloge", "Moins de temps perdu", "On part de ce que vous faites déjà."],
+  ["bouclier", "Conforme dès le départ", "Les règles du Barreau sont dans le produit."],
+  ["personne", "Accompagnement humain", "La mise en route est faite par nous, pas par vous."],
+  ["coche", "Vos vrais dossiers", "Repris avant la mise en service, pas des données de démonstration."],
+];
+
+/* Les symboles des trois temps et des garanties. Meme registre que ceux du
+   resume de /a-propos : un trait, aucune couleur, aucun aplat. Ils sont ecrits
+   en JSX et non en chaine, pour se relire. */
+const SYMBOLES_ETAPE: Record<string, React.ReactNode> = {
+  dossier: (
+    <>
+      <path d="M3.5 7.5v11a1 1 0 0 0 1 1h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-8l-2-2h-5a1 1 0 0 0-1 1Z" />
+    </>
+  ),
+  reglages: (
+    <>
+      <path d="M3 7h11M18 7h3M3 12h4M11 12h10M3 17h8M15 17h6" />
+      <circle cx="16" cy="7" r="2" />
+      <circle cx="9" cy="12" r="2" />
+      <circle cx="13" cy="17" r="2" />
+    </>
+  ),
+  coche: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M8.5 12.2l2.4 2.4 4.6-4.8" />
+    </>
+  ),
+  horloge: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7v5.3l3.4 2" />
+    </>
+  ),
+  bouclier: (
+    <>
+      <path d="M12 3.5l7 2.6v5.2c0 4-2.9 7.4-7 9.2-4.1-1.8-7-5.2-7-9.2V6.1l7-2.6Z" />
+    </>
+  ),
+  personne: (
+    <>
+      <circle cx="12" cy="8.5" r="3.2" />
+      <path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" />
+    </>
+  ),
+};
+
+/** Le symbole d'un temps ou d'une garantie. Retire aux lecteurs d'ecran : le
+ *  libelle a cote dit deja la meme chose. */
+function SymboleEtape({ nom }: { nom: string }) {
+  const forme = SYMBOLES_ETAPE[nom];
+  if (!forme) return null;
+  return (
+    <span className="sym-etape" aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {forme}
+      </svg>
+    </span>
+  );
+}
 
 const QUESTIONS: [string, string][] = [
   [
@@ -5996,13 +6136,42 @@ export default function ExperienceCinema() {
               pour ne pas ajouter une section de plus au bas de page. */}
           <p className="sous-titre-bloc">Commencer avec vos vrais dossiers</p>
           <div className="etapes">
-            {IMPLANTATION.map(([n, titre, texte]) => (
+            {IMPLANTATION.map(([n, titre, texte, sym]) => (
               <div className="etape" key={n}>
-                <span className="n" aria-hidden>{n}</span>
+                <span className="etape-tete">
+                  <span className="n" aria-hidden>{n}</span>
+                  <SymboleEtape nom={sym} />
+                </span>
                 <p className="t">{titre}</p>
                 <p className="d">{texte}</p>
               </div>
             ))}
+          </div>
+
+          {/* ── Le panneau des garanties ─────────────────────────────────────
+              Modele de cursor.com/home : le contenu vit dans un PANNEAU avec
+              son propre fond, au lieu de flotter sur la page. Ici il porte ce
+              que la mise en route garantit, et il ferme les trois temps par
+              une phrase plutot que par un vide.
+
+              Chaque ligne est tenue ailleurs : « on part de ce que vous faites
+              deja » et la reprise des dossiers viennent de l'offre fondatrice,
+              les regles du Barreau du moteur de conformite. */}
+          <div className="panneau-garanties">
+            <p className="pg-dit">
+              Votre pratique reste
+              <br />
+              notre point de départ.
+            </p>
+            <div className="pg-liste">
+              {GARANTIES.map(([sym, titre, texte]) => (
+                <div className="pg" key={titre}>
+                  <SymboleEtape nom={sym} />
+                  <p className="pg-t">{titre}</p>
+                  <p className="pg-d">{texte}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ── Les forfaits, au modele de cursor.com ────────────────────────
