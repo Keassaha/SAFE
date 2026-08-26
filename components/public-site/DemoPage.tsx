@@ -93,8 +93,8 @@ export default function DemoPage() {
 
         {etat === "envoye" ? (
           <p className="recu" role="status">
-            C'est reçu. Vous aurez une réponse à l'adresse que vous venez
-            d'écrire, dans la journée ouvrable.
+            C&apos;est reçu. Vous aurez une réponse à l&apos;adresse que vous venez
+            d&apos;écrire, dans la journée ouvrable.
           </p>
         ) : (
           <form className="formulaire" onSubmit={envoyer}>

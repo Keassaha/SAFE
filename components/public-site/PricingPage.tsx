@@ -24,34 +24,11 @@
 
 import React from "react";
 import { PageShell, R } from "./shared";
-import { Ouverture, Recit, Tete, IndexNumerote, ListeNumerotee } from "./recit";
-import { TARIFICATION, prixFr } from "@/lib/tarification";
+import { Ouverture, Recit, Tete, ListeNumerotee } from "./recit";
+import { CartesForfaits, PanneauFondateurs, reglesForfaits } from "./forfaits";
+import { TARIFICATION } from "@/lib/tarification";
 
 const FOND = TARIFICATION.fondateurs;
-
-const FORFAITS = [
-  {
-    nom: "Solo",
-    prix: prixFr(TARIFICATION.paliers.solo.prix),
-    detail:
-      "Pour l’avocate ou l’avocat qui exerce seul. Fidéicommis, dossiers, temps et facturation dans un même abonnement.",
-  },
-  {
-    nom: "Cabinet",
-    prix: prixFr(TARIFICATION.paliers.cabinet.prix),
-    detail:
-      "Pour les petits cabinets qui travaillent en équipe. Tout ce qui est compris dans Solo, avec l’accès pour votre équipe.",
-  },
-];
-
-const COMPRIS = [
-  ["01", "Fidéicommis rapproché à trois sources"],
-  ["02", "Dossiers, clients et parties reliés"],
-  ["03", "Temps et débours prêts à facturer"],
-  ["04", "Facturation avec taxes et suivi des paiements"],
-  ["05", "Configuration initiale avec votre équipe"],
-  ["06", "Interface en français et en anglais"],
-] as const;
 
 const FONDATEURS = [
   [
@@ -90,7 +67,6 @@ const QUESTIONS = [
 ];
 
 export default function TarificationPage() {
-  const placesRestantes = FOND.placesTotal - FOND.placesPrises;
   return (
     <PageShell>
       <Ouverture
@@ -106,30 +82,20 @@ export default function TarificationPage() {
           titre="Deux forfaits, selon qui travaille dans le cabinet"
           dire={["Mensuels, résiliables en tout temps.", "Prix en dollars canadiens, taxes en sus."]}
         />
-        {FORFAITS.map((f) => (
-          <div className="plan" key={f.nom}>
-            <div>
-              <p className="name">{f.nom}</p>
-              <p className="detail">{f.detail}</p>
-            </div>
-            <p className="price">
-              {f.prix} $<small>/ mois</small>
-            </p>
-          </div>
-        ))}
+        {/* Le meme modele que l'accueil, servi par le meme composant. Cette
+            page portait des rangees « nom / phrase / prix a droite » : on
+            lisait le prix sans savoir ce qu'il achete, et la difference entre
+            les deux paliers n'etait dite nulle part. */}
+        <CartesForfaits action={R.diagnostic} />
         <p className="note">
           Configuration initiale comprise. Le rattrapage comptable d’exercices antérieurs, lui,
           n’est jamais compris : il se chiffre à part, sur pièces.
         </p>
       </Recit>
 
-      <Recit id="compris">
-        <Tete
-          titre="Ce que le prix couvre"
-          dire={["Six choses, nommées.", "Il n’y a pas de module à ajouter ensuite."]}
-        />
-        <IndexNumerote entrees={COMPRIS} />
-      </Recit>
+      {/* La section « Ce que le prix couvre » listait les six memes lignes que
+          la carte Solo, deux ecrans plus bas. Retiree le 2026-08-26 : une
+          liste qui se repete se lit comme deux offres differentes. */}
 
       {/* L'offre fondatrice. Son emphase vient du socle, pas d'un panneau vert
           sombre : sur une page qui tient sur un seul canevas, une boîte de
@@ -138,24 +104,14 @@ export default function TarificationPage() {
         <Tete
           titre="Cabinets fondateurs"
           dire={[
-            `${FOND.placesTotal} places, ${placesRestantes === 1 ? "une seule" : `${placesRestantes}`} encore libre${placesRestantes > 1 ? "s" : ""}.`,
+            "Le tarif est réduit pendant douze mois, puis gelé.",
             "Pour des cabinets qui veulent utiliser SAFE et contribuer directement à son amélioration.",
           ]}
         />
 
-        <div className="plan">
-          <div>
-            <p className="name">Les {FOND.dureeMois} premiers mois</p>
-            <p className="detail">
-              Pratique individuelle, puis cabinet avec adjointe. Ensuite le tarif fondateur reste
-              gelé à {FOND.apresSolo} $ ou {FOND.apresCabinet} $ tant que l’abonnement demeure
-              actif : votre coût ne double pas au treizième mois.
-            </p>
-          </div>
-          <p className="price">
-            {FOND.premiereAnneeSolo} $<small>ou {FOND.premiereAnneeCabinet} $ / mois</small>
-          </p>
-        </div>
+        {/* Le meme tableau que l'accueil. La rangee qu'il remplace annoncait
+            « 50 $ ou 75 $ » sans dire lequel va avec quel palier. */}
+        <PanneauFondateurs titre={false} />
 
         <ListeNumerotee entrees={FONDATEURS} />
 
@@ -211,6 +167,10 @@ export default function TarificationPage() {
         </div>
         <p className="note">Gratuit, sans carte de crédit. Rapport sous 24 heures.</p>
       </Recit>
+      {/* Les regles des cartes et du panneau, a la portee de la vitrine. Sans
+          cette ligne, la page rend le bon balisage sans aucune de ses mises en
+          forme : la feuille des forfaits ne vit que la ou on la pose. */}
+      <style dangerouslySetInnerHTML={{ __html: reglesForfaits(".safe-vitrine") }} />
     </PageShell>
   );
 }

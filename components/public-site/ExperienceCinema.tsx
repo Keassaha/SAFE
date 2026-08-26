@@ -28,7 +28,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { TARIFICATION, prixFr } from "@/lib/tarification";
+import { CartesForfaits, PanneauFondateurs, reglesForfaits } from "./forfaits";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import {
   ASSEMBLY_PIECE_A_PATH,
@@ -2083,6 +2083,18 @@ const CSS = `
     border: 1px solid var(--si-border); border-radius: 12px;
     background: var(--si-surface); padding: 14px 16px;
   }
+  /* Le libelle, le nombre et sa precision sont trois SPANS, donc en ligne par
+     defaut. Ils portaient chacun un « margin-top », qui ne fait rien sur un
+     element en ligne : les trois se collaient, « ACTIFS43 », « TOTAL948,54 $ »,
+     « SOLDE TOTAL89 275,00 $7 clients avec des fonds ».
+
+     La regle existait, mais UNIQUEMENT dans la requete du telephone, ou le
+     defaut avait ete vu et corrige. Sur ordinateur il tenait toujours, et le
+     CEO l'a releve sur les trois figures le 2026-08-26. Elle remonte ici, ou
+     elle vaut pour toutes les largeurs. */
+  .xc .fiche .tot .k,
+  .xc .fiche .tot .v,
+  .xc .fiche .tot .s { display: block; }
   .xc .fiche .tot .k {
     font-family: var(--mono); font-size: var(--t-menu); letter-spacing: 0.11em;
     text-transform: uppercase; color: var(--si-muted);
@@ -2300,12 +2312,13 @@ const CSS = `
      habituel, et c'est voulu. Un intitule se PARCOURT, huit d'affilee, et il
      n'a pas besoin d'etre gros. Une reponse se LIT, une a la fois, et c'est
      elle qui doit etre confortable. Demande CEO du 2026-08-26. */
-  /* ── Le symbole d'un temps et d'une garantie ──────────────────────────────
-     Meme registre que ceux du resume de /a-propos : un trait de 1,5, aucune
-     couleur, aucun aplat. Il accompagne le rang sans lui voler la ligne. */
-  .xc .etape-tete { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .xc .sym-etape { display: inline-flex; color: var(--si-ink); opacity: 0.55; }
-  .xc .panneau-garanties .sym-etape { opacity: 0.5; }
+  /* Les trois temps portaient un symbole en regard de leur rang, et chaque
+     garantie le sien. Retires le 2026-08-26 : le CEO les a juges DECONNECTES
+     DU RESTE DU SITE, et il a raison. Nulle part ailleurs SAFE ne met une
+     icone devant un libelle ; les registres, les tableaux, les fiches n'en
+     portent aucune. Huit glyphes apparaissaient ici et seulement ici. Le rang
+     numerote suffit a ordonner, et le libelle dit deja ce que le symbole
+     redisait. */
 
   /* ── Le panneau des garanties ─────────────────────────────────────────────
      Modele de cursor.com/home : le contenu vit dans un panneau avec son propre
@@ -2361,109 +2374,6 @@ const CSS = `
     .xc .pg:nth-child(even) { border-left: 1px solid var(--si-line); padding-left: 18px; }
   }
 
-  /* ── Les cartes de forfait ────────────────────────────────────────────────
-     Modele releve sur cursor.com : le nom, le prix en grand avec son unite en
-     petit, ce que le forfait contient en liste a coches, un bouton pleine
-     largeur au bas. La carte se lit de haut en bas et se termine par le geste.
-
-     Les cartes prennent leur hauteur NATURELLE. J'avais d'abord voulu les
-     egaliser pour que les deux boutons tombent a la meme ligne, en me disant
-     que deux hauteurs differentes se liraient comme deux rangs. Mesure faite,
-     Solo porte six lignes et Cabinet deux : l'egalisation ouvrait un vide de
-     trois cents pixels au milieu de la seconde carte, et un vide se lit comme
-     une erreur, pas comme une egalite. Deux cartes de hauteurs differentes,
-     elles, se lisent comme deux offres de contenus differents, ce qui est
-     exactement le cas. */
-  .xc .forfaits {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(16px, 2vw, 26px);
-    margin-top: clamp(24px, 3.2vh, 36px);
-    align-items: start;
-  }
-  .xc .forfait {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--si-border);
-    border-radius: 14px;
-    background: var(--si-surface);
-    padding: clamp(22px, 2.6vw, 32px);
-  }
-  .xc .f-nom {
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    color: var(--si-ink);
-  }
-  .xc .f-prix {
-    font-family: var(--mono);
-    font-size: var(--t-argument);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-    margin-top: 6px;
-  }
-  .xc .f-prix small {
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    color: var(--si-muted);
-    margin-left: 6px;
-  }
-  .xc .f-dit {
-    margin-top: 14px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.55;
-    color: var(--si-muted);
-    max-width: 40ch;
-  }
-  .xc .f-liste { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 9px; }
-  .xc .f-liste li {
-    position: relative;
-    padding-left: 24px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.45;
-    color: var(--si-ink);
-  }
-  /* La coche est dessinee par deux bords, pas par un caractere : un « ✓ » est
-     compte comme emoji par le standard, et son dessin change d'une fonte a
-     l'autre. */
-  .xc .f-liste li::before {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: 0.42em;
-    width: 9px; height: 5px;
-    border-left: 1.6px solid var(--si-verified);
-    border-bottom: 1.6px solid var(--si-verified);
-    transform: rotate(-45deg);
-  }
-  /* Le bouton suit la liste, il n'est plus pousse au bas de la carte. */
-  .xc .f-action { margin-top: 22px; justify-content: center; }
-  .xc .forfait .btn { width: 100%; }
-
-  /* Le programme des fondateurs. Un bloc, pas une troisieme carte : ce n'est
-     pas un forfait de plus, c'est une condition sur les deux. */
-  .xc .fondateurs-bloc {
-    margin-top: clamp(16px, 2vw, 26px);
-    border: 1px solid rgb(var(--si-verified-rgb) / 0.28);
-    border-radius: 14px;
-    background: rgb(var(--si-verified-rgb) / 0.05);
-    padding: clamp(20px, 2.4vw, 28px);
-  }
-  .xc .fondateurs-bloc .f-dit { color: var(--si-body); max-width: 72ch; }
-  .xc .fondateurs-bloc .f-dit b { font-weight: 400; color: var(--si-ink); }
-  .xc .f-places {
-    margin-top: 12px;
-    font-family: var(--mono);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--si-verified);
-  }
-  @media (max-width: 900px) {
-    .xc .forfaits { grid-template-columns: 1fr; }
-  }
-
   .xc .objections { margin-top: clamp(28px, 3.6vh, 44px); }
   .xc .obj {
     border-top: 1px solid var(--si-line);
@@ -2514,13 +2424,23 @@ const CSS = `
   .xc .trio .fenetre-produit { margin: 0; }
   .xc .trio .barre-fenetre { font-size: 10px; padding: 7px 10px; gap: 7px; }
   .xc .trio .pastilles-fenetre i { width: 6px; height: 6px; }
-  .xc .trio figcaption { display: flex; flex-direction: column; gap: 3px; }
-  .xc .trio figcaption .q {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.11em;
-    text-transform: uppercase; color: var(--si-verified);
+  /* ── La legende d'une figure : la question, rien d'autre ──────────────────
+     Elle en portait trois choses : un exergue « LA QUESTION » en mono vert, la
+     question en gras, puis une phrase d'explication en gris. Deux defauts, vus
+     par le CEO le 2026-08-26. La question, qui est le propos, etait ECRITE
+     PLUS PETIT que l'explication qui la commente. Et trois legendes de
+     hauteurs differentes posaient leurs premieres lignes a trois altitudes.
+
+     Il ne reste que la question, sur une ligne, a la meme taille pour les
+     trois. L'exergue disait « la question » au-dessus d'une phrase entre
+     guillemets qui se voyait deja comme telle. */
+  .xc .trio figcaption {
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.45;
+    color: var(--si-ink);
+    text-wrap: balance;
   }
-  .xc .trio figcaption b { font-size: var(--t-detail); font-weight: 500; }
-  .xc .trio figcaption span { font-size: var(--t-explique); color: var(--si-muted); line-height: 1.5; }
   /* ── Les trois fenetres de « figures » ────────────────────────────────────
      Elles portent la meme grammaire que les extraits pleine largeur, en plus
      serre : la fiche, ses plaques de nombres et ses rangees existent deja, on
@@ -2604,13 +2524,6 @@ const CSS = `
     .xc .trio { grid-template-columns: 1fr; gap: 30px; }
     .xc .trio .fenetre-fondante { width: 100%; }
     .xc .trio .fenetre-produit { width: 399px; zoom: 0.877; }
-    /* Le libelle et le nombre d'une plaque sont deux SPANS. Sur ordinateur ils
-       s'empilent ; au telephone ils se collaient sur une ligne, « TOTAL948,54 $ ».
-       Un « margin-top » sur un element en ligne ne fait rien. */
-    .xc .fiche .tot .k,
-    .xc .fiche .tot .v,
-    .xc .fiche .tot .s { display: block; }
-
     /* ── La chaine, au telephone ────────────────────────────────────────────
        Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
        se suivent horizontalement et la fleche tombe entre deux cadrans, ce
@@ -5047,31 +4960,13 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
-/* Ce que contient un abonnement. Repris de components/public-site/PricingPage.tsx :
-   les deux pages disent la meme chose ou elles divergent au premier changement. */
-const COMPRIS_FORFAIT: string[] = [
-  "Fidéicommis rapproché à trois sources",
-  "Dossiers, clients et parties reliés",
-  "Temps et débours prêts à facturer",
-  "Facturation avec taxes et suivi des paiements",
-  "Configuration initiale avec votre équipe",
-  "Interface en français et en anglais",
-];
-
-/* Ce que le palier Cabinet ajoute. Deux entrees seulement, et les deux sont
-   verifiables dans le produit : les roles vivent dans lib/auth/permissions.ts. */
-const EN_PLUS_CABINET: string[] = [
-  "L'accès pour votre adjointe et votre équipe",
-  "Des droits par rôle : avocate, adjointe, comptabilité",
-];
-
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
    ce que le cabinet doit préparer : c'est la différence entre un
    accompagnement et un mode d'emploi. */
-const IMPLANTATION: [string, string, string, string][] = [
-  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités.", "dossier"],
-  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique.", "reglages"],
-  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service.", "coche"],
+const IMPLANTATION: [string, string, string][] = [
+  ["01", "Comprendre votre cabinet", "SAFE relève vos méthodes, vos outils et vos priorités."],
+  ["02", "Configurer le bon cadre", "Le système est adapté à votre province, à votre facturation et à votre pratique."],
+  ["03", "Commencer avec votre vrai travail", "Vos dossiers et vos données sont préparés avant la mise en service."],
 ];
 
 /* Ce que la mise en route garantit. Chaque ligne est tenue ailleurs :
@@ -5081,77 +4976,13 @@ const IMPLANTATION: [string, string, string, string][] = [
 
    Quatre lignes et pas six : un panneau de garanties qui en aligne six cesse
    d'etre une garantie et devient une liste de fonctions. */
-const GARANTIES: [string, string, string][] = [
-  ["horloge", "Moins de temps perdu", "On part de ce que vous faites déjà."],
-  ["bouclier", "Conforme dès le départ", "Les règles du Barreau sont dans le produit."],
-  ["personne", "Accompagnement humain", "La mise en route est faite par nous, pas par vous."],
-  ["coche", "Vos vrais dossiers", "Repris avant la mise en service, pas des données de démonstration."],
+const GARANTIES: [string, string][] = [
+  ["Moins de temps perdu", "On part de ce que vous faites déjà."],
+  ["Conforme dès le départ", "Les règles du Barreau sont dans le produit."],
+  ["Accompagnement humain", "La mise en route est faite par nous, pas par vous."],
+  ["Vos vrais dossiers", "Repris avant la mise en service, pas des données de démonstration."],
 ];
 
-/* Les symboles des trois temps et des garanties. Meme registre que ceux du
-   resume de /a-propos : un trait, aucune couleur, aucun aplat. Ils sont ecrits
-   en JSX et non en chaine, pour se relire. */
-const SYMBOLES_ETAPE: Record<string, React.ReactNode> = {
-  dossier: (
-    <>
-      <path d="M3.5 7.5v11a1 1 0 0 0 1 1h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-8l-2-2h-5a1 1 0 0 0-1 1Z" />
-    </>
-  ),
-  reglages: (
-    <>
-      <path d="M3 7h11M18 7h3M3 12h4M11 12h10M3 17h8M15 17h6" />
-      <circle cx="16" cy="7" r="2" />
-      <circle cx="9" cy="12" r="2" />
-      <circle cx="13" cy="17" r="2" />
-    </>
-  ),
-  coche: (
-    <>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M8.5 12.2l2.4 2.4 4.6-4.8" />
-    </>
-  ),
-  horloge: (
-    <>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7v5.3l3.4 2" />
-    </>
-  ),
-  bouclier: (
-    <>
-      <path d="M12 3.5l7 2.6v5.2c0 4-2.9 7.4-7 9.2-4.1-1.8-7-5.2-7-9.2V6.1l7-2.6Z" />
-    </>
-  ),
-  personne: (
-    <>
-      <circle cx="12" cy="8.5" r="3.2" />
-      <path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" />
-    </>
-  ),
-};
-
-/** Le symbole d'un temps ou d'une garantie. Retire aux lecteurs d'ecran : le
- *  libelle a cote dit deja la meme chose. */
-function SymboleEtape({ nom }: { nom: string }) {
-  const forme = SYMBOLES_ETAPE[nom];
-  if (!forme) return null;
-  return (
-    <span className="sym-etape" aria-hidden>
-      <svg
-        viewBox="0 0 24 24"
-        width="20"
-        height="20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {forme}
-      </svg>
-    </span>
-  );
-}
 
 const QUESTIONS: [string, string][] = [
   [
@@ -5207,7 +5038,7 @@ export default function ExperienceCinema() {
   return (
     <>
     <div className="xc" ref={rootRef}>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS + reglesForfaits(".xc") }} />
 
       <nav id="nav">
         <a className="brand" href="#top" aria-label="SAFE, retour au haut de la page">
@@ -5994,9 +5825,7 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
                 <figcaption>
-                  <span className="q">La question</span>
-                  <b>&laquo;&nbsp;Où en est ce dossier ?&nbsp;&raquo;</b>
-                  <span>Ce qui est ouvert, ce qui presse, et qui s&apos;en occupe.</span>
+                  &laquo;&nbsp;Où en est ce dossier ?&nbsp;&raquo;
                 </figcaption>
               </figure>
 
@@ -6027,9 +5856,7 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
                 <figcaption>
-                  <span className="q">La question</span>
-                  <b>&laquo;&nbsp;Cette facture, elle est payée ?&nbsp;&raquo;</b>
-                  <span>Ce qui est émis, ce qui est entré, ce qui reste dû.</span>
+                  &laquo;&nbsp;Cette facture, elle est payée ?&nbsp;&raquo;
                 </figcaption>
               </figure>
 
@@ -6062,9 +5889,7 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
                 <figcaption>
-                  <span className="q">La question</span>
-                  <b>&laquo;&nbsp;Cet argent, à qui appartient-il ?&nbsp;&raquo;</b>
-                  <span>Le solde détenu, client par client.</span>
+                  &laquo;&nbsp;Cet argent, à qui appartient-il ?&nbsp;&raquo;
                 </figcaption>
               </figure>
             </div>
@@ -6136,12 +5961,9 @@ export default function ExperienceCinema() {
               pour ne pas ajouter une section de plus au bas de page. */}
           <p className="sous-titre-bloc">Commencer avec vos vrais dossiers</p>
           <div className="etapes">
-            {IMPLANTATION.map(([n, titre, texte, sym]) => (
+            {IMPLANTATION.map(([n, titre, texte]) => (
               <div className="etape" key={n}>
-                <span className="etape-tete">
-                  <span className="n" aria-hidden>{n}</span>
-                  <SymboleEtape nom={sym} />
-                </span>
+                <span className="n" aria-hidden>{n}</span>
                 <p className="t">{titre}</p>
                 <p className="d">{texte}</p>
               </div>
@@ -6164,9 +5986,8 @@ export default function ExperienceCinema() {
               notre point de départ.
             </p>
             <div className="pg-liste">
-              {GARANTIES.map(([sym, titre, texte]) => (
+              {GARANTIES.map(([titre, texte]) => (
                 <div className="pg" key={titre}>
-                  <SymboleEtape nom={sym} />
                   <p className="pg-t">{titre}</p>
                   <p className="pg-d">{texte}</p>
                 </div>
@@ -6188,67 +6009,13 @@ export default function ExperienceCinema() {
               Les contenus viennent des memes constantes que /tarification :
               une seule source, sinon les deux pages divergent au premier
               changement de prix. */}
+          {/* Les cartes et le panneau des fondateurs vivent dans
+              ./forfaits.tsx : l'accueil et /tarification servent le MEME
+              modele, sinon les deux pages divergent au premier changement de
+              grille. Demande CEO du 2026-08-26. */}
           <p className="sous-titre-bloc filet">Choisir le forfait</p>
-          <div className="forfaits">
-            <article className="forfait">
-              <p className="f-nom">Solo</p>
-              <p className="f-prix">
-                {prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small>
-              </p>
-              <p className="f-dit">
-                Pour l&apos;avocate ou l&apos;avocat qui exerce seul. Fidéicommis, dossiers, temps
-                et facturation dans un même abonnement.
-              </p>
-              <ul className="f-liste">
-                {COMPRIS_FORFAIT.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-              <a className="btn ghost f-action" href={ROUTES.evaluation}>
-                Évaluer mon cabinet
-              </a>
-            </article>
-
-            <article className="forfait">
-              <p className="f-nom">Cabinet</p>
-              <p className="f-prix">
-                {prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small>
-              </p>
-              <p className="f-dit">Tout ce qui est compris dans Solo, plus :</p>
-              <ul className="f-liste">
-                {EN_PLUS_CABINET.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-              <a className="btn f-action" href={ROUTES.evaluation}>
-                Évaluer mon cabinet
-              </a>
-            </article>
-          </div>
-
-          {/* Le programme des fondateurs se dit APRES les deux forfaits, pas a
-              la place. Un prix reduit annonce avant le prix normal fait douter
-              du second. Le compteur de places est le vrai : il vient de la
-              meme constante que la page de tarification, et il n'est jamais
-              gonfle. */}
-          <div className="fondateurs-bloc">
-            <p className="f-nom">Programme des fondateurs</p>
-            <p className="f-dit">
-              <b>
-                {TARIFICATION.fondateurs.premiereAnneeSolo} $ et{" "}
-                {TARIFICATION.fondateurs.premiereAnneeCabinet} $ par mois pendant{" "}
-                {TARIFICATION.fondateurs.dureeMois} mois.
-              </b>{" "}
-              Ensuite votre tarif reste gelé à {TARIFICATION.fondateurs.apresSolo} $ ou{" "}
-              {TARIFICATION.fondateurs.apresCabinet} $, et non au tarif régulier : votre coût ne
-              double pas au treizième mois.
-            </p>
-            <p className="f-places">
-              {TARIFICATION.fondateurs.placesTotal - TARIFICATION.fondateurs.placesPrises} places
-              sur {TARIFICATION.fondateurs.placesTotal} · sortie libre ·{" "}
-              {TARIFICATION.fondateurs.garantieJours} jours pour changer d&apos;avis
-            </p>
-          </div>
+          <CartesForfaits action={ROUTES.evaluation} />
+          <PanneauFondateurs />
 
           <p className="note">
             Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.
