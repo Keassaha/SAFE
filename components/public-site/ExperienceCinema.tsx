@@ -2612,11 +2612,22 @@ const CSS = `
      Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
      qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
      lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
+  /* Les deux vues sont BRIDEES a 880 px, la meme largeur que les cartes de
+     forfait. A pleine page chaque photographie faisait 560 px de large et
+     373 de haut : deux images de cette taille l'une a cote de l'autre pesaient
+     plus que le titre qui les annonce, et la section devenait une galerie.
+     Demande CEO du 2026-08-26, « reduire les dimensions sans perdre en
+     qualite ».
+
+     La qualite ne bouge pas, et c'est mesurable : la source fait 1400 px pour
+     un emplacement de 422, soit 3,3 fois la densite affichee. Un ecran a deux
+     fois la densite en demande 844. */
   .xc .deux-vues {
     margin-top: clamp(32px, 4.4vh, 52px);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: clamp(20px, 2.6vw, 36px);
+    max-width: 880px;
   }
   .xc .deux-vues .vue { margin: 0; }
   /* La photographie porte le meme rayon que les cartes de forfait, et le meme
@@ -5752,7 +5763,10 @@ export default function ExperienceCinema() {
                   alt={alt}
                   width={1400}
                   height={933}
-                  sizes="(max-width: 900px) 100vw, 50vw"
+                  /* L'emplacement est borne a 422 px depuis que « .deux-vues »
+                     l'est a 880. Sans cette mesure, Next servirait le fichier
+                     taille pour une demi-page. */
+                  sizes="(max-width: 900px) 100vw, 440px"
                   className="vue-photo"
                 />
                 <figcaption>
