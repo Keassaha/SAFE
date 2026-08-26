@@ -23,7 +23,7 @@ export default function CalculateurPensionPage() {
       <section className="px-6 pb-10">
         <div className="mx-auto max-w-3xl">
           <div className="rounded-xl p-6" style={{ background: SURFACE, border: `1px solid ${LINE}` }}>
-            <h2 className="font-serif text-[20px]" style={{ color: INK }}>
+            <h2 className="font-serif text-[19px]" style={{ color: INK }}>
               Ce que cet outil refuse de faire
             </h2>
             <ul className="mt-4 space-y-2 text-[15px] leading-relaxed" style={{ color: PROSE }}>

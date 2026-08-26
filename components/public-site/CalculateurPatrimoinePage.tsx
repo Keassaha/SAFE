@@ -33,7 +33,7 @@ export default function CalculateurPatrimoinePage() {
             className="rounded-xl p-6"
             style={{ background: SURFACE, border: `1px solid ${LINE}` }}
           >
-            <h2 className="font-serif text-[20px]" style={{ color: INK }}>
+            <h2 className="font-serif text-[19px]" style={{ color: INK }}>
               Ce que cet outil refuse de faire
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed" style={{ color: PROSE }}>

@@ -17,12 +17,34 @@
  *
  * Le portrait reste, à sa place : à côté de la signature, à la fin, là où on
  * veut savoir qui parle. En haut de page il concurrençait le titre.
+ *
+ * ── Le récit du 2026-08-25 ──────────────────────────────────────────────────
+ * La page racontait déjà la bonne histoire, dans le bon ordre. Ce qui manquait
+ * n'était pas du contenu : c'était une voix et un repère. Sept blocs bâtis
+ * pareil, dont les titres de section pesaient exactement autant que le titre
+ * de la page, et personne qui parle.
+ *
+ * Trois gestes, aucun sur le fond. Chaque section devient un CHAPITRE numéroté.
+ * Son titre descend d'un cran (`--t-chapitre`), pour céder le pas au titre de
+ * la page. Et la phrase qui porte le chapitre passe entre guillemets, dans le
+ * serif.
+ *
+ * Une seule citation par chapitre, jamais deux. Des guillemets attribuent la
+ * phrase à quelqu'un, et ce quelqu'un signe à la fin : citer aussi les phrases
+ * de produit reviendrait à lui faire dire ce qu'il n'a pas dit. La thèse est
+ * citée, le reste redevient de la prose.
+ *
+ * La section « fin » n'est pas un chapitre : c'est l'appel, après le récit.
+ *
+ * Les deux socles gris tombent avec la colonne vertébrale : un fond différent
+ * dit « autre chose », or « application » et « fondateur » sont les chapitres
+ * 03 et 06 de la même histoire. Un seul sol, du premier chapitre au dernier.
  */
 
 import React from "react";
 import Image from "next/image";
 import { PageShell, R, INK, MUTED, LINE } from "./shared";
-import { Ouverture, Recit, Tete, ListeNumerotee, IndexNumerote } from "./recit";
+import { Ouverture, Recit, Tete, Chapitre, RecitChapitres, ListeNumerotee, IndexNumerote } from "./recit";
 
 const RUPTURES = [
   ["Le temps devait être retrouvé.", "Temps"],
@@ -46,6 +68,23 @@ const ETAPES = [
   ],
 ] as const;
 
+/**
+ * Les six chapitres, dans l'ordre du récit. Le résumé les lit d'ici.
+ *
+ * Le troisième champ nomme le symbole. Les formes vivent dans `./recit`, pas
+ * ici : deux d'entre elles se répondent (les traits qui ne se rejoignent pas
+ * du constat, les carrés qui se touchent de l'application) et cette réponse
+ * se perdrait si chaque page redessinait les siennes.
+ */
+const CHAPITRES = [
+  ["01", "Le constat", "ruptures"],
+  ["02", "Le fichier", "tableur"],
+  ["03", "L’application", "registres"],
+  ["04", "La suite", "satellites"],
+  ["05", "La méthode", "temps"],
+  ["06", "La personne", "personne"],
+] as const;
+
 const REGISTRES = [
   ["01", "Clients et dossiers"],
   ["02", "Temps et débours"],
@@ -66,89 +105,100 @@ export default function AProposPage() {
         ]}
       />
 
-      <Recit id="constat">
-        <Tete
+      <RecitChapitres titre="À propos" chapitres={CHAPITRES}>
+        <Chapitre
+          rang="01"
+          nom="Le constat"
           titre="Le travail juridique avançait, l’administration suivait difficilement"
-          dire={["Trois ruptures revenaient chaque mois.", "Aucune ne venait d’un manque d’effort."]}
-        />
-        <ListeNumerotee entrees={RUPTURES} />
-      </Recit>
+          cite="Trois ruptures revenaient chaque mois."
+          prose="Aucune ne venait d’un manque d’effort."
+        >
+          <ListeNumerotee entrees={RUPTURES} />
+        </Chapitre>
 
-      <Recit id="premier-safe">
-        <Tete
+        <Chapitre
+          rang="02"
+          nom="Le fichier"
           titre="La première version de SAFE était un fichier Excel"
-          dire={[
-            "Il ne s’agissait pas de construire une entreprise technologique.",
-            "Il fallait rassembler une comptabilité éparpillée et rendre le travail plus facile à suivre. À mesure que les tâches se sont reliées, le fichier est devenu un système.",
+          cite="Il ne s’agissait pas de construire une entreprise technologique."
+          prose={[
+            "Il fallait rassembler une comptabilité éparpillée et rendre le travail plus facile à suivre.",
+            "À mesure que les tâches se sont reliées, le fichier est devenu un système.",
           ]}
         />
-      </Recit>
 
-      <Recit id="application" socle>
-        <Tete
+        <Chapitre
+          rang="03"
+          nom="L’application"
           titre="Le fichier est devenu SAFE Cabinet"
-          dire={[
-            "Six registres, un seul contexte.",
-            "Une information inscrite pendant le travail reste disponible pour les étapes suivantes : le dossier nourrit la facture, le paiement met à jour la créance.",
+          cite="Six registres, un seul contexte."
+          prose={[
+            "Une information inscrite pendant le travail reste disponible pour les étapes suivantes.",
+            "Le dossier nourrit la facture, le paiement met à jour la créance.",
           ]}
-        />
-        <IndexNumerote entrees={REGISTRES} />
-        <p className="chute" style={{ marginTop: "clamp(44px, 6vh, 76px)" }}>
-          Le produit a changé. L’idée, non : le logiciel doit comprendre le cabinet, pas l’inverse.
-        </p>
-      </Recit>
+        >
+          <IndexNumerote entrees={REGISTRES} />
+          <p className="chute" style={{ marginTop: "clamp(24px, 3vh, 40px)" }}>
+            Le produit a changé. L’idée, non : le logiciel doit comprendre le cabinet, pas
+            l’inverse.
+          </p>
+        </Chapitre>
 
-      <Recit id="suite">
-        <Tete
+        <Chapitre
+          rang="04"
+          nom="La suite"
           titre="Un système central, des outils autonomes"
-          dire={[
-            "SAFE ne s’arrête plus à une seule application.",
-            "SAFE Cabinet tient le travail quotidien ; les Outils SAFE règlent une tâche précise, sans adopter toute l’application.",
+          cite="SAFE ne s’arrête plus à une seule application."
+          prose={[
+            "SAFE Cabinet tient le travail quotidien.",
+            "Les Outils SAFE règlent une tâche précise, sans adopter toute l’application.",
           ]}
-        />
-        <div className="actions">
-          <a className="btn ghost" href={R.fonctionnalites}>
-            Découvrir SAFE Cabinet
-          </a>
-          <a className="btn ghost" href={R.outils}>
-            Découvrir les outils SAFE
-          </a>
-        </div>
-      </Recit>
-
-      <Recit id="methode">
-        <Tete
-          titre="Comprendre avant de construire"
-          dire={["Quatre temps, dans cet ordre.", "Aucune capacité n’est annoncée avant d’être utilisable."]}
-        />
-        <ListeNumerotee entrees={ETAPES} />
-      </Recit>
-
-      {/* La personne, à la fin. Le portrait vit ici, avec la signature : en
-          haut de page il concurrençait le titre, et on ne cherche pas qui
-          parle avant d'avoir lu ce qui est dit. */}
-      <Recit id="fondateur" socle>
-        <Tete
-          titre="Une expérience administrative appliquée au monde juridique"
-          dire={[
-            "Je suis Jérémie Tiahou, formé en administration et en comptabilité de petite entreprise.",
-            "Je n’ai pas commencé avec l’ambition de créer un autre logiciel juridique. J’ai commencé avec un problème à résoudre, et c’est encore de cette manière que SAFE est construit.",
-          ]}
-        />
-        <div className="signature">
-          <Image
-            src="/images/fondateur/portrait.jpg"
-            alt="Jérémie Tiahou, fondateur de SAFE"
-            width={328}
-            height={410}
-            sizes="(max-width: 860px) 96px, 168px"
-          />
-          <div>
-            <p className="nom">Jérémie Tiahou</p>
-            <p className="role">Fondateur de SAFE</p>
+        >
+          <div className="actions">
+            <a className="btn ghost" href={R.fonctionnalites}>
+              Découvrir SAFE Cabinet
+            </a>
           </div>
-        </div>
-      </Recit>
+        </Chapitre>
+
+        <Chapitre
+          rang="05"
+          nom="La méthode"
+          titre="Comprendre avant de construire"
+          cite="Quatre temps, dans cet ordre."
+          prose="Aucune capacité n’est annoncée avant d’être utilisable."
+        >
+          <ListeNumerotee entrees={ETAPES} />
+        </Chapitre>
+
+        {/* La personne, à la fin. Le portrait vit ici, avec la signature : en
+            haut de page il concurrençait le titre, et on ne cherche pas qui
+            parle avant d'avoir lu ce qui est dit. */}
+        <Chapitre
+          rang="06"
+          nom="La personne"
+          titre="Une expérience administrative appliquée au monde juridique"
+          cite="Je suis Jérémie Tiahou, formé en administration et en comptabilité de petite entreprise."
+          prose={[
+            "Je n’ai pas commencé avec l’ambition de créer un autre logiciel juridique.",
+            "J’ai commencé avec un problème à résoudre, et c’est encore de cette manière que SAFE est construit.",
+          ]}
+        >
+          <div className="signature">
+            <Image
+              src="/images/fondateur/portrait.jpg"
+              alt="Jérémie Tiahou, fondateur de SAFE"
+              width={328}
+              height={410}
+              sizes="(max-width: 860px) 96px, 168px"
+            />
+            <div>
+              <p className="nom">Jérémie Tiahou</p>
+              <p className="role">Fondateur de SAFE</p>
+            </div>
+          </div>
+        </Chapitre>
+      </RecitChapitres>
 
       <Recit id="fin">
         <Tete
@@ -193,8 +243,19 @@ export default function AProposPage() {
           border-radius: 10px;
           object-fit: cover;
         }
-        .safe-vitrine .signature .nom { font-family: var(--sans); font-size: 15.5px; color: ${INK}; }
-        .safe-vitrine .signature .role { margin-top: 4px; font-family: var(--sans); font-size: 13.5px; color: ${MUTED}; }
+        /* La signature rentre dans l'echelle du recit : le nom est du CORPS,
+           le role est un REPERE, au meme rang que « Chapitre 01 » ou que les
+           libelles de droite des listes. Elle portait 15 px et 13 px, deux
+           tailles qui n'existaient nulle part ailleurs sur la page. */
+        .safe-vitrine .signature .nom { font-family: var(--sans); font-size: var(--t-corps); color: ${INK}; }
+        .safe-vitrine .signature .role {
+          margin-top: 5px;
+          font-family: var(--mono);
+          font-size: var(--t-menu);
+          letter-spacing: 0.11em;
+          text-transform: uppercase;
+          color: ${MUTED};
+        }
         @media (min-width: 861px) { .safe-vitrine .signature img { width: 132px; } }
       `,
         }}

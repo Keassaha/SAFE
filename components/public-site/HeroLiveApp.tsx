@@ -33,8 +33,11 @@ const MENUS: {
   groupe?: string;
   items?: { label: string; screen?: string }[];
 }[] = [
-  { id: "aujourdhui", label: "Aujourd\u2019hui", screen: "aujourdhui" },
+  /* Le tableau de bord vient AVANT Aujourd'hui, comme dans l'application et
+     comme dans lib/routes.ts. L'ordre inverse tenait ici depuis longtemps et
+     faisait mentir toute maquette qui pretendait montrer le produit. */
   { id: "dash", label: "Tableau de bord", screen: "dash" },
+  { id: "aujourdhui", label: "Aujourd\u2019hui", screen: "aujourdhui" },
   {
     id: "pratique",
     label: "Pratique",
@@ -147,30 +150,57 @@ export function HeroLiveApp() {
       {/* ── Bandeau d'état ── */}
       <div className="ha-strip">
         <span className="s"><i aria-hidden />Dossiers actifs <b>43</b></span>
-        <span className="s"><i aria-hidden />Clients actifs <b>24</b></span>
+        <span className="s"><i aria-hidden />Clients actifs <b>25</b></span>
         <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
         <span className="date">Extrait navigable · ouvrez un menu</span>
       </div>
 
       <div className="ha-body">
-        {/* ── Écran · Tableau de bord ── */}
+        {/* ── Écran · Tableau de bord ──
+           Reprend l'agencement RÉEL de DashboardViewSafe.tsx, section par
+           section et dans le même ordre : bandeau d'action, montants à
+           surveiller, flux du cabinet, performances, navette, obligations.
+           Une maquette différente du produit qu'elle vend se voit (retour
+           CEO du 24 août 2026). */}
         <div className="ha-screen on" data-ha-pane="dash">
+          {/* Bandeau d'action, identique à BandeauAction. */}
           <div className="ha-card">
-            <p className="ha-kicker">Lecture rapide</p>
-            <p className="ha-h">Vos chiffres, en langage simple</p>
-            {/* Chaque tuile se soulève ET ouvre un écran : le zoom souple ne
-               promet jamais un geste qui n'existe pas. */}
-            <div className="ha-tiles">
+            <p className="ha-kicker">À traiter maintenant</p>
+            <p className="ha-h">Rapprochez le fidéicommis</p>
+            <p className="ha-mini">Aucun rapprochement n&apos;a encore été effectué.</p>
+            <span className="ha-act safe-zoom" data-ha-screen="comptes" role="button" tabIndex={0}>
+              Rapprocher le fidéicommis
+            </span>
+            <div style={{ marginTop: 9 }}>
+              <div className="ha-bullet safe-zoom-menu" data-ha-screen="facturation" role="button" tabIndex={0}>
+                <i aria-hidden />13 facture(s) en retard
+              </div>
+              <div className="ha-bullet safe-zoom-menu" data-ha-screen="temps" role="button" tabIndex={0}>
+                <i aria-hidden />118 881,25 $ en heures non facturées
+              </div>
+            </div>
+          </div>
+
+          {/* Les montants à surveiller : fidéicommis sur deux colonnes, comme
+             MontantsEssentiels (grid-cols-5, la tuile fiducie span-2). */}
+          <div className="ha-card" style={{ marginTop: 11 }}>
+            <p className="ha-kicker">Les montants à surveiller</p>
+            <div className="ha-tiles" style={{ marginTop: 11 }}>
+              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 89 275,00 $. Ouvrir l'écran.">
+                <p className="lab">Fidéicommis</p>
+                <p className="sub">Sommes détenues pour vos clients</p>
+                <p className="val" style={{ fontSize: 21 }}>89 275,00 $</p>
+                <p className="sub" style={{ marginTop: 8 }}>7 clients avec des fonds · Rapprochement à faire</p>
+              </div>
               {[
-                { lab: "Facturation", sub: "Facturé", val: "87 115,20 $", ecran: "facturation" },
-                { lab: "Encaissements", sub: "Encaissé", val: "49 055,00 $", ecran: "facturation" },
-                { lab: "Créances", sub: "Reste à recevoir", val: "38 060,20 $", ecran: "facturation", amber: true },
-                { lab: "Fidéicommis", sub: "Sommes détenues", val: "89 275,00 $", ecran: "comptes" },
+                { lab: "Créances", sub: "Reste à recevoir", val: "38 060,20 $" },
+                { lab: "Encaissements", sub: "Encaissé ce mois", val: "3 362,17 $" },
+                { lab: "Facturation", sub: "Facturé ce mois", val: "2 004,88 $" },
               ].map((t) => (
                 <div
                   key={t.lab}
-                  className={"ha-tile safe-zoom" + (t.amber ? " amber" : "")}
-                  data-ha-screen={t.ecran}
+                  className="ha-tile safe-zoom"
+                  data-ha-screen="facturation"
                   role="button"
                   tabIndex={0}
                   aria-label={`${t.lab} : ${t.val}. Ouvrir l'écran.`}
@@ -183,31 +213,128 @@ export function HeroLiveApp() {
             </div>
           </div>
 
-          <div className="ha-cols">
-            <div className="ha-card">
-              <p className="ha-kicker">À traiter maintenant</p>
-              <p className="ha-h">Dix-sept factures attendent un paiement</p>
-              <p className="ha-mini">
-                Onze sont en retard. Le rapprochement du fidéicommis n&apos;a pas encore été fait ce mois-ci.
-              </p>
-              <span className="ha-act safe-zoom" data-ha-screen="facturation" role="button" tabIndex={0}>
-                Voir les créances
-              </span>
-              <p className="ha-kicker" style={{ marginTop: 12 }}>Ensuite</p>
-              <div style={{ marginTop: 3 }}>
-                <div className="ha-kv"><span className="k">Rapprocher le fidéicommis</span><span className="v">Ce mois</span></div>
-                <div className="ha-kv"><span className="k">Relancer Pelletier · 2026-002</span><span className="v">5 533,18 $</span></div>
+          {/* Flux du cabinet : reprise en miniature du graphique réel
+             (Facturé/Encaissé), pas un graphique interactif. */}
+          <div className="ha-card" style={{ marginTop: 11 }}>
+            <p className="ha-kicker">Flux du cabinet</p>
+            <p className="ha-h" style={{ fontSize: 16, marginTop: 4 }}>Facturé et encaissé</p>
+            <p className="ha-mini">
+              L&apos;écart entre les deux barres, c&apos;est l&apos;argent que vous avez gagné mais qui
+              n&apos;est pas encore rentré.
+            </p>
+            <div className="ha-legend" style={{ marginTop: 10 }}>
+              <span className="ha-legend-i"><i aria-hidden />Facturé</span>
+              <span className="ha-legend-i verified"><i aria-hidden />Encaissé</span>
+            </div>
+            <div className="ha-bars">
+              {[
+                { m: "mars", f: 50, e: 27 },
+                { m: "avr.", f: 51, e: 54 },
+                { m: "mai", f: 40, e: 34 },
+                { m: "juin", f: 50, e: 23 },
+                { m: "juill.", f: 93, e: 29 },
+                { m: "août", f: 5, e: 8 },
+              ].map((b) => (
+                <div className="ha-bar-grp" key={b.m}>
+                  <div className="ha-bar-pair">
+                    <span className="ha-bar" style={{ height: b.f + "%" }} />
+                    <span className="ha-bar v" style={{ height: b.e + "%" }} />
+                  </div>
+                  <span className="ha-bar-lbl">{b.m}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vos performances : les cinq lignes de Performances, aide comprise. */}
+          <div className="ha-card" style={{ marginTop: 11 }}>
+            <p className="ha-kicker">Vos performances</p>
+            <p className="ha-ptitle" style={{ marginTop: 6 }}>Ce que ça donne</p>
+            {[
+              { k: "Taux d’encaissement", v: "168 %", a: "Part du facturé réellement rentrée." },
+              { k: "Taux de facturation", v: "0 %", a: "Part des heures travaillées qui a été facturée." },
+              { k: "Heures travaillées", v: "494.25 h", a: "Total saisi sur la période." },
+              { k: "Heures facturées", v: "0 h", a: "Portion portée à une facture." },
+              { k: "Valeur non facturée", v: "118 881,25 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
+            ].map((r) => (
+              <div key={r.k} style={{ marginTop: 6 }}>
+                <div className="ha-kv" style={{ borderBottom: 0, paddingBottom: 0 }}>
+                  <span className="k">{r.k}</span>
+                  <span className="v" style={{ fontSize: 13, color: r.amber ? "var(--si-amber-ink)" : undefined }}>{r.v}</span>
+                </div>
+                <p className="ha-mini" style={{ marginTop: 0 }}>{r.a}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Navette : ce qui attend une lecture, comme LawyerGlance. */}
+          <div className="ha-card" style={{ marginTop: 11 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <p className="ha-ptitle" style={{ marginBottom: 0 }}>Navette</p>
+              <span className="ha-mini" style={{ marginTop: 0 }}>· vous attend</span>
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <div className="ha-nav-item">
+                <span className="ha-nav-ico warn" aria-hidden>?</span>
+                <span className="txt">
+                  <span className="type">Question · 2026-002</span>
+                  <span className="body">Confirmer la date de signature chez le notaire ?</span>
+                  <span className="who">Aaliyah Côté</span>
+                </span>
+              </div>
+              <div className="ha-nav-item">
+                <span className="ha-nav-ico" aria-hidden>▤</span>
+                <span className="txt">
+                  <span className="type">Document prêt · 2026-001</span>
+                  <span className="body">Projet de requête en révision</span>
+                  <span className="who">Aaliyah Côté</span>
+                </span>
               </div>
             </div>
+          </div>
+
+          {/* État des obligations + lecture financière + activité récente,
+             deux colonnes égales comme dans le produit. */}
+          <div className="ha-cols" style={{ marginTop: 11, gridTemplateColumns: "1fr 1fr" }}>
             <div className="ha-card">
-              <p className="ha-ptitle">Lecture financière</p>
-              <div className="ha-kv"><span className="k">Taux d&apos;encaissement</span><span className="v">56 %</span></div>
-              <div className="ha-kv"><span className="k">Factures émises</span><span className="v">31</span></div>
-              <div className="ha-kv"><span className="k">En retard</span><span className="v">11</span></div>
-              <div className="ha-kv"><span className="k">Partiellement payées</span><span className="v">9</span></div>
-              <p className="ha-ptitle" style={{ marginTop: 12 }}>Activité récente</p>
-              <div className="ha-kv"><span className="k">Paiement reçu · 2026-025</span><span className="v">597,58 $</span></div>
-              <div className="ha-kv"><span className="k">Facture émise · 2026-031</span><span className="v">2 104,00 $</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <p className="ha-ptitle" style={{ marginBottom: 2 }}>État des obligations</p>
+                <span style={{ fontSize: 11, color: "var(--si-verified)", fontWeight: 500 }}>Générer l&apos;attestation</span>
+              </div>
+              <p className="ha-mini" style={{ marginBottom: 8 }}>
+                Suivi automatique des exigences du Barreau et du Règlement B-1 r.5
+              </p>
+              <div className="ha-oblig-grid">
+                {[
+                  { t: "Rapprochement fidéicommis", d: "Jamais effectué", s: "À faire", warn: true },
+                  { t: "Clients avec fonds en fiducie", d: "Sommes détenues en fiducie (B-1 r.5)", s: "7" },
+                  { t: "Factures impayées", d: "Solde à recevoir", s: "17", warn: true },
+                  { t: "Temps non facturé", d: "Entrées prêtes à facturer", s: "195", warn: true },
+                ].map((o) => (
+                  <div className="ha-oblig-item" key={o.t}>
+                    <span className={"ha-oblig-ico" + (o.warn ? " warn" : "")} aria-hidden>{o.warn ? "!" : "✓"}</span>
+                    <span className="txt">
+                      <span className="t">{o.t}</span>
+                      <span className="d">{o.d}</span>
+                    </span>
+                    <span className="s">{o.s}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+              <div className="ha-card">
+                <p className="ha-ptitle">Lecture financière du mois</p>
+                <div className="ha-kv"><span className="k">Sorties</span><span className="v">0,00 $</span></div>
+                <div className="ha-kv"><span className="k">Cash non reçu</span><span className="v">-1 357,29 $</span></div>
+              </div>
+              <div className="ha-card">
+                <p className="ha-ptitle">Activité récente</p>
+                <div className="ha-kv"><span className="k">create — Dossier</span><span className="v">14 août</span></div>
+                <div className="ha-kv"><span className="k">create — Client</span><span className="v">14 août</span></div>
+                <div className="ha-kv"><span className="k">update — Client</span><span className="v">12 août</span></div>
+                <div className="ha-kv"><span className="k">create — Navette</span><span className="v">11 août</span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -232,9 +359,9 @@ export function HeroLiveApp() {
               <tbody>
                 {CREANCES.map((f) => (
                   <tr key={f.num}>
-                    <td style={{ fontFamily: "var(--mono)", fontSize: 11.5 }}>{f.num}</td>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{f.num}</td>
                     <td>{f.client}</td>
-                    <td style={{ fontFamily: "var(--mono)", fontSize: 11.5 }}>{f.ech}</td>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{f.ech}</td>
                     <td className="num">{f.total}</td>
                     <td className="num">{f.solde}</td>
                     <td>
@@ -296,7 +423,7 @@ export function HeroLiveApp() {
                   <tr key={nom}>
                     <td>{nom}</td>
                     <td style={{ color: "var(--si-muted)" }}>{type}</td>
-                    <td style={{ fontFamily: "var(--mono)", fontSize: 11.5 }}>{doss}</td>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{doss}</td>
                     <td className="num">{solde}</td>
                     <td><span className="ha-tag">Actif</span></td>
                   </tr>
@@ -394,7 +521,7 @@ export function HeroLiveApp() {
                 ].map(([d, n, part]) => (
                   <tr key={d}>
                     <td>{d}</td>
-                    <td style={{ fontFamily: "var(--mono)", fontSize: 11.5 }}>{n}</td>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{n}</td>
                     <td className="num">{part}</td>
                   </tr>
                 ))}

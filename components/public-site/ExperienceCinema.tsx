@@ -37,6 +37,8 @@ import {
 } from "@/components/brand/safe-mark";
 import Image from "next/image";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
+import { MENU_PRINCIPAL } from "@/components/public-site/menu-principal";
+import { SafeMark } from "@/components/branding/SafeLogo";
 import { AnimationsRecit } from "@/components/public-site/recit";
 /* Le pied de page du site, pas un pied de page d'accueil.
    L'accueil en portait un a lui : 98 px, fond transparent, huit liens en
@@ -59,12 +61,16 @@ const CSS = `
     --ink: var(--si-ink);
     --muted: var(--si-muted);
     --faint: var(--si-subtle);
-    --green: var(--si-forest);
-    --forest: var(--si-forest);
+    --green: var(--si-ink-strong);
+    --forest: var(--si-ink-strong);
     --verified: var(--si-verified);
     --amber: var(--si-amber-ink);
     --line: var(--si-line);
     --line-soft: var(--si-line2);
+    /* La serif ne sert plus aux TITRES depuis le 2026-08-25 (demande CEO) :
+       ils sont tous passes en Geist, comme les heros. Elle reste declaree
+       parce qu'elle porte encore la voix citee de /a-propos, et parce qu'une
+       page peut vouloir la serif deliberement plutot que par defaut. */
     --serif: var(--font-instrument-serif), Georgia, serif;
     --sans: var(--font-geist-sans), -apple-system, "Segoe UI", sans-serif;
     --mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -119,8 +125,23 @@ const CSS = `
        à la fois, ce qu'exige PS-007. Une taille qui change signale un
        changement de rôle, jamais un ajustement pour qu'une phrase tombe
        bien (T3). */
-    --t-affiche: clamp(44px, 7.4vw, 92px);   /* le titre d'ouverture, une seule fois */
-    --t-marque: clamp(34px, 4.4vw, 56px);    /* le titre d'une section écrite */
+    /* Le titre d'ouverture, une seule fois par page.
+       Il valait 92 px, ou il occupait la place du produit. Descendu a 48 px, il
+       passait SOUS le titre de la premiere section (--t-marque, 56 px) : le
+       heros d'une page ne peut pas etre plus petit que le premier argument
+       qu'elle avance, sinon la hierarchie ment. Il domine donc --t-marque
+       d'environ dix points, sans revenir a l'affiche qui ecrasait la scene. */
+    /* Descendu a 38 px le 2026-08-25, cran C3, apres mesure de cursor.com.
+       Leur titre fait 26 px et n'a AUCUN sous-texte : tout le reste de leur
+       hero est a 16 px. Le notre doit encore expliquer ce qu'est SAFE, il
+       garde donc douze pixels d'avance sur le leur. */
+    --t-affiche: clamp(23px, 2.1vw, 28px);
+    /* Descendu de 46 px a 33 px le 2026-08-25. Le hero est passe a 38 px au
+       cran C3 : un titre de section a 46 px pesait donc PLUS que le titre de
+       la page, et la hierarchie disait le contraire de la verite. Il reste
+       cinq pixels sous le hero, ce qui suffit tant que les deux ne partagent
+       pas la meme fonte. */
+    --t-marque: clamp(20px, 1.8vw, 24px);
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
@@ -236,6 +257,50 @@ const CSS = `
     transition: color 140ms ease, background-color 140ms ease;
   }
   .xc #nav .links a:hover { color: var(--si-ink); background: rgb(var(--si-line-ink-rgb) / 0.05); }
+
+  /* ── Les rubriques deroulantes ──────────────────────────────────────────
+     Une rubrique n'ouvre un menu que si elle a au moins deux destinations
+     REELLES. Le contenu vit dans menu-principal.ts, ecrit une seule fois pour
+     les deux barres du site.
+
+     Ouverture au survol ET au focus : un menu qui ne s'ouvre qu'a la souris
+     n'existe pas pour qui navigue au clavier. Le chevron tourne, seul
+     mouvement de la barre. */
+  .xc #nav .grp { position: relative; }
+  .xc #nav .grp > a { display: inline-flex; align-items: center; gap: 6px; }
+  .xc #nav .grp > a .chev {
+    width: 7px; height: 7px; border-right: 1.4px solid currentColor;
+    border-bottom: 1.4px solid currentColor; transform: translateY(-2px) rotate(45deg);
+    transition: transform 160ms ease; opacity: 0.55;
+  }
+  .xc #nav .grp:hover > a .chev,
+  .xc #nav .grp:focus-within > a .chev { transform: translateY(1px) rotate(-135deg); opacity: 0.9; }
+  .xc #nav .drop {
+    position: absolute; top: calc(100% + 10px); left: -6px; z-index: 40;
+    min-width: 268px; padding: 6px;
+    background: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgb(var(--si-line-ink-rgb) / 0.06),
+                0 22px 48px -26px rgb(var(--si-line-ink-rgb) / 0.34);
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 140ms ease, transform 140ms ease, visibility 140ms;
+  }
+  .xc #nav .grp:hover .drop,
+  .xc #nav .grp:focus-within .drop { opacity: 1; visibility: visible; transform: none; }
+  .xc #nav .drop a {
+    display: block; padding: 9px 11px; border-radius: 8px;
+    color: var(--si-ink); font-size: 13px; line-height: 1.3;
+  }
+  .xc #nav .drop a span {
+    display: block; margin-top: 2px; font-size: 11px; color: var(--si-muted);
+  }
+  .xc #nav .drop a:hover { background: rgb(var(--si-line-ink-rgb) / 0.05); color: var(--si-ink); }
+  /* Le pont invisible : sans lui, le curseur qui descend vers le menu passe
+     par un vide de dix pixels et le menu se referme sous la souris. */
+  .xc #nav .grp::after {
+    content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 12px;
+  }
   .xc #nav .navright { display: flex; align-items: center; gap: 6px; }
   .xc #nav .signin {
     padding: 8px 12px;
@@ -245,6 +310,25 @@ const CSS = `
     transition: color 140ms ease;
   }
   .xc #nav .signin:hover { color: var(--si-ink); }
+  /* Le chemin tiede, ajoute le 2026-08-24.
+     La barre ne portait que deux intentions : « je suis deja client » et
+     « je veux m'engager ». Entre les deux, un visiteur qui veut simplement
+     parler a quelqu'un n'avait nulle part ou aller, et l'evaluation est un
+     engagement eleve. Contour seulement : une seule action pleine par barre. */
+  .xc #nav .parler {
+    display: none;
+    align-items: center;
+    height: 36px;
+    padding: 0 15px;
+    border-radius: 8px;
+    border: 1px solid var(--si-border);
+    background: var(--si-surface);
+    color: var(--si-ink);
+    font-size: 13px;
+    transition: border-color 140ms ease;
+  }
+  .xc #nav .parler:hover { border-color: var(--si-border-strong); }
+  @media (min-width: 861px) { .xc #nav .parler { display: inline-flex; } }
   /* Une seule action pleine dans la barre, en noir. */
   .xc #nav .cta {
     display: inline-flex;
@@ -252,13 +336,13 @@ const CSS = `
     height: 36px;
     padding: 0 16px;
     border-radius: 8px;
-    background: var(--si-forest);
+    background: var(--si-ink-strong);
     color: var(--si-surface);
     font-size: 13px;
     font-weight: 500;
     transition: background-color 140ms ease;
   }
-  .xc #nav .cta:hover { background: var(--si-forest-soft); }
+  .xc #nav .cta:hover { background: var(--si-ink-strong-soft); }
 
   /* Le rail indiquait où l'on se trouve sans permettre d'y aller : quatre
      jalons inertes, retirés du clavier et des lecteurs d'écran, sur une page
@@ -358,7 +442,12 @@ const CSS = `
      (hauteur - 100vh), donc raccourcir la zone accélère la cadence sans
      supprimer une seule étape ni une seule ligne. Le pouce n'est pas touché,
      les zones y passent en height:auto. */
-  .xc #zone-hero { height: 250vh; }
+  /* Raccourcie le 2026-08-24 : 250vh valaient 2 250 px sur une vue de 900,
+     soit deux ecrans et demi avant que la premiere section commence. Le
+     produit doit etre visible avant le bas du premier ecran. Consequence
+     assumee, ecrite plus haut : la scene se joue sur (hauteur - 100vh), donc
+     raccourcir accelere la cadence. */
+  .xc #zone-hero { height: 160vh; }
   .xc #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* ── L'application, vivante ────────────────────────────────────────────────
      Le cadre contenait une capture JPEG. Une capture vieillit en silence : elle
@@ -403,6 +492,37 @@ const CSS = `
   }
   .xc #hero-app.live { pointer-events: auto; }
 
+  /* ── Le cadre du logiciel et son fondu ─────────────────────────────────────
+     Demande CEO du 2026-08-24 : « des contours et un fondu a la fin ».
+
+     Une capture posee a plat dans le flux se lit comme une illustration. Un
+     bord ferme, des coins arrondis et une ombre a trois couches disent que ce
+     rectangle est une application, sans qu'un mot ait a le dire. Le bord est
+     nettement plus ferme que les filets de la page : un filet de section et le
+     bord d'une fenetre ne racontent pas la meme chose.
+
+     Le fondu du bas est un MASQUE, pas un degrade pose par-dessus : un degrade
+     vers une couleur fixe se voit des que le fond change, et il faudrait le
+     repeindre a chaque reskin. Le masque, lui, laisse passer le fond quel
+     qu'il soit. Consequence assumee : un masque coupe l'ombre portee, qui est
+     peinte hors de la boite. L'elevation vient donc du liseré clair interieur
+     et de l'ombre de contact, tous deux a l'interieur du masque, et l'ombre
+     longue est portee par le CADRE parent, qui n'est pas masque. */
+  .xc #hero-cadre {
+    filter: drop-shadow(0 28px 64px rgb(var(--si-line-ink-rgb) / 0.30));
+  }
+  .xc #hero-app.live {
+    border: 1px solid rgb(var(--si-line-ink-rgb) / 0.20);
+    border-radius: 14px;
+    box-shadow:
+      inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85),
+      0 2px 6px -2px rgb(var(--si-line-ink-rgb) / 0.16);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
   /* Barre de navigation du produit */
   .xc #hero-app .ha-nav {
     display: flex;
@@ -417,7 +537,7 @@ const CSS = `
     display: flex; align-items: center; gap: 7px;
     font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
   }
-  /* La pastille porte le vert de la marque, pas le --si-forest : celui-ci vaut
+  /* La pastille porte le vert de la marque, pas le --si-ink-strong : celui-ci vaut
      #1A1A1A dans la palette courante, ce qui donnerait un logo noir. */
   .xc #hero-app .ha-brand .mark {
     display: inline-flex;
@@ -435,7 +555,7 @@ const CSS = `
     display: flex; align-items: center; gap: 5px;
     padding: 6px 10px;
     border-radius: 7px;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--si-muted);
     cursor: pointer;
     white-space: nowrap;
@@ -466,7 +586,7 @@ const CSS = `
     padding: 0 9px;
     border: 1px solid var(--si-line);
     border-radius: 7px;
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--si-muted);
     background: var(--si-surface);
     white-space: nowrap;
@@ -477,10 +597,10 @@ const CSS = `
     font-size: 11px;
   }
   .xc #hero-app .ha-lang span { padding: 4px 7px; color: var(--si-muted); }
-  .xc #hero-app .ha-lang span.on { background: var(--si-forest); color: var(--si-surface); }
+  .xc #hero-app .ha-lang span.on { background: var(--si-ink-strong); color: var(--si-surface); }
   .xc #hero-app .ha-avatar {
     width: 24px; height: 24px; border-radius: 50%;
-    background: var(--si-forest); color: var(--si-surface);
+    background: var(--si-ink-strong); color: var(--si-surface);
     display: grid; place-items: center;
     font-size: 11px; font-weight: 600;
   }
@@ -511,7 +631,7 @@ const CSS = `
     display: flex; align-items: center; justify-content: space-between;
     padding: 6px 9px;
     border-radius: 7px;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--si-ink);
     cursor: pointer;
   }
@@ -524,9 +644,9 @@ const CSS = `
   .xc #hero-app .ha-strip {
     display: flex; align-items: center; gap: 20px;
     height: 32px; padding: 0 16px;
-    background: var(--si-forest);
+    background: var(--si-ink-strong);
     color: var(--si-surface);
-    font-size: 11.5px;
+    font-size: 11px;
   }
   .xc #hero-app .ha-strip .s { display: flex; align-items: center; gap: 6px; opacity: 0.92; }
   .xc #hero-app .ha-strip .s i {
@@ -553,12 +673,12 @@ const CSS = `
     color: var(--si-muted);
   }
   .xc #hero-app .ha-h {
-    font-family: var(--serif); font-weight: 400;
+    font-family: var(--sans); font-weight: 400;
     font-size: 21px; line-height: 1.1; margin-top: 5px;
     letter-spacing: -0.015em;
   }
   .xc #hero-app .ha-tiles {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 11px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-top: 11px;
   }
   /* Les tuiles de chiffres, comme dans le produit.
      Elles étaient un aplat d'encre. Le tableau de bord réel les peint avec
@@ -598,7 +718,7 @@ const CSS = `
   .xc #hero-app .ha-tile .sub { font-size: var(--t-menu); opacity: 0.66; margin-top: 6px; }
   .xc #hero-app .ha-tile .val {
     font-family: var(--mono);
-    font-size: 17px; letter-spacing: -0.02em; margin-top: 2px;
+    font-size: 16px; letter-spacing: -0.02em; margin-top: 2px;
   }
   .xc #hero-app .ha-tile.amber .val { color: var(--si-amber-on-forest, #E7C36A); }
   .xc #hero-app .ha-cols {
@@ -608,7 +728,7 @@ const CSS = `
     display: inline-flex; align-items: center;
     height: 30px; padding: 0 13px;
     border-radius: 8px;
-    background: var(--si-forest); color: var(--si-surface);
+    background: var(--si-ink-strong); color: var(--si-surface);
     font-size: 12px; font-weight: 500;
     margin-top: 11px;
     cursor: pointer;
@@ -621,8 +741,8 @@ const CSS = `
   }
   .xc #hero-app .ha-kv:last-child { border-bottom: 0; }
   .xc #hero-app .ha-kv .k { color: var(--si-muted); }
-  .xc #hero-app .ha-kv .v { font-family: var(--mono); font-size: 11.5px; }
-  .xc #hero-app .ha-ptitle { font-size: 12.5px; font-weight: 600; margin-bottom: 7px; }
+  .xc #hero-app .ha-kv .v { font-family: var(--mono); font-size: 11px; }
+  .xc #hero-app .ha-ptitle { font-size: 12px; font-weight: 600; margin-bottom: 7px; }
   .xc #hero-app .ha-mini { font-size: 11px; color: var(--si-muted); margin-top: 3px; }
 
   /* Registre (écrans Facturation / Comptes) */
@@ -633,13 +753,13 @@ const CSS = `
     padding: 0 8px 7px; border-bottom: 1px solid var(--si-line);
   }
   .xc #hero-app .ha-tbl td { padding: 7px 8px; border-bottom: 1px solid var(--si-line2); }
-  .xc #hero-app .ha-tbl td.num { font-family: var(--mono); font-size: 11.5px; text-align: right; }
+  .xc #hero-app .ha-tbl td.num { font-family: var(--mono); font-size: 11px; text-align: right; }
   .xc #hero-app .ha-tbl tr:last-child td { border-bottom: 0; }
   .xc #hero-app .ha-tag {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 2px 7px; border-radius: 999px;
     font-size: var(--t-menu);
-    background: rgb(var(--si-forest-rgb) / 0.09); color: var(--si-verified);
+    background: rgb(var(--si-ink-strong-rgb) / 0.09); color: var(--si-verified);
   }
   /* Aging : cinq tranches d'ancienneté, lues d'un coup d'œil. */
   .xc #hero-app .ha-aging { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -656,7 +776,7 @@ const CSS = `
   }
   .xc #hero-app .ha-aging .m {
     display: block; margin-top: 5px;
-    font-family: var(--mono); font-size: 12.5px;
+    font-family: var(--mono); font-size: 12px;
   }
   /* Au-delà de 30 jours, le montant passe à l'encre d'alerte : c'est là que la
      relance devient prioritaire. */
@@ -700,14 +820,10 @@ const CSS = `
      Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
   /* La réassurance suit le chapeau : elle vit dans le même bloc, sous la même
      action, et rester la seule ligne en serif s'y lirait comme un oubli. */
-  .xc #hero-copy .hero-reassure {
-    margin-top: 16px;
-    margin-left: 6px;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    line-height: 1.5;
-    color: var(--muted);
-  }
+  /* Le chapeau, sa suite et la ligne de reassurance ont ete retires du hero
+     le 2026-08-25. Leurs regles partent avec eux : une regle sans element est
+     un piege pour la prochaine lecture. La reassurance vit maintenant dans
+     « .bandeau-reassurance », sous l'illustration. */
   .xc #hero-copy {
     position: absolute;
     left: 0; right: 0;
@@ -735,20 +851,42 @@ const CSS = `
      reste rigoureuse (DESIGN_HUMAIN §11, « anti-grille vs précision
      opérationnelle »). */
   .xc #hero-copy .kicker { margin-left: 2px; }
+  /* Le titre du hero est en GEIST, la fonte des sous-textes. Demande CEO du
+     2026-08-25, apres avoir regarde cursor.com.
+
+     Leur propre fonte, CursorGothic, est une commande privee sans licence
+     publique : elle ne se reprend pas. Ce qui se reprend est leur geste, et il
+     tient en trois reglages : un gothique, en graisse NORMALE, resserre. Ils
+     ne grossissent pas le titre, ils le serrent.
+
+     L'approche laterale change avec la fonte. Le serif demandait -0,055em pour
+     rattraper le flanc de sa capitale ; le gothique a un flanc plus droit et
+     n'en demande que la moitie. */
   .xc #hero-copy h1 {
     margin-top: 20px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-affiche);
-    line-height: 0.99;
-    letter-spacing: -0.026em;
-    max-width: 13.4ch;
+    /* Cran C3, choisi par le CEO le 2026-08-25 sur quatre crans montres.
+       L'interlettrage et l'interligne se resserrent ENSEMBLE : serrer les
+       lettres sans serrer les lignes creuse un vide entre elles et le titre
+       se met a flotter en bandes.
+
+       C'est le cran le plus serre des quatre. A cette valeur certaines paires
+       se touchent presque, « ti » de « tient » en premier. Signale, assume. */
+    line-height: 1.02;
+    letter-spacing: -0.042em;
+    /* La mesure suit la phrase. Elle valait 13,4ch quand le titre disait
+       « SAFE tient votre cabinet ensemble » (34 caracteres) ; la phrase en
+       porte 65 depuis qu'elle nomme la categorie, et 13,4ch la cassait en
+       quatre lignes. */
+    max-width: 26ch;
     /* Compense l'approche latérale de la capitale, pas un décalage arbitraire. */
-    margin-left: -0.055em;
+    margin-left: -0.028em;
   }
     /* Le mot mis en valeur porte exactement le vert du logo, pas l'encre
      de l'action ni le vert de validation. */
-  .xc #hero-copy h1 em { font-style: italic; color: var(--si-brand-green); }
+  .xc #hero-copy h1 em { font-style: normal; color: var(--si-brand-green); }
   /* Le chapeau d'ouverture est en Geist, la fonte de l'action (demande CEO du
      21 août 2026).
 
@@ -760,17 +898,7 @@ const CSS = `
      C'est une exception nommée à la règle du 13 août (« tout ce qui relève du
      discours porte la serif »), et elle s'arrête à la première vue : la prose
      des sections garde la serif. */
-  .xc #hero-copy p.lede {
-    margin-top: 30px;
-    margin-left: 6px;
-    max-width: 49ch;
-    font-family: var(--sans);
-    /* Geist se lit plus large qu'Instrument Serif à corps égal : un demi-point
-       de moins rend au chapeau la mesure qu'il avait. */
-    font-size: calc(var(--t-corps) - 0.5px);
-    line-height: 1.6;
-    color: var(--muted);
-  }
+
   /* L'action du premier écran.
 
      Le hero n'en portait aucune : la seule façon d'engager quoi que ce soit
@@ -783,9 +911,10 @@ const CSS = `
      pour ne pas avaler les clics destinés à l'application, et l'action est le
      seul élément du titre qui doit rester saisissable. Le script la retire du
      test de collision dès que le titre s'estompe. */
-  .xc #hero-copy p.lede-suite { margin-top: 14px; max-width: 44ch; color: var(--si-ink); }
   .xc #hero-copy .hero-actions {
-    margin-top: 36px;
+    /* 36 px quand un chapeau separait l'action du titre. Sans lui, l'action
+       repond directement au titre et n'a plus besoin de cette distance. */
+    margin-top: 26px;
     margin-left: 5px;
     display: flex;
     align-items: center;
@@ -823,6 +952,37 @@ const CSS = `
     line-height: 1.5;
     color: var(--muted);
   }
+  .xc .bandeau-reassurance {
+    overflow: hidden;
+    border-block: 1px solid var(--si-line);
+    padding-block: 15px;
+    /* Les deux bords s'eteignent, sinon un fait est coupe net au milieu d'un
+       mot et l'oeil s'y accroche pour rien. */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+  .xc .ruban { display: flex; width: max-content; animation: xcRuban 42s linear infinite; }
+  .xc .bandeau-reassurance:hover .ruban { animation-play-state: paused; }
+  .xc .ruban .serie {
+    display: flex; align-items: center;
+    gap: clamp(34px, 4.4vw, 62px);
+    padding-right: clamp(34px, 4.4vw, 62px);
+  }
+  .xc .ruban b {
+    font-family: var(--sans); font-weight: 400;
+    font-size: var(--t-detail); color: var(--si-muted); white-space: nowrap;
+    display: inline-flex; align-items: center;
+    gap: clamp(34px, 4.4vw, 62px);
+  }
+  /* Le point de separation vit SUR le libelle, pas entre deux libelles : un
+     separateur en element se serait duplique avec la copie du ruban. */
+  .xc .ruban b::after {
+    content: ""; width: 3px; height: 3px; border-radius: 50%;
+    background: var(--si-border-strong); flex: 0 0 auto;
+  }
+  @keyframes xcRuban { from { transform: none; } to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .xc .ruban { animation: none; } }
+
   .xc #hero-hint {
     position: absolute;
     left: 0; right: 0;
@@ -841,7 +1001,7 @@ const CSS = `
     bottom: 5.5vh;
     text-align: center;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     color: var(--muted);
     opacity: 0;
     will-change: opacity, transform;
@@ -874,7 +1034,7 @@ const CSS = `
     margin-top: 18px;
     text-align: center;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     color: var(--muted);
   }
 
@@ -1035,7 +1195,7 @@ const CSS = `
   .xc .co-copy { min-width: 0; }
   .xc .co-copy h2 {
     margin-top: 14px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-titre);
     line-height: 1.1;
@@ -1139,7 +1299,7 @@ const CSS = `
   }
   .xc .co-sous {
     margin-top: 13px;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--muted);
   }
   .xc .co-liste { margin-top: 9px; display: grid; }
@@ -1150,15 +1310,15 @@ const CSS = `
     row-gap: 2px;
     padding: 9px 0;
   }
-  .xc .co-item .t { font-size: 13.5px; color: var(--si-ink); }
-  .xc .co-item .s { grid-column: 1; font-size: 11.5px; color: var(--muted); }
+  .xc .co-item .t { font-size: 13px; color: var(--si-ink); }
+  .xc .co-item .s { grid-column: 1; font-size: 11px; color: var(--muted); }
   /* Le montant vit sur l'opération qui le produit, plus dans un bloc à part. */
   .xc .co-item .m {
     grid-column: 2;
     grid-row: 1 / span 2;
     align-self: center;
     font-family: var(--mono);
-    font-size: 13.5px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--si-ink);
   }
@@ -1178,7 +1338,7 @@ const CSS = `
     align-items: baseline;
     gap: 8px;
     margin-top: 14px;
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.5;
     color: var(--verified);
     max-width: 40ch;
@@ -1213,7 +1373,7 @@ const CSS = `
   .xc .fi-copy { min-width: 0; }
   .xc .fi-copy h2 {
     margin-top: 16px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-titre);
     line-height: 1.1;
@@ -1292,10 +1452,10 @@ const CSS = `
     gap: 16px;
     padding: 11px 0;
   }
-  .xc .fi-src .l { font-size: 13.5px; color: var(--muted); }
+  .xc .fi-src .l { font-size: 13px; color: var(--muted); }
   .xc .fi-src .m {
     font-family: var(--mono);
-    font-size: 14.5px;
+    font-size: 14px;
     font-variant-numeric: tabular-nums;
     color: var(--si-ink);
   }
@@ -1315,7 +1475,7 @@ const CSS = `
   /* La phrase qui dit ce que les chiffres viennent de prouver. */
   .xc .fi-dit {
     margin-top: 14px;
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.55;
     color: var(--muted);
     max-width: 40ch;
@@ -1371,7 +1531,7 @@ const CSS = `
     margin-top: 14px;
     padding-left: 16px;
     border-left: 2px solid var(--si-amber-ink);
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.55;
     color: var(--si-amber-ink);
     max-width: 42ch;
@@ -1416,7 +1576,7 @@ const CSS = `
   .xc .recit h1 em { font-style: italic; color: var(--si-brand-green); }
   .xc .recit h1,
   .xc .recit h2 {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-marque);
     line-height: 1.06;
@@ -1437,7 +1597,7 @@ const CSS = `
      manquait une seconde plus tôt. */
   .xc .recit .dire {
     font-family: var(--sans);
-    font-size: clamp(18px, 1.55vw, 22px);
+    font-size: clamp(18px, 1.55vw, 21px);
     line-height: 1.45;
     letter-spacing: -0.006em;
     max-width: 40ch;
@@ -1462,11 +1622,11 @@ const CSS = `
     border-bottom: 1px solid var(--line2, var(--line));
   }
   .xc .ligne:last-of-type { border-bottom: 0; }
-  .xc .ligne .l { font-family: var(--sans); font-size: 13.5px; color: var(--si-ink); }
+  .xc .ligne .l { font-family: var(--sans); font-size: 13px; color: var(--si-ink); }
   .xc .ligne .l small { color: var(--muted); font-size: 12px; }
   .xc .ligne .v {
     font-family: var(--mono);
-    font-size: 13.5px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--si-ink);
   }
@@ -1546,26 +1706,15 @@ const CSS = `
     height: auto;
   }
 
-  /* ── Le socle ─────────────────────────────────────────────────────────────
-     Le relief ne vient plus d'une ombre mais du fond. Les deux sections qui
-     portent une fenêtre reposent sur un plan légèrement plus SOMBRE que le
-     canevas de la page, borné par un filet en haut et en bas.
+  /* ── Le socle de l'accueil a ete remplace par l'alternance AB ────────────
+     Il posait un plan sombre sous chaque section portant une fenetre. Deux de
+     ces sections se suivaient, ce qui donnait deux bandes grises collees et
+     cassait le rythme demande. L'alternance plus bas fait le meme travail de
+     separation et le fait sur toute la page, pas seulement sous les fenetres.
 
-     Le sens de l'écart n'est pas libre. La teinte à l'intérieur de la fenêtre
-     est celle du canevas de l'application, #EBEDEF, et on ne peut pas la
-     changer : c'est une photo. Pour qu'une surface se lise comme posée sur une
-     autre, il faut donc que le plan qui la porte soit plus sombre qu'elle. Un
-     socle plus clair aurait fait de la fenêtre un trou.
+     La classe « socle » elle-meme reste vivante : components/public-site/recit.tsx
+     la sert aux autres pages publiques. Seule la copie de l'accueil tombe. */
 
-     Quatre et demi pour cent d'encre, soit neuf niveaux d'écart avec
-     l'intérieur de la fenêtre : au-delà, la bande devient une section colorée
-     et se met à concurrencer le titre. En dessous, l'œil ne la voit plus et la
-     fenêtre reflotte dans le vide. */
-  .xc .recit.socle {
-    background: rgb(var(--si-ink-rgb) / 0.045);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
 
 
   /* ── L'apparition au défilement ──────────────────────────────────────────
@@ -1610,7 +1759,7 @@ const CSS = `
   }
   .xc .index-modules .mod .n {
     font-family: var(--mono);
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--si-subtle);
   }
   .xc .index-modules .mod .t { font-family: var(--sans); font-size: 15px; color: var(--si-ink); }
@@ -1655,7 +1804,7 @@ const CSS = `
     margin-top: 8px;
     max-width: 34ch;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.55;
     color: var(--muted);
   }
@@ -1721,6 +1870,550 @@ const CSS = `
      grille à deux colonnes, avec la conclusion calée en bas à droite : la
      conclusion est maintenant la phrase du contrat de section, en haut, et la
      colonne de droite n'a plus rien à porter. */
+  /* ── Le gabarit d'argumentation ─────────────────────────────────────────
+     Valide par le CEO le 2026-08-24. Chaque section de l'argumentation suit
+     la meme partition, et c'est ce qui la rend lisible d'une section a
+     l'autre :
+       1. le titre a gauche, une phrase a droite (contrat de recit.tsx) ;
+       2. un objet qui resume l'argument d'un coup d'oeil : les cinq endroits
+          en pastilles, la chaine des montants, les trois sources ;
+       3. LA SCENE : une bande en retrait, et dedans une fenetre a bord marque
+          qui montre le vrai ecran ;
+       4. la legende du pli, sous la fenetre, jamais dedans ;
+       5. la sortie de section.
+
+     La scene est un PLAN distinct : fond en creux, filet en haut. C'est ce qui
+     dit, sans un mot, que ce rectangle est un logiciel et non une image. */
+  /* La scene n'a PAS de fond a elle (dec. CEO 2026-08-24).
+     Une bande grise sous chaque section decoupait la page en tranches et
+     ajoutait un troisieme plan qui ne disait rien de plus : le contour de la
+     fenetre et son fondu suffisent a dire que ce rectangle est un logiciel.
+     Il reste le debordement, qui donne a la scene sa largeur de scene. */
+  .xc .scene-produit {
+    margin-top: clamp(40px, 6vh, 72px);
+    margin-inline: calc(-1 * clamp(0px, (100vw - var(--page)) * 0.14, 96px));
+  }
+  .xc .fenetre-produit {
+    margin: 0;
+    border: 1px solid rgb(var(--si-line-ink-rgb) / 0.20);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--si-surface);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85),
+      0 2px 6px -2px rgb(var(--si-line-ink-rgb) / 0.16),
+      0 28px 64px -30px rgb(var(--si-line-ink-rgb) / 0.34);
+  }
+  .xc .fenetre-produit .barre-fenetre {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: var(--si-canvas);
+    border-bottom: 1px solid rgb(var(--si-line-ink-rgb) / 0.12);
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    color: var(--si-muted);
+  }
+  .xc .fenetre-produit .pastilles-fenetre { display: flex; gap: 5px; }
+  .xc .fenetre-produit .pastilles-fenetre i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgb(var(--si-line-ink-rgb) / 0.18);
+  }
+  .xc .fenetre-produit .barre-fenetre em { font-style: normal; color: var(--si-ink); }
+  .xc .fenetre-produit .barre-fenetre .ecart { flex: 1; }
+  .xc .fenetre-produit img { display: block; width: 100%; height: auto; }
+  /* Le fondu du bas, par MASQUE et non par degrade : un degrade vers une
+     couleur fixe se voit des que le fond change, un masque laisse passer le
+     fond quel qu'il soit. */
+  .xc .fenetre-produit.fondue img {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+  }
+  .xc .legende-pli {
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    color: var(--si-muted);
+  }
+  .xc .legende-pli::before {
+    content: ""; flex: none; width: 26px; height: 1px;
+    background: rgb(var(--si-line-ink-rgb) / 0.24);
+  }
+  .xc .sortie-section {
+    margin-top: clamp(22px, 3vh, 32px);
+    padding-top: 16px;
+    border-top: 1px solid var(--si-line);
+    font-size: var(--t-corps);
+  }
+  .xc .sortie-section a { color: var(--si-verified); }
+  .xc .sortie-section a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ── La chaine : la meme somme d'un bout a l'autre ────────────────────────
+     C'est l'argument que Cursor ne peut pas faire. Eux montrent un agent qui
+     produit un resultat ; ici on montre une somme qu'on peut SUIVRE, de
+     l'heure consignee au solde restant. Chaque maillon porte un chiffre reel
+     du cabinet de demonstration, et le dernier est plein : c'est celui qui
+     reste a rentrer. */
+  .xc .chaine {
+    display: flex; flex-wrap: wrap; align-items: stretch; gap: 0;
+    margin-top: clamp(34px, 4.4vw, 52px);
+  }
+  .xc .chaine .maillon {
+    flex: 1 1 160px; min-width: 0;
+    border: 1px solid var(--si-line);
+    border-radius: 12px;
+    background: var(--si-surface);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .xc .chaine .maillon .k {
+    font-family: var(--mono); font-size: var(--t-menu);
+    letter-spacing: 0.11em; text-transform: uppercase; color: var(--si-muted);
+  }
+  .xc .chaine .maillon .v {
+    font-family: var(--mono); font-size: var(--t-argument);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  }
+  .xc .chaine .maillon .s { font-size: var(--t-detail); color: var(--si-muted); line-height: 1.4; }
+  .xc .chaine .maillon.reste {
+    border-color: rgb(38 101 74 / 0.34);
+    background: rgb(38 101 74 / 0.09);
+  }
+  .xc .chaine .maillon.reste .v { color: var(--si-verified); }
+  /* La deuxieme phrase de la tete de section : elle repond a la premiere.
+     Meme mesure, meme encre, un ecart au-dessus. Pas une nouvelle taille. */
+  .xc .recit .tete .dire-suite { margin-top: 14px; }
+
+  /* ── La fiche client ─────────────────────────────────────────────────────
+     Elle reprend la STRUCTURE de l'ecran client du produit : en-tete et
+     actions, onglets, alertes, trois totaux, historique, deux colonnes.
+     Aucun motif nouveau, les memes surfaces et les memes filets que le reste
+     de la vitrine. Le fond suit le gris actuel, il n'est plus ecrit en dur.
+
+     Chaque bloc porte « anime-bloc » : c'est l'observateur deja present dans
+     recit.tsx qui les revele un a un au defilement, avec le geste de la page.
+     On n'ajoute pas une animation, on entre dans celle qui existe. */
+  .xc .fiche { background: var(--si-canvas); padding: clamp(18px, 2.4vw, 28px); }
+  .xc .fiche .fiche-tete {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .xc .fiche .retour { font-size: var(--t-menu); color: var(--si-muted); }
+  .xc .fiche h4 {
+    font-family: var(--sans); font-weight: 400; font-size: var(--t-titre);
+    line-height: 1.06; margin-top: 6px; letter-spacing: -0.016em;
+  }
+  .xc .fiche .actes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .xc .fiche .actes .bt {
+    font-size: var(--t-menu); padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--si-border); background: var(--si-surface); color: var(--si-ink);
+  }
+  .xc .fiche .etat {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 999px; font-size: var(--t-menu);
+    border: 1px solid rgb(38 101 74 / 0.32); background: rgb(38 101 74 / 0.09);
+    color: var(--si-verified);
+  }
+  .xc .fiche .etat i { width: 5px; height: 5px; border-radius: 50%; background: var(--si-verified); }
+  .xc .fiche .onglets-fiche {
+    display: flex; gap: 22px; margin-top: 20px;
+    /* Le rembourrage vit sur les BOUTONS, pas ici : sinon le trait de
+       l'onglet actif se pose 11 px sous le filet et pend dans le vide. Le
+       filet reste sur le conteneur, et le trait actif le recouvre. */
+    border-bottom: 1px solid var(--si-border); padding-bottom: 0;
+    font-size: var(--t-detail); color: var(--si-muted);
+  }
+  .xc .fiche .onglets-fiche .on { color: var(--si-ink); box-shadow: 0 11px 0 -10px var(--si-ink); }
+  .xc .fiche .alertes {
+    margin-top: 18px; padding: 14px 18px; border-radius: 10px;
+    border: 1px solid rgb(138 100 18 / 0.30); background: rgb(138 100 18 / 0.07);
+  }
+  .xc .fiche .alertes .ta {
+    font-family: var(--mono); font-size: var(--t-menu); letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--si-amber-ink); margin-bottom: 7px;
+  }
+  .xc .fiche .alertes .al { font-size: var(--t-detail); color: var(--si-ink); margin-top: 3px; }
+  .xc .fiche .totaux {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px;
+  }
+  .xc .fiche .tot {
+    border: 1px solid var(--si-border); border-radius: 12px;
+    background: var(--si-surface); padding: 14px 16px;
+  }
+  .xc .fiche .tot .k {
+    font-family: var(--mono); font-size: var(--t-menu); letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--si-muted);
+  }
+  .xc .fiche .tot .v {
+    font-family: var(--mono); font-size: var(--t-argument); margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .xc .fiche .tot .s { font-size: var(--t-menu); color: var(--si-muted); margin-top: 4px; }
+  .xc .fiche .carte-bloc {
+    margin-top: 14px; border: 1px solid var(--si-border);
+    border-radius: 12px; background: var(--si-surface); overflow: hidden;
+  }
+  .xc .fiche .carte-bloc .ct {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 14px;
+    padding: 14px 18px; border-bottom: 1px solid var(--si-border);
+  }
+  .xc .fiche .carte-bloc .ctt { font-family: var(--sans); font-weight: 400; font-size: var(--t-argument); }
+  .xc .fiche .carte-bloc .ct span { font-size: var(--t-menu); color: var(--si-muted); }
+  .xc .fiche .lignes { padding: 4px 18px 10px; }
+  .xc .fiche .lg {
+    display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: baseline;
+    padding: 11px 0; border-bottom: 1px solid var(--si-line2, var(--si-line));
+    font-size: var(--t-detail);
+  }
+  .xc .fiche .lg:last-child { border-bottom: 0; }
+  .xc .fiche .lg .v { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--si-ink); }
+  .xc .fiche .lg .v.attente { color: var(--si-amber-ink); }
+  .xc .fiche .lg small { color: var(--si-muted); font-size: var(--t-menu); }
+  .xc .fiche .duo-fiche { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .xc .fiche .duo-fiche .carte-bloc { margin-top: 14px; }
+  @media (max-width: 900px) {
+    .xc .fiche .totaux { grid-template-columns: 1fr; }
+    .xc .fiche .duo-fiche { grid-template-columns: 1fr; gap: 0; }
+  }
+
+  /* ── La barre de l'application, figee ────────────────────────────────────
+     Elle situe la page. Elle ne se navigue pas : l'illustration ne porte que
+     sur l'ecran affiche, et un menu qui s'ouvrirait sur rien decevrait plus
+     qu'il ne montrerait. */
+  .xc .fenetre-produit .barre-app {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin: 14px; padding: 10px 16px;
+    background: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 26px -22px rgb(var(--si-line-ink-rgb) / 0.40);
+    font-size: var(--t-menu); color: var(--si-muted);
+  }
+  .xc .fenetre-produit .barre-app .mk {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-weight: 600; letter-spacing: 0.06em; color: var(--si-ink);
+  }
+  .xc .fenetre-produit .barre-app .sep { width: 1px; height: 18px; background: var(--si-border); }
+  .xc .fenetre-produit .barre-app .cab { color: var(--si-ink); font-weight: 500; }
+  .xc .fenetre-produit .barre-app nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .xc .fenetre-produit .barre-app nav .on { color: var(--si-ink); font-weight: 500; }
+  .xc .fenetre-produit .barre-app .cv {
+    display: inline-block; width: 6px; height: 6px; margin-left: 4px;
+    border-right: 1.3px solid currentColor; border-bottom: 1.3px solid currentColor;
+    transform: translateY(-2px) rotate(45deg); opacity: 0.5;
+  }
+  .xc .fenetre-produit .barre-app .ecart { flex: 1; }
+  .xc .fenetre-produit .barre-app .ch {
+    border: 1px solid var(--si-border); border-radius: 8px;
+    padding: 5px 10px; min-width: 130px; color: var(--si-subtle);
+  }
+  .xc .fenetre-produit .barre-app .cl {
+    border: 1px solid var(--si-border); border-radius: 5px; padding: 1px 5px; color: var(--si-subtle);
+  }
+  /* La pastille de notifications porte son compte, comme dans le produit. */
+  .xc .fenetre-produit .barre-app .cloche {
+    display: inline-grid; place-items: center; width: 17px; height: 17px;
+    border-radius: 50%; background: #A83232; color: #fff; font-size: 9px;
+  }
+  .xc .fenetre-produit .barre-app .av {
+    display: inline-grid; place-items: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--si-ink-strong); color: var(--si-surface); font-size: 10px;
+  }
+  /* Le chevron d'un lien qui sort de l'application. */
+  .xc .fiche .actes .ext {
+    display: inline-block; width: 8px; height: 8px; margin-left: 5px;
+    border-top: 1.3px solid currentColor; border-right: 1.3px solid currentColor;
+    transform: translateY(-1px) rotate(45deg); opacity: 0.6;
+  }
+
+  /* ── Les plaques de nombres portent un contour d'encre ────────────────────
+     Detail releve par le CEO sur l'ecran reel : les trois totaux ne sont pas
+     bordes du meme filet clair que les autres cartes, ils portent un contour
+     d'encre. C'est ce qui les detache du reste de la page. */
+  .xc .fiche .tot { border-color: var(--si-ink); }
+
+  .xc .conclusion-fiche {
+    margin-top: 20px;
+    font-size: var(--t-corps);
+    max-width: 64ch;
+    line-height: 1.5;
+    color: var(--si-ink);
+  }
+
+  /* Les panneaux de la fiche : un seul visible a la fois, comme dans le
+     produit. Pas de transition de hauteur, qui ferait sauter la page sous le
+     doigt : le panneau change, la page ne bouge pas. */
+  .xc .fiche .vue { display: none; }
+  .xc .fiche .vue.on { display: block; }
+  .xc .fiche .onglets-fiche button {
+    font: inherit; font-size: var(--t-detail); color: var(--si-muted);
+    background: none; border: 0; padding: 0 0 10px;
+    /* Un pixel de recouvrement : le trait de 2 px mange le filet de 1 px au
+       lieu de s'aligner a cote. C'est ce qui fait un onglet et non un
+       soulignement. */
+    margin-bottom: -1px;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 140ms ease, border-color 140ms ease;
+  }
+  .xc .fiche .onglets-fiche button:hover { color: var(--si-ink); }
+  .xc .fiche .onglets-fiche button.on { color: var(--si-ink); border-bottom-color: var(--si-ink); box-shadow: none; }
+  .xc .fiche .onglets-fiche button:focus-visible { outline: 2px solid var(--si-verified); outline-offset: 3px; border-radius: 3px; }
+
+  /* ── Le contour fondant ──────────────────────────────────────────────────
+     Demande CEO : un contour qui se fond, pas un bord net qui s'arrete. Le
+     masque porte sur la FENETRE entiere, donc le bord s'eteint avec ce qu'il
+     borde. Un masque coupe l'ombre portee, peinte hors de la boite : l'ombre
+     longue vit donc sur le parent, hors du masque. */
+  .xc .scene-produit .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
+  .xc .fenetre-produit.contour-fondu {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
+    box-shadow: inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85);
+  }
+
+  /* La mention de demonstration. Elle n'est pas discrete : une histoire
+     reconstruite presentee comme une donnee reelle est le defaut que la
+     regle interne interdit. */
+  .xc .mention-demo {
+    display: flex; align-items: center; gap: 9px;
+    margin-top: 14px; padding: 10px 14px;
+    border: 1px dashed rgb(var(--si-line-ink-rgb) / 0.28);
+    border-radius: 9px;
+    font-size: var(--t-detail); color: var(--si-muted);
+  }
+  .xc .mention-demo b { font-weight: 500; color: var(--si-ink); }
+  .xc .reponse-fiche {
+    margin-top: 18px; font-size: var(--t-corps); max-width: 64ch; line-height: 1.5;
+  }
+
+  .xc .statut-rappro {
+    margin-top: 16px;
+    font-size: var(--t-detail);
+    color: var(--si-muted);
+    max-width: 64ch;
+    line-height: 1.5;
+  }
+  .xc .statut-rappro b { font-weight: 400; color: var(--si-amber-ink); }
+
+  /* ── L'effet AB : une section sur deux change de fond ────────────────────
+     Demande CEO. La page se lisait comme une seule surface continue, et rien
+     ne disait ou une section finissait. Une alternance de deux tons proches
+     suffit : elle se sent plus qu'elle ne se voit, et elle donne un rythme
+     sans decouper la page en tranches.
+
+     Les deux tons viennent de la palette, aucun n'est ecrit en dur. L'ecart
+     entre eux est faible, moins de trois pour cent de luminance : c'est ce
+     qui evite la bande grise que le CEO avait fait retirer plus tot.
+
+     Le filet de separation du bas de page tombe la ou le fond change deja :
+     deux signaux pour dire la meme chose, c'est un de trop. */
+  .xc section.recit:nth-of-type(even) { background: var(--si-surface2); }
+
+  /* ── Le bas de page : separer sans redessiner ────────────────────────────
+     Les cinq dernieres sections se suivaient au meme rythme que les sections
+     de preuve, sans rien pour dire qu'on change de registre. Elles gagnent un
+     degagement plus large et un filet discret entre elles. Aucune couleur,
+     aucun fond, aucun composant nouveau : seulement de l'air et un trait. */
+  .xc #equipe, .xc #tarifs, .xc #questions, .xc #cta {
+    padding-block: clamp(88px, 12vh, 148px);
+  }
+  /* Le titre d'une sous-partie a l'interieur d'une section. Il ne cree pas un
+     niveau de titre de plus : c'est un libelle, dans la meme graisse que les
+     autres exergues de la page. */
+  .xc .sous-titre-bloc {
+    margin-top: clamp(34px, 4.4vw, 52px);
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--si-muted);
+  }
+  .xc .sous-titre-bloc.filet {
+    margin-top: clamp(44px, 5.6vw, 68px);
+    padding-top: clamp(30px, 3.6vw, 44px);
+    border-top: 1px solid var(--si-line);
+  }
+
+  .xc .chaine .lien {
+    flex: 0 0 28px; display: grid; place-items: center;
+    color: var(--si-subtle); font-size: var(--t-detail);
+  }
+
+  /* « À propos » est mis en avant depuis le 2026-08-25 (demande CEO). Elle
+     sortait d'un sous-menu, ou la page qui dit QUI construit SAFE demandait
+     deux gestes pour etre atteinte.
+
+     La mise en avant est l'ENCRE PLEINE, et rien d'autre. Dans une barre de
+     libelles gris, un seul en encre se detache sans effort ; une pastille ou
+     une graisse en plus l'aurait fait passer pour un bouton, et la barre en
+     porte deja trois. */
+  /* La regle voisine s'ecrit « .xc #nav .links a » : un ID pese plus que
+     n'importe quel nombre de classes. Une regle en « nav » aurait ete ecrite,
+     lue, et sans effet. */
+  .xc #nav .links a.en-avant { color: var(--si-ink); }
+
+  .xc .trio {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: clamp(12px, 1.8vw, 20px);
+  }
+  .xc .trio figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .xc .trio .fenetre-produit { margin: 0; }
+  .xc .trio .barre-fenetre { font-size: 10px; padding: 7px 10px; gap: 7px; }
+  .xc .trio .pastilles-fenetre i { width: 6px; height: 6px; }
+  .xc .trio figcaption { display: flex; flex-direction: column; gap: 3px; }
+  .xc .trio figcaption .q {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--si-verified);
+  }
+  .xc .trio figcaption b { font-size: var(--t-detail); font-weight: 500; }
+  .xc .trio figcaption span { font-size: var(--t-detail); color: var(--si-muted); line-height: 1.45; }
+  /* ── Les trois fenetres de « figures » ────────────────────────────────────
+     Elles portent la meme grammaire que les extraits pleine largeur, en plus
+     serre : la fiche, ses plaques de nombres et ses rangees existent deja, on
+     ne redessine rien, on retaille.
+
+     Les trois figures sont EGALISEES en hauteur, sinon leurs legendes se
+     posaient a trois altitudes differentes et la rangee se lisait de travers.
+     Une fenetre plus haute que son contenu ne montre pas de vide : le masque
+     de fondu eteint le bas. */
+  .xc .trio { align-items: stretch; }
+  .xc .trio figure { display: grid; grid-template-rows: 1fr auto; }
+  .xc .trio .fenetre-fondante, .xc .trio .fenetre-produit { height: 100%; }
+  .xc .trio .fiche { padding: 14px 15px 30px; }
+  .xc .trio .fiche .ft { font-family: var(--sans); font-size: 17px; letter-spacing: -0.012em; }
+  .xc .trio .fiche .fs { font-size: var(--t-menu); color: var(--si-muted); margin-top: 3px; }
+  .xc .trio .fiche .etiq {
+    font-size: 10px; padding: 2px 7px; border-radius: 99px; vertical-align: 2px;
+    background: rgb(var(--si-verified-rgb) / 0.10); color: var(--si-verified);
+  }
+  .xc .trio .fiche .totaux { gap: 7px; margin-top: 12px; }
+  .xc .trio .fiche .totaux.duo { grid-template-columns: 1fr 1fr; }
+  .xc .trio .fiche .totaux.solo { grid-template-columns: 1fr; }
+  .xc .trio .fiche .tot { padding: 8px 9px; border-radius: 8px; }
+  .xc .trio .fiche .tot .k { font-size: 8.5px; letter-spacing: 0.09em; }
+  .xc .trio .fiche .tot .v { font-size: 14px; margin-top: 5px; }
+  .xc .trio .fiche .tot .s { font-size: 9px; margin-top: 3px; }
+  .xc .trio .fiche .lignes { padding: 6px 0 0; }
+  .xc .trio .fiche .lg { padding: 7px 0; gap: 10px; font-size: 11.5px; }
+  .xc .trio .fiche .lg > span:first-child {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .xc .trio .fiche .lg .v { font-size: 11.5px; }
+  .xc .trio .fiche .lg small { font-size: 10px; margin-right: 4px; }
+
+  /* Le zoom souple, version fenetre. La classe partagee « .safe-zoom » pose
+     une box-shadow : sur un parent transparent aux coins arrondis, elle
+     dessinerait un rectangle derriere la fenetre. On garde donc sa courbe et
+     son amplitude, et on approfondit l'ombre PORTEE, qui epouse la forme. */
+  .xc .trio .fenetre-fondante {
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .xc .trio figure:hover .fenetre-fondante,
+  .xc .trio figure:focus-within .fenetre-fondante {
+    transform: scale(1.006) translateY(-2px);
+    filter: drop-shadow(0 34px 54px rgb(var(--si-line-ink-rgb) / 0.22));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .xc .trio .fenetre-fondante { transition: none; }
+    .xc .trio figure:hover .fenetre-fondante { transform: none; }
+  }
+
+  /* ── Les illustrations au telephone ───────────────────────────────────────
+     Demande CEO du 2026-08-25 : les extraits gardent les DIMENSIONS d'un
+     ordinateur et retrecissent, au lieu de se reorganiser pour le pouce.
+
+     C'est le traitement du hero, mesure puis repris : sa fenetre rend une
+     largeur logique de 1360 px a l'echelle 0,720, et le bord de l'ecran la
+     coupe. On voit un ecran d'ordinateur, pas une version telephone du meme
+     ecran. C'est ce que la page raconte, donc c'est ce qu'elle doit montrer.
+
+     « zoom » et non « transform: scale » : « zoom » retaille la BOITE en meme
+     temps que le dessin, donc la hauteur du parent suit toute seule. Avec
+     « scale », le parent garderait la hauteur d'origine et laisserait mille
+     pixels de vide sous chaque fenetre.
+
+     Une exception, et c'est un choix : le TRIO garde sa largeur native de
+     399 px et se met a l'echelle pour remplir l'ecran, au lieu d'etre etire a
+     1238 px comme les autres. Etire, il bleedait comme eux mais ses montants
+     tombaient hors de l'ecran : « Honoraires », « Debours » et « Taxes »
+     s'affichaient sans leur chiffre. Une illustration qui perd ses chiffres
+     ne prouve plus rien. Chaque fenetre est donc montree a SES dimensions
+     d'ordinateur, ramenee a la largeur du telephone.
+
+     Consequence assumee : le trio est a 0,877 quand les autres sont a 0,720,
+     donc son texte est un peu plus grand. C'est le prix des chiffres. */
+  @media (max-width: 900px) {
+    .xc .fenetre-fondante { width: 100%; overflow: hidden; }
+    .xc .fenetre-produit { width: 1238px; zoom: 0.72; }
+    .xc .trio { grid-template-columns: 1fr; gap: 30px; }
+    .xc .trio .fenetre-fondante { width: 100%; }
+    .xc .trio .fenetre-produit { width: 399px; zoom: 0.877; }
+    /* Le libelle et le nombre d'une plaque sont deux SPANS. Sur ordinateur ils
+       s'empilent ; au telephone ils se collaient sur une ligne, « TOTAL948,54 $ ».
+       Un « margin-top » sur un element en ligne ne fait rien. */
+    .xc .fiche .tot .k,
+    .xc .fiche .tot .v,
+    .xc .fiche .tot .s { display: block; }
+
+    /* ── La chaine, au telephone ────────────────────────────────────────────
+       Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
+       se suivent horizontalement et la fleche tombe entre deux cadrans, ce
+       qu'elle doit faire.
+
+       Au telephone, « flex-wrap: wrap » cassait cette alternance : chaque
+       cadran, avec sa base de 160 px, prenait la ligne entiere, et la fleche
+       de 28 px se posait A SA DROITE au lieu de venir apres lui. On lisait
+       donc cinq cadrans flanques d'une fleche qui ne reliait rien.
+
+       En colonne, l'ordre du balisage redevient l'ordre a l'ecran. La fleche
+       pivote d'un quart de tour pour montrer le bas, et sa hauteur EST
+       l'ecart entre deux cadrans : un seul reglage tient l'espacement, au
+       lieu d'une marge qui s'ajouterait a elle. */
+    .xc .chaine { flex-direction: column; flex-wrap: nowrap; }
+    .xc .chaine .maillon { flex: 0 0 auto; width: 100%; }
+    /* La fleche CHANGE de glyphe, elle ne pivote pas. « rotate » fait tourner
+       la BOITE avec le dessin : une fleche large de 350 px devenait un bloc de
+       350 px de haut, qui chevauchait les cadrans au-dessus et en dessous. */
+    .xc .chaine .lien {
+      flex: 0 0 auto;
+      height: 30px;
+      width: 100%;
+      font-size: 0;
+    }
+    .xc .chaine .lien::before { content: "↓"; font-size: var(--t-detail); }
+  }
+  /* Deux fenetres cote a cote, pour les deux bouts d'une meme chaine. */
+  .xc .duo-fenetres { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 2vw, 22px); }
+  .xc .duo-fenetres .fenetre-produit { margin: 0; }
+  @media (max-width: 900px) { .xc .duo-fenetres { grid-template-columns: 1fr; } }
+
+  /* ── Les cinq endroits, nommes puis resolus ──────────────────────────────
+     La phrase devient un objet qu'on lit d'un coup d'oeil. Les pastilles sont
+     POINTILLEES tant que le travail est disperse, et la derniere est pleine :
+     la resolution se voit avant d'etre lue. */
+  .xc .pastilles {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-top: clamp(34px, 4.4vw, 52px);
+  }
+  .xc .pastilles span {
+    font-family: var(--mono);
+    font-size: var(--t-detail);
+    color: var(--si-muted);
+    border: 1px dashed rgb(var(--si-line-ink-rgb) / 0.26);
+    border-radius: 999px;
+    padding: 7px 15px;
+  }
+  .xc .pastilles .fleche { border: 0; padding: 7px 4px; color: var(--si-subtle); }
+  .xc .pastilles .resolu {
+    border: 1px solid rgb(38 101 74 / 0.34);
+    background: rgb(38 101 74 / 0.10);
+    color: var(--si-verified);
+  }
+
   .xc .morceaux { margin-top: clamp(56px, 8vh, 104px); }
   .xc .morceau {
     display: grid;
@@ -1799,7 +2492,7 @@ const CSS = `
   }
   .xc .bloc-maitre h3 {
     margin-top: 12px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-titre);
     line-height: 1.12;
@@ -1822,7 +2515,7 @@ const CSS = `
   .xc .deux-blocs .bloc { padding-top: 4px; }
   .xc .deux-blocs h3 {
     margin-top: 10px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-argument);
     line-height: 1.22;
@@ -1918,7 +2611,7 @@ const CSS = `
   }
   .xc #tarifs .plan:first-of-type { margin-top: clamp(56px, 8vh, 104px); border-top: 1px solid var(--line); }
   .xc #tarifs .plan .name { font-family: var(--sans); font-size: 16px; }
-  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--sans); font-size: 13.5px; color: var(--muted); }
+  .xc #tarifs .plan .detail { margin-top: 4px; font-family: var(--sans); font-size: 13px; color: var(--muted); }
   /* Le prix et son unité restent un chiffre : mono, comme tout montant du
      site. La serif s'arrête au texte qui l'entoure. */
   .xc #tarifs .plan .price { font-family: var(--mono); font-size: var(--t-argument); text-align: right; }
@@ -1932,8 +2625,8 @@ const CSS = `
     padding: 26px 0;
     border-top: 1px solid var(--line);
   }
-  .xc #questions .q h3 { font-family: var(--serif); font-weight: 400; font-size: var(--t-argument); line-height: 1.35; }
-  .xc #questions .q p { max-width: 58ch; font-family: var(--sans); font-size: 14.5px; line-height: 1.65; color: var(--muted); }
+  .xc #questions .q h3 { font-family: var(--sans); font-weight: 400; font-size: var(--t-argument); line-height: 1.35; }
+  .xc #questions .q p { max-width: 58ch; font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--muted); }
   .xc #questions .liste-q { margin-top: clamp(56px, 8vh, 104px); }
 
   /* La fermeture s'aligne à gauche, comme les huit chapitres qui la précèdent.
@@ -1954,7 +2647,7 @@ const CSS = `
     color: #fff;
     font-size: 14px;
     font-weight: 500;
-    box-shadow: 0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85);
+    box-shadow: 0 14px 28px -18px rgb(var(--si-ink-strong-rgb) / 0.85);
     transition: transform 0.2s ease;
   }
   .xc .btn:hover { transform: translateY(-2px); }
@@ -1983,7 +2676,7 @@ const CSS = `
     border-top: 1px solid var(--line-douce, var(--line));
     max-width: 74ch;
     font-family: var(--sans);
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.6;
     color: var(--faint, var(--muted));
   }
@@ -2093,8 +2786,10 @@ const CSS = `
   @media (max-width: 860px) {
     .xc {
       /* L'échelle. Sept tailles pour toute la page. */
-      --t-affiche: 33px;   /* le titre d'ouverture, une seule fois par page */
-      --t-marque: 28px;    /* le mot de chapitre : Simple, Fiable, Complet */
+      /* Descendus avec l'echelle de bureau le 2026-08-25 : a 33 px le titre du
+         telephone etait devenu PLUS gros que celui de l'ecran large. */
+      --t-affiche: 25px;   /* le titre d'ouverture, une seule fois par page */
+      --t-marque: 21px;    /* le mot de chapitre : Simple, Fiable, Complet */
       --t-titre: 23px;     /* le titre d'un chapitre */
       --t-argument: 17px;  /* un point numéroté */
       --t-corps: 14.5px;   /* la prose */
@@ -2286,14 +2981,8 @@ const CSS = `
     .xc #hero-copy h1 {
       margin-top: 16px;
       font-size: var(--t-affiche);
-      line-height: 1.04;
-      letter-spacing: -0.02em;
-      max-width: none;
-    }
-    .xc #hero-copy p.lede {
-      margin-top: 20px;
-      font-size: var(--t-corps);
-      line-height: 1.58;
+      line-height: 1.02;
+      letter-spacing: -0.042em;
       max-width: none;
     }
     /* La barre range son action dans le menu : ce bloc porte donc la seule
@@ -2318,12 +3007,6 @@ const CSS = `
        données au Canada) et c'est la seule preuve de la première vue au
        téléphone, puisque la démonstration y arrive plus bas. */
     .xc #hero-copy .hero-second { display: none; }
-    .xc #hero-copy .hero-reassure {
-      margin-top: 16px;
-      margin-left: 0;
-      font-size: var(--t-detail);
-      line-height: 1.5;
-    }
     .xc #hero-copy .hero-actions { margin-top: 24px; gap: 16px; }
 
     /* ── Exergues et libellés ───────────────────────────────────────────────
@@ -2658,7 +3341,7 @@ const CSS = `
     .xc #tarifs .plan:first-of-type { margin-top: 24px; }
     .xc #tarifs .plan .name { font-size: var(--t-argument); }
     .xc #tarifs .plan .detail { font-size: var(--t-detail); }
-    .xc #tarifs .plan .price { font-size: 22px; }
+    .xc #tarifs .plan .price { font-size: 21px; }
     .xc #tarifs .plan .price small { font-size: var(--t-menu); }
     .xc #tarifs .note, .xc #questions .more, .xc #tarifs .more { font-size: var(--t-detail); }
     .xc #questions .q { grid-template-columns: 1fr; gap: 8px; }
@@ -2884,8 +3567,23 @@ function runExperience(root: HTMLElement): () => void {
      Une seule constante commande donc les deux cas. Ajouter une animation
      plus tard la coupera au téléphone sans qu'on ait à y penser. */
   const PHONE = window.matchMedia(SEUIL_TELEPHONE).matches;
+  /* ── L'assemblage d'ouverture est retire (dec. CEO 2026-08-24) ────────────
+     La premiere vue s'ouvrait sur des feuilles eparpillees qui derivaient puis
+     se rangeaient en application, pilotees par une longue course de defilement
+     epinglee. Le CEO ne veut plus cette ouverture : la page commence sur le
+     titre, l'action, et le logiciel pose en dessous.
+
+     On ne supprime pas la mecanique, on cesse de l'emprunter. Le chemin
+     statique existait deja, ecrit pour le telephone et pour qui demande moins
+     de mouvement : `poserHeroStatique` compose exactement cette vue, et son
+     rendu au large centre l'application sous le texte a l'echelle qui tient.
+     Il devient donc le seul chemin. Passer cette constante a false rallume
+     l'assemblage sans rien avoir a reecrire. */
+  const ASSEMBLAGE_OUVERTURE = false;
   const REDUCED =
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches || PHONE;
+    !ASSEMBLAGE_OUVERTURE ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    PHONE;
 
   /* Le script est là : on autorise les états de départ masqués. Tant que cette
      classe n'est pas posée, tout le texte s'affiche normalement. */
@@ -3502,6 +4200,38 @@ function runExperience(root: HTMLElement): () => void {
 
   heroApp.addEventListener("click", onHeroAppClick);
   heroApp.addEventListener("keydown", onHeroAppKey);
+
+  /* ── L'extrait de la fiche client est navigable, comme celui du heros ─────
+     Meme vocabulaire, meme delegation : un attribut sur l'onglet, un attribut
+     sur le panneau, un seul ecouteur. On ne monte pas une deuxieme mecanique
+     a cote de la premiere.
+
+     Les onglets sont de vrais boutons : le clavier les atteint sans qu'on ait
+     a poser un role ni un index de tabulation a la main. */
+  /* La mecanique sert TOUS les extraits navigables de la page, pas seulement
+     la fiche client : chaque conteneur porte « extrait-nav », et l'ecouteur se
+     pose sur chacun. Ajouter un extrait plus bas ne demande donc rien de plus
+     que le balisage. Les etats restent locaux a leur conteneur : ouvrir un
+     onglet dans un extrait ne touche pas celui d'a cote. */
+  const extraits = Array.from(root.querySelectorAll<HTMLElement>(".extrait-nav"));
+  const montrerVue = (hote: HTMLElement, nom: string) => {
+    hote.querySelectorAll("[data-fiche-vue]").forEach((v) =>
+      v.classList.toggle("on", v.getAttribute("data-fiche-vue") === nom),
+    );
+    hote.querySelectorAll("[data-fiche-onglet]").forEach((o) => {
+      const actif = o.getAttribute("data-fiche-onglet") === nom;
+      o.classList.toggle("on", actif);
+      o.setAttribute("aria-selected", actif ? "true" : "false");
+    });
+  };
+  const onExtraitClick = (e: Event) => {
+    const cible = (e.target as HTMLElement).closest("[data-fiche-onglet]");
+    if (!cible) return;
+    const hote = cible.closest<HTMLElement>(".extrait-nav");
+    const nom = cible.getAttribute("data-fiche-onglet");
+    if (hote && nom) montrerVue(hote, nom);
+  };
+  extraits.forEach((ex) => ex.addEventListener("click", onExtraitClick));
   /* Cliquer ailleurs dans la page referme le tiroir, comme partout. */
   const onDocClickHero = (e: Event) => {
     if (!heroApp.contains(e.target as Node)) closeHeroMenus();
@@ -3513,10 +4243,13 @@ function runExperience(root: HTMLElement): () => void {
      dossier, la vérification du fidéicommis. Les sections écrites (le
      problème, la suite, l'équipe, l'offre) se lisent d'un bloc et n'ont pas
      d'étape à repérer. */
-  const rail = $("rail");
-  const railStops: Record<string, HTMLElement> = {
-    hero: rail.querySelector('[data-rail="hero"]')!,
-  };
+  /* Le rail a ete retire avec l'assemblage d'ouverture : son seul jalon
+     nommait cette animation. La recherche devient tolerante a son absence,
+     pour que repasser ASSEMBLAGE_OUVERTURE a true suffise a tout rendre. */
+  const rail = root.querySelector<HTMLElement>("#rail");
+  const railStops: Record<string, HTMLElement> = {};
+  const jalonHero = rail?.querySelector<HTMLElement>('[data-rail="hero"]');
+  if (jalonHero) railStops.hero = jalonHero;
   const zones: Record<string, HTMLElement> = {
     hero: heroZone,
   };
@@ -3525,6 +4258,10 @@ function runExperience(root: HTMLElement): () => void {
     return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
   }
   function updateRail() {
+    /* Le rail a ete retire avec l'assemblage : son seul jalon nommait
+       l'animation d'ouverture. La fonction reste, tolerante a son absence,
+       pour que rallumer ASSEMBLAGE_OUVERTURE suffise a tout rendre. */
+    if (!rail) return;
     let anyLive = false;
     /* On parcourt les JALONS, pas les zones : toutes les zones n'en ont pas un. */
     Object.keys(railStops).forEach((key) => {
@@ -3935,9 +4672,25 @@ function runExperience(root: HTMLElement): () => void {
     document.fonts?.ready.then(poserStatique).catch(() => {});
     window.addEventListener("resize", poserStatique);
     window.addEventListener("scroll", suivreRail, { passive: true });
-    /* Au téléphone seulement. Quelqu'un qui a demandé moins de mouvement au
-       niveau du système garde la page posée, sans aucune entrée. */
-    if (PHONE && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    /* L'assemblage du telephone est ETEINT depuis le 2026-08-25, demande CEO.
+
+       Il survivait seul a l'extinction du 24 aout : sur ordinateur l'ouverture
+       ne jouait plus, sur telephone elle jouait encore. Le resultat mesure
+       etait une page d'accueil qui ouvrait sur une animation de LOGO,
+       l'application restant a opacite 0 jusqu'a 900 px de defilement, soit
+       au-dela du premier ecran. On voyait la marque, jamais le produit.
+
+       « poserStatique » place desormais seule la fenetre, visible des le
+       premier ecran.
+
+       La condition garde « ASSEMBLAGE_OUVERTURE » en tete, comme le chemin de
+       l'ordinateur plus haut : rallumer le drapeau suffit a tout rendre, et
+       « jouerAssemblage » ne devient pas du code que plus rien n'appelle. */
+    if (
+      ASSEMBLAGE_OUVERTURE &&
+      PHONE &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       root.classList.add("tel-anime");
       arreterAssemblage = jouerAssemblage();
       /* Derrière la pose statique différée par les polices. */
@@ -3969,6 +4722,7 @@ function runExperience(root: HTMLElement): () => void {
     window.removeEventListener("resize", reveiller);
     window.removeEventListener("resize", poserStatique);
     window.removeEventListener("scroll", suivreRail);
+    extraits.forEach((ex) => ex.removeEventListener("click", onExtraitClick));
     heroApp.removeEventListener("click", onHeroAppClick);
     heroApp.removeEventListener("keydown", onHeroAppKey);
     document.removeEventListener("click", onDocClickHero);
@@ -4010,7 +4764,6 @@ const ROUTES = {
    ne bouge. */
 const LIENS_NAV: [string, string][] = [
   [ROUTES.cabinet, "SAFE Cabinet"],
-  [ROUTES.outils, "Outils SAFE"],
   [ROUTES.tarification, "Tarification"],
   [ROUTES.aPropos, "À propos"],
 ];
@@ -4019,12 +4772,17 @@ const LIENS_NAV: [string, string][] = [
    la liste de ce qu'un cabinet tient déjà, ailleurs, séparément. Le libellé de
    droite nomme l'endroit, pas un produit : personne ici ne sait dans quel
    logiciel travaille le cabinet qui lit la page. */
-const MORCEAUX: [string, string][] = [
-  ["Un dossier est ouvert dans un système.", "Dossiers"],
-  ["Le temps est noté ailleurs.", "Feuille de temps"],
-  ["Les échéances restent dans un calendrier.", "Calendrier"],
-  ["La facture est préparée plus tard.", "Facturation"],
-  ["Les paiements, la comptabilité et le fidéicommis sont vérifiés dans d'autres registres.", "Registres"],
+/* Les cinq endroits ou vit un meme dossier, nommes comme un cabinet les nomme.
+   La version precedente decrivait le probleme en cinq phrases completes, avec
+   un numero et une etiquette de module pour chacune : elle demandait cinq
+   lectures pour dire une seule chose. Ce sont maintenant cinq noms, et la
+   rangee se lit d'un coup d'oeil. */
+const ENDROITS: string[] = [
+  "la boîte courriel",
+  "le chiffrier",
+  "le dossier papier",
+  "le comptable",
+  "la mémoire de l'adjointe",
 ];
 
 /* Les trois temps de la mise en service. Ils décrivent ce que SAFE fait, pas
@@ -4097,9 +4855,28 @@ export default function ExperienceCinema() {
           <SafeLogo size={20} />
         </a>
         <div className="links">
-          {LIENS_NAV.map(([href, label]) => (
-            <a key={href} href={href}>{label}</a>
-          ))}
+          {MENU_PRINCIPAL.map((e) =>
+            e.sous ? (
+              <div className="grp" key={e.label}>
+                <a href={e.href}>
+                  {e.label}
+                  <i className="chev" aria-hidden />
+                </a>
+                <div className="drop">
+                  {e.sous.map((sc) => (
+                    <a key={sc.href + sc.label} href={sc.href}>
+                      {sc.label}
+                      {sc.note ? <span>{sc.note}</span> : null}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <a key={e.href} href={e.href} className={e.enAvant ? "en-avant" : undefined}>
+                {e.label}
+              </a>
+            ),
+          )}
         </div>
         {/* Le bouton de menu vit dans le groupe de droite, aux côtés de
             l'action : au téléphone les deux se tiennent ensemble contre le
@@ -4107,6 +4884,7 @@ export default function ExperienceCinema() {
             le space-between. */}
         <div className="navright">
           <a className="signin" href={ROUTES.connexion}>Connexion</a>
+          <a className="parler" href={ROUTES.rencontre}>Parler à quelqu&apos;un</a>
           <a className="cta" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
           <button
             type="button"
@@ -4148,11 +4926,10 @@ export default function ExperienceCinema() {
         </>
       ) : null}
 
-      <nav id="rail" aria-label="Chapitres de la page">
-        {/* Un seul jalon : les deux autres zones épinglées ont cédé la place à
-            des captures, et leurs ancres ne menaient plus nulle part. */}
-        <a className="stop" data-rail="hero" href="#zone-hero"><span>Assembler</span><i aria-hidden /></a>
-      </nav>
+      {/* Le rail de chapitres est retiré avec l'assemblage (dec. CEO 2026-08-24).
+          Il ne portait qu'un jalon, « Assembler », qui nommait l'animation
+          d'ouverture. Sans elle, le mot ne désigne plus rien : un repère qui
+          pointe une scène disparue est pire qu'une absence de repère. */}
 
       {/* ── 01 · L'ouverture ────────────────────────────────────────────────
          L'assemblage débouche sur l'application elle-même, navigable, et non
@@ -4169,25 +4946,28 @@ export default function ExperienceCinema() {
             <HeroLiveApp />
           </div>
           <div id="hero-copy">
-            <p className="kicker">La suite administrative des cabinets d&apos;avocats</p>
-            <h1>SAFE tient votre cabinet <em>ensemble.</em></h1>
-            <p className="lede">
-              SAFE relie l&apos;administration, les dossiers, le temps, la facturation, les
-              paiements, la comptabilité, le fidéicommis, les échéances et les rapports dans un
-              même système.
-            </p>
-            <p className="lede lede-suite">
-              Vous voyez ce qui est à jour, ce qui attend et ce qui demande votre attention.
-            </p>
+            {/* L'exergue disait « La suite administrative des cabinets
+                d'avocats » et le titre disait « SAFE tient votre cabinet
+                ensemble » : le resultat etait nomme, jamais la categorie.
+                Cursor ecrit « Cursor EST VOTRE AGENT DE CODAGE pour creer des
+                logiciels ambitieux » : le nom, la categorie, le resultat.
+                Le titre absorbe donc l'exergue, qui devenait un doublon. */}
+            <h1>SAFE est la suite administrative qui tient votre cabinet <em>ensemble.</em></h1>
+            {/* Le chapeau est tombe le 2026-08-25, demande CEO.
+
+                Il disait « Vous voyez ce qui est a jour, ce qui attend et ce
+                qui demande votre attention ». Ce que la fenetre montre juste
+                dessous le dit deja, et mieux, puisqu'on peut cliquer dedans.
+                Cursor n'a aucun sous-texte dans son hero non plus : le titre,
+                l'action, le produit. */}
             <div className="hero-actions">
               <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
-              <a className="hero-second" href="#suite">
-                Découvrir la suite SAFE<i aria-hidden />
+              {/* Le chemin tiede : un visiteur qui veut seulement regarder n'avait
+                  que « Connexion ». Il mene a la demonstration, pas a une ancre. */}
+              <a className="hero-second" href={ROUTES.rencontre}>
+                Voir l&apos;application<i aria-hidden />
               </a>
             </div>
-            <p className="hero-reassure">
-              Conçu au Québec. Adapté au Québec et à l&apos;Ontario. Données hébergées au Canada.
-            </p>
           </div>
           {/* La légende ne dit pas « capture réelle » : le cadre contient
              l'application elle-même. Annoncer une image quand on peut cliquer
@@ -4199,6 +4979,41 @@ export default function ExperienceCinema() {
             Faites défiler vers le bas
             <i aria-hidden />
           </p>
+        </div>
+      </div>
+
+      {/* ── Le bandeau de reassurance ────────────────────────────────────────
+          Ces quatre faits vivaient en une ligne grise sous le titre, ou ils ne
+          se lisaient pas : on regarde la fenetre, pas la petite ligne.
+
+          Ils passent APRES l'illustration, en ruban qui glisse de la droite
+          vers la gauche (demande CEO du 2026-08-25). Un ruban se remarque
+          parce qu'il bouge, et il ne coute aucune hauteur au premier ecran.
+
+          Le ruban est DOUBLE et se translate de la moitie de sa largeur : la
+          seconde moitie prend la place de la premiere a l'instant ou celle-ci
+          sort, donc la boucle ne saute pas. La copie est masquee aux lecteurs
+          d'ecran, sinon la liste est annoncee deux fois.
+
+          Il s'arrete au survol : un fait qu'on veut lire ne doit pas fuir. Et
+          il ne bouge pas du tout pour qui a demande moins de mouvement.
+
+          Aucun de ces quatre faits n'est neuf. Ils sont tenus ailleurs sur le
+          site : un bandeau ne sert pas a glisser une promesse de plus. */}
+      <div className="bandeau-reassurance">
+        <div className="ruban">
+          <span className="serie">
+            <b>Données hébergées au Canada</b>
+            <b>Barreau du Québec et Barreau de l&apos;Ontario</b>
+            <b>Registre de fidéicommis vérifiable</b>
+            <b>Accès contrôlés selon les rôles du cabinet</b>
+          </span>
+          <span className="serie" aria-hidden>
+            <b>Données hébergées au Canada</b>
+            <b>Barreau du Québec et Barreau de l&apos;Ontario</b>
+            <b>Registre de fidéicommis vérifiable</b>
+            <b>Accès contrôlés selon les rôles du cabinet</b>
+          </span>
         </div>
       </div>
 
@@ -4214,20 +5029,239 @@ export default function ExperienceCinema() {
           <div className="tete">
             <h2>Cinq endroits pour un seul dossier</h2>
             <p className="dire">
-              <b>Le problème n&apos;est pas le manque d&apos;effort.</b> C&apos;est
-              l&apos;absence de contexte partagé.
+              <b>La fragmentation de vos dossiers multiplie les ressaisies,</b> ralentit la
+              facturation et fait reposer les suivis sur la mémoire de votre équipe.
+            </p>
+
+          </div>
+
+          {/* Les cinq endroits, nommes puis resolus. La liste numerotee qui
+              tenait ici demandait cinq lectures ; la rangee de pastilles se
+              lit d'un coup d'oeil, et la derniere, pleine, porte la reponse. */}
+          <div className="pastilles">
+            {ENDROITS.map((e) => (
+              <span key={e}>{e}</span>
+            ))}
+            <span className="fleche" aria-hidden>&rarr;</span>
+            <span className="resolu">un seul dossier</span>
+          </div>
+
+          {/* ── L'interieur d'un dossier ────────────────────────────────────
+              La liste ci-dessus prouve que SAFE range des dossiers. Elle ne
+              prouve pas que les informations sont RELIEES a l'interieur d'un
+              dossier, et c'est ce que la section promet. La fiche repond a une
+              seule question : ou en est ce dossier.
+
+              Le cabinet Demo ne porte aucun dossier qui reunisse a la fois du
+              temps non facture, du fideicommis, une facture et une echeance :
+              son dossier Tremblay reel n'a qu'une entree de 1,5 h et rien
+              d'autre. La fiche est donc RECONSTRUITE, et elle le dit. Une
+              histoire reconstruite presentee comme une donnee reelle est
+              exactement ce que la regle interne interdit.
+
+              Les chiffres se verifient entre eux : 1 983,32 - 1 000,00
+              = 983,32 de solde, et 1,75 + 2,50 = 4,25 h non facturees, toutes
+              consignees APRES l'emission de la facture, sinon elles y
+              seraient. */}
+          <div className="scene-produit">
+            <div className="fenetre-fondante">
+            <figure className="fenetre-produit contour-fondu">
+              <div className="barre-fenetre">
+                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                <span><em>SAFE</em> · Sophie Tremblay · dossier TRE-2026-014</span>
+                <span className="ecart" />
+                <span>Pratique · Dossiers</span>
+              </div>
+
+              {/* La fiche reprend la STRUCTURE de l'ecran client du produit,
+                  dans l'ordre : l'en-tete et ses actions, les onglets, le bloc
+                  d'alertes, les trois totaux, l'historique financier, puis les
+                  deux colonnes information et fideicommis. Rien n'est invente
+                  comme motif : c'est la page « clients » telle qu'elle est, avec
+                  les donnees de la demonstration. */}
+              {/* La barre de l'application, FIGEE. Elle situe la page : sans
+                  elle, la fiche flotte hors du produit. Elle ne se navigue pas
+                  parce que l'illustration ne porte que sur cette page-la, et
+                  qu'un menu qui s'ouvre sur rien deçoit plus qu'il ne montre.
+                  aria-hidden : un lecteur d'ecran n'a rien a y faire. */}
+              <div className="barre-app" aria-hidden>
+                <span className="mk"><SafeMark size={15} />SAFE</span>
+                <span className="sep" />
+                <span className="cab">Compte Test</span>
+                <nav>
+                  <span>Tableau de bord</span>
+                  <span>Aujourd&apos;hui</span>
+                  <span className="on">Pratique <b className="cv" /></span>
+                  <span>Finances <b className="cv" /></span>
+                  <span>Outils <b className="cv" /></span>
+                  <span>Paramètres</span>
+                </nav>
+                <span className="ecart" />
+                <span className="ch">Rechercher clie</span>
+                <span className="cl">⌘K</span>
+                <span className="cloche">2</span>
+                <span>Temps</span>
+                <span className="av">C</span>
+              </div>
+
+              <div className="fiche extrait-nav">
+                <div className="fiche-tete anime-bloc">
+                  <div>
+                    <p className="retour">&lsaquo; Retour aux clients</p>
+                    <h4>Sophie Tremblay</h4>
+                  </div>
+                  <div className="actes">
+                    <span className="bt">Actions</span>
+                    <span className="bt">Modifier</span>
+                    <span className="etat"><i aria-hidden />Actif</span>
+                    <span className="bt">Voir le dossier complet <i className="ext" aria-hidden /></span>
+                    <span className="bt">Vérification d&apos;identité</span>
+                  </div>
+                </div>
+
+                {/* De vrais boutons : le clavier les atteint sans qu'on pose
+                    un role ni un index de tabulation a la main. */}
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du client">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&apos;ensemble</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Dossiers (1)</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Carte client (2)</button>
+                </div>
+
+                <div className="vue on" data-fiche-vue="apercu">
+                <div className="alertes anime-bloc">
+                  <p className="ta">Alertes</p>
+                  <p className="al">Pièce attendue : évaluation de la résidence</p>
+                  <p className="al">Échéance au 28 août 2026</p>
+                  <p className="al">4,25 h consignées, non encore facturées</p>
+                </div>
+
+                <div className="totaux anime-bloc">
+                  <div className="tot">
+                    <p className="k">Total facturé</p>
+                    <p className="v">1 983,32 $</p>
+                    <p className="s">1 facture</p>
+                  </div>
+                  <div className="tot">
+                    <p className="k">Total reçu</p>
+                    <p className="v">1 000,00 $</p>
+                    <p className="s">1 paiement</p>
+                  </div>
+                  <div className="tot">
+                    <p className="k">Solde dû</p>
+                    <p className="v">983,32 $</p>
+                    <p className="s">facture 2026-031</p>
+                  </div>
+                </div>
+
+                <div className="carte-bloc anime-bloc">
+                  <div className="ct">
+                    <p className="ctt">Historique financier</p>
+                    <span>Factures et paiements triés par date</span>
+                  </div>
+                  <div className="lignes">
+                    {/* Ce bloc annonce « factures et paiements » : le depot en
+                        fideicommis n'y a pas sa place, il vit dans le bloc
+                        Fideicommis a cote. */}
+                    <div className="lg"><span>2026-08-24 — Paiement — Facture 2026-031</span><span className="v">1 000,00 $</span></div>
+                    <div className="lg"><span>2026-08-05 — Facture 2026-031</span><span className="v">1 983,32 $</span></div>
+                  </div>
+                </div>
+
+                <div className="duo-fiche anime-bloc">
+                  <div className="carte-bloc">
+                    <div className="ct"><p className="ctt">Informations client</p></div>
+                    <div className="lignes">
+                      <div className="lg"><span>Type</span><span className="v">Particulier</span></div>
+                      <div className="lg"><span>Cliente depuis</span><span className="v">12 février 2026</span></div>
+                      <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
+                      <div className="lg"><span>Dossier</span><span className="v">TRE-2026-014</span></div>
+                    </div>
+                  </div>
+                  <div className="carte-bloc">
+                    <div className="ct"><p className="ctt">Fidéicommis</p></div>
+                    <div className="lignes">
+                      <div className="lg"><span>Solde</span><span className="v">5 000,00 $</span></div>
+                      <div className="lg"><span>Paiements en fiducie autorisés</span><span className="v">Non</span></div>
+                      <div className="lg"><span>Dernière opération</span><span className="v">12 février 2026</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                </div>
+
+                {/* Le dossier lui-meme : ce que l'onglet « Dossiers » ouvre
+                    dans le produit. Une ligne de dossier, puis ce qui lui est
+                    rattache. */}
+                <div className="vue" data-fiche-vue="dossiers">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">TRE-2026-014</p>
+                      <span>Séparation et partage du patrimoine familial</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>État</span><span className="v">Actif · ouvert le 12 février 2026</span></div>
+                      <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
+                      <div className="lg"><span>Prochaine échéance</span><span className="v attente">28 août 2026</span></div>
+                      <div className="lg"><span>Pièce attendue</span><span className="v attente">Évaluation de la résidence</span></div>
+                      <div className="lg"><span>Temps non facturé</span><span className="v">4,25 h</span></div>
+                      <div className="lg"><span>Fidéicommis détenu</span><span className="v">5 000,00 $</span></div>
+                      <div className="lg"><span>Dernière facture</span><span className="v">2026-031 · 1 983,32 $</span></div>
+                      <div className="lg"><span>Solde à recevoir</span><span className="v">983,32 $</span></div>
+                    </div>
+                  </div>
+
+                  {/* L'activite du dossier appartient au dossier. Elle etait
+                      rangee sous « Carte client », qui est le registre du
+                      compte : deux choses differentes. */}
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Activité du dossier</p>
+                      <span>Ce qui a été inscrit, du plus récent au plus ancien</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>22 août — Projet de convention ajouté</span><span className="v">Brouillon</span></div>
+                      <div className="lg"><span>20 août — 2,50 h consignées · conférence de gestion</span><span className="v">Non facturé</span></div>
+                      <div className="lg"><span>18 août — Évaluation de la résidence demandée</span><span className="v attente">28 août</span></div>
+                      <div className="lg"><span>14 août — 1,75 h consignées · révision des pièces</span><span className="v">Non facturé</span></div>
+                      <div className="lg"><span>12 février — Dossier ouvert · dépôt de 5 000,00 $ au fidéicommis</span><span className="v">Actif</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* La carte client est le REGISTRE du compte : factures et
+                    paiements, rien d'autre. L'activite du dossier (temps
+                    consigne, document ajoute, echeance) appartient a l'onglet
+                    Dossiers, pas ici. */}
+                <div className="vue" data-fiche-vue="carte">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">Carte client</p>
+                      <span>Factures et paiements portés au compte</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>2026-08-24 — Paiement — Facture 2026-031</span><span className="v">1 000,00 $</span></div>
+                      <div className="lg"><span>2026-08-05 — Facture 2026-031</span><span className="v">1 983,32 $</span></div>
+                      <div className="lg"><span>Solde du compte</span><span className="v attente">983,32 $</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </figure>
+            </div>
+
+            {/* La phrase de conclusion vient APRES l'illustration : elle
+                nomme ce qu'on vient de voir, au lieu de l'annoncer avant que
+                l'oeil l'ait constate. */}
+            <p className="conclusion-fiche">
+              Dans SAFE, le client, le mandat, les documents, les échéances, le temps, la
+              facturation et le fidéicommis restent reliés au même dossier.
             </p>
           </div>
 
-          <div className="morceaux">
-            {MORCEAUX.map(([texte, ou], i) => (
-              <div className="morceau" key={ou}>
-                <span className="n" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
-                <p className="t">{texte}</p>
-                <span className="ou">{ou}</span>
-              </div>
-            ))}
-          </div>
+
+          <p className="sortie-section">
+            <a href={ROUTES.cabinet}>Voir comment SAFE relie un dossier &rarr;</a>
+          </p>
         </div>
       </section>
 
@@ -4241,7 +5275,7 @@ export default function ExperienceCinema() {
          à 450,00 $ l'heure = 675,00 $ d'honoraires ; TPS 5 % = 33,75 $ ;
          TVQ 9,975 % = 67,33 $ (les taux qu'applique lib/invoice-calculations) ;
          débours non taxables 195,00 $ ; total 971,08 $. */}
-      <section className="recit socle" id="continuite">
+      <section className="recit" id="continuite">
         <div className="inner">
           <div className="tete">
             <h2>Le temps consigné devient la facture</h2>
@@ -4251,19 +5285,156 @@ export default function ExperienceCinema() {
             </p>
           </div>
 
-          {/* La fiche de temps du Cabinet Demo, telle qu'elle est à l'écran :
-              64,5 h ce mois, 118 881,25 $ non facturés, et les entrées avec
-              leur taux horaire. Rien n'est retouché. */}
-          <div className="capture">
-            <Image
-              src="/images/accueil/fiche-de-temps.png"
-              alt="Fiche de temps de SAFE : les heures du mois, le montant non facturé et les entrées avec leur taux horaire."
-              width={4080}
-              height={2580}
-              sizes="(max-width: 860px) 100vw, 1312px"
-              quality={92}
-            />
+          {/* ── La chaine ──────────────────────────────────────────────────
+              CORRECTION DU 2026-08-24. La chaine reliait une entree de 2,5 h
+              a 350,00 $ l'heure a la facture 2026-008. Verification en base :
+              cette entree appartient au dossier 2026-042, client Services
+              Longueuil inc., alors que la facture 2026-008 appartient au
+              dossier 2026-015, client Clinique Longueuil inc. Deux dossiers,
+              deux clients. La chaine etait plus propre a lire et fausse.
+
+              La vraie composition, lue dans la base du cabinet Demo et
+              verifiee au cent pres :
+                3,00 h (Cloture, 18 avril) + 2,75 h (Negociation, 8 juin)
+                + 2,00 h (Cloture, 25 juin) = 7,75 h a 225,00 $ l'heure
+                = 1 743,75 $ d'honoraires
+                + TPS 5 % 87,19 $ + TVQ 9,975 % 173,94 $ = 2 004,88 $
+                encaisse 1 042,54 $, reste du 962,34 $.
+
+              Une facture porte plusieurs entrees : la chaine le DIT au lieu de
+              faire croire qu'une heure devient une facture. */}
+          <div className="chaine">
+            <div className="maillon">
+              <span className="k">Consigné</span>
+              <span className="v">7,75 h</span>
+              <span className="s">trois entrées · dossier 2026-015</span>
+            </div>
+            <span className="lien" aria-hidden>&rarr;</span>
+            <div className="maillon">
+              <span className="k">Valorisé</span>
+              <span className="v">1 743,75 $</span>
+              <span className="s">225,00 $ l&apos;heure</span>
+            </div>
+            <span className="lien" aria-hidden>&rarr;</span>
+            <div className="maillon">
+              <span className="k">Facturé</span>
+              <span className="v">2 004,88 $</span>
+              <span className="s">facture 2026-008 · TPS 87,19 $ · TVQ 173,94 $</span>
+            </div>
+            <span className="lien" aria-hidden>&rarr;</span>
+            <div className="maillon">
+              <span className="k">Encaissé</span>
+              <span className="v">1 042,54 $</span>
+              <span className="s">paiement partiel</span>
+            </div>
+            <span className="lien" aria-hidden>&rarr;</span>
+            <div className="maillon reste">
+              <span className="k">Reste dû</span>
+              <span className="v">962,34 $</span>
+              <span className="s">suivi encore actif</span>
+            </div>
           </div>
+
+
+          {/* ── L'extrait navigable de la chaine ────────────────────────────
+              Les deux captures figees deviennent UN extrait, avec deux ecrans :
+              les entrees telles qu'on les consigne, et la facture qu'elles
+              composent. Meme cadre, meme barre figee, meme mecanique d'onglets
+              que la fiche client plus haut.
+
+              Tous les chiffres viennent de la base du cabinet Demo, dossier
+              2026-015 : trois entrees a 225,00 $ l'heure dont la somme,
+              1 743,75 $, est exactement le sous-total taxable de la facture
+              2026-008. */}
+          <div className="scene-produit">
+            <div className="fenetre-fondante">
+            <figure className="fenetre-produit contour-fondu">
+              <div className="barre-fenetre">
+                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                <span><em>SAFE</em> · Clinique Longueuil inc. · dossier 2026-015</span>
+                <span className="ecart" />
+                <span>Finances</span>
+              </div>
+
+              <div className="barre-app" aria-hidden>
+                <span className="mk"><SafeMark size={15} />SAFE</span>
+                <span className="sep" />
+                <span className="cab">Compte Test</span>
+                <nav>
+                  <span>Tableau de bord</span>
+                  <span>Aujourd&apos;hui</span>
+                  <span>Pratique <b className="cv" /></span>
+                  <span className="on">Finances <b className="cv" /></span>
+                  <span>Outils <b className="cv" /></span>
+                  <span>Paramètres</span>
+                </nav>
+                <span className="ecart" />
+                <span className="ch">Rechercher clie</span>
+                <span className="cl">⌘K</span>
+                <span className="cloche">2</span>
+                <span>Temps</span>
+                <span className="av">C</span>
+              </div>
+
+              <div className="fiche extrait-nav">
+                <div className="fiche-tete anime-bloc">
+                  <div>
+                    <p className="retour">&lsaquo; Retour à la facturation</p>
+                    <h4>Clinique Longueuil inc.</h4>
+                  </div>
+                  <div className="actes">
+                    <span className="bt">Exporter</span>
+                    <span className="bt">Voir le PDF <i className="ext" aria-hidden /></span>
+                  </div>
+                </div>
+
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Du temps à la facture">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="temps">Fiche de temps (3)</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="facture">Facture 2026-008</button>
+                </div>
+
+                <div className="vue on" data-fiche-vue="temps">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">Entrées du dossier</p>
+                      <span>225,00 $ l&apos;heure · non facturées</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>25 juin — Clôture</span><span className="v">2,00 h · 450,00 $</span></div>
+                      <div className="lg"><span>8 juin — Négociation</span><span className="v">2,75 h · 618,75 $</span></div>
+                      <div className="lg"><span>18 avril — Clôture</span><span className="v">3,00 h · 675,00 $</span></div>
+                      <div className="lg"><span>Total consigné</span><span className="v">7,75 h · 1 743,75 $</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="vue" data-fiche-vue="facture">
+                  <div className="totaux" style={{ marginTop: 18 }}>
+                    <div className="tot"><p className="k">Total</p><p className="v">2 004,88 $</p><p className="s">émise le 2 août 2026</p></div>
+                    <div className="tot"><p className="k">Déjà payé</p><p className="v">1 042,54 $</p><p className="s">paiement partiel</p></div>
+                    <div className="tot"><p className="k">Solde dû</p><p className="v">962,34 $</p><p className="s">échéance 1er sept.</p></div>
+                  </div>
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Facture 2026-008</p>
+                      <span>Ce qui la compose</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>Honoraires · 7,75 h à 225,00 $</span><span className="v">1 743,75 $</span></div>
+                      <div className="lg"><span>TPS 5 %</span><span className="v">87,19 $</span></div>
+                      <div className="lg"><span>TVQ 9,975 %</span><span className="v">173,94 $</span></div>
+                      <div className="lg"><span>Total</span><span className="v">2 004,88 $</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </figure>
+            </div>
+          </div>
+
+          <p className="sortie-section">
+            <a href={ROUTES.cabinet + "#chaine"}>Voir la facturation &rarr;</a>
+          </p>
 
           <div className="index-modules">
             <div className="mod"><span className="n">1.1</span><span className="t">Dossiers</span></div>
@@ -4274,63 +5445,6 @@ export default function ExperienceCinema() {
         </div>
       </section>
 
-      {/* ── 04 · La suite ───────────────────────────────────────────────────
-         Trois blocs de poids différents, pas trois cartes à icônes. SAFE
-         Cabinet occupe la largeur et porte la liste de ce qu'il tient ; les
-         outils et l'accompagnement se partagent la rangée du dessous, à un
-         cran plus bas.
-
-         Les outils : un seul est publié, et c'est le seul qui est nommé. Un
-         catalogue annoncé avant d'exister est une promesse qu'on ne peut pas
-         tenir le jour où quelqu'un clique. */}
-      <section className="recit" id="suite">
-        <div className="inner">
-          <div className="tete">
-            <h2>Un système central, des outils autonomes</h2>
-            <p className="dire">
-              <b>SAFE Cabinet tient le travail quotidien.</b> Les Outils SAFE règlent une
-              tâche précise, sans adopter toute l&apos;application.
-            </p>
-          </div>
-
-          <div className="bloc bloc-maitre">
-            <div>
-              <p className="rang">SAFE Cabinet</p>
-              <h3>Le travail quotidien, dans un même système</h3>
-            </div>
-            <div>
-              <p>
-                Clients, dossiers, temps, facturation, paiements, comptabilité, fidéicommis et
-                échéances partagent le même contexte.
-              </p>
-              <a className="more" href={ROUTES.cabinet}>Découvrir SAFE Cabinet →</a>
-            </div>
-          </div>
-
-          <div className="deux-blocs">
-            <div className="bloc">
-              <p className="rang">Outils SAFE</p>
-              <h3>Un outil précis pour une tâche précise</h3>
-              {/* La phrase du haut de section dit déjà « sans adopter toute
-                  l'application ». La répéter mot pour mot trente centimètres
-                  plus bas n'ajoute pas de preuve, seulement des mots. */}
-              <p>Des calculateurs et des vérificateurs, publiés un à un.</p>
-              <p className="detail">
-                Le premier : le partage du patrimoine familial.
-              </p>
-              <a className="more" href={ROUTES.outils}>Découvrir les outils SAFE →</a>
-            </div>
-            <div className="bloc">
-              <p className="rang">Accompagnement SAFE</p>
-              <h3>Une implantation adaptée au cabinet</h3>
-              <p>
-                SAFE relève vos méthodes, configure le système et prépare vos vrais dossiers.
-              </p>
-              <a className="more" href={ROUTES.evaluation}>Évaluer mon cabinet →</a>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── 03 · Le fidéicommis se vérifie à trois sources ──────────────────
          Même contrat. La scène montre le rapprochement tel qu'il se présente
@@ -4340,7 +5454,7 @@ export default function ExperienceCinema() {
          Le refus affiché est le message exact de
          lib/services/fideicommis/errors.ts, pas une formule écrite pour la
          vitrine. */}
-      <section className="recit socle" id="verification">
+      <section className="recit" id="verification">
         <div className="inner">
           <div className="tete">
             <h2>Le fidéicommis se vérifie à trois sources</h2>
@@ -4350,19 +5464,108 @@ export default function ExperienceCinema() {
             </p>
           </div>
 
-          {/* Les comptes en fidéicommis du Cabinet Demo : le solde détenu, les
-              mouvements du mois, et la surveillance qui dit ce qu'elle a
-              vérifié. */}
-          <div className="capture">
-            <Image
-              src="/images/accueil/comptes-fideicommis.png"
-              alt="Comptes en fidéicommis de SAFE : solde total détenu, dépôts et retraits du mois, surveillance des soldes."
-              width={4080}
-              height={2580}
-              sizes="(max-width: 860px) 100vw, 1312px"
-              quality={92}
-            />
+          {/* ── L'extrait navigable du fideicommis ──────────────────────────
+              Meme modele que les deux sections precedentes : un cadre, une
+              barre d'application figee, un contour fondu, deux ecrans.
+
+              Tous les chiffres sont releves dans la base du cabinet Demo :
+              huit depots pour 92 200,00 $, un retrait de 2 925,00 $, donc un
+              solde de 89 275,00 $ reparti sur sept clients. */}
+          <div className="scene-produit">
+            <div className="fenetre-fondante">
+            <figure className="fenetre-produit contour-fondu">
+              <div className="barre-fenetre">
+                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                <span><em>SAFE</em> · comptes en fidéicommis</span>
+                <span className="ecart" />
+                <span>Finances</span>
+              </div>
+
+              <div className="barre-app" aria-hidden>
+                <span className="mk"><SafeMark size={15} />SAFE</span>
+                <span className="sep" />
+                <span className="cab">Compte Test</span>
+                <nav>
+                  <span>Tableau de bord</span>
+                  <span>Aujourd&apos;hui</span>
+                  <span>Pratique <b className="cv" /></span>
+                  <span className="on">Finances <b className="cv" /></span>
+                  <span>Outils <b className="cv" /></span>
+                  <span>Paramètres</span>
+                </nav>
+                <span className="ecart" />
+                <span className="ch">Rechercher clie</span>
+                <span className="cl">⌘K</span>
+                <span className="cloche">2</span>
+                <span>Temps</span>
+                <span className="av">C</span>
+              </div>
+
+              <div className="fiche extrait-nav">
+                <div className="fiche-tete anime-bloc">
+                  <div>
+                    <p className="retour">&lsaquo; Retour à la facturation</p>
+                    <h4>Comptes en fidéicommis</h4>
+                  </div>
+                  <div className="actes">
+                    <span className="bt">Relevé mensuel</span>
+                    <span className="bt">Inspection <i className="ext" aria-hidden /></span>
+                  </div>
+                </div>
+
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Le fidéicommis">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="comptes">Comptes (7)</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="rappro">Rapprochement</button>
+                </div>
+
+                <div className="vue on" data-fiche-vue="comptes">
+                  <div className="totaux" style={{ marginTop: 18 }}>
+                    <div className="tot"><p className="k">Solde total</p><p className="v">89 275,00 $</p><p className="s">7 clients avec des fonds</p></div>
+                    <div className="tot"><p className="k">Dépôts du mois</p><p className="v">0,00 $</p><p className="s">août 2026</p></div>
+                    <div className="tot"><p className="k">Retraits du mois</p><p className="v">2 925,00 $</p><p className="s">un retrait, le 4 août</p></div>
+                  </div>
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Sommes détenues, client par client</p>
+                      <span>Chaque somme appartient à quelqu&apos;un</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>Gestion Outremont inc.</span><span className="v">21 800,00 $</span></div>
+                      <div className="lg"><span>Marc Bouchard</span><span className="v">16 900,00 $</span></div>
+                      <div className="lg"><span>Distribution Beauport s.e.n.c.</span><span className="v">16 700,00 $</span></div>
+                      <div className="lg"><span>Félix Gagnon</span><span className="v">13 200,00 $</span></div>
+                      <div className="lg"><span>Trois autres clients</span><span className="v">20 675,00 $</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="vue" data-fiche-vue="rappro">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">Trois sources, une comparaison</p>
+                      <span>Ce qui doit concorder chaque mois</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>01 · Le relevé de la banque<br /><small>ce que l&apos;institution dit détenir</small></span><span className="v attente">à importer</span></div>
+                      <div className="lg"><span>02 · Le registre de fidéicommis<br /><small>huit dépôts, un retrait</small></span><span className="v">89 275,00 $</span></div>
+                      <div className="lg"><span>03 · La somme des soldes par client<br /><small>ce qui appartient à chacun</small></span><span className="v">89 275,00 $</span></div>
+                      <div className="lg"><span>Écart entre le registre et les clients</span><span className="v">0,00 $</span></div>
+                    </div>
+                  </div>
+                  <p className="statut-rappro">
+                    Le registre et les soldes par client concordent. <b>Le relevé bancaire doit
+                    encore être importé avant la certification</b> : le rapprochement du mois
+                    n&apos;est pas terminé.
+                  </p>
+                </div>
+              </div>
+            </figure>
+            </div>
           </div>
+
+          <p className="sortie-section">
+            <a href={ROUTES.cabinet + "#fideicommis"}>Voir le rapprochement en détail &rarr;</a>
+          </p>
 
           <div className="index-modules">
             <div className="mod"><span className="n">2.1</span><span className="t">Comptes en fidéicommis</span></div>
@@ -4386,73 +5589,143 @@ export default function ExperienceCinema() {
             </p>
           </div>
 
-          <div className="figures">
-            <div>
-              <p className="fig-num">FIG 0.1</p>
-              <div className="fig-cadre">
-                <div className="ligne">
-                  <span className="l">Temps consigné</span>
-                  <span className="v">1,50 h</span>
-                </div>
-                <div className="ligne">
-                  <span className="l">Fidéicommis détenu</span>
-                  <span className="v">5 000,00 $</span>
-                </div>
-                <div className="ligne">
-                  <span className="l">Protocole de l&apos;instance</span>
-                  <span className="v attente">12 juin</span>
-                </div>
-              </div>
-              <p className="fig-titre">Un dossier, un fil</p>
-              <p className="fig-dit">
-                Le temps, les documents et les échéances restent attachés au dossier.
-              </p>
-            </div>
+          {/* ── Trois ecrans, trois reponses ───────────────────────────────
+              La phrase de la section dit TROIS, donc la scene en montre trois.
+              Un cadre a onglets n'en montrerait qu'un a qui ne clique jamais,
+              et la section mentirait sur elle-meme.
 
-            <div>
-              <p className="fig-num">FIG 0.2</p>
-              <div className="fig-cadre">
-                <div className="ligne">
-                  <span className="l">TPS <small>5 %</small></span>
-                  <span className="v">33,75 $</span>
-                </div>
-                <div className="ligne">
-                  <span className="l">TVQ <small>9,975 %</small></span>
-                  <span className="v">67,33 $</span>
-                </div>
-                <div className="ligne total">
-                  <span className="l">Total</span>
-                  <span className="v">971,08 $</span>
-                </div>
-              </div>
-              <p className="fig-titre">Les taxes des deux provinces</p>
-              <p className="fig-dit">
-                La facture suit le régime de la province où la pratique est établie.
-              </p>
-            </div>
+              Chaque fenetre porte LA QUESTION a laquelle elle repond, ecrite
+              dans les mots d'une avocate et non dans ceux du logiciel. Les
+              trois figures dessinees qui tenaient ici montraient des chiffres
+              inventes dans des cadres dessines ; ce sont maintenant les vrais
+              ecrans du 23 aout. */}
+          <div className="scene-produit">
+            {/* ── Les trois fenetres, repliquees ────────────────────────────────
+                Elles etaient trois PNG du 23 aout, d'avant la repeinte : plus
+                froides que la page qui les porte, et rien n'y etait cliquable.
 
-            <div>
-              <p className="fig-num">FIG 0.3</p>
-              <div className="fig-cadre">
-                <div className="ligne">
-                  <span className="l">Banque</span>
-                  <span className="v">21 000,00 $</span>
+                Elles suivent la procedure de docs/design/PROCEDURE_EXTRAITS_VITRINE.md.
+                Chaque chiffre vient de la base du cabinet de Me Camille Roy,
+                releve le 2026-08-25 :
+
+                  43 dossiers actifs sur 50, chez 27 clients.
+                  Facture 2026-025, Vincent Bouchard : 948,54 $ dont 597,58 $
+                  recus, solde 350,96 $. Honoraires 825,00 $, taxes 123,54 $,
+                  soit exactement la TPS et la TVQ sur 825 $.
+                  Fideicommis : 89 275,00 $, somme des transactions, ce que
+                  calcule getGlobalTrustBalance().
+
+                La facture ne montre PAS de lignes de detail. Aucune facture de
+                ce cabinet n'en a : zero InvoiceLine, et 218 entrees de temps
+                dont aucune rattachee. Montrer un detail ici serait le
+                fabriquer. L'etat de paiement repond de toute facon a la
+                question posee. */}
+            <div className="trio">
+              <figure>
+                <div className="fenetre-fondante">
+                  <div className="fenetre-produit contour-fondu">
+                    <div className="barre-fenetre">
+                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                      <span>Pratique · Dossiers</span>
+                    </div>
+                    <div className="fiche">
+                      <p className="ft">Dossiers</p>
+                      <p className="fs">Ce qui est ouvert, chez qui</p>
+                      <div className="totaux">
+                        <div className="tot"><span className="k">Actifs</span><span className="v">43</span></div>
+                        <div className="tot"><span className="k">Clients</span><span className="v">27</span></div>
+                        <div className="tot"><span className="k">Total</span><span className="v">50</span></div>
+                      </div>
+                      <div className="lignes">
+                        <div className="lg"><span><small>2026-049</small> Constructions Outremont</span><span className="v">Litige civil</span></div>
+                        <div className="lg"><span><small>2026-048</small> Constructions Outremont</span><span className="v">Immigration</span></div>
+                        <div className="lg"><span><small>2026-047</small> Gagnon</span><span className="v">Immobilier</span></div>
+                        <div className="lg"><span><small>2026-045</small> Coopérative Longueuil</span><span className="v">Immobilier</span></div>
+                        <div className="lg"><span><small>2026-044</small> Coopérative Longueuil</span><span className="v">Litige civil</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="ligne">
-                  <span className="l">Registre</span>
-                  <span className="v">21 000,00 $</span>
+                <figcaption>
+                  <span className="q">La question</span>
+                  <b>&laquo;&nbsp;Où en est ce dossier ?&nbsp;&raquo;</b>
+                  <span>Ce qui est ouvert, ce qui presse, et qui s&apos;en occupe.</span>
+                </figcaption>
+              </figure>
+
+              <figure>
+                <div className="fenetre-fondante">
+                  <div className="fenetre-produit contour-fondu">
+                    <div className="barre-fenetre">
+                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                      <span>Finances · Facture</span>
+                    </div>
+                    <div className="fiche">
+                      <p className="ft">
+                        Facture 2026-025 <span className="etiq">Partiellement payée</span>
+                      </p>
+                      <p className="fs">Vincent Bouchard · émise le 2026-04-24</p>
+                      <div className="totaux duo">
+                        <div className="tot"><span className="k">Total</span><span className="v">948,54 $</span></div>
+                        <div className="tot"><span className="k">Déjà payé</span><span className="v">597,58 $</span></div>
+                        <div className="tot"><span className="k">Solde dû</span><span className="v">350,96 $</span></div>
+                        <div className="tot"><span className="k">Échéance</span><span className="v">2026-05-24</span></div>
+                      </div>
+                      <div className="lignes">
+                        <div className="lg"><span>Honoraires</span><span className="v">825,00 $</span></div>
+                        <div className="lg"><span>Débours</span><span className="v">0,00 $</span></div>
+                        <div className="lg"><span>Taxes</span><span className="v">123,54 $</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="ligne">
-                  <span className="l">Dossiers</span>
-                  <span className="v vert">21 000,00 $</span>
+                <figcaption>
+                  <span className="q">La question</span>
+                  <b>&laquo;&nbsp;Cette facture, elle est payée ?&nbsp;&raquo;</b>
+                  <span>Ce qui est émis, ce qui est entré, ce qui reste dû.</span>
+                </figcaption>
+              </figure>
+
+              <figure>
+                <div className="fenetre-fondante">
+                  <div className="fenetre-produit contour-fondu">
+                    <div className="barre-fenetre">
+                      <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                      <span>Finances · Fidéicommis</span>
+                    </div>
+                    <div className="fiche">
+                      <p className="ft">Comptes en fidéicommis</p>
+                      <p className="fs">Chaque somme appartient à quelqu&apos;un</p>
+                      <div className="totaux solo">
+                        <div className="tot">
+                          <span className="k">Solde total</span>
+                          <span className="v">89 275,00 $</span>
+                          <span className="s">7 clients avec des fonds</span>
+                        </div>
+                      </div>
+                      <div className="lignes">
+                        <div className="lg"><span>Gestion Outremont inc.</span><span className="v">21 800,00 $</span></div>
+                        <div className="lg"><span>Marc Bouchard</span><span className="v">16 900,00 $</span></div>
+                        <div className="lg"><span>Distribution Beauport s.e.n.c.</span><span className="v">16 700,00 $</span></div>
+                        <div className="lg"><span>Félix Gagnon</span><span className="v">13 200,00 $</span></div>
+                        <div className="lg"><span>Jean-Christophe Côté</span><span className="v">11 500,00 $</span></div>
+                        <div className="lg"><span>Olivier Gagnon</span><span className="v">8 800,00 $</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <p className="fig-titre">Une trace pour chaque correction</p>
-              <p className="fig-dit">
-                Chaque écart repéré et chaque ajustement restent consultables.
-              </p>
+                <figcaption>
+                  <span className="q">La question</span>
+                  <b>&laquo;&nbsp;Cet argent, à qui appartient-il ?&nbsp;&raquo;</b>
+                  <span>Le solde détenu, client par client.</span>
+                </figcaption>
+              </figure>
             </div>
           </div>
+
+          <p className="sortie-section">
+            <a href={ROUTES.cabinet + "#ecrans"}>Voir les trois écrans en grand &rarr;</a>
+          </p>
         </div>
       </section>
 
@@ -4504,6 +5777,23 @@ export default function ExperienceCinema() {
               en service.
             </p>
           </div>
+          {/* L'implantation passe AVANT les forfaits. On ne choisit pas un
+              prix avant de savoir ce qu'on achete : la mise en route est ce
+              qui distingue l'offre, le forfait n'en est que le chiffre.
+              Deux sous-parties dans la MEME section, separees par un filet,
+              pour ne pas ajouter une section de plus au bas de page. */}
+          <p className="sous-titre-bloc">Commencer avec vos vrais dossiers</p>
+          <div className="etapes">
+            {IMPLANTATION.map(([n, titre, texte]) => (
+              <div className="etape" key={n}>
+                <span className="n" aria-hidden>{n}</span>
+                <p className="t">{titre}</p>
+                <p className="d">{texte}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="sous-titre-bloc filet">Choisir le forfait</p>
           <div className="plan">
             <div>
               <p className="name">Solo</p>
@@ -4527,16 +5817,6 @@ export default function ExperienceCinema() {
           <p className="note">
             Configuration initiale comprise. Prix en dollars canadiens, taxes en sus.
           </p>
-
-          <div className="etapes">
-            {IMPLANTATION.map(([n, titre, texte]) => (
-              <div className="etape" key={n}>
-                <span className="n" aria-hidden>{n}</span>
-                <p className="t">{titre}</p>
-                <p className="d">{texte}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="actions">
             <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>

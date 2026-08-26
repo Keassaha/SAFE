@@ -122,14 +122,14 @@ export default function DemoPage() {
           background: var(--si-surface);
           padding: 0 14px;
           font-family: var(--sans);
-          font-size: 14.5px;
+          font-size: 14px;
           color: ${INK};
           outline: none;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .safe-vitrine .champ:focus {
           border-color: ${GREEN};
-          box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12);
+          box-shadow: 0 0 0 3px rgb(var(--si-ink-strong-rgb) / 0.12);
         }
         @media (max-width: 860px) {
           .safe-vitrine .formulaire { margin-top: 32px; grid-template-columns: 1fr; }

@@ -37,7 +37,7 @@ export function StylesMaquettesMobiles() {
         .safe-mock select { min-height: 44px; font-size: 16px !important; }
         .safe-mock .mock-mini { font-size: 11px !important; }
         .safe-mock table td,
-        .safe-mock table th { font-size: 12.5px !important; }
+        .safe-mock table th { font-size: 12px !important; }
       }
     `}</style>
   );
@@ -85,7 +85,7 @@ export function SafeWindow({
           <span style={{ opacity: 0.45 }}>·</span>
           {fil}
         </span>
-        <span className="mock-mini relative z-10 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "var(--si-verified-on-forest)" }}>
+        <span className="mock-mini relative z-10 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--si-verified-on-forest)" }}>
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full" style={{ background: "var(--si-verified-on-forest)", opacity: 0.6 }} />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "var(--si-verified-on-forest)" }} />
@@ -177,11 +177,11 @@ export function MockupAujourdhui() {
           {/* En-tête : ce qui reste, et rien d'autre. */}
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-3" style={{ borderColor: LINE }}>
             <span className="font-serif text-[19px]" style={{ color: INK }}>Bonjour Aaliyah</span>
-            <span className="mock-mini font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
+            <span className="mock-mini font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
               Jeudi 11 juin 2026 · 12 dossiers actifs
             </span>
           </div>
-          <p className="mt-2 flex items-center gap-2 font-sans text-[12.5px]" style={{ color: restants > 0 ? AMBER : VERIFIED }}>
+          <p className="mt-2 flex items-center gap-2 font-sans text-[12px]" style={{ color: restants > 0 ? AMBER : VERIFIED }}>
             <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "currentColor" }} aria-hidden />
             {restants > 0
               ? `${restants} élément${restants > 1 ? "s" : ""} attend${restants > 1 ? "ent" : ""} une intervention.`
@@ -192,8 +192,8 @@ export function MockupAujourdhui() {
           <div
             className="mt-3 rounded-[10px] border p-3.5"
             style={{
-              borderColor: courant ? "rgb(var(--si-forest-rgb) / 0.35)" : LINE,
-              background: courant ? "rgb(var(--si-forest-rgb) / 0.04)" : "#fff",
+              borderColor: courant ? "rgb(var(--si-ink-strong-rgb) / 0.35)" : LINE,
+              background: courant ? "rgb(var(--si-ink-strong-rgb) / 0.04)" : "#fff",
             }}
           >
             <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: courant ? GREEN : FAINT }}>
@@ -202,10 +202,10 @@ export function MockupAujourdhui() {
             {courant ? (
               <div className="mt-1.5 flex flex-wrap items-end justify-between gap-3">
                 <span className="min-w-0">
-                  <span className="block font-sans text-[14.5px] leading-[1.35]" style={{ color: INK }}>
+                  <span className="block font-sans text-[14px] leading-[1.35]" style={{ color: INK }}>
                     {courant.action}
                   </span>
-                  <span className="mock-mini mt-1 flex flex-wrap items-center gap-2 font-mono text-[10.5px]" style={{ color: FAINT }}>
+                  <span className="mock-mini mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px]" style={{ color: FAINT }}>
                     {courant.dossier}
                     <span
                       className="rounded-full px-2 py-0.5"
@@ -248,7 +248,7 @@ export function MockupAujourdhui() {
           <div className="mt-3 grid items-start gap-3 lg:grid-cols-[1.05fr_0.95fr]">
             {/* Prêts pour validation */}
             <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-              <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+              <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
                 Prêts pour votre validation
               </p>
               <div className="mt-2 space-y-1.5">
@@ -261,8 +261,8 @@ export function MockupAujourdhui() {
                       style={{ borderColor: LINE_SOFT }}
                     >
                       <span className="min-w-0">
-                        <span className="block truncate font-sans text-[12.5px]" style={{ color: INK }}>{titre}</span>
-                        <span className="mock-mini block truncate font-sans text-[10.5px]" style={{ color: FAINT }}>{meta}</span>
+                        <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>{titre}</span>
+                        <span className="mock-mini block truncate font-sans text-[10px]" style={{ color: FAINT }}>{meta}</span>
                       </span>
                       {fait ? (
                         <span className="mock-mini shrink-0 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: VERIFIED }}>
@@ -273,7 +273,7 @@ export function MockupAujourdhui() {
                           type="button"
                           onClick={() => setApprouves((a) => [...a, i])}
                           className="safe-zoom inline-flex h-8 shrink-0 items-center rounded-[7px] border px-3 font-sans text-[12px] font-medium"
-                          style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.35)", color: VERIFIED, background: "#fff" }}
+                          style={{ borderColor: "rgb(var(--si-ink-strong-rgb) / 0.35)", color: VERIFIED, background: "#fff" }}
                         >
                           Approuver
                         </button>
@@ -287,7 +287,7 @@ export function MockupAujourdhui() {
             {/* Échéances + attente client */}
             <div className="space-y-3">
               <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+                <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
                   Échéances
                 </p>
                 <div className="mt-1.5">
@@ -304,7 +304,7 @@ export function MockupAujourdhui() {
               </div>
 
               <div className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+                <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
                   En attente du client
                 </p>
                 <div className="mt-1.5">
@@ -450,7 +450,7 @@ export function MockupTravailFacturable() {
               <div key={label} className="min-w-0 rounded-[9px] border px-2.5 py-2.5" style={{ borderColor: LINE, background: "#fff" }}>
                 <p className="mock-mini truncate font-sans text-[10px]" style={{ color: FAINT }}>{label}</p>
                 <p className="mt-1 truncate text-right font-mono text-[14px] tabular-nums" style={{ color: INK }}>{val}</p>
-                <p className="mock-mini mt-0.5 truncate font-sans text-[9.5px]" style={{ color: FAINT }}>{sous}</p>
+                <p className="mock-mini mt-0.5 truncate font-sans text-[10px]" style={{ color: FAINT }}>{sous}</p>
               </div>
             ))}
           </div>
@@ -496,13 +496,13 @@ export function MockupTravailFacturable() {
             >
               Verser dans l&apos;entrée
             </button>
-            <span className="mock-mini ml-auto font-sans text-[10.5px]" style={{ color: FAINT }}>
+            <span className="mock-mini ml-auto font-sans text-[10px]" style={{ color: FAINT }}>
               Ou inscrivez la durée après coup.
             </span>
           </div>
 
           {/* Saisie */}
-          <form onSubmit={ajouter} className="mt-2.5 rounded-[10px] border p-3" style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.3)", background: "rgb(var(--si-forest-rgb) / 0.04)" }}>
+          <form onSubmit={ajouter} className="mt-2.5 rounded-[10px] border p-3" style={{ borderColor: "rgb(var(--si-ink-strong-rgb) / 0.3)", background: "rgb(var(--si-ink-strong-rgb) / 0.04)" }}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: GREEN }}>
                 Rattacher au dossier
@@ -552,7 +552,7 @@ export function MockupTravailFacturable() {
                 aria-label="Dossier"
                 /* Le retrait à droite laisse la place au chevron natif : sans
                    lui, le dernier caractère passe dessous. */
-                className="mock-input h-9 min-w-0 rounded-[7px] border pl-2 pr-7 font-sans text-[12.5px] outline-none max-[520px]:col-span-2"
+                className="mock-input h-9 min-w-0 rounded-[7px] border pl-2 pr-7 font-sans text-[12px] outline-none max-[520px]:col-span-2"
                 style={{ borderColor: LINE, background: "#fff", color: INK }}
               >
                 {DOSSIERS.map((d) => (
@@ -595,10 +595,10 @@ export function MockupTravailFacturable() {
                   </span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-mono text-[12.5px] tabular-nums" style={{ color: INK }}>
+                  <span className="block font-mono text-[12px] tabular-nums" style={{ color: INK }}>
                     {etiquetteGenre(e)}
                   </span>
-                  <span className="mock-mini block font-mono text-[10.5px] tabular-nums" style={{ color: e.facturee ? VERIFIED : FAINT }}>
+                  <span className="mock-mini block font-mono text-[10px] tabular-nums" style={{ color: e.facturee ? VERIFIED : FAINT }}>
                     {e.facturee ? "portée à la facture" : money(valeur(e))}
                   </span>
                 </span>
@@ -616,14 +616,14 @@ export function MockupTravailFacturable() {
                   setFacture(true);
                 }}
                 className="safe-zoom inline-flex h-9 items-center rounded-[7px] border px-4 font-sans text-[13px] font-medium transition-colors"
-                style={{ borderColor: "rgb(var(--si-forest-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
+                style={{ borderColor: "rgb(var(--si-ink-strong-rgb) / 0.4)", color: VERIFIED, background: "#fff" }}
               >
                 Préparer la facture →
               </button>
             ) : (
               <span
-                className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
-                style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
+                className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12px]"
+                style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.1)", color: VERIFIED }}
               >
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: VERIFIED }} />
                 Facture préparée : {money(honoraires)} d&apos;honoraires et {money(debours)} de débours. Aucune ressaisie.
@@ -645,7 +645,7 @@ export function MockupTravailFacturable() {
       </IndiceEssai>
       <style>{`
         @keyframes mockIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-        .mock-input:focus { border-color: ${INK} !important; box-shadow: 0 0 0 3px rgb(var(--si-forest-rgb) / 0.12); }
+        .mock-input:focus { border-color: ${INK} !important; box-shadow: 0 0 0 3px rgb(var(--si-ink-strong-rgb) / 0.12); }
       `}</style>
     </div>
   );
@@ -708,7 +708,7 @@ export function MockupTableauDeBord() {
                   onClick={() => setActive(on ? null : c.cle)}
                   className="safe-zoom rounded-[10px] p-3 text-left transition-all duration-200"
                   style={{
-                    background: on ? "#16301F" : "var(--si-forest)",
+                    background: on ? "#16301F" : "var(--si-ink-strong)",
                     color: "#EAF2EC",
                     boxShadow: on ? "0 16px 32px -18px rgba(11,31,25,0.7)" : "none",
                     outline: on ? `2px solid ${GREEN}` : "2px solid transparent",
@@ -719,7 +719,7 @@ export function MockupTableauDeBord() {
                       className="h-1.5 w-1.5 rounded-full"
                       style={{ background: estFid && !rapproche ? "var(--si-amber)" : "var(--si-verified-on-forest)" }}
                     />
-                    <span className="mock-mini font-mono text-[8.5px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.7)" }}>
+                    <span className="mock-mini font-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "rgba(234,242,236,0.7)" }}>
                       {c.label}
                     </span>
                   </span>
@@ -743,15 +743,15 @@ export function MockupTableauDeBord() {
           >
             {carte ? (
               <div className="p-3.5">
-                <p className="font-sans text-[12.5px]" style={{ color: INK }}>{carte.label}</p>
-                <p className="mt-1.5 max-w-[62ch] font-sans text-[12.5px] leading-[1.6]" style={{ color: MUTED }}>
+                <p className="font-sans text-[12px]" style={{ color: INK }}>{carte.label}</p>
+                <p className="mt-1.5 max-w-[62ch] font-sans text-[12px] leading-[1.6]" style={{ color: MUTED }}>
                   {carte.detail}
                 </p>
                 {carte.cle === "fideicommis" && !rapproche ? (
                   <button
                     type="button"
                     onClick={() => setRapproche(true)}
-                    className="mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
+                    className="mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12px] font-medium"
                     style={{ background: GREEN, color: "#fff" }}
                   >
                     Rapprocher le fidéicommis
@@ -838,7 +838,7 @@ export function MockupDepotConforme() {
               </p>
             ) : refuse ? (
               <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgba(195,138,36,0.09)" }}>
-                <p className="font-sans text-[12.5px] font-medium" style={{ color: "#72531B" }}>
+                <p className="font-sans text-[12px] font-medium" style={{ color: "#72531B" }}>
                   Écriture refusée
                 </p>
                 <p className="mt-1 font-sans text-[12px] leading-[1.55]" style={{ color: "#72531B" }}>
@@ -848,8 +848,8 @@ export function MockupDepotConforme() {
                 </p>
               </div>
             ) : (
-              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
-                <p className="font-sans text-[12.5px] font-medium" style={{ color: VERIFIED }}>
+              <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.1)" }}>
+                <p className="font-sans text-[12px] font-medium" style={{ color: VERIFIED }}>
                   Dépôt enregistré
                 </p>
                 <p className="mt-1 font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
@@ -936,29 +936,29 @@ export function MockupFactureEtPaiement() {
               ["Débours refacturables · copies et expédition", DEBOURS_REFACTURABLES],
             ].map(([label, val]) => (
               <div key={label as string} className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
-                <span className="min-w-0 truncate font-sans text-[12.5px]" style={{ color: INK }}>{label}</span>
-                <span className="shrink-0 font-mono text-[12.5px] tabular-nums" style={{ color: INK }}>{money(val as number)}</span>
+                <span className="min-w-0 truncate font-sans text-[12px]" style={{ color: INK }}>{label}</span>
+                <span className="shrink-0 font-mono text-[12px] tabular-nums" style={{ color: INK }}>{money(val as number)}</span>
               </div>
             ))}
             <div className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
-              <span className="font-sans text-[12.5px]" style={{ color: MUTED }}>Sous-total taxable</span>
-              <span className="font-mono text-[12.5px] tabular-nums" style={{ color: MUTED }}>{money(taxable)}</span>
+              <span className="font-sans text-[12px]" style={{ color: MUTED }}>Sous-total taxable</span>
+              <span className="font-mono text-[12px] tabular-nums" style={{ color: MUTED }}>{money(taxable)}</span>
             </div>
             {taxes.map(([label, val]) => (
               <div key={label} className="flex items-baseline justify-between gap-3 border-b py-2" style={{ borderColor: LINE_SOFT }}>
-                <span className="font-sans text-[12.5px]" style={{ color: MUTED }}>{label}</span>
-                <span className="font-mono text-[12.5px] tabular-nums" style={{ color: MUTED }}>{money(val)}</span>
+                <span className="font-sans text-[12px]" style={{ color: MUTED }}>{label}</span>
+                <span className="font-mono text-[12px] tabular-nums" style={{ color: MUTED }}>{money(val)}</span>
               </div>
             ))}
             <div className="flex items-baseline justify-between gap-3 border-t pt-2.5" style={{ borderColor: LINE }}>
-              <span className="font-sans text-[13.5px]" style={{ color: INK }}>Total de la facture</span>
+              <span className="font-sans text-[13px]" style={{ color: INK }}>Total de la facture</span>
               <span className="font-mono text-[15px] tabular-nums" style={{ color: INK }}>{money(total)}</span>
             </div>
             <div className="mt-1.5 flex items-baseline justify-between gap-3">
-              <span className="font-sans text-[12.5px]" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
+              <span className="font-sans text-[12px]" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
                 {etape === 2 ? "Encaissée" : "Reste à recevoir"}
               </span>
-              <span className="font-mono text-[12.5px] tabular-nums" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
+              <span className="font-mono text-[12px] tabular-nums" style={{ color: etape === 2 ? VERIFIED : AMBER }}>
                 {money(etape === 2 ? 0 : total)}
               </span>
             </div>
@@ -966,7 +966,7 @@ export function MockupFactureEtPaiement() {
 
           {/* Le journal, une ligne par mouvement */}
           <div className="mt-4 rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-            <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+            <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
               Journal général du cabinet
             </p>
             <div className="mt-1.5 min-h-[74px]">
@@ -1028,8 +1028,8 @@ export function MockupFactureEtPaiement() {
             ) : (
               <>
                 <span
-                  className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12.5px]"
-                  style={{ background: "rgb(var(--si-forest-rgb) / 0.1)", color: VERIFIED }}
+                  className="inline-flex items-center gap-2 rounded-[7px] px-3 py-2 font-sans text-[12px]"
+                  style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.1)", color: VERIFIED }}
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ background: VERIFIED }} />
                   Paiement rattaché à la facture. Le solde à recevoir tombe à zéro.
@@ -1089,7 +1089,7 @@ export function MockupJournaux() {
                   key={cle}
                   type="button"
                   onClick={() => setVue(cle)}
-                  className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11.5px] transition-colors"
+                  className="safe-zoom rounded-[5px] px-2.5 py-1 font-sans text-[11px] transition-colors"
                   style={
                     vue === cle
                       ? {
@@ -1104,7 +1104,7 @@ export function MockupJournaux() {
                 </button>
               ))}
             </span>
-            <span className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
+            <span className="mock-mini font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>
               Période ouverte
             </span>
           </div>
@@ -1121,12 +1121,12 @@ export function MockupJournaux() {
                   <span className="flex min-w-0 items-baseline gap-2.5">
                     <span className="mock-mini shrink-0 font-mono text-[10px] tabular-nums" style={{ color: FAINT }}>{date}</span>
                     <span className="min-w-0">
-                      <span className="block truncate font-sans text-[12.5px]" style={{ color: INK }}>{libelle}</span>
+                      <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>{libelle}</span>
                       <span className="mock-mini block truncate font-sans text-[10px]" style={{ color: FAINT }}>{categorie}</span>
                     </span>
                   </span>
                   <span
-                    className="shrink-0 font-mono text-[12.5px] tabular-nums"
+                    className="shrink-0 font-mono text-[12px] tabular-nums"
                     style={{ color: val < 0 ? MUTED : INK }}
                   >
                     {val < 0 ? "−" : ""}{money(Math.abs(val))}
@@ -1144,7 +1144,7 @@ export function MockupJournaux() {
               {vue === "depenses" ? money(totalDepenses) : `${GENERAL.length} lignes`}
             </span>
           </div>
-          <p className="mt-2.5 font-sans text-[11.5px] leading-[1.55]" style={{ color: MUTED }}>
+          <p className="mt-2.5 font-sans text-[11px] leading-[1.55]" style={{ color: MUTED }}>
             Une écriture ne se modifie pas et ne se supprime pas. Une correction s&apos;ajoute au
             journal, et l&apos;écriture d&apos;origine reste lisible.
           </p>
@@ -1211,7 +1211,7 @@ export function DetailCartable() {
     <div className="safe-mock grid gap-6 sm:grid-cols-[minmax(200px,236px)_1fr] sm:gap-10">
       <StylesMaquettesMobiles />
       <div>
-      <p className="font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
+      <p className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: FAINT }}>
         Détail · la structure du dossier
       </p>
       {/* Au large, les trois domaines s'empilent : côte à côte dans un rail de
@@ -1250,9 +1250,9 @@ export function DetailCartable() {
               <span className="mock-mini shrink-0 font-mono text-[10px] tabular-nums" style={{ color: FAINT }}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="truncate font-sans text-[12.5px]" style={{ color: INK }}>{label}</span>
+              <span className="truncate font-sans text-[12px]" style={{ color: INK }}>{label}</span>
             </span>
-            <span className="mock-mini shrink-0 font-mono text-[9.5px]" style={{ color: FAINT }}>{source}</span>
+            <span className="mock-mini shrink-0 font-mono text-[10px]" style={{ color: FAINT }}>{source}</span>
           </li>
         ))}
       </ul>
@@ -1282,7 +1282,7 @@ export function MockupRapprochement() {
         <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: LINE }}>
             <span className="font-sans text-[13px]" style={{ color: INK }}>Rapprochement à trois voies</span>
-            <span className="mock-mini font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>Juin 2026</span>
+            <span className="mock-mini font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: FAINT }}>Juin 2026</span>
           </div>
           {soldes.map(([label, val, ok]) => (
             <div key={label} className="flex items-center justify-between gap-3 border-b py-3" style={{ borderColor: LINE_SOFT }}>
@@ -1309,14 +1309,14 @@ export function MockupRapprochement() {
 
           {etat === "ecart" ? (
             <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-amber-rgb) / 0.1)" }}>
-              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: AMBER }}>
+              <p className="font-sans text-[12px] leading-[1.55]" style={{ color: AMBER }}>
                 Un dépôt de 500 $ n&apos;est rattaché à aucun dossier. L&apos;écart reste affiché
                 tant qu&apos;il subsiste, et la certification demeure fermée.
               </p>
               <button
                 type="button"
                 onClick={() => setEtat("corrige")}
-                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
+                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12px] font-medium"
                 style={{ background: GREEN, color: "#fff" }}
               >
                 Rattacher le dépôt au dossier
@@ -1326,14 +1326,14 @@ export function MockupRapprochement() {
               </p>
             </div>
           ) : etat === "corrige" ? (
-            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.08)" }}>
-              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
+            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.08)" }}>
+              <p className="font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
                 Concordance. La correction s&apos;est ajoutée au journal, et l&apos;écriture
                 d&apos;origine y reste lisible.
               </p>
               <div className="mt-2 flex items-baseline justify-between gap-3 rounded-[7px] px-2.5 py-1.5" style={{ background: "#fff" }}>
                 <span className="min-w-0">
-                  <span className="mock-mini block font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ color: FAINT }}>
+                  <span className="mock-mini block font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: FAINT }}>
                     Correction · 30 juin 2026
                   </span>
                   <span className="block truncate font-sans text-[12px]" style={{ color: INK }}>
@@ -1345,22 +1345,22 @@ export function MockupRapprochement() {
               <button
                 type="button"
                 onClick={() => setEtat("certifie")}
-                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12.5px] font-medium"
+                className="safe-zoom mt-2.5 inline-flex h-8 items-center rounded-[7px] px-3 font-sans text-[12px] font-medium"
                 style={{ background: GREEN, color: "#fff" }}
               >
                 Certifier le rapprochement
               </button>
             </div>
           ) : (
-            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-forest-rgb) / 0.1)" }}>
-              <p className="font-sans text-[12.5px] leading-[1.55]" style={{ color: VERIFIED }}>
+            <div className="rounded-[9px] px-3.5 py-3" style={{ background: "rgb(var(--si-ink-strong-rgb) / 0.1)" }}>
+              <p className="font-sans text-[12px] leading-[1.55]" style={{ color: VERIFIED }}>
                 Rapprochement de juin 2026 certifié le 30 juin par Me Nadeau. La correction et
                 l&apos;écriture d&apos;origine restent toutes deux au journal.
               </p>
               <button
                 type="button"
                 onClick={() => setEtat("ecart")}
-                className="mt-2 font-sans text-[11.5px] underline underline-offset-2"
+                className="mt-2 font-sans text-[11px] underline underline-offset-2"
                 style={{ color: FAINT }}
               >
                 Revoir l&apos;écart
@@ -1405,7 +1405,7 @@ export function MockupDossier() {
           {ecran === "client" ? (
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-[10px] border p-3.5" style={{ borderColor: LINE, background: "#fff" }}>
-                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.13em]" style={{ color: FAINT }}>Fiche client</p>
+                <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.13em]" style={{ color: FAINT }}>Fiche client</p>
                 <p className="mt-1 font-serif text-[19px]" style={{ color: INK }}>Marie-Claude Tremblay</p>
                 {[
                   ["Type", "Particulier · liquidatrice"],
@@ -1414,14 +1414,14 @@ export function MockupDossier() {
                   ["À recevoir", "0,00 $"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between border-b py-1.5 last:border-0" style={{ borderColor: LINE_SOFT }}>
-                    <span className="font-sans text-[12.5px]" style={{ color: MUTED }}>{k}</span>
-                    <span className="font-sans text-[12.5px]" style={{ color: INK }}>{v}</span>
+                    <span className="font-sans text-[12px]" style={{ color: MUTED }}>{k}</span>
+                    <span className="font-sans text-[12px]" style={{ color: INK }}>{v}</span>
                   </div>
                 ))}
               </div>
 
               <div className="rounded-[10px] border p-3.5" style={{ borderColor: LINE, background: "#fff" }}>
-                <p className="mock-mini font-mono text-[9.5px] uppercase tracking-[0.13em]" style={{ color: FAINT }}>
+                <p className="mock-mini font-mono text-[10px] uppercase tracking-[0.13em]" style={{ color: FAINT }}>
                   Dossiers de la cliente
                 </p>
                 <button
@@ -1429,14 +1429,14 @@ export function MockupDossier() {
                   onClick={() => setEcran("dossier")}
                   className="safe-zoom group mt-2 flex w-full items-center justify-between gap-3 rounded-[9px] border p-3 text-left transition-all duration-200"
                   style={{
-                    borderColor: "rgb(var(--si-forest-rgb) / 0.4)",
-                    background: "rgb(var(--si-forest-rgb) / 0.05)",
+                    borderColor: "rgb(var(--si-ink-strong-rgb) / 0.4)",
+                    background: "rgb(var(--si-ink-strong-rgb) / 0.05)",
                     boxShadow: "0 10px 24px -18px rgba(11,31,25,0.5)",
                   }}
                 >
                   <span className="min-w-0">
-                    <span className="mock-mini block font-mono text-[10.5px]" style={{ color: FAINT }}>2026-014 · Succession</span>
-                    <span className="mt-0.5 block font-sans text-[13.5px]" style={{ color: INK }}>Succession Tremblay</span>
+                    <span className="mock-mini block font-mono text-[10px]" style={{ color: FAINT }}>2026-014 · Succession</span>
+                    <span className="mt-0.5 block font-sans text-[13px]" style={{ color: INK }}>Succession Tremblay</span>
                   </span>
                   <span
                     className="safe-zoom shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
@@ -1447,8 +1447,8 @@ export function MockupDossier() {
                 </button>
                 <div className="mt-2 flex items-center justify-between rounded-[9px] border p-3" style={{ borderColor: LINE_SOFT }}>
                   <span>
-                    <span className="mock-mini block font-mono text-[10.5px]" style={{ color: FAINT }}>2024-032 · Immobilier</span>
-                    <span className="mt-0.5 block font-sans text-[13.5px]" style={{ color: MUTED }}>Vente d&apos;un immeuble locatif</span>
+                    <span className="mock-mini block font-mono text-[10px]" style={{ color: FAINT }}>2024-032 · Immobilier</span>
+                    <span className="mt-0.5 block font-sans text-[13px]" style={{ color: MUTED }}>Vente d&apos;un immeuble locatif</span>
                   </span>
                   <span className="rounded-full px-2.5 py-1 font-sans text-[11px]" style={{ background: "rgba(31,42,36,0.06)", color: MUTED }}>
                     Clôturé
@@ -1480,7 +1480,7 @@ export function MockupDossier() {
                       key={o.cle}
                       type="button"
                       onClick={() => setOnglet(o.cle)}
-                      className="safe-zoom -mb-px px-3 py-2 font-sans text-[12.5px] transition-colors"
+                      className="safe-zoom -mb-px px-3 py-2 font-sans text-[12px] transition-colors"
                       style={{
                         color: on ? INK : MUTED,
                         borderBottom: `2px solid ${on ? GREEN : "transparent"}`,
@@ -1502,7 +1502,7 @@ export function MockupDossier() {
                       ["Prochaine échéance", "30 juin · inventaire"],
                     ].map(([k, v]) => (
                       <div key={k} className="rounded-[9px] border p-3" style={{ borderColor: LINE, background: "#fff" }}>
-                        <p className="mock-mini font-sans text-[10.5px]" style={{ color: FAINT }}>{k}</p>
+                        <p className="mock-mini font-sans text-[10px]" style={{ color: FAINT }}>{k}</p>
                         <p className="mt-0.5 font-sans text-[13px]" style={{ color: INK }}>{v}</p>
                       </div>
                     ))}
@@ -1520,14 +1520,14 @@ export function MockupDossier() {
                       ].map(([d, t, h]) => (
                         <tr key={t} className="border-b" style={{ borderColor: LINE_SOFT }}>
                           <td className="py-2 font-mono text-[11px]" style={{ color: FAINT }}>{d}</td>
-                          <td className="py-2 font-sans text-[12.5px]" style={{ color: INK }}>{t}</td>
-                          <td className="py-2 text-right font-mono text-[12.5px]" style={{ color: INK }}>{h}</td>
+                          <td className="py-2 font-sans text-[12px]" style={{ color: INK }}>{t}</td>
+                          <td className="py-2 text-right font-mono text-[12px]" style={{ color: INK }}>{h}</td>
                         </tr>
                       ))}
                       <tr>
                         <td />
-                        <td className="pt-2.5 font-sans text-[12.5px] font-medium" style={{ color: INK }}>Total approuvé</td>
-                        <td className="pt-2.5 text-right font-mono text-[13.5px]" style={{ color: INK }}>6,5 h</td>
+                        <td className="pt-2.5 font-sans text-[12px] font-medium" style={{ color: INK }}>Total approuvé</td>
+                        <td className="pt-2.5 text-right font-mono text-[13px]" style={{ color: INK }}>6,5 h</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1543,15 +1543,15 @@ export function MockupDossier() {
                         ["TPS et TVQ", "479,20 $"],
                       ].map(([t, m]) => (
                         <tr key={t} className="border-b" style={{ borderColor: LINE_SOFT }}>
-                          <td className="py-2 font-sans text-[12.5px]" style={{ color: INK }}>{t}</td>
-                          <td className="py-2 text-right font-mono text-[12.5px]" style={{ color: INK }}>{m}</td>
+                          <td className="py-2 font-sans text-[12px]" style={{ color: INK }}>{t}</td>
+                          <td className="py-2 text-right font-mono text-[12px]" style={{ color: INK }}>{m}</td>
                         </tr>
                       ))}
                       <tr>
-                        <td className="pt-2.5 font-sans text-[12.5px] font-medium" style={{ color: INK }}>
+                        <td className="pt-2.5 font-sans text-[12px] font-medium" style={{ color: INK }}>
                           Facture 2026-041 · payée le 14 juin
                         </td>
-                        <td className="pt-2.5 text-right font-mono text-[13.5px]" style={{ color: VERIFIED }}>3 679,20 $</td>
+                        <td className="pt-2.5 text-right font-mono text-[13px]" style={{ color: VERIFIED }}>3 679,20 $</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1566,13 +1566,13 @@ export function MockupDossier() {
                         ["21 mai · huissier", "-80,00 $"],
                       ].map(([t, m]) => (
                         <tr key={t} className="border-b" style={{ borderColor: LINE_SOFT }}>
-                          <td className="py-2 font-sans text-[12.5px]" style={{ color: INK }}>{t}</td>
-                          <td className="py-2 text-right font-mono text-[12.5px]" style={{ color: INK }}>{m}</td>
+                          <td className="py-2 font-sans text-[12px]" style={{ color: INK }}>{t}</td>
+                          <td className="py-2 text-right font-mono text-[12px]" style={{ color: INK }}>{m}</td>
                         </tr>
                       ))}
                       <tr>
-                        <td className="pt-2.5 font-sans text-[12.5px] font-medium" style={{ color: INK }}>Solde en fiducie</td>
-                        <td className="pt-2.5 text-right font-mono text-[13.5px]" style={{ color: INK }}>2 225,00 $</td>
+                        <td className="pt-2.5 font-sans text-[12px] font-medium" style={{ color: INK }}>Solde en fiducie</td>
+                        <td className="pt-2.5 text-right font-mono text-[13px]" style={{ color: INK }}>2 225,00 $</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1586,7 +1586,7 @@ export function MockupDossier() {
                       ["Correspondance du greffe", "Classée", VERIFIED],
                     ].map(([t, s, c]) => (
                       <div key={t} className="flex items-center justify-between rounded-[9px] border p-2.5" style={{ borderColor: LINE_SOFT }}>
-                        <span className="font-sans text-[12.5px]" style={{ color: INK }}>{t}</span>
+                        <span className="font-sans text-[12px]" style={{ color: INK }}>{t}</span>
                         <span className="rounded-full px-2.5 py-1 font-sans text-[11px]" style={{ background: "rgba(31,42,36,0.05)", color: c as string }}>
                           {s}
                         </span>

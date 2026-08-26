@@ -45,8 +45,8 @@ export function jetonsRecit(portee: string): string {
     --ink: var(--si-ink);
     --muted: var(--si-muted);
     --faint: var(--si-subtle);
-    --green: var(--si-forest);
-    --forest: var(--si-forest);
+    --green: var(--si-ink-strong);
+    --forest: var(--si-ink-strong);
     --verified: var(--si-verified);
     --amber: var(--si-amber-ink);
     --line: var(--si-line);
@@ -67,9 +67,34 @@ export function jetonsRecit(portee: string): string {
     --gouttiere: min(6vw, 84px);
     --marge: 20px;
 
-    --t-affiche: clamp(44px, 7.4vw, 92px);   /* le titre d'ouverture, une fois */
-    --t-marque: clamp(34px, 4.4vw, 56px);    /* le titre d'une section */
+    /* Le titre d'ouverture d'une page. Il ne servait plus a rien : l'ouverture
+       prenait « --t-marque », la mesure des titres de SECTION, et pesait donc
+       exactement autant qu'eux. Il reprend du service au cran C3, aligne sur
+       l'accueil. */
+    --t-affiche: clamp(23px, 2.1vw, 28px);
+    /* Descendu le 2026-08-24 avec l'affiche : l'echelle entiere pesait trop
+       lourd. L'ECART entre l'affiche et la marque est conserve, c'est lui qui
+       dit lequel des deux est le heros de la page. */
+    /* Descendu de 46 px a 33 px le 2026-08-25. Le hero est passe a 38 px au
+       cran C3 : un titre de section a 46 px pesait donc PLUS que le titre de
+       la page, et la hierarchie disait le contraire de la verite. Il reste
+       cinq pixels sous le hero, ce qui suffit tant que les deux ne partagent
+       pas la meme fonte. */
+    --t-marque: clamp(20px, 1.8vw, 24px);
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui le développe */
+    /* Le titre d'un CHAPITRE. Il existe parce qu'une page qui raconte a besoin
+       de trois niveaux, pas deux : la page, le chapitre, la phrase. Sans lui,
+       un titre de chapitre pesait exactement autant que le titre de la page,
+       et rien ne disait ou on se trouvait dans l'histoire. */
+    --t-chapitre: clamp(20px, 1.8vw, 24px);
+    /* Le rembourrage d'une section de RECIT. La moitie de celui d'une section
+       de produit, parce qu'un chapitre n'a pas de fenetre a faire respirer.
+
+       Resserre une seconde fois le 2026-08-25 : chaque chapitre porte
+       desormais son filet de separation, donc la distance n'a plus a dire
+       toute seule ou l'un finit et ou l'autre commence. Elle ne sert plus
+       qu'a respirer. */
+    --souffle-recit: clamp(38px, 5vh, 58px);
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
     --t-detail: 14px;                        /* la justification sous un point */
@@ -104,7 +129,7 @@ export function reglesRecit(p: string): string {
   }
   ${p} .recit h1,
   ${p} .recit h2 {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-marque);
     line-height: 1.06;
@@ -120,13 +145,294 @@ export function reglesRecit(p: string): string {
      est un texte qui manquait une seconde plus tôt. */
   ${p} .recit .dire {
     font-family: var(--sans);
-    font-size: clamp(18px, 1.55vw, 22px);
+    font-size: clamp(18px, 1.55vw, 21px);
     line-height: 1.45;
     letter-spacing: -0.006em;
     max-width: 40ch;
     color: var(--muted);
   }
   ${p} .recit .dire b { font-weight: 400; color: var(--si-ink); }
+
+  /* ── Le titre d'ouverture, en Geist ───────────────────────────────────────
+     Meme demande que sur l'accueil : le hero prend la fonte des sous-textes.
+     Le titre de CHAPITRE reste en serif : c'est l'ecart entre les deux qui
+     dit lequel ouvre la page et lequel ouvre un chapitre. */
+  ${p} .recit.ouverture h1 {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: var(--t-affiche);
+    /* Meme cran que l'accueil, C3. Voir la note dans ExperienceCinema.tsx. */
+    line-height: 1.02;
+    letter-spacing: -0.042em;
+    max-width: 26ch;
+  }
+  ${p} .recit.ouverture h1 em { font-style: normal; color: var(--si-brand-green); }
+
+  /* ── Le chapitre ──────────────────────────────────────────────────────────
+     Trois pieces, et elles ne servent QUE sur une page qui raconte. Une page
+     de produit n'a pas de chapitres : elle a des sections, ce qui n'est pas la
+     meme chose. C'est pourquoi rien ici ne s'applique sans la classe.
+
+     Le numero en mono, l'accent editorial, et un titre qui descend d'un cran.
+     L'ecart entre le titre de page et le titre de chapitre est ce qui dit
+     lequel des deux est le heros, exactement comme entre l'affiche et la
+     marque plus haut. */
+  ${p} .recit .chapitre {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--si-brand-green);
+    margin-bottom: 13px;
+  }
+
+  /* ── Le recit en colonne unique et son rail ───────────────────────────────
+     Remplace la colonne vertebrale du 2026-08-25 au matin. Elle marquait la
+     descente d'un filet et de six points, mais elle ne NOMMAIT pas les
+     chapitres : on savait qu'on avancait, jamais dans quoi.
+
+     Le rythme d'abord. Le rembourrage de section du site est calibre pour une
+     page de PRODUIT, ou chaque section porte une fenetre d'application. Un
+     recit n'a que du texte : ses chapitres sont des paragraphes, pas des
+     sections. Il descend donc a la moitie.
+
+     La grille ensuite. Le rail tient 200 px a gauche, le recit occupe le
+     reste dans une mesure de lecture unique. Le titre, la citation et la
+     prose descendent l'un sous l'autre : c'est ce que veut dire lineaire.
+
+     Le rail est COLLANT et non fixe : colle, il s'arrete de lui-meme au bout
+     du recit, sans qu'on ait a calculer ou l'arreter. */
+  ${p}:has(.recit-chapitres) .recit { padding-block: var(--souffle-recit); }
+  ${p}:has(.recit-chapitres) .recit.ouverture {
+    padding-block: clamp(132px, 19vh, 216px) var(--souffle-recit);
+  }
+  ${p} .grille-recit {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: clamp(40px, 5vw, 76px);
+    align-items: start;
+  }
+  ${p} .rail-chapitres { position: sticky; top: clamp(96px, 14vh, 140px); }
+  ${p} .rail-titre {
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    font-weight: 600;
+    color: var(--si-ink);
+    margin: 0 0 16px;
+  }
+  ${p} .rail-chapitres ol { list-style: none; margin: 0; padding: 0; }
+  ${p} .rail-chapitres li { position: relative; }
+  ${p} .rail-chapitres a {
+    display: block;
+    padding: 8px 0 8px 32px;
+    font-family: var(--sans);
+    font-size: var(--t-detail);
+    color: var(--si-subtle);
+    text-decoration: none;
+    transform-origin: left center;
+    /* 240 ms : assez lent pour qu'on voie le chapitre changer, assez court
+       pour que le rail ne traine pas derriere le defilement. */
+    transition:
+      color 240ms ease,
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  ${p} .rail-chapitres a:hover { color: var(--si-body); }
+  ${p} .rail-chapitres li:hover .rail-sym { opacity: 0.62; }
+
+  /* ── Le symbole du resume ─────────────────────────────────────────────────
+     Le rail portait un point. Il disait « vous etes ici » et rien d'autre. Le
+     symbole dit en plus DE QUOI parle le chapitre, et les six empiles font du
+     resume une table des matieres visuelle. Demande CEO du 2026-08-25.
+
+     Trois etats, un seul a la fois, exactement ceux du point qu'il remplace :
+
+       a venir   encre a 30 %, discret
+       derriere  encre a 50 %, un peu plus present
+       courant   VERT et grossi
+
+     Le zoom descend a 1,22 alors que le point montait a 2. Un rond supporte de
+     doubler ; une forme dessinee devient molle et son trait s'epaissit a
+     l'oeil. La couleur porte donc l'essentiel du signal, le zoom l'appuie. */
+  ${p} .rail-chapitres .rail-sym {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -10px;
+    color: var(--si-ink);
+    opacity: 0.3;
+    pointer-events: none;
+    transform-origin: center;
+    transition:
+      color 240ms ease,
+      opacity 240ms ease,
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Derriere : le chemin parcouru. */
+  ${p} .rail-chapitres li.passe a { color: var(--si-muted); }
+  ${p} .rail-chapitres li.passe .rail-sym { opacity: 0.5; }
+
+  /* Courant : le symbole devient vert et grossit, le libelle avance avec lui.
+     Les deux marques disent la meme chose au meme instant, l'une par la
+     couleur, l'autre par la taille. C'est ce qui rend le reperage instantane
+     sans avoir a lire le libelle. */
+  ${p} .rail-chapitres li.on a {
+    color: var(--si-ink);
+    transform: translateX(4px);
+  }
+  ${p} .rail-chapitres li.on .rail-sym {
+    color: var(--si-brand-green);
+    opacity: 1;
+    transform: scale(1.22);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ${p} .rail-chapitres a,
+    ${p} .rail-chapitres .rail-sym { transition-duration: 1ms; }
+    ${p} .rail-chapitres li.on a { transform: none; }
+    ${p} .rail-chapitres li.on .rail-sym { transform: none; }
+  }
+
+  /* Un chapitre, en descente. */
+  ${p} .chap-bloc { scroll-margin-top: clamp(96px, 14vh, 140px); }
+  ${p} .chap-bloc + .chap-bloc {
+    margin-top: var(--souffle-recit);
+    padding-top: var(--souffle-recit);
+    border-top: 1px solid var(--si-line);
+  }
+  ${p} .chap-bloc h2 { margin: 0 0 14px; max-width: 20ch; }
+  ${p} .chap-bloc .cit { max-width: 34ch; }
+  ${p} .colonne-recit { max-width: 62ch; }
+
+  @media (max-width: 900px) {
+    /* La grille redevient un simple bloc, elle ne se contente pas de passer a
+       une colonne. Deux raisons, toutes deux mesurees :
+
+       1. Un element colle dans une GRILLE est contenu par sa zone de grille.
+          En une colonne, la zone du resume ne fait que sa propre hauteur : il
+          se decollait donc des qu'on avait defile de sa hauteur. En bloc, il
+          est contenu par la section entiere et tient jusqu'au dernier
+          chapitre.
+       2. Un element de grille a « min-width: auto » : la ligne de six entrees
+          forcait sa colonne a s'elargir, et la page debordait de 448 px vers
+          la droite au lieu de laisser le ruban defiler. */
+    ${p} .grille-recit { display: block; }
+    /* Le bandeau est tire hors de la colonne par une marge negative, pour
+       toucher les deux bords de l'ecran. Sans ce clip, la page debordait de
+       26 px vers la droite. On dit « clip » et non « hidden » : « hidden »
+       cree un contexte de defilement qui casse le « position: sticky » du
+       bandeau, ce qui reviendrait a echanger un defaut contre un pire. */
+    ${p} .recit-chapitres { overflow-x: clip; }
+    ${p} .rail-chapitres, ${p} .colonne-recit { min-width: 0; }
+
+    /* ── Le resume au telephone ───────────────────────────────────────────
+       En colonne, une table des matieres de six lignes mange le premier
+       ecran. Elle devient donc un bandeau d'UNE ligne, qui defile
+       horizontalement et reste COLLE sous la barre.
+
+       Colle et non statique : pose en haut du recit, il disparaissait au
+       premier defilement, et le suivi vert ne servait plus a rien. Or c'est
+       precisement au telephone, ou l'on ne voit qu'un ecran a la fois, qu'on
+       a le plus besoin de savoir ou l'on est.
+
+       Le titre du resume tombe : la page dit deja de quoi elle parle, et sur
+       une ligne collante chaque pixel de hauteur se paie. */
+    ${p} .rail-chapitres {
+      position: sticky;
+      top: 60px;
+      z-index: 3;
+      margin: 0 calc(-1 * var(--gouttiere)) 26px;
+      padding: 9px var(--gouttiere);
+      background: var(--si-canvas);
+      border-bottom: 1px solid var(--si-line);
+    }
+    ${p} .rail-titre { display: none; }
+    ${p} .rail-chapitres ol {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0 22px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
+    }
+    ${p} .rail-chapitres ol::-webkit-scrollbar { display: none; }
+    ${p} .rail-chapitres li { flex: 0 0 auto; }
+    ${p} .rail-chapitres a { padding: 3px 0 3px 22px; white-space: nowrap; }
+    ${p} .rail-chapitres .rail-sym { margin-top: -8px; }
+    ${p} .rail-chapitres .rail-sym svg { width: 16px; height: 16px; }
+    ${p} .colonne-recit { max-width: none; }
+  }
+
+  /* ── La citation ──────────────────────────────────────────────────────────
+     La phrase qui porte le chapitre passe dans le serif et entre guillemets.
+     Ce n'est pas un ornement : les guillemets attribuent la phrase a quelqu'un,
+     et sur cette page ce quelqu'un signe a la fin. On ne cite donc QU'UNE
+     phrase par chapitre, celle qui porte la these. Citer aussi les phrases de
+     produit reviendrait a mettre de la voix dans une bouche pour faire joli.
+
+     Les guillemets pendent dans la marge : le texte reste aligne sur la
+     colonne, et l'ouverture se voit sans decaler la lecture. */
+  /* La citation est passee en Geist elle aussi le 2026-08-25, sur demande.
+     Elle etait le dernier endroit du site public en serif. Ce qui la tient
+     encore a part, ce sont les guillemets verts et la mesure courte : la voix
+     est portee par la ponctuation, plus par la fonte. */
+  /* ── Trois niveaux, pas six ────────────────────────────────────────────────
+     Un chapitre portait SIX tailles : 11, 12, 15, 18, 24 et 27 px. Chacune
+     avait sa raison le jour ou elle est arrivee, et ensemble elles disaient
+     qu'il y avait six rangs d'importance dans un texte qui n'en a que trois.
+     Demande CEO du 2026-08-25.
+
+     L'echelle d'un chapitre tient desormais en trois roles :
+
+       le repere   11 px, mono          le rang, le numero, l'endroit
+       le titre    27 px                un seul par chapitre
+       le corps    18 px                tout ce qui se lit en phrases
+
+     La citation, la prose, la chute et les entrees d'index partagent donc la
+     MEME taille. Ce qui les distingue n'est plus le corps mais la couleur et
+     la ponctuation : la citation garde son encre pleine et ses guillemets
+     verts, la prose passe au gris. Une difference de trois pixels entre deux
+     blocs ne se lit pas comme une hierarchie, elle se lit comme une hesitation. */
+  ${p} .recit .cit {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: var(--t-corps);
+    line-height: 1.5;
+    letter-spacing: -0.012em;
+    color: var(--si-ink);
+    max-width: 30ch;
+    margin: 0 0 12px;
+    padding-left: 1.05em;
+    position: relative;
+  }
+  ${p} .recit .cit::before {
+    content: "\u00AB";
+    position: absolute;
+    left: 0;
+    top: -0.06em;
+    color: var(--si-brand-green);
+    font-size: 1.3em;
+    line-height: 1;
+  }
+  ${p} .recit .cit::after { content: "\u00A0\u00BB"; color: var(--si-brand-green); }
+  /* Le corps qui suit la citation.
+     Il est BICOLORE quand il se donne en deux moities, du meme geste que la
+     phrase d'ouverture : l'affirmation en encre pleine, ce qui la developpe
+     en gris. Ce n'est pas une hierarchie de qualite, c'est un point d'entree.
+     L'oeil sait ou commencer et lit la suite s'il veut, au lieu de tomber
+     dans un bloc d'un seul ton. Demande CEO du 2026-08-25.
+
+     Le gris est donc le fond, et l'encre l'exception. L'inverse revenait a
+     mettre l'accent sur les trois quarts du texte. */
+  ${p} .recit .apres-cit {
+    font-family: var(--sans);
+    color: var(--si-muted);
+    font-size: var(--t-corps);
+    line-height: 1.68;
+    max-width: 44ch;
+    margin: 0;
+  }
+  ${p} .recit .apres-cit b { font-weight: 400; color: var(--si-ink); }
 
   /* ── La ligne de scène : un libellé, une valeur alignée à droite en mono. */
   ${p} .ligne {
@@ -138,11 +444,11 @@ export function reglesRecit(p: string): string {
     border-bottom: 1px solid var(--line2, var(--line));
   }
   ${p} .ligne:last-of-type { border-bottom: 0; }
-  ${p} .ligne .l { font-family: var(--sans); font-size: 13.5px; color: var(--si-ink); }
+  ${p} .ligne .l { font-family: var(--sans); font-size: 13px; color: var(--si-ink); }
   ${p} .ligne .l small { color: var(--muted); font-size: 12px; }
   ${p} .ligne .v {
     font-family: var(--mono);
-    font-size: 13.5px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--si-ink);
   }
@@ -260,8 +566,8 @@ export function reglesRecit(p: string): string {
     align-items: baseline;
     gap: 12px;
   }
-  ${p} .index-modules .mod .n { font-family: var(--mono); font-size: 12.5px; color: var(--si-subtle); }
-  ${p} .index-modules .mod .t { font-family: var(--sans); font-size: 15px; color: var(--si-ink); }
+  ${p} .index-modules .mod .n { font-family: var(--mono); font-size: var(--t-menu); color: var(--si-subtle); }
+  ${p} .index-modules .mod .t { font-family: var(--sans); font-size: var(--t-corps); color: var(--si-ink); }
   ${p} .index-modules .colonne-droite { border-left: 1px solid var(--line); padding-left: clamp(24px, 4vw, 56px); }
 
   /* ── Les figures ──────────────────────────────────────────────────────────
@@ -294,7 +600,7 @@ export function reglesRecit(p: string): string {
     margin-top: 8px;
     max-width: 34ch;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.55;
     color: var(--muted);
   }
@@ -319,7 +625,7 @@ export function reglesRecit(p: string): string {
     margin-top: 4px;
     max-width: 52ch;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.6;
     color: var(--muted);
   }
@@ -332,6 +638,40 @@ export function reglesRecit(p: string): string {
   }
   ${p} .plan .price small { font-family: var(--mono); font-size: var(--t-menu); color: var(--muted); margin-left: 6px; }
 
+  /* ── La jonction entre deux chapitres ────────────────────────────────────
+     Entre le dernier écran d'une section et le titre de la suivante, la page
+     passait d'un contenu à un autre sans rien dire : un vide, puis un titre.
+     La jonction marque le seuil : un numéro en mono (le même vocabulaire que
+     .fig-num et .morceau .n, jamais une police différente — l'identité de
+     marque fixe la typographie du site à deux familles, et une transition se
+     signale par le mouvement, pas par une troisième police), un tiret qui
+     s'allonge, le nom du chapitre qui commence.
+
+     Centrée, jamais alignée sur la colonne : c'est un repère de lecture, pas
+     un contenu, et un repère centré se distingue d'un coup d'œil de tout ce
+     qui l'entoure. */
+  ${p} .jonction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding-block: clamp(48px, 8vh, 96px);
+  }
+  ${p} .jonction .tick { width: 48px; height: 1.5px; border-radius: 2px; background: var(--green); opacity: 1; }
+  ${p} .jonction .num {
+    font-family: var(--mono);
+    font-size: var(--t-menu);
+    letter-spacing: 0.1em;
+    color: var(--si-subtle);
+  }
+  ${p} .jonction .titre {
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
   /* ── Le vocabulaire d'appoint ─────────────────────────────────────────────
      La phrase qui referme une section, le lien de fin de bloc dont le filet
      s'allonge au survol (le seul mouvement de ces sections), et l'exergue qui
@@ -339,9 +679,9 @@ export function reglesRecit(p: string): string {
   ${p} .chute {
     font-family: var(--sans);
     font-weight: 400;
-    font-size: var(--t-argument);
-    line-height: 1.32;
-    letter-spacing: -0.014em;
+    font-size: var(--t-corps);
+    line-height: 1.68;
+    letter-spacing: -0.012em;
     color: var(--si-ink);
     max-width: 38ch;
   }
@@ -366,16 +706,18 @@ export function reglesRecit(p: string): string {
 
   /* ── La liste numérotée ───────────────────────────────────────────────────
      Un numéro, une phrase, et à droite en mono l'endroit où la chose vit. */
-  ${p} .morceaux { margin-top: clamp(56px, 8vh, 104px); }
+  ${p} .morceaux { margin-top: clamp(26px, 3.4vh, 42px); }
+  /* Aucun filet entre les entrees (demande CEO du 2026-08-25). Les chapitres
+     sont deja separes par un filet chacun : une liste qui en remet un entre
+     chacune de ses lignes fabrique une grille la ou il n'y a qu'une suite.
+     L'ecart vertical suffit a separer, et il coute moins de hauteur. */
   ${p} .morceau {
     display: grid;
     grid-template-columns: 30px 1fr auto;
     column-gap: 14px;
     align-items: baseline;
-    padding: 15px 0;
-    border-top: 1px solid var(--line);
+    padding: 9px 0;
   }
-  ${p} .morceau:last-child { border-bottom: 1px solid var(--line); }
   ${p} .morceau .n {
     font-family: var(--mono);
     font-size: var(--t-menu);
@@ -433,6 +775,19 @@ export function reglesRecit(p: string): string {
       transition: color 520ms var(--doux);
     }
     ${p} .dire[data-parait="vu"] b .mot { color: var(--si-ink); }
+
+    /* ── La jonction entre deux chapitres ────────────────────────────────────
+       Le seul mouvement qui lui appartient, en plus du fondu commun à toutes
+       les cibles : le tiret vert, plein à l'arrivée, part d'un tiret court et
+       terne, comme celui du rail de chapitres à droite de la page. Une même
+       forme dit une même chose aux deux endroits : « vous changez de
+       chapitre ». */
+    ${p} .jonction[data-parait] .tick {
+      width: 12px;
+      opacity: 0.45;
+      transition: width 0.9s var(--doux), opacity 0.6s ease;
+    }
+    ${p} .jonction[data-parait="vu"] .tick { width: 48px; opacity: 1; }
   }
 
   /* ── La liste de questions ───────────────────────────────────────────────
@@ -447,7 +802,7 @@ export function reglesRecit(p: string): string {
     border-top: 1px solid var(--line);
   }
   ${p} .q h3 {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-argument);
     line-height: 1.35;
@@ -455,7 +810,7 @@ export function reglesRecit(p: string): string {
   ${p} .q p {
     max-width: 58ch;
     font-family: var(--sans);
-    font-size: 14.5px;
+    font-size: 14px;
     line-height: 1.65;
     color: var(--muted);
   }
@@ -477,7 +832,7 @@ export function reglesRecit(p: string): string {
     font-family: var(--sans);
     font-size: 14px;
     font-weight: 500;
-    box-shadow: 0 14px 28px -18px rgb(var(--si-forest-rgb) / 0.85);
+    box-shadow: 0 14px 28px -18px rgb(var(--si-ink-strong-rgb) / 0.85);
     transition: transform 0.2s ease;
   }
   ${p} .btn:hover { transform: translateY(-2px); }
@@ -505,7 +860,7 @@ export function reglesRecit(p: string): string {
   ${p} .duo > * + * { border-left: 1px solid var(--line); padding-left: clamp(32px, 5vw, 80px); }
   ${p} .duo h3 {
     margin-top: 10px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-argument);
     line-height: 1.22;
@@ -549,7 +904,7 @@ export function reglesRecitAuPouce(p: string): string {
       scrollbar-width: none;
     }
     ${p} .onglets::-webkit-scrollbar { display: none; }
-    ${p} .onglets button { flex: 0 0 auto; padding: 9px 12px 11px; font-size: 13.5px; }
+    ${p} .onglets button { flex: 0 0 auto; padding: 9px 12px 11px; font-size: 13px; }
     ${p} .index-modules { margin-top: 32px; grid-template-columns: 1fr; gap: 12px; }
     ${p} .index-modules .colonne-droite { border-left: 0; padding-left: 0; }
     ${p} .figures { grid-template-columns: 1fr; gap: 32px; margin-top: 32px; }
@@ -602,6 +957,9 @@ const CIBLES = [
   ".recit h1",
   ".recit h2",
   ".recit .dire",
+  ".recit .chapitre",
+  ".recit .cit",
+  ".recit .apres-cit",
   ".recit .capture",
   ".recit .onglets",
   ".recit .chute",
@@ -614,6 +972,11 @@ const CIBLES = [
   ".recit .plan",
   ".recit .figures > *",
   ".recit .formulaire",
+  ".recit .jonction",
+  /* La fiche de dossier de l'accueil s'anime bloc par bloc, avec le meme
+     geste que le reste de la page : c'est l'observateur existant qui la
+     revele, pas une animation de plus. */
+  ".recit .anime-bloc",
 ].join(", ");
 
 /**
@@ -731,15 +1094,41 @@ export function Tete({
   titre,
   dire,
   suite,
+  chapitre,
+  citer,
 }: {
   titre: React.ReactNode;
   dire?: [React.ReactNode, React.ReactNode];
   suite?: React.ReactNode;
+  /** Le rang du chapitre, sur une page qui raconte. Descend aussi le titre. */
+  chapitre?: string;
+  /** La premiere moitie de `dire` passe entre guillemets, la seconde en prose. */
+  citer?: boolean;
 }) {
-  return (
-    <div className="tete">
+  /* Le chapitre et son titre partagent UNE cellule de la grille. Sans cette
+     enveloppe, `.tete` se retrouvait avec trois enfants pour deux colonnes, et
+     la phrase passait a la ligne sous le titre. */
+  const colonneTitre = chapitre ? (
+    <div>
+      <p className="chapitre">{chapitre}</p>
       <h2>{titre}</h2>
-      {dire ? (
+    </div>
+  ) : (
+    <h2>{titre}</h2>
+  );
+
+  return (
+    <div className={chapitre ? "tete tete-chapitre" : "tete"}>
+      {colonneTitre}
+      {dire && citer ? (
+        <div>
+          <blockquote className="cit">{dire[0]}</blockquote>
+          <p className="apres-cit">
+            {dire[1]}
+            {suite}
+          </p>
+        </div>
+      ) : dire ? (
         <p className="dire">
           <b>{dire[0]}</b> {dire[1]}
           {suite}
@@ -774,6 +1163,258 @@ export function Ouverture({
             </p>
           ) : null}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Les symboles du résumé.
+ *
+ * Un par chapitre, tous au même poids de trait, tous tirés de ce que le
+ * chapitre raconte. Aucun n'est décoratif : quelqu'un qui parcourt le résumé
+ * sans lire apprend déjà le mouvement du récit.
+ *
+ * Ce qui les tient ensemble, c'est que DEUX D'ENTRE EUX SE RÉPONDENT. Au
+ * constat, trois traits qui ne se rejoignent jamais ; à l'application, six
+ * carrés qui se touchent. Posés l'un au-dessus de l'autre dans le résumé, ils
+ * disent le récit entier avant qu'on ait lu une ligne. Un jeu d'icônes
+ * achetées n'aurait pas fait ça.
+ *
+ * Ils sont écrits en JSX et non en chaîne : une forme injectée par innerHTML
+ * ne se relit pas, et celles-ci ont vocation à être discutées.
+ */
+const SYMBOLES_RECIT: Record<string, React.ReactNode> = {
+  /** Trois traits parallèles qui ne se touchent pas : les trois ruptures. */
+  ruptures: <path d="M3 6h7M14 6h7M3 12h11M18 12h3M3 18h5M12 18h9" />,
+  /** Quatre cellules : la première version de SAFE. */
+  tableur: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="1" />
+      <path d="M3.5 9.5h17M12 4.5v15" />
+    </>
+  ),
+  /** Six carrés qui se touchent : les six registres, un seul contexte. */
+  registres: (
+    <>
+      <rect x="3.5" y="5.5" width="5" height="5" />
+      <rect x="9.5" y="5.5" width="5" height="5" />
+      <rect x="15.5" y="5.5" width="5" height="5" />
+      <rect x="3.5" y="13.5" width="5" height="5" />
+      <rect x="9.5" y="13.5" width="5" height="5" />
+      <rect x="15.5" y="13.5" width="5" height="5" />
+    </>
+  ),
+  /** Un centre et ses satellites : l'application et les outils autonomes. */
+  satellites: (
+    <>
+      <rect x="8.5" y="8.5" width="7" height="7" rx="1" />
+      <circle cx="5" cy="5" r="1.6" />
+      <circle cx="19" cy="5" r="1.6" />
+      <circle cx="5" cy="19" r="1.6" />
+      <circle cx="19" cy="19" r="1.6" />
+    </>
+  ),
+  /** Quatre temps sur une ligne. Le dernier reste ouvert : on ne l'arrête pas. */
+  temps: (
+    <>
+      <path d="M3 12h18" />
+      <circle cx="4.5" cy="12" r="1.8" />
+      <circle cx="9.5" cy="12" r="1.8" />
+      <circle cx="14.5" cy="12" r="1.8" />
+      <circle cx="19.5" cy="12" r="1.8" fill="none" />
+    </>
+  ),
+  /** Une seule marque : le seul chapitre qui ne décrit pas un système. */
+  personne: (
+    <>
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" />
+    </>
+  ),
+};
+
+/**
+ * Le symbole d'une entrée du résumé.
+ *
+ * 20 px et non 26 : dans une entrée de 14 px, plus gros écrase le libellé.
+ * Il est retiré aux lecteurs d'écran, le libellé dit déjà le chapitre.
+ */
+function SymboleRail({ nom }: { nom?: string }) {
+  const forme = nom ? SYMBOLES_RECIT[nom] : null;
+  if (!forme) return null;
+  return (
+    <span className="rail-sym" aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {forme}
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * Un chapitre de récit, en colonne unique.
+ *
+ * Il remplace la grille à deux colonnes (titre à gauche, phrase à droite) pour
+ * les pages qui RACONTENT. Deux colonnes font ping-ponger l'oeil de gauche à
+ * droite à chaque chapitre ; un récit se lit en descendant. Demande CEO du
+ * 2026-08-25, sur le modèle de cursor.com/grok.
+ */
+export function Chapitre({
+  rang,
+  nom,
+  titre,
+  cite,
+  prose,
+  children,
+}: {
+  /** « 01 ». Sert d'ancre, de libellé de rail et de repère de lecture. */
+  rang: string;
+  nom: string;
+  titre: React.ReactNode;
+  /** La phrase qui porte le chapitre. Elle passe entre guillemets. */
+  cite?: React.ReactNode;
+  /**
+   * La prose du chapitre. Donnee en DEUX moities, elle devient bicolore :
+   * l'affirmation prend l'encre pleine, ce qui la developpe reste en gris.
+   *
+   * On ne coupe pas une phrase pour le plaisir de la couper. Deux des six
+   * chapitres du recit portent une seule phrase courte : ils restent d'un
+   * seul ton, et c'est juste. Une bicolore posee partout ne signale plus
+   * rien.
+   */
+  prose?: React.ReactNode | readonly [React.ReactNode, React.ReactNode];
+  children?: React.ReactNode;
+}) {
+  return (
+    <article className="chap-bloc" id={`ch-${rang}`} data-chapitre={rang}>
+      <p className="chapitre">
+        Chapitre {rang} · {nom}
+      </p>
+      <h2>{titre}</h2>
+      {cite ? <blockquote className="cit">{cite}</blockquote> : null}
+      {Array.isArray(prose) ? (
+        <p className="apres-cit">
+          <b>{prose[0]}</b> {prose[1]}
+        </p>
+      ) : prose ? (
+        <p className="apres-cit">{prose}</p>
+      ) : null}
+      {children}
+    </article>
+  );
+}
+
+/**
+ * Le récit et son rail.
+ *
+ * Le rail est une table des matières qui SUIT la lecture : le chapitre courant
+ * passe du gris à l'encre et un point se pose devant lui. C'est le seul
+ * mouvement de la page, et il dit une chose vraie, où on est rendu.
+ *
+ * Le repère de lecture est une ligne à 28 % de la hauteur de la fenêtre, pas
+ * le simple fait d'être visible : avec des chapitres de hauteurs très
+ * différentes, « visible » en désigne deux ou trois à la fois et le point
+ * saute. On prend le dernier chapitre dont le haut a franchi la ligne.
+ *
+ * Le calcul se fait au défilement, en lecture seule sur la mise en page, et
+ * il est encadré par requestAnimationFrame : lire une position pendant que le
+ * navigateur peint force un recalcul complet à chaque pixel parcouru.
+ */
+export function RecitChapitres({
+  titre,
+  chapitres,
+  children,
+}: {
+  titre: string;
+  /** `[rang, nom, symbole]`. Le symbole est une cle de SYMBOLES_RECIT. */
+  chapitres: readonly (readonly [string, string, string?])[];
+  children: React.ReactNode;
+}) {
+  const [actif, setActif] = React.useState<string>(chapitres[0]?.[0] ?? "");
+
+  React.useEffect(() => {
+    const blocs = Array.from(document.querySelectorAll<HTMLElement>("[data-chapitre]"));
+    if (!blocs.length) return;
+
+    let enAttente = false;
+    const calculer = () => {
+      enAttente = false;
+      const ligne = window.innerHeight * 0.28;
+      let courant = blocs[0];
+      for (const b of blocs) {
+        if (b.getBoundingClientRect().top <= ligne) courant = b;
+      }
+      const rang = courant.getAttribute("data-chapitre");
+      if (rang) setActif((v) => (v === rang ? v : rang));
+    };
+    const auDefilement = () => {
+      if (enAttente) return;
+      enAttente = true;
+      requestAnimationFrame(calculer);
+    };
+
+    calculer();
+    window.addEventListener("scroll", auDefilement, { passive: true });
+    window.addEventListener("resize", auDefilement);
+    return () => {
+      window.removeEventListener("scroll", auDefilement);
+      window.removeEventListener("resize", auDefilement);
+    };
+  }, []);
+
+  /* Le rang courant dans la liste. Le rail a besoin de l'ORDRE et pas
+     seulement du chapitre actif : ce qui est DERRIERE se marque autrement que
+     ce qui reste a lire. */
+  const iActif = Math.max(
+    0,
+    chapitres.findIndex(([rang]) => rang === actif),
+  );
+
+  /* Au telephone le resume devient un bandeau d'une seule ligne, plus large que
+     l'ecran. Sans ce recentrage, on lirait le chapitre 05 pendant que le
+     bandeau montre encore le 01 : un suivi qui ne suit pas est pire que pas de
+     suivi du tout. Sur ecran large la liste tient en entier, la condition sur
+     la largeur de defilement rend donc l'effet inerte. */
+  const ruban = React.useRef<HTMLOListElement>(null);
+  React.useEffect(() => {
+    const ol = ruban.current;
+    if (!ol || ol.scrollWidth <= ol.clientWidth) return;
+    const courant = ol.querySelector<HTMLElement>("li.on");
+    if (!courant) return;
+    const doux = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    ol.scrollTo({
+      left: Math.max(0, courant.offsetLeft - (ol.clientWidth - courant.offsetWidth) / 2),
+      behavior: doux ? "smooth" : "auto",
+    });
+  }, [actif]);
+
+  return (
+    <section className="recit recit-chapitres">
+      <div className="inner grille-recit">
+        <nav className="rail-chapitres" aria-label="Chapitres">
+          <p className="rail-titre">{titre}</p>
+          <ol ref={ruban}>
+            {chapitres.map(([rang, nom, symbole], i) => (
+              <li key={rang} className={i < iActif ? "passe" : i === iActif ? "on" : undefined}>
+                <a href={`#ch-${rang}`} aria-current={i === iActif ? "true" : undefined}>
+                  {rang} · {nom}
+                </a>
+                <SymboleRail nom={symbole} />
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div className="colonne-recit">{children}</div>
       </div>
     </section>
   );

@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import { VocabulaireRecit, Ouverture, AnimationsRecit } from "./recit";
 import { MARK_GEOMETRY, SAFE_MARK_DEFAULT } from "@/components/brand/safe-mark";
+import { MENU_PRINCIPAL } from "@/components/public-site/menu-principal";
 
 export const BG = "var(--si-canvas)";
 export const SURFACE = "var(--si-surface)";
@@ -33,8 +34,8 @@ export const PROSE = "var(--si-body)";
 export const FAINT = "var(--si-subtle)";
 /* L'accent de la vitrine suit désormais l'action de l'application.
  * Il valait #12A150, un vert vif étranger à la palette, déclaré deux fois.
- * Source unique : `si-forest` dans lib/ds/palettes.ts. */
-export const GREEN = "var(--si-forest)";
+ * Source unique : `si-ink-strong` dans lib/ds/palettes.ts. */
+export const GREEN = "var(--si-ink-strong)";
 export const VERIFIED = "var(--si-verified)";
 export const AMBER = "var(--si-amber-ink)";
 export const LINE = "var(--si-line)";
@@ -155,12 +156,10 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
 
      « Contact » quitte la barre du bureau, où l'accueil ne l'a jamais eu, et
      reste au pied de page et dans le menu du téléphone. */
-  const links = [
-    { label: "SAFE Cabinet", href: R.fonctionnalites },
-    { label: "Outils SAFE", href: R.outils },
-    { label: "Tarification", href: R.tarification },
-    { label: "À propos", href: R.aPropos },
-  ];
+  /* Le contenu de la barre vit dans menu-principal.ts, une seule fois pour les
+     deux barres du site. Il etait ecrit ici ET dans ExperienceCinema, et le
+     2026-08-24 ajouter une entree a demande deux modifications. */
+  const links = MENU_PRINCIPAL.map((e) => ({ label: e.label, href: e.href }));
 
   return (
     <>
@@ -200,19 +199,60 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
           <SafeLogo size={20} />
         </Link>
 
-        <div className="hidden items-center gap-[26px] lg:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="font-sans text-[13px] transition-colors duration-300"
-              style={{ color: BARRE_TEXTE }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = BARRE_TEXTE_FORT; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = BARRE_TEXTE; }}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <div className="hidden items-center gap-[22px] lg:flex">
+          {MENU_PRINCIPAL.map((e) =>
+            e.sous ? (
+              /* Une rubrique n'ouvre un menu que si elle a au moins deux
+                 destinations reelles. Ouverture au survol ET au focus :
+                 un menu qui ne s'ouvre qu'a la souris n'existe pas pour qui
+                 navigue au clavier. */
+              /* Le pont invisible est un pseudo-element, pas un vrai noeud :
+                 sans lui le curseur traverse un vide de douze pixels et le menu
+                 se referme sous la souris. En element reel il provoquait une
+                 erreur d'hydratation, verifiee par test de controle. */
+              <div key={e.label} className="group relative after:absolute after:inset-x-0 after:top-full after:h-3 after:content-['']">
+                <Link
+                  href={e.href}
+                  className="inline-flex items-center gap-1.5 font-sans text-[13px] text-si-muted transition-colors duration-200 hover:text-si-ink"
+                >
+                  {e.label}
+                  <i
+                    aria-hidden
+                    className="h-[7px] w-[7px] -translate-y-[2px] rotate-45 border-b-[1.4px] border-r-[1.4px] border-current opacity-55 transition-transform duration-200 group-hover:translate-y-[1px] group-hover:-rotate-[135deg] group-focus-within:translate-y-[1px] group-focus-within:-rotate-[135deg]"
+                  />
+                </Link>
+                <div className="invisible absolute left-[-6px] top-[calc(100%+10px)] z-40 min-w-[268px] -translate-y-1 rounded-xl border border-si-border bg-si-surface p-1.5 opacity-0 shadow-[0_1px_2px_rgb(var(--si-line-ink-rgb)/0.06),0_22px_48px_-26px_rgb(var(--si-line-ink-rgb)/0.34)] transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  {e.sous.map((sc) => (
+                    <Link
+                      key={sc.href + sc.label}
+                      href={sc.href}
+                      className="block rounded-lg px-[11px] py-[9px] font-sans text-[13px] leading-tight text-si-ink transition-colors hover:bg-si-ink/[0.05]"
+                    >
+                      {sc.label}
+                      {sc.note ? (
+                        <span className="mt-0.5 block text-[11px] text-si-muted">{sc.note}</span>
+                      ) : null}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* « enAvant » passe l'entrée en encre pleine. C'est la seule
+                 difference : ni pastille, ni gras, ni couleur d'accent. Dans
+                 une barre de quatre entrees grises, l'encre suffit a faire
+                 sortir la cinquieme, et n'importe quoi de plus la ferait
+                 passer pour un bouton. */
+              <Link
+                key={e.href}
+                href={e.href}
+                className={`font-sans text-[13px] transition-colors duration-200 hover:text-si-ink ${
+                  e.enAvant ? "text-si-ink" : "text-si-muted"
+                }`}
+              >
+                {e.label}
+              </Link>
+            ),
+          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -225,11 +265,25 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
           >
             Connexion
           </Link>
+          {/* Le troisieme niveau d'intention, absent jusqu'au 2026-08-24.
+             La barre ne proposait que « je suis client » et « je veux
+             m'engager ». Entre les deux, un visiteur qui veut simplement
+             parler a quelqu'un n'avait nulle part ou aller. Cursor tient les
+             trois : Se connecter, contacter l'equipe commerciale, Telecharger. */}
+          <Link
+            href={R.demo}
+            className="hidden h-[34px] items-center rounded-[7px] border px-4 font-sans text-[13px] transition-colors duration-300 lg:inline-flex"
+            style={{ borderColor: "var(--si-border)", color: BARRE_TEXTE_FORT, background: "var(--si-surface)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--si-border-strong)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--si-border)"; }}
+          >
+            Parler à quelqu&apos;un
+          </Link>
           <Link
             href={action.href}
             className="inline-flex h-[34px] items-center rounded-[7px] px-4 font-sans text-[13px] font-medium transition-colors duration-300"
             style={{ background: GREEN, color: "var(--si-surface)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--si-forest-soft)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--si-ink-strong-soft)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = GREEN; }}
           >
             {action.label}
@@ -285,13 +339,13 @@ export function Nav({ cta }: { cta?: { href: string; label: string } } = {}) {
 
 export function Footer() {
   const cols = [
-    /* Mêmes libellés que la barre, plus « Outils », qui manquait alors que la
-       suite est publiée et annoncée sur trois pages. */
+    /* Mêmes libellés que la barre. « Outils SAFE » en est retiré le 2026-08-25
+       avec le reste de la navigation : un pied de page qui annonce ce que la
+       barre cache raconte deux choses. Voir menu-principal.ts. */
     {
       titre: "Produit",
       links: [
         { label: "SAFE Cabinet", href: R.fonctionnalites },
-        { label: "Outils SAFE", href: R.outils },
         { label: "Tarification", href: R.tarification },
         { label: "Évaluer mon cabinet", href: R.diagnostic },
       ],
@@ -337,7 +391,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-[40px] items-center font-sans text-[13.5px] transition-colors hover:text-white sm:min-h-0"
+                    className="inline-flex min-h-[40px] items-center font-sans text-[13px] transition-colors hover:text-white sm:min-h-0"
                     style={{ color: "#AAB7AF" }}
                   >
                     {link.label}
@@ -350,12 +404,12 @@ export function Footer() {
       </div>
 
       <div className="mx-auto mt-14 max-w-6xl pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-        <p className="max-w-3xl font-sans text-[11.5px] leading-[1.6]" style={{ color: "#7F9187" }}>
+        <p className="max-w-3xl font-sans text-[11px] leading-[1.6]" style={{ color: "#7F9187" }}>
           SAFE est un outil de gestion. Il soutient le suivi des obligations professionnelles sans
           s’y substituer. La responsabilité professionnelle demeure celle du cabinet.
         </p>
         <div
-          className="mt-5 flex flex-col gap-2 font-sans text-[11.5px] sm:flex-row sm:items-center sm:justify-between"
+          className="mt-5 flex flex-col gap-2 font-sans text-[11px] sm:flex-row sm:items-center sm:justify-between"
           style={{ color: "#7F9187" }}
         >
           <span>© {new Date().getFullYear()} SAFE Inc. Tous droits réservés.</span>
@@ -458,7 +512,7 @@ export function useScrollScrub(
 
 /* Fragment de la marque servie. Forme importée, jamais recopiée. */
 const FRAGMENT = MARK_GEOMETRY[SAFE_MARK_DEFAULT];
-const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgb(var(--si-forest-rgb) / 0.22)", "rgba(90,102,95,0.20)"];
+const MARK_TINTS = ["rgba(31,58,46,0.30)", "rgb(var(--si-ink-strong-rgb) / 0.22)", "rgba(90,102,95,0.20)"];
 
 /**
  * Fragments du logo flottants, brassés par le curseur, même langage que le hero
