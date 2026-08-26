@@ -5568,7 +5568,7 @@ export default function ExperienceCinema() {
       <section className="recit" id="equipe">
         <div className="inner">
           <div className="tete">
-            <h2>SAFE soutient l&apos;équipe qui tient le cabinet</h2>
+            <h2>SAFE soutient votre cabinet</h2>
             <p className="dire">
               <b>SAFE ne remplace pas l&apos;équipe.</b> Il lui donne un système commun pour
               travailler.
