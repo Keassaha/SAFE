@@ -2263,14 +2263,18 @@ const CSS = `
      deux signaux pour dire la meme chose, c'est un de trop. */
   .xc section.recit:nth-of-type(even) { background: var(--si-surface2); }
 
-  /* ── Le bas de page : separer sans redessiner ────────────────────────────
-     Les cinq dernieres sections se suivaient au meme rythme que les sections
-     de preuve, sans rien pour dire qu'on change de registre. Elles gagnent un
-     degagement plus large et un filet discret entre elles. Aucune couleur,
-     aucun fond, aucun composant nouveau : seulement de l'air et un trait. */
-  .xc #equipe, .xc #questions, .xc #cta {
-    padding-block: clamp(88px, 12vh, 148px);
-  }
+  /* Les trois dernieres sections portaient leur propre rembourrage,
+     clamp(88px, 12vh, 148px) contre clamp(96px, 14vh, 176px) pour les autres.
+     Elles respiraient donc 120 px quand les premieres respiraient 140, et la
+     page se resserrait a mesure qu'on descendait.
+
+     La regle disait vouloir leur donner « un degagement plus large ». Elle
+     faisait l'inverse : 12vh est plus petit que 14vh. Le commentaire decrivait
+     une intention, pas le code, et personne n'avait mesure.
+
+     Retiree le 2026-08-26 sur demande du CEO, « uniformise la taille des
+     differentes sections ». Il n'y a plus qu'un rythme vertical pour toute la
+     page. */
   /* Le titre d'une sous-partie a l'interieur d'une section. Il ne cree pas un
      niveau de titre de plus : c'est un libelle, dans la meme graisse que les
      autres exergues de la page. */
