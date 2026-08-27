@@ -664,7 +664,7 @@
       "timeEntries": "Time entries",
       "unbilledEntries": "Unbilled",
       "accruedInterest": "Accrued interest",
-      "interestRate": "14% / year",
+      "interestRate": "{taux}% / year",
       "activeTrust": "Active trust accounts"
     }
   },

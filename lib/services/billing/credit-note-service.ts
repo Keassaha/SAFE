@@ -27,6 +27,36 @@ async function getNextCreditNoteNumber(cabinetId: string): Promise<string> {
   return `CN-${year}-${String(count + 1).padStart(3, "0")}`;
 }
 
+/** Marge d'un cent : la comparaison porte sur des sommes d'argent, pas sur des flottants. */
+const TOLERANCE_CENT = 0.005;
+
+/**
+ * Ce qu'il reste à créditer sur une facture. Jamais négatif.
+ *
+ * B-02 : le montant n'était comparé qu'au SOLDE de la facture, jamais à ce qui
+ * avait déjà été crédité. Deux notes successives de 149,99 $ sur une facture de
+ * 149,99 $ passaient toutes les deux, et le cabinet créditait deux fois ce
+ * qu'il avait facturé une seule.
+ */
+export function creditRestant(params: { totalFacture: number; dejaCredite: number }): number {
+  return round2(Math.max(0, params.totalFacture - params.dejaCredite));
+}
+
+/**
+ * Ce crédit ferait-il dépasser le total facturé ?
+ *
+ * La tolérance joue en faveur de la demande : sans elle, une somme de décimales
+ * exactes au sens comptable serait refusée pour une poussière binaire
+ * (0,1 + 0,2 vaut 0,30000000000000004 en flottant).
+ */
+export function depasseLePlafondDeCredit(params: {
+  totalFacture: number;
+  dejaCredite: number;
+  montant: number;
+}): boolean {
+  return params.dejaCredite + params.montant > params.totalFacture + TOLERANCE_CENT;
+}
+
 /** Crée une note de crédit à partir d'une facture */
 export async function createCreditNote(params: {
   cabinetId: string;
@@ -48,6 +78,24 @@ export async function createCreditNote(params: {
   const balanceOrTotal = invoice.balanceDue ?? invoice.totalInvoiceAmount ?? invoice.montantTotal ?? 0;
   const amount = creditFull ? balanceOrTotal : (creditAmount ?? balanceOrTotal);
   if (amount <= 0) throw new Error("Le montant à créditer doit être positif");
+
+  /* Plafond CUMULÉ. Le solde seul ne suffit pas : une facture entièrement
+     créditée garde son solde, et un second crédit du même montant passait. */
+  const totalFacture =
+    invoice.totalInvoiceAmount ?? invoice.montantTotal ?? balanceOrTotal;
+  const dejaCredite = round2(
+    (
+      await prisma.creditNote.aggregate({
+        where: { invoiceId, cabinetId, status: { not: "CANCELLED" } },
+        _sum: { totalCredit: true },
+      })
+    )._sum.totalCredit ?? 0,
+  );
+  if (depasseLePlafondDeCredit({ totalFacture, dejaCredite, montant: amount })) {
+    throw new Error(
+      `Le crédit dépasse le total facturé. Il reste ${creditRestant({ totalFacture, dejaCredite })} $ à créditer.`,
+    );
+  }
 
   // Taxes province-aware : on défait le montant TTC selon le régime du cabinet/client
   // (Ontario -> TVH 13 %, Québec -> TPS + TVQ). Stockage Option A : gst=colonne tps, qst=colonne tvq.

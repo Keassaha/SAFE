@@ -178,8 +178,17 @@ export interface DashboardIndicators {
   invoicesPending: number;
   timeEntries: number;
   unbilledEntries: number;
-  /** Intérêts cumulés at 14%/an on overdue invoices */
+  /**
+   * Intérêts cumulés sur les factures en retard, au taux DU CABINET.
+   *
+   * Le calcul appliquait 0,14 en dur et la tuile annonçait « 14 % / an » à
+   * tous les cabinets, alors que `tauxInteret` vaut 0 par défaut et qu'aucun
+   * écran ne le règle. Le taux voyage donc avec le montant : une somme sans
+   * son taux ne se vérifie pas.
+   */
   accruedInterest: number;
+  /** Taux annuel appliqué, en pourcentage. 0 si le cabinet n'en a pas fixé. */
+  accruedInterestRate: number;
   /** Clients détenant des sommes en fidéicommis (solde > 0, depuis TrustTransaction). */
   activeTrustAccounts: number;
 }

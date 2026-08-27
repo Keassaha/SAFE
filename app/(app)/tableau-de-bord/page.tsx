@@ -42,6 +42,9 @@ import { listUnreadSignalsForUser } from "@/lib/services/ready-for-review-servic
 import { getNavetteInbox } from "@/lib/navette/navette-service";
 import { LawyerGlance } from "@/components/navette/LawyerGlance";
 import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
+import { parseCabinetConfig } from "@/lib/cabinet-config";
+import { computeInterestAmount } from "@/lib/invoice-calculations";
+import { getDaysOverdue } from "@/lib/services/billing/interest-service";
 
 function getMonthRange(year: number, month: number) {
   const start = new Date(year, month, 1);
@@ -465,12 +468,30 @@ export default async function TableauDeBordPage() {
   const lawyerCount = uniqueLawyerIds.length || 1;
   const revenuePerLawyer = revenueThisMonth / lawyerCount;
 
-  // ── Interest calculation (14% annual on overdue) ──
+  /**
+   * Intérêts cumulés sur les factures en retard.
+   *
+   * Le taux était CODÉ EN DUR à 0,14, et la tuile affichait « 14 % / an » à
+   * tous les cabinets. Or `tauxInteret` vaut 0 par défaut dans la
+   * configuration, aucun écran ne le règle, et facturer des intérêts à un
+   * client suppose une entente au mandat. L'application affirmait donc à
+   * l'avocat une somme qui lui serait due à un taux que personne n'avait
+   * convenu.
+   *
+   * Le taux vient maintenant du cabinet. Sans taux configuré, il n'y a pas
+   * d'intérêts : la tuile affiche 0, ce qui est la vérité.
+   */
+  const tauxInteretAnnuel = parseCabinetConfig(cabinetRow?.config ?? null).tauxInteret ?? 0;
   let accruedInterest = 0;
-  for (const inv of overdueInvoicesForInterest) {
-    if (inv.balanceDue > 0 && inv.dateEcheance) {
-      const daysOverdue = Math.max(0, Math.floor((now.getTime() - new Date(inv.dateEcheance).getTime()) / (1000 * 60 * 60 * 24)));
-      accruedInterest += inv.balanceDue * 0.14 * (daysOverdue / 365);
+  if (tauxInteretAnnuel > 0) {
+    for (const inv of overdueInvoicesForInterest) {
+      if (inv.balanceDue > 0 && inv.dateEcheance) {
+        accruedInterest += computeInterestAmount(
+          inv.balanceDue,
+          tauxInteretAnnuel,
+          getDaysOverdue(new Date(inv.dateEcheance), now),
+        );
+      }
     }
   }
   accruedInterest = Math.round(accruedInterest * 100) / 100;
@@ -520,6 +541,7 @@ export default async function TableauDeBordPage() {
     timeEntries: timeEntriesCount,
     unbilledEntries: unbilledTimeEntriesCount,
     accruedInterest,
+    accruedInterestRate: tauxInteretAnnuel,
     activeTrustAccounts: activeTrustAccountsCount,
   };
 

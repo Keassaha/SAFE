@@ -12,6 +12,26 @@ export function getDaysOverdue(dueDate: Date, asOf: Date = new Date()): number {
   return Math.floor((asOf.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000));
 }
 
+/**
+ * Cette charge d'intérêt peut-elle encore être réécrite ?
+ *
+ * B-03 : `createOrUpdateInterestCharge` disait « create or update » et ne
+ * contenait qu'un `create`. Appelée deux fois sur la même facture, elle
+ * EMPILAIT deux charges au lieu d'en corriger une, et le client se voyait
+ * facturer les intérêts en double.
+ *
+ * Deux conditions, et la seconde est la plus importante : une charge portée par
+ * une ligne de facture a déjà été remise à un client. La réécrire changerait un
+ * document sorti du cabinet. Seule une charge encore calculée, et que rien n'a
+ * facturée, se rafraîchit.
+ */
+export function estUneChargeEnAttente(charge: {
+  status: string | null;
+  invoiceLineId: string | null;
+}): boolean {
+  return charge.status === "calculated" && charge.invoiceLineId === null;
+}
+
 /** Crée ou met à jour un enregistrement d'intérêt pour une facture */
 export async function createOrUpdateInterestCharge(params: {
   invoiceId: string;
@@ -41,17 +61,24 @@ export async function createOrUpdateInterestCharge(params: {
   const interestAmount = computeInterestAmount(baseAmount, annualRate, daysOverdue);
   if (interestAmount <= 0) return { interestChargeId: "", interestAmount: 0 };
 
-  const charge = await prisma.interestCharge.create({
-    data: {
-      invoiceId,
-      calculationDate: asOfDate,
-      annualRate,
-      daysOverdue,
-      baseAmount,
-      interestAmount,
-      status: "calculated",
-    },
+  /* La charge la plus récente encore en attente est corrigée plutôt que
+     doublée. Voir `estUneChargeEnAttente` ci-dessus. */
+  const derniere = await prisma.interestCharge.findFirst({
+    where: { invoiceId },
+    orderBy: { createdAt: "desc" },
   });
+  const donnees = {
+    calculationDate: asOfDate,
+    annualRate,
+    daysOverdue,
+    baseAmount,
+    interestAmount,
+    status: "calculated",
+  };
+  const charge =
+    derniere && estUneChargeEnAttente(derniere)
+      ? await prisma.interestCharge.update({ where: { id: derniere.id }, data: donnees })
+      : await prisma.interestCharge.create({ data: { invoiceId, ...donnees } });
 
   await createAuditLog({
     cabinetId: invoice.cabinetId,
@@ -59,7 +86,12 @@ export async function createOrUpdateInterestCharge(params: {
     entityType: "Invoice",
     entityId: invoiceId,
     action: "update",
-    metadata: { interestCharge: charge.id, interestAmount },
+    metadata: {
+      interestCharge: charge.id,
+      interestAmount,
+      /* Distingue une correction d'une nouvelle charge dans la piste d'audit. */
+      corrigee: Boolean(derniere && estUneChargeEnAttente(derniere)),
+    },
     performedBy: createdById ?? undefined,
     performedAt: asOfDate,
   });

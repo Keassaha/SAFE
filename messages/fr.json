@@ -664,7 +664,7 @@
       "timeEntries": "Entrées de temps",
       "unbilledEntries": "Non facturées",
       "accruedInterest": "Intérêts cumulés",
-      "interestRate": "14% / an",
+      "interestRate": "{taux} % / an",
       "activeTrust": "Fidéicommis actifs"
     }
   },

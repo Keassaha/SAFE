@@ -56,7 +56,7 @@ export function IndicatorsPanel({ indicators, soldeFideicommis }: IndicatorsPane
       icon: Percent,
       gradient: "from-orange-50 to-orange-100/50",
       color: "text-orange-600",
-      subtitle: t("indicators.interestRate"),
+      subtitle: t("indicators.interestRate", { taux: indicators.accruedInterestRate }),
     },
   ];
 
