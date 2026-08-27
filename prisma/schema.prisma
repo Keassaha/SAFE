@@ -2985,6 +2985,11 @@ model CreditNote {
   invoice      Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   applications CreditNoteApplication[]
 
+  /// Le numero se genere en comptant les notes de l'annee et en ajoutant 1
+  /// (`getNextCreditNoteNumber`). Deux creations simultanees obtiendraient le
+  /// meme numero : la contrainte est ce qui l'empeche, au niveau de la base.
+  /// Migration 20260824120000_credit_note_numero_unique.
+  @@unique([cabinetId, creditNoteNumber])
   @@index([cabinetId])
   @@index([clientId])
   @@index([invoiceId])
