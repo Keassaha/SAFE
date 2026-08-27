@@ -160,6 +160,20 @@ export default async function DossiersPage({
     getCabinetBillingMode(cabinetId),
   ]);
 
+  /**
+   * Total de la barre de synthèse : TOUS les statuts.
+   *
+   * Il valait `totalCount`, qui compte la LISTE et porte donc
+   * `excludeClosedByDefault`. « Total dossiers » excluait les clôturés pendant
+   * que « Dossiers clôturés », lui, les comptait : le total pouvait être plus
+   * petit que l'une de ses parties, et le « % du total » divisait par une
+   * population qui n'était pas la sienne. Déc. CEO du 2026-08-27.
+   *
+   * `totalCount` reste la source de la pagination : c'est bien la liste qu'elle
+   * pagine.
+   */
+  const totalDossiersToutStatuts = stats.reduce((s, g) => s + g._count, 0);
+
   const actifsCount =
     (stats.find((s) => s.statut === "actif")?._count ?? 0) +
     (stats.find((s) => s.statut === "ouvert")?._count ?? 0);
@@ -214,7 +228,7 @@ export default async function DossiersPage({
         }
       />
       <DossierSummaryCards
-        totalDossiers={totalCount}
+        totalDossiers={totalDossiersToutStatuts}
         actifsCount={actifsCount}
         cloturesCount={cloturesCount}
         totalActes={totalActes}

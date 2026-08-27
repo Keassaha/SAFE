@@ -1,11 +1,7 @@
 "use client";
-import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { motion } from "framer-motion";
-import { FolderOpen, FolderCheck, Folder, ListChecks, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSafeMotion } from "@/lib/motion";
-import { staggerContainer, staggerItem, staggerContainerReduced, staggerItemReduced } from "@/lib/motion";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 interface DossierSummaryCardsProps {
   totalDossiers: number;
@@ -17,6 +13,29 @@ interface DossierSummaryCardsProps {
   actesTermines?: number;
 }
 
+/**
+ * Barre de synthèse du registre dossiers.
+ *
+ * Ce n'était pas une barre : c'étaient sept cartes à icône, à 16 px d'arrondi
+ * là où le référentiel §2.4 en demande 8 à 10, qui se soulevaient au survol
+ * sans être cliquables et entraient en cascade. Elles poussaient la liste sous
+ * la ligne de flottaison alors que la liste EST la page. C'est le même geste
+ * que la refonte §9.1 a fait sur les clients, puis sur la facturation ; les
+ * dossiers étaient le dernier écran à ne pas l'avoir suivi.
+ *
+ * ── Ce que la refonte décide en plus ────────────────────────────────────────
+ *
+ * DEUX FAMILLES, PAS UNE SÉRIE DE SEPT. Trois de ces mesures comptent des
+ * dossiers, quatre comptent des actes. Alignées à intervalle égal, elles se
+ * lisaient comme une seule suite, et « Terminés » semblait un état de dossier.
+ * L'espace encode le groupe (E3) : écart court à l'intérieur d'une famille,
+ * écart franc entre les deux. C'est aussi là que la ligne se replie quand la
+ * largeur manque.
+ *
+ * LE POURCENTAGE PASSE PAR `Intl`. Il s'écrivait `${n}${t("ofTotal")}`, ce qui
+ * donnait « 93% du total » sans l'espace que le français demande devant le
+ * signe. `Intl` la pose, et ne pose rien en anglais.
+ */
 export function DossierSummaryCards({
   totalDossiers,
   actifsCount,
@@ -29,107 +48,76 @@ export function DossierSummaryCards({
   const t = useTranslations("matters");
   const { intlLocale } = useFormatteurs();
 
-  const actifPercent =
-    totalDossiers > 0 ? Math.round((actifsCount / totalDossiers) * 100) : 0;
-  const terminePercent =
-    totalActes > 0 ? Math.round((actesTermines / totalActes) * 100) : 0;
+  const pourcent = (part: number, tout: number) =>
+    new Intl.NumberFormat(intlLocale, { style: "percent" }).format(tout > 0 ? part / tout : 0);
 
-  const cards = [
-    {
-      title: t("totalMatters"),
-      value: totalDossiers.toLocaleString(intlLocale),
-      icon: Folder,
-      sub: null as string | null,
-      subTone: "muted" as "muted" | "verified",
-      valueTone: "ink" as "ink" | "amber",
-    },
-    {
-      title: t("activeMatters"),
-      value: actifsCount.toLocaleString(intlLocale),
-      icon: FolderOpen,
-      sub: `${actifPercent}${t("ofTotal")}`,
-      subTone: "verified" as const,
-      valueTone: "ink" as const,
-    },
-    {
-      title: t("closedMatters"),
-      value: cloturesCount.toLocaleString(intlLocale),
-      icon: FolderCheck,
-      sub: null,
-      subTone: "muted" as const,
-      valueTone: "ink" as const,
-    },
-    {
-      title: t("totalActs"),
-      value: totalActes.toLocaleString(intlLocale),
-      icon: ListChecks,
-      sub: `${terminePercent}${t("completed")}`,
-      subTone: "verified" as const,
-      valueTone: "ink" as const,
-    },
-    {
-      title: t("inProgress"),
-      value: actesEnCours.toLocaleString(intlLocale),
-      icon: Clock,
-      sub: null,
-      subTone: "muted" as const,
-      valueTone: "ink" as const,
-    },
-    {
-      title: t("urgentOverdue"),
-      value: actesUrgents.toLocaleString(intlLocale),
-      icon: AlertTriangle,
-      sub: null,
-      subTone: "muted" as const,
-      valueTone: actesUrgents > 0 ? ("amber" as const) : ("ink" as const),
-    },
-    {
-      title: t("completed2"),
-      value: actesTermines.toLocaleString(intlLocale),
-      icon: CheckCircle2,
-      sub: null,
-      subTone: "muted" as const,
-      valueTone: "ink" as const,
-    },
+  const familles: {
+    cle: string;
+    label: string;
+    valeur: number;
+    appoint: string | null;
+    attention?: boolean;
+  }[][] = [
+    [
+      { cle: "total", label: t("totalMatters"), valeur: totalDossiers, appoint: null },
+      {
+        cle: "actifs",
+        label: t("activeMatters"),
+        valeur: actifsCount,
+        appoint: `${pourcent(actifsCount, totalDossiers)} ${t("ofTotal")}`,
+      },
+      { cle: "clotures", label: t("closedMatters"), valeur: cloturesCount, appoint: null },
+    ],
+    [
+      {
+        cle: "actes",
+        label: t("totalActs"),
+        valeur: totalActes,
+        appoint: `${pourcent(actesTermines, totalActes)} ${t("completed")}`,
+      },
+      { cle: "encours", label: t("inProgress"), valeur: actesEnCours, appoint: null },
+      {
+        cle: "urgents",
+        label: t("urgentOverdue"),
+        valeur: actesUrgents,
+        appoint: null,
+        /* L'ambre ne s'allume qu'au-dessus de zéro : « 0 acte urgent » est une
+           bonne nouvelle, pas une alerte. Le libellé porte le sens des deux
+           côtés, donc la couleur ne travaille jamais seule (C3, WCAG 1.4.1). */
+        attention: actesUrgents > 0,
+      },
+      { cle: "termines", label: t("completed2"), valeur: actesTermines, appoint: null },
+    ],
   ];
 
-  const { reduceMotion } = useSafeMotion();
-  const containerVariants = reduceMotion ? staggerContainerReduced : staggerContainer;
-  const itemVariants = reduceMotion ? staggerItemReduced : staggerItem;
-
   return (
-    <motion.div
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {cards.map(({ title, value, icon: Icon, sub, subTone, valueTone }) => (
-        <motion.div
-          key={title}
-          variants={itemVariants}
-          className="safe-zoom bg-si-surface border border-si-line rounded-2xl p-5 transition-all duration-200 ease-out"
+    <dl className="flex flex-col gap-y-5 border-b border-si-line pb-5 lg:flex-row lg:gap-x-14">
+      {familles.map((famille, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-2 gap-x-8 gap-y-4 min-[560px]:grid-cols-4 lg:flex lg:gap-x-8"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-si-muted">
-                {title}
-              </p>
-              <p className={`mt-2 font-mono text-[22px] leading-none tabular-nums ${valueTone === "amber" ? "text-si-amber-ink" : "text-si-ink"}`}>
-                {value}
-              </p>
-              {sub && (
-                <p className={`mt-2 text-[12px] ${subTone === "verified" ? "text-si-verified" : "text-si-muted"}`}>
-                  {sub}
-                </p>
-              )}
+          {famille.map(({ cle, label, valeur, appoint, attention }) => (
+            <div key={cle} className="min-w-0">
+              <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
+                {label}
+              </dt>
+              <dd className="mt-1.5 flex items-baseline gap-2">
+                {/* 18 px sous `sm` : un nombre à cinq chiffres ne tient pas en
+                    22 px dans une demi-colonne de 375 px. */}
+                <span
+                  className={`font-mono text-[18px] font-medium leading-[24px] tabular-nums sm:text-[22px] sm:leading-[26px] ${
+                    attention ? "text-si-amber-ink" : "text-si-ink"
+                  }`}
+                >
+                  {valeur.toLocaleString(intlLocale)}
+                </span>
+                {appoint && <span className="truncate text-[12px] text-si-muted">{appoint}</span>}
+              </dd>
             </div>
-            <div className="w-10 h-10 shrink-0 rounded-[10px] flex items-center justify-center bg-si-ink-strong/[0.06] text-si-ink-strong">
-              <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden />
-            </div>
-          </div>
-        </motion.div>
+          ))}
+        </div>
       ))}
-    </motion.div>
+    </dl>
   );
 }
