@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse, type NextFetchEvent } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
+import { APERCU_DESIGN_PREFIXE, apercuDesignFerme } from "@/lib/apercu-design";
 
 function isProtectedPath(pathname: string): boolean {
   const prefixes = [
@@ -81,6 +82,22 @@ export default async function middleware(request: NextRequest, event: NextFetchE
   const { request: req, cleared } = await stripUnreadableSessionCookie(request);
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-pathname", req.nextUrl.pathname);
+
+  /**
+   * Les contrôles visuels `/ds-preview` n'existent pas en production.
+   *
+   * Ce sont des pages sans authentification qui rendent des composants réels
+   * sur des données inventées ; elles étaient servies publiquement. On répond
+   * 404 avant tout rendu, donc la route est indiscernable d'une route absente.
+   * Le layout du dossier reprend la même règle : voir `lib/apercu-design.ts`.
+   */
+  if (
+    apercuDesignFerme() &&
+    (req.nextUrl.pathname === APERCU_DESIGN_PREFIXE ||
+      req.nextUrl.pathname.startsWith(`${APERCU_DESIGN_PREFIXE}/`))
+  ) {
+    return new NextResponse(null, { status: 404 });
+  }
 
   // Rediriger les utilisateurs connectés qui visitent /connexion ou /inscription vers le dashboard
   const authPages = ["/connexion", "/inscription"];
