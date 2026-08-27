@@ -1,10 +1,7 @@
 "use client";
-import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { MetricTile } from "@/components/ui/Figure";
+import { useTranslations } from "next-intl";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 export interface FacturationMainKpisData {
   facturablesCount: number;
@@ -17,97 +14,100 @@ export interface FacturationMainKpisData {
   tauxEncaissement: number | undefined;
 }
 
-interface FacturationMainKpisProps {
-  kpis: FacturationMainKpisData;
-}
-
 /**
- * Registre synthétique. Chaque métrique filtre la table sans transformer
- * cinq chiffres de pilotage en cinq cartes concurrentes.
+ * Barre de synthèse de la facturation.
+ *
+ * Ce n'était pas une barre : c'étaient cinq cellules cliquables dans une grille
+ * pleine, sans arrondi, qui se peignaient en gris au survol ET en gris à la
+ * sélection. Les deux états portaient donc exactement la même marque, et le
+ * filtre actif ne se distinguait pas d'une cellule survolée.
+ *
+ * Elles ne filtrent plus. Trois des cinq ne faisaient que doubler le sélecteur
+ * de statut de la barre d'outils du registre, juste en dessous ; les deux
+ * autres ne filtraient rien. Une mesure se lit, et ce qui se lit n'a pas besoin
+ * d'affordance : la question de l'aplat gris disparaît avec le lien.
+ *
+ * La grammaire est celle du registre clients (`ClientSummaryCards`) : pas de
+ * cadre, pas de grille, un seul filet, le chiffre et son appoint côte à côte.
+ * `MetricTile` les poussait aux deux bouts de la cellule avec `justify-between`,
+ * et l'œil devait traverser le vide pour relier « 15 » à « 33 282,12 $ ».
  */
-export function FacturationMainKpis({ kpis }: FacturationMainKpisProps) {
-  const searchParams = useSearchParams();
-  const { formatCurrency } = useFormatteurs();
-  const locale = useLocale();
+export function FacturationMainKpis({ kpis }: { kpis: FacturationMainKpisData }) {
   const t = useTranslations("facturation");
-  const currentStatut = searchParams.get("statut") ?? "";
+  const { formatCurrency, intlLocale } = useFormatteurs();
 
-  const linkWithStatut = (statut: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (statut) params.set("statut", statut);
-    else params.delete("statut");
-    const query = params.toString();
-    return query ? `/facturation?${query}` : "/facturation";
-  };
-
-  const metrics = [
+  const mesures = [
     {
-      key: "billable",
+      cle: "billable",
       label: t("billable"),
-      value: String(kpis.facturablesCount),
-      detail: formatCurrency(kpis.facturablesSum, "CAD", locale),
-      href: "/facturation#facturables",
-      filter: "",
+      valeur: kpis.facturablesCount.toLocaleString(intlLocale),
+      appoint: formatCurrency(kpis.facturablesSum),
     },
     {
-      key: "verification",
+      cle: "verification",
       label: t("verification"),
-      value: String(kpis.verificationCount),
-      detail: t("pendingApproval"),
-      href: linkWithStatut("brouillon"),
-      filter: "brouillon",
+      valeur: kpis.verificationCount.toLocaleString(intlLocale),
+      appoint: t("pendingApproval"),
     },
     {
-      key: "sent",
+      cle: "sent",
       label: t("sent"),
-      value: String(kpis.envoyeesCount),
-      detail: formatCurrency(kpis.envoyeesSum, "CAD", locale),
-      href: linkWithStatut("envoyee"),
-      filter: "envoyee",
+      valeur: kpis.envoyeesCount.toLocaleString(intlLocale),
+      appoint: formatCurrency(kpis.envoyeesSum),
     },
     {
-      key: "overdue",
+      cle: "overdue",
       label: t("overdue"),
-      value: String(kpis.enRetardCount),
-      detail: formatCurrency(kpis.enRetardSum, "CAD", locale),
-      href: linkWithStatut("en_retard"),
-      filter: "en_retard",
-      attention: true,
+      valeur: kpis.enRetardCount.toLocaleString(intlLocale),
+      appoint: formatCurrency(kpis.enRetardSum),
+      /* Un retard appelle un geste, donc il porte la couleur (C3). Zéro facture
+         en retard n'appelle rien : le rouge serait une alerte sur une bonne
+         nouvelle. Le libellé « En retard » double la couleur dans les deux cas,
+         elle ne travaille jamais seule (WCAG 1.4.1). */
+      attention: kpis.enRetardCount > 0,
     },
     {
-      key: "collection",
+      cle: "collection",
       label: t("collectionRate"),
-      value: typeof kpis.tauxEncaissement === "number" ? `${kpis.tauxEncaissement} %` : "—",
-      detail: t("paidIssued"),
-      href: linkWithStatut(""),
-      filter: "",
+      /* `${n} %` collait une espace PLEINE en Geist Mono, large comme un
+         chiffre. `Intl` pose l'espace fine insecable en francais et rien en
+         anglais, comme `formatCurrency` le fait deja pour le « $ ». */
+      valeur:
+        typeof kpis.tauxEncaissement === "number"
+          ? new Intl.NumberFormat(intlLocale, { style: "percent" }).format(
+              kpis.tauxEncaissement / 100,
+            )
+          : "—",
+      appoint: t("paidIssued"),
     },
   ];
 
   return (
-    <section aria-label={t("financialSummaryLabel")} className="border-y border-si-line">
-      <div className="grid grid-cols-2 divide-x divide-y divide-si-line sm:grid-cols-5 sm:divide-y-0">
-        {metrics.map((metric, index) => {
-          const isActive = metric.filter !== "" && currentStatut === metric.filter;
-          return (
-            <Link
-              key={metric.key}
-              href={metric.href}
-              className={`min-w-0 px-4 py-3 transition-colors hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified ${
-                isActive ? "bg-si-canvas" : "bg-si-surface"
-              } ${index === metrics.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
-              aria-current={isActive ? "page" : undefined}
+    /* Une seule colonne sous 400 px : à deux colonnes, « 33 282,12 $ » pousse la
+       page en défilement horizontal (MB3, reflow à 320 px). */
+    <dl
+      aria-label={t("financialSummaryLabel")}
+      className="grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12"
+    >
+      {mesures.map(({ cle, label, valeur, appoint, attention }) => (
+        <div key={cle} className="min-w-0">
+          <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
+            {label}
+          </dt>
+          <dd className="mt-1.5 flex items-baseline gap-2">
+            {/* 18 px sous `sm` : un montant à sept chiffres ne tient pas en
+                22 px dans une demi-colonne de 375 px. */}
+            <span
+              className={`font-mono text-[18px] font-medium leading-[24px] tabular-nums sm:text-[22px] sm:leading-[26px] ${
+                attention ? "text-si-danger-ink" : "text-si-ink"
+              }`}
             >
-              <MetricTile
-                label={metric.label}
-                value={metric.value}
-                hint={metric.detail}
-                teinte={metric.attention ? "attention" : "neutre"}
-              />
-            </Link>
-          );
-        })}
-      </div>
-    </section>
+              {valeur}
+            </span>
+            <span className="truncate text-[12px] text-si-muted">{appoint}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }

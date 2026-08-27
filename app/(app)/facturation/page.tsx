@@ -241,16 +241,22 @@ export default async function FacturationPage({
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
 
-      <nav aria-label={t("secondaryToolsLabel")} className="border-y border-si-line">
-        <ul className="grid grid-cols-1 divide-y divide-si-line bg-si-surface md:grid-cols-5 md:divide-x md:divide-y-0">
+      {/* Cinq outils, cinq cartes posees. Rayon 10 px, palier « panneau » du
+          referentiel (§2.4) : elles n'en avaient aucun. Le survol souleve la
+          carte au lieu de la peindre en gris (`safe-zoom`, dec. CEO du
+          2026-08-11) ; l'aplat gris disait « selectionnable » avec la meme
+          marque que la selection elle-meme. Une gouttiere remplace la grille
+          pleine : des filets verticaux entre cinq liens font tableur (A14). */}
+      <nav aria-label={t("secondaryToolsLabel")}>
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {secondaryTools.map((tool) => (
             <li key={tool.href}>
               <Link
                 href={tool.href}
-                className="flex min-h-16 flex-col justify-center px-4 py-3 transition-colors hover:bg-si-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified"
+                className="safe-zoom flex h-full flex-col justify-center rounded-[10px] border border-si-line bg-si-surface px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
               >
-                <span className="text-sm font-medium text-si-ink">{tool.title}</span>
-                <span className="mt-0.5 text-xs text-si-muted">{tool.hint}</span>
+                <span className="text-[14px] font-medium leading-5 text-si-ink">{tool.title}</span>
+                <span className="mt-0.5 text-[12px] leading-[17px] text-si-muted">{tool.hint}</span>
               </Link>
             </li>
           ))}
