@@ -16,6 +16,7 @@ import { FacturationTable } from "@/components/facturation/FacturationTable";
 import { FacturationActions } from "@/components/facturation/FacturationActions";
 import { HonorairesAFacturerView } from "./honoraires/HonorairesAFacturerView";
 import type { InvoiceStatut, Prisma } from "@prisma/client";
+import { joursDeRetard } from "@/lib/services/billing/reminder-service";
 import {
   FACTURE_LISTE_TAILLE_PAGE,
   estChampTri,
@@ -138,8 +139,17 @@ export default async function FacturationPage({
         // `typeClient` manquait : le registre affichait `raisonSociale ?? ""`,
         // donc une colonne Client VIDE pour toute personne physique.
         client: {
-          select: { id: true, raisonSociale: true, prenom: true, nom: true, typeClient: true },
+          select: {
+            id: true,
+            raisonSociale: true,
+            prenom: true,
+            nom: true,
+            typeClient: true,
+            // La relance a besoin de savoir s'il y a quelqu'un à qui écrire.
+            email: true,
+          },
         },
+        cabinet: { select: { nom: true } },
         dossier: { select: { id: true, intitule: true } },
         reminderLogs: { orderBy: { sentAt: "desc" as const }, take: 1 },
       },
@@ -225,6 +235,9 @@ export default async function FacturationPage({
     // Doctrine: statut affiché = dérivé de invoiceStatus + paymentStatus + dateEcheance.
     statut: deriveLegacyStatut(inv, now),
     lastReminderDay: inv.lastReminderDay,
+    clientEmail: inv.client.email?.trim() || null,
+    cabinetNom: inv.cabinet?.nom ?? "",
+    joursDeRetard: joursDeRetard(inv.dateEcheance, now),
     lastReminderSentAt: inv.reminderLogs[0]?.sentAt ?? null,
   }));
 

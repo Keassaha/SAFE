@@ -168,24 +168,69 @@ export function invoiceAccompanyingEmailHtml(opts: {
   return { subject, html };
 }
 
-export function reminderEmailHtml(
-  clientName: string,
-  invoiceNumber: string,
-  amount: string,
-  daysOverdue: number
-) {
-  return `
-    <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-      <h2 style="color: #1a1a1a;">Rappel de paiement</h2>
-      <p>Bonjour ${clientName},</p>
-      <p>Nous vous rappelons que la facture <strong>${invoiceNumber}</strong> d'un montant de <strong>${amount} $</strong> est en retard de <strong>${daysOverdue} jour${daysOverdue > 1 ? "s" : ""}</strong>.</p>
-      <p>Nous vous prions de bien vouloir procéder au règlement dans les meilleurs délais.</p>
-      <p>Merci de votre collaboration.</p>
-      <p style="color: #666; font-size: 12px; margin-top: 32px;">
-        Cet email a été envoyé par SAFE — safecabinet.ca
-      </p>
+/**
+ * Rappel de paiement, du CABINET vers SON client.
+ *
+ * Remplace `reminderEmailHtml`, qui signait « Cet email a été envoyé par SAFE,
+ * safecabinet.ca ». Un rappel de paiement n'est pas un courriel de SAFE : il
+ * engage l'avocat auprès de son propre client, et cette signature exposait le
+ * fournisseur du cabinet à un tiers qui n'a rien à faire de son existence.
+ *
+ * Le ton reste posé. Un rappel n'a pas à faire peur pour être clair : on donne
+ * le numéro, le montant, l'échéance, et on ouvre la porte à une réponse. Ni
+ * menace, ni compte à rebours, ni majuscules.
+ *
+ * Bilingue : la langue suit celle du client, pas celle du serveur.
+ */
+export function relanceEmailHtml(opts: {
+  clientName: string;
+  cabinetName: string;
+  invoiceNumber: string;
+  amount: string;
+  dueDate: string;
+  daysOverdue: number;
+  /** Lien public vers la facture, si un jeton de partage existe. */
+  shareUrl?: string;
+  language?: "fr" | "en";
+}): { subject: string; html: string } {
+  const fr = (opts.language ?? "fr") === "fr";
+  const j = opts.daysOverdue;
+
+  const subject = fr
+    ? `Rappel : facture ${opts.invoiceNumber}`
+    : `Reminder: invoice ${opts.invoiceNumber}`;
+
+  const corps = fr
+    ? [
+        `Bonjour ${escapeToHtml(opts.clientName)},`,
+        `Nous revenons vers vous au sujet de la facture n° <strong>${escapeToHtml(opts.invoiceNumber)}</strong>, d'un montant de <strong>${escapeToHtml(opts.amount)}</strong>, dont l'échéance était le ${escapeToHtml(opts.dueDate)}${j > 0 ? ` (il y a ${j} jour${j > 1 ? "s" : ""})` : ""}.`,
+        opts.shareUrl
+          ? `Vous pouvez la consulter à l'adresse suivante : <a href="${opts.shareUrl}">${opts.shareUrl}</a>`
+          : "",
+        "Si le règlement est déjà parti, merci de ne pas tenir compte de ce message.",
+        "Pour toute question sur cette facture, écrivez-nous simplement en répondant à ce courriel.",
+      ]
+    : [
+        `Hello ${escapeToHtml(opts.clientName)},`,
+        `We are following up on invoice <strong>${escapeToHtml(opts.invoiceNumber)}</strong> for <strong>${escapeToHtml(opts.amount)}</strong>, which was due on ${escapeToHtml(opts.dueDate)}${j > 0 ? ` (${j} day${j > 1 ? "s" : ""} ago)` : ""}.`,
+        opts.shareUrl
+          ? `You can view it here: <a href="${opts.shareUrl}">${opts.shareUrl}</a>`
+          : "",
+        "If payment has already been sent, please disregard this message.",
+        "If you have any question about this invoice, simply reply to this email.",
+      ];
+
+  const salutation = fr ? "Cordialement," : "Kind regards,";
+
+  const html = `
+    <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1a1a1a;">
+      <h2 style="margin: 0 0 16px; font-size: 18px;">${fr ? "Rappel de paiement" : "Payment reminder"}</h2>
+      ${corps.filter(Boolean).map((l) => `<p style="margin: 0 0 12px; line-height: 1.5;">${l}</p>`).join("")}
+      <p style="margin: 24px 0 0; line-height: 1.5;">${salutation}<br/>${escapeToHtml(opts.cabinetName)}</p>
     </div>
   `;
+
+  return { subject, html };
 }
 
 export function documentEmailHtml(

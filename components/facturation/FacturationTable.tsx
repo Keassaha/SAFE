@@ -3,11 +3,15 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Bell, Eye, Send } from "lucide-react";
+import { Bell, Eye } from "lucide-react";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RowMenu, rowMenuItemClass } from "@/components/ui/RowMenu";
+import {
+  RelancerFacture,
+  RelancerMenuItem,
+} from "@/components/facturation/RelancerFacture";
 import { routes } from "@/lib/routes";
 import {
   RegistrePlainHeader,
@@ -67,6 +71,12 @@ export interface FacturationTableRow {
   statut: InvoiceStatut;
   lastReminderDay?: number | null;
   lastReminderSentAt?: Date | null;
+  /** Courriel du client. `null` quand sa fiche n'en porte pas. */
+  clientEmail: string | null;
+  /** Nom du cabinet, montré dans la confirmation : le rappel part en son nom. */
+  cabinetNom: string;
+  /** Jours entiers depuis l'échéance. 0 si elle n'est pas passée. */
+  joursDeRetard: number;
 }
 
 /**
@@ -257,23 +267,34 @@ export function FacturationTable({
                   )}
                 </td>
                 <td className="px-3 py-2.5 text-right align-middle">
-                  <RowMenu
-                    label={t("actions")}
-                    describedBy={tf("rowActions", { numero: displayInvoiceNumero(inv.numero) })}
+                  {/* « Relancer » n'apparaît que sur une facture réellement
+                      en retard : le service refuserait le reste (409), et
+                      proposer un geste que le serveur va refuser est une
+                      promesse en trop. */}
+                  <RelancerFacture
+                    invoiceId={inv.id}
+                    numero={displayInvoiceNumero(inv.numero)}
+                    clientNom={inv.client}
+                    cabinetNom={inv.cabinetNom}
+                    balanceDue={inv.balanceDue}
+                    joursDeRetard={inv.joursDeRetard}
+                    destinataire={inv.clientEmail}
                   >
-                    <Link href={lien} className={rowMenuItemClass} role="menuitem">
-                      <Eye className="h-4 w-4" aria-hidden />
-                      {tf("openInvoice")}
-                    </Link>
-                    <Link
-                      href={routes.facturationSuivi}
-                      className={rowMenuItemClass}
-                      role="menuitem"
-                    >
-                      <Send className="h-4 w-4" aria-hidden />
-                      {tf("sendReminder")}
-                    </Link>
-                  </RowMenu>
+                    {(demanderRelance) => (
+                      <RowMenu
+                        label={t("actions")}
+                        describedBy={tf("rowActions", {
+                          numero: displayInvoiceNumero(inv.numero),
+                        })}
+                      >
+                        <Link href={lien} className={rowMenuItemClass} role="menuitem">
+                          <Eye className="h-4 w-4" aria-hidden />
+                          {tf("openInvoice")}
+                        </Link>
+                        {enRetard && <RelancerMenuItem onDemande={demanderRelance} />}
+                      </RowMenu>
+                    )}
+                  </RelancerFacture>
                 </td>
               </tr>
             );

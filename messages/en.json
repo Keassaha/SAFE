@@ -828,7 +828,16 @@
     "openInvoice": "Open invoice",
     "sendReminder": "Send reminder",
     "rowActions": "Actions for invoice {numero}",
-    "clientUnnamed": "Unnamed client"
+    "clientUnnamed": "Unnamed client",
+    "reminderConfirmTitle": "Send a payment reminder",
+    "reminderConfirmBody": "An email will go to {destinataire} on behalf of {cabinet}, about invoice {numero} for {montant}, {jours} day{jours, plural, one {} other {s}} past due.",
+    "reminderConfirmSend": "Send reminder",
+    "reminderSending": "Sending…",
+    "reminderSent": "Reminder sent to {destinataire}.",
+    "reminderNoEmail": "This client has no email address. Add one to their record to send a reminder.",
+    "reminderNotOverdue": "This invoice is not overdue.",
+    "reminderAlreadyPaid": "This invoice is already paid.",
+    "reminderFailed": "The reminder did not go out. Try again in a moment."
   },
   "debours": {
     "title": "Disbursements",

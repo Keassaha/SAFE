@@ -14,6 +14,9 @@ const septembre = (n: number) => new Date(2026, 8, n);
 export const RANGEES: FacturationTableRow[] = [
   {
     id: "ap-1",
+    clientEmail: "ap-1@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 25,
     numero: "2026-0042",
     client: "Groupe immobilier Northfield et Associés inc.",
     clientId: "c1",
@@ -29,6 +32,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-2",
+    clientEmail: "ap-2@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0041",
     client: "Tremblay-Beauchemin, Jean-Christophe",
     clientId: "c2",
@@ -44,6 +50,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-3",
+    clientEmail: "ap-3@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0040",
     client: "Boulangerie Saint-Roch inc.",
     clientId: "c3",
@@ -59,6 +68,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-4",
+    clientEmail: "ap-4@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0039",
     client: "Ouellet, Marie-Ève",
     clientId: "c4",
@@ -74,6 +86,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-5",
+    clientEmail: "ap-5@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0038",
     client: "Coopérative de solidarité des Berges",
     clientId: "c5",
@@ -89,6 +104,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-6",
+    clientEmail: null,
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 10,
     numero: "2026-0037",
     client: "Succession de feu Roland Bergeron",
     clientId: "c6",
@@ -104,6 +122,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-7",
+    clientEmail: "ap-7@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0036",
     client: "Constructions Béliveau & Fils ltée",
     clientId: "c7",
@@ -119,6 +140,9 @@ export const RANGEES: FacturationTableRow[] = [
   },
   {
     id: "ap-8",
+    clientEmail: "ap-8@example.ca",
+    cabinetNom: "Cabinet Roy",
+    joursDeRetard: 0,
     numero: "2026-0035",
     client: "Ntumba Kalala, Joséphine",
     clientId: "c8",

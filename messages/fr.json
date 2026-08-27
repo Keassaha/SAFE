@@ -828,7 +828,16 @@
     "openInvoice": "Ouvrir la facture",
     "sendReminder": "Relancer",
     "rowActions": "Actions de la facture {numero}",
-    "clientUnnamed": "Client sans nom"
+    "clientUnnamed": "Client sans nom",
+    "reminderConfirmTitle": "Envoyer un rappel de paiement",
+    "reminderConfirmBody": "Un courriel partira à {destinataire} au nom de {cabinet}, au sujet de la facture {numero} d'un montant de {montant}, échue depuis {jours} jour{jours, plural, one {} other {s}}.",
+    "reminderConfirmSend": "Envoyer le rappel",
+    "reminderSending": "Envoi…",
+    "reminderSent": "Rappel envoyé à {destinataire}.",
+    "reminderNoEmail": "Ce client n'a pas d'adresse courriel. Ajoutez-la à sa fiche pour pouvoir le relancer.",
+    "reminderNotOverdue": "Cette facture n'est pas en retard.",
+    "reminderAlreadyPaid": "Cette facture est déjà payée.",
+    "reminderFailed": "Le rappel n'est pas parti. Réessayez dans un moment."
   },
   "debours": {
     "title": "Débours",
