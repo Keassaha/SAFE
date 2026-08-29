@@ -2395,6 +2395,22 @@ const CSS = `
   /* La ligne d'identification sous le nom du dossier : date d'ouverture et
      responsables. Elle repond a « depuis quand, et par qui » avant meme qu'on
      lise le contenu. */
+  /* Les pastilles sous le titre, comme dans l'ecran : « Avocat : Me Camille
+     Roy » puis « Actif ». Elles etaient a droite, avec les actions, ce qui
+     melangeait ce que le dossier EST avec ce qu'on peut y FAIRE. */
+  .xc .fiche .fiche-pastilles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  /* La derniere action porte le fond plein : c'est « Modifier le dossier », la
+     seule des quatre qui engage une ecriture. */
+  .xc .fiche .actes .bt.principal {
+    background: var(--si-ink-strong);
+    border-color: var(--si-ink-strong);
+    color: var(--si-surface);
+  }
   .xc .fiche .fiche-sous {
     margin-top: 4px;
     font-size: var(--t-detail);
@@ -5436,7 +5452,7 @@ export default function ExperienceCinema() {
               <div className="barre-app" aria-hidden>
                 <span className="mk"><SafeMark size={15} />SAFE</span>
                 <span className="sep" />
-                <span className="cab">Compte Test</span>
+                <span className="cab">Me Roy</span>
                 <nav>
                   <span>Tableau de bord</span>
                   <span>Aujourd&apos;hui</span>
@@ -5468,10 +5484,22 @@ export default function ExperienceCinema() {
                   <div>
                     <p className="retour">&larr; Retour a la liste &middot; Clinique Longueuil inc.</p>
                     <h4>2026-017 &mdash; Clinique Longueuil &mdash; immobilier</h4>
+                    {/* Les pastilles vivent SOUS le titre, pas a droite : c'est
+                        l'ordre de l'ecran. */}
+                    <p className="fiche-pastilles">
+                      <span className="bt">Avocat : Me Camille Roy</span>
+                      <span className="etat"><i aria-hidden />Actif</span>
+                    </p>
                   </div>
+                  {/* Les QUATRE actions reelles de l'en-tete, relevees sur
+                      capture le 2026-08-27. « Resume IA » n'apparait que si la
+                      cle d'API existe : elle est presente sur le poste du CEO,
+                      d'ou sa presence ici. */}
                   <div className="actes">
-                    <span className="bt">Avocat : Me Camille Roy</span>
-                    <span className="etat"><i aria-hidden />Actif</span>
+                    <span className="bt">D&eacute;marrer le chrono</span>
+                    <span className="bt">R&eacute;sum&eacute; IA</span>
+                    <span className="bt">Voir le client</span>
+                    <span className="bt principal">Modifier le dossier</span>
                   </div>
                 </div>
 
@@ -5485,9 +5513,9 @@ export default function ExperienceCinema() {
                 <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du dossier">
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(10)</small></button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues</button>
-                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Notes internes</button>
-                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Documents</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues <small>(0)</small></button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="notes">Notes internes</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="documents">Documents <small>(0)</small></button>
                 </div>
 
                 <div className="vue on" data-fiche-vue="apercu">
@@ -5602,6 +5630,38 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
 
+                {/* ── L'ONGLET NOTES INTERNES ────────────────────────────────
+                    Le fil de la navette, exactement tel que la capture le
+                    montre : aucun message, et les trois actions qui restent
+                    disponibles malgre le vide. */}
+                <div className="vue" data-fiche-vue="notes">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">Navette</p>
+                      <span>fil interne</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>Aucun message sur ce dossier.</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Approuver &middot; Renvoyer &middot; Marquer pr&ecirc;t pour revue</span><span className="v lien">Envoyer &rarr;</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── L'ONGLET DOCUMENTS ─────────────────────────────────────
+                    Zero document, comme son compteur l'annonce. On montre
+                    l'etat vide et son invite, tels que l'ecran les formule. */}
+                <div className="vue" data-fiche-vue="documents">
+                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                    <div className="ct">
+                      <p className="ctt">Documents r&eacute;dig&eacute;s</p>
+                      <span>Documents cr&eacute;&eacute;s depuis l&rsquo;&eacute;diteur &middot; li&eacute;s &agrave; ce dossier</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>Aucun document r&eacute;dig&eacute; pour ce dossier.</span><span className="v lien">Cr&eacute;er le premier &rarr;</span></div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* ── L'ONGLET PIECES ATTENDUES ──────────────────────────────
                     Zero piece sur ce dossier, comme le compteur de l'onglet
                     l'annonce. On montre donc l'ETAT VIDE et l'offre qui va
@@ -5617,6 +5677,7 @@ export default function ExperienceCinema() {
                       <span>Aucune pi&egrave;ce attendue sur ce dossier</span>
                     </div>
                     <div className="lignes">
+                      <div className="lg"><span>5 dates &agrave; saisir pour que les &eacute;ch&eacute;ances se calculent</span><span className="v attente">&Agrave; saisir</span></div>
                       <div className="lg"><span>SAFE peut cr&eacute;er la liste r&eacute;glementaire du domaine, avec les articles qui la commandent, puis vous l&rsquo;ajustez.</span><span className="v lien">Cr&eacute;er la liste &rarr;</span></div>
                     </div>
                   </div>
@@ -5794,7 +5855,7 @@ export default function ExperienceCinema() {
               <div className="barre-app" aria-hidden>
                 <span className="mk"><SafeMark size={15} />SAFE</span>
                 <span className="sep" />
-                <span className="cab">Compte Test</span>
+                <span className="cab">Me Roy</span>
                 <nav>
                   <span>Tableau de bord</span>
                   <span>Aujourd&apos;hui</span>
@@ -5919,7 +5980,7 @@ export default function ExperienceCinema() {
               <div className="barre-app" aria-hidden>
                 <span className="mk"><SafeMark size={15} />SAFE</span>
                 <span className="sep" />
-                <span className="cab">Compte Test</span>
+                <span className="cab">Me Roy</span>
                 <nav>
                   <span>Tableau de bord</span>
                   <span>Aujourd&apos;hui</span>
