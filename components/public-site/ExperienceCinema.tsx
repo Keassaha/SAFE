@@ -182,7 +182,12 @@ const CSS = `
        la page, et la hierarchie disait le contraire de la verite. Il reste
        cinq pixels sous le hero, ce qui suffit tant que les deux ne partagent
        pas la meme fonte. */
-    --t-marque: clamp(19px, 1.7vw, 22px);
+    /* Remonte de 22 a 26 px le 2026-08-29, demande CEO (« augmente legerement
+       la police du titre a gauche »). 26 px n'est pas un chiffre choisi : c'est
+       le cran suivant de l'echelle de Cursor relevee le 2026-08-27 et notee
+       plus bas dans ce fichier (72 / 36 / 26 / 16 / 14). Le titre de section
+       reste dix points sous le hero, la hierarchie ne bouge donc pas. */
+    --t-marque: clamp(21px, 1.9vw, 26px);
     --t-titre: clamp(26px, 3.1vw, 40px);     /* le sous-titre qui développe la marque */
     --t-argument: clamp(19px, 1.75vw, 24px); /* la phrase mise en avant d'un point */
     --t-corps: clamp(16px, 1.25vw, 18px);    /* la prose */
@@ -2155,9 +2160,23 @@ const CSS = `
     font-weight: 400;
     font-size: var(--t-marque);
     line-height: 1.06;
-    letter-spacing: -0.02em;
+    /* Le suivi suit la taille : a 26 px, l'echelle de Cursor donne -0,0125em
+       la ou 22 px en demandait -0,02. On serre en grand, on ouvre en petit. */
+    letter-spacing: -0.0125em;
     max-width: 15ch;
   }
+  /* ── Le titre de section se dit en deux encres, comme celui du hero ───────
+     Demande CEO du 2026-08-29 : « fais la meme chose que le titre du hero avec
+     le gris et le noir ».
+
+     Meme regle, meme grammaire : ce qu'on affirme prend l'encre pleine, ce qui
+     acheve la phrase passe en gris. La phrase de droite le faisait deja depuis
+     longtemps (voir « .dire » plus bas) ; le titre le fait maintenant aussi,
+     et les deux colonnes de la tete parlent enfin la meme langue.
+
+     Non italique et sans vert : le « em » du h1 d'ouverture, lui, garde les
+     deux, c'est un autre role. */
+  .xc .recit .tete h2 em { font-style: normal; color: var(--muted); }
 
   /* ── La phrase qui accompagne le titre ────────────────────────────────────
      Elle est BICOLORE, et c'est tout son mouvement.
@@ -5977,7 +5996,11 @@ export default function ExperienceCinema() {
       <section className="recit" id="dossier">
         <div className="inner">
           <div className="tete">
-            <h2>Chaque dossier s&apos;ouvre avec la bonne structure.</h2>
+            {/* Deux encres, comme le titre du hero : ce qui affirme en noir,
+                ce qui acheve la phrase en gris. Le point de coupe est celui
+                du sens, pas du milieu : le dossier « s'ouvre » est le fait,
+                « avec la bonne structure » est ce que la section va prouver. */}
+            <h2>Chaque dossier s&apos;ouvre <em>avec la bonne structure.</em></h2>
             <p className="dire">
               <b>SAFE organise le dossier selon le domaine de pratique</b> et la manière de
               travailler du cabinet.
