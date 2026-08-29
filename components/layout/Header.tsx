@@ -711,7 +711,7 @@ export function Header({
                 onMouseEnter={() => setSurvole(group.id)}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-current={active ? "page" : undefined}
@@ -743,7 +743,7 @@ export function Header({
                 }}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`inline-flex shrink-0 origin-bottom items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active || isOpen ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-haspopup="menu"
