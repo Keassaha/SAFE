@@ -70,20 +70,20 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  // ── Today (accueil assistante) ────────────────────────────
-  {
-    id: "aujourdhui",
-    href: routes.aujourdhui,
-    labelKey: "nav.today",
-    icon: Sunrise,
-    show: () => true,
-  },
   // ── Tableau de bord (Toujours visible) ────────────────────
   {
     id: "dashboard",
     href: routes.tableauDeBord,
     labelKey: "nav.dashboard",
     icon: LayoutDashboard,
+    show: () => true,
+  },
+  // ── Today (accueil assistante) ────────────────────────────
+  {
+    id: "aujourdhui",
+    href: routes.aujourdhui,
+    labelKey: "nav.today",
+    icon: Sunrise,
     show: () => true,
   },
 
