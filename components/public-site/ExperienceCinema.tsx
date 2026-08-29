@@ -5516,11 +5516,11 @@ export default function ExperienceCinema() {
                 <div className="carte-bloc anime-bloc">
                   <div className="ct"><p className="ctt">Le dossier</p></div>
                   <div className="lignes">
-                    <div className="lg"><span>Domaine de pratique</span><span className="v">Immobilier</span></div>
+                    <div className="lg"><span>Domaine de pratique</span><span className="v">immobilier</span></div>
                     <div className="lg"><span>Client</span><span className="v">Clinique Longueuil inc.</span></div>
-                    <div className="lg"><span>Ouvert le</span><span className="v">14 ao&ucirc;t 2026 &middot; il y a 13 jours</span></div>
+                    <div className="lg"><span>Ouvert le</span><span className="v">24 juin 2026 &middot; il y a 65 jours</span></div>
+                    <div className="lg"><span>Statut</span><span className="v">Actif</span></div>
                     <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
-                    <div className="lg"><span>Adjointe</span><span className="v">A. Bergeron</span></div>
                   </div>
                 </div>
 
@@ -5533,15 +5533,16 @@ export default function ExperienceCinema() {
                       <div className="lg"><span>Caisse, pr&ecirc;teur</span><span className="v pastille-ex">Tiers</span></div>
                     </div>
                   </div>
-                  {/* « Ou j'en etais ? », que le code du produit appelle
-                      lui-meme son differenciateur. */}
-                  <div className="carte-bloc">
-                    <div className="ct"><p className="ctt">O&ugrave; j&rsquo;en &eacute;tais ?</p></div>
-                    <div className="lignes">
-                      <div className="lg"><span>Derni&egrave;re action<br /><small>A. Bergeron, 26 ao&ucirc;t</small></span><span className="v">Recherche de titres</span></div>
-                      <div className="lg"><span>Prochaine action</span><span className="v lien">Demander le certificat de localisation &rarr;</span></div>
-                    </div>
-                  </div>
+                  {/* ⚠ Le bloc « Ou j'en etais ? » a ete RETIRE le 2026-08-27.
+                      Il montrait une derniere action et une prochaine action
+                      inventees, sur un dossier qui n'en a aucune : la capture
+                      du CEO affiche « Aucune action enregistree pour
+                      l'instant ».
+
+                      Et il contredisait la refonte de l'ecran : celle-ci a
+                      FUSIONNE « Ou j'en etais ? » dans « Etat du dossier »,
+                      precisement parce que les deux repetaient la meme phrase.
+                      Le garder ici aurait illustre un ecran qui n'existe plus. */}
                 </div>
 
                 {/* « Etat de preparation ». C'est CE bloc qui prouve la phrase
@@ -5550,14 +5551,17 @@ export default function ExperienceCinema() {
                     il existe dans le produit. */}
                 <div className="carte-bloc anime-bloc" style={{ marginTop: 14 }}>
                   <div className="ct">
-                    <p className="ctt">&Eacute;tat de pr&eacute;paration</p>
-                    <span>Incomplet &middot; Prochaine action : demander le certificat de localisation</span>
+                    <p className="ctt">&Eacute;tat du dossier</p>
+                    <span>Incomplet &middot; Aucune action enregistr&eacute;e pour l&rsquo;instant.</span>
                   </div>
                   <div className="lignes">
-                    <p className="ta">Manquants (3)</p>
-                    <div className="lg"><span>Certificat de localisation</span><span className="v grav-bloq">Bloquant</span></div>
-                    <div className="lg"><span>V&eacute;rification d&rsquo;identit&eacute; de la partie adverse</span><span className="v grav-crit">Critique</span></div>
-                    <div className="lg"><span>Assistante non assign&eacute;e au dossier</span><span className="v grav-comp">&Agrave; compl&eacute;ter</span></div>
+                    <p className="ta">Manquants (5)</p>
+                    <div className="lg"><span>Aucune assistante juridique assign&eacute;e</span><span className="v grav-crit">Critique</span></div>
+                    <div className="lg"><span>Mandat absent</span><span className="v grav-crit">Critique</span></div>
+                    <div className="lg"><span>Identit&eacute; du client non v&eacute;rifi&eacute;e</span><span className="v grav-crit">Critique</span></div>
+                    <div className="lg"><span>Mode de facturation non d&eacute;fini</span><span className="v grav-crit">Critique</span></div>
+                    <div className="lg"><span>1 section(s) cartable obligatoire(s) vide(s)</span><span className="v grav-comp">&Agrave; compl&eacute;ter</span></div>
+                    <div className="lg"><span>Prochaine action</span><span className="v lien">Assigner une assistante au dossier &rarr;</span></div>
                   </div>
                 </div>
 
@@ -5566,78 +5570,54 @@ export default function ExperienceCinema() {
                 {/* Le dossier lui-meme : ce que l'onglet « Dossiers » ouvre
                     dans le produit. Une ligne de dossier, puis ce qui lui est
                     rattache. */}
-                <div className="vue" data-fiche-vue="dossiers">
-                  {/* Realigne sur le dossier Beaulieu le 2026-08-27 : l'en-tete
-                      annoncait « 2026-002 · Beaulieu » et cet onglet repondait
-                      « TRE-2026-014 · Separation et partage du patrimoine
-                      familial ». La fenetre se contredisait d'un onglet a
-                      l'autre, ce qui suffit a faire douter de tout l'extrait.
+                {/* ── L'ONGLET CARTABLE ──────────────────────────────────
+                    Les DIX sections reelles d'un dossier immobilier, relevees
+                    sur une capture du CEO le 2026-08-27. Elles viennent de
+                    lib/dossiers/cartable-templates/index.ts, ou neuf domaines
+                    de pratique ouvrent chacun les leurs : « Offre et
+                    convention » et « Recherche de titres » n'existent que dans
+                    l'immobilier, un divorce ouvrirait « Pieces Madame (P-) » a
+                    la place.
 
-                      Aucun montant : c'est la regle du brief pour ce
-                      mouvement. Les deux lignes d'argent qui restaient ici,
-                      « Derniere facture » et « Solde a recevoir », partent
-                      avec le reste vers la section 03. */}
+                    C'est TOUT l'argument de la section, et il se lit ici sans
+                    qu'on ait besoin de l'ecrire. */}
+                <div className="vue" data-fiche-vue="dossiers">
                   <div className="carte-bloc" style={{ marginTop: 18 }}>
                     <div className="ct">
-                      <p className="ctt">2026-017</p>
-                      <span>Clinique Longueuil &mdash; immobilier</span>
+                      <p className="ctt">Cartable du dossier</p>
+                      <span>Dix sections, ouvertes parce que le dossier est immobilier</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>&Eacute;tat</span><span className="v">Actif &middot; ouvert le 14 ao&ucirc;t 2026</span></div>
-                      <div className="lg"><span>Type</span><span className="v">Immobilier</span></div>
-                      <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
-                      <div className="lg"><span>Adjointe</span><span className="v">A. Bergeron</span></div>
-                      <div className="lg"><span>Pi&egrave;ce attendue</span><span className="v attente">Certificat de localisation</span></div>
-                      <div className="lg"><span>Temps consign&eacute;</span><span className="v">2,25 h</span></div>
-                    </div>
-                  </div>
-
-                  {/* L'activite du dossier appartient au dossier. Elle etait
-                      rangee sous « Carte client », qui est le registre du
-                      compte : deux choses differentes. */}
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Activité du dossier</p>
-                      <span>Ce qui a été inscrit, du plus récent au plus ancien</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>26 ao&ucirc;t &mdash; 0,75 h consign&eacute;e &middot; appel au cr&eacute;ancier</span><span className="v">Non factur&eacute;</span></div>
-                      <div className="lg"><span>22 ao&ucirc;t &mdash; Certificat de localisation demand&eacute;</span><span className="v attente">Attendu</span></div>
-                      <div className="lg"><span>18 ao&ucirc;t &mdash; 1,50 h consign&eacute;e &middot; recherche de titres</span><span className="v">Non factur&eacute;</span></div>
-                      <div className="lg"><span>18 ao&ucirc;t &mdash; Index aux immeubles vers&eacute; au dossier</span><span className="v">Au dossier</span></div>
-                      <div className="lg"><span>14 ao&ucirc;t &mdash; Dossier ouvert</span><span className="v">Actif</span></div>
+                      <div className="lg"><span>Mandat et engagement</span><span className="v attente">Aucun document</span></div>
+                      <div className="lg"><span>Offre et convention</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Financement et hypoth&egrave;que</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Recherche de titres</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Documents de cl&ocirc;ture</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>D&eacute;bours et ajustements</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Correspondance</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Fid&eacute;icommis</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Notes et honoraires</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Fermeture du dossier</span><span className="v">&mdash;</span></div>
                     </div>
                   </div>
                 </div>
 
-                {/* La carte client est le REGISTRE du compte : factures et
-                    paiements, rien d'autre. L'activite du dossier (temps
-                    consigne, document ajoute, echeance) appartient a l'onglet
-                    Dossiers, pas ici. */}
-                {/* Le troisieme onglet portait « Carte client », c'est-a-dire
-                    des factures, des paiements et un solde. Il mettait donc la
-                    facturation au premier plan d'un mouvement qui a pour regle
-                    ecrite de ne pas le faire.
+                {/* ── L'ONGLET PIECES ATTENDUES ──────────────────────────────
+                    Zero piece sur ce dossier, comme le compteur de l'onglet
+                    l'annonce. On montre donc l'ETAT VIDE et l'offre qui va
+                    avec, telle que l'ecran la formule : SAFE peut creer la
+                    liste reglementaire, puis le cabinet l'ajuste.
 
-                    Il montre desormais le CARTABLE, la liste verticale des
-                    sections que le vrai ecran affiche a gauche
-                    (components/dossiers/detail/index.ts). C'est ce qui prouve
-                    l'argument de la section : le domaine de pratique dicte les
-                    sections, une vente immobiliere n'ouvre pas les memes
-                    qu'une garde d'enfants. */}
+                    Inventer trois pieces pour remplir la vue serait exactement
+                    l'erreur qui a fait suspendre cette section. */}
                 <div className="vue" data-fiche-vue="carte">
                   <div className="carte-bloc" style={{ marginTop: 18 }}>
                     <div className="ct">
-                      <p className="ctt">Cartable du dossier</p>
-                      <span>Sections ouvertes selon le domaine de pratique</span>
+                      <p className="ctt">Pi&egrave;ces attendues</p>
+                      <span>Aucune pi&egrave;ce attendue sur ce dossier</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>Mandat</span><span className="v">Compl&eacute;t&eacute;</span></div>
-                      <div className="lg"><span>Pi&egrave;ces</span><span className="v attente">1 attendue</span></div>
-                      <div className="lg"><span>Proc&eacute;dures</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Correspondance</span><span className="v">3 &eacute;changes</span></div>
-                      <div className="lg"><span>Fid&eacute;icommis</span><span className="v">Aucun mouvement</span></div>
-                      <div className="lg"><span>Fermeture</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>SAFE peut cr&eacute;er la liste r&eacute;glementaire du domaine, avec les articles qui la commandent, puis vous l&rsquo;ajustez.</span><span className="v lien">Cr&eacute;er la liste &rarr;</span></div>
                     </div>
                   </div>
                 </div>
