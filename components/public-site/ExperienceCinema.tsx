@@ -5398,6 +5398,13 @@ export default function ExperienceCinema() {
 
           Aucun de ces quatre faits n'est neuf. Ils sont tenus ailleurs sur le
           site : un bandeau ne sert pas a glisser une promesse de plus. */}
+      {/* RETIRÉ TEMPORAIREMENT le 2026-08-29, à la demande du CEO.
+          Le balisage est mis en commentaire et NON supprimé : la feuille de
+          style du ruban reste en place plus haut (.bandeau-reassurance,
+          .ruban, @keyframes xcRuban), inerte tant qu'aucun élément ne la
+          porte. Remettre le ruban en ligne se fait en décommentant ce bloc,
+          sans rien reconstruire.
+
       <div className="bandeau-reassurance">
         <div className="ruban">
           <span className="serie">
@@ -5414,6 +5421,7 @@ export default function ExperienceCinema() {
           </span>
         </div>
       </div>
+      */}
 
       {/* ── 02 · Le dossier administratif ───────────────────────────────────
          Section reecrite le 2026-08-27 sur le brief de direction artistique du
