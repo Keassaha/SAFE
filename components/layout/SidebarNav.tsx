@@ -289,14 +289,14 @@ function NavLink({
         <span
           aria-hidden
           className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full"
-          style={{ background: "var(--brand-800)" }}
+          style={{ background: "var(--si-ink-strong)" }}
         />
       )}
       <Icon
         className={`w-[18px] h-[18px] shrink-0 ${isActive && isSubItem ? "" : ""}`}
         strokeWidth={isActive ? 2 : 1.5}
         style={{
-          color: isActive && isSubItem ? "var(--brand-800)" : "var(--zinc-950)",
+          color: isActive && isSubItem ? "var(--si-ink-strong)" : "var(--si-ink)",
         }}
       />
       <span
@@ -304,7 +304,7 @@ function NavLink({
           isActive ? "font-medium" : "font-medium"
         }`}
         style={{
-          color: isActive && isSubItem ? "var(--brand-800)" : "var(--zinc-950)",
+          color: isActive && isSubItem ? "var(--si-ink-strong)" : "var(--si-ink)",
         }}
       >
         {label}
@@ -312,7 +312,7 @@ function NavLink({
       {typeof count === "number" && count > 0 && (
         <span
           className="shrink-0 text-[12px] font-medium tabular-nums leading-none"
-          style={{ color: "var(--brand-800)" }}
+          style={{ color: "var(--si-ink-strong)" }}
         >
           {count}
         </span>
@@ -320,7 +320,7 @@ function NavLink({
       {hasChildren && (
         <motion.span
           className="shrink-0 flex items-center justify-center"
-          style={{ color: "var(--sand-600)" }}
+          style={{ color: "var(--si-muted)" }}
           animate={{ rotate: isExpanded ? 90 : 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -335,7 +335,7 @@ function NavLink({
   const baseClasses = [
     "safe-zoom-menu group relative flex items-center gap-2.5 rounded-md cursor-pointer",
     isSubItem ? "ml-6 pl-3 py-1.5 pr-2.5" : "pl-3 pr-2.5 py-2",
-    showActivePill ? "bg-white" : "",
+    showActivePill ? "bg-surface" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -474,7 +474,7 @@ export function SidebarNavList({
               {item.dividerBefore && (
                 <hr
                   className="my-2 border-0 h-px"
-                  style={{ background: "var(--sand-400)" }}
+                  style={{ background: "var(--si-line)" }}
                 />
               )}
               <NavLink
@@ -555,13 +555,13 @@ export function SidebarBottomSection({
   return (
     <div
       className="px-3 pb-3 pt-2 border-t shrink-0"
-      style={{ borderTopColor: "var(--sand-400)" }}
+      style={{ borderTopColor: "var(--si-line)" }}
     >
       {/* La langue se cherchait dans le menu du compte, hors du tiroir : sur
           mobile ce tiroir est toute la navigation, et le réglage restait
           introuvable. Il se pose ici, écrit, à côté du profil. */}
       <div className="mb-1 flex items-center justify-between gap-2 px-2 py-1.5">
-        <span className="text-[12px] font-medium" style={{ color: "var(--zinc-950)" }}>
+        <span className="text-[12px] font-medium" style={{ color: "var(--si-ink)" }}>
           {tMisc("language")}
         </span>
         <LocaleSwitcher />
@@ -570,33 +570,29 @@ export function SidebarBottomSection({
       <Link
         href={routes.parametres}
         onClick={() => onNavigate?.()}
-        className="safe-zoom-menu flex items-center gap-2.5 px-2 py-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-800)]/40"
+        className="safe-zoom-menu flex items-center gap-2.5 px-2 py-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
       >
         <span
-          className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium"
-          style={{ background: "var(--brand-800)", color: "#FFFFFF" }}
+          className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium safe-action-degrade text-white"
           aria-hidden
         >
           {initial}
         </span>
         <div className="min-w-0 flex-1">
           <span
-            className="block text-[13px] font-medium leading-tight truncate"
-            style={{ color: "var(--zinc-950)" }}
+            className="block text-[13px] font-medium leading-tight truncate text-text-primary"
           >
             {displayName}
           </span>
           <span
-            className="block text-[11px] leading-tight truncate mt-0.5"
-            style={{ color: "var(--sand-600)" }}
+            className="block text-[11px] leading-tight truncate mt-0.5 text-text-muted"
           >
             {subtitle}
           </span>
         </div>
         <ChevronRight
-          className="h-3.5 w-3.5 shrink-0"
+          className="h-3.5 w-3.5 shrink-0 text-si-muted"
           strokeWidth={1.75}
-          style={{ color: "var(--sand-600)" }}
         />
       </Link>
     </div>
