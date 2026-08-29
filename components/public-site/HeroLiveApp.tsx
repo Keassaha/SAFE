@@ -254,12 +254,18 @@ export function HeroLiveApp() {
                 Rapprocher le fidéicommis
               </span>
             </div>
-            <div style={{ marginTop: 9 }}>
+            <div className="ha-alertes">
+              {/* Les deux alertes de BandeauAction : une puce de 6 px, le
+                  message, et la flèche oblique poussée à droite. La puce est
+                  ambre quand l'alerte parle de retard ou de fidéicommis, verte
+                  sinon (le test est dans DashboardViewSafe). */}
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="facturation" role="button" tabIndex={0}>
-                <i aria-hidden />13 facture(s) en retard
+                <i className="warn" aria-hidden />15 facture(s) en retard
+                <b aria-hidden>↗</b>
               </div>
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="temps" role="button" tabIndex={0}>
                 <i aria-hidden />118 881,25 $ en heures non facturées
+                <b aria-hidden>↗</b>
               </div>
             </div>
           </div>
@@ -313,83 +319,136 @@ export function HeroLiveApp() {
             </div>
           </div>
 
-          {/* Flux du cabinet : reprise en miniature du graphique réel
-             (Facturé/Encaissé), pas un graphique interactif. */}
-          <div className="ha-card" style={{ marginTop: 11 }}>
-            <p className="ha-kicker">Flux du cabinet</p>
-            <p className="ha-h" style={{ fontSize: 16, marginTop: 4 }}>Facturé et encaissé</p>
-            <p className="ha-mini">
-              L&apos;écart entre les deux barres, c&apos;est l&apos;argent que vous avez gagné mais qui
-              n&apos;est pas encore rentré.
-            </p>
-            <div className="ha-legend" style={{ marginTop: 10 }}>
-              <span className="ha-legend-i"><i aria-hidden />Facturé</span>
-              <span className="ha-legend-i verified"><i aria-hidden />Encaissé</span>
+          {/* Flux du cabinet ET Vos performances, CÔTE À CÔTE.
+             `DashboardViewSafe.tsx` : `lg:grid-cols-[1.7fr_1fr]`. Les deux
+             cartes étaient empilées en pleine largeur ici, ce qui étirait le
+             diagramme sur toute la fenêtre et faisait descendre les ratios
+             hors de l'écran. */}
+          <div className="ha-flux-rangee">
+            {/* Le diagramme est recopié de components/dashboard/CashflowChart.tsx :
+               légende à gauche, bascule 6/12 mois à droite, axe des montants en
+               forme courte, grille horizontale seule, colonnes groupées à
+               capuchon arrondi, et le repli « Voir les chiffres » dessous.
+               Facturé porte le gris de retrait (--si-border-strong), encaissé le
+               vert de l'état validé (--si-verified) : l'argent réellement rentré
+               est le seul qui prend une teinte. */}
+            <div className="ha-card">
+              <p className="ha-kicker">Flux du cabinet</p>
+              <p className="ha-titre-carte">Facturé et encaissé</p>
+              <p className="ha-mini" style={{ marginBottom: 10 }}>
+                L&apos;écart entre les deux barres, c&apos;est l&apos;argent que vous avez gagné mais qui
+                n&apos;est pas encore rentré.
+              </p>
+              <div className="ha-legend">
+                <span className="ha-legend-i"><i aria-hidden />Facturé</span>
+                <span className="ha-legend-i verified"><i aria-hidden />Encaissé</span>
+                <span className="ha-fenetre">
+                  <span className="on">6 mois</span>
+                  <span>12 mois</span>
+                </span>
+              </div>
+              <div className="ha-plot">
+                <div className="ha-axe" aria-hidden>
+                  <span>28 k$</span>
+                  <span>21 k$</span>
+                  <span>14 k$</span>
+                  <span>7 k$</span>
+                  <span>0 $</span>
+                </div>
+                <div className="ha-bars">
+                  <span className="ha-grille" aria-hidden>
+                    <i /><i /><i /><i /><i />
+                  </span>
+                  {[
+                    { m: "mars", f: 50, e: 27 },
+                    { m: "avr.", f: 51, e: 54 },
+                    { m: "mai", f: 40, e: 34 },
+                    { m: "juin", f: 50, e: 23 },
+                    { m: "juill.", f: 93, e: 29 },
+                    { m: "août", f: 5, e: 8 },
+                  ].map((b) => (
+                    <div className="ha-bar-grp" key={b.m}>
+                      <div className="ha-bar-pair">
+                        <span className="ha-bar" style={{ height: b.f + "%" }} />
+                        <span className="ha-bar v" style={{ height: b.e + "%" }} />
+                      </div>
+                      <span className="ha-bar-lbl">{b.m}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="ha-repli">Voir les chiffres</p>
             </div>
-            <div className="ha-bars">
-              {[
-                { m: "mars", f: 50, e: 27 },
-                { m: "avr.", f: 51, e: 54 },
-                { m: "mai", f: 40, e: 34 },
-                { m: "juin", f: 50, e: 23 },
-                { m: "juill.", f: 93, e: 29 },
-                { m: "août", f: 5, e: 8 },
-              ].map((b) => (
-                <div className="ha-bar-grp" key={b.m}>
-                  <div className="ha-bar-pair">
-                    <span className="ha-bar" style={{ height: b.f + "%" }} />
-                    <span className="ha-bar v" style={{ height: b.e + "%" }} />
+
+            {/* Vos performances : les cinq lignes de Performances, aide comprise.
+               Filet entre les lignes à partir de la deuxième, valeur en chasse
+               fixe, et la valeur non facturée seule en encre ambre. */}
+            <div className="ha-card">
+              <p className="ha-kicker">Vos performances</p>
+              <p className="ha-titre-carte">Ce que ça donne</p>
+              <div style={{ marginTop: 3 }}>
+                {[
+                  { k: "Taux d’encaissement", v: "168 %", a: "Part du facturé réellement rentrée." },
+                  { k: "Taux de facturation", v: "0 %", a: "Part des heures travaillées qui a été facturée." },
+                  { k: "Heures travaillées", v: "494.25 h", a: "Total saisi sur la période." },
+                  { k: "Heures facturées", v: "0 h", a: "Portion portée à une facture." },
+                  { k: "Valeur non facturée", v: "118 881,25 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
+                ].map((r, i) => (
+                  <div key={r.k} className={"ha-perf" + (i > 0 ? " filet" : "")}>
+                    <div className="ligne">
+                      <span className="k">{r.k}</span>
+                      <span className={"v" + (r.amber ? " amber" : "")}>{r.v}</span>
+                    </div>
+                    <p className="a">{r.a}</p>
                   </div>
-                  <span className="ha-bar-lbl">{b.m}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Navette : ce qui attend une lecture, recopié de
+             components/navette/LawyerGlance.tsx. Le compte à droite du titre,
+             le numéro de dossier en pastille bordée (et non collé au type par
+             un point médian), et l'invite « Ouvrir » sous chaque message. Le
+             carré du type est ambre pour une question, encre pour le reste. */}
+          <div className="ha-card" style={{ marginTop: 11 }}>
+            <div className="ha-navette-tete">
+              <p className="ha-titre-carte">Navette</p>
+              <span className="ha-mini">· vous attend</span>
+              <span className="compte">2</span>
+            </div>
+            <div style={{ marginTop: 4 }}>
+              {[
+                {
+                  ico: "?",
+                  warn: true,
+                  type: "Question",
+                  ref: "2026-002",
+                  corps: "Confirmer la date de signature chez le notaire ?",
+                  qui: "Aaliyah Côté",
+                },
+                {
+                  ico: "▤",
+                  warn: false,
+                  type: "Document prêt",
+                  ref: "2026-001",
+                  corps: "Projet de requête en révision",
+                  qui: "Aaliyah Côté",
+                },
+              ].map((n) => (
+                <div className="ha-nav-item" key={n.ref}>
+                  <span className={"ha-nav-ico" + (n.warn ? " warn" : "")} aria-hidden>{n.ico}</span>
+                  <span className="txt">
+                    <span className="entete">
+                      <span className="type">{n.type}</span>
+                      <span className="ref">{n.ref}</span>
+                    </span>
+                    <span className="body">{n.corps}</span>
+                    <span className="who">{n.qui}</span>
+                    <span className="ouvrir">Ouvrir <b aria-hidden>→</b></span>
+                  </span>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Vos performances : les cinq lignes de Performances, aide comprise. */}
-          <div className="ha-card" style={{ marginTop: 11 }}>
-            <p className="ha-kicker">Vos performances</p>
-            <p className="ha-ptitle" style={{ marginTop: 6 }}>Ce que ça donne</p>
-            {[
-              { k: "Taux d’encaissement", v: "168 %", a: "Part du facturé réellement rentrée." },
-              { k: "Taux de facturation", v: "0 %", a: "Part des heures travaillées qui a été facturée." },
-              { k: "Heures travaillées", v: "494.25 h", a: "Total saisi sur la période." },
-              { k: "Heures facturées", v: "0 h", a: "Portion portée à une facture." },
-              { k: "Valeur non facturée", v: "118 881,25 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
-            ].map((r) => (
-              <div key={r.k} style={{ marginTop: 6 }}>
-                <div className="ha-kv" style={{ borderBottom: 0, paddingBottom: 0 }}>
-                  <span className="k">{r.k}</span>
-                  <span className="v" style={{ fontSize: 13, color: r.amber ? "var(--si-amber-ink)" : undefined }}>{r.v}</span>
-                </div>
-                <p className="ha-mini" style={{ marginTop: 0 }}>{r.a}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Navette : ce qui attend une lecture, comme LawyerGlance. */}
-          <div className="ha-card" style={{ marginTop: 11 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <p className="ha-ptitle" style={{ marginBottom: 0 }}>Navette</p>
-              <span className="ha-mini" style={{ marginTop: 0 }}>· vous attend</span>
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <div className="ha-nav-item">
-                <span className="ha-nav-ico warn" aria-hidden>?</span>
-                <span className="txt">
-                  <span className="type">Question · 2026-002</span>
-                  <span className="body">Confirmer la date de signature chez le notaire ?</span>
-                  <span className="who">Aaliyah Côté</span>
-                </span>
-              </div>
-              <div className="ha-nav-item">
-                <span className="ha-nav-ico" aria-hidden>▤</span>
-                <span className="txt">
-                  <span className="type">Document prêt · 2026-001</span>
-                  <span className="body">Projet de requête en révision</span>
-                  <span className="who">Aaliyah Côté</span>
-                </span>
-              </div>
             </div>
           </div>
 
@@ -398,7 +457,7 @@ export function HeroLiveApp() {
           <div className="ha-cols" style={{ marginTop: 11, gridTemplateColumns: "1fr 1fr" }}>
             <div className="ha-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <p className="ha-ptitle" style={{ marginBottom: 2 }}>État des obligations</p>
+                <p className="ha-titre-carte">État des obligations</p>
                 <span style={{ fontSize: 11, color: "var(--si-verified)", fontWeight: 500 }}>Générer l&apos;attestation</span>
               </div>
               <p className="ha-mini" style={{ marginBottom: 8 }}>
@@ -406,7 +465,7 @@ export function HeroLiveApp() {
               </p>
               <div className="ha-oblig-grid">
                 {[
-                  { t: "Rapprochement fidéicommis", d: "Jamais effectué", s: "À faire", warn: true },
+                  { t: "Rapprochement fidéicommis", d: "Période 2026-07", s: "À faire", warn: true },
                   { t: "Clients avec fonds en fiducie", d: "Sommes détenues en fiducie (B-1 r.5)", s: "7" },
                   { t: "Factures impayées", d: "Solde à recevoir", s: "17", warn: true },
                   { t: "Temps non facturé", d: "Entrées prêtes à facturer", s: "195", warn: true },
@@ -424,16 +483,35 @@ export function HeroLiveApp() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
               <div className="ha-card">
-                <p className="ha-ptitle">Lecture financière du mois</p>
+                <p className="ha-titre-carte" style={{ marginBottom: 5 }}>Lecture financière du mois</p>
                 <div className="ha-kv"><span className="k">Sorties</span><span className="v">0,00 $</span></div>
                 <div className="ha-kv"><span className="k">Cash non reçu</span><span className="v">-1 357,29 $</span></div>
               </div>
+              {/* Activité récente, recopiée d'ActivityCard : « Tout voir » à
+                 droite du titre, une puce verte par ligne, l'action en évidence
+                 et l'entité en retrait, puis la date relative et l'auteur sur
+                 une seconde ligne. C'était une liste clé/valeur, qui perdait
+                 l'auteur et écrasait les deux lignes en une. */}
               <div className="ha-card">
-                <p className="ha-ptitle">Activité récente</p>
-                <div className="ha-kv"><span className="k">create — Dossier</span><span className="v">14 août</span></div>
-                <div className="ha-kv"><span className="k">create — Client</span><span className="v">14 août</span></div>
-                <div className="ha-kv"><span className="k">update — Client</span><span className="v">12 août</span></div>
-                <div className="ha-kv"><span className="k">create — Navette</span><span className="v">11 août</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <p className="ha-titre-carte" style={{ marginBottom: 6 }}>Activité récente</p>
+                  <span style={{ fontSize: 11, color: "var(--si-verified)", fontWeight: 500 }}>Tout voir</span>
+                </div>
+                {[
+                  { a: "create", e: "TrustAccount", q: "il y a 1 j" },
+                  { a: "create", e: "Dossier", q: "14 août" },
+                  { a: "create", e: "Client", q: "14 août" },
+                  { a: "update", e: "Client", q: "12 août" },
+                  { a: "create", e: "DossierNavetteMessage", q: "11 août" },
+                ].map((x, i) => (
+                  <div className={"ha-activite" + (i > 0 ? " filet" : "")} key={x.a + x.e + x.q}>
+                    <span className="pastille" aria-hidden />
+                    <span className="txt">
+                      <span className="quoi"><b>{x.a}</b> — {x.e}</span>
+                      <span className="quand">{x.q} · Me Camille Roy</span>
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

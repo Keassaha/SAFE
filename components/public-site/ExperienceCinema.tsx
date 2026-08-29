@@ -914,8 +914,263 @@ const CSS = `
   .xc #hero-app .ha-kv:last-child { border-bottom: 0; }
   .xc #hero-app .ha-kv .k { color: var(--si-muted); }
   .xc #hero-app .ha-kv .v { font-family: var(--mono); font-size: 11px; }
-  .xc #hero-app .ha-ptitle { font-size: 12px; font-weight: 600; margin-bottom: 7px; }
+  /* Le titre d'une carte. CardTitle (components/ui/Card.tsx) vaut 20 px,
+     graisse normale, encre pleine. La replique l'ecrivait a 12 px en gras :
+     un titre de carte y devenait plus petit que le corps qu'il annonce, et
+     gras la ou l'application ne l'est jamais. Ramene a l'echelle de la
+     fenetre, c'est 16 px. */
+  .xc #hero-app .ha-ptitle,
+  .xc #hero-app .ha-titre-carte {
+    font-family: var(--sans);
+    font-size: 16px; font-weight: 400; line-height: 1.2;
+    letter-spacing: -0.012em;
+    color: var(--si-ink);
+    margin-top: 4px; margin-bottom: 8px;
+  }
   .xc #hero-app .ha-mini { font-size: 11px; color: var(--si-muted); margin-top: 3px; }
+
+  /* ── Les deux alertes de la carte d'action ────────────────────────────────
+     BandeauAction les separe du bloc par un filet, pose une puce de 6 px
+     (ambre pour un retard ou le fideicommis, verte sinon) et pousse une
+     fleche oblique a droite. La replique n'avait AUCUNE regle pour ces
+     classes : les deux lignes tombaient en texte nu. */
+  .xc #hero-app .ha-alertes {
+    margin-top: 11px;
+    padding-top: 8px;
+    border-top: 1px solid var(--si-line2);
+  }
+  .xc #hero-app .ha-bullet {
+    display: flex; align-items: center; gap: 9px;
+    margin: 0 -6px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--si-body);
+    cursor: pointer;
+  }
+  .xc #hero-app .ha-bullet i {
+    width: 6px; height: 6px; flex: none;
+    border-radius: 50%;
+    background: var(--si-verified);
+  }
+  .xc #hero-app .ha-bullet i.warn { background: var(--si-amber); }
+  .xc #hero-app .ha-bullet b {
+    margin-left: auto;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--si-muted);
+  }
+
+  /* ── Flux du cabinet et Vos performances, cote a cote ─────────────────────
+     lg:grid-cols-[1.7fr_1fr] dans DashboardViewSafe. Empilees, les deux
+     cartes etiraient le diagramme sur toute la fenetre. */
+  .xc #hero-app .ha-flux-rangee {
+    display: grid; grid-template-columns: 1.7fr 1fr; gap: 11px;
+    margin-top: 11px;
+    align-items: start;
+  }
+
+  /* ── Le diagramme, recopie de CashflowChart.tsx ───────────────────────────
+     Il n'existait qu'en balisage : pas une seule de ses huit classes n'avait
+     de regle, donc « Facture » et « Encaisse » se collaient en un mot et les
+     colonnes ne se dessinaient pas. Le CEO l'a vu dans le fondu de la page. */
+  .xc #hero-app .ha-legend {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 11px;
+  }
+  .xc #hero-app .ha-legend-i {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--si-body);
+  }
+  .xc #hero-app .ha-legend-i i {
+    width: 9px; height: 9px; border-radius: 3px;
+    /* Le facture n'est qu'une creance : il reste gris. L'encaisse est ce qui
+       est reellement rentre, il prend le vert de l'etat valide. */
+    background: var(--si-border-strong);
+  }
+  .xc #hero-app .ha-legend-i.verified i { background: var(--si-verified); }
+  /* La bascule 6 / 12 mois, a droite de la legende. */
+  .xc #hero-app .ha-fenetre { display: flex; align-items: center; gap: 3px; margin-left: auto; }
+  .xc #hero-app .ha-fenetre span {
+    padding: 2px 7px; border-radius: 6px;
+    font-size: 11px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-fenetre span.on { background: var(--si-surface2); color: var(--si-ink); }
+
+  .xc #hero-app .ha-plot { display: flex; align-items: flex-start; gap: 8px; }
+  /* L'axe des montants, en forme courte (« 28 k$ »), comme la fonction
+     compact() du composant reel. Les cinq etiquettes sont centrees sur les
+     cinq filets : d'ou la boite plus haute de 10 px et le retrait de 5 px. */
+  .xc #hero-app .ha-axe {
+    display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;
+    width: 40px; height: 142px; margin-top: -5px;
+    font-size: 10px; line-height: 10px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-bars {
+    position: relative;
+    flex: 1;
+    display: flex; align-items: flex-end; justify-content: space-around;
+  }
+  /* Grille HORIZONTALE seule, en retrait : elle sert la lecture, elle ne la
+     dispute pas (CartesianGrid vertical={false}). */
+  .xc #hero-app .ha-grille {
+    position: absolute; left: 0; right: 0; top: 0;
+    height: 132px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .xc #hero-app .ha-grille i { height: 1px; background: var(--si-line2); }
+  .xc #hero-app .ha-bar-grp {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .xc #hero-app .ha-bar-pair { display: flex; align-items: flex-end; gap: 4px; height: 132px; }
+  /* Le relief est porte par la matiere, jamais par la geometrie : degrade
+     vertical, capuchon arrondi, ombre au sol. La hauteur reste mesuree sur un
+     axe plat, sinon le diagramme ment. */
+  .xc #hero-app .ha-bar {
+    width: 24px;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg,
+      rgb(var(--si-border-strong-rgb) / 0.76) 0%,
+      var(--si-border-strong) 100%);
+    box-shadow: 0 4px 7px -3px rgb(var(--si-ink-rgb) / 0.2);
+  }
+  .xc #hero-app .ha-bar.v {
+    background: linear-gradient(180deg,
+      rgb(var(--si-verified-rgb) / 0.8) 0%,
+      var(--si-verified) 100%);
+  }
+  .xc #hero-app .ha-bar-lbl { font-size: 10px; color: var(--si-muted); }
+  /* Le repli textuel : le diagramme n'est jamais le seul porteur du chiffre. */
+  .xc #hero-app .ha-repli { margin-top: 9px; font-size: 11px; color: var(--si-muted); }
+
+  /* Les cinq ratios, filet a partir du deuxieme, valeur en chasse fixe. */
+  .xc #hero-app .ha-perf { padding: 8px 0; }
+  .xc #hero-app .ha-perf.filet { border-top: 1px solid var(--si-line2); }
+  .xc #hero-app .ha-perf .ligne {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  }
+  .xc #hero-app .ha-perf .k { font-size: 12px; color: var(--si-body); }
+  .xc #hero-app .ha-perf .v {
+    font-family: var(--mono); font-size: 14px; color: var(--si-ink);
+  }
+  .xc #hero-app .ha-perf .v.amber { color: var(--si-amber-ink); }
+  .xc #hero-app .ha-perf .a { margin-top: 2px; font-size: 10.5px; color: var(--si-muted); }
+
+  /* ── La navette, recopiee de LawyerGlance.tsx ─────────────────────────────
+     Autre bloc sans une seule regle. Le compte est a droite du titre, le
+     numero de dossier est une PASTILLE bordee et non un suffixe colle au type
+     par un point median, et chaque message porte son invite « Ouvrir ». */
+  .xc #hero-app .ha-navette-tete { display: flex; align-items: baseline; gap: 6px; }
+  .xc #hero-app .ha-navette-tete .ha-titre-carte { margin-bottom: 0; }
+  .xc #hero-app .ha-navette-tete .ha-mini { margin-top: 0; }
+  .xc #hero-app .ha-navette-tete .compte {
+    margin-left: auto;
+    padding: 1px 8px; border-radius: 999px;
+    background: rgb(var(--si-ink-strong-rgb) / 0.08);
+    color: var(--si-ink-strong);
+    font-family: var(--mono); font-size: 11px;
+  }
+  .xc #hero-app .ha-nav-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 0;
+    border-top: 1px solid var(--si-line2);
+  }
+  .xc #hero-app .ha-nav-item:first-child { border-top: 0; }
+  .xc #hero-app .ha-nav-ico {
+    flex: none;
+    width: 27px; height: 27px; border-radius: 7px;
+    display: grid; place-items: center;
+    font-size: 12px;
+    background: rgb(var(--si-ink-strong-rgb) / 0.06); color: var(--si-ink-strong);
+  }
+  .xc #hero-app .ha-nav-ico.warn {
+    background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
+  }
+  .xc #hero-app .ha-nav-item .txt { display: block; min-width: 0; flex: 1; }
+  .xc #hero-app .ha-nav-item .entete { display: flex; align-items: center; gap: 7px; }
+  .xc #hero-app .ha-nav-item .type {
+    font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--si-muted);
+  }
+  .xc #hero-app .ha-nav-item .ref {
+    padding: 1px 6px; border-radius: 6px;
+    border: 1px solid var(--si-line); background: var(--si-canvas);
+    font-size: 10.5px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-nav-item .body {
+    display: block; margin-top: 4px;
+    font-size: 12.5px; color: var(--si-ink);
+  }
+  .xc #hero-app .ha-nav-item .who {
+    display: block; margin-top: 2px;
+    font-size: 11px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-nav-item .ouvrir {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 6px;
+    font-size: 11px; color: var(--si-ink-strong);
+  }
+  .xc #hero-app .ha-nav-item .ouvrir b { font-weight: 400; }
+
+  /* ── L'etat des obligations, recopie de ds-safe/sections.tsx ──────────────
+     Deux colonnes, un filet en haut de chaque ligne, un carre d'etat teinte
+     (vert quand c'est fait, ambre quand ca reste a faire) et le compte en
+     chasse fixe a droite. Troisieme bloc qui n'avait aucune regle. */
+  .xc #hero-app .ha-oblig-grid {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px;
+  }
+  .xc #hero-app .ha-oblig-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 0;
+    border-top: 1px solid var(--si-line2);
+  }
+  .xc #hero-app .ha-oblig-ico {
+    flex: none;
+    width: 21px; height: 21px; border-radius: 6px;
+    display: grid; place-items: center;
+    font-size: 11px;
+    background: rgb(var(--si-verified-rgb) / 0.1); color: var(--si-verified);
+  }
+  .xc #hero-app .ha-oblig-ico.warn {
+    background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
+  }
+  .xc #hero-app .ha-oblig-item .txt { display: block; flex: 1; min-width: 0; }
+  .xc #hero-app .ha-oblig-item .t { display: block; font-size: 12px; color: var(--si-ink); }
+  .xc #hero-app .ha-oblig-item .d {
+    display: block; margin-top: 1px;
+    font-size: 10.5px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-oblig-item .s {
+    flex: none;
+    font-family: var(--mono); font-size: 10px; color: var(--si-muted);
+  }
+
+  /* ── L'activite recente, recopiee d'ActivityCard ──────────────────────────
+     Une puce verte, l'action en evidence, l'entite en retrait, puis la date
+     relative et l'auteur dessous. C'etait une liste cle/valeur, qui perdait
+     l'auteur et ecrasait les deux lignes en une. */
+  .xc #hero-app .ha-activite {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 7px 0;
+  }
+  .xc #hero-app .ha-activite.filet { border-top: 1px solid var(--si-line2); }
+  .xc #hero-app .ha-activite .pastille {
+    flex: none;
+    width: 6px; height: 6px; margin-top: 5px;
+    border-radius: 50%;
+    background: var(--si-verified);
+  }
+  .xc #hero-app .ha-activite .txt { display: block; min-width: 0; flex: 1; }
+  .xc #hero-app .ha-activite .quoi {
+    display: block;
+    font-size: 12px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-activite .quoi b { font-weight: 500; color: var(--si-ink); }
+  .xc #hero-app .ha-activite .quand {
+    display: block; margin-top: 1px;
+    font-size: 10.5px; color: var(--si-muted);
+  }
 
   /* Registre (écrans Facturation / Comptes) */
   .xc #hero-app table.ha-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
