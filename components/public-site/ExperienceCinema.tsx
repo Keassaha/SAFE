@@ -5486,7 +5486,7 @@ export default function ExperienceCinema() {
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(10)</small></button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues</button>
-                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Communications</button>
+                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Notes internes</button>
                   <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Documents</button>
                 </div>
 

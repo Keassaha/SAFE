@@ -54,14 +54,21 @@ export function DossierProfile({
 }: Props) {
   const [actif, setActif] = useState<OngletId>("apercu");
 
-  /* L'ordre est celui que le CEO a dicté : vue d'ensemble, cartable,
-     communications, documents. Le cartable passe donc de la NEUVIEME place a la
-     deuxieme, ce qui etait le probleme P1 du document de refonte. */
+  /* L'ordre est celui que le CEO a dicté : vue d'ensemble, cartable, pieces,
+     notes internes, documents. Le cartable passe de la NEUVIEME place a la
+     deuxieme, ce qui etait le probleme P1 du document de refonte.
+
+     « Notes internes » et non « Communications », demande CEO du 2026-08-27.
+     Le mot etait faux dans un cabinet : une communication, c'est ce qu'on
+     echange avec le client, la partie adverse ou le tribunal, et ca se classe
+     dans la section « Correspondance » du cartable. Ce fil-ci ne sort jamais du
+     cabinet : c'est l'adjointe et l'avocate qui se parlent. Deux choses qui se
+     ressemblaient de loin portaient le meme nom. */
   const onglets: { id: OngletId; label: string; count?: number; Icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "apercu", label: "Vue d'ensemble", Icon: ClipboardList },
     { id: "cartable", label: "Cartable", count: nbSections, Icon: FolderOpen },
     { id: "pieces", label: "Pièces attendues", count: nbPieces, Icon: Inbox },
-    { id: "communications", label: "Communications", Icon: MessagesSquare },
+    { id: "communications", label: "Notes internes", Icon: MessagesSquare },
     { id: "documents", label: "Documents", count: nbDocuments, Icon: FileText },
   ];
 

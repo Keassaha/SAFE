@@ -876,6 +876,25 @@ export function Header({
           </kbd>
         </div>
 
+        {/* ── La langue revient dans la barre ────────────────────────────
+            Demande CEO du 2026-08-27 : « ma barre de menu n'a pas l'outil de
+            changement de langue ».
+
+            Elle y etait, puis a ete rangee dans le menu du compte au motif
+            qu'on « change une fois » ce reglage. L'argument tient pour un
+            cabinet dont tout le monde lit la meme langue ; il tombe des qu'une
+            adjointe et une avocate n'ont pas la meme, ou qu'on montre
+            l'application a un client anglophone. Deux boutons de 11 px sont un
+            prix raisonnable pour ne pas avoir a fouiller un menu.
+
+            L'illustration de la vitrine montrait DEJA « FR EN » dans la barre :
+            le produit et sa vitrine se contredisaient, et c'est ce que le CEO a
+            vu. Le commutateur reste aussi dans le menu du compte et dans le
+            tiroir mobile, ou il servait de recours. */}
+        <div className="hidden md:block">
+          <LocaleSwitcher />
+        </div>
+
         <AlertCenter status={trustStatus ?? null} province={province ?? null} abonnement={abonnement ?? null} />
 
 
