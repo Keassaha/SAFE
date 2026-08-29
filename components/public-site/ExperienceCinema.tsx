@@ -1365,8 +1365,16 @@ const CSS = `
 
        Pose ICI et pas sur « --ink » : ce jeton sert tout le site ET toute
        l'application, ou un registre comptable a besoin de son contraste plein.
-       Le hero est le seul endroit ou l'encre a un role d'affiche. */
-    color: rgb(38 37 30);
+       Le hero est le seul endroit ou l'encre a un role d'affiche.
+
+       ── Le gris chaud cede au noir le 2026-08-29 ──────────────────────────
+       Demande CEO : « je veux du gris et du noir aussi », puis « le hero 1 et
+       le sous-titre a droite ». Le titre ne portait ni l'un ni l'autre : un
+       gris chaud emprunte a Cursor, et du vert. Le contraste de la premiere
+       moitie de phrase devait monter pour que la seconde puisse redescendre
+       en gris sans que l'ensemble devienne mou. On revient donc a l'encre du
+       site, --si-ink, qui est notre noir. */
+    color: var(--si-ink);
     /* 34ch, la mesure de Cursor : leur bloc de tete fait 810px de large a
        36px. Ramene a 811px sur demande du CEO le 2026-08-27, soit 33,38
        caracteres de notre fonte a cette taille. Le titre et sa suite grise
@@ -1393,7 +1401,18 @@ const CSS = `
   }
     /* Le mot mis en valeur porte exactement le vert du logo, pas l'encre
      de l'action ni le vert de validation. */
-  .xc #hero-copy h1 em { font-style: normal; color: var(--si-brand-green); }
+  /* ── « ensemble. » passe du vert au GRIS ──────────────────────────────────
+     Decision CEO du 2026-08-29.
+
+     Le titre devient une phrase a deux encres : ce qu'on affirme en noir, ce
+     qui l'acheve en gris. C'est le geste que Cursor tient sur toute sa page,
+     et il vaut mieux ici qu'une couleur, pour une raison de hierarchie : le
+     vert du titre et le vert du bouton se disputaient l'oeil a trente
+     centimetres d'ecart, et c'est le bouton qui doit gagner.
+
+     Le vert ne quitte pas le premier ecran. Il se retire du DISCOURS pour ne
+     plus vivre que la ou l'on clique et dans la fenetre du produit. */
+  .xc #hero-copy h1 em { font-style: normal; color: var(--muted); }
   /* ── Le titre a gauche, le sous-titre a DROITE et plus petit ──────────────
      C'est la maquette validee par le CEO, et c'est aussi le contrat que
      dix-huit tetes de section tiennent ailleurs sur le site (« fab1326 »,
@@ -1439,6 +1458,10 @@ const CSS = `
     color: var(--muted);
     max-width: 42ch;
   }
+  /* La phrase qui affirme, en noir. Graisse 400 comme le reste : c'est
+     l'encre qui distingue, jamais le gras (« je veux aucun texte bold »,
+     regle CEO du 2026-08-27). */
+  .xc #hero-copy .hero-desc .tete { color: var(--si-ink); }
   /* Le chapeau d'ouverture est en Geist, la fonte de l'action (demande CEO du
      21 août 2026).
 
@@ -5860,7 +5883,16 @@ export default function ExperienceCinema() {
             <p className="kicker">Système de gestion pour cabinets d&apos;avocats</p>
             <div className="hero-row">
               <h1>Votre cabinet tient <em>ensemble.</em></h1>
-              <p className="hero-desc">Vous travaillez dans le dossier. La facturation, la comptabilité et le fidéicommis en découlent, sans ressaisie.</p>
+              {/* Le sous-titre porte lui aussi les DEUX encres (demande CEO du
+                  2026-08-29). Sa premiere phrase est la seule qui affirme
+                  quelque chose du cabinet : elle prend le noir. Les trois
+                  postes qui suivent expliquent d'ou vient le reste, ils
+                  restent gris. C'est la meme regle que le titre, appliquee un
+                  cran plus bas. */}
+              <p className="hero-desc">
+                <span className="tete">Vous travaillez dans le dossier.</span> La facturation, la
+                comptabilité et le fidéicommis en découlent, sans ressaisie.
+              </p>
             </div>
             <div className="hero-actions">
               <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
