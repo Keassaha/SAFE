@@ -2487,6 +2487,22 @@ const CSS = `
   .xc .fiche .onglets-fiche button:hover { color: var(--si-ink); }
   .xc .fiche .onglets-fiche button.on { color: var(--si-ink); border-bottom-color: var(--si-ink); box-shadow: none; }
   .xc .fiche .onglets-fiche button:focus-visible { outline: 2px solid var(--si-verified); outline-offset: 3px; border-radius: 3px; }
+  /* Le compteur de l'onglet, « Cartable (10) ». Il porte l'argument de la
+     section : dix sections parce que le dossier est immobilier. Gris, pour
+     qu'il se lise comme une quantite et non comme une partie du nom. */
+  .xc .fiche .onglets-fiche button small {
+    margin-left: 4px;
+    font-size: inherit;
+    color: var(--si-muted);
+  }
+  /* Les deux derniers onglets existent dans le produit mais ne s'ouvrent pas
+     dans l'extrait : ils le disent au lieu de promettre un clic qui ne repond
+     pas. Un onglet mort qui a l'air vivant decoit plus qu'il ne montre. */
+  .xc .fiche .onglets-fiche button.inerte {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .xc .fiche .onglets-fiche button.inerte:hover { color: var(--si-muted); }
 
   /* ── Le contour fondant ──────────────────────────────────────────────────
      Demande CEO : un contour qui se fond, pas un bord net qui s'arrete. Le
@@ -5401,7 +5417,7 @@ export default function ExperienceCinema() {
             <figure className="fenetre-produit contour-fondu">
               <div className="barre-fenetre">
                 <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Constructions Beaulieu inc. · dossier 2026-002</span>
+                <span><em>SAFE</em> · Clinique Longueuil inc. · dossier 2026-017</span>
                 <span className="ecart" />
                 <span>Pratique · Dossiers</span>
               </div>
@@ -5443,24 +5459,35 @@ export default function ExperienceCinema() {
                     immeuble commercial », client « Constructions Beaulieu
                     inc. », type immobilier, ouvert le 10 aout 2026, releve
                     dans docs/design/references-app/dossiers.png. */}
+                {/* ── L'EN-TETE DE L'ECRAN REEL ──────────────────────────
+                    Realignee le 2026-08-27, apres la refonte du dossier
+                    (commit « 1dfbfa8 »). Les donnees viennent d'une capture du
+                    CEO : dossier 2026-017, client Clinique Longueuil inc.,
+                    domaine immobilier, Me Camille Roy responsable. */}
                 <div className="fiche-tete anime-bloc">
                   <div>
-                    <p className="retour">Dossiers · Droit immobilier</p>
-                    <h4>Beaulieu — achat immeuble commercial</h4>
-                    <p className="fiche-sous">Ouvert le 10 août 2026 · Me Camille Roy, responsable</p>
+                    <p className="retour">&larr; Retour a la liste &middot; Clinique Longueuil inc.</p>
+                    <h4>2026-017 &mdash; Clinique Longueuil &mdash; immobilier</h4>
                   </div>
                   <div className="actes">
+                    <span className="bt">Avocat : Me Camille Roy</span>
                     <span className="etat"><i aria-hidden />Actif</span>
-                    <span className="bt">2026-002</span>
                   </div>
                 </div>
 
-                {/* De vrais boutons : le clavier les atteint sans qu'on pose
-                    un role ni un index de tabulation a la main. */}
+                {/* Les CINQ onglets de l'ecran, avec leurs compteurs. C'est la
+                    signature visuelle de la fiche depuis la refonte, et c'est
+                    « Cartable (10) » qui porte l'argument de la section : dix
+                    sections ouvertes parce que le dossier est immobilier.
+
+                    De vrais boutons : le clavier les atteint sans qu'on pose un
+                    role ni un index de tabulation a la main. */}
                 <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du dossier">
-                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Structure</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Suivi</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Activité</button>
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(10)</small></button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues</button>
+                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Communications</button>
+                  <button type="button" role="tab" aria-selected="false" className="inerte" disabled>Documents</button>
                 </div>
 
                 <div className="vue on" data-fiche-vue="apercu">
@@ -5482,11 +5509,26 @@ export default function ExperienceCinema() {
                     sources : « Personnes du dossier » a messages/fr.json:1385,
                     les pastilles a 1389-1401, les etats a
                     lib/dossiers/preparation-status.ts:325, les gravites a 333. */}
+                {/* Le RESUME D'OUVERTURE ouvre la vue d'ensemble, comme dans
+                    l'ecran depuis la refonte du 2026-08-27. Le domaine de
+                    pratique le mene : c'est lui qui decide des dix sections du
+                    cartable, et il ne s'affichait NULLE PART avant. */}
+                <div className="carte-bloc anime-bloc">
+                  <div className="ct"><p className="ctt">Le dossier</p></div>
+                  <div className="lignes">
+                    <div className="lg"><span>Domaine de pratique</span><span className="v">Immobilier</span></div>
+                    <div className="lg"><span>Client</span><span className="v">Clinique Longueuil inc.</span></div>
+                    <div className="lg"><span>Ouvert le</span><span className="v">14 ao&ucirc;t 2026 &middot; il y a 13 jours</span></div>
+                    <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
+                    <div className="lg"><span>Adjointe</span><span className="v">A. Bergeron</span></div>
+                  </div>
+                </div>
+
                 <div className="duo-fiche anime-bloc">
                   <div className="carte-bloc">
                     <div className="ct"><p className="ctt">Personnes du dossier</p></div>
                     <div className="lignes">
-                      <div className="lg"><span>Constructions Beaulieu inc.</span><span className="v pastille-cl">Client principal</span></div>
+                      <div className="lg"><span>Clinique Longueuil inc.</span><span className="v pastille-cl">Client principal</span></div>
                       <div className="lg"><span>9271-4408 Qu&eacute;bec inc.</span><span className="v pastille-ex">Partie adverse</span></div>
                       <div className="lg"><span>Caisse, pr&ecirc;teur</span><span className="v pastille-ex">Tiers</span></div>
                     </div>
@@ -5496,7 +5538,7 @@ export default function ExperienceCinema() {
                   <div className="carte-bloc">
                     <div className="ct"><p className="ctt">O&ugrave; j&rsquo;en &eacute;tais ?</p></div>
                     <div className="lignes">
-                      <div className="lg"><span>Derni&egrave;re action<br /><small>A. Bergeron, 19 ao&ucirc;t</small></span><span className="v">Recherche de titres</span></div>
+                      <div className="lg"><span>Derni&egrave;re action<br /><small>A. Bergeron, 26 ao&ucirc;t</small></span><span className="v">Recherche de titres</span></div>
                       <div className="lg"><span>Prochaine action</span><span className="v lien">Demander le certificat de localisation &rarr;</span></div>
                     </div>
                   </div>
@@ -5537,11 +5579,11 @@ export default function ExperienceCinema() {
                       avec le reste vers la section 03. */}
                   <div className="carte-bloc" style={{ marginTop: 18 }}>
                     <div className="ct">
-                      <p className="ctt">2026-002</p>
-                      <span>Beaulieu &mdash; achat immeuble commercial</span>
+                      <p className="ctt">2026-017</p>
+                      <span>Clinique Longueuil &mdash; immobilier</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>&Eacute;tat</span><span className="v">Actif &middot; ouvert le 10 ao&ucirc;t 2026</span></div>
+                      <div className="lg"><span>&Eacute;tat</span><span className="v">Actif &middot; ouvert le 14 ao&ucirc;t 2026</span></div>
                       <div className="lg"><span>Type</span><span className="v">Immobilier</span></div>
                       <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
                       <div className="lg"><span>Adjointe</span><span className="v">A. Bergeron</span></div>
@@ -5559,11 +5601,11 @@ export default function ExperienceCinema() {
                       <span>Ce qui a été inscrit, du plus récent au plus ancien</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>19 ao&ucirc;t &mdash; 0,75 h consign&eacute;e &middot; appel au cr&eacute;ancier</span><span className="v">Non factur&eacute;</span></div>
-                      <div className="lg"><span>15 ao&ucirc;t &mdash; Certificat de localisation demand&eacute;</span><span className="v attente">Attendu</span></div>
-                      <div className="lg"><span>12 ao&ucirc;t &mdash; 1,50 h consign&eacute;e &middot; recherche de titres</span><span className="v">Non factur&eacute;</span></div>
-                      <div className="lg"><span>12 ao&ucirc;t &mdash; Index aux immeubles vers&eacute; au dossier</span><span className="v">Au dossier</span></div>
-                      <div className="lg"><span>10 ao&ucirc;t &mdash; Dossier ouvert</span><span className="v">Actif</span></div>
+                      <div className="lg"><span>26 ao&ucirc;t &mdash; 0,75 h consign&eacute;e &middot; appel au cr&eacute;ancier</span><span className="v">Non factur&eacute;</span></div>
+                      <div className="lg"><span>22 ao&ucirc;t &mdash; Certificat de localisation demand&eacute;</span><span className="v attente">Attendu</span></div>
+                      <div className="lg"><span>18 ao&ucirc;t &mdash; 1,50 h consign&eacute;e &middot; recherche de titres</span><span className="v">Non factur&eacute;</span></div>
+                      <div className="lg"><span>18 ao&ucirc;t &mdash; Index aux immeubles vers&eacute; au dossier</span><span className="v">Au dossier</span></div>
+                      <div className="lg"><span>14 ao&ucirc;t &mdash; Dossier ouvert</span><span className="v">Actif</span></div>
                     </div>
                   </div>
                 </div>
@@ -5623,7 +5665,7 @@ export default function ExperienceCinema() {
                 reconstruit : les parties, les etapes, les echeances et les
                 pieces, le Cabinet Demo n'en portant pas. */}
             <p className="mention-demo">
-              Dossier réel du cabinet de démonstration. <b>Parties, étapes, échéances et
+              Dossier réel du cabinet de démonstration, 2026-017. <b>Parties, étapes, échéances et
               pièces reconstruites</b> pour illustrer la structure d&apos;une vente immobilière.
             </p>
           </div>
