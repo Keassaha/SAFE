@@ -151,7 +151,12 @@ export function HeroLiveApp() {
           </span>
           SAFE
         </span>
-        <span className="ha-cab">Me Camille Roy · Cabinet Demo</span>
+        {/* Le libellé du cabinet est celui que la barre calcule vraiment.
+            `Header.tsx` passe le nom par `nomCompact()` : premier mot + dernier
+            mot, donc « Me Camille Roy » s'affiche « Me Roy ». La réplique
+            écrivait le nom complet suivi du nom du cabinet, une forme que la
+            barre ne produit dans aucun cas. */}
+        <span className="ha-cab">Me Roy</span>
 
         <div className="ha-menu">
           {MENUS.map((m) => (
@@ -191,11 +196,17 @@ export function HeroLiveApp() {
 
         {/* La cloche et « Temps » existent dans l'application et manquaient
             ici. Le raccourci ⌘K aussi : c'est ce qui dit qu'une barre de
-            recherche appartient a un logiciel et non a un site. */}
+            recherche appartient a un logiciel et non a un site.
+
+            L'ORDRE est celui de Header.tsx et non un ordre choisi ici :
+            recherche, langue, alertes, chrono, compte. La replique plaçait la
+            langue apres le chrono, ce qui separait les deux reglages
+            permanents (langue, compte) par deux indicateurs vivants. */}
         <div className="ha-right">
           <span className="ha-search">
-            Rechercher un client…<span className="kbd" aria-hidden>⌘K</span>
+            Rechercher clients, dossiers, factures…<span className="kbd" aria-hidden>⌘K</span>
           </span>
+          <span className="ha-lang"><span className="on">FR</span><span>EN</span></span>
           <span className="ha-cloche" aria-hidden>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 2a4 4 0 00-4 4c0 3-1 4-1 4h10s-1-1-1-4a4 4 0 00-4-4z" />
@@ -210,21 +221,12 @@ export function HeroLiveApp() {
             </svg>
             Temps
           </span>
-          <span className="ha-lang"><span className="on">FR</span><span>EN</span></span>
-          <span className="ha-avatar">CR</span>
+          {/* La pastille du compte porte l'INITIALE, pas des initiales :
+              `Header.tsx` fait `(user.name ?? user.email)[0]`, donc « Me
+              Camille Roy » donne « M ». La replique ecrivait « CR », que la
+              barre ne produit jamais. */}
+          <span className="ha-avatar">M</span>
         </div>
-      </div>
-
-      {/* ── Bandeau d'état ── */}
-      <div className="ha-strip">
-        <span className="s"><i aria-hidden />Dossiers actifs <b>43</b></span>
-        <span className="s"><i aria-hidden />Clients actifs <b>25</b></span>
-        <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
-        {/* La date, comme dans l'application. Elle disait « Extrait navigable ·
-            ouvrez un menu » : une interface qui explique comment s'en servir
-            avoue qu'elle n'est pas evidente, et le meme raisonnement avait
-            deja fait tomber la legende de l'extrait le 2026-08-26. */}
-        <span className="date">jeudi 27 août 2026</span>
       </div>
 
       <div className="ha-body">
@@ -260,6 +262,23 @@ export function HeroLiveApp() {
                 <i aria-hidden />118 881,25 $ en heures non facturées
               </div>
             </div>
+          </div>
+
+          {/* Bandeau d'état, à sa VRAIE place.
+             `DashboardViewSafe.tsx` le monte en position 2, entre la carte
+             d'action et les montants (« 2. L'état réglementaire, en une bande
+             fine »). La réplique le posait au-dessus du titre, collé sous la
+             barre de menu, et le montrait sur les quinze écrans : dans
+             l'application il n'appartient qu'au tableau de bord. Il descend
+             donc dans le corps, et il ne vit plus que dans ce panneau.
+             Séparateurs et date en chasse fixe, comme ComplianceStrip. */}
+          <div className="ha-strip">
+            <span className="s"><i aria-hidden />Dossiers actifs <b>43</b></span>
+            <span className="sep" aria-hidden />
+            <span className="s"><i aria-hidden />Clients actifs <b>25</b></span>
+            <span className="sep" aria-hidden />
+            <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
+            <span className="date">samedi 29 août 2026</span>
           </div>
 
           {/* Les montants à surveiller : fidéicommis sur deux colonnes, comme

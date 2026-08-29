@@ -622,7 +622,15 @@ const CSS = `
     padding-left: 13px; border-left: 1px solid var(--si-line);
     white-space: nowrap;
   }
-  .xc #hero-app .ha-menu { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
+  /* La navigation est CENTRÉE dans la barre, pas accrochée à la marque.
+     Header.tsx pose sa nav en flex-1 justify-center entre deux groupes
+     shrink-0. La réplique la collait derrière le nom du cabinet, ce qui
+     laissait tout le vide à droite et donnait le rythme d'un menu de site. */
+  .xc #hero-app .ha-menu {
+    display: flex; align-items: center; gap: 2px;
+    flex: 1 1 auto; min-width: 0;
+    justify-content: center;
+  }
   .xc #hero-app .ha-item {
     position: relative;
     display: flex; align-items: center; gap: 5px;
@@ -638,10 +646,12 @@ const CSS = `
      On ne redéfinit surtout pas :hover ici, un sélecteur avec #id l'emporterait
      sur la classe globale et la vitrine se remettrait à diverger du produit. */
   .xc #hero-app .ha-item:hover { color: var(--si-ink); }
+  /* « Vous êtes ici » se dit par l'ENCRE SEULE. Header.tsx bascule la couleur
+     du texte de si-muted vers si-ink, et rien d'autre. La réplique peignait
+     une pastille bordée que la barre ne dessine jamais, et cette pastille se
+     lisait comme un onglet sélectionné. */
   .xc #hero-app .ha-item.on {
     color: var(--si-ink);
-    background: var(--si-surface);
-    box-shadow: inset 0 0 0 1px var(--si-line);
     font-weight: 500;
   }
   .xc #hero-app .ha-item .car {
@@ -706,12 +716,24 @@ const CSS = `
     white-space: nowrap;
     overflow: hidden;
   }
+  /* Le commutateur de langue : un étui clair, et la langue courante posée
+     dessus en gris pâle. LocaleSwitcher.tsx teinte le bouton actif en
+     primary-100 sur un étui blanc bordé, et cette rampe vaut un gris très
+     clair, pas l'encre pleine. La réplique remplissait le bouton actif en
+     noir, ce qui en faisait l'objet le plus lourd de la barre alors que ce
+     n'est qu'un réglage. */
   .xc #hero-app .ha-lang {
-    display: flex; border: 1px solid var(--si-line); border-radius: 7px; overflow: hidden;
+    display: flex; gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--si-line); border-radius: 7px;
+    background: var(--si-surface);
     font-size: 11px;
   }
-  .xc #hero-app .ha-lang span { padding: 4px 7px; color: var(--si-muted); }
-  .xc #hero-app .ha-lang span.on { background: var(--si-ink-strong); color: var(--si-surface); }
+  .xc #hero-app .ha-lang span { padding: 3px 6px; border-radius: 5px; color: var(--si-muted); }
+  .xc #hero-app .ha-lang span.on {
+    background: rgb(var(--si-ink-strong-rgb) / 0.09);
+    color: var(--si-ink);
+  }
   .xc #hero-app .ha-avatar {
     width: 24px; height: 24px; border-radius: 50%;
     background: var(--si-ink-strong); color: var(--si-surface);
@@ -755,14 +777,14 @@ const CSS = `
   .xc #hero-app .ha-drop a.inerte { color: var(--si-muted); cursor: default; }
 
   /* Bandeau d'état */
-  /* Pastille arrondie et detachee, comme dans l'application. Elle etait un
-     bandeau pleine largeur colle sous la barre ; la vraie la pose DANS le
-     contenu, sous la carte d'action, arrondie et a la meme marge que les
-     cartes. */
+  /* Pastille arrondie et detachee, comme dans l'application. Elle vit
+     maintenant DANS le corps du tableau de bord, entre la carte d'action et
+     les montants, a la meme marge que les cartes : c'est la position que lui
+     donne DashboardViewSafe.tsx, et elle n'existe que sur cet ecran. */
   .xc #hero-app .ha-strip {
-    display: flex; align-items: center; gap: 20px;
+    display: flex; align-items: center; gap: 13px;
     height: 32px;
-    margin: 10px 12px 0;
+    margin-top: 11px;
     padding: 0 14px;
     border-radius: 10px;
     background: var(--si-ink-strong);
@@ -776,7 +798,15 @@ const CSS = `
   }
   .xc #hero-app .ha-strip .s.warn i { background: var(--si-amber-on-forest, #E0B54A); }
   .xc #hero-app .ha-strip .s b { font-weight: 600; }
-  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--sans); font-size: var(--t-menu); }
+  /* Le filet vertical entre deux mesures, comme ComplianceStrip. Sans lui, les
+     trois couples libelle/valeur se lisent comme une seule phrase. */
+  .xc #hero-app .ha-strip .sep {
+    width: 1px; height: 13px;
+    background: rgb(var(--si-surface-rgb) / 0.16);
+  }
+  /* La date est en chasse fixe dans l'application (font-mono), et c'est ce
+     qui la range du cote des donnees plutot que du texte. */
+  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.7; font-family: var(--mono); font-size: var(--t-menu); }
 
   /* Corps */
   .xc #hero-app .ha-body { padding: 12px 12px 14px; }
