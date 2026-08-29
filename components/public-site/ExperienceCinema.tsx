@@ -28,6 +28,21 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+/* Les icones du cartable viennent de la MEME bibliotheque que l'application,
+   et leurs noms sont ceux que lib/dossiers/cartable-templates/index.ts attribue
+   aux dix sections d'un dossier immobilier. Les redessiner a la main donnerait
+   des glyphes approchants, c'est-a-dire un dixieme ecart de plus a surveiller. */
+import {
+  FileSignature,
+  FileText,
+  Wallet,
+  Search,
+  Receipt,
+  Mail,
+  StickyNote,
+  Archive,
+  ChevronRight,
+} from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
 import {
   ASSEMBLY_PIECE_A_PATH,
@@ -37,6 +52,7 @@ import {
 import Image from "next/image";
 import { Objections, reglesObjections, type Objection } from "./objections";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
+import { BarreAppVitrine } from "@/components/public-site/BarreAppVitrine";
 import { MENU_PRINCIPAL } from "@/components/public-site/menu-principal";
 import { SafeMark } from "@/components/branding/SafeLogo";
 import { AnimationsRecit } from "@/components/public-site/recit";
@@ -2606,7 +2622,53 @@ const CSS = `
      decrit ; en ajouter une seconde ici laisserait deux regles se disputer la
      meme declaration, et c'est la derniere ecrite qui l'emporterait. */
   .xc .fiche .fiche-carte .onglets-fiche { margin-top: 0; }
-  .xc .fiche .vues { padding: 24px; }
+  /* Le rembourrage vit sur le PANNEAU et non sur leur conteneur : le cartable
+     est le seul a n'en prendre aucun, exactement comme DossierProfile qui
+     ecrit « actif === "cartable" ? "" : "p-6" ». */
+  .xc .fiche .vues { padding: 0; }
+  .xc .fiche .vue { padding: 24px; }
+  .xc .fiche .vue.sans-marge { padding: 0; }
+
+  /* ── Le cartable, recopie de briefcase/ ──────────────────────────────────
+     Deux volets : la colonne des sections a gauche (256 px, fond canvas a
+     demi, filet a droite), le lecteur de document a droite avec son etat
+     vide. */
+  .xc .fiche .cartable { display: flex; min-height: 340px; }
+  .xc .fiche .cartable-cote {
+    width: 256px; flex: none;
+    padding: 16px;
+    background: rgb(var(--si-canvas-rgb) / 0.5);
+    border-right: 1px solid var(--si-line);
+  }
+  .xc .fiche .cartable-cote .ctt { margin-bottom: 16px; }
+  .xc .fiche .cartable-cote nav { display: grid; gap: 4px; }
+  .xc .fiche .cartable-cote .sec {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--si-ink);
+  }
+  .xc .fiche .cartable-cote .chev,
+  .xc .fiche .cartable-cote .ico { width: 16px; height: 16px; flex: none; }
+  .xc .fiche .cartable-cote .lb { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .xc .fiche .cartable-lecteur {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px;
+    background: var(--si-surface);
+    text-align: center;
+  }
+  .xc .fiche .cartable-lecteur .gd {
+    width: 48px; height: 48px;
+    color: rgb(var(--si-muted-rgb) / 0.5);
+  }
+  .xc .fiche .cartable-lecteur p { font-size: 14px; font-weight: 500; color: var(--si-muted); }
+  @media (max-width: 900px) {
+    .xc .fiche .cartable { flex-direction: column; }
+    .xc .fiche .cartable-cote {
+      width: 100%;
+      border-right: 0; border-bottom: 1px solid var(--si-line);
+    }
+  }
   /* Les blocs de la vue d'ensemble s'empilent, comme space-y-5. */
   .xc .fiche .vue > .carte-bloc + .carte-bloc { margin-top: 20px; }
   .xc .fiche .alertes {
@@ -2828,44 +2890,96 @@ const CSS = `
      Elle situe la page. Elle ne se navigue pas : l'illustration ne porte que
      sur l'ecran affiche, et un menu qui s'ouvrirait sur rien decevrait plus
      qu'il ne montrerait. */
+  /* Les tailles sont celles de Header.tsx : barre de 56 px, libelles de 13 px,
+     icones de 16 px, champ de recherche de 32 px, pastille de compte de 32 px.
+     Elle ecrivait tout a 11 px, l'echelle du plancher editorial de la page. */
   .xc .fenetre-produit .barre-app {
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    margin: 14px; padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin: 14px; padding: 0 14px; height: 56px;
     background: var(--si-surface);
     border: 1px solid var(--si-border);
     border-radius: 12px;
     box-shadow: 0 10px 26px -22px rgb(var(--si-line-ink-rgb) / 0.40);
-    font-size: var(--t-menu); color: var(--si-muted);
+    font-size: 13px; color: var(--si-muted);
   }
   .xc .fenetre-produit .barre-app .mk {
-    display: inline-flex; align-items: center; gap: 7px;
+    display: inline-flex; align-items: center; gap: 7px; flex: none;
     font-weight: 600; letter-spacing: 0.06em; color: var(--si-ink);
   }
-  .xc .fenetre-produit .barre-app .sep { width: 1px; height: 18px; background: var(--si-border); }
-  .xc .fenetre-produit .barre-app .cab { color: var(--si-ink); font-weight: 500; }
-  .xc .fenetre-produit .barre-app nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .xc .fenetre-produit .barre-app .sep { width: 1px; height: 24px; background: var(--si-border); flex: none; }
+  .xc .fenetre-produit .barre-app .cab { color: var(--si-ink); font-weight: 500; flex: none; }
+  /* La navigation est CENTREE entre deux groupes fixes, comme dans Header.tsx.
+     Elle etait accrochee a la marque, et tout le vide tombait a droite. */
+  .xc .fenetre-produit .barre-app nav {
+    display: flex; align-items: center; gap: 0;
+    flex: 1 1 auto; min-width: 0; justify-content: center;
+  }
+  /* La fenetre fait ~1130 px la ou la barre du produit en fait 1320. Les six
+     libelles ne tiennent qu'en resserrant le rembourrage : ils debordaient de
+     76 px et se peignaient par-dessus le nom du cabinet et la recherche.
+     L'application resout le meme probleme en RETIRANT les libelles sous
+     1280 px ; ici on prefere les garder, parce qu'une barre d'icones muettes
+     n'apprend rien a qui decouvre le produit. */
+  .xc .fenetre-produit .barre-app nav span {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 6px; border-radius: 8px; white-space: nowrap;
+  }
+  /* « Vous etes ici » se dit par l'encre seule : Header.tsx ne peint aucune
+     pastille sous l'entree active. */
   .xc .fenetre-produit .barre-app nav .on { color: var(--si-ink); font-weight: 500; }
+  .xc .fenetre-produit .barre-app .mi { width: 16px; height: 16px; flex: none; }
+  .xc .fenetre-produit .barre-app .li { width: 15px; height: 15px; flex: none; }
   .xc .fenetre-produit .barre-app .cv {
-    display: inline-block; width: 6px; height: 6px; margin-left: 4px;
+    display: inline-block; width: 6px; height: 6px; margin-left: -2px;
     border-right: 1.3px solid currentColor; border-bottom: 1.3px solid currentColor;
     transform: translateY(-2px) rotate(45deg); opacity: 0.5;
   }
-  .xc .fenetre-produit .barre-app .ecart { flex: 1; }
+  .xc .fenetre-produit .barre-app .ecart { display: none; }
+  /* Le champ de recherche porte son raccourci A L'INTERIEUR. Pose a cote, il
+     se lisait comme un second bouton. */
   .xc .fenetre-produit .barre-app .ch {
-    border: 1px solid var(--si-border); border-radius: 8px;
-    padding: 5px 10px; min-width: 130px; color: var(--si-subtle);
+    display: inline-flex; align-items: center; gap: 8px; flex: none;
+    height: 32px; width: 138px; padding: 0 8px;
+    border: 1px solid var(--si-border); border-radius: 7px;
+    background: var(--si-canvas);
+    font-size: 12.5px; color: var(--si-subtle);
+    overflow: hidden;
   }
+  .xc .fenetre-produit .barre-app .ch .ph { overflow: hidden; white-space: nowrap; }
   .xc .fenetre-produit .barre-app .cl {
-    border: 1px solid var(--si-border); border-radius: 5px; padding: 1px 5px; color: var(--si-subtle);
+    margin-left: auto; flex: none;
+    border: 1px solid var(--si-border); border-radius: 4px; padding: 0 4px;
+    font-family: var(--mono); font-size: 9px; color: var(--si-subtle);
+    background: var(--si-surface);
   }
-  /* La pastille de notifications porte son compte, comme dans le produit. */
-  .xc .fenetre-produit .barre-app .cloche {
-    display: inline-grid; place-items: center; width: 17px; height: 17px;
-    border-radius: 50%; background: #A83232; color: #fff; font-size: 9px;
+  /* Le commutateur de langue : un etui clair, la langue courante en gris tres
+     pale. Il manquait entierement. */
+  .xc .fenetre-produit .barre-app .lang {
+    display: flex; gap: 2px; flex: none; padding: 2px;
+    border: 1px solid var(--si-border); border-radius: 7px;
+    font-size: 12px;
+  }
+  .xc .fenetre-produit .barre-app .lang span { padding: 3px 7px; border-radius: 5px; }
+  .xc .fenetre-produit .barre-app .lang span.on {
+    background: rgb(var(--si-ink-strong-rgb) / 0.09); color: var(--si-ink);
+  }
+  /* Une CLOCHE avec son compte, et non une pastille rouge nue. */
+  .xc .fenetre-produit .barre-app .cloche { position: relative; display: inline-flex; flex: none; }
+  .xc .fenetre-produit .barre-app .cloche i {
+    position: absolute; top: -5px; right: -6px;
+    min-width: 13px; height: 13px; padding: 0 3px;
+    border-radius: 999px;
+    background: var(--si-danger-ink, #a32d2d); color: #fff;
+    font-family: var(--sans); font-style: normal; font-size: 9px;
+    line-height: 13px; text-align: center;
+  }
+  .xc .fenetre-produit .barre-app .tps {
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
   }
   .xc .fenetre-produit .barre-app .av {
-    display: inline-grid; place-items: center; width: 22px; height: 22px;
-    border-radius: 50%; background: var(--si-ink-strong); color: var(--si-surface); font-size: 10px;
+    display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none;
+    border-radius: 50%; background: var(--si-ink-strong); color: var(--si-surface);
+    font-size: 12px; font-weight: 500;
   }
   /* Le chevron d'un lien qui sort de l'application. */
   .xc .fiche .actes .ext {
@@ -5865,25 +5979,7 @@ export default function ExperienceCinema() {
                   parce que l'illustration ne porte que sur cette page-la, et
                   qu'un menu qui s'ouvre sur rien deçoit plus qu'il ne montre.
                   aria-hidden : un lecteur d'ecran n'a rien a y faire. */}
-              <div className="barre-app" aria-hidden>
-                <span className="mk"><SafeMark size={15} />SAFE</span>
-                <span className="sep" />
-                <span className="cab">Me Roy</span>
-                <nav>
-                  <span>Tableau de bord</span>
-                  <span>Aujourd&apos;hui</span>
-                  <span className="on">Pratique <b className="cv" /></span>
-                  <span>Finances <b className="cv" /></span>
-                  <span>Outils <b className="cv" /></span>
-                  <span>Paramètres</span>
-                </nav>
-                <span className="ecart" />
-                <span className="ch">Rechercher clie</span>
-                <span className="cl">⌘K</span>
-                <span className="cloche">2</span>
-                <span>Temps</span>
-                <span className="av">C</span>
-              </div>
+              <BarreAppVitrine actif="pratique" />
 
               <div className="fiche extrait-nav">
                 {/* L'en-tete est celle d'un DOSSIER, plus celle d'un client.
@@ -6058,23 +6154,47 @@ export default function ExperienceCinema() {
 
                     C'est TOUT l'argument de la section, et il se lit ici sans
                     qu'on ait besoin de l'ecrire. */}
-                <div className="vue" data-fiche-vue="dossiers">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Cartable du dossier</p>
-                      <span>Dix sections, ouvertes parce que le dossier est immobilier</span>
+                {/* Le cartable est un CARTABLE A DEUX VOLETS, pas une liste.
+                    `DossierBriefcase.tsx` pose une colonne de 256 px
+                    (BriefcaseSidebar : fond canvas, filet a droite, titre
+                    « Cartables », une rangee par section avec son chevron et
+                    son icone) et, a droite, le lecteur de document et son etat
+                    vide. La replique l'avait aplati en dix lignes cle/valeur
+                    avec des tirets, ce qui ne ressemble a rien de l'ecran.
+
+                    Le volet ne porte AUCUN rembourrage dans la carte a onglets
+                    (DossierProfile : « actif === "cartable" ? "" : "p-6" ») :
+                    le cartable touche les bords. */}
+                <div className="vue sans-marge" data-fiche-vue="dossiers">
+                  <div className="cartable">
+                    <div className="cartable-cote">
+                      <p className="ctt">Cartables</p>
+                      <nav>
+                        {[
+                          { l: "Mandat et engagement", I: FileSignature },
+                          { l: "Offre et convention", I: FileText },
+                          { l: "Financement et hypothèque", I: Wallet },
+                          { l: "Recherche de titres", I: Search },
+                          { l: "Documents de clôture", I: FileSignature },
+                          { l: "Débours et ajustements", I: Receipt },
+                          { l: "Correspondance", I: Mail },
+                          { l: "Fidéicommis", I: Wallet },
+                          { l: "Notes et honoraires", I: StickyNote },
+                          { l: "Fermeture du dossier", I: Archive },
+                        ].map(({ l, I }) => (
+                          <span className="sec" key={l}>
+                            <ChevronRight className="chev" aria-hidden />
+                            <I className="ico" aria-hidden />
+                            <span className="lb">{l}</span>
+                          </span>
+                        ))}
+                      </nav>
                     </div>
-                    <div className="lignes">
-                      <div className="lg"><span>Mandat et engagement</span><span className="v attente">Aucun document</span></div>
-                      <div className="lg"><span>Offre et convention</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Financement et hypoth&egrave;que</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Recherche de titres</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Documents de cl&ocirc;ture</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>D&eacute;bours et ajustements</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Correspondance</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Fid&eacute;icommis</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Notes et honoraires</span><span className="v">&mdash;</span></div>
-                      <div className="lg"><span>Fermeture du dossier</span><span className="v">&mdash;</span></div>
+                    {/* L'etat vide du lecteur, mot pour mot : le libelle est a
+                        messages/fr.json, cle « selectDocumentToView ». */}
+                    <div className="cartable-lecteur">
+                      <FileText className="gd" aria-hidden />
+                      <p>S&eacute;lectionnez un document pour voir son contenu</p>
                     </div>
                   </div>
                 </div>
@@ -6304,25 +6424,7 @@ export default function ExperienceCinema() {
                 <span>Finances</span>
               </div>
 
-              <div className="barre-app" aria-hidden>
-                <span className="mk"><SafeMark size={15} />SAFE</span>
-                <span className="sep" />
-                <span className="cab">Me Roy</span>
-                <nav>
-                  <span>Tableau de bord</span>
-                  <span>Aujourd&apos;hui</span>
-                  <span>Pratique <b className="cv" /></span>
-                  <span className="on">Finances <b className="cv" /></span>
-                  <span>Outils <b className="cv" /></span>
-                  <span>Paramètres</span>
-                </nav>
-                <span className="ecart" />
-                <span className="ch">Rechercher clie</span>
-                <span className="cl">⌘K</span>
-                <span className="cloche">2</span>
-                <span>Temps</span>
-                <span className="av">C</span>
-              </div>
+              <BarreAppVitrine actif="finances" />
 
               <div className="fiche extrait-nav">
                 <div className="fiche-tete anime-bloc">
@@ -6429,25 +6531,7 @@ export default function ExperienceCinema() {
                 <span>Finances</span>
               </div>
 
-              <div className="barre-app" aria-hidden>
-                <span className="mk"><SafeMark size={15} />SAFE</span>
-                <span className="sep" />
-                <span className="cab">Me Roy</span>
-                <nav>
-                  <span>Tableau de bord</span>
-                  <span>Aujourd&apos;hui</span>
-                  <span>Pratique <b className="cv" /></span>
-                  <span className="on">Finances <b className="cv" /></span>
-                  <span>Outils <b className="cv" /></span>
-                  <span>Paramètres</span>
-                </nav>
-                <span className="ecart" />
-                <span className="ch">Rechercher clie</span>
-                <span className="cl">⌘K</span>
-                <span className="cloche">2</span>
-                <span>Temps</span>
-                <span className="av">C</span>
-              </div>
+              <BarreAppVitrine actif="finances" />
 
               <div className="fiche extrait-nav">
                 <div className="fiche-tete anime-bloc">
