@@ -2542,32 +2542,73 @@ const CSS = `
     display: flex; align-items: flex-start; justify-content: space-between;
     gap: 20px; flex-wrap: wrap;
   }
-  .xc .fiche .retour { font-size: var(--t-menu); color: var(--si-muted); }
+  /* ── L'ECHELLE EST CELLE DE L'APPLICATION, PAS CELLE DE LA PAGE ───────────
+     Defaut releve par le CEO le 2026-08-29 : « les dimensions ne refletent en
+     rien le detail de l'application reelle ».
+
+     La fiche empruntait les jetons editoriaux de la landing. Or --t-titre monte
+     a 40 px et --t-argument a 24 px, quand l'ecran ecrit son titre a 24 px
+     (text-xl sm:text-2xl) et ses titres de cartes a 14 px (text-sm). Le titre
+     du dossier etait donc presque deux fois trop gros, et chaque carte annoncee
+     par un titre plus grand que le texte qu'elle contient. Ces regles passent
+     en pixels d'application : une fenetre de produit ne suit pas l'echelle du
+     discours qui l'entoure. */
+  .xc .fiche .retour { font-size: 14px; color: var(--si-muted); }
+  .xc .fiche .retour .lien { color: var(--si-verified); font-weight: 500; }
+  .xc .fiche .retour .pt { margin: 0 8px; opacity: 0.5; }
   .xc .fiche h4 {
-    font-family: var(--sans); font-weight: 400; font-size: var(--t-titre);
-    line-height: 1.06; margin-top: 6px; letter-spacing: -0.016em;
+    font-family: var(--sans); font-weight: 500; font-size: 24px;
+    line-height: 1.2; margin-top: 8px; letter-spacing: -0.02em;
+    color: var(--si-ink);
   }
   .xc .fiche .actes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  /* Les boutons de l'en-tete suivent components/ui/Button.tsx : 14 px, graisse
+     moyenne, rayon 6 px, 16 px de rembourrage lateral. */
   .xc .fiche .actes .bt {
-    font-size: var(--t-menu); padding: 6px 12px; border-radius: 8px;
+    display: inline-flex; align-items: center;
+    font-size: 14px; font-weight: 500; letter-spacing: -0.01em;
+    padding: 9px 16px; border-radius: 6px;
     border: 1px solid var(--si-border); background: var(--si-surface); color: var(--si-ink);
   }
-  .xc .fiche .etat {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 11px; border-radius: 999px; font-size: var(--t-menu);
-    border: 1px solid rgb(38 101 74 / 0.32); background: rgb(38 101 74 / 0.09);
+  /* Les pastilles de l'en-tete : rectangles arrondis de 8 px, 12 px de texte,
+     graisse moyenne. Ce ne sont pas des gelules, et l'etat n'a pas de puce. */
+  .xc .fiche .fiche-pastilles .pa {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--si-line); background: var(--si-canvas); color: var(--si-ink);
+  }
+  .xc .fiche .fiche-pastilles .pa.etat {
+    border-color: rgb(var(--si-verified-rgb) / 0.28);
+    background: rgb(var(--si-verified-rgb) / 0.08);
     color: var(--si-verified);
   }
-  .xc .fiche .etat i { width: 5px; height: 5px; border-radius: 50%; background: var(--si-verified); }
-  .xc .fiche .onglets-fiche {
-    display: flex; gap: 22px; margin-top: 20px;
-    /* Le rembourrage vit sur les BOUTONS, pas ici : sinon le trait de
-       l'onglet actif se pose 11 px sous le filet et pend dans le vide. Le
-       filet reste sur le conteneur, et le trait actif le recouvre. */
-    border-bottom: 1px solid var(--si-border); padding-bottom: 0;
-    font-size: var(--t-detail); color: var(--si-muted);
+  /* ── La barre d'onglets et ses panneaux, dans UNE carte ───────────────────
+     DossierProfile.tsx : rounded-2xl, filet complet, la nav portant le filet
+     bas et un retrait de 8 px, chaque onglet a 14 px en graisse moyenne avec
+     16 px de rembourrage lateral et 12 px vertical, l'onglet actif souligne
+     d'un trait de 2 px. Le contenu vit dans la meme carte, rembourre a 24 px. */
+  .xc .fiche .fiche-carte {
+    margin-top: 20px;
+    border: 1px solid var(--si-line);
+    border-radius: 16px;
+    background: var(--si-surface);
+    overflow: hidden;
   }
-  .xc .fiche .onglets-fiche .on { color: var(--si-ink); box-shadow: 0 11px 0 -10px var(--si-ink); }
+  .xc .fiche .onglets-fiche {
+    display: flex; gap: 4px; margin-top: 20px;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--si-line);
+    font-size: 14px; color: var(--si-muted);
+  }
+  /* Dans la carte, la barre touche le bord haut : la carte porte deja le
+     retrait. Le style des BOUTONS vit plus bas, dans la regle unique qui les
+     decrit ; en ajouter une seconde ici laisserait deux regles se disputer la
+     meme declaration, et c'est la derniere ecrite qui l'emporterait. */
+  .xc .fiche .fiche-carte .onglets-fiche { margin-top: 0; }
+  .xc .fiche .vues { padding: 24px; }
+  /* Les blocs de la vue d'ensemble s'empilent, comme space-y-5. */
+  .xc .fiche .vue > .carte-bloc + .carte-bloc { margin-top: 20px; }
   .xc .fiche .alertes {
     margin-top: 18px; padding: 14px 18px; border-radius: 10px;
     border: 1px solid rgb(138 100 18 / 0.30); background: rgb(138 100 18 / 0.07);
@@ -2605,28 +2646,105 @@ const CSS = `
     font-variant-numeric: tabular-nums;
   }
   .xc .fiche .tot .s { font-size: var(--t-menu); color: var(--si-muted); margin-top: 4px; }
+  /* La carte de la vue d'ensemble : rounded-2xl, filet, 16 px de rembourrage,
+     et un titre de 14 px en graisse moyenne. Elle n'a PAS de bandeau de titre
+     borde : la replique en dessinait un, avec un titre a 24 px. */
   .xc .fiche .carte-bloc {
-    margin-top: 14px; border: 1px solid var(--si-border);
-    border-radius: 12px; background: var(--si-surface); overflow: hidden;
+    border: 1px solid var(--si-line);
+    border-radius: 16px; background: var(--si-surface);
+    padding: 16px;
   }
   .xc .fiche .carte-bloc .ct {
-    display: flex; align-items: baseline; justify-content: space-between; gap: 14px;
-    padding: 14px 18px; border-bottom: 1px solid var(--si-border);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap;
   }
-  .xc .fiche .carte-bloc .ctt { font-family: var(--sans); font-weight: 400; font-size: var(--t-argument); }
-  .xc .fiche .carte-bloc .ct span { font-size: var(--t-menu); color: var(--si-muted); }
-  .xc .fiche .lignes { padding: 4px 18px 10px; }
+  .xc .fiche .carte-bloc .ctt {
+    font-family: var(--sans); font-weight: 500; font-size: 14px;
+    color: var(--si-ink); margin-bottom: 12px;
+  }
+  .xc .fiche .carte-bloc .ct .ctt { margin-bottom: 0; }
+  .xc .fiche .carte-bloc .ct span { font-size: 12px; color: var(--si-muted); }
+  .xc .fiche .lignes { padding: 0; }
   .xc .fiche .lg {
-    display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: baseline;
-    padding: 11px 0; border-bottom: 1px solid var(--si-line2, var(--si-line));
-    font-size: var(--t-detail);
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline;
+    padding: 8px 0; border-bottom: 1px solid rgb(var(--si-line-ink-rgb) / 0.06);
+    font-size: 14px; color: var(--si-muted);
   }
   .xc .fiche .lg:last-child { border-bottom: 0; }
-  .xc .fiche .lg .v { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--si-ink); }
+  /* La valeur est en SANS, alignee a droite. Elle etait en chasse fixe : rien
+     dans DossierResumeOuverture ne l'est, ses dd sont
+     « text-right text-sm text-si-ink ». */
+  .xc .fiche .lg .v { text-align: right; color: var(--si-ink); }
+  .xc .fiche .lg .v em { font-style: normal; color: var(--si-muted); }
   .xc .fiche .lg .v.attente { color: var(--si-amber-ink); }
   .xc .fiche .lg small { color: var(--si-muted); font-size: var(--t-menu); }
   .xc .fiche .duo-fiche { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .xc .fiche .duo-fiche .carte-bloc { margin-top: 14px; }
+
+  /* ── « Etat du dossier », recopie de DossierEtatCard.tsx ──────────────────
+     Ce bloc n'est pas un tableau. Il enchaine : le titre et sa pastille
+     d'etat, la phrase de derniere action, un exergue en petites capitales,
+     une liste a puces des manquants, puis la prochaine action dans un encadre
+     vert avec son bouton plein. La replique l'avait aplati en six lignes
+     cle/valeur, ce qui effacait justement la progression que la section
+     promet : ce qui a ete fait, ce qui manque, ce qui doit suivre. */
+  .xc .fiche .etat-dossier .pa {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 500;
+  }
+  .xc .fiche .etat-dossier .pa.incomplet {
+    background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
+  }
+  .xc .fiche .etat-dossier .vide { margin-top: 12px; font-size: 14px; color: var(--si-muted); }
+  .xc .fiche .etat-dossier .ex {
+    margin-top: 16px;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--si-muted);
+  }
+  .xc .fiche .etat-dossier .ex.vert { color: var(--si-verified); margin-top: 0; }
+  .xc .fiche .etat-dossier .manquants { margin-top: 8px; display: grid; gap: 6px; }
+  .xc .fiche .etat-dossier .manquants li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--si-ink);
+  }
+  .xc .fiche .etat-dossier .manquants i {
+    flex: none; width: 7px; height: 7px; border-radius: 50%;
+  }
+  .xc .fiche .etat-dossier .manquants i.crit { background: var(--si-danger-ink); }
+  .xc .fiche .etat-dossier .manquants i.comp { background: var(--si-amber); }
+  /* L'encadre de la prochaine action : filet et fond verts tres pales, et le
+     bouton plein qui y mene. Un seul bouton, depuis la fusion du 2026-08-27. */
+  .xc .fiche .etat-dossier .suite {
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 16px; border-radius: 12px;
+    border: 1px solid rgb(var(--si-verified-rgb) / 0.25);
+    background: rgb(var(--si-verified-rgb) / 0.06);
+  }
+  .xc .fiche .etat-dossier .suite .quoi {
+    margin-top: 2px; font-size: 15px; font-weight: 500; color: var(--si-ink);
+  }
+
+  /* « Personnes du dossier » : une liste, pas un tableau, et sa pastille de
+     role est un rectangle arrondi de 8 px. */
+  .xc .fiche .personnes { display: grid; gap: 8px; }
+  .xc .fiche .personnes li {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 14px; color: var(--si-ink);
+  }
+  .xc .fiche .personnes .pa {
+    flex: none;
+    padding: 2px 8px; border-radius: 8px;
+    border: 1px solid var(--si-line); background: var(--si-canvas);
+    font-size: 12px; font-weight: 500; color: var(--si-muted);
+  }
+  .xc .fiche .personnes .pa.cl {
+    border-color: rgb(var(--si-verified-rgb) / 0.28);
+    background: rgb(var(--si-verified-rgb) / 0.08);
+    color: var(--si-verified);
+  }
   /* ── Les pastilles de la fiche dossier ────────────────────────────────────
      Reprises du produit, pas inventees. Dans
      app/(app)/dossiers/[id]/page.tsx, une personne rattachee au cabinet porte
@@ -2775,9 +2893,14 @@ const CSS = `
      doigt : le panneau change, la page ne bouge pas. */
   .xc .fiche .vue { display: none; }
   .xc .fiche .vue.on { display: block; }
+  /* L'onglet a l'echelle de l'application : 14 px en graisse moyenne, 16 px
+     de rembourrage lateral et 12 px vertical (DossierProfile.tsx :
+     « px-4 py-3 text-sm font-medium »). Il empruntait --t-detail et n'avait
+     aucun rembourrage lateral, ce qui donnait des onglets colles au bord de
+     leur carte. */
   .xc .fiche .onglets-fiche button {
-    font: inherit; font-size: var(--t-detail); color: var(--si-muted);
-    background: none; border: 0; padding: 0 0 10px;
+    font: inherit; font-size: 14px; font-weight: 500; color: var(--si-muted);
+    background: none; border: 0; padding: 12px 16px;
     /* Un pixel de recouvrement : le trait de 2 px mange le filet de 1 px au
        lieu de s'aligner a cote. C'est ce qui fait un onglet et non un
        soulignement. */
@@ -5775,13 +5898,24 @@ export default function ExperienceCinema() {
                     domaine immobilier, Me Camille Roy responsable. */}
                 <div className="fiche-tete anime-bloc">
                   <div>
-                    <p className="retour">&larr; Retour a la liste &middot; Clinique Longueuil inc.</p>
+                    {/* Le retour est un LIEN VERT, suivi d'un point median et
+                        du nom du client en gris. L'ecran : « text-sm
+                        font-medium text-emerald-700 », puis « text-sm
+                        text-si-muted ». La replique ecrivait la ligne entiere
+                        en gris de 11 px, donc ni la couleur ni la taille. */}
+                    <p className="retour">
+                      <span className="lien">&larr; Retour a la liste</span>
+                      <span className="pt">&middot;</span>
+                      <span>Clinique Longueuil inc.</span>
+                    </p>
                     <h4>2026-017 &mdash; Clinique Longueuil &mdash; immobilier</h4>
                     {/* Les pastilles vivent SOUS le titre, pas a droite : c'est
-                        l'ordre de l'ecran. */}
+                        l'ordre de l'ecran. Ce sont des rectangles arrondis
+                        (rounded-lg) et non des gelules, et l'etat ne porte
+                        AUCUNE puce : la replique en avait ajoute une. */}
                     <p className="fiche-pastilles">
-                      <span className="bt">Avocat : Me Camille Roy</span>
-                      <span className="etat"><i aria-hidden />Actif</span>
+                      <span className="pa">Avocat : Me Camille Roy</span>
+                      <span className="pa etat">Actif</span>
                     </p>
                   </div>
                   {/* Les QUATRE actions reelles de l'en-tete, relevees sur
@@ -5803,13 +5937,24 @@ export default function ExperienceCinema() {
 
                     De vrais boutons : le clavier les atteint sans qu'on pose un
                     role ni un index de tabulation a la main. */}
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du dossier">
+                {/* La barre d'onglets et TOUT ce qu'elle ouvre vivent dans UNE
+                    SEULE carte. `DossierProfile.tsx` :
+                    « overflow-hidden rounded-2xl border border-si-line
+                    bg-si-surface », la nav portant le filet bas, le contenu
+                    rembourre a 24 px dessous. La replique posait la barre a nu
+                    sur le fond et laissait les panneaux flotter en dessous
+                    comme des cartes independantes : l'ecran n'a pas cette
+                    forme. */}
+                <div className="fiche-carte anime-bloc">
+                <div className="onglets-fiche" role="tablist" aria-label="Vues du dossier">
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(10)</small></button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues <small>(0)</small></button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="notes">Notes internes</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="documents">Documents <small>(0)</small></button>
                 </div>
+
+                <div className="vues">
 
                 <div className="vue on" data-fiche-vue="apercu">
                 {/* ── LA SEQUENCE REELLE DE L'ECRAN ─────────────────────────
@@ -5834,56 +5979,67 @@ export default function ExperienceCinema() {
                     l'ecran depuis la refonte du 2026-08-27. Le domaine de
                     pratique le mene : c'est lui qui decide des dix sections du
                     cartable, et il ne s'affichait NULLE PART avant. */}
+                {/* L'ORDRE des trois blocs est celui de la page :
+                    `DossierResumeOuverture`, puis `DossierEtatCard`, puis
+                    « Personnes du dossier ». La replique mettait les personnes
+                    au milieu, et dans une grille a deux colonnes dont la
+                    seconde etait vide : l'ecran les empile sur toute la
+                    largeur (`space-y-5`). */}
                 <div className="carte-bloc anime-bloc">
-                  <div className="ct"><p className="ctt">Le dossier</p></div>
+                  <p className="ctt">Le dossier</p>
                   <div className="lignes">
                     <div className="lg"><span>Domaine de pratique</span><span className="v">immobilier</span></div>
                     <div className="lg"><span>Client</span><span className="v">Clinique Longueuil inc.</span></div>
-                    <div className="lg"><span>Ouvert le</span><span className="v">24 juin 2026 &middot; il y a 65 jours</span></div>
+                    <div className="lg"><span>Ouvert le</span><span className="v">24 juin 2026 <em>&middot; il y a 65 jours</em></span></div>
                     <div className="lg"><span>Statut</span><span className="v">Actif</span></div>
                     <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
                   </div>
                 </div>
 
-                <div className="duo-fiche anime-bloc">
-                  <div className="carte-bloc">
-                    <div className="ct"><p className="ctt">Personnes du dossier</p></div>
-                    <div className="lignes">
-                      <div className="lg"><span>Clinique Longueuil inc.</span><span className="v pastille-cl">Client principal</span></div>
-                      <div className="lg"><span>9271-4408 Qu&eacute;bec inc.</span><span className="v pastille-ex">Partie adverse</span></div>
-                      <div className="lg"><span>Caisse, pr&ecirc;teur</span><span className="v pastille-ex">Tiers</span></div>
-                    </div>
-                  </div>
-                  {/* ⚠ Le bloc « Ou j'en etais ? » a ete RETIRE le 2026-08-27.
-                      Il montrait une derniere action et une prochaine action
-                      inventees, sur un dossier qui n'en a aucune : la capture
-                      du CEO affiche « Aucune action enregistree pour
-                      l'instant ».
+                {/* « Etat du dossier ». C'est CE bloc qui prouve la phrase de
+                    conclusion du brief : ce qui a ete fait, ce qui manque, ce
+                    qui doit suivre.
 
-                      Et il contredisait la refonte de l'ecran : celle-ci a
-                      FUSIONNE « Ou j'en etais ? » dans « Etat du dossier »,
-                      precisement parce que les deux repetaient la meme phrase.
-                      Le garder ici aurait illustre un ecran qui n'existe plus. */}
-                </div>
+                    Sa forme vient de `DossierEtatCard.tsx` et n'est PAS un
+                    tableau : un titre avec sa pastille d'etat a droite, la
+                    phrase de derniere action, un exergue « MANQUANTS (5) »
+                    suivi d'une liste a puces, puis la prochaine action dans un
+                    encadre vert avec son bouton plein. La replique l'avait
+                    aplati en six lignes cle/valeur.
 
-                {/* « Etat de preparation ». C'est CE bloc qui prouve la phrase
-                    de conclusion du brief : ce qui a ete fait, ce qui manque,
-                    ce qui doit suivre. Il n'a pas ete concu pour la vitrine,
-                    il existe dans le produit. */}
-                <div className="carte-bloc anime-bloc" style={{ marginTop: 14 }}>
+                    ⚠ Le bloc « Ou j'en etais ? » a ete RETIRE le 2026-08-27 :
+                    la refonte l'a FUSIONNE dans celui-ci, parce que les deux
+                    repetaient la meme phrase. */}
+                <div className="carte-bloc anime-bloc etat-dossier">
                   <div className="ct">
                     <p className="ctt">&Eacute;tat du dossier</p>
-                    <span>Incomplet &middot; Aucune action enregistr&eacute;e pour l&rsquo;instant.</span>
+                    <span className="pa incomplet">Incomplet</span>
                   </div>
-                  <div className="lignes">
-                    <p className="ta">Manquants (5)</p>
-                    <div className="lg"><span>Aucune assistante juridique assign&eacute;e</span><span className="v grav-crit">Critique</span></div>
-                    <div className="lg"><span>Mandat absent</span><span className="v grav-crit">Critique</span></div>
-                    <div className="lg"><span>Identit&eacute; du client non v&eacute;rifi&eacute;e</span><span className="v grav-crit">Critique</span></div>
-                    <div className="lg"><span>Mode de facturation non d&eacute;fini</span><span className="v grav-crit">Critique</span></div>
-                    <div className="lg"><span>1 section(s) cartable obligatoire(s) vide(s)</span><span className="v grav-comp">&Agrave; compl&eacute;ter</span></div>
-                    <div className="lg"><span>Prochaine action</span><span className="v lien">Assigner une assistante au dossier &rarr;</span></div>
+                  <p className="vide">Aucune action enregistr&eacute;e pour l&rsquo;instant.</p>
+                  <p className="ex">Manquants (5)</p>
+                  <ul className="manquants">
+                    <li><i className="crit" aria-hidden />Aucune assistante juridique assign&eacute;e</li>
+                    <li><i className="crit" aria-hidden />Mandat absent</li>
+                    <li><i className="crit" aria-hidden />Identit&eacute; du client non v&eacute;rifi&eacute;e</li>
+                    <li><i className="crit" aria-hidden />Mode de facturation non d&eacute;fini</li>
+                    <li><i className="comp" aria-hidden />1 section(s) cartable obligatoire(s) vide(s)</li>
+                  </ul>
+                  <div className="suite">
+                    <div>
+                      <p className="ex vert">Prochaine action</p>
+                      <p className="quoi">Assigner une assistante au dossier</p>
+                    </div>
+                    <span className="bt principal">Y aller &rarr;</span>
                   </div>
+                </div>
+
+                <div className="carte-bloc anime-bloc">
+                  <p className="ctt">Personnes du dossier</p>
+                  <ul className="personnes">
+                    <li><span>Clinique Longueuil inc.</span><span className="pa cl">Client principal</span></li>
+                    <li><span>9271-4408 Qu&eacute;bec inc.</span><span className="pa ex">Partie adverse</span></li>
+                    <li><span>Caisse, pr&ecirc;teur</span><span className="pa ex">Tiers</span></li>
+                  </ul>
                 </div>
 
                 </div>
@@ -5903,7 +6059,7 @@ export default function ExperienceCinema() {
                     C'est TOUT l'argument de la section, et il se lit ici sans
                     qu'on ait besoin de l'ecrire. */}
                 <div className="vue" data-fiche-vue="dossiers">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Cartable du dossier</p>
                       <span>Dix sections, ouvertes parce que le dossier est immobilier</span>
@@ -5928,7 +6084,7 @@ export default function ExperienceCinema() {
                     montre : aucun message, et les trois actions qui restent
                     disponibles malgre le vide. */}
                 <div className="vue" data-fiche-vue="notes">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Navette</p>
                       <span>fil interne</span>
@@ -5944,7 +6100,7 @@ export default function ExperienceCinema() {
                     Zero document, comme son compteur l'annonce. On montre
                     l'etat vide et son invite, tels que l'ecran les formule. */}
                 <div className="vue" data-fiche-vue="documents">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Documents r&eacute;dig&eacute;s</p>
                       <span>Documents cr&eacute;&eacute;s depuis l&rsquo;&eacute;diteur &middot; li&eacute;s &agrave; ce dossier</span>
@@ -5964,7 +6120,7 @@ export default function ExperienceCinema() {
                     Inventer trois pieces pour remplir la vue serait exactement
                     l'erreur qui a fait suspendre cette section. */}
                 <div className="vue" data-fiche-vue="carte">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Pi&egrave;ces attendues</p>
                       <span>Aucune pi&egrave;ce attendue sur ce dossier</span>
@@ -5975,6 +6131,9 @@ export default function ExperienceCinema() {
                     </div>
                   </div>
                 </div>
+
+                </div>
+              </div>
               </div>
             </figure>
             </div>
@@ -6183,7 +6342,7 @@ export default function ExperienceCinema() {
                 </div>
 
                 <div className="vue on" data-fiche-vue="temps">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Entrées du dossier</p>
                       <span>225,00 $ l&apos;heure · non facturées</span>
@@ -6329,7 +6488,7 @@ export default function ExperienceCinema() {
                 </div>
 
                 <div className="vue" data-fiche-vue="rappro">
-                  <div className="carte-bloc" style={{ marginTop: 18 }}>
+                  <div className="carte-bloc">
                     <div className="ct">
                       <p className="ctt">Trois sources, une comparaison</p>
                       <span>Ce qui doit concorder chaque mois</span>
