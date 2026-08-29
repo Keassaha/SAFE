@@ -30,7 +30,28 @@ export const dossierSchema = z.object({
     .transform((v) =>
       v != null && typeof v === "string" && v.trim() !== "" ? v.trim() : undefined
     ),
-  intitule: z.string().optional().nullable().transform((v) => (v != null && v.trim() !== "" ? v.trim() : undefined)),
+  /**
+   * OBLIGATOIRE depuis le 2026-08-27, décision CEO.
+   *
+   * Il était `optional().nullable()`, ce qui CONTREDISAIT le schéma Prisma où
+   * la colonne est `intitule String`, donc NOT NULL. Le serveur comblait le
+   * vide en écrivant « Dossier », et les fiches s'intitulaient « 2026-050 —
+   * Dossier » : un numéro suivi d'un mot qui n'apprend rien.
+   *
+   * Trois caractères au minimum : « M. » ou « c. » ne sont pas des intitulés,
+   * et un espace seul passait la validation précédente.
+   *
+   * Aucune migration de base n'est requise, la colonne l'exigeait déjà.
+   */
+  intitule: z
+    .string({ required_error: "L'intitulé du dossier est obligatoire." })
+    .transform((v) => v.trim())
+    .pipe(
+      z
+        .string()
+        .min(3, "L'intitulé doit compter au moins trois caractères.")
+        .max(200, "L'intitulé ne peut pas dépasser 200 caractères."),
+    ),
   statut: dossierStatutEnum.default("actif"),
   type: z.preprocess(
     (v) => (v === "" || v === undefined ? null : v),

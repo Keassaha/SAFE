@@ -20,6 +20,16 @@ interface DossierResumeIAProps {
   dossierId: string;
   initialResume: string | null;
   canSave: boolean;
+  /**
+   * Affiche le titre « Résumé IA du dossier ».
+   *
+   * Vrai par défaut, ce que la v2 attend : elle le monte dans un conteneur
+   * neutre (`legacyEmbed`) qui ne nomme rien.
+   *
+   * Faux quand une fenêtre porte déjà le titre, ce qui est le cas de l'action
+   * d'en-tête de app/(app) depuis le 2026-08-27.
+   */
+  avecTitre?: boolean;
 }
 
 function ListBlock({ title, items }: { title: string; items: string[] }) {
@@ -36,7 +46,12 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierResumeIAProps) {
+export function DossierResumeIA({
+  dossierId,
+  initialResume,
+  canSave,
+  avecTitre = true,
+}: DossierResumeIAProps) {
   const [summary, setSummary] = useState<DossierSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -64,14 +79,24 @@ export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierRe
     }
   };
 
+  /* Plus de <section> depuis le 2026-08-27 : le composant vit desormais dans
+     une fenetre pour app/(app), ouverte par une action d'en-tete
+     (DossierResumeIAAction), et la v2 l'enveloppe deja dans son propre
+     conteneur. Porter sa propre section faisait donc un cadre dans un cadre
+     des deux cotes.
+
+     ⚠ La v2 MONTE ce composant (app/(app-v2)/.../OverviewTab.tsx) : d'ou le
+     titre optionnel plutot qu'un titre supprime. */
   return (
-    <section className="px-6 py-5 border-b border-si-line bg-si-surface">
+    <div>
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            Résumé IA du dossier
-          </h2>
+          {avecTitre && (
+            <h2 className="text-sm font-medium text-si-ink flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-si-verified" />
+              Résumé IA du dossier
+            </h2>
+          )}
           <p className="text-xs text-si-muted mt-0.5">
             Synthèse factuelle générée à partir des pièces et données du dossier.
           </p>
@@ -143,6 +168,6 @@ export function DossierResumeIA({ dossierId, initialResume, canSave }: DossierRe
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

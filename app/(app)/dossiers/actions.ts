@@ -83,7 +83,12 @@ export async function createDossier(formData: FormData) {
     parsed.data.tauxHoraire = null;
   }
 
-  const intitule = sanitizeInput(parsed.data.intitule?.trim() || "Dossier");
+  /* Plus de repli « Dossier ». Le schéma Zod exige désormais l'intitulé, donc
+     `parsed.data` ne peut plus arriver vide ici : si le champ manquait, la
+     validation aurait déjà renvoyé l'erreur au formulaire. Écrire une valeur
+     par défaut à cet endroit revenait à fabriquer la donnée qu'on refuse de
+     demander (décision CEO du 2026-08-27). */
+  const intitule = sanitizeInput(parsed.data.intitule);
   const year = new Date().getFullYear();
 
   const maxAttempts = 10;
@@ -277,7 +282,10 @@ export async function updateDossier(id: string, formData: FormData) {
       redirect(`/dossiers/${id}?error=numero_dossier_duplique`);
     }
   }
-  const intitule = parsed.data.intitule?.trim() || current?.intitule || "Dossier";
+  /* Même raison qu'à la création : la validation garantit l'intitulé. Le repli
+     sur `current?.intitule` disparaît aussi, sinon un champ vidé par mégarde
+     conserverait silencieusement l'ancienne valeur au lieu d'alerter. */
+  const intitule = sanitizeInput(parsed.data.intitule);
 
   // Capture l'état AVANT l'update pour détecter une transition vers `pret_pour_revue`.
   // Doctrine: docs/product/READY_FOR_REVIEW_SIGNAL.md

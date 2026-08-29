@@ -148,11 +148,22 @@ export function DossierForm({
         name="reference"
         defaultValue={dossier?.reference ?? ""}
       />
+      {/* « required » existait déjà, mais le serveur, lui, acceptait le vide et
+          écrivait « Dossier » à la place : d'où les fiches intitulées
+          « 2026-050 — Dossier ». Le serveur exige désormais trois caractères
+          (lib/validations/dossier.ts), et le navigateur applique la même règle
+          pour que l'erreur arrive AVANT l'envoi.
+
+          Le repère d'exemple vient du registre réel du cabinet de
+          démonstration, pas d'une invention. */}
       <Input
         label={t("matterTitle")}
         name="intitule"
         defaultValue={dossier?.intitule}
+        placeholder="Ex. Beaulieu — achat immeuble commercial"
         required
+        minLength={3}
+        maxLength={200}
       />
       {!hasTaxonomy && (
         <div>
