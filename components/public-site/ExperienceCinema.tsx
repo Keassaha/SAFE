@@ -176,7 +176,24 @@ const CSS = `
        points » de la regle informelle ecrite plus haut : cette regle valait
        pour un hero SANS colonne de description a cote, la maquette validee en
        a une, et un titre court porte davantage de poids visuel a lui seul. */
-    --t-affiche: clamp(26px, 2.5vw, 36px);
+    /* ── 26 PX depuis le 2026-08-29 ─────────────────────────────────────────
+       Le CEO a demande 28 px, a vu les trois propositions, puis a tranche a 26.
+
+       Ce que 36 px coutait : le titre prenait DEUX lignes et la colonne de
+       droite, plus haute, ne se lisait plus d'un meme regard. A 26 il tient sur
+       une seule ligne, et les deux colonnes se repondent.
+
+       26 px est aussi un cran de l'echelle de Cursor relevee plus bas
+       (72 / 36 / 26 / 16 / 14), donc la regle de suivi et d'interligne notee
+       dans la meme echelle continue de s'appliquer sans exception a inventer.
+
+       ⚠ LE TITRE DU HERO ET CEUX DES SECTIONS SONT DESORMAIS A LA MEME TAILLE.
+       La hierarchie ne tient plus par le corps mais par la position, le vide et
+       l'exergue qui surmonte le hero. C'est defendable et c'est meme ce que
+       soutient le commentaire des tetes de section plus bas ; ce n'est pas un
+       oubli. Qui voudra retablir un ecart de corps baissera --t-marque, pas
+       celui-ci. */
+    --t-affiche: clamp(24px, 2.5vw, 26px);
     /* Descendu de 46 px a 33 px le 2026-08-25. Le hero est passe a 38 px au
        cran C3 : un titre de section a 46 px pesait donc PLUS que le titre de
        la page, et la hierarchie disait le contraire de la verite. Il reste
