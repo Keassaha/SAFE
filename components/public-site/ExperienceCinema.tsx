@@ -135,7 +135,29 @@ const CSS = `
        Leur titre fait 26 px et n'a AUCUN sous-texte : tout le reste de leur
        hero est a 16 px. Le notre doit encore expliquer ce qu'est SAFE, il
        garde donc douze pixels d'avance sur le leur. */
-    --t-affiche: clamp(21px, 1.9vw, 26px);
+    /* Remonte a 34 px le 2026-08-27 en milieu de journee, pour le titre LONG
+       de 88 caracteres (« ae9c544 », les quatre domaines). Ce raisonnement ne
+       tient plus : le brief de direction artistique du 2026-08-26 21h31 et sa
+       maquette validee (SECTION1_titre-54px-valide.png, ~/Downloads) demandent
+       le titre COURT d'origine, « Votre cabinet tient ensemble. », et le CEO
+       l'a reconfirme le 27 a 5h41. Les deux titres ne sont pas deux options de
+       la meme decision, c'est UNE decision : la taille suit la longueur.
+
+       84 px le soir du 26, cran C3 a 26 px le 25, 34 px pour le titre long le
+       27 : trois valeurs, trois contextes differents, aucune ne s'applique au
+       titre court repris ici.
+
+       54 PX, MESURE DANS LA MAQUETTE VALIDEE, PAS DEVINE. Hauteur de capitale
+       du « V » de « Votre » : 78px sur l'image a 2x (2880px de large pour une
+       page de 1440), soit 39px reel. SAFE Grotesk porte sa capitale a 718
+       milliemes d'em (LISEZ-MOI.md) : 39 / 0,718 = 54,3. Le nom du fichier et
+       la mesure des pixels s'accordent.
+
+       Domine --t-marque (22px) de 32 points, largement au-dela des « dix
+       points » de la regle informelle ecrite plus haut : cette regle valait
+       pour un hero SANS colonne de description a cote, la maquette validee en
+       a une, et un titre court porte davantage de poids visuel a lui seul. */
+    --t-affiche: clamp(26px, 2.5vw, 36px);
     /* Descendu de 46 px a 33 px le 2026-08-25. Le hero est passe a 38 px au
        cran C3 : un titre de section a 46 px pesait donc PLUS que le titre de
        la page, et la hierarchie disait le contraire de la verite. Il reste
@@ -351,7 +373,8 @@ const CSS = `
     background: var(--si-ink-strong);
     color: var(--si-surface);
     font-size: 13px;
-    font-weight: 500;
+    /* 400 comme le bouton du hero : aucun gras dans le discours de la page. */
+    font-weight: 400;
     transition: background-color 140ms ease;
   }
   .xc #nav .cta:hover { background: var(--si-ink-strong-soft); }
@@ -554,15 +577,35 @@ const CSS = `
   }
 
   /* Barre de navigation du produit */
+  /* La barre est une CARTE FLOTTANTE, pas un bandeau colle au bord.
+     Demande CEO du 2026-08-27, « inspire-toi reellement de la vraie
+     interface ». Releve sur docs/design/references-app/tableau-de-bord.png :
+     l'application detache sa barre des quatre bords, l'arrondit et la pose sur
+     le canevas. Une barre collee au bord se lit comme un en-tete de site ; une
+     barre detachee se lit comme la fenetre d'un logiciel. */
   .xc #hero-app .ha-nav {
     display: flex;
     align-items: center;
     gap: 14px;
     height: 46px;
+    margin: 10px 12px 0;
     padding: 0 14px;
     background: var(--si-surface);
-    border-bottom: 1px solid var(--si-line);
+    border: 1px solid var(--si-line);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgb(var(--si-ink-strong-rgb) / 0.04);
   }
+  /* L'icone qui precede chaque menu. Elle existe dans l'application et
+     manquait ici : sans elle la barre n'a plus le rythme du produit, elle a
+     celui d'un menu de site. */
+  .xc #hero-app .ha-item .ico {
+    display: inline-block;
+    width: 13px; height: 13px;
+    margin-right: 5px;
+    vertical-align: -2px;
+    opacity: 0.75;
+  }
+  .xc #hero-app .ha-item .ico svg { display: block; width: 100%; height: 100%; }
   .xc #hero-app .ha-brand {
     display: flex; align-items: center; gap: 7px;
     font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
@@ -610,6 +653,47 @@ const CSS = `
   }
   .xc #hero-app .ha-item.open .car { transform: translateY(1px) rotate(-135deg); }
   .xc #hero-app .ha-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  /* Le raccourci clavier dans le champ de recherche : c'est lui qui dit qu'on
+     est dans un logiciel et non sur un site. */
+  .xc #hero-app .ha-search .kbd {
+    margin-left: auto;
+    padding: 1px 4px;
+    border: 1px solid var(--si-line);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 1.3;
+    color: var(--si-muted);
+  }
+  .xc #hero-app .ha-cloche {
+    position: relative;
+    display: block;
+    width: 15px; height: 15px;
+    color: var(--si-muted);
+  }
+  .xc #hero-app .ha-cloche svg { display: block; width: 100%; height: 100%; }
+  /* La pastille de notification. Le seul rouge de la fenetre, et il porte un
+     compte reel : c'est une alerte, pas une decoration. */
+  .xc #hero-app .ha-cloche .pastille {
+    position: absolute;
+    top: -4px; right: -4px;
+    min-width: 11px; height: 11px;
+    padding: 0 2px;
+    border-radius: 999px;
+    background: var(--si-danger-ink, #a32d2d);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 8px;
+    font-style: normal;
+    line-height: 11px;
+    text-align: center;
+  }
+  .xc #hero-app .ha-temps {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px;
+    color: var(--si-muted);
+  }
+  .xc #hero-app .ha-temps svg { display: block; width: 12px; height: 12px; }
   .xc #hero-app .ha-search {
     display: flex; align-items: center;
     width: 154px; height: 26px;
@@ -671,9 +755,16 @@ const CSS = `
   .xc #hero-app .ha-drop a.inerte { color: var(--si-muted); cursor: default; }
 
   /* Bandeau d'état */
+  /* Pastille arrondie et detachee, comme dans l'application. Elle etait un
+     bandeau pleine largeur colle sous la barre ; la vraie la pose DANS le
+     contenu, sous la carte d'action, arrondie et a la meme marge que les
+     cartes. */
   .xc #hero-app .ha-strip {
     display: flex; align-items: center; gap: 20px;
-    height: 32px; padding: 0 16px;
+    height: 32px;
+    margin: 10px 12px 0;
+    padding: 0 14px;
+    border-radius: 10px;
     background: var(--si-ink-strong);
     color: var(--si-surface);
     font-size: 11px;
@@ -688,7 +779,28 @@ const CSS = `
   .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.62; font-family: var(--sans); font-size: var(--t-menu); }
 
   /* Corps */
-  .xc #hero-app .ha-body { padding: 14px 16px; }
+  .xc #hero-app .ha-body { padding: 12px 12px 14px; }
+  /* Le titre de page. L'application en porte un, grand, sous la barre ; la
+     replique n'en avait aucun et enchainait la barre sur une carte, ce qui lui
+     donnait l'air d'un panneau et non d'un ecran. */
+  .xc #hero-app .ha-titre {
+    margin: 4px 2px 10px;
+    font-family: var(--sans);
+    font-size: 19px;
+    font-weight: 400;
+    letter-spacing: -0.014em;
+    color: var(--si-ink);
+  }
+  /* L'en-tete de la carte d'action : le bouton passe A DROITE, sur la ligne du
+     titre, comme dans l'application. Il etait empile dessous, ce qui allongeait
+     la carte et cassait la lecture « ce qu'il y a a faire / le faire ». */
+  .xc #hero-app .ha-tete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .xc #hero-app .ha-tete .ha-act { flex: none; margin-top: 2px; }
   .xc #hero-app .ha-screen { display: none; }
   .xc #hero-app .ha-screen.on { display: block; }
   .xc #hero-app .ha-card {
@@ -828,32 +940,6 @@ const CSS = `
      La formule reste, le double centrage part : c'est exactement le montage
      de section.flat, ou l'element pleine largeur porte le padding et son
      .inner porte la mesure. Mesuré : 140 px, comme « Le constat ». */
-  .xc #hero-copy .hero-second {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 14px;
-    color: var(--muted);
-    transition: color 140ms ease;
-  }
-  .xc #hero-copy .hero-second i {
-    display: block;
-    width: 14px; height: 1.5px;
-    border-radius: 2px;
-    background: currentColor;
-    opacity: 0.5;
-    transition: width 180ms ease, opacity 180ms ease;
-  }
-  .xc #hero-copy .hero-second:hover { color: var(--ink); }
-  .xc #hero-copy .hero-second:hover i { width: 22px; opacity: 1; }
-  /* Réassurance factuelle, reprise mot pour mot de la page de diagnostic.
-     Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
-  /* La réassurance suit le chapeau : elle vit dans le même bloc, sous la même
-     action, et rester la seule ligne en serif s'y lirait comme un oubli. */
-  /* Le chapeau, sa suite et la ligne de reassurance ont ete retires du hero
-     le 2026-08-25. Leurs regles partent avec eux : une regle sans element est
-     un piege pour la prochaine lecture. La reassurance vit maintenant dans
-     « .bandeau-reassurance », sous l'illustration. */
   .xc #hero-copy {
     position: absolute;
     left: 0; right: 0;
@@ -880,7 +966,36 @@ const CSS = `
      rapprochements, l'alignement sert à VÉRIFIER des chiffres : la grille y
      reste rigoureuse (DESIGN_HUMAIN §11, « anti-grille vs précision
      opérationnelle »). */
-  .xc #hero-copy .kicker { margin-left: 2px; }
+  /* Remis en service le 2026-08-27 : la maquette validee porte l'exergue
+     « SYSTEME DE GESTION POUR CABINETS D'AVOCATS » au-dessus du titre, en
+     gris et non en vert -- seul le mot final du titre garde la teinte de
+     marque. Le .kicker du reste du site est vert (ligne 240) ; celui du hero
+     est donc surcharge ICI seulement, pas au niveau de la regle partagee. */
+  /* 16px, la mesure de leur exergue « Agents », relevee au pixel dans leur
+     mode CLAIR le 2026-08-27.
+
+     Elle valait 14px une heure plus tot : j'avais mesure un « Agents » de
+     sous-menu de navigation, invisible parce que son parent porte une opacite
+     nulle, au lieu de celui du hero. Une mesure prise sur le mauvais element
+     ne se voit pas dans le chiffre, seulement dans le resultat.
+
+     Le plancher de 11px reste celui des libelles de tableau ; l'exergue
+     d'ouverture, lui, se lit avant le titre. */
+  /* EN MINUSCULES, demande CEO du 2026-08-27. Cursor ecrit « Agents », pas
+     « AGENTS » : leur exergue est une etiquette qui se lit, pas un libelle de
+     tableau.
+
+     L'interlettrage tombe avec les capitales. Les 0,09em du « .kicker » du
+     site existent parce qu'une suite de capitales se referme sur elle-meme et
+     demande a etre aeree ; une minuscule porte deja ses blancs dans son
+     dessin, et l'ecarter la delave. */
+  .xc #hero-copy .kicker {
+    margin-left: 2px;
+    color: var(--muted);
+    font-size: 16px;
+    text-transform: none;
+    letter-spacing: normal;
+  }
   /* Le titre du hero est en GEIST, la fonte des sous-textes. Demande CEO du
      2026-08-25, apres avoir regarde cursor.com.
 
@@ -897,28 +1012,129 @@ const CSS = `
     font-family: var(--sans);
     font-weight: 400;
     font-size: var(--t-affiche);
-    /* Cran C3, choisi par le CEO le 2026-08-25 sur quatre crans montres.
-       L'interlettrage et l'interligne se resserrent ENSEMBLE : serrer les
-       lettres sans serrer les lignes creuse un vide entre elles et le titre
-       se met a flotter en bandes.
+    /* ── L'echelle optique de Cursor, mesuree le 2026-08-27 ──────────────────
+       Demande CEO : « inspire toi des tailles de cette page ». Relevees sur
+       cursor.com/product, toutes en graisse 400, jamais en gras :
 
-       C'est le cran le plus serre des quatre. A cette valeur certaines paires
-       se touchent presque, « ti » de « tient » en premier. Signale, assume. */
-    line-height: 1.02;
-    /* -0.024 em et non -0.042 depuis que SAFE Grotesk porte le resserrement
-       DANS son fichier, 9/1000 d'em par cote. Les deux s'additionnaient. */
-    letter-spacing: -0.024em;
-    /* La mesure suit la phrase. Elle valait 13,4ch quand le titre disait
-       « SAFE tient votre cabinet ensemble » (34 caracteres) ; la phrase en
-       porte 65 depuis qu'elle nomme la categorie, et 13,4ch la cassait en
-       quatre lignes. */
-    max-width: 26ch;
+           72px  suivi -0,030em  interligne 1,10
+           36px  suivi -0,020em  interligne 1,20
+           26px  suivi -0,0125em interligne 1,25
+           16px  suivi +0,005em  interligne 1,50
+           14px  suivi +0,010em  interligne 1,50
+
+       La lecon n'est pas une valeur, c'est une REGLE : le suivi et l'interligne
+       suivent la taille. On serre en grand, on ouvre en petit. Leur suivi
+       devient meme POSITIF sous 16px, ou une lettre serree se remplit.
+
+       36 PX, LEUR VALEUR EXACTE, mesuree dans leur DOM le 2026-08-27 sur
+       cursor.com/fr/product : h1 a 36px, graisse 400, suivi -0,72px, interligne
+       43,2px. Le titre valait 54px ici, tire de la maquette ; le CEO a demande
+       le meme jour de respecter EXACTEMENT leurs dimensions.
+
+       L'interligne suit leur regle sans reserve : 43,2 / 36 = 1,2.
+
+       LE SUIVI RESTE PLUS SERRE QUE LE LEUR. Mis a leur valeur exacte le
+       2026-08-27, le CEO a repondu que les lettres etaient « un peu eloignees
+       les unes des autres ». Cursor est une reference, pas une loi : sur sa
+       propre marque, c'est son oeil qui tranche.
+
+       Leur suivi vaut -0,020em a 36px. On garde le meme rapport de serrage que
+       le CEO a valide, une fois et demie le leur, soit -0,030em effectifs.
+       -0,012em de feuille + 0,018 incrustes dans la fonte = -0,030em.
+
+       Verifie : la paire la plus critique est « Vo », dont la diagonale menage
+       un blanc naturel, et rien ne se touche avant -0,046em effectifs. */
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    /* ── L'encre du titre : un gris chaud, pas un presque-noir ──────────────
+       Demande CEO du 2026-08-27, « n'oublie pas les differentes couleurs de
+       nuances ». Releve au pixel dans le mode clair de cursor.com/product :
+
+           fond         rgb(247, 247, 244)   le notre : rgb(247, 247, 246)
+           titre        rgb(38, 37, 30)      le notre : rgb(22, 24, 23)
+           gris         rgb(99, 99, 98)      le notre : rgb(102, 106, 103)
+
+       Le gris est deja le bon a trois unites pres. Le titre, lui, etait
+       SEIZE unites plus sombre et plus froid que le leur : plus contraste,
+       donc plus dur. Leur noir est un gris chaud, ou le rouge domine le bleu
+       de huit unites.
+
+       Pose ICI et pas sur « --ink » : ce jeton sert tout le site ET toute
+       l'application, ou un registre comptable a besoin de son contraste plein.
+       Le hero est le seul endroit ou l'encre a un role d'affiche. */
+    color: rgb(38 37 30);
+    /* 34ch, la mesure de Cursor : leur bloc de tete fait 810px de large a
+       36px. Ramene a 811px sur demande du CEO le 2026-08-27, soit 33,38
+       caracteres de notre fonte a cette taille. Le titre et sa suite grise
+       partagent cette meme colonne, comme chez eux.
+
+       Valait 22ch pour casser le titre apres « tient », quand il faisait 54px
+       et que la description vivait a cote. A 36px la phrase entiere tient sur
+       une ligne, et c'est le dessin de Cursor : une ligne noire, la suite en
+       gris dessous.
+
+       Historique de la mesure, qui suit toujours la phrase : elle valait 26ch pour le titre
+       long de 88 caracteres, 13,4ch avant lui. Chaque fois qu'une seule vaut,
+       c'est parce que le titre a change, pas la regle.
+
+       ⚠ 33,38ch valait 811px, mesure fixee par le CEO le 2026-08-27 QUAND la
+       description etait empilee dessous et partageait cette colonne. Elle est
+       repartie a droite le meme jour : la colonne de gauche fait desormais
+       545px, donc cette valeur ne borne plus rien. Elle est conservee telle
+       quelle en attendant que le CEO dise a quoi les 811px doivent s'appliquer
+       dans le montage a deux colonnes. */
+    max-width: 33.38ch;
     /* Compense l'approche latérale de la capitale, pas un décalage arbitraire. */
     margin-left: -0.028em;
   }
     /* Le mot mis en valeur porte exactement le vert du logo, pas l'encre
      de l'action ni le vert de validation. */
   .xc #hero-copy h1 em { font-style: normal; color: var(--si-brand-green); }
+  /* ── Le titre a gauche, le sous-titre a DROITE et plus petit ──────────────
+     C'est la maquette validee par le CEO, et c'est aussi le contrat que
+     dix-huit tetes de section tiennent ailleurs sur le site (« fab1326 »,
+     titre a gauche, phrase a droite, meme hauteur).
+
+     J'avais empile les deux au meme corps le 2026-08-27, en copiant la mesure
+     du DOM de cursor.com ou le sous-titre est la SUITE de la phrase, meme
+     taille, seule la couleur changeant. Le CEO l'a refuse le jour meme :
+     « pourquoi tu melanges le sous-titre, mets-le a droite dans une police
+     plus petite ».
+
+     La lecon : on prend de Cursor les MESURES du titre, pas leur montage. Leur
+     hero n'a qu'une colonne parce qu'il n'a rien a poser a cote ; le notre
+     porte une fenetre de produit, et la colonne de droite equilibre le bloc
+     au lieu de l'allonger vers le bas. */
+  /* « baseline » et non « start » ni « center ».
+     Demande CEO du 2026-08-27, « aligne le titre et le sous-titre ».
+
+     « center » centrait les deux blocs l'un sur l'autre : le sous-titre, plus
+     haut de trois lignes, demarrait donc BIEN AU-DESSUS du titre.
+
+     « start », qui regit les dix-huit autres tetes de section (« fab1326 »),
+     ne conviendrait pas ici. Il aligne les hauts de BOITE, ce qui suffit
+     ailleurs parce que titre et sous-titre y font 22 et 21px : deux boites de
+     hauteur presque egale. Ici le titre fait 36px et sa boite est 12px plus
+     haute, donc des hauts de boite alignes donneraient des TEXTES decales.
+
+     « baseline » aligne les premieres lignes de base, ce que l'oeil lit comme
+     « a la meme hauteur » quelles que soient les deux tailles. */
+  .xc #hero-copy .hero-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 88px);
+    align-items: baseline;
+  }
+  /* La taille de toute prose qui EXPLIQUE (regle CEO du 2026-08-26), et non
+     celle du titre : c'est ce qui la distingue de la suite de la phrase. */
+  .xc #hero-copy .hero-desc {
+    font-family: var(--sans);
+    font-size: var(--t-explique);
+    line-height: 1.5;
+    letter-spacing: 0.005em;
+    color: var(--muted);
+    max-width: 42ch;
+  }
   /* Le chapeau d'ouverture est en Geist, la fonte de l'action (demande CEO du
      21 août 2026).
 
@@ -954,24 +1170,24 @@ const CSS = `
     flex-wrap: wrap;
     pointer-events: auto;
   }
+  /* Vert et fleche, pas gris et trait qui s'allonge. Remis en service le
+     2026-08-27 : la maquette validee ecrit « Voir SAFE en action → » dans la
+     teinte de marque, pas dans --muted. Le trait qui grandit au survol reste
+     le bon geste ailleurs (« .more », ligne ~1897) ; ici la fleche glisse de
+     3px a la place, seul mouvement qui reste au lien. */
   .xc #hero-copy .hero-second {
     display: inline-flex;
     align-items: center;
     gap: 7px;
     font-size: 14px;
-    color: var(--muted);
+    color: var(--si-brand-green);
     transition: color 140ms ease;
   }
-  .xc #hero-copy .hero-second i {
-    display: block;
-    width: 14px; height: 1.5px;
-    border-radius: 2px;
-    background: currentColor;
-    opacity: 0.5;
-    transition: width 180ms ease, opacity 180ms ease;
+  .xc #hero-copy .hero-second span {
+    display: inline-block;
+    transition: transform var(--duree-teinte) ease;
   }
-  .xc #hero-copy .hero-second:hover { color: var(--ink); }
-  .xc #hero-copy .hero-second:hover i { width: 22px; opacity: 1; }
+  .xc #hero-copy .hero-second:hover span { transform: translateX(3px); }
   /* Réassurance factuelle, reprise mot pour mot de la page de diagnostic.
      Aucun chiffre qui ne soit pas tenu ailleurs sur le site. */
   /* La réassurance suit le chapeau : elle vit dans le même bloc, sous la même
@@ -2126,6 +2342,64 @@ const CSS = `
   .xc .fiche .lg small { color: var(--si-muted); font-size: var(--t-menu); }
   .xc .fiche .duo-fiche { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .xc .fiche .duo-fiche .carte-bloc { margin-top: 14px; }
+  /* ── Les pastilles de la fiche dossier ────────────────────────────────────
+     Reprises du produit, pas inventees. Dans
+     app/(app)/dossiers/[id]/page.tsx, une personne rattachee au cabinet porte
+     « border-emerald-200/70 bg-emerald-50 text-emerald-700 » et une partie
+     externe « border-si-line bg-si-canvas text-si-muted ». La vitrine reprend
+     ce contraste : le vert dit « c'est notre client », le gris « c'est
+     quelqu'un d'autre ». */
+  .xc .fiche .lg .pastille-cl,
+  .xc .fiche .lg .pastille-ex,
+  .xc .fiche .lg .grav-bloq,
+  .xc .fiche .lg .grav-crit,
+  .xc .fiche .lg .grav-comp {
+    padding: 2px 8px;
+    border: 1px solid;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: var(--t-menu);
+  }
+  .xc .fiche .lg .pastille-cl {
+    border-color: rgb(var(--si-brand-green-rgb, 46 125 91) / 0.28);
+    background: rgb(var(--si-brand-green-rgb, 46 125 91) / 0.08);
+    color: var(--si-brand-green);
+  }
+  .xc .fiche .lg .pastille-ex {
+    border-color: var(--si-line);
+    background: var(--si-canvas, var(--bg));
+    color: var(--si-muted);
+  }
+  /* Les trois gravites de « Etat de preparation », telles que le produit les
+     nomme (lib/dossiers/preparation-status.ts:333) : Bloquant, Critique,
+     A completer. Trois crans, donc trois encres, sinon le mot « Bloquant »
+     pese autant que « A completer » et le tri ne sert plus a rien. */
+  .xc .fiche .lg .grav-bloq {
+    border-color: rgb(var(--si-danger-rgb) / 0.3);
+    background: rgb(var(--si-danger-rgb) / 0.1);
+    color: var(--si-danger-ink);
+  }
+  .xc .fiche .lg .grav-crit {
+    border-color: rgb(138 106 30 / 0.3);
+    background: rgb(138 106 30 / 0.1);
+    color: var(--si-amber-ink);
+  }
+  .xc .fiche .lg .grav-comp {
+    border-color: var(--si-line);
+    background: var(--si-canvas, var(--bg));
+    color: var(--si-muted);
+  }
+  /* Le lien de « Prochaine action » : c'en est un dans le produit, il en a
+     donc la couleur ici aussi. */
+  .xc .fiche .lg .lien { color: var(--si-brand-green); }
+  /* La ligne d'identification sous le nom du dossier : date d'ouverture et
+     responsables. Elle repond a « depuis quand, et par qui » avant meme qu'on
+     lise le contenu. */
+  .xc .fiche .fiche-sous {
+    margin-top: 4px;
+    font-size: var(--t-detail);
+    color: var(--si-muted);
+  }
   @media (max-width: 900px) {
     .xc .fiche .totaux { grid-template-columns: 1fr; }
     .xc .fiche .duo-fiche { grid-template-columns: 1fr; gap: 0; }
@@ -2236,7 +2510,10 @@ const CSS = `
     border-radius: 9px;
     font-size: var(--t-detail); color: var(--si-muted);
   }
-  .xc .mention-demo b { font-weight: 500; color: var(--si-ink); }
+  /* Graisse 400 depuis le 2026-08-27 : « aucun texte bold » dans le discours
+     de la page. C'est l'encre pleine, et non le gras, qui distingue desormais
+     la part reconstruite du reste de la phrase. */
+  .xc .mention-demo b { font-weight: 400; color: var(--si-ink); }
   .xc .reponse-fiche {
     margin-top: 18px; font-size: var(--t-corps); max-width: 64ch; line-height: 1.5;
   }
@@ -2392,21 +2669,10 @@ const CSS = `
     color: var(--muted);
     white-space: nowrap;
   }
-  .xc #probleme .cote p {
-    max-width: 42ch;
-    font-family: var(--sans);
-    font-size: var(--t-corps);
-    line-height: 1.66;
-    color: var(--muted);
-  }
-  /* La conclusion garde son rang malgré la règle de prose ci-dessus : elle est
-     dans la même colonne, donc c'est ici qu'il faut le dire. */
-  .xc #probleme .cote .chute {
-    margin-top: 22px;
-    font-size: var(--t-argument);
-    line-height: 1.32;
-    color: var(--si-ink);
-  }
+  /* Les deux regles « #probleme .cote » ont ete retirees le 2026-08-27. Elles
+     etaient DEJA mortes avant : « .cote » n'apparait dans aucun balisage de la
+     page. La reecriture de la section 02 les a rendues doublement orphelines,
+     l'ancre « #probleme » n'existant plus non plus. */
 
   /* ── 04 · La suite ────────────────────────────────────────────────────────
      Trois blocs de poids différents, jamais trois cartes identiques. SAFE
@@ -2637,7 +2903,13 @@ const CSS = `
     background: var(--green);
     color: #fff;
     font-size: 14px;
-    font-weight: 500;
+    /* Graisse 400, demande CEO du 2026-08-27 : « je veux aucun texte bold ».
+       Verifie sur cursor.com/product le meme jour : AUCUN de leurs liens ni de
+       leurs boutons en CursorGothic ne depasse 400, action principale comprise.
+       La hierarchie se fait par la taille, la position et le fond, jamais par
+       la graisse. Un bouton plein sur fond vert est deja l'element le plus
+       lourd de la vue ; l'engraisser en plus, c'est le dire deux fois. */
+    font-weight: 400;
     box-shadow: 0 14px 28px -18px rgb(var(--si-ink-strong-rgb) / 0.85);
     transition: transform 0.2s ease;
   }
@@ -2972,15 +3244,46 @@ const CSS = `
       transform-origin: top left;
       transform: scale(var(--crop-echelle)) translate(calc(-1 * var(--crop-x)), calc(-1 * var(--crop-y)));
     }
+    /* L'interligne suit la regle de Cursor, qui donne 1,32 a nos 23px entre
+       leurs points 16px (1,50) et 26px (1,25).
+
+       Le suivi garde le meme ecart que le bureau : le CEO trouve leur regle
+       trop lache sur notre fonte. 0,005em de feuille + 0,018 incrustes =
+       -0,013em effectifs, contre -0,007 pour leur regle pure.
+
+       Il reste POSITIF dans la feuille, comme chez Cursor sous 16px : a cette
+       taille une lettre trop serree se remplit, et l'ouvrir n'est pas un choix
+       de gout mais de lisibilite au pouce. C'est pourquoi le telephone ne suit
+       pas le bureau au chiffre pres. */
     .xc #hero-copy h1 {
       margin-top: 16px;
       font-size: var(--t-affiche);
-      line-height: 1.02;
-      /* -0.024 em et non -0.042 depuis que SAFE Grotesk porte le resserrement
-       DANS son fichier, 9/1000 d'em par cote. Les deux s'additionnaient. */
-    letter-spacing: -0.024em;
+      line-height: 1.32;
+      letter-spacing: 0.005em;
       max-width: none;
     }
+    /* L'exergue redescend au plancher : a 14px, la mesure de Cursor sur ecran
+       large, « SYSTEME DE GESTION POUR CABINETS D'AVOCATS » passe sur DEUX
+       lignes a 375px et prend une hauteur due a la fenetre du produit.
+       Constate a l'ecran le 2026-08-27. */
+    /* La taille redescend, mais NI les capitales NI leur interlettrage ne
+       reviennent : le bloc « exergues et libelles » plus bas les rendrait a
+       tous les .kicker de la page, et celui du hero n'en est plus un. */
+    .xc #hero-copy .kicker { font-size: 13px; letter-spacing: normal; }
+
+    /* La grille des deux colonnes SE REMET A PLAT. Sans cette ligne, le titre
+       reste enferme dans la colonne de gauche d'une grille prevue pour 1160px
+       et se casse en trois lignes a 375px. Constate le 2026-08-27, apres avoir
+       retire cette remise a plat pendant l'intermede ou la description etait
+       empilee : une regle de telephone qui repond a un montage de bureau meurt
+       avec lui.
+
+       La description reste masquee au pouce pour la raison qui a deja retire
+       le lien secondaire le 18 aout : le budget vertical. Elle prendrait trois
+       lignes prises sur la fenetre du produit, seule preuve de la premiere
+       vue. */
+    .xc #hero-copy .hero-row { display: block; }
+    .xc #hero-copy .hero-desc { display: none; }
     /* La barre range son action dans le menu : ce bloc porte donc la seule
        action visible de la première vue. */
     /* Une seule action, et rien après elle.
@@ -4980,26 +5283,26 @@ export default function ExperienceCinema() {
             <HeroLiveApp />
           </div>
           <div id="hero-copy">
-            {/* L'exergue disait « La suite administrative des cabinets
-                d'avocats » et le titre disait « SAFE tient votre cabinet
-                ensemble » : le resultat etait nomme, jamais la categorie.
-                Cursor ecrit « Cursor EST VOTRE AGENT DE CODAGE pour creer des
-                logiciels ambitieux » : le nom, la categorie, le resultat.
-                Le titre absorbe donc l'exergue, qui devenait un doublon. */}
-            <h1>Vos dossiers, votre facturation, votre comptabilité et votre conformité <em>au même endroit.</em></h1>
-            {/* Le chapeau est tombe le 2026-08-25, demande CEO.
-
-                Il disait « Vous voyez ce qui est a jour, ce qui attend et ce
-                qui demande votre attention ». Ce que la fenetre montre juste
-                dessous le dit deja, et mieux, puisqu'on peut cliquer dedans.
-                Cursor n'a aucun sous-texte dans son hero non plus : le titre,
-                l'action, le produit. */}
+            {/* Titre court et exergue reviennent le 2026-08-27 : la maquette
+                validee par le CEO (brief du 2026-08-26 21h31, confirme le 27 a
+                5h41 -- « le titre de la section etait : SAFE tient votre
+                cabinet ensemble, puis a droite la description ») montre les
+                deux ensemble, jamais l'un a la place de l'autre. Le
+                raisonnement du 2026-08-25 qui les avait fait fusionner
+                supposait un hero SANS colonne de description ; la maquette en
+                a une, l'exergue nomme la categorie et le titre porte le
+                resultat, comme prevu a l'origine. */}
+            <p className="kicker">Système de gestion pour cabinets d&apos;avocats</p>
+            <div className="hero-row">
+              <h1>Votre cabinet tient <em>ensemble.</em></h1>
+              <p className="hero-desc">Vous travaillez dans le dossier. La facturation, la comptabilité et le fidéicommis en découlent, sans ressaisie.</p>
+            </div>
             <div className="hero-actions">
               <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
               {/* Le chemin tiede : un visiteur qui veut seulement regarder n'avait
                   que « Connexion ». Il mene a la demonstration, pas a une ancre. */}
               <a className="hero-second" href={ROUTES.rencontre}>
-                Voir l&apos;application<i aria-hidden />
+                Voir SAFE en action <span aria-hidden>→</span>
               </a>
             </div>
           </div>
@@ -5050,23 +5353,30 @@ export default function ExperienceCinema() {
         </div>
       </div>
 
-      {/* ── 02 · Le problème administratif ──────────────────────────────────
-         Pas d'écran ici, et c'est voulu : la section parle de ce qui se passe
-         AILLEURS que dans un logiciel. Montrer une interface à cet endroit
-         reviendrait à répondre avant d'avoir posé la question.
+      {/* ── 02 · Le dossier administratif ───────────────────────────────────
+         Section reecrite le 2026-08-27 sur le brief de direction artistique du
+         2026-08-26, choix CEO « remplacer le constat ».
 
-         Les cinq lignes ne sont pas des fonctionnalités manquantes : c'est la
-         liste de ce que le cabinet tient déjà, séparément. */}
-      <section className="recit" id="probleme">
+         Elle disait « Vous ouvrez cinq endroits pour un seul dossier » et
+         posait un PROBLEME. Le brief ne porte aucun mouvement de ce genre :
+         ses six temps sont Conviction, Dossier, Facturation, Conformite,
+         Realite, Projection. La section prouve donc desormais l'organisation
+         administrative au lieu de decrire son absence.
+
+         ⚠ CE QUE CETTE SECTION NE DOIT PAS FAIRE, et qu'elle faisait :
+         mettre la facturation au premier plan. Le brief l'ecrit noir sur
+         blanc. La fenetre menait sur « Total facture », « Total recu »,
+         « Solde du » et un historique financier : c'est le mouvement 03, pas
+         celui-ci. L'argent revient deux sections plus bas, une fois que le
+         travail administratif a ete montre. */}
+      <section className="recit" id="dossier">
         <div className="inner">
           <div className="tete">
-            <h2>Vous ouvrez cinq endroits pour un seul dossier</h2>
+            <h2>Chaque dossier s&apos;ouvre avec la bonne structure.</h2>
             <p className="dire">
-              <b>Le client ici, le mandat là, les heures ailleurs.</b> Chaque ressaisie est une
-              occasion de plus de se tromper, et chaque suivi repose sur la mémoire de
-              quelqu&apos;un.
+              <b>SAFE organise le dossier selon le domaine de pratique</b> et la manière de
+              travailler du cabinet.
             </p>
-
           </div>
 
           {/* ── L'interieur d'un dossier ────────────────────────────────────
@@ -5091,7 +5401,7 @@ export default function ExperienceCinema() {
             <figure className="fenetre-produit contour-fondu">
               <div className="barre-fenetre">
                 <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Sophie Tremblay · dossier TRE-2026-014</span>
+                <span><em>SAFE</em> · Constructions Beaulieu inc. · dossier 2026-002</span>
                 <span className="ecart" />
                 <span>Pratique · Dossiers</span>
               </div>
@@ -5128,85 +5438,84 @@ export default function ExperienceCinema() {
               </div>
 
               <div className="fiche extrait-nav">
+                {/* L'en-tete est celle d'un DOSSIER, plus celle d'un client.
+                    Le dossier est reel : « 2026-002 · Beaulieu — achat
+                    immeuble commercial », client « Constructions Beaulieu
+                    inc. », type immobilier, ouvert le 10 aout 2026, releve
+                    dans docs/design/references-app/dossiers.png. */}
                 <div className="fiche-tete anime-bloc">
                   <div>
-                    <p className="retour">&lsaquo; Retour aux clients</p>
-                    <h4>Sophie Tremblay</h4>
+                    <p className="retour">Dossiers · Droit immobilier</p>
+                    <h4>Beaulieu — achat immeuble commercial</h4>
+                    <p className="fiche-sous">Ouvert le 10 août 2026 · Me Camille Roy, responsable</p>
                   </div>
                   <div className="actes">
-                    <span className="bt">Actions</span>
-                    <span className="bt">Modifier</span>
                     <span className="etat"><i aria-hidden />Actif</span>
-                    <span className="bt">Voir le dossier complet <i className="ext" aria-hidden /></span>
-                    <span className="bt">Vérification d&apos;identité</span>
+                    <span className="bt">2026-002</span>
                   </div>
                 </div>
 
                 {/* De vrais boutons : le clavier les atteint sans qu'on pose
                     un role ni un index de tabulation a la main. */}
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du client">
-                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&apos;ensemble</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Dossiers (1)</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Carte client (2)</button>
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du dossier">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Structure</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Suivi</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Activité</button>
                 </div>
 
                 <div className="vue on" data-fiche-vue="apercu">
-                <div className="alertes anime-bloc">
-                  <p className="ta">Alertes</p>
-                  <p className="al">Pièce attendue : évaluation de la résidence</p>
-                  <p className="al">Échéance au 28 août 2026</p>
-                  <p className="al">4,25 h consignées, non encore facturées</p>
-                </div>
+                {/* ── LA SEQUENCE REELLE DE L'ECRAN ─────────────────────────
+                    Relevee dans app/(app)/dossiers/[id]/page.tsx le
+                    2026-08-27, apres que le CEO ait constate que la version
+                    precedente etait INVENTEE : trois colonnes « parties,
+                    etapes attendues, echeances » qui n'existent nulle part
+                    dans le produit.
 
-                <div className="totaux anime-bloc">
-                  <div className="tot">
-                    <p className="k">Total facturé</p>
-                    <p className="v">1 983,32 $</p>
-                    <p className="s">1 facture</p>
-                  </div>
-                  <div className="tot">
-                    <p className="k">Total reçu</p>
-                    <p className="v">1 000,00 $</p>
-                    <p className="s">1 paiement</p>
-                  </div>
-                  <div className="tot">
-                    <p className="k">Solde dû</p>
-                    <p className="v">983,32 $</p>
-                    <p className="s">facture 2026-031</p>
-                  </div>
-                </div>
+                    L'ecran reel enchaine, dans cet ordre exact :
+                      1. l'en-tete colle, fil d'Ariane et client
+                      2. « Personnes du dossier »
+                      3. « Ou j'en etais ? »
+                      4. « Etat de preparation »
+                      5. le cartable a onglets verticaux
 
-                <div className="carte-bloc anime-bloc">
-                  <div className="ct">
-                    <p className="ctt">Historique financier</p>
-                    <span>Factures et paiements triés par date</span>
-                  </div>
-                  <div className="lignes">
-                    {/* Ce bloc annonce « factures et paiements » : le depot en
-                        fideicommis n'y a pas sa place, il vit dans le bloc
-                        Fideicommis a cote. */}
-                    <div className="lg"><span>2026-08-24 — Paiement — Facture 2026-031</span><span className="v">1 000,00 $</span></div>
-                    <div className="lg"><span>2026-08-05 — Facture 2026-031</span><span className="v">1 983,32 $</span></div>
-                  </div>
-                </div>
-
+                    Les libelles ne sont pas rediges, ils sont pris aux
+                    sources : « Personnes du dossier » a messages/fr.json:1385,
+                    les pastilles a 1389-1401, les etats a
+                    lib/dossiers/preparation-status.ts:325, les gravites a 333. */}
                 <div className="duo-fiche anime-bloc">
                   <div className="carte-bloc">
-                    <div className="ct"><p className="ctt">Informations client</p></div>
+                    <div className="ct"><p className="ctt">Personnes du dossier</p></div>
                     <div className="lignes">
-                      <div className="lg"><span>Type</span><span className="v">Particulier</span></div>
-                      <div className="lg"><span>Cliente depuis</span><span className="v">12 février 2026</span></div>
-                      <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
-                      <div className="lg"><span>Dossier</span><span className="v">TRE-2026-014</span></div>
+                      <div className="lg"><span>Constructions Beaulieu inc.</span><span className="v pastille-cl">Client principal</span></div>
+                      <div className="lg"><span>9271-4408 Qu&eacute;bec inc.</span><span className="v pastille-ex">Partie adverse</span></div>
+                      <div className="lg"><span>Caisse, pr&ecirc;teur</span><span className="v pastille-ex">Tiers</span></div>
                     </div>
                   </div>
+                  {/* « Ou j'en etais ? », que le code du produit appelle
+                      lui-meme son differenciateur. */}
                   <div className="carte-bloc">
-                    <div className="ct"><p className="ctt">Fidéicommis</p></div>
+                    <div className="ct"><p className="ctt">O&ugrave; j&rsquo;en &eacute;tais ?</p></div>
                     <div className="lignes">
-                      <div className="lg"><span>Solde</span><span className="v">5 000,00 $</span></div>
-                      <div className="lg"><span>Paiements en fiducie autorisés</span><span className="v">Non</span></div>
-                      <div className="lg"><span>Dernière opération</span><span className="v">12 février 2026</span></div>
+                      <div className="lg"><span>Derni&egrave;re action<br /><small>A. Bergeron, 19 ao&ucirc;t</small></span><span className="v">Recherche de titres</span></div>
+                      <div className="lg"><span>Prochaine action</span><span className="v lien">Demander le certificat de localisation &rarr;</span></div>
                     </div>
+                  </div>
+                </div>
+
+                {/* « Etat de preparation ». C'est CE bloc qui prouve la phrase
+                    de conclusion du brief : ce qui a ete fait, ce qui manque,
+                    ce qui doit suivre. Il n'a pas ete concu pour la vitrine,
+                    il existe dans le produit. */}
+                <div className="carte-bloc anime-bloc" style={{ marginTop: 14 }}>
+                  <div className="ct">
+                    <p className="ctt">&Eacute;tat de pr&eacute;paration</p>
+                    <span>Incomplet &middot; Prochaine action : demander le certificat de localisation</span>
+                  </div>
+                  <div className="lignes">
+                    <p className="ta">Manquants (3)</p>
+                    <div className="lg"><span>Certificat de localisation</span><span className="v grav-bloq">Bloquant</span></div>
+                    <div className="lg"><span>V&eacute;rification d&rsquo;identit&eacute; de la partie adverse</span><span className="v grav-crit">Critique</span></div>
+                    <div className="lg"><span>Assistante non assign&eacute;e au dossier</span><span className="v grav-comp">&Agrave; compl&eacute;ter</span></div>
                   </div>
                 </div>
 
@@ -5216,20 +5525,28 @@ export default function ExperienceCinema() {
                     dans le produit. Une ligne de dossier, puis ce qui lui est
                     rattache. */}
                 <div className="vue" data-fiche-vue="dossiers">
+                  {/* Realigne sur le dossier Beaulieu le 2026-08-27 : l'en-tete
+                      annoncait « 2026-002 · Beaulieu » et cet onglet repondait
+                      « TRE-2026-014 · Separation et partage du patrimoine
+                      familial ». La fenetre se contredisait d'un onglet a
+                      l'autre, ce qui suffit a faire douter de tout l'extrait.
+
+                      Aucun montant : c'est la regle du brief pour ce
+                      mouvement. Les deux lignes d'argent qui restaient ici,
+                      « Derniere facture » et « Solde a recevoir », partent
+                      avec le reste vers la section 03. */}
                   <div className="carte-bloc" style={{ marginTop: 18 }}>
                     <div className="ct">
-                      <p className="ctt">TRE-2026-014</p>
-                      <span>Séparation et partage du patrimoine familial</span>
+                      <p className="ctt">2026-002</p>
+                      <span>Beaulieu &mdash; achat immeuble commercial</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>État</span><span className="v">Actif · ouvert le 12 février 2026</span></div>
+                      <div className="lg"><span>&Eacute;tat</span><span className="v">Actif &middot; ouvert le 10 ao&ucirc;t 2026</span></div>
+                      <div className="lg"><span>Type</span><span className="v">Immobilier</span></div>
                       <div className="lg"><span>Responsable</span><span className="v">Me Camille Roy</span></div>
-                      <div className="lg"><span>Prochaine échéance</span><span className="v attente">28 août 2026</span></div>
-                      <div className="lg"><span>Pièce attendue</span><span className="v attente">Évaluation de la résidence</span></div>
-                      <div className="lg"><span>Temps non facturé</span><span className="v">4,25 h</span></div>
-                      <div className="lg"><span>Fidéicommis détenu</span><span className="v">5 000,00 $</span></div>
-                      <div className="lg"><span>Dernière facture</span><span className="v">2026-031 · 1 983,32 $</span></div>
-                      <div className="lg"><span>Solde à recevoir</span><span className="v">983,32 $</span></div>
+                      <div className="lg"><span>Adjointe</span><span className="v">A. Bergeron</span></div>
+                      <div className="lg"><span>Pi&egrave;ce attendue</span><span className="v attente">Certificat de localisation</span></div>
+                      <div className="lg"><span>Temps consign&eacute;</span><span className="v">2,25 h</span></div>
                     </div>
                   </div>
 
@@ -5242,11 +5559,11 @@ export default function ExperienceCinema() {
                       <span>Ce qui a été inscrit, du plus récent au plus ancien</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>22 août — Projet de convention ajouté</span><span className="v">Brouillon</span></div>
-                      <div className="lg"><span>20 août — 2,50 h consignées · conférence de gestion</span><span className="v">Non facturé</span></div>
-                      <div className="lg"><span>18 août — Évaluation de la résidence demandée</span><span className="v attente">28 août</span></div>
-                      <div className="lg"><span>14 août — 1,75 h consignées · révision des pièces</span><span className="v">Non facturé</span></div>
-                      <div className="lg"><span>12 février — Dossier ouvert · dépôt de 5 000,00 $ au fidéicommis</span><span className="v">Actif</span></div>
+                      <div className="lg"><span>19 ao&ucirc;t &mdash; 0,75 h consign&eacute;e &middot; appel au cr&eacute;ancier</span><span className="v">Non factur&eacute;</span></div>
+                      <div className="lg"><span>15 ao&ucirc;t &mdash; Certificat de localisation demand&eacute;</span><span className="v attente">Attendu</span></div>
+                      <div className="lg"><span>12 ao&ucirc;t &mdash; 1,50 h consign&eacute;e &middot; recherche de titres</span><span className="v">Non factur&eacute;</span></div>
+                      <div className="lg"><span>12 ao&ucirc;t &mdash; Index aux immeubles vers&eacute; au dossier</span><span className="v">Au dossier</span></div>
+                      <div className="lg"><span>10 ao&ucirc;t &mdash; Dossier ouvert</span><span className="v">Actif</span></div>
                     </div>
                   </div>
                 </div>
@@ -5255,16 +5572,30 @@ export default function ExperienceCinema() {
                     paiements, rien d'autre. L'activite du dossier (temps
                     consigne, document ajoute, echeance) appartient a l'onglet
                     Dossiers, pas ici. */}
+                {/* Le troisieme onglet portait « Carte client », c'est-a-dire
+                    des factures, des paiements et un solde. Il mettait donc la
+                    facturation au premier plan d'un mouvement qui a pour regle
+                    ecrite de ne pas le faire.
+
+                    Il montre desormais le CARTABLE, la liste verticale des
+                    sections que le vrai ecran affiche a gauche
+                    (components/dossiers/detail/index.ts). C'est ce qui prouve
+                    l'argument de la section : le domaine de pratique dicte les
+                    sections, une vente immobiliere n'ouvre pas les memes
+                    qu'une garde d'enfants. */}
                 <div className="vue" data-fiche-vue="carte">
                   <div className="carte-bloc" style={{ marginTop: 18 }}>
                     <div className="ct">
-                      <p className="ctt">Carte client</p>
-                      <span>Factures et paiements portés au compte</span>
+                      <p className="ctt">Cartable du dossier</p>
+                      <span>Sections ouvertes selon le domaine de pratique</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>2026-08-24 — Paiement — Facture 2026-031</span><span className="v">1 000,00 $</span></div>
-                      <div className="lg"><span>2026-08-05 — Facture 2026-031</span><span className="v">1 983,32 $</span></div>
-                      <div className="lg"><span>Solde du compte</span><span className="v attente">983,32 $</span></div>
+                      <div className="lg"><span>Mandat</span><span className="v">Compl&eacute;t&eacute;</span></div>
+                      <div className="lg"><span>Pi&egrave;ces</span><span className="v attente">1 attendue</span></div>
+                      <div className="lg"><span>Proc&eacute;dures</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Correspondance</span><span className="v">3 &eacute;changes</span></div>
+                      <div className="lg"><span>Fid&eacute;icommis</span><span className="v">Aucun mouvement</span></div>
+                      <div className="lg"><span>Fermeture</span><span className="v">&mdash;</span></div>
                     </div>
                   </div>
                 </div>
@@ -5275,15 +5606,31 @@ export default function ExperienceCinema() {
             {/* La phrase de conclusion vient APRES l'illustration : elle
                 nomme ce qu'on vient de voir, au lieu de l'annoncer avant que
                 l'oeil l'ait constate. */}
+            {/* Phrase de conclusion du brief, mot pour mot. L'ancienne
+                enumerait sept choses dont la facturation et le fideicommis :
+                elle promettait donc le mouvement 03 au milieu du 02. */}
             <p className="conclusion-fiche">
-              Dans SAFE, le client, le mandat, les documents, les échéances, le temps, la
-              facturation et le fidéicommis restent reliés au même dossier.
+              L&apos;équipe voit ce qui a été fait, ce qui manque et ce qui doit suivre.
+            </p>
+            {/* ⚠ L'AVERTISSEMENT MANQUAIT. Le commentaire de la section
+                affirmait que la fiche reconstruite « le dit » ; la classe
+                « .mention-demo » existait bien en feuille mais n'etait posee
+                sur AUCUN element de la page. La regle interne du 2026-08-14
+                interdit de presenter une donnee reconstruite comme reelle.
+
+                Ce qui est reel : le dossier 2026-002, son client, son type et
+                sa date d'ouverture, releves dans l'application. Ce qui est
+                reconstruit : les parties, les etapes, les echeances et les
+                pieces, le Cabinet Demo n'en portant pas. */}
+            <p className="mention-demo">
+              Dossier réel du cabinet de démonstration. <b>Parties, étapes, échéances et
+              pièces reconstruites</b> pour illustrer la structure d&apos;une vente immobilière.
             </p>
           </div>
 
 
           <p className="sortie-section">
-            <a href={ROUTES.cabinet}>Voir comment un dossier reste relié &rarr;</a>
+            <a href={ROUTES.cabinet}>Voir la structure par domaine de pratique &rarr;</a>
           </p>
         </div>
       </section>

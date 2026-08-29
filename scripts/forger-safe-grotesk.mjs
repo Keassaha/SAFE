@@ -36,11 +36,69 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const SOURCE = "node_modules/geist/dist/fonts/geist-sans";
+/**
+ * La fonte VARIABLE de Geist, et non ses coupes statiques.
+ *
+ * Demande CEO du 2026-08-27 : « mes lettres manquent de densité ». Mesure du
+ * fût du « H » à graisse 400 identique, rendu à 400 px, ligne par ligne :
+ *
+ *     CursorGothic   96,3 millièmes d'em
+ *     SAFE Grotesk   88,8
+ *     system-ui      87,5
+ *
+ * Leurs traits sont 8,4 % plus épais que les nôtres. C'est CELA que l'oeil
+ * lisait comme un manque de densité, pas l'approche : un trait maigre laisse
+ * passer plus de blanc, et les lettres paraissent alors plus éloignées qu'elles
+ * ne le sont.
+ *
+ * Les coupes statiques de Geist ne permettaient pas de corriger : 400 donne
+ * 88,8 et 500 donne 111,3, donc le cran suivant DÉPASSE la cible de 15 %. La
+ * fonte variable porte un axe « wght » de 100 à 900 et se laisse instancier à
+ * n'importe quelle valeur intermédiaire.
+ */
+const SOURCE_VARIABLE = "node_modules/geist/dist/fonts/geist-sans/Geist-Variable.ttf";
 const SORTIE = "public/fonts/safe-grotesk";
 const NOM = "SAFE Grotesk";
 /** Unités d'em retirées de chaque côté. 1000 unités = 1 em. */
 const RESSERRE = 9;
+/**
+ * Élargissement horizontal des tracés. Demande CEO du 2026-08-27 : « une
+ * version légèrement plus dense, plus arrondie ».
+ *
+ * ── Pourquoi il fallait élargir, et non resserrer davantage ─────────────────
+ * Mesuré le 2026-08-27 dans le navigateur, sur les deux fontes rendues à
+ * 1000 px, avec `system-ui` comme témoin identique des deux côtés.
+ *
+ * La rondeur d'une lettre se lit dans le rapport largeur du TRACÉ sur hauteur.
+ * Plus il approche 1, plus la panse est circulaire :
+ *
+ *              CursorGothic   SAFE Grotesk (avant)
+ *     o           0,894           0,860
+ *     e           0,877           0,839
+ *     c           0,862           0,830
+ *     n           0,817           0,763
+ *
+ * SAFE était plus ÉTROITE que Cursor sur chaque lettre. La cause tient au
+ * script lui-même : il montait les trois hauteurs sans jamais toucher aux
+ * largeurs, donc chaque glyphe gagnait en hauteur ce qu'il perdait en rondeur.
+ * Resserrer encore aurait creusé l'écart.
+ *
+ * 1,04 amène le « o » de 485 à 504 millièmes de tracé, pour 564 de haut, soit
+ * 0,894 : exactement le rapport de CursorGothic.
+ *
+ * ── La densité ne vient pas de l'approche, elle vient de la matière ─────────
+ * Les blancs latéraux étaient DÉJÀ plus serrés que ceux de Cursor, 70 contre
+ * 86 millièmes sur le « o ». RESSERRE ne bouge donc pas : y toucher aurait
+ * demandé de corriger le `letter-spacing` de toutes les feuilles, qui compte
+ * sur 9 unités par côté, pour un gain que l'oeil n'attendait pas.
+ *
+ * Ce qui rend la ligne plus dense, c'est l'encre : des panses plus larges dans
+ * des blancs inchangés. Après élargissement, la chasse du « o » passe à 578
+ * contre 586 chez Cursor, donc toujours un cheveu plus serrée que la leur.
+ *
+ * Conséquence à connaître : le texte prend environ 4 % de largeur en plus.
+ */
+const LARGEUR = 1.04;
 /**
  * Allongement des descendantes, en proportion.
  *
@@ -64,24 +122,46 @@ const CIBLES = {
 /* Mesurés sur Geist avant toute retouche. Ils servent de dénominateur. */
 const GEIST = { capitale: 710, oeil: 530, jambage: 150 };
 
+/**
+ * Les trois coupes, et le point de l'axe « wght » où chacune est prélevée.
+ *
+ * Le décalage de +33 vient de la mesure : à wght 400 le fût de Geist vaut 88,8
+ * millièmes, à 500 il vaut 111,3, et CursorGothic se tient à 96,3. La règle de
+ * trois donne 433. Les deux autres coupes suivent du même décalage, sinon
+ * l'écart entre les graisses se déforme et le gras cesse de répondre au normal.
+ *
+ * Le nom et le poids DÉCLARÉS restent 400, 500 et 600 : c'est ce que les
+ * feuilles de style demandent. Seul le dessin prélevé se déplace.
+ */
 const COUPES = [
-  ["Geist-Regular.ttf", "SAFEGrotesk-Regular", "Regular", 400],
-  ["Geist-Medium.ttf", "SAFEGrotesk-Medium", "Medium", 500],
-  ["Geist-SemiBold.ttf", "SAFEGrotesk-SemiBold", "SemiBold", 600],
+  ["SAFEGrotesk-Regular", "Regular", 400, 433],
+  ["SAFEGrotesk-Medium", "Medium", 500, 533],
+  ["SAFEGrotesk-SemiBold", "SemiBold", 600, 633],
 ];
 
 const PY = `
-import sys, json
+import sys, json, os
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import RecordingPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.misc.transform import Transform
 
-src, dst, famille, style, poids, resserre, s_cap, s_bdc, s_desc = sys.argv[1:10]
-poids = int(poids); resserre = int(resserre)
-s_cap = float(s_cap); s_bdc = float(s_bdc); s_desc = float(s_desc)
+src, dst, famille, style, poids, resserre, s_cap, s_bdc, s_desc, s_larg, wght = sys.argv[1:12]
+poids = int(poids); resserre = int(resserre); wght = float(wght)
+s_cap = float(s_cap); s_bdc = float(s_bdc); s_desc = float(s_desc); s_larg = float(s_larg)
 f = TTFont(src)
+
+# ── Le prelevement sur l'axe ───────────────────────────────────────────────
+# La source est la fonte VARIABLE. On y preleve un point statique, ce qui
+# permet une graisse que les coupes livrees n'offrent pas : 433 pour rejoindre
+# le fut de CursorGothic, la ou 400 est trop maigre et 500 trop gras.
+#
+# « inplace » evite de recopier la fonte entiere, et « overlap » laisse les
+# contours qui se chevauchent tels quels : les rasteriseurs modernes les
+# traitent en non-zero winding, et les fusionner demanderait skia-pathops.
+from fontTools.varLib import instancer
+f = instancer.instantiateVariableFont(f, {"wght": wght}, inplace=True)
 gs = f.getGlyphSet()
 glyf, hmtx = f["glyf"], f["hmtx"]
 upem = f["head"].unitsPerEm
@@ -100,11 +180,16 @@ from fontTools.pens.basePen import BasePen
 import unicodedata
 
 class Redresse(BasePen):
-    def __init__(self, glyphSet, out, ymin, s_haut, s_bas):
+    # « sl » elargit le trace horizontalement, uniformement : c'est la seule
+    # des quatre echelles qui ne depend ni de la classe du glyphe ni du signe
+    # de y. Une panse s'arrondit en s'elargissant, pas en montant.
+    def __init__(self, glyphSet, out, ymin, s_haut, s_bas, s_larg):
         BasePen.__init__(self, glyphSet)
         self.out = out; self.ymin = ymin; self.sh = s_haut; self.sb = s_bas
+        self.sl = s_larg
     def _pt(self, p):
         x, y = p
+        x = x * self.sl
         if y >= 0:
             return (x, y * self.sh)
         if self.ymin >= 0:
@@ -142,12 +227,12 @@ for nom in f.getGlyphOrder():
     g.recalcBounds(glyf)
     s_haut = s_bdc if classe.get(nom) == "bdc" else s_cap
     s_bas = s_desc if nom in descendeuses else 1.0
-    if s_haut == 1.0 and s_bas == 1.0:
+    if s_haut == 1.0 and s_bas == 1.0 and s_larg == 1.0:
         continue
     rec = RecordingPen()
     gs[nom].draw(rec)
     pen = TTGlyphPen(gs)
-    rec.replay(Redresse(gs, pen, g.yMin, s_haut, s_bas))
+    rec.replay(Redresse(gs, pen, g.yMin, s_haut, s_bas, s_larg))
     glyf[nom] = pen.glyph()
     hauts += 1
     if s_bas != 1.0:
@@ -156,6 +241,10 @@ for nom in f.getGlyphOrder():
 # Les composites portent leurs accents par un DECALAGE, qui n'a pas ete touche
 # par les pens : sans cette reprise, un « E » monte de huit unites et garde son
 # accent a l'ancienne hauteur, donc collé.
+#
+# Le decalage X suit l'elargissement pour la meme raison : la base s'elargit,
+# l'accent reste centre sur l'ANCIENNE largeur et derive vers la gauche. Sur du
+# francais, ou « é » et « à » sont partout, ca se voit tout de suite.
 for nom in f.getGlyphOrder():
     g = glyf[nom]
     if g.numberOfContours != -1:
@@ -164,6 +253,8 @@ for nom in f.getGlyphOrder():
     for c in g.components:
         if hasattr(c, "y") and c.y:
             c.y = round(c.y * s_haut)
+        if hasattr(c, "x") and c.x:
+            c.x = round(c.x * s_larg)
 
 # Les metriques verticales suivent, sinon la ligne de texte rogne les queues.
 for nom in f.getGlyphOrder():
@@ -183,6 +274,19 @@ if hasattr(os2, "sCapHeight"):
     os2.sCapHeight = round(os2.sCapHeight * s_cap)
 if hasattr(os2, "sxHeight"):
     os2.sxHeight = round(os2.sxHeight * s_bdc)
+
+# ── L'elargissement des chasses ────────────────────────────────────────────
+# Le trace a ete elargi, la chasse doit suivre DANS LA MEME PROPORTION, sinon
+# les blancs lateraux absorbent seuls les 4 % et les lettres se touchent. En
+# suivant, les blancs gardent leur proportion et c'est le resserrement, plus
+# bas, qui reste le seul maitre de la densite.
+#
+# L'espace suit aussi : une espace inchangee au milieu d'un texte 4 % plus
+# large se lirait comme un mot colle au suivant.
+if s_larg != 1.0:
+    for nom in f.getGlyphOrder():
+        aw, lsb = hmtx.metrics[nom]
+        hmtx.metrics[nom] = (round(aw * s_larg), round(lsb * s_larg))
 
 # ── Le resserrement ────────────────────────────────────────────────────────
 # On ne touche ni l'espace ni les glyphes sans contour : retirer de la chasse
@@ -209,7 +313,20 @@ for nom in f.getGlyphOrder():
 
 # ── L'identite ─────────────────────────────────────────────────────────────
 plein = famille if style == "Regular" else f"{famille} {style}"
-ps = dst
+
+# Le nom PostScript, c'est le nom du FICHIER, jamais son chemin.
+#
+# dst est un chemin de sortie complet. L'y verser posait
+# « public/fonts/safe-grotesk/SAFEGrotesk-Regular » comme nom PostScript des
+# trois graisses. La specification OpenType interdit la barre oblique dans le
+# nameID 6, qui n'admet que de l'ASCII imprimable sans espace ni []{}()<>/%,
+# et pas plus de 63 caracteres.
+#
+# Sans effet tant qu'aucune fonte n'est enregistree pour les PDF, qui tournent
+# sur l'Helvetica integree de @react-pdf/renderer. Ca mordrait le jour ou la
+# fonte est embarquee dans une facture, ou installee sur un poste.
+# Constate le 2026-08-27 en verifiant une maquette.
+ps = os.path.basename(dst)
 copyright = (
     "Copyright (c) 2026 SAFE Inc. "
     "Forge a partir de Geist, Copyright (c) 2023 Vercel, in collaboration with "
@@ -246,21 +363,23 @@ print(json.dumps({"glyphes": touches, "hauts": hauts, "allonges": allonges, "upe
 fs.mkdirSync(SORTIE, { recursive: true });
 fs.writeFileSync("/tmp/forger.py", PY);
 
+if (!fs.existsSync(SOURCE_VARIABLE)) {
+  console.error(`Source absente : ${SOURCE_VARIABLE}`);
+  process.exit(1);
+}
+
 const rapport = [];
-for (const [fichier, base, style, poids] of COUPES) {
-  const src = path.join(SOURCE, fichier);
-  if (!fs.existsSync(src)) {
-    console.error(`Source absente : ${src}`);
-    process.exit(1);
-  }
+for (const [base, style, poids, wght] of COUPES) {
   const dst = path.join(SORTIE, base);
   const out = execFileSync("python3", [
-    "/tmp/forger.py", src, dst, NOM, style, String(poids), String(RESSERRE),
+    "/tmp/forger.py", SOURCE_VARIABLE, dst, NOM, style, String(poids), String(RESSERRE),
     String(CIBLES.capitale / GEIST.capitale),
     String(CIBLES.oeil / GEIST.oeil),
     String(CIBLES.jambage / GEIST.jambage),
+    String(LARGEUR),
+    String(wght),
   ]);
-  rapport.push({ style, ...JSON.parse(out.toString()) });
+  rapport.push({ style, wght, ...JSON.parse(out.toString()) });
 }
 
 /* L'OFL part avec la fonte. C'est une obligation de la licence, pas une
@@ -273,7 +392,11 @@ fs.writeFileSync(
     `Fonte de SAFE Inc., forgee a partir de Geist (Vercel, basement.studio),\n` +
     `sous SIL Open Font License 1.1, sans nom reserve.\n\n` +
     `Les FORMES sont celles de Geist. Ce qui est propre a SAFE : le nom, le\n` +
-    `fichier, et le resserrement de ${RESSERRE} unites d'em par cote.\n\n` +
+    `fichier, le resserrement de ${RESSERRE} unites d'em par cote, et\n` +
+    `l'elargissement des traces de ${Math.round((LARGEUR - 1) * 100)} %.\n\n` +
+    `L'elargissement arrondit les panses : le « o » passe a un rapport\n` +
+    `largeur/hauteur de 0,894, celui de CursorGothic, contre 0,860 avant.\n` +
+    `Les blancs lateraux restent plus serres que les leurs.\n\n` +
     `Regeneration : \`node scripts/forger-safe-grotesk.mjs\`\n\n` +
     `Le resserrement vit dans la fonte. Le \`letter-spacing\` des feuilles doit\n` +
     `en tenir compte, sinon les deux s'additionnent.\n`,

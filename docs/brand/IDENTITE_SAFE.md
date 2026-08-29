@@ -307,6 +307,28 @@ import { SafeLogo, SafeMark, SafeBullet } from "@/components/branding/SafeLogo";
 - **Images de la marque** : `npm run brand:assets` régénère les PNG (données
   structurées JSON-LD, icône Apple) en **lisant** les chemins dans `safe-mark.ts`.
   Ne jamais fabriquer ces fichiers à la main ni par capture d'écran.
+- **Fonte de la marque** : `npm run brand:fonts` reforge SAFE Grotesk à partir de
+  Geist, dans `public/fonts/safe-grotesk/`. C'est une commande **distincte** de
+  `brand:assets`, qui ne touche pas aux fontes.
+
+  La source est `Geist-Variable.ttf`, et non les coupes statiques : les trois
+  graisses sont **prélevées sur l'axe `wght` à 433, 533 et 633**, tout en étant
+  déclarées 400, 500 et 600. Mesure du 2026-08-27 : le fût du « H » de
+  CursorGothic vaut 96,3 millièmes d'em, celui de Geist 400 en vaut 88,8 et
+  Geist 500 en vaut 111,3. Aucun cran livré ne convenait.
+
+  Après une reforge, vérifier que le dessin n'a pas bougé : hauteur de capitale
+  718, œil du x 540, jambage descendant 185, **tracés élargis de 4 %**
+  (`LARGEUR`), et 9 unités d'em retirées de chaque côté (`RESSERRE`).
+
+  ⚠ L'élargissement de 4 % date du 2026-08-27 : avant lui, chaque glyphe était
+  « exactement 18/1000 d'em plus étroit que Geist », ce qui n'est plus vrai. Il
+  arrondit les panses au rapport de CursorGothic, le « o » passant d'un rapport
+  largeur/hauteur de 0,860 à 0,904.
+
+  ⚠ Le resserrement vit **dans le fichier de fonte**, soit 0,018 em. Tout
+  `letter-spacing` de feuille s'y **ajoute** : la valeur effective vaut
+  `letter-spacing CSS − 0,018 em`.
 - **Masquer le mot en petit écran** : `wordClassName="hidden sm:block"` sur `SafeLogo`.
   C'est le besoin qui poussait les entêtes à recomposer le verrou à côté du composant.
   Ne jamais reposer un `<span>SAFE</span>` à la main à côté d'un `SafeMark`.

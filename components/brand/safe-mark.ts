@@ -246,5 +246,16 @@ export const LOCKUP_GAP_RATIO = 0.3;
 /** Interlettrage du mot. Chasse resserrée, lettres espacées. */
 export const WORDMARK_TRACKING = "0.2em";
 
-/** Graisse du mot. Medium, jamais bold. */
-export const WORDMARK_WEIGHT = 500;
+/**
+ * Graisse du mot. Regular.
+ *
+ * Valait 500 jusqu'au 2026-08-27. Decision CEO ce jour-la, « aucun texte
+ * bold », apres verification que cursor.com/product ne porte AUCUN element en
+ * CursorGothic au-dela de 400, action principale comprise.
+ *
+ * Le mot tient sans graisse parce que ce n'est pas elle qui le porte : c'est
+ * son interlettrage de 0,2em et le mark a cote. Depuis le meme jour, SAFE
+ * Grotesk est prelevee a 433 sur l'axe de Geist et non a 400, donc ce
+ * « Regular » est deja plus dense que le Regular d'origine.
+ */
+export const WORDMARK_WEIGHT = 400;

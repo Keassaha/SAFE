@@ -26,6 +26,54 @@
    l'en-tête annonce que c'est un extrait. */
 import { SafeMark } from "@/components/branding/SafeLogo";
 
+/* ── Les icônes de la barre ───────────────────────────────────────────────
+   L'application en pose une devant chaque menu ; la réplique n'en avait
+   aucune, et la barre prenait le rythme d'un menu de site au lieu de celui du
+   produit (demande CEO du 2026-08-27).
+
+   Dessinées ici en traits de 1,5, jamais importées d'une bibliothèque : quatre
+   glyphes ne justifient pas une dépendance, et ils doivent suivre la couleur
+   du texte par `currentColor`. */
+const ICONES: Record<string, React.ReactNode> = {
+  dash: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="2" y="2" width="5" height="5" rx="1" />
+      <rect x="9" y="2" width="5" height="5" rx="1" />
+      <rect x="2" y="9" width="5" height="5" rx="1" />
+      <rect x="9" y="9" width="5" height="5" rx="1" />
+    </svg>
+  ),
+  aujourdhui: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12l3.5-4 3 2.5L13 4" />
+      <path d="M2 14h12" />
+    </svg>
+  ),
+  pratique: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+      <rect x="2" y="4.5" width="12" height="8.5" rx="1.2" />
+      <path d="M2 7.5h12M6 4.5V3h4v1.5" />
+    </svg>
+  ),
+  finances: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="2" width="10" height="12" rx="1.2" />
+      <path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" />
+    </svg>
+  ),
+  outils: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10.5 2.5a3.2 3.2 0 00-3 4.3L2.6 11.7a1.2 1.2 0 001.7 1.7l4.9-4.9a3.2 3.2 0 004.3-3l-2 2-1.8-.5-.5-1.8z" />
+    </svg>
+  ),
+  parametres: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="8" cy="8" r="2.2" />
+      <path d="M8 1.6v1.8M8 12.6v1.8M14.4 8h-1.8M3.4 8H1.6M12.5 3.5l-1.3 1.3M4.8 11.2l-1.3 1.3M12.5 12.5l-1.3-1.3M4.8 4.8L3.5 3.5" strokeLinecap="round" />
+    </svg>
+  ),
+};
+
 const MENUS: {
   id: string;
   label: string;
@@ -116,6 +164,7 @@ export function HeroLiveApp() {
               tabIndex={0}
               aria-expanded={m.items ? false : undefined}
             >
+              {ICONES[m.id] ? <span className="ico" aria-hidden>{ICONES[m.id]}</span> : null}
               {m.label}
               {m.items ? <i className="car" aria-hidden /> : null}
               {m.items ? (
@@ -140,8 +189,27 @@ export function HeroLiveApp() {
           ))}
         </div>
 
+        {/* La cloche et « Temps » existent dans l'application et manquaient
+            ici. Le raccourci ⌘K aussi : c'est ce qui dit qu'une barre de
+            recherche appartient a un logiciel et non a un site. */}
         <div className="ha-right">
-          <span className="ha-search">Rechercher un client…</span>
+          <span className="ha-search">
+            Rechercher un client…<span className="kbd" aria-hidden>⌘K</span>
+          </span>
+          <span className="ha-cloche" aria-hidden>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2a4 4 0 00-4 4c0 3-1 4-1 4h10s-1-1-1-4a4 4 0 00-4-4z" />
+              <path d="M6.8 12.5a1.4 1.4 0 002.4 0" />
+            </svg>
+            <i className="pastille">1</i>
+          </span>
+          <span className="ha-temps">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
+              <circle cx="8" cy="8" r="6" />
+              <path d="M8 4.6V8l2.2 1.6" />
+            </svg>
+            Temps
+          </span>
           <span className="ha-lang"><span className="on">FR</span><span>EN</span></span>
           <span className="ha-avatar">CR</span>
         </div>
@@ -152,7 +220,11 @@ export function HeroLiveApp() {
         <span className="s"><i aria-hidden />Dossiers actifs <b>43</b></span>
         <span className="s"><i aria-hidden />Clients actifs <b>25</b></span>
         <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
-        <span className="date">Extrait navigable · ouvrez un menu</span>
+        {/* La date, comme dans l'application. Elle disait « Extrait navigable ·
+            ouvrez un menu » : une interface qui explique comment s'en servir
+            avoue qu'elle n'est pas evidente, et le meme raisonnement avait
+            deja fait tomber la legende de l'extrait le 2026-08-26. */}
+        <span className="date">jeudi 27 août 2026</span>
       </div>
 
       <div className="ha-body">
@@ -163,14 +235,23 @@ export function HeroLiveApp() {
            Une maquette différente du produit qu'elle vend se voit (retour
            CEO du 24 août 2026). */}
         <div className="ha-screen on" data-ha-pane="dash">
-          {/* Bandeau d'action, identique à BandeauAction. */}
+          {/* Le titre de page, comme dans l'application. */}
+          <p className="ha-titre">Tableau de bord</p>
+          {/* Bandeau d'action, identique à BandeauAction. Le bouton est A
+             DROITE sur la ligne du titre, comme dans l'application : empile
+             dessous, il allongeait la carte et separait « ce qu'il y a a
+             faire » de « le faire ». */}
           <div className="ha-card">
-            <p className="ha-kicker">À traiter maintenant</p>
-            <p className="ha-h">Rapprochez le fidéicommis</p>
-            <p className="ha-mini">Aucun rapprochement n&apos;a encore été effectué.</p>
-            <span className="ha-act safe-zoom" data-ha-screen="comptes" role="button" tabIndex={0}>
-              Rapprocher le fidéicommis
-            </span>
+            <div className="ha-tete">
+              <div>
+                <p className="ha-kicker">À traiter maintenant</p>
+                <p className="ha-h">Rapprochez le fidéicommis</p>
+                <p className="ha-mini">Rapprochement de 2026-07 équilibré, il reste à le certifier.</p>
+              </div>
+              <span className="ha-act safe-zoom" data-ha-screen="comptes" role="button" tabIndex={0}>
+                Rapprocher le fidéicommis
+              </span>
+            </div>
             <div style={{ marginTop: 9 }}>
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="facturation" role="button" tabIndex={0}>
                 <i aria-hidden />13 facture(s) en retard
