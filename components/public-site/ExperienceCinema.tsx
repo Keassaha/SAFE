@@ -30,17 +30,20 @@
 import { useEffect, useRef, useState } from "react";
 /* Les icones du cartable viennent de la MEME bibliotheque que l'application,
    et leurs noms sont ceux que lib/dossiers/cartable-templates/index.ts attribue
-   aux dix sections d'un dossier immobilier. Les redessiner a la main donnerait
+   aux neuf sections d'un dossier de droit de la famille. Les redessiner a la
+   main donnerait
    des glyphes approchants, c'est-a-dire un dixieme ecart de plus a surveiller. */
 import {
   FileSignature,
-  FileText,
-  Wallet,
-  Search,
-  Receipt,
+  FolderOpen,
+  FolderClosed,
+  Scale,
+  Gavel,
   Mail,
+  Wallet,
   StickyNote,
   Archive,
+  FileText,
   ChevronRight,
 } from "lucide-react";
 import { SafeLogo } from "@/components/branding/SafeLogo";
@@ -3026,7 +3029,8 @@ const CSS = `
   .xc .fiche .onglets-fiche button.on { color: var(--si-ink); border-bottom-color: var(--si-ink); box-shadow: none; }
   .xc .fiche .onglets-fiche button:focus-visible { outline: 2px solid var(--si-verified); outline-offset: 3px; border-radius: 3px; }
   /* Le compteur de l'onglet, « Cartable (10) ». Il porte l'argument de la
-     section : dix sections parce que le dossier est immobilier. Gris, pour
+     section : neuf sections parce que le dossier est en droit de la
+     famille. Gris, pour
      qu'il se lise comme une quantite et non comme une partie du nom. */
   .xc .fiche .onglets-fiche button small {
     margin-left: 4px;
@@ -5963,7 +5967,7 @@ export default function ExperienceCinema() {
             <figure className="fenetre-produit contour-fondu">
               <div className="barre-fenetre">
                 <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Clinique Longueuil inc. · dossier 2026-017</span>
+                <span><em>SAFE</em> · Gagnon, Félix · dossier 2026-028</span>
                 <span className="ecart" />
                 <span>Pratique · Dossiers</span>
               </div>
@@ -5982,16 +5986,19 @@ export default function ExperienceCinema() {
               <BarreAppVitrine actif="pratique" />
 
               <div className="fiche extrait-nav">
-                {/* L'en-tete est celle d'un DOSSIER, plus celle d'un client.
-                    Le dossier est reel : « 2026-002 · Beaulieu — achat
-                    immeuble commercial », client « Constructions Beaulieu
-                    inc. », type immobilier, ouvert le 10 aout 2026, releve
-                    dans docs/design/references-app/dossiers.png. */}
                 {/* ── L'EN-TETE DE L'ECRAN REEL ──────────────────────────
-                    Realignee le 2026-08-27, apres la refonte du dossier
-                    (commit « 1dfbfa8 »). Les donnees viennent d'une capture du
-                    CEO : dossier 2026-017, client Clinique Longueuil inc.,
-                    domaine immobilier, Me Camille Roy responsable. */}
+                    Le dossier illustre est passe au DROIT DE LA FAMILLE le
+                    2026-08-29, sur demande du CEO.
+
+                    2026-028 « Gagnon — droit de la famille », client Gagnon,
+                    Felix, ouvert le 17 avril 2026, statut actif, Me Camille Roy
+                    responsable, aucune adjointe, aucun tribunal ni reference.
+                    Toutes ces valeurs sont LUES dans la base de demonstration
+                    locale le 2026-08-29, pas choisies.
+
+                    Le nom s'ecrit « Gagnon, Felix » et non l'inverse : pour une
+                    personne physique, la page compose « nom, prenom »
+                    (clientDisplayName, app/(app)/dossiers/[id]/page.tsx:36). */}
                 <div className="fiche-tete anime-bloc">
                   <div>
                     {/* Le retour est un LIEN VERT, suivi d'un point median et
@@ -6000,11 +6007,11 @@ export default function ExperienceCinema() {
                         text-si-muted ». La replique ecrivait la ligne entiere
                         en gris de 11 px, donc ni la couleur ni la taille. */}
                     <p className="retour">
-                      <span className="lien">&larr; Retour a la liste</span>
+                      <span className="lien">&larr; Retour &agrave; la liste</span>
                       <span className="pt">&middot;</span>
-                      <span>Clinique Longueuil inc.</span>
+                      <span>Gagnon, F&eacute;lix</span>
                     </p>
-                    <h4>2026-017 &mdash; Clinique Longueuil &mdash; immobilier</h4>
+                    <h4>2026-028 &mdash; Gagnon &mdash; droit de la famille</h4>
                     {/* Les pastilles vivent SOUS le titre, pas a droite : c'est
                         l'ordre de l'ecran. Ce sont des rectangles arrondis
                         (rounded-lg) et non des gelules, et l'etat ne porte
@@ -6028,8 +6035,9 @@ export default function ExperienceCinema() {
 
                 {/* Les CINQ onglets de l'ecran, avec leurs compteurs. C'est la
                     signature visuelle de la fiche depuis la refonte, et c'est
-                    « Cartable (10) » qui porte l'argument de la section : dix
-                    sections ouvertes parce que le dossier est immobilier.
+                    « Cartable (9) » qui porte l'argument de la section : neuf
+                    sections ouvertes parce que le dossier est en droit de la
+                    famille.
 
                     De vrais boutons : le clavier les atteint sans qu'on pose un
                     role ni un index de tabulation a la main. */}
@@ -6044,7 +6052,7 @@ export default function ExperienceCinema() {
                 <div className="fiche-carte anime-bloc">
                 <div className="onglets-fiche" role="tablist" aria-label="Vues du dossier">
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(10)</small></button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Cartable <small>(9)</small></button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Pi&egrave;ces attendues <small>(0)</small></button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="notes">Notes internes</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="documents">Documents <small>(0)</small></button>
@@ -6073,7 +6081,7 @@ export default function ExperienceCinema() {
                     lib/dossiers/preparation-status.ts:325, les gravites a 333. */}
                 {/* Le RESUME D'OUVERTURE ouvre la vue d'ensemble, comme dans
                     l'ecran depuis la refonte du 2026-08-27. Le domaine de
-                    pratique le mene : c'est lui qui decide des dix sections du
+                    pratique le mene : c'est lui qui decide des neuf sections du
                     cartable, et il ne s'affichait NULLE PART avant. */}
                 {/* L'ORDRE des trois blocs est celui de la page :
                     `DossierResumeOuverture`, puis `DossierEtatCard`, puis
@@ -6084,9 +6092,9 @@ export default function ExperienceCinema() {
                 <div className="carte-bloc anime-bloc">
                   <p className="ctt">Le dossier</p>
                   <div className="lignes">
-                    <div className="lg"><span>Domaine de pratique</span><span className="v">immobilier</span></div>
-                    <div className="lg"><span>Client</span><span className="v">Clinique Longueuil inc.</span></div>
-                    <div className="lg"><span>Ouvert le</span><span className="v">24 juin 2026 <em>&middot; il y a 65 jours</em></span></div>
+                    <div className="lg"><span>Domaine de pratique</span><span className="v">droit famille</span></div>
+                    <div className="lg"><span>Client</span><span className="v">Gagnon, F&eacute;lix</span></div>
+                    <div className="lg"><span>Ouvert le</span><span className="v">17 avril 2026 <em>&middot; il y a 134 jours</em></span></div>
                     <div className="lg"><span>Statut</span><span className="v">Actif</span></div>
                     <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
                   </div>
@@ -6129,14 +6137,16 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
 
-                <div className="carte-bloc anime-bloc">
-                  <p className="ctt">Personnes du dossier</p>
-                  <ul className="personnes">
-                    <li><span>Clinique Longueuil inc.</span><span className="pa cl">Client principal</span></li>
-                    <li><span>9271-4408 Qu&eacute;bec inc.</span><span className="pa ex">Partie adverse</span></li>
-                    <li><span>Caisse, pr&ecirc;teur</span><span className="pa ex">Tiers</span></li>
-                  </ul>
-                </div>
+                {/* ⚠ « Personnes du dossier » a ete RETIRE le 2026-08-29, avec
+                    le passage au dossier de famille 2026-028.
+
+                    Le bloc n'existe a l'ecran QUE si le dossier reunit plus
+                    d'une personne : app/(app)/dossiers/[id]/page.tsx le garde
+                    derriere « dossierParties.some((p) => !p.estPrincipal) ».
+                    Le dossier 2026-028 ne porte AUCUNE partie en base, releve
+                    le 2026-08-29. Le garder aurait invente trois personnes sur
+                    un dossier qui n'en a qu'une, ce que la regle interne du
+                    2026-08-14 interdit. */}
 
                 </div>
 
@@ -6144,16 +6154,24 @@ export default function ExperienceCinema() {
                     dans le produit. Une ligne de dossier, puis ce qui lui est
                     rattache. */}
                 {/* ── L'ONGLET CARTABLE ──────────────────────────────────
-                    Les DIX sections reelles d'un dossier immobilier, relevees
-                    sur une capture du CEO le 2026-08-27. Elles viennent de
-                    lib/dossiers/cartable-templates/index.ts, ou neuf domaines
-                    de pratique ouvrent chacun les leurs : « Offre et
-                    convention » et « Recherche de titres » n'existent que dans
-                    l'immobilier, un divorce ouvrirait « Pieces Madame (P-) » a
-                    la place.
+                    Les NEUF sections reelles d'un dossier de droit de la
+                    famille, copiees de la constante DROIT_FAMILLE dans
+                    lib/dossiers/cartable-templates/index.ts, dans son ordre et
+                    avec ses icones.
+
+                    Neuf domaines de pratique ouvrent chacun les leurs :
+                    « Pieces Madame (P-) » et « Pieces Monsieur (D-) »
+                    n'existent qu'en famille, un dossier immobilier ouvrirait
+                    « Offre et convention » et « Recherche de titres » a la
+                    place.
 
                     C'est TOUT l'argument de la section, et il se lit ici sans
-                    qu'on ait besoin de l'ecrire. */}
+                    qu'on ait besoin de l'ecrire.
+
+                    Le dossier ne porte encore AUCUNE section en base : la page
+                    les cree a la premiere ouverture
+                    (app/(app)/dossiers/[id]/page.tsx:110, « generateCartable »
+                    si la liste est vide), d'ou le compteur a neuf. */}
                 {/* Le cartable est un CARTABLE A DEUX VOLETS, pas une liste.
                     `DossierBriefcase.tsx` pose une colonne de 256 px
                     (BriefcaseSidebar : fond canvas, filet a droite, titre
@@ -6172,11 +6190,10 @@ export default function ExperienceCinema() {
                       <nav>
                         {[
                           { l: "Mandat et engagement", I: FileSignature },
-                          { l: "Offre et convention", I: FileText },
-                          { l: "Financement et hypothèque", I: Wallet },
-                          { l: "Recherche de titres", I: Search },
-                          { l: "Documents de clôture", I: FileSignature },
-                          { l: "Débours et ajustements", I: Receipt },
+                          { l: "Pièces Madame (P-)", I: FolderOpen },
+                          { l: "Pièces Monsieur (D-)", I: FolderClosed },
+                          { l: "Procédures", I: Scale },
+                          { l: "Jugements et ordonnances", I: Gavel },
                           { l: "Correspondance", I: Mail },
                           { l: "Fidéicommis", I: Wallet },
                           { l: "Notes et honoraires", I: StickyNote },
@@ -6245,8 +6262,13 @@ export default function ExperienceCinema() {
                       <p className="ctt">Pi&egrave;ces attendues</p>
                       <span>Aucune pi&egrave;ce attendue sur ce dossier</span>
                     </div>
+                    {/* ⚠ La ligne « 5 dates a saisir » a ete RETIREE le
+                        2026-08-29 : ce compte appartenait au dossier
+                        immobilier 2026-017, et rien ne dit qu'il vaut pour
+                        2026-028. Reporter un chiffre d'un dossier sur un autre
+                        est exactement la faute que cette section a deja
+                        commise une fois. */}
                     <div className="lignes">
-                      <div className="lg"><span>5 dates &agrave; saisir pour que les &eacute;ch&eacute;ances se calculent</span><span className="v attente">&Agrave; saisir</span></div>
                       <div className="lg"><span>SAFE peut cr&eacute;er la liste r&eacute;glementaire du domaine, avec les articles qui la commandent, puis vous l&rsquo;ajustez.</span><span className="v lien">Cr&eacute;er la liste &rarr;</span></div>
                     </div>
                   </div>
@@ -6273,13 +6295,14 @@ export default function ExperienceCinema() {
                 sur AUCUN element de la page. La regle interne du 2026-08-14
                 interdit de presenter une donnee reconstruite comme reelle.
 
-                Ce qui est reel : le dossier 2026-002, son client, son type et
-                sa date d'ouverture, releves dans l'application. Ce qui est
-                reconstruit : les parties, les etapes, les echeances et les
-                pieces, le Cabinet Demo n'en portant pas. */}
+                Depuis le 2026-08-29, PLUS RIEN n'est reconstruit dans cette
+                fiche : les parties inventees ont ete retirees avec le bloc qui
+                les portait, le dossier 2026-028 n'en ayant aucune. Chaque
+                valeur affichee est lue en base ou derivee du code du produit.
+                La mention reste, mais elle ne signale plus qu'une chose : le
+                cabinet est un cabinet de demonstration. */}
             <p className="mention-demo">
-              Dossier réel du cabinet de démonstration, 2026-017. <b>Parties, étapes, échéances et
-              pièces reconstruites</b> pour illustrer la structure d&apos;une vente immobilière.
+              Dossier réel du cabinet de démonstration, 2026-028.
             </p>
           </div>
 
