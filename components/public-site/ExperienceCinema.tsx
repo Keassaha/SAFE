@@ -3052,9 +3052,16 @@ const CSS = `
      borde. Un masque coupe l'ombre portee, peinte hors de la boite : l'ombre
      longue vit donc sur le parent, hors du masque. */
   .xc .scene-produit .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
+  /* Le fondu part a 88 % et non a 68 % (decision CEO du 2026-08-29).
+     A 68 %, il mangeait la fin du contenu au lieu de fondre un bord : releve
+     sur la fenetre du dossier, quatre des neuf sections du cartable
+     s'effacaient, la derniere a 26 % d'encre. La section defend precisement
+     « neuf sections parce que le dossier est en droit de la famille », et la
+     liste qui le prouve se dissolvait avant d'avoir fini de le dire.
+     Un contour se fond sur ses derniers pixels, pas sur son dernier tiers. */
   .xc .fenetre-produit.contour-fondu {
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
     box-shadow: inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85);
   }
 
