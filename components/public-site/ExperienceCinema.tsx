@@ -3489,11 +3489,22 @@ const CSS = `
     mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent 100%);
     box-shadow: inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85);
   }
-  /* Les deux fenetres de la piste se terminent a la MEME hauteur : sans cela,
-     deux fondus de meme longueur finiraient quand meme a deux niveaux. */
-  .xc .scene-duo .piste { align-items: stretch; }
-  .xc .scene-duo .piste > .fenetre-fondante { display: flex; }
-  .xc .scene-duo .piste .fenetre-produit { flex: 1; }
+  /* ── LES DEUX FENETRES SE TERMINENT A LA MEME HAUTEUR ────────────────────
+     Sans cela, deux fondus de meme longueur finiraient quand meme a deux
+     niveaux.
+
+     ⚠ C'est la PLUS COURTE qui donne la hauteur, pas la plus haute. Etirer la
+     comptabilite jusqu'a la fiche de temps laissait 242 px de blanc sous son
+     contenu, ce que le CEO a vu le 2026-08-30. On coupe donc la plus longue,
+     et le fondu de 120 px tombe exactement sur la coupe : une fenetre qui
+     continue sous le fondu se lit comme un ecran qui deborde du cadre, ce qui
+     est vrai ; une fenetre qui s'arrete sur du vide se lit comme un ecran
+     inachve.
+
+     La hauteur commune est posee par le script (« egaliserDuo »), qui mesure
+     les deux a hauteur libre. Une valeur ecrite ici en dur se serait fausee
+     au premier changement de contenu. */
+  .xc .scene-duo .piste .fenetre-produit { overflow: hidden; }
 
   /* La mention de demonstration. Elle n'est pas discrete : une histoire
      reconstruite presentee comme une donnee reelle est le defaut que la
@@ -5554,9 +5565,48 @@ function runExperience(root: HTMLElement): () => void {
   const demanderDuo = () => {
     if (trameDuo === null) trameDuo = requestAnimationFrame(peindreDuo);
   };
+
+  /**
+   * Les deux fenetres d'une piste se terminent a la meme hauteur, et c'est la
+   * PLUS COURTE qui la donne.
+   *
+   * Etirer la plus courte jusqu'a la plus haute laissait 242 px de blanc sous
+   * son contenu (constat CEO du 2026-08-30). Couper la plus longue est le bon
+   * sens : le fondu de 120 px tombe sur la coupe, et une fenetre qui continue
+   * sous le fondu se lit comme un ecran qui deborde de son cadre, ce qui est
+   * vrai. Une fenetre qui s'arrete sur du vide se lit comme un ecran inacheve.
+   *
+   * Mesure a HAUTEUR LIBRE d'abord : sans cela, la deuxieme passe mesurerait
+   * la hauteur qu'on vient d'imposer et la piste retrecirait a chaque appel.
+   *
+   * `offsetHeight` et non `getBoundingClientRect()` : les fenetres sont
+   * reduites par « zoom », et seul le premier repond dans le repere de
+   * l'element, celui dans lequel on ecrit ensuite `style.height`.
+   *
+   * En pile — telephone, ou mouvement reduit — chacune garde sa hauteur : rien
+   * ne se coupe quand rien ne glisse.
+   */
+  function egaliserDuo() {
+    for (const scene of scenesDuo) {
+      const piste = scene.querySelector<HTMLElement>(".piste");
+      if (!piste) continue;
+      const fenetres = Array.from(piste.querySelectorAll<HTMLElement>(".fenetre-produit"));
+      if (fenetres.length < 2) continue;
+      fenetres.forEach((f) => f.style.removeProperty("height"));
+      if (getComputedStyle(piste).flexDirection === "column") continue;
+      const commune = Math.min(...fenetres.map((f) => f.offsetHeight));
+      if (commune > 0) fenetres.forEach((f) => { f.style.height = `${commune}px`; });
+    }
+  }
+
   if (scenesDuo.length > 0) {
     window.addEventListener("scroll", demanderDuo, { passive: true });
     window.addEventListener("resize", demanderDuo);
+    window.addEventListener("resize", egaliserDuo);
+    egaliserDuo();
+    /* Les polices arrivent apres le premier rendu : la hauteur des deux
+       fenetres change alors sans que rien d'autre ait bouge. */
+    void document.fonts?.ready.then(egaliserDuo);
     demanderDuo();
   }
 
@@ -6056,8 +6106,14 @@ function runExperience(root: HTMLElement): () => void {
        largeur. */
     window.removeEventListener("scroll", demanderDuo);
     window.removeEventListener("resize", demanderDuo);
+    window.removeEventListener("resize", egaliserDuo);
     if (trameDuo !== null) cancelAnimationFrame(trameDuo);
-    scenesDuo.forEach((sc) => sc.querySelector<HTMLElement>(".piste")?.removeAttribute("style"));
+    scenesDuo.forEach((sc) => {
+      sc.querySelector<HTMLElement>(".piste")?.removeAttribute("style");
+      /* Les hauteurs imposees partent aussi : relancee, la piste les
+         remesurerait sur elles-memes et retrecirait a chaque regime. */
+      sc.querySelectorAll<HTMLElement>(".fenetre-produit").forEach((f) => f.style.removeProperty("height"));
+    });
     extraits.forEach((ex) => ex.removeEventListener("click", onExtraitClick));
     heroApp.removeEventListener("click", onHeroAppClick);
     heroApp.removeEventListener("keydown", onHeroAppKey);
