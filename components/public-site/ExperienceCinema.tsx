@@ -2978,51 +2978,150 @@ const CSS = `
     .xc .scene-duo .barre-app .ch { width: 128px; }
   }
 
-  /* ── Le bloc de saisie rapide, en tete de l'ecran /temps ─────────────────
-     Une ligne : ce qu'il propose a gauche, l'etat du chronometre a droite. */
-  .xc .fiche .carte-bloc.saisie-rapide {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    flex-wrap: wrap;
+  /* ── LE CHRONOMETRE DE LA SAISIE RAPIDE ──────────────────────────────────
+     Releve sur capture le 2026-08-30. La replique n'avait qu'un titre : l'ecran
+     porte un cadran a 00:00:00, trois champs et un bouton desactive tant
+     qu'aucun client n'est choisi. */
+  .xc .fiche .chrono {
+    display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+    margin-top: 16px;
   }
-  .xc .fiche .saisie-rapide .ctt { margin-bottom: 2px; }
-  .xc .fiche .saisie-rapide .fiche-sous { margin-top: 0; }
-  .xc .fiche .saisie-rapide .pa {
-    flex: none;
-    padding: 4px 12px; border-radius: 8px;
-    font-size: 12px; font-weight: 500;
-    background: rgb(var(--si-verified-rgb) / 0.08); color: var(--si-verified);
+  .xc .fiche .chrono .cadran { display: grid; }
+  .xc .fiche .chrono .hh {
+    font-family: var(--mono); font-size: 22px; letter-spacing: 0.02em; color: var(--si-ink);
   }
+  .xc .fiche .chrono .et { font-size: 12px; color: var(--si-muted); }
+  .xc .fiche .chrono .champ { display: grid; gap: 6px; min-width: 168px; }
+  .xc .fiche .chrono .champ.large { flex: 1; min-width: 220px; }
+  .xc .fiche .chrono .lb { font-size: 12.5px; color: var(--si-body); }
+  .xc .fiche .chrono .ct-select {
+    display: flex; align-items: center;
+    height: 36px; padding: 0 12px;
+    border: 1px solid var(--si-line); border-radius: 8px;
+    background: var(--si-surface); font-size: 13px; color: var(--si-ink);
+  }
+  .xc .fiche .chrono .ct-select.vide { color: var(--si-subtle); }
+  /* Le bouton est GRIS et non plein : il attend qu'un client soit choisi. */
+  .xc .fiche .chrono .bt.inactif {
+    background: var(--si-border-strong); border-color: var(--si-border-strong);
+    color: var(--si-surface);
+  }
+  .xc .fiche .chrono .aide { font-size: 11.5px; color: var(--si-muted); max-width: 15ch; }
 
-  /* ── Les quatre mesures de l'ecran /temps ────────────────────────────────
-     Cette semaine, Ce mois, Non facture, Taux facturable. Meme poids pour les
-     quatre : l'ecran ne hierarchise pas entre elles. */
-  .xc .fiche .mesures {
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
-    margin-top: 14px;
+  /* ── LES QUATRE MESURES ──────────────────────────────────────────────────
+     Une SEULE rangee divisee en quatre, et non quatre cartes : libelle a
+     gauche, valeur a droite en chasse fixe, unite sous la valeur. */
+  .xc .fiche .carte-bloc.mesures {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 0; margin-top: 14px;
   }
   .xc .fiche .mesures .me {
-    border: 1px solid var(--si-line); border-radius: 12px;
-    background: var(--si-surface); padding: 12px 14px;
+    display: grid; align-content: center;
+    padding: 16px 18px;
+    border-left: 1px solid var(--si-line);
   }
-  .xc .fiche .mesures .k { display: block; font-size: 11px; font-weight: 500; color: var(--si-muted); }
+  .xc .fiche .mesures .me:first-child { border-left: 0; }
+  .xc .fiche .mesures .k { font-size: 12.5px; color: var(--si-body); }
   .xc .fiche .mesures .v {
-    display: block; margin-top: 6px;
-    font-family: var(--mono); font-size: 16px; color: var(--si-ink);
+    margin-top: 6px; text-align: right;
+    font-family: var(--mono); font-size: 20px; color: var(--si-ink);
   }
-  .xc .fiche .mesures .s { display: block; margin-top: 4px; font-size: 10.5px; color: var(--si-muted); }
+  .xc .fiche .mesures .s { margin-top: 3px; text-align: right; font-size: 11.5px; color: var(--si-muted); }
 
-  /* Dans /temps, l'onglet actif est VERT et non encre : c'est
-     « text-si-verified » dans TempsPageClient.tsx. */
+  /* Dans /temps, l'onglet actif est VERT et non encre. */
   .xc .fiche .onglets-temps { margin-top: 12px; }
   .xc .fiche .onglets-temps .on { color: var(--si-verified); }
 
-  /* Le tableau du journal porte huit colonnes dans une fenetre etroite : il
-     respire moins, et ses cellules vides le disent par un tiret gris. */
-  .xc .fiche .ha-tbl .mono { font-family: var(--mono); font-size: 11px; }
+  /* ── LA BARRE DE FILTRES ─────────────────────────────────────────────────
+     Trois rangees : les periodes et les deux dates, la portee et la recherche,
+     puis les trois listes. Elle manquait entierement. */
+  .xc .fiche .filtres-temps { display: grid; gap: 10px; padding: 14px 0 4px; }
+  .xc .fiche .filtres-temps .rg { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .xc .fiche .filtres-temps .ic { font-size: 13px; opacity: 0.6; }
+  .xc .fiche .filtres-temps .pu {
+    padding: 7px 13px; border-radius: 8px;
+    background: var(--si-canvas); font-size: 12.5px; color: var(--si-body);
+  }
+  .xc .fiche .filtres-temps .pu.on { background: var(--si-ink-strong); color: var(--si-surface); }
+  .xc .fiche .filtres-temps .dt,
+  .xc .fiche .filtres-temps .sel {
+    display: inline-flex; align-items: center;
+    height: 34px; padding: 0 12px;
+    border: 1px solid var(--si-line); border-radius: 8px;
+    background: var(--si-surface); font-size: 12.5px; color: var(--si-ink);
+  }
+  .xc .fiche .filtres-temps .dt { font-family: var(--mono); color: var(--si-subtle); }
+  .xc .fiche .filtres-temps .au { font-size: 12.5px; color: var(--si-muted); }
+  .xc .fiche .filtres-temps .sel { min-width: 190px; justify-content: space-between; }
+  .xc .fiche .filtres-temps .sel.court { min-width: 110px; }
+  .xc .fiche .filtres-temps .ch-large {
+    flex: 1; min-width: 200px;
+    display: inline-flex; align-items: center;
+    height: 34px; padding: 0 12px;
+    border: 1px solid var(--si-line); border-radius: 8px;
+    background: var(--si-surface); font-size: 12.5px; color: var(--si-subtle);
+  }
+
+  /* ── LES DEUX TABLEAUX ───────────────────────────────────────────────────
+     Le dossier porte son numero EN VERT et le nom du client dessous ; le
+     montant porte son taux horaire dessous ; le statut est une pastille ambre
+     a puce, et il se dit « Non facturée », au feminin. */
+  .xc .fiche .ha-tbl .mono { font-family: var(--mono); font-size: 11.5px; }
   .xc .fiche .ha-tbl .vide { color: var(--si-subtle); }
-  .xc .fiche .tbl-journal { font-size: 11.5px; }
-  .xc .fiche .tbl-journal th,
-  .xc .fiche .tbl-journal td { padding-left: 5px; padding-right: 5px; }
+  .xc .fiche .tbl-temps .dos { display: block; color: var(--si-verified); }
+  .xc .fiche .tbl-temps .cl { display: block; margin-top: 2px; font-size: 11px; color: var(--si-muted); }
+  .xc .fiche .tbl-temps .taux {
+    display: block; margin-top: 2px;
+    font-family: var(--mono); font-size: 10.5px; color: var(--si-muted);
+  }
+  .xc .fiche .tbl-temps .pts { color: var(--si-muted); text-align: center; }
+  .xc .fiche .pastille-nf {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px; border-radius: 999px;
+    border: 1px solid rgb(var(--si-amber-rgb) / 0.4);
+    font-size: 11.5px; color: var(--si-amber-ink); white-space: nowrap;
+  }
+  .xc .fiche .pastille-nf i {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--si-amber);
+  }
+  .xc .fiche .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; font-size: 12px; color: var(--si-muted);
+  }
+
+  /* Le journal : la vue par defaut dit ce que l'ecriture FAIT. */
+  .xc .fiche .tbl-journal { font-size: 12px; }
+  .xc .fiche .tbl-journal .baisse { color: var(--si-danger-ink, #a32d2d); }
+  .xc .fiche .tbl-journal .hausse { color: var(--si-verified); }
+  .xc .fiche .tbl-journal .du { color: var(--si-amber-ink); }
+  .xc .fiche .ct .segments { display: inline-flex; align-items: center; gap: 4px; }
+  .xc .fiche .ct .segments span {
+    padding: 5px 11px; border-radius: 8px; font-size: 12px; color: var(--si-muted);
+  }
+  .xc .fiche .ct .segments span.on {
+    background: var(--si-surface); box-shadow: inset 0 0 0 1px var(--si-line); color: var(--si-ink);
+  }
+  .xc .fiche .ct .segments .cpt { padding-left: 12px; }
+  .xc .fiche .ct .lien { color: var(--si-verified); }
+  .xc .fiche .lignes .lg small {
+    display: block; margin-top: 3px; font-size: 11.5px; color: var(--si-muted);
+  }
+  .xc .fiche .pa-fid {
+    margin-left: 8px; padding: 2px 8px; border-radius: 8px;
+    background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
+    font-size: 11px;
+  }
+  /* L'en-tete de « Details comptables » vit HORS carte, comme dans l'ecran. */
+  .xc .fiche .ct-detail {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-top: 22px;
+  }
+  .xc .fiche .journal-choix {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 38px; margin: 14px 0 4px; padding: 0 14px;
+    border: 1px solid var(--si-line); border-radius: 10px;
+    background: var(--si-surface); font-size: 13px; color: var(--si-ink);
+  }
 
   /* ── Les six liens de la structure finale ────────────────────────────────
      Ils remplacent la chaine de cinq montants : celle-ci suivait l'argent, la
@@ -6684,19 +6783,24 @@ export default function ExperienceCinema() {
                 </div>
                 <BarreAppVitrine actif="finances" />
                 <div className="fiche">
-                  {/* ── L'ECRAN /temps, DANS SON ORDRE REEL ──────────────────
-                      Releve dans app/(app)/temps/TempsPageClient.tsx le
-                      2026-08-30, apres que le CEO ait constate que la replique
-                      « n'est en aucun cas representative ». Elle sautait trois
-                      blocs sur cinq : la saisie rapide, les quatre mesures, et
-                      la colonne de l'avocat.
+                  {/* ── L'ECRAN /temps, RECOPIE SUR CAPTURE ──────────────────
+                      Quatre captures du CEO le 2026-08-30. Ce que la version
+                      precedente inventait ou omettait, corrige un a un :
 
-                      L'ecran enchaine : l'en-tete et ses deux actions, le bloc
-                      de saisie rapide, les quatre cartes de mesure, puis la
-                      carte d'historique avec ses onglets et son tableau.
-
-                      Tous les libelles viennent de messages/fr.json, espace
-                      « temps ». Tous les chiffres sont lus en base. */}
+                      - la saisie rapide n'etait qu'un titre : elle porte un
+                        CHRONOMETRE a 00:00:00, trois champs (client, dossier,
+                        « Sur quoi travaillez-vous ? ») et un bouton Demarrer
+                        desactive tant qu'aucun client n'est choisi ;
+                      - les quatre mesures ne sont pas quatre cartes mais UNE
+                        rangee divisee en quatre, valeur a droite en chasse fixe ;
+                      - la barre de filtres n'existait pas ;
+                      - la date s'ecrit en entier, « 2026-08-11 » ;
+                      - le dossier porte son NUMERO EN VERT et le nom du client
+                        dessous ;
+                      - le montant porte son TAUX HORAIRE dessous ;
+                      - le statut se dit « Non facturée », au feminin, avec sa
+                        puce ambre (messages/fr.json, cle « notBilled ») ;
+                      - la pagination manquait. */}
                   <div className="fiche-tete">
                     <div>
                       <h4>Fiche de temps</h4>
@@ -6710,28 +6814,41 @@ export default function ExperienceCinema() {
 
                   <div className="vues">
                     <div className="vue on">
-                      {/* Le bloc de saisie rapide, premier de l'ecran. */}
-                      <div className="carte-bloc saisie-rapide">
-                        <div>
-                          <p className="ctt">Saisie rapide</p>
-                          <p className="fiche-sous">Utilisez le chronomètre pour enregistrer votre temps.</p>
+                      <div className="carte-bloc">
+                        <p className="ctt">&#9655; Saisie rapide</p>
+                        <p className="fiche-sous">Utilisez le chronomètre pour enregistrer votre temps.</p>
+                        <div className="chrono">
+                          <div className="cadran">
+                            <span className="hh">00:00:00</span>
+                            <span className="et">Prêt</span>
+                          </div>
+                          <div className="champ">
+                            <span className="lb">Client</span>
+                            <span className="ct-select">Sélectionner un client</span>
+                          </div>
+                          <div className="champ">
+                            <span className="lb">Dossier</span>
+                            <span className="ct-select">Sélectionnez d&rsquo;abord un client</span>
+                          </div>
+                          <div className="champ large">
+                            <span className="lb">Sur quoi travaillez-vous ?</span>
+                            <span className="ct-select vide">Description (optionnel)</span>
+                          </div>
+                          <div className="champ">
+                            <span className="bt inactif">&#9655; Démarrer</span>
+                            <span className="aide">Choisissez un client pour démarrer.</span>
+                          </div>
                         </div>
-                        <span className="pa">Prêt</span>
                       </div>
 
-                      {/* Les quatre mesures. Formules relevees dans le composant :
-                          la semaine et le mois comptent des HEURES, le non
-                          facture additionne les montants facturables non portes
-                          a une facture, le taux facturable est le rapport des
-                          entrees facturables au total.
-
-                          « 0,0 h » cette semaine n'est pas une erreur : les
-                          entrees du cabinet de demonstration s'arretent au
-                          11 aout. C'est ce que l'ecran afficherait aujourd'hui. */}
-                      <div className="mesures">
+                      {/* Une rangee divisee en quatre, et non quatre cartes :
+                          libelle a gauche, valeur a droite en chasse fixe, unite
+                          sous la valeur. « 0.0 h » cette semaine est reel, les
+                          entrees s'arretant au 11 aout. */}
+                      <div className="carte-bloc mesures">
                         {[
-                          ["Cette semaine", "0,0", "Heures"],
-                          ["Ce mois", "64,5", "Heures"],
+                          ["Cette semaine", "0.0 h", "Heures"],
+                          ["Ce mois", "64.5 h", "Heures"],
                           ["Non facturé", "118 881,25 $", "Montant à facturer"],
                           ["Taux facturable", "89 %", "Entrées facturables"],
                         ].map(([k, v, sub]) => (
@@ -6748,42 +6865,77 @@ export default function ExperienceCinema() {
                           <p className="ctt">Historique des entrées</p>
                           <span>218 entrée(s)</span>
                         </div>
-                        {/* Les deux onglets et leurs comptes reels. L'onglet actif
-                            est en VERT dans l'ecran, pas en encre : c'est
-                            « text-si-verified » dans TempsPageClient. */}
                         <div className="onglets-fiche onglets-temps">
                           <button type="button" className="on">Actives <small>(218)</small></button>
                           <button type="button">Archives (facturées) <small>(0)</small></button>
                         </div>
-                        <table className="ha-tbl">
+
+                        {/* La barre de filtres, trois rangees, exactement celles
+                            de TimeFiltersBar. */}
+                        <div className="filtres-temps">
+                          <div className="rg">
+                            <span className="ic" aria-hidden>&#128197;</span>
+                            <span className="pu">Cette semaine</span>
+                            <span className="pu">Ce mois</span>
+                            <span className="pu">3 derniers mois</span>
+                            <span className="pu on">Tout</span>
+                            <span className="dt">jj/mm/aaaa</span>
+                            <span className="au">au</span>
+                            <span className="dt">jj/mm/aaaa</span>
+                          </div>
+                          <div className="rg">
+                            <span className="pu on">Toutes les entrées</span>
+                            <span className="pu">Mes entrées</span>
+                            <span className="pu">Vue semaine</span>
+                            <span className="ch-large">Rechercher…</span>
+                          </div>
+                          <div className="rg">
+                            <span className="sel">Tous les dossiers</span>
+                            <span className="sel">Tous les utilisateurs</span>
+                            <span className="sel court">Tous</span>
+                          </div>
+                        </div>
+
+                        <table className="ha-tbl tbl-temps">
                           <thead>
                             <tr>
                               <th>Date</th><th>Dossier</th><th>Description</th>
                               <th style={{ textAlign: "right" }}>Durée</th>
                               <th style={{ textAlign: "right" }}>Montant</th>
-                              <th>Avocat</th><th>Statut</th>
+                              <th>Avocat</th><th>Statut</th><th />
                             </tr>
                           </thead>
                           <tbody>
                             {[
-                              ["11/08", "2026-042", "Conférence de gestion", "2,5 h", "875,00 $"],
-                              ["11/08", "2026-035", "Séance de signature", "1,5 h", "412,50 $"],
-                              ["11/08", "2026-019", "Dépôt de la demande", "1,5 h", "375,00 $"],
-                              ["11/08", "2026-001", "Analyse du dossier et stratégie", "1,5 h", "375,00 $"],
-                              ["10/08", "2026-043", "Rédaction de la demande", "2,0 h", "550,00 $"],
-                            ].map(([d, dos, desc, h, m]) => (
+                              ["2026-08-11", "2026-042", "Services Longueuil inc.", "Conférence de gestion", "2,5 h", "875,00 $", "350,00 $/h"],
+                              ["2026-08-11", "2026-035", "Vincent Bouchard", "Séance de signature", "1,5 h", "412,50 $", "275,00 $/h"],
+                              ["2026-08-11", "2026-019", "Gestion Rosemont ltée", "Dépôt de la demande", "1,5 h", "375,00 $", "250,00 $/h"],
+                              ["2026-08-11", "2026-001", "Marie Tremblay", "Analyse du dossier et stratégie", "1,5 h", "375,00 $", "250,00 $/h"],
+                              ["2026-08-10", "2026-043", "Services Longueuil inc.", "Rédaction de la demande", "2 h", "550,00 $", "275,00 $/h"],
+                            ].map(([d, dos, cl, desc, h, m, taux]) => (
                               <tr key={dos + d + desc}>
                                 <td className="mono">{d}</td>
-                                <td className="mono">{dos}</td>
+                                <td>
+                                  <span className="dos">{dos}</span>
+                                  <span className="cl">{cl}</span>
+                                </td>
                                 <td>{desc}</td>
                                 <td className="num">{h}</td>
-                                <td className="num">{m}</td>
+                                <td className="num">
+                                  {m}
+                                  <span className="taux">{taux}</span>
+                                </td>
                                 <td>Me Camille Roy</td>
-                                <td><span className="ha-tag part">Non facturé</span></td>
+                                <td><span className="pastille-nf"><i aria-hidden />Non facturée</span></td>
+                                <td className="pts" aria-hidden>&hellip;</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                        <div className="pagination">
+                          <span>1&ndash;20 sur 218 entrée(s)</span>
+                          <span className="dr">&lsaquo; Précédent &nbsp; Page 1 / 11 &nbsp; Suivant &rsaquo;</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -6801,79 +6953,118 @@ export default function ExperienceCinema() {
                 </div>
                 <BarreAppVitrine actif="finances" />
                 <div className="fiche">
-                  {/* ── L'ECRAN DU JOURNAL, DANS SA FORME REELLE ─────────────
-                      Releve dans app/(app)/journal/general/GeneralJournalPageView.tsx
-                      le 2026-08-30. La replique precedente inventait tout :
-                      un titre de carte « Ecritures du dossier 2026-015 », une
-                      action « Exporter », deux lignes a deux colonnes.
+                  {/* ── L'ECRAN /comptabilite, RECOPIE SUR CAPTURE ───────────
+                      Captures du CEO le 2026-08-30. La version precedente se
+                      trompait de VUE : elle montrait les colonnes Entree et
+                      Sortie, qui sont celles du « Journal brut (expert) ». La
+                      vue par defaut est « Mouvements expliques », et ses
+                      colonnes disent ce que l'ecriture FAIT : augmente le du,
+                      reduit le du, impact tresorerie.
 
-                      L'ecran vit sous COMPTABILITE, avec ses trois onglets, ses
-                      deux actions, et un tableau a HUIT colonnes. */}
+                      L'ecran s'ouvre par « L'argent du cabinet, sans melange »,
+                      cinq lignes qui separent le cash, les creances, les
+                      depenses et le fideicommis. Ce bloc porte tout le propos
+                      de la section : il ne se resume pas, il se montre. */}
                   <div className="fiche-tete">
                     <div>
                       <h4>Comptabilité</h4>
-                      <p className="fiche-sous">Le journal du cabinet, écriture par écriture.</p>
+                      <p className="fiche-sous">
+                        Une vue claire des flux : cash, factures, créances, dépenses et
+                        fidéicommis restent séparés.
+                      </p>
                     </div>
-                    <div className="actes">
-                      <span className="bt">Exporter CSV</span>
-                      <span className="bt principal">Nouvelle écriture</span>
-                    </div>
-                  </div>
-
-                  <div className="onglets-fiche">
-                    <button type="button" className="on">Journal général</button>
-                    <button type="button">Journal des dépenses</button>
-                    <button type="button">Paiements</button>
                   </div>
 
                   <div className="vues">
                     <div className="vue on">
                       <div className="carte-bloc">
                         <div className="ct">
-                          <p className="ctt">Entrées</p>
-                          <span>2 écritures</span>
+                          <p className="ctt">L&rsquo;argent du cabinet, sans mélange</p>
+                          <span className="lien">Comprendre les chiffres</span>
                         </div>
-                        {/* Les huit colonnes de l'ecran, dans leur ordre. Les deux
-                            lignes sont celles qu'ont ecrites les vrais services du
-                            produit le 2026-08-30.
+                        <div className="lignes">
+                          {[
+                            ["Facturé ce mois", "Ce que vous avez facturé. Pas encore encaissé.", "2 004,88 $", ""],
+                            ["Encaissé ce mois", "L’argent réellement reçu de vos clients.", "1 042,54 $", ""],
+                            ["Reste à recevoir", "Ce que vos clients vous doivent encore.", "38 060,20 $", ""],
+                            ["Dépenses", "Les sorties d’argent du cabinet.", "0,00 $", ""],
+                            ["Fidéicommis", "Argent du client, séparé du cabinet. Jamais un revenu.", "0,00 $", "Argent du client"],
+                          ].map(([k, d, v, pastille]) => (
+                            <div className="lg" key={k}>
+                              <span>
+                                {k}
+                                {pastille ? <span className="pa-fid">{pastille}</span> : null}
+                                <small>{d}</small>
+                              </span>
+                              <span className="v">{v}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="ct ct-detail">
+                        <div>
+                          <p className="ctt">Détails comptables</p>
+                          <p className="fiche-sous">Journaux et tableaux, pour aller plus loin.</p>
+                        </div>
+                        <div className="actes">
+                          <span className="bt principal">+ Nouvelle écriture</span>
+                          <span className="bt">Exporter CSV</span>
+                        </div>
+                      </div>
+                      <span className="sel journal-choix">&#128214; Journal général</span>
+
+                      <div className="carte-bloc">
+                        <div className="ct">
+                          <p className="ctt">Écritures</p>
+                          <span className="segments">
+                            <span className="on">Mouvements expliqués</span>
+                            <span>Journal brut (expert)</span>
+                            <span>Corrections</span>
+                            <span className="cpt">2 écritures</span>
+                          </span>
+                        </div>
+                        {/* Les colonnes de la vue par defaut. Une ecriture n'y
+                            est pas un debit ou un credit : elle augmente le du,
+                            le reduit, ou touche la tresorerie.
 
                             ⚠ Ce que la vitrine N'INVENTE PAS : la ligne de
-                            paiement n'a NI reference NI dossier. Le service ne
-                            les y porte pas, les deux colonnes restent donc vides
-                            comme elles le sont en base. */}
+                            paiement n'a ni reference ni dossier. Le service ne
+                            les y porte pas, la colonne reste vide. */}
                         <table className="ha-tbl tbl-journal">
                           <thead>
                             <tr>
-                              <th>Date</th><th>Type</th><th>Référence</th><th>Client</th>
-                              <th>Dossier</th><th>Description</th>
-                              <th style={{ textAlign: "right" }}>Entrée</th>
-                              <th style={{ textAlign: "right" }}>Sortie</th>
+                              <th>Date</th><th>Type</th><th>Client</th><th>Dossier</th><th>Description</th>
+                              <th style={{ textAlign: "right" }}>Augmente le dû</th>
+                              <th style={{ textAlign: "right" }}>Réduit le dû</th>
+                              <th style={{ textAlign: "right" }}>Impact trésorerie</th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
-                              <td className="mono">05/08</td>
-                              <td>Paiement reçu</td>
-                              <td className="mono vide">&mdash;</td>
+                              <td className="mono">2026-08-05</td>
+                              <td><span className="pastille-nf"><i aria-hidden />Paiement reçu</span></td>
                               <td>Clinique Longueuil inc.</td>
-                              <td className="mono vide">&mdash;</td>
+                              <td className="vide">&mdash;</td>
                               <td>Paiement reçu</td>
-                              <td className="num">1 042,54 $</td>
                               <td className="num vide">&mdash;</td>
+                              <td className="num baisse">- 1 042,54 $</td>
+                              <td className="num hausse">+ 1 042,54 $</td>
                             </tr>
                             <tr>
-                              <td className="mono">02/08</td>
-                              <td>Facture envoyée</td>
-                              <td className="mono">2026-008</td>
+                              <td className="mono">2026-08-02</td>
+                              <td><span className="pastille-nf"><i aria-hidden />Facture envoyée</span></td>
                               <td>Clinique Longueuil inc.</td>
                               <td className="mono">2026-015</td>
                               <td>Facture 2026-008</td>
-                              <td className="num">2 004,88 $</td>
+                              <td className="num du">2 004,88 $</td>
+                              <td className="num vide">&mdash;</td>
                               <td className="num vide">&mdash;</td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
+
                       {/* Le point crucial du brief, marque « interdiction absolue ». */}
                       <p className="reserve-compta">
                         SAFE tient la comptabilité opérationnelle et juridique du cabinet, puis
