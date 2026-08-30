@@ -2853,6 +2853,19 @@ const CSS = `
 
   /* « Personnes du dossier » : une liste, pas un tableau, et sa pastille de
      role est un rectangle arrondi de 8 px. */
+  /* La reserve comptable, marquee « interdiction absolue » dans le brief : SAFE
+     n'est pas un logiciel de comptabilite generale. Elle vit SOUS le journal,
+     la ou la promesse pourrait s'emballer, et non en pied de page ou personne
+     ne la lirait. Encadree en pointille, comme la mention de demonstration :
+     les deux disent la meme chose, « lisez ceci avant de conclure ». */
+  .xc .fiche .reserve-compta {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px dashed rgb(var(--si-line-ink-rgb) / 0.28);
+    border-radius: 10px;
+    font-size: 12.5px; line-height: 1.5;
+    color: var(--si-muted);
+  }
   .xc .fiche .personnes { display: grid; gap: 8px; }
   .xc .fiche .personnes li {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -6447,11 +6460,19 @@ export default function ExperienceCinema() {
          débours non taxables 195,00 $ ; total 971,08 $. */}
       <section className="recit" id="continuite">
         <div className="inner">
+          {/* Titre et phrase repris MOT POUR MOT de la structure finale arretee
+              le 2026-08-30 (docs/product/STRUCTURE_FINALE_ACCUEIL.md, mouvement
+              3). L'ancien titre, « Vous consignez une heure. Elle arrive sur la
+              facture. », ne promettait que la facturation : la moitie comptable
+              du mouvement n'etait annoncee nulle part.
+
+              Deux encres, comme le hero et le mouvement 2 : le sujet en noir,
+              ce qu'il produit en gris. */}
           <div className="tete">
-            <h2>Vous consignez une heure. Elle arrive sur la facture.</h2>
+            <h2>Le travail administratif <em>alimente naturellement les finances.</em></h2>
             <p className="dire">
-              <b>La même entrée traverse le dossier, la feuille de temps, la facture et le
-              paiement.</b> Vous ne la saisissez qu&apos;une fois.
+              <b>Le temps et les débours consignés dans le dossier préparent la
+              facturation</b> sans reconstruire le travail.
             </p>
           </div>
 
@@ -6540,9 +6561,10 @@ export default function ExperienceCinema() {
                   </div>
                 </div>
 
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Du temps à la facture">
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Du temps au journal">
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="temps">Fiche de temps (3)</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="facture">Facture 2026-008</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="journal">Journal (2)</button>
                 </div>
 
                 <div className="vue on" data-fiche-vue="temps">
@@ -6579,10 +6601,49 @@ export default function ExperienceCinema() {
                     </div>
                   </div>
                 </div>
+
+                {/* ── L'ONGLET JOURNAL ───────────────────────────────────────
+                    La moitie comptable du mouvement 3, qui n'etait illustree
+                    nulle part. Les deux ecritures sont REELLES : elles ont ete
+                    produites le 2026-08-30 en faisant passer la facture
+                    2026-008 et son paiement par les vrais services du produit,
+                    writeJournalForIssuedInvoice et writeJournalForPayment. Le
+                    journal du cabinet de demonstration etait vide jusque-la,
+                    parce que le seed ecrit ses lignes directement en base sans
+                    passer par ces services.
+
+                    ⚠ Ce que la ligne de paiement N'A PAS, et que la vitrine ne
+                    lui invente pas : de reference. Le service n'y porte pas le
+                    numero de facture, la colonne reste donc vide a l'ecran. */}
+                <div className="vue" data-fiche-vue="journal">
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Journal du cabinet</p>
+                      <span>écrit à l&apos;émission et à l&apos;encaissement</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>2 août &middot; Facture 2026-008 <small>Facturation client</small></span><span className="v">2 004,88 $</span></div>
+                      <div className="lg"><span>5 août &middot; Paiement reçu <small>Encaissement</small></span><span className="v">1 042,54 $</span></div>
+                    </div>
+                  </div>
+                  {/* Le point crucial du brief, marque « interdiction absolue ».
+                      Il ne figurait nulle part sur la page. */}
+                  <p className="reserve-compta">
+                    SAFE tient la comptabilité opérationnelle et juridique du cabinet, puis
+                    prépare l&apos;information destinée au comptable. Ce n&apos;est pas un
+                    logiciel de comptabilité générale.
+                  </p>
+                </div>
               </div>
             </figure>
             </div>
           </div>
+
+          {/* Phrase de cloture du mouvement 3, mot pour mot. */}
+          <p className="conclusion-fiche">
+            Vous consignez le travail dans son contexte. SAFE maintient la continuité
+            jusqu&apos;à la facture et aux écritures opérationnelles correspondantes.
+          </p>
 
           <p className="sortie-section">
             <a href={ROUTES.cabinet + "#chaine"}>Voir la facturation &rarr;</a>
