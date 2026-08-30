@@ -2858,6 +2858,74 @@ const CSS = `
      la ou la promesse pourrait s'emballer, et non en pied de page ou personne
      ne la lirait. Encadree en pointille, comme la mention de demonstration :
      les deux disent la meme chose, « lisez ceci avant de conclure ». */
+  /* ── Les deux moities du mouvement ───────────────────────────────────────
+     Composition relevee sur elevenlabs.io le 2026-08-30 : sous le titre, deux
+     colonnes qui nomment les deux choses, le nom en encre pleine et la
+     description en gris. Leurs mesures : 16 px et 13 px. Portees ici a
+     l'echelle du site, qui ecrit sa prose d'explication plus grand. */
+  .xc .deux-moities {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 88px);
+    margin-top: clamp(28px, 3.4vw, 44px);
+  }
+  .xc .deux-moities .t {
+    font-family: var(--sans); font-size: var(--t-corps);
+    letter-spacing: -0.01em; color: var(--si-ink);
+  }
+  .xc .deux-moities .d {
+    margin-top: 8px;
+    font-size: var(--t-detail); line-height: 1.55; color: var(--muted);
+    max-width: 38ch;
+  }
+
+  /* ── La scene a deux fenetres ─────────────────────────────────────────────
+     La piste est plus large que la section : les deux fenetres tiennent cote a
+     cote et debordent. Elle se translate au defilement, la premiere cedant la
+     place a la seconde.
+
+     ⚠ CE QU'ON NE REPREND PAS D'ELEVENLABS : leur scene ROGNE ses fenetres,
+     bord net et rayon de 24 px. Decision CEO du 2026-08-30 : on garde le
+     contour fondu, qui fait deborder lui aussi mais en douceur, et qui est la
+     grammaire des six sections. La scene ne coupe donc rien ; ce sont les
+     masques des fenetres qui font le bord. */
+  .xc .scene-duo {
+    margin-top: clamp(32px, 4vw, 56px);
+    /* Aucun « overflow: hidden » : le contour fondu fait le travail. Le
+       debordement lateral est repris par la page, qui l'interdit deja. */
+  }
+  .xc .scene-duo .piste {
+    display: grid;
+    grid-template-columns: repeat(2, 72%);
+    gap: clamp(20px, 2.6vw, 40px);
+    will-change: transform;
+    transition: transform 120ms linear;
+  }
+  .xc .scene-duo .piste > * { min-width: 0; }
+  /* ── Sans mouvement, on EMPILE, on ne fige pas ────────────────────────────
+     Figer la piste aurait laisse la seconde fenetre coupee hors du cadre :
+     qui a demande moins de mouvement ne verrait jamais le journal. La
+     translation n'est pas une decoration, elle est le seul chemin vers la
+     seconde fenetre. On rend donc les deux visibles autrement. */
+  @media (prefers-reduced-motion: reduce) {
+    .xc .scene-duo .piste {
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 2.6vw, 40px);
+      transform: none !important;
+      transition: none;
+    }
+  }
+  @media (max-width: 900px) {
+    .xc .deux-moities { grid-template-columns: 1fr; gap: 22px; }
+    /* Sur telephone la piste ne glisse plus : les deux fenetres s'empilent.
+       Un glissement horizontal sur un ecran etroit se dispute le geste de
+       defilement du doigt. */
+    .xc .scene-duo .piste {
+      grid-template-columns: 1fr; gap: 20px;
+      transform: none !important;
+    }
+  }
+
   /* ── Les six liens de la structure finale ────────────────────────────────
      Ils remplacent la chaine de cinq montants : celle-ci suivait l'argent, la
      structure demande les OBJETS relies. Trois par ligne sur deux rangs, meme
@@ -5178,6 +5246,58 @@ function runExperience(root: HTMLElement): () => void {
   };
   document.addEventListener("click", onDocClickHero);
 
+  /* ── La piste a deux fenetres du mouvement 3 ──────────────────────────────
+     Composition demandee par le CEO le 2026-08-30, d'apres elevenlabs.io : les
+     deux fenetres tiennent cote a cote sur une piste plus large que la
+     section, et la piste glisse avec le defilement. La premiere cede la place
+     a la seconde dans un seul geste, au lieu que les deux s'empilent.
+
+     La progression se mesure sur la SCENE et non sur la section : c'est la
+     scene qu'on regarde, et une section de 1 500 px rendrait le glissement
+     imperceptible sur ses deux tiers.
+
+     Trois precautions :
+     - la position s'ecrit dans le DOM depuis une boucle d'animation, jamais
+       par un rendu React : un defilement ne declenche pas soixante rendus
+       par seconde ;
+     - la course s'arrete a la largeur reellement debordante, donc la seconde
+       fenetre s'arrete pile a son bord au lieu de sortir par la gauche ;
+     - « prefers-reduced-motion » et les petits ecrans neutralisent tout, la
+       feuille de style les servant deja : on ne touche alors a rien. */
+  const scenesDuo = Array.from(root.querySelectorAll<HTMLElement>("[data-duo]"));
+  let trameDuo: number | null = null;
+  const moinsDeMouvement =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function peindreDuo() {
+    trameDuo = null;
+    for (const scene of scenesDuo) {
+      const piste = scene.querySelector<HTMLElement>(".piste");
+      if (!piste) continue;
+      /* Sous 900 px la feuille empile les fenetres et neutralise la
+         translation : la course est nulle, on n'ecrit rien. */
+      const course = piste.scrollWidth - scene.clientWidth;
+      if (course <= 0 || moinsDeMouvement) {
+        piste.style.transform = "";
+        continue;
+      }
+      const r = scene.getBoundingClientRect();
+      /* 0 quand la scene arrive par le bas, 1 quand elle sort par le haut. */
+      const brut = (window.innerHeight - r.top) / (window.innerHeight + r.height);
+      const p = Math.max(0, Math.min(1, brut));
+      piste.style.transform = `translate3d(${(-course * p).toFixed(1)}px,0,0)`;
+    }
+  }
+  const demanderDuo = () => {
+    if (trameDuo === null) trameDuo = requestAnimationFrame(peindreDuo);
+  };
+  if (scenesDuo.length > 0) {
+    window.addEventListener("scroll", demanderDuo, { passive: true });
+    window.addEventListener("resize", demanderDuo);
+    demanderDuo();
+  }
+
   /* ── Les scènes ───────────────────────────────────────────────────────────
      Le rail ne jalonne que ce qui se démontre : l'ouverture, le parcours d'un
      dossier, la vérification du fidéicommis. Les sections écrites (le
@@ -5668,6 +5788,14 @@ function runExperience(root: HTMLElement): () => void {
     window.removeEventListener("resize", reveiller);
     window.removeEventListener("resize", poserStatique);
     window.removeEventListener("scroll", suivreRail);
+    /* La piste du mouvement 3 : on retire ses ecouteurs, on annule la trame en
+       vol et on rend la piste a sa feuille de style. Sans ce dernier point,
+       une piste relancee garderait la translation calculee pour l'autre
+       largeur. */
+    window.removeEventListener("scroll", demanderDuo);
+    window.removeEventListener("resize", demanderDuo);
+    if (trameDuo !== null) cancelAnimationFrame(trameDuo);
+    scenesDuo.forEach((sc) => sc.querySelector<HTMLElement>(".piste")?.removeAttribute("style"));
     extraits.forEach((ex) => ex.removeEventListener("click", onExtraitClick));
     heroApp.removeEventListener("click", onHeroAppClick);
     heroApp.removeEventListener("keydown", onHeroAppKey);
@@ -6392,12 +6520,7 @@ export default function ExperienceCinema() {
         <div className="inner">
           {/* Titre et phrase repris MOT POUR MOT de la structure finale arretee
               le 2026-08-30 (docs/product/STRUCTURE_FINALE_ACCUEIL.md, mouvement
-              3). L'ancien titre, « Vous consignez une heure. Elle arrive sur la
-              facture. », ne promettait que la facturation : la moitie comptable
-              du mouvement n'etait annoncee nulle part.
-
-              Deux encres, comme le hero et le mouvement 2 : le sujet en noir,
-              ce qu'il produit en gris. */}
+              3). Deux encres, comme le hero et le mouvement 2. */}
           <div className="tete">
             <h2>Le travail administratif <em>alimente naturellement les finances.</em></h2>
             <p className="dire">
@@ -6406,39 +6529,173 @@ export default function ExperienceCinema() {
             </p>
           </div>
 
-          {/* ── La chaine ──────────────────────────────────────────────────
-              CORRECTION DU 2026-08-24. La chaine reliait une entree de 2,5 h
-              a 350,00 $ l'heure a la facture 2026-008. Verification en base :
-              cette entree appartient au dossier 2026-042, client Services
-              Longueuil inc., alors que la facture 2026-008 appartient au
-              dossier 2026-015, client Clinique Longueuil inc. Deux dossiers,
-              deux clients. La chaine etait plus propre a lire et fausse.
+          {/* ── LES DEUX MOITIES DU MOUVEMENT ───────────────────────────────
+              Composition demandee par le CEO le 2026-08-30, relevee sur
+              elevenlabs.io : un titre, deux colonnes qui nomment les deux
+              choses, puis une scene qui les montre cote a cote.
 
-              La vraie composition, lue dans la base du cabinet Demo et
-              verifiee au cent pres :
-                3,00 h (Cloture, 18 avril) + 2,75 h (Negociation, 8 juin)
-                + 2,00 h (Cloture, 25 juin) = 7,75 h a 225,00 $ l'heure
-                = 1 743,75 $ d'honoraires
-                + TPS 5 % 87,19 $ + TVQ 9,975 % 173,94 $ = 2 004,88 $
-                encaisse 1 042,54 $, reste du 962,34 $.
+              Le motif tombe juste ici parce que la section porte reellement
+              DEUX promesses : la facturation et la comptabilite, toutes deux
+              nourries par le meme dossier. Chez eux : nom a 16 px en encre
+              pleine, description a 13 px en gris.
 
-              Une facture porte plusieurs entrees : la chaine le DIT au lieu de
-              faire croire qu'une heure devient une facture. */}
-          {/* ── LES SIX LIENS, SUR L'ECRAN QUI LES PORTE ────────────────────
-              Decision CEO du 2026-08-30. La section montrait une chaine de
-              cinq montants : Consigne, Valorise, Facture, Encaisse, Reste du.
-              Elle etait vraie et verifiee au cent, mais elle suivait L'ARGENT
-              quand la structure finale demande les OBJETS RELIES : le client,
-              le dossier, le travail effectue, la facture, le paiement et le
-              journal comptable.
+              CE QU'ON NE REPREND PAS : leur scene rogne net ses fenetres
+              (overflow hidden, rayon 24 px). Decision CEO : on garde le
+              CONTOUR FONDU, la grammaire que la page tient sur six sections.
+              On prend la composition, pas le bord. */}
+          <div className="deux-moities">
+            <div className="mo">
+              <p className="t">La facturation</p>
+              <p className="d">
+                Le temps et les débours consignés deviennent une facture avec ses taxes,
+                sans que personne ne les ressaisisse.
+              </p>
+            </div>
+            <div className="mo">
+              <p className="t">La comptabilité</p>
+              <p className="d">
+                Chaque facture émise et chaque paiement reçu s&rsquo;inscrivent au journal
+                du cabinet, au moment où ils arrivent.
+              </p>
+            </div>
+          </div>
 
-              L'ecran client relie deja ces six-la, c'est meme sa fonction.
-              L'illustration cesse donc de composer une chaine qui n'existe
-              nulle part et montre la carte client telle qu'elle est.
+          {/* ── LA SCENE A DEUX FENETRES ────────────────────────────────────
+              Elles glissent horizontalement avec le defilement : la premiere
+              cede la place a la seconde, ce qui met les deux moities dans le
+              meme geste au lieu de les empiler.
 
-              Les six reperes ci-dessous ne sont pas un resume : chacun porte
-              le compte qu'affiche l'ecran, tous releves en base le 2026-08-30
-              sur le client Clinique Longueuil inc. */}
+              Aucune des deux n'est un montage : la fiche de temps est l'ecran
+              /temps, ses libelles viennent de messages/fr.json et ses cinq
+              lignes de la base du cabinet Demo. Le journal est celui qu'ont
+              ecrit les vrais services du produit. */}
+          <div className="scene-duo" data-duo>
+            <div className="piste">
+
+              <div className="fenetre-fondante">
+              <figure className="fenetre-produit contour-fondu">
+                <div className="barre-fenetre">
+                  <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                  <span><em>SAFE</em> · Fiche de temps</span>
+                  <span className="ecart" />
+                  <span>Finances · Temps</span>
+                </div>
+                <BarreAppVitrine actif="finances" />
+                <div className="fiche">
+                  {/* En-tete de l'ecran /temps : le titre et le sous-titre sont
+                      ceux de messages/fr.json, cles « timesheetTitle » et
+                      « timesheetSubtitle », et les deux actions aussi. */}
+                  <div className="fiche-tete">
+                    <div>
+                      <h4>Fiche de temps</h4>
+                      <p className="fiche-sous">Suivez et gérez votre temps facturable.</p>
+                    </div>
+                    <div className="actes">
+                      <span className="bt">Honoraires à facturer</span>
+                      <span className="bt principal">+ Nouvelle entrée</span>
+                    </div>
+                  </div>
+                  {/* Les deux onglets reels et leurs comptes : 218 entrees, dont
+                      AUCUNE facturee. Le cabinet de demonstration n'a rien porte
+                      a une facture, l'archive est donc vide et le dit. */}
+                  <div className="onglets-fiche">
+                    <button type="button" className="on">Actives <small>(218)</small></button>
+                    <button type="button">Archives (facturées) <small>(0)</small></button>
+                  </div>
+                  <div className="vues">
+                    <div className="vue on">
+                      <div className="carte-bloc">
+                        <div className="ct">
+                          <p className="ctt">Historique des entrées</p>
+                          <span>218 entrée(s)</span>
+                        </div>
+                        <table className="ha-tbl">
+                          <thead>
+                            <tr>
+                              <th>Date</th><th>Dossier</th><th>Description</th>
+                              <th style={{ textAlign: "right" }}>Durée</th>
+                              <th style={{ textAlign: "right" }}>Montant</th>
+                              <th>Statut</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              ["11/08", "2026-042", "Conférence de gestion", "2,5 h", "875,00 $"],
+                              ["11/08", "2026-035", "Séance de signature", "1,5 h", "412,50 $"],
+                              ["11/08", "2026-019", "Dépôt de la demande", "1,5 h", "375,00 $"],
+                              ["11/08", "2026-001", "Analyse du dossier et stratégie", "1,5 h", "375,00 $"],
+                              ["10/08", "2026-043", "Rédaction de la demande", "2,0 h", "550,00 $"],
+                            ].map(([d, dos, desc, h, m]) => (
+                              <tr key={dos + d + desc}>
+                                <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{d}</td>
+                                <td style={{ fontFamily: "var(--mono)", fontSize: 11 }}>{dos}</td>
+                                <td>{desc}</td>
+                                <td className="num">{h}</td>
+                                <td className="num">{m}</td>
+                                <td><span className="ha-tag part">Non facturé</span></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </figure>
+              </div>
+
+              <div className="fenetre-fondante">
+              <figure className="fenetre-produit contour-fondu">
+                <div className="barre-fenetre">
+                  <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                  <span><em>SAFE</em> · Journal du cabinet</span>
+                  <span className="ecart" />
+                  <span>Finances · Comptabilité</span>
+                </div>
+                <BarreAppVitrine actif="finances" />
+                <div className="fiche">
+                  <div className="fiche-tete">
+                    <div>
+                      <h4>Journal général</h4>
+                      <p className="fiche-sous">Écrit à l&rsquo;émission et à l&rsquo;encaissement.</p>
+                    </div>
+                    <div className="actes">
+                      <span className="bt">Exporter</span>
+                    </div>
+                  </div>
+                  <div className="vues">
+                    <div className="vue on">
+                      <div className="carte-bloc">
+                        <div className="ct">
+                          <p className="ctt">Écritures du dossier 2026-015</p>
+                          <span>facture 2026-008 et son paiement</span>
+                        </div>
+                        <div className="lignes">
+                          <div className="lg"><span>2 août &middot; Facture 2026-008 <small>Facturation client</small></span><span className="v">2 004,88 $</span></div>
+                          <div className="lg"><span>5 août &middot; Paiement reçu <small>Encaissement</small></span><span className="v">1 042,54 $</span></div>
+                        </div>
+                      </div>
+                      {/* Le point crucial du brief, marque « interdiction absolue ». */}
+                      <p className="reserve-compta">
+                        SAFE tient la comptabilité opérationnelle et juridique du cabinet, puis
+                        prépare l&apos;information destinée au comptable. Ce n&apos;est pas un
+                        logiciel de comptabilité générale.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </figure>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ── LES SIX LIENS ───────────────────────────────────────────────
+              Ils passent APRES la scene : ils ne l'annoncent plus, ils la
+              chiffrent. Chaque compte est releve en base le 2026-08-30 sur le
+              client Clinique Longueuil inc., un cas concret et non un total de
+              cabinet. Le total facture moins le solde du redonne le total
+              recu, au cent. */}
           <div className="liens-client">
             {[
               ["Le client", "Clinique Longueuil inc.", "entreprise, ouverte le 12 août 2026"],
@@ -6454,192 +6711,6 @@ export default function ExperienceCinema() {
                 <span className="s">{s}</span>
               </div>
             ))}
-          </div>
-
-
-          {/* ── L'extrait navigable de la chaine ────────────────────────────
-              Les deux captures figees deviennent UN extrait, avec deux ecrans :
-              les entrees telles qu'on les consigne, et la facture qu'elles
-              composent. Meme cadre, meme barre figee, meme mecanique d'onglets
-              que la fiche client plus haut.
-
-              Tous les chiffres viennent de la base du cabinet Demo, dossier
-              2026-015 : trois entrees a 225,00 $ l'heure dont la somme,
-              1 743,75 $, est exactement le sous-total taxable de la facture
-              2026-008. */}
-          <div className="scene-produit">
-            <div className="fenetre-fondante">
-            <figure className="fenetre-produit contour-fondu">
-              <div className="barre-fenetre">
-                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Clinique Longueuil inc. · client</span>
-                <span className="ecart" />
-                <span>Pratique · Clients</span>
-              </div>
-
-              {/* L'ecran client vit sous PRATIQUE, pas sous Finances : la barre
-                  allumait le mauvais menu. */}
-              <BarreAppVitrine actif="pratique" />
-
-              <div className="fiche extrait-nav">
-                {/* En-tete de l'ecran client reel, relevee sur capture du CEO le
-                    2026-08-30 : le fil de retour, le nom, puis les cinq actions
-                    dans leur ordre. « Actif » y est une pastille d'etat posee
-                    AU MILIEU des actions, ce que la replique ne devine pas :
-                    elle le recopie. */}
-                <div className="fiche-tete anime-bloc">
-                  <div>
-                    <p className="retour">
-                      <span className="lien">&lsaquo; Retour aux clients</span>
-                    </p>
-                    <h4>Clinique Longueuil inc.</h4>
-                  </div>
-                  <div className="actes">
-                    <span className="bt">&hellip; Actions</span>
-                    <span className="bt">Modifier</span>
-                    <span className="pa etat">Actif</span>
-                    <span className="bt">Voir le dossier complet <i className="ext" aria-hidden /></span>
-                    <span className="bt">Vérification d&rsquo;identité</span>
-                  </div>
-                </div>
-
-                {/* LES TROIS ONGLETS DE L'ECRAN CLIENT, avec leurs compteurs
-                    reels : Vue d'ensemble, Dossiers (3), Carte client (12).
-                    Le quatrieme, « Journal », N'EXISTE PAS sur cet ecran : le
-                    journal vit sous Finances. Il est donc montre plus bas, dans
-                    son propre cadre, plutot qu'ajoute ici en onglet invente. */}
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du client">
-                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Dossiers <small>(3)</small></button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Carte client <small>(12)</small></button>
-                </div>
-
-                <div className="vues">
-
-                <div className="vue on" data-fiche-vue="apercu">
-                  {/* Les quatre alertes de l'ecran, dans leur ordre. */}
-                  <div className="alertes">
-                    <p className="ta">Alertes</p>
-                    <p className="al">Mandat non signé</p>
-                    <p className="al">Contrôle des conflits non effectué</p>
-                    <p className="al">Identité non vérifiée</p>
-                    <p className="al">2 facture(s) en retard</p>
-                  </div>
-                  <div className="totaux">
-                    <div className="tot"><p className="k">Total facturé</p><p className="v">5 166,71 $</p><p className="s">3 facture(s)</p></div>
-                    <div className="tot"><p className="k">Total reçu</p><p className="v">1 465,08 $</p><p className="s">2 paiement(s)</p></div>
-                    <div className="tot"><p className="k">Solde dû</p><p className="v">3 701,63 $</p><p className="s">dont 2 en retard</p></div>
-                  </div>
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Historique financier</p>
-                      <span>Factures et paiements triés par date</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>2026-08-09 — Paiement — Facture 2026-009</span><span className="v">422,54 $</span></div>
-                      <div className="lg"><span>2026-08-05 — Paiement — Facture 2026-008</span><span className="v">1 042,54 $</span></div>
-                      <div className="lg"><span>2026-08-02 — Facture 2026-008</span><span className="v">2 004,88 $</span></div>
-                      <div className="lg"><span>2026-07-25 — Facture 2026-009</span><span className="v">704,23 $</span></div>
-                      <div className="lg"><span>2026-07-21 — Facture 2026-010</span><span className="v">2 457,60 $</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="vue" data-fiche-vue="dossiers">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Dossiers</p>
-                      <span>Nouveau dossier &middot; Ouvrir les dossiers</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>2026-017 — Clinique Longueuil — immobilier</span><span className="v pastille-cl">Actif</span></div>
-                      <div className="lg"><span>2026-016 — Clinique Longueuil — droit corporatif</span><span className="v pastille-cl">Actif</span></div>
-                      <div className="lg"><span>2026-015 — Clinique Longueuil — droit corporatif</span><span className="v pastille-cl">Actif</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* La carte client : c'est ICI que les six liens se voient d'un
-                    seul regard, le travail effectue puis les factures qu'il
-                    compose, dossier par dossier. */}
-                <div className="vue" data-fiche-vue="carte">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Temps effectué</p>
-                      <span>9 entrée(s) &middot; 20,3 h &middot; 4 931,25 $</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>5 août — Rédaction de l&rsquo;acte <small>2026-017 immobilier</small></span><span className="v">4,0 h · 900,00 $</span></div>
-                      <div className="lg"><span>27 juillet — Vérification des titres <small>2026-017 immobilier</small></span><span className="v">1,8 h · 393,75 $</span></div>
-                      <div className="lg"><span>18 avril — Clôture <small>2026-015 droit corporatif</small></span><span className="v">3,0 h · 675,00 $</span></div>
-                    </div>
-                  </div>
-                  <div className="carte-bloc" style={{ marginTop: 14 }}>
-                    <div className="ct">
-                      <p className="ctt">Factures</p>
-                      <span>Chacune rattachée à son dossier</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>2026-008 <small>2026-015 droit corporatif</small></span><span className="v">2 004,88 $ · solde 962,34 $</span></div>
-                      <div className="lg"><span>2026-009 <small>2026-016 droit corporatif</small></span><span className="v attente">704,23 $ · solde 281,69 $</span></div>
-                      <div className="lg"><span>2026-010 <small>2026-017 immobilier</small></span><span className="v attente">2 457,60 $ · solde 2 457,60 $</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                </div>
-              </div>
-            </figure>
-            </div>
-          </div>
-
-          {/* ── LE SIXIEME LIEN, DANS SON PROPRE ECRAN ──────────────────────
-              Le journal N'EST PAS un onglet de la fiche client : il vit sous
-              Finances, dans la comptabilite. Il a donc son cadre, et la barre
-              de titre le dit. L'ajouter en quatrieme onglet de l'ecran client
-              aurait invente une page qui n'existe pas.
-
-              Les deux ecritures sont REELLES. Le journal du cabinet de
-              demonstration etait vide : le seed ecrit ses lignes directement en
-              base sans passer par les services. Le 2026-08-30, avec l'accord du
-              CEO, la facture 2026-008 et son paiement sont passes par les vrais
-              services du produit, writeJournalForIssuedInvoice et
-              writeJournalForPayment, qui ont produit ces deux lignes.
-
-              ⚠ Ce que la vitrine N'INVENTE PAS : la ligne de paiement n'a pas
-              de reference. Le service n'y porte pas le numero de facture. */}
-          <div className="scene-produit journal-suite">
-            <div className="fenetre-fondante">
-            <figure className="fenetre-produit contour-fondu">
-              <div className="barre-fenetre">
-                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Journal du cabinet</span>
-                <span className="ecart" />
-                <span>Finances · Comptabilité</span>
-              </div>
-              <div className="fiche">
-                <div className="vue on">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Journal général</p>
-                      <span>écrit à l&apos;émission et à l&apos;encaissement</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>2 août &middot; Facture 2026-008 <small>Facturation client</small></span><span className="v">2 004,88 $</span></div>
-                      <div className="lg"><span>5 août &middot; Paiement reçu <small>Encaissement</small></span><span className="v">1 042,54 $</span></div>
-                    </div>
-                  </div>
-                  {/* Le point crucial du brief, marque « interdiction absolue ».
-                      Il ne figurait nulle part sur la page. */}
-                  <p className="reserve-compta">
-                    SAFE tient la comptabilité opérationnelle et juridique du cabinet, puis
-                    prépare l&apos;information destinée au comptable. Ce n&apos;est pas un
-                    logiciel de comptabilité générale.
-                  </p>
-                </div>
-              </div>
-            </figure>
-            </div>
           </div>
 
           {/* Phrase de cloture du mouvement 3, mot pour mot. */}
