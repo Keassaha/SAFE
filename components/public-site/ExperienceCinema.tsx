@@ -2858,6 +2858,38 @@ const CSS = `
      la ou la promesse pourrait s'emballer, et non en pied de page ou personne
      ne la lirait. Encadree en pointille, comme la mention de demonstration :
      les deux disent la meme chose, « lisez ceci avant de conclure ». */
+  /* ── Les six liens de la structure finale ────────────────────────────────
+     Ils remplacent la chaine de cinq montants : celle-ci suivait l'argent, la
+     structure demande les OBJETS relies. Trois par ligne sur deux rangs, meme
+     poids pour les six : aucun ne prime, c'est le propos. */
+  .xc .liens-client {
+    margin-top: clamp(32px, 4vw, 52px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 2.2vw, 32px) clamp(20px, 2.6vw, 40px);
+  }
+  .xc .liens-client .lc { border-top: 1px solid var(--line); padding-top: 14px; }
+  .xc .liens-client .k {
+    display: block;
+    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--si-verified);
+  }
+  .xc .liens-client .v {
+    display: block; margin-top: 9px;
+    font-family: var(--sans); font-size: var(--t-argument);
+    line-height: 1.2; letter-spacing: -0.014em;
+    color: var(--si-ink);
+  }
+  .xc .liens-client .s {
+    display: block; margin-top: 6px;
+    font-size: var(--t-detail); line-height: 1.5; color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .xc .liens-client { grid-template-columns: 1fr 1fr; }
+  }
+  /* Le journal a son propre cadre, sous celui du client : ce n'est pas le meme
+     ecran, et la vitrine ne les confond pas. */
+  .xc .scene-produit.journal-suite { margin-top: clamp(20px, 2.4vw, 32px); }
   .xc .fiche .reserve-compta {
     margin-top: 14px;
     padding: 12px 14px;
@@ -6494,36 +6526,36 @@ export default function ExperienceCinema() {
 
               Une facture porte plusieurs entrees : la chaine le DIT au lieu de
               faire croire qu'une heure devient une facture. */}
-          <div className="chaine">
-            <div className="maillon">
-              <span className="k">Consigné</span>
-              <span className="v">7,75 h</span>
-              <span className="s">trois entrées · dossier 2026-015</span>
-            </div>
-            <span className="lien" aria-hidden>&rarr;</span>
-            <div className="maillon">
-              <span className="k">Valorisé</span>
-              <span className="v">1 743,75 $</span>
-              <span className="s">225,00 $ l&apos;heure</span>
-            </div>
-            <span className="lien" aria-hidden>&rarr;</span>
-            <div className="maillon">
-              <span className="k">Facturé</span>
-              <span className="v">2 004,88 $</span>
-              <span className="s">facture 2026-008 · TPS 87,19 $ · TVQ 173,94 $</span>
-            </div>
-            <span className="lien" aria-hidden>&rarr;</span>
-            <div className="maillon">
-              <span className="k">Encaissé</span>
-              <span className="v">1 042,54 $</span>
-              <span className="s">paiement partiel</span>
-            </div>
-            <span className="lien" aria-hidden>&rarr;</span>
-            <div className="maillon reste">
-              <span className="k">Reste dû</span>
-              <span className="v">962,34 $</span>
-              <span className="s">suivi encore actif</span>
-            </div>
+          {/* ── LES SIX LIENS, SUR L'ECRAN QUI LES PORTE ────────────────────
+              Decision CEO du 2026-08-30. La section montrait une chaine de
+              cinq montants : Consigne, Valorise, Facture, Encaisse, Reste du.
+              Elle etait vraie et verifiee au cent, mais elle suivait L'ARGENT
+              quand la structure finale demande les OBJETS RELIES : le client,
+              le dossier, le travail effectue, la facture, le paiement et le
+              journal comptable.
+
+              L'ecran client relie deja ces six-la, c'est meme sa fonction.
+              L'illustration cesse donc de composer une chaine qui n'existe
+              nulle part et montre la carte client telle qu'elle est.
+
+              Les six reperes ci-dessous ne sont pas un resume : chacun porte
+              le compte qu'affiche l'ecran, tous releves en base le 2026-08-30
+              sur le client Clinique Longueuil inc. */}
+          <div className="liens-client">
+            {[
+              ["Le client", "Clinique Longueuil inc.", "entreprise, ouverte le 12 août 2026"],
+              ["Ses dossiers", "3", "2026-015, 2026-016, 2026-017"],
+              ["Le travail effectué", "20,3 h", "9 entrées · 4 931,25 $"],
+              ["Les factures", "5 166,71 $", "3 factures émises"],
+              ["Les paiements", "1 465,08 $", "2 paiements · solde dû 3 701,63 $"],
+              ["Le journal", "2 écritures", "à l’émission et à l’encaissement"],
+            ].map(([k, v, s]) => (
+              <div className="lc" key={k}>
+                <span className="k">{k}</span>
+                <span className="v">{v}</span>
+                <span className="s">{s}</span>
+              </div>
+            ))}
           </div>
 
 
@@ -6542,83 +6574,156 @@ export default function ExperienceCinema() {
             <figure className="fenetre-produit contour-fondu">
               <div className="barre-fenetre">
                 <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Clinique Longueuil inc. · dossier 2026-015</span>
+                <span><em>SAFE</em> · Clinique Longueuil inc. · client</span>
                 <span className="ecart" />
-                <span>Finances</span>
+                <span>Pratique · Clients</span>
               </div>
 
-              <BarreAppVitrine actif="finances" />
+              {/* L'ecran client vit sous PRATIQUE, pas sous Finances : la barre
+                  allumait le mauvais menu. */}
+              <BarreAppVitrine actif="pratique" />
 
               <div className="fiche extrait-nav">
+                {/* En-tete de l'ecran client reel, relevee sur capture du CEO le
+                    2026-08-30 : le fil de retour, le nom, puis les cinq actions
+                    dans leur ordre. « Actif » y est une pastille d'etat posee
+                    AU MILIEU des actions, ce que la replique ne devine pas :
+                    elle le recopie. */}
                 <div className="fiche-tete anime-bloc">
                   <div>
-                    <p className="retour">&lsaquo; Retour à la facturation</p>
+                    <p className="retour">
+                      <span className="lien">&lsaquo; Retour aux clients</span>
+                    </p>
                     <h4>Clinique Longueuil inc.</h4>
                   </div>
                   <div className="actes">
-                    <span className="bt">Exporter</span>
-                    <span className="bt">Voir le PDF <i className="ext" aria-hidden /></span>
+                    <span className="bt">&hellip; Actions</span>
+                    <span className="bt">Modifier</span>
+                    <span className="pa etat">Actif</span>
+                    <span className="bt">Voir le dossier complet <i className="ext" aria-hidden /></span>
+                    <span className="bt">Vérification d&rsquo;identité</span>
                   </div>
                 </div>
 
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Du temps au journal">
-                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="temps">Fiche de temps (3)</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="facture">Facture 2026-008</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="journal">Journal (2)</button>
+                {/* LES TROIS ONGLETS DE L'ECRAN CLIENT, avec leurs compteurs
+                    reels : Vue d'ensemble, Dossiers (3), Carte client (12).
+                    Le quatrieme, « Journal », N'EXISTE PAS sur cet ecran : le
+                    journal vit sous Finances. Il est donc montre plus bas, dans
+                    son propre cadre, plutot qu'ajoute ici en onglet invente. */}
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Vues du client">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="apercu">Vue d&rsquo;ensemble</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="dossiers">Dossiers <small>(3)</small></button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="carte">Carte client <small>(12)</small></button>
                 </div>
 
-                <div className="vue on" data-fiche-vue="temps">
+                <div className="vues">
+
+                <div className="vue on" data-fiche-vue="apercu">
+                  {/* Les quatre alertes de l'ecran, dans leur ordre. */}
+                  <div className="alertes">
+                    <p className="ta">Alertes</p>
+                    <p className="al">Mandat non signé</p>
+                    <p className="al">Contrôle des conflits non effectué</p>
+                    <p className="al">Identité non vérifiée</p>
+                    <p className="al">2 facture(s) en retard</p>
+                  </div>
+                  <div className="totaux">
+                    <div className="tot"><p className="k">Total facturé</p><p className="v">5 166,71 $</p><p className="s">3 facture(s)</p></div>
+                    <div className="tot"><p className="k">Total reçu</p><p className="v">1 465,08 $</p><p className="s">2 paiement(s)</p></div>
+                    <div className="tot"><p className="k">Solde dû</p><p className="v">3 701,63 $</p><p className="s">dont 2 en retard</p></div>
+                  </div>
                   <div className="carte-bloc">
                     <div className="ct">
-                      <p className="ctt">Entrées du dossier</p>
-                      <span>225,00 $ l&apos;heure · non facturées</span>
+                      <p className="ctt">Historique financier</p>
+                      <span>Factures et paiements triés par date</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>25 juin — Clôture</span><span className="v">2,00 h · 450,00 $</span></div>
-                      <div className="lg"><span>8 juin — Négociation</span><span className="v">2,75 h · 618,75 $</span></div>
-                      <div className="lg"><span>18 avril — Clôture</span><span className="v">3,00 h · 675,00 $</span></div>
-                      <div className="lg"><span>Total consigné</span><span className="v">7,75 h · 1 743,75 $</span></div>
+                      <div className="lg"><span>2026-08-09 — Paiement — Facture 2026-009</span><span className="v">422,54 $</span></div>
+                      <div className="lg"><span>2026-08-05 — Paiement — Facture 2026-008</span><span className="v">1 042,54 $</span></div>
+                      <div className="lg"><span>2026-08-02 — Facture 2026-008</span><span className="v">2 004,88 $</span></div>
+                      <div className="lg"><span>2026-07-25 — Facture 2026-009</span><span className="v">704,23 $</span></div>
+                      <div className="lg"><span>2026-07-21 — Facture 2026-010</span><span className="v">2 457,60 $</span></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="vue" data-fiche-vue="facture">
-                  <div className="totaux" style={{ marginTop: 18 }}>
-                    <div className="tot"><p className="k">Total</p><p className="v">2 004,88 $</p><p className="s">émise le 2 août 2026</p></div>
-                    <div className="tot"><p className="k">Déjà payé</p><p className="v">1 042,54 $</p><p className="s">paiement partiel</p></div>
-                    <div className="tot"><p className="k">Solde dû</p><p className="v">962,34 $</p><p className="s">échéance 1er sept.</p></div>
-                  </div>
+                <div className="vue" data-fiche-vue="dossiers">
                   <div className="carte-bloc">
                     <div className="ct">
-                      <p className="ctt">Facture 2026-008</p>
-                      <span>Ce qui la compose</span>
+                      <p className="ctt">Dossiers</p>
+                      <span>Nouveau dossier &middot; Ouvrir les dossiers</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>Honoraires · 7,75 h à 225,00 $</span><span className="v">1 743,75 $</span></div>
-                      <div className="lg"><span>TPS 5 %</span><span className="v">87,19 $</span></div>
-                      <div className="lg"><span>TVQ 9,975 %</span><span className="v">173,94 $</span></div>
-                      <div className="lg"><span>Total</span><span className="v">2 004,88 $</span></div>
+                      <div className="lg"><span>2026-017 — Clinique Longueuil — immobilier</span><span className="v pastille-cl">Actif</span></div>
+                      <div className="lg"><span>2026-016 — Clinique Longueuil — droit corporatif</span><span className="v pastille-cl">Actif</span></div>
+                      <div className="lg"><span>2026-015 — Clinique Longueuil — droit corporatif</span><span className="v pastille-cl">Actif</span></div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── L'ONGLET JOURNAL ───────────────────────────────────────
-                    La moitie comptable du mouvement 3, qui n'etait illustree
-                    nulle part. Les deux ecritures sont REELLES : elles ont ete
-                    produites le 2026-08-30 en faisant passer la facture
-                    2026-008 et son paiement par les vrais services du produit,
-                    writeJournalForIssuedInvoice et writeJournalForPayment. Le
-                    journal du cabinet de demonstration etait vide jusque-la,
-                    parce que le seed ecrit ses lignes directement en base sans
-                    passer par ces services.
-
-                    ⚠ Ce que la ligne de paiement N'A PAS, et que la vitrine ne
-                    lui invente pas : de reference. Le service n'y porte pas le
-                    numero de facture, la colonne reste donc vide a l'ecran. */}
-                <div className="vue" data-fiche-vue="journal">
+                {/* La carte client : c'est ICI que les six liens se voient d'un
+                    seul regard, le travail effectue puis les factures qu'il
+                    compose, dossier par dossier. */}
+                <div className="vue" data-fiche-vue="carte">
                   <div className="carte-bloc">
                     <div className="ct">
-                      <p className="ctt">Journal du cabinet</p>
+                      <p className="ctt">Temps effectué</p>
+                      <span>9 entrée(s) &middot; 20,3 h &middot; 4 931,25 $</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>5 août — Rédaction de l&rsquo;acte <small>2026-017 immobilier</small></span><span className="v">4,0 h · 900,00 $</span></div>
+                      <div className="lg"><span>27 juillet — Vérification des titres <small>2026-017 immobilier</small></span><span className="v">1,8 h · 393,75 $</span></div>
+                      <div className="lg"><span>18 avril — Clôture <small>2026-015 droit corporatif</small></span><span className="v">3,0 h · 675,00 $</span></div>
+                    </div>
+                  </div>
+                  <div className="carte-bloc" style={{ marginTop: 14 }}>
+                    <div className="ct">
+                      <p className="ctt">Factures</p>
+                      <span>Chacune rattachée à son dossier</span>
+                    </div>
+                    <div className="lignes">
+                      <div className="lg"><span>2026-008 <small>2026-015 droit corporatif</small></span><span className="v">2 004,88 $ · solde 962,34 $</span></div>
+                      <div className="lg"><span>2026-009 <small>2026-016 droit corporatif</small></span><span className="v attente">704,23 $ · solde 281,69 $</span></div>
+                      <div className="lg"><span>2026-010 <small>2026-017 immobilier</small></span><span className="v attente">2 457,60 $ · solde 2 457,60 $</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                </div>
+              </div>
+            </figure>
+            </div>
+          </div>
+
+          {/* ── LE SIXIEME LIEN, DANS SON PROPRE ECRAN ──────────────────────
+              Le journal N'EST PAS un onglet de la fiche client : il vit sous
+              Finances, dans la comptabilite. Il a donc son cadre, et la barre
+              de titre le dit. L'ajouter en quatrieme onglet de l'ecran client
+              aurait invente une page qui n'existe pas.
+
+              Les deux ecritures sont REELLES. Le journal du cabinet de
+              demonstration etait vide : le seed ecrit ses lignes directement en
+              base sans passer par les services. Le 2026-08-30, avec l'accord du
+              CEO, la facture 2026-008 et son paiement sont passes par les vrais
+              services du produit, writeJournalForIssuedInvoice et
+              writeJournalForPayment, qui ont produit ces deux lignes.
+
+              ⚠ Ce que la vitrine N'INVENTE PAS : la ligne de paiement n'a pas
+              de reference. Le service n'y porte pas le numero de facture. */}
+          <div className="scene-produit journal-suite">
+            <div className="fenetre-fondante">
+            <figure className="fenetre-produit contour-fondu">
+              <div className="barre-fenetre">
+                <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
+                <span><em>SAFE</em> · Journal du cabinet</span>
+                <span className="ecart" />
+                <span>Finances · Comptabilité</span>
+              </div>
+              <div className="fiche">
+                <div className="vue on">
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Journal général</p>
                       <span>écrit à l&apos;émission et à l&apos;encaissement</span>
                     </div>
                     <div className="lignes">
