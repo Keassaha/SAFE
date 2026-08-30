@@ -3430,40 +3430,6 @@ const CSS = `
      Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
      qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
      lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
-  /* ── Les quatre domaines ──────────────────────────────────────────────────
-     Meme poids pour les quatre : c'est le propos. Un domaine plus large ou plus
-     gras se lirait comme le vrai produit et les trois autres comme des options.
-     Aucune image : la page en porte deja trois, et ce bloc doit se lire en dix
-     secondes. */
-  .xc .domaines {
-    margin-top: clamp(40px, 5vw, 64px);
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(20px, 2.6vw, 40px);
-  }
-  .xc .domaine { border-top: 1px solid var(--line); padding-top: 16px; }
-  .xc .domaine .n {
-    font-family: var(--mono);
-    font-size: var(--t-menu);
-    letter-spacing: 0.1em;
-    color: var(--verified);
-  }
-  .xc .domaine .t {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-size: var(--t-argument);
-    line-height: 1.25;
-    letter-spacing: -0.014em;
-    color: var(--si-ink);
-  }
-  .xc .domaine .d {
-    margin-top: 8px;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    line-height: 1.55;
-    color: var(--muted);
-  }
-
   /* ── Les deux vues, sous les deux colonnes de la tete ─────────────────────
      La grille est EXACTEMENT celle de « .tete » : memes colonnes, meme
      gouttiere. C'est ce qui met la photographie de l'equipe sous le titre et
@@ -4256,7 +4222,6 @@ const CSS = `
     .xc .bloc-maitre,
     .xc .morceaux { margin-top: 26px; }
     .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
-    .xc .domaines { margin-top: 28px; grid-template-columns: 1fr 1fr; gap: 20px; }
     .xc .deux-vues { margin-top: 26px; }
     /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
        droite en plus de la colonne du numéro ne laisse plus rien au texte. */
@@ -5758,31 +5723,6 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
-/* Les quatre domaines de SAFE. Chacun est tenu par du code, pas par une
-   promesse : voir la note de la section « contenu ». */
-const DOMAINES: [string, string, string][] = [
-  [
-    "01",
-    "Vos dossiers",
-    "Le client, les parties, le mandat, les documents et les échéances restent reliés au même dossier.",
-  ],
-  [
-    "02",
-    "Votre facturation",
-    "Le temps et les débours deviennent une facture avec ses taxes, puis un paiement suivi jusqu'à l'encaissement.",
-  ],
-  [
-    "03",
-    "Votre comptabilité",
-    "Chaque facture, paiement, dépense et débours s'inscrit au journal sans que personne le ressaisisse. L'export vers votre logiciel comptable reste disponible.",
-  ],
-  [
-    "04",
-    "Votre conformité",
-    "Le fidéicommis se rapproche à trois sources, et ce qu'un inspecteur demande est rassemblé au même endroit.",
-  ],
-];
-
 /* Les deux points de vue de la section « equipe ». Chacun porte sa
    photographie : l'image dit de qui on parle avant qu'on ait lu le role. */
 const VUES: [string, string, string, string][] = [
@@ -6437,48 +6377,6 @@ export default function ExperienceCinema() {
         </div>
       </section>
 
-      {/* ── 01 bis · Ce que SAFE contient ───────────────────────────────────
-         Demande CEO du 2026-08-26 : « je veux que la presentation de SAFE soit
-         plus claire et complete. Alors on va simplifier, mais equilibre. »
-
-         La page prouvait DEUX domaines sur quatre : la facturation par la
-         chaine du temps, la conformite par le rapprochement. Les dossiers
-         n'apparaissaient qu'en creux, dans le constat, et la comptabilite
-         nulle part. Quelqu'un qui parcourait la page ne pouvait pas savoir que
-         SAFE tient un journal.
-
-         Quatre blocs de meme poids, une phrase chacun, aucune image. C'est le
-         seul endroit de la page ou l'offre se dit en entier, et il se lit en
-         dix secondes. Il repond au constat qui le precede : cinq endroits,
-         puis les quatre choses reunies.
-
-         Chaque ligne est verifiable dans le code, pas promise. Pour la
-         troisieme, qui est la plus facile a surestimer :
-         lib/services/journal/billing-journal.ts inscrit chaque facture et
-         chaque paiement au journal, cabinet-expense-journal.ts chaque depense,
-         debours-dossier-journal.ts chaque debours paye. Ils sont appeles depuis
-         invoice-service, payment-allocation-service et payment-reversal, donc
-         personne ne ressaisit. */}
-      <section className="recit" id="contenu">
-        <div className="inner">
-          <div className="tete">
-            <h2>Quatre choses, réunies</h2>
-            <p className="dire">
-              <b>Vous les tenez déjà, séparément.</b> Rien à brancher, rien à ajouter plus
-              tard.
-            </p>
-          </div>
-          <div className="domaines">
-            {DOMAINES.map(([n, titre, texte]) => (
-              <div className="domaine" key={n}>
-                <span className="n" aria-hidden>{n}</span>
-                <p className="t">{titre}</p>
-                <p className="d">{texte}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── 02 · Le temps consigné devient la facture ───────────────────────
          Contrat de section : titre à gauche, une phrase à droite, la scène en
