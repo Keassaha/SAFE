@@ -2931,13 +2931,13 @@ const CSS = `
      la piste. */
   .xc .scene-duo .piste > .fenetre-fondante {
     flex: none;
-    width: 1320px;
-    zoom: 0.599;
+    width: 1500px;
+    zoom: 0.68;
   }
   /* Entre 900 et 1200 px, la section elle-meme se resserre : la fenetre suit,
      toujours par l'echelle et jamais par un retrait. */
   @media (max-width: 1200px) {
-    .xc .scene-duo .piste > .fenetre-fondante { zoom: 0.49; }
+    .xc .scene-duo .piste > .fenetre-fondante { zoom: 0.55; }
   }
   /* ── Sans mouvement, on EMPILE, on ne fige pas ────────────────────────────
      Figer la piste aurait laisse la seconde fenetre coupee hors du cadre :
@@ -3062,6 +3062,46 @@ const CSS = `
     background: var(--si-surface); font-size: 12.5px; color: var(--si-subtle);
   }
 
+  /* ── LES TABLEAUX DES FENETRES DE PRODUIT ────────────────────────────────
+     ⚠ DEFAUT DE FOND, releve par le CEO le 2026-08-30 : « les lignes ne sont
+     pas bien respectées ». La raison n'etait pas un reglage a corriger, c'est
+     qu'il n'y en avait AUCUN. Les regles de « .ha-tbl » etaient toutes
+     prefixees par « #hero-app » : dans les fenetres du mouvement 3, le
+     navigateur rendait des tableaux BRUTS, sans fusion des bordures, sans
+     rembourrage et sans filets.
+
+     Les mesures ci-dessous sont celles du registre du produit : en-tete en
+     petites capitales grises sur un filet, rangees de 14 px separees par un
+     filet clair, chiffres en chasse fixe alignes a droite.
+
+     « vertical-align: top » n'est pas un detail : deux cellules de cette
+     table portent DEUX lignes — le dossier avec son client, le montant avec
+     son taux — et un alignement au milieu faisait flotter « Me Camille Roy »
+     entre les deux. */
+  .xc .fiche table.ha-tbl {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin-top: 4px;
+  }
+  .xc .fiche .ha-tbl th {
+    text-align: left; vertical-align: bottom;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--si-muted);
+    padding: 10px 10px 10px 0; border-bottom: 1px solid var(--si-line);
+  }
+  .xc .fiche .ha-tbl td {
+    vertical-align: top;
+    padding: 14px 10px 14px 0;
+    border-bottom: 1px solid rgb(var(--si-line-ink-rgb) / 0.06);
+    color: var(--si-ink);
+  }
+  .xc .fiche .ha-tbl tr:last-child td { border-bottom: 0; }
+  .xc .fiche .ha-tbl th:last-child,
+  .xc .fiche .ha-tbl td:last-child { padding-right: 0; }
+  .xc .fiche .ha-tbl .num {
+    font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right;
+  }
+
   /* ── LES DEUX TABLEAUX ───────────────────────────────────────────────────
      Le dossier porte son numero EN VERT et le nom du client dessous ; le
      montant porte son taux horaire dessous ; le statut est une pastille ambre
@@ -3123,35 +3163,6 @@ const CSS = `
     background: var(--si-surface); font-size: 13px; color: var(--si-ink);
   }
 
-  /* ── Les six liens de la structure finale ────────────────────────────────
-     Ils remplacent la chaine de cinq montants : celle-ci suivait l'argent, la
-     structure demande les OBJETS relies. Trois par ligne sur deux rangs, meme
-     poids pour les six : aucun ne prime, c'est le propos. */
-  .xc .liens-client {
-    margin-top: clamp(32px, 4vw, 52px);
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(16px, 2.2vw, 32px) clamp(20px, 2.6vw, 40px);
-  }
-  .xc .liens-client .lc { border-top: 1px solid var(--line); padding-top: 14px; }
-  .xc .liens-client .k {
-    display: block;
-    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
-    color: var(--si-verified);
-  }
-  .xc .liens-client .v {
-    display: block; margin-top: 9px;
-    font-family: var(--sans); font-size: var(--t-argument);
-    line-height: 1.2; letter-spacing: -0.014em;
-    color: var(--si-ink);
-  }
-  .xc .liens-client .s {
-    display: block; margin-top: 6px;
-    font-size: var(--t-detail); line-height: 1.5; color: var(--muted);
-  }
-  @media (max-width: 900px) {
-    .xc .liens-client { grid-template-columns: 1fr 1fr; }
-  }
   /* Le journal a son propre cadre, sous celui du client : ce n'est pas le meme
      ecran, et la vitrine ne les confond pas. */
   .xc .scene-produit.journal-suite { margin-top: clamp(20px, 2.4vw, 32px); }
@@ -3258,6 +3269,39 @@ const CSS = `
     .xc .fiche .duo-fiche { grid-template-columns: 1fr; gap: 0; }
   }
 
+  /* ── TOUTE FENETRE DE PRODUIT EST DESSINEE A 1320 PX, PUIS REDUITE ───────
+     Regle CEO du 2026-08-30 : « si tu veux reduit l'echelle pour que cela
+     tienne, mais pas autre chose ».
+
+     1500 px, et non 1320. La barre du produit travaille a 1320
+     (« max-w-[1320px] » dans Header.tsx), mais la vitrine compose son texte
+     avec ses propres reglages optiques : les memes six libelles y mesurent
+     773 px la ou la barre ne leur en laisse que 705, d'ou le chevauchement que
+     le CEO a vu deux fois, dans la piste du mouvement 3 puis dans la fenetre du
+     dossier.
+
+     On ne rabote donc pas la barre pour compenser : on donne a la fenetre la
+     place qui lui manque et on reduit d'autant. Le dessin ne change pas d'un
+     pixel, seule l'echelle change. C'est exactement la regle posee par le CEO.
+
+     1440 px suffisait a supprimer le chevauchement, mais ne laissait que 4 px
+     de jeu : une police qui bouge d'un cheveu et le defaut revient. 1500 en
+     laisse plus de cent.
+
+     La reponse est la meme partout : on dessine a la vraie largeur et on
+     reduit. « zoom » plutot que « transform: scale » parce qu'il REFLUE la
+     boite : hauteurs et courses se calculent seules.
+
+     Les fenetres de la piste ont leur propre facteur, plus bas : elles
+     n'occupent pas la meme place. */
+  .xc .scene-produit > .fenetre-fondante {
+    width: 1500px;
+    zoom: 0.773;
+  }
+  @media (max-width: 1200px) {
+    .xc .scene-produit > .fenetre-fondante { zoom: 0.63; }
+  }
+
   /* ── La barre de l'application, figee ────────────────────────────────────
      Elle situe la page. Elle ne se navigue pas : l'illustration ne porte que
      sur l'ecran affiche, et un menu qui s'ouvrirait sur rien decevrait plus
@@ -3267,7 +3311,7 @@ const CSS = `
      Elle ecrivait tout a 11 px, l'echelle du plancher editorial de la page. */
   .xc .fenetre-produit .barre-app {
     display: flex; align-items: center; gap: 12px;
-    margin: 14px; padding: 0 14px; height: 56px;
+    margin: 14px; padding: 0 16px; height: 56px;
     background: var(--si-surface);
     border: 1px solid var(--si-border);
     border-radius: 12px;
@@ -3283,18 +3327,16 @@ const CSS = `
   /* La navigation est CENTREE entre deux groupes fixes, comme dans Header.tsx.
      Elle etait accrochee a la marque, et tout le vide tombait a droite. */
   .xc .fenetre-produit .barre-app nav {
-    display: flex; align-items: center; gap: 0;
+    display: flex; align-items: center; gap: 2px;
     flex: 1 1 auto; min-width: 0; justify-content: center;
   }
-  /* La fenetre fait ~1130 px la ou la barre du produit en fait 1320. Les six
-     libelles ne tiennent qu'en resserrant le rembourrage : ils debordaient de
-     76 px et se peignaient par-dessus le nom du cabinet et la recherche.
-     L'application resout le meme probleme en RETIRANT les libelles sous
-     1280 px ; ici on prefere les garder, parce qu'une barre d'icones muettes
-     n'apprend rien a qui decouvre le produit. */
+  /* Les mesures sont celles de Header.tsx a sa largeur de travail, 1320 px.
+     Elles avaient ete resserrees deux fois pour faire tenir la barre dans une
+     fenetre plus etroite ; c'etait montrer un autre ecran. Toute fenetre de
+     produit est desormais DESSINEE a 1320 px puis reduite par « zoom ». */
   .xc .fenetre-produit .barre-app nav span {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 6px; border-radius: 8px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 8px; white-space: nowrap;
   }
   /* « Vous etes ici » se dit par l'encre seule : Header.tsx ne peint aucune
      pastille sous l'entree active. */
@@ -3311,7 +3353,7 @@ const CSS = `
      se lisait comme un second bouton. */
   .xc .fenetre-produit .barre-app .ch {
     display: inline-flex; align-items: center; gap: 8px; flex: none;
-    height: 32px; width: 138px; padding: 0 8px;
+    height: 32px; width: 180px; padding: 0 8px;
     border: 1px solid var(--si-border); border-radius: 7px;
     background: var(--si-canvas);
     font-size: 12.5px; color: var(--si-subtle);
@@ -7080,28 +7122,17 @@ export default function ExperienceCinema() {
             </div>
           </div>
 
-          {/* ── LES SIX LIENS ───────────────────────────────────────────────
-              Ils passent APRES la scene : ils ne l'annoncent plus, ils la
-              chiffrent. Chaque compte est releve en base le 2026-08-30 sur le
-              client Clinique Longueuil inc., un cas concret et non un total de
-              cabinet. Le total facture moins le solde du redonne le total
-              recu, au cent. */}
-          <div className="liens-client">
-            {[
-              ["Le client", "Clinique Longueuil inc.", "entreprise, ouverte le 12 août 2026"],
-              ["Ses dossiers", "3", "2026-015, 2026-016, 2026-017"],
-              ["Le travail effectué", "20,3 h", "9 entrées · 4 931,25 $"],
-              ["Les factures", "5 166,71 $", "3 factures émises"],
-              ["Les paiements", "1 465,08 $", "2 paiements · solde dû 3 701,63 $"],
-              ["Le journal", "2 écritures", "à l’émission et à l’encaissement"],
-            ].map(([k, v, s]) => (
-              <div className="lc" key={k}>
-                <span className="k">{k}</span>
-                <span className="v">{v}</span>
-                <span className="s">{s}</span>
-              </div>
-            ))}
-          </div>
+          {/* ⚠ LES SIX LIENS ONT ETE RETIRES le 2026-08-30, demande CEO.
+
+              Ils enumeraient le client, ses dossiers, le travail effectue, les
+              factures, les paiements et le journal, chacun avec son compte reel.
+              Chiffres justes, mais redondants : les deux fenetres montrent
+              desormais ces memes objets a l'ecran, et une liste qui repete ce
+              que l'illustration prouve affaiblit les deux.
+
+              L'enumeration reste dans la structure finale
+              (docs/product/STRUCTURE_FINALE_ACCUEIL.md, mouvement 3) : c'est le
+              texte du mouvement qui la porte, plus un bloc a part. */}
 
           {/* Phrase de cloture du mouvement 3, mot pour mot. */}
           <p className="conclusion-fiche">
@@ -7113,12 +7144,11 @@ export default function ExperienceCinema() {
             <a href={ROUTES.cabinet + "#chaine"}>Voir la facturation &rarr;</a>
           </p>
 
-          <div className="index-modules">
-            <div className="mod"><span className="n">1.1</span><span className="t">Dossiers</span></div>
-            <div className="mod colonne-droite"><span className="n">1.2</span><span className="t">Feuille de temps</span></div>
-            <div className="mod"><span className="n">1.3</span><span className="t">Facturation</span></div>
-            <div className="mod colonne-droite"><span className="n">1.4</span><span className="t">Paiements</span></div>
-          </div>
+          {/* ⚠ L'INDEX DES MODULES a ete retire le 2026-08-30, demande CEO.
+              « 1.1 Dossiers · 1.2 Feuille de temps · 1.3 Facturation · 1.4
+              Paiements » numerotait des modules dans une page qui raconte six
+              mouvements. Deux numerotations concurrentes sur la meme page, et
+              celle-ci n'existe dans aucun document. */}
         </div>
       </section>
 
