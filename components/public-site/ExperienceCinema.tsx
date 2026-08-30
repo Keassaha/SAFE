@@ -2894,9 +2894,29 @@ const CSS = `
     /* Aucun « overflow: hidden » : le contour fondu fait le travail. Le
        debordement lateral est repris par la page, qui l'interdit deja. */
   }
+  /* ── LES FENETRES SONT REDUITES, JAMAIS RESSERREES ───────────────────────
+     Regle CEO du 2026-08-30 : « si tu veux reduit l'echelle pour que cela
+     tienne, mais pas autre chose ».
+
+     La premiere tentative faisait tenir la fenetre en RETIRANT des choses :
+     libelles de menu caches, nom du cabinet retire, champ de recherche
+     retreci, rembourrages resserres. C'etait montrer un AUTRE ecran, pas le
+     meme en plus petit.
+
+     Chaque fenetre est donc dessinee a la LARGEUR REELLE DE L'APPLICATION,
+     1320 px — c'est le « max-w-[1320px] » de la barre dans Header.tsx —, puis
+     reduite par « zoom ». A 1160 px la barre debordait encore de 39 px : ce
+     n'etait pas sa largeur, c'etait deja un compromis. On prend
+     « zoom » et non « transform: scale » pour une raison precise : zoom REFLUE
+     la boite, donc la piste, la course et la hauteur se calculent toutes
+     seules, la ou une transformation aurait laisse une boite de 1160 px sous
+     une image de 790.
+
+     Elles occupent 790 px a l'ecran, soit exactement ce qu'elles occupaient
+     avant, mais sans qu'une seule regle de la barre ait bouge. */
   .xc .scene-duo .piste {
-    display: grid;
-    grid-template-columns: repeat(2, 68%);
+    display: flex;
+    align-items: flex-start;
     gap: clamp(20px, 2.6vw, 40px);
     /* ⚠ NI « will-change », NI transition sur la transformation.
        Les deux promeuvent la piste en couche composee, et une couche composee
@@ -2906,22 +2926,19 @@ const CSS = `
        ferait que la retarder. Le calcul arrondit desormais au pixel entier,
        pour la meme raison. */
   }
-  .xc .scene-duo .piste > * { min-width: 0; }
-
-  /* ── La barre d'une fenetre ETROITE porte ses icones seules ───────────────
-     Une fenetre de la piste fait environ 68 % de la section, la ou la barre
-     avait ete reglee pour une fenetre pleine. Ses six libelles debordaient et
-     se peignaient PAR-DESSUS la marque et la recherche (releve du CEO le
-     2026-08-30).
-
-     La reponse n'est pas un bricolage : c'est ce que fait l'application. Sous
-     1280 px, Header.tsx retire les libelles et le nom du cabinet, l'icone
-     porte seule. La replique suit la meme regle. */
-  .xc .scene-duo .barre-app .cab,
-  .xc .scene-duo .barre-app .sep,
-  .xc .scene-duo .barre-app nav .lb { display: none; }
-  .xc .scene-duo .barre-app nav span { padding: 7px 8px; }
-  .xc .scene-duo .barre-app .ch { width: 128px; }
+  /* 1320 px est la largeur que Header.tsx donne a la barre, « max-w-[1320px] ».
+     Le facteur la ramene a 790 px a l'ecran, la place qu'une fenetre occupe sur
+     la piste. */
+  .xc .scene-duo .piste > .fenetre-fondante {
+    flex: none;
+    width: 1320px;
+    zoom: 0.599;
+  }
+  /* Entre 900 et 1200 px, la section elle-meme se resserre : la fenetre suit,
+     toujours par l'echelle et jamais par un retrait. */
+  @media (max-width: 1200px) {
+    .xc .scene-duo .piste > .fenetre-fondante { zoom: 0.49; }
+  }
   /* ── Sans mouvement, on EMPILE, on ne fige pas ────────────────────────────
      Figer la piste aurait laisse la seconde fenetre coupee hors du cadre :
      qui a demande moins de mouvement ne verrait jamais le journal. La
@@ -2929,11 +2946,14 @@ const CSS = `
      seconde fenetre. On rend donc les deux visibles autrement. */
   @media (prefers-reduced-motion: reduce) {
     .xc .scene-duo .piste {
-      grid-template-columns: 1fr;
+      flex-direction: column;
       gap: clamp(20px, 2.6vw, 40px);
       transform: none !important;
       transition: none;
     }
+    /* Empilees, les deux fenetres prennent toute la largeur : rien n'est
+       coupe, et l'echelle reste plus confortable qu'a l'horizontale. */
+    .xc .scene-duo .piste > .fenetre-fondante { zoom: 0.9; }
   }
   @media (max-width: 900px) {
     .xc .deux-moities { grid-template-columns: 1fr; gap: 22px; }
@@ -2941,9 +2961,21 @@ const CSS = `
        Un glissement horizontal sur un ecran etroit se dispute le geste de
        defilement du doigt. */
     .xc .scene-duo .piste {
-      grid-template-columns: 1fr; gap: 20px;
+      flex-direction: column; gap: 20px;
       transform: none !important;
     }
+    /* Au telephone, une fenetre de 1320 px reduite tiendrait a 3 px de corps :
+       illisible. C'est LE SEUL cas ou la barre se resserre au lieu d'etre
+       reduite, et c'est justifie parce que l'application fait exactement pareil
+       a cette largeur : sous 1280 px, Header.tsx retire les libelles et le nom
+       du cabinet, l'icone porte seule. On ne montre donc pas un autre ecran, on
+       montre le meme ecran a la largeur ou il se comporte ainsi. */
+    .xc .scene-duo .piste > .fenetre-fondante { width: 100%; zoom: 1; }
+    .xc .scene-duo .barre-app .cab,
+    .xc .scene-duo .barre-app .sep,
+    .xc .scene-duo .barre-app nav .lb { display: none; }
+    .xc .scene-duo .barre-app nav span { padding: 7px 8px; }
+    .xc .scene-duo .barre-app .ch { width: 128px; }
   }
 
   /* ── Le bloc de saisie rapide, en tete de l'ecran /temps ─────────────────
