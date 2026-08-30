@@ -99,6 +99,12 @@ entre :
 **Clôture** — Vous consignez le travail dans son contexte. SAFE maintient la
 continuité jusqu'à la facture et aux écritures opérationnelles correspondantes.
 
+> ⚠ **Cette phrase de clôture n'est plus sur la page.** Retirée le 2026-08-30
+> sur demande du CEO, en même temps que le lien « Voir la facturation » et que
+> le bas de section du mouvement 2. Le document et la page divergent donc ici,
+> et c'est une décision, pas un oubli. La phrase reste écrite ci-dessus : si le
+> mouvement doit se conclure un jour, c'est par elle.
+
 > **Interdiction absolue** : ne jamais écrire « comptabilité automatisée » ni
 > « comptabilité entièrement automatisée ». Cette formulation laisserait croire
 > que SAFE remplace le comptable ou produit une comptabilité complète. SAFE tient

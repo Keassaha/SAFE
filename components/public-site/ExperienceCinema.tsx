@@ -3470,11 +3470,30 @@ const CSS = `
      « neuf sections parce que le dossier est en droit de la famille », et la
      liste qui le prouve se dissolvait avant d'avoir fini de le dire.
      Un contour se fond sur ses derniers pixels, pas sur son dernier tiers. */
+  /* ── LE FONDU MESURE 120 PX, TOUJOURS ────────────────────────────────────
+     Il etait exprime en POURCENTAGE de la hauteur de la fenetre : 88 % puis
+     transparent. Deux fenetres de hauteurs differentes avaient donc deux
+     fondus de longueurs differentes, ce que le CEO a vu le 2026-08-30 sur la
+     piste du mouvement 3 — la fiche de temps est plus haute que la
+     comptabilite, son fondu etait donc plus long.
+
+     Une distance FIXE depuis le bas corrige la cause : le fondu ne depend plus
+     de ce que la fenetre contient. 120 px, la meme valeur pour toutes.
+
+     ⚠ Ces fenetres sont reduites par « zoom » : 120 px de dessin donnent 93 px
+     a l'ecran dans une scene et 82 px dans la piste. C'est voulu — le fondu
+     appartient au dessin, il se reduit avec lui, sinon il mangerait plus de
+     contenu dans la fenetre la plus reduite. */
   .xc .fenetre-produit.contour-fondu {
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent 100%);
     box-shadow: inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.85);
   }
+  /* Les deux fenetres de la piste se terminent a la MEME hauteur : sans cela,
+     deux fondus de meme longueur finiraient quand meme a deux niveaux. */
+  .xc .scene-duo .piste { align-items: stretch; }
+  .xc .scene-duo .piste > .fenetre-fondante { display: flex; }
+  .xc .scene-duo .piste .fenetre-produit { flex: 1; }
 
   /* La mention de demonstration. Elle n'est pas discrete : une histoire
      reconstruite presentee comme une donnee reelle est le defaut que la
@@ -6715,36 +6734,23 @@ export default function ExperienceCinema() {
             </figure>
             </div>
 
-            {/* La phrase de conclusion vient APRES l'illustration : elle
-                nomme ce qu'on vient de voir, au lieu de l'annoncer avant que
-                l'oeil l'ait constate. */}
-            {/* Phrase de conclusion du brief, mot pour mot. L'ancienne
-                enumerait sept choses dont la facturation et le fideicommis :
-                elle promettait donc le mouvement 03 au milieu du 02. */}
-            <p className="conclusion-fiche">
-              L&apos;équipe voit ce qui a été fait, ce qui manque et ce qui doit suivre.
-            </p>
-            {/* ⚠ L'AVERTISSEMENT MANQUAIT. Le commentaire de la section
-                affirmait que la fiche reconstruite « le dit » ; la classe
-                « .mention-demo » existait bien en feuille mais n'etait posee
-                sur AUCUN element de la page. La regle interne du 2026-08-14
-                interdit de presenter une donnee reconstruite comme reelle.
+            {/* ⚠ LE BAS DE SECTION A ETE RETIRE le 2026-08-30, demande CEO.
 
-                Depuis le 2026-08-29, PLUS RIEN n'est reconstruit dans cette
-                fiche : les parties inventees ont ete retirees avec le bloc qui
-                les portait, le dossier 2026-028 n'en ayant aucune. Chaque
-                valeur affichee est lue en base ou derivee du code du produit.
-                La mention reste, mais elle ne signale plus qu'une chose : le
-                cabinet est un cabinet de demonstration. */}
-            <p className="mention-demo">
-              Dossier réel du cabinet de démonstration, 2026-028.
-            </p>
+                Trois elements partaient ensemble : la phrase de conclusion
+                « L'equipe voit ce qui a ete fait, ce qui manque et ce qui doit
+                suivre », la mention de demonstration, et le lien de sortie
+                « Voir la structure par domaine de pratique ».
+
+                La mention n'avait plus grand-chose a signaler depuis le
+                2026-08-29 : PLUS RIEN n'est reconstruit dans cette fiche, le
+                dossier 2026-028 est reel et chacune de ses valeurs est lue en
+                base. Elle ne disait donc plus que « le cabinet est un cabinet
+                de demonstration », ce que la barre de la fenetre montre deja.
+
+                La regle du 2026-08-14 reste entiere : si une donnee
+                reconstruite revenait un jour dans cette fiche, la mention
+                revient avec elle. */}
           </div>
-
-
-          <p className="sortie-section">
-            <a href={ROUTES.cabinet}>Voir la structure par domaine de pratique &rarr;</a>
-          </p>
         </div>
       </section>
 
@@ -7134,15 +7140,16 @@ export default function ExperienceCinema() {
               (docs/product/STRUCTURE_FINALE_ACCUEIL.md, mouvement 3) : c'est le
               texte du mouvement qui la porte, plus un bloc a part. */}
 
-          {/* Phrase de cloture du mouvement 3, mot pour mot. */}
-          <p className="conclusion-fiche">
-            Vous consignez le travail dans son contexte. SAFE maintient la continuité
-            jusqu&apos;à la facture et aux écritures opérationnelles correspondantes.
-          </p>
+          {/* ⚠ LE BAS DE SECTION A ETE RETIRE le 2026-08-30, demande CEO.
+              La phrase de cloture — « Vous consignez le travail dans son
+              contexte. SAFE maintient la continuite jusqu'a la facture et aux
+              ecritures operationnelles correspondantes. » — et le lien « Voir
+              la facturation » partent ensemble.
 
-          <p className="sortie-section">
-            <a href={ROUTES.cabinet + "#chaine"}>Voir la facturation &rarr;</a>
-          </p>
+              ⚠ CETTE PHRASE EST DANS LA STRUCTURE FINALE
+              (docs/product/STRUCTURE_FINALE_ACCUEIL.md, mouvement 3, « Cloture »).
+              Le document et la page divergent donc sur ce point, et c'est une
+              decision, pas un oubli : la note est portee dans le document. */}
 
           {/* ⚠ L'INDEX DES MODULES a ete retire le 2026-08-30, demande CEO.
               « 1.1 Dossiers · 1.2 Feuille de temps · 1.3 Facturation · 1.4
