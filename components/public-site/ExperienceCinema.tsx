@@ -2896,12 +2896,32 @@ const CSS = `
   }
   .xc .scene-duo .piste {
     display: grid;
-    grid-template-columns: repeat(2, 72%);
+    grid-template-columns: repeat(2, 68%);
     gap: clamp(20px, 2.6vw, 40px);
-    will-change: transform;
-    transition: transform 120ms linear;
+    /* ⚠ NI « will-change », NI transition sur la transformation.
+       Les deux promeuvent la piste en couche composee, et une couche composee
+       posee sur une fraction de pixel rend son TEXTE FLOU : c'est ce que le CEO
+       a vu le 2026-08-30, « les deux ecrans sont flou ». La position est deja
+       peinte a chaque trame par le defilement, une transition par-dessus ne
+       ferait que la retarder. Le calcul arrondit desormais au pixel entier,
+       pour la meme raison. */
   }
   .xc .scene-duo .piste > * { min-width: 0; }
+
+  /* ── La barre d'une fenetre ETROITE porte ses icones seules ───────────────
+     Une fenetre de la piste fait environ 68 % de la section, la ou la barre
+     avait ete reglee pour une fenetre pleine. Ses six libelles debordaient et
+     se peignaient PAR-DESSUS la marque et la recherche (releve du CEO le
+     2026-08-30).
+
+     La reponse n'est pas un bricolage : c'est ce que fait l'application. Sous
+     1280 px, Header.tsx retire les libelles et le nom du cabinet, l'icone
+     porte seule. La replique suit la meme regle. */
+  .xc .scene-duo .barre-app .cab,
+  .xc .scene-duo .barre-app .sep,
+  .xc .scene-duo .barre-app nav .lb { display: none; }
+  .xc .scene-duo .barre-app nav span { padding: 7px 8px; }
+  .xc .scene-duo .barre-app .ch { width: 128px; }
   /* ── Sans mouvement, on EMPILE, on ne fige pas ────────────────────────────
      Figer la piste aurait laisse la seconde fenetre coupee hors du cadre :
      qui a demande moins de mouvement ne verrait jamais le journal. La
@@ -5286,7 +5306,11 @@ function runExperience(root: HTMLElement): () => void {
       /* 0 quand la scene arrive par le bas, 1 quand elle sort par le haut. */
       const brut = (window.innerHeight - r.top) / (window.innerHeight + r.height);
       const p = Math.max(0, Math.min(1, brut));
-      piste.style.transform = `translate3d(${(-course * p).toFixed(1)}px,0,0)`;
+      /* ARRONDI AU PIXEL ENTIER. Une position fractionnaire pose la piste
+         entre deux pixels et rend son texte flou, defaut releve par le CEO le
+         2026-08-30. On perd une nuance de fluidite invisible, on gagne des
+         ecrans nets. */
+      piste.style.transform = `translate3d(${Math.round(-course * p)}px,0,0)`;
     }
   }
   const demanderDuo = () => {

@@ -73,9 +73,14 @@ export function BarreAppVitrine({ actif }: { actif: MenuActif }) {
 
       <nav>
         {MENUS.map(({ id, label, Icone, tiroir }) => (
+          /* Le libelle est enveloppe pour pouvoir DISPARAITRE quand la fenetre
+             est etroite, exactement comme Header.tsx le fait sous 1280 px :
+             l'icone porte alors seule. Sans cette enveloppe, la barre d'une
+             fenetre reduite peignait ses menus par-dessus la marque et la
+             recherche. */
           <span key={id} className={id === actif ? "on" : undefined}>
             <Icone className="mi" />
-            {label}
+            <span className="lb">{label}</span>
             {tiroir ? <b className="cv" /> : null}
           </span>
         ))}
