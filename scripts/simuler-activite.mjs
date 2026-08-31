@@ -189,8 +189,26 @@ async function main() {
 
     /* Le solde fiduciaire se décide avant la création : il faut le poser sur le
        client ET l'appuyer sur de vrais mouvements, sinon les deux sources se
-       contredisent. */
-    const soldeFiducie = i === 3 ? -1725 : chance(0.35) ? entre(5, 240) * 100 : 0;
+       contredisent.
+
+       ⚠ PLUS AUCUN SOLDE NÉGATIF, décision CEO du 2026-08-30.
+
+       Ce script produisait volontairement un découvert sur le quatrième client
+       (`i === 3 ? -1725`), au motif qu'un manquement à B-1 r.5 « doit exister
+       pour être visible à l'écran ». L'intention se défendait, mais elle a deux
+       conséquences que personne ne voulait :
+
+       - le rapprochement du cabinet de démonstration ne peut JAMAIS être
+         certifié, `reconciliation-service.ts` refusant de certifier par-dessus
+         une carte débitrice. Le cabinet vitrine est donc, par construction, un
+         cabinet non conforme ;
+       - la vitrine s'appuie sur ces chiffres. Elle affichait un agrégat qui
+         masquait le découvert, ce qui est exactement ce que le garde-fou
+         interdit.
+
+       Qui veut éprouver le garde-fou le fait par un test, pas par le jeu de
+       démonstration. Le solde tiré est donc nul ou positif, jamais négatif. */
+    const soldeFiducie = chance(0.35) ? entre(5, 240) * 100 : 0;
 
     const client = await prisma.client.create({
       data: {
@@ -213,10 +231,16 @@ async function main() {
     });
     compteur.clients++;
 
-    if (soldeFiducie !== 0) {
-      /* Un dépôt initial, puis un retrait si le solde doit finir négatif :
-         c'est ainsi qu'un découvert se produit réellement. */
-      const depot = soldeFiducie > 0 ? soldeFiducie : entre(10, 40) * 100;
+    if (soldeFiducie > 0) {
+      /* Un dépôt, et pour une carte sur trois un retrait de débours par-dessus.
+         Le registre garde ainsi de la vie — un cabinet réel paie des débours
+         depuis le fidéicommis — sans jamais pouvoir passer sous zéro.
+
+         L'INVARIANT tient par construction et non par un tirage heureux : le
+         dépôt vaut le solde visé PLUS le retrait, donc la carte finit
+         exactement à `soldeFiducie`, qui est strictement positif. */
+      const retrait = chance(0.33) ? entre(1, Math.max(1, Math.floor(soldeFiducie / 200))) * 100 : 0;
+      const depot = soldeFiducie + retrait;
       await prisma.trustTransaction.create({
         data: {
           cabinetId: cabinet.id,
@@ -229,13 +253,13 @@ async function main() {
         },
       });
       compteur.mouvements++;
-      if (soldeFiducie < 0) {
+      if (retrait > 0) {
         await prisma.trustTransaction.create({
           data: {
             cabinetId: cabinet.id,
             clientId: client.id,
             date: ilYa(entre(1, 25)),
-            amount: -(depot - soldeFiducie),
+            amount: -retrait,
             type: "withdrawal",
             description: "Débours payés pour le client",
             note: MARQUE,
@@ -373,6 +397,31 @@ async function main() {
   console.log(`[4] Factures   : ${compteur.factures}`);
   console.log(`[5] Paiements  : ${compteur.paiements}`);
   console.log(`[6] Fidéicommis: ${compteur.mouvements} mouvement(s)`);
+
+  /* ── GARDE-FOU DE SORTIE ──────────────────────────────────────────────────
+     On ne se fie pas au raisonnement ci-dessus : on VÉRIFIE. Le script relit
+     les mouvements qu'il vient d'écrire et refuse de se terminer normalement
+     si une carte-client est débitrice.
+
+     Un découvert ne se voit pas dans les compteurs : il faut le chercher carte
+     par carte, parce qu'un total sain peut masquer un compte à −200 $ compensé
+     par un autre à +200 $. C'est le raisonnement de `reconciliation-service.ts`,
+     et le simulateur se doit de le tenir aussi. */
+  const mouvements = await prisma.trustTransaction.findMany({
+    where: { cabinetId: cabinet.id },
+    select: { clientId: true, amount: true },
+  });
+  const cartes = new Map();
+  for (const m of mouvements) cartes.set(m.clientId, (cartes.get(m.clientId) ?? 0) + m.amount);
+  const debitrices = [...cartes.entries()].filter(([, solde]) => solde < -0.005);
+  if (debitrices.length > 0) {
+    throw new Error(
+      `${debitrices.length} carte(s)-client(s) débitrice(s) : ` +
+        debitrices.map(([id, solde]) => `${id} (${solde.toFixed(2)} $)`).join(", ") +
+        ". Le rapprochement ne pourrait pas être certifié.",
+    );
+  }
+  console.log(`[7] Contrôle   : ${cartes.size} carte(s)-client(s), aucune débitrice`);
   console.log("─".repeat(64));
   console.log(`✅ Activité simulée. Graine ${GRAINE} : rejouer donne le même cabinet.`);
   console.log(`   Retirer : PURGER=oui node --env-file=.env.local scripts/simuler-activite.mjs\n`);
