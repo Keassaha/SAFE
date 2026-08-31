@@ -3131,43 +3131,18 @@ const CSS = `
     .xc .capacites { grid-template-columns: 1fr; gap: 22px; }
   }
 
-  /* ── L'ECRAN DES COMPTES EN FIDEICOMMIS ──────────────────────────────────
-     Bandeau d'inspection, les deux etats de conformite, quatre mesures,
-     quatre acces, la note sur les retraits. Releve sur capture le 2026-08-31. */
-  .xc .fiche .bandeau-insp {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    margin-top: 16px; padding: 14px 18px;
-    border-radius: 12px; background: var(--si-canvas);
-  }
-  .xc .fiche .bandeau-insp .t { font-size: 14px; font-weight: 500; color: var(--si-ink); }
-  .xc .fiche .bandeau-insp .d { margin-top: 2px; font-size: 12.5px; color: var(--si-muted); }
 
-  .xc .fiche .etat-conf {
-    display: flex; align-items: center; gap: 12px;
-    margin-top: 12px; padding: 16px 18px;
-    border: 1px solid var(--si-line); border-radius: 12px; background: var(--si-surface);
+  /* La declaration que la certification fait signer a l'avocate. Citee entre
+     guillemets et posee comme une phrase, pas comme une donnee : c'est un
+     engagement, et c'est le mouvement 4 en une ligne. */
+  .xc .fiche .declaration {
+    padding: 12px 0 4px;
+    font-size: 14px; line-height: 1.55; color: var(--si-ink);
+    max-width: 62ch;
   }
-  .xc .fiche .etat-conf .ic { font-size: 16px; flex: none; }
-  .xc .fiche .etat-conf .t { font-size: 14px; font-weight: 500; }
-  .xc .fiche .etat-conf .d { margin-top: 2px; font-size: 12.5px; }
-  /* Ce qui reste a faire porte l'ambre, ce qui est verifie porte le vert.
-     C'est le PRODUIT qui ecrit « aucun solde negatif » sur son propre ecran :
-     la vitrine n'a pas a l'affirmer, elle n'a qu'a le montrer. */
-  .xc .fiche .etat-conf.attente .t,
-  .xc .fiche .etat-conf.attente .d { color: var(--si-amber-ink); }
-  .xc .fiche .etat-conf.verifie .t { color: var(--si-verified); }
-
-  .xc .fiche .acces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-  .xc .fiche .note-retrait {
-    margin-top: 16px; padding: 16px 18px;
-    border: 1px solid var(--si-line); border-radius: 12px; background: var(--si-surface);
-    font-size: 13px; line-height: 1.5; color: var(--si-body);
-  }
-  .xc .fiche .note-retrait b { font-weight: 500; color: var(--si-ink); }
-  .xc .fiche .mesures .v.sortie { color: var(--si-amber-ink); }
-  .xc .fiche .tbl-fiducie { font-size: 12px; }
-  .xc .fiche .tbl-fiducie th,
-  .xc .fiche .tbl-fiducie td { padding-left: 5px; padding-right: 5px; }
+  /* L'ecart nul porte le vert de l'etat verifie : c'est la seule chose que
+     cette vue doit faire remarquer. */
+  .xc .fiche .tot .v.verifie { color: var(--si-verified); }
 
   /* ── LES DEUX TABLEAUX ───────────────────────────────────────────────────
      Le dossier porte son numero EN VERT et le nom du client dessous ; le
@@ -7345,146 +7320,102 @@ export default function ExperienceCinema() {
 
               <BarreAppVitrine actif="finances" />
 
-              <div className="fiche">
-                {/* ── L'ECRAN /comptes, RECOPIE SUR CAPTURE ─────────────────
-                    Trois captures du CEO le 2026-08-31, apres la relance du
-                    simulateur. La version precedente inventait trois onglets —
-                    « Comptes (7) », « Rapprochement », « Registre » — qui
-                    n'existent nulle part : l'ecran n'a qu'une vue.
+              <div className="fiche extrait-nav">
+                {/* ── DEUX VUES, COURTES ────────────────────────────────────
+                    Retour a la forme de depart, demande CEO du 2026-08-31 :
+                    « trop grosse et trop compliquee a comprendre ».
 
-                    Il enchaine : l'en-tete et son action, le bandeau
-                    d'inspection, l'alerte de rapprochement, le bandeau de
-                    surveillance, quatre mesures, quatre acces, la note sur les
-                    retraits, puis l'historique des transactions.
+                    J'avais recopie l'ecran /comptes en entier — bandeau
+                    d'inspection, deux etats, quatre mesures, quatre acces, une
+                    note et onze mouvements. Fidele, et illisible : une
+                    illustration de vitrine n'est pas une capture d'ecran, elle
+                    doit se lire en trois secondes.
 
-                    ⚠ LA COLONNE « SOLDE » AFFICHE UN TIRET, partout.
-                    TransactionsTable.tsx ecrit « balanceAfter != null ? … :
-                    "—" », et le champ est nul sur toutes les lignes du jeu de
-                    demonstration. J'allais calculer un solde courant : ce
-                    serait un chiffre que l'ecran ne montre pas. */}
-                <div className="fiche-tete">
+                    On garde donc deux vues courtes, et ce qu'elles montrent est
+                    exactement ce que le brief demande : les sommes detenues
+                    client par client, puis les trois sources qui doivent
+                    concorder.
+
+                    ⚠ CE QUE CETTE FORME SIMPLIFIE, ET IL FAUT LE SAVOIR : ces
+                    deux vues sont deux PAGES du produit, /comptes et
+                    /comptes/rapprochement, presentees ici comme deux onglets.
+                    Le produit n'a pas cette barre d'onglets. C'est la seule
+                    liberte de l'illustration, elle est deliberee, et les
+                    libelles de chaque vue viennent tous de messages/fr.json. */}
+                <div className="fiche-tete anime-bloc">
                   <div>
                     <p className="retour">
                       <span className="lien">&lsaquo; Retour à la facturation</span>
                     </p>
                     <h4>Comptes en fidéicommis</h4>
-                    <p className="fiche-sous">
-                      Dépôts, retraits et relevés du compte en fidéicommis par client et dossier.
-                    </p>
                   </div>
                   <div className="actes">
-                    <span className="bt principal">+ Ajouter une transaction</span>
+                    <span className="bt">Relevé mensuel</span>
+                    <span className="bt">Inspection <i className="ext" aria-hidden /></span>
                   </div>
                 </div>
 
+                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Le fidéicommis">
+                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="comptes">Comptes <small>(6)</small></button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="rappro">Rapprochement</button>
+                </div>
+
                 <div className="vues">
-                  <div className="vue on">
-                    {/* Le bandeau d'inspection, en tete d'ecran. */}
-                    <div className="bandeau-insp">
-                      <div>
-                        <p className="t">Inspection</p>
-                        <p className="d">Rapport mensuel, registres, trousse et le reste de ce qu&rsquo;un inspecteur demande.</p>
-                      </div>
-                      <span className="lien">Ouvrir</span>
+
+                <div className="vue on" data-fiche-vue="comptes">
+                  <div className="totaux">
+                    <div className="tot"><p className="k">Solde total fidéicommis</p><p className="v">96 300,00 $</p><p className="s">six clients avec des fonds</p></div>
+                    <div className="tot"><p className="k">Dépôts du mois</p><p className="v">0,00 $</p><p className="s">août 2026</p></div>
+                    <div className="tot"><p className="k">Retraits du mois</p><p className="v">23 700,00 $</p><p className="s">cinq retraits de débours</p></div>
+                  </div>
+                  {/* Les SIX cartes, nommees une par une. L'ancienne version en
+                      agregeait quatre sous « Trois autres clients », et c'est cet
+                      agregat qui masquait un solde debiteur. Un agregat n'a rien
+                      a faire dans une section sur les garde-fous. */}
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Sommes détenues, client par client</p>
+                      <span>Chaque somme appartient à quelqu&apos;un</span>
                     </div>
-
-                    {/* Les deux etats de conformite, tels que l'ecran les pose :
-                        ce qui reste a faire en ambre, ce qui est verifie en vert.
-
-                        ⚠ Le second est LE propos du mouvement 4. Ce n'est pas la
-                        vitrine qui affirme que le garde-fou mord, c'est le
-                        produit qui l'ecrit sur son propre ecran. */}
-                    <div className="etat-conf attente">
-                      <span className="ic" aria-hidden>&#9201;</span>
-                      <div>
-                        <p className="t">Rapprochement du fidéicommis à effectuer</p>
-                        <p className="d">La période 2026-07 doit être rapprochée et certifiée.</p>
-                      </div>
-                    </div>
-                    <div className="etat-conf verifie">
-                      <span className="ic" aria-hidden>&#128737;</span>
-                      <p className="t">Surveillance fidéicommis : aucun solde négatif ni fonds dormant.</p>
-                    </div>
-
-                    <div className="mesures">
-                      {[
-                        ["Solde total fidéicommis", "96 300,00 $", ""],
-                        ["Dépôts du mois", "0,00 $", ""],
-                        ["Retraits du mois", "23 700,00 $", "sortie"],
-                        ["Dossiers avec provision", "0", ""],
-                      ].map(([k, v, ton]) => (
-                        <div className="me" key={k}>
-                          <span className="k">{k}</span>
-                          <span className={"v" + (ton ? " " + ton : "")}>{v}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="acces">
-                      <span className="bt">Briefing du jour</span>
-                      <span className="bt">Rapprochement</span>
-                      <span className="bt">Rapports de conformité</span>
-                      <span className="bt">Tableau de sécurité</span>
-                    </div>
-
-                    <p className="note-retrait">
-                      Pour imputer un retrait à une facture ou voir les factures impayées pouvant
-                      être couvertes par le fidéicommis, utilisez le champ « Facture liée » dans le
-                      formulaire retrait ou consultez la <b>section Facturation</b>.
-                    </p>
-
-                    <div className="carte-bloc">
-                      <div className="ct">
-                        <p className="ctt">Historique des transactions</p>
-                        <span className="segments">
-                          <span>Tous les clients</span>
-                          <span>Tous les dossiers</span>
-                        </span>
-                      </div>
-                      {/* Onze mouvements, releves sur capture : six provisions
-                          de janvier a juillet, cinq retraits de debours en aout.
-                          120 000,00 $ deposes moins 23 700,00 $ retires font
-                          bien les 96 300,00 $ de la premiere mesure. */}
-                      <table className="ha-tbl tbl-fiducie">
-                        <thead>
-                          <tr>
-                            <th>Date</th><th>Client</th><th>Dossier</th><th>Type</th>
-                            <th>Description</th><th>Référence</th>
-                            <th style={{ textAlign: "right" }}>Dépôt</th>
-                            <th style={{ textAlign: "right" }}>Retrait</th>
-                            <th style={{ textAlign: "right" }}>Solde</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            ["2026-08-28", "Simon Lévesque", "Retrait", "", "2 800,00 $"],
-                            ["2026-08-26", "Jean-Christophe Pelletier", "Retrait", "", "5 500,00 $"],
-                            ["2026-08-20", "Ateliers Beauport inc.", "Retrait", "", "7 600,00 $"],
-                            ["2026-08-17", "Sophie Côté", "Retrait", "", "4 500,00 $"],
-                            ["2026-08-07", "Groupe immobilier Sainte-Foy ltée", "Retrait", "", "3 300,00 $"],
-                            ["2026-07-09", "Simon Lévesque", "Dépôt", "12 300,00 $", ""],
-                            ["2026-06-21", "Ateliers Beauport inc.", "Dépôt", "25 400,00 $", ""],
-                            ["2026-05-16", "Groupe immobilier Sainte-Foy ltée", "Dépôt", "21 300,00 $", ""],
-                            ["2026-03-04", "Étienne Lafleur", "Dépôt", "18 200,00 $", ""],
-                            ["2026-01-29", "Sophie Côté", "Dépôt", "24 700,00 $", ""],
-                            ["2026-01-16", "Jean-Christophe Pelletier", "Dépôt", "18 100,00 $", ""],
-                          ].map(([d, cl, type, dep, ret]) => (
-                            <tr key={d + cl}>
-                              <td className="mono">{d}</td>
-                              <td>{cl}</td>
-                              <td className="vide">&mdash;</td>
-                              <td>{type}</td>
-                              <td>{type === "Dépôt" ? "Provision reçue du client" : "Débours payés pour le client"}</td>
-                              <td className="vide">&mdash;</td>
-                              <td className="num">{dep || <span className="vide">&mdash;</span>}</td>
-                              <td className="num">{ret || <span className="vide">&mdash;</span>}</td>
-                              <td className="num vide">&mdash;</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="lignes">
+                      <div className="lg"><span>Sophie Côté</span><span className="v">20 200,00 $</span></div>
+                      <div className="lg"><span>Étienne Lafleur</span><span className="v">18 200,00 $</span></div>
+                      <div className="lg"><span>Groupe immobilier Sainte-Foy ltée</span><span className="v">18 000,00 $</span></div>
+                      <div className="lg"><span>Ateliers Beauport inc.</span><span className="v">17 800,00 $</span></div>
+                      <div className="lg"><span>Jean-Christophe Pelletier</span><span className="v">12 600,00 $</span></div>
+                      <div className="lg"><span>Simon Lévesque</span><span className="v">9 500,00 $</span></div>
                     </div>
                   </div>
+                </div>
+
+                {/* La vue qui porte le mouvement 4. Les trois libelles sont ceux
+                    de l'ecran de rapprochement (messages/fr.json, espace
+                    « trustReconciliationUi ») : « Solde bancaire rapproché »,
+                    « Registre SAFE », « Écart à résoudre ». */}
+                <div className="vue" data-fiche-vue="rappro">
+                  <div className="totaux">
+                    <div className="tot"><p className="k">Solde bancaire rapproché</p><p className="v">96 300,00 $</p><p className="s">relevé 96 300,00 $ · chèques 0,00 $ · dépôts 0,00 $</p></div>
+                    <div className="tot"><p className="k">Registre SAFE</p><p className="v">96 300,00 $</p><p className="s">total des mouvements comptabilisés</p></div>
+                    <div className="tot"><p className="k">Écart à résoudre</p><p className="v verifie">0,00 $</p><p className="s">équilibré, prêt à certifier</p></div>
+                  </div>
+                  {/* La declaration que la certification fait signer. C'est le
+                      mouvement 4 en une phrase, et elle est dans le produit :
+                      « result.certificationStatement ». */}
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Certifier le rapprochement</p>
+                      <span>Période 2026-07 &middot; équilibré, à certifier</span>
+                    </div>
+                    <div className="lignes">
+                      <p className="declaration">
+                        « Je confirme que le relevé bancaire, le registre SAFE et les soldes par
+                        dossier concordent pour cette période. »
+                      </p>
+                      <div className="lg"><span>Le bouton reste inactif tant que l&rsquo;écart n&rsquo;est pas nul</span><span className="v lien">Certifier &rarr;</span></div>
+                    </div>
+                  </div>
+                </div>
+
                 </div>
               </div>
             </figure>
