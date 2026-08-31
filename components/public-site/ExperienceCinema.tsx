@@ -2752,7 +2752,7 @@ const CSS = `
   /* Le libelle, le nombre et sa precision sont trois SPANS, donc en ligne par
      defaut. Ils portaient chacun un « margin-top », qui ne fait rien sur un
      element en ligne : les trois se collaient, « ACTIFS43 », « TOTAL948,54 $ »,
-     « SOLDE TOTAL89 275,00 $7 clients avec des fonds ».
+     « SOLDE TOTAL91 000,00 $7 clients avec des fonds ».
 
      La regle existait, mais UNIQUEMENT dans la requete du telephone, ou le
      defaut avait ete vu et corrige. Sur ordinateur il tenait toujours, et le
@@ -2820,6 +2820,11 @@ const CSS = `
     background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
   }
   .xc .fiche .etat-dossier .vide { margin-top: 12px; font-size: 14px; color: var(--si-muted); }
+  .xc .fiche .etat-dossier .echeance {
+    margin-top: 12px; display: inline-flex; gap: 6px;
+    font-size: 13px; color: var(--si-amber-ink);
+  }
+  .xc .fiche .etat-dossier .echeance em { font-style: normal; color: var(--si-muted); }
   .xc .fiche .etat-dossier .ex {
     margin-top: 16px;
     font-size: 11px; font-weight: 500;
@@ -3101,6 +3106,34 @@ const CSS = `
   .xc .fiche .ha-tbl .num {
     font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right;
   }
+
+  /* ── LES TROIS CAPACITES DU MOUVEMENT 4 ──────────────────────────────────
+     « Compare · Encadre · Garde la trace ». Le brief l'ecrit en toutes
+     lettres : composition editoriale, PAS trois cartes generiques. Donc trois
+     paragraphes dans la meme grille que les deux moities du mouvement 3, sans
+     cadre, sans fond et sans icone. Le nom porte l'encre pleine, la phrase le
+     gris : c'est la meme grammaire que le reste de la page. */
+  .xc .capacites {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(24px, 3.4vw, 56px);
+    margin-top: clamp(28px, 3.4vw, 44px);
+  }
+  .xc .capacites .t {
+    font-family: var(--sans); font-size: var(--t-corps);
+    letter-spacing: -0.01em; color: var(--si-ink);
+  }
+  .xc .capacites .d {
+    margin-top: 8px;
+    font-size: var(--t-detail); line-height: 1.55; color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .xc .capacites { grid-template-columns: 1fr; gap: 22px; }
+  }
+
+  /* Le solde debiteur, dans le registre : c'est le seul chiffre rouge de la
+     page, et il porte le propos de la section. */
+  .xc .fiche .tbl-registre .debiteur { color: var(--si-danger-ink, #a32d2d); }
 
   /* ── LES DEUX TABLEAUX ───────────────────────────────────────────────────
      Le dossier porte son numero EN VERT et le nom du client dessous ; le
@@ -5176,15 +5209,13 @@ function runExperience(root: HTMLElement): () => void {
     const ctx = f.ctx, W = f.w, H = f.h;
     ctx.clearRect(0, 0, W, H);
 
-    /* 92 % de largeur, 78 % de hauteur, la plus contraignante des deux gagne :
+    /* 96 % de largeur, 100 % de hauteur, la plus contraignante des deux gagne :
        le cadre ne déborde donc jamais.
 
-       La largeur passe de 88 à 92 % : c'est la hauteur qui bornait, et la
-       fenêtre finissait exactement à la largeur des captures des sections.
-       L'ouverture doit être la plus grande vue de la page, pas son égale. Avec
-       une boîte logique ramenée à 640 (voir FRAME_H), c'est la largeur qui
-       borne, et la fenêtre gagne près de 90 px sur celles du bas. */
-    let scale = Math.min(W * 0.92 / FRAME_W, H * 0.78 / FRAME_H);
+       L'ouverture porte la preuve produit principale : elle doit dépasser les
+       fenêtres des mouvements suivants, pas leur céder visuellement. Les 2 %
+       de marge latérale restants gardent le cadre détaché de la vue. */
+    let scale = Math.min(W * 0.96 / FRAME_W, H / FRAME_H);
     if (W < 860) scale = Math.min(W * 0.92 / FRAME_W, H * 0.5 / FRAME_H);
     const frameW = FRAME_W * scale, frameH = FRAME_H * scale;
     const fx = (W - frameW) / 2;
@@ -5350,7 +5381,11 @@ function runExperience(root: HTMLElement): () => void {
         pin.getBoundingClientRect().left,
     );
     const gauche = bordTitre > 0 ? bordTitre : marge;
-    const scale = Math.min((W - gauche * 2) / FRAME_W, 1);
+    /* Le bord gauche reste celui du titre. À droite, une seule marge suffit :
+       l'ouverture est la preuve principale et doit dépasser les fenêtres des
+       mouvements suivants, y compris pour une personne qui réduit le mouvement.
+       Deux marges symétriques la réduisaient à la même largeur que la section 2. */
+    const scale = Math.min((W - gauche - marge) / FRAME_W, 1);
     const haut = heroCopy.offsetTop + heroCopy.offsetHeight + 52;
     heroShot.style.left = gauche + "px";
     heroShot.style.top = haut + "px";
@@ -6502,9 +6537,10 @@ export default function ExperienceCinema() {
 
                     2026-028 « Gagnon — droit de la famille », client Gagnon,
                     Felix, ouvert le 17 avril 2026, statut actif, Me Camille Roy
-                    responsable, aucune adjointe, aucun tribunal ni reference.
+                    responsable et Aaliyah Côté adjointe. Une note interne, une
+                    échéance et sa tâche associée y sont maintenant portées.
                     Toutes ces valeurs sont LUES dans la base de demonstration
-                    locale le 2026-08-29, pas choisies.
+                    locale, pas choisies.
 
                     Le nom s'ecrit « Gagnon, Felix » et non l'inverse : pour une
                     personne physique, la page compose « nom, prenom »
@@ -6528,6 +6564,7 @@ export default function ExperienceCinema() {
                         AUCUNE puce : la replique en avait ajoute une. */}
                     <p className="fiche-pastilles">
                       <span className="pa">Avocat : Me Camille Roy</span>
+                      <span className="pa">Adjointe : Aaliyah Côté</span>
                       <span className="pa etat">Actif</span>
                     </p>
                   </div>
@@ -6607,6 +6644,7 @@ export default function ExperienceCinema() {
                     <div className="lg"><span>Ouvert le</span><span className="v">17 avril 2026 <em>&middot; il y a 134 jours</em></span></div>
                     <div className="lg"><span>Statut</span><span className="v">Actif</span></div>
                     <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
+                    <div className="lg"><span>Adjointe</span><span className="v">Aaliyah Côté</span></div>
                   </div>
                 </div>
 
@@ -6629,10 +6667,10 @@ export default function ExperienceCinema() {
                     <p className="ctt">&Eacute;tat du dossier</p>
                     <span className="pa incomplet">Incomplet</span>
                   </div>
-                  <p className="vide">Aucune action enregistr&eacute;e pour l&rsquo;instant.</p>
-                  <p className="ex">Manquants (5)</p>
+                  <p className="vide">Dossier mis &agrave; jour <em>&middot; Aaliyah Côté &middot; 31 août</em></p>
+                  <p className="echeance">&Eacute;chéance : transmission des renseignements financiers <em>&middot; dans 3 jours</em></p>
+                  <p className="ex">Manquants (4)</p>
                   <ul className="manquants">
-                    <li><i className="crit" aria-hidden />Aucune assistante juridique assign&eacute;e</li>
                     <li><i className="crit" aria-hidden />Mandat absent</li>
                     <li><i className="crit" aria-hidden />Identit&eacute; du client non v&eacute;rifi&eacute;e</li>
                     <li><i className="crit" aria-hidden />Mode de facturation non d&eacute;fini</li>
@@ -6641,7 +6679,7 @@ export default function ExperienceCinema() {
                   <div className="suite">
                     <div>
                       <p className="ex vert">Prochaine action</p>
-                      <p className="quoi">Assigner une assistante au dossier</p>
+                      <p className="quoi">Cr&eacute;er le mandat du dossier</p>
                     </div>
                     <span className="bt principal">Y aller &rarr;</span>
                   </div>
@@ -6727,9 +6765,8 @@ export default function ExperienceCinema() {
                 </div>
 
                 {/* ── L'ONGLET NOTES INTERNES ────────────────────────────────
-                    Le fil de la navette, exactement tel que la capture le
-                    montre : aucun message, et les trois actions qui restent
-                    disponibles malgre le vide. */}
+                    Le fil de la navette porte la note interne réellement
+                    ajoutée par Aaliyah à ce dossier. */}
                 <div className="vue" data-fiche-vue="notes">
                   <div className="carte-bloc">
                     <div className="ct">
@@ -6737,7 +6774,7 @@ export default function ExperienceCinema() {
                       <span>fil interne</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>Aucun message sur ce dossier.</span><span className="v">&mdash;</span></div>
+                      <div className="lg"><span>Question<small>Note de travail : préparer le projet de demande et vérifier les renseignements financiers avant la rencontre avec le client.</small></span><span className="v">Aaliyah Côté<br /><em>3 sept.</em></span></div>
                       <div className="lg"><span>Approuver &middot; Renvoyer &middot; Marquer pr&ecirc;t pour revue</span><span className="v lien">Envoyer &rarr;</span></div>
                     </div>
                   </div>
@@ -7227,11 +7264,35 @@ export default function ExperienceCinema() {
       <section className="recit" id="verification">
         <div className="inner">
           <div className="tete">
-            <h2>Vos trois sources se comparent chaque mois</h2>
+{/* Titre et phrase repris MOT POUR MOT de la structure finale,
+                mouvement 4. Deux encres, comme les trois mouvements
+                precedents. */}
+            <h2>Des garde-fous <em>là où la rigueur ne permet aucun raccourci.</em></h2>
             <p className="dire">
-              <b>Le relevé bancaire, le registre et les soldes par client.</b> SAFE signale
-              l&apos;écart, et c&apos;est vous qui décidez ce qu&apos;on en fait.
+              <b>SAFE soutient les obligations professionnelles du cabinet</b> en
+              intégrant des contrôles aux opérations sensibles.
             </p>
+          </div>
+
+          {/* ── LES TROIS CAPACITES ─────────────────────────────────────────
+              Structure finale, mouvement 4 : « Compare · Encadre · Garde la
+              trace », chacune avec sa phrase, mot pour mot.
+
+              ⚠ Le brief l'ecrit en toutes lettres : « composition editoriale,
+              PAS trois cartes generiques ». Elles sont donc posees comme trois
+              paragraphes numerotes, sans cadre, sans fond et sans icone, dans
+              la meme grille que les deux moities du mouvement 3. */}
+          <div className="capacites">
+            {[
+              ["Compare", "SAFE rapproche le relevé bancaire, le registre du fidéicommis et les soldes détenus pour chaque dossier."],
+              ["Encadre", "SAFE signale ou bloque une opération lorsque les conditions requises ne sont pas réunies."],
+              ["Garde la trace", "Les opérations, validations et corrections demeurent datées, attribuées et vérifiables."],
+            ].map(([t, d]) => (
+              <div className="cp" key={t}>
+                <p className="t">{t}</p>
+                <p className="d">{d}</p>
+              </div>
+            ))}
           </div>
 
           {/* ── L'extrait navigable du fideicommis ──────────────────────────
@@ -7239,8 +7300,13 @@ export default function ExperienceCinema() {
               barre d'application figee, un contour fondu, deux ecrans.
 
               Tous les chiffres sont releves dans la base du cabinet Demo :
-              huit depots pour 92 200,00 $, un retrait de 2 925,00 $, donc un
-              solde de 89 275,00 $ reparti sur sept clients. */}
+              neuf depots pour 93 925,00 $, un retrait de 2 925,00 $, donc un
+              solde de 91 000,00 $ reparti sur sept clients.
+
+              Le neuvieme depot est une CORRECTION, portee en base le
+              2026-08-30 : le retrait du 4 aout excedait de 1 725,00 $ la
+              provision du client Levesque, ce qui laissait sa carte debitrice
+              et bloquait la certification. Le cabinet a remis la somme. */}
           <div className="scene-produit">
             <div className="fenetre-fondante">
             <figure className="fenetre-produit contour-fondu">
@@ -7268,12 +7334,13 @@ export default function ExperienceCinema() {
                 <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Le fidéicommis">
                   <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="comptes">Comptes (7)</button>
                   <button type="button" role="tab" aria-selected="false" data-fiche-onglet="rappro">Rapprochement</button>
+                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="registre">Registre</button>
                 </div>
 
                 <div className="vue on" data-fiche-vue="comptes">
                   <div className="totaux" style={{ marginTop: 18 }}>
-                    <div className="tot"><p className="k">Solde total</p><p className="v">89 275,00 $</p><p className="s">7 clients avec des fonds</p></div>
-                    <div className="tot"><p className="k">Dépôts du mois</p><p className="v">0,00 $</p><p className="s">août 2026</p></div>
+                    <div className="tot"><p className="k">Solde total</p><p className="v">91 000,00 $</p><p className="s">7 clients avec des fonds</p></div>
+                    <div className="tot"><p className="k">Dépôts du mois</p><p className="v">1 725,00 $</p><p className="s">une correction, le 5 août</p></div>
                     <div className="tot"><p className="k">Retraits du mois</p><p className="v">2 925,00 $</p><p className="s">un retrait, le 4 août</p></div>
                   </div>
                   <div className="carte-bloc">
@@ -7286,7 +7353,10 @@ export default function ExperienceCinema() {
                       <div className="lg"><span>Marc Bouchard</span><span className="v">16 900,00 $</span></div>
                       <div className="lg"><span>Distribution Beauport s.e.n.c.</span><span className="v">16 700,00 $</span></div>
                       <div className="lg"><span>Félix Gagnon</span><span className="v">13 200,00 $</span></div>
-                      <div className="lg"><span>Trois autres clients</span><span className="v">20 675,00 $</span></div>
+                      <div className="lg"><span>Jean-Christophe Côté</span><span className="v">11 500,00 $</span></div>
+                      <div className="lg"><span>Olivier Gagnon</span><span className="v">8 800,00 $</span></div>
+                      <div className="lg"><span>Distribution Rive-Sud ltée</span><span className="v">2 100,00 $</span></div>
+                      <div className="lg"><span>Simon Lévesque</span><span className="v">0,00 $</span></div>
                     </div>
                   </div>
                 </div>
@@ -7298,16 +7368,88 @@ export default function ExperienceCinema() {
                       <span>Ce qui doit concorder chaque mois</span>
                     </div>
                     <div className="lignes">
-                      <div className="lg"><span>01 · Le relevé de la banque<br /><small>ce que l&apos;institution dit détenir</small></span><span className="v attente">à importer</span></div>
-                      <div className="lg"><span>02 · Le registre de fidéicommis<br /><small>huit dépôts, un retrait</small></span><span className="v">89 275,00 $</span></div>
-                      <div className="lg"><span>03 · La somme des soldes par client<br /><small>ce qui appartient à chacun</small></span><span className="v">89 275,00 $</span></div>
+                      <div className="lg"><span>01 · Le relevé de la banque<br /><small>ce que l&apos;institution dit détenir</small></span><span className="v">91 000,00 $</span></div>
+                      <div className="lg"><span>02 · Le registre de fidéicommis<br /><small>neuf dépôts, un retrait</small></span><span className="v">91 000,00 $</span></div>
+                      <div className="lg"><span>03 · La somme des soldes par client<br /><small>ce qui appartient à chacun</small></span><span className="v">91 000,00 $</span></div>
                       <div className="lg"><span>Écart entre le registre et les clients</span><span className="v">0,00 $</span></div>
                     </div>
                   </div>
+                  {/* L'etat REEL du rapprochement 2026-07 : « complete », mais
+                      « certifiedAt » a null. Calcule et equilibre, pas encore
+                      signe. C'est exactement ce que le tableau de bord annonce
+                      de son cote, « il reste a le certifier ». */}
                   <p className="statut-rappro">
-                    Le registre et les soldes par client concordent. <b>Le relevé bancaire doit
-                    encore être importé avant la certification</b> : le rapprochement du mois
-                    n&apos;est pas terminé.
+                    Les trois sources concordent, l&apos;écart est de 0,00 $ et aucune
+                    carte-client n&apos;est débitrice. <b>Équilibré, prêt à certifier</b> :
+                    la signature engage l&apos;avocate, elle ne se déclenche pas toute seule.
+                  </p>
+                </div>
+
+                {/* ── LA TRACE DE LA CORRECTION ──────────────────────────────
+                    Troisieme capacite du mouvement 4 : « Les operations,
+                    validations et corrections demeurent datees, attribuees et
+                    verifiables ». La section la promettait sans jamais la
+                    montrer : elle affichait un etat, pas une histoire.
+
+                    La carte de Simon Levesque la raconte en trois lignes, et
+                    elles sont REELLES : provision de 1 200,00 $ le 28 juin,
+                    retrait de 2 925,00 $ le 4 aout qui met la carte a
+                    -1 725,00 $, remise de la somme retiree en trop le 5 aout.
+
+                    C'est le seul endroit de la page qui PROUVE le garde-fou au
+                    lieu de l'affirmer : tant que la carte etait debitrice,
+                    reconciliation-service.ts refusait de certifier le mois.
+
+                    Le registre est append-only : la correction s'AJOUTE, elle
+                    ne remplace pas. La ligne fautive reste lisible, et c'est
+                    exactement ce qu'un inspecteur vient verifier.
+
+                    Libelles pris a messages/fr.json, espace « fideicommis » :
+                    « Dépôt », « Retrait », « Solde après opération ». */}
+                <div className="vue" data-fiche-vue="registre">
+                  <div className="carte-bloc">
+                    <div className="ct">
+                      <p className="ctt">Carte-client &middot; Simon Lévesque</p>
+                      <span>Registre append-only &middot; trois mouvements</span>
+                    </div>
+                    <table className="ha-tbl tbl-registre">
+                      <thead>
+                        <tr>
+                          <th>Date</th><th>Type</th><th>Description</th>
+                          <th style={{ textAlign: "right" }}>Montant</th>
+                          <th style={{ textAlign: "right" }}>Solde après opération</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="mono">2026-06-28</td>
+                          <td>Dépôt</td>
+                          <td>Provision reçue du client</td>
+                          <td className="num">1 200,00 $</td>
+                          <td className="num">1 200,00 $</td>
+                        </tr>
+                        <tr>
+                          <td className="mono">2026-08-04</td>
+                          <td>Retrait</td>
+                          <td>Débours payés pour le client</td>
+                          <td className="num">&minus; 2 925,00 $</td>
+                          <td className="num debiteur">&minus; 1 725,00 $</td>
+                        </tr>
+                        <tr>
+                          <td className="mono">2026-08-05</td>
+                          <td>Dépôt</td>
+                          <td>Correction : remise des fonds retirés en excédent</td>
+                          <td className="num">1 725,00 $</td>
+                          <td className="num">0,00 $</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="statut-rappro">
+                    Le 4 août, le retrait a dépassé la provision de 1 725,00 $ et la carte
+                    est passée en négatif. <b>SAFE a refusé de certifier le mois tant que
+                    la somme n&apos;était pas remise.</b> La ligne fautive n&apos;a pas été
+                    effacée : elle reste au registre, à côté de sa correction.
                   </p>
                 </div>
               </div>

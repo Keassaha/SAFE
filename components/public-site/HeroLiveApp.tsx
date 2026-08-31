@@ -292,10 +292,10 @@ export function HeroLiveApp() {
           <div className="ha-card" style={{ marginTop: 11 }}>
             <p className="ha-kicker">Les montants à surveiller</p>
             <div className="ha-tiles" style={{ marginTop: 11 }}>
-              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 89 275,00 $. Ouvrir l'écran.">
+              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 91 000,00 $. Ouvrir l'écran.">
                 <p className="lab">Fidéicommis</p>
                 <p className="sub">Sommes détenues pour vos clients</p>
-                <p className="val" style={{ fontSize: 21 }}>89 275,00 $</p>
+                <p className="val" style={{ fontSize: 21 }}>91 000,00 $</p>
                 <p className="sub" style={{ marginTop: 8 }}>7 clients avec des fonds · Rapprochement à faire</p>
               </div>
               {[
