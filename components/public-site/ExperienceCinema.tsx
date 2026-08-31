@@ -3131,9 +3131,43 @@ const CSS = `
     .xc .capacites { grid-template-columns: 1fr; gap: 22px; }
   }
 
-  /* Le solde debiteur, dans le registre : c'est le seul chiffre rouge de la
-     page, et il porte le propos de la section. */
-  .xc .fiche .tbl-registre .debiteur { color: var(--si-danger-ink, #a32d2d); }
+  /* ── L'ECRAN DES COMPTES EN FIDEICOMMIS ──────────────────────────────────
+     Bandeau d'inspection, les deux etats de conformite, quatre mesures,
+     quatre acces, la note sur les retraits. Releve sur capture le 2026-08-31. */
+  .xc .fiche .bandeau-insp {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin-top: 16px; padding: 14px 18px;
+    border-radius: 12px; background: var(--si-canvas);
+  }
+  .xc .fiche .bandeau-insp .t { font-size: 14px; font-weight: 500; color: var(--si-ink); }
+  .xc .fiche .bandeau-insp .d { margin-top: 2px; font-size: 12.5px; color: var(--si-muted); }
+
+  .xc .fiche .etat-conf {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 12px; padding: 16px 18px;
+    border: 1px solid var(--si-line); border-radius: 12px; background: var(--si-surface);
+  }
+  .xc .fiche .etat-conf .ic { font-size: 16px; flex: none; }
+  .xc .fiche .etat-conf .t { font-size: 14px; font-weight: 500; }
+  .xc .fiche .etat-conf .d { margin-top: 2px; font-size: 12.5px; }
+  /* Ce qui reste a faire porte l'ambre, ce qui est verifie porte le vert.
+     C'est le PRODUIT qui ecrit « aucun solde negatif » sur son propre ecran :
+     la vitrine n'a pas a l'affirmer, elle n'a qu'a le montrer. */
+  .xc .fiche .etat-conf.attente .t,
+  .xc .fiche .etat-conf.attente .d { color: var(--si-amber-ink); }
+  .xc .fiche .etat-conf.verifie .t { color: var(--si-verified); }
+
+  .xc .fiche .acces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .xc .fiche .note-retrait {
+    margin-top: 16px; padding: 16px 18px;
+    border: 1px solid var(--si-line); border-radius: 12px; background: var(--si-surface);
+    font-size: 13px; line-height: 1.5; color: var(--si-body);
+  }
+  .xc .fiche .note-retrait b { font-weight: 500; color: var(--si-ink); }
+  .xc .fiche .mesures .v.sortie { color: var(--si-amber-ink); }
+  .xc .fiche .tbl-fiducie { font-size: 12px; }
+  .xc .fiche .tbl-fiducie th,
+  .xc .fiche .tbl-fiducie td { padding-left: 5px; padding-right: 5px; }
 
   /* ── LES DEUX TABLEAUX ───────────────────────────────────────────────────
      Le dossier porte son numero EN VERT et le nom du client dessous ; le
@@ -3557,14 +3591,6 @@ const CSS = `
     margin-top: 18px; font-size: var(--t-corps); max-width: 64ch; line-height: 1.5;
   }
 
-  .xc .statut-rappro {
-    margin-top: 16px;
-    font-size: var(--t-detail);
-    color: var(--si-muted);
-    max-width: 64ch;
-    line-height: 1.5;
-  }
-  .xc .statut-rappro b { font-weight: 400; color: var(--si-amber-ink); }
 
   /* ── L'effet AB : une section sur deux change de fond ────────────────────
      Demande CEO. La page se lisait comme une seule surface continue, et rien
@@ -7319,138 +7345,146 @@ export default function ExperienceCinema() {
 
               <BarreAppVitrine actif="finances" />
 
-              <div className="fiche extrait-nav">
-                <div className="fiche-tete anime-bloc">
+              <div className="fiche">
+                {/* ── L'ECRAN /comptes, RECOPIE SUR CAPTURE ─────────────────
+                    Trois captures du CEO le 2026-08-31, apres la relance du
+                    simulateur. La version precedente inventait trois onglets —
+                    « Comptes (7) », « Rapprochement », « Registre » — qui
+                    n'existent nulle part : l'ecran n'a qu'une vue.
+
+                    Il enchaine : l'en-tete et son action, le bandeau
+                    d'inspection, l'alerte de rapprochement, le bandeau de
+                    surveillance, quatre mesures, quatre acces, la note sur les
+                    retraits, puis l'historique des transactions.
+
+                    ⚠ LA COLONNE « SOLDE » AFFICHE UN TIRET, partout.
+                    TransactionsTable.tsx ecrit « balanceAfter != null ? … :
+                    "—" », et le champ est nul sur toutes les lignes du jeu de
+                    demonstration. J'allais calculer un solde courant : ce
+                    serait un chiffre que l'ecran ne montre pas. */}
+                <div className="fiche-tete">
                   <div>
-                    <p className="retour">&lsaquo; Retour à la facturation</p>
+                    <p className="retour">
+                      <span className="lien">&lsaquo; Retour à la facturation</span>
+                    </p>
                     <h4>Comptes en fidéicommis</h4>
+                    <p className="fiche-sous">
+                      Dépôts, retraits et relevés du compte en fidéicommis par client et dossier.
+                    </p>
                   </div>
                   <div className="actes">
-                    <span className="bt">Relevé mensuel</span>
-                    <span className="bt">Inspection <i className="ext" aria-hidden /></span>
+                    <span className="bt principal">+ Ajouter une transaction</span>
                   </div>
                 </div>
 
-                <div className="onglets-fiche anime-bloc" role="tablist" aria-label="Le fidéicommis">
-                  <button type="button" role="tab" aria-selected="true" className="on" data-fiche-onglet="comptes">Comptes (7)</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="rappro">Rapprochement</button>
-                  <button type="button" role="tab" aria-selected="false" data-fiche-onglet="registre">Registre</button>
-                </div>
+                <div className="vues">
+                  <div className="vue on">
+                    {/* Le bandeau d'inspection, en tete d'ecran. */}
+                    <div className="bandeau-insp">
+                      <div>
+                        <p className="t">Inspection</p>
+                        <p className="d">Rapport mensuel, registres, trousse et le reste de ce qu&rsquo;un inspecteur demande.</p>
+                      </div>
+                      <span className="lien">Ouvrir</span>
+                    </div>
 
-                <div className="vue on" data-fiche-vue="comptes">
-                  <div className="totaux" style={{ marginTop: 18 }}>
-                    <div className="tot"><p className="k">Solde total</p><p className="v">91 000,00 $</p><p className="s">7 clients avec des fonds</p></div>
-                    <div className="tot"><p className="k">Dépôts du mois</p><p className="v">1 725,00 $</p><p className="s">une correction, le 5 août</p></div>
-                    <div className="tot"><p className="k">Retraits du mois</p><p className="v">2 925,00 $</p><p className="s">un retrait, le 4 août</p></div>
+                    {/* Les deux etats de conformite, tels que l'ecran les pose :
+                        ce qui reste a faire en ambre, ce qui est verifie en vert.
+
+                        ⚠ Le second est LE propos du mouvement 4. Ce n'est pas la
+                        vitrine qui affirme que le garde-fou mord, c'est le
+                        produit qui l'ecrit sur son propre ecran. */}
+                    <div className="etat-conf attente">
+                      <span className="ic" aria-hidden>&#9201;</span>
+                      <div>
+                        <p className="t">Rapprochement du fidéicommis à effectuer</p>
+                        <p className="d">La période 2026-07 doit être rapprochée et certifiée.</p>
+                      </div>
+                    </div>
+                    <div className="etat-conf verifie">
+                      <span className="ic" aria-hidden>&#128737;</span>
+                      <p className="t">Surveillance fidéicommis : aucun solde négatif ni fonds dormant.</p>
+                    </div>
+
+                    <div className="mesures">
+                      {[
+                        ["Solde total fidéicommis", "96 300,00 $", ""],
+                        ["Dépôts du mois", "0,00 $", ""],
+                        ["Retraits du mois", "23 700,00 $", "sortie"],
+                        ["Dossiers avec provision", "0", ""],
+                      ].map(([k, v, ton]) => (
+                        <div className="me" key={k}>
+                          <span className="k">{k}</span>
+                          <span className={"v" + (ton ? " " + ton : "")}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="acces">
+                      <span className="bt">Briefing du jour</span>
+                      <span className="bt">Rapprochement</span>
+                      <span className="bt">Rapports de conformité</span>
+                      <span className="bt">Tableau de sécurité</span>
+                    </div>
+
+                    <p className="note-retrait">
+                      Pour imputer un retrait à une facture ou voir les factures impayées pouvant
+                      être couvertes par le fidéicommis, utilisez le champ « Facture liée » dans le
+                      formulaire retrait ou consultez la <b>section Facturation</b>.
+                    </p>
+
+                    <div className="carte-bloc">
+                      <div className="ct">
+                        <p className="ctt">Historique des transactions</p>
+                        <span className="segments">
+                          <span>Tous les clients</span>
+                          <span>Tous les dossiers</span>
+                        </span>
+                      </div>
+                      {/* Onze mouvements, releves sur capture : six provisions
+                          de janvier a juillet, cinq retraits de debours en aout.
+                          120 000,00 $ deposes moins 23 700,00 $ retires font
+                          bien les 96 300,00 $ de la premiere mesure. */}
+                      <table className="ha-tbl tbl-fiducie">
+                        <thead>
+                          <tr>
+                            <th>Date</th><th>Client</th><th>Dossier</th><th>Type</th>
+                            <th>Description</th><th>Référence</th>
+                            <th style={{ textAlign: "right" }}>Dépôt</th>
+                            <th style={{ textAlign: "right" }}>Retrait</th>
+                            <th style={{ textAlign: "right" }}>Solde</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            ["2026-08-28", "Simon Lévesque", "Retrait", "", "2 800,00 $"],
+                            ["2026-08-26", "Jean-Christophe Pelletier", "Retrait", "", "5 500,00 $"],
+                            ["2026-08-20", "Ateliers Beauport inc.", "Retrait", "", "7 600,00 $"],
+                            ["2026-08-17", "Sophie Côté", "Retrait", "", "4 500,00 $"],
+                            ["2026-08-07", "Groupe immobilier Sainte-Foy ltée", "Retrait", "", "3 300,00 $"],
+                            ["2026-07-09", "Simon Lévesque", "Dépôt", "12 300,00 $", ""],
+                            ["2026-06-21", "Ateliers Beauport inc.", "Dépôt", "25 400,00 $", ""],
+                            ["2026-05-16", "Groupe immobilier Sainte-Foy ltée", "Dépôt", "21 300,00 $", ""],
+                            ["2026-03-04", "Étienne Lafleur", "Dépôt", "18 200,00 $", ""],
+                            ["2026-01-29", "Sophie Côté", "Dépôt", "24 700,00 $", ""],
+                            ["2026-01-16", "Jean-Christophe Pelletier", "Dépôt", "18 100,00 $", ""],
+                          ].map(([d, cl, type, dep, ret]) => (
+                            <tr key={d + cl}>
+                              <td className="mono">{d}</td>
+                              <td>{cl}</td>
+                              <td className="vide">&mdash;</td>
+                              <td>{type}</td>
+                              <td>{type === "Dépôt" ? "Provision reçue du client" : "Débours payés pour le client"}</td>
+                              <td className="vide">&mdash;</td>
+                              <td className="num">{dep || <span className="vide">&mdash;</span>}</td>
+                              <td className="num">{ret || <span className="vide">&mdash;</span>}</td>
+                              <td className="num vide">&mdash;</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Sommes détenues, client par client</p>
-                      <span>Chaque somme appartient à quelqu&apos;un</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>Gestion Outremont inc.</span><span className="v">21 800,00 $</span></div>
-                      <div className="lg"><span>Marc Bouchard</span><span className="v">16 900,00 $</span></div>
-                      <div className="lg"><span>Distribution Beauport s.e.n.c.</span><span className="v">16 700,00 $</span></div>
-                      <div className="lg"><span>Félix Gagnon</span><span className="v">13 200,00 $</span></div>
-                      <div className="lg"><span>Jean-Christophe Côté</span><span className="v">11 500,00 $</span></div>
-                      <div className="lg"><span>Olivier Gagnon</span><span className="v">8 800,00 $</span></div>
-                      <div className="lg"><span>Distribution Rive-Sud ltée</span><span className="v">2 100,00 $</span></div>
-                      <div className="lg"><span>Simon Lévesque</span><span className="v">0,00 $</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="vue" data-fiche-vue="rappro">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Trois sources, une comparaison</p>
-                      <span>Ce qui doit concorder chaque mois</span>
-                    </div>
-                    <div className="lignes">
-                      <div className="lg"><span>01 · Le relevé de la banque<br /><small>ce que l&apos;institution dit détenir</small></span><span className="v">91 000,00 $</span></div>
-                      <div className="lg"><span>02 · Le registre de fidéicommis<br /><small>neuf dépôts, un retrait</small></span><span className="v">91 000,00 $</span></div>
-                      <div className="lg"><span>03 · La somme des soldes par client<br /><small>ce qui appartient à chacun</small></span><span className="v">91 000,00 $</span></div>
-                      <div className="lg"><span>Écart entre le registre et les clients</span><span className="v">0,00 $</span></div>
-                    </div>
-                  </div>
-                  {/* L'etat REEL du rapprochement 2026-07 : « complete », mais
-                      « certifiedAt » a null. Calcule et equilibre, pas encore
-                      signe. C'est exactement ce que le tableau de bord annonce
-                      de son cote, « il reste a le certifier ». */}
-                  <p className="statut-rappro">
-                    Les trois sources concordent, l&apos;écart est de 0,00 $ et aucune
-                    carte-client n&apos;est débitrice. <b>Équilibré, prêt à certifier</b> :
-                    la signature engage l&apos;avocate, elle ne se déclenche pas toute seule.
-                  </p>
-                </div>
-
-                {/* ── LA TRACE DE LA CORRECTION ──────────────────────────────
-                    Troisieme capacite du mouvement 4 : « Les operations,
-                    validations et corrections demeurent datees, attribuees et
-                    verifiables ». La section la promettait sans jamais la
-                    montrer : elle affichait un etat, pas une histoire.
-
-                    La carte de Simon Levesque la raconte en trois lignes, et
-                    elles sont REELLES : provision de 1 200,00 $ le 28 juin,
-                    retrait de 2 925,00 $ le 4 aout qui met la carte a
-                    -1 725,00 $, remise de la somme retiree en trop le 5 aout.
-
-                    C'est le seul endroit de la page qui PROUVE le garde-fou au
-                    lieu de l'affirmer : tant que la carte etait debitrice,
-                    reconciliation-service.ts refusait de certifier le mois.
-
-                    Le registre est append-only : la correction s'AJOUTE, elle
-                    ne remplace pas. La ligne fautive reste lisible, et c'est
-                    exactement ce qu'un inspecteur vient verifier.
-
-                    Libelles pris a messages/fr.json, espace « fideicommis » :
-                    « Dépôt », « Retrait », « Solde après opération ». */}
-                <div className="vue" data-fiche-vue="registre">
-                  <div className="carte-bloc">
-                    <div className="ct">
-                      <p className="ctt">Carte-client &middot; Simon Lévesque</p>
-                      <span>Registre append-only &middot; trois mouvements</span>
-                    </div>
-                    <table className="ha-tbl tbl-registre">
-                      <thead>
-                        <tr>
-                          <th>Date</th><th>Type</th><th>Description</th>
-                          <th style={{ textAlign: "right" }}>Montant</th>
-                          <th style={{ textAlign: "right" }}>Solde après opération</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="mono">2026-06-28</td>
-                          <td>Dépôt</td>
-                          <td>Provision reçue du client</td>
-                          <td className="num">1 200,00 $</td>
-                          <td className="num">1 200,00 $</td>
-                        </tr>
-                        <tr>
-                          <td className="mono">2026-08-04</td>
-                          <td>Retrait</td>
-                          <td>Débours payés pour le client</td>
-                          <td className="num">&minus; 2 925,00 $</td>
-                          <td className="num debiteur">&minus; 1 725,00 $</td>
-                        </tr>
-                        <tr>
-                          <td className="mono">2026-08-05</td>
-                          <td>Dépôt</td>
-                          <td>Correction : remise des fonds retirés en excédent</td>
-                          <td className="num">1 725,00 $</td>
-                          <td className="num">0,00 $</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p className="statut-rappro">
-                    Le 4 août, le retrait a dépassé la provision de 1 725,00 $ et la carte
-                    est passée en négatif. <b>SAFE a refusé de certifier le mois tant que
-                    la somme n&apos;était pas remise.</b> La ligne fautive n&apos;a pas été
-                    effacée : elle reste au registre, à côté de sa correction.
-                  </p>
                 </div>
               </div>
             </figure>
