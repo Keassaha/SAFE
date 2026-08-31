@@ -2731,8 +2731,20 @@ const CSS = `
       border-right: 0; border-bottom: 1px solid var(--si-line);
     }
   }
-  /* Les blocs de la vue d'ensemble s'empilent, comme space-y-5. */
-  .xc .fiche .vue > .carte-bloc + .carte-bloc { margin-top: 20px; }
+  /* ── LE RYTHME VERTICAL D'UN PANNEAU ─────────────────────────────────────
+     Vingt pixels entre DEUX BLOCS QUELCONQUES, et non entre deux cartes.
+
+     La regle ne visait que « .carte-bloc + .carte-bloc ». Une rangee de
+     totaux suivie d'une carte tombait donc a ZERO pixel, ce que le CEO a vu le
+     2026-08-31 dans la fenetre du fideicommis. Le defaut n'etait pas a cet
+     endroit-la : il attendait n'importe quel bloc qui ne serait pas une carte.
+
+     « > * + * » le ferme pour de bon, y compris pour les blocs qu'on ajoutera
+     plus tard. Le premier enfant est remis a zero : c'est le rembourrage du
+     panneau qui le tient, et une marge par-dessus le decalerait de ses voisins
+     dans les autres onglets. */
+  .xc .fiche .vue > * + * { margin-top: 20px; }
+  .xc .fiche .vue > :first-child { margin-top: 0; }
   .xc .fiche .alertes {
     margin-top: 18px; padding: 14px 18px; border-radius: 10px;
     border: 1px solid rgb(138 100 18 / 0.30); background: rgb(138 100 18 / 0.07);
