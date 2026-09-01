@@ -6525,7 +6525,7 @@ export default function ExperienceCinema() {
             <figure className="fenetre-produit contour-fondu">
               <div className="barre-fenetre">
                 <span className="pastilles-fenetre" aria-hidden><i /><i /><i /></span>
-                <span><em>SAFE</em> · Gagnon, Félix · dossier 2026-028</span>
+                <span><em>SAFE</em> · Lafleur, Étienne · dossier 2026-063</span>
                 <span className="ecart" />
                 <span>Pratique · Dossiers</span>
               </div>
@@ -6544,11 +6544,20 @@ export default function ExperienceCinema() {
               <BarreAppVitrine actif="pratique" />
 
               <div className="fiche extrait-nav">
+                {/* ⚠ RECABLEE LE 2026-08-31, apres la relance du simulateur.
+                    Le dossier 2026-028 et le client « Gagnon, Félix » n'existent
+                    plus : la regeneration du cabinet de demonstration les a
+                    emportes. Toute valeur ci-dessous est relue en base sur le
+                    dossier 2026-063 « Lafleur — droit de la famille ».
+
+                    A RETENIR : ce cablage est manuel, donc il meurt a chaque
+                    relance de scripts/simuler-activite.mjs. Voir la note de fin
+                    de section. */}
                 {/* ── L'EN-TETE DE L'ECRAN REEL ──────────────────────────
                     Le dossier illustre est passe au DROIT DE LA FAMILLE le
                     2026-08-29, sur demande du CEO.
 
-                    2026-028 « Gagnon — droit de la famille », client Gagnon,
+                    2026-063 « Lafleur — droit de la famille », client Lafleur,
                     Felix, ouvert le 17 avril 2026, statut actif, Me Camille Roy
                     responsable et Aaliyah Côté adjointe. Une note interne, une
                     échéance et sa tâche associée y sont maintenant portées.
@@ -6568,9 +6577,9 @@ export default function ExperienceCinema() {
                     <p className="retour">
                       <span className="lien">&larr; Retour &agrave; la liste</span>
                       <span className="pt">&middot;</span>
-                      <span>Gagnon, F&eacute;lix</span>
+                      <span>Lafleur, &Eacute;tienne</span>
                     </p>
-                    <h4>2026-028 &mdash; Gagnon &mdash; droit de la famille</h4>
+                    <h4>2026-063 &mdash; Lafleur &mdash; droit de la famille</h4>
                     {/* Les pastilles vivent SOUS le titre, pas a droite : c'est
                         l'ordre de l'ecran. Ce sont des rectangles arrondis
                         (rounded-lg) et non des gelules, et l'etat ne porte
@@ -6653,8 +6662,8 @@ export default function ExperienceCinema() {
                   <p className="ctt">Le dossier</p>
                   <div className="lignes">
                     <div className="lg"><span>Domaine de pratique</span><span className="v">droit famille</span></div>
-                    <div className="lg"><span>Client</span><span className="v">Gagnon, F&eacute;lix</span></div>
-                    <div className="lg"><span>Ouvert le</span><span className="v">17 avril 2026 <em>&middot; il y a 134 jours</em></span></div>
+                    <div className="lg"><span>Client</span><span className="v">Lafleur, &Eacute;tienne</span></div>
+                    <div className="lg"><span>Ouvert le</span><span className="v">14 juin 2026 <em>&middot; il y a 78 jours</em></span></div>
                     <div className="lg"><span>Statut</span><span className="v">Actif</span></div>
                     <div className="lg"><span>Avocat responsable</span><span className="v">Me Camille Roy</span></div>
                     <div className="lg"><span>Adjointe</span><span className="v">Aaliyah Côté</span></div>
@@ -6699,12 +6708,12 @@ export default function ExperienceCinema() {
                 </div>
 
                 {/* ⚠ « Personnes du dossier » a ete RETIRE le 2026-08-29, avec
-                    le passage au dossier de famille 2026-028.
+                    le passage au dossier de famille 2026-063.
 
                     Le bloc n'existe a l'ecran QUE si le dossier reunit plus
                     d'une personne : app/(app)/dossiers/[id]/page.tsx le garde
                     derriere « dossierParties.some((p) => !p.estPrincipal) ».
-                    Le dossier 2026-028 ne porte AUCUNE partie en base, releve
+                    Le dossier 2026-063 ne porte AUCUNE partie en base, releve
                     le 2026-08-29. Le garder aurait invente trois personnes sur
                     un dossier qui n'en a qu'une, ce que la regle interne du
                     2026-08-14 interdit. */}
@@ -6825,7 +6834,7 @@ export default function ExperienceCinema() {
                     {/* ⚠ La ligne « 5 dates a saisir » a ete RETIREE le
                         2026-08-29 : ce compte appartenait au dossier
                         immobilier 2026-017, et rien ne dit qu'il vaut pour
-                        2026-028. Reporter un chiffre d'un dossier sur un autre
+                        2026-063. Reporter un chiffre d'un dossier sur un autre
                         est exactement la faute que cette section a deja
                         commise une fois. */}
                     <div className="lignes">
@@ -6849,7 +6858,7 @@ export default function ExperienceCinema() {
 
                 La mention n'avait plus grand-chose a signaler depuis le
                 2026-08-29 : PLUS RIEN n'est reconstruit dans cette fiche, le
-                dossier 2026-028 est reel et chacune de ses valeurs est lue en
+                dossier 2026-063 est reel et chacune de ses valeurs est lue en
                 base. Elle ne disait donc plus que « le cabinet est un cabinet
                 de demonstration », ce que la barre de la fenetre montre deja.
 
@@ -7002,8 +7011,8 @@ export default function ExperienceCinema() {
                       <div className="carte-bloc mesures">
                         {[
                           ["Cette semaine", "0.0 h", "Heures"],
-                          ["Ce mois", "64.5 h", "Heures"],
-                          ["Non facturé", "118 881,25 $", "Montant à facturer"],
+                          ["Ce mois", "183.3 h", "Heures"],
+                          ["Non facturé", "128 337,50 $", "Montant à facturer"],
                           ["Taux facturable", "89 %", "Entrées facturables"],
                         ].map(([k, v, sub]) => (
                           <div className="me" key={k}>
@@ -7017,10 +7026,10 @@ export default function ExperienceCinema() {
                       <div className="carte-bloc">
                         <div className="ct">
                           <p className="ctt">Historique des entrées</p>
-                          <span>218 entrée(s)</span>
+                          <span>236 entrée(s)</span>
                         </div>
                         <div className="onglets-fiche onglets-temps">
-                          <button type="button" className="on">Actives <small>(218)</small></button>
+                          <button type="button" className="on">Actives <small>(236)</small></button>
                           <button type="button">Archives (facturées) <small>(0)</small></button>
                         </div>
 
@@ -7061,11 +7070,11 @@ export default function ExperienceCinema() {
                           </thead>
                           <tbody>
                             {[
-                              ["2026-08-11", "2026-042", "Services Longueuil inc.", "Conférence de gestion", "2,5 h", "875,00 $", "350,00 $/h"],
-                              ["2026-08-11", "2026-035", "Vincent Bouchard", "Séance de signature", "1,5 h", "412,50 $", "275,00 $/h"],
-                              ["2026-08-11", "2026-019", "Gestion Rosemont ltée", "Dépôt de la demande", "1,5 h", "375,00 $", "250,00 $/h"],
-                              ["2026-08-11", "2026-001", "Marie Tremblay", "Analyse du dossier et stratégie", "1,5 h", "375,00 $", "250,00 $/h"],
-                              ["2026-08-10", "2026-043", "Services Longueuil inc.", "Rédaction de la demande", "2 h", "550,00 $", "275,00 $/h"],
+                              ["2026-08-30", "2026-092", "Services Longueuil inc.", "Conférence de gestion", "2,5 h", "875,00 $", "350,00 $/h"],
+                              ["2026-08-30", "2026-084", "Dubois, Josée", "Montage du dossier", "4 h", "1 000,00 $", "250,00 $/h"],
+                              ["2026-08-29", "2026-093", "Services Longueuil inc.", "Rédaction de la demande", "2 h", "550,00 $", "275,00 $/h"],
+                              ["2026-08-29", "2026-061", "Coopérative Outremont ltée", "Négociation", "1,5 h", "450,00 $", "300,00 $/h"],
+                              ["2026-08-29", "2026-061", "Coopérative Outremont ltée", "Convention entre actionnaires", "1,75 h", "525,00 $", "300,00 $/h"],
                             ].map(([d, dos, cl, desc, h, m, taux]) => (
                               <tr key={dos + d + desc}>
                                 <td className="mono">{d}</td>
@@ -7087,8 +7096,8 @@ export default function ExperienceCinema() {
                           </tbody>
                         </table>
                         <div className="pagination">
-                          <span>1&ndash;20 sur 218 entrée(s)</span>
-                          <span className="dr">&lsaquo; Précédent &nbsp; Page 1 / 11 &nbsp; Suivant &rsaquo;</span>
+                          <span>1&ndash;20 sur 236 entrée(s)</span>
+                          <span className="dr">&lsaquo; Précédent &nbsp; Page 1 / 12 &nbsp; Suivant &rsaquo;</span>
                         </div>
                       </div>
                     </div>
@@ -7138,9 +7147,9 @@ export default function ExperienceCinema() {
                         </div>
                         <div className="lignes">
                           {[
-                            ["Facturé ce mois", "Ce que vous avez facturé. Pas encore encaissé.", "2 004,88 $", ""],
-                            ["Encaissé ce mois", "L’argent réellement reçu de vos clients.", "1 042,54 $", ""],
-                            ["Reste à recevoir", "Ce que vos clients vous doivent encore.", "38 060,20 $", ""],
+                            ["Facturé ce mois", "Ce que vous avez facturé. Pas encore encaissé.", "15 924,06 $", ""],
+                            ["Encaissé ce mois", "L’argent réellement reçu de vos clients.", "19 373,82 $", ""],
+                            ["Reste à recevoir", "Ce que vos clients vous doivent encore.", "33 133,61 $", ""],
                             ["Dépenses", "Les sorties d’argent du cabinet.", "0,00 $", ""],
                             ["Fidéicommis", "Argent du client, séparé du cabinet. Jamais un revenu.", "0,00 $", "Argent du client"],
                           ].map(([k, d, v, pastille]) => (
@@ -7196,22 +7205,22 @@ export default function ExperienceCinema() {
                           </thead>
                           <tbody>
                             <tr>
-                              <td className="mono">2026-08-05</td>
+                              <td className="mono">2026-08-30</td>
                               <td><span className="pastille-nf"><i aria-hidden />Paiement reçu</span></td>
-                              <td>Clinique Longueuil inc.</td>
-                              <td className="vide">&mdash;</td>
-                              <td>Paiement reçu</td>
+                              <td>Lafleur, Étienne</td>
+                              <td className="mono">2026-063</td>
+                              <td>Paiement reçu &mdash; facture 2026-008</td>
                               <td className="num vide">&mdash;</td>
-                              <td className="num baisse">- 1 042,54 $</td>
-                              <td className="num hausse">+ 1 042,54 $</td>
+                              <td className="num baisse">- 407,44 $</td>
+                              <td className="num hausse">+ 407,44 $</td>
                             </tr>
                             <tr>
-                              <td className="mono">2026-08-02</td>
+                              <td className="mono">2026-08-10</td>
                               <td><span className="pastille-nf"><i aria-hidden />Facture envoyée</span></td>
-                              <td>Clinique Longueuil inc.</td>
-                              <td className="mono">2026-015</td>
-                              <td>Facture 2026-008</td>
-                              <td className="num du">2 004,88 $</td>
+                              <td>Lafleur, Étienne</td>
+                              <td className="mono">2026-063</td>
+                              <td>Facture 2026-008 &mdash; Étienne Lafleur</td>
+                              <td className="num du">1 358,14 $</td>
                               <td className="num vide">&mdash;</td>
                               <td className="num vide">&mdash;</td>
                             </tr>
