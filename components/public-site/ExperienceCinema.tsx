@@ -5389,6 +5389,11 @@ function runExperience(root: HTMLElement): () => void {
       heroShot.style.transform = "";
       heroShot.style.borderRadius = "";
       heroShot.style.display = "";
+      /* Meme raison pour la hauteur de zone posee par le chemin large : au
+         pouce c'est la feuille de style qui la tient, en 132svh. Sans cet
+         effacement, une fenetre retrecie sous le seuil du telephone gardait la
+         hauteur calculee pour le bureau. */
+      heroZone.style.height = "";
       /* L'opacité appartient à l'assemblage tant qu'il tourne. Une fois posée
          à 1 par sa dernière image, elle n'est plus touchée. */
       if (!assemblageEnCours) heroShot.style.opacity = "";
@@ -5435,7 +5440,32 @@ function runExperience(root: HTMLElement): () => void {
       heroCaption.style.transform = "none";
     }
     heroHint.style.opacity = "0";
-    pin.style.minHeight = (haut + FRAME_H * scale + 108) + "px";
+
+    /* ── La zone suit son epingle ──────────────────────────────────────────
+       `besoin`, c'est la place que la fenetre reclame : le texte, la fenetre a
+       son echelle, et 108 px pour respirer sous elle.
+
+       Cette mesure n'etait posee que sur l'epingle. La ZONE, elle, gardait sa
+       hauteur de feuille de style, 118vh, sans rapport avec ce que la fenetre
+       demande. Quand `besoin` depassait 118vh, l'epingle sortait de sa zone,
+       et comme le mouvement 2 commence exactement au bas de cette zone, la
+       fenetre se peignait par-dessus son titre.
+
+       Le defaut n'est pas ne avec l'agrandissement a 820 : a 640 deja, une vue
+       de 1280x720 le montrait, la fenetre depassant de 62 px. L'agrandissement
+       l'a simplement rendu visible partout. Mesure du 2026-09-01, fenetre
+       par-dessus le titre du mouvement 2 : 212 px a 1280x720, 88 a 1440x900,
+       27 a 1512x982.
+
+       La zone prend donc la mesure de ce qu'elle porte. Le plancher a une vue
+       garde son role a l'epingle quand la fenetre demande moins que l'ecran.
+
+       Consequence assumee : sur un ecran court, le mouvement 2 commence plus
+       bas qu'avant. C'est la place que la fenetre occupe reellement, et la
+       cacher n'etait pas la gagner. */
+    const besoin = haut + FRAME_H * scale + 108;
+    pin.style.minHeight = besoin + "px";
+    heroZone.style.height = Math.max(besoin, window.innerHeight) + "px";
   }
 
   /* ── Une seule mécanique pour les deux démonstrations ────────────────────
