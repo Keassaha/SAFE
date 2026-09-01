@@ -560,7 +560,7 @@ const CSS = `
        deux doivent bouger ensemble, sinon le canevas d'assemblage dépose le
        logo à côté du repère. */
     width: 1360px;
-    height: 640px;
+    height: 820px;
     transform-origin: top left;
     background: var(--si-canvas);
     overflow: hidden;
@@ -4986,11 +4986,34 @@ function runExperience(root: HTMLElement): () => void {
      Les facteurs se lisent directement : `frameH = H * 0.78` et, quand la
      largeur borne, `frameW = W * 0.88`. */
   const FRAME_W = 1360;
-  /* 640 et non 772 : l'extrait ne remplit que 550 px de sa boîte, et les 220
-     restants n'étaient que du canevas d'application vide sous son contenu.
-     Une boîte à la mesure de ce qu'elle porte laisse la largeur borner, donc
-     la fenêtre s'élargit au lieu de s'allonger dans le vide. */
-  const FRAME_H = 640;
+  /* 820, et non plus 640.
+
+     Le 640 datait d'un extrait qui ne remplissait que 550 px de sa boîte : on
+     avait raccourci la boîte pour ne pas peindre du canevas vide. Ce n'est
+     plus la situation. Le tableau de bord de `HeroLiveApp` mesure aujourd'hui
+     1664 px, donc la boîte ne borne plus du vide, elle COUPE de l'application.
+
+     À 640, le diagramme des flux et les ratios n'étaient que deux titres posés
+     dans le fondu : on lisait « Flux du cabinet » sans jamais voir une barre.
+     À 820, le diagramme entre avec son axe et ses six mois, et le fondu se
+     referme sur les performances, ce qui est sa place.
+
+     Le fondu n'est pas touché : son masque est en POURCENTAGE de la boîte, il
+     garde donc la même proportion et se contente de commencer plus bas.
+
+     La boîte reste plus courte que le contenu, et c'est voulu : la fenêtre est
+     un aperçu, pas la page entière. Choix CEO du 2026-09-01, sur planche
+     comparative de quatre hauteurs.
+
+     ⚠ Cette constante sert AUSSI au canevas d'assemblage, plus bas, et les
+     deux ne la lisent pas avec la même formule : le chemin vivant borne sur la
+     largeur seule, l'assemblage borne sur `H / FRAME_H`, donc sur la hauteur de
+     l'écran. Tant que `ASSEMBLAGE_OUVERTURE` vaut false, ce second chemin
+     dort et l'allongement est sans effet sur lui. Vérifié le 2026-09-01 : le
+     canevas n'est jamais dimensionné ni peint. Le jour où l'assemblage est
+     rallumé, il faudra revérifier ici : à 820 la hauteur devient la contrainte
+     active sous environ 875 px de fenêtre, là où 640 la laissait inactive. */
+  const FRAME_H = 820;
   /* ── L'assemblage de la marque ────────────────────────────────────────────
      La scène d'ouverture, et la seule chose de la page qui DÉMONTRE le titre
      au lieu de l'affirmer : des pièces éparpillées se rassemblent en une
