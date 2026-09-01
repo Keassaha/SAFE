@@ -17,6 +17,26 @@
  *
  * CHIFFRES : relevés en base sur le Cabinet Demo (Me Camille Roy), pas
  * inventés. Voir docs/journal si la donnée de démonstration change.
+ *
+ * ── ⚠ CE CÂBLAGE EST MANUEL, ET IL MEURT À CHAQUE SIMULATION ───────────────
+ * `scripts/simuler-activite.mjs` régénère le cabinet de démonstration à partir
+ * d'un tirage déterministe. Changer le script décale le tirage, donc les noms,
+ * les numéros de dossier et les montants. Les chiffres ci-dessous ne suivent
+ * pas : ils sont écrits à la main. Après toute relance du simulateur, ils
+ * mentent en silence, et rien ne casse.
+ *
+ * Relevé le 2026-09-01, sur l'état du cabinet AU 31 AOÛT 2026. Cette date est
+ * le dernier jour porteur de données : le simulateur s'arrête là. La fenêtre
+ * l'affiche donc dans sa bande d'état, et « ce mois » veut dire août.
+ *
+ * Les agrégats appliquent les formules du produit, pas des formules d'ici :
+ *   taux d'encaissement = paiements du mois / facturé du mois  (donc > 100 %
+ *     quand on encaisse d'anciennes factures, ce qui est le cas en août) ;
+ *   cash non reçu       = facturé du mois - encaissé du mois ;
+ *   heures facturées    = entrées dont `statut === "facture"` ;
+ *   valeur non facturée = entrées `facturable` et `statut != "facture"` ;
+ *   solde de fidéicommis = somme brute de TrustTransaction.amount, les
+ *     retraits y étant déjà négatifs (getGlobalTrustBalance).
  */
 
 /* ── Menus ────────────────────────────────────────────────────────────────
@@ -126,14 +146,17 @@ const MENUS: {
   { id: "parametres", label: "Param\u00e8tres", screen: "parametres" },
 ];
 
-/** Créances réelles, triées par échéance (les 6 plus anciennes). */
+/* Créances réelles, triées par échéance (les 6 plus anciennes).
+   Le nom du client suit `nomClient()` de app/(app)/facturation/page.tsx : une
+   personne physique s'écrit « Nom, Prénom », jamais le patronyme seul. La
+   réplique écrivait « Pelletier » là où l'écran écrit « Pelletier, Manon ». */
 const CREANCES: { num: string; client: string; total: string; solde: string; ech: string; etat: "retard" | "partiel" }[] = [
-  { num: "2026-011", client: "Tremblay", total: "1 616,83 $", solde: "1 616,83 $", ech: "24/01", etat: "retard" },
-  { num: "2026-003", client: "Groupe immobilier Sainte-Foy ltée", total: "2 917,50 $", solde: "1 517,10 $", ech: "29/04", etat: "partiel" },
-  { num: "2026-021", client: "Lévesque", total: "1 293,47 $", solde: "672,60 $", ech: "15/05", etat: "partiel" },
-  { num: "2026-025", client: "Bouchard", total: "948,54 $", solde: "350,96 $", ech: "24/05", etat: "partiel" },
-  { num: "2026-002", client: "Pelletier", total: "5 533,18 $", solde: "5 533,18 $", ech: "11/06", etat: "retard" },
-  { num: "2026-004", client: "Groupe immobilier Sainte-Foy ltée", total: "1 911,46 $", solde: "955,73 $", ech: "14/06", etat: "partiel" },
+  { num: "2026-032", client: "Clinique Hochelaga s.e.n.c.", total: "1 034,78 $", solde: "1 034,78 $", ech: "07/05", etat: "retard" },
+  { num: "2026-003", client: "Groupe immobilier Sainte-Foy ltée", total: "2 917,50 $", solde: "1 517,10 $", ech: "18/05", etat: "partiel" },
+  { num: "2026-016", client: "Tremblay, Nadia", total: "2 522,27 $", solde: "958,46 $", ech: "11/06", etat: "partiel" },
+  { num: "2026-011", client: "Groupe immobilier Rosemont ltée", total: "5 935,59 $", solde: "2 789,73 $", ech: "26/06", etat: "partiel" },
+  { num: "2026-002", client: "Pelletier, Manon", total: "5 533,18 $", solde: "5 533,18 $", ech: "30/06", etat: "retard" },
+  { num: "2026-014", client: "Lafleur, Olivier", total: "3 240,86 $", solde: "3 240,86 $", ech: "02/07", etat: "retard" },
 ];
 
 export function HeroLiveApp() {
@@ -260,11 +283,11 @@ export function HeroLiveApp() {
                   ambre quand l'alerte parle de retard ou de fidéicommis, verte
                   sinon (le test est dans DashboardViewSafe). */}
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="facturation" role="button" tabIndex={0}>
-                <i className="warn" aria-hidden />15 facture(s) en retard
+                <i className="warn" aria-hidden />13 facture(s) en retard
                 <b aria-hidden>↗</b>
               </div>
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="temps" role="button" tabIndex={0}>
-                <i aria-hidden />118 881,25 $ en heures non facturées
+                <i aria-hidden />128 337,50 $ en heures non facturées
                 <b aria-hidden>↗</b>
               </div>
             </div>
@@ -279,12 +302,12 @@ export function HeroLiveApp() {
              donc dans le corps, et il ne vit plus que dans ce panneau.
              Séparateurs et date en chasse fixe, comme ComplianceStrip. */}
           <div className="ha-strip">
-            <span className="s"><i aria-hidden />Dossiers actifs <b>43</b></span>
+            <span className="s"><i aria-hidden />Dossiers actifs <b>50</b></span>
             <span className="sep" aria-hidden />
-            <span className="s"><i aria-hidden />Clients actifs <b>25</b></span>
+            <span className="s"><i aria-hidden />Clients actifs <b>26</b></span>
             <span className="sep" aria-hidden />
             <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
-            <span className="date">samedi 29 août 2026</span>
+            <span className="date">lundi 31 août 2026</span>
           </div>
 
           {/* Les montants à surveiller : fidéicommis sur deux colonnes, comme
@@ -292,16 +315,16 @@ export function HeroLiveApp() {
           <div className="ha-card" style={{ marginTop: 11 }}>
             <p className="ha-kicker">Les montants à surveiller</p>
             <div className="ha-tiles" style={{ marginTop: 11 }}>
-              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 91 000,00 $. Ouvrir l'écran.">
+              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 96 300,00 $. Ouvrir l'écran.">
                 <p className="lab">Fidéicommis</p>
                 <p className="sub">Sommes détenues pour vos clients</p>
-                <p className="val" style={{ fontSize: 21 }}>91 000,00 $</p>
-                <p className="sub" style={{ marginTop: 8 }}>7 clients avec des fonds · Rapprochement à faire</p>
+                <p className="val" style={{ fontSize: 21 }}>96 300,00 $</p>
+                <p className="sub" style={{ marginTop: 8 }}>6 clients avec des fonds · Rapprochement à faire</p>
               </div>
               {[
-                { lab: "Créances", sub: "Reste à recevoir", val: "38 060,20 $" },
-                { lab: "Encaissements", sub: "Encaissé ce mois", val: "3 362,17 $" },
-                { lab: "Facturation", sub: "Facturé ce mois", val: "2 004,88 $" },
+                { lab: "Créances", sub: "Reste à recevoir", val: "33 133,61 $" },
+                { lab: "Encaissements", sub: "Encaissé ce mois", val: "19 373,82 $" },
+                { lab: "Facturation", sub: "Facturé ce mois", val: "15 924,06 $" },
               ].map((t) => (
                 <div
                   key={t.lab}
@@ -349,23 +372,33 @@ export function HeroLiveApp() {
               </div>
               <div className="ha-plot">
                 <div className="ha-axe" aria-hidden>
-                  <span>28 k$</span>
-                  <span>21 k$</span>
-                  <span>14 k$</span>
-                  <span>7 k$</span>
+                  <span>24 k$</span>
+                  <span>18 k$</span>
+                  <span>12 k$</span>
+                  <span>6 k$</span>
                   <span>0 $</span>
                 </div>
                 <div className="ha-bars">
                   <span className="ha-grille" aria-hidden>
                     <i /><i /><i /><i /><i />
                   </span>
+                  {/* Six mois glissants a rebours du 31 aout, donc mars a aout.
+                      Hauteurs en pourcentage du plafond d'axe (24 k$) a partir
+                      des montants reels : mars 0 et 0 ; avril 21 787,79 et
+                      19 235,91 ; mai 16 966,02 et 7 684,65 ; juin 10 110,63 et
+                      1 549,87 ; juillet 23 965,13 et 17 630,01 ; aout 15 924,06
+                      et 9 519,58.
+
+                      Mars reste VIDE, et c'est voulu : le cabinet de
+                      demonstration commence en avril. Une colonne inventee
+                      pour meubler serait une donnee fausse. */}
                   {[
-                    { m: "mars", f: 50, e: 27 },
-                    { m: "avr.", f: 51, e: 54 },
-                    { m: "mai", f: 40, e: 34 },
-                    { m: "juin", f: 50, e: 23 },
-                    { m: "juill.", f: 93, e: 29 },
-                    { m: "août", f: 5, e: 8 },
+                    { m: "mars", f: 0, e: 0 },
+                    { m: "avr.", f: 91, e: 80 },
+                    { m: "mai", f: 71, e: 32 },
+                    { m: "juin", f: 42, e: 6 },
+                    { m: "juill.", f: 100, e: 73 },
+                    { m: "août", f: 66, e: 40 },
                   ].map((b) => (
                     <div className="ha-bar-grp" key={b.m}>
                       <div className="ha-bar-pair">
@@ -388,11 +421,15 @@ export function HeroLiveApp() {
               <p className="ha-titre-carte">Ce que ça donne</p>
               <div style={{ marginTop: 3 }}>
                 {[
-                  { k: "Taux d’encaissement", v: "168 %", a: "Part du facturé réellement rentrée." },
+                  /* Le taux depasse 100 % parce que la formule du produit
+                     rapporte les paiements du mois au FACTURE du mois : en
+                     aout, le cabinet a encaisse 19 373,82 $ pour 15 924,06 $
+                     emis, le reste venant de factures plus anciennes. */
+                  { k: "Taux d’encaissement", v: "122 %", a: "Part du facturé réellement rentrée." },
                   { k: "Taux de facturation", v: "0 %", a: "Part des heures travaillées qui a été facturée." },
-                  { k: "Heures travaillées", v: "494.25 h", a: "Total saisi sur la période." },
+                  { k: "Heures travaillées", v: "518 h", a: "Total saisi sur la période." },
                   { k: "Heures facturées", v: "0 h", a: "Portion portée à une facture." },
-                  { k: "Valeur non facturée", v: "118 881,25 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
+                  { k: "Valeur non facturée", v: "128 337,50 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
                 ].map((r, i) => (
                   <div key={r.k} className={"ha-perf" + (i > 0 ? " filet" : "")}>
                     <div className="ligne">
@@ -466,9 +503,9 @@ export function HeroLiveApp() {
               <div className="ha-oblig-grid">
                 {[
                   { t: "Rapprochement fidéicommis", d: "Période 2026-07", s: "À faire", warn: true },
-                  { t: "Clients avec fonds en fiducie", d: "Sommes détenues en fiducie (B-1 r.5)", s: "7" },
+                  { t: "Clients avec fonds en fiducie", d: "Sommes détenues en fiducie (B-1 r.5)", s: "6" },
                   { t: "Factures impayées", d: "Solde à recevoir", s: "17", warn: true },
-                  { t: "Temps non facturé", d: "Entrées prêtes à facturer", s: "195", warn: true },
+                  { t: "Temps non facturé", d: "Entrées prêtes à facturer", s: "210", warn: true },
                 ].map((o) => (
                   <div className="ha-oblig-item" key={o.t}>
                     <span className={"ha-oblig-ico" + (o.warn ? " warn" : "")} aria-hidden>{o.warn ? "!" : "✓"}</span>
@@ -485,7 +522,10 @@ export function HeroLiveApp() {
               <div className="ha-card">
                 <p className="ha-titre-carte" style={{ marginBottom: 5 }}>Lecture financière du mois</p>
                 <div className="ha-kv"><span className="k">Sorties</span><span className="v">0,00 $</span></div>
-                <div className="ha-kv"><span className="k">Cash non reçu</span><span className="v">-1 357,29 $</span></div>
+                {/* Negatif : le cabinet a encaisse PLUS qu'il n'a facture en
+                    aout. C'est le meme fait que le taux de 122 %, vu en
+                    dollars. */}
+                <div className="ha-kv"><span className="k">Cash non reçu</span><span className="v">-3 449,76 $</span></div>
               </div>
               {/* Activité récente, recopiée d'ActivityCard : « Tout voir » à
                  droite du titre, une puce verte par ligne, l'action en évidence
@@ -497,18 +537,22 @@ export function HeroLiveApp() {
                   <p className="ha-titre-carte" style={{ marginBottom: 6 }}>Activité récente</p>
                   <span style={{ fontSize: 11, color: "var(--si-verified)", fontWeight: 500 }}>Tout voir</span>
                 </div>
+                {/* `formatRelativeTime` de DashboardActivityFeed : en heures
+                    sous 24 h, en jours sous 7, puis la date AVEC l'heure. La
+                    replique coupait l'heure et pretait tout a Me Roy, alors
+                    que l'adjointe signe la premiere ligne. */}
                 {[
-                  { a: "create", e: "TrustAccount", q: "il y a 1 j" },
-                  { a: "create", e: "Dossier", q: "14 août" },
-                  { a: "create", e: "Client", q: "14 août" },
-                  { a: "update", e: "Client", q: "12 août" },
-                  { a: "create", e: "DossierNavetteMessage", q: "11 août" },
+                  { a: "update", e: "Dossier", q: "il y a 13 h", qui: "Aaliyah Côté" },
+                  { a: "create", e: "TrustAccount", q: "il y a 4 j", qui: "Me Camille Roy" },
+                  { a: "create", e: "Dossier", q: "14 août, 16 h 43", qui: "Me Camille Roy" },
+                  { a: "create", e: "Client", q: "14 août, 16 h 33", qui: "Me Camille Roy" },
+                  { a: "update", e: "Client", q: "12 août, 17 h 28", qui: "Me Camille Roy" },
                 ].map((x, i) => (
                   <div className={"ha-activite" + (i > 0 ? " filet" : "")} key={x.a + x.e + x.q}>
                     <span className="pastille" aria-hidden />
                     <span className="txt">
                       <span className="quoi"><b>{x.a}</b> — {x.e}</span>
-                      <span className="quand">{x.q} · Me Camille Roy</span>
+                      <span className="quand">{x.q} · {x.qui}</span>
                     </span>
                   </div>
                 ))}
@@ -521,7 +565,7 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="facturation">
           <div className="ha-card">
             <p className="ha-kicker">Facturation</p>
-            <p className="ha-h">Créances · 38 060,20 $</p>
+            <p className="ha-h">Créances · 33 133,61 $</p>
             <p className="ha-mini">
               Dix-sept factures émises et non réglées. Les six plus anciennes ci-dessous.
             </p>
@@ -559,11 +603,11 @@ export function HeroLiveApp() {
             <p className="ha-ptitle">Ancienneté des créances</p>
             <div className="ha-aging">
               {[
-                ["Courant", "11 717,55 $", false],
-                ["1 à 30 j", "14 546,50 $", false],
-                ["31 à 60 j", "2 105,48 $", true],
-                ["61 à 90 j", "6 556,74 $", true],
-                ["90 j et plus", "3 133,93 $", true],
+                ["Courant", "6 404,48 $", false],
+                ["1 à 30 j", "6 335,12 $", false],
+                ["31 à 60 j", "8 560,76 $", true],
+                ["61 à 90 j", "9 281,37 $", true],
+                ["90 j et plus", "2 551,88 $", true],
               ].map(([lab, val, chaud]) => (
                 <div className="ag" key={lab as string}>
                   <span className="l">{lab as string}</span>
@@ -578,7 +622,7 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="clients">
           <div className="ha-card">
             <p className="ha-kicker">Clients</p>
-            <p className="ha-h">24 clients actifs</p>
+            <p className="ha-h">26 clients actifs</p>
             <p className="ha-mini">Les huit qui doivent le plus, solde dû décroissant.</p>
             <table className="ha-tbl" style={{ marginTop: 9 }}>
               <thead>
@@ -589,14 +633,14 @@ export function HeroLiveApp() {
               </thead>
               <tbody>
                 {[
-                  ["Distribution Rive-Sud ltée", "Personne morale", "2", "5 633,78 $"],
-                  ["Pelletier", "Particulier", "3", "5 533,18 $"],
-                  ["Gagnon", "Particulier", "1", "4 139,10 $"],
-                  ["Lévesque", "Particulier", "2", "3 815,74 $"],
-                  ["Clinique Longueuil inc.", "Personne morale", "3", "3 701,63 $"],
+                  ["Pelletier, Manon", "Particulier", "3", "5 533,18 $"],
+                  ["Ateliers Beauport inc.", "Personne morale", "3", "4 636,37 $"],
+                  ["Lafleur, Olivier", "Particulier", "3", "4 417,05 $"],
+                  ["Dubois, Josée", "Particulier", "2", "2 874,38 $"],
+                  ["Groupe immobilier Rosemont ltée", "Personne morale", "2", "2 789,73 $"],
+                  ["Gagnon, Étienne", "Particulier", "2", "2 687,55 $"],
                   ["Groupe immobilier Sainte-Foy ltée", "Personne morale", "2", "2 472,83 $"],
-                  ["Fiducie Outremont ltée", "Personne morale", "2", "2 443,22 $"],
-                  ["Fortin", "Particulier", "2", "2 414,47 $"],
+                  ["Clinique Hochelaga s.e.n.c.", "Personne morale", "3", "2 398,32 $"],
                 ].map(([nom, type, doss, solde]) => (
                   <tr key={nom}>
                     <td>{nom}</td>
@@ -615,16 +659,27 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="comptes">
           <div className="ha-card">
             <p className="ha-kicker">Comptes en fidéicommis</p>
-            <p className="ha-h">Aucune somme détenue en fiducie</p>
+            {/* Cet ecran disait « Aucune somme detenue en fiducie », ce qui
+                etait vrai quand il a ete ecrit et ne l'est plus : le cabinet
+                detient 96 300 $. La bande d'action du tableau de bord annonce
+                « Rapprochement de 2026-07 equilibre, il reste a le certifier »
+                et c'est bien ce que ce panneau doit montrer en s'ouvrant.
+
+                « Cartes-clients » et non « comptes ouverts » : la table
+                TrustAccount est vide, et la source de verite du solde est le
+                registre append-only, comme le dit le commentaire de
+                app/(app)/tableau-de-bord/page.tsx devant
+                countClientsWithTrustFunds. */}
+            <p className="ha-h">96 300,00 $ détenus pour six clients</p>
             <p className="ha-mini">
-              Le cabinet ne détient présentement aucun fonds client. Le rapprochement reste
-              exigé chaque mois, même à solde nul : c&apos;est la preuve qui est demandée en
-              inspection, pas le montant.
+              Le rapprochement de juillet est équilibré : le registre, les cartes-clients et le
+              solde rapproché donnent le même montant. Il reste à le certifier, et c&apos;est la
+              signature qui est demandée en inspection.
             </p>
             <div style={{ marginTop: 11 }}>
-              <div className="ha-kv"><span className="k">Solde fiducie global</span><span className="v">0,00 $</span></div>
-              <div className="ha-kv"><span className="k">Comptes ouverts</span><span className="v">0</span></div>
-              <div className="ha-kv"><span className="k">Dernier rapprochement</span><span className="v">À faire</span></div>
+              <div className="ha-kv"><span className="k">Solde fiducie global</span><span className="v">96 300,00 $</span></div>
+              <div className="ha-kv"><span className="k">Cartes-clients avec fonds</span><span className="v">6</span></div>
+              <div className="ha-kv"><span className="k">Dernier rapprochement</span><span className="v">2026-07 · à certifier</span></div>
               <div className="ha-kv"><span className="k">Écart constaté</span><span className="v">0,00 $</span></div>
             </div>
             <span className="ha-act safe-zoom" data-ha-screen="dash" role="button" tabIndex={0}>
@@ -632,8 +687,9 @@ export function HeroLiveApp() {
             </span>
           </div>
 
-          {/* À solde nul, l'écran ne raconte rien s'il n'affiche qu'un zéro.
-             Ce qui compte alors, c'est la preuve que le contrôle a été fait. */}
+          {/* Le montant seul ne prouve rien. Ce qui se demande en inspection,
+             c'est la trace du controle, et c'est elle que la seconde carte
+             porte. */}
           <div className="ha-card" style={{ marginTop: 11 }}>
             <p className="ha-ptitle">Ce qui est conservé pour l&apos;inspection</p>
             <div className="ha-kv"><span className="k">Rapprochement mensuel, même à solde nul</span><span className="v">Exigé</span></div>
@@ -655,9 +711,13 @@ export function HeroLiveApp() {
               saisi deux fois.
             </p>
             <div style={{ marginTop: 11 }}>
+              {/* Le montant en face des factures en retard est le solde DE CES
+                  factures (26 729,13 $), pas le total des creances : la
+                  replique y posait les 38 060,20 $ de toutes les creances, ce
+                  qui gonflait le retard d'un tiers. */}
               <div className="ha-kv"><span className="k">Rapprocher le fidéicommis</span><span className="v">Ce mois</span></div>
-              <div className="ha-kv"><span className="k">Onze factures en retard</span><span className="v">38 060,20 $</span></div>
-              <div className="ha-kv"><span className="k">Temps non facturé à porter</span><span className="v">118 881,25 $</span></div>
+              <div className="ha-kv"><span className="k">Treize factures en retard</span><span className="v">26 729,13 $</span></div>
+              <div className="ha-kv"><span className="k">Temps non facturé à porter</span><span className="v">128 337,50 $</span></div>
             </div>
             <span className="ha-act safe-zoom" data-ha-screen="facturation" role="button" tabIndex={0}>
               Ouvrir la facturation
@@ -666,15 +726,15 @@ export function HeroLiveApp() {
           <div className="ha-cols">
             <div className="ha-card">
               <p className="ha-ptitle">Le cabinet en un coup d&apos;œil</p>
-              <div className="ha-kv"><span className="k">Dossiers actifs</span><span className="v">43</span></div>
-              <div className="ha-kv"><span className="k">Clients actifs</span><span className="v">24</span></div>
-              <div className="ha-kv"><span className="k">Entrées de temps</span><span className="v">218</span></div>
+              <div className="ha-kv"><span className="k">Dossiers actifs</span><span className="v">50</span></div>
+              <div className="ha-kv"><span className="k">Clients actifs</span><span className="v">26</span></div>
+              <div className="ha-kv"><span className="k">Entrées de temps</span><span className="v">236</span></div>
             </div>
             <div className="ha-card">
               <p className="ha-ptitle">Ce qui a bougé</p>
-              <div className="ha-kv"><span className="k">Paiement reçu · 2026-025</span><span className="v">597,58 $</span></div>
-              <div className="ha-kv"><span className="k">Facture émise · 2026-031</span><span className="v">2 104,00 $</span></div>
-              <div className="ha-kv"><span className="k">Retrait fidéicommis · ce mois</span><span className="v">2 925,00 $</span></div>
+              <div className="ha-kv"><span className="k">Paiement reçu · 2026-033</span><span className="v">612,60 $</span></div>
+              <div className="ha-kv"><span className="k">Facture émise · 2026-033</span><span className="v">1 976,14 $</span></div>
+              <div className="ha-kv"><span className="k">Retrait fidéicommis · ce mois</span><span className="v">23 700,00 $</span></div>
             </div>
           </div>
         </div>
@@ -683,7 +743,7 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="dossiers">
           <div className="ha-card">
             <p className="ha-kicker">Dossiers</p>
-            <p className="ha-h">50 dossiers, dont 43 actifs</p>
+            <p className="ha-h">56 dossiers, dont 50 actifs</p>
             <p className="ha-mini">Répartition des dossiers actifs par domaine de pratique.</p>
             <table className="ha-tbl" style={{ marginTop: 9 }}>
               <thead>
@@ -691,11 +751,11 @@ export function HeroLiveApp() {
               </thead>
               <tbody>
                 {[
-                  ["Immobilier", "13", "30 %"],
-                  ["Litige civil", "10", "23 %"],
-                  ["Droit corporatif", "9", "21 %"],
-                  ["Immigration", "6", "14 %"],
-                  ["Droit de la famille", "5", "12 %"],
+                  ["Litige civil", "13", "26 %"],
+                  ["Immobilier", "11", "22 %"],
+                  ["Droit corporatif", "11", "22 %"],
+                  ["Immigration", "9", "18 %"],
+                  ["Droit de la famille", "6", "12 %"],
                 ].map(([d, n, part]) => (
                   <tr key={d}>
                     <td>{d}</td>
@@ -706,7 +766,7 @@ export function HeroLiveApp() {
               </tbody>
             </table>
             <p className="ha-mini" style={{ marginTop: 9 }}>
-              Sept dossiers clôturés. À l&apos;ouverture, SAFE prépare une structure adaptée au
+              Six dossiers clôturés. À l&apos;ouverture, SAFE prépare une structure adaptée au
               domaine.
             </p>
           </div>
@@ -788,16 +848,16 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="temps">
           <div className="ha-card">
             <p className="ha-kicker">Temps</p>
-            <p className="ha-h">118 881,25 $ de temps non facturé</p>
+            <p className="ha-h">128 337,50 $ de temps non facturé</p>
             <p className="ha-mini">
-              Cent quatre-vingt-quinze entrées facturables attendent d&apos;être portées à une
-              facture. Le temps est inscrit une fois, au moment où il se fait.
+              Deux cent dix entrées facturables attendent d&apos;être portées à une facture. Le
+              temps est inscrit une fois, au moment où il se fait.
             </p>
             <div style={{ marginTop: 11 }}>
-              <div className="ha-kv"><span className="k">Entrées au total</span><span className="v">218</span></div>
-              <div className="ha-kv"><span className="k">Dont facturables non facturées</span><span className="v">195</span></div>
-              <div className="ha-kv"><span className="k">Heures consignées</span><span className="v">494,3 h</span></div>
-              <div className="ha-kv"><span className="k">Heures à facturer</span><span className="v">442,0 h</span></div>
+              <div className="ha-kv"><span className="k">Entrées au total</span><span className="v">236</span></div>
+              <div className="ha-kv"><span className="k">Dont facturables non facturées</span><span className="v">210</span></div>
+              <div className="ha-kv"><span className="k">Heures consignées</span><span className="v">518,0 h</span></div>
+              <div className="ha-kv"><span className="k">Heures à facturer</span><span className="v">464,0 h</span></div>
             </div>
             <span className="ha-act safe-zoom" data-ha-screen="facturation" role="button" tabIndex={0}>
               Porter à une facture
@@ -816,8 +876,8 @@ export function HeroLiveApp() {
               viennent des factures.
             </p>
             <div style={{ marginTop: 11 }}>
-              <div className="ha-kv"><span className="k">Revenus facturés</span><span className="v">87 115,20 $</span></div>
-              <div className="ha-kv"><span className="k">Encaissé</span><span className="v">49 055,00 $</span></div>
+              <div className="ha-kv"><span className="k">Revenus facturés</span><span className="v">88 753,63 $</span></div>
+              <div className="ha-kv"><span className="k">Encaissé</span><span className="v">55 620,02 $</span></div>
               <div className="ha-kv"><span className="k">Dépenses du cabinet</span><span className="v">0,00 $</span></div>
               <div className="ha-kv"><span className="k">Écritures manuelles</span><span className="v">0</span></div>
             </div>
@@ -885,13 +945,18 @@ export function HeroLiveApp() {
         <div className="ha-screen" data-ha-pane="edition">
           <div className="ha-card">
             <p className="ha-kicker">Édition</p>
-            <p className="ha-h">Deux documents en préparation</p>
+            {/* Le cabinet de demonstration ne porte AUCUN document : la table
+                en compte zero. L'ecran annoncait « Deux documents en
+                preparation », ce qui etait faux. Il montre donc son etat vide,
+                comme le fait deja l'ecran Agenda. */}
+            <p className="ha-h">Aucun document en préparation</p>
             <p className="ha-mini">
               Les documents se rédigent dans SAFE et restent rattachés à leur dossier, avec leur
-              source et leur version.
+              source et leur version. Ce cabinet de démonstration n&apos;en a encore rédigé
+              aucun.
             </p>
             <div style={{ marginTop: 11 }}>
-              <div className="ha-kv"><span className="k">Documents en préparation</span><span className="v">2</span></div>
+              <div className="ha-kv"><span className="k">Documents en préparation</span><span className="v">0</span></div>
               <div className="ha-kv"><span className="k">Pièces classées au dossier</span><span className="v">0</span></div>
               <div className="ha-kv"><span className="k">Cartables par domaine</span><span className="v">Montés</span></div>
             </div>
@@ -908,10 +973,13 @@ export function HeroLiveApp() {
               jamais un second calcul.
             </p>
             <div style={{ marginTop: 11 }}>
-              <div className="ha-kv"><span className="k">Taux d&apos;encaissement</span><span className="v">56 %</span></div>
-              <div className="ha-kv"><span className="k">Facturé sur la période</span><span className="v">87 115,20 $</span></div>
-              <div className="ha-kv"><span className="k">Encaissé sur la période</span><span className="v">49 055,00 $</span></div>
-              <div className="ha-kv"><span className="k">Reste à recevoir</span><span className="v">38 060,20 $</span></div>
+              {/* Ici la periode est TOUTE l'histoire du cabinet, pas le mois :
+                  55 620,02 / 88 753,63 = 63 %. C'est pourquoi ce taux differe
+                  des 122 % du tableau de bord, qui rapporte le mois au mois. */}
+              <div className="ha-kv"><span className="k">Taux d&apos;encaissement</span><span className="v">63 %</span></div>
+              <div className="ha-kv"><span className="k">Facturé sur la période</span><span className="v">88 753,63 $</span></div>
+              <div className="ha-kv"><span className="k">Encaissé sur la période</span><span className="v">55 620,02 $</span></div>
+              <div className="ha-kv"><span className="k">Reste à recevoir</span><span className="v">33 133,61 $</span></div>
             </div>
           </div>
         </div>
