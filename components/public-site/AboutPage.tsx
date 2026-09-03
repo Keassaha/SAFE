@@ -109,8 +109,8 @@ export default function AProposPage() {
               <Image
                 src="/images/fondateur/jeremie-tiahou-safe.jpg"
                 alt="Jérémie Tiahou, debout dans le hall vitré d’un immeuble à Gatineau."
-                width={2400}
-                height={1350}
+                width={3200}
+                height={1800}
                 sizes="(max-width: 860px) 92vw, min(1160px, 88vw)"
                 priority
               />
