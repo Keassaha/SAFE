@@ -77,6 +77,7 @@ import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
 import { BarreAppVitrine } from "@/components/public-site/BarreAppVitrine";
 import { MENU_PRINCIPAL } from "@/components/public-site/menu-principal";
 import { SafeMark } from "@/components/branding/SafeLogo";
+import { MATIERE_VERTE, OMBRE_VERTE } from "@/components/public-site/matiere-verte";
 import { AnimationsRecit } from "@/components/public-site/recit";
 /* Le pied de page du site, pas un pied de page d'accueil.
    L'accueil en portait un a lui : 98 px, fond transparent, huit liens en
@@ -3403,17 +3404,13 @@ const CSS = `
      grain, et c'est exactement ce qui distingue leurs cartes d'un fond
      degrade quelconque. Le bruit est desature et a 34 % : au-dela il mange le
      texte, en deca il ne se voit plus. */
+  /* La recette a demenage dans 'matiere-verte.ts' le 2026-09-03 : la
+     tarification porte desormais la meme matiere, et cinq couches recopiees
+     dans deux portees divergent en une heure. Elle n'est plus ecrite ici, elle
+     est importee. */
   .xc .reglage.vert,
   .xc .parcours {
-    border-color: transparent;
-    background-color: var(--si-action-vert);
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.34'/%3E%3C/svg%3E"),
-      radial-gradient(120% 150% at 8% 8%, rgb(var(--si-verified-rgb) / 0.95) 0%, transparent 58%),
-      radial-gradient(90% 120% at 96% 0%, rgb(var(--si-verified-dot-rgb) / 0.22) 0%, transparent 52%),
-      radial-gradient(120% 130% at 100% 100%, rgb(var(--si-brand-green-rgb) / 0.62) 0%, transparent 60%),
-      linear-gradient(152deg, var(--si-ink-strong) 0%, var(--si-action-vert) 62%);
-    background-size: 180px 180px, auto, auto, auto, auto;
+    ${MATIERE_VERTE}
   }
   /* Sur le vert, les encres s'inversent : la charte donne « onBrand » pour ce
      cas, texte clair et accent #9AD8B8. */
@@ -3430,9 +3427,7 @@ const CSS = `
      clair se lit comme un trou. */
   .xc .reglage.vert,
   .xc .parcours {
-    box-shadow:
-      0 2px 6px -2px rgb(var(--si-line-ink-rgb) / 0.22),
-      0 34px 64px -36px rgb(var(--si-line-ink-rgb) / 0.48);
+    ${OMBRE_VERTE}
   }
   /* Le texte et le repere passent AU-DESSUS du filigrane. */
   .xc .reglage .tete-carte, .xc .reglage .txt { position: relative; z-index: 1; }
