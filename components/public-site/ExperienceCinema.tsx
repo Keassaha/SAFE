@@ -4745,15 +4745,29 @@ const CSS = `
        chapitre entier. */
     /* Au pouce aussi : 250svh etaient la course de l'assemblage, eteint depuis.
        Ce qui reste a parcourir est la hauteur du titre et de la fenetre. */
-    .xc #zone-hero { height: 132svh !important; }
+    /* ── LA ZONE PREND LA MESURE DE CE QU'ELLE PORTE ────────────────────────
+       Elle valait 132svh, soit 1114 px sur une vue de 844, et son epingle en
+       occupait 844. Ces deux chiffres avaient ete choisis quand la fenetre du
+       hero remplissait le cadre. Depuis que son echelle est descendue a 0,32,
+       elle ne fait plus que 262 px de haut : mesure le 2026-09-03, il restait
+       609 px de BLANC sous elle avant le mouvement 2, dont 339 dans le cadre
+       lui-meme et 270 dans la zone.
+
+       Une hauteur fixe ne peut pas suivre une echelle variable. La zone et son
+       epingle passent donc en hauteur libre, et c'est le contenu qui commande.
+       L'epingle cesse d'etre collante : elle n'avait de sens que pour retenir
+       une scene pendant que l'assemblage se jouait, et l'assemblage est
+       eteint. */
+    .xc #zone-hero { height: auto !important; }
     .xc #zone-hero .pin {
-      position: sticky;
-      top: 0;
-      height: 100svh;
-      min-height: 100svh;
+      position: relative;
+      top: auto;
+      height: auto;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-bottom: 34px;
     }
     .xc #hero-copy {
       position: static;
@@ -4776,8 +4790,15 @@ const CSS = `
       position: relative;
       inset: auto;
       order: 2;
-      flex: 1 1 auto;
-      min-height: 300px;
+      /* Le cadre epouse la fenetre qu'il porte, au lieu d'occuper toute la
+         place restante. « #hero-app » y est en position absolue, donc le cadre
+         ne peut pas se dimensionner sur lui : sa hauteur est calculee depuis la
+         MEME variable d'echelle, sur la boite logique de 820 px. Les deux
+         bougent donc ensemble, et un reglage d'echelle ne laisse plus de vide
+         derriere lui. */
+      flex: none;
+      height: calc(820px * var(--crop-echelle, 0.32));
+      min-height: 0;
       margin: 22px 0 0 var(--marge);
       /* La hauteur et le retrait haut sont repris par le script en fin de
          course, quand le texte s'efface pour laisser voir l'application
@@ -5438,7 +5459,13 @@ const CSS = `
     .xc .scene-duo .fenetre-produit { zoom: 0.29; }
     /* Le hero suit la meme descente, par sa variable de cadrage. Il garde 10 %
        hors champ, que le fondu ferme : sur l'ouverture, dire que l'ecran
-       continue est exact. */
+       continue est exact.
+
+       LA VALEUR EST POSEE AUX DEUX ENDROITS, et il le faut : « #hero-app » s'en
+       sert pour son echelle, « #hero-cadre » pour calculer sa hauteur. Le cadre
+       est le PARENT, donc il n'heriterait pas d'une valeur posee sur l'enfant,
+       et son calcul retomberait en silence sur la valeur de repli. */
+    .xc #hero-cadre,
     .xc #hero-app { --crop-echelle: 0.32; }
   }
 `;
