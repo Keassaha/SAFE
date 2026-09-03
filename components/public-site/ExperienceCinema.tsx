@@ -3718,7 +3718,49 @@ const CSS = `
       justify-content: space-between;
     }
   }
+  /* ── LES FENETRES DE PRODUIT AU TELEPHONE ─────────────────────────────────
+     Chantier du 2026-09-03. Constat mesure a 390 px avant correctif : la
+     fenetre du mouvement 2 faisait 562 px dans un ecran de 390. On en voyait
+     70 %, TRANCHES NET au milieu d'un mot, sans fondu. Celle du hero faisait
+     979 px. Aucune regle telephone n'avait jamais ete ecrite pour ces objets :
+     ils etaient dessines a 1238 px, reduits, puis rognes par le bord.
+
+     CE QUI A ETE ESSAYE ET REFUSE, pour que personne ne le reprenne :
+       · recomposer l'application en colonne, facon telephone. Lisible, mais la
+         fenetre prenait toute la largeur et la page perdait sa composition :
+         le telephone DEVENAIT l'application au lieu de la montrer.
+       · une fenetre au rapport d'un telephone, en portrait. Lisible aussi, et
+         refusee : le CEO veut des illustrations en dimension ORDINATEUR, en
+         paysage.
+       · reduire la barre et le contenu SEPAREMENT. C'est ce qui embrouillait
+         les ecritures : la barre, dessinee pour 1238 px, se repliait sur
+         elle-meme et « SAFE » se lisait deux fois. Une echelle doit etre posee
+         UNE SEULE FOIS, sur la fenetre entiere.
+
+     CE QUI RESTE, ET POURQUOI. La fenetre garde sa dimension d'ordinateur, son
+     paysage et son echelle unique. Deux choses changent seulement :
+
+     1. L'ECHELLE DESCEND de 0,72 a 0,50. La fenetre passe de 562 a 390 px et
+        entre presque en entier au lieu d'en montrer 70 %. Le texte descend de
+        6,4 a 4,4 px a l'oeil : la ou l'on ne lisait deja pas, on perd donc peu,
+        et on gagne l'ecran entier. Mesure faite, pas estimee.
+
+     2. LE BORD SE FERME PAR UN FONDU au lieu d'etre tranche. Le meme fondu que
+        la page emploie partout ailleurs, a droite et en bas. Un mot coupe en
+        deux se lit comme un defaut ; un fondu dit que l'ecran continue, ce qui
+        est vrai. */
   @media (max-width: 700px) {
+    .xc .fenetre-produit,
+    .xc #hero-app.live {
+      -webkit-mask-image:
+        linear-gradient(to right, #000 calc(100% - 44px), transparent 100%),
+        linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to right, #000 calc(100% - 44px), transparent 100%),
+        linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%);
+      mask-composite: intersect;
+    }
     /* Au pouce, une colonne. La hauteur minimale tombe : elle servait a creer
        le vide entre le repere et le texte, et sur une carte pleine largeur ce
        vide devient un trou. */
@@ -4238,7 +4280,7 @@ const CSS = `
      avec elle : il ne reste qu'une echelle pour toutes les fenetres. */
   @media (max-width: 900px) {
     .xc .fenetre-fondante { width: 100%; overflow: hidden; }
-    .xc .fenetre-produit { width: 1238px; zoom: 0.72; }
+    .xc .fenetre-produit { width: 1238px; zoom: var(--tel-fenetre, 0.72); }
     /* ── La chaine, au telephone ────────────────────────────────────────────
        Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
        se suivent horizontalement et la fleche tombe entre deux cadrans, ce
@@ -5367,6 +5409,37 @@ const CSS = `
     .xc.anime #zone-parcours .co-arg {
       padding: 28px 30px 30px;
     }
+  }
+
+  /* ── L'ECHELLE DES FENETRES AU TELEPHONE, EN DERNIER ────────────────────
+     ⚠ CE BLOC EST A LA FIN DE LA FEUILLE, ET IL DOIT Y RESTER.
+
+     Il y etait d'abord place plus haut, et il ne servait a rien : les regles
+     telephone du hero (« --crop-echelle: 0.72 », @media 860px) et celle des
+     fenetres de produit (@media 900px) sont declarees PLUS BAS dans ce fichier.
+     A specificite egale, la derniere declaree gagne. Les valeurs ci-dessous
+     etaient donc ecrites, servies au navigateur, et sans effet. Le defaut ne se
+     voyait pas : la page rendait exactement comme avant.
+
+     Mesure a 390 px avant correctif : la fenetre du mouvement 2 faisait 562 px
+     dans un ecran de 390, on en voyait 70 %, tranches net au milieu d'un mot.
+     Le hero faisait 979 px, on en voyait 40 %. */
+  @media (max-width: 700px) {
+    /* La fenetre passe de 562 a 390 px et entre en entier. Le texte descend de
+       6,4 a 4,7 px a l'oeil : la ou l'on ne lisait deja pas, on perd peu, et on
+       gagne l'ecran entier. */
+    .xc .fenetre-produit { zoom: 0.50; }
+    /* ⚠ DEUX VALEURS, PARCE QUE LES DEUX SCENES N'ONT PAS LE MEME PORTEUR.
+       Une fenetre de mouvement 2 ou 4 est portee par « .fenetre-fondante » qui
+       reduit deja de 0,63 : 0,50 x 0,63 donne 390 px, la largeur de l'ecran.
+       Une fenetre de la piste du mouvement 3 a, elle, un porteur a 1 depuis la
+       regle de 900 px qui empile les deux et arrete le glissement. La meme
+       valeur y donnait 619 px, et elles restaient coupees. */
+    .xc .scene-duo .fenetre-produit { zoom: 0.29; }
+    /* Le hero suit la meme descente, par sa variable de cadrage. Il garde 10 %
+       hors champ, que le fondu ferme : sur l'ouverture, dire que l'ecran
+       continue est exact. */
+    .xc #hero-app { --crop-echelle: 0.32; }
   }
 `;
 
