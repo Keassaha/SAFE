@@ -973,6 +973,15 @@ const CIBLES = [
   ".recit .note",
   ".recit .signature",
   ".recit .morceau",
+  /* Les cinq reglages du mouvement 5. La ligne d'introduction ET chaque carte
+     du bento, pour qu'elles se posent l'une apres l'autre au lieu d'arriver
+     d'un bloc : c'est la seule chose de ce mouvement qui bougeait, et elle ne
+     bougeait pas. Le rang se compte parmi les freres, donc l'ordre de lecture,
+     et le decalage vient de la regle generale plus bas. */
+  ".recit .adaptations .mene",
+  ".recit .bento .reglage",
+  /* Les cinq temps du mouvement 6, meme geste et meme decalage. */
+  ".recit .parcours .l",
   ".recit .index-modules .mod",
   ".recit .q",
   ".recit .plan",

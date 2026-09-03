@@ -52,7 +52,26 @@ import {
   ASSEMBLY_PIECE_B_PATH,
   SAFE_PALETTE,
 } from "@/components/brand/safe-mark";
-import Image from "next/image";
+/* Les symboles des cinq reglages, mouvement 5. Pris dans la MEME bibliotheque
+   que la barre du produit (components/layout/Header.tsx importe Briefcase pour
+   « Pratique ») : la vitrine ne redessine pas ses propres glyphes, elle emploie
+   ceux de l'application. Un dixieme glyphe maison serait un dixieme a
+   surveiller. */
+import {
+  Briefcase,
+  FolderTree,
+  Users,
+  ListChecks,
+  ShieldCheck,
+  /* Les cinq temps de l'implantation, mouvement 6. « Sunrise » n'est pas un
+     choix decoratif : c'est l'icone que Header.tsx pose devant « Aujourd'hui »,
+     et la mise en service est exactement le jour ou le cabinet commence sa
+     journee dans SAFE. */
+  Search,
+  Link2,
+  CircleCheck,
+  Sunrise,
+} from "lucide-react";
 import { Objections, reglesObjections, type Objection } from "./objections";
 import { HeroLiveApp } from "@/components/public-site/HeroLiveApp";
 import { BarreAppVitrine } from "@/components/public-site/BarreAppVitrine";
@@ -69,12 +88,29 @@ import { AnimationsRecit } from "@/components/public-site/recit";
    soit la seule a en avoir un autre. */
 import { Footer } from "@/components/public-site/shared";
 
+/* Le calage optique, par GLYPHE et non par carte : le defaut appartient au
+   dessin, donc FolderTree derive pareil dans les deux mouvements ou il paraît.
+   Les valeurs sont le barycentre de l'encre, MESURE et non estime, ramene aux
+   18 px du rendu. La methode et le detail sont dans la feuille, a la regle
+   « .reglage .pastille .ic ». Un glyphe absent d'ici est deja centre. */
+const CALAGE_GLYPHE: Record<string, React.CSSProperties> = {
+  FolderTree: { "--ic-x": "-0.38px" } as React.CSSProperties,
+  ListChecks: { "--ic-x": "-0.34px" } as React.CSSProperties,
+  Sunrise: { "--ic-y": "-1.87px" } as React.CSSProperties,
+};
+
 const CSS = `
   .xc {
     /* Thème de la vitrine. Il déclarait ses propres couleurs, restées sur
        l'ancienne palette verte, ce qui faisait diverger l'accueil du produit.
        Chaque variable pointe maintenant vers la palette. Les noms sont
        conservés : les 1 800 lignes de règles en dessous s'en servent. */
+    /* Le filigrane de la marque, sur les deux surfaces vertes. Une seule
+       valeur pour les deux : elles portent le meme geste, elles doivent
+       vieillir ensemble. Descendue de 0,14 a 0,08 le 2026-09-01, « le logo est
+       un peu trop visible ». Au-dela de 0,10 le repere cesse d'etre une
+       texture et redevient un logo pose sur la carte. */
+    --filigrane: 0.08;
     --bg: var(--si-canvas);
     --surface: var(--si-surface);
     --ink: var(--si-ink);
@@ -108,6 +144,10 @@ const CSS = `
        chaque image. Plus rien ne bouge ici que l'opacité, la translation et
        la couleur, les seules qui n'en demandent aucun. */
     --doux: cubic-bezier(0.33, 0.06, 0.2, 1);
+    /* La courbe de la reference, relevee sur elevenlabs.io le 2026-09-01 : elle
+       part plus franchement et s'arrete plus net que « --doux ». Reservee pour
+       l'instant aux cinq reglages du mouvement 5. */
+    --vif: cubic-bezier(0.4, 0, 0.2, 1);
     --duree-entree: 780ms;
     --duree-teinte: 620ms;
 
@@ -2339,15 +2379,26 @@ const CSS = `
      recalcul de mise en page. La PHRASE S'ALLUME, mot à mot, du gris à l'encre
      pleine : le texte est là depuis le début, ce qui change est son encre.
      Rien ne surgit, donc rien ne manquait. */
+  /* ⚠ « :not(.reglage) » N'EST PAS UNE COQUETTERIE.
+
+     Les cartes du mouvement 5 portent leur propre entree, plus vive, et un
+     survol qui les souleve via « .safe-zoom ». Or la regle ci-dessous posait
+     « transform: none » sur tout bloc revele, avec la meme specificite que
+     « .safe-zoom:hover » et declaree APRES lui : elle gagnait la cascade, et
+     les cartes ne se soulevaient plus au survol. Le defaut etait muet, la
+     classe etant bien la et la regle bien chargee.
+
+     Les cartes sont donc exclues de l'entree partagee, puisqu'elles en ont
+     une. Mesure du 2026-09-01. */
   @media (prefers-reduced-motion: no-preference) {
-    .xc [data-parait] {
+    .xc [data-parait]:not(.reglage) {
       opacity: 0;
       transform: translateY(14px);
       transition:
         opacity var(--duree-entree) var(--doux),
         transform var(--duree-entree) var(--doux);
     }
-    .xc [data-parait="vu"] { opacity: 1; transform: none; }
+    .xc [data-parait="vu"]:not(.reglage) { opacity: 1; transform: none; }
     .xc .dire b .mot { color: var(--muted); transition: color 520ms var(--doux); }
     .xc .dire[data-parait="vu"] b .mot { color: var(--si-ink); }
   }
@@ -3143,6 +3194,541 @@ const CSS = `
     .xc .capacites { grid-template-columns: 1fr; gap: 22px; }
   }
 
+  /* ── Les cinq points d'adaptation, mouvement 5 ───────────────────────────
+     Une liste, pas des cartes. Aucune surface, aucun fond, aucune icone : un
+     filet entre les lignes et un rang en chasse fixe, exactement ce que font
+     les registres du produit.
+
+     La liste est bornee a la MOITIE de la page et non a sa largeur : cinq
+     complements de trois mots etires sur 1200 px auraient laisse un blanc a
+     droite de chaque ligne et transforme le filet en trait de soulignement.
+     A cette mesure, le filet ferme la ligne. */
+  /* Le corps du mouvement 5 prend TOUTE la largeur depuis que les cinq
+     reglages sont un bento : deux colonnes de texte au-dessus d'un bento
+     auraient fait trois grilles differentes dans une seule section. */
+  .xc .realite-corps { margin-top: clamp(30px, 3.6vw, 48px); }
+  .xc .adaptations { max-width: none; }
+  .xc .adaptations .mene {
+    font-size: var(--t-corps);
+    line-height: 1.5;
+    color: var(--si-ink);
+  }
+  .xc .adaptations ol {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+    /* Le compteur natif est retire : le rang est ecrit dans le balisage pour
+       porter sa propre chasse et son propre gris. La liste reste ordonnee dans
+       le balisage, c'est bien une enumeration pour qui l'ecoute. */
+    counter-reset: none;
+  }
+  /* ── Le bento des cinq reglages ──────────────────────────────────────────
+     DEUX cartes, puis TROIS. Jamais cinq cases identiques : une grille
+     reguliere de cinq est exactement la forme que le referentiel design
+     proscrit, et c'est aussi ce qu'ElevenLabs evite sur toutes ses bandes.
+
+     La premiere carte est LARGE parce qu'elle porte l'argument central du
+     produit, la structure par domaine de pratique, celle dont dependent les
+     neuf cartables. Ce n'est pas une carte plus grande pour meubler une
+     rangee, c'est la seule qui pese plus que les autres. */
+  .xc .bento {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(12px, 1.1vw, 18px);
+  }
+  .xc .bento .reglage.large { grid-column: span 2; }
+  .xc .reglage {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Le texte au PIED de la carte, le repere en haut, et du vide entre les
+       deux. C'est ce vide qui donne l'air, pas la taille du texte. */
+    justify-content: space-between;
+    min-height: 232px;
+    padding: clamp(20px, 1.9vw, 28px);
+    background: var(--si-surface);
+    border: 1px solid var(--si-line);
+    border-radius: 16px;
+    /* ── L'ombre au repos ────────────────────────────────────────────────
+       Meme vocabulaire que « .fenetre-produit » plus haut, en plus leger :
+       un liseré clair en haut qui dit que la surface capte la lumiere, une
+       ombre courte qui la decolle du fond, une ombre longue et tres diluee
+       qui lui donne sa place dans l'espace. Trois couches, comme partout
+       ailleurs sur cette page, et aucune nouvelle recette. */
+    box-shadow:
+      inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.9),
+      0 1px 2px rgb(var(--si-line-ink-rgb) / 0.05),
+      0 14px 30px -22px rgb(var(--si-line-ink-rgb) / 0.30);
+  }
+  /* ── Le filigrane de la marque ─────────────────────────────────────────
+     Il occupe le vide de droite de la carte maitresse. Deborde volontairement
+     par le bas et par la droite : un repere entier et centre se lirait comme
+     un logo pose sur une carte de visite. Rogne, il devient une texture de
+     marque. */
+  .xc .reglage .filigrane {
+    position: absolute;
+    right: -26px;
+    bottom: -34px;
+    line-height: 0;
+    pointer-events: none;
+  }
+  .xc .reglage .filigrane svg { display: block; }
+  .xc .reglage .tete-carte {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  /* La pastille du symbole : un carre arrondi, un filet, rien de plein. Un
+     aplat de couleur derriere chaque icone ferait cinq badges, et le vert
+     cesserait d'etre rare. */
+  .xc .reglage .pastille {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    border: 1px solid var(--si-line);
+    background: var(--si-canvas);
+    color: var(--si-ink);
+  }
+  /* ── Le calage optique des glyphes ──────────────────────────────────────
+     Retour CEO du 2026-09-01 : « les symboles ne sont pas centres ». Ils
+     l'etaient, geometriquement : mesure faite, la boite du SVG tombe au pixel
+     sur le centre du carre, et le dessin est centre dans sa boite de 24.
+
+     Ce qui n'est pas centre, c'est l'ENCRE. Un glyphe dont la matiere est
+     repartie de travers se lit de travers meme quand sa boite est juste.
+
+     Le decalage a donc ete CALCULE, pas estime : chaque glyphe rendu seul sur
+     une toile de 256, centre de gravite des pixels pondere par leur opacite,
+     ecart ramene aux 18 px du rendu. Trois glyphes depassent 0,3 px :
+       FolderTree   0,38 px vers la droite
+       ListChecks   0,34 px vers la droite
+       Sunrise      1,87 px vers le BAS, soit un dixieme de sa hauteur
+     Sunrise est le seul que l'oeil attrape sans mesurer : sa ligne de sol
+     touche le bas de la boite quand son haut n'est qu'un trait.
+
+     La correction vit sur le glyphe et non sur la carte, puisque le defaut
+     appartient au dessin : FolderTree derive pareil dans les deux mouvements.
+     Elle passe par « top » et « left » et non par une translation, pour ne pas
+     se disputer avec « translate », qui porte l'apparition.
+
+     Pour recalculer apres un changement d'icone : rendre le SVG seul, prendre
+     le barycentre des pixels opaques, comparer au centre de la toile. */
+  .xc .reglage .pastille .ic {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.5;
+    display: block;
+    position: relative;
+    left: var(--ic-x, 0px);
+    top: var(--ic-y, 0px);
+  }
+  .xc .reglage .rang {
+    font-family: var(--mono);
+    font-size: var(--t-detail);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Le vert des quatre cartes claires ───────────────────────────────────
+     Demande CEO du 2026-09-01 : « que les carres et les nombres, excepte le 1,
+     deviennent verts ».
+
+     LE JETON EST « brand-green » ET PAS « verified ». La palette les separe
+     par un commentaire explicite : « verified » est le vert foret de
+     l'APPLICATION et ne dit qu'une chose, l'etat valide ; « brand-green » est
+     l'accent EDITORIAL de la vitrine. Ici rien n'est valide, on marque une
+     enumeration : c'est donc l'accent editorial.
+
+     « :not(.large) » tient l'exception demandee. La carte 01 garde son
+     traitement sur fond vert, ou le repere et le rang sont deja clairs : y
+     poser ce vert-ci les rendrait illisibles.
+
+     Le carre se teinte, il ne se remplit pas : un aplat plein de vert sur
+     quatre cartes ferait quatre pastilles de couleur, et la charte pose que le
+     vert est rare. Sept pour cent de fond, vingt-deux de filet, et l'encre
+     pleine reservee au trait du symbole et au chiffre. */
+  .xc .reglage:not(.vert) .pastille {
+    border-color: rgb(var(--si-brand-green-rgb) / 0.22);
+    background: rgb(var(--si-brand-green-rgb) / 0.07);
+    color: var(--si-brand-green);
+  }
+  .xc .reglage:not(.vert) .rang { color: var(--si-brand-green); }
+  .xc .reglage .txt { margin-top: clamp(36px, 5vh, 64px); }
+  /* L'INVERSION DES ENCRES, relevee sur leurs cartes : le libelle de categorie
+     est en GRIS et la phrase en encre pleine. L'etiquette cede l'encre a la
+     substance. */
+  .xc .reglage .n {
+    font-size: var(--t-detail);
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .xc .reglage .d {
+    margin-top: 7px;
+    font-size: var(--t-corps);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--si-ink);
+    max-width: 34ch;
+  }
+  /* La carte maitresse ne se contente pas d'etre plus LARGE, elle parle plus
+     FORT. Deux fois plus de place pour la meme taille de texte, c'est une case
+     a moitie vide, pas une hierarchie. Chez ElevenLabs la carte de tete d'un
+     bento porte toujours un cran de plus. */
+  .xc .bento .reglage.large .d {
+    font-size: var(--t-argument);
+    line-height: 1.32;
+    letter-spacing: -0.014em;
+    max-width: 30ch;
+  }
+
+  /* ── La carte maitresse porte un degrade TEXTURE ─────────────────────────
+     Demande CEO du 2026-09-01, d'apres leurs cartes en degrade grene.
+
+     LA PALETTE EST LA VOTRE, PAS LA LEUR. Leur maille part dans le vert, le
+     bleu et le jaune ; celle-ci ne sort pas de la charte : encre forte
+     #161817, vert d'action #16332A, vert verifie #26654A, vert de marque
+     #2E7D5B, et une seule pointe de #4CB98C. Aucune teinte inventee.
+
+     ET LE VERT RESTE RARE, ce que la charte pose en regle : une seule carte
+     sur toute la page le porte. C'est cette rarete qui la designe comme la
+     carte maitresse, avant meme que la taille du texte le dise.
+
+     LA TEXTURE est un bruit fractal en SVG, pose PAR-DESSUS les degrades. Sans
+     lui, une maille de verts se lit comme un aplat sale ; avec lui, elle a du
+     grain, et c'est exactement ce qui distingue leurs cartes d'un fond
+     degrade quelconque. Le bruit est desature et a 34 % : au-dela il mange le
+     texte, en deca il ne se voit plus. */
+  .xc .reglage.vert,
+  .xc .parcours {
+    border-color: transparent;
+    background-color: var(--si-action-vert);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.34'/%3E%3C/svg%3E"),
+      radial-gradient(120% 150% at 8% 8%, rgb(var(--si-verified-rgb) / 0.95) 0%, transparent 58%),
+      radial-gradient(90% 120% at 96% 0%, rgb(var(--si-verified-dot-rgb) / 0.22) 0%, transparent 52%),
+      radial-gradient(120% 130% at 100% 100%, rgb(var(--si-brand-green-rgb) / 0.62) 0%, transparent 60%),
+      linear-gradient(152deg, var(--si-ink-strong) 0%, var(--si-action-vert) 62%);
+    background-size: 180px 180px, auto, auto, auto, auto;
+  }
+  /* Sur le vert, les encres s'inversent : la charte donne « onBrand » pour ce
+     cas, texte clair et accent #9AD8B8. */
+  .xc .reglage.vert .pastille {
+    border-color: rgb(var(--si-surface-rgb) / 0.30);
+    background: rgb(var(--si-surface-rgb) / 0.10);
+    color: var(--si-verified-on-forest);
+  }
+  .xc .reglage.vert .rang { color: rgb(var(--si-surface-rgb) / 0.55); }
+  .xc .reglage.vert .n { color: var(--si-verified-on-forest); }
+  .xc .reglage.vert .d { color: var(--si-surface); }
+  /* Les surfaces vertes portent l'ombre d'un cran plus bas : ce sont les seules
+     surfaces sombres de la page, et une surface sombre posee a plat sur un fond
+     clair se lit comme un trou. */
+  .xc .reglage.vert,
+  .xc .parcours {
+    box-shadow:
+      0 2px 6px -2px rgb(var(--si-line-ink-rgb) / 0.22),
+      0 34px 64px -36px rgb(var(--si-line-ink-rgb) / 0.48);
+  }
+  /* Le texte et le repere passent AU-DESSUS du filigrane. */
+  .xc .reglage .tete-carte, .xc .reglage .txt { position: relative; z-index: 1; }
+
+  /* ── L'ombre du survol ───────────────────────────────────────────────────
+     « .safe-zoom » pose une ombre au survol, mais elle n'a qu'UNE couche, et
+     l'ombre de repos de la carte en a trois, declarees plus tard dans la
+     cascade : la sienne ne prenait donc jamais. La carte montait au survol
+     sans que son ombre s'approfondisse, ce qui est une moitie de geste.
+
+     Elle porte donc sa propre elevation, dans le MEME vocabulaire que son
+     repos : les trois couches conservees, la longue simplement creusee. Le
+     mouvement, lui, reste celui de « .safe-zoom ». */
+  .xc .reglage.safe-zoom:hover,
+  .xc .reglage.safe-zoom:focus-visible {
+    box-shadow:
+      inset 0 1px 0 rgb(var(--si-surface-rgb) / 0.9),
+      0 2px 4px rgb(var(--si-line-ink-rgb) / 0.07),
+      0 24px 46px -26px rgb(var(--si-line-ink-rgb) / 0.38);
+  }
+  .xc .reglage.vert.safe-zoom:hover,
+  .xc .reglage.vert.safe-zoom:focus-visible {
+    box-shadow:
+      0 3px 8px -2px rgb(var(--si-line-ink-rgb) / 0.26),
+      0 44px 78px -38px rgb(var(--si-line-ink-rgb) / 0.55);
+  }
+
+  /* ── L'apparition des cartes ─────────────────────────────────────────────
+     Reference ElevenLabs, relevee au DOM le 2026-09-01 : aucune image-cle, des
+     transitions COURTES, de 150 a 360 ms, sur cubic-bezier(0.4, 0, 0.2, 1).
+     L'entree de la page, elle, dure 780 ms. Deux a cinq fois plus lent.
+
+     Ce bloc prend donc sa propre cadence, plus vive, sans toucher au reste de
+     la page : ce serait un autre chantier, et il se deciderait en le voyant.
+
+     Un seul geste, et court : la carte monte de dix pixels en paraissant, avec
+     60 ms d'ecart d'une carte a l'autre. Rien ne surgit, rien ne tourne, rien
+     ne change d'echelle. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* ⚠ L'ENTREE UTILISE « translate », PAS « transform ».
+
+       « .safe-zoom » tient deja la propriete « transform » pour le survol.
+       Ecrire l'entree sur la meme propriete faisait que la derniere regle
+       declaree gagnait : ou bien la carte ne montait plus en paraissant, ou
+       bien elle ne se soulevait plus au survol. Les proprietes individuelles
+       « translate » et « transform » se composent au lieu de s'ecraser, donc
+       les deux gestes cohabitent sans qu'aucun ait a ceder. */
+    .xc .reglage[data-parait] {
+      opacity: 0;
+      translate: 0 10px;
+      transition: opacity 340ms var(--vif), translate 340ms var(--vif);
+    }
+    .xc .reglage[data-parait="vu"] { opacity: 1; translate: 0 0; }
+
+    /* ── Le symbole se pose ────────────────────────────────────────────────
+       Deux gestes, et deux seulement.
+
+       A L'APPARITION : il monte de quatre pixels et passe de 0,88 a son
+       echelle, en 320 ms, 140 ms apres sa carte. Il arrive donc APRES la
+       surface qui le porte, jamais avec elle : un symbole qui parait en meme
+       temps que sa carte se lit comme une image collee dessus.
+
+       AU SURVOL : il grandit d'un poil, avec la carte. C'est le meme geste que
+       « .safe-zoom » applique a la surface, repris un cran plus haut sur ce
+       qu'elle contient.
+
+       Ni rotation, ni rebond, ni trace de contour. Le referentiel design
+       nomme ces trois-la : ce sont les tics d'une page fabriquee a la chaine,
+       et un symbole qui se dessine tout seul detourne l'oeil de la phrase qu'il
+       annonce. */
+    .xc .reglage .pastille .ic {
+      opacity: 0;
+      scale: 0.88;
+      translate: 0 4px;
+      transition:
+        opacity 320ms var(--vif) 140ms,
+        scale 320ms var(--vif) 140ms,
+        translate 320ms var(--vif) 140ms;
+    }
+    .xc .reglage[data-parait="vu"] .pastille .ic {
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+    }
+    /* Au survol, le delai d'apparition n'a plus lieu d'etre : il ferait
+       attendre un dixieme de seconde avant que le symbole reagisse. */
+    .xc .reglage.safe-zoom:hover .pastille .ic,
+    .xc .reglage.safe-zoom:focus-visible .pastille .ic {
+      scale: 1.09;
+      transition:
+        scale 260ms cubic-bezier(0.16, 1, 0.3, 1) 0ms,
+        opacity 320ms var(--vif) 0ms,
+        translate 320ms var(--vif) 0ms;
+    }
+
+    /* Le filigrane arrive APRES le texte de sa carte, et plus lentement : il
+       n'a rien a dire, il installe. Un logo qui parait en meme temps que la
+       phrase se dispute la lecture avec elle. */
+    .xc .reglage .filigrane {
+      opacity: 0;
+      translate: 10px 10px;
+      transition:
+        opacity 900ms var(--doux) 240ms,
+        translate 900ms var(--doux) 240ms;
+    }
+    .xc .reglage[data-parait="vu"] .filigrane { opacity: var(--filigrane); translate: 0 0; }
+  }
+  /* Sans mouvement, le filigrane et les symboles sont simplement la. */
+  @media (prefers-reduced-motion: reduce) {
+    .xc .reglage .filigrane { opacity: var(--filigrane); }
+    .xc .reglage .pastille .ic { opacity: 1; }
+  }
+  /* Et quand le script n'a pas tourne, rien ne doit rester invisible. C'est le
+     garde-fou qui compte le plus ici : un symbole a l'opacite zero derriere un
+     observateur qui ne se serait jamais declenche laisserait cinq pastilles
+     vides, et personne ne verrait que c'est un defaut. */
+  .xc .reglage:not([data-parait]) .filigrane { opacity: var(--filigrane); }
+  .xc .reglage:not([data-parait]) .pastille .ic { opacity: 1; }
+  /* La cloture reprend « .dire » telle quelle : meme mesure, meme encre, meme
+     taille. Elle est simplement dans l'autre colonne.
+
+     Et elle descend au PIED de l'enumeration. Calee en haut, elle laissait
+     quatre cents pixels de blanc sous elle des que les cinq reglages ont pris
+     leur ligne d'explication ; et surtout, une conclusion qui arrive avant ce
+     qu'elle conclut n'en est pas une. Les deux colonnes se terminent donc
+     ensemble, et le blanc passe au-dessus, ou il se lit comme une respiration
+     entre la phrase de la tete et la chute. */
+  .xc .recit .dire.cloture { margin-top: clamp(28px, 3.2vw, 40px); }
+
+  /* ── La suite des cinq temps, mouvement 6 ───────────────────────────────
+     UN SEUL BLOC, ET C'EST TOUT LE PROPOS.
+
+     La premiere version posait quatre cartes claires en rang puis une verte,
+     donc une seconde grille de cartes juste apres celle du mouvement 5. Le CEO
+     l'a vue et a tranche le 2026-09-01 : « le seul probleme, c'est redondant
+     avec l'autre plus haut ». Il avait raison, et je l'avais annonce avant de
+     le faire quand meme.
+
+     Le mouvement 5 pose CINQ surfaces claires. Le mouvement 6 en pose UNE,
+     sombre. Les cinq temps n'y sont plus des cartes mais des lignes, et la
+     page se termine sur un objet unique au lieu d'une repetition. C'est aussi
+     ce qui donne aux deux boutons une place : ils sont DANS le bloc, a la fin
+     de ce qu'il promet, au lieu de flotter sous une phrase.
+
+     CE QUE CETTE FORME REGLE AU PASSAGE. Le CEO avait demande la veille
+     d'aligner les mini titres, qui flottaient de 53 px d'une carte a l'autre
+     parce que les phrases n'avaient pas le meme nombre de lignes. Il avait
+     fallu une grille imbriquee pour les rattraper. Ici les noms sont dans une
+     COLONNE, donc alignes par construction : le correctif disparait avec le
+     probleme.
+
+     Le fond, l'ombre et l'inversion des encres sont ceux de la carte maitresse
+     du mouvement 5, ecrits une seule fois pour les deux. */
+  .xc .parcours {
+    margin-top: clamp(30px, 3.6vw, 48px);
+    border-radius: 20px;
+    padding: clamp(26px, 3vw, 44px);
+    position: relative;
+    overflow: hidden;
+  }
+  /* ── Le filigrane est EN HAUT sur ce bloc, et en bas sur la carte du
+     mouvement 5 ─────────────────────────────────────────────────────────
+     Ce n'est pas une incoherence, c'est la meme regle appliquee a deux
+     objets differents : le repere va dans le vide de la surface.
+
+     La carte du mouvement 5 a son vide en bas a droite, son texte etant cale
+     au pied a gauche. Ce bloc-ci a le sien EN HAUT a droite, ou les phrases
+     s'arretent bien avant le bord ; son bas, lui, est occupe par la phrase de
+     cloture et les deux boutons.
+
+     En bas, le repere passait derriere « Parler a quelqu'un », et ce bouton
+     etant translucide on le voyait AU TRAVERS. Deplace le 2026-09-01 sur
+     retour du CEO. */
+  .xc .parcours .filigrane {
+    position: absolute;
+    right: -30px;
+    top: -46px;
+    line-height: 0;
+    pointer-events: none;
+    opacity: var(--filigrane);
+    transform-origin: top right;
+  }
+  /* Sous 1200 px les phrases s'allongent vers la droite et viennent chercher le
+     repere : mesure a 1024, il mordait de 87 px sur la troisieme. Il rapetisse
+     donc au lieu de disparaitre, en gardant son coin. */
+  @media (max-width: 1200px) {
+    .xc .parcours .filigrane { scale: 0.66; top: -32px; right: -22px; }
+  }
+  /* Et sous 1000 px il s'en va. Mesure a 900 : meme reduit, il mordait de
+     94 px sur une phrase. Le vide qu'il occupait n'existe plus a cette
+     largeur, et une marque qui passe sous du texte ne decore plus rien. */
+  @media (max-width: 1000px) {
+    .xc .parcours .filigrane { display: none; }
+  }
+  .xc .parcours .filigrane svg { display: block; }
+  .xc .parcours .temps { position: relative; z-index: 1; }
+  /* Une ligne = un symbole, un rang, un nom, une phrase. Les trois premieres
+     colonnes sont de largeur FIXE : les noms tombent donc les uns sous les
+     autres, sans rien a maintenir. */
+  .xc .parcours .l {
+    display: grid;
+    grid-template-columns: 38px 34px minmax(140px, 200px) 1fr;
+    gap: clamp(14px, 1.6vw, 24px);
+    align-items: center;
+    padding: clamp(14px, 1.5vh, 19px) 0;
+    border-top: 1px solid rgb(var(--si-surface-rgb) / 0.16);
+  }
+  .xc .parcours .l:last-child { border-bottom: 1px solid rgb(var(--si-surface-rgb) / 0.16); }
+  .xc .parcours .pastille {
+    width: 38px; height: 38px; border-radius: 11px;
+    border: 1px solid rgb(var(--si-surface-rgb) / 0.28);
+    background: rgb(var(--si-surface-rgb) / 0.09);
+    color: var(--si-verified-on-forest);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .xc .parcours .pastille .ic { width: 18px; height: 18px; stroke-width: 1.5; display: block; }
+  .xc .parcours .rang {
+    font-family: var(--mono);
+    font-size: var(--t-detail);
+    color: rgb(var(--si-surface-rgb) / 0.5);
+    font-variant-numeric: tabular-nums;
+  }
+  .xc .parcours .n { font-size: var(--t-corps); color: var(--si-verified-on-forest); }
+  .xc .parcours .d { font-size: var(--t-corps); line-height: 1.45; color: var(--si-surface); }
+
+  .xc .parcours .pied {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(24px, 3vw, 40px);
+    margin-top: clamp(24px, 2.6vw, 34px);
+  }
+  .xc .parcours .pied p {
+    margin: 0;
+    font-size: var(--t-argument);
+    line-height: 1.3;
+    letter-spacing: -0.014em;
+    color: var(--si-surface);
+    max-width: 32ch;
+  }
+  .xc .parcours .actes { display: flex; gap: 10px; flex: none; }
+  /* Les boutons sur le vert : le plein prend la surface claire, le second
+     reste un contour. Ils n'inventent pas un bouton, ils inversent « .btn ». */
+  .xc .parcours .btn {
+    background: var(--si-surface);
+    color: var(--si-ink-strong);
+    border-color: transparent;
+  }
+  .xc .parcours .btn.ghost {
+    background: rgb(var(--si-surface-rgb) / 0.12);
+    color: var(--si-surface);
+    border: 1px solid rgb(var(--si-surface-rgb) / 0.32);
+  }
+
+  @media (max-width: 860px) {
+    /* Le symbole et le rang gardent leur colonne, le nom passe AU-DESSUS de sa
+       phrase : a cette largeur, quatre colonnes laisseraient six mots par
+       ligne a la phrase. */
+    .xc .parcours .l { grid-template-columns: 38px 34px 1fr; row-gap: 5px; align-items: start; }
+    .xc .parcours .pastille { align-self: center; }
+    .xc .parcours .n, .xc .parcours .d { grid-column: 3; }
+    .xc .parcours .pied { flex-direction: column; align-items: stretch; }
+    .xc .parcours .pied p { max-width: none; }
+    .xc .parcours .actes { flex-direction: column; }
+    .xc .parcours .btn { text-align: center; }
+  }
+
+  @media (max-width: 1100px) {
+    /* Deux colonnes : la carte large garde son rang, les quatre autres se
+       rangent par deux. Le bento tient, il se resserre. */
+    .xc .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .xc .bento .reglage.large { grid-column: span 2; }
+    /* Et la grille imbriquee est rendue : elle alignait QUATRE cartes sur une
+       rangee, il y en a maintenant deux par rangee et deux rangees. Les cartes
+       reprennent donc la disposition en colonne, texte au pied. L'ecart de
+       libelle qui subsiste ne porte plus que sur deux voisines au lieu de
+       quatre. */
+      grid-row: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+  @media (max-width: 700px) {
+    /* Au pouce, une colonne. La hauteur minimale tombe : elle servait a creer
+       le vide entre le repere et le texte, et sur une carte pleine largeur ce
+       vide devient un trou. */
+    .xc .bento { grid-template-columns: 1fr; }
+    .xc .bento .reglage.large { grid-column: auto; }
+    .xc .reglage { min-height: 0; }
+    .xc .reglage .txt { margin-top: 26px; }
+    .xc .reglage .d, .xc .bento .reglage.large .d { max-width: none; }
+  }
+
 
   /* La declaration que la certification fait signer a l'avocate. Citee entre
      guillemets et posee comme une phrase, pas comme une donnee : c'est un
@@ -3813,68 +4399,6 @@ const CSS = `
      Ce qui eloignait le titre de l'argument n'etait pas la tete mais l'ecart
      qui la suivait : il valait clamp(56px, 8vh, 104px) et un filet, sous
      lequel deux colonnes de petit gris arrivaient deux ecrans plus bas. */
-  /* ── Les deux vues, sous les deux colonnes de la tete ─────────────────────
-     La grille est EXACTEMENT celle de « .tete » : memes colonnes, meme
-     gouttiere. C'est ce qui met la photographie de l'equipe sous le titre et
-     celle de l'avocate sous « SAFE ne remplace pas l'equipe ». Demande CEO du
-     2026-08-26.
-
-     Avec une grille a elle, la section posait deux bords verticaux de plus au
-     milieu de la page. La regle du site est qu'un bloc se cale sur une colonne
-     existante, il n'en cree pas.
-
-     La reduction de taille demandee plus tot dans la journee tient toujours,
-     mais elle porte sur la PHOTOGRAPHIE et non sur la grille : borner la
-     grille a 880 px la decalait des colonnes de la tete, ce qui est justement
-     le defaut a corriger. Chaque cellule fait donc sa demi-page, et l'image
-     s'arrete a 422 px a l'interieur. */
-  .xc .deux-vues {
-    margin-top: clamp(32px, 4.4vh, 52px);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(32px, 5vw, 88px);
-  }
-  .xc .deux-vues .vue { margin: 0; }
-  /* La photographie porte le meme rayon que les cartes de forfait, et le meme
-     filet : c'est une surface du site, pas une image rapportee. */
-  .xc .vue-photo {
-    width: 100%;
-    /* 422 px : la taille arretee le 2026-08-26. Elle vit ici, sur l'image, et
-       non sur la grille, pour que la cellule garde sa colonne. */
-    max-width: 422px;
-    height: auto;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-    border-radius: 14px;
-    border: 1px solid var(--si-border);
-  }
-  .xc .deux-vues .vue figcaption { margin-top: 18px; max-width: 422px; }
-  /* Le role, en minuscules et en encre pleine. Il portait « .rang », les
-     capitales espacees de 11 px que le site emploie pour ses exergues. Deux
-     defauts : elles annoncent une categorie la ou ces libelles nomment
-     quelqu'un, et a 11 px elles pesaient moins que la phrase qu'elles
-     introduisent. Elles prennent la mesure du texte d'explication, et c'est
-     l'encre qui les distingue, pas la casse. */
-  /* Ecrit « .xc .deux-vues .vue p.vue-role » et non « .xc .vue-role » : la
-     regle voisine des paragraphes compte trois classes et un element, elle
-     l'emportait. Le role sortait donc en gris, a la couleur exacte de la
-     phrase qu'il introduit, et rien ne les separait plus. */
-  .xc .deux-vues .vue p.vue-role {
-    margin-top: 0;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    color: var(--si-ink);
-  }
-  .xc .deux-vues .vue p {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.55;
-    color: var(--si-muted);
-  }
-  .xc #equipe .chute { margin-top: clamp(28px, 3.4vw, 44px); }
 
   /* ── 07 · L'offre ─────────────────────────────────────────────────────────
      Les trois temps de la mise en service, sous les deux forfaits : le prix
@@ -4109,7 +4633,7 @@ const CSS = `
     /* Par défaut, un enfant de grille refuse de descendre sous la largeur de
        son plus long mot et pousse toute la rangée hors de l'écran. */
     .xc .fi-grid > *, .xc .co-grid > *, .xc .q > *,
-    .xc .deux-blocs > *, .xc .deux-vues > *,
+    .xc .deux-blocs > *,
     .xc .bloc-maitre > *, .xc .morceau > *, .xc .co-arg > *,
     .xc .fi-arg > *, .xc .co-item > * { min-width: 0; }
 
@@ -4601,19 +5125,16 @@ const CSS = `
        maître avant les deux blocs secondaires, la vue de l'adjointe avant
        celle de l'avocate. */
     .xc .deux-blocs,
-    .xc .deux-vues,
     .xc .bloc-maitre,
     .xc .morceaux { margin-top: 26px; }
     .xc .bloc-maitre { margin-top: 26px; padding: 22px 0; }
-    .xc .deux-vues { margin-top: 26px; }
     /* Le repère de l'endroit passe sous la phrase : à 335 px, une colonne de
        droite en plus de la colonne du numéro ne laisse plus rien au texte. */
     .xc .morceau { grid-template-columns: 26px 1fr; row-gap: 6px; padding: 13px 0; }
     .xc .morceau .t { font-size: var(--t-detail); line-height: 1.5; }
     .xc .morceau .ou { grid-column: 2; }
     .xc .bloc-maitre h3, .xc .deux-blocs h3 { font-size: var(--t-argument); max-width: none; }
-    .xc .bloc-maitre p, .xc .deux-blocs p,
-    .xc .deux-vues .vue p { max-width: none; }
+    .xc .bloc-maitre p, .xc .deux-blocs p { max-width: none; }
     .xc .chute, .xc .fi-precision { max-width: none; font-size: var(--t-corps); }
     .xc .contexte li { font-size: var(--t-menu); padding: 6px 10px; }
     .xc .fi-intro { margin-top: 12px; font-size: var(--t-detail); line-height: 1.5; max-width: none; }
@@ -6270,23 +6791,6 @@ const LIENS_NAV: [string, string][] = [
    Les libelles partent avec elle : une constante que plus rien ne lit est un
    piege pour la prochaine lecture. */
 
-/* Les deux points de vue de la section « equipe ». Chacun porte sa
-   photographie : l'image dit de qui on parle avant qu'on ait lu le role. */
-const VUES: [string, string, string, string][] = [
-  [
-    "/images/equipe/equipe-administrative.webp",
-    "Trois personnes travaillent dans un bureau ; l'une consulte le tableau de bord SAFE.",
-    "Pour l'équipe administrative",
-    "L'adjointe conserve la connaissance du cabinet. Moins de ressaisie, de recherche et de suivis invisibles.",
-  ],
-  [
-    "/images/equipe/avocate.webp",
-    "Une avocate annote un document a son bureau, le Code civil du Quebec a portee de main.",
-    "Pour l'avocate",
-    "L'avocate conserve le jugement professionnel. Les montants, les échéances et ce qui demande une décision.",
-  ],
-];
-
 const QUESTIONS: Objection[] = [
   [
     "SAFE remplace-t-il mon logiciel comptable ?",
@@ -7536,45 +8040,172 @@ export default function ExperienceCinema() {
          une carte, sa photographie, son role, sa phrase, et les cartes
          commencent tout de suite sous la tete. L'image dit de qui on parle
          avant qu'on ait lu le libelle. */}
-      <section className="recit" id="equipe">
+      {/* ── 07 · MOUVEMENT 5 · La realite ────────────────────────────────────
+          Il manquait. La page passait de la conformite aux deux photographies
+          de la section « equipe », qui ne figure dans aucun des six mouvements
+          arretes. Decision CEO du 2026-09-01 : le mouvement 5 prend sa place,
+          et la page suit enfin la structure de bout en bout.
+
+          ⚠ LE CHIFFRE EST RETIRE, ET C'EST UNE DECISION, PAS UN OUBLI.
+          `docs/product/STRUCTURE_FINALE_ACCUEIL.md` ecrit ici « SAFE est deja
+          utilise dans deux cabinets. Un troisieme deploiement est en
+          preparation », et signale lui-meme que l'affirmation est a revalider
+          avant mise en ligne. Verification faite le 2026-09-01 :
+            · `Delivery Syst/clients/` ne porte qu'un dossier reel,
+              `derisier-law-on-2026`, avec ses trois phases ;
+            · le cabinet de Me Dadie est en production mais VIDE depuis le
+              2026-08-14, en acces gratuit, et le lead est volontairement non
+              converti ;
+            · `SAFE Inc./03 - Contrats/` ne contient que des gabarits.
+          Deux cabinets utilisateurs ne se demontrent donc pas. Le CEO a
+          tranche : aucun chiffre. Le mouvement garde son propos, l'adaptation
+          a chaque cabinet, sans avancer de nombre que personne ne pourrait
+          verifier. Ne pas remettre de chiffre ici sans une source datee.
+
+          Pas de fenetre de produit dans ce mouvement, et c'est voulu : apres
+          trois sections qui en portent une, la page reprend son souffle avant
+          la projection. Le poids est typographique, pas illustratif. */}
+      <section className="recit" id="realite">
         <div className="inner">
           <div className="tete">
-            <h2>SAFE soutient votre cabinet</h2>
+            {/* Titre repris MOT POUR MOT de la structure finale, mouvement 5.
+                Deux encres, comme les quatre mouvements precedents. */}
+            <h2>Conçu dans la réalité <em>des cabinets d&apos;ici.</em></h2>
+            {/* La phrase disait « Le systeme se construit au contact de cabinets
+                reels ». SAFE y etait le heros, et le cabinet le decor. Elle
+                part maintenant du lecteur et de ce qu'il sait deja de son
+                metier. Regle de contenu du CEO : le client est le heros. */}
             <p className="dire">
-              {/* « Il lui donne un systeme commun pour travailler » survivait au
-                  test de substitution du bareme : n'importe quel concurrent
-                  pouvait l'ecrire. La phrase dit maintenant ce qui est retire
-                  et ce qui ne l'est pas. Le TITRE ne bouge pas, il est du CEO. */}
-              <b>Votre adjointe connaît vos dossiers mieux qu&apos;un logiciel ne le fera.</b>{" "}
-              SAFE lui retire la ressaisie, pas la connaissance.
+              <b>Deux cabinets ne classent pas leurs dossiers de la même façon.</b> SAFE se
+              règle sur le vôtre avant votre première journée.
             </p>
           </div>
 
-          <div className="deux-vues">
-            {VUES.map(([image, alt, role, phrase]) => (
-              <figure className="vue" key={role}>
-                <Image
-                  src={image}
-                  alt={alt}
-                  width={1400}
-                  height={933}
-                  /* L'emplacement est borne a 422 px depuis que « .deux-vues »
-                     l'est a 880. Sans cette mesure, Next servirait le fichier
-                     taille pour une demi-page. */
-                  sizes="(max-width: 900px) 100vw, 440px"
-                  className="vue-photo"
-                />
-                <figcaption>
-                  {/* « .rang » est l'exergue en capitales espacees du reste du
-                      site. Il ne sert plus ici : decision CEO du 2026-08-26,
-                      ces deux libelles passent en minuscules. Une capitale
-                      espacee annonce une CATEGORIE ; ces deux-la nomment
-                      quelqu'un, et un nom se lit comme un nom. */}
-                  <p className="vue-role">{role}</p>
-                  <p>{phrase}</p>
-                </figcaption>
-              </figure>
-            ))}
+          {/* ── LES CINQ POINTS D'ADAPTATION ────────────────────────────────
+              Repris mot pour mot, et posés en LISTE et non en cartes : la
+              regle du brief pour le mouvement 4, « composition editoriale, pas
+              des cartes generiques », vaut ici de plus belle. Ces cinq points
+              ne sont pas cinq concepts autonomes, ce sont les cinq complements
+              d'une meme phrase : les encadrer serait leur preter une autonomie
+              qu'ils n'ont pas.
+
+              Des lignes separees par un filet, donc, avec leur rang en chasse
+              fixe. C'est la grammaire des registres du produit, et ce n'est pas
+              un hasard : le mouvement parle de ce que le cabinet configure. */}
+          <div className="realite-corps">
+          {/* ── LES CINQ REGLAGES ───────────────────────────────────────────
+              Ils n'etaient que cinq noms : « aux domaines de pratique », « aux
+              parcours administratifs ». Des mots de specification, que personne
+              ne peut se representer. Une enumeration qui ne se represente pas
+              ne prouve rien.
+
+              Chacun porte donc sa ligne concrete, la forme meme des
+              enumerations d'ElevenLabs relevee le 2026-09-01 : un nom, puis une
+              phrase courte qui dit ce que c'est.
+
+              CHAQUE LIGNE EST ADOSSEE A CE QUI EST REELLEMENT CONFIGURABLE,
+              d'apres docs/configuration/CONFIG_GENERATION_MODEL.md :
+                01 → `disciplines` + les neuf cartables de
+                     lib/dossiers/cartable-templates ;
+                02 → `checklistsParType` ;
+                03 → `ongletsActifs` / `ongletsMasques` / `modules` / roles ;
+                04 → `seedPlan` : checklists, gabarits de debours, gabarits de
+                     courriel ;
+                05 → `conformite`.
+              Ne pas ajouter un sixieme reglage sans une entree correspondante
+              dans ce modele. */}
+          <div className="adaptations">
+            <p className="mene">Ce qui se règle avant votre première journée :</p>
+            {/* ── LE BENTO ────────────────────────────────────────────────────
+                Direction artistique demandee par le CEO le 2026-09-01, sur
+                quatre captures d'elevenlabs.io. Trois choses en sont reprises,
+                et elles sont toutes verifiables sur leurs pages :
+
+                1. L'INVERSION DES ENCRES. Chez eux le libelle de categorie est
+                   en GRIS et la phrase en encre pleine : « Omnichannel agents »
+                   gris, « Agents listen, read and interact... » noir. C'etait
+                   l'inverse ici. La substance prend l'encre, l'etiquette la
+                   cede.
+                2. LE TEXTE AU PIED DE LA CARTE. Le repere en haut, un vide, le
+                   texte en bas. C'est ce vide qui donne l'air, pas la taille du
+                   texte.
+                3. UN BENTO ASYMETRIQUE, deux cartes puis trois, jamais cinq
+                   cases identiques. Une grille reguliere de cinq est justement
+                   la forme que le referentiel design proscrit.
+
+                Le repere en haut n'est PAS une icone. Cinq pictogrammes
+                generiques sur cinq cartes, c'est la signature d'une page
+                fabriquee a la chaine, et le catalogue anti-slop la nomme. Le
+                rang en chasse fixe tient ce role, et il parle la langue de la
+                page. */}
+            <div className="bento">
+              {([
+                [Briefcase, "Vos domaines de pratique", "Un dossier d’immobilier ne s’ouvre pas comme un dossier de famille. Chacun a sa structure, ses sections et ses pièces."],
+                [FolderTree, "La structure de vos dossiers", "Les sections du cartable et les pièces attendues, domaine par domaine."],
+                [Users, "Les responsabilités de l’équipe", "Ce que chacun voit et ce que chacun peut faire, selon son rôle."],
+                [ListChecks, "Vos parcours administratifs", "Vos étapes, dans votre ordre, avec vos gabarits et vos débours."],
+                [ShieldCheck, "Les contrôles nécessaires", "Ce que SAFE signale, et ce qu’il refuse de laisser passer."],
+              ] as [
+                React.ComponentType<{ className?: string; style?: React.CSSProperties }>,
+                string,
+                string,
+              ][]).map(
+                ([Symbole, nom, ligne], i) => (
+                  /* « safe-zoom » est la grammaire de survol du site entier
+                     (app/globals.css) : la surface se souleve, aucun aplat gris.
+                     Regle dure du CEO du 2026-08-11. Elle n'est pas recopiee
+                     ici, elle est employee. */
+                  /* « vert » est le ROLE (fond en degrade, encres inversees),
+                     « large » est la TAILLE (deux colonnes, texte d'un cran).
+                     Les deux sont separes depuis que le mouvement 6 reprend le
+                     meme fond sur une carte qui n'est pas large. */
+                  <article className={"reglage safe-zoom" + (i === 0 ? " vert large" : "")} key={nom}>
+                    {/* Le repere de la marque, en filigrane, et sur la seule
+                        carte qui porte le vert. Il occupe le vide de droite que
+                        la carte large avait, et il se pose APRES son texte :
+                        un logo qui arrive en meme temps que la phrase se
+                        dispute la lecture avec elle.
+
+                        Ton « onBrand » : la charte le prevoit exactement pour
+                        un fond vert de marque, casse et emeraude. */}
+                    {i === 0 ? (
+                      <span className="filigrane" aria-hidden>
+                        <SafeMark size={190} tone="onBrand" />
+                      </span>
+                    ) : null}
+                    {/* Le symbole ET le rang. Le symbole dit de quoi on parle
+                        avant qu'on ait lu ; le rang dit qu'il y en a cinq et
+                        dans quel ordre. Ils ne se repetent pas, ils repondent a
+                        deux questions differentes. */}
+                    <span className="tete-carte" aria-hidden>
+                      <span className="pastille">
+                        <Symbole
+                          className="ic"
+                          style={CALAGE_GLYPHE[(Symbole as { displayName?: string }).displayName ?? ""]}
+                        />
+                      </span>
+                      <span className="rang">{String(i + 1).padStart(2, "0")}</span>
+                    </span>
+                    <div className="txt">
+                      <p className="n">{nom}</p>
+                      <p className="d">{ligne}</p>
+                    </div>
+                  </article>
+                ),
+              )}
+            </div>
+          </div>
+
+          {/* Cloture, mot pour mot. Deux encres : ce qui affirme prend l'encre
+              pleine, ce qui acheve passe en gris. */}
+          {/* La seconde phrase arretee, « Il est configure autour de la maniere
+              dont le travail doit reellement circuler », est passive et decrit
+              un reglage. Celle-ci dit la meme chose du point de vue du cabinet
+              et se retient. */}
+          <p className="dire cloture">
+            <b>SAFE ne vous demande pas d&apos;adopter une structure générique.</b> Il prend
+            la forme de votre cabinet, pas l&apos;inverse.
+          </p>
           </div>
         </div>
       </section>
@@ -7620,19 +8251,92 @@ export default function ExperienceCinema() {
       </section>
 
       {/* ── 09 · La prochaine étape ─────────────────────────────────────── */}
+      {/* ── 09 · MOUVEMENT 6 · La projection ─────────────────────────────────
+          La section fermait la page avec un titre, une phrase et deux boutons.
+          Il lui manquait ce que la structure lui donne : les CINQ TEMPS de
+          l'implantation. Elle les porte maintenant.
+
+          FORME : la piste « chemin », choisie par le CEO le 2026-09-01 sur
+          trois maquettes. Quatre etapes reliees, puis la cinquieme en pleine
+          largeur sur le degrade, qui porte les deux actions.
+
+          POURQUOI PAS LE BENTO DU MOUVEMENT 5. Le mouvement 5 enumere cinq
+          dimensions PARALLELES : on peut lire la quatrieme avant la deuxieme,
+          rien ne se casse. Le mouvement 6 enumere cinq etapes SEQUENTIELLES,
+          et l'ordre est le propos. Cinq cases posees cote a cote disent « voici
+          cinq choses », jamais « voici cinq choses dans cet ordre ».
+
+          LE MIROIR VERT. Le mouvement 5 s'OUVRE sur la carte en degrade, le
+          mouvement 6 s'y TERMINE. Les deux dernieres sections se repondent, et
+          la page se referme sur sa promesse. C'est aussi ce qui donne aux deux
+          boutons une place au lieu de les laisser flotter sous une phrase.
+
+          Les cartes reprennent « .reglage » telle quelle : meme grammaire, meme
+          apparition, meme survol, memes ombres, meme vert. Aucune seconde
+          famille de carte sur cette page. */}
       <section className="recit" id="cta">
         <div className="inner">
           <div className="tete">
-            <h2>Voyons ce que ça changerait chez vous</h2>
+            {/* Titre repris de la structure finale, mouvement 6. Il remplace
+                « Voyons ce que ca changerait chez vous », qui disait l'audit et
+                non la projection. L'audit reste, il est dans le bouton. */}
+            <h2>Voyez votre cabinet <em>fonctionner comme un seul système.</em></h2>
             <p className="dire">
-              <b>Une quinzaine de minutes de questions sur votre pratique.</b> Vous recevez un
-              rapport chiffré sous 24 heures.
+              <b>L&apos;implantation commence par le fonctionnement réel du cabinet.</b> Cinq
+              temps, dans cet ordre.
             </p>
           </div>
-          <div className="actions">
-            <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
-            <a className="btn ghost" href={ROUTES.rencontre}>Réserver une rencontre</a>
+
+          <div className="parcours">
+            {/* Le repere de la marque, en filigrane, rogne par le bas et la
+                droite : entier et centre il se lirait comme un logo pose sur
+                une carte de visite. */}
+            <span className="filigrane" aria-hidden>
+              <SafeMark size={230} tone="onBrand" />
+            </span>
+
+            <div className="temps">
+              {([
+                [Search, "Comprendre", "Les pratiques du cabinet et les responsabilités de chacun."],
+                [FolderTree, "Structurer", "Les dossiers et les parcours administratifs."],
+                [Link2, "Relier", "La facturation, la comptabilité opérationnelle et les contrôles."],
+                [CircleCheck, "Valider", "Le fonctionnement, avec l’équipe."],
+                /* « SAFE entre dans la journee du cabinet » a ete retire le
+                   2026-09-01 : le CEO l'a jugee trop anglicisee, et elle
+                   l'etait, c'etait un calque de « enters your day ». La phrase
+                   dit maintenant ce que la mise en service change vraiment, en
+                   francais : le travail cesse de se faire a cote de l'outil. */
+                [Sunrise, "Mettre en service", "Le cabinet travaille dedans, et non plus à côté."],
+              ] as [
+                React.ComponentType<{ className?: string; style?: React.CSSProperties }>,
+                string,
+                string,
+              ][]).map(([Symbole, nom, ligne], i) => (
+                <div className="l" key={nom}>
+                  <span className="pastille" aria-hidden>
+                    <Symbole
+                      className="ic"
+                      style={CALAGE_GLYPHE[(Symbole as { displayName?: string }).displayName ?? ""]}
+                    />
+                  </span>
+                  <span className="rang" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+                  <p className="n">{nom}</p>
+                  <p className="d">{ligne}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Les deux actions sont DANS le bloc, a la fin de ce qu'il
+                promet. Posees dessous, elles flottaient sous une phrase. */}
+            <div className="pied">
+              <p>Vous voyez ce que ça donne chez vous avant de décider quoi que ce soit.</p>
+              <div className="actes">
+                <a className="btn" href={ROUTES.evaluation}>Évaluer mon cabinet</a>
+                <a className="btn ghost" href={ROUTES.rencontre}>Parler à quelqu&apos;un</a>
+              </div>
+            </div>
           </div>
+
           <p className="reassure">Gratuit, sans carte de crédit. Rapport sous 24 heures.</p>
           {/* La mention vivait dans le pied de page de l'accueil. Elle concerne
               cette page, pas le site : elle rejoint donc la fin du récit, à la
