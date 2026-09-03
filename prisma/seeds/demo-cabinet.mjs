@@ -84,6 +84,11 @@ async function main() {
       tauxTPS: 5.0,
       langueDefaut: "fr",
       formatFacture: "standard",
+      // La province n'est pas décorative : getTrustRegulatorCopy() bascule sur
+      // l'Ontario dès qu'elle n'est pas exactement "QC", et l'écran du
+      // fidéicommis se met alors à parler anglais et à citer le LSO. Un cabinet
+      // qui facture la TVQ et tourne en français doit le déclarer.
+      province: "QC",
     }),
   };
   cabinet = cabinet
@@ -113,7 +118,16 @@ async function main() {
   console.log("[2] CabinetInterface configuré (modules juridiques)");
 
   // 3. Duo avocat + assistant(e)
-  const avocat = await upsertUser(cabinet.id, "camille.demo@safecabinet.ca", "Me Camille Roy", "avocat", passwordHash);
+  /* Me Camille Roy est admin_cabinet, comme l'avocat responsable de tout autre
+     cabinet de la base. En « avocat » simple, elle n'etait proprietaire de rien :
+     canEditBillingTrust() n'admet que admin_cabinet et comptabilite, donc
+     PERSONNE dans ce cabinet ne pouvait preparer un rapprochement de
+     fideicommis, et l'ecran repondait « Vous n'avez pas acces a cette section ».
+     C'est ce qui expliquait les zero rapprochements du 2026-08-27.
+     Dans un cabinet de cette taille, l'avocate principale est aussi
+     l'administratrice : la separation des taches entre qui prepare et qui
+     signe existe pour les cabinets qui ont une comptabilite distincte. */
+  const avocat = await upsertUser(cabinet.id, "camille.demo@safecabinet.ca", "Me Camille Roy", "admin_cabinet", passwordHash);
   const assistante = await upsertUser(cabinet.id, "aaliyah.demo@safecabinet.ca", "Aaliyah Côté", "assistante", passwordHash);
   console.log(`[3] Duo : avocat ${avocat.email} + assistante ${assistante.email}`);
 

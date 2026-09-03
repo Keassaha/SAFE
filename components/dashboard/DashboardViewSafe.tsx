@@ -1,7 +1,11 @@
 import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import type { DashboardPayload, ActivityFeedItem } from "@/lib/dashboard/types";
+import type {
+  DashboardPayload,
+  ActivityFeedItem,
+  TrustReconciliationSummary,
+} from "@/lib/dashboard/types";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
@@ -146,9 +150,7 @@ export async function DashboardViewSafe({
         }
         contexte={
           trustToReconcile
-            ? recon
-              ? `Dernier rapprochement certifié il y a ${recon.daysSince} jours.`
-              : "Aucun rapprochement n'a encore été effectué."
+            ? decrireDernierRapprochement(recon)
             : "Le fidéicommis est à jour. Reste à suivre les créances."
         }
         alertes={(alerts ?? []).slice(0, 2)}
@@ -253,6 +255,50 @@ export async function DashboardViewSafe({
  * montants — c'est leur place — et il reste ce que la bande doit dire : quoi
  * faire, pourquoi, et le bouton pour le faire.
  */
+/**
+ * Ce que la bande dit du dernier rapprochement de fidéicommis.
+ *
+ * ── Le défaut corrigé le 2026-08-27 ─────────────────────────────────────────
+ * La ligne testait la seule EXISTENCE du rapprochement et écrivait « Dernier
+ * rapprochement certifié il y a N jours » dans tous les cas. Un rapprochement
+ * en brouillon, ou équilibré mais non signé, était donc annoncé comme
+ * certifié. Constaté en exécutant un vrai rapprochement dans le cabinet de
+ * démonstration : la base disait `status=complete, certifiedAt=null`, l'écran
+ * disait « certifié il y a 0 jours ».
+ *
+ * Un écran qui affirme à une avocate que son fidéicommis est certifié alors
+ * qu'il ne l'est pas est un défaut de conformité, pas une coquille : c'est ce
+ * que produit exactement le contraire de la promesse, qui est de BLOQUER la
+ * certification tant qu'un écart subsiste.
+ *
+ * `certifiedAt` est la seule source de vérité de la signature. `status` décrit
+ * l'état du calcul, pas l'engagement de l'avocate.
+ */
+function decrireDernierRapprochement(
+  recon: TrustReconciliationSummary | null | undefined,
+): string {
+  if (!recon) return "Aucun rapprochement n'a encore été effectué.";
+
+  if (recon.certifiedAt) {
+    return recon.daysSince === 0
+      ? `Dernier rapprochement certifié aujourd'hui, période ${recon.periode}.`
+      : `Dernier rapprochement certifié il y a ${recon.daysSince} jour${recon.daysSince > 1 ? "s" : ""}.`;
+  }
+
+  if (recon.ecart !== 0) {
+    /* fr-CA en dur, comme les chaînes voisines de cette bande. Le montant est
+       composé à la québécoise : espace de groupe, virgule décimale, dollar
+       après le nombre. */
+    const ecart = new Intl.NumberFormat("fr-CA", {
+      style: "currency",
+      currency: "CAD",
+    }).format(Math.abs(recon.ecart));
+    return `Rapprochement de ${recon.periode} en attente : écart de ${ecart} à résoudre.`;
+  }
+
+  return `Rapprochement de ${recon.periode} équilibré, il reste à le certifier.`;
+}
+
 function BandeauAction({
   titre,
   contexte,

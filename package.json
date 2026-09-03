@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "brand:assets": "node scripts/render-brand-assets.mjs",
+    "brand:fonts": "node scripts/forger-safe-grotesk.mjs",
     "design:audit": "node scripts/design-audit.mjs",
     "design:baseline": "node scripts/design-baseline.mjs",
     "test": "vitest",
@@ -32,7 +33,8 @@
     "clients:merge-duplicates": "node scripts/merge-client-duplicates.mjs",
     "i18n:audit": "node scripts/i18n-audit.mjs",
     "i18n:audit:update-baseline": "node scripts/i18n-audit.mjs --update-baseline",
-    "i18n:keys": "node scripts/i18n-check-keys.mjs"
+    "i18n:keys": "node scripts/i18n-check-keys.mjs",
+    "dev:capture": "SAFE_DIST_DIR=.next-capture next dev --turbopack -p 3045"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

@@ -4,6 +4,24 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  /* ── Dossier de build isolable ──
+   * Ce dépôt fait tourner plusieurs serveurs de développement en parallèle
+   * (voir .claude/launch.json, six ports déclarés). Deux serveurs qui
+   * partagent `.next` s'effacent mutuellement les manifestes de build : tout
+   * tombe en HTTP 500 avec des ENOENT sur app-build-manifest.json, et le seul
+   * remède est de vider le cache, ce qui casse aussi la session voisine.
+   * Constaté le 2026-08-27 avec trois serveurs sur 3001, 3040 et 3055.
+   *
+   * Défaut inchangé : sans la variable, c'est `.next` comme avant.
+   *
+   * ⚠ Effet de bord à connaître. Quand la variable est posée, Next RÉÉCRIT
+   * `next-env.d.ts` et `tsconfig.json` pour les faire pointer vers le dossier
+   * isolé. Ces deux réécritures ne doivent JAMAIS être commitées : elles
+   * casseraient le typage de tous les autres postes, qui n'ont pas ce dossier.
+   * Après une session de capture : `git checkout -- next-env.d.ts tsconfig.json`.
+   * Les dossiers `.next-*` sont ignorés par git. */
+  distDir: process.env.SAFE_DIST_DIR || ".next",
+
   /* ── Performance ── */
   compress: true,
   poweredByHeader: false,

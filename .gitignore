@@ -7,6 +7,11 @@ node_modules
 .env*.bak.claude
 uploads/
 .next
+# Dossiers de build isoles, poses par SAFE_DIST_DIR (voir next.config.ts).
+# Plusieurs serveurs de developpement tournent en parallele sur ce depot et se
+# detruisaient mutuellement le cache dans .next ; chacun peut desormais avoir
+# le sien. Ils pesent ~900 Mo, ils n'ont rien a faire dans l'historique.
+.next-*
 
 # Vercel (lien local, ne pas versionner)
 .vercel
