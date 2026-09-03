@@ -3,312 +3,356 @@
 /**
  * Les forfaits SAFE, une seule fois pour tout le site public.
  *
- * L'accueil et /tarification annoncaient les MEMES deux prix dans deux
- * grammaires differentes : des cartes a coches sur l'accueil, des rangees
- * « nom / phrase / prix a droite » sur la page de tarification. Deux
- * presentations pour un seul prix, et deux endroits a corriger a chaque
- * changement de grille. Demande CEO du 2026-08-26 : « un modele identique
- * pour la page de tarif ».
+ * ── Refonte du 2026-09-03 ────────────────────────────────────────────────────
+ * Trois jeux de règles concurrents cohabitaient ici (`reglesForfaits`,
+ * `reglesForfaitsPar`, `reglesPricingGrid`), dont deux n'étaient plus appelées.
+ * PS-091 interdit les coquilles concurrentes : il n'en reste qu'une.
  *
- * Le modele est celui releve sur cursor.com/pricing : le nom, le prix en
- * grand avec son unite en petit, ce que le forfait contient en liste a
- * coches, un bouton pleine largeur au bas. Le second palier ne repete pas le
- * premier, il dit « tout ce qui est compris dans Solo, plus ».
+ * La composition vient de la logique d'ElevenLabs, mesurée sur leur page :
  *
- * Les prix viennent de `lib/tarification.ts`, jamais d'une chaine ecrite ici.
+ *   1. un CUBE tarifaire, qui ne porte que la décision (catégorie, nom, prix) ;
+ *   2. le bouton, DIRECTEMENT SOUS le cube, jamais dedans ;
+ *   3. les détails, sous le bouton, hors du cube.
+ *
+ * Rien d'autre ne leur est emprunté. Ni la teinte, ni la fonte, ni les rayons,
+ * ni les icônes : tout vient des jetons SAFE.
+ *
+ * Pourquoi le cube est séparé du reste. La carte d'un seul tenant obligeait à
+ * choisir entre deux maux : égaliser les hauteurs et ouvrir un vide au milieu
+ * de la colonne courte, ou les laisser libres et désaligner les deux boutons.
+ * En trois pièces, seul le cube s'égalise ; les boutons tombent donc au même
+ * niveau et les listes commencent à la même ligne, quelle que soit leur
+ * longueur.
+ *
+ * Les prix viennent de `lib/tarification.ts`, jamais d'une chaîne écrite ici.
  * Le palier Cabinet vaut 149,99 $ et non 149 $ : c'est ce que Stripe facture
- * reellement, et un prix arrondi sur la vitrine deviendrait un ecart des la
- * premiere facture.
+ * réellement, et un prix arrondi sur la vitrine deviendrait un écart dès la
+ * première facture (PS-012).
  */
 
 import React from "react";
+import { Rocket, Users, DoorOpen, Download, Eye } from "lucide-react";
 import { TARIFICATION, prixFr } from "@/lib/tarification";
 
-/* Ce que le palier Solo comprend. Six lignes, toutes verifiables a l'ecran. */
-export const COMPRIS_FORFAIT: string[] = [
-  "Fidéicommis rapproché à trois sources",
-  "Dossiers, clients et parties reliés",
-  "Temps et débours prêts à facturer",
-  "Facturation avec taxes et suivi des paiements",
-  "Configuration initiale avec votre équipe",
-  "Interface en français et en anglais",
+/* ── Ce que chaque forfait contient ───────────────────────────────────────────
+   Cinq lignes chacun, toutes vérifiées dans le produit avant d'être écrites :
+   les rôles et les accès partagés vivent dans `lib/auth/permissions.ts`
+   (`avocat`, `assistante`, `comptabilite`, `admin_cabinet`), le fidéicommis et
+   ses rapprochements dans le module de comptabilité. Rien n'est promis ici qui
+   ne soit à l'écran. */
+const COMPRIS_SOLO: readonly string[] = [
+  "Clients et dossiers",
+  "Temps et fiches de temps",
+  "Facturation et paiements",
+  "Fidéicommis et rapprochements",
+  "Mise en route comprise",
 ];
 
-/* Ce que le palier Cabinet ajoute. Deux entrees seulement, et les deux sont
-   verifiables dans le produit : les roles vivent dans lib/auth/permissions.ts. */
-export const EN_PLUS_CABINET: string[] = [
-  "L'accès pour votre adjointe et votre équipe",
-  "Des droits par rôle : avocate, adjointe, comptabilité",
+const EN_PLUS_CABINET: readonly string[] = [
+  "Accès pour l'adjointe et l'équipe",
+  "Travail partagé sur les dossiers",
+  "Rôles et permissions",
+  "Accès partagé à la facturation",
+  "Mise en route de l'équipe comprise",
 ];
 
-/** Les deux cartes, au modele de cursor.com/pricing. */
-export function CartesForfaits({ action }: { action: string }) {
+/** Un forfait, tel qu'il se lit à l'écran. */
+type Forfait = {
+  readonly cle: "solo" | "cabinet";
+  readonly categorie: string;
+  readonly nom: string;
+  /** Le prix mensuel affiché, selon la période choisie. */
+  readonly parMois: number;
+  /** Ce qui est réellement porté à la facture sur douze mois. */
+  readonly parAn: number;
+  readonly recommande: boolean;
+  readonly action: string;
+  readonly entete: string;
+  readonly detail: readonly string[];
+};
+
+/* ── Le cube ──────────────────────────────────────────────────────────────────
+   Il ne porte QUE ce qui sert à décider : la catégorie, le nom, le prix, la
+   mention de facturation. Pas le bouton, pas les détails, pas d'illustration.
+
+   Le nom est en haut, le prix en bas : c'est le pousseur `.cube-vide` qui
+   creuse entre les deux, et c'est lui qui permet aux deux cubes de tenir la
+   même hauteur sans qu'on ait à la fixer en pixels.
+
+   `safe-zoom` est la classe de sélection du produit (globals.css, décision CEO
+   du 2026-08-11) : partout où une surface se choisit, elle se soulève. On ne
+   réécrit pas son mouvement ici, on l'emprunte. */
+function Cube({ f, annuel }: { f: Forfait; annuel: boolean }) {
   return (
-    <div className="forfaits">
-      <article className="forfait">
-        <p className="f-nom">Solo</p>
-        <p className="f-prix">
-          {prixFr(TARIFICATION.paliers.solo.prix)} $<small>/ mois</small>
+    <div className={`cube safe-zoom${f.recommande ? " cube-recommande" : ""}`}>
+      <p className="cube-categorie">{f.categorie}</p>
+      {f.recommande ? (
+        <p className="cube-marque">
+          <span className="cube-coche" aria-hidden="true" />
+          Recommandé
         </p>
-        <p className="f-dit">
-          Pour l&apos;avocate ou l&apos;avocat qui exerce seul. Fidéicommis, dossiers, temps et
-          facturation dans un même abonnement.
-        </p>
-        <ul className="f-liste">
-          {COMPRIS_FORFAIT.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-        <a className="btn ghost f-action" href={action}>
-          Évaluer mon cabinet
-        </a>
-      </article>
+      ) : null}
+      <p className="cube-nom">{f.nom}</p>
 
-      <article className="forfait">
-        <p className="f-nom">Cabinet</p>
-        <p className="f-prix">
-          {prixFr(TARIFICATION.paliers.cabinet.prix)} $<small>/ mois</small>
-        </p>
-        <p className="f-dit">Tout ce qui est compris dans Solo, plus :</p>
-        <ul className="f-liste">
-          {EN_PLUS_CABINET.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-        <a className="btn f-action" href={action}>
-          Évaluer mon cabinet
-        </a>
-      </article>
+      <div className="cube-vide" />
+
+      {/* La période change, pas la place du prix : le nombre est remplacé par
+          React (la clé le force), donc son fondu rejoue, mais l'unité et la
+          mention gardent leur ligne. */}
+      <p className="cube-prix">
+        <span className="prix-nombre" key={`${f.cle}-${annuel}`}>
+          {prixFr(f.parMois)}
+        </span>
+        <span className="prix-unite">$ / mois</span>
+      </p>
+      <p className="cube-mention">
+        {annuel
+          ? `${prixFr(f.parAn)} $ facturés annuellement`
+          : "Facturation mensuelle, résiliable en tout temps"}
+      </p>
     </div>
   );
 }
 
 /**
- * Le programme des fondateurs.
+ * Les deux forfaits réguliers, et le sélecteur de période qui les commande.
  *
- * Il se dit APRES les deux forfaits, jamais a la place : un prix reduit
- * annonce avant le prix normal fait douter du second.
- *
- * Il tenait en une phrase qui portait QUATRE NOMBRES a la file, 50, 75, 79 et
- * 119, sans jamais dire lequel va avec quel forfait. Le lecteur devait deviner
- * que l'ordre des prix suivait l'ordre des paliers. Le CEO l'a signale le
- * 2026-08-26 : « pas clair ».
- *
- * Quatre prix qui se croisent avec deux paliers et trois periodes, c'est un
- * tableau, pas une phrase. Il est ecrit comme tel, en chiffres alignes, et il
- * porte la colonne du prix regulier : sans elle, on lit une remise sans savoir
- * sur quoi.
- *
- * Le compteur de places est le vrai. Il n'est jamais gonfle.
+ * L'état vit ici et non dans la page : la période ne concerne que ces deux
+ * colonnes, et une page qui la porterait la ferait descendre à travers trois
+ * niveaux de composants pour rien.
  */
-export function PanneauFondateurs({ titre = true }: { titre?: boolean } = {}) {
+export function CartesTarifs({ action }: { action: string }) {
+  const [annuel, setAnnuel] = React.useState(false);
+  const p = TARIFICATION.paliers;
+
+  /* Le prix mensuel affiché est déjà le prix annualisé quand la période est
+     annuelle : `prixAnnuel` porte le montant PAR MOIS de cette formule, et le
+     total facturé s'en déduit par douze. */
+  const forfaits: readonly Forfait[] = [
+    {
+      cle: "solo",
+      categorie: "Pratique individuelle",
+      nom: "Solo",
+      parMois: annuel ? p.solo.prixAnnuel : p.solo.prix,
+      parAn: p.solo.prixAnnuel * 12,
+      recommande: false,
+      action: "Choisir Solo",
+      entete: "Inclus dans Solo",
+      detail: COMPRIS_SOLO,
+    },
+    {
+      cle: "cabinet",
+      categorie: "Travail en équipe",
+      nom: "Cabinet",
+      parMois: annuel ? p.cabinet.prixAnnuel : p.cabinet.prix,
+      parAn: p.cabinet.prixAnnuel * 12,
+      recommande: true,
+      action: "Choisir Cabinet",
+      entete: "Tout ce qui est dans Solo, plus",
+      detail: EN_PLUS_CABINET,
+    },
+  ];
+
+  return (
+    <div className="tarifs">
+      {/* ── Le sélecteur de période ────────────────────────────────────────
+          Deux boutons dans un rail, et un pouce qui glisse de l'un à l'autre.
+          `aria-pressed` porte l'état : la position du pouce est un renfort
+          visuel, jamais la seule information (PS-052). */}
+      <div className="periode" role="group" aria-label="Période de facturation">
+        <span className={`periode-pouce${annuel ? " a-droite" : ""}`} aria-hidden="true" />
+        <button
+          type="button"
+          className="periode-choix"
+          aria-pressed={!annuel}
+          onClick={() => setAnnuel(false)}
+        >
+          Mensuel
+        </button>
+        <button
+          type="button"
+          className="periode-choix"
+          aria-pressed={annuel}
+          onClick={() => setAnnuel(true)}
+        >
+          Annuel <span className="periode-gain">2 mois offerts</span>
+        </button>
+      </div>
+
+      {/* ── Les deux colonnes ──────────────────────────────────────────────── */}
+      <div className="colonnes">
+        {forfaits.map((f) => (
+          <div className="colonne" key={f.cle}>
+            <Cube f={f} annuel={annuel} />
+
+            <a
+              className={`tarif-action${f.recommande ? " pleine" : ""}`}
+              href={action}
+              aria-label={`${f.action}, ${prixFr(f.parMois)} dollars par mois`}
+            >
+              {f.action}
+            </a>
+
+            <div className="tarif-detail">
+              <p className="detail-entete">{f.entete}</p>
+              <ul className="detail-liste">
+                {f.detail.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="tarifs-note">
+        La mise en route est comprise. Le rattrapage comptable, lorsqu&apos;il est nécessaire, est
+        évalué séparément.
+      </p>
+    </div>
+  );
+}
+
+/* ── Ce que le cabinet fondateur obtient ──────────────────────────────────────
+   Cinq engagements, dans l'ordre où ils comptent : ce qui arrive au premier
+   jour, puis ce qui revient chaque mois, puis les trois garanties qui rendent
+   la décision réversible.
+
+   L'atelier est MENSUEL depuis le 2026-09-03. Il était hebdomadaire, et le CEO
+   l'a repris : une réunion par semaine imposée à un cabinet qui facture à
+   l'heure n'est pas un avantage, c'est une charge, et l'annoncer comme un
+   cadeau se retourne à la première semaine chargée.
+
+   Chaque ligne porte un symbole, un rang et deux textes. Le symbole ne dit rien
+   que le texte ne dise déjà : il sert de point d'ancrage à l'œil qui parcourt
+   la colonne, jamais de porteur d'information (PS-052). */
+const AVANTAGES_FONDATEURS = [
+  [
+    Rocket,
+    "Mise en route complète",
+    "Paramétrage, reprise de vos dossiers actifs et de vos soldes de fidéicommis, formation de votre adjointe.",
+  ],
+  [
+    Users,
+    "Un atelier par mois",
+    "Une rencontre mensuelle avec les autres cabinets fondateurs, et vos questions traitées là.",
+  ],
+  [
+    DoorOpen,
+    "Sortie libre",
+    "Aucun engagement de durée. Dans les soixante premiers jours, les mois payés vous sont remboursés si SAFE ne vous apporte rien.",
+  ],
+  [
+    Download,
+    "Portabilité des données",
+    "Vos données restent les vôtres et s'exportent quand vous le voulez.",
+  ],
+  [
+    Eye,
+    "Transparence totale",
+    "Avant de signer, vous recevez par écrit la liste de ce que SAFE ne fait pas encore.",
+  ],
+] as const;
+
+/**
+ * La carte des fondateurs : les prix, les engagements, le geste.
+ *
+ * ── Renversement assumé du 2026-09-03 ────────────────────────────────────────
+ * Cette section refusait explicitement le vert. Le commentaire de
+ * `PricingPage.tsx` disait : « Son emphase vient du socle, pas d'un panneau
+ * vert sombre : sur une page qui tient sur un seul canevas, une boîte de
+ * couleur se lit comme une publicité rapportée. »
+ *
+ * Le CEO a tranché l'inverse, en montrant la carte du parcours de l'accueil.
+ * L'argument tient toujours pour une boîte de couleur POSÉE au milieu d'une
+ * page de prose ; il ne tient pas ici, parce que cette carte n'est pas un
+ * encart, c'est le point d'arrivée de la page.
+ *
+ * ── Fusion des deux cartes, même jour ────────────────────────────────────────
+ * Le tableau des prix vivait dans une carte blanche, juste au-dessus. Deux
+ * cartes de même largeur empilées à trente pixels l'une de l'autre, c'était
+ * deux objets pour une seule offre : on lisait le prix, puis on repartait à
+ * zéro pour lire ce qu'il achète. Le CEO a demandé de n'en faire qu'une.
+ *
+ * L'ordre à l'intérieur est celui de la décision : ce que ça coûte, ce que ça
+ * donne, puis le geste. Le compteur de places, qui concluait la carte blanche,
+ * a disparu au passage : il disait déjà mot pour mot ce que dit le pied.
+ *
+ * La matière vient de `matiere-verte.ts`, la même qu'à l'accueil, jamais une
+ * recopie.
+ */
+export function CarteFondateurs({ action }: { action: string }) {
   const f = TARIFICATION.fondateurs;
   return (
-    <div className="fondateurs-bloc">
-      {/* Sur /tarification, la section s'appelle deja « Cabinets fondateurs » :
-          un panneau qui se renomme sous son propre titre fait lire deux fois
-          la meme chose. */}
-      {titre ? <p className="f-nom">Programme des fondateurs</p> : null}
-      <p className="fb-p">
-        Les {f.placesTotal} premiers cabinets paient moins pendant {f.dureeMois} mois. Ensuite leur
-        tarif reste gelé : il ne remonte pas au prix régulier.
-      </p>
-      <table className="fb-table">
-        <thead>
-          <tr>
-            <th scope="col">Forfait</th>
-            <th scope="col">Les {f.dureeMois} premiers mois</th>
-            <th scope="col">Ensuite, gelé à</th>
-            <th scope="col">Prix régulier</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">Solo</th>
-            <td>{f.premiereAnneeSolo} $</td>
-            <td>{f.apresSolo} $</td>
-            <td className="reg">{prixFr(TARIFICATION.paliers.solo.prix)} $</td>
-          </tr>
-          <tr>
-            <th scope="row">Cabinet</th>
-            <td>{f.premiereAnneeCabinet} $</td>
-            <td>{f.apresCabinet} $</td>
-            <td className="reg">{prixFr(TARIFICATION.paliers.cabinet.prix)} $</td>
-          </tr>
-        </tbody>
-      </table>
-      <p className="fb-cond">
-        <b>
-          {f.placesTotal - f.placesPrises} places sur {f.placesTotal}
-        </b>{" "}
-        encore ouvertes. Sortie libre à tout moment, et {f.garantieJours} jours pour changer
-        d&apos;avis.
-      </p>
+    <div className="carte-fondateurs">
+      {/* Le repère de la marque en filigrane a été RETIRÉ à la fusion du
+          2026-09-03. Il vivait dans le vide du haut à droite ; ce vide est
+          maintenant occupé par la colonne « Tarif régulier » et ses deux
+          montants barrés, et la marque passait derrière eux. Vérifié à
+          l'écran : elle formait un bloc pâle sur les chiffres.
+
+          Un filigrane se pose dans un vide ou ne se pose pas. Cette carte n'en
+          a plus, donc il s'en va. La carte du parcours de l'accueil, elle, garde
+          le sien : son haut à droite est resté libre. */}
+
+      {/* Quatre prix qui se croisent avec deux paliers et trois périodes, c'est
+          un tableau, pas une phrase. Il porte la colonne du prix régulier :
+          sans elle, on lit une remise sans savoir sur quoi. */}
+      <div className="cf-prix">
+        <table className="fb-table">
+          <thead>
+            <tr>
+              <th scope="col">Forfait</th>
+              <th scope="col">Les {f.dureeMois} premiers mois</th>
+              <th scope="col">Ensuite, gelé à</th>
+              <th scope="col">Tarif régulier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Solo</th>
+              <td>{f.premiereAnneeSolo} $</td>
+              <td>{f.apresSolo} $</td>
+              <td className="reg">{prixFr(TARIFICATION.paliers.solo.prix)} $</td>
+            </tr>
+            <tr>
+              <th scope="row">Cabinet</th>
+              <td>{f.premiereAnneeCabinet} $</td>
+              <td>{f.apresCabinet} $</td>
+              <td className="reg">{prixFr(TARIFICATION.paliers.cabinet.prix)} $</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="cf-temps">
+        {AVANTAGES_FONDATEURS.map(([Symbole, nom, ligne], i) => (
+          <div className="l" key={nom}>
+            <span className="pastille" aria-hidden>
+              <Symbole className="ic" />
+            </span>
+            <span className="rang" aria-hidden>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <p className="n">{nom}</p>
+            <p className="d">{ligne}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Le geste est DANS la carte, à la fin de ce qu'elle promet. Posé
+          dessous, il flotterait sous une phrase. */}
+      <div className="cf-pied">
+        <p>
+          Il reste {f.placesTotal - f.placesPrises} places sur {f.placesTotal}. La suivante se
+          décide après l&apos;évaluation, pas avant.
+        </p>
+        <div className="cf-actes">
+          <a className="cf-btn" href={action}>
+            Vérifier s&apos;il reste une place
+          </a>
+        </div>
+      </div>
     </div>
   );
-}
-
-/**
- * Les regles des cartes et du panneau, pour une portee donnee.
- *
- * L'accueil vit sous « .xc » et les pages ecrites sous « .safe-vitrine » :
- * la portee est un parametre pour que les deux servent exactement la meme
- * feuille.
- */
-export function reglesForfaits(p: string): string {
-  return `
-  /* ── Les cartes de forfait ────────────────────────────────────────────────
-     Modele releve sur cursor.com : le nom, le prix en grand avec son unite en
-     petit, ce que le forfait contient en liste a coches, un bouton pleine
-     largeur au bas. La carte se lit de haut en bas et se termine par le geste.
-
-     Les cartes prennent leur hauteur NATURELLE. J'avais d'abord voulu les
-     egaliser pour que les deux boutons tombent a la meme ligne, en me disant
-     que deux hauteurs differentes se liraient comme deux rangs. Mesure faite,
-     Solo porte six lignes et Cabinet deux : l'egalisation ouvrait un vide de
-     trois cents pixels au milieu de la seconde carte, et un vide se lit comme
-     une erreur, pas comme une egalite. Deux cartes de hauteurs differentes,
-     elles, se lisent comme deux offres de contenus differents, ce qui est
-     exactement le cas. */
-  ${p} .forfaits {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(16px, 2vw, 26px);
-    margin-top: clamp(24px, 3.2vh, 36px);
-    /* Les cartes sont BRIDEES en largeur. A pleine page, chacune faisait plus
-       de cinq cents pixels : Cabinet, qui ne porte que deux lignes, ouvrait
-       sous lui un vide de la hauteur d'une carte, et la rangee se lisait comme
-       une offre manquante. */
-    max-width: 880px;
-    align-items: start;
-  }
-  ${p} .forfait {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--si-border);
-    border-radius: 14px;
-    background: var(--si-surface);
-    padding: clamp(22px, 2.6vw, 32px);
-  }
-  ${p} .f-nom {
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    color: var(--si-ink);
-  }
-  ${p} .f-prix {
-    font-family: var(--mono);
-    font-size: var(--t-argument);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-    margin-top: 6px;
-  }
-  ${p} .f-prix small {
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    color: var(--si-muted);
-    margin-left: 6px;
-  }
-  ${p} .f-dit {
-    margin-top: 14px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.55;
-    color: var(--si-muted);
-    max-width: 40ch;
-  }
-  ${p} .f-liste { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 9px; }
-  ${p} .f-liste li {
-    position: relative;
-    padding-left: 24px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.45;
-    color: var(--si-ink);
-  }
-  /* La coche est dessinee par deux bords, pas par un caractere : un « ✓ » est
-     compte comme emoji par le standard, et son dessin change d'une fonte a
-     l'autre. */
-  ${p} .f-liste li::before {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: 0.42em;
-    width: 9px; height: 5px;
-    border-left: 1.6px solid var(--si-verified);
-    border-bottom: 1.6px solid var(--si-verified);
-    transform: rotate(-45deg);
-  }
-  /* Le bouton suit la liste, il n'est plus pousse au bas de la carte. */
-  ${p} .f-action { margin-top: 22px; justify-content: center; }
-  ${p} .forfait .btn { width: 100%; }
-
-  /* Le programme des fondateurs. Un bloc, pas une troisieme carte : ce n'est
-     pas un forfait de plus, c'est une condition sur les deux. */
-  ${p} .fondateurs-bloc {
-    margin-top: clamp(16px, 2vw, 26px);
-    /* Meme bord droit que les cartes : deux blocs de largeurs differentes
-       posés l'un sous l'autre se lisent comme deux colonnes decalees. */
-    max-width: 880px;
-    border: 1px solid rgb(var(--si-verified-rgb) / 0.28);
-    border-radius: 14px;
-    background: rgb(var(--si-verified-rgb) / 0.05);
-    padding: clamp(20px, 2.4vw, 28px);
-  }
-  ${p} .fb-p {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-size: var(--t-explique);
-    line-height: 1.55;
-    color: var(--si-body);
-    max-width: 62ch;
-  }
-  /* Le tableau des prix fondateurs. Les montants sont a chasse fixe et en
-     chiffres tabulaires : quatre prix qui ne s'alignent pas verticalement se
-     comparent mal, et c'est precisement pour les comparer qu'ils sont la. */
-  ${p} .fb-table {
-    margin-top: clamp(18px, 2.2vw, 26px);
-    width: 100%;
-    max-width: 640px;
-    border-collapse: collapse;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    text-align: right;
-  }
-  ${p} .fb-table th[scope="col"] {
-    font-weight: 400;
-    color: var(--si-muted);
-    padding-bottom: 9px;
-    border-bottom: 1px solid rgb(var(--si-verified-rgb) / 0.3);
-  }
-  ${p} .fb-table th[scope="row"] { font-weight: 400; color: var(--si-ink); }
-  ${p} .fb-table th:first-child { text-align: left; }
-  ${p} .fb-table td {
-    font-family: var(--mono);
-    font-variant-numeric: tabular-nums;
-    color: var(--si-ink);
-  }
-  ${p} .fb-table th, ${p} .fb-table td { padding: 10px 0 10px clamp(14px, 2vw, 28px); }
-  ${p} .fb-table tbody tr + tr th, ${p} .fb-table tbody tr + tr td {
-    border-top: 1px solid rgb(var(--si-verified-rgb) / 0.18);
-  }
-  /* Le prix regulier est barre : c'est ce qu'on ne paie pas. */
-  ${p} .fb-table .reg { color: var(--si-muted); text-decoration: line-through; }
-  ${p} .fb-cond {
-    margin-top: 16px;
-    font-family: var(--sans);
-    font-size: var(--t-detail);
-    line-height: 1.55;
-    color: var(--si-muted);
-  }
-  ${p} .fb-cond b { font-weight: 400; color: var(--si-verified); }
-  @media (max-width: 900px) {
-    ${p} .forfaits { grid-template-columns: 1fr; }
-    /* Quatre colonnes de prix ne tiennent pas au pouce. Le tableau se lit en
-       defilement horizontal dans son propre cadre, plutot que d'ecraser ses
-       montants ou de pousser la page de cote. */
-    ${p} .fondateurs-bloc { overflow-x: auto; }
-    ${p} .fb-table { min-width: 460px; }
-  }
-
-`;
 }
