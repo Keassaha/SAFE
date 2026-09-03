@@ -1621,18 +1621,6 @@ const CSS = `
   @keyframes xcRuban { from { transform: none; } to { transform: translateX(-50%); } }
   @media (prefers-reduced-motion: reduce) { .xc .ruban { animation: none; } }
 
-  .xc #hero-hint {
-    position: absolute;
-    left: 0; right: 0;
-    bottom: 4.5vh;
-    text-align: center;
-    font-family: var(--sans);
-    font-size: var(--t-menu);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--muted);
-    transition: opacity 0.4s ease;
-  }
   .xc #hero-caption {
     position: absolute;
     left: 0; right: 0;
@@ -3033,18 +3021,28 @@ const CSS = `
       flex-direction: column; gap: 20px;
       transform: none !important;
     }
-    /* Au telephone, une fenetre de 1320 px reduite tiendrait a 3 px de corps :
-       illisible. C'est LE SEUL cas ou la barre se resserre au lieu d'etre
-       reduite, et c'est justifie parce que l'application fait exactement pareil
-       a cette largeur : sous 1280 px, Header.tsx retire les libelles et le nom
-       du cabinet, l'icone porte seule. On ne montre donc pas un autre ecran, on
-       montre le meme ecran a la largeur ou il se comporte ainsi. */
-    .xc .scene-duo .piste > .fenetre-fondante { width: 100%; zoom: 1; }
-    .xc .scene-duo .barre-app .cab,
-    .xc .scene-duo .barre-app .sep,
-    .xc .scene-duo .barre-app nav .lb { display: none; }
-    .xc .scene-duo .barre-app nav span { padding: 7px 8px; }
-    .xc .scene-duo .barre-app .ch { width: 128px; }
+    /* ── L'exception de la barre resserree est RETIREE le 2026-09-03 ────────
+       Elle cachait ici le nom du cabinet et les libelles du menu, en faisant
+       valoir que l'application fait pareil sous 1280 px et qu'une barre de
+       1320 px reduite tomberait a 3 px de corps.
+
+       Deux choses l'ont invalidee. La premiere est que cette scene etait la
+       SEULE a se resserrer : les deux autres gardaient leur barre pleine dans
+       une boite trop etroite, et leurs libelles se peignaient par-dessus le
+       nom du cabinet, ce qui donnait « TaMe Royo bord » a l'ecran. Une regle
+       qui ne repare qu'un cas sur trois n'est pas une regle, c'est un
+       rattrapage.
+
+       La seconde est la demande CEO du 2026-09-03 : « l'illustration du hero a
+       garde un ecran d'ordinateur mais reduit, je veux exactement la meme
+       chose pour le reste ». Le hero ne resserre rien. Il dessine 1360 px et
+       les reduit, barre complete comprise. Toutes les fenetres suivent
+       desormais ce chemin, decrit a la regle des 900 px.
+
+       La largeur de dessin est ce qui compte : elle ne descend plus jamais
+       sous les 1320 px dont la barre a besoin, donc plus rien ne se comprime,
+       donc plus rien ne se chevauche. */
+    .xc .scene-duo .piste > .fenetre-fondante { width: 100%; }
   }
 
   /* ── LE CHRONOMETRE DE LA SAISIE RAPIDE ──────────────────────────────────
@@ -4273,9 +4271,53 @@ const CSS = `
      des fenetres de 399 px, parce qu'etirees a 1238 px leurs montants
      tombaient hors de l'ecran. Elle est retiree le 2026-08-26 et l'exception
      avec elle : il ne reste qu'une echelle pour toutes les fenetres. */
+  /* ── LA LARGEUR DE DESSIN NE DESCEND JAMAIS SOUS CELLE DE LA BARRE ────────
+     Refonte du 2026-09-03, demande CEO : « l'illustration du hero a garde un
+     ecran d'ordinateur mais reduit, je veux exactement la meme chose pour le
+     reste ».
+
+     Ce qui rendait le hero juste et les autres fausses n'etait pas une
+     question de gout, c'etait une question de mecanisme. Le hero dessine sa
+     boite a 1360 px et la REDUIT par « transform: scale » : sa mise en page
+     n'est jamais recalculee, donc sa barre ne peut pas se comprimer. Les
+     fenetres de section, elles, passent par « zoom », qui REFLUE la mise en
+     page : la boite est reellement redessinee a la largeur demandee.
+
+     Or cette ligne demandait 1238 px. La barre est calquee sur Header.tsx et
+     reclame 1320 px pour poser ses six entrees, le nom du cabinet et la
+     recherche. Il manquait 82 px. Le menu debordait donc de sa boite des deux
+     cotes, sans que rien ne le coupe, et « Tableau de bord » se peignait
+     par-dessus « Me Roy » : on lisait « TaMe Royo bord ».
+
+     La boite passe a 1360 px, la mesure meme du hero. Au-dessus des 1320 px
+     requis, plus rien ne se comprime. Le facteur descend en trois paliers pour
+     que la fenetre depasse toujours son cadre d'environ un tiers et se fasse
+     couper a droite, exactement comme le hero : un ecran qui continue hors du
+     cadre dit qu'il y a plus a voir, un ecran qui flotte au milieu du vide dit
+     qu'il est inachve. Le fondu de « contour-fondu » ferme la coupe. */
   @media (max-width: 900px) {
+    /* Les porteurs rendent la main. Un « .fenetre-fondante { zoom: 1 } » simple
+       ne suffisait pas : « .scene-produit > .fenetre-fondante » et
+       « .scene-duo .piste > .fenetre-fondante » sont plus specifiques d'un cran
+       et gardaient leurs 0,63 et 0,55. Les deux facteurs se multipliaient au
+       facteur de la fenetre, et l'illustration retombait a 239 px dans un cadre
+       de 335. Il faut donc les nommer pour les neutraliser. */
     .xc .fenetre-fondante { width: 100%; overflow: hidden; }
-    .xc .fenetre-produit { width: 1238px; zoom: var(--tel-fenetre, 0.72); }
+    .xc .scene-produit > .fenetre-fondante,
+    .xc .scene-duo .piste > .fenetre-fondante { zoom: 1; }
+    /* 1500 px, et non 1360.
+
+       1360 est la mesure du hero, mais son contenu n'est pas le meme : le hero
+       porte « HeroLiveApp », dont la barre est « .ha-nav ». Les fenetres de
+       section portent « BarreAppVitrine », calquee sur Header.tsx. Mesure faite
+       a 1360 : son menu reclame 793 px a lui seul et n'en recevait que 734, il
+       debordait donc encore de 59 px.
+
+       1500 px est la largeur a laquelle ces fenetres sont dessinees partout
+       ailleurs, et le commentaire de « .scene-produit > .fenetre-fondante » dit
+       qu'elle a ete choisie precisement pour supprimer ce chevauchement. On la
+       garde au telephone au lieu de la contredire. */
+    .xc .fenetre-produit { width: 1500px; zoom: 0.56; }
     /* ── La chaine, au telephone ────────────────────────────────────────────
        Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
        se suivent horizontalement et la fleche tombe entre deux cadrans, ce
@@ -5271,42 +5313,6 @@ const CSS = `
        variable, que le bloc téléphone met à zéro : chaque chapitre prend la
        hauteur de ce qu'il contient, et c'est son dégagement qui le fait
        respirer. */
-    .xc .pinzone .pin { position: relative; height: auto; min-height: var(--haut-scene, 100vh); }
-    /* L'indication de défilement reste au téléphone. Elle avait été retirée
-       avec l'ancienne première vue, qui n'avait plus rien à révéler plus bas.
-       Elle en a de nouveau : trois états de rassemblement qui ne partent que
-       si l'on descend. Sans elle, on peut rester devant des pièces éparpillées
-       en croyant que c'est l'état final (retour CEO du 18 août 2026). */
-    .xc #hero-hint {
-      display: flex;
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 18px;
-      z-index: 2;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: var(--t-menu);
-      /* Le script pilote son effacement au fil du rassemblement. */
-      opacity: 1;
-    }
-    /* La flèche : un chevron dessiné en deux filets, qui descend et remonte.
-       Trois pixels de course, assez pour désigner un sens, trop peu pour
-       attirer l'oeil pendant qu'on lit le titre. */
-    .xc #hero-hint i {
-      display: block;
-      width: 7px;
-      height: 7px;
-      border-right: 1.4px solid currentColor;
-      border-bottom: 1.4px solid currentColor;
-      transform: rotate(45deg);
-      animation: xcDescendre 1.9s ease-in-out infinite;
-    }
-    @keyframes xcDescendre {
-      0%, 100% { transform: translateY(-1.5px) rotate(45deg); }
-      50%      { transform: translateY(1.5px) rotate(45deg); }
-    }
     /* Sans mouvement, les points des deux scènes se lisent à la
        suite, tous posés et tous en encre pleine : il n'y a plus de « point en
        cours » quand il n'y a plus de défilement qui le désigne. Sans cette
@@ -5441,17 +5447,19 @@ const CSS = `
      dans un ecran de 390, on en voyait 70 %, tranches net au milieu d'un mot.
      Le hero faisait 979 px, on en voyait 40 %. */
   @media (max-width: 700px) {
-    /* La fenetre passe de 562 a 390 px et entre en entier. Le texte descend de
-       6,4 a 4,7 px a l'oeil : la ou l'on ne lisait deja pas, on perd peu, et on
-       gagne l'ecran entier. */
-    .xc .fenetre-produit { zoom: 0.50; }
-    /* ⚠ DEUX VALEURS, PARCE QUE LES DEUX SCENES N'ONT PAS LE MEME PORTEUR.
-       Une fenetre de mouvement 2 ou 4 est portee par « .fenetre-fondante » qui
-       reduit deja de 0,63 : 0,50 x 0,63 donne 390 px, la largeur de l'ecran.
-       Une fenetre de la piste du mouvement 3 a, elle, un porteur a 1 depuis la
-       regle de 900 px qui empile les deux et arrete le glissement. La meme
-       valeur y donnait 619 px, et elles restaient coupees. */
-    .xc .scene-duo .fenetre-produit { zoom: 0.29; }
+    /* UNE SEULE VALEUR, desormais.
+
+       Il y en avait deux, parce que les deux scenes n'avaient pas le meme
+       porteur : « .scene-produit » etait portee par une « .fenetre-fondante »
+       qui reduisait deja de 0,63, tandis que la piste de « .scene-duo » avait
+       un porteur a 1. Il fallait donc 0,50 d'un cote et 0,29 de l'autre pour
+       retomber sur la meme largeur, et les deux valeurs devaient etre
+       recalculees ensemble a chaque changement.
+
+       La regle des 900 px neutralise maintenant le zoom des porteurs
+       (« .fenetre-fondante { zoom: 1 } »). Il n'y a plus qu'un seul facteur a
+       tenir, et il vaut pour toutes les fenetres. */
+    .xc .fenetre-produit { zoom: 0.44; }
     /* Le hero suit la meme descente, par sa variable de cadrage. Il garde 10 %
        hors champ, que le fondu ferme : sur l'ouverture, dire que l'ecran
        continue est exact.
@@ -5462,6 +5470,19 @@ const CSS = `
        et son calcul retomberait en silence sur la valeur de repli. */
     .xc #hero-cadre,
     .xc #hero-app { --crop-echelle: 0.32; }
+  }
+
+  /* ── LE PALIER DU TELEPHONE REEL ─────────────────────────────────────────
+     Les telephones courants font 360 a 430 px, pas 700. A 0,48 la fenetre y
+     mesurait 653 px pour un cadre de 335 : on n'en voyait plus que la moitie,
+     et la coupe tombait au milieu de la premiere colonne de chiffres.
+
+     A 0,32, elle mesure 435 px et depasse son cadre d'un tiers. C'est la
+     proportion exacte du hero, dont le CEO a dit qu'elle etait la bonne, et
+     c'est aussi son facteur : les deux illustrations sont desormais reduites
+     par le meme nombre. */
+  @media (max-width: 520px) {
+    .xc .fenetre-produit { zoom: 0.29; }
   }
 `;
 
@@ -5586,7 +5607,6 @@ function runExperience(root: HTMLElement): () => void {
      exception et la page entiere restait blanche, typecheck vert. C'est la
      deuxieme fois qu'un element retire fait tomber la scene par ce chemin. */
   const heroCaption = root.querySelector<HTMLElement>("#hero-caption");
-  const heroHint = $("hero-hint");
 
   /* Format du cadre.
 
@@ -5953,7 +5973,6 @@ function runExperience(root: HTMLElement): () => void {
       heroCaption.style.opacity = String(phase(p, 0.70, 0.78));
       heroCaption.style.transform = "translateY(" + ((1 - phase(p, 0.70, 0.78)) * 12) + "px)";
     }
-    heroHint.style.opacity = String(p < 0.04 ? 1 : 0);
   }
 
   /* Hero sans mouvement.
@@ -6055,7 +6074,6 @@ function runExperience(root: HTMLElement): () => void {
       heroCaption.style.opacity = "1";
       heroCaption.style.transform = "none";
     }
-    heroHint.style.opacity = "0";
 
     /* ── La zone suit son epingle ──────────────────────────────────────────
        `besoin`, c'est la place que la fenetre reclame : le texte, la fenetre a
@@ -6671,8 +6689,6 @@ function runExperience(root: HTMLElement): () => void {
 
       /* Le texte a dit ce qu'il avait à dire : il s'efface et la fenêtre prend
          la vue, bord bas de l'interface compris. */
-      /* Elle a servi dès que le rassemblement commence pour de bon. */
-      heroHint.style.opacity = String(1 - phase(p, 0.04, 0.20));
 
       const ouvre = easeInOut(phase(p, 0.66, 0.84));
       heroCopy.style.opacity = String(1 - ouvre);
@@ -6808,7 +6824,7 @@ function runExperience(root: HTMLElement): () => void {
        suivant — un canevas d'assemblage resté en display:none, une application
        figée à la position calculée pour l'autre largeur. On rend chaque élément
        à sa feuille de style. */
-    [heroCanvas, heroCopy, heroShot, heroCaption, heroHint].forEach((el) => {
+    [heroCanvas, heroCopy, heroShot, heroCaption].forEach((el) => {
       el?.removeAttribute("style");
     });
     heroZone.querySelector<HTMLElement>(".pin")?.style.removeProperty("min-height");
@@ -7075,10 +7091,13 @@ export default function ExperienceCinema() {
               l'ecran repond. » La bande d'etat de la fenetre le dit deja, et une
               page qui explique comment se servir d'elle-meme avoue qu'elle n'est
               pas evidente. */}
-          <p id="hero-hint">
-            Faites défiler vers le bas
-            <i aria-hidden />
-          </p>
+          {/* L'indication « Faites défiler vers le bas » est retirée le
+              2026-09-03, demande CEO. Elle avait été remise le 18 août pour
+              qu'on ne prenne pas les pièces éparpillées de la première vue
+              pour l'état final. Le hero ne s'ouvre plus sur des pièces
+              éparpillées : il ouvre sur la fenêtre de l'application, qui est
+              déjà l'état final. La consigne n'avait plus d'objet, et une page
+              qui demande qu'on la fasse défiler avoue que rien n'y invite. */}
         </div>
       </div>
 
