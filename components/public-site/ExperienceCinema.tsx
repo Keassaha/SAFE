@@ -3648,6 +3648,24 @@ const CSS = `
     color: rgb(var(--si-surface-rgb) / 0.5);
     font-variant-numeric: tabular-nums;
   }
+  /* ⚠ LE NOM ET LA PHRASE PORTENT 16 PX DE MARGE HAUTE QU'ON NE PEUT PAS
+     RETIRER PAR UNE REGLE. Ce sont des « p ». Mesure du 2026-09-03 : aucune
+     regle d'auteur ne les atteint, quelle que soit sa forme ou sa specificite.
+     Essayees sans effet, sur WebKit comme sur Chromium, y compris posees dans
+     une feuille ajoutee apres coup :
+
+       .xc .parcours .n { margin: 0 }          .xc .parcours .n { margin-top: 0 }
+       .xc .parcours .n { margin-block: 0 }    p.n { margin-top: 0 }
+       .xc .parcours .temps .l p { margin-top: 0 }
+
+     Seuls « !important » et un style en ligne y parviennent. Aucune declaration
+     « !important » sur une marge n'existe pourtant dans le projet, et l'element
+     ne porte ni animation ni style en ligne. La cause n'est pas elucidee.
+
+     On ne force donc PAS avec « !important » : ecraser sans comprendre
+     deplacerait le probleme au lieu de le regler. La marge est traitee comme un
+     fait, et l'ecart de rangee est calibre en la comptant (voir le palier des
+     620 px). A reprendre le jour ou la cause sera connue. */
   .xc .parcours .n { font-size: var(--t-corps); color: var(--si-verified-on-forest); }
   .xc .parcours .d { font-size: var(--t-corps); line-height: 1.45; color: var(--si-surface); }
 
@@ -3693,6 +3711,43 @@ const CSS = `
     .xc .parcours .pied p { max-width: none; }
     .xc .parcours .actes { flex-direction: column; }
     .xc .parcours .btn { text-align: center; }
+  }
+
+  /* ── AU TELEPHONE, LA PHRASE REPREND TOUTE LA LARGEUR ────────────────────
+     Demande CEO du 2026-09-03 : « corrige la carte du parcours sur telephone ».
+
+     Le palier des 860 px gardait les trois colonnes et se contentait de poser
+     le nom au-dessus de sa phrase. C'etait juste pour une tablette, faux pour
+     un telephone : mesure a 393 px, le symbole et le rang mangeaient 108 px, et
+     la phrase n'en recevait que 201 sur 353. Elle se cassait donc en deux
+     lignes courtes, pendant que les deux premieres colonnes restaient VIDES
+     sous elle. Cinq entrees, cinq trous a gauche.
+
+     La grille ne change pas de nature, elle change de portee : le symbole, le
+     rang et le nom tiennent la premiere ligne, et la phrase passe dessous sur
+     toute la largeur de la carte. Elle gagne 152 px, ce qui lui suffit pour
+     tenir en une a deux lignes pleines, et le vide a gauche disparait avec la
+     colonne qui le creusait. */
+  @media (max-width: 620px) {
+    /* L'ecart de rangee est a ZERO, et ce n'est pas un oubli : la phrase porte
+       deja 16 px de marge haute qu'aucune regle n'enleve (voir la note sur
+       « .parcours .n » plus haut). Un « row-gap » de 9 px s'y ajoutait et
+       portait l'ecart a 25 px, pour 28 px entre deux entrees : le nom et sa
+       phrase se separaient presque autant que deux temps du parcours, et les
+       groupes cessaient de se lire.
+
+       Le rembourrage monte a 20 px en echange. Seize pixels dans un groupe,
+       quarante entre deux : c'est le contraste qui fait la lecture, pas la
+       quantite d'espace. */
+    .xc .parcours .l {
+      grid-template-columns: 38px auto 1fr;
+      column-gap: 12px;
+      row-gap: 0;
+      align-items: center;
+      padding: 20px 0;
+    }
+    .xc .parcours .n { grid-column: 3; }
+    .xc .parcours .d { grid-column: 1 / -1; }
   }
 
   @media (max-width: 1100px) {
