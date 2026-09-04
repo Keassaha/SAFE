@@ -106,12 +106,29 @@ export default function AProposPage() {
         <div className="inner">
           <figure>
             <div className="cadre">
+              {/* ── LA QUALITÉ D'ENCODAGE EST DÉCLARÉE, PAS LAISSÉE PAR DÉFAUT ──
+                  Le fichier source est bon : 3200x1800 tirés du RAW en une seule
+                  passe, à 0,243 octet par pixel. Ce n'est pas lui qui perdait la
+                  matière, c'est le ré-encodage servi au navigateur.
+
+                  Mesuré le 2026-09-03 sur la variante réellement reçue, en AVIF
+                  et non en JPEG : à la qualité par défaut de Next, qui vaut 75,
+                  la photo tombait à 64 Ko pour 2560x1440, soit 0,017 octet par
+                  pixel. Quatorze fois moins que la source. Sur un portrait, ce
+                  budget passe d'abord sur les dégradés lents, la peau et
+                  l'arrière-plan flou, là où le banding se voit le plus.
+
+                  À 92, la même variante pèse 129 Ko. Soixante-cinq kilo-octets
+                  de plus, sur UNE image de la page, qui porte le visage du
+                  fondateur et se charge en priorité. C'est le seul endroit du
+                  site où ce budget se justifie. */}
               <Image
                 src="/images/fondateur/jeremie-tiahou-safe.jpg"
                 alt="Jérémie Tiahou, debout dans le hall vitré d’un immeuble à Gatineau."
                 width={3200}
                 height={1800}
                 sizes="(max-width: 860px) 92vw, min(1160px, 88vw)"
+                quality={92}
                 priority
               />
             </div>
