@@ -4305,6 +4305,40 @@ const CSS = `
     .xc .fenetre-fondante { width: 100%; overflow: hidden; }
     .xc .scene-produit > .fenetre-fondante,
     .xc .scene-duo .piste > .fenetre-fondante { zoom: 1; }
+
+    /* ── « zoom » CEDE LA PLACE A « transform: scale », COMME LE HERO ────────
+       Correctif du 2026-09-03, apres reproduction du defaut sous WebKit.
+
+       Les fenetres etaient reduites par « zoom ». Sur Chrome et Firefox, le
+       rendu etait juste. Sur Safari, celui du telephone du CEO, la barre se
+       chevauchait : on lisait « TaMe Royo bord » a la place de « Tableau de
+       bord » pose a cote de « Me Roy ».
+
+       LA CAUSE. WebKit impose une TAILLE MINIMALE DE POLICE. Sous un zoom de
+       0,29, un libelle de 11 px tomberait a 3,2 px a l'ecran ; WebKit refuse et
+       le remonte a 9 px, ce qui vaut 31 px dans le repere de dessin de la
+       fenetre. Mesure comparee sur le meme element, meme page, meme viewport :
+       Chromium calcule 11 px, WebKit 31 px. Le menu reclamait alors 1096 px
+       pour une boite de 666, debordait des deux cotes, et rien ne le coupait.
+
+       Elargir la boite ne pouvait pas suffire : il aurait fallu 1900 px de
+       dessin, donc une echelle si petite que le texte serait devenu illisible.
+       Le defaut n'etait pas dans les valeurs, il etait dans le mecanisme.
+
+       « transform » n'a pas ce comportement : la mise en page se fait a la
+       taille declaree, puis la surface entiere est reduite geometriquement.
+       C'est exactement ce que fait le hero depuis toujours, et c'est pourquoi
+       lui seul rendait correctement. Mesure apres bascule, sous WebKit : le
+       libelle retombe a 11 px et le menu entre au pixel pres.
+
+       CE QUE CELA COUTE. « zoom » refluait la mise en page, donc le cadre
+       prenait tout seul la hauteur reduite. « transform » ne reflue pas : la
+       hauteur du cadre est desormais posee par le script (« calerFenetres »),
+       comme « egaliserDuo » pose deja celle des pistes. */
+    .xc .fenetre-produit {
+      transform: scale(var(--tel-echelle));
+      transform-origin: top left;
+    }
     /* 1500 px, et non 1360.
 
        1360 est la mesure du hero, mais son contenu n'est pas le meme : le hero
@@ -4317,7 +4351,7 @@ const CSS = `
        ailleurs, et le commentaire de « .scene-produit > .fenetre-fondante » dit
        qu'elle a ete choisie precisement pour supprimer ce chevauchement. On la
        garde au telephone au lieu de la contredire. */
-    .xc .fenetre-produit { width: 1500px; zoom: 0.56; }
+    .xc .fenetre-produit { width: 1500px; zoom: 1; --tel-echelle: 0.53; }
     /* ── La chaine, au telephone ────────────────────────────────────────────
        Le balisage alterne deja un cadran et une fleche. Sur ecran large ils
        se suivent horizontalement et la fleche tombe entre deux cadrans, ce
@@ -5459,7 +5493,7 @@ const CSS = `
        La regle des 900 px neutralise maintenant le zoom des porteurs
        (« .fenetre-fondante { zoom: 1 } »). Il n'y a plus qu'un seul facteur a
        tenir, et il vaut pour toutes les fenetres. */
-    .xc .fenetre-produit { zoom: 0.44; }
+    .xc .fenetre-produit { --tel-echelle: 0.44; }
     /* Le hero suit la meme descente, par sa variable de cadrage. Il garde 10 %
        hors champ, que le fondu ferme : sur l'ouverture, dire que l'ecran
        continue est exact.
@@ -5482,7 +5516,7 @@ const CSS = `
      c'est aussi son facteur : les deux illustrations sont desormais reduites
      par le meme nombre. */
   @media (max-width: 520px) {
-    .xc .fenetre-produit { zoom: 0.29; }
+    .xc .fenetre-produit { --tel-echelle: 0.29; }
   }
 `;
 
@@ -6334,6 +6368,48 @@ function runExperience(root: HTMLElement): () => void {
     }
   }
 
+  /**
+   * La hauteur du cadre d'une fenetre reduite au telephone.
+   *
+   * Elle etait gratuite tant que la reduction passait par « zoom » : celui-ci
+   * reflue la mise en page, donc le cadre prenait de lui-meme la hauteur
+   * reduite. La reduction passe desormais par « transform: scale », qui ne
+   * reflue pas (voir la note « zoom cede la place » dans la feuille), et un
+   * cadre laisse libre garderait la hauteur PLEINE de la fenetre : jusqu'a
+   * 2641 px mesures pour une fenetre qui n'en occupe que 766 une fois reduite,
+   * soit pres de deux mille pixels de vide sous chaque illustration.
+   *
+   * On pose donc la hauteur, comme « egaliserDuo » pose celle des pistes.
+   *
+   * `offsetHeight` et non `getBoundingClientRect()` : le premier repond dans le
+   * repere de dessin de l'element, celui d'avant la mise a l'echelle, et c'est
+   * cette mesure-la qu'il faut multiplier. Le second rendrait la hauteur deja
+   * reduite, et le cadre retrecirait a chaque appel.
+   *
+   * Hors telephone, la propriete est RETIREE et non remise a une valeur : la
+   * feuille reprend la main, et une hauteur laissee derriere soi apres un
+   * passage en paysage figerait le cadre a la mesure de l'autre largeur.
+   */
+  function calerFenetres() {
+    const fenetres = Array.from(root.querySelectorAll<HTMLElement>(".fenetre-produit"));
+    for (const f of fenetres) {
+      const cadre = f.parentElement;
+      if (!cadre) continue;
+      const echelle = parseFloat(getComputedStyle(f).getPropertyValue("--tel-echelle"));
+      if (!echelle || echelle >= 1) {
+        cadre.style.removeProperty("height");
+        continue;
+      }
+      cadre.style.height = Math.round(f.offsetHeight * echelle) + "px";
+    }
+  }
+
+  window.addEventListener("resize", calerFenetres);
+  calerFenetres();
+  /* Les polices arrivent apres le premier rendu et changent la hauteur des
+     fenetres sans que rien d'autre ait bouge. */
+  void document.fonts?.ready.then(calerFenetres);
+
   if (scenesDuo.length > 0) {
     window.addEventListener("scroll", demanderDuo, { passive: true });
     window.addEventListener("resize", demanderDuo);
@@ -6840,6 +6916,7 @@ function runExperience(root: HTMLElement): () => void {
     window.removeEventListener("scroll", demanderDuo);
     window.removeEventListener("resize", demanderDuo);
     window.removeEventListener("resize", egaliserDuo);
+    window.removeEventListener("resize", calerFenetres);
     if (trameDuo !== null) cancelAnimationFrame(trameDuo);
     scenesDuo.forEach((sc) => {
       sc.querySelector<HTMLElement>(".piste")?.removeAttribute("style");
