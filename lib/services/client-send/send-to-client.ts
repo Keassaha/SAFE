@@ -134,7 +134,9 @@ export async function sendDocumentsToClient(input: SendDocumentsInput): Promise<
 
   const cabinet = await prisma.cabinet.findUnique({
     where: { id: cabinetId },
-    select: { nom: true },
+    // `email` sert d'adresse de réponse : sans elle, « Répondre » renvoie vers
+    // une boîte de SAFE Inc. que personne ne relève.
+    select: { nom: true, email: true },
   });
   if (!cabinet) throw new Error("Cabinet introuvable.");
 
@@ -148,7 +150,14 @@ export async function sendDocumentsToClient(input: SendDocumentsInput): Promise<
 
   let status = "sent";
   try {
-    await sendEmail({ to: recipientEmail, subject, html, cabinetNom: cabinet.nom, attachments });
+    await sendEmail({
+      to: recipientEmail,
+      subject,
+      html,
+      cabinetNom: cabinet.nom,
+      attachments,
+      replyTo: cabinet.email,
+    });
   } catch {
     status = "failed";
   }

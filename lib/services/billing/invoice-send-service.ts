@@ -185,6 +185,9 @@ export async function sendInvoiceByEmail(
       html,
       cabinetNom: cabinetName,
       attachments,
+      // Le corps invite le client à poser ses questions. Sans cette ligne, sa
+      // réponse part chez SAFE Inc. et non chez son avocate.
+      replyTo: invoice.cabinet?.email,
     });
   } catch (err) {
     sendError = err instanceof Error ? err.message : "Erreur envoi courriel";

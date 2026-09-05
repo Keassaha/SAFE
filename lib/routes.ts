@@ -84,6 +84,7 @@ export const routes = {
   onboarding: "/onboarding",
   auditOnboarding: "/audit-gratuit",
   outils: "/outils",
+  outilsCorrespondance: "/outils/correspondance",
   gestion: "/gestion",
   gestionLexTrack: "/gestion/lextrack",
   gestionLexTrackDossier: (dossierId: string) => `/gestion/lextrack?dossierId=${encodeURIComponent(dossierId)}`,

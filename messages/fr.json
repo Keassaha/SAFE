@@ -1,4 +1,9 @@
 {
+  "correspondanceOutil": {
+    "title": "Correspondance",
+    "description": "Tout ce que le cabinet a transmis à ses clients depuis SAFE, tous dossiers confondus. Les envois en échec apparaissent en premier lieu de lecture.",
+    "toolsLabel": "Outils"
+  },
   "common": {
     "status": "Statut",
     "all": "Toutes",
@@ -321,7 +326,8 @@
         "settings": "Paramètres",
         "today": "Aujourd’hui",
         "myHours": "Mon temps & ma paye",
-        "patrimoineFamilial": "Patrimoine familial"
+        "patrimoineFamilial": "Patrimoine familial",
+        "correspondance": "Correspondance"
       },
       "profile": {
         "title": "Profil",
@@ -3193,8 +3199,25 @@
     "professionalFinancialSituation": "Situation professionnelle et financière",
     "professionalFinancialEmptyState": "Aucune donnée renseignée. Revenus, emploi et situation financière pourront être renseignés ici.",
     "matterLabel": "Dossier {id}",
-    "correspondenceTitle": "Correspondance : dossier {id}",
-    "correspondenceHint": "Timeline (récent vers ancien), types colorés, filtre par type et période",
+    "corrHeading": "Correspondance",
+    "corrSubheading": "Tout ce que le cabinet a transmis depuis ce dossier, et les communications inscrites à la main dans le cartable. La réception des réponses n'est pas encore branchée.",
+    "corrSubheadingCabinet": "Tout ce que le cabinet a transmis à ses clients, tous dossiers confondus, et les communications inscrites à la main dans les cartables. La réception des réponses n'est pas encore branchée.",
+    "corrFilterAll": "Tout",
+    "corrFilterSent": "Envoyés",
+    "corrFilterFailed": "Échecs",
+    "corrFilterManual": "Saisis à la main",
+    "corrLoading": "Chargement de la correspondance",
+    "corrLoadError": "La correspondance n'a pas pu être chargée.",
+    "corrErrorHint": "Rechargez la page. Si le message revient, prévenez SAFE.",
+    "corrEmptyTitle": "Aucune correspondance dans ce dossier.",
+    "corrEmptyHint": "Les factures et les documents envoyés au client depuis SAFE s'inscriront ici automatiquement.",
+    "corrEmptyFilter": "Aucune ligne pour ce filtre.",
+    "corrPieces": "{count, plural, one {# pièce} other {# pièces}}",
+    "corrFailedLine": "Ce message n'est pas parti.",
+    "corrStateSent": "Envoyé",
+    "corrStateFailed": "Échec",
+    "corrStateManual": "Saisi",
+    "corrTruncated": "Seules les 200 lignes les plus récentes de chaque source sont affichées.",
     "closureTitle": "Fermeture : dossier {id}",
     "closureAlreadyClosed": "Dossier déjà fermé.",
     "closureHint": "Checklist 12 étapes, Fermer officiellement vers rappel destruction 7 ans",
@@ -3815,7 +3838,9 @@
     "navSafeImportDesc": "Importer données / relevés",
     "navSettings": "Paramètres",
     "navPatrimoineFamilial": "Patrimoine familial",
-    "navPatrimoineFamilialDesc": "Partage calculé article par article"
+    "navPatrimoineFamilialDesc": "Partage calculé article par article",
+    "navCorrespondance": "Correspondance",
+    "navCorrespondanceDesc": "Ce qui est parti du cabinet, et ce qui n'est pas parti"
   },
   "appExtraUi": {
     "newMatterTitle": "Nouveau dossier",

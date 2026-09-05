@@ -162,7 +162,7 @@ export async function envoyerRelanceFacture(params: {
           nom: true,
         },
       },
-      cabinet: { select: { nom: true } },
+      cabinet: { select: { nom: true, email: true } },
     },
   });
   if (!invoice) return { statut: "facture_introuvable" };
@@ -203,7 +203,9 @@ export async function envoyerRelanceFacture(params: {
   });
 
   try {
-    await sendEmail({ to: destinataire, subject, html, cabinetNom });
+    // Le texte de la relance dit « écrivez-nous en répondant à ce courriel ».
+    // Cette ligne est ce qui rend la phrase vraie.
+    await sendEmail({ to: destinataire, subject, html, cabinetNom, replyTo: invoice.cabinet?.email });
   } catch (err) {
     return {
       statut: "envoi_echoue",

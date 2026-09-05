@@ -1,4 +1,9 @@
 {
+  "correspondanceOutil": {
+    "title": "Correspondence",
+    "description": "Everything the firm has sent to its clients from SAFE, across all matters. Failed sends are called out where you read first.",
+    "toolsLabel": "Tools"
+  },
   "common": {
     "status": "Status",
     "all": "All",
@@ -321,7 +326,8 @@
         "settings": "Settings",
         "today": "Today",
         "myHours": "My time & pay",
-        "patrimoineFamilial": "Family patrimony"
+        "patrimoineFamilial": "Family patrimony",
+        "correspondance": "Correspondence"
       },
       "profile": {
         "title": "Profile",
@@ -3193,8 +3199,25 @@
     "professionalFinancialSituation": "Professional and financial situation",
     "professionalFinancialEmptyState": "No data entered. Income, employment and financial situation can be entered here.",
     "matterLabel": "Matter {id}",
-    "correspondenceTitle": "Correspondence: matter {id}",
-    "correspondenceHint": "Timeline (recent to oldest), colour-coded types, filter by type and period",
+    "corrHeading": "Correspondence",
+    "corrSubheading": "Everything the firm has sent from this matter, plus communications entered by hand in the file. Receiving replies is not wired up yet.",
+    "corrSubheadingCabinet": "Everything the firm has sent to its clients, across all matters, plus communications entered by hand in the files. Receiving replies is not wired up yet.",
+    "corrFilterAll": "All",
+    "corrFilterSent": "Sent",
+    "corrFilterFailed": "Failed",
+    "corrFilterManual": "Entered by hand",
+    "corrLoading": "Loading correspondence",
+    "corrLoadError": "Correspondence could not be loaded.",
+    "corrErrorHint": "Reload the page. If the message comes back, let SAFE know.",
+    "corrEmptyTitle": "No correspondence in this matter.",
+    "corrEmptyHint": "Invoices and documents sent to the client from SAFE will appear here automatically.",
+    "corrEmptyFilter": "No entry for this filter.",
+    "corrPieces": "{count, plural, one {# attachment} other {# attachments}}",
+    "corrFailedLine": "This message did not go out.",
+    "corrStateSent": "Sent",
+    "corrStateFailed": "Failed",
+    "corrStateManual": "Entered",
+    "corrTruncated": "Only the 200 most recent entries from each source are shown.",
     "closureTitle": "Closure: matter {id}",
     "closureAlreadyClosed": "Matter already closed.",
     "closureHint": "12-step checklist, Close officially with 7-year destruction reminder",
@@ -3815,7 +3838,9 @@
     "navSafeImportDesc": "Import data / statements",
     "navSettings": "Settings",
     "navPatrimoineFamilial": "Family patrimony",
-    "navPatrimoineFamilialDesc": "Division computed article by article"
+    "navPatrimoineFamilialDesc": "Division computed article by article",
+    "navCorrespondance": "Correspondence",
+    "navCorrespondanceDesc": "What went out from the firm, and what did not"
   },
   "appExtraUi": {
     "newMatterTitle": "New matter",

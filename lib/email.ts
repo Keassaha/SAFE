@@ -29,12 +29,42 @@ interface SendEmailOptions {
   html: string;
   cabinetNom?: string;
   attachments?: SendEmailAttachment[];
+  /**
+   * Adresse à laquelle la réponse du destinataire doit arriver.
+   *
+   * Sans elle, « Répondre » renvoie vers `factures@safecabinet.ca`, une boîte
+   * de SAFE Inc. que personne ne relève, alors que deux gabarits invitent
+   * explicitement le client à répondre (`relanceEmailHtml`,
+   * `invoiceAccompanyingEmailHtml`). Une réponse perdue est un défaut de
+   * communication, la première cause de réclamation en responsabilité
+   * professionnelle.
+   *
+   * Lot 0 : l'adresse est celle du cabinet, la réponse arrive donc dans la
+   * boîte de l'avocate. Le fil ne revient pas encore dans SAFE : c'est le MVP
+   * qui posera une adresse par conversation.
+   * Voir docs/product/SPEC_SAFE_CORRESPONDANCE_ASSISTEE.md §14.
+   */
+  /** Nullable : `Cabinet.email` l'est. Une adresse absente n'est pas une
+   *  erreur, elle veut dire « pas de Reply-To », et `adresseDeReponse` tranche. */
+  replyTo?: string | null;
 }
 
-export async function sendEmail({ to, subject, html, cabinetNom, attachments }: SendEmailOptions) {
+/**
+ * Normalise une adresse de réponse. Rend `undefined` plutôt qu'une valeur
+ * douteuse : un `Reply-To` mal formé fait rejeter tout le message par le
+ * fournisseur, donc mieux vaut aucun `Reply-To` qu'un envoi qui ne part pas.
+ */
+export function adresseDeReponse(cabinetEmail?: string | null): string | undefined {
+  const v = cabinetEmail?.trim();
+  if (!v || !v.includes("@") || /[\s<>,;]/.test(v)) return undefined;
+  return v;
+}
+
+export async function sendEmail({ to, subject, html, cabinetNom, attachments, replyTo }: SendEmailOptions) {
   const from = buildFrom(cabinetNom);
+  const reponse = adresseDeReponse(replyTo);
   if (!resend) {
-    console.log(`[EMAIL MOCK] From: ${from} | To: ${to} | Subject: ${subject}${attachments?.length ? ` | ${attachments.length} attachment(s)` : ""}`);
+    console.log(`[EMAIL MOCK] From: ${from} | To: ${to}${reponse ? ` | Reply-To: ${reponse}` : ""} | Subject: ${subject}${attachments?.length ? ` | ${attachments.length} attachment(s)` : ""}`);
     return { id: "mock", success: true };
   }
 
@@ -43,6 +73,7 @@ export async function sendEmail({ to, subject, html, cabinetNom, attachments }: 
     to,
     subject,
     html,
+    ...(reponse ? { replyTo: reponse } : {}),
     attachments: attachments?.map((a) => ({ filename: a.filename, content: a.content })),
   });
 

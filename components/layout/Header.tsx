@@ -32,6 +32,7 @@ import {
   Flame,
   CalendarDays,
   Calculator,
+  Mail,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { UserRole } from "@prisma/client";
@@ -265,6 +266,15 @@ const NAV: NavGroup[] = [
         href: "/outils/patrimoine-familial",
         icon: Calculator,
         descriptionKey: "navPatrimoineFamilialDesc",
+      },
+      {
+        // Le lot 0 de SAFE Correspondance. Sans cette entrée, la chronologie
+        // existait et rien n'y menait : exactement le défaut que le calculateur
+        // de patrimoine familial a connu.
+        labelKey: "navCorrespondance",
+        href: routes.outilsCorrespondance,
+        icon: Mail,
+        descriptionKey: "navCorrespondanceDesc",
       },
       {
         labelKey: "navEdition",

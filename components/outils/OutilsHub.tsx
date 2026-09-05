@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calculator } from "lucide-react";
+import { Calculator, Mail } from "lucide-react";
 import { WIZARD_COLORS as C } from "@/lib/documents/famille/wizard-data";
 
 type Tool = {
@@ -24,6 +24,16 @@ export function OutilsHub() {
       label: "Patrimoine familial",
       desc: "Le partage, calculé article par article, avec ce qu'il ne tranche pas.",
       icon: Calculator,
+      color: C.sl700,
+    },
+    {
+      // Lot 0 de SAFE Correspondance. Le hub est le second chemin vers l'outil :
+      // la barre de menu est le premier.
+      id: "correspondance",
+      href: "/outils/correspondance",
+      label: "Correspondance",
+      desc: "Ce que le cabinet a transmis à ses clients, et ce qui n'est pas parti.",
+      icon: Mail,
       color: C.sl700,
     },
   ];

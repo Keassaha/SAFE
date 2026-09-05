@@ -408,6 +408,7 @@ export async function POST(request: Request) {
     html: documentEmailHtml(clientName, label, dossier.cabinet.nom, dossierId, language),
     attachments: [{ filename: fileName, content: pdfBuffer }],
     cabinetNom: dossier.cabinet.nom,
+    replyTo: dossier.cabinet.email,
   });
 
   // --- Audit ---
